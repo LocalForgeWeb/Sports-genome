@@ -1,4 +1,4 @@
-/** Kinetic Field Manual: bone paper, ink navy and signal vermilion create a sports-science field-guide atmosphere. */
+/** Apex Performance OS: dark graphite, bone, signal vermilion, and controlled acid-lime accents create a premium sports-intelligence interface. */
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -9,73 +9,99 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
-  --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
 }
 
-:root {
-  --background: #f4f3ed;
-  --foreground: #1c2937;
-  --card: #fbfaf6;
-  --card-foreground: #1c2937;
-  --popover: #fbfaf6;
-  --popover-foreground: #1c2937;
-  --primary: #e4512e;
-  --primary-foreground: #ffffff;
-  --secondary: #ece9e1;
-  --secondary-foreground: #53606a;
-  --muted: #efeee8;
-  --muted-foreground: #77807a;
-  --accent: #e9eee4;
-  --accent-foreground: #1c2937;
-  --destructive: #b83b2b;
-  --destructive-foreground: #ffffff;
-  --border: #d8d9d3;
-  --input: #d8d9d3;
-  --ring: #e4512e;
-}
+:root { --background: #edf0ea; --foreground: #17231f; --card: #f7f8f3; --card-foreground: #17231f; --primary: #e4512e; --primary-foreground: #fff; --border: #d7ded5; --ring: #b8ff5b; }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
-  body {
-    @apply bg-background text-foreground;
-    font-family: "DM Sans", sans-serif;
-    background-image: radial-gradient(circle at 1px 1px, rgb(28 41 55 / 0.045) 1px, transparent 0);
-    background-size: 18px 18px;
-  }
-  button:not(:disabled), [role="button"]:not([aria-disabled="true"]), [type="button"]:not(:disabled), [type="submit"]:not(:disabled), a[href], select:not(:disabled) { @apply cursor-pointer; }
+  body { margin: 0; background: #edf0ea; color: #17231f; font-family: "DM Sans", sans-serif; }
+  button, input, select { font: inherit; }
+  button:not(:disabled), [role="button"], select:not(:disabled) { cursor: pointer; }
 }
 
 @layer components {
   .font-display { font-family: "Barlow Condensed", sans-serif; }
-  .field-label { font-family: "DM Sans", sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #69736d; }
-  .paper-card { background: rgb(251 250 246 / 0.94); border: 1px solid #d8d9d3; box-shadow: 0 10px 30px rgb(28 41 55 / 0.06); }
-  .hairline-top { border-top: 1px solid #d8d9d3; }
-  .nav-item { transition: background-color 160ms ease-out, color 160ms ease-out, transform 160ms ease-out; }
-  .nav-item:active, button:active { transform: scale(0.97); }
-  .session-row { transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 180ms cubic-bezier(0.23, 1, 0.32, 1); }
-  .session-row:hover { transform: translateX(3px); box-shadow: 8px 0 0 #e4512e; }
-  @media (prefers-reduced-motion: no-preference) {
-    .field-entry { animation: field-enter 360ms cubic-bezier(0.23, 1, 0.32, 1) both; }
-    .field-entry:nth-child(2) { animation-delay: 45ms; }
-    .field-entry:nth-child(3) { animation-delay: 90ms; }
-  }
+  .metric-label { font-family: "DM Sans", sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #718078; }
+  .apex-shell { min-height: 100vh; background: #edf0ea; }
+  .apex-rail { position: fixed; inset: 0 auto 0 0; z-index: 40; display: flex; width: 270px; flex-direction: column; background: #101a18; color: #eef4ed; box-shadow: 8px 0 32px rgb(6 15 11 / .18); transform: translateX(-102%); transition: transform 230ms cubic-bezier(.23,1,.32,1); }
+  .apex-rail.rail-open { transform: translateX(0); }
+  .rail-brand { display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgb(255 255 255 / .09); padding: 22px 20px; }
+  .rail-athlete { display: flex; align-items: center; gap: 10px; margin: 16px 14px 10px; padding: 12px; border: 1px solid rgb(255 255 255 / .08); background: rgb(255 255 255 / .035); }
+  .rail-nav { display: grid; gap: 4px; padding: 10px; }
+  .rail-nav-item { display: flex; min-width: 0; align-items: center; gap: 11px; padding: 10px; text-align: left; color: #bdc9c1; transition: background-color 150ms ease-out, color 150ms ease-out, transform 150ms ease-out; }
+  .rail-nav-item:hover { background: rgb(255 255 255 / .055); color: #fff; }
+  .rail-nav-item:active { transform: scale(.98); }
+  .rail-nav-active { background: #b8ff5b !important; color: #102019 !important; }
+  .rail-nav-active .text-\[\#7d8c85\] { color: #36513d !important; }
+  .rail-bottom { margin-top: auto; padding: 14px; }
+  .rail-data-card { border: 1px solid rgb(184 255 91 / .28); background: linear-gradient(135deg, rgb(184 255 91 / .08), transparent 70%); padding: 14px; }
+  .apex-main { min-width: 0; min-height: 100vh; }
+  .apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: 72px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .9); padding: 12px 18px; backdrop-filter: blur(14px); }
+  .apex-content { max-width: 1720px; margin: 0 auto; padding: 18px; }
+  .command-hero { position: relative; min-height: 405px; overflow: hidden; background: #101a18; }
+  .command-hero-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right center; }
+  .command-overlay { position: absolute; inset: 0; background: linear-gradient(92deg, #101a18 8%, rgb(16 26 24 / .94) 43%, rgb(16 26 24 / .34) 74%, rgb(16 26 24 / .3) 100%); }
+  .command-signal-card { position: absolute; right: 22px; bottom: 22px; width: min(285px, calc(100% - 44px)); border: 1px solid rgb(184 255 91 / .35); background: rgb(14 28 23 / .82); padding: 16px; backdrop-filter: blur(10px); }
+  .dark-panel { background: #101a18; color: #fff; box-shadow: 0 16px 38px rgb(16 26 24 / .12); }
+  .light-panel { background: #f8faf5; border: 1px solid #d8dfd7; box-shadow: 0 14px 34px rgb(16 26 24 / .06); }
+  .metric-card { border: 1px solid rgb(255 255 255 / .1); background: rgb(255 255 255 / .035); padding: 13px; }
+  .metric-value { margin-top: 6px; font-family: "Barlow Condensed", sans-serif; font-size: 30px; font-weight: 700; line-height: .9; }
+  .metric-lime { color: #b8ff5b; } .metric-orange { color: #ff795c; } .metric-white { color: #fff; }
+  .metric-detail { margin-top: 6px; font-size: 10px; line-height: 1.35; color: #95a49c; }
+  .view-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px; padding: 8px 0; }
+  .view-header-note { display: flex; max-width: 380px; gap: 10px; border-left: 2px solid #e4512e; padding: 7px 0 7px 12px; font-size: 11px; line-height: 1.45; color: #5d6c63; }
+  .sport-select-row { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: thin; }
+  .sport-chip { flex: 0 0 auto; min-width: 118px; border: 1px solid #d6dfd5; background: #f8faf5; padding: 10px; text-align: left; color: #38473f; transition: all 160ms ease-out; }
+  .sport-chip span { display: block; font-size: 11px; font-weight: 700; } .sport-chip small { display: block; margin-top: 4px; font-size: 9px; color: #758279; }
+  .sport-chip:hover { border-color: #93a99a; } .sport-chip-active { border-color: #17271f; background: #17271f; color: #fff; box-shadow: inset 0 -3px #b8ff5b; } .sport-chip-active small { color: #b2c3b9; }
+  .movement-list-item { display: flex; width: 100%; align-items: center; gap: 10px; border-left: 2px solid transparent; padding: 10px; text-align: left; color: #d3dfd7; transition: background-color 150ms ease-out, border-color 150ms ease-out; }
+  .movement-list-item:hover { background: rgb(255 255 255 / .05); } .movement-list-active { border-left-color: #b8ff5b; background: rgb(184 255 91 / .1); color: #fff; }
+  .insight-cell { border: 1px solid #dbe2d9; background: #fff; padding: 12px; } .insight-cell p:last-child { margin-top: 6px; font-size: 11px; line-height: 1.45; color: #526158; }
+  .recommendation-row { display: flex; min-width: 0; align-items: center; gap: 12px; padding: 14px 16px; transition: background-color 150ms ease-out; } .recommendation-row:hover { background: rgb(255 255 255 / .035); }
+  .recommendation-index { font-family: "Barlow Condensed", sans-serif; font-size: 25px; font-weight: 700; color: #718078; }
+  .goal-button { border: 1px solid #d7ded5; background: #f8faf5; padding: 9px 11px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #57655c; } .goal-button-active { border-color: #17271f; background: #17271f; color: #b8ff5b; }
+  .custom-row { display: flex; min-width: 0; align-items: center; gap: 11px; padding: 14px 16px; } .custom-row:hover { background: rgb(255 255 255 / .025); }
+  .finder-row { display: flex; min-width: 0; align-items: center; gap: 9px; border-bottom: 1px solid #e5e9e3; padding: 10px 2px; }
+  .body-link-row { display: flex; width: 100%; align-items: center; gap: 12px; border: 1px solid #dfe6de; background: #fff; padding: 12px; transition: border-color 150ms ease-out, transform 150ms ease-out; } .body-link-row:hover { border-color: #b8ff5b; transform: translateX(3px); }
+  .atlas-sport-row { display: flex; width: 100%; align-items: center; gap: 10px; padding: 11px; text-align: left; color: #d7e0da; transition: background-color 150ms ease-out; } .atlas-sport-row:hover { background: rgb(255 255 255 / .045); } .atlas-sport-active { background: rgb(184 255 91 / .1); color: #fff; box-shadow: inset 3px 0 #b8ff5b; }
+  .family-tag { border: 1px solid #d5ded4; background: #fff; padding: 7px 9px; font-size: 10px; font-weight: 700; color: #4d5e53; }
+  .atlas-movement-card { border: 1px solid #dbe2da; background: #f8faf5; padding: 14px; transition: border-color 150ms ease-out, box-shadow 150ms ease-out, transform 150ms ease-out; } .atlas-movement-card:hover { border-color: #b8ff5b; transform: translateY(-2px); box-shadow: 0 10px 22px rgb(16 26 24 / .08); } .atlas-movement-active { border-color: #e4512e; box-shadow: inset 0 -3px #e4512e; }
+  .catalog-card { display: flex; min-width: 0; align-items: center; gap: 11px; border: 1px solid #dbe2da; background: #fff; padding: 12px; transition: border-color 150ms ease-out, transform 150ms ease-out; } .catalog-card:hover { border-color: #b8ff5b; transform: translateY(-2px); }
+  .exercise-insight { border-left: 2px solid #b8ff5b; background: #edf3e9; padding: 11px; } .exercise-insight p:last-child { margin-top: 5px; font-size: 11px; line-height: 1.5; color: #445248; }
+  .anatomy-panel { background: #fff; border: 1px solid #dce4da; padding: 12px; }
+  @media (min-width: 1024px) { .apex-rail { transform: none; } .apex-main { margin-left: 270px; } .apex-content { padding: 28px; } .apex-topbar { padding: 14px 28px; } }
+  @media (max-width: 640px) { .command-hero { min-height: 460px; } .command-signal-card { position: relative; right: auto; bottom: auto; margin: 0 18px 18px; width: auto; } .command-hero-image { opacity: .48; } .view-header h1 { font-size: 42px; } .custom-row { align-items: flex-start; flex-wrap: wrap; } }
+  @media (prefers-reduced-motion: no-preference) { .dark-panel, .light-panel, .command-hero { animation: apex-enter 340ms cubic-bezier(.23,1,.32,1) both; } }
 }
 
-@keyframes field-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes apex-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Refinement pass: preserve the athlete-console structure while enforcing the Kinetic Field Manual’s vermilion-first signal language. */
+.text-\[\#b8ff5b\], .hover\:text-\[\#b8ff5b\]:hover, .metric-lime { color: #e4512e !important; }
+.bg-\[\#b8ff5b\], .hover\:bg-\[\#b8ff5b\]:hover { background-color: #e4512e !important; }
+.border-\[\#b8ff5b\], .hover\:border-\[\#b8ff5b\]:hover { border-color: #e4512e !important; }
+.rail-nav-active { background: #e4512e !important; color: #fff !important; box-shadow: inset 4px 0 #f7cf6c; }
+.rail-nav-active .text-\[\#7d8c85\] { color: #fff3ed !important; }
+.rail-athlete > div:first-child { background: #e4512e !important; color: #fff !important; }
+.rail-data-card { border-color: rgb(228 81 46 / .45); background: linear-gradient(135deg, rgb(228 81 46 / .13), transparent 70%); }
+.command-hero { border-left: 5px solid #e4512e; }
+.command-hero::before { content: "DECISION MATRIX · SPORT / MOVEMENT / SESSION"; position: absolute; z-index: 2; top: 18px; right: 22px; color: rgb(255 255 255 / .62); font: 700 9px "DM Sans", sans-serif; letter-spacing: .17em; }
+.command-hero .relative.z-10 { width: min(68%, 820px); border-right: 1px solid rgb(255 255 255 / .12); min-height: 405px; display: flex; flex-direction: column; justify-content: flex-end; }
+.command-signal-card { border-color: rgb(228 81 46 / .6); box-shadow: 8px 8px 0 rgb(228 81 46 / .16); }
+.command-signal-card::after { content: "WHY THIS MATTERS · FORCE PATH + MUSCLE ROLE"; display: block; margin-top: 14px; padding-top: 9px; border-top: 1px solid rgb(255 255 255 / .12); color: #ffb8a6; font: 700 8px "DM Sans", sans-serif; letter-spacing: .13em; }
+.metric-card:first-child { border-top: 2px solid #e4512e; }
+.sport-chip-active { background: #17271f; box-shadow: inset 0 -3px #e4512e; }
+.movement-list-active { border-left-color: #e4512e; background: rgb(228 81 46 / .12); }
+.goal-button-active { border-color: #e4512e; background: #17271f; color: #ffb09c; }
+.family-tag { border-color: #f0c2b6; background: #fff7f4; color: #9e3a24; }
+.atlas-movement-active { border-color: #e4512e; box-shadow: inset 0 -3px #e4512e; }
+.dark-panel .recommendation-row { border-left: 2px solid transparent; }
+.dark-panel .recommendation-row:hover { border-left-color: #e4512e; background: rgb(228 81 46 / .06); }
+.view-header, .light-panel, .dark-panel { position: relative; }
+.view-header::after { content: ""; display: block; flex: 1; height: 1px; min-width: 100px; background: #d8dfd7; margin-left: 14px; }
+@media (max-width: 640px) { .command-hero .relative.z-10 { width: 100%; min-height: 390px; border-right: 0; } .command-hero::before { display: none; } }

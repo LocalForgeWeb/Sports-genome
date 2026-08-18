@@ -85,3 +85,5 @@ The mark is an **interlocked “GO” motion glyph**: two offset chevrons form a
 - The first fold prioritizes the current sport, training intent, top fit grade, and session brief before any broader positioning language.
 - Every major content block uses the field-manual grammar: an index number, uppercase technical label, hairline rule, and a visible logic cue.
 - Hero imagery functions as documentary training evidence and is always paired with technical decision overlays rather than used as generic fitness atmosphere.
+- Signal Vermilion remains the sole high-energy accent. The athlete-and-coach workspace uses deep ink, bone surfaces, and restrained olive-grey for all supporting states; electric lime is excluded.
+- The command screen behaves as a coaching decision console: sport profile, selected movement, fit grade, rationale, and session priorities visibly outweigh any broad positioning copy.
