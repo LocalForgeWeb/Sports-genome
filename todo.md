@@ -13,3 +13,9 @@
 - [ ] Expand the body model with click-to-inspect muscle roles, linked sport movements, and exercise recommendations.
 - [ ] Build distinct recommended-workout and custom-workout flows with editable session contents.
 - [ ] Validate the new navigation, workout builder, body analysis, and responsive interactions.
+- [ ] Add a blank first-visit state that opens a short personalized onboarding flow.
+- [ ] Capture training goal, available training days, selected sport, and preferred planning mode in the quiz.
+- [ ] Add a custom-stack versus suggested-stack decision with a clear skip path.
+- [ ] Add a short in-app tutorial for navigating the command center, movement atlas, body lab, and workout builder.
+- [ ] Shift the premium visual system toward a performance-blue accent while keeping clear navigation and contrast.
+- [ ] Validate the quiz-to-workspace path and personalized suggested-session initialization.

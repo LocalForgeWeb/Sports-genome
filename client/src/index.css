@@ -105,3 +105,55 @@
 .view-header, .light-panel, .dark-panel { position: relative; }
 .view-header::after { content: ""; display: block; flex: 1; height: 1px; min-width: 100px; background: #d8dfd7; margin-left: 14px; }
 @media (max-width: 640px) { .command-hero .relative.z-10 { width: 100%; min-height: 390px; border-right: 0; } .command-hero::before { display: none; } }
+
+/* Performance-blue extension: blue owns navigation, onboarding, and planning choices; signal grades remain crisp and readable. */
+:root { --background: #eef4fb; --foreground: #0b2240; --card: #fbfdff; --card-foreground: #0b2240; --primary: #2d6cdf; --border: #cfdaea; --ring: #2d6cdf; }
+.apex-shell { background: #eef4fb; }
+.apex-rail, .dark-panel, .command-hero { background: #081a33; }
+.apex-topbar { border-color: #d3dfed; background: rgb(251 253 255 / .92); }
+.light-panel { border-color: #d4dfec; background: #fbfdff; box-shadow: 0 14px 34px rgb(24 65 111 / .07); }
+.rail-nav-active { background: #2d6cdf !important; box-shadow: inset 4px 0 #9fc5ff; }
+.rail-athlete > div:first-child { background: #2d6cdf !important; }
+.rail-data-card { border-color: rgb(45 108 223 / .48); background: linear-gradient(135deg, rgb(45 108 223 / .15), transparent 70%); }
+.command-hero { border-left-color: #2d6cdf; }
+.command-overlay { background: linear-gradient(92deg, #081a33 8%, rgb(8 26 51 / .94) 43%, rgb(8 26 51 / .35) 74%, rgb(8 26 51 / .3) 100%); }
+.command-signal-card { border-color: rgb(45 108 223 / .76); box-shadow: 8px 8px 0 rgb(45 108 223 / .16); background: rgb(8 28 57 / .86); }
+.command-signal-card::after { color: #aac6fa; }
+.text-\[\#e4512e\], .hover\:text-\[\#e4512e\]:hover { color: #2d6cdf !important; }
+.bg-\[\#e4512e\], .hover\:bg-\[\#e4512e\]:hover { background-color: #2d6cdf !important; }
+.border-\[\#e4512e\], .hover\:border-\[\#e4512e\]:hover { border-color: #2d6cdf !important; }
+.metric-card:first-child { border-top-color: #2d6cdf; }
+.sport-chip-active { background: #0d294f; box-shadow: inset 0 -3px #2d6cdf; }
+.movement-list-active { border-left-color: #2d6cdf; background: rgb(45 108 223 / .16); }
+.goal-button-active { border-color: #2d6cdf; background: #0d294f; color: #b9d3ff; }
+.family-tag { border-color: #c7d9f5; background: #f0f6ff; color: #24599e; }
+.atlas-movement-active { border-color: #2d6cdf; box-shadow: inset 0 -3px #2d6cdf; }
+.dark-panel .recommendation-row:hover { border-left-color: #2d6cdf; background: rgb(45 108 223 / .08); }
+.body-link-row:hover, .catalog-card:hover, .atlas-movement-card:hover { border-color: #2d6cdf; }
+.onboarding-shell { min-height: 100vh; display: grid; background: #eef4fb; color: #0b2240; }
+.onboarding-rail { display: flex; min-height: 200px; flex-direction: column; background: #081a33; padding: 25px; color: white; }
+.onboarding-main { min-width: 0; }
+.onboarding-topbar { display: flex; min-height: 68px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d5e0ed; background: rgb(251 253 255 / .85); padding: 16px 24px; }
+.onboarding-content { max-width: 1100px; margin: 0 auto; padding: 40px 24px 56px; }
+.onboarding-stage { animation: onboarding-enter 300ms cubic-bezier(.23,1,.32,1) both; }
+.tutorial-card { border: 1px solid #d3dfed; background: #fbfdff; padding: 18px; box-shadow: 0 10px 25px rgb(30 75 124 / .06); }
+.onboarding-primary { display: inline-flex; align-items: center; gap: 8px; background: #0b2240; padding: 13px 16px; color: white; font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; transition: background-color 150ms ease-out, transform 150ms ease-out; }
+.onboarding-primary:hover { background: #2d6cdf; } .onboarding-primary:active { transform: scale(.98); }
+.onboarding-secondary, .onboarding-back { border: 1px solid #cbd9e8; background: #fff; padding: 13px 16px; color: #426080; font-size: 10px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; transition: border-color 150ms ease-out, color 150ms ease-out; }
+.onboarding-secondary:hover, .onboarding-back:hover { border-color: #2d6cdf; color: #2d6cdf; }
+.onboarding-choice { display: flex; align-items: center; gap: 14px; border: 1px solid #d2dfed; background: #fff; padding: 18px; color: #0d2748; text-align: left; transition: border-color 160ms ease-out, box-shadow 160ms ease-out, transform 160ms ease-out; }
+.onboarding-choice:hover { border-color: #7ba9ee; transform: translateY(-2px); }
+.onboarding-choice-active { border-color: #2d6cdf; background: #eff6ff; box-shadow: inset 0 -3px #2d6cdf; }
+.onboarding-choice-active span:last-child { border-color: #2d6cdf; background: #2d6cdf; box-shadow: 0 0 0 3px #d7e7ff; }
+.frequency-card { border: 1px solid #d2dfed; background: #fff; padding: 18px; text-align: left; color: #173150; transition: border-color 160ms ease-out, transform 160ms ease-out; }
+.frequency-card:hover { transform: translateY(-2px); border-color: #83adef; } .frequency-card-active { border-color: #2d6cdf; background: #0b2240; color: #fff; box-shadow: inset 0 -3px #2d6cdf; } .frequency-card-active .text-\[\#71859b\] { color: #b9d0f6 !important; }
+.onboarding-sport-grid { display: grid; max-height: 420px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; overflow-y: auto; margin-top: 28px; padding: 4px; }
+.onboarding-sport-card { display: flex; min-width: 0; align-items: center; gap: 10px; border: 1px solid #d4e0ee; background: #fff; padding: 12px; color: #153052; transition: border-color 160ms ease-out, background-color 160ms ease-out; }
+.onboarding-sport-card:hover { border-color: #83acee; } .onboarding-sport-active { border-color: #2d6cdf; background: #eff6ff; box-shadow: inset 3px 0 #2d6cdf; }
+.stack-choice { display: block; min-height: 330px; border: 1px solid #d2dfee; background: #fff; padding: 22px; text-align: left; transition: border-color 160ms ease-out, transform 160ms ease-out, box-shadow 160ms ease-out; }
+.stack-choice:hover { border-color: #2d6cdf; transform: translateY(-3px); box-shadow: 0 16px 35px rgb(30 75 124 / .12); }
+.stack-choice-featured { border-color: #0b2240; background: linear-gradient(145deg, #0b2240, #173e76); }
+.stack-choice-featured:hover { border-color: #2d6cdf; }
+@media (min-width: 860px) { .onboarding-shell { grid-template-columns: minmax(250px, 29vw) 1fr; } .onboarding-rail { min-height: 100vh; position: sticky; top: 0; height: 100vh; padding: 36px; } }
+@media (max-width: 640px) { .onboarding-content { padding: 30px 18px 44px; } .onboarding-stage h1 { font-size: 48px; } .onboarding-topbar { padding: 14px 18px; } }
+@keyframes onboarding-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

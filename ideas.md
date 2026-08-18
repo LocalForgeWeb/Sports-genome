@@ -87,3 +87,4 @@ The mark is an **interlocked “GO” motion glyph**: two offset chevrons form a
 - Hero imagery functions as documentary training evidence and is always paired with technical decision overlays rather than used as generic fitness atmosphere.
 - Signal Vermilion remains the sole high-energy accent. The athlete-and-coach workspace uses deep ink, bone surfaces, and restrained olive-grey for all supporting states; electric lime is excluded.
 - The command screen behaves as a coaching decision console: sport profile, selected movement, fit grade, rationale, and session priorities visibly outweigh any broad positioning copy.
+- The product name remains **Gym Optimizer** on every screen, paired with the existing GO motion glyph. The requested blue update applies to navigation and onboarding surfaces while retaining the sport-aware training-atlas voice.
