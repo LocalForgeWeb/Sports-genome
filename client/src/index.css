@@ -157,3 +157,45 @@
 @media (min-width: 860px) { .onboarding-shell { grid-template-columns: minmax(250px, 29vw) 1fr; } .onboarding-rail { min-height: 100vh; position: sticky; top: 0; height: 100vh; padding: 36px; } }
 @media (max-width: 640px) { .onboarding-content { padding: 30px 18px 44px; } .onboarding-stage h1 { font-size: 48px; } .onboarding-topbar { padding: 14px 18px; } }
 @keyframes onboarding-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Review refinement: a tactile decision brief, field annotations, and a vermilion signal layer inside the blue workflow shell. */
+.onboarding-main { background-color: #f4f6f8; background-image: radial-gradient(rgb(46 70 91 / .065) .75px, transparent .75px); background-size: 9px 9px; }
+.onboarding-content { background: linear-gradient(90deg, rgb(244 246 248 / .88), rgb(244 246 248 / .52)); }
+.onboarding-stage > .mt-7.grid.max-w-2xl { border-bottom-color: #bdc8d4 !important; border-top-color: #bdc8d4 !important; background: rgb(255 255 255 / .45); }
+.onboarding-stage > .mt-7.grid.max-w-2xl > div { position: relative; }
+.onboarding-stage > .mt-7.grid.max-w-2xl > div:first-child::after { content: "SPORT LENS / MOVEMENT DATABASE"; }
+.onboarding-stage > .mt-7.grid.max-w-2xl > div:nth-child(2)::after { content: "PROGRAM VARIABLE / EDITABLE"; }
+.onboarding-stage > .mt-7.grid.max-w-2xl > div:nth-child(3) { background: #fff2ed; border-left: 2px solid #e4512e; }
+.onboarding-stage > .mt-7.grid.max-w-2xl > div:nth-child(3)::after { content: "WHY THIS MATTERS / STACK DECISION"; color: #af442c; }
+.onboarding-stage > .mt-7.grid.max-w-2xl > div::after { display: block; margin-top: 8px; color: #66788a; font-size: 7px; font-weight: 700; letter-spacing: .12em; line-height: 1.25; }
+.tutorial-card { position: relative; overflow: hidden; border-top: 2px solid #2d6cdf; border-radius: 0; background: #fbfbfa; }
+.tutorial-card::before { content: "ATLAS MODULE / INSPECTED"; position: absolute; top: 10px; right: 12px; color: #7b8a99; font-size: 7px; font-weight: 700; letter-spacing: .11em; }
+.tutorial-card::after { content: "WHY THIS MATTERS · ACTION → ANATOMY → DECISION"; display: block; margin-top: 14px; border-top: 1px solid #d6dde4; padding-top: 8px; color: #637486; font-size: 8px; font-weight: 700; letter-spacing: .08em; }
+.onboarding-primary { background: #e4512e; box-shadow: 4px 4px 0 rgb(11 34 64 / .15); } .onboarding-primary:hover { background: #be3d24; }
+.onboarding-secondary { background: #fbfbfa; }
+
+/* Exercise Genome: dense but progressive biomechanical intelligence for the Gym Optimizer detail view. */
+.genome-panel { margin-top: 22px; border: 1px solid #cddbed; background: #f8fbff; box-shadow: 0 14px 32px rgb(29 71 122 / .08); }
+.genome-panel-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 18px; border-bottom: 1px solid #d5e0ef; }
+.genome-tabbar { display: flex; gap: 1px; overflow-x: auto; border-bottom: 1px solid #d5e0ef; background: #edf4fc; }
+.genome-tab { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 7px; padding: 11px 14px; color: #617990; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: color 150ms ease-out, background-color 150ms ease-out; }
+.genome-tab:hover { color: #1b4e95; } .genome-tab-active { background: #fff; box-shadow: inset 0 -3px #2d6cdf; color: #153c73; }
+.genome-grid { display: grid; gap: 18px; padding: 18px; } .genome-fingerprint { max-width: 260px; margin: 0 auto; } .genome-fingerprint svg { width: 100%; max-width: 220px; display: block; margin: 0 auto; }
+.genome-fingerprint-bars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; align-content: center; }
+.genome-meter { min-width: 0; } .genome-meter > div { color: #58718a; font-size: 9px; font-weight: 700; letter-spacing: .1em; } .genome-meter strong { color: #183555; font-size: 11px; }
+.genome-meter-track { display: block; height: 5px; margin-top: 6px; overflow: hidden; background: #dce6f1; } .genome-meter-track i { display: block; height: 100%; background: #2d6cdf; } .genome-meter-warm i { background: #d9793e; } .genome-meter-ink i { background: #0b2240; }
+.genome-quicknote { display: flex; gap: 10px; border-left: 3px solid #2d6cdf; background: #edf5ff; padding: 13px; }
+.genome-muscle-stack { display: grid; gap: 1px; background: #d8e3ef; } .genome-muscle-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 14px; background: #fff; padding: 15px 18px; }
+.genome-mechanics { display: grid; gap: 14px; padding: 18px; } .genome-mechanic-block { border: 1px solid #d6e2ef; background: #fff; padding: 15px; }
+.genome-tag { border: 1px solid #b7cdee; background: #edf5ff; padding: 6px 8px; color: #24538c; font-size: 10px; font-weight: 700; } .genome-tag-soft { border-color: #d8e1eb; background: #f8fafc; color: #5a7188; }
+.genome-curve { display: flex; height: 100px; align-items: end; gap: 7px; border-bottom: 1px solid #9db5d0; background: repeating-linear-gradient(0deg, transparent 0, transparent 24px, #e8eff7 25px); padding: 0 10px; } .genome-curve span { flex: 1; background: linear-gradient(180deg, #72a5ff, #2d6cdf); min-height: 10%; }
+.genome-context { padding: 18px; } .genome-stat { border: 1px solid #d5e1ee; background: #fff; padding: 13px; } .genome-stat > p:last-child { margin-top: 4px; color: #667c91; font-size: 10px; line-height: 1.35; }
+.genome-why { display: flex; gap: 10px; margin-top: 14px; border-left: 3px solid #2d6cdf; background: #edf5ff; padding: 13px; }
+.genome-list { border: 1px solid #d8e4f0; background: #fff; padding: 13px; } .genome-list p:not(:first-child) { display: flex; gap: 7px; margin-top: 9px; color: #45617c; font-size: 11px; line-height: 1.45; } .genome-list-limits { border-color: #f0d6c9; background: #fffaf7; }
+.genome-stack-read { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; border: 1px solid #d4e0ef; background: #f5f9ff; padding: 13px; }
+@media (min-width: 720px) { .genome-grid { grid-template-columns: 250px 1fr; } .genome-quicknote { grid-column: 1 / -1; } .genome-mechanics { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 620px) { .genome-muscle-row { display: grid; } .genome-muscle-row > div:last-child { min-width: 0; } .genome-fingerprint-bars { grid-template-columns: 1fr; } }
+
+.workout-genome { border-top: 1px solid rgb(255 255 255 / .1); background: linear-gradient(135deg, #0b2548, #0b1d37); padding: 18px; }
+.workout-genome-tag { border: 1px solid rgb(126 175 255 / .35); background: rgb(126 175 255 / .1); padding: 5px 7px; color: #dce9ff; font-size: 10px; font-weight: 700; }
+.workout-genome-gap { border: 1px solid rgb(255 255 255 / .18); padding: 5px 7px; color: #b9cce6; font-size: 10px; font-weight: 700; }

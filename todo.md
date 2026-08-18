@@ -19,3 +19,9 @@
 - [ ] Add a short in-app tutorial for navigating the command center, movement atlas, body lab, and workout builder.
 - [ ] Shift the premium visual system toward a performance-blue accent while keeping clear navigation and contrast.
 - [ ] Validate the quiz-to-workspace path and personalized suggested-session initialization.
+- [ ] Extract the Exercise Genome specification into intrinsic, contextual, visual, and recommendation requirements.
+- [ ] Define multi-dimensional exercise records for muscle, movement, joint actions, resistance curve, adaptation, stability, skill, fatigue, mobility, and practicality.
+- [ ] Implement contextual scoring that combines intrinsic exercise data with athlete, goal, program, and sport-movement context without using a single generic score.
+- [ ] Build the Exercise Genome analysis view with progressive disclosure, visual comparisons, and interactive anatomical explanations.
+- [ ] Connect Genome insights to exercise catalog details, body map interactions, sport movement recommendations, and workout stack decisions.
+- [ ] Validate the Genome data model, contextual explanations, and user-facing visuals.
