@@ -1,0 +1,7 @@
+# Loadout and Split Drafting Design
+
+The planner will no longer treat a recommended session as a single fixed list. It will offer named **loadout orientations** that draw from different movement and exercise pools: Athletic Power, Hypertrophy Volume, Strength Foundation, Capacity Circuit, and Sport Transfer. Each orientation retains the selected sport and goal context but changes the session’s movement emphasis, exercise selection, order, and fatigue profile.
+
+The custom builder will display a compact day strip. Athletes can cycle directly between **Push**, **Pull**, **Legs**, **Upper**, **Lower**, **Full Body**, and **Sport Transfer**. The default active days are inferred from the chosen weekly frequency: one day emphasizes full body; two days emphasize upper/lower; three days use push/pull/legs; four days use upper/lower repetitions; five to seven days add optional sport transfer, conditioning, and technical practice blocks. Any day can still be selected manually, and cycling a day updates only the proposed loadout rather than erasing the athlete’s imported or edited stack.
+
+The detailed anatomy atlas will preserve named subdivisions but simplify the drawing by using fewer, cleaner surface panels per view. Deep regions remain in the inspector and data layer but no longer compete visually with major surface anatomy until selected. This improves scan speed while keeping anatomical specificity available on demand.
