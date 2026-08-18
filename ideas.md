@@ -89,3 +89,11 @@ The mark is an **interlocked “GO” motion glyph**: two offset chevrons form a
 - The command screen behaves as a coaching decision console: sport profile, selected movement, fit grade, rationale, and session priorities visibly outweigh any broad positioning copy.
 - The product name remains **Gym Optimizer** on every screen, paired with the existing GO motion glyph. The requested blue update applies to navigation and onboarding surfaces while retaining the sport-aware training-atlas voice.
 - The blue workflow shell is balanced with vermilion for decisive training actions, priority cues, and grade-like signal states. Onboarding uses evidence annotations and field-manual tags so setup reads as a coaching brief rather than generic account configuration.
+
+## Modern Product Refresh
+
+- The first visit is now **Pulse Quiz**: an immediate, four-step personalization flow with no introductory product tour before the user answers the first question.
+- The visual language shifts from printed field manual to contemporary sport-product UI: midnight blue depth, clear electric-blue actions, restrained aqua feedback, off-white surfaces, softly animated orbital shapes, and one warm coral completion cue.
+- The quiz uses one dominant question at a time, expressive option cards, visible progress, responsive selection states, and a brief “building your plan” handoff before the personalized workspace appears.
+- The post-quiz workspace stays information-rich but becomes lighter, faster to scan, and more enjoyable through better hierarchy, softer material depth, concise labels, and playful motion that never impedes training decisions.
+- Pulse Quiz retains the midnight-blue product shell but uses inspection labels, hairline evidence cues, and vermilion priority stamps on every decision state. The copy frames selections as coach-led training trade-offs rather than generic account setup.

@@ -25,3 +25,8 @@
 - [ ] Build the Exercise Genome analysis view with progressive disclosure, visual comparisons, and interactive anatomical explanations.
 - [ ] Connect Genome insights to exercise catalog details, body map interactions, sport movement recommendations, and workout stack decisions.
 - [ ] Validate the Genome data model, contextual explanations, and user-facing visuals.
+- [ ] Replace the field-manual onboarding treatment with a more modern, playful quiz-first product flow.
+- [ ] Make the quiz the default entry screen and remove the pre-quiz product-tour emphasis.
+- [ ] Add clear quiz progress, lively selection feedback, and a smooth completion transition into the personalized workspace.
+- [ ] Refresh navigation, cards, typography, color, and motion so the workspace feels current and enjoyable to use.
+- [ ] Validate the full quiz-to-workspace journey across desktop and mobile layouts.
