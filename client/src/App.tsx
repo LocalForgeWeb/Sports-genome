@@ -1,3 +1,4 @@
+/** Kinetic Field Manual: keep the product shell calm and light so training signals remain legible. */
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
