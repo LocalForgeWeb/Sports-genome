@@ -1,83 +1,65 @@
-/** Kinetic Field Manual: a clickable vector muscle map turns catalog metadata into visible training logic. */
-import { useState } from "react";
+/** Detailed Anatomy Atlas: original front/back vector anatomy with named training-relevant subdivisions and evidence-aware labels. */
+import { useMemo, useState } from "react";
 
-type AnatomyMapProps = {
-  primary: string[];
-  secondary: string[];
-  onSelect: (muscle: string) => void;
-};
+type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void };
+type View = "front" | "back";
+type Region = { id: string; analysisKey: string; view: View; label: string; action: string; layer?: "surface" | "deep"; paths: string[] };
 
 const labels: Record<string, string> = {
-  chest: "Pectorals", frontDelts: "Front deltoids", sideDelts: "Side deltoids", rearDelts: "Rear deltoids",
-  biceps: "Biceps", triceps: "Triceps", forearms: "Forearms & grip", abs: "Rectus abdominis", obliques: "Obliques",
-  quads: "Quadriceps", adductors: "Adductors", abductors: "Hip abductors", glutes: "Gluteals", hamstrings: "Hamstrings",
-  calves: "Calves", tibialis: "Tibialis anterior", lats: "Latissimus dorsi", upperBack: "Upper back", traps: "Trapezius",
-  lowerBack: "Spinal erectors", rotatorCuff: "Rotator cuff", brachialis: "Brachialis", hipFlexors: "Hip flexors", feet: "Foot stabilizers", shoulders: "Deltoids",
+  chest: "Pectoralis major", frontDelts: "Anterior deltoid", sideDelts: "Middle deltoid", rearDelts: "Posterior deltoid", shoulders: "Deltoid muscle", biceps: "Biceps brachii", brachialis: "Brachialis", triceps: "Triceps brachii", forearms: "Forearm flexor and extensor compartments", abs: "Rectus abdominis", obliques: "External and internal obliques", hipFlexors: "Iliopsoas and hip flexors", quads: "Quadriceps femoris", adductors: "Hip adductors", abductors: "Hip abductors", glutes: "Gluteal muscles", hamstrings: "Hamstring muscle group", calves: "Gastrocnemius and soleus", tibialis: "Tibialis anterior", lats: "Latissimus dorsi", upperBack: "Rhomboids and middle trapezius", traps: "Trapezius", lowerBack: "Erector spinae", rotatorCuff: "Rotator cuff muscles", feet: "Intrinsic foot stabilizers",
 };
 
-const aliases: Record<string, string[]> = {
-  shoulders: ["frontDelts", "sideDelts", "rearDelts"],
-  frontDelts: ["shoulders"], sideDelts: ["shoulders"], rearDelts: ["shoulders"],
-};
-
-const frontParts = [
-  ["frontDelts", "M72 92 C50 86 43 106 49 126 L76 130 L87 104 Z M188 92 C210 86 217 106 211 126 L184 130 L173 104 Z"],
-  ["chest", "M84 111 C102 99 119 106 128 122 C137 106 154 99 172 111 L170 151 C153 154 142 149 128 141 C114 149 103 154 86 151 Z"],
-  ["biceps", "M52 132 L79 132 L80 192 C70 204 57 196 54 181 Z M176 132 L204 132 L202 181 C199 196 186 204 176 192 Z"],
-  ["forearms", "M54 184 C62 194 71 199 79 192 L78 246 C66 259 53 250 51 232 Z M176 192 C184 199 194 194 202 184 L205 232 C203 250 190 259 178 246 Z"],
-  ["abs", "M107 153 L149 153 L154 246 L102 246 Z"],
-  ["obliques", "M87 157 L105 153 L101 245 L79 219 Z M151 153 L169 157 L177 219 L155 245 Z"],
-  ["hipFlexors", "M93 246 L126 245 L115 283 L84 283 Z M134 245 L167 246 L176 283 L145 283 Z"],
-  ["quads", "M83 281 L119 281 L118 376 L78 376 Z M137 281 L173 281 L178 376 L138 376 Z"],
-  ["adductors", "M111 282 L127 282 L126 375 L108 375 Z M129 282 L145 282 L148 375 L130 375 Z"],
-  ["tibialis", "M79 376 L113 376 L111 446 L82 446 Z M143 376 L177 376 L174 446 L145 446 Z"],
-  ["calves", "M84 401 L111 401 L110 450 L80 450 Z M145 401 L172 401 L176 450 L146 450 Z"],
+const regions: Region[] = [
+  { id: "anterior-deltoid", analysisKey: "frontDelts", view: "front", label: "Anterior deltoid (clavicular portion)", action: "Flexes the shoulder and assists horizontal adduction and medial rotation.", paths: ["M56 96 C43 98 39 111 44 127 L66 132 L79 108 L72 97 Z", "M204 96 C217 98 221 111 216 127 L194 132 L181 108 L188 97 Z"] },
+  { id: "middle-deltoid-front", analysisKey: "sideDelts", view: "front", label: "Middle deltoid (acromial portion)", action: "Produces shoulder abduction after movement begins.", paths: ["M43 119 L65 126 L71 151 L49 148 Z", "M217 119 L195 126 L189 151 L211 148 Z"] },
+  { id: "pectoral-clavicular", analysisKey: "chest", view: "front", label: "Pectoralis major — clavicular portion", action: "Flexes the humerus and contributes to horizontal adduction and medial rotation.", paths: ["M84 116 C103 106 119 111 127 125 L127 145 L87 143 Z", "M176 116 C157 106 141 111 133 125 L133 145 L173 143 Z"] },
+  { id: "pectoral-sternocostal", analysisKey: "chest", view: "front", label: "Pectoralis major — sternocostal portion", action: "Adducts and medially rotates the humerus; contributes to horizontal adduction.", paths: ["M86 145 L127 148 L127 169 L92 166 Z", "M174 145 L133 148 L133 169 L168 166 Z"] },
+  { id: "serratus-anterior", analysisKey: "chest", view: "front", label: "Serratus anterior", action: "Protracts and upwardly rotates the scapula while holding it against the thoracic wall.", paths: ["M78 158 L92 165 L87 191 L73 184 Z", "M182 158 L168 165 L173 191 L187 184 Z"] },
+  { id: "biceps-long", analysisKey: "biceps", view: "front", label: "Biceps brachii — long head", action: "Flexes the elbow and supinates the forearm; assists shoulder flexion.", paths: ["M49 151 L68 151 L72 211 L56 217 L47 193 Z", "M211 151 L192 151 L188 211 L204 217 L213 193 Z"] },
+  { id: "brachialis", analysisKey: "brachialis", view: "front", label: "Brachialis", action: "Flexes the elbow across forearm positions.", layer: "deep", paths: ["M64 179 L74 183 L74 216 L64 224 Z", "M196 179 L186 183 L186 216 L196 224 Z"] },
+  { id: "forearm-flexors", analysisKey: "forearms", view: "front", label: "Superficial forearm flexor compartment", action: "Flexes the wrist and fingers; supports gripping and wrist position.", paths: ["M47 211 L65 217 L68 275 L51 282 L43 252 Z", "M213 211 L195 217 L192 275 L209 282 L217 252 Z"] },
+  { id: "rectus-abdominis", analysisKey: "abs", view: "front", label: "Rectus abdominis", action: "Flexes the trunk and compresses abdominal contents.", paths: ["M108 170 L126 170 L126 248 L105 248 Z", "M134 170 L152 170 L155 248 L134 248 Z"] },
+  { id: "external-oblique", analysisKey: "obliques", view: "front", label: "External oblique", action: "Rotates the trunk contralaterally and assists lateral flexion and compression.", paths: ["M89 168 L105 173 L101 241 L80 216 Z", "M171 168 L155 173 L159 241 L180 216 Z"] },
+  { id: "iliopsoas", analysisKey: "hipFlexors", view: "front", label: "Iliopsoas (deep hip flexor complex)", action: "Flexes the hip and contributes to hip-joint stabilization.", layer: "deep", paths: ["M95 246 L123 247 L114 277 L86 277 Z", "M137 247 L165 246 L174 277 L146 277 Z"] },
+  { id: "sartorius", analysisKey: "hipFlexors", view: "front", label: "Sartorius", action: "Flexes, abducts, and laterally rotates the hip; flexes the knee.", paths: ["M88 278 L101 278 L142 372 L130 376 Z", "M172 278 L159 278 L118 372 L130 376 Z"] },
+  { id: "rectus-femoris", analysisKey: "quads", view: "front", label: "Rectus femoris", action: "Extends the knee and flexes the hip.", paths: ["M93 280 L113 280 L115 376 L94 376 Z", "M147 280 L167 280 L166 376 L145 376 Z"] },
+  { id: "vastus-lateralis", analysisKey: "quads", view: "front", label: "Vastus lateralis", action: "Extends the knee as part of the quadriceps femoris.", paths: ["M78 281 L96 281 L93 377 L74 374 Z", "M182 281 L164 281 L167 377 L186 374 Z"] },
+  { id: "vastus-medialis", analysisKey: "quads", view: "front", label: "Vastus medialis", action: "Extends the knee and contributes to medial patellar stabilization.", paths: ["M112 322 L124 320 L125 378 L107 376 Z", "M148 322 L136 320 L135 378 L153 376 Z"] },
+  { id: "adductor-group", analysisKey: "adductors", view: "front", label: "Adductor longus and gracilis (medial thigh)", action: "Adducts the thigh and contributes to frontal-plane leg control.", paths: ["M101 280 L111 280 L127 372 L116 375 Z", "M159 280 L149 280 L133 372 L144 375 Z"] },
+  { id: "tibialis-anterior", analysisKey: "tibialis", view: "front", label: "Tibialis anterior", action: "Dorsiflexes and inverts the foot.", paths: ["M77 376 L97 376 L95 451 L78 451 Z", "M183 376 L163 376 L165 451 L182 451 Z"] },
+  { id: "gastrocnemius-front", analysisKey: "calves", view: "front", label: "Gastrocnemius and soleus (posterior calf, underlying view)", action: "Plantarflexes the ankle; gastrocnemius also flexes the knee.", layer: "deep", paths: ["M98 390 L113 390 L111 451 L97 451 Z", "M162 390 L147 390 L149 451 L163 451 Z"] },
+  { id: "posterior-deltoid", analysisKey: "rearDelts", view: "back", label: "Posterior deltoid (spinal portion)", action: "Extends and horizontally abducts the shoulder; assists lateral rotation.", paths: ["M56 96 C43 98 39 111 44 127 L66 132 L79 108 L72 97 Z", "M204 96 C217 98 221 111 216 127 L194 132 L181 108 L188 97 Z"] },
+  { id: "upper-trapezius", analysisKey: "traps", view: "back", label: "Upper trapezius (superior fibers)", action: "Elevates and upwardly rotates the scapula.", paths: ["M88 104 L130 76 L172 104 L158 127 L102 127 Z"] },
+  { id: "middle-trapezius", analysisKey: "traps", view: "back", label: "Middle trapezius (transverse fibers)", action: "Retracts the scapula and helps stabilize it against the thorax.", paths: ["M91 128 L169 128 L164 157 L96 157 Z"] },
+  { id: "lower-trapezius", analysisKey: "traps", view: "back", label: "Lower trapezius (inferior fibers)", action: "Depresses the scapula and contributes to upward rotation during elevation.", paths: ["M104 158 L156 158 L146 198 L130 218 L114 198 Z"] },
+  { id: "infraspinatus", analysisKey: "rotatorCuff", view: "back", label: "Infraspinatus (rotator cuff)", action: "Laterally rotates the shoulder and dynamically stabilizes the glenohumeral joint.", layer: "deep", paths: ["M88 144 L112 143 L122 181 L94 184 Z", "M172 144 L148 143 L138 181 L166 184 Z"] },
+  { id: "rhomboid-region", analysisKey: "upperBack", view: "back", label: "Rhomboid major and minor (deep scapular stabilizers)", action: "Retracts and downwardly rotates the scapula.", layer: "deep", paths: ["M108 152 L128 157 L126 195 L98 184 Z", "M152 152 L132 157 L134 195 L162 184 Z"] },
+  { id: "latissimus-dorsi", analysisKey: "lats", view: "back", label: "Latissimus dorsi", action: "Extends, adducts, and medially rotates the humerus.", paths: ["M82 157 L111 178 L124 218 L92 241 L82 208 Z", "M178 157 L149 178 L136 218 L168 241 L178 208 Z"] },
+  { id: "triceps-long", analysisKey: "triceps", view: "back", label: "Triceps brachii — long head", action: "Extends the elbow and assists shoulder extension and adduction.", paths: ["M49 150 L66 150 L71 213 L56 218 L47 192 Z", "M211 150 L194 150 L189 213 L204 218 L213 192 Z"] },
+  { id: "triceps-lateral", analysisKey: "triceps", view: "back", label: "Triceps brachii — lateral head", action: "Extends the elbow as part of the triceps brachii.", paths: ["M67 159 L79 156 L81 203 L71 214 Z", "M193 159 L181 156 L179 203 L189 214 Z"] },
+  { id: "forearm-extensors", analysisKey: "forearms", view: "back", label: "Posterior forearm extensor compartment", action: "Extends the wrist and fingers; supports hand opening and wrist position.", paths: ["M47 211 L65 217 L68 275 L51 282 L43 252 Z", "M213 211 L195 217 L192 275 L209 282 L217 252 Z"] },
+  { id: "erector-spinae", analysisKey: "lowerBack", view: "back", label: "Erector spinae (iliocostalis and longissimus region)", action: "Extends and laterally flexes the vertebral column; supports posture under load.", paths: ["M103 201 L123 201 L126 272 L104 272 Z", "M157 201 L137 201 L134 272 L156 272 Z"] },
+  { id: "multifidus", analysisKey: "lowerBack", view: "back", label: "Multifidus (deep segmental stabilizer)", action: "Assists segmental extension, contralateral rotation, and intervertebral control.", layer: "deep", paths: ["M124 202 L136 202 L136 270 L124 270 Z"] },
+  { id: "gluteus-maximus", analysisKey: "glutes", view: "back", label: "Gluteus maximus", action: "Extends and externally rotates the hip; fiber-region contributions vary with hip position.", paths: ["M85 268 C101 250 119 257 128 276 L128 306 L83 302 Z", "M175 268 C159 250 141 257 132 276 L132 306 L177 302 Z"] },
+  { id: "gluteus-medius", analysisKey: "abductors", view: "back", label: "Gluteus medius", action: "Abducts the hip and helps stabilize the pelvis during single-leg support.", paths: ["M81 253 L101 246 L112 271 L86 273 Z", "M179 253 L159 246 L148 271 L174 273 Z"] },
+  { id: "biceps-femoris", analysisKey: "hamstrings", view: "back", label: "Biceps femoris (lateral hamstring)", action: "Flexes the knee; the long head also extends the hip.", paths: ["M82 305 L105 305 L106 386 L77 386 Z", "M178 305 L155 305 L154 386 L183 386 Z"] },
+  { id: "semitendinosus", analysisKey: "hamstrings", view: "back", label: "Semitendinosus (medial hamstring)", action: "Extends the hip, flexes the knee, and medially rotates the flexed tibia.", paths: ["M107 305 L120 305 L119 386 L104 386 Z", "M153 305 L140 305 L141 386 L156 386 Z"] },
+  { id: "gastrocnemius-medial", analysisKey: "calves", view: "back", label: "Gastrocnemius — medial head", action: "Plantarflexes the ankle and assists knee flexion.", paths: ["M78 388 L103 388 L111 449 L80 449 Z", "M182 388 L157 388 L149 449 L180 449 Z"] },
+  { id: "gastrocnemius-lateral", analysisKey: "calves", view: "back", label: "Gastrocnemius — lateral head", action: "Plantarflexes the ankle and assists knee flexion.", paths: ["M103 388 L117 390 L111 449 L98 449 Z", "M157 388 L143 390 L149 449 L162 449 Z"] },
+  { id: "soleus", analysisKey: "calves", view: "back", label: "Soleus (deep calf muscle)", action: "Plantarflexes the ankle without crossing the knee.", layer: "deep", paths: ["M90 412 L112 412 L110 452 L89 452 Z", "M170 412 L148 412 L150 452 L171 452 Z"] },
 ];
 
-const backParts = [
-  ["rearDelts", "M72 92 C50 86 43 106 49 126 L76 130 L87 104 Z M188 92 C210 86 217 106 211 126 L184 130 L173 104 Z"],
-  ["traps", "M91 104 L128 80 L165 104 L157 132 L99 132 Z"],
-  ["upperBack", "M84 128 L172 128 L170 193 L86 193 Z"],
-  ["lats", "M86 158 L112 153 L125 215 L91 235 Z M144 153 L170 158 L165 235 L131 215 Z"],
-  ["triceps", "M52 132 L79 132 L80 196 C69 204 56 196 53 180 Z M176 132 L204 132 L203 180 C200 196 187 204 176 196 Z"],
-  ["forearms", "M53 184 C61 194 71 200 79 194 L78 248 C66 259 53 249 51 232 Z M177 194 C185 200 195 194 203 184 L205 232 C203 249 190 259 178 248 Z"],
-  ["lowerBack", "M104 201 L152 201 L161 271 L95 271 Z"],
-  ["glutes", "M89 266 C105 249 121 255 128 274 C135 255 151 249 167 266 L171 303 L85 303 Z"],
-  ["hamstrings", "M84 303 L120 303 L117 387 L78 387 Z M136 303 L172 303 L178 387 L139 387 Z"],
-  ["calves", "M81 388 L114 388 L111 451 L80 451 Z M142 388 L175 388 L176 451 L145 451 Z"],
-];
+const bodyOutline = "M111 40 C99 48 99 73 111 83 L89 101 L76 141 L80 252 L71 282 L78 380 L77 454 L115 454 L127 307 L133 307 L145 454 L183 454 L182 380 L189 282 L180 252 L184 141 L171 101 L149 83 C161 73 161 48 149 40 C140 30 120 30 111 40 Z";
 
 export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
-  const [view, setView] = useState<"front" | "back">("front");
-  const parts = view === "front" ? frontParts : backParts;
-  const active = (key: string, list: string[]) => list.includes(key) || (aliases[key] || []).some((alias) => list.includes(alias));
+  const [view, setView] = useState<View>("front");
+  const available = useMemo(() => regions.filter((region) => region.view === view), [view]);
+  const [selectedId, setSelectedId] = useState("anterior-deltoid");
+  const selected = regions.find((region) => region.id === selectedId && region.view === view) || available[0];
+  const status = (region: Region) => primary.includes(region.analysisKey) ? "primary" : secondary.includes(region.analysisKey) ? "secondary" : "neutral";
+  const choose = (region: Region) => { setSelectedId(region.id); onSelect(region.analysisKey); };
 
-  return (
-    <div className="anatomy-panel">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="field-label">Activation map</p>
-          <p className="mt-1 text-xs text-[#6f7774]">Select a highlighted region for its role.</p>
-        </div>
-        <div className="flex border border-[#d8d9d3] p-1 text-[10px] font-bold uppercase tracking-[0.14em]">
-          <button onClick={() => setView("front")} className={`px-2.5 py-1 ${view === "front" ? "bg-[#1c2937] text-white" : "text-[#6f7774]"}`}>Front</button>
-          <button onClick={() => setView("back")} className={`px-2.5 py-1 ${view === "back" ? "bg-[#1c2937] text-white" : "text-[#6f7774]"}`}>Back</button>
-        </div>
-      </div>
-      <svg viewBox="0 0 260 480" className="mx-auto block h-[330px] max-w-full" aria-label={`${view} muscle activation map`}>
-        <path d="M111 40 C99 48 99 73 111 83 L89 101 L76 141 L80 252 L71 282 L78 380 L77 454 L115 454 L127 307 L133 307 L145 454 L183 454 L182 380 L189 282 L180 252 L184 141 L171 101 L149 83 C161 73 161 48 149 40 C140 30 120 30 111 40 Z" fill="#eef0eb" stroke="#cfd4cc" strokeWidth="2" />
-        {parts.map(([key, path]) => {
-          const isPrimary = active(key, primary);
-          const isSecondary = active(key, secondary);
-          return <path key={key} d={path} onClick={() => onSelect(key)} className="cursor-pointer transition-all duration-200 hover:opacity-80" fill={isPrimary ? "#e4512e" : isSecondary ? "#f7cf6c" : "#dde3da"} stroke={isPrimary ? "#c63e1f" : "#c9d0c6"} strokeWidth="1.2"><title>{labels[key] || key}</title></path>;
-        })}
-      </svg>
-      <div className="mt-2 flex items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-[0.12em] text-[#69736d]">
-        <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 bg-[#e4512e]" />Primary</span>
-        <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 bg-[#f7cf6c]" />Secondary</span>
-      </div>
-    </div>
-  );
+  return <div className="anatomy-panel anatomy-atlas"><div className="atlas-toolbar"><div><p className="field-label">Detailed anatomy atlas</p><p className="mt-1 text-xs text-[#587393]">Click a region to inspect its full anatomical label and primary action.</p></div><div className="atlas-view-switch" role="group" aria-label="Anatomy view"><button onClick={() => setView("front")} className={view === "front" ? "atlas-view-active" : ""}>Front</button><button onClick={() => setView("back")} className={view === "back" ? "atlas-view-active" : ""}>Back</button></div></div><div className="atlas-layout"><div className="atlas-figure"><svg viewBox="0 0 260 480" className="mx-auto block h-[410px] max-w-full" aria-label={`${view} detailed muscle atlas`}><path d={bodyOutline} fill="#f8fbff" stroke="#9db5d0" strokeWidth="1.8" />{available.map((region) => { const state = status(region); const selectedState = selected?.id === region.id; const fill = selectedState ? "#d5ad43" : state === "primary" ? "#3182f5" : state === "secondary" ? "#84bfff" : region.layer === "deep" ? "#dce9f7" : "#e8f1fb"; return region.paths.map((path, index) => <path key={`${region.id}-${index}`} d={path} onClick={() => choose(region)} className={`atlas-region ${region.layer === "deep" ? "atlas-region-deep" : ""}`} fill={fill} stroke={selectedState ? "#8f6a16" : state === "primary" ? "#125bb8" : "#9ab3ce"} strokeWidth="1.05"><title>{region.label}</title></path>); })}</svg><div className="atlas-legend"><span><i className="bg-[#3182f5]" />Primary exercise role</span><span><i className="bg-[#84bfff]" />Supporting role</span><span><i className="bg-[#d5ad43]" />Selected region</span><span><i className="atlas-deep-dot" />Deep / underlying</span></div></div><aside className="atlas-inspector"><p className="metric-label">Selected region / {view}</p><h4>{selected?.label}</h4><p className="mt-3 text-xs leading-6 text-[#3f5e80]">{selected?.action}</p><div className="mt-4 border-t border-[#d8e5f3] pt-3"><p className="metric-label">Evidence note</p><p className="mt-1 text-[11px] leading-5 text-[#5b7490]">This is an <strong>established anatomical action</strong>. Exercise-specific loading changes with task, technique, range of motion, resistance direction, and individual structure.</p></div><button onClick={() => selected && onSelect(selected.analysisKey)} className="atlas-link">View related sport actions →</button></aside></div></div>;
 }
 
 export { labels as muscleLabels };

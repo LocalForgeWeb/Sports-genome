@@ -12,7 +12,7 @@ const tabs: { id: Tab; label: string; icon: typeof Dna }[] = [
   { id: "mechanics", label: "Mechanics", icon: CircleGauge },
   { id: "context", label: "Context", icon: BrainCircuit },
 ];
-const labels: Record<GenomeDimension, string> = { hypertrophy: "HYP", strength: "STR", power: "PWR", stability: "STB", mobility: "MOB", sfr: "SFR", skill: "SKL", practicality: "PRC" };
+const labels: Record<GenomeDimension, string> = { hypertrophy: "Hypertrophy potential", strength: "Strength expression", power: "Power expression", stability: "Stability demand", mobility: "Mobility demand", sfr: "Stimulus-to-fatigue ratio", skill: "Technical skill demand", practicality: "Practicality" };
 
 function Meter({ label, value, tone = "blue" }: { label: string; value: number; tone?: "blue" | "ink" | "warm" }) {
   return <div className="genome-meter"><div className="flex items-center justify-between gap-2"><span>{label}</span><strong>{value}</strong></div><span className={`genome-meter-track genome-meter-${tone}`}><i style={{ width: `${value}%` }} /></span></div>;

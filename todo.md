@@ -30,3 +30,16 @@
 - [ ] Add clear quiz progress, lively selection feedback, and a smooth completion transition into the personalized workspace.
 - [ ] Refresh navigation, cards, typography, color, and motion so the workspace feels current and enjoyable to use.
 - [ ] Validate the full quiz-to-workspace journey across desktop and mobile layouts.
+- [ ] Define a detailed muscle-atlas scope with named subdivisions, front/back placement, roles, and evidence labels.
+- [ ] Research functional actions for shoulder, trunk, arm, hip, thigh, lower-leg, chest, and back muscle subdivisions from authoritative anatomy and biomechanics sources.
+- [ ] Replace broad anatomical regions with precise named muscle records and full scientific labels in the interface.
+- [ ] Build a high-detail front/back interactive body map with distinct clickable muscle subdivisions, including anterior, middle, and posterior deltoid regions.
+- [ ] Link each selected muscle region to primary actions, sport-movement relevance, supporting exercises, and evidence-confidence notes.
+- [ ] Replace abbreviated Genome dimension labels with full terms and explicitly label standardized estimates versus directly measured evidence.
+- [ ] Validate atlas interactions, front/back switching, mobile readability, and factual-boundary disclosures.
+- [ ] Apply a consistent blue interface with gold-and-white logo and secondary accents.
+- [ ] Use the user-supplied reference only as a visual blueprint for a front/back labeled anatomy layout; create an original atlas illustration and labels.
+- [ ] Add a pasted-stack import flow that recognizes exercise names and optional set/rep notation, previews matched and unmatched items, and imports confirmed matches.
+- [ ] Expand custom workout programming controls to include sets, repetitions or time, load/RPE, rest, and notes.
+- [ ] Expand the onboarding schedule selector and recommendation logic from one through seven training days per week.
+- [ ] Validate blue/gold contrast, atlas detail, import parsing, programming edits, and seven-day plans.
