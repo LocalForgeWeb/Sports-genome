@@ -39,16 +39,12 @@
 .atlas-flip-btn:hover svg{transform:rotate(180deg)}
 
 /* Illustration wrapper */
-.atlas-illustration-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:clamp(480px,60vh,700px);margin-top:.3rem;overflow:hidden;background:radial-gradient(circle at 50% 38%,#f5f8f9 0%,#fbfcfc 56%,#eef4f6 100%);border:1px solid #e8eff3;cursor:default;isolation:isolate}
-.atlas-illustration{display:block;width:auto;height:clamp(460px,58vh,680px);max-width:100%;object-fit:contain;pointer-events:none;user-select:none;transition:transform .28s cubic-bezier(.23,1,.32,1)}
-.atlas-illustration-grey{filter:grayscale(1) brightness(1.05) contrast(.92)}
-.atlas-illustration-focused{transform:scale(1.2)}
+/* Body chart container (body-muscles library) */
+.atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:clamp(480px,60vh,700px);margin-top:.3rem;overflow:hidden;background:radial-gradient(circle at 50% 38%,#f5f8f9 0%,#fbfcfc 56%,#eef4f6 100%);border:1px solid #e8eff3}
+.atlas-body-chart{width:100%;height:clamp(460px,58vh,680px);display:flex;justify-content:center;align-items:center}
+.atlas-body-chart svg{max-height:100%;width:auto}
+.atlas-hover-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #cbd9e1;box-shadow:0 4px 12px rgb(24 53 70 / .12);padding:.4rem .7rem;font-size:.7rem;font-weight:700;color:#173b51;pointer-events:none;white-space:nowrap;z-index:5}
 
-/* SVG overlay for contoured muscle paths */
-.atlas-svg-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
-.atlas-muscle-path{pointer-events:all;cursor:pointer;transition:opacity .18s ease,filter .18s ease,stroke .18s ease}
-.atlas-muscle-path:hover{filter:brightness(1.15) saturate(1.2);stroke:#102e43 !important;stroke-width:1.8 !important}
-.atlas-muscle-path.is-selected{filter:drop-shadow(0 0 6px rgba(9,39,59,.5));stroke:#061f31 !important;stroke-width:2.5 !important}
 
 /* Tooltip */
 .atlas-pro-tooltip{position:absolute;z-index:10;display:grid;gap:.2rem;max-width:200px;border:1px solid #cbd9e1;background:#fff;box-shadow:0 12px 28px rgb(24 53 70 / .18);padding:.7rem;pointer-events:none}
