@@ -5,7 +5,7 @@ import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { GradeStamp } from "@/components/GradeStamp";
 import { ExerciseGenomePanel } from "@/components/ExerciseGenomePanel";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
-import { StackImportPanel, type ImportedStackItem } from "@/components/StackImportPanel";
+import { StackImportPanel, type ImportedRoutine } from "@/components/StackImportPanel";
 import { SplitDraftControls, type LoadoutMode, type SplitDay } from "@/components/SplitDraftControls";
 import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
 import { WeeklyPlanBoard } from "@/components/WeeklyPlanBoard";
@@ -219,14 +219,36 @@ export default function Home() {
     toast("Exercise added", { description: `${exercise.name} was added to the active session.` });
     return [...current, exercise];
   });
-  const importStack = (items: ImportedStackItem[]) => {
-    const unique = items.filter((item, index) => items.findIndex((candidate) => candidate.exercise.id === item.exercise.id) === index);
-    setCustomWorkout(unique.map((item) => item.exercise));
-    setPrescriptions(Object.fromEntries(unique.map((item) => [item.exercise.id, item.prescription])));
-    setExerciseSettings({});
+  const importRoutine = (routine: ImportedRoutine) => {
+    const importedDays = routine.days.filter((day) => day.items.length);
+    if (!importedDays.length) return;
+    const nextPlan: Record<string, Exercise[]> = {};
+    const nextPrescriptions: Record<number, string> = {};
+    const nextSettings: Record<number, ExerciseSettings> = {};
+    const assignments = importedDays.map((day, pastedIndex) => {
+      const requested = day.label.toLowerCase();
+      const aliases = requested.includes("lower") ? ["lower", "legs"] : requested.includes("upper") ? ["upper", "push", "pull"] : requested.includes("full") ? ["full body", "push"] : requested.includes("condition") || requested.includes("recovery") ? ["sport transfer", "full body"] : [requested];
+      const matchedIndex = splitDays.findIndex((split) => aliases.some((alias) => split.toLowerCase().includes(alias) || alias.includes(split.toLowerCase())));
+      const index = matchedIndex >= 0 ? matchedIndex : Math.min(pastedIndex, splitDays.length - 1);
+      const splitDay = splitDays[index];
+      const unique = day.items.filter((item, itemIndex) => day.items.findIndex((candidate) => candidate.exercise.id === item.exercise.id) === itemIndex);
+      const dayExercises = unique.map((item) => item.exercise);
+      nextPlan[`${index}-${splitDay}`] = dayExercises;
+      unique.forEach((item) => {
+        nextPrescriptions[item.exercise.id] = item.prescription;
+        nextSettings[item.exercise.id] = { rpe: item.rpe || "RPE 7", rest: item.rest || "90 sec", notes: item.notes || "", completed: false };
+      });
+      return { splitDay, exercises: dayExercises };
+    });
+    const first = assignments[0];
+    setCustomWorkout(first.exercises);
+    setPrescriptions(nextPrescriptions);
+    setExerciseSettings(nextSettings);
+    setWeeklyPlan((current) => ({ ...current, ...nextPlan }));
+    setActiveSplitDay(first.splitDay);
     setWorkspace("custom");
     setImportOpen(false);
-    toast("Stack imported", { description: `${unique.length} exercise${unique.length === 1 ? "" : "s"} matched and loaded into the builder.` });
+    toast("Routine loaded", { description: `${importedDays.length}-day routine loaded with ${Object.values(nextPlan).flat().length} matched exercise${Object.values(nextPlan).flat().length === 1 ? "" : "s"}.` });
   };
   const removeExercise = (id: number) => setCustomWorkout((current) => current.filter((exercise) => exercise.id !== id));
   const loadDraft = () => {
@@ -319,6 +341,6 @@ export default function Home() {
     </div>
 
     {inspectedExercise && <div className="fixed inset-0 z-50 bg-[#09120e]/65 p-0 backdrop-blur-sm xl:p-5"><div className="ml-auto h-full w-full max-w-[720px] overflow-y-auto bg-[#f7f8f3] shadow-2xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#d8e0d7] bg-[#f7f8f3]/95 px-5 py-4 backdrop-blur"><div><p className="metric-label">Exercise intelligence</p><p className="mt-1 font-display text-2xl font-bold uppercase leading-none text-[#15221b]">{inspectedExercise.name}</p></div><button onClick={() => setInspectedExercise(null)} className="grid h-9 w-9 place-items-center border border-[#d2dad1] bg-white"><X className="h-4 w-4" /></button></div><div className="p-5"><div className="grid gap-5 lg:grid-cols-[.9fr_1.1fr]"><div className="light-panel p-4"><AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} /></div><div><p className="metric-label">Movement role</p><h3 className="mt-1 font-display text-4xl font-bold uppercase leading-none text-[#17231f]">{inspectedExercise.movement}</h3><div className="mt-4 grid gap-2"><div className="exercise-insight"><p className="metric-label">Primary target</p><p>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Support tissues</p><p>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Useful qualities</p><p>{inspectedExercise.qualities.join(" · ")}</p></div></div><button onClick={() => { addExercise(inspectedExercise); setWorkspace("custom"); setInspectedExercise(null); }} className="mt-5 inline-flex items-center gap-2 bg-[#17271f] px-4 py-3 text-[10px] font-bold uppercase tracking-[.13em] text-white hover:bg-[#b8ff5b] hover:text-[#142019]">Add to custom workout <Plus className="h-4 w-4" /></button></div></div><div className="mt-5 dark-panel p-5"><p className="metric-label !text-[#91a09a]">Current sport-action relevance</p><p className="mt-2 text-sm leading-6 text-[#d1dcd4]">For {selectedMovement.label}, this exercise is most useful when it supports {selectedMovement.family.toLowerCase()} through its {inspectedExercise.movement.toLowerCase()} pattern. Review the sport action in the Movement Atlas to see the full body-action reasoning.</p><button onClick={() => { setInspectedExercise(null); setWorkspace("movement"); }} className="mt-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#b8ff5b]">Open sport action <ArrowUpRight className="h-4 w-4" /></button></div><ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} /></div></div></div>}
-    {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importStack} />}
+    {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} />}
   </div>;
 }
