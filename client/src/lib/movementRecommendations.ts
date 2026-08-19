@@ -93,7 +93,29 @@ export function getSportSession(sportId: string, goal: string, limit = 6): Movem
     const candidate = { ...result, score: result.score + goalBoost };
     if (!existing || candidate.score > existing.score) pooled.set(result.exercise.id, candidate);
   }));
-  return Array.from(pooled.values()).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id).slice(0, limit);
+  const candidates = Array.from(pooled.values()).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id);
+  const selected: MovementRecommendation[] = [];
+  const muscleOverlap = (first: MovementRecommendation, second: MovementRecommendation) => {
+    const firstMuscles = new Set([...first.exercise.primaryMuscles, ...first.exercise.secondaryMuscles]);
+    const secondMuscles = new Set([...second.exercise.primaryMuscles, ...second.exercise.secondaryMuscles]);
+    const shared = Array.from(firstMuscles).filter((muscle) => secondMuscles.has(muscle));
+    return shared.length / Math.max(1, new Set([...Array.from(firstMuscles), ...Array.from(secondMuscles)]).size);
+  };
+  while (selected.length < limit && candidates.length) {
+    const next = candidates.map((candidate) => {
+      const sameMovement = selected.filter((item) => item.exercise.movement === candidate.exercise.movement).length;
+      const sameEquipment = selected.filter((item) => item.exercise.equipment === candidate.exercise.equipment).length;
+      const averageOverlap = selected.length ? selected.reduce((total, item) => total + muscleOverlap(candidate, item), 0) / selected.length : 0;
+      const novelSignals = candidate.matchedSignals.filter((signal) => !selected.some((item) => item.matchedSignals.includes(signal))).length;
+      const novelMuscles = candidate.matchedMuscles.filter((muscle) => !selected.some((item) => item.matchedMuscles.includes(muscle))).length;
+      const diversityAdjustment = novelSignals * 2.2 + novelMuscles * 1.5 - sameMovement * 6.2 - averageOverlap * 5.5 - Math.max(0, sameEquipment - 2) * 0.7;
+      return { candidate, diversifiedScore: candidate.score + diversityAdjustment };
+    }).sort((a, b) => b.diversifiedScore - a.diversifiedScore || a.candidate.exercise.id - b.candidate.exercise.id)[0]?.candidate;
+    if (!next) break;
+    selected.push(next);
+    candidates.splice(candidates.findIndex((candidate) => candidate.exercise.id === next.exercise.id), 1);
+  }
+  return selected;
 }
 
 export function findSportMovement(sportId: string, movementId?: string) {

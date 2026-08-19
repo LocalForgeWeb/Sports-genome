@@ -87,3 +87,10 @@
 - [ ] Show movement-specific muscle use and ranked supporting exercises from every sport movement detail view.
 - [ ] Add a program-level coverage report that identifies movement gaps, redundant exercise clusters, and high-value additions.
 - [ ] Validate wrestling movement depth, cross-sport movement coverage, redundancy flags, and recommendation explanations.
+- [ ] Audit the onboarding, recommended plan, custom-builder, anatomy, movement atlas, catalog, Genome, import, and sport-switch user journeys.
+- [ ] Identify and resolve data-model gaps in sport movement, muscle coverage, program load, exercise matching, and recommendation explanations.
+- [ ] Add higher-value personalization and planning controls that improve weekly program construction and adaptation.
+- [ ] Improve workout-level insight with volume, movement balance, fatigue exposure, and actionable redundancy resolution.
+- [ ] Improve discoverability, empty states, responsive layouts, keyboard access, motion, and visual consistency across the app.
+- [ ] Audit client performance and eliminate unnecessary rendering, oversized views, and interaction friction where practical.
+- [ ] Test first visit, sport switching, recommended workouts, custom planning, imports, anatomy, Genome lessons, and movement analysis end to end.

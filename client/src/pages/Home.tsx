@@ -1,5 +1,5 @@
 /** Apex Performance OS: a premium athlete-and-coach workspace with high-contrast intelligence panels, movement-led recommendations, and visible training logic. */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Activity, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronRight, Dna, Dumbbell, Layers3, Menu, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { GradeStamp } from "@/components/GradeStamp";
@@ -7,14 +7,24 @@ import { ExerciseGenomePanel } from "@/components/ExerciseGenomePanel";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
 import { StackImportPanel, type ImportedStackItem } from "@/components/StackImportPanel";
 import { SplitDraftControls, type LoadoutMode, type SplitDay } from "@/components/SplitDraftControls";
+import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
+import { WeeklyPlanBoard } from "@/components/WeeklyPlanBoard";
+import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
+import { MovementAtlasPanel } from "@/components/MovementAtlasPanel";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
+import { getExerciseSettings, type ExerciseSettings } from "@/lib/workoutPlanner";
 import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportSession, type MovementRecommendation } from "@/lib/movementRecommendations";
+import { toast } from "sonner";
 
 type Workspace = "command" | "recommended" | "custom" | "body" | "movement" | "catalog" | "genome";
 type Goal = "Athleticism" | "Muscle growth" | "Max strength" | "Capacity";
 type StackMode = "suggested" | "custom";
+type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string };
+type StoredWorkoutPlan = { version: 1; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings> };
+const athleteProfileKey = "gym-optimizer-athlete-profile-v1";
+const workoutPlanKey = "gym-optimizer-workout-plan-v1";
 
 const navItems: { id: Workspace; label: string; icon: typeof Target; detail: string }[] = [
   { id: "command", label: "Command Center", icon: Target, detail: "readiness & next decision" },
@@ -95,8 +105,14 @@ export default function Home() {
   const [importOpen, setImportOpen] = useState(false);
   const [genomeExerciseId, setGenomeExerciseId] = useState(1);
   const [catalogQuery, setCatalogQuery] = useState("");
+  const [atlasQuery, setAtlasQuery] = useState("");
+  const [atlasFamily, setAtlasFamily] = useState("All");
   const [customWorkout, setCustomWorkout] = useState<Exercise[]>(() => initialCustomNames.map((name) => exercises.find((exercise) => exercise.name === name)).filter((exercise): exercise is Exercise => Boolean(exercise)));
   const [prescriptions, setPrescriptions] = useState<Record<number, string>>({});
+  const [exerciseSettings, setExerciseSettings] = useState<Record<number, ExerciseSettings>>({});
+  const [weeklyPlan, setWeeklyPlan] = useState<Record<string, Exercise[]>>({});
+  const [profileHydrated, setProfileHydrated] = useState(false);
+  const [planHydrated, setPlanHydrated] = useState(false);
   const [railOpen, setRailOpen] = useState(false);
   const [activeSplitDay, setActiveSplitDay] = useState<SplitDay>("Sport Transfer");
   const [activeLoadout, setActiveLoadout] = useState<LoadoutMode>("Sport Transfer");
@@ -107,39 +123,141 @@ export default function Home() {
   const selectedMovement = sportMovements.find((movement) => movement.id === movementId) || findSportMovement(activeSportId);
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
   const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6), [selectedMovement]);
-  const sessionRecommendations = useMemo(() => getSportSession(sportId, goal, 6), [sportId, goal]);
+  const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, 6), [activeSportId, goal]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
   const draftedLoadout = useMemo(() => {
-    const sportSeed = getSportSession(sportId, goal, 12).map((item) => item.exercise);
+    const sportSeed = getSportSession(activeSportId, goal, 12).map((item) => item.exercise);
     const keywords = activeSplitDay === "Sport Transfer" ? [] : splitKeywords[activeSplitDay];
     const pool = keywords.length ? exercises.filter((exercise) => keywords.some((keyword) => `${exercise.name} ${exercise.movement}`.toLowerCase().includes(keyword))) : sportSeed;
     const offset = activeLoadout === "Athletic Power" ? 4 : activeLoadout === "Strength Foundation" ? 8 : activeLoadout === "Hypertrophy Volume" ? 12 : activeLoadout === "Capacity Circuit" ? 16 : 0;
     const unique = [...pool.slice(offset), ...pool.slice(0, offset)].reduce<Exercise[]>((list, exercise) => list.some((item) => item.movement === exercise.movement) ? list : [...list, exercise], []);
     const sportAnchor = activeLoadout === "Sport Transfer" || activeSplitDay === "Sport Transfer" ? sportSeed.slice(0, 2) : [];
     return [...sportAnchor, ...unique].filter((exercise, index, array) => array.findIndex((item) => item.id === exercise.id) === index).slice(0, 6);
-  }, [sportId, goal, activeSplitDay, activeLoadout]);
+  }, [activeSportId, goal, activeSplitDay, activeLoadout]);
   const movementSignals = getMovementSignals(selectedMovement);
   const movementMuscles = getMovementMuscles(selectedMovement);
   const filteredCatalog = useMemo(() => exercises.filter((exercise) => `${exercise.name} ${exercise.movement} ${exercise.primaryMuscles.join(" ")}`.toLowerCase().includes(catalogQuery.toLowerCase())).slice(0, 24), [catalogQuery]);
   const genomeExercise = exercises.find((exercise) => exercise.id === genomeExerciseId) || exercises[0];
   const muscleTerms = muscleSearchTerms[activeMuscle] || [activeMuscle.toLowerCase()];
-  const muscleMoves = sportMovements.filter((movement) => muscleTerms.some((term) => `${movement.primaryMuscles} ${movement.stabilizers}`.toLowerCase().includes(term))).slice(0, 6);
+  const muscleMoves = sportMovements.filter((movement) => getMovementMuscles(movement).includes(activeMuscle)).slice(0, 6);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(athleteProfileKey);
+      if (stored) {
+        const profile = JSON.parse(stored) as StoredAthleteProfile;
+        if (profile.version === 1 && sportProfiles.some((sport) => sport.id === profile.sportId)) {
+          setSportId(profile.sportId);
+          setGoal(profile.goal);
+          setTrainingDays(Math.max(1, Math.min(7, profile.trainingDays)));
+          setMovementId(profile.movementId);
+          setOnboardingComplete(true);
+        }
+      }
+    } catch { /* Stored context is optional and may be cleared safely. */ }
+    setProfileHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(workoutPlanKey);
+      if (stored) {
+        const plan = JSON.parse(stored) as StoredWorkoutPlan;
+        if (plan.version === 1) {
+          const fromIds = (ids: number[]) => ids.map((id) => exercises.find((exercise) => exercise.id === id)).filter((exercise): exercise is Exercise => Boolean(exercise));
+          setCustomWorkout(fromIds(plan.customWorkoutIds));
+          setWeeklyPlan(Object.fromEntries(Object.entries(plan.weeklyPlanIds).map(([key, ids]) => [key, fromIds(ids)])));
+          setPrescriptions(plan.prescriptions || {});
+          setExerciseSettings(plan.exerciseSettings || {});
+        }
+      }
+    } catch { /* A malformed saved plan should never block the workout builder. */ }
+    setPlanHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!profileHydrated || !onboardingComplete || !sportId) return;
+    const profile: StoredAthleteProfile = { version: 1, sportId, goal, trainingDays, movementId: selectedMovement.id };
+    try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
+  }, [profileHydrated, onboardingComplete, sportId, goal, trainingDays, movementId, selectedMovement.id]);
+
+  useEffect(() => {
+    if (!planHydrated || !onboardingComplete) return;
+    const plan: StoredWorkoutPlan = {
+      version: 1,
+      customWorkoutIds: customWorkout.map((exercise) => exercise.id),
+      weeklyPlanIds: Object.fromEntries(Object.entries(weeklyPlan).map(([key, workout]) => [key, workout.map((exercise) => exercise.id)])),
+      prescriptions,
+      exerciseSettings,
+    };
+    try { window.localStorage.setItem(workoutPlanKey, JSON.stringify(plan)); } catch { /* Persistence is optional. */ }
+  }, [planHydrated, onboardingComplete, customWorkout, weeklyPlan, prescriptions, exerciseSettings]);
+
+  useEffect(() => {
+    const nextMuscle = getMovementMuscles(selectedMovement)[0];
+    if (nextMuscle) setActiveMuscle(nextMuscle);
+  }, [selectedMovement.id]);
 
   const chooseSport = (id: string) => {
+    const changed = Boolean(sportId) && sportId !== id;
     setSportId(id);
     const first = sportMovementProfiles.find((movement) => movement.sportId === id);
-    if (first) setMovementId(first.id);
+    if (first) {
+      setMovementId(first.id);
+      setActiveMuscle(getMovementMuscles(first)[0] || "abs");
+    }
+    if (changed) {
+      setWeeklyPlan({});
+      toast("Sport context updated", { description: "Your current workout was retained for review; weekly drafts were cleared to avoid a silent mismatch." });
+    }
   };
-  const addExercise = (exercise: Exercise) => setCustomWorkout((current) => current.some((item) => item.id === exercise.id) ? current : [...current, exercise]);
+  const addExercise = (exercise: Exercise) => setCustomWorkout((current) => {
+    if (current.some((item) => item.id === exercise.id)) {
+      toast("Already in this workout", { description: `${exercise.name} is already part of the active session.` });
+      return current;
+    }
+    toast("Exercise added", { description: `${exercise.name} was added to the active session.` });
+    return [...current, exercise];
+  });
   const importStack = (items: ImportedStackItem[]) => {
     const unique = items.filter((item, index) => items.findIndex((candidate) => candidate.exercise.id === item.exercise.id) === index);
     setCustomWorkout(unique.map((item) => item.exercise));
     setPrescriptions(Object.fromEntries(unique.map((item) => [item.exercise.id, item.prescription])));
+    setExerciseSettings({});
     setWorkspace("custom");
     setImportOpen(false);
+    toast("Stack imported", { description: `${unique.length} exercise${unique.length === 1 ? "" : "s"} matched and loaded into the builder.` });
   };
   const removeExercise = (id: number) => setCustomWorkout((current) => current.filter((exercise) => exercise.id !== id));
-  const loadDraft = () => setCustomWorkout(draftedLoadout);
+  const loadDraft = () => {
+    setCustomWorkout(draftedLoadout);
+    setPrescriptions({});
+    setExerciseSettings({});
+    const activeIndex = Math.max(0, splitDays.findIndex((day) => day === activeSplitDay));
+    setWeeklyPlan((current) => ({ ...current, [`${activeIndex}-${activeSplitDay}`]: draftedLoadout }));
+    toast("Draft loaded", { description: `${activeSplitDay} is now built with the ${activeLoadout} orientation.` });
+  };
+  const loadSmartDraft = () => {
+    setCustomWorkout(sessionRecommendations.map((result) => result.exercise));
+    setPrescriptions({});
+    setExerciseSettings({});
+    toast("Smart draft loaded", { description: "A diversified sport-aware session is ready for review." });
+  };
+  const updateExerciseSettings = (exerciseId: number, patch: Partial<ExerciseSettings>) => setExerciseSettings((current) => ({ ...current, [exerciseId]: { ...getExerciseSettings(current, exerciseId), ...patch } }));
+  const activeDayIndex = Math.max(0, splitDays.findIndex((day) => day === activeSplitDay));
+  const saveActiveDay = () => {
+    setWeeklyPlan((current) => ({ ...current, [`${activeDayIndex}-${activeSplitDay}`]: customWorkout }));
+    toast("Weekly day saved", { description: `${activeSplitDay} now has ${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"} saved.` });
+  };
+  const chooseWeeklyDay = (index: number) => {
+    const day = splitDays[index];
+    const saved = weeklyPlan[`${index}-${day}`];
+    setActiveSplitDay(day);
+    if (saved?.length) {
+      setCustomWorkout(saved);
+      toast("Saved day loaded", { description: `${day} was restored from your weekly map.` });
+    }
+  };
   const inspectExercise = (exercise: Exercise) => { setInspectedExercise(exercise); setActiveMuscle(exercise.primaryMuscles[0] || "obliques"); };
   const showMovement = (movement: SportMovementProfile) => { setMovementId(movement.id); setWorkspace("recommended"); };
   const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, stackMode }: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => {
@@ -153,13 +271,16 @@ export default function Home() {
       setCustomWorkout([]);
       setWorkspace("custom");
     }
-    try { window.localStorage.setItem("apex-onboarding-complete", "true"); } catch { /* Local persistence is optional. */ }
     setOnboardingComplete(true);
   };
   const rebuildPlan = () => {
-    try { window.localStorage.removeItem("apex-onboarding-complete"); } catch { /* Local persistence is optional. */ }
+    try { window.localStorage.removeItem(athleteProfileKey); window.localStorage.removeItem(workoutPlanKey); } catch { /* Local persistence is optional. */ }
     setSportId("");
     setMovementId("");
+    setCustomWorkout([]);
+    setPrescriptions({});
+    setExerciseSettings({});
+    setWeeklyPlan({});
     setOnboardingComplete(false);
   };
 
@@ -176,6 +297,7 @@ export default function Home() {
     <div className="apex-main">
       <header className="apex-topbar"><div className="flex items-center gap-3"><button onClick={() => setRailOpen(true)} className="grid h-9 w-9 place-items-center border border-[#dce0d8] text-[#3e4a44] lg:hidden"><Menu className="h-4 w-4" /></button><div><p className="metric-label">{navItems.find((item) => item.id === workspace)?.label}</p><p className="mt-1 text-sm font-bold text-[#18241f]">{selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal} <span className="mx-1.5 text-[#a2aca4]">/</span> {trainingDays} days</p></div></div><div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={() => setImportOpen(true)} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Import stack</button><button onClick={rebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Rebuild plan</button><button onClick={() => setWorkspace("custom")} className="inline-flex items-center gap-2 bg-[#0b2240] px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[#2d6cdf]"><Plus className="h-3.5 w-3.5" /> Build session</button></div></header>
       <main className="apex-content">
+        {workspace === "movement" && <MovementAtlasPanel sportName={selectedSport.label} sportId={activeSportId} sports={sportProfiles} movements={sportMovements} selectedMovement={selectedMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { chooseSport(id); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => setMovementId(movement.id)} onOpenBody={() => { setActiveMuscle(getMovementMuscles(selectedMovement)[0] || "abs"); setWorkspace("body"); }} />}
         {workspace === "command" && <section className="space-y-5"><div className="command-hero"><img src="/manus-storage/gym-optimizer-performance-lab_fc8df71f.jpg" alt="Athlete training in a performance laboratory" className="command-hero-image" /><div className="command-overlay" /><div className="relative z-10 max-w-3xl p-6 md:p-8"><p className="metric-label !text-[#b8ff5b]">01 / athlete command system</p><h1 className="mt-4 max-w-2xl font-display text-5xl font-bold uppercase leading-[.82] tracking-[-.02em] text-white sm:text-6xl">Train the action.<br /><em className="text-[#b8ff5b]">Not just the muscle.</em></h1><p className="mt-5 max-w-xl text-sm leading-6 text-[#c5d1c9]">Your selected sport is mapped through body actions, muscle roles, contraction demands, and exercise-transfer logic. Every recommendation exposes the “why.”</p><div className="mt-7 grid max-w-xl grid-cols-3 divide-x divide-white/15 border-y border-white/15"><div className="py-3 pr-3"><p className="metric-label !text-[#819188]">Sport profile</p><p className="mt-1 font-display text-xl font-bold uppercase text-white">{sportAbbrev(selectedSport.label)}</p></div><div className="px-3 py-3"><p className="metric-label !text-[#819188]">Movement records</p><p className="mt-1 font-display text-xl font-bold uppercase text-white">20</p></div><div className="px-3 py-3"><p className="metric-label !text-[#819188]">Top session fit</p><div className="mt-1"><GradeStamp grade={sessionRecommendations[0]?.grade || "C"} compact /></div></div></div></div><div className="command-signal-card"><p className="metric-label !text-[#b8ff5b]">Next movement</p><p className="mt-2 font-display text-2xl font-bold uppercase leading-none text-white">{selectedMovement.label}</p><p className="mt-3 text-xs leading-5 text-[#b6c3bc]">{selectedMovement.family}</p><button onClick={() => setWorkspace("recommended")} className="mt-5 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#b8ff5b]">Open recommendations <ArrowUpRight className="h-4 w-4" /></button></div></div>
           <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]"><div className="dark-panel p-5"><div className="flex items-start justify-between gap-4"><div><p className="metric-label !text-[#91a09a]">Performance decision</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Today&apos;s movement lens</h2></div><button onClick={() => setWorkspace("movement")} className="text-[#b8ff5b]"><ArrowUpRight className="h-5 w-5" /></button></div><div className="mt-5 grid gap-3 md:grid-cols-3"><Metric label="Body action" value={movementSignals[0].toUpperCase()} detail="dominant movement signal" /><Metric label="Primary tissues" value={String(movementMuscles.length).padStart(2, "0")} detail="mapped muscle groups" tone="orange" /><Metric label="Session readiness" value="82" detail="coach-set planning marker" tone="white" /></div><div className="mt-5 border-t border-white/10 pt-4"><p className="metric-label !text-[#91a09a]">Transfer rationale</p><p className="mt-2 text-sm leading-6 text-[#d0d9d3]">{selectedMovement.gymTransferCue}</p></div></div><div className="light-panel p-5"><div className="flex items-start justify-between"><div><p className="metric-label">Coach dashboard</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#18241f]">Priority blocks</h2></div><BrainCircuit className="h-5 w-5 text-[#e4512e]" /></div><div className="mt-5 space-y-2">{sessionRecommendations.slice(0, 3).map((result, index) => <button key={result.exercise.id} onClick={() => inspectExercise(result.exercise)} className="flex w-full items-center gap-3 border border-[#e4e8e1] bg-white p-3 text-left transition-colors hover:border-[#b8ff5b]"><span className="font-display text-xl font-bold text-[#a4afa8]">0{index + 1}</span><span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold">{result.exercise.name}</span><span className="mt-1 block truncate text-[10px] text-[#708078]">{result.rationale}</span></span><GradeStamp grade={result.grade} compact /></button>)}</div><button onClick={() => setWorkspace("recommended")} className="mt-5 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#e4512e]">View athlete recommendation <ArrowUpRight className="h-4 w-4" /></button></div></div></section>}
 
@@ -183,7 +305,9 @@ export default function Home() {
 
         {workspace === "custom" && <section className="space-y-5"><div className="view-header"><div><p className="metric-label">03 / custom workout builder</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">Coach controls.<br /><em className="text-[#e4512e]">Athlete-ready output.</em></h1></div><div className="flex gap-2">{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <button key={item} onClick={() => setGoal(item)} className={`goal-button ${goal === item ? "goal-button-active" : ""}`}>{item}</button>)}</div></div><div className="grid gap-5 xl:grid-cols-[1.18fr_.82fr]"><div className="dark-panel"><div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 p-5"><div><p className="metric-label !text-[#91a09a]">Custom session / {selectedSport.label}</p><h2 className="mt-1 font-display text-4xl font-bold uppercase leading-none text-white">{goal}</h2><p className="mt-2 text-xs text-[#93a198]">{goalDetail[goal]}</p></div><button onClick={() => setCustomWorkout(sessionRecommendations.map((result) => result.exercise))} className="border border-[#b8ff5b] px-3 py-2 text-[10px] font-bold uppercase tracking-[.12em] text-[#b8ff5b] hover:bg-[#b8ff5b] hover:text-[#142019]">Load smart draft</button></div><div className="divide-y divide-white/10">{customWorkout.length ? customWorkout.map((exercise, index) => <div key={exercise.id} className="custom-row"><span className="font-display text-2xl font-bold text-[#6d7b74]">{String(index + 1).padStart(2, "0")}</span><button onClick={() => inspectExercise(exercise)} className="min-w-0 flex-1 text-left"><p className="truncate text-sm font-bold text-white">{exercise.name}</p><p className="mt-1 text-[10px] text-[#8d9c95]">{exercise.movement} · {exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></button><select value={prescriptions[exercise.id] || prescriptionFor(index, goal)} onChange={(event) => setPrescriptions((current) => ({ ...current, [exercise.id]: event.target.value }))} className="h-9 border border-white/15 bg-[#192723] px-2 text-xs font-bold text-white outline-none"><option>4 × 3–5</option><option>3 × 6–10</option><option>3 × 8–12</option><option>3 × 12–15</option><option>4 × 30 sec</option></select><button onClick={() => removeExercise(exercise.id)} className="ml-1 grid h-9 w-9 place-items-center border border-white/10 text-[#90a098] hover:border-[#e4512e] hover:text-[#e4512e]" aria-label={`Remove ${exercise.name}`}><X className="h-4 w-4" /></button></div>) : <div className="p-10 text-center"><Dumbbell className="mx-auto h-6 w-6 text-[#5f6e65]" /><p className="mt-3 text-sm font-bold text-white">No exercises selected.</p><p className="mt-1 text-xs text-[#91a09a]">Add from the catalog or load a smart sport draft.</p></div>}</div><div className="border-t border-white/10 p-5"><button onClick={() => setWorkspace("recommended")} className="inline-flex items-center gap-2 bg-[#b8ff5b] px-4 py-3 text-[10px] font-bold uppercase tracking-[.13em] text-[#132019]">Add recommendations <Plus className="h-4 w-4" /></button></div></div><div className="light-panel p-5"><p className="metric-label">Exercise finder</p><label className="mt-4 flex items-center gap-2 border border-[#dce0d8] bg-white px-3"><Search className="h-4 w-4 text-[#728078]" /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-[#9ba69f]" placeholder="Search 300 exercises" /></label><div className="mt-4 max-h-[520px] space-y-1 overflow-y-auto">{filteredCatalog.map((exercise) => <div key={exercise.id} className="finder-row"><button onClick={() => inspectExercise(exercise)} className="min-w-0 flex-1 text-left"><p className="truncate text-xs font-bold">{exercise.name}</p><p className="mt-1 truncate text-[10px] text-[#748179]">{exercise.movement}</p></button><button onClick={() => addExercise(exercise)} className="grid h-8 w-8 place-items-center border border-[#ccd6cc] text-[#3f5046] hover:border-[#b8ff5b] hover:bg-[#b8ff5b]"><Plus className="h-4 w-4" /></button></div>)}</div></div></div></section>}
 
-        {workspace === "body" && <section className="space-y-5"><div className="view-header"><div><p className="metric-label">04 / interactive body laboratory</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">Touch the muscle.<br /><em className="text-[#e4512e]">Trace the movement.</em></h1></div><div className="view-header-note"><Activity className="h-5 w-5 text-[#e4512e]" /><p>Click an activated muscle to review its sport-movement role and the highest-value exercise support.</p></div></div><div className="grid gap-5 xl:grid-cols-[.8fr_1.2fr]"><div className="dark-panel p-5"><p className="metric-label !text-[#91a09a]">Selected training focus</p><h2 className="mt-2 font-display text-4xl font-bold uppercase leading-none text-white">{selectedMovement.label}</h2><p className="mt-3 text-sm leading-6 text-[#c4d0c8]">The map highlights muscle groups associated with this action. Use the lab to move from anatomy, to sporting demand, to a precise training tool.</p><div className="mt-5 border-t border-white/10 pt-4"><p className="metric-label !text-[#91a09a]">Primary muscle evidence</p><p className="mt-2 text-sm font-bold text-white">{selectedMovement.primaryMuscles}</p><p className="mt-4 text-[11px] leading-5 text-[#92a099]">Stabilizers: {selectedMovement.stabilizers}</p></div></div><div className="light-panel p-5"><AnatomyMap primary={movementMuscles} secondary={movementSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]} onSelect={setActiveMuscle} /></div></div><div className="grid gap-5 xl:grid-cols-[1fr_.95fr]"><div className="light-panel p-5"><p className="metric-label">Muscle-linked sport actions</p><div className="mt-4 space-y-2">{muscleMoves.length ? muscleMoves.map((movement) => <button key={movement.id} onClick={() => showMovement(movement)} className="body-link-row"><span className="flex-1 text-left"><span className="block text-xs font-bold">{movement.label}</span><span className="mt-1 block text-[10px] text-[#738078]">{movement.family}</span></span><ArrowUpRight className="h-4 w-4 text-[#e4512e]" /></button>) : <p className="text-xs text-[#6e7a72]">Select a highlighted body region to surface linked movements.</p>}</div></div><div className="dark-panel overflow-hidden"><div className="border-b border-white/10 p-5"><p className="metric-label !text-[#91a09a]">Recommended support / {muscleLabels[activeMuscle] || activeMuscle}</p><p className="mt-2 text-xs text-[#b2c0b8]">Exercises selected for the active movement, with muscle overlap made visible.</p></div><div className="divide-y divide-white/10">{movementRecommendations.filter((result) => result.exercise.primaryMuscles.includes(activeMuscle) || result.exercise.secondaryMuscles.includes(activeMuscle) || (activeMuscle.includes("Delt") && result.exercise.primaryMuscles.includes("shoulders"))).slice(0, 4).map((result, index) => <RecommendationRow key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div></div></div></section>}
+        {workspace === "custom" && <section className="space-y-5"><div className="builder-upgrade-head"><div><p className="metric-label">03 / custom workout builder</p><h1>Coach controls.<br /><em>Athlete-ready output.</em></h1><p>Build a session, inspect its trade-offs, then map it across the full training week.</p></div><div className="builder-head-actions"><div className="builder-goal-row">{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <button key={item} onClick={() => setGoal(item)} aria-pressed={goal === item} className={`goal-button ${goal === item ? "goal-button-active" : ""}`}>{item}</button>)}</div><button onClick={loadSmartDraft} className="builder-smart-button">Load smart draft <Sparkles className="h-4 w-4" /></button></div></div><div className="grid gap-5 xl:grid-cols-[.86fr_1.14fr]"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} /><div className="workout-programming-panel"><div className="programming-panel-head"><div><p className="metric-label">Programming detail</p><h3>Make the prescription usable</h3><p>Set effort, rest, notes, and completion without losing the current sport-aware draft.</p></div></div><div className="divide-y divide-white/10">{customWorkout.length ? customWorkout.map((exercise, index) => <ExercisePrescriptionRow key={exercise.id} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} />) : <p className="programming-empty">Load a smart draft or add an exercise to unlock detailed programming controls.</p>}</div><WeeklyPlanBoard days={splitDays} activeIndex={activeDayIndex} plan={weeklyPlan} onChoose={chooseWeeklyDay} onSave={saveActiveDay} /><div className="builder-finder"><div className="flex items-center justify-between gap-3"><p className="metric-label">Add an exercise</p><button onClick={() => setWorkspace("recommended")} className="text-[10px] font-bold uppercase tracking-[.1em] text-[#2d6cdf]">Browse movement matches <ArrowUpRight className="inline h-3.5 w-3.5" /></button></div><label className="mt-3 flex items-center gap-2 border border-[#dce7f2] bg-white px-3"><Search className="h-4 w-4 text-[#6683a0]" /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Search 300 exercises" /></label><div className="mt-3 grid gap-2 md:grid-cols-2">{filteredCatalog.slice(0, 8).map((exercise) => <div key={exercise.id} className="builder-finder-row"><button onClick={() => inspectExercise(exercise)} className="min-w-0 flex-1 text-left"><strong>{exercise.name}</strong><small>{exercise.movement}</small></button><button onClick={() => addExercise(exercise)} aria-label={`Add ${exercise.name}`}><Plus className="h-4 w-4" /></button></div>)}</div></div></div></div></section>}
+
+        {workspace === "body" && <section className="space-y-5"><div className="view-header"><div><p className="metric-label">04 / interactive body laboratory</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">Touch the muscle.<br /><em className="text-[#e4512e]">Trace the movement.</em></h1></div><div className="view-header-note"><Activity className="h-5 w-5 text-[#e4512e]" /><p>Click an activated muscle to review its sport-movement role and the highest-value exercise support.</p></div></div><div className="grid gap-5 xl:grid-cols-[.8fr_1.2fr]"><div className="dark-panel p-5"><p className="metric-label !text-[#91a09a]">Selected training focus</p><h2 className="mt-2 font-display text-4xl font-bold uppercase leading-none text-white">{selectedMovement.label}</h2><p className="mt-3 text-sm leading-6 text-[#c4d0c8]">The map highlights muscle groups associated with this action. Use the lab to move from anatomy, to sporting demand, to a precise training tool.</p><div className="mt-5 border-t border-white/10 pt-4"><p className="metric-label !text-[#91a09a]">Primary muscle evidence</p><p className="mt-2 text-sm font-bold text-white">{selectedMovement.primaryMuscles}</p><p className="mt-4 text-[11px] leading-5 text-[#92a099]">Stabilizers: {selectedMovement.stabilizers}</p></div></div><div className="light-panel p-5"><AnatomyMap primary={movementMuscles} secondary={movementSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]} onSelect={setActiveMuscle} /></div></div><div className="grid gap-5 xl:grid-cols-[1fr_.95fr]"><div className="light-panel p-5"><p className="metric-label">Muscle-linked sport actions</p><div className="mt-4 space-y-2">{muscleMoves.length ? muscleMoves.map((movement) => <button key={movement.id} onClick={() => { setMovementId(movement.id); setActiveMuscle(getMovementMuscles(movement)[0] || activeMuscle); }} className="body-link-row"><span className="flex-1 text-left"><span className="block text-xs font-bold">{movement.label}</span><span className="mt-1 block text-[10px] text-[#738078]">{movement.family}</span></span><ChevronRight className="h-4 w-4 text-[#e4512e]" /></button>) : <p className="text-xs text-[#6e7a72]">Select a highlighted body region to surface linked movements.</p>}</div><button onClick={() => setWorkspace("recommended")} className="mt-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.12em] text-[#2d6cdf]">Open movement recommendations <ArrowUpRight className="h-4 w-4" /></button></div><div className="dark-panel overflow-hidden"><div className="border-b border-white/10 p-5"><p className="metric-label !text-[#91a09a]">Recommended support / {muscleLabels[activeMuscle] || activeMuscle}</p><p className="mt-2 text-xs text-[#b2c0b8]">Exercises selected for the active movement, with muscle overlap made visible.</p></div><div className="divide-y divide-white/10">{movementRecommendations.filter((result) => result.exercise.primaryMuscles.includes(activeMuscle) || result.exercise.secondaryMuscles.includes(activeMuscle) || (activeMuscle.includes("Delt") && result.exercise.primaryMuscles.includes("shoulders"))).slice(0, 4).map((result, index) => <RecommendationRow key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div></div></div></section>}
 
         {workspace === "movement" && <section className="space-y-5"><div className="view-header"><div><p className="metric-label">05 / sport movement atlas</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">400 actions.<br /><em className="text-[#e4512e]">One clear system.</em></h1></div><div className="view-header-note"><Layers3 className="h-5 w-5 text-[#e4512e]" /><p>Each record identifies body action, movers, stabilizers, muscle action, and a gym-transfer cue.</p></div></div><div className="grid gap-5 xl:grid-cols-[290px_1fr]"><div className="dark-panel max-h-[760px] overflow-y-auto p-3">{sportProfiles.map((profile) => <button key={profile.id} onClick={() => chooseSport(profile.id)} className={`atlas-sport-row ${sportId === profile.id ? "atlas-sport-active" : ""}`}><span className="font-display text-2xl font-bold">{String(sportProfiles.indexOf(profile) + 1).padStart(2, "0")}</span><span className="min-w-0 flex-1 text-left"><span className="block truncate text-xs font-bold">{profile.label}</span><span className="mt-1 block truncate text-[10px] text-[#8d9c95]">20 actions · {profile.movementFamilies.length} families</span></span><ChevronRight className="h-4 w-4" /></button>)}</div><div className="space-y-5"><div className="light-panel p-6"><p className="metric-label">{selectedSport.label} / research profile</p><h2 className="mt-2 font-display text-4xl font-bold uppercase leading-none text-[#17231f]">Movement architecture</h2><p className="mt-4 max-w-4xl text-sm leading-6 text-[#5c6b62]">{selectedSport.summary}</p><div className="mt-5 flex flex-wrap gap-2">{selectedSport.movementFamilies.map((family) => <span key={family} className="family-tag">{family}</span>)}</div></div><div className="grid gap-3 md:grid-cols-2">{sportMovements.map((movement, index) => <button key={movement.id} onClick={() => showMovement(movement)} className={`atlas-movement-card ${movement.id === selectedMovement.id ? "atlas-movement-active" : ""}`}><div className="flex items-start gap-3"><span className="font-display text-2xl font-bold text-[#a0aca3]">{String(index + 1).padStart(2, "0")}</span><span className="min-w-0 flex-1 text-left"><span className="block text-sm font-bold text-[#19261f]">{movement.label}</span><span className="mt-1 block text-[10px] leading-4 text-[#748179]">{movement.family}</span></span><ChevronRight className="h-4 w-4 text-[#e4512e]" /></div><p className="mt-3 line-clamp-2 text-left text-[11px] leading-5 text-[#5d6d63]">{movement.bodyActions}</p></button>)}</div></div></div></section>}
 

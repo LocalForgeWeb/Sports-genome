@@ -219,6 +219,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/wouter")) return "framework";
+          if (id.includes("node_modules/lucide-react")) return "icons";
+          if (id.includes("/exerciseCatalog") || id.includes("/workoutPlanner")) return "exercise-data";
+          if (id.includes("/sportMovementDatabase") || id.includes("/enrichedSportMovementDatabase") || id.includes("/movementRecommendations") || id.includes("/movementProgramAnalysis")) return "movement-data";
+          if (id.includes("/exerciseGenome") || id.includes("/ExerciseGenomePanel")) return "genome-analysis";
+        },
+      },
+    },
   },
   server: {
     port: 3000,

@@ -103,3 +103,6 @@ The mark is an **interlocked “GO” motion glyph**: two offset chevrons form a
 - Pulse Quiz uses electric blue only for progress, ambient depth, and secondary feedback; **Signal Vermilion** owns active selections, priority stamps, readiness cues, and decisive training actions.
 - Every atmospheric blue form is paired with functional coach evidence: force and movement labels, rule lines, training-bias annotations, and compact inspection marks.
 - The first decision screen treats every outcome choice as a coach-led training trade-off, using visible force, tissue, repeatability, and sport-transfer logic rather than a generic preference prompt.
+- Pulse Quiz uses bone inspection surfaces within the midnight shell so choices read as documented coaching evidence, not generic dark dashboard tiles.
+- Electric blue is reserved for workflow and ambient depth, while **Signal Vermilion `#E4512E`** owns active choices, readiness, priority, and commitment.
+- Every abstract atmosphere layer must pair with visible sport-science evidence such as force lines, movement labels, calibration ticks, body-map fragments, or transfer annotations.
