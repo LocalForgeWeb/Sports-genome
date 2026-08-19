@@ -2,6 +2,48 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./anatomy-fallback.css";
+@import "./movement-intelligence.css";
+
+/* Modern Kinetic Field Manual refinement: coral owns the decision, blue supports the system. */
+.pulse-orb-one::before {
+  content: "MUSCLE / FORCE / SKILL\A\A ACTION BIAS\A LOAD TOLERANCE\A SPORT TRANSFER";
+  position: absolute;
+  top: 30%;
+  right: 10%;
+  width: 180px;
+  padding: 12px 0 12px 16px;
+  border-left: 2px solid #e4512e;
+  color: rgb(221 234 246 / .82);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .15em;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.pulse-orb-one::after {
+  content: "";
+  position: absolute;
+  top: 62%;
+  right: 9%;
+  width: 154px;
+  height: 35px;
+  border-top: 1px solid rgb(164 200 232 / .28);
+  border-bottom: 1px solid rgb(164 200 232 / .16);
+  background: repeating-linear-gradient(90deg, transparent 0 18px, rgb(164 200 232 / .38) 18px 19px);
+}
+
+.pulse-option-selected {
+  border-color: #e4512e !important;
+  box-shadow: inset 4px 0 #e4512e, 0 12px 28px rgb(228 81 46 / .16) !important;
+}
+
+.pulse-option-selected .pulse-option-index,
+.pulse-option-selected .pulse-check {
+  color: #ffb49e !important;
+}
+
+.pulse-option:not(.pulse-option-selected) .pulse-option-index { color: #d6b94f; }
 
 @custom-variant dark (&:is(.dark *));
 

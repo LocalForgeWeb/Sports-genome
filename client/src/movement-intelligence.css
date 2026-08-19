@@ -1,0 +1,50 @@
+/** Gym Optimizer movement intelligence: research-aware coverage and workout overlap surfaces. */
+.movement-intelligence-panel {
+  overflow: hidden;
+  border: 1px solid #d9e3ea;
+  border-radius: 16px;
+  background: #fbfdff;
+  box-shadow: 0 12px 30px rgb(18 47 78 / .08);
+}
+
+.movement-intelligence-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.3rem 1.35rem;
+  background: linear-gradient(110deg, #0d2a4a, #13436d);
+  color: #fff;
+}
+
+.movement-intelligence-head h3 { margin-top: .35rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 800; line-height: .85; text-transform: uppercase; }
+.movement-intelligence-head p:last-child { margin-top: .65rem; max-width: 48rem; font-size: .78rem; line-height: 1.45; color: #c5d7e8; }
+.confidence-badge { align-self: flex-start; border: 1px solid rgb(255 255 255 / .35); padding: .38rem .55rem; font-size: .59rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+.confidence-high { color: #c7f3de; }.confidence-moderate { color: #ffe1a6; }.confidence-limited { color: #ffd0c2; }
+
+.movement-joint-grid { display: grid; gap: .75rem; padding: 1rem 1.35rem; border-bottom: 1px solid #dfe8ee; background: #f4f8fb; }
+.movement-joint-grid > div { padding-left: .75rem; border-left: 2px solid #71aef4; }
+.movement-joint-grid p:last-child { margin-top: .35rem; font-size: .74rem; line-height: 1.45; color: #425f74; }
+
+.movement-coverage-head { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 1rem 1.35rem .6rem; }
+.movement-coverage-head p:last-child { margin-top: .25rem; font-size: .75rem; color: #4f6575; }
+.movement-coverage-head > span { font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 2rem; font-weight: 800; line-height: 1; color: #e4512e; }
+.movement-role-grid { display: grid; gap: .7rem; padding: .55rem 1.35rem 1.2rem; }
+.movement-role-group { min-width: 0; }
+.movement-role-row { display: flex; gap: .5rem; align-items: flex-start; padding: .5rem .6rem; border: 1px solid #e1e9ee; background: #fff; }
+.movement-role-row > span { display: grid; flex: 0 0 18px; place-items: center; margin-top: .05rem; color: #92a8b8; }
+.movement-role-covered { border-color: #bbd7c7; background: #f3fbf6; }.movement-role-covered > span { color: #24794b; }
+.movement-role-row p { font-size: .72rem; font-weight: 800; color: #18344d; }.movement-role-row small { display: block; margin-top: .15rem; overflow: hidden; color: #617788; font-size: .63rem; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+
+.movement-section-heading { display: flex; gap: .45rem; align-items: center; padding: .85rem 1.35rem; border-top: 1px solid #dfe8ee; border-bottom: 1px solid #dfe8ee; font-size: .66rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #264963; }
+.movement-assistance-list { padding: .2rem 1.35rem .9rem; }
+.movement-assistance-row { display: flex; align-items: center; gap: .6rem; padding: .7rem 0; border-bottom: 1px solid #e5edf2; }
+.movement-assistance-row strong { display: block; font-size: .75rem; color: #18344d; }.movement-assistance-row small { display: block; margin-top: .22rem; font-size: .65rem; line-height: 1.35; color: #627789; }
+.movement-assistance-row > span { color: #7a8e9d; font-size: .55rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }.movement-assistance-row > button { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 1px solid #b9cfde; color: #1764b1; transition: .18s var(--ease-out, ease); }.movement-assistance-row > button:hover { border-color: #1764b1; background: #1764b1; color: #fff; }
+
+.redundancy-panel { margin: 0 1.35rem 1rem; padding: .9rem; border: 1px solid #e2d5c7; background: #fffaf4; }.redundancy-panel > div:first-child > p:last-child { margin-top: .28rem; font-size: .73rem; color: #5f625d; }.redundancy-row, .redundancy-clear { display: flex; align-items: flex-start; gap: .5rem; color: #a94b2d; }.redundancy-row strong { display: block; font-size: .72rem; }.redundancy-row small { display: block; margin-top: .18rem; color: #6c645d; font-size: .65rem; line-height: 1.35; }.redundancy-clear { color: #34724c; font-size: .68rem; line-height: 1.4; }
+.movement-caution { display: flex; gap: .55rem; margin: 0 1.35rem 1rem; padding: .75rem .85rem; border-left: 3px solid #e4512e; background: #fff1eb; color: #60493f; font-size: .7rem; line-height: 1.45; }.movement-caution svg { flex: 0 0 auto; margin-top: .04rem; color: #d45536; }
+.movement-sources { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .75rem 1.35rem; border-top: 1px solid #dfe8ee; color: #657a8b; font-size: .62rem; }.movement-sources > span { font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.movement-sources a { display: inline-flex; gap: .25rem; align-items: center; color: #1764b1; text-decoration: underline; }
+.movement-intelligence-compact { margin-bottom: 8rem; }.movement-intelligence-compact .movement-intelligence-head { padding: 1rem 1.2rem; }.movement-intelligence-compact .movement-joint-grid { display: none; }.movement-intelligence-compact .movement-role-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }.movement-intelligence-compact .movement-role-row small { white-space: normal; }
+
+@media (min-width: 760px) { .movement-joint-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }.movement-role-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .movement-intelligence-head { padding: 1rem; }.confidence-badge { font-size: .52rem; }.movement-joint-grid, .movement-coverage-head, .movement-role-grid { padding-left: 1rem; padding-right: 1rem; }.movement-intelligence-compact .movement-role-grid { grid-template-columns: 1fr; }.redundancy-panel, .movement-caution { margin-left: 1rem; margin-right: 1rem; }.movement-assistance-list { padding-left: 1rem; padding-right: 1rem; }.movement-section-heading, .movement-sources { padding-left: 1rem; padding-right: 1rem; } }

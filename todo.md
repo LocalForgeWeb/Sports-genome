@@ -80,3 +80,10 @@
 - [ ] Make each Muscle Genome and Mechanics label discoverable and keyboard-accessible from the Exercise Genome panel.
 - [ ] Add an in-app vector anatomy fallback that remains visible if the external anatomy illustration fails to load.
 - [ ] Validate the learning dialog from Muscle Genome and Mechanics tabs plus the image-failure fallback in the live app.
+- [ ] Audit every existing sport movement record for muscle roles, joint actions, exercise recommendations, and data gaps.
+- [ ] Conduct a deep wrestling expansion across stance, hand-fighting, level change, penetration, shots, sprawls, lifts, turns, mat returns, bridges, and grip fighting.
+- [ ] Enrich all 400 sport-movement records with named prime movers, assisting muscles, stabilizers, contraction roles, joint actions, and transferable exercise rationale.
+- [ ] Build an evidence-aware redundancy model that distinguishes useful overlap from low-value duplicate movement, muscle, fatigue, and skill demands.
+- [ ] Show movement-specific muscle use and ranked supporting exercises from every sport movement detail view.
+- [ ] Add a program-level coverage report that identifies movement gaps, redundant exercise clusters, and high-value additions.
+- [ ] Validate wrestling movement depth, cross-sport movement coverage, redundancy flags, and recommendation explanations.

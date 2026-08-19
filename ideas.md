@@ -97,3 +97,9 @@ The mark is an **interlocked “GO” motion glyph**: two offset chevrons form a
 - The quiz uses one dominant question at a time, expressive option cards, visible progress, responsive selection states, and a brief “building your plan” handoff before the personalized workspace appears.
 - The post-quiz workspace stays information-rich but becomes lighter, faster to scan, and more enjoyable through better hierarchy, softer material depth, concise labels, and playful motion that never impedes training decisions.
 - Pulse Quiz retains the midnight-blue product shell but uses inspection labels, hairline evidence cues, and vermilion priority stamps on every decision state. The copy frames selections as coach-led training trade-offs rather than generic account setup.
+
+## Style Decisions — Training Assessment Refinement
+
+- Pulse Quiz uses electric blue only for progress, ambient depth, and secondary feedback; **Signal Vermilion** owns active selections, priority stamps, readiness cues, and decisive training actions.
+- Every atmospheric blue form is paired with functional coach evidence: force and movement labels, rule lines, training-bias annotations, and compact inspection marks.
+- The first decision screen treats every outcome choice as a coach-led training trade-off, using visible force, tissue, repeatability, and sport-transfer logic rather than a generic preference prompt.
