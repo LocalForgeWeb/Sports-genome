@@ -108,3 +108,15 @@ The mark is an **interlocked “GO” motion glyph**: two offset chevrons form a
 - Pulse Quiz uses bone inspection surfaces within the midnight shell so choices read as documented coaching evidence, not generic dark dashboard tiles.
 - Electric blue is reserved for workflow and ambient depth, while **Signal Vermilion `#E4512E`** owns active choices, readiness, priority, and commitment.
 - Every abstract atmosphere layer must pair with visible sport-science evidence such as force lines, movement labels, calibration ticks, body-map fragments, or transfer annotations.
+
+## Style Decisions — Product-Quality Refinement
+
+- The primary product question leads every screen: **what to train**, **why it matters**, or **what to change next**. Scores, source data, and granular biomechanics remain available through clearly labeled disclosure.
+- Navigation compresses into user intent: **Home**, **Train**, **Explore**, and **Sport**. Existing technical modules remain intact beneath those destinations instead of competing as equal first-level choices.
+- The universal surface system uses three levels only: ink-navy decision surfaces, bone-paper answer surfaces, and white inspect surfaces. Each surface preserves a visible border, calm shadow, and a single compact field label.
+- Signal tiers use a single display scale from **S+** through **D**, with numerical bands and a reusable explanation. Legacy source grades remain available as raw data but never determine their own visual language.
+- Recommendation cards show one differentiated, score-derived reason by default. A score stamp or “Why this rank?” control opens the component evidence, strengths, limitations, and methodology boundary.
+- A coverage conclusion is always expressed as a percentage plus plain-language strengths and priorities; raw requirement counts belong in the advanced layer only.
+- Mobile defaults to one primary action, full-width answer cards, 44px-or-larger touch targets, short conclusions, and progressively disclosed analysis.
+- Pulse Quiz outcome cards use unique visual evidence cues for force–velocity, tissue volume, force expression, and repeatability. These cues explain the choice but never compete with vermilion as the active commitment color.
+- The product identity uses a compact, interlocked italic **GO** glyph with a forward-cut stroke, paired with the Gym Optimizer wordmark; generic speed or lightning imagery is excluded from the mark.

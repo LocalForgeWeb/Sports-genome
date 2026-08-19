@@ -63,7 +63,7 @@ export type WorkoutMovementAnalysis = {
   primeMovers: MuscleCoverage[];
   assistingMuscles: MuscleCoverage[];
   stabilizers: MuscleCoverage[];
-  coverage: { covered: number; total: number; label: string };
+  coverage: { covered: number; total: number; percent: number; label: string; strengths: string[]; priorities: string[] };
   redundancyFlags: RedundancyFlag[];
 };
 
@@ -81,6 +81,17 @@ export function analyzeWorkoutForMovement(movement: EnrichedSportMovement, worko
   const stabilizers = roleCoverage(movement.stabilizers, "Stabilizer", workout);
   const all = [...primeMovers, ...assistingMuscles, ...stabilizers];
   const covered = all.filter((item) => item.coveredBy.length).length;
+  const percent = Math.round((covered / Math.max(1, all.length)) * 100);
+  const strengths = [
+    ...primeMovers.filter((item) => item.coveredBy.length),
+    ...assistingMuscles.filter((item) => item.coveredBy.length),
+    ...stabilizers.filter((item) => item.coveredBy.length),
+  ].map((item) => item.name).slice(0, 3);
+  const priorities = [
+    ...primeMovers.filter((item) => !item.coveredBy.length),
+    ...stabilizers.filter((item) => !item.coveredBy.length),
+    ...assistingMuscles.filter((item) => !item.coveredBy.length),
+  ].map((item) => item.name).slice(0, 3);
   const redundancyFlags: RedundancyFlag[] = [];
   workout.forEach((left, index) => workout.slice(index + 1).forEach((right) => {
     const leftMuscles = [...left.primaryMuscles, ...left.secondaryMuscles];
@@ -101,7 +112,7 @@ export function analyzeWorkoutForMovement(movement: EnrichedSportMovement, worko
     primeMovers,
     assistingMuscles,
     stabilizers,
-    coverage: { covered, total: all.length, label: `${covered} of ${all.length} listed muscle roles supported by the current stack` },
+    coverage: { covered, total: all.length, percent, label: `${percent}% training coverage`, strengths, priorities },
     redundancyFlags,
   };
 }

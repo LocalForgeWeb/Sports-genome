@@ -169,3 +169,14 @@
 - [x] Ensure opening a saved day restores that day’s intended exercise stack and prescriptions before editing.
 - [x] Integrate the weekly per-muscle volume view into the dedicated planning workspace without crowding day design.
 - [x] Validate day switching, import-to-day flow, confidence correction, and mobile layout before publishing.
+
+## Product-Quality UX/UI Refinement
+
+- [x] Audit primary pages, navigation, cards, badges, filters, empty states, and mobile layouts against the supplied conclusion-first product brief.
+- [x] Establish documented tokens for typography, spacing, surface hierarchy, buttons, tiers, score displays, and expandable analysis.
+- [x] Consolidate primary navigation into clear user destinations while keeping technical systems accessible as deeper exploration.
+- [x] Refactor recommendation reasoning so each exercise communicates a distinct score-derived reason and expandable ranking breakdown.
+- [x] Translate movement and program data into immediate coverage conclusions with optional deeper requirements and evidence views.
+- [x] Apply consistent tap/inspect, add, expand, save, and secondary-action interaction patterns across high-value screens.
+- [x] Improve mobile hierarchy, touch targets, visibility of key actions, and empty states without removing data or shortcuts for advanced users.
+- [x] Validate desktop and mobile experience, production build, and data preservation before publishing the refinement.

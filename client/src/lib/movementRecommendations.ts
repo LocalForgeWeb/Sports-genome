@@ -47,7 +47,19 @@ const humanMuscleAliases: Record<string, string[]> = {
   rotatorCuff: ["rotator cuff"],
 };
 
-export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; rationale: string };
+export type RecommendationBreakdown = {
+  overall: number;
+  muscleMatch: number;
+  jointActionMatch: number;
+  physicalQualityMatch: number;
+  forceDirectionMatch: number;
+  stabilityMatch: number;
+  velocityMatch: number;
+  strengths: string[];
+  limitations: string[];
+};
+
+export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; rationale: string; breakdown: RecommendationBreakdown };
 
 export function getMovementSignals(profile: SportMovementProfile): MovementSignal[] {
   const haystack = `${profile.label} ${profile.bodyActions} ${profile.primaryMuscles} ${profile.stabilizers} ${profile.family}`;
@@ -70,6 +82,59 @@ function gradeForScore(score: number): Grade {
   return "F";
 }
 
+const percentage = (value: number) => Math.max(0, Math.min(99, Math.round(value)));
+
+function scoreReason(exercise: Exercise, matchedSignals: MovementSignal[], matchedMuscles: string[]) {
+  const has = (signal: MovementSignal) => matchedSignals.includes(signal);
+  const name = exercise.name.toLowerCase();
+  const movement = exercise.movement.toLowerCase();
+  if (movement.includes("lateral") || name.includes("lateral")) return "Adds frontal-plane strength and lateral hip control alongside the entry’s forward drive.";
+  if (movement.includes("lunge") || name.includes("lunge")) return "Strong unilateral leg-drive match with greater single-leg control and stance stability demand.";
+  if (name.includes("hack squat")) return "High-force knee-extension option for building leg drive with a more guided stability demand.";
+  if (has("singleLeg") && exercise.qualities.includes("unilateral")) return "Strong unilateral force-production match with a meaningful single-leg stability demand.";
+  if (has("lateral") && exercise.qualities.includes("lateralControl")) return "Adds frontal-plane strength and lateral hip control that the action demands.";
+  if (has("rotation") && exercise.qualities.includes("rotation")) return "Builds rotational force with a clear trunk-to-hip transfer path.";
+  if (has("acceleration") && has("knee")) return "Excellent match for leg drive, knee extension, and forward projection.";
+  if (has("braking") && exercise.qualities.includes("deceleration")) return "Useful for controlled force absorption and position-aware braking.";
+  if (has("overhead") && exercise.qualities.includes("scapularControl")) return "Supports overhead force with focused shoulder and scapular control.";
+  if (has("pull") && exercise.qualities.includes("grip")) return "Reinforces pulling strength and grip control for the sport action.";
+  if (matchedMuscles.length >= 3) return "Strong tissue match across several of the movement’s highest-demand muscles.";
+  return "Useful accessory support, with more limited movement-specific transfer than the top choices.";
+}
+
+function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSignals: MovementSignal[], matchedMuscles: string[], score: number): RecommendationBreakdown {
+  const signalCoverage = matchedSignals.length / Math.max(1, signals.length);
+  const muscleMatch = percentage(40 + matchedMuscles.length * 16);
+  const physicalQualityMatch = percentage(42 + signalCoverage * 54);
+  const jointActionMatch = percentage(38 + Math.min(4, matchedSignals.length) * 14);
+  const forceDirectionMatch = percentage(36 + (matchedSignals.some((item) => ["acceleration", "push", "pull", "rotation", "lateral"].includes(item)) ? 48 : 20));
+  const stabilityMatch = percentage(34 + (exercise.qualities.some((quality) => ["unilateral", "bracing", "antiRotation", "scapularControl", "lateralControl"].includes(quality)) ? 50 : 20));
+  const velocityMatch = percentage(30 + (exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "elasticity"].includes(quality)) ? 53 : 20));
+  const strengths = [
+    matchedSignals.includes("singleLeg") && exercise.qualities.includes("unilateral") ? "unilateral force-production correspondence" : "",
+    matchedSignals.includes("acceleration") && exercise.qualities.includes("power") ? "forward projection and acceleration qualities" : "",
+    matchedSignals.includes("rotation") && exercise.qualities.includes("rotation") ? "trunk-to-hip rotational transfer" : "",
+    matchedMuscles.length >= 2 ? `direct support for ${matchedMuscles.slice(0, 2).join(" and ")}` : "",
+    exercise.qualities.includes("bracing") || exercise.qualities.includes("antiRotation") ? "position and trunk-stiffness demand" : "",
+  ].filter(Boolean).slice(0, 3);
+  const limitations = [
+    velocityMatch < 58 ? "less velocity-specific than the sport action" : "",
+    stabilityMatch < 58 ? "limited dedicated stability demand" : "",
+    matchedMuscles.length < 2 ? "narrower tissue carryover than the highest-ranked options" : "",
+  ].filter(Boolean).slice(0, 2);
+  return {
+    overall: percentage(50 + score * 3.55),
+    muscleMatch,
+    jointActionMatch,
+    physicalQualityMatch,
+    forceDirectionMatch,
+    stabilityMatch,
+    velocityMatch,
+    strengths: strengths.length ? strengths : ["general support for the selected movement pattern"],
+    limitations: limitations.length ? limitations : ["use alongside more movement-specific work when transfer is the main goal"],
+  };
+}
+
 export function getMovementRecommendations(profile: SportMovementProfile, limit = 6): MovementRecommendation[] {
   const signals = getMovementSignals(profile);
   const profileMuscles = getMovementMuscles(profile);
@@ -79,8 +144,9 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
     const matchedMuscles = profileMuscles.filter((muscle) => exerciseMuscles.includes(muscle) || (muscle === "shoulders" && exerciseMuscles.some((item) => ["frontDelts", "sideDelts", "rearDelts"].includes(item))));
     const score = matchedSignals.length * 2.25 + matchedMuscles.length * 1.75 + (exercise.qualities.includes("power") && signals.includes("rotation") ? 1.25 : 0) + (exercise.qualities.includes("unilateral") && signals.includes("singleLeg") ? 1 : 0);
     const grade = gradeForScore(score);
-    const rationale = `Shares ${matchedSignals.length ? matchedSignals.join(", ") : "support"} demand${matchedMuscles.length ? ` and ${matchedMuscles.join(", ")} involvement` : ""}.`;
-    return { exercise, score, grade, matchedSignals, matchedMuscles, rationale };
+    const rationale = scoreReason(exercise, matchedSignals, matchedMuscles);
+    const breakdown = buildBreakdown(exercise, signals, matchedSignals, matchedMuscles, score);
+    return { exercise, score, grade, matchedSignals, matchedMuscles, rationale, breakdown };
   }).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id).slice(0, limit);
 }
 
