@@ -180,3 +180,19 @@
 - [x] Apply consistent tap/inspect, add, expand, save, and secondary-action interaction patterns across high-value screens.
 - [x] Improve mobile hierarchy, touch targets, visibility of key actions, and empty states without removing data or shortcuts for advanced users.
 - [x] Validate desktop and mobile experience, production build, and data preservation before publishing the refinement.
+
+## Authenticated Workout Logging
+
+- [x] Upgrade the project with user accounts and a database suitable for account-scoped training history.
+- [x] Define workout session, exercise-entry, and set-log records that preserve planned and actual training data.
+- [x] Add sign-in-aware entry points and a clear account state in the workspace.
+- [x] Add Start Workout, per-set actual weight and repetitions, set completion, and Finish Workout interactions.
+- [x] Persist completed workout sessions and display a concise account-scoped training history.
+- [x] Validate authentication, account isolation, saved sessions, mobile set logging, and completion flows before publishing.
+
+## Import Navigation and Home Preferences
+
+- [x] Audit the paste-plan dialog layout and overflow behavior across mobile and desktop viewports.
+- [x] Make parsed plan previews and confidence review independently scrollable while keeping import controls reachable.
+- [x] Add clear Home controls for changing sport, training goal, and available training days without rebuilding onboarding.
+- [x] Validate preference persistence, recommendation refresh, import navigation, and mobile touch behavior.
