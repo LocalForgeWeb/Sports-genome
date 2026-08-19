@@ -4,7 +4,8 @@ import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 
 /** Modern Kinetic Field Manual: paste once, inspect parsed days, then hand an editable routine to the Custom Builder. */
 export type ImportedRoutineItem = { exercise: Exercise; prescription: string; raw: string; rpe?: string; rest?: string; notes?: string };
-export type ImportedRoutineDay = { label: string; items: ImportedRoutineItem[]; unmatched: string[] };
+export type ImportedRoutineContext = { raw: string; kind: "warm-up" | "set instruction" | "plan note" };
+export type ImportedRoutineDay = { label: string; items: ImportedRoutineItem[]; context: ImportedRoutineContext[]; unmatched: string[] };
 export type ImportedRoutine = { title?: string; days: ImportedRoutineDay[]; unmatched: string[] };
 
 function normalize(value: string) { return value.toLowerCase().replace(/[–—|,()[\]{}]/g, " ").replace(/\s+/g, " ").trim(); }
@@ -15,9 +16,24 @@ function isDayHeader(raw: string) {
 }
 function cleanDayLabel(raw: string) { return raw.trim().replace(/[:\-–—]+$/, "").replace(/^day\s*\d+\s*[-–—:]?\s*/i, "").replace(/\s+day$/i, "").trim() || raw.trim().replace(/[:\-–—]+$/, ""); }
 function findExercise(name: string) {
-  const normalized = normalize(name);
-  const exact = exercises.find((exercise) => normalize(exercise.name) === normalized);
-  return exact || exercises.find((exercise) => normalize(exercise.name).includes(normalized) || normalized.includes(normalize(exercise.name)));
+  const alternatives = [normalize(name), normalize(name.replace(/\([^)]*\)/g, ""))].filter(Boolean);
+  for (const normalized of alternatives) {
+    const exact = exercises.find((exercise) => normalize(exercise.name) === normalized);
+    if (exact) return exact;
+    const inclusion = exercises.find((exercise) => normalize(exercise.name).includes(normalized) || normalized.includes(normalize(exercise.name)));
+    if (inclusion) return inclusion;
+  }
+  const tokens = alternatives[0]?.split(" ").filter((token) => token.length > 2) || [];
+  return exercises.find((exercise) => tokens.length >= 2 && tokens.every((token) => normalize(exercise.name).includes(token)));
+}
+
+function classifyContextLine(raw: string): ImportedRoutineContext["kind"] | undefined {
+  const value = raw.trim().toLowerCase();
+  if (/^(?:set\s*\d+|week\s*\d+|block\s*\d+|round\s*\d+|circuit\s*\d+|exercise\s*\d+)\b/.test(value)) return "set instruction";
+  if (/\b(?:warm[- ]?up|mobility|activation|dynamic prep|cool[- ]?down|stretch)\b/.test(value)) return "warm-up";
+  if (/\b(?:rpe|rir|reps?\s*(?:short|in reserve)|to failure|tempo|rest|break|minutes?|seconds?|sec|sets?)\b/.test(value)) return "set instruction";
+  if (/^(?:notes?|focus|cue|goal|progression|instructions?)\b/.test(value)) return "plan note";
+  return undefined;
 }
 function parseExerciseLine(raw: string) {
   const compact = raw.replace(/^[-•*\d.)\s]+/, "").trim();
@@ -37,11 +53,13 @@ function parseRoutine(source: string): ImportedRoutine {
   const unmatched: string[] = [];
   let title: string | undefined;
   let active: ImportedRoutineDay | undefined;
-  const ensureDay = () => { if (!active) { active = { label: "Imported session", items: [], unmatched: [] }; days.push(active); } return active; };
+  const ensureDay = () => { if (!active) { active = { label: "Imported session", items: [], context: [], unmatched: [] }; days.push(active); } return active; };
   source.split(/\n+/).map((line) => line.trim()).filter(Boolean).forEach((line) => {
-    if (isDayHeader(line)) { active = { label: cleanDayLabel(line), items: [], unmatched: [] }; days.push(active); return; }
+    if (isDayHeader(line)) { active = { label: cleanDayLabel(line), items: [], context: [], unmatched: [] }; days.push(active); return; }
     const parsed = parseExerciseLine(line);
     if (parsed.exercise) { ensureDay().items.push({ exercise: parsed.exercise, prescription: parsed.prescription, raw: parsed.raw, rpe: parsed.rpe, rest: parsed.rest, notes: parsed.notes }); return; }
+    const contextKind = classifyContextLine(line);
+    if (contextKind) { ensureDay().context.push({ raw: line, kind: contextKind }); return; }
     if (!active && !title && line.length < 72) { title = line; return; }
     ensureDay().unmatched.push(line); unmatched.push(line);
   });
@@ -53,5 +71,5 @@ export function StackImportPanel({ onClose, onImport }: { onClose: () => void; o
   const routine = useMemo(() => parseRoutine(source), [source]);
   const matched = routine.days.reduce((total, day) => total + day.items.length, 0);
   const loadedDays = routine.days.filter((day) => day.items.length);
-  return <div className="fixed inset-0 z-[70] grid place-items-center bg-[#06172d]/72 p-4 backdrop-blur-sm"><section className="stack-import-modal routine-import-modal"><div className="flex items-start justify-between gap-4"><div><p className="metric-label">Routine import</p><h3>Paste the full plan.</h3><p className="mt-2 max-w-xl text-xs leading-5 text-[#5a7491]">Use day headers, one exercise per line, and optional sets, reps, RPE, rest, or notes. Gym Optimizer previews every match before loading it into your editable weekly plan.</p></div><button onClick={onClose} aria-label="Close routine import" className="grid h-9 w-9 place-items-center rounded-full border border-[#c8d9ec] text-[#2a527f]"><X className="h-4 w-4" /></button></div><div className="mt-5 grid gap-4 lg:grid-cols-[1fr_.95fr]"><label className="stack-import-input"><span>Paste routine</span><textarea value={source} onChange={(event) => setSource(event.target.value)} placeholder="Day 1 — Push&#10;Barbell Bench Press — 3 x 8 @ RPE 8&#10;..." /></label><div className="stack-import-preview"><div className="flex items-start justify-between gap-3"><div><p className="metric-label">Parsed preview</p><p className="mt-1 text-xs text-[#56708d]">{matched} matched exercise{matched === 1 ? "" : "s"} across {loadedDays.length} workout day{loadedDays.length === 1 ? "" : "s"}.</p></div><Layers3 className="h-5 w-5 text-[#2d6cdf]" /></div><div className="routine-preview-days">{routine.days.length ? routine.days.map((day, dayIndex) => <details key={`${day.label}-${dayIndex}`} className="routine-preview-day" open={dayIndex === 0}><summary><span><strong>{day.label}</strong><small>{day.items.length} matched · {day.unmatched.length} needs review</small></span><CornerDownRight className="h-4 w-4" /></summary><div>{day.items.map((item, index) => <div key={`${item.raw}-${index}`} className="stack-import-row stack-import-match"><span><Check className="h-3.5 w-3.5" /></span><div><strong>{item.exercise.name}</strong><small>{item.prescription}{item.rpe ? ` · ${item.rpe}` : ""}{item.rest ? ` · ${item.rest} rest` : ""}</small></div></div>)}{day.unmatched.map((line, index) => <div key={`${line}-${index}`} className="stack-import-row stack-import-miss"><span>!</span><div><strong>{line}</strong><small>No catalog match — keep this line for review.</small></div></div>)}</div></details>) : <div className="routine-preview-empty">Paste a workout routine to preview day labels, matched exercises, and programming details.</div>}</div></div></div><div className="mt-5 flex flex-wrap items-center justify-between gap-3"><button onClick={onClose} className="text-[10px] font-bold uppercase tracking-[.11em] text-[#58718e]">Cancel</button><div className="text-right"><p className="text-[10px] text-[#6b829c]">{routine.unmatched.length ? `${routine.unmatched.length} line${routine.unmatched.length === 1 ? "" : "s"} will remain unassigned.` : "All visible lines matched."}</p><button disabled={!matched} onClick={() => onImport(routine)} className="stack-import-confirm"><ClipboardPaste className="h-4 w-4" /> Load {loadedDays.length > 1 ? `${loadedDays.length}-day routine` : "workout"}</button></div></div></section></div>;
+  return <div className="fixed inset-0 z-[70] grid place-items-center bg-[#06172d]/72 p-4 backdrop-blur-sm"><section className="stack-import-modal routine-import-modal"><div className="flex items-start justify-between gap-4"><div><p className="metric-label">Routine import</p><h3>Paste the full plan.</h3><p className="mt-2 max-w-xl text-xs leading-5 text-[#5a7491]">Use day headers, one exercise per line, and optional sets, reps, RPE, rest, or notes. Set headers, warm-ups, and plan instructions are preserved separately instead of being treated as exercises.</p></div><button onClick={onClose} aria-label="Close routine import" className="grid h-9 w-9 place-items-center rounded-full border border-[#c8d9ec] text-[#2a527f]"><X className="h-4 w-4" /></button></div><div className="mt-5 grid gap-4 lg:grid-cols-[1fr_.95fr]"><label className="stack-import-input"><span>Paste routine</span><textarea value={source} onChange={(event) => setSource(event.target.value)} placeholder="Day 1 — Push&#10;Barbell Bench Press — 3 x 8 @ RPE 8&#10;Set 1: 10 reps, controlled tempo&#10;..." /></label><div className="stack-import-preview"><div className="flex items-start justify-between gap-3"><div><p className="metric-label">Parsed preview</p><p className="mt-1 text-xs text-[#56708d]">{matched} matched exercise{matched === 1 ? "" : "s"} across {loadedDays.length} workout day{loadedDays.length === 1 ? "" : "s"}.</p></div><Layers3 className="h-5 w-5 text-[#2d6cdf]" /></div><div className="routine-preview-days">{routine.days.length ? routine.days.map((day, dayIndex) => <details key={`${day.label}-${dayIndex}`} className="routine-preview-day" open={dayIndex === 0}><summary><span><strong>{day.label}</strong><small>{day.items.length} matched · {day.context.length} saved as plan context · {day.unmatched.length} needs review</small></span><CornerDownRight className="h-4 w-4" /></summary><div>{day.items.map((item, index) => <div key={`${item.raw}-${index}`} className="stack-import-row stack-import-match"><span><Check className="h-3.5 w-3.5" /></span><div><strong>{item.exercise.name}</strong><small>{item.prescription}{item.rpe ? ` · ${item.rpe}` : ""}{item.rest ? ` · ${item.rest} rest` : ""}</small></div></div>)}{day.context.map((item, index) => <div key={`${item.raw}-${index}`} className="stack-import-row stack-import-context"><span>↳</span><div><strong>{item.raw}</strong><small>{item.kind} saved separately from exercises.</small></div></div>)}{day.unmatched.map((line, index) => <div key={`${line}-${index}`} className="stack-import-row stack-import-miss"><span>!</span><div><strong>{line}</strong><small>No catalog match — keep this line for review.</small></div></div>)}</div></details>) : <div className="routine-preview-empty">Paste a workout routine to preview day labels, matched exercises, and programming details.</div>}</div></div></div><div className="mt-5 flex flex-wrap items-center justify-between gap-3"><button onClick={onClose} className="text-[10px] font-bold uppercase tracking-[.11em] text-[#58718e]">Cancel</button><div className="text-right"><p className="text-[10px] text-[#6b829c]">{routine.unmatched.length ? `${routine.unmatched.length} line${routine.unmatched.length === 1 ? "" : "s"} will remain unassigned.` : "Exercises and plan context are separated."}</p><button disabled={!matched} onClick={() => onImport(routine)} className="stack-import-confirm"><ClipboardPaste className="h-4 w-4" /> Load {loadedDays.length > 1 ? `${loadedDays.length}-day routine` : "workout"}</button></div></div></section></div>;
 }

@@ -142,3 +142,12 @@
 - [x] Correct line-height, row structure, responsive spacing, and overflow behavior without changing existing product content.
 - [x] Strengthen card hierarchy, interactive states, and visual rhythm to make the workspace feel more cohesive and engaging.
 - [x] Validate representative desktop and mobile views before publishing the readability update.
+
+## Mobility and Programming Intelligence
+
+- [x] Research dynamic warm-up, mobility, and resistance-training programming guidance from credible coaching and sport-science sources.
+- [x] Create a structured library of at least 60 warm-up mobility drills with movement demands, tissues, dose ranges, and caution flags.
+- [x] Build exercise-aware warm-up recommendations that use the current stack’s movement patterns and training goal.
+- [x] Add transparent set, repetition, RPE, rest, and volume diagnostics that identify excessive or incomplete programming.
+- [x] Repair routine import so set headers, warm-up text, RPE instructions, and rest notes are preserved as prescription context rather than parsed as exercises.
+- [x] Validate varied multi-day pasted routines and publish the completed workflow.

@@ -5,25 +5,28 @@ import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { GradeStamp } from "@/components/GradeStamp";
 import { ExerciseGenomePanel } from "@/components/ExerciseGenomePanel";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
-import { StackImportPanel, type ImportedRoutine } from "@/components/StackImportPanel";
+import { StackImportPanel, type ImportedRoutine, type ImportedRoutineContext } from "@/components/StackImportPanel";
 import { SplitDraftControls, type LoadoutMode, type SplitDay } from "@/components/SplitDraftControls";
 import { FeatureTour } from "@/components/FeatureTour";
 import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
+import { WarmupPanel } from "@/components/WarmupPanel";
+import { ImportedPlanContext } from "@/components/ImportedPlanContext";
+import { ProgrammingGuidePanel } from "@/components/ProgrammingGuidePanel";
 import { WeeklyPlanBoard } from "@/components/WeeklyPlanBoard";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
 import { MovementAtlasPanel } from "@/components/MovementAtlasPanel";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
-import { getExerciseSettings, type ExerciseSettings } from "@/lib/workoutPlanner";
+import { getExerciseSettings, getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportSession, type MovementRecommendation } from "@/lib/movementRecommendations";
 import { toast } from "sonner";
 
 type Workspace = "command" | "recommended" | "custom" | "body" | "movement" | "catalog" | "genome";
-type Goal = "Athleticism" | "Muscle growth" | "Max strength" | "Capacity";
+type Goal = TrainingGoal;
 type StackMode = "suggested" | "custom";
 type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string };
-type StoredWorkoutPlan = { version: 1; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings> };
+type StoredWorkoutPlan = { version: 1; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; importedPlanContext?: Record<string, ImportedRoutineContext[]> };
 const athleteProfileKey = "gym-optimizer-athlete-profile-v1";
 const workoutPlanKey = "gym-optimizer-workout-plan-v1";
 const plannerTabKey = "gym-optimizer-planner-tab-v1";
@@ -60,10 +63,7 @@ function sportAbbrev(label: string) {
 }
 
 function prescriptionFor(index: number, goal: Goal) {
-  if (goal === "Max strength") return index < 2 ? "4 × 3–5" : "3 × 6–8";
-  if (goal === "Muscle growth") return "3 × 8–12";
-  if (goal === "Capacity") return index < 2 ? "4 × 5–8" : "3 × 10–15";
-  return index < 2 ? "4 × 3–5" : "3 × 6–10";
+  return getGoalPrescription(goal, index);
 }
 
 function Metric({ label, value, detail, tone = "lime" }: { label: string; value: string; detail: string; tone?: "lime" | "orange" | "white" }) {
@@ -113,6 +113,7 @@ export default function Home() {
   const [prescriptions, setPrescriptions] = useState<Record<number, string>>({});
   const [exerciseSettings, setExerciseSettings] = useState<Record<number, ExerciseSettings>>({});
   const [weeklyPlan, setWeeklyPlan] = useState<Record<string, Exercise[]>>({});
+  const [importedPlanContext, setImportedPlanContext] = useState<Record<string, ImportedRoutineContext[]>>({});
   const [profileHydrated, setProfileHydrated] = useState(false);
   const [planHydrated, setPlanHydrated] = useState(false);
   const [railOpen, setRailOpen] = useState(false);
@@ -174,6 +175,7 @@ export default function Home() {
           setWeeklyPlan(Object.fromEntries(Object.entries(plan.weeklyPlanIds).map(([key, ids]) => [key, fromIds(ids)])));
           setPrescriptions(plan.prescriptions || {});
           setExerciseSettings(plan.exerciseSettings || {});
+          setImportedPlanContext(plan.importedPlanContext || {});
         }
       }
     } catch { /* A malformed saved plan should never block the workout builder. */ }
@@ -205,9 +207,10 @@ export default function Home() {
       weeklyPlanIds: Object.fromEntries(Object.entries(weeklyPlan).map(([key, workout]) => [key, workout.map((exercise) => exercise.id)])),
       prescriptions,
       exerciseSettings,
+      importedPlanContext,
     };
     try { window.localStorage.setItem(workoutPlanKey, JSON.stringify(plan)); } catch { /* Persistence is optional. */ }
-  }, [planHydrated, onboardingComplete, customWorkout, weeklyPlan, prescriptions, exerciseSettings]);
+  }, [planHydrated, onboardingComplete, customWorkout, weeklyPlan, prescriptions, exerciseSettings, importedPlanContext]);
 
   useEffect(() => {
     const nextMuscle = getMovementMuscles(selectedMovement)[0];
@@ -241,6 +244,7 @@ export default function Home() {
     const nextPlan: Record<string, Exercise[]> = {};
     const nextPrescriptions: Record<number, string> = {};
     const nextSettings: Record<number, ExerciseSettings> = {};
+    const nextContext: Record<string, ImportedRoutineContext[]> = {};
     const assignments = importedDays.map((day, pastedIndex) => {
       const requested = day.label.toLowerCase();
       const aliases = requested.includes("lower") ? ["lower", "legs"] : requested.includes("upper") ? ["upper", "push", "pull"] : requested.includes("full") ? ["full body", "push"] : requested.includes("condition") || requested.includes("recovery") ? ["sport transfer", "full body"] : [requested];
@@ -249,7 +253,9 @@ export default function Home() {
       const splitDay = splitDays[index];
       const unique = day.items.filter((item, itemIndex) => day.items.findIndex((candidate) => candidate.exercise.id === item.exercise.id) === itemIndex);
       const dayExercises = unique.map((item) => item.exercise);
-      nextPlan[`${index}-${splitDay}`] = dayExercises;
+      const planKey = `${index}-${splitDay}`;
+      nextPlan[planKey] = dayExercises;
+      nextContext[planKey] = day.context;
       unique.forEach((item) => {
         nextPrescriptions[item.exercise.id] = item.prescription;
         nextSettings[item.exercise.id] = { rpe: item.rpe || "RPE 7", rest: item.rest || "90 sec", notes: item.notes || "", completed: false };
@@ -261,6 +267,7 @@ export default function Home() {
     setPrescriptions(nextPrescriptions);
     setExerciseSettings(nextSettings);
     setWeeklyPlan((current) => ({ ...current, ...nextPlan }));
+    setImportedPlanContext((current) => ({ ...current, ...nextContext }));
     setActiveSplitDay(first.splitDay);
     setWorkspace("custom");
     setImportOpen(false);
@@ -283,6 +290,7 @@ export default function Home() {
   };
   const updateExerciseSettings = (exerciseId: number, patch: Partial<ExerciseSettings>) => setExerciseSettings((current) => ({ ...current, [exerciseId]: { ...getExerciseSettings(current, exerciseId), ...patch } }));
   const activeDayIndex = Math.max(0, splitDays.findIndex((day) => day === activeSplitDay));
+  const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || Object.values(importedPlanContext).find((items) => items.length) || [];
   const saveActiveDay = () => {
     setWeeklyPlan((current) => ({ ...current, [`${activeDayIndex}-${activeSplitDay}`]: customWorkout }));
     toast("Weekly day saved", { description: `${activeSplitDay} now has ${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"} saved.` });
@@ -320,6 +328,7 @@ export default function Home() {
     setPrescriptions({});
     setExerciseSettings({});
     setWeeklyPlan({});
+    setImportedPlanContext({});
     setOnboardingComplete(false);
   };
 
@@ -353,6 +362,7 @@ export default function Home() {
         {workspace === "catalog" && <section className="space-y-5"><div className="view-header"><div><p className="metric-label">06 / exercise catalog</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">300 tools.<br /><em className="text-[#e4512e]">Mapped on purpose.</em></h1></div><div className="view-header-note"><Dumbbell className="h-5 w-5 text-[#e4512e]" /><p>Browse by name or movement. Open any record for its muscle map, athlete fit, and sport transfer logic.</p></div></div><div className="light-panel p-5"><label className="flex max-w-xl items-center gap-2 border border-[#d8e0d8] bg-white px-3"><Search className="h-4 w-4 text-[#748179]" /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} className="h-11 w-full bg-transparent text-sm outline-none" placeholder="Search by exercise, movement, or muscle" /></label><div className="mt-5 grid gap-2 md:grid-cols-2 xl:grid-cols-3">{filteredCatalog.map((exercise) => <button key={exercise.id} onClick={() => inspectExercise(exercise)} className="catalog-card"><span className="font-display text-2xl font-bold text-[#a3ada5]">{String(exercise.id).padStart(3, "0")}</span><span className="min-w-0 flex-1 text-left"><span className="block truncate text-xs font-bold">{exercise.name}</span><span className="mt-1 block truncate text-[10px] text-[#718078]">{exercise.movement} · {exercise.equipment}</span></span><ArrowUpRight className="h-4 w-4 text-[#e4512e]" /></button>)}</div></div></section>}
         {workspace === "genome" && <section className="space-y-5"><div className="view-header"><div><p className="metric-label">07 / Exercise Genome laboratory</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">The exercise<br /><em className="text-[#2d6cdf]">intelligence layer.</em></h1></div><div className="view-header-note"><Dna className="h-5 w-5 text-[#2d6cdf]" /><p>Intrinsic biomechanics meet the selected sport action, goal, and current workout—not a single generic exercise score.</p></div></div><div className="grid gap-5 xl:grid-cols-[280px_1fr]"><aside className="dark-panel overflow-hidden"><div className="border-b border-white/10 p-4"><p className="metric-label !text-[#9eb3cb]">Explore 300 exercises</p><label className="mt-3 flex items-center gap-2 border border-white/15 bg-white/5 px-2"><Search className="h-3.5 w-3.5 text-[#a7b8ca]" /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} className="h-9 w-full bg-transparent text-xs text-white outline-none placeholder:text-[#8195ab]" placeholder="Search the genome" /></label></div><div className="max-h-[690px] overflow-y-auto p-2">{filteredCatalog.map((exercise) => <button key={exercise.id} onClick={() => setGenomeExerciseId(exercise.id)} className={`genome-selector-row ${genomeExercise.id === exercise.id ? "genome-selector-active" : ""}`}><span className="font-display text-lg font-bold">{String(exercise.id).padStart(3, "0")}</span><span className="min-w-0 flex-1 text-left"><span className="block truncate text-xs font-bold">{exercise.name}</span><span className="mt-0.5 block truncate text-[10px] text-[#8ba0b6]">{exercise.movement}</span></span><ChevronRight className="h-3.5 w-3.5" /></button>)}</div></aside><div><div className="light-panel p-5"><p className="metric-label">Selected exercise / contextual profile</p><div className="mt-2 flex flex-wrap items-end justify-between gap-3"><div><h2 className="font-display text-4xl font-bold uppercase leading-none text-[#102947]">{genomeExercise.name}</h2><p className="mt-2 text-xs text-[#5d7389]">Use the Genome tabs to move from fast recognition, to mechanics, to why the recommendation changes for this stack.</p></div><button onClick={() => inspectExercise(genomeExercise)} className="inline-flex items-center gap-2 border border-[#2d6cdf] px-3 py-2 text-[10px] font-bold uppercase tracking-[.12em] text-[#2d6cdf] hover:bg-[#2d6cdf] hover:text-white">Open full detail <ArrowUpRight className="h-4 w-4" /></button></div></div><ExerciseGenomePanel exercise={genomeExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} /></div></div></section>}
         {(workspace === "recommended" || workspace === "custom") && <section className="mt-5"><MovementIntelligencePanel movement={enrichedSelectedMovement} fallback={selectedMovement} workout={customWorkout} onAdd={addExercise} onInspect={inspectExercise} compact={workspace === "custom"} /></section>}
+        {workspace === "custom" && <section className="builder-prep-workspace"><div className="builder-prep-head"><div><p className="metric-label">Before the work sets</p><h2>Prepare. Then prescribe.</h2><p>Mobility and programming recommendations update from the active exercise stack and selected training goal.</p></div></div><div className="grid gap-5 xl:grid-cols-[.9fr_1.1fr]"><div className="space-y-5"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /><ImportedPlanContext items={activeImportedContext} /></div><div className="space-y-5"><WarmupPanel workout={customWorkout} goal={goal} /><ProgrammingGuidePanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /></div></div></section>}
       </main>
       {workspace === "custom" && <div className={`planner-float planner-float-${plannerSide}`}><button onClick={() => setPlannerOpen((value) => !value)} aria-expanded={plannerOpen} className={`planner-tab ${plannerOpen ? "planner-tab-open" : ""}`}><SlidersHorizontal className="h-4 w-4" /> {plannerOpen ? "Hide planner" : "Training day"}</button>{plannerOpen && <SplitDraftControls days={splitDays} activeDay={splitDays.includes(activeSplitDay) ? activeSplitDay : splitDays[0]} activeLoadout={activeLoadout} onDay={setActiveSplitDay} onLoadout={setActiveLoadout} onDraft={loadDraft} onClose={() => setPlannerOpen(false)} onMove={() => setPlannerSide((side) => side === "right" ? "left" : "right")} />}</div>}
     </div>
