@@ -49,3 +49,8 @@
 - [ ] Simplify the detailed anatomy map visual hierarchy and reduce unnecessary surface clutter while preserving named subdivisions.
 - [ ] Improve interface responsiveness by reducing visual density and using smoother transitions for tab, day, and loadout changes.
 - [ ] Validate day cycling, loadout variety, anatomy readability, and responsive interactions.
+- [ ] Replace the current single-toggle anatomy view with a simultaneous front-and-back anatomy board.
+- [ ] Add original anatomy callout cards with connection lines, full muscle names, role tags, and relevance intensity labels.
+- [ ] Keep the reference-inspired layout original rather than copying its illustration, labels, or visual assets.
+- [ ] Preserve click-to-select regions and link selected anatomy to exercise and sport-action rationale.
+- [ ] Make the dual-view anatomy board readable on desktop and collapse its callout layout gracefully on mobile.
