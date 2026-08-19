@@ -121,3 +121,17 @@
 - [ ] Implement mobile anatomy-first layout with a compact control bar and selected-muscle bottom sheet.
 - [ ] Finish and validate the movable planner tab plus the post-quiz, restartable feature tour.
 - [ ] Validate data-driven anatomy rendering for exercises, sport movements, and workout stacks across desktop and mobile.
+- [ ] Audit selected Pulse Quiz cards to identify every checkmark, number, or tag overlap at desktop and mobile breakpoints.
+- [ ] Reposition or restyle the selected-state check indicator so it remains clear of headline, description, and technical-label copy.
+- [ ] Expand the six-step overview into a task-based tutorial with practical walkthroughs for onboarding, recommendations, Custom Builder, imports, Body Lab, Movement Atlas, Exercise Genome, and sport switching.
+- [ ] Add readable lesson grouping, plain-language controls, navigation shortcuts, and restart/skip behavior to the detailed tutorial.
+- [ ] Validate the quiz selected state, tutorial progression, keyboard controls, and responsive readability before delivery.
+- [ ] Replace all simplified or rectangular muscle regions with individually addressable, anatomically contoured front and back SVG muscle paths.
+- [ ] Make one large anatomy figure the default focal point, with Front/Back as an obvious view switch rather than simultaneous cramped figures.
+- [ ] Add numerical heat-map intensity driven by muscle involvement and reserve Primary, Synergist, and Stabilizer roles for badges and filters.
+- [ ] Reduce the left controls to view, layer, search, and filter essentials; move role and threshold controls into Advanced filters.
+- [ ] Add hover tooltips, click-to-lock selection, dimming, a visible outline, focus/reset behavior, and a compact heat legend under the figure.
+- [ ] Replace permanent metric bars with a progressive inspector showing role, score/tier, three metrics, a short explanation, and expandable full analysis.
+- [ ] Add a top-muscles ranking strip that selects the matching anatomical muscle region.
+- [ ] Implement anatomy-first mobile layout with a compact toolbar and selected-muscle bottom sheet.
+- [ ] Validate anatomical shape recognition, selection clarity, no overlaps, default scanability, and desktop/mobile visual hierarchy.
