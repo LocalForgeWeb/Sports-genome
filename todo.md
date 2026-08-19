@@ -69,3 +69,9 @@
 - [ ] Position callout cards outside the visual figure zone with long visible leader lines terminating near target muscle regions.
 - [ ] Use a true comparison-board composition that makes the reference influence immediately visible, not only a CSS spacing adjustment.
 - [ ] Capture a Body Lab verification view before delivery and confirm that the change is visually substantial.
+- [ ] Hide anatomical regions with no direct or supported role for the selected exercise rather than presenting them as low engagement.
+- [ ] Keep only primary, secondary, and clearly relevant stabilizing muscles visible, with lower-relevance roles disclosed in text rather than painted on the model.
+- [ ] Repair the deployed anatomy illustration asset so the detailed model renders reliably in the published app.
+- [ ] Reset persisted onboarding sport state so no sport is preselected on first use or after a reset.
+- [ ] Add a prominent sport-switch control in the workspace and verify recommendations refresh after sport changes.
+- [ ] Validate a shoulder-isolation exercise, asset rendering, onboarding reset, and sport switching in the live app.
