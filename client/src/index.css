@@ -1,6 +1,7 @@
 /** Apex Performance OS: dark graphite, bone, signal vermilion, and controlled acid-lime accents create a premium sports-intelligence interface. */
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./anatomy-fallback.css";
 
 @custom-variant dark (&:is(.dark *));
 

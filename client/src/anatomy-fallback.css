@@ -1,0 +1,9 @@
+/** Gym Optimizer anatomy fallback: keeps the interactive muscle overlay visible without external imagery. */
+.anatomy-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding: 0 8%;
+}
