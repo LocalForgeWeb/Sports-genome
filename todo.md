@@ -59,3 +59,8 @@
 - [ ] Make every displayed Genome dimension label clickable from the fingerprint and metric list.
 - [ ] Add clear labels and a readable legend to the fingerprint chart so each spoke, dimension, and intensity value can be identified at a glance.
 - [ ] Validate term dialogs, keyboard access, fingerprint labels, and mobile readability.
+- [ ] Recompose each anatomy half so the figure is centered and callouts sit around the outside perimeter rather than in a stacked grid.
+- [ ] Add visible connector lines from individual muscle regions toward their corresponding callout cards on desktop.
+- [ ] Preserve a side-by-side anterior/posterior comparison on desktop and use a compact figure plus stacked label cards on mobile.
+- [ ] Match the clarified reference’s information hierarchy while retaining original Gym Optimizer vector figures, colors, labels, and interactions.
+- [ ] Validate the anatomy board against desktop and mobile reference compositions before delivery.
