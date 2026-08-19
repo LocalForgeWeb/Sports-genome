@@ -37,10 +37,10 @@ const navItems: { id: Workspace; label: string; icon: typeof Target; detail: str
 ];
 
 const goalDetail: Record<Goal, string> = {
-  Athleticism: "Power, movement quality, and force transfer.",
-  "Muscle growth": "Target coverage and controlled training volume.",
-  "Max strength": "Heavy force expression and compound lift skill.",
-  Capacity: "Repeatability, work rate, and robust positional control.",
+  Athleticism: "Explosive force, movement quality, and sport transfer.",
+  "Muscle growth": "More target-tissue work with controlled fatigue.",
+  "Max strength": "High force production, bracing, and compound-lift skill.",
+  Capacity: "Repeatable output, work tolerance, and positional control.",
 };
 
 const initialCustomNames = ["Landmine Rotation", "Bulgarian Split Squat", "Medicine-Ball Rotational Wall Throw", "Farmer’s Walk"];

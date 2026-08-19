@@ -94,3 +94,9 @@
 - [ ] Improve discoverability, empty states, responsive layouts, keyboard access, motion, and visual consistency across the app.
 - [ ] Audit client performance and eliminate unnecessary rendering, oversized views, and interaction friction where practical.
 - [ ] Test first visit, sport switching, recommended workouts, custom planning, imports, anatomy, Genome lessons, and movement analysis end to end.
+- [ ] Audit each primary workspace for text density, repeated metadata, competing headings, and unclear reading order.
+- [ ] Create concise top-level summaries for Command Center, custom planning, Body Lab, Movement Atlas, catalog, and Exercise Genome.
+- [ ] Move secondary evidence, full lists, and long explanations behind expandable details or focused inspection panels.
+- [ ] Improve typography scale, line length, spacing, label contrast, and section rhythm for rapid scanning.
+- [ ] Simplify navigation labels and introduce context-aware subnavigation where it reduces cognitive load.
+- [ ] Validate readability and task completion on desktop and mobile after the information-architecture refresh.
