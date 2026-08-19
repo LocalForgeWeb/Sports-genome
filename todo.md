@@ -135,3 +135,10 @@
 - [ ] Add a top-muscles ranking strip that selects the matching anatomical muscle region.
 - [ ] Implement anatomy-first mobile layout with a compact toolbar and selected-muscle bottom sheet.
 - [ ] Validate anatomical shape recognition, selection clarity, no overlaps, default scanability, and desktop/mobile visual hierarchy.
+
+## Workspace Readability and Cohesion Pass
+
+- [x] Audit the support-exercise panel and every primary workspace for text collisions, clipped labels, and obstructed controls.
+- [x] Correct line-height, row structure, responsive spacing, and overflow behavior without changing existing product content.
+- [x] Strengthen card hierarchy, interactive states, and visual rhythm to make the workspace feel more cohesive and engaging.
+- [x] Validate representative desktop and mobile views before publishing the readability update.
