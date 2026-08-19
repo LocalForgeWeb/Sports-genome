@@ -151,3 +151,21 @@
 - [x] Add transparent set, repetition, RPE, rest, and volume diagnostics that identify excessive or incomplete programming.
 - [x] Repair routine import so set headers, warm-up text, RPE instructions, and rest notes are preserved as prescription context rather than parsed as exercises.
 - [x] Validate varied multi-day pasted routines and publish the completed workflow.
+
+## Weekly Volume and Import Confidence
+
+- [x] Inspect saved weekly-plan, prescription, and catalog muscle data to define a transparent per-muscle weekly volume estimate.
+- [x] Aggregate direct and supporting exercise exposure across saved weekly days with an explicit estimation boundary.
+- [x] Add a readable weekly muscle-volume view with targets, current totals, and day-level contribution context.
+- [x] Add import confidence levels and candidate matches for exact, likely, ambiguous, and unmatched routine lines.
+- [x] Let the user accept, replace, or keep unresolved an imported exercise match before loading a routine.
+- [x] Validate volume updates after saving days and manual import corrections across desktop and mobile.
+
+## Dedicated Training-Day Design Flow
+
+- [x] Review the current weekly day rail, planner tab, custom-builder controls, and stack-import entry point.
+- [x] Create a dedicated training-day workspace that clearly separates day selection, day design, saved prescriptions, and weekly overview.
+- [x] Place the stack-import action inside the day-design workspace and preserve its parsed routine review.
+- [x] Ensure opening a saved day restores that day’s intended exercise stack and prescriptions before editing.
+- [x] Integrate the weekly per-muscle volume view into the dedicated planning workspace without crowding day design.
+- [x] Validate day switching, import-to-day flow, confidence correction, and mobile layout before publishing.
