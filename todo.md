@@ -106,3 +106,18 @@
 - [ ] Add a clear parsed-routine preview with match confidence, unmatched-line feedback, and a confirm-to-load handoff into Custom Builder.
 - [ ] Ensure imported routines populate editable prescriptions, weekly plan days, and builder context rather than only adding loose exercises.
 - [ ] Validate import of multi-day and single-session pasted routines alongside navigation and responsive task flows.
+- [ ] Audit the fixed Training Day drafting dock and identify all screen-obstruction cases across desktop and mobile.
+- [ ] Replace the blocking dock with a compact movable or repositionable planning tab that can be dismissed and reopened.
+- [ ] Persist the tab’s open/closed state and keep it reachable from Custom Builder without covering active programming controls.
+- [ ] Add a concise post-quiz feature tour covering Command Center, recommendations, Custom Builder, Body Lab, Movement Atlas, and Exercise Genome.
+- [ ] Make the feature tour skippable, restartable, and respectful of returning users’ saved preferences.
+- [ ] Validate drag or reposition behavior, dismissal, reopening, tutorial progression, keyboard use, and mobile clearance.
+- [ ] Replace the callout-heavy Body Lab layout with a body-first three-panel atlas: controls, large anatomy canvas, and on-demand inspector.
+- [ ] Create a normalized muscle-region data model with region IDs, layer, front/back view, role, involvement, tier, and evidence-aware metrics.
+- [ ] Add front/back, surface/deep, role, threshold, search, reset, and optional compare controls without cluttering the anatomy canvas.
+- [ ] Build hover tooltips, selected-muscle dimming, an inspector panel, and a sortable involved-muscles disclosure list.
+- [ ] Use a single involvement heat scale on the body, reserving role information for text, filters, and inspector badges.
+- [ ] Add optional comparison and range-of-motion demand views while keeping the default Body Lab simple.
+- [ ] Implement mobile anatomy-first layout with a compact control bar and selected-muscle bottom sheet.
+- [ ] Finish and validate the movable planner tab plus the post-quiz, restartable feature tour.
+- [ ] Validate data-driven anatomy rendering for exercises, sport movements, and workout stacks across desktop and mobile.
