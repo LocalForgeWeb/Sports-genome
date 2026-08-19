@@ -64,3 +64,8 @@
 - [ ] Preserve a side-by-side anterior/posterior comparison on desktop and use a compact figure plus stacked label cards on mobile.
 - [ ] Match the clarified reference’s information hierarchy while retaining original Gym Optimizer vector figures, colors, labels, and interactions.
 - [ ] Validate the anatomy board against desktop and mobile reference compositions before delivery.
+- [ ] Replace the dense twelve-card-per-side arrangement with a sparse flanking-label anatomy layout.
+- [ ] Increase figure scale substantially and reserve most horizontal space for each centered anterior/posterior figure.
+- [ ] Position callout cards outside the visual figure zone with long visible leader lines terminating near target muscle regions.
+- [ ] Use a true comparison-board composition that makes the reference influence immediately visible, not only a CSS spacing adjustment.
+- [ ] Capture a Body Lab verification view before delivery and confirm that the change is visually substantial.
