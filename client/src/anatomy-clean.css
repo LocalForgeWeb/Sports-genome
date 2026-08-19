@@ -30,17 +30,22 @@
 
 /* Canvas */
 .atlas-pro-canvas{min-width:0}
-.atlas-canvas-caption{display:flex;align-items:baseline;justify-content:space-between;gap:1rem}
-.atlas-canvas-caption span{color:#234761;font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
-.atlas-canvas-caption p{color:#78909d;font-size:.66rem}
+.atlas-canvas-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.4rem}
+.atlas-view-label{color:#234761;font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.atlas-flip-btn{display:inline-flex;align-items:center;gap:.4rem;border:1.5px solid #2d6cdf;background:#f0f6ff;color:#1e5c9a;padding:.45rem .75rem;font-size:.66rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:all .18s ease}
+.atlas-flip-btn:hover{background:#2d6cdf;color:#fff;transform:scale(1.02)}
+.atlas-flip-btn:active{transform:scale(.97)}
+.atlas-flip-btn svg{transition:transform .3s ease}
+.atlas-flip-btn:hover svg{transform:rotate(180deg)}
 
 /* Illustration wrapper */
 .atlas-illustration-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:clamp(480px,60vh,700px);margin-top:.3rem;overflow:hidden;background:radial-gradient(circle at 50% 38%,#f5f8f9 0%,#fbfcfc 56%,#eef4f6 100%);border:1px solid #e8eff3;cursor:default}
 .atlas-illustration{display:block;width:auto;height:clamp(460px,58vh,680px);max-width:100%;object-fit:contain;pointer-events:none;user-select:none;transition:transform .28s cubic-bezier(.23,1,.32,1)}
+.atlas-illustration-grey{filter:grayscale(1) brightness(1.05) contrast(.92)}
 .atlas-illustration-focused{transform:scale(1.2)}
 
 /* Hotspot overlays */
-.atlas-hotspot{position:absolute;border:1.5px solid transparent;border-radius:3px;cursor:pointer;transition:all .18s ease;mix-blend-mode:multiply}
+.atlas-hotspot{position:absolute;border:1.5px solid transparent;border-radius:3px;cursor:pointer;transition:all .18s ease}
 .atlas-hotspot.is-worked{border-color:rgba(255,255,255,.25)}
 .atlas-hotspot.is-worked:hover{border-color:rgba(16,46,67,.6);box-shadow:0 0 8px rgba(16,46,67,.25);z-index:2}
 .atlas-hotspot.is-selected{border-color:#061f31 !important;border-width:2.5px;box-shadow:0 0 12px rgba(9,39,59,.4);z-index:3}

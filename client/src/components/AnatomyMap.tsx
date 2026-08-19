@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, Focus, RotateCcw, Search, SlidersHorizontal, Target } from "lucide-react";
+import { ChevronDown, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import "../anatomy-clean.css";
 
 /** Body Lab: realistic anatomical illustration with interactive SVG overlay hotspots. */
@@ -50,7 +50,7 @@ const aliases: Record<string, string[]> = {
 const clean = (v: string) => v.toLowerCase().replace(/[^a-z]/g, "");
 const matches = (key: string, values: string[]) => values.some(v => (aliases[key] || [key]).some(a => clean(v).includes(a)));
 const heat = (s: number) => s >= 90 ? "rgba(219,47,36,.55)" : s >= 75 ? "rgba(244,105,51,.50)" : s >= 60 ? "rgba(245,161,61,.45)" : s >= 40 ? "rgba(216,192,82,.40)" : s >= 20 ? "rgba(115,184,217,.35)" : "transparent";
-const heatSolid = (s: number) => s >= 90 ? "#db2f24" : s >= 75 ? "#f46933" : s >= 60 ? "#f5a13d" : s >= 40 ? "#d8c052" : s >= 20 ? "#73b8d9" : "#cfd9df";
+const heatSolid = (s: number) => s >= 90 ? "#db2f24" : s >= 75 ? "#f46933" : s >= 60 ? "#f5a13d" : s >= 40 ? "#d8c052" : s >= 20 ? "#73b8d9" : "#b0bfc8";
 const tier = (s: number) => s >= 90 ? "S" : s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 25 ? "D" : "F";
 
 /* Illustration URLs */
@@ -237,15 +237,18 @@ export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
 
         {/* ─── CENTER: Anatomical Illustration with Overlay ─── */}
         <div className="atlas-pro-canvas">
-          <div className="atlas-canvas-caption">
-            <span>{side === "front" ? "Anterior view" : "Posterior view"}</span>
-            <p>All muscles visible · worked muscles highlighted</p>
+          <div className="atlas-canvas-header">
+            <span className="atlas-view-label">{side === "front" ? "Anterior view" : "Posterior view"}</span>
+            <button className="atlas-flip-btn" onClick={() => setSide(s => s === "front" ? "back" : "front")} aria-label="Switch between front and back view">
+              <RotateCw className="h-4 w-4" />
+              <span>{side === "front" ? "Flip to Back" : "Flip to Front"}</span>
+            </button>
           </div>
           <div className="atlas-illustration-wrap" onClick={clearSelection}>
             <img
               src={imgSrc}
               alt={`${side === "front" ? "Anterior" : "Posterior"} anatomical muscle illustration`}
-              className={`atlas-illustration ${focused ? "atlas-illustration-focused" : ""}`}
+              className={`atlas-illustration atlas-illustration-grey ${focused ? "atlas-illustration-focused" : ""}`}
               style={{ transformOrigin: selected?.focus || "50% 44%" }}
               draggable={false}
             />
