@@ -1,6 +1,7 @@
 /** Kinetic Field Manual: transparent, movement-led recommendation logic for athlete and coach decision support. */
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
 import { sportMovementProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
+import { getExerciseFieldNote } from "@/lib/exerciseFieldNotes";
 
 export type MovementSignal = "acceleration" | "braking" | "lateral" | "rotation" | "jump" | "push" | "pull" | "overhead" | "grip" | "bracing" | "posterior" | "knee" | "conditioning" | "singleLeg";
 
@@ -99,10 +100,11 @@ function scoreReason(exercise: Exercise, matchedSignals: MovementSignal[], match
   if (has("overhead") && exercise.qualities.includes("scapularControl")) return "Supports overhead force with focused shoulder and scapular control.";
   if (has("pull") && exercise.qualities.includes("grip")) return "Reinforces pulling strength and grip control for the sport action.";
   if (matchedMuscles.length >= 3) return "Strong tissue match across several of the movement’s highest-demand muscles.";
-  return "Useful accessory support, with more limited movement-specific transfer than the top choices.";
+  return `${getExerciseFieldNote(exercise).selectionLens} It has more limited movement-specific transfer than the top choices.`;
 }
 
 function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSignals: MovementSignal[], matchedMuscles: string[], score: number): RecommendationBreakdown {
+  const fieldNote = getExerciseFieldNote(exercise);
   const signalCoverage = matchedSignals.length / Math.max(1, signals.length);
   const muscleMatch = percentage(40 + matchedMuscles.length * 16);
   const physicalQualityMatch = percentage(42 + signalCoverage * 54);
@@ -116,6 +118,7 @@ function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSi
     matchedSignals.includes("rotation") && exercise.qualities.includes("rotation") ? "trunk-to-hip rotational transfer" : "",
     matchedMuscles.length >= 2 ? `direct support for ${matchedMuscles.slice(0, 2).join(" and ")}` : "",
     exercise.qualities.includes("bracing") || exercise.qualities.includes("antiRotation") ? "position and trunk-stiffness demand" : "",
+    fieldNote.equipmentLens,
   ].filter(Boolean).slice(0, 3);
   const limitations = [
     velocityMatch < 58 ? "less velocity-specific than the sport action" : "",
