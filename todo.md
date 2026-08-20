@@ -212,3 +212,19 @@
 - [x] Add the 100 structured exercise records to the catalog without duplicate names or IDs.
 - [x] Confirm added cable options participate in catalog search, recommendation scoring, warm-up inference, and workout planning.
 - [x] Validate catalog counts, cable coverage, TypeScript, and production build before publishing.
+
+## Authenticated Three-Week Planning
+
+- [x] Inspect current account entry, saved training days, plan persistence, and session-generation flows for multi-week support.
+- [x] Define up to three named weeks that each preserve stored day exercise stacks, prescriptions, and imported plan context.
+- [x] Add a clear Generate Week action and visible Week 1–Week 3 switcher to the planning workflow.
+- [x] Ensure switching weeks restores that week’s saved days without overwriting another week.
+- [x] Make sign-in or account creation the first actionable entry point before onboarding and plan construction.
+- [x] Validate three-week generation, account-first entry, persistence, responsive controls, and production build before publishing.
+
+## Passkey and Biometric Account Access
+
+- [x] Inspect the supported Manus OAuth account flow and browser WebAuthn capability for passkey and Face ID access.
+- [x] Document the secure integration boundary and maintain an OAuth sign-in fallback for unsupported devices.
+- [x] Add an accurate passkey or biometric entry path only where the account provider supports credential enrollment and verification.
+- [x] Validate supported-device messaging, fallback sign-in, and account safety before publishing.
