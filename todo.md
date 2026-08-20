@@ -5,6 +5,7 @@
 - [x] Repair the responsive Training Days prescription card layout so ordering, removal, prescription, completion, and notes controls do not overlap on mobile.
 - [x] Validate the split-stack test, complete Vitest suite, TypeScript check, and production build.
 - [x] Add a one-click Rate Stack replacement action that preserves the outgoing exercise prescription and settings.
+- [x] Analyze saved consecutive training days for overlapping high-exposure muscle demands and present transparent recovery-spacing alerts.
 
 - [ ] Normalize the user-supplied movement lists for wrestling, American football, basketball, soccer, and baseball.
 - [ ] Normalize the movement lists for track and field, swimming, tennis, volleyball, and boxing.
