@@ -204,3 +204,11 @@
 - [x] Add a time-available selector to Home and retain the selected budget in the athlete profile.
 - [x] Adapt session recommendations, smart drafts, and planning diagnostics to the selected gym-time budget.
 - [x] Validate time-budget persistence, estimated session length, and responsive control behavior before publishing.
+
+## Sport-Relevant Exercise Catalog Expansion
+
+- [x] Research 100 familiar exercises with a strong emphasis on cable variations and sport-relevant movement patterns.
+- [x] Verify primary muscles, supporting muscles, movement patterns, equipment, and physical qualities for every added exercise.
+- [x] Add the 100 structured exercise records to the catalog without duplicate names or IDs.
+- [x] Confirm added cable options participate in catalog search, recommendation scoring, warm-up inference, and workout planning.
+- [x] Validate catalog counts, cable coverage, TypeScript, and production build before publishing.

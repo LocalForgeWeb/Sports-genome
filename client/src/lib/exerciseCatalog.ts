@@ -1,5 +1,7 @@
 /** Kinetic Field Manual: app data favors transparent training logic over false precision. */
 
+import { expandedExercises } from "./exerciseCatalogExpansion";
+
 export type Sport = 'tennis' | 'basketball' | 'soccer' | 'baseball' | 'combat';
 export type Grade = 'F' | 'D' | 'C' | 'B' | 'A' | 'S' | 'SS';
 
@@ -25,7 +27,7 @@ export const sports: { id: Sport; label: string; descriptor: string }[] = [
   { id: 'combat', label: 'Combat', descriptor: 'stance + grip' },
 ];
 
-export const exercises: Exercise[] = [
+export const baseExercises: Exercise[] = [
   {
     "id": 1,
     "name": "Barbell Bench Press",
@@ -13441,5 +13443,7 @@ export const exercises: Exercise[] = [
     }
   }
 ] as const;
+
+export const exercises: Exercise[] = [...baseExercises, ...expandedExercises];
 
 export const gradeValue: Record<Grade, number> = { F: 1, D: 2, C: 3, B: 4, A: 5, S: 6, SS: 7 };
