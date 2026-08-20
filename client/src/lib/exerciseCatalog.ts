@@ -4432,7 +4432,7 @@ export const baseExercises: Exercise[] = [
     "equipment": "Bodyweight",
     "movement": "Scapular control",
     "primaryMuscles": [
-      "rearDelts",
+      "serratusAnterior",
       "traps"
     ],
     "secondaryMuscles": [

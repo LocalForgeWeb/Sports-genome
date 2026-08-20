@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { Heart, Plus, Search, SlidersHorizontal, X } from "lucide-react";
+import { Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { catalogFilterOptions, type CatalogFilters, filterCatalogExercises } from "@/lib/catalogDiscovery";
+import { muscleLabels } from "@/components/AnatomyMap";
 import "@/catalog-discovery.css";
 
 type CatalogDiscoveryPanelProps = {
@@ -35,8 +36,9 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       <label><span>Category</span><select value={filters.category} onChange={(event) => update("category", event.target.value)}><option value="all">All categories</option>{options.categories.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
       <label><span>Movement</span><select value={filters.movement} onChange={(event) => update("movement", event.target.value)}><option value="all">All movements</option>{options.movements.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
       <label><span>Equipment</span><select value={filters.equipment} onChange={(event) => update("equipment", event.target.value)}><option value="all">All equipment</option>{options.equipment.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-      <label><span>Muscle</span><select value={filters.muscle} onChange={(event) => update("muscle", event.target.value)}><option value="all">All muscles</option>{options.muscles.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+      <label><span>Muscle</span><select value={filters.muscle} onChange={(event) => update("muscle", event.target.value)}><option value="all">All muscles</option>{options.muscles.map((value) => <option key={value} value={value}>{muscleLabels[value] || value}</option>)}</select></label>
       <label><span>Sport fit</span><select value={filters.sportTier} onChange={(event) => update("sportTier", event.target.value as CatalogFilters["sportTier"])}><option value="all">Any sport fit</option><option value="A">A-grade or higher</option><option value="S">S-grade or higher</option></select></label>
+      <button onClick={() => update("muscle", "serratusAnterior")} className={`catalog-serratus-filter ${filters.muscle === "serratusAnterior" ? "catalog-serratus-filter-on" : ""}`} aria-pressed={filters.muscle === "serratusAnterior"}><Target className="h-3.5 w-3.5" /> Serratus anterior</button>
       <button onClick={() => update("favoritesOnly", !filters.favoritesOnly)} className={`catalog-favorites-filter ${filters.favoritesOnly ? "catalog-favorites-filter-on" : ""}`} aria-pressed={filters.favoritesOnly}><Heart className="h-3.5 w-3.5" fill={filters.favoritesOnly ? "currentColor" : "none"} /> Favorites <b>{favoriteIds.size}</b></button>
       {(activeFilterCount || filters.query) ? <button onClick={reset} className="catalog-filter-reset"><X className="h-3.5 w-3.5" /> Clear</button> : null}
     </div>
@@ -44,7 +46,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       {visibleResults.map((exercise) => {
         const isFavorite = favoriteIds.has(exercise.id);
         return <article key={exercise.id} className="catalog-discovery-card">
-          <button onClick={() => onInspect(exercise)} className="catalog-discovery-card-copy"><span className="catalog-discovery-index">{String(exercise.id).padStart(3, "0")}</span><span><strong>{exercise.name}</strong><small>{exercise.movement} · {exercise.equipment}</small><em>{exercise.primaryMuscles.join(" · ")}</em></span></button>
+          <button onClick={() => onInspect(exercise)} className="catalog-discovery-card-copy"><span className="catalog-discovery-index">{String(exercise.id).padStart(3, "0")}</span><span><strong>{exercise.name}</strong><small>{exercise.movement} · {exercise.equipment}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em></span></button>
           <div className="catalog-discovery-actions"><button onClick={() => onToggleFavorite(exercise)} className={isFavorite ? "catalog-favorite-on" : ""} aria-label={`${isFavorite ? "Remove" : "Save"} ${exercise.name} ${isFavorite ? "from" : "to"} favorites`}><Heart className="h-4 w-4" fill={isFavorite ? "currentColor" : "none"} /></button><button onClick={() => onAdd(exercise)} aria-label={`Add ${exercise.name} to workout`}><Plus className="h-4 w-4" /></button></div>
         </article>;
       })}

@@ -24,7 +24,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, onAdd, onRe
   const results = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return exercises.filter((exercise) => {
-      const matchesQuery = !normalizedQuery || `${exercise.name} ${exercise.movement} ${exercise.primaryMuscles.join(" ")}`.toLowerCase().includes(normalizedQuery);
+      const matchesQuery = !normalizedQuery || `${exercise.name} ${exercise.movement} ${[...exercise.primaryMuscles, ...exercise.secondaryMuscles].flatMap((muscleKey) => [muscleKey, muscleLabels[muscleKey] || muscleKey]).join(" ")}`.toLowerCase().includes(normalizedQuery);
       const matchesMuscle = muscle === "all" || exercise.primaryMuscles.includes(muscle) || exercise.secondaryMuscles.includes(muscle);
       return matchesQuery && matchesMuscle && (scope === "all" || matchesTrainingSplit(exercise, split)) && (equipment === "all" || exercise.equipment === equipment);
     }).slice(0, 12);

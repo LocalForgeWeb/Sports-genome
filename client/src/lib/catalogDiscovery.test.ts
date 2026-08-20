@@ -14,4 +14,10 @@ describe("catalog discovery filters", () => {
     const results = filterCatalogExercises(exercises, { ...defaultCatalogFilters, favoritesOnly: true }, ids);
     expect(results.map((exercise) => exercise.id)).toEqual([exercises[0].id, exercises[1].id]);
   });
+
+  it("finds serratus anterior work when an athlete searches with the full anatomical name", () => {
+    const results = filterCatalogExercises(exercises, { ...defaultCatalogFilters, query: "serratus anterior" }, new Set());
+    expect(results.length).toBeGreaterThanOrEqual(2);
+    expect(results.every((exercise) => [...exercise.primaryMuscles, ...exercise.secondaryMuscles].includes("serratusAnterior"))).toBe(true);
+  });
 });

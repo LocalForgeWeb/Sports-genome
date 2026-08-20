@@ -21,6 +21,7 @@ export const defaultCatalogFilters: CatalogFilters = {
 };
 
 const gradeScore: Record<Grade, number> = { F: 0, D: 1, C: 2, B: 3, A: 4, S: 5, SS: 6 };
+const humanizeMuscleKey = (muscle: string) => muscle.replace(/([a-z])([A-Z])/g, "$1 $2");
 
 export function bestSportScore(exercise: Exercise) {
   return Math.max(...Object.values(exercise.sportFit).map((fit) => gradeScore[fit.grade]));
@@ -36,8 +37,8 @@ export function filterCatalogExercises(exerciseList: Exercise[], filters: Catalo
       exercise.category,
       exercise.movement,
       exercise.equipment,
-      ...exercise.primaryMuscles,
-      ...exercise.secondaryMuscles,
+      ...exercise.primaryMuscles.flatMap((muscle) => [muscle, humanizeMuscleKey(muscle)]),
+      ...exercise.secondaryMuscles.flatMap((muscle) => [muscle, humanizeMuscleKey(muscle)]),
       ...exercise.qualities,
     ].join(" ").toLowerCase();
     return (!query || searchable.includes(query))
