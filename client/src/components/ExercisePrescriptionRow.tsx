@@ -3,6 +3,7 @@ import { Check, ChevronDown, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { muscleLabels } from "@/components/AnatomyMap";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
+import "../mobile-training-card.css";
 
 export function ExercisePrescriptionRow({ exercise, index, prescription, settings, onPrescription, onSettings, onInspect, onRemove }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void }) {
   const prescriptions = Array.from(new Set([prescription, "4 × 3–5", "3 × 6–10", "3 × 8–12", "3 × 12–15", "4 × 30 sec"]));

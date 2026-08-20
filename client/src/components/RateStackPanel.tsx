@@ -1,0 +1,13 @@
+import { useMemo, useState } from "react";
+import { BarChart3, ChevronDown, Plus, Target } from "lucide-react";
+import type { Exercise } from "@/lib/exerciseCatalog";
+import type { TrainingSplit } from "@/lib/splitAssignment";
+import { analyzeSplitStack } from "@/lib/splitStackAnalysis";
+import { muscleLabels } from "@/components/AnatomyMap";
+import "../rate-stack.css";
+
+export function RateStackPanel({ workout, catalog, split, onAdd }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; onAdd: (exercise: Exercise) => void; }) {
+  const [open, setOpen] = useState(false);
+  const analysis = useMemo(() => analyzeSplitStack(workout, catalog, split), [catalog, split, workout]);
+  return <section className="rate-stack-panel"><button onClick={() => setOpen((value) => !value)} className="rate-stack-trigger"><span><BarChart3 className="h-4 w-4" /> Rate {split} stack</span><strong>{analysis.score}/100</strong><ChevronDown className={`h-4 w-4 ${open ? "rate-stack-chevron-open" : ""}`} /></button>{open && <div className="rate-stack-body"><div className="rate-stack-summary"><Target className="h-4 w-4" /><p>{analysis.gaps.length ? `${analysis.gaps.length} ${split}-relevant muscle ${analysis.gaps.length === 1 ? "gap needs" : "gaps need"} attention.` : `Your ${split} stack covers the selected split requirements.`}</p></div><div className="rate-stack-muscles">{analysis.ratings.map((rating) => <div key={rating.muscle} className={`rate-stack-muscle rate-stack-${rating.state}`}><div><strong>{muscleLabels[rating.muscle] || rating.muscle}</strong><small>{rating.role === "primary" ? "Primary split target" : "Supporting split target"}</small></div><span><i style={{ width: `${rating.score}%` }} />{rating.score}%</span></div>)}</div>{analysis.suggestions.length ? <div className="rate-stack-advice"><p className="metric-label">Best correction</p>{analysis.suggestions.map((suggestion) => <article key={`${suggestion.muscle}-${suggestion.candidate.id}`}><div><strong>Add {suggestion.candidate.name}</strong><small>Improves {muscleLabels[suggestion.muscle] || suggestion.muscle} coverage for this {split} day. {suggestion.swapCue || "Use it as the next focused slot."}</small></div><button onClick={() => onAdd(suggestion.candidate)}><Plus className="h-3.5 w-3.5" /> Add</button></article>)}</div> : <p className="rate-stack-clear">No priority additions are needed. Keep volume focused on the listed split muscles.</p>}<p className="rate-stack-boundary">Coverage is a programming estimate from catalog primary and supporting-muscle tags; it only rates muscles relevant to this {split} split.</p></div>}</section>;
+}
