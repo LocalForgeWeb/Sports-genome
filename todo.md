@@ -241,3 +241,7 @@
 - [x] Add favorite and unfavorite controls to catalog records and a focused Favorites view.
 - [x] Persist favorites for signed-in athletes, with a graceful device-local fallback before sign-in.
 - [x] Add favorites-to-builder handoff and validate search, filters, persistence, and mobile use before publishing.
+
+## GitHub Source Push
+
+- [x] Verify refreshed repository authorization and push the complete current source to LocalForgeWeb/Sports-genome.
