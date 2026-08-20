@@ -228,3 +228,16 @@
 - [x] Document the secure integration boundary and maintain an OAuth sign-in fallback for unsupported devices.
 - [x] Add an accurate passkey or biometric entry path only where the account provider supports credential enrollment and verification.
 - [x] Validate supported-device messaging, fallback sign-in, and account safety before publishing.
+
+## Interface Restoration with Catalog Retention
+
+- [x] Restore the pre-simplification interface checkpoint while retaining the 400-exercise catalog expansion and cable-focused data.
+- [x] Validate the restored interface and confirm the expanded catalog remains available before publishing.
+
+## Catalog Search and Favorites
+
+- [x] Audit catalog data fields, existing catalog controls, and local or account-based preference storage.
+- [x] Add text search and clear filters for muscle group, movement pattern, equipment, sport relevance, and favorite status.
+- [x] Add favorite and unfavorite controls to catalog records and a focused Favorites view.
+- [x] Persist favorites for signed-in athletes, with a graceful device-local fallback before sign-in.
+- [x] Add favorites-to-builder handoff and validate search, filters, persistence, and mobile use before publishing.

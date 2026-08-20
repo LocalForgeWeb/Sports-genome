@@ -5,6 +5,7 @@ import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { completeWorkoutSession, createWorkoutSession, getWorkoutSession, listWorkoutSessions, upsertWorkoutSet } from "./workoutSessions";
+import { listFavoriteExerciseIds, setFavoriteExercise } from "./favoriteExercises";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -60,6 +61,14 @@ export const appRouter = router({
       if (!session) throw new TRPCError({ code: "NOT_FOUND", message: "Active workout session not found" });
       return session;
     }),
+  }),
+
+  favorites: router({
+    list: protectedProcedure.query(({ ctx }) => listFavoriteExerciseIds(ctx.user.id)),
+    set: protectedProcedure.input(z.object({
+      catalogExerciseId: z.number().int().positive(),
+      favorited: z.boolean(),
+    })).mutation(({ ctx, input }) => setFavoriteExercise(ctx.user.id, input.catalogExerciseId, input.favorited)),
   }),
 
   // TODO: add feature routers here, e.g.

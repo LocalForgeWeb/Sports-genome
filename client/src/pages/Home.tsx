@@ -19,7 +19,9 @@ import { WeeklyMuscleVolumePanel } from "@/components/WeeklyMuscleVolumePanel";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
 import { WorkoutExecutionPanel } from "@/components/WorkoutExecutionPanel";
 import { MovementAtlasPanel } from "@/components/MovementAtlasPanel";
+import { CatalogDiscoveryPanel } from "@/components/CatalogDiscoveryPanel";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
+import { defaultCatalogFilters, type CatalogFilters } from "@/lib/catalogDiscovery";
 import { getExerciseSettings, getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
@@ -28,6 +30,7 @@ import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { toast } from "sonner";
 import { startLogin } from "@/const";
+import { trpc } from "@/lib/trpc";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 
 type Workspace = "command" | "recommended" | "custom" | "day-plan" | "body" | "movement" | "catalog" | "genome";
@@ -40,6 +43,7 @@ type StoredWorkoutPlan = { version: 1 | 2; customWorkoutIds: number[]; weeklyPla
 const athleteProfileKey = "gym-optimizer-athlete-profile-v1";
 const workoutPlanKey = "gym-optimizer-workout-plan-v1";
 const plannerTabKey = "gym-optimizer-planner-tab-v1";
+const favoriteExerciseKey = "gym-optimizer-favorite-exercise-ids-v1";
 
 type NavGroup = "Home" | "Train" | "Explore" | "Sport";
 const navGroups: NavGroup[] = ["Home", "Train", "Sport", "Explore"];
@@ -50,7 +54,7 @@ const navItems: { id: Workspace; label: string; icon: typeof Target; detail: str
   { id: "custom", label: "Workout Builder", icon: SlidersHorizontal, detail: "coach-editable session", group: "Train" },
   { id: "movement", label: "Movement Atlas", icon: Move3d, detail: "400 researched sport actions", group: "Sport" },
   { id: "body", label: "Body Lab", icon: Activity, detail: "muscle-to-movement analysis", group: "Explore" },
-  { id: "catalog", label: "Exercise Catalog", icon: BookOpen, detail: "300 mapped exercises", group: "Explore" },
+  { id: "catalog", label: "Exercise Catalog", icon: BookOpen, detail: "400 mapped exercises", group: "Explore" },
   { id: "genome", label: "Exercise Genome", icon: Dna, detail: "contextual exercise intelligence", group: "Explore" },
 ];
 
@@ -140,6 +144,8 @@ export default function Home() {
   const [importOpen, setImportOpen] = useState(false);
   const [genomeExerciseId, setGenomeExerciseId] = useState(1);
   const [catalogQuery, setCatalogQuery] = useState("");
+  const [catalogFilters, setCatalogFilters] = useState<CatalogFilters>(defaultCatalogFilters);
+  const [localFavoriteIds, setLocalFavoriteIds] = useState<number[]>([]);
   const [atlasQuery, setAtlasQuery] = useState("");
   const [atlasFamily, setAtlasFamily] = useState("All");
   const [customWorkout, setCustomWorkout] = useState<Exercise[]>(() => initialCustomNames.map((name) => exercises.find((exercise) => exercise.name === name)).filter((exercise): exercise is Exercise => Boolean(exercise)));
@@ -160,10 +166,13 @@ export default function Home() {
   const [plannerSide, setPlannerSide] = useState<"left" | "right">("right");
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [sessionMode, setSessionMode] = useState(false);
+  const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
+  const favoriteMutation = trpc.favorites.set.useMutation();
 
   const selectedSport = sportProfiles.find((profile) => profile.id === sportId) || sportProfiles[0];
   const activeSportId = sportId || selectedSport.id;
   const gymTimeBudget = getGymTimeBudget(gymMinutes);
+  const favoriteIds = useMemo(() => new Set<number>([...localFavoriteIds, ...(favoriteQuery.data || [])]), [localFavoriteIds, favoriteQuery.data]);
   const sportMovements = useMemo(() => sportMovementProfiles.filter((profile) => profile.sportId === activeSportId), [activeSportId]);
   const selectedMovement = sportMovements.find((movement) => movement.id === movementId) || findSportMovement(activeSportId);
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
@@ -237,6 +246,17 @@ export default function Home() {
     } catch { /* Stored context is optional and may be cleared safely. */ }
     setProfileHydrated(true);
   }, []);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(favoriteExerciseKey) || "[]") as unknown;
+      if (Array.isArray(stored)) setLocalFavoriteIds(stored.filter((id): id is number => typeof id === "number" && exercises.some((exercise) => exercise.id === id)));
+    } catch { /* Favorites fall back to an empty local shortlist. */ }
+  }, []);
+
+  useEffect(() => {
+    try { window.localStorage.setItem(favoriteExerciseKey, JSON.stringify(localFavoriteIds)); } catch { /* Device storage is an optional fallback. */ }
+  }, [localFavoriteIds]);
 
   useEffect(() => {
     try {
@@ -324,6 +344,18 @@ export default function Home() {
     toast("Exercise added", { description: `${exercise.name} was added to the active session.` });
     return [...current, exercise];
   });
+  const toggleFavorite = (exercise: Exercise) => {
+    const currentlyFavorite = favoriteIds.has(exercise.id);
+    setLocalFavoriteIds((current) => currentlyFavorite ? current.filter((id) => id !== exercise.id) : Array.from(new Set([...current, exercise.id])));
+    favoriteMutation.mutate({ catalogExerciseId: exercise.id, favorited: !currentlyFavorite }, {
+      onSuccess: (ids) => {
+        setLocalFavoriteIds(ids);
+        void favoriteQuery.refetch();
+        toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist.` });
+      },
+      onError: () => toast("Saved on this device", { description: "Your favorite is available locally and will sync when account storage is available." }),
+    });
+  };
   const importRoutine = (routine: ImportedRoutine) => {
     const importedDays = routine.days.filter((day) => day.items.length);
     if (!importedDays.length) return;
@@ -482,7 +514,8 @@ export default function Home() {
 
     <div className="apex-main">
       <header className="apex-topbar"><div className="flex items-center gap-3"><button onClick={() => setRailOpen(true)} className="grid h-9 w-9 place-items-center border border-[#dce0d8] text-[#3e4a44] lg:hidden"><Menu className="h-4 w-4" /></button><div><p className="metric-label">{navItems.find((item) => item.id === workspace)?.label}</p><p className="mt-1 text-sm font-bold text-[#18241f]">{selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal} <span className="mx-1.5 text-[#a2aca4]">/</span> {trainingDays} days</p></div></div><div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={rebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Rebuild plan</button><button onClick={() => setWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[#0b2240] px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[#2d6cdf]"><Plus className="h-3.5 w-3.5" /> Design day</button></div></header>
-      <main className="apex-content">
+      <main className={`apex-content ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
+        {workspace === "catalog" && <section className="catalog-experience-surface"><div className="view-header"><div><p className="metric-label">06 / exercise catalog</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">400 tools.<br /><em className="text-[#e4512e]">Built for choice.</em></h1></div><div className="view-header-note"><Dumbbell className="h-5 w-5 text-[#e4512e]" /><p>Search by the way you train, filter down to the right options, and heart the exercises you want to keep close.</p></div></div><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} /></div></section>}
         {workspace === "command" && <section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section>}
         {workspace === "command" && <section className="gym-time-budget-card"><div><p className="metric-label">Gym-time budget</p><h2>How long do you have today?</h2><p>{gymTimeBudget.scopeCue} Recommended stacks now cap at {gymTimeBudget.recommendationLimit} exercises, while the builder keeps the session-time estimate visible.</p></div><label><span>Available time</span><select value={gymMinutes} onChange={(event) => setGymMinutes(Number(event.target.value))}>{gymTimeOptions.map((minutes) => <option key={minutes} value={minutes}>{minutes === 90 ? "90+ minutes" : `${minutes} minutes`}</option>)}</select><small>{gymTimeBudget.restGuidance}</small></label></section>}
         {workspace === "movement" && <MovementAtlasPanel sportName={selectedSport.label} sportId={activeSportId} sports={sportProfiles} movements={sportMovements} selectedMovement={selectedMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { chooseSport(id); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => setMovementId(movement.id)} onOpenBody={() => { setActiveMuscle(getMovementMuscles(selectedMovement)[0] || "abs"); setWorkspace("body"); }} />}

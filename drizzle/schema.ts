@@ -71,3 +71,16 @@ export const workoutSetLogs = mysqlTable("workoutSetLogs", {
 export type WorkoutSession = typeof workoutSessions.$inferSelect;
 export type WorkoutSessionExercise = typeof workoutSessionExercises.$inferSelect;
 export type WorkoutSetLog = typeof workoutSetLogs.$inferSelect;
+
+/** Account-owned bookmarks for static exercise-catalog records. */
+export const favoriteExercises = mysqlTable("favoriteExercises", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  catalogExerciseId: int("catalogExerciseId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("favoriteExercises_user_catalog_unique").on(table.userId, table.catalogExerciseId),
+  index("favoriteExercises_user_created_idx").on(table.userId, table.createdAt),
+]);
+
+export type FavoriteExercise = typeof favoriteExercises.$inferSelect;
