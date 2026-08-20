@@ -3,7 +3,7 @@ import type { TrainingSplit } from "@/lib/splitAssignment";
 
 export type SplitMuscleRequirement = { muscle: string; role: "primary" | "support"; target: number };
 export type StackMuscleScore = SplitMuscleRequirement & { score: number; state: "gap" | "ready" | "high" };
-export type StackSuggestion = { muscle: string; candidate: Exercise; swapCue?: string };
+export type StackSuggestion = { muscle: string; candidate: Exercise; replaceExercise?: Exercise; swapCue?: string };
 
 const requirements: Record<TrainingSplit, SplitMuscleRequirement[]> = {
   Push: [{ muscle: "chest", role: "primary", target: 90 }, { muscle: "frontDelts", role: "primary", target: 75 }, { muscle: "triceps", role: "primary", target: 70 }, { muscle: "sideDelts", role: "support", target: 45 }, { muscle: "serratusAnterior", role: "support", target: 35 }],
@@ -21,15 +21,17 @@ export function getSplitRequirements(split: TrainingSplit) { return requirements
 
 export function analyzeSplitStack(workout: Exercise[], catalog: Exercise[], split: TrainingSplit) {
   const ratings: StackMuscleScore[] = requirements[split].map((requirement) => {
-    const score = Math.min(100, workout.reduce((sum, exercise) => sum + involvement(exercise, requirement.muscle), 0));
-    return { ...requirement, score, state: score < requirement.target * .65 ? "gap" : score > Math.max(96, requirement.target + 35) ? "high" : "ready" };
+    const rawScore = workout.reduce((sum, exercise) => sum + involvement(exercise, requirement.muscle), 0);
+    const score = Math.min(100, rawScore);
+    return { ...requirement, score, state: rawScore < requirement.target * .65 ? "gap" : rawScore > requirement.target + 35 ? "high" : "ready" };
   });
   const gaps = ratings.filter((rating) => rating.state === "gap");
   const high = ratings.find((rating) => rating.state === "high");
   const existingIds = new Set(workout.map((exercise) => exercise.id));
   const suggestions: StackSuggestion[] = gaps.slice(0, 2).flatMap((gap) => {
     const candidate = catalog.find((exercise) => !existingIds.has(exercise.id) && involvement(exercise, gap.muscle) > 0);
-    return candidate ? [{ muscle: gap.muscle, candidate, swapCue: high ? `If total volume is fixed, replace a ${high.muscle}-dominant movement.` : undefined }] : [];
+    const replaceExercise = high ? workout.find((exercise) => involvement(exercise, high.muscle) > 0) : undefined;
+    return candidate ? [{ muscle: gap.muscle, candidate, replaceExercise, swapCue: replaceExercise ? `Replace ${replaceExercise.name} if total volume is fixed.` : undefined }] : [];
   });
   const score = ratings.length ? Math.round(ratings.reduce((sum, rating) => sum + Math.min(100, (rating.score / rating.target) * 100), 0) / ratings.length) : 0;
   return { score, ratings, gaps, suggestions };

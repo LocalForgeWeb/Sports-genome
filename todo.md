@@ -4,6 +4,7 @@
 - [x] Add a muscle-group filter to the direct Training Days exercise picker using full anatomical labels.
 - [x] Repair the responsive Training Days prescription card layout so ordering, removal, prescription, completion, and notes controls do not overlap on mobile.
 - [x] Validate the split-stack test, complete Vitest suite, TypeScript check, and production build.
+- [x] Add a one-click Rate Stack replacement action that preserves the outgoing exercise prescription and settings.
 
 - [ ] Normalize the user-supplied movement lists for wrestling, American football, basketball, soccer, and baseball.
 - [ ] Normalize the movement lists for track and field, swimming, tennis, volleyball, and boxing.
