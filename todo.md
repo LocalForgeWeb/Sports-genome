@@ -245,3 +245,18 @@
 ## GitHub Source Push
 
 - [x] Verify refreshed repository authorization and push the complete current source to LocalForgeWeb/Sports-genome.
+
+## Split Category Integrity
+
+- [x] Audit draft and weekly-generation logic for Push, Pull, Legs, Upper, Lower, Full Body, and Sport Transfer category leakage.
+- [x] Define strict exercise-category matching and safe sport-transfer exceptions for every split day.
+- [x] Apply category-safe selection to drafts and generated weeks, with automated split-integrity tests.
+- [x] Validate all split-day outputs and saved-week behavior before publishing.
+
+## Manual Training-Day Builder
+
+- [x] Audit the current active-day editor and identify friction in adding exercises without importing a routine.
+- [x] Add a searchable, filterable catalog picker directly inside Training Days for the selected active day.
+- [x] Add direct add, remove, move up, and move down controls for custom day composition.
+- [x] Keep per-exercise prescriptions editable and save the manually assembled day into the active week.
+- [x] Validate manual day building across desktop, mobile, and week switching before publishing.

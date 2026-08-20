@@ -1,0 +1,5 @@
+# Split Integrity and Manual Builder Validation
+
+The split selection helper now classifies each catalog exercise from the structured category, movement, and physical-quality fields. Push selections are restricted to chest, shoulder, and triceps-oriented categories with pulling-pattern names excluded. Pull selections are restricted to back, grip, and scapular-control categories with pressing patterns excluded. Legs and Lower use lower-body categories, while Upper combines strict Push and Pull pools. Full Body uses only approved push, pull, lower, and sport-transfer options. Sport Transfer prioritizes sport-seeded exercises only when they meet a transfer category or quality requirement.
+
+Automated coverage verifies that every returned pool is non-empty and each exercise in it satisfies the requested split. It also explicitly verifies that Push pools do not contain row, pull, or chin patterns. The manual Training Days builder uses the same split helper by default, offers a deliberate full-catalog override, prevents duplicate adds, preserves editable prescriptions, supports ordering controls, and saves to the active week through the existing day-save flow.
