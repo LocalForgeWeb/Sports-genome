@@ -23,6 +23,7 @@ import { getExerciseSettings, getGoalPrescription, type ExerciseSettings, type T
 import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportSession, type MovementRecommendation } from "@/lib/movementRecommendations";
+import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
 import { toast } from "sonner";
 import { startLogin } from "@/const";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
@@ -30,7 +31,7 @@ import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 type Workspace = "command" | "recommended" | "custom" | "day-plan" | "body" | "movement" | "catalog" | "genome";
 type Goal = TrainingGoal;
 type StackMode = "suggested" | "custom";
-type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string };
+type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number };
 type StoredWorkoutPlan = { version: 1; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]> };
 const athleteProfileKey = "gym-optimizer-athlete-profile-v1";
 const workoutPlanKey = "gym-optimizer-workout-plan-v1";
@@ -123,6 +124,7 @@ export default function Home() {
   const [sportId, setSportId] = useState("");
   const [goal, setGoal] = useState<Goal>("Athleticism");
   const [trainingDays, setTrainingDays] = useState(3);
+  const [gymMinutes, setGymMinutes] = useState(60);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [movementId, setMovementId] = useState("");
   const [activeMuscle, setActiveMuscle] = useState("obliques");
@@ -150,24 +152,25 @@ export default function Home() {
 
   const selectedSport = sportProfiles.find((profile) => profile.id === sportId) || sportProfiles[0];
   const activeSportId = sportId || selectedSport.id;
+  const gymTimeBudget = getGymTimeBudget(gymMinutes);
   const sportMovements = useMemo(() => sportMovementProfiles.filter((profile) => profile.sportId === activeSportId), [activeSportId]);
   const selectedMovement = sportMovements.find((movement) => movement.id === movementId) || findSportMovement(activeSportId);
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
   const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6), [selectedMovement]);
-  const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, 6), [activeSportId, goal]);
+  const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, gymTimeBudget.recommendationLimit), [activeSportId, goal, gymTimeBudget.recommendationLimit]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
   useEffect(() => {
     if (!splitDays.includes(activeSplitDay)) setActiveSplitDay(splitDays[0]);
   }, [splitDays, activeSplitDay]);
   const draftedLoadout = useMemo(() => {
-    const sportSeed = getSportSession(activeSportId, goal, 12).map((item) => item.exercise);
+    const sportSeed = getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3)).map((item) => item.exercise);
     const keywords = activeSplitDay === "Sport Transfer" ? [] : splitKeywords[activeSplitDay];
     const pool = keywords.length ? exercises.filter((exercise) => keywords.some((keyword) => `${exercise.name} ${exercise.movement}`.toLowerCase().includes(keyword))) : sportSeed;
     const offset = activeLoadout === "Athletic Power" ? 4 : activeLoadout === "Strength Foundation" ? 8 : activeLoadout === "Hypertrophy Volume" ? 12 : activeLoadout === "Capacity Circuit" ? 16 : 0;
     const unique = [...pool.slice(offset), ...pool.slice(0, offset)].reduce<Exercise[]>((list, exercise) => list.some((item) => item.movement === exercise.movement) ? list : [...list, exercise], []);
     const sportAnchor = activeLoadout === "Sport Transfer" || activeSplitDay === "Sport Transfer" ? sportSeed.slice(0, 2) : [];
-    return [...sportAnchor, ...unique].filter((exercise, index, array) => array.findIndex((item) => item.id === exercise.id) === index).slice(0, 6);
-  }, [activeSportId, goal, activeSplitDay, activeLoadout]);
+    return [...sportAnchor, ...unique].filter((exercise, index, array) => array.findIndex((item) => item.id === exercise.id) === index).slice(0, gymTimeBudget.recommendationLimit);
+  }, [activeSportId, goal, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit]);
   const movementSignals = getMovementSignals(selectedMovement);
   const movementMuscles = getMovementMuscles(selectedMovement);
   const filteredCatalog = useMemo(() => exercises.filter((exercise) => `${exercise.name} ${exercise.movement} ${exercise.primaryMuscles.join(" ")}`.toLowerCase().includes(catalogQuery.toLowerCase())).slice(0, 24), [catalogQuery]);
@@ -185,6 +188,7 @@ export default function Home() {
           setSportId(profile.sportId);
           setGoal(profile.goal);
           setTrainingDays(Math.max(1, Math.min(7, profile.trainingDays)));
+          setGymMinutes(Math.max(30, Math.min(90, profile.gymMinutes || 60)));
           setMovementId(profile.movementId);
           setOnboardingComplete(true);
         }
@@ -225,9 +229,9 @@ export default function Home() {
 
   useEffect(() => {
     if (!profileHydrated || !onboardingComplete || !sportId) return;
-    const profile: StoredAthleteProfile = { version: 1, sportId, goal, trainingDays, movementId: selectedMovement.id };
+    const profile: StoredAthleteProfile = { version: 1, sportId, goal, trainingDays, gymMinutes, movementId: selectedMovement.id };
     try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
-  }, [profileHydrated, onboardingComplete, sportId, goal, trainingDays, movementId, selectedMovement.id]);
+  }, [profileHydrated, onboardingComplete, sportId, goal, trainingDays, gymMinutes, movementId, selectedMovement.id]);
 
   useEffect(() => {
     if (!planHydrated || !onboardingComplete) return;
@@ -388,6 +392,7 @@ export default function Home() {
       <header className="apex-topbar"><div className="flex items-center gap-3"><button onClick={() => setRailOpen(true)} className="grid h-9 w-9 place-items-center border border-[#dce0d8] text-[#3e4a44] lg:hidden"><Menu className="h-4 w-4" /></button><div><p className="metric-label">{navItems.find((item) => item.id === workspace)?.label}</p><p className="mt-1 text-sm font-bold text-[#18241f]">{selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal} <span className="mx-1.5 text-[#a2aca4]">/</span> {trainingDays} days</p></div></div><div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={rebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Rebuild plan</button><button onClick={() => setWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[#0b2240] px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[#2d6cdf]"><Plus className="h-3.5 w-3.5" /> Design day</button></div></header>
       <main className="apex-content">
         {workspace === "command" && <section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section>}
+        {workspace === "command" && <section className="gym-time-budget-card"><div><p className="metric-label">Gym-time budget</p><h2>How long do you have today?</h2><p>{gymTimeBudget.scopeCue} Recommended stacks now cap at {gymTimeBudget.recommendationLimit} exercises, while the builder keeps the session-time estimate visible.</p></div><label><span>Available time</span><select value={gymMinutes} onChange={(event) => setGymMinutes(Number(event.target.value))}>{gymTimeOptions.map((minutes) => <option key={minutes} value={minutes}>{minutes === 90 ? "90+ minutes" : `${minutes} minutes`}</option>)}</select><small>{gymTimeBudget.restGuidance}</small></label></section>}
         {workspace === "movement" && <MovementAtlasPanel sportName={selectedSport.label} sportId={activeSportId} sports={sportProfiles} movements={sportMovements} selectedMovement={selectedMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { chooseSport(id); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => setMovementId(movement.id)} onOpenBody={() => { setActiveMuscle(getMovementMuscles(selectedMovement)[0] || "abs"); setWorkspace("body"); }} />}
         {workspace === "command" && <section className="space-y-5"><div className="command-hero"><img src="/manus-storage/gym-optimizer-performance-lab_fc8df71f.jpg" alt="Athlete training in a performance laboratory" className="command-hero-image" /><div className="command-overlay" /><div className="relative z-10 max-w-3xl p-6 md:p-8"><p className="metric-label !text-[#b8ff5b]">01 / athlete command system</p><h1 className="mt-4 max-w-2xl font-display text-5xl font-bold uppercase leading-[.82] tracking-[-.02em] text-white sm:text-6xl">Train the action.<br /><em className="text-[#b8ff5b]">Not just the muscle.</em></h1><p className="mt-5 max-w-xl text-sm leading-6 text-[#c5d1c9]">Your selected sport is mapped through body actions, muscle roles, contraction demands, and exercise-transfer logic. Every recommendation exposes the “why.”</p><div className="mt-7 grid max-w-xl grid-cols-3 divide-x divide-white/15 border-y border-white/15"><div className="py-3 pr-3"><p className="metric-label !text-[#819188]">Sport profile</p><p className="mt-1 font-display text-xl font-bold uppercase text-white">{sportAbbrev(selectedSport.label)}</p></div><div className="px-3 py-3"><p className="metric-label !text-[#819188]">Movement records</p><p className="mt-1 font-display text-xl font-bold uppercase text-white">20</p></div><div className="px-3 py-3"><p className="metric-label !text-[#819188]">Top session fit</p><div className="mt-1"><GradeStamp grade={sessionRecommendations[0]?.grade || "C"} compact /></div></div></div></div><div className="command-signal-card"><p className="metric-label !text-[#b8ff5b]">Next movement</p><p className="mt-2 font-display text-2xl font-bold uppercase leading-none text-white">{selectedMovement.label}</p><p className="mt-3 text-xs leading-5 text-[#b6c3bc]">{selectedMovement.family}</p><button onClick={() => setWorkspace("recommended")} className="mt-5 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#b8ff5b]">Open recommendations <ArrowUpRight className="h-4 w-4" /></button></div></div>
           <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]"><div className="dark-panel p-5"><div className="flex items-start justify-between gap-4"><div><p className="metric-label !text-[#91a09a]">Performance decision</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Today&apos;s movement lens</h2></div><button onClick={() => setWorkspace("movement")} className="text-[#b8ff5b]"><ArrowUpRight className="h-5 w-5" /></button></div><div className="mt-5 grid gap-3 md:grid-cols-3"><Metric label="Body action" value={movementSignals[0].toUpperCase()} detail="dominant movement signal" /><Metric label="Primary tissues" value={String(movementMuscles.length).padStart(2, "0")} detail="mapped muscle groups" tone="orange" /><Metric label="Session readiness" value="82" detail="coach-set planning marker" tone="white" /></div><div className="mt-5 border-t border-white/10 pt-4"><p className="metric-label !text-[#91a09a]">Transfer rationale</p><p className="mt-2 text-sm leading-6 text-[#d0d9d3]">{selectedMovement.gymTransferCue}</p></div></div><div className="light-panel p-5"><div className="flex items-start justify-between"><div><p className="metric-label">Coach dashboard</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#18241f]">Priority blocks</h2></div><BrainCircuit className="h-5 w-5 text-[#e4512e]" /></div><div className="mt-5 space-y-2">{sessionRecommendations.slice(0, 3).map((result, index) => <button key={result.exercise.id} onClick={() => inspectExercise(result.exercise)} className="flex w-full items-center gap-3 border border-[#e4e8e1] bg-white p-3 text-left transition-colors hover:border-[#b8ff5b]"><span className="font-display text-xl font-bold text-[#a4afa8]">0{index + 1}</span><span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold">{result.exercise.name}</span><span className="mt-1 block truncate text-[10px] text-[#708078]">{result.rationale}</span></span><GradeStamp grade={result.grade} compact /></button>)}</div><button onClick={() => setWorkspace("recommended")} className="mt-5 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#e4512e]">View athlete recommendation <ArrowUpRight className="h-4 w-4" /></button></div></div></section>}

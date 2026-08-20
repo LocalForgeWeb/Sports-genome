@@ -1,5 +1,6 @@
 import { getExerciseGenome, getWorkoutGenome } from "@/lib/exerciseGenome";
 import type { Exercise } from "@/lib/exerciseCatalog";
+import { getGymTimeBudget, timeAdjustedSetBand } from "@/lib/gymTimeBudget";
 
 export type ExerciseSettings = {
   rpe: string;
@@ -30,6 +31,7 @@ export type WorkoutDiagnostics = {
   gaps: string[];
   prompts: string[];
   target: ProgrammingTarget;
+  gymTimeBudget: ReturnType<typeof getGymTimeBudget>;
 };
 
 const defaultSettings: ExerciseSettings = { rpe: "RPE 7", rest: "90 sec", notes: "", completed: false };
@@ -54,9 +56,11 @@ export function getGoalPrescription(goal: TrainingGoal, index: number) {
   return index < 2 ? "4 × 3–6" : "3 × 6–10";
 }
 
-export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record<number, string>, settings: Record<number, ExerciseSettings>, goal: TrainingGoal = "Athleticism"): WorkoutDiagnostics {
+export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record<number, string>, settings: Record<number, ExerciseSettings>, goal: TrainingGoal = "Athleticism", gymMinutes = 60): WorkoutDiagnostics {
   const genome = getWorkoutGenome(workout);
-  const target = getProgrammingTarget(goal);
+  const baseTarget = getProgrammingTarget(goal);
+  const gymTimeBudget = getGymTimeBudget(gymMinutes);
+  const target = { ...baseTarget, sessionSetBand: timeAdjustedSetBand(goal, baseTarget.sessionSetBand, gymMinutes), restCue: `${baseTarget.restCue} ${gymTimeBudget.restGuidance}` };
   const totalSets = workout.reduce((total, exercise, index) => total + parseNumber(prescriptions[exercise.id] || getGoalPrescription(goal, index), 3), 0);
   const averageRest = workout.length ? workout.reduce((total, exercise) => total + parseNumber(getExerciseSettings(settings, exercise.id).rest, 90), 0) / workout.length : 0;
   const fatigueExposure = workout.length ? Math.round(workout.reduce((total, exercise) => total + getExerciseGenome(exercise).fatigue.systemic, 0) / workout.length) : 0;
@@ -71,7 +75,9 @@ export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record
   if (workout.length >= 3 && totalSets < target.sessionSetBand[0]) prompts.push(`${totalSets} planned work sets sits below this goal’s typical ${target.sessionSetBand[0]}–${target.sessionSetBand[1]} set session band. That can be appropriate for a lighter day, skill emphasis, or a dense training week.`);
   if (goal === "Max strength" && averageRest < 150) prompts.push("Strength emphasis is paired with relatively short rest. Consider whether longer rest would preserve load and technique for the primary sets.");
   if (goal === "Athleticism" && averageRpe >= 9) prompts.push("Athleticism work is showing a high average RPE. Confirm that explosive and technical repetitions stay crisp rather than accumulating fatigue.");
+  if (estimatedMinutes > gymTimeBudget.minutes) prompts.push(`The current estimate is about ${estimatedMinutes} minutes, above your ${gymTimeBudget.label} gym window. Reduce accessories, work sets, or avoid rushing priority-lift rest.`);
+  if (estimatedMinutes <= gymTimeBudget.minutes - 18 && workout.length && gymTimeBudget.minutes >= 60) prompts.push(`This stack leaves meaningful room in your ${gymTimeBudget.label} window. Add work only if it fills a specific movement, muscle, or skill need.`);
   if (genome.gaps.length >= 4) prompts.push(`The session has limited pattern variety. Consider whether ${genome.gaps.slice(0, 2).join(" and ")} are useful for this day’s purpose.`);
   if (!prompts.length) prompts.push("The active stack has workable variety for a single training session. Use the movement gaps as context, not a requirement to add everything.");
-  return { totalSets, estimatedMinutes, fatigueExposure, sessionLoad, redundancy: genome.redundancy, dominantPatterns: genome.dominantPatterns, dominantMuscles: genome.dominantMuscles, gaps: genome.gaps, prompts, target };
+  return { totalSets, estimatedMinutes, fatigueExposure, sessionLoad, redundancy: genome.redundancy, dominantPatterns: genome.dominantPatterns, dominantMuscles: genome.dominantMuscles, gaps: genome.gaps, prompts, target, gymTimeBudget };
 }

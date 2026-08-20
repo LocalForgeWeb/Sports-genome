@@ -196,3 +196,11 @@
 - [x] Make parsed plan previews and confidence review independently scrollable while keeping import controls reachable.
 - [x] Add clear Home controls for changing sport, training goal, and available training days without rebuilding onboarding.
 - [x] Validate preference persistence, recommendation refresh, import navigation, and mobile touch behavior.
+
+## Gym-Time Planning Budget
+
+- [x] Audit profile persistence, session recommendation generation, and diagnostics for a reusable time-available input.
+- [x] Define practical gym-time bands and transparent exercise-count, set-volume, and rest-budget behavior for each band.
+- [x] Add a time-available selector to Home and retain the selected budget in the athlete profile.
+- [x] Adapt session recommendations, smart drafts, and planning diagnostics to the selected gym-time budget.
+- [x] Validate time-budget persistence, estimated session length, and responsive control behavior before publishing.
