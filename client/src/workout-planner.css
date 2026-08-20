@@ -1,16 +1,4 @@
 /* Modern Kinetic Field Manual: structured coach diagnostics and weekly planning modules. */
-/* The scan remains conclusion-first; secondary volume and balance evidence opens only on demand. */
-.health-stat-grid-compact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.health-stat-grid-compact > div { min-height: 68px; padding: .75rem .85rem; }
-.health-stat-grid-compact > div:nth-child(2n) { border-right: 1px solid rgb(255 255 255 / .1); }
-.health-stat-grid-compact > div:last-child { border-right: 0; }
-.health-details { border-bottom: 1px solid rgb(255 255 255 / .1); }
-.health-details summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; padding: .88rem 1.15rem; color: #a9d5ff; font-size: .66rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.health-details summary::after { content: "+"; color: #f5d26f; font-size: 1rem; }
-.health-details[open] summary { border-bottom: 1px solid rgb(255 255 255 / .1); }
-.health-details[open] summary::after { content: "−"; }
-.health-detail-stack { background: rgb(0 0 0 / .08); }
-@media (max-width: 640px) { .health-stat-grid-compact > div { min-height: 64px; padding: .75rem; }.health-stat-grid-compact > div:nth-child(2n) { border-right: 1px solid rgb(255 255 255 / .1); }.health-stat-grid-compact > div:last-child { border-right: 0; } }
 .workout-health-panel { overflow: hidden; border: 1px solid rgb(118 153 191 / .34); background: linear-gradient(145deg, #09213e, #102f53); color: #f7fbff; }
 .workout-health-head, .weekly-plan-head { display: flex; align-items: start; justify-content: space-between; gap: 1rem; padding: 1.25rem; border-bottom: 1px solid rgb(255 255 255 / .12); }
 .workout-health-head h3, .weekly-plan-head h3 { margin-top: .18rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.9rem; font-weight: 800; line-height: .9; text-transform: uppercase; }
