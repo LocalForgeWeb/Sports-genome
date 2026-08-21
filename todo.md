@@ -11,6 +11,10 @@
 - [x] Extract every study and source cited in the user-provided training material, verify each against the original evidence, and map only validated findings to calibration logic.
 - [x] Build a source-backed evidence register for all 20 sport profiles and the exercise catalog, including sport biomechanics and exercise-mechanics findings.
 - [ ] Recalibrate sport-action and exercise insight models only where evidence supports the adjustment, while preserving explicit planning-inference boundaries.
+- [x] Recalibrate cable resistance profiles as setup-dependent moment-arm tasks rather than universally shortened-range exercises.
+- [x] Distinguish active rotation from anti-rotation/bracing in the Exercise Genome joint-action model and add focused regression coverage.
+- [x] Differentiate cable resistance profiles by setup, body position, and movement pattern instead of applying a universal cable fallback.
+- [x] Add focused cable fly, row, press, and curl regression coverage showing setup-dependent profile differences.
 - [x] Present evidence coverage and source limitations clearly in the Movement Atlas and Exercise Genome rather than implying individual measurements.
 - [x] Add an editable Athlete Baseline intro-quiz sequence for experience level, goal, optional bodyweight, and preferred units.
 - [x] Keep baseline measurements optional, editable, and explicitly scoped as planning context rather than health or ability scores.

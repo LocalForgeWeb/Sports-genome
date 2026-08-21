@@ -100,7 +100,8 @@ function getJointActions(exercise: Exercise) {
   if (patterns.includes("vertical pull")) ["Shoulder adduction", "Elbow flexion", "Scapular depression"].forEach((action) => actions.add(action));
   if (patterns.includes("squat") || patterns.includes("lunge")) ["Hip flexion / extension", "Knee extension", "Ankle dorsiflexion / plantarflexion"].forEach((action) => actions.add(action));
   if (patterns.includes("hinge")) ["Hip flexion / extension", "Spinal anti-flexion", "Knee flexion control"].forEach((action) => actions.add(action));
-  if (patterns.includes("rotation")) ["Spinal rotation", "Hip rotation", "Trunk anti-rotation"].forEach((action) => actions.add(action));
+  if (patterns.includes("rotation")) ["Spinal rotation", "Hip rotation"].forEach((action) => actions.add(action));
+  if (patterns.includes("anti-movement bracing")) ["Trunk anti-rotation", "Trunk anti-flexion", "Trunk anti-lateral-flexion"].forEach((action) => actions.add(action));
   if (patterns.includes("carry") || patterns.includes("locomotion")) ["Trunk anti-lateral-flexion", "Hip stabilization", "Grip isometric"].forEach((action) => actions.add(action));
   if (patterns.includes("jump")) ["Hip extension", "Knee extension", "Ankle plantarflexion", "Eccentric landing control"].forEach((action) => actions.add(action));
   return Array.from(actions.size ? actions : new Set(["Joint-specific controlled motion"]));
@@ -108,8 +109,15 @@ function getJointActions(exercise: Exercise) {
 
 function getResistanceProfile(exercise: Exercise): ExerciseGenome["resistanceProfile"] {
   const text = lower(exercise);
+  if (/cable/.test(text)) {
+    if (/bayesian|incline cable curl/.test(text)) return { bias: "Lengthened", stickingRegion: "Early elbow-flexion / stretched position", peakRegion: "Early-to-mid range", curve: [88, 92, 70, 46, 30] };
+    if (/cable fly|cable press around|press-around/.test(text)) return { bias: "Shortened", stickingRegion: "Adduction path and cable line", peakRegion: "Late range", curve: [40, 55, 72, 88, 92] };
+    if (/cable row|pulldown|face pull/.test(text)) return { bias: "Mid-range", stickingRegion: "Scapular and elbow-drive transition", peakRegion: "Middle range", curve: [52, 72, 88, 70, 48] };
+    if (/press|press-out|pallof/.test(text)) return { bias: "Even", stickingRegion: "Setup-dependent leverage transition", peakRegion: "Cable line and body-position dependent", curve: [60, 72, 78, 73, 62] };
+    return { bias: "Even", stickingRegion: "Setup-dependent leverage transition", peakRegion: "Cable line and body-position dependent", curve: [60, 72, 78, 73, 62] };
+  }
   if (/fly|pullover|romanian|rdl|good morning|deep squat|sissy/.test(text)) return { bias: "Lengthened", stickingRegion: "Bottom / stretched position", peakRegion: "Early-to-mid range", curve: [86, 94, 72, 45, 30] };
-  if (/cable|band|squeeze|kickback|extension/.test(text)) return { bias: "Shortened", stickingRegion: "End-range contraction", peakRegion: "Late range", curve: [35, 48, 65, 84, 94] };
+  if (/band|squeeze|kickback|extension/.test(text)) return { bias: "Shortened", stickingRegion: "End-range contraction", peakRegion: "Late range", curve: [35, 48, 65, 84, 94] };
   if (/machine|smith|sled|leg press/.test(text)) return { bias: "Even", stickingRegion: "Machine-specific mid range", peakRegion: "Mid range", curve: [62, 74, 79, 73, 61] };
   return { bias: "Mid-range", stickingRegion: "Mid-range leverage transition", peakRegion: "Middle range", curve: [54, 72, 91, 70, 48] };
 }
