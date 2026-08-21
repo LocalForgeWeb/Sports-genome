@@ -6,6 +6,7 @@
 - [ ] Run and document a focused bug sweep across onboarding, Training Days, Stack Analysis, Body Lab, catalog discovery, mobile layout, and authenticated history.
 - [x] Guard sport-movement selection against an invalid persisted sport identifier so recommendation rendering cannot dereference an undefined movement.
 - [x] Audit all athlete-facing numeric exercise, set, repetition, volume, and stack-analysis fields against authoritative resistance-training evidence.
+- [x] Extract every study and source cited in the user-provided training material, verify each against the original evidence, and map only validated findings to calibration logic.
 - [x] Audit all twenty sport movement profiles for biomechanical action, prime movers, stabilizers, and transfer rationale, correcting unsupported claims.
 - [x] Add a maintained evidence register that labels planning estimates, source-supported facts, and unresolved research gaps.
 - [ ] Report future evidence-backed work in completed, verifiable scopes rather than promised wall-clock duration.
