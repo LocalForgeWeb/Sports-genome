@@ -23,6 +23,7 @@ import { MovementAtlasPanel } from "@/components/MovementAtlasPanel";
 import { DayExercisePicker } from "@/components/DayExercisePicker";
 import { PrintableWorkoutSheet, PrintWorkoutButton } from "@/components/PrintableWorkoutSheet";
 import { CatalogDiscoveryPanel } from "@/components/CatalogDiscoveryPanel";
+import { AthleteBaselineQuiz, type AthleteBaseline, type AthleteQuizSelection } from "@/components/AthleteBaselineQuiz";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { defaultCatalogFilters, type CatalogFilters } from "@/lib/catalogDiscovery";
 import { getExerciseSettings, getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
@@ -40,7 +41,7 @@ import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 type Workspace = "command" | "recommended" | "custom" | "day-plan" | "body" | "movement" | "catalog" | "genome";
 type Goal = TrainingGoal;
 type StackMode = "suggested" | "custom";
-type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number };
+type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
 type WeekSnapshot = { customWorkout: Exercise[]; weeklyPlan: Record<string, Exercise[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions: WeeklyPrescriptionStore; importedPlanContext: Record<string, ImportedRoutineContext[]> };
 type StoredWeekSnapshot = { customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]> };
 type StoredWorkoutPlan = { version: 1 | 2; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]>; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number };
@@ -140,6 +141,7 @@ export default function Home() {
   const [sportId, setSportId] = useState("");
   const [goal, setGoal] = useState<Goal>("Athleticism");
   const [trainingDays, setTrainingDays] = useState(3);
+  const [athleteBaseline, setAthleteBaseline] = useState<AthleteBaseline>({ experience: "Intermediate", weightUnit: "lb" });
   const [gymMinutes, setGymMinutes] = useState(60);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [movementId, setMovementId] = useState("");
@@ -242,6 +244,7 @@ export default function Home() {
           setGoal(profile.goal);
           setTrainingDays(Math.max(1, Math.min(7, profile.trainingDays)));
           setGymMinutes(Math.max(30, Math.min(90, profile.gymMinutes || 60)));
+          if (profile.baseline) setAthleteBaseline(profile.baseline);
           setMovementId(profile.movementId);
           setOnboardingComplete(true);
         }
@@ -296,9 +299,9 @@ export default function Home() {
 
   useEffect(() => {
     if (!profileHydrated || !onboardingComplete || !sportId) return;
-    const profile: StoredAthleteProfile = { version: 1, sportId, goal, trainingDays, gymMinutes, movementId: selectedMovement.id };
+    const profile: StoredAthleteProfile = { version: 1, sportId, goal, trainingDays, gymMinutes, movementId: selectedMovement.id, baseline: athleteBaseline };
     try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
-  }, [profileHydrated, onboardingComplete, sportId, goal, trainingDays, gymMinutes, movementId, selectedMovement.id]);
+  }, [profileHydrated, onboardingComplete, sportId, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
 
   useEffect(() => {
     if (!planHydrated || !onboardingComplete) return;
@@ -493,9 +496,10 @@ export default function Home() {
   };
   const inspectExercise = (exercise: Exercise) => { setInspectedExercise(exercise); setActiveMuscle(exercise.primaryMuscles[0] || "obliques"); };
   const showMovement = (movement: SportMovementProfile) => { setMovementId(movement.id); setWorkspace("recommended"); };
-  const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, stackMode }: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => {
+  const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, stackMode, baseline }: AthleteQuizSelection) => {
     setGoal(selectedGoal);
     setTrainingDays(selectedDays);
+    setAthleteBaseline(baseline);
     chooseSport(selectedSportId);
     if (stackMode === "suggested") {
       setCustomWorkout(getSportSession(selectedSportId, selectedGoal, Math.min(6, selectedDays + 2)).map((result) => result.exercise));
@@ -524,7 +528,7 @@ export default function Home() {
 
   if (loading) return <div className="account-entry-loading">Checking secure account access…</div>;
   if (!isAuthenticated) return <AccountEntry onSignIn={startLogin} passkeyAvailable={passkeyAvailable} loading={loading} />;
-  if (!onboardingComplete) return <Onboarding onComplete={completeOnboarding} />;
+  if (!onboardingComplete) return <AthleteBaselineQuiz sports={sportProfiles} onComplete={completeOnboarding} />;
 
   return <div className="apex-shell">
     <aside className={`apex-rail ${railOpen ? "rail-open" : ""}`}>

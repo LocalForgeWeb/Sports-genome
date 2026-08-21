@@ -4,9 +4,17 @@
 - [x] Replace the compact Rate Stack block with a dedicated whole-stack analysis view that maps all worked muscles, ranks involvement, and opens per-muscle detail across the active Training Day.
 - [x] Repair Stack Analysis so each selected muscle has distinct aggregate involvement and movement-specific mechanical detail instead of a shared normalized breakdown.
 - [ ] Run and document a focused bug sweep across onboarding, Training Days, Stack Analysis, Body Lab, catalog discovery, mobile layout, and authenticated history.
+- [ ] Run an end-to-end authenticated workout: start a session, save set logs, complete it, and confirm the resulting timeline entry.
+- [ ] Visually verify the populated mobile Training Day action-card layout after the latest control redesign and record the result in the bug-sweep report.
 - [x] Guard sport-movement selection against an invalid persisted sport identifier so recommendation rendering cannot dereference an undefined movement.
 - [x] Audit all athlete-facing numeric exercise, set, repetition, volume, and stack-analysis fields against authoritative resistance-training evidence.
 - [x] Extract every study and source cited in the user-provided training material, verify each against the original evidence, and map only validated findings to calibration logic.
+- [x] Add an editable Athlete Baseline intro-quiz sequence for experience level, goal, optional bodyweight, and preferred units.
+- [x] Keep baseline measurements optional, editable, and explicitly scoped as planning context rather than health or ability scores.
+- [x] Add resilient Back and Continue navigation to every intro-quiz step, including progress updates and preserved answers.
+- [x] Add reduced-motion-safe question transitions and supported-device haptic feedback for selections and navigation.
+- [x] Add an optional, editable preferred-name intro step that personalizes the quiz and final preview.
+- [x] Add a final animated plan-preview screen with Back, Skip, and Build my plan controls before onboarding completion.
 - [x] Audit all twenty sport movement profiles for biomechanical action, prime movers, stabilizers, and transfer rationale, correcting unsupported claims.
 - [x] Add a maintained evidence register that labels planning estimates, source-supported facts, and unresolved research gaps.
 - [ ] Report future evidence-backed work in completed, verifiable scopes rather than promised wall-clock duration.
