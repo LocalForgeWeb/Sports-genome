@@ -3,6 +3,9 @@
 - [x] Add a split-aware Rate Stack with split-only muscle coverage scores, gap flags, overemphasis flags, and catalog-backed correction advice.
 - [x] Add a muscle-group filter to the direct Training Days exercise picker using full anatomical labels.
 - [x] Repair the responsive Training Days prescription card layout so ordering, removal, prescription, completion, and notes controls do not overlap on mobile.
+- [ ] Rebuild the mobile Training Day action controls so ordering and removal buttons never overlap the exercise card content.
+- [x] Add an in-context serratus discovery cue confirming that Cable Serratus Punch and Scapular Wall Slide are available.
+- [ ] Visually verify the updated mobile Training Day card on a populated small-screen workout before closing the overlap repair.
 - [x] Validate the split-stack test, complete Vitest suite, TypeScript check, and production build.
 - [x] Add a one-click Rate Stack replacement action that preserves the outgoing exercise prescription and settings.
 - [x] Analyze saved consecutive training days for overlapping high-exposure muscle demands and present transparent recovery-spacing alerts.
@@ -12,6 +15,7 @@
 - [x] Test printable notes, four-set prescriptions, and timed work formatting.
 - [x] Make serratus anterior exercise discovery explicit in the catalog and direct day builder, including a clear no-results fallback.
 - [x] Repair the live serratus anterior discovery path so the quick filter, full-name search, and Body Lab finder always return tagged exercises.
+- [ ] Add a direct Exercise Genome-to-Body-Lab handoff for the selected exercise’s primary muscle.
 - [x] Add compact Body Lab sport and movement navigation so athletes can switch or return to another movement without leaving the anatomy workflow.
 
 - [x] Normalize the user-supplied movement lists for wrestling, American football, basketball, soccer, and baseball.
