@@ -3835,6 +3835,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "Train snap-downs, deceleration lunges, split squats, eccentric hamstring work and progressive stop-start drills."
   },
   {
+    "id": "lacrosse-21",
+    "sportId": "lacrosse",
+    "sportLabel": "Lacrosse",
+    "label": "shooting on the run and under defensive constraint",
+    "bodyActions": "coordinate approach or dodge, plant or altered foot placement, pelvis and trunk motion, crosse acceleration, release, and recovery while accounting for defensive pressure or contact",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, arm, and grip musculature as phase-, side-, and game-context-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, shoulder girdle, elbow, wrist, and grip control",
+    "muscleActions": "mixed acceleration, force transfer, bracing, controlled release, and re-stabilization under changing movement constraints",
+    "family": "shooting under movement and defensive constraint",
+    "gymTransferCue": "Rotational, deceleration, single-leg, and upper-body force-transfer drills can share selected movement qualities; stick handling, release timing, and reading defenders remain lacrosse skills."
+  },
+  {
     "id": "rugby-1",
     "sportId": "rugby",
     "sportLabel": "Rugby",

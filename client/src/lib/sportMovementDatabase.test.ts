@@ -83,4 +83,10 @@ describe("evidence-audited sport movement records", () => {
     expect(splitStep?.family).toBe("split-step and multidirectional first-step movement");
     expect(splitStep?.gymTransferCue).toMatch(/tennis skills/i);
   });
+
+  it("keeps Lacrosse shooting under defensive constraint distinct from isolated overhead mechanics", () => {
+    const constrainedShot = movement("lacrosse-21");
+    expect(constrainedShot?.family).toBe("shooting under movement and defensive constraint");
+    expect(constrainedShot?.gymTransferCue).toMatch(/lacrosse skills/i);
+  });
 });
