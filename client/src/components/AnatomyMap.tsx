@@ -3,7 +3,7 @@ import { BodyChart, ViewSide, FRONT_MUSCLES, BACK_MUSCLES, MUSCLE_MAP } from "bo
 import { ChevronDown, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import "../anatomy-clean.css";
 
-type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void };
+type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; muscleScores?: Record<string, number>; showInspector?: boolean };
 type Role = "Primary" | "Synergist" | "Stabilizer";
 
 /* Map our exercise catalog muscle keys to body-muscles library IDs */
@@ -76,7 +76,7 @@ const matches = (key: string, values: string[]) => values.some(v => (aliases[key
 const tier = (s: number) => s >= 90 ? "S" : s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 25 ? "D" : "F";
 const heatSolid = (s: number) => s >= 90 ? "#db2f24" : s >= 75 ? "#f46933" : s >= 60 ? "#f5a13d" : s >= 40 ? "#d8c052" : s >= 20 ? "#73b8d9" : "#b0bfc8";
 
-export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
+export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showInspector = true }: AnatomyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<BodyChart | null>(null);
   const [view, setView] = useState<"FRONT" | "BACK">("FRONT");
@@ -99,30 +99,32 @@ export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
       });
     };
 
-    // Primary muscles: intensity 8-10
+    const modelIntensity = (key: string, fallback: number) => muscleScores?.[key] ? Math.max(2, Math.min(10, Math.round(muscleScores[key] / 10))) : fallback;
+
+    // Primary muscles: intensity follows supplied whole-stack exposure when available.
     Object.keys(keyToIds).forEach(key => {
-      if (matches(key, primary)) applyKey(key, 9);
+      if (matches(key, primary)) applyKey(key, modelIntensity(key, 9));
     });
-    // Secondary/synergist muscles: intensity 5-7
+    // Secondary/synergist muscles use their own whole-stack exposure when available.
     Object.keys(keyToIds).forEach(key => {
-      if (!matches(key, primary) && matches(key, secondary)) applyKey(key, 6);
+      if (!matches(key, primary) && matches(key, secondary)) applyKey(key, modelIntensity(key, 6));
     });
 
     return state;
-  }, [primary, secondary, selectedKey]);
+  }, [primary, secondary, selectedKey, muscleScores]);
 
   /* Ranked muscles for the strip */
   const ranked = useMemo(() => {
     const entries: { key: string; label: string; score: number; role: Role }[] = [];
     Object.keys(keyToIds).forEach(key => {
       if (matches(key, primary)) {
-        entries.push({ key, label: labels[key] || key, score: 90, role: "Primary" });
+        entries.push({ key, label: labels[key] || key, score: muscleScores?.[key] ?? 90, role: "Primary" });
       } else if (matches(key, secondary)) {
-        entries.push({ key, label: labels[key] || key, score: 55, role: "Synergist" });
+        entries.push({ key, label: labels[key] || key, score: muscleScores?.[key] ?? 55, role: "Synergist" });
       }
     });
     return entries.sort((a, b) => b.score - a.score).slice(0, 8);
-  }, [primary, secondary]);
+  }, [primary, secondary, muscleScores]);
 
   /* Initialize and update the body-muscles chart */
   useEffect(() => {
@@ -165,7 +167,7 @@ export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
 
   const reset = () => { setView("FRONT"); setSelectedKey(""); setQuery(""); };
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
-  const selectedScore = selectedKey ? (matches(selectedKey, primary) ? 90 : 55) : 0;
+  const selectedScore = selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0;
   const selectedRole: Role | null = selectedKey ? (matches(selectedKey, primary) ? "Primary" : "Synergist") : null;
   const metric = (offset: number) => Math.max(12, Math.min(98, selectedScore + offset));
 
@@ -233,7 +235,7 @@ export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
         </div>
 
         {/* Inspector */}
-        <aside className={`atlas-pro-inspector ${selectedKey ? "is-open" : ""}`}>
+        {showInspector && <aside className={`atlas-pro-inspector ${selectedKey ? "is-open" : ""}`}>
           {selectedKey ? (
             <>
               <div className="atlas-inspector-title">
@@ -271,7 +273,7 @@ export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
               <p>Only worked muscles show color. Click any highlighted muscle to inspect its role and detailed analysis. Use the flip button to switch views.</p>
             </div>
           )}
-        </aside>
+        </aside>}
       </div>
     </section>
   );

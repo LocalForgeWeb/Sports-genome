@@ -16,6 +16,7 @@ export type StackMuscleContribution = {
 export type StackMuscleAnalysis = {
   muscle: string;
   involvement: number;
+  rawInvolvement: number;
   primaryExercises: number;
   supportingExercises: number;
   mechanicalLoading: number;
@@ -26,6 +27,12 @@ export type StackMuscleAnalysis = {
 };
 
 const average = (values: number[]) => values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
+const roleWeight = (role: StackMuscleContribution["role"]) => role === "Prime mover" ? 1 : role === "Synergist" ? 0.65 : 0.4;
+const weightedAverage = (contributions: StackMuscleContribution[], metric: keyof Pick<StackMuscleContribution, "mechanicalLoading" | "longLengthLoading" | "peakContraction" | "stabilizationDemand">) => {
+  const totalWeight = contributions.reduce((sum, entry) => sum + entry.involvement * roleWeight(entry.role), 0);
+  if (!totalWeight) return 0;
+  return Math.round(contributions.reduce((sum, entry) => sum + entry[metric] * entry.involvement * roleWeight(entry.role), 0) / totalWeight);
+};
 
 export function analyzeWholeStackMuscles(workout: Exercise[]): StackMuscleAnalysis[] {
   const byMuscle = new Map<string, StackMuscleContribution[]>();
@@ -48,15 +55,21 @@ export function analyzeWholeStackMuscles(workout: Exercise[]): StackMuscleAnalys
     });
   });
 
-  return Array.from(byMuscle.entries()).map(([muscle, contributions]) => ({
+  const rawAnalysis = Array.from(byMuscle.entries()).map(([muscle, contributions]) => ({
     muscle,
-    involvement: Math.min(100, contributions.reduce((sum, entry) => sum + entry.involvement, 0)),
+    rawInvolvement: contributions.reduce((sum, entry) => sum + entry.involvement * roleWeight(entry.role), 0),
     primaryExercises: contributions.filter((entry) => entry.role === "Prime mover").length,
     supportingExercises: contributions.filter((entry) => entry.role !== "Prime mover").length,
-    mechanicalLoading: average(contributions.map((entry) => entry.mechanicalLoading)),
-    longLengthLoading: average(contributions.map((entry) => entry.longLengthLoading)),
-    peakContraction: average(contributions.map((entry) => entry.peakContraction)),
-    stabilizationDemand: average(contributions.map((entry) => entry.stabilizationDemand)),
+    mechanicalLoading: weightedAverage(contributions, "mechanicalLoading"),
+    longLengthLoading: weightedAverage(contributions, "longLengthLoading"),
+    peakContraction: weightedAverage(contributions, "peakContraction"),
+    stabilizationDemand: weightedAverage(contributions, "stabilizationDemand"),
     contributions: contributions.sort((first, second) => second.involvement - first.involvement),
-  })).sort((first, second) => second.involvement - first.involvement || second.primaryExercises - first.primaryExercises);
+  }));
+  const highestExposure = Math.max(...rawAnalysis.map((item) => item.rawInvolvement), 1);
+
+  return rawAnalysis.map((item) => ({
+    ...item,
+    involvement: Math.max(1, Math.round((item.rawInvolvement / highestExposure) * 100)),
+  })).sort((first, second) => second.rawInvolvement - first.rawInvolvement || second.primaryExercises - first.primaryExercises);
 }

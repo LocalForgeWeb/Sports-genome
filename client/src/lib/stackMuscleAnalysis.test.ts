@@ -8,6 +8,8 @@ describe("whole-stack muscle analysis", () => {
     const analysis = analyzeWholeStackMuscles(workout);
     expect(analysis.length).toBeGreaterThan(0);
     expect(analysis[0].involvement).toBeGreaterThan(0);
+    expect(analysis[0].involvement).toBe(100);
+    expect(new Set(analysis.map((item) => item.involvement)).size).toBeGreaterThan(1);
     expect(analysis[0].contributions[0]).toMatchObject({ exerciseId: expect.any(Number), movement: expect.any(String), role: expect.any(String) });
   });
 });

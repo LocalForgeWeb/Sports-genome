@@ -2,9 +2,12 @@
 
 - [x] Add a split-aware Rate Stack with split-only muscle coverage scores, gap flags, overemphasis flags, and catalog-backed correction advice.
 - [x] Replace the compact Rate Stack block with a dedicated whole-stack analysis view that maps all worked muscles, ranks involvement, and opens per-muscle detail across the active Training Day.
+- [x] Repair Stack Analysis so each selected muscle has distinct aggregate involvement and movement-specific mechanical detail instead of a shared normalized breakdown.
 - [x] Audit all athlete-facing numeric exercise, set, repetition, volume, and stack-analysis fields against authoritative resistance-training evidence.
 - [x] Audit all twenty sport movement profiles for biomechanical action, prime movers, stabilizers, and transfer rationale, correcting unsupported claims.
 - [x] Add a maintained evidence register that labels planning estimates, source-supported facts, and unresolved research gaps.
+- [ ] Report future evidence-backed work in completed, verifiable scopes rather than promised wall-clock duration.
+- [ ] Before accepting any future requested multi-hour work duration, state whether that literal duration can be completed and report it accurately.
 - [x] Expand sport-movement records only where the evidence audit identifies a material coverage gap, with source-aware rationale.
 - [x] Label or recalibrate remaining hardcoded stack-coverage targets and involvement weights as planning estimates rather than measured physiology.
 - [x] Apply evidence-audit corrections across the remaining sport profiles and record regression coverage for the corrected movement text.
