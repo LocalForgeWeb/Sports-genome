@@ -77,4 +77,10 @@ describe("evidence-audited sport movement records", () => {
     expect(receipt?.family).toBe("under-bar receipt and fixation");
     expect(receipt?.gymTransferCue).toMatch(/Olympic weightlifting skills/i);
   });
+
+  it("keeps Tennis first-step movement distinct from court perception and tactics", () => {
+    const splitStep = movement("tennis-21");
+    expect(splitStep?.family).toBe("split-step and multidirectional first-step movement");
+    expect(splitStep?.gymTransferCue).toMatch(/tennis skills/i);
+  });
 });

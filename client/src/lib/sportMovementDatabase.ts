@@ -2335,6 +2335,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "cue: medicine-ball rotational throws combined with lateral-to-forward shuttles, deceleration drills, and anti-rotation holds."
   },
   {
+    "id": "tennis-21",
+    "sportId": "tennis",
+    "sportLabel": "Tennis",
+    "label": "split-step and first-step court movement",
+    "bodyActions": "decelerate into a balanced preparatory split-step, then accelerate laterally, forward, backward, or diagonally according to ball direction and court position",
+    "primaryMuscles": "lower-limb and trunk musculature as direction-, surface-, and stroke-context-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, and shoulder-girdle posture control as racquet preparation requires",
+    "muscleActions": "brief eccentric pre-loading, rapid concentric first-step propulsion, and controlled re-stabilization",
+    "family": "split-step and multidirectional first-step movement",
+    "gymTransferCue": "Reactive footwork, deceleration, and lateral or diagonal strength drills can share first-step qualities; ball tracking, anticipation, and tactical court positioning remain tennis skills."
+  },
+  {
     "id": "volleyball-1",
     "sportId": "volleyball",
     "sportLabel": "Volleyball",
