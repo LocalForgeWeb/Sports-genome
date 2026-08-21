@@ -246,7 +246,7 @@ export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
                 <i>{tier(selectedScore)} Tier</i>
               </div>
               <div className="atlas-core-metrics">
-                {[["Force exposure", metric(1)], ["Long-length challenge", metric(-12)], ["Stability demand", metric(-22)]].map(([name, value]) => (
+                {[["Modelled force exposure", metric(1)], ["Modelled long-length challenge", metric(-12)], ["Modelled stability demand", metric(-22)]].map(([name, value]) => (
                   <div key={name as string}><span>{name}</span><b>{value}</b><i><em style={{ width: `${value}%` }} /></i></div>
                 ))}
               </div>
