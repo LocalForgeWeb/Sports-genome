@@ -835,6 +835,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "Cue: heavy carries, sandbag bear hugs, and split-stance anti-rotation holds, keeping the ball secure and continuing to pump the legs."
   },
   {
+    "id": "american-football-21",
+    "sportId": "american-football",
+    "sportLabel": "American football",
+    "label": "contact and displacement",
+    "bodyActions": "establish a low, balanced body position, manage external contact through coordinated lower-limb and trunk actions, then re-stabilize or redirect",
+    "primaryMuscles": "hip and knee extensors, plantar flexors, trunk musculature, upper-back and arm contact musculature as task- and position-dependent contributors",
+    "stabilizers": "trunk, pelvis, shoulder girdle, hips, knees, ankle-foot complex, and cervical position control when contact requires it",
+    "muscleActions": "eccentric absorption and bracing, isometric force transfer, and concentric re-acceleration or repositioning",
+    "family": "contact stability and displacement",
+    "gymTransferCue": "Carries, sled work, split-stance strength, and anti-rotation drills can share force and bracing qualities; legal contact technique, timing, and opponent interaction remain football skills."
+  },
+  {
     "id": "basketball-1",
     "sportId": "basketball",
     "sportLabel": "Basketball",
@@ -1073,6 +1085,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "muscleActions": "eccentric braking followed by concentric lateral propulsion with isometric stance control",
     "family": "lateral recovery/change of direction",
     "gymTransferCue": "cue: use lateral bounds with stick, crossover-to-shuffle drills, and resisted lateral drives."
+  },
+  {
+    "id": "basketball-21",
+    "sportId": "basketball",
+    "sportLabel": "Basketball",
+    "label": "stop, decelerate, and pivot",
+    "bodyActions": "rapid braking from a run or dribble into controlled hip-knee-ankle flexion, balance recovery, and a pivot or redirection from a stable base",
+    "primaryMuscles": "hip and knee extensors/flexors, plantar flexors, and trunk musculature as phase- and direction-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip rotators, knee, ankle-foot complex, and upper-body control for ball handling",
+    "muscleActions": "eccentric deceleration and force absorption followed by isometric balance control and concentric re-acceleration or pivoting",
+    "family": "deceleration, pivot, and change of direction",
+    "gymTransferCue": "Deceleration, landing, lateral strength, and pivot drills can share movement qualities; ball handling, space perception, and defensive pressure remain basketball skills."
   },
   {
     "id": "soccer-1",
@@ -3257,6 +3281,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "muscleActions": "mixed—concentric trunk and hip flexion, eccentric spinal and hip control, isometric frames",
     "family": "inverted trunk control and hip mobility",
     "gymTransferCue": "Build hollow-body holds, controlled hanging leg raises, and thoracic-hip mobility without loading the neck."
+  },
+  {
+    "id": "brazilian-jiu-jitsu-21",
+    "sportId": "brazilian-jiu-jitsu",
+    "sportLabel": "Brazilian jiu-jitsu",
+    "label": "standing clinch and takedown-defense cycle",
+    "bodyActions": "stance and level adjustment, pummeling or underhook control, hip denial or sprawl mechanics, lateral footwork, and re-establishing posture or a technical re-stand",
+    "primaryMuscles": "hip and lower-limb extensors, adductors/abductors, trunk musculature, upper-back and arm attachment musculature, and grip as position-dependent contributors",
+    "stabilizers": "trunk, shoulder girdle, hips, knees, ankle-foot complex, and cervical position control when contact requires it",
+    "muscleActions": "mixed isometric attachment and bracing with concentric footwork or hip drive, plus eccentric braking and posture recovery",
+    "family": "standing grappling and takedown defense",
+    "gymTransferCue": "Split-stance strength, carries, rows, and controlled hip-hinge or sprawl patterns can overlap with bracing and force-direction qualities; timing, grips, and opponent response remain grappling skills."
   },
   {
     "id": "ice-hockey-1",

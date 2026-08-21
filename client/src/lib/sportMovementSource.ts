@@ -58,7 +58,8 @@ export const sportMovementSource: SportMovementSource[] = [
       "catching overhead",
       "hip turn",
       "change of direction",
-      "ball-carrying contact absorption"
+      "ball-carrying contact absorption",
+      "contact and displacement"
     ]
   },
   {
@@ -84,7 +85,8 @@ export const sportMovementSource: SportMovementSource[] = [
       "screen contact",
       "overhead pass",
       "chest pass",
-      "lateral recovery"
+      "lateral recovery",
+      "stop, decelerate, and pivot"
     ]
   },
   {
@@ -320,7 +322,8 @@ export const sportMovementSource: SportMovementSource[] = [
       "mount stabilization",
       "back-control hooks",
       "grip fighting",
-      "inversion"
+      "inversion",
+      "standing clinch and takedown-defense cycle"
     ]
   },
   {

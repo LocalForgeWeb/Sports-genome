@@ -30,4 +30,15 @@ describe("evidence-audited sport movement records", () => {
     expect(movement("boxing-21")?.gymTransferCue).toMatch(/boxing skills/i);
     expect(movement("ice-hockey-21")?.family).toBe("goalie lateral repositioning and recovery");
   });
+
+  it("adds Brazilian Jiu-Jitsu standing grappling without treating gym drills as technique substitutes", () => {
+    const standingCycle = movement("brazilian-jiu-jitsu-21");
+    expect(standingCycle?.family).toBe("standing grappling and takedown defense");
+    expect(standingCycle?.gymTransferCue).toMatch(/grappling skills/i);
+  });
+
+  it("adds contact and deceleration gaps without reducing either sport to isolated muscle action", () => {
+    expect(movement("american-football-21")?.gymTransferCue).toMatch(/football skills/i);
+    expect(movement("basketball-21")?.family).toBe("deceleration, pivot, and change of direction");
+  });
 });
