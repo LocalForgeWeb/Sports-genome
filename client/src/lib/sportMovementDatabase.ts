@@ -2767,6 +2767,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "Keep each strike technically connected, recover the guard between punches, and let the legs and trunk sustain rhythm."
   },
   {
+    "id": "boxing-21",
+    "sportId": "boxing",
+    "sportLabel": "Boxing",
+    "label": "angle step / cut-off step",
+    "bodyActions": "lateral-diagonal repositioning with a pivot or stance adjustment to change line, manage distance, and restore a balanced guard",
+    "primaryMuscles": "hip abductors/adductors, gluteal musculature, quadriceps, plantar flexors, and trunk musculature as direction-dependent contributors",
+    "stabilizers": "trunk, pelvis, knee, ankle-foot complex, shoulder girdle, and forearm/wrist control for guard position",
+    "muscleActions": "concentric repositioning, eccentric braking, and repeated isometric stance and guard control",
+    "family": "defensive footwork and line change",
+    "gymTransferCue": "Lateral strength, deceleration, and pivot drills can share movement qualities; timing, distance management, and opponent reading remain boxing skills."
+  },
+  {
     "id": "mma-1",
     "sportId": "mma",
     "sportLabel": "MMA",
@@ -3485,6 +3497,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "muscleActions": "concentric explosive recovery with eccentric landing/braking and isometric balance",
     "family": "reactive lateral recovery",
     "gymTransferCue": "cue: train get-up variations, lateral bounds, resisted lateral drives, and reactive stance resets."
+  },
+  {
+    "id": "ice-hockey-21",
+    "sportId": "ice-hockey",
+    "sportLabel": "Ice hockey",
+    "label": "goalie shuffle / T-push transition",
+    "bodyActions": "ready-stance lateral shuffle or T-push with edge-mediated force, controlled braking, square reorientation, and recovery to position",
+    "primaryMuscles": "quadriceps, gluteal musculature, adductors/abductors, hamstrings, and plantar flexors as skating- and stance-dependent contributors",
+    "stabilizers": "trunk, pelvis, knee, ankle-foot complex, and shoulder girdle for stick and posture control",
+    "muscleActions": "lateral concentric push, eccentric braking, isometric readiness posture, and controlled re-centering",
+    "family": "goalie lateral repositioning and recovery",
+    "gymTransferCue": "Lateral strength, single-leg control, and low-stance deceleration can overlap with movement demands; skate edge mechanics and puck-tracking remain goalie-specific skills."
   },
   {
     "id": "lacrosse-1",

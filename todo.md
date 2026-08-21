@@ -8,7 +8,7 @@
 - [ ] Expand sport-movement records only where the evidence audit identifies a material coverage gap, with source-aware rationale.
 - [x] Label or recalibrate remaining hardcoded stack-coverage targets and involvement weights as planning estimates rather than measured physiology.
 - [ ] Apply evidence-audit corrections across the remaining sport profiles and record regression coverage for the corrected movement text.
-- [ ] Expand additional material sport-movement gaps identified in the multi-sport audit beyond the Wrestling profile.
+- [x] Expand additional material sport-movement gaps identified in the multi-sport audit beyond the Wrestling profile.
 - [x] Add a muscle-group filter to the direct Training Days exercise picker using full anatomical labels.
 - [x] Repair the responsive Training Days prescription card layout so ordering, removal, prescription, completion, and notes controls do not overlap on mobile.
 - [ ] Rebuild the mobile Training Day action controls so ordering and removal buttons never overlap the exercise card content.

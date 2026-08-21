@@ -267,7 +267,8 @@ export const sportMovementSource: SportMovementSource[] = [
       "rotational punch drive",
       "level change",
       "clinch control",
-      "explosive combination punching"
+      "explosive combination punching",
+      "angle step / cut-off step"
     ]
   },
   {
@@ -345,7 +346,8 @@ export const sportMovementSource: SportMovementSource[] = [
       "low skating stance",
       "lateral goalie push",
       "goalie butterfly",
-      "explosive crease recovery"
+      "explosive crease recovery",
+      "goalie shuffle / T-push transition"
     ]
   },
   {
