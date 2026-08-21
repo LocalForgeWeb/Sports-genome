@@ -2875,6 +2875,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "Lateral strength, deceleration, and pivot drills can share movement qualities; timing, distance management, and opponent reading remain boxing skills."
   },
   {
+    "id": "boxing-22",
+    "sportId": "boxing",
+    "sportLabel": "Boxing",
+    "label": "lead-straight initiation and sequential acceleration-braking",
+    "bodyActions": "coordinate stance and lead-leg impulse, pelvis and trunk organization, shoulder and elbow motion, hand acceleration toward target, controlled braking, and return to guard",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, arm, and hand musculature as stance-, range-, target-, and athlete-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, shoulder girdle, elbow, wrist, hand, and cervical position control as guard and contact context require",
+    "muscleActions": "sequential force transfer, hand acceleration, controlled terminal braking, and rapid re-stabilization into guard",
+    "family": "lead-straight sequential acceleration and braking",
+    "gymTransferCue": "Lower-body, trunk, shoulder, and hand-speed preparation can share selected physical qualities; punch selection, timing, range management, defense, and opponent response remain boxing skills."
+  },
+  {
     "id": "mma-1",
     "sportId": "mma",
     "sportLabel": "MMA",
@@ -3379,6 +3391,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "Split-stance strength, carries, rows, and controlled hip-hinge or sprawl patterns can overlap with bracing and force-direction qualities; timing, grips, and opponent response remain grappling skills."
   },
   {
+    "id": "brazilian-jiu-jitsu-22",
+    "sportId": "brazilian-jiu-jitsu",
+    "sportLabel": "Brazilian jiu-jitsu",
+    "label": "guard-passing, sweep, and positional-stabilization transition",
+    "bodyActions": "coordinate frames, grips, hip movement, base changes, pressure or off-balancing, passage or sweep, and re-stabilization while an opponent changes resistance and position",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, arm, hip, and grip musculature as position-, technique-, and opponent-dependent contributors",
+    "stabilizers": "trunk, pelvis, shoulder girdle, elbow, wrist, grip, hips, knees, ankle-foot complex, and cervical position control when contact requires it",
+    "muscleActions": "mixed bracing, attachment, force redirection, hip repositioning, controlled pressure, and rapid positional re-stabilization",
+    "family": "guard-passing, sweep, and positional stabilization",
+    "gymTransferCue": "Carries, pulls, pushes, hip-control, and controlled ground-transition patterns can share selected physical qualities; grips, timing, leverage, and opponent response remain Brazilian jiu-jitsu skills."
+  },
+  {
     "id": "ice-hockey-1",
     "sportId": "ice-hockey",
     "sportLabel": "Ice hockey",
@@ -3629,6 +3653,30 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "muscleActions": "lateral concentric push, eccentric braking, isometric readiness posture, and controlled re-centering",
     "family": "goalie lateral repositioning and recovery",
     "gymTransferCue": "Lateral strength, single-leg control, and low-stance deceleration can overlap with movement demands; skate edge mechanics and puck-tracking remain goalie-specific skills."
+  },
+  {
+    "id": "ice-hockey-22",
+    "sportId": "ice-hockey",
+    "sportLabel": "Ice hockey",
+    "label": "explosive skating acceleration",
+    "bodyActions": "move from early skating acceleration into later skating or gliding phases through stance-specific skate pushes, trunk position, and repeated recovery under ice-contact constraints",
+    "primaryMuscles": "lower-limb and trunk musculature as stride-, speed-, surface-, equipment-, and athlete-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot, and upper-body position control as skating posture and stick handling require",
+    "muscleActions": "phase-dependent force production, recovery, posture control, and re-acceleration",
+    "family": "explosive skating acceleration and transition",
+    "gymTransferCue": "Lower-body force, unilateral strength, trunk-control, and acceleration preparation can share selected qualities; skate mechanics, edge use, puck handling, and opponent response remain ice hockey skills."
+  },
+  {
+    "id": "ice-hockey-23",
+    "sportId": "ice-hockey",
+    "sportLabel": "Ice hockey",
+    "label": "outside-skate ninety-degree turn and re-acceleration",
+    "bodyActions": "brake and redirect through an asymmetric turn, managing outside-skate loading, trunk and pelvis orientation, then re-accelerate into the next skating line",
+    "primaryMuscles": "lower-limb and trunk musculature as turn-direction, speed, edge, and athlete-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot, and upper-body position control as edge contact and stick position require",
+    "muscleActions": "mixed eccentric braking, asymmetric force transfer, isometric orientation control, and concentric re-acceleration",
+    "family": "outside-skate change of direction and re-acceleration",
+    "gymTransferCue": "Lateral deceleration, unilateral force, and trunk-control work can share selected change-of-direction qualities; outside-edge loading, puck control, and tactical line choice remain ice hockey skills."
   },
   {
     "id": "lacrosse-1",

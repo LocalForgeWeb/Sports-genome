@@ -125,4 +125,24 @@ describe("evidence-audited sport movement records", () => {
     expect(aerialSequence?.family).toBe("approach jump, aerial action, and landing sequence");
     expect(aerialSequence?.gymTransferCue).toMatch(/volleyball skills/i);
   });
+
+  it("keeps Boxing lead-straight mechanics distinct from a universal striking prescription", () => {
+    const leadStraight = movement("boxing-22");
+    expect(leadStraight?.family).toBe("lead-straight sequential acceleration and braking");
+    expect(leadStraight?.gymTransferCue).toMatch(/boxing skills/i);
+  });
+
+  it("keeps Brazilian jiu-jitsu ground transitions distinct from generic ground drills", () => {
+    const transition = movement("brazilian-jiu-jitsu-22");
+    expect(transition?.family).toBe("guard-passing, sweep, and positional stabilization");
+    expect(transition?.gymTransferCue).toMatch(/Brazilian jiu-jitsu skills/i);
+  });
+
+  it("distinguishes Ice Hockey acceleration and outside-skate turning from generic running", () => {
+    const acceleration = movement("ice-hockey-22");
+    const turn = movement("ice-hockey-23");
+    expect(acceleration?.family).toBe("explosive skating acceleration and transition");
+    expect(turn?.family).toBe("outside-skate change of direction and re-acceleration");
+    expect(turn?.gymTransferCue).toMatch(/ice hockey skills/i);
+  });
 });
