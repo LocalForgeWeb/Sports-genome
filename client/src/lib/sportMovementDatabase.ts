@@ -1831,6 +1831,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "gym-transfer cue: combine low-barrier step-over drills with run-in/run-out practice and controlled landing mechanics."
   },
   {
+    "id": "track-and-field-21",
+    "sportId": "track-and-field",
+    "sportLabel": "Track & field",
+    "label": "jump-event approach, takeoff, flight, and landing",
+    "bodyActions": "event-specific approach running transitions into a takeoff, aerial posture or implement-free flight phase, and a controlled landing or continuation according to the jump discipline",
+    "primaryMuscles": "lower-limb and trunk musculature as event-, phase-, and athlete-dependent contributors rather than a fixed prime-mover list",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, and upper-body position control as required by the event and phase",
+    "muscleActions": "phase-dependent concentric projection, isometric posture control, and eccentric landing or re-stabilization",
+    "family": "jump-event approach, takeoff, flight, and landing",
+    "gymTransferCue": "Approach rhythm, force-direction, takeoff, and landing drills can share selected qualities; event technique and the exact timing of each phase remain track-and-field skills."
+  },
+  {
     "id": "swimming-1",
     "sportId": "swimming",
     "sportLabel": "Swimming",

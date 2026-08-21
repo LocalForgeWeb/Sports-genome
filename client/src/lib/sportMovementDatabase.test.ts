@@ -53,4 +53,10 @@ describe("evidence-audited sport movement records", () => {
     expect(transition?.family).toBe("start, turn, and underwater transition");
     expect(transition?.gymTransferCue).toMatch(/swimming skills/i);
   });
+
+  it("keeps Track and Field jump-event phases distinct from sprinting", () => {
+    const jumpSequence = movement("track-and-field-21");
+    expect(jumpSequence?.family).toBe("jump-event approach, takeoff, flight, and landing");
+    expect(jumpSequence?.gymTransferCue).toMatch(/track-and-field skills/i);
+  });
 });
