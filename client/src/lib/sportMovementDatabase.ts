@@ -4783,6 +4783,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "gym-transfer cue: practice slow-tempo rows, controlled hip hinges and deceleration-focused sled or cable work without abrupt stops."
   },
   {
+    "id": "rowing-21",
+    "sportId": "rowing",
+    "sportLabel": "Rowing",
+    "label": "sweep versus scull stroke organization",
+    "bodyActions": "during the drive, force is organized from legs through trunk to arms; recovery reverses that order. Sweep rowing includes asymmetric oar-side trunk rotation, while sculling uses an oar in each hand.",
+    "primaryMuscles": "lower-limb, trunk, scapular, shoulder, and elbow musculature as phase-, modality-, technique-, and intensity-dependent contributors",
+    "stabilizers": "trunk, pelvis, scapular control, hip, knee, ankle-foot, and grip control as the boat class and stroke phase require",
+    "muscleActions": "coordinated concentric drive, phase-dependent isometric force transfer, controlled deceleration at finish, and ordered recovery",
+    "family": "stroke sequencing and rowing-modality organization",
+    "gymTransferCue": "Rows, hinges, and trunk-control work can share selected sequencing and force-transfer qualities; water feel, oar handling, balance, and sweep-versus-scull technique remain rowing skills."
+  },
+  {
     "id": "skiing-1",
     "sportId": "skiing",
     "sportLabel": "Skiing",

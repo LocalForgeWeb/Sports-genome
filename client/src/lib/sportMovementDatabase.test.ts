@@ -65,4 +65,10 @@ describe("evidence-audited sport movement records", () => {
     expect(landing?.family).toBe("landing absorption and post-landing stabilization");
     expect(landing?.gymTransferCue).toMatch(/gymnastics skills/i);
   });
+
+  it("keeps Rowing phase-aware and distinguishes sweep from scull organization", () => {
+    const strokeOrganization = movement("rowing-21");
+    expect(strokeOrganization?.family).toBe("stroke sequencing and rowing-modality organization");
+    expect(strokeOrganization?.gymTransferCue).toMatch(/rowing skills/i);
+  });
 });
