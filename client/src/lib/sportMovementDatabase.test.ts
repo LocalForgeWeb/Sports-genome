@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { sportMovementProfiles } from "./sportMovementDatabase";
+import { findSportMovement } from "./movementRecommendations";
 
 const movement = (id: string) => sportMovementProfiles.find((entry) => entry.id === id);
 
@@ -144,5 +145,11 @@ describe("evidence-audited sport movement records", () => {
     expect(acceleration?.family).toBe("explosive skating acceleration and transition");
     expect(turn?.family).toBe("outside-skate change of direction and re-acceleration");
     expect(turn?.gymTransferCue).toMatch(/ice hockey skills/i);
+  });
+
+  it("falls back safely when a persisted sport or movement identifier is no longer valid", () => {
+    const fallback = findSportMovement("retired-sport-id", "missing-movement");
+    expect(fallback).toBeDefined();
+    expect(fallback.label).toBeTruthy();
   });
 });

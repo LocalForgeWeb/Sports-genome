@@ -186,5 +186,5 @@ export function getSportSession(sportId: string, goal: string, limit = 6): Movem
 
 export function findSportMovement(sportId: string, movementId?: string) {
   const movements = sportMovementProfiles.filter((profile) => profile.sportId === sportId);
-  return movements.find((profile) => profile.id === movementId) || movements[0];
+  return movements.find((profile) => profile.id === movementId) || movements[0] || sportMovementProfiles[0];
 }
