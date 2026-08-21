@@ -1,6 +1,7 @@
 # Sport Movement Database Expansion
 
 - [x] Add a split-aware Rate Stack with split-only muscle coverage scores, gap flags, overemphasis flags, and catalog-backed correction advice.
+- [ ] Replace the compact Rate Stack block with a dedicated whole-stack analysis view that maps all worked muscles, ranks involvement, and opens per-muscle detail across the active Training Day.
 - [x] Add a muscle-group filter to the direct Training Days exercise picker using full anatomical labels.
 - [x] Repair the responsive Training Days prescription card layout so ordering, removal, prescription, completion, and notes controls do not overlap on mobile.
 - [ ] Rebuild the mobile Training Day action controls so ordering and removal buttons never overlap the exercise card content.
