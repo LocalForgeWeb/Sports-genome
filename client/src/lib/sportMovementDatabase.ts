@@ -5273,5 +5273,17 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "muscleActions": "triceps contribute concentrically to lockout while the shoulder, trunk, grip, and lower body stabilize isometrically",
     "family": "overhead fixation",
     "gymTransferCue": "cue: lock the elbows, elevate the shoulders, and keep the bar directly over the mid-foot."
+  },
+  {
+    "id": "olympic-weightlifting-21",
+    "sportId": "olympic-weightlifting",
+    "sportLabel": "Olympic weightlifting",
+    "label": "under-bar receipt and fixation",
+    "bodyActions": "rapidly reposition under the rising bar to receive it in a supported overhead snatch position or on the shoulders before the jerk, then establish a controlled fixation for the lift to count",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, arm, and grip musculature as coordinated, load- and phase-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, shoulder girdle, elbow, wrist, and grip control as the receiving position requires",
+    "muscleActions": "rapid position change and braking followed by isometric force transfer, bar control, and controlled re-stabilization",
+    "family": "under-bar receipt and fixation",
+    "gymTransferCue": "Receiving drills, position-strength work, and controlled overhead or front-rack stability can share selected qualities; bar path, timing, and legal lift technique remain Olympic weightlifting skills."
   }
 ] as const;

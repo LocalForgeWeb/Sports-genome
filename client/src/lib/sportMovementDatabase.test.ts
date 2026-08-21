@@ -71,4 +71,10 @@ describe("evidence-audited sport movement records", () => {
     expect(strokeOrganization?.family).toBe("stroke sequencing and rowing-modality organization");
     expect(strokeOrganization?.gymTransferCue).toMatch(/rowing skills/i);
   });
+
+  it("keeps Olympic Weightlifting receipt distinct from a press-only interpretation", () => {
+    const receipt = movement("olympic-weightlifting-21");
+    expect(receipt?.family).toBe("under-bar receipt and fixation");
+    expect(receipt?.gymTransferCue).toMatch(/Olympic weightlifting skills/i);
+  });
 });
