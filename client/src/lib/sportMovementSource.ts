@@ -112,7 +112,8 @@ export const sportMovementSource: SportMovementSource[] = [
       "hip turn",
       "single-leg landing",
       "goalkeeper dive",
-      "throw-in"
+      "throw-in",
+      "kicking support-leg and pelvic transfer"
     ]
   },
   {

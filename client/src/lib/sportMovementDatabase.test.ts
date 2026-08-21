@@ -41,4 +41,10 @@ describe("evidence-audited sport movement records", () => {
     expect(movement("american-football-21")?.gymTransferCue).toMatch(/football skills/i);
     expect(movement("basketball-21")?.family).toBe("deceleration, pivot, and change of direction");
   });
+
+  it("adds Soccer support-leg transfer without reducing the kick to one isolated muscle", () => {
+    const supportLeg = movement("soccer-21");
+    expect(supportLeg?.family).toBe("kicking support and force transfer");
+    expect(supportLeg?.gymTransferCue).toMatch(/soccer skills/i);
+  });
 });

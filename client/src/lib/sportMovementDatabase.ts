@@ -1339,6 +1339,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "cue: use medicine-ball overhead throws, pullover patterns, and anti-rotation core work while maintaining a legal two-foot stance."
   },
   {
+    "id": "soccer-21",
+    "sportId": "soccer",
+    "sportLabel": "Soccer",
+    "label": "kicking support-leg and pelvic transfer",
+    "bodyActions": "plant and stabilize the support leg while the pelvis and trunk transfer momentum into the swinging-leg kick, then control follow-through and reorientation",
+    "primaryMuscles": "support-leg hip, knee, and ankle musculature with trunk and pelvic control musculature as phase-dependent contributors",
+    "stabilizers": "trunk, pelvis, support-hip abductors/adductors and rotators, knee, ankle-foot complex, and upper-body balance control",
+    "muscleActions": "isometric and eccentric support-leg control with coordinated pelvic/trunk rotation and controlled follow-through",
+    "family": "kicking support and force transfer",
+    "gymTransferCue": "Single-leg strength, controlled rotation, and balance drills can share support-leg and trunk-control qualities; ball contact, timing, and the swinging-leg action remain soccer skills."
+  },
+  {
     "id": "baseball-1",
     "sportId": "baseball",
     "sportLabel": "Baseball",
