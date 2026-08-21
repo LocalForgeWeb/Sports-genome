@@ -59,4 +59,10 @@ describe("evidence-audited sport movement records", () => {
     expect(jumpSequence?.family).toBe("jump-event approach, takeoff, flight, and landing");
     expect(jumpSequence?.gymTransferCue).toMatch(/track-and-field skills/i);
   });
+
+  it("keeps Gymnastics landing stabilization multi-joint and apparatus-bounded", () => {
+    const landing = movement("gymnastics-20");
+    expect(landing?.family).toBe("landing absorption and post-landing stabilization");
+    expect(landing?.gymTransferCue).toMatch(/gymnastics skills/i);
+  });
 });

@@ -4535,12 +4535,12 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "sportId": "gymnastics",
     "sportLabel": "Gymnastics",
     "label": "landing stabilization",
-    "bodyActions": "body actions: controlled flexion at ankle, knee, and hip with trunk alignment and balance recovery after ground contact",
-    "primaryMuscles": "primary muscles: quadriceps, gluteus maximus, hamstrings, soleus, gastrocnemius, and trunk muscles",
-    "stabilizers": "key stabilizers: foot intrinsics, ankle stabilizers, knee/hip abductors, spinal stabilizers, and vestibular/visual systems",
-    "muscleActions": "muscle actions: eccentric impact absorption followed by isometric braking and concentric balance recovery",
-    "family": "movement family: multi-joint landing absorption and postural control",
-    "gymTransferCue": "gym-transfer cue: practice stick landings, snap-downs, split-stance deceleration, and progressive drop landings with quiet, aligned contacts"
+    "bodyActions": "controlled, task-dependent ankle, knee, hip, and trunk motion at ground contact followed by balance recovery and post-landing stabilization",
+    "primaryMuscles": "lower-limb and trunk musculature as coordinated, phase- and apparatus-dependent contributors rather than a single impact-absorbing muscle group",
+    "stabilizers": "foot-ankle, knee, hip, trunk, and shoulder-girdle control as the landing and apparatus position require",
+    "muscleActions": "coordinated eccentric force attenuation, isometric postural control, and concentric re-stabilization",
+    "family": "landing absorption and post-landing stabilization",
+    "gymTransferCue": "Landing, deceleration, and balance drills can share force-attenuation qualities; apparatus technique, landing criteria, and post-landing control remain gymnastics skills."
   },
   {
     "id": "rowing-1",
