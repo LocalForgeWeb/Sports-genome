@@ -47,4 +47,10 @@ describe("evidence-audited sport movement records", () => {
     expect(supportLeg?.family).toBe("kicking support and force transfer");
     expect(supportLeg?.gymTransferCue).toMatch(/soccer skills/i);
   });
+
+  it("adds Swimming starts and turns as a distinct phase from the surface stroke", () => {
+    const transition = movement("swimming-21");
+    expect(transition?.family).toBe("start, turn, and underwater transition");
+    expect(transition?.gymTransferCue).toMatch(/swimming skills/i);
+  });
 });

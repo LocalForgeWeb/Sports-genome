@@ -2071,6 +2071,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "cue: use overhead reach, landmine press, triceps extension, and hollow-body lengthening while avoiding rib flare."
   },
   {
+    "id": "swimming-21",
+    "sportId": "swimming",
+    "sportLabel": "Swimming",
+    "label": "start, turn, and underwater transition",
+    "bodyActions": "block or wall push-off, streamlined alignment, underwater kicking and body-line control, then transition into the surface stroke",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, and upper-limb musculature as stroke- and phase-dependent contributors",
+    "stabilizers": "trunk, scapular control musculature, hip and pelvic control, and ankle-foot control for streamlined position and kick mechanics",
+    "muscleActions": "concentric push-off and propulsion with isometric streamlining and phase-dependent eccentric/concentric control during the turn and breakout",
+    "family": "start, turn, and underwater transition",
+    "gymTransferCue": "Jump, streamline, trunk-control, and ankle-kick preparation can share positional qualities; wall timing, underwater efficiency, breathing, and stroke transition remain swimming skills."
+  },
+  {
     "id": "tennis-1",
     "sportId": "tennis",
     "sportLabel": "Tennis",
