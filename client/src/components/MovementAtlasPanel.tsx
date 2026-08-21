@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { ArrowUpRight, ChevronDown, Search } from "lucide-react";
 import type { SportMovementProfile, SportProfile } from "@/lib/sportMovementDatabase";
+import { sportEvidenceCoverage } from "@/lib/evidenceCoverage";
 
 /** Modern Kinetic Field Manual: one action decision first; research evidence unfolds only on demand. */
 export function MovementAtlasPanel({ sportName, sportId, sports, movements, selectedMovement, query, family, onQuery, onFamily, onSport, onMovement, onOpenBody }: { sportName: string; sportId: string; sports: SportProfile[]; movements: SportMovementProfile[]; selectedMovement: SportMovementProfile; query: string; family: string; onQuery: (value: string) => void; onFamily: (value: string) => void; onSport: (sportId: string) => void; onMovement: (movement: SportMovementProfile) => void; onOpenBody: () => void }) {
   const [showAllFamilies, setShowAllFamilies] = useState(false);
   const [showAllActions, setShowAllActions] = useState(false);
+  const evidence = sportEvidenceCoverage(sportId);
   const families = useMemo(() => Array.from(new Set(movements.map((movement) => movement.family))).sort(), [movements]);
   const normalized = query.trim().toLowerCase();
   const visible = movements.filter((movement) => (family === "All" || movement.family === family) && (!normalized || `${movement.label} ${movement.family} ${movement.bodyActions} ${movement.primaryMuscles}`.toLowerCase().includes(normalized)));
@@ -40,7 +42,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
         <p>{selectedMovement.bodyActions}</p>
         <div className="atlas-quick-read"><span>Prime movers</span><strong>{selectedMovement.primaryMuscles}</strong></div>
         <details className="atlas-details"><summary>Why this action matters <ChevronDown className="h-4 w-4" /></summary><dl><div><dt>Stabilizers</dt><dd>{selectedMovement.stabilizers}</dd></div><div><dt>Training transfer</dt><dd>{selectedMovement.gymTransferCue}</dd></div></dl></details>
-        <details className="atlas-details atlas-evidence-boundary"><summary>Evidence and data boundary <ChevronDown className="h-4 w-4" /></summary><p>Body actions summarize sport biomechanics and technical analysis. Listed muscles are likely, phase-dependent contributors—not direct activation readings or a fixed ranking for every athlete. Gym exercises can share force, bracing, or range-of-motion qualities, but they do not replace sport skill practice or guarantee transfer.</p></details>
+        <details className="atlas-details atlas-evidence-boundary"><summary>Evidence and data boundary <ChevronDown className="h-4 w-4" /></summary><p><strong>{evidence.confidence} evidence coverage.</strong> {evidence.sourceRange}</p><p>{evidence.directScope}</p><p>Body actions summarize sport biomechanics and technical analysis. Listed muscles are likely, phase-dependent contributors—not direct activation readings or a fixed ranking for every athlete. {evidence.planningBoundary}</p></details>
         <button onClick={onOpenBody}>Trace in Body Lab <ArrowUpRight className="h-4 w-4" /></button>
       </article>
     </div>
