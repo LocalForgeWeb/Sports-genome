@@ -95,4 +95,10 @@ describe("evidence-audited sport movement records", () => {
     expect(transition?.family).toBe("grappling transition and positional control");
     expect(transition?.gymTransferCue).toMatch(/MMA skills/i);
   });
+
+  it("keeps Baseball hitting a whole-body sequence rather than an arm-only action", () => {
+    const batting = movement("baseball-21");
+    expect(batting?.family).toBe("whole-body rotational batting sequence");
+    expect(batting?.gymTransferCue).toMatch(/baseball skills/i);
+  });
 });

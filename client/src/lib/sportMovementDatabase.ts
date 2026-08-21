@@ -1591,6 +1591,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "gym-transfer cue: brace to transfer force while allowing movement at the hips and shoulders"
   },
   {
+    "id": "baseball-21",
+    "sportId": "baseball",
+    "sportLabel": "Baseball",
+    "label": "whole-body batting sequence",
+    "bodyActions": "coordinate stance, stride or weight shift, pelvis and trunk rotation, bat acceleration, contact, and follow-through rather than treating the swing as arm-only motion",
+    "primaryMuscles": "lower-limb, pelvis, trunk, shoulder-girdle, arm, and grip musculature as side-, phase-, pitch-, and athlete-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, shoulder girdle, elbow, wrist, and grip control",
+    "muscleActions": "coordinated weight transfer, rotation, force transmission, bat acceleration, braking, and recovery",
+    "family": "whole-body rotational batting sequence",
+    "gymTransferCue": "Rotational, lower-body, trunk-control, and bat-speed preparation can share selected qualities; pitch recognition, swing timing, contact location, and hitting tactics remain baseball skills."
+  },
+  {
     "id": "track-and-field-1",
     "sportId": "track-and-field",
     "sportLabel": "Track & field",
