@@ -7,7 +7,9 @@
 - [x] Add a one-click Rate Stack replacement action that preserves the outgoing exercise prescription and settings.
 - [x] Analyze saved consecutive training days for overlapping high-exposure muscle demands and present transparent recovery-spacing alerts.
 - [x] Expand authenticated completed-session history into a scannable chronological timeline with concise training-volume context.
-- [ ] Add a print-ready Training Day workout sheet with exercise prescriptions and coaching details.
+- [x] Add a print-ready Training Day workout sheet with exercise prescriptions and coaching details.
+- [x] Include each exercise’s saved coaching note and prescription-derived tracking rows in the printed workout sheet.
+- [x] Test printable notes, four-set prescriptions, and timed work formatting.
 - [x] Make serratus anterior exercise discovery explicit in the catalog and direct day builder, including a clear no-results fallback.
 - [x] Add compact Body Lab sport and movement navigation so athletes can switch or return to another movement without leaving the anatomy workflow.
 
