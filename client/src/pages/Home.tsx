@@ -37,7 +37,7 @@ import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { toast } from "sonner";
-import { startLogin } from "@/const";
+import { EmailAuthScreen } from "@/components/EmailAuthScreen";
 import { trpc } from "@/lib/trpc";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 
@@ -129,17 +129,9 @@ function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; traini
   </main></div>;
 }
 
-function AccountEntry({ onSignIn, passkeyAvailable, loading }: { onSignIn: () => void; passkeyAvailable: boolean; loading: boolean }) {
-  return <div className="account-entry-shell"><div className="account-entry-grid" /><header className="account-entry-brand"><img src="/manus-storage/gym-optimizer-logo_32341cfa.png" alt="Gym Optimizer logo" /><div><strong>Gym Optimizer</strong><span>Sport-aware training atlas</span></div></header><main className="account-entry-card"><p className="pulse-kicker">Athlete account / first step</p><h1>Save every plan.<br /><em>Own every rep.</em></h1><p>Create or access your athlete account before building a plan. Your training weeks, saved days, and completed workout logs stay connected to one workspace.</p><button onClick={onSignIn} disabled={loading}>{passkeyAvailable ? "Continue with passkey / Face ID" : "Create account or sign in"} <ArrowUpRight className="h-4 w-4" /></button><small>{passkeyAvailable ? "Your device can use a passkey. The secure account portal will offer Face ID or your device’s biometric check when available." : "Secure sign-in is handled by the account portal. A passkey option appears there on supported devices."}</small></main></div>;
-}
-
 export default function Home() {
-  // The useAuth hook provides authentication state.
-  // To implement login/logout, call logout(), or start login from an event
-  // handler: onClick={() => startLogin()} (imported from "@/const"). Never call
-  // startLogin() during render (no href={startLogin()}) — it mints a one-time
-  // nonce cookie and must run only at the moment of navigation.
-  let { user, loading, error, isAuthenticated, logout } = useAuth();
+  let { user, loading, error, isAuthenticated, logout, refresh } = useAuth();
+  const startLogin = () => toast.error("Please sign in with your Gym Optimizer email account.");
 
   const [workspace, setWorkspace] = useState<Workspace>("command");
   const [sportId, setSportId] = useState("");
@@ -166,7 +158,6 @@ export default function Home() {
   const [importedPlanContext, setImportedPlanContext] = useState<Record<string, ImportedRoutineContext[]>>({});
   const [planWeeks, setPlanWeeks] = useState<Record<number, WeekSnapshot>>({});
   const [activeWeek, setActiveWeek] = useState(1);
-  const [passkeyAvailable, setPasskeyAvailable] = useState(false);
   const [profileHydrated, setProfileHydrated] = useState(false);
   const [planHydrated, setPlanHydrated] = useState(false);
   const [railOpen, setRailOpen] = useState(false);
@@ -227,16 +218,6 @@ export default function Home() {
     const fromIds = (ids: number[]) => ids.map((id) => exercises.find((exercise) => exercise.id === id)).filter((exercise): exercise is Exercise => Boolean(exercise));
     return { customWorkout: fromIds(snapshot.customWorkoutIds || []), weeklyPlan: Object.fromEntries(Object.entries(snapshot.weeklyPlanIds || {}).map(([key, ids]) => [key, fromIds(ids)])), prescriptions: snapshot.prescriptions || {}, exerciseSettings: snapshot.exerciseSettings || {}, weeklyPrescriptions: snapshot.weeklyPrescriptions || {}, importedPlanContext: snapshot.importedPlanContext || {} };
   };
-
-  useEffect(() => {
-    let mounted = true;
-    const detectPasskey = async () => {
-      if (!window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable) return;
-      try { const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); if (mounted) setPasskeyAvailable(available); } catch { /* The provider portal still offers supported account methods. */ }
-    };
-    void detectPasskey();
-    return () => { mounted = false; };
-  }, []);
 
   useEffect(() => {
     try {
@@ -531,12 +512,12 @@ export default function Home() {
   };
 
   if (loading) return <div className="account-entry-loading">Checking secure account access…</div>;
-  if (!isAuthenticated) return <AccountEntry onSignIn={startLogin} passkeyAvailable={passkeyAvailable} loading={loading} />;
+  if (!isAuthenticated) return <EmailAuthScreen onAuthenticated={() => { void refresh(); }} loading={loading} />;
   if (!onboardingComplete) return <AthleteBaselineQuiz sports={sportProfiles} onComplete={completeOnboarding} />;
 
   return <div className="apex-shell">
     <aside className={`apex-rail ${railOpen ? "rail-open" : ""}`}>
-      {!loading && <div className="rail-account-control">{isAuthenticated ? <><span>{user?.name || "Training account"}</span><button onClick={() => logout()}>Sign out</button></> : <button onClick={startLogin}>Sign in to save workouts</button>}</div>}
+      {!loading && <div className="rail-account-control">{isAuthenticated ? <><span>{user?.name || "Training account"}</span><button onClick={() => logout()}>Sign out</button></> : null}</div>}
       <div className="rail-brand"><img src="/manus-storage/gym-optimizer-logo_32341cfa.png" alt="Gym Optimizer logo" className="h-10 w-10 object-contain" /><div><p className="font-display text-[22px] font-bold leading-[.72] tracking-wide text-white">GYM<br />OPTIMIZER</p><p className="mt-1 text-[9px] font-bold uppercase tracking-[.18em] text-[#79a9ff]">Sport-aware training atlas</p></div><button onClick={() => setRailOpen(false)} className="ml-auto text-[#8d9c95] lg:hidden"><X className="h-5 w-5" /></button></div>
       <div className="rail-athlete"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#b8ff5b] font-display text-xl font-bold text-[#101a1c]">{(user?.name || "A").slice(0, 1).toUpperCase()}</div><div><p className="text-xs font-bold text-white">{user?.name || "Athlete"}</p><p className="mt-0.5 text-[10px] text-[#8d9c95]">Secure training workspace</p></div><UsersRound className="ml-auto h-4 w-4 text-[#8d9c95]" /></div>
       <nav className="rail-nav">{navGroups.map((group) => <div key={group} className="rail-nav-group"><p>{group}</p>{navItems.filter((item) => item.group === group).map((item) => { const Icon = item.icon; return <button key={item.id} onClick={() => { if (item.id === "day-plan" && !splitDays.includes(activeSplitDay)) setActiveSplitDay(splitDays[0]); setWorkspace(item.id); setRailOpen(false); }} className={`rail-nav-item ${workspace === item.id ? "rail-nav-active" : ""}`}><Icon className="h-4 w-4" /><span><span className="block text-xs font-bold">{item.label}</span><span className="mt-0.5 block text-[9px] text-[#7d8c85]">{item.detail}</span></span></button>; })}</div>)}</nav>

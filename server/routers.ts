@@ -1,23 +1,25 @@
-import { COOKIE_NAME } from "@shared/const";
-import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { completeWorkoutSession, createWorkoutSession, getWorkoutSession, listWorkoutSessions, upsertWorkoutSet } from "./workoutSessions";
 import { listFavoriteExerciseIds, setFavoriteExercise } from "./favoriteExercises";
+import { beginPasskeyAuthentication, beginPasskeyRegistration, clearLocalSession, finishPasskeyAuthentication, finishPasskeyRegistration, registerEmailAccount, signInWithEmail } from "./localAuth";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+    register: publicProcedure.input(z.object({ email: z.string().trim().email().max(320), password: z.string().min(12).max(200) })).mutation(async ({ ctx, input }) => registerEmailAccount(input, ctx.req, ctx.res)),
+    signIn: publicProcedure.input(z.object({ email: z.string().trim().email().max(320), password: z.string().min(1).max(200) })).mutation(async ({ ctx, input }) => signInWithEmail(input, ctx.req, ctx.res)),
+    passkeyRegistrationOptions: protectedProcedure.mutation(({ ctx }) => beginPasskeyRegistration(ctx.user, ctx.req)),
+    passkeyRegistrationVerify: protectedProcedure.input(z.object({ response: z.unknown() })).mutation(({ ctx, input }) => finishPasskeyRegistration(ctx.user, input.response, ctx.req)),
+    passkeyAuthenticationOptions: publicProcedure.input(z.object({ email: z.string().trim().email().max(320) })).mutation(({ ctx, input }) => beginPasskeyAuthentication(input.email, ctx.req)),
+    passkeyAuthenticationVerify: publicProcedure.input(z.object({ email: z.string().trim().email().max(320), response: z.object({ id: z.string() }).passthrough() })).mutation(({ ctx, input }) => finishPasskeyAuthentication(input.email, input.response, ctx.req, ctx.res)),
+    logout: publicProcedure.mutation(async ({ ctx }) => {
+      await clearLocalSession(ctx.req, ctx.res);
+      return { success: true } as const;
     }),
   }),
 

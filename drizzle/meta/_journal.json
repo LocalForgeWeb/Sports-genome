@@ -15,6 +15,13 @@
       "when": 1787258356536,
       "tag": "0001_bitter_sheva_callister",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787346612998,
+      "tag": "0002_brave_wiccan",
+      "breakpoints": true
     }
   ]
 }

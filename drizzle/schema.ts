@@ -84,3 +84,61 @@ export const favoriteExercises = mysqlTable("favoriteExercises", {
 ]);
 
 export type FavoriteExercise = typeof favoriteExercises.$inferSelect;
+
+/** Standalone Gym Optimizer email credentials; password hashes are never exposed to clients. */
+export const emailCredentials = mysqlTable("emailCredentials", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  email: varchar("email", { length: 320 }).notNull(),
+  passwordHash: varchar("passwordHash", { length: 128 }).notNull(),
+  passwordSalt: varchar("passwordSalt", { length: 64 }).notNull(),
+  failedAttempts: int("failedAttempts").notNull().default(0),
+  lockedUntil: timestamp("lockedUntil"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+  uniqueIndex("emailCredentials_email_unique").on(table.email),
+  uniqueIndex("emailCredentials_user_unique").on(table.userId),
+]);
+
+/** Opaque, hashed local session tokens for standalone email and passkey accounts. */
+export const localAuthSessions = mysqlTable("localAuthSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: varchar("tokenHash", { length: 64 }).notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("localAuthSessions_token_unique").on(table.tokenHash),
+  index("localAuthSessions_user_expiry_idx").on(table.userId, table.expiresAt),
+]);
+
+/** WebAuthn credentials used by Face ID / device passkeys on supported platforms. */
+export const accountPasskeys = mysqlTable("accountPasskeys", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  credentialId: varchar("credentialId", { length: 512 }).notNull(),
+  publicKey: text("publicKey").notNull(),
+  counter: int("counter").notNull().default(0),
+  transports: varchar("transports", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  lastUsedAt: timestamp("lastUsedAt"),
+}, (table) => [
+  uniqueIndex("accountPasskeys_credential_unique").on(table.credentialId),
+  index("accountPasskeys_user_idx").on(table.userId),
+]);
+
+/** One-time WebAuthn ceremony challenges, automatically expired and deleted after use. */
+export const localAuthChallenges = mysqlTable("localAuthChallenges", {
+  id: int("id").autoincrement().primaryKey(),
+  identifier: varchar("identifier", { length: 320 }).notNull(),
+  challenge: varchar("challenge", { length: 512 }).notNull(),
+  purpose: mysqlEnum("purpose", ["register", "authenticate"]).notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => [index("localAuthChallenges_identifier_purpose_idx").on(table.identifier, table.purpose, table.expiresAt)]);
+
+export type EmailCredential = typeof emailCredentials.$inferSelect;
+export type LocalAuthSession = typeof localAuthSessions.$inferSelect;
+export type AccountPasskey = typeof accountPasskeys.$inferSelect;
