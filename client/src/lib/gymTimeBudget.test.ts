@@ -11,5 +11,6 @@ describe("gym time budget", () => {
   it("reduces short-window set targets and expands longer planning windows transparently", () => {
     expect(timeAdjustedSetBand("Athleticism", [10, 20], 30)).toEqual([5, 15]);
     expect(timeAdjustedSetBand("Athleticism", [10, 20], 90)).toEqual([14, 24]);
+    expect(getGymTimeBudget(60).restGuidance).toMatch(/scheduling heuristics/i);
   });
 });

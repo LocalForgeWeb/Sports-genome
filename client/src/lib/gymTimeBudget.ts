@@ -13,6 +13,8 @@ export type GymTimeBudget = {
   scopeCue: string;
 };
 
+export const gymTimeModelBoundary = "Exercise-count and set-band adjustments are scheduling heuristics based on the selected time window. They do not measure readiness or set a universal training dose.";
+
 const budgets: Record<GymTimeMinutes, GymTimeBudget> = {
   30: { minutes: 30, label: "30 min", recommendationLimit: 3, sessionSetAdjustment: -5, restGuidance: "Keep setup simple and prioritize the first one to two lifts; use the lower end of the planned rest range.", scopeCue: "Essential work only: one priority lift plus focused support." },
   45: { minutes: 45, label: "45 min", recommendationLimit: 4, sessionSetAdjustment: -3, restGuidance: "Use efficient transitions and keep accessory work focused; preserve longer rest for the highest-skill sets.", scopeCue: "A focused primary block with selected support work." },
@@ -26,7 +28,8 @@ export function normalizeGymMinutes(value: number): GymTimeMinutes {
 }
 
 export function getGymTimeBudget(value: number): GymTimeBudget {
-  return budgets[normalizeGymMinutes(value)];
+  const budget = budgets[normalizeGymMinutes(value)];
+  return { ...budget, restGuidance: `${budget.restGuidance} ${gymTimeModelBoundary}` };
 }
 
 export function timeAdjustedSetBand(goal: TrainingGoal, base: [number, number], minutes: number): [number, number] {
