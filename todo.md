@@ -15,6 +15,11 @@
 - [x] Add reduced-motion-safe question transitions and supported-device haptic feedback for selections and navigation.
 - [x] Add an optional, editable preferred-name intro step that personalizes the quiz and final preview.
 - [x] Add a final animated plan-preview screen with Back, Skip, and Build my plan controls before onboarding completion.
+- [x] Start the intro quiz with a training-relevant goal or sport decision before optional identity information.
+- [x] Refine the Athlete Baseline visual hierarchy with field-manual evidence cues and reserve vermilion for decisive active actions.
+- [x] Add explicit Athlete Baseline field-manual treatment: inspection labels, calibration ticks, annotated evidence markers, hairline dividers, and bone-paper answer surfaces.
+- [x] Visually verify the refined Athlete Baseline quiz on mobile after adding the field-manual treatment.
+- [x] Add question-specific evidence callouts and a consistent bone-paper answer-surface system across Athlete Baseline quiz choices.
 - [x] Audit all twenty sport movement profiles for biomechanical action, prime movers, stabilizers, and transfer rationale, correcting unsupported claims.
 - [x] Add a maintained evidence register that labels planning estimates, source-supported facts, and unresolved research gaps.
 - [ ] Report future evidence-backed work in completed, verifiable scopes rather than promised wall-clock duration.
