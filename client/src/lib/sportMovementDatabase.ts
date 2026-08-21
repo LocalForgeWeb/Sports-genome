@@ -3091,6 +3091,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "cue: combine get-ups, sprawls, lateral shuffles, bear crawls, and short loaded carries with clean deceleration"
   },
   {
+    "id": "mma-21",
+    "sportId": "mma",
+    "sportLabel": "MMA",
+    "label": "grappling transition and positional control",
+    "bodyActions": "transition between takedown attempts, sprawls, clinch or ground positions, posts, hip escapes, control, and submission-threat responses under an opponent’s changing resistance",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, arm, hip, and grip musculature as position-, technique-, and opponent-dependent contributors",
+    "stabilizers": "trunk, pelvis, shoulder girdle, elbow, wrist, hips, knees, ankle-foot complex, and cervical position control when contact requires it",
+    "muscleActions": "mixed bracing, attachment, pushing, pulling, hip repositioning, force absorption, and rapid re-stabilization",
+    "family": "grappling transition and positional control",
+    "gymTransferCue": "Carries, pulls, pushes, hinges, and controlled ground-transition patterns can share selected physical qualities; technical grappling, timing, and opponent response remain MMA skills."
+  },
+  {
     "id": "brazilian-jiu-jitsu-1",
     "sportId": "brazilian-jiu-jitsu",
     "sportLabel": "Brazilian jiu-jitsu",

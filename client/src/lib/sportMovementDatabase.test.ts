@@ -89,4 +89,10 @@ describe("evidence-audited sport movement records", () => {
     expect(constrainedShot?.family).toBe("shooting under movement and defensive constraint");
     expect(constrainedShot?.gymTransferCue).toMatch(/lacrosse skills/i);
   });
+
+  it("keeps MMA grappling transitions distinct from generic strength work", () => {
+    const transition = movement("mma-21");
+    expect(transition?.family).toBe("grappling transition and positional control");
+    expect(transition?.gymTransferCue).toMatch(/MMA skills/i);
+  });
 });
