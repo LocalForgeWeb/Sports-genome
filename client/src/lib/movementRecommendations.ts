@@ -1,6 +1,7 @@
 /** Kinetic Field Manual: transparent, movement-led recommendation logic for athlete and coach decision support. */
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
 import { sportMovementProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
+import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
 
 export type MovementSignal = "acceleration" | "braking" | "lateral" | "rotation" | "jump" | "push" | "pull" | "overhead" | "grip" | "bracing" | "posterior" | "knee" | "conditioning" | "singleLeg";
 
@@ -150,7 +151,7 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
   }).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id).slice(0, limit);
 }
 
-export function getSportSession(sportId: string, goal: string, limit = 6): MovementRecommendation[] {
+export function getSportSession(sportId: string, goal: string, limit = 6, equipmentProfile?: AthleteEquipmentProfile): MovementRecommendation[] {
   const profiles = sportMovementProfiles.filter((profile) => profile.sportId === sportId);
   const pooled = new Map<number, MovementRecommendation>();
   profiles.forEach((profile) => getMovementRecommendations(profile, 10).forEach((result) => {
@@ -159,7 +160,9 @@ export function getSportSession(sportId: string, goal: string, limit = 6): Movem
     const candidate = { ...result, score: result.score + goalBoost };
     if (!existing || candidate.score > existing.score) pooled.set(result.exercise.id, candidate);
   }));
-  const candidates = Array.from(pooled.values()).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id);
+  const allCandidates = Array.from(pooled.values());
+  const candidates = equipmentProfile ? allCandidates.filter((candidate) => equipmentMatchesProfile(candidate.exercise.equipment, equipmentProfile.availableEquipment)) : allCandidates;
+  candidates.sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id);
   const selected: MovementRecommendation[] = [];
   const muscleOverlap = (first: MovementRecommendation, second: MovementRecommendation) => {
     const firstMuscles = new Set([...first.exercise.primaryMuscles, ...first.exercise.secondaryMuscles]);

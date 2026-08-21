@@ -20,6 +20,13 @@
 - [x] Add explicit Athlete Baseline field-manual treatment: inspection labels, calibration ticks, annotated evidence markers, hairline dividers, and bone-paper answer surfaces.
 - [x] Visually verify the refined Athlete Baseline quiz on mobile after adding the field-manual treatment.
 - [x] Add question-specific evidence callouts and a consistent bone-paper answer-surface system across Athlete Baseline quiz choices.
+- [x] Add editable gym-access and equipment selection to onboarding with clear preconfigured profiles and manual equipment toggles.
+- [x] Persist equipment availability in the athlete profile and use it to constrain automatically generated recommended stacks.
+- [x] Keep the full exercise catalog visible for manual inspection and manual addition, even when an exercise uses unselected equipment.
+- [ ] Disclose the active equipment constraint wherever a stack is generated or loaded.
+- [x] Add an About Me section for viewing and editing athlete baseline, gym access, and equipment.
+- [ ] Add a visible equipment-constraint notice to every automatic stack-generation or load surface, including Recommendations, Load smart draft, Generate Week, and the Training Days active day.
+- [ ] Visually verify the equipment-aware Recommendations, Load smart draft, Generate Week, and Training Days active-day surfaces after explicit notices are added.
 - [x] Audit all twenty sport movement profiles for biomechanical action, prime movers, stabilizers, and transfer rationale, correcting unsupported claims.
 - [x] Add a maintained evidence register that labels planning estimates, source-supported facts, and unresolved research gaps.
 - [ ] Report future evidence-backed work in completed, verifiable scopes rather than promised wall-clock duration.
