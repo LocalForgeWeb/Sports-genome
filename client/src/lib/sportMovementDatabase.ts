@@ -5095,6 +5095,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "transfer cue: use Pallof presses, suitcase carries, and split-stance cable holds while keeping ribs and pelvis controlled"
   },
   {
+    "id": "skiing-21",
+    "sportId": "skiing",
+    "sportLabel": "Skiing",
+    "label": "terrain adaptation and turn transition",
+    "bodyActions": "adjust lower-limb and trunk position as terrain, snow, speed, turn radius, and line choice change, then transition into the next turn while managing pressure and balance",
+    "primaryMuscles": "lower-limb and trunk musculature as terrain-, discipline-, speed-, and turn-context-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, and upper-body position control as conditions require",
+    "muscleActions": "mixed eccentric pressure management, isometric postural control, concentric repositioning, and rapid re-stabilization",
+    "family": "terrain adaptation and turn transition",
+    "gymTransferCue": "Single-leg, lateral, eccentric, balance, and trunk-control work can share selected pressure-management qualities; edge control, terrain reading, line choice, and ski technique remain skiing skills."
+  },
+  {
     "id": "olympic-weightlifting-1",
     "sportId": "olympic-weightlifting",
     "sportLabel": "Olympic weightlifting",

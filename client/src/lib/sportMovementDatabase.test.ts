@@ -107,4 +107,10 @@ describe("evidence-audited sport movement records", () => {
     expect(onCourse?.family).toBe("on-course locomotion and setup transitions");
     expect(onCourse?.gymTransferCue).toMatch(/golf skills/i);
   });
+
+  it("keeps Skiing terrain adaptation distinct from generic balance work", () => {
+    const terrainTransition = movement("skiing-21");
+    expect(terrainTransition?.family).toBe("terrain adaptation and turn transition");
+    expect(terrainTransition?.gymTransferCue).toMatch(/skiing skills/i);
+  });
 });
