@@ -242,7 +242,7 @@ export function AnatomyMap({ primary, secondary, onSelect }: AnatomyMapProps) {
               </div>
               <div className="atlas-inspector-badges">
                 <span>{selectedRole}</span>
-                <b>{selectedScore}/100</b>
+                <b>Model index {selectedScore}/100</b>
                 <i>{tier(selectedScore)} Tier</i>
               </div>
               <div className="atlas-core-metrics">
