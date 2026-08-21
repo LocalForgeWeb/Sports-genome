@@ -15,6 +15,15 @@ const MAX_ATTEMPTS = 5;
 const LOCK_MINUTES = 15;
 const CHALLENGE_MINUTES = 5;
 
+export function nextPasswordFailureState(previousAttempts: number, now = Date.now()) {
+  const attempts = Math.max(0, previousAttempts) + 1;
+  return attempts >= MAX_ATTEMPTS
+    ? { failedAttempts: 0, lockedUntil: new Date(now + LOCK_MINUTES * 60 * 1000), locked: true }
+    : { failedAttempts: attempts, lockedUntil: null, locked: false };
+}
+
+export function hasPasskeyOption(passkeyCount: number) { return passkeyCount > 0; }
+
 function normalizeEmail(email: string) { return email.trim().toLowerCase(); }
 function hashToken(token: string) { return createHash("sha256").update(token).digest("hex"); }
 function passwordHash(password: string, salt: string) { return scryptSync(password, salt, 64).toString("hex"); }
@@ -80,9 +89,9 @@ export async function signInWithEmail(input: { email: string; password: string }
   const saved = Buffer.from(record.credential.passwordHash, "hex");
   const matched = candidate.length === saved.length && timingSafeEqual(candidate, saved);
   if (!matched) {
-    const attempts = record.credential.failedAttempts + 1;
-    await db.update(emailCredentials).set({ failedAttempts: attempts >= MAX_ATTEMPTS ? 0 : attempts, lockedUntil: attempts >= MAX_ATTEMPTS ? new Date(Date.now() + LOCK_MINUTES * 60 * 1000) : null }).where(eq(emailCredentials.id, record.credential.id));
-    return { ok: false as const, code: attempts >= MAX_ATTEMPTS ? "TEMPORARILY_LOCKED" as const : "INVALID_CREDENTIALS" as const };
+    const next = nextPasswordFailureState(record.credential.failedAttempts);
+    await db.update(emailCredentials).set({ failedAttempts: next.failedAttempts, lockedUntil: next.lockedUntil }).where(eq(emailCredentials.id, record.credential.id));
+    return { ok: false as const, code: next.locked ? "TEMPORARILY_LOCKED" as const : "INVALID_CREDENTIALS" as const };
   }
   await db.update(emailCredentials).set({ failedAttempts: 0, lockedUntil: null }).where(eq(emailCredentials.id, record.credential.id));
   await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, record.user.id));
@@ -134,7 +143,7 @@ export async function beginPasskeyAuthentication(emailInput: string, req: Reques
   if (!db) throw new Error("Account service unavailable");
   const email = normalizeEmail(emailInput);
   const rows = await db.select({ credential: accountPasskeys }).from(emailCredentials).innerJoin(accountPasskeys, eq(accountPasskeys.userId, emailCredentials.userId)).where(eq(emailCredentials.email, email));
-  if (!rows.length) return { ok: false as const, code: "NO_PASSKEY" as const };
+  if (!hasPasskeyOption(rows.length)) return { ok: false as const, code: "NO_PASSKEY" as const };
   const { rpID } = relyingParty(req);
   const options = await generateAuthenticationOptions({ rpID, userVerification: "required", allowCredentials: rows.map(row => ({ id: row.credential.credentialId, transports: row.credential.transports ? JSON.parse(row.credential.transports) : undefined })) });
   await storeChallenge(email, "authenticate", options.challenge);
