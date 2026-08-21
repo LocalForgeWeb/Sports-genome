@@ -119,4 +119,10 @@ describe("evidence-audited sport movement records", () => {
     expect(contactTransition?.family).toBe("ruck, maul, and contact transition");
     expect(contactTransition?.gymTransferCue).toMatch(/rugby skills/i);
   });
+
+  it("keeps Volleyball approach and landing phases distinct from generic jumping", () => {
+    const aerialSequence = movement("volleyball-22");
+    expect(aerialSequence?.family).toBe("approach jump, aerial action, and landing sequence");
+    expect(aerialSequence?.gymTransferCue).toMatch(/volleyball skills/i);
+  });
 });

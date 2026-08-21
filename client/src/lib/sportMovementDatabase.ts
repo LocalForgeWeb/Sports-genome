@@ -2611,6 +2611,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "Low-amplitude reactive footwork, deceleration, and lateral strength drills can share first-step qualities; reading the ball and opponent remains a sport-specific perceptual skill."
   },
   {
+    "id": "volleyball-22",
+    "sportId": "volleyball",
+    "sportLabel": "Volleyball",
+    "label": "approach jump, aerial action, and landing sequence",
+    "bodyActions": "coordinate a task-specific approach, countermovement and takeoff, aerial arm and trunk position for attack or block, then controlled landing and recovery into the next play",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, arm, and hand musculature as role-, phase-, and ball-context-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, shoulder girdle, elbow, wrist, and hand control as the aerial task requires",
+    "muscleActions": "coordinated eccentric pre-loading, concentric projection, isometric aerial organization, eccentric landing absorption, and rapid re-stabilization",
+    "family": "approach jump, aerial action, and landing sequence",
+    "gymTransferCue": "Jump, landing, trunk-control, and shoulder-preparation drills can share selected physical qualities; approach timing, ball contact, blocking technique, and play decisions remain volleyball skills."
+  },
+  {
     "id": "boxing-1",
     "sportId": "boxing",
     "sportLabel": "Boxing",
