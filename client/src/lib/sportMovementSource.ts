@@ -30,7 +30,9 @@ export const sportMovementSource: SportMovementSource[] = [
       "hand fighting",
       "lateral shuffle",
       "bridge",
-      "rotational finish"
+      "rotational finish",
+      "gut-wrench turn",
+      "upper-body throw / hip-toss pattern"
     ]
   },
   {

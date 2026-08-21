@@ -12,4 +12,9 @@ describe("split stack analysis", () => {
     expect(analysis.suggestions.find((suggestion) => suggestion.muscle === "triceps")?.candidate.primaryMuscles).toContain("triceps");
     expect(analysis.suggestions.find((suggestion) => suggestion.muscle === "triceps")?.replaceExercise?.primaryMuscles).toContain("chest");
   });
+
+  it("declares fixed catalog coverage weights as a planning model rather than activation data", () => {
+    const analysis = analyzeSplitStack([], [], "Push");
+    expect(analysis.boundary).toMatch(/measure activation/i);
+  });
 });

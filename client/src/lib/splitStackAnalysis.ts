@@ -5,6 +5,9 @@ export type SplitMuscleRequirement = { muscle: string; role: "primary" | "suppor
 export type StackMuscleScore = SplitMuscleRequirement & { score: number; state: "gap" | "ready" | "high" };
 export type StackSuggestion = { muscle: string; candidate: Exercise; replaceExercise?: Exercise; swapCue?: string };
 
+/** Fixed catalog-tag weights are used only to compare plan coverage consistently. They are not EMG, force, fatigue, or individual-response measures. */
+export const splitStackModelBoundary = "Coverage values are catalog-planning indices: a primary-muscle tag contributes 56 points and a supporting-muscle tag contributes 24 points before the display cap. Split targets organize a balanced day; none of these values measure activation, recovery, or an individual optimum.";
+
 const requirements: Record<TrainingSplit, SplitMuscleRequirement[]> = {
   Push: [{ muscle: "chest", role: "primary", target: 90 }, { muscle: "frontDelts", role: "primary", target: 75 }, { muscle: "triceps", role: "primary", target: 70 }, { muscle: "sideDelts", role: "support", target: 45 }, { muscle: "serratusAnterior", role: "support", target: 35 }],
   Pull: [{ muscle: "lats", role: "primary", target: 85 }, { muscle: "rhomboids", role: "primary", target: 65 }, { muscle: "traps", role: "primary", target: 60 }, { muscle: "rearDelts", role: "support", target: 45 }, { muscle: "biceps", role: "support", target: 55 }, { muscle: "forearms", role: "support", target: 40 }],
@@ -34,5 +37,5 @@ export function analyzeSplitStack(workout: Exercise[], catalog: Exercise[], spli
     return candidate ? [{ muscle: gap.muscle, candidate, replaceExercise, swapCue: replaceExercise ? `Replace ${replaceExercise.name} if total volume is fixed.` : undefined }] : [];
   });
   const score = ratings.length ? Math.round(ratings.reduce((sum, rating) => sum + Math.min(100, (rating.score / rating.target) * 100), 0) / ratings.length) : 0;
-  return { score, ratings, gaps, suggestions };
+  return { score, ratings, gaps, suggestions, boundary: splitStackModelBoundary };
 }

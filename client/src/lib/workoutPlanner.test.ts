@@ -1,0 +1,16 @@
+import { describe, expect, it } from "vitest";
+import { getProgrammingTarget } from "./workoutPlanner";
+
+describe("evidence-bounded programming guidance", () => {
+  it("keeps all goal modes explicit that their numeric ranges are planning anchors", () => {
+    (["Athleticism", "Muscle growth", "Max strength", "Capacity"] as const).forEach((goal) => {
+      expect(getProgrammingTarget(goal).evidenceBoundary).toMatch(/planning|app|model|individual/i);
+    });
+  });
+
+  it("uses an evidence-informed hypertrophy volume reference without calling it an optimum", () => {
+    const target = getProgrammingTarget("Muscle growth");
+    expect(target.weeklyVolumeCue).toContain("Approximately 10");
+    expect(target.weeklyVolumeCue).toMatch(/starting reference/i);
+  });
+});
