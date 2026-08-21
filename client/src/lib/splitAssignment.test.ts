@@ -17,4 +17,10 @@ describe("split category integrity", () => {
     const pushNames = getSplitExercisePool(exercises, "Push").map((exercise) => `${exercise.name} ${exercise.movement}`.toLowerCase());
     expect(pushNames.some((name) => name.includes("row") || name.includes("pull") || name.includes("chin"))).toBe(false);
   });
+
+  it("keeps serratus-focused protraction work visible in the default Push pool", () => {
+    const serratusExercise = exercises.find((exercise) => exercise.name === "Cable Serratus Punch");
+    expect(serratusExercise).toBeDefined();
+    expect(matchesTrainingSplit(serratusExercise!, "Push")).toBe(true);
+  });
 });

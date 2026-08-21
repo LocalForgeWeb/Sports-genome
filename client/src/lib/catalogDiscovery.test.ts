@@ -20,4 +20,9 @@ describe("catalog discovery filters", () => {
     expect(results.length).toBeGreaterThanOrEqual(2);
     expect(results.every((exercise) => [...exercise.primaryMuscles, ...exercise.secondaryMuscles].includes("serratusAnterior"))).toBe(true);
   });
+
+  it("returns serratus work when only the muscle quick-filter value is applied", () => {
+    const results = filterCatalogExercises(exercises, { ...defaultCatalogFilters, muscle: "serratusAnterior" }, new Set());
+    expect(results.map((exercise) => exercise.name)).toEqual(expect.arrayContaining(["Cable Serratus Punch", "Scapular Wall Slide"]));
+  });
 });

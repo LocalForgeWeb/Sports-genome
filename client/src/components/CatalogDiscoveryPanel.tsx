@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import { catalogFilterOptions, type CatalogFilters, filterCatalogExercises } from "@/lib/catalogDiscovery";
+import { catalogFilterOptions, defaultCatalogFilters, type CatalogFilters, filterCatalogExercises } from "@/lib/catalogDiscovery";
 import { muscleLabels } from "@/components/AnatomyMap";
 import "@/catalog-discovery.css";
 
@@ -38,7 +38,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       <label><span>Equipment</span><select value={filters.equipment} onChange={(event) => update("equipment", event.target.value)}><option value="all">All equipment</option>{options.equipment.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
       <label><span>Muscle</span><select value={filters.muscle} onChange={(event) => update("muscle", event.target.value)}><option value="all">All muscles</option>{options.muscles.map((value) => <option key={value} value={value}>{muscleLabels[value] || value}</option>)}</select></label>
       <label><span>Sport fit</span><select value={filters.sportTier} onChange={(event) => update("sportTier", event.target.value as CatalogFilters["sportTier"])}><option value="all">Any sport fit</option><option value="A">A-grade or higher</option><option value="S">S-grade or higher</option></select></label>
-      <button onClick={() => update("muscle", "serratusAnterior")} className={`catalog-serratus-filter ${filters.muscle === "serratusAnterior" ? "catalog-serratus-filter-on" : ""}`} aria-pressed={filters.muscle === "serratusAnterior"}><Target className="h-3.5 w-3.5" /> Serratus anterior</button>
+      <button onClick={() => { setVisibleCount(visiblePerPage); onFiltersChange({ ...defaultCatalogFilters, muscle: "serratusAnterior" }); }} className={`catalog-serratus-filter ${filters.muscle === "serratusAnterior" ? "catalog-serratus-filter-on" : ""}`} aria-pressed={filters.muscle === "serratusAnterior"}><Target className="h-3.5 w-3.5" /> Serratus anterior</button>
       <button onClick={() => update("favoritesOnly", !filters.favoritesOnly)} className={`catalog-favorites-filter ${filters.favoritesOnly ? "catalog-favorites-filter-on" : ""}`} aria-pressed={filters.favoritesOnly}><Heart className="h-3.5 w-3.5" fill={filters.favoritesOnly ? "currentColor" : "none"} /> Favorites <b>{favoriteIds.size}</b></button>
       {(activeFilterCount || filters.query) ? <button onClick={reset} className="catalog-filter-reset"><X className="h-3.5 w-3.5" /> Clear</button> : null}
     </div>

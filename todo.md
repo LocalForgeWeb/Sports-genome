@@ -11,26 +11,27 @@
 - [x] Include each exercise’s saved coaching note and prescription-derived tracking rows in the printed workout sheet.
 - [x] Test printable notes, four-set prescriptions, and timed work formatting.
 - [x] Make serratus anterior exercise discovery explicit in the catalog and direct day builder, including a clear no-results fallback.
+- [x] Repair the live serratus anterior discovery path so the quick filter, full-name search, and Body Lab finder always return tagged exercises.
 - [x] Add compact Body Lab sport and movement navigation so athletes can switch or return to another movement without leaving the anatomy workflow.
 
-- [ ] Normalize the user-supplied movement lists for wrestling, American football, basketball, soccer, and baseball.
-- [ ] Normalize the movement lists for track and field, swimming, tennis, volleyball, and boxing.
-- [ ] Normalize the movement lists for MMA, Brazilian jiu-jitsu, ice hockey, lacrosse, and rugby.
-- [ ] Normalize the movement lists for golf, gymnastics, rowing, skiing, and Olympic weightlifting.
-- [ ] Research movement families, body actions, muscle demands, and exercise-transfer constraints for all twenty profiles.
-- [ ] Create a typed sport-movement-muscle database with transparent transfer signals and no medical-performance guarantees.
-- [ ] Recalculate exercise sport fit using movement-level matches and present the reasoning in the interface.
+- [x] Normalize the user-supplied movement lists for wrestling, American football, basketball, soccer, and baseball.
+- [x] Normalize the movement lists for track and field, swimming, tennis, volleyball, and boxing.
+- [x] Normalize the movement lists for MMA, Brazilian jiu-jitsu, ice hockey, lacrosse, and rugby.
+- [x] Normalize the movement lists for golf, gymnastics, rowing, skiing, and Olympic weightlifting.
+- [x] Research movement families, body actions, muscle demands, and exercise-transfer constraints for all twenty profiles.
+- [x] Create a typed sport-movement-muscle database with transparent transfer signals and no medical-performance guarantees.
+- [x] Recalculate exercise sport fit using movement-level matches and present the reasoning in the interface.
 - [ ] Test database filtering, sports views, details panels, and responsive layouts.
-- [ ] Redesign navigation for rapid switching between command, workouts, catalog, sport movements, and body analysis.
-- [ ] Add a premium athlete-and-coach visual system with clearer hierarchy, performance metrics, and coach-ready views.
-- [ ] Expand the body model with click-to-inspect muscle roles, linked sport movements, and exercise recommendations.
-- [ ] Build distinct recommended-workout and custom-workout flows with editable session contents.
-- [ ] Validate the new navigation, workout builder, body analysis, and responsive interactions.
-- [ ] Add a blank first-visit state that opens a short personalized onboarding flow.
-- [ ] Capture training goal, available training days, selected sport, and preferred planning mode in the quiz.
-- [ ] Add a custom-stack versus suggested-stack decision with a clear skip path.
-- [ ] Add a short in-app tutorial for navigating the command center, movement atlas, body lab, and workout builder.
-- [ ] Shift the premium visual system toward a performance-blue accent while keeping clear navigation and contrast.
+- [x] Redesign navigation for rapid switching between command, workouts, catalog, sport movements, and body analysis.
+- [x] Add a premium athlete-and-coach visual system with clearer hierarchy, performance metrics, and coach-ready views.
+- [x] Expand the body model with click-to-inspect muscle roles, linked sport movements, and exercise recommendations.
+- [x] Build distinct recommended-workout and custom-workout flows with editable session contents.
+- [x] Validate the new navigation, workout builder, body analysis, and responsive interactions.
+- [x] Add a blank first-visit state that opens a short personalized onboarding flow.
+- [x] Capture training goal, available training days, selected sport, and preferred planning mode in the quiz.
+- [x] Add a custom-stack versus suggested-stack decision with a clear skip path.
+- [x] Add a short in-app tutorial for navigating the command center, movement atlas, body lab, and workout builder.
+- [x] Shift the premium visual system toward a performance-blue accent while keeping clear navigation and contrast.
 - [ ] Validate the quiz-to-workspace path and personalized suggested-session initialization.
 - [ ] Extract the Exercise Genome specification into intrinsic, contextual, visual, and recommendation requirements.
 - [ ] Define multi-dimensional exercise records for muscle, movement, joint actions, resistance curve, adaptation, stability, skill, fatigue, mobility, and practicality.
@@ -38,24 +39,24 @@
 - [ ] Build the Exercise Genome analysis view with progressive disclosure, visual comparisons, and interactive anatomical explanations.
 - [ ] Connect Genome insights to exercise catalog details, body map interactions, sport movement recommendations, and workout stack decisions.
 - [ ] Validate the Genome data model, contextual explanations, and user-facing visuals.
-- [ ] Replace the field-manual onboarding treatment with a more modern, playful quiz-first product flow.
-- [ ] Make the quiz the default entry screen and remove the pre-quiz product-tour emphasis.
-- [ ] Add clear quiz progress, lively selection feedback, and a smooth completion transition into the personalized workspace.
-- [ ] Refresh navigation, cards, typography, color, and motion so the workspace feels current and enjoyable to use.
-- [ ] Validate the full quiz-to-workspace journey across desktop and mobile layouts.
-- [ ] Define a detailed muscle-atlas scope with named subdivisions, front/back placement, roles, and evidence labels.
-- [ ] Research functional actions for shoulder, trunk, arm, hip, thigh, lower-leg, chest, and back muscle subdivisions from authoritative anatomy and biomechanics sources.
-- [ ] Replace broad anatomical regions with precise named muscle records and full scientific labels in the interface.
-- [ ] Build a high-detail front/back interactive body map with distinct clickable muscle subdivisions, including anterior, middle, and posterior deltoid regions.
-- [ ] Link each selected muscle region to primary actions, sport-movement relevance, supporting exercises, and evidence-confidence notes.
-- [ ] Replace abbreviated Genome dimension labels with full terms and explicitly label standardized estimates versus directly measured evidence.
-- [ ] Validate atlas interactions, front/back switching, mobile readability, and factual-boundary disclosures.
-- [ ] Apply a consistent blue interface with gold-and-white logo and secondary accents.
-- [ ] Use the user-supplied reference only as a visual blueprint for a front/back labeled anatomy layout; create an original atlas illustration and labels.
-- [ ] Add a pasted-stack import flow that recognizes exercise names and optional set/rep notation, previews matched and unmatched items, and imports confirmed matches.
-- [ ] Expand custom workout programming controls to include sets, repetitions or time, load/RPE, rest, and notes.
-- [ ] Expand the onboarding schedule selector and recommendation logic from one through seven training days per week.
-- [ ] Validate blue/gold contrast, atlas detail, import parsing, programming edits, and seven-day plans.
+- [x] Replace the field-manual onboarding treatment with a more modern, playful quiz-first product flow.
+- [x] Make the quiz the default entry screen and remove the pre-quiz product-tour emphasis.
+- [x] Add clear quiz progress, lively selection feedback, and a smooth completion transition into the personalized workspace.
+- [x] Refresh navigation, cards, typography, color, and motion so the workspace feels current and enjoyable to use.
+- [x] Validate the full quiz-to-workspace journey across desktop and mobile layouts.
+- [x] Define a detailed muscle-atlas scope with named subdivisions, front/back placement, roles, and evidence labels.
+- [x] Research functional actions for shoulder, trunk, arm, hip, thigh, lower-leg, chest, and back muscle subdivisions from authoritative anatomy and biomechanics sources.
+- [x] Replace broad anatomical regions with precise named muscle records and full scientific labels in the interface.
+- [x] Build a high-detail front/back interactive body map with distinct clickable muscle subdivisions, including anterior, middle, and posterior deltoid regions.
+- [x] Link each selected muscle region to primary actions, sport-movement relevance, supporting exercises, and evidence-confidence notes.
+- [x] Replace abbreviated Genome dimension labels with full terms and explicitly label standardized estimates versus directly measured evidence.
+- [x] Validate atlas interactions, front/back switching, mobile readability, and factual-boundary disclosures.
+- [x] Apply a consistent blue interface with gold-and-white logo and secondary accents.
+- [x] Use the user-supplied reference only as a visual blueprint for a front/back labeled anatomy layout; create an original atlas illustration and labels.
+- [x] Add a pasted-stack import flow that recognizes exercise names and optional set/rep notation, previews matched and unmatched items, and imports confirmed matches.
+- [x] Expand custom workout programming controls to include sets, repetitions or time, load/RPE, rest, and notes.
+- [x] Expand the onboarding schedule selector and recommendation logic from one through seven training days per week.
+- [x] Validate blue/gold contrast, atlas detail, import parsing, programming edits, and seven-day plans.
 - [ ] Define diverse plan-loadout templates with distinct exercise pools, movement priorities, and session structures.
 - [ ] Add a day-strip control that cycles through split days such as push, pull, legs, upper, lower, full body, and sport-specific sessions.
 - [ ] Make split selection adapt to the chosen training frequency while preserving manual day overrides.

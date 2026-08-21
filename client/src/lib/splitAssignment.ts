@@ -13,7 +13,7 @@ function includesMovement(exercise: Exercise, values: string[]) {
 }
 
 export function matchesTrainingSplit(exercise: Exercise, split: TrainingSplit) {
-  const isPush = pushCategories.has(exercise.category) && !includesMovement(exercise, ["row", "pull", "chin"]);
+  const isPush = (pushCategories.has(exercise.category) || exercise.primaryMuscles.includes("serratusAnterior")) && !includesMovement(exercise, ["row", "pull", "chin"]);
   const isPull = pullCategories.has(exercise.category) && !includesMovement(exercise, ["press", "dip", "push-up"]);
   const isLower = lowerCategories.has(exercise.category) || exercise.category === "Plyometric" && includesMovement(exercise, ["jump", "bound", "hop"]);
   const isSportTransfer = sportTransferCategories.has(exercise.category)

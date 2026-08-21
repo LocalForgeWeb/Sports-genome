@@ -32,6 +32,7 @@ export interface ExerciseGenome {
   resistanceProfile: { bias: "Lengthened" | "Mid-range" | "Shortened" | "Even"; stickingRegion: string; peakRegion: string; curve: number[] };
   fatigue: { local: number; systemic: number; grip: number; axial: number; technical: number };
   practicality: { setup: number; space: number; accessibility: number; homeGym: number; supersetEase: number };
+  adaptation: { primary: string[]; secondary: string[]; rationale: string };
   evidence: { quality: EvidenceQuality; confidence: "High" | "Moderate"; note: string };
 }
 
@@ -47,6 +48,7 @@ export interface GenomeContextAnalysis {
   marginalValue: number;
   redundancy: number;
   sportTransfer: number;
+  signals: { goalAlignment: number; stackDistinctness: number; sportActionMatch: number; recoveryManageability: number };
   explanation: string;
   strengths: string[];
   limits: string[];
@@ -129,6 +131,13 @@ function getFingerprint(exercise: Exercise): Record<GenomeDimension, number> {
   return { hypertrophy, strength, power, stability, mobility, sfr: clamp(hypertrophy - fatigue * 0.34 + 30), skill, practicality };
 }
 
+function getAdaptationProfile(fingerprint: Record<GenomeDimension, number>): ExerciseGenome["adaptation"] {
+  const ranked = Object.entries({ Hypertrophy: fingerprint.hypertrophy, Strength: fingerprint.strength, Power: fingerprint.power, Stability: fingerprint.stability, Mobility: fingerprint.mobility, Skill: fingerprint.skill }).sort(([, first], [, second]) => second - first);
+  const primary = ranked.slice(0, 2).map(([label]) => label);
+  const secondary = ranked.slice(2, 4).map(([label]) => label);
+  return { primary, secondary, rationale: `${primary.join(" and ")} are the highest relative opportunity or demand signals in this standardized exercise model; programming dose, technique, and athlete context determine the realised adaptation.` };
+}
+
 function getMuscleProfile(exercise: Exercise, fingerprint: Record<GenomeDimension, number>) {
   const profile = [...exercise.primaryMuscles.map((muscle) => ({ muscle, role: "Prime mover" as const })), ...exercise.secondaryMuscles.map((muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
   return profile.map(({ muscle, role }, index) => {
@@ -171,6 +180,7 @@ export function buildExerciseGenome(exercise: Exercise): ExerciseGenome {
     resistanceProfile: getResistanceProfile(exercise),
     fatigue: { local: fatigueBase, systemic: clamp(fatigueBase + (fingerprint.strength > 75 ? 12 : -4)), grip: clamp((/carry|deadlift|row|pull|farmer|hang/.test(text) ? 62 : 16) + (fingerprint.strength > 75 ? 8 : 0)), axial: clamp(/squat|deadlift|good morning|carry|overhead/.test(text) ? 70 : 22), technical: fingerprint.skill },
     practicality: { setup: clamp(fingerprint.practicality + (exercise.equipment === "Bodyweight" ? 9 : 0)), space: clamp(fingerprint.practicality + (/carry|sled|sprint/.test(text) ? -32 : 0)), accessibility: clamp(fingerprint.practicality), homeGym: clamp(fingerprint.practicality + (/machine|sled/.test(text) ? -34 : 0)), supersetEase: clamp(90 - fatigueBase * .62) },
+    adaptation: getAdaptationProfile(fingerprint),
     evidence: { quality: fingerprint.skill > 75 ? "Context-sensitive — coaching inference" : "Moderate — biomechanical inference", confidence: fingerprint.skill > 75 ? "Moderate" : "High", note: "Values are standardized estimates that summarize movement mechanics and training-practice inference; individual execution, loading, and programming change the result." },
   };
 }
@@ -205,12 +215,14 @@ export function analyzeExerciseContext(exercise: Exercise, context: GenomeContex
   const signalText = genome.movementPatterns.join(" ").toLowerCase();
   const signalMatch = selectedSignals.length ? selectedSignals.filter((signal) => signalText.includes(signal.replace("singleLeg", "unilateral")) || exercise.qualities.some((quality) => quality.toLowerCase().includes(signal.toLowerCase()))).length / selectedSignals.length : .4;
   const sportTransfer = clamp((muscleMatch * .54 + signalMatch * .3 + (genome.fingerprint.stability / 100) * .16) * 100);
-  const contextualScore = clamp(genome.fingerprint[goalKey] * .52 + marginalValue * .24 + sportTransfer * .24);
+  const recoveryManageability = clamp(100 - (genome.fatigue.systemic * .5 + genome.fatigue.technical * .25 + genome.fatigue.axial * .25));
+  const signals = { goalAlignment: genome.fingerprint[goalKey], stackDistinctness: marginalValue, sportActionMatch: sportTransfer, recoveryManageability };
+  const contextualScore = clamp(signals.goalAlignment * .52 + signals.stackDistinctness * .24 + signals.sportActionMatch * .24);
   const goalLabel = goalKey === "sfr" ? "repeatable training value" : goalKey;
-  const strengths = [`${genome.fingerprint[goalKey]}/100 ${goalLabel} potential`, `${sportTransfer}/100 mechanical match for the selected sport action`, `${marginalValue}/100 marginal value against the current stack`];
+  const strengths = [`${signals.goalAlignment}/100 ${goalLabel} alignment`, `${signals.sportActionMatch}/100 mechanical match for the selected sport action`, `${signals.stackDistinctness}/100 stack distinctness`, `${signals.recoveryManageability}/100 recovery manageability`];
   const limits = [redundancy > 62 ? "Overlaps meaningfully with the current stack; its added value is reduced." : "Adds a relatively distinct exposure to the current stack.", genome.fatigue.systemic > 70 ? "Higher systemic and technical cost may limit placement or volume." : "Fatigue profile is comparatively manageable for its intended adaptation."];
   const explanation = redundancy > 62 ? `This exercise has solid intrinsic ${goalLabel} value, but the current stack already overlaps with its muscle and movement profile. It is most useful if it replaces a similar exercise or if its resistance profile solves a specific gap.` : `This exercise is a useful addition because its ${goalLabel} profile and sport-action match add value without duplicating the current stack heavily.`;
-  return { contextualScore, grade: gradeFor(contextualScore), marginalValue, redundancy, sportTransfer, explanation, strengths, limits };
+  return { contextualScore, grade: gradeFor(contextualScore), marginalValue, redundancy, sportTransfer, signals, explanation, strengths, limits };
 }
 
 export function getWorkoutGenome(workout: Exercise[]) {
