@@ -19,7 +19,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
         <h1>Find the action.<br /><em>Then train it.</em></h1>
         <p>Search {sportName} actions by movement or muscle, then open only the detail you need.</p>
       </div>
-      <div className="atlas-inventory"><strong>{visible.length}</strong><span>matching actions<br />20 for this sport</span></div>
+      <div className="atlas-inventory"><strong>{visible.length}</strong><span>matching actions<br />{movements.length} for this sport</span></div>
     </header>
 
     <div className="atlas-tool-row">
@@ -40,6 +40,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
         <p>{selectedMovement.bodyActions}</p>
         <div className="atlas-quick-read"><span>Prime movers</span><strong>{selectedMovement.primaryMuscles}</strong></div>
         <details className="atlas-details"><summary>Why this action matters <ChevronDown className="h-4 w-4" /></summary><dl><div><dt>Stabilizers</dt><dd>{selectedMovement.stabilizers}</dd></div><div><dt>Training transfer</dt><dd>{selectedMovement.gymTransferCue}</dd></div></dl></details>
+        <details className="atlas-details atlas-evidence-boundary"><summary>Evidence and data boundary <ChevronDown className="h-4 w-4" /></summary><p>Body actions summarize sport biomechanics and technical analysis. Listed muscles are likely, phase-dependent contributors—not direct activation readings or a fixed ranking for every athlete. Gym exercises can share force, bracing, or range-of-motion qualities, but they do not replace sport skill practice or guarantee transfer.</p></details>
         <button onClick={onOpenBody}>Trace in Body Lab <ArrowUpRight className="h-4 w-4" /></button>
       </article>
     </div>

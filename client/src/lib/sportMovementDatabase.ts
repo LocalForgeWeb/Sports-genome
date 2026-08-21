@@ -2515,6 +2515,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "cue with backward sled drags, reverse lunges and multidirectional shuttle drills."
   },
   {
+    "id": "volleyball-21",
+    "sportId": "volleyball",
+    "sportLabel": "Volleyball",
+    "label": "reactive readiness step",
+    "bodyActions": "low ready posture with a brief preparatory countermovement and rapid first step into lateral, forward, or backward defensive travel",
+    "primaryMuscles": "quadriceps, gluteal musculature, plantar flexors, and hip abductors/adductors as direction-dependent contributors",
+    "stabilizers": "trunk, pelvis, knee, ankle-foot complex, and shoulder girdle as posture and ball-handling demands require",
+    "muscleActions": "brief eccentric pre-loading followed by concentric first-step propulsion and controlled re-stabilization",
+    "family": "defensive anticipation and first-step change of direction",
+    "gymTransferCue": "Low-amplitude reactive footwork, deceleration, and lateral strength drills can share first-step qualities; reading the ball and opponent remains a sport-specific perceptual skill."
+  },
+  {
     "id": "boxing-1",
     "sportId": "boxing",
     "sportLabel": "Boxing",

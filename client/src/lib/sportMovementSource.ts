@@ -240,7 +240,8 @@ export const sportMovementSource: SportMovementSource[] = [
       "shoulder swing",
       "trunk rotation",
       "quick acceleration",
-      "backward defensive movement"
+      "backward defensive movement",
+      "reactive readiness step"
     ]
   },
   {
