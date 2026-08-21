@@ -16,8 +16,8 @@ const displayTier: Record<Grade, string> = { SS: "S+", S: "S", A: "A+", B: "A", 
 export function GradeStamp({ grade, score, compact = false }: { grade: Grade; score?: number; compact?: boolean }) {
   return (
     <span
-      aria-label={`Rating ${displayTier[grade]}${score ? `, ${score} overall match` : ""}`}
-      title={score ? `${displayTier[grade]} tier · ${score} overall match` : `${displayTier[grade]} tier`}
+      aria-label={`Catalog planning tier ${displayTier[grade]}${score ? `, ${score} modelled overall match` : ""}`}
+      title={score ? `${displayTier[grade]} catalog-planning tier · ${score} modelled overall match` : `${displayTier[grade]} catalog-planning tier`}
       className={`inline-flex shrink-0 items-center justify-center border font-display font-bold leading-none ${compact ? "h-7 min-w-7 px-1 text-xs" : "h-10 min-w-10 px-2 text-lg"} ${tones[grade]}`}
     >
       {displayTier[grade]}
