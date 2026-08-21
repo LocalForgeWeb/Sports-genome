@@ -4111,6 +4111,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "cue: deceleration-to-sprint drills, lateral bounds and unilateral strength work emphasizing force absorption before redirection."
   },
   {
+    "id": "rugby-21",
+    "sportId": "rugby",
+    "sportLabel": "Rugby",
+    "label": "ruck, maul, and contact transition",
+    "bodyActions": "adopt and maintain a contact position, bind or support force transfer as play requires, manage lower body and trunk position, then transition out of the contest or into the next action",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, arm, neck-position, and grip musculature as role-, contact-, phase-, and opponent-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, shoulder girdle, elbow, wrist, grip, and cervical position control when contact requires it",
+    "muscleActions": "mixed bracing, force absorption, pushing or pulling, position maintenance, and rapid re-stabilization",
+    "family": "ruck, maul, and contact transition",
+    "gymTransferCue": "Strength, trunk-control, carrying, pushing, and controlled contact-position preparation can share selected qualities; legal entry, binding, decision-making, and opponent interaction remain rugby skills."
+  },
+  {
     "id": "golf-1",
     "sportId": "golf",
     "sportLabel": "Golf",

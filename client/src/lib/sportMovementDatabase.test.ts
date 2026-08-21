@@ -113,4 +113,10 @@ describe("evidence-audited sport movement records", () => {
     expect(terrainTransition?.family).toBe("terrain adaptation and turn transition");
     expect(terrainTransition?.gymTransferCue).toMatch(/skiing skills/i);
   });
+
+  it("keeps Rugby ruck and maul transitions distinct from generic strength work", () => {
+    const contactTransition = movement("rugby-21");
+    expect(contactTransition?.family).toBe("ruck, maul, and contact transition");
+    expect(contactTransition?.gymTransferCue).toMatch(/rugby skills/i);
+  });
 });
