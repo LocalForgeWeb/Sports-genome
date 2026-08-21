@@ -101,4 +101,10 @@ describe("evidence-audited sport movement records", () => {
     expect(batting?.family).toBe("whole-body rotational batting sequence");
     expect(batting?.gymTransferCue).toMatch(/baseball skills/i);
   });
+
+  it("includes Golf on-course exposure beyond the swing itself", () => {
+    const onCourse = movement("golf-21");
+    expect(onCourse?.family).toBe("on-course locomotion and setup transitions");
+    expect(onCourse?.gymTransferCue).toMatch(/golf skills/i);
+  });
 });

@@ -4351,6 +4351,18 @@ export const sportMovementProfiles: SportMovementProfile[] = [
     "gymTransferCue": "Cue: single-leg Romanian deadlift with reach and controlled alignment."
   },
   {
+    "id": "golf-21",
+    "sportId": "golf",
+    "sportLabel": "Golf",
+    "label": "on-course walking, bending, and setup transitions",
+    "bodyActions": "repeated walking between shots plus bending, stooping or squatting for ball and equipment management, then transitioning into a balanced address position",
+    "primaryMuscles": "lower-limb, trunk, shoulder-girdle, and grip musculature as task-, terrain-, carry-, and player-dependent contributors",
+    "stabilizers": "trunk, pelvis, hip, knee, ankle-foot complex, shoulder girdle, and grip control during carrying, bending, and setup",
+    "muscleActions": "repeated locomotion, controlled hip/knee/trunk flexion and extension, carrying, and postural re-stabilization",
+    "family": "on-course locomotion and setup transitions",
+    "gymTransferCue": "Walking tolerance, carries, hinge or squat patterns, and balance work can share selected on-course qualities; shot selection, terrain reading, and swing technique remain golf skills."
+  },
+  {
     "id": "gymnastics-1",
     "sportId": "gymnastics",
     "sportLabel": "Gymnastics",

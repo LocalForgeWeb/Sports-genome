@@ -28,6 +28,16 @@ The full sport-by-sport source review is maintained in the associated audit data
 7. [Ice hockey biomechanics review](https://www.jomh.org/articles/10.31083/j.jomh1809193).
 8. [Tennis biomechanics review](https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/).
 
+## Additional Audit Sources Applied in the Current Pass
+
+| Sport domain | Source anchors | Applied interpretation |
+|---|---|---|
+| American football and Basketball | [Football motion review](https://pmc.ncbi.nlm.nih.gov/articles/PMC6851047/); [Basketball cutting research](https://pmc.ncbi.nlm.nih.gov/articles/PMC4234772/) | Contact, deceleration, and pivot actions are whole-body and context-dependent; they are not single-muscle tasks. |
+| Baseball and Lacrosse | [Baseball kinetic-chain review](https://pmc.ncbi.nlm.nih.gov/articles/PMC3445126/); [Lacrosse shooting biomechanics](https://pmc.ncbi.nlm.nih.gov/articles/PMC5565205/) | Throwing and hitting are proximal-to-distal, whole-body actions. Player, pitch, side, and defensive context change segment timing. |
+| Swimming and Track & Field | [Swimming start and turn review](https://pmc.ncbi.nlm.nih.gov/articles/PMC8488830/); [Sprint biomechanics review](https://pmc.ncbi.nlm.nih.gov/articles/PMC6684547/) | Starts, turns, underwater transitions, and jump-event phases require separate records rather than sport-wide simplification. |
+| Gymnastics, Rowing, Olympic weightlifting | [Gymnastics landing review](https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/); [Rowing technique guidance](https://www.britishrowing.org/knowledge/rower-development/british-rowing-technique/water-rowing-technique/); [Weightlifting biomechanics](https://pmc.ncbi.nlm.nih.gov/articles/PMC11564635/) | Landing, stroke sequencing, and bar receipt are coordinated multi-segment actions. They must not be represented as isolated-muscle or press-only patterns. |
+| MMA, Brazilian jiu-jitsu, and Golf | [MMA demands review](https://pmc.ncbi.nlm.nih.gov/articles/PMC9798280/); [Brazilian jiu-jitsu review](https://pmc.ncbi.nlm.nih.gov/articles/PMC3690734/); [Golf movement exposure review](https://pmc.ncbi.nlm.nih.gov/articles/PMC10499118/) | Gym qualities may support physical preparation, while opponent interaction, skill execution, and contextual sport demands remain non-substitutable. |
+
 ## Continuing Audit Priorities
 
 The remaining review focuses on correcting overly fixed muscle labels in overhead, throwing, striking, contact, and rotational records; applying source-aware boundaries to the remaining sport profiles; and adding only material, clearly supported action gaps. Every new movement record requires a regression assertion to preserve its evidence boundary.
