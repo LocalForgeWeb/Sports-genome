@@ -1,0 +1,87 @@
+/*
+ * Native (iOS) shell adjustments.
+ *
+ * Everything here is scoped under `html.is-native`, a class set by
+ * `initNativeShell()` before the first render. The web build never matches these
+ * rules, so the existing responsive layout is untouched.
+ *
+ * The problem this solves: a Capacitor webview draws under the notch/Dynamic
+ * Island and under the home indicator. Anything anchored to a viewport edge —
+ * the rail, the docks, full-screen overlays — needs the safe-area insets added
+ * back, or iOS crops it.
+ */
+
+html.is-native {
+  /* Named so component CSS can reference the insets without repeating env(). */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  /* Rotating the device must not resize text out from under the layout. */
+  -webkit-text-size-adjust: 100%;
+}
+
+html.is-native body {
+  /* Rubber-band scrolling past the end of the page exposes the webview's own
+     background and reads as a rendering bug rather than as a gesture. */
+  overscroll-behavior-y: none;
+  /* The grey flash on tap is a browser affordance; native apps do not have it. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Long-press on a control should not offer "Copy"/"Look Up" the way it does on
+   a web page. Text content stays selectable. */
+html.is-native button,
+html.is-native [role="button"],
+html.is-native .apex-rail {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* --- Viewport-anchored chrome ------------------------------------------- */
+
+/* Full-height fixed rail: inset on all four edges it actually touches. */
+html.is-native .apex-rail {
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+}
+
+/* Top bars sit under the status bar without this. */
+html.is-native .apex-topbar,
+html.is-native .pulse-header,
+html.is-native .onboarding-topbar {
+  padding-top: calc(var(--safe-top) + 14px);
+}
+
+/* Bottom-anchored docks clear the home indicator. `bottom` is used rather than
+   padding so the dock's own internal spacing is preserved. */
+html.is-native .split-draft-dock {
+  bottom: calc(18px + var(--safe-bottom));
+  right: calc(20px + var(--safe-right));
+}
+
+html.is-native .planner-float {
+  bottom: calc(4.75rem + var(--safe-bottom));
+}
+
+/* Full-screen overlays scroll their own content, so the inset goes inside. */
+html.is-native .stack-analysis-overlay {
+  padding-top: calc(var(--safe-top) + 1rem);
+  padding-bottom: calc(var(--safe-bottom) + 1rem);
+}
+
+/*
+ * Touch targets.
+ *
+ * Apple's HIG asks for 44pt. Rather than a blanket `min-height` — which would
+ * distort the dense metric rows and inline chips this UI leans on — opt controls
+ * in explicitly with `class="native-tap-target"`. Auditing the remaining
+ * controls needs a real device; see IOS_SETUP.md.
+ */
+html.is-native .native-tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}

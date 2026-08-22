@@ -1,4 +1,5 @@
 import { startLogin } from "@/const";
+import { clearAuthToken } from "@/lib/authToken";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
@@ -45,6 +46,10 @@ export function useAuth(options?: UseAuthOptions) {
       try {
         sessionStorage.removeItem("manus-cookie");
       } catch {}
+      // On native the stored bearer token IS the session, so dropping it is the
+      // logout. Awaited before invalidating so the refetch below goes out
+      // unauthenticated rather than racing the delete.
+      await clearAuthToken();
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
     }

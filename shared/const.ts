@@ -12,7 +12,14 @@ export const OAUTH_STATE_COOKIE = "__Host-oauth_state";
 
 // `state` carries the callback redirect URI (used at token exchange) plus the
 // CSRF nonce. Defined here so the client encoder and server decoder never drift.
-export type OAuthState = { redirectUri: string; nonce?: string };
+//
+// `native` marks a login started from the iOS app. The nonce cookie guard the
+// web flow relies on cannot work there: the login opens in an out-of-process
+// ASWebAuthenticationSession, so the app's webview cookies never reach us. The
+// native flow checks the nonce on the client instead (RFC 8252 s8.9) and the
+// server hands the session back over the app's custom URL scheme rather than a
+// cookie. See `registerOAuthRoutes` for why that is not a CSRF bypass.
+export type OAuthState = { redirectUri: string; nonce?: string; native?: boolean };
 
 export const encodeOAuthState = (state: OAuthState): string =>
   btoa(JSON.stringify(state));
@@ -29,9 +36,28 @@ export const decodeOAuthState = (state: string): OAuthState => {
   }
   try {
     const parsed = JSON.parse(decoded);
-    if (parsed && typeof parsed.redirectUri === "string") return parsed;
+    if (parsed && typeof parsed.redirectUri === "string") {
+      return {
+        redirectUri: parsed.redirectUri,
+        nonce: typeof parsed.nonce === "string" ? parsed.nonce : undefined,
+        // Coerce rather than trust: `state` is attacker-controllable, and the
+        // server branches on this flag.
+        native: parsed.native === true,
+      };
+    }
   } catch {
     // Legacy links: `state` was a bare base64(redirectUri) with no nonce.
   }
   return { redirectUri: decoded };
 };
+
+// --- Native (iOS) auth hand-back -------------------------------------------
+// The web flow ends by setting an httpOnly session cookie and redirecting to
+// `/`. That cannot work in the app: the webview's origin (capacitor://localhost)
+// is not the API origin, so WKWebView's tracking prevention drops the cookie.
+// The native flow instead hands the session token back over the app's own URL
+// scheme, and the app stores it and sends it as `Authorization: Bearer`, a path
+// `sdk.authenticateRequest` already supports.
+export const DEFAULT_NATIVE_APP_SCHEME = "sportsgenome";
+export const NATIVE_AUTH_CALLBACK_HOST = "auth";
+export const NATIVE_AUTH_CALLBACK_PATH = "/callback";

@@ -6,6 +6,7 @@
 @import "./movement-atlas.css";
 @import "./workout-planner.css";
 @import "./pretraining-mobility.css";
+@import "./native-shell.css";
 
 /* Modern Kinetic Field Manual refinement: coral owns the decision, blue supports the system. */
 .pulse-orb-one::before {

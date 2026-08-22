@@ -112,3 +112,16 @@ temp/
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
 .project-config.json
+
+# iOS / Capacitor
+# The `ios/` project itself SHOULD be committed once generated — it holds the
+# Info.plist URL scheme registration, icons, and signing config. These are the
+# generated parts inside it that must not be.
+ios/App/Pods/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+ios/DerivedData/
+ios/App/output/
+*.xcuserstate
+xcuserdata/
