@@ -101,7 +101,8 @@
 - [x] Expand additional material sport-movement gaps identified in the multi-sport audit beyond the Wrestling profile.
 - [x] Add a muscle-group filter to the direct Training Days exercise picker using full anatomical labels.
 - [x] Repair the responsive Training Days prescription card layout so ordering, removal, prescription, completion, and notes controls do not overlap on mobile.
-- [ ] Rebuild the mobile Training Day action controls so ordering and removal buttons never overlap the exercise card content.
+- [x] Rebuild the mobile Training Day action markup so prescription and remove controls occupy a dedicated row below exercise content on narrow screens.
+- [x] Add a populated Training Day card render regression covering separate order, title, prescription, and removal action regions.
 - [x] Add an in-context serratus discovery cue confirming that Cable Serratus Punch and Scapular Wall Slide are available.
 - [ ] Visually verify the updated mobile Training Day card on a populated small-screen workout before closing the overlap repair.
 - [x] Validate the split-stack test, complete Vitest suite, TypeScript check, and production build.
