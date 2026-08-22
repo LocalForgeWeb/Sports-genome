@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { completeWorkoutSession, createWorkoutSession, getWorkoutSession, listWorkoutSessions, upsertWorkoutSet } from "./workoutSessions";
 import { listFavoriteExerciseIds, setFavoriteExercise } from "./favoriteExercises";
-import { beginPasskeyAuthentication, beginPasskeyRegistration, clearLocalSession, finishPasskeyAuthentication, finishPasskeyRegistration, listAccountPasskeys, registerEmailAccount, removeAccountPasskey, signInWithEmail } from "./localAuth";
+import { beginPasskeyAuthentication, beginPasskeyRegistration, clearLocalSession, finishPasskeyAuthentication, finishPasskeyRegistration, registerEmailAccount, signInWithEmail } from "./localAuth";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -15,8 +15,6 @@ export const appRouter = router({
     signIn: publicProcedure.input(z.object({ email: z.string().trim().email().max(320), password: z.string().min(1).max(200) })).mutation(async ({ ctx, input }) => signInWithEmail(input, ctx.req, ctx.res)),
     passkeyRegistrationOptions: protectedProcedure.mutation(({ ctx }) => beginPasskeyRegistration(ctx.user, ctx.req)),
     passkeyRegistrationVerify: protectedProcedure.input(z.object({ response: z.unknown() })).mutation(({ ctx, input }) => finishPasskeyRegistration(ctx.user, input.response, ctx.req)),
-    passkeys: protectedProcedure.query(({ ctx }) => listAccountPasskeys(ctx.user.id)),
-    removePasskey: protectedProcedure.input(z.object({ passkeyId: z.number().int().positive() })).mutation(({ ctx, input }) => removeAccountPasskey(ctx.user.id, input.passkeyId)),
     passkeyAuthenticationOptions: publicProcedure.input(z.object({ email: z.string().trim().email().max(320) })).mutation(({ ctx, input }) => beginPasskeyAuthentication(input.email, ctx.req)),
     passkeyAuthenticationVerify: publicProcedure.input(z.object({ email: z.string().trim().email().max(320), response: z.object({ id: z.string() }).passthrough() })).mutation(({ ctx, input }) => finishPasskeyAuthentication(input.email, input.response, ctx.req, ctx.res)),
     logout: publicProcedure.mutation(async ({ ctx }) => {

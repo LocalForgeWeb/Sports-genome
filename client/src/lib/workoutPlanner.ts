@@ -2,7 +2,6 @@ import { getExerciseGenome, getWorkoutGenome } from "@/lib/exerciseGenome";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGymTimeBudget, timeAdjustedSetBand } from "@/lib/gymTimeBudget";
 import { evidenceBoundary, trainingEvidence } from "@/lib/trainingEvidence";
-import { analyzeWorkoutRedundancy, type WorkoutRedundancyFinding } from "@/lib/workoutRedundancy";
 
 export type ExerciseSettings = {
   rpe: string;
@@ -33,7 +32,6 @@ export type WorkoutDiagnostics = {
   dominantMuscles: [string, number][];
   gaps: string[];
   prompts: string[];
-  redundancyFindings: WorkoutRedundancyFinding[];
   target: ProgrammingTarget;
   gymTimeBudget: ReturnType<typeof getGymTimeBudget>;
 };
@@ -72,11 +70,8 @@ export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record
   const estimatedMinutes = Math.max(0, Math.round(totalSets * (1.05 + averageRest / 60)));
   const sessionLoad = Math.round(totalSets * averageRpe);
   const prompts: string[] = [];
-  const redundancyFindings = analyzeWorkoutRedundancy(workout);
-  const likelyDuplicates = redundancyFindings.filter((finding) => finding.classification === "Likely duplicate");
   if (!workout.length) prompts.push("Add a first exercise or load a smart draft to calculate session balance.");
   if (genome.redundancy >= 62) prompts.push("Review overlapping exercises before adding more sets; variation may improve marginal value.");
-  if (likelyDuplicates.length) prompts.push(`${likelyDuplicates.length} exercise pair${likelyDuplicates.length === 1 ? " is" : "s are"} flagged as a likely duplicate by the session model. Keep both only when they have distinct execution, sequencing, or programming purposes.`);
   if (fatigueExposure >= 72) prompts.push("This stack has a higher fatigue cost. Keep high-skill work early and leave recovery between hard sessions.");
   if (totalSets > target.sessionSetBand[1]) prompts.push(`${totalSets} planned work sets is above this goal’s current ${target.sessionSetBand[0]}–${target.sessionSetBand[1]} planning band. Confirm that the added volume has a clear purpose and remains recoverable.`);
   if (workout.length >= 3 && totalSets < target.sessionSetBand[0]) prompts.push(`${totalSets} planned work sets is below this goal’s current ${target.sessionSetBand[0]}–${target.sessionSetBand[1]} planning band. That can be appropriate for a lighter day, skill emphasis, or a dense training week.`);
@@ -86,5 +81,5 @@ export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record
   if (estimatedMinutes <= gymTimeBudget.minutes - 18 && workout.length && gymTimeBudget.minutes >= 60) prompts.push(`This stack leaves meaningful room in your ${gymTimeBudget.label} window. Add work only if it fills a specific movement, muscle, or skill need.`);
   if (genome.gaps.length >= 4) prompts.push(`The session has limited pattern variety. Consider whether ${genome.gaps.slice(0, 2).join(" and ")} are useful for this day’s purpose.`);
   if (!prompts.length) prompts.push("The active stack has workable variety for a single training session. Use the movement gaps as context, not a requirement to add everything.");
-  return { totalSets, estimatedMinutes, fatigueExposure, sessionLoad, redundancy: genome.redundancy, dominantPatterns: genome.dominantPatterns, dominantMuscles: genome.dominantMuscles, gaps: genome.gaps, prompts, redundancyFindings, target, gymTimeBudget };
+  return { totalSets, estimatedMinutes, fatigueExposure, sessionLoad, redundancy: genome.redundancy, dominantPatterns: genome.dominantPatterns, dominantMuscles: genome.dominantMuscles, gaps: genome.gaps, prompts, target, gymTimeBudget };
 }
