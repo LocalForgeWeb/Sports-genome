@@ -138,6 +138,21 @@ export async function finishPasskeyRegistration(user: User, response: unknown, r
   return { ok: true as const };
 }
 
+export async function listAccountPasskeys(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Account service unavailable");
+  return db.select({ id: accountPasskeys.id, createdAt: accountPasskeys.createdAt, lastUsedAt: accountPasskeys.lastUsedAt }).from(accountPasskeys).where(eq(accountPasskeys.userId, userId));
+}
+
+export async function removeAccountPasskey(userId: number, passkeyId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Account service unavailable");
+  const existing = await db.select({ id: accountPasskeys.id }).from(accountPasskeys).where(and(eq(accountPasskeys.id, passkeyId), eq(accountPasskeys.userId, userId))).limit(1);
+  if (!existing[0]) return { ok: false as const };
+  await db.delete(accountPasskeys).where(and(eq(accountPasskeys.id, passkeyId), eq(accountPasskeys.userId, userId)));
+  return { ok: true as const };
+}
+
 export async function beginPasskeyAuthentication(emailInput: string, req: Request) {
   const db = await getDb();
   if (!db) throw new Error("Account service unavailable");
