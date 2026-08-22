@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowLeftRight, ArrowRight, ChevronDown, X } from "lucide-react";
 import type { SplitDay } from "@/lib/splitCycle";
 import { loadoutTemplateRules, type TrainingLoadout } from "@/lib/loadoutTemplates";
+import "./SplitDraftControls.css";
 
 /** Modern Kinetic Field Manual: a compact planner panel that opens only on demand and never claims the active workspace. */
 export type { SplitDay } from "@/lib/splitCycle";
