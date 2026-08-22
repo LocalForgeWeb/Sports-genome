@@ -15,6 +15,14 @@ vi.mock("react", async () => {
 });
 
 describe("Exercise Genome muscle-targeting disclosure", () => {
+  it("defines bounded plain-language guidance for every displayed Muscle Genome role", async () => {
+    const { genomeTermInfo } = await import("./ExerciseGenomePanel");
+
+    expect(genomeTermInfo.primeMover.read).toContain("planning label");
+    expect(genomeTermInfo.synergist.meaning).toContain("assisting role");
+    expect(genomeTermInfo.stabilizer.read).toContain("not a direct activation measure");
+  });
+
   it("renders evidence tier, causal mechanics input summary, and uncertainty in the Muscle Genome UI", async () => {
     const { ExerciseGenomePanel } = await import("./ExerciseGenomePanel");
     const seatedCurl = exercises.find((exercise) => exercise.name === "Seated Leg Curl") || exercises[0];

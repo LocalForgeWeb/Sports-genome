@@ -201,9 +201,9 @@
 - [ ] Reset persisted onboarding sport state so no sport is preselected on first use or after a reset.
 - [ ] Add a prominent sport-switch control in the workspace and verify recommendations refresh after sport changes.
 - [ ] Validate a shoulder-isolation exercise, asset rendering, onboarding reset, and sport switching in the live app.
-- [ ] Audit all Muscle Genome and Mechanics labels to identify terms that still lack a click-to-learn definition.
-- [ ] Add full definitions, score inputs, interpretation guidance, and evidence boundaries for every Muscle Genome and Mechanics term.
-- [ ] Make each Muscle Genome and Mechanics label discoverable and keyboard-accessible from the Exercise Genome panel.
+- [x] Audit all Muscle Genome and Mechanics labels to identify terms that still lack a click-to-learn definition.
+- [x] Add full definitions, score inputs, interpretation guidance, and evidence boundaries for every Muscle Genome and Mechanics term.
+- [x] Make each Muscle Genome and Mechanics label discoverable and keyboard-accessible from the Exercise Genome panel.
 - [ ] Add an in-app vector anatomy fallback that remains visible if the external anatomy illustration fails to load.
 - [ ] Validate the learning dialog from Muscle Genome and Mechanics tabs plus the image-failure fallback in the live app.
 - [ ] Audit every existing sport movement record for muscle roles, joint actions, exercise recommendations, and data gaps.
