@@ -29,14 +29,91 @@ reached over the network, which is why `VITE_API_BASE_URL` is required.
 
 ## Prerequisites
 
-- **A Mac.** Xcode only runs on macOS, so the steps below cannot be done from
-  Linux or CI-on-Linux. Everything up to `pnpm build:client` is platform-agnostic;
-  from `npx cap add ios` onward you need the Mac.
+- **macOS** — but not necessarily *your* macOS. Xcode only runs on macOS, so
+  everything from `npx cap add ios` onward needs it. You can rent it instead of
+  buying it: see [Building without a Mac](#building-without-a-mac) below, which
+  is the recommended path if you do not already own one.
 - Xcode 15+ with the iOS SDK, and its command line tools.
 - [CocoaPods](https://cocoapods.org) (`sudo gem install cocoapods` or `brew install cocoapods`).
 - An **Apple Developer Program** membership ($99/year) to run on a physical
   device and to submit to the App Store. A free Apple ID is enough for the
   simulator.
+
+
+## Building without a Mac
+
+You do not need to own a Mac to ship this. Compiling an iOS app needs the macOS
+toolchain, but that toolchain can be rented by the minute.
+
+`.github/workflows/ios.yml` runs the whole native build on a GitHub-hosted macOS
+runner. Because `scripts/configure-ios.sh` applies the URL scheme and privacy
+manifest programmatically, the build needs no manual Xcode step at all — the
+`ios/` directory can be generated fresh on every run.
+
+### Start here: the free check
+
+Actions → **iOS** → Run workflow → `simulator`.
+
+This installs dependencies, typechecks, tests, builds the web bundle, generates
+the Xcode project, installs pods, and compiles for the simulator with
+`CODE_SIGNING_ALLOWED=NO`. **No Apple account and no secrets are involved.**
+
+It answers the only question that matters early: does the native app actually
+build? A broken Capacitor config, a missing pod, or a Swift compile error all
+surface here for free.
+
+### Then: a build you can install on your phone
+
+Getting onto a real device requires code signing, and code signing requires the
+**Apple Developer Program ($99/year)**. There is no way around that part — a
+free Apple ID can sign a build only through Xcode on a Mac, and the profile
+expires after seven days.
+
+With the paid account, the `testflight` job produces a signed build and uploads
+it, and you install it from the TestFlight app on your phone. Set these under
+**Settings → Secrets and variables → Actions**:
+
+| Secret | What it is |
+|---|---|
+| `IOS_CERTIFICATE_P12` | Distribution certificate, base64 of the `.p12` |
+| `IOS_CERTIFICATE_PASSWORD` | Password for that `.p12` |
+| `IOS_PROVISIONING_PROFILE` | App Store profile, base64 of the `.mobileprovision` |
+| `APPSTORE_KEY_ID` | App Store Connect API key id |
+| `APPSTORE_ISSUER_ID` | App Store Connect issuer id |
+| `APPSTORE_PRIVATE_KEY` | Contents of the `.p8` key file |
+
+Plus one **variable**: `VITE_API_BASE_URL`, the absolute origin of your deployed
+API. The job fails fast if it is missing rather than shipping a build that
+cannot reach the server.
+
+Expect the first signed run to need a round of iteration — signing is the part
+of iOS CI that never works first try. The `.ipa` is uploaded as a build artifact
+even when the TestFlight upload fails, so a credential problem does not cost you
+the whole build.
+
+### Cost
+
+macOS runners bill at **10× the Linux rate** on private repositories, so both
+jobs are manual (`workflow_dispatch`) rather than running on every push. Add a
+push trigger once you know what a run costs you.
+
+### Other options
+
+- **Rent a Mac** — MacinCloud or MacStadium, roughly $20–30/month, if you would
+  rather work in Xcode directly.
+- **Ionic Appflow** — Capacitor's own hosted build service.
+- **Codemagic** — also has free macOS build minutes.
+
+## Installing without any of that
+
+The app is also a PWA. Open it in Safari on your phone, then **Share → Add to
+Home Screen**, and you get a standalone full-screen app with its own icon — no
+Apple account, no build, no waiting.
+
+It is not the App Store build and it does not exercise the native auth path or
+the Capacitor plugins, so it will not tell you whether the iOS app works. What
+it is good for is getting the actual interface into your hands today, on a real
+phone, to find the layout and touch-target problems that only show up there.
 
 ## First-time setup
 

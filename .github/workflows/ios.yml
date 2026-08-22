@@ -1,0 +1,243 @@
+# Builds the iOS app on a GitHub-hosted macOS runner.
+#
+# This exists so that shipping to iPhone does not require owning a Mac. Xcode
+# only runs on macOS, but it does not have to be *your* macOS.
+#
+# Two jobs, deliberately separate:
+#
+#   simulator  — no Apple account, no secrets, no signing. Proves the whole
+#                native setup compiles. Run this first and on every change.
+#   testflight — signed build uploaded to TestFlight, so the app can be
+#                installed on a real phone. Needs the $99 Apple Developer
+#                Program and the secrets listed below.
+#
+# COST: macOS runners bill at 10x the Linux rate on private repositories.
+# Both jobs are manual (workflow_dispatch) for that reason — turn on a push
+# trigger only once you know how long a run takes.
+
+name: iOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Which build to run"
+        type: choice
+        options: [simulator, testflight]
+        default: simulator
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  simulator:
+    # The free one. Catches a broken Capacitor config, a missing pod, or a
+    # Swift compile error without any Apple account involved.
+    if: inputs.job == 'simulator'
+    runs-on: macos-15
+    timeout-minutes: 40
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck and test
+        run: |
+          pnpm check
+          pnpm test
+
+      - name: Build the web bundle
+        # A placeholder API origin is fine here: this job proves the app
+        # compiles, not that it can reach a server.
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://example.invalid' }}
+          VITE_NATIVE_APP_SCHEME: sportsgenome
+        run: pnpm build:client
+
+      - name: Generate the iOS project
+        # `ios/` is regenerated when it is not committed, so the build stays
+        # reproducible either way.
+        run: |
+          if [ -d ios ]; then
+            npx cap sync ios
+          else
+            npx cap add ios
+          fi
+
+      - name: Apply native configuration
+        run: bash scripts/configure-ios.sh
+
+      - name: Install pods
+        working-directory: ios/App
+        run: pod install
+
+      - name: Build for the simulator
+        # CODE_SIGNING_ALLOWED=NO is what makes this work with no certificate.
+        run: |
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+  testflight:
+    # Produces something you can actually install on your phone.
+    #
+    # Required repository secrets:
+    #   IOS_CERTIFICATE_P12       distribution certificate, base64 of the .p12
+    #   IOS_CERTIFICATE_PASSWORD  password for that .p12
+    #   IOS_PROVISIONING_PROFILE  App Store profile, base64 of the .mobileprovision
+    #   APPSTORE_KEY_ID           App Store Connect API key id
+    #   APPSTORE_ISSUER_ID        App Store Connect issuer id
+    #   APPSTORE_PRIVATE_KEY      contents of the .p8 key file
+    # Required repository variable:
+    #   VITE_API_BASE_URL         absolute origin of the deployed API
+    if: inputs.job == 'testflight'
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the web bundle
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_NATIVE_APP_SCHEME: sportsgenome
+        run: |
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "::error::VITE_API_BASE_URL repository variable is not set."
+            echo "The app would ship unable to reach the API. Set it under"
+            echo "Settings → Secrets and variables → Actions → Variables."
+            exit 1
+          fi
+          pnpm build:client
+
+      - name: Generate the iOS project
+        run: |
+          if [ -d ios ]; then
+            npx cap sync ios
+          else
+            npx cap add ios
+          fi
+
+      - name: Apply native configuration
+        run: bash scripts/configure-ios.sh
+
+      - name: Install pods
+        working-directory: ios/App
+        run: pod install
+
+      - name: Import signing certificate and profile
+        env:
+          CERTIFICATE_P12: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+        run: |
+          # A throwaway keychain scoped to this runner, which is destroyed with
+          # the VM. Never unlock the default login keychain in CI.
+          KEYCHAIN=$RUNNER_TEMP/build.keychain
+          KEYCHAIN_PASSWORD=$(uuidgen)
+
+          # openssl rather than base64(1): the macOS build of base64 does not
+          # accept --decode, and -d/-D differ between versions.
+          echo -n "$CERTIFICATE_P12" | openssl base64 -d -A -out "$RUNNER_TEMP/cert.p12"
+          echo -n "$PROVISIONING_PROFILE" | openssl base64 -d -A -out "$RUNNER_TEMP/profile.mobileprovision"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -P "$CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security list-keychain -d user -s "$KEYCHAIN"
+          # Lets xcodebuild use the key without an interactive prompt.
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp "$RUNNER_TEMP/profile.mobileprovision" ~/Library/MobileDevice/Provisioning\ Profiles/
+
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+      - name: Archive
+        run: |
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            archive
+
+      - name: Export the .ipa
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>export</string>
+          </dict>
+          </plist>
+          PLIST
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates
+
+      - name: Upload to TestFlight
+        env:
+          KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+        run: |
+          # altool looks the key up by id in this fixed location.
+          mkdir -p ~/private_keys
+          echo -n "$PRIVATE_KEY" > ~/private_keys/AuthKey_${KEY_ID}.p8
+
+          IPA=$(find "$RUNNER_TEMP/export" -name '*.ipa' | head -1)
+          if [ -z "$IPA" ]; then
+            echo "::error::No .ipa was produced by the export step."
+            exit 1
+          fi
+
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA" \
+            --apiKey "$KEY_ID" \
+            --apiIssuer "$ISSUER_ID"
+
+      - name: Keep the build even if the upload fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: ${{ runner.temp }}/export/*.ipa
+          if-no-files-found: ignore
