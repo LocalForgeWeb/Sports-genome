@@ -1,0 +1,34 @@
+<!--
+  Entries to merge into ios/App/App/Info.plist after `npx cap add ios`.
+
+  These are additions, not a replacement — paste the key/value pairs inside the
+  existing top-level <dict>, leaving Capacitor's generated keys in place.
+-->
+
+<!--
+  REQUIRED. Registers the custom URL scheme the OAuth callback redirects to.
+  Login cannot complete without this: the server hands the session token back
+  via sportsgenome://auth/callback, and iOS will not route that URL to an app
+  that has not claimed the scheme.
+
+  The scheme must match NATIVE_APP_SCHEME on the server and
+  VITE_NATIVE_APP_SCHEME in the client build.
+-->
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLName</key>
+    <string>ai.monkeypants.sportsgenome</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>sportsgenome</string>
+    </array>
+  </dict>
+</array>
+
+<!--
+  Keeps the status bar text controlled by StatusBar.setStyle() in
+  lib/nativeShell.ts rather than by the view controller.
+-->
+<key>UIViewControllerBasedStatusBarAppearance</key>
+<true/>

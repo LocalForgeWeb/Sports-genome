@@ -22,6 +22,8 @@ reached over the network, which is why `VITE_API_BASE_URL` is required.
 | Offline outbox for workout writes | `client/src/lib/offlineQueue.ts` |
 | Optimistic local set logging + session snapshot | `client/src/lib/offlineSession.ts` |
 | Outbox wiring, retry/drop classification | `client/src/hooks/useWorkoutOutbox.ts` |
+| Native share sheet in place of `window.print()` | `client/src/components/PrintableWorkoutSheet.tsx` |
+| Privacy manifest + Info.plist entries, ready to copy | `ios-assets/` |
 | Native branch of the OAuth callback | `server/_core/oauth.ts` |
 | CORS for the `capacitor://localhost` origin | `server/_core/cors.ts` |
 
@@ -70,29 +72,37 @@ Commit the generated `ios/` directory. It holds the Info.plist, icons, and
 signing configuration. `.gitignore` already excludes the regenerated parts
 (`Pods/`, the copied `public/` bundle).
 
-### 4. Register the URL scheme — required for login
+### 4. Drop in the staged native files
 
-Login will not complete without this. In Xcode, select the **App** target →
-**Info** → **URL Types** → **+**, and set:
+`ios-assets/` holds the files that cannot be generated but can be written ahead
+of time. After `cap add ios` creates the project:
 
-- **Identifier:** your bundle ID
-- **URL Schemes:** `sportsgenome` (must match `NATIVE_APP_SCHEME`)
+**a. Register the URL scheme — required for login.** Login cannot complete
+without it: iOS will not route `sportsgenome://auth/callback` to an app that has
+not claimed the scheme. Merge the entries from
+`ios-assets/Info.plist.additions.xml` into `ios/App/App/Info.plist`, or add them
+through Xcode (**App** target → **Info** → **URL Types** → **+**, identifier =
+your bundle ID, scheme = `sportsgenome`).
 
-Or add it directly to `ios/App/App/Info.plist`:
+**b. Add the privacy manifest.** Required for App Store submission. Copy
+`ios-assets/PrivacyInfo.xcprivacy` to `ios/App/App/`, then drag it into the Xcode
+project navigator and tick **App** under Target Membership — a file that is not a
+member of the target is not submitted.
 
-```xml
-<key>CFBundleURLTypes</key>
-<array>
-  <dict>
-    <key>CFBundleURLName</key>
-    <string>ai.monkeypants.sportsgenome</string>
-    <key>CFBundleURLSchemes</key>
-    <array>
-      <string>sportsgenome</string>
-    </array>
-  </dict>
-</array>
+It is filled in from what `drizzle/schema.ts` actually stores (account identity
+plus fitness data, none of it used for tracking) and declares the `UserDefaults`
+access reason `CA92.1` that `@capacitor/preferences` requires. Revisit it if the
+schema starts collecting something new; a mismatch is a rejection.
+
+**c. Generate the app icon and launch screen.** Put a 1024×1024 `icon.png` and a
+2732×2732 `splash.png` in `ios-assets/`, then:
+
+```bash
+pnpm ios:assets
 ```
+
+If that fails with a `sharp` error, its native build was skipped on install —
+`pnpm rebuild sharp` fixes it.
 
 ### 5. Deploy the server changes
 
@@ -192,12 +202,7 @@ These are real, and deliberately not done blind:
    real device.
 3. **Hover-dependent UI.** Radix hover-cards, tooltips, and context menus have no
    touch equivalent. They need press-and-hold or tap alternatives.
-4. **`PrintableWorkoutSheet` calls `window.print()`**, which does nothing useful
-   in a webview. Replace with the native share sheet.
-5. **Sign in with Apple.** Guideline 4.8 may require offering it alongside the
+4. **Sign in with Apple.** Guideline 4.8 may require offering it alongside the
    Manus login. Worth confirming before submission.
-6. **App icon and launch screen** are still Capacitor's placeholders. Generate
-   them with [`@capacitor/assets`](https://github.com/ionic-team/capacitor-assets).
-7. **Privacy manifest** (`PrivacyInfo.xcprivacy`) is required for App Store
-   submission. Declare the data the app collects and the reasons for any required-
-   reason APIs.
+5. **Artwork.** `pnpm ios:assets` is wired up, but it needs your `icon.png` and
+   `splash.png` — until then the app ships Capacitor's placeholders.

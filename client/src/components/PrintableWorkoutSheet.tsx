@@ -1,12 +1,22 @@
-import { Printer } from "lucide-react";
+import { Printer, Share2 } from "lucide-react";
+import { Share } from "@capacitor/share";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
 import { muscleLabels } from "@/components/AnatomyMap";
-import { getPrintableWorkoutRows } from "@/lib/workoutPrint";
+import { buildWorkoutShareText, getPrintableWorkoutRows } from "@/lib/workoutPrint";
+import { isNativePlatform } from "@/lib/platform";
 import "../printable-workout.css";
 
-export function PrintWorkoutButton({ disabled }: { disabled: boolean }) {
-  return <button className="print-workout-button" onClick={() => window.print()} disabled={disabled}><Printer className="h-4 w-4" /> Print sheet</button>;
+// `window.print()` is a no-op inside a webview, so the same sheet goes to the
+// iOS share sheet instead — which is also how a native app reaches a printer.
+export function PrintWorkoutButton({ workout, prescriptions, settings, goal, sport, dayLabel, disabled }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; goal: string; sport: string; dayLabel: string; disabled: boolean }) {
+  const native = isNativePlatform();
+  const shareSheet = async () => {
+    const text = buildWorkoutShareText(getPrintableWorkoutRows(workout, prescriptions, settings), { dayLabel, goal, sport });
+    // A cancelled share rejects; that is a normal outcome, not an error.
+    await Share.share({ title: dayLabel, text, dialogTitle: "Share training day" }).catch(() => {});
+  };
+  return <button className="print-workout-button" onClick={() => (native ? void shareSheet() : window.print())} disabled={disabled}>{native ? <Share2 className="h-4 w-4" /> : <Printer className="h-4 w-4" />} {native ? "Share sheet" : "Print sheet"}</button>;
 }
 
 export function PrintableWorkoutSheet({ workout, prescriptions, settings, goal, sport, dayLabel }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; goal: string; sport: string; dayLabel: string }) {

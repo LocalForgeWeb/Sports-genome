@@ -21,3 +21,39 @@ export function getPrintableWorkoutRows(workout: Exercise[], prescriptions: Reco
     trackingLines: getPrintableTrackingLines(prescriptions[exercise.id] || "3 × 8–12"),
   }));
 }
+
+/**
+ * Plain-text rendering of a training day, for the native share sheet.
+ *
+ * `window.print()` does nothing useful inside a webview, so on iOS the same
+ * sheet is handed to the system share sheet instead — AirDrop, Notes, Messages,
+ * or the printer the user actually owns.
+ *
+ * Kept as a pure function so the layout is testable without a device, and so
+ * the print sheet and the shared text cannot drift apart: both are built from
+ * `getPrintableWorkoutRows`.
+ */
+export function buildWorkoutShareText(
+  rows: PrintableWorkoutRow[],
+  context: { dayLabel: string; goal: string; sport: string }
+): string {
+  const header = [
+    context.dayLabel,
+    `Goal: ${context.goal}  ·  Sport: ${context.sport}`,
+    "",
+  ];
+
+  const body = rows.flatMap(row => {
+    const title = `${String(row.order).padStart(2, "0")}. ${row.name}`;
+    const detail = `    ${row.prescription} · ${row.rpe} · ${row.rest} rest`;
+    const muscles = row.muscleSummary ? [`    ${row.muscleSummary}`] : [];
+    const notes = row.notes ? [`    Note: ${row.notes}`] : [];
+    // The blank tracking lines are the point of the printed sheet — someone is
+    // going to write loads into them — so they survive into the shared text.
+    const tracking = row.trackingLines.map(line => `    ${line}`);
+
+    return [title, detail, ...muscles, ...notes, ...tracking, ""];
+  });
+
+  return [...header, ...body].join("\n").trimEnd();
+}
