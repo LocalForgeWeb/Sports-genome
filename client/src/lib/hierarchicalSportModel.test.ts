@@ -55,4 +55,15 @@ describe("hierarchical sport-to-program model", () => {
     expect(getSportDemandModel("track-and-field", "sprint").selectedModifier?.evidenceSources?.join(" ")).toMatch(/109-study/i);
     expect(getSportDemandModel("swimming", "freestyle").selectedModifier?.evidenceSources?.join(" ")).toMatch(/Kwok/i);
   });
+
+  it("gives every configured modifier an explicit evidence scope, source record, and planning boundary", () => {
+    const sportIds = Array.from(new Set(sportMovementProfiles.map((movement) => movement.sportId)));
+    sportIds.forEach((sportId) => {
+      getSportModifiers(sportId).forEach((modifier) => {
+        expect(modifier.evidenceScope).toMatch(/reviewed|sport-level/i);
+        expect(modifier.evidenceSources?.length).toBeGreaterThan(0);
+        expect(modifier.evidenceBoundary).toMatch(/planning|not|contextual|descriptive/i);
+      });
+    });
+  });
 });

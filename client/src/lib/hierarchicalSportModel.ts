@@ -118,7 +118,16 @@ const modifierEvidenceRecords: Record<string, Record<string, string[]>> = {
 
 Object.entries(modifierEvidenceRecords).forEach(([sportId, records]) => {
   seeds[sportId]?.modifiers?.forEach((item) => {
-    item.evidenceSources = records[item.id] || ["Reviewed sport evidence register; source scope is limited to the selected role, event, stroke, distance, or style context."];
+    item.evidenceSources = records[item.id] || modifierEvidenceSources[sportId] || [`${sportId} evidence inventory — reviewed source scope is limited to the selected role, event, stroke, distance, or style context.`];
+  });
+});
+
+Object.entries(seeds).forEach(([sportId, seed]) => {
+  seed.modifiers?.forEach((item) => {
+    item.evidenceSources ||= modifierEvidenceSources[sportId] || [`${sportId} evidence inventory — reviewed source scope is limited to the selected role, event, stroke, distance, or style context.`];
+    if (!/planning|not an athlete measurement|not a prescription/i.test(item.evidenceBoundary)) {
+      item.evidenceBoundary = `${item.evidenceBoundary} This modifier is a planning context, not an athlete measurement or universal prescription.`;
+    }
   });
 });
 
