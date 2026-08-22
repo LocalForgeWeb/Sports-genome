@@ -18,7 +18,7 @@
 - [x] Integrate approved progression and segment-priority suggestions into the planner as athlete-confirmed changes, never silent automatic rewrites.
 - [x] Add a bounded within-athlete segment progress index to weekly review cards, explicitly distinguished from direct muscle-strength measurement or cross-person ranking.
 - [x] Integrate athlete-confirmed exercise progression recommendations into the planner as saved next-session notes, never as silent automatic rewrites.
-- [ ] Add athlete-confirmed segment-priority suggestions that adjust future planner emphasis without altering an existing plan silently.
+- [x] Add athlete-confirmed segment-priority suggestions that adjust future planner emphasis without altering an existing plan silently.
 - [ ] Add unit, component, and live-workflow validation for progression recommendations and segment-level plan adjustments.
 - [x] Verify the GitHub backup inventory includes all tracked Gym Optimizer code, tests, research records, datasets, and project tracking files; document intentionally local-only exclusions.
 - [x] Add a split-aware Rate Stack with split-only muscle coverage scores, gap flags, overemphasis flags, and catalog-backed correction advice.
