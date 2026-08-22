@@ -88,4 +88,11 @@ describe("progressive training model", () => {
     const segments = getMuscleSegmentSignals(catalogExercises, catalogHistory);
     expect(segments.map((signal) => signal.muscle)).toEqual(expect.arrayContaining(["deltoid_anterior", "deltoid_lateral", "deltoid_posterior"]));
   });
+
+  it("provides a bounded within-athlete progress index rather than a direct strength rank", () => {
+    const signal = getMuscleSegmentSignals([lateralRaise], records)[0];
+    expect(signal?.progressIndex).toBeGreaterThanOrEqual(0);
+    expect(signal?.progressIndex).toBeLessThanOrEqual(100);
+    expect(signal?.boundary).toContain("not a direct muscle-strength score");
+  });
 });

@@ -21,6 +21,7 @@ describe("progression review", () => {
     }));
     expect(markup).toContain("Consider load increase");
     expect(markup).toContain("deltoid lateral");
+    expect(markup).toContain("Within-athlete progress index");
     expect(markup).toContain("do not diagnose readiness");
   });
 

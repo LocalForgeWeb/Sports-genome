@@ -39,6 +39,7 @@ export type MuscleSegmentSignal = {
   muscle: string;
   family: string;
   status: "progressing" | "steady" | "review" | "insufficient_data";
+  progressIndex?: number;
   contributingExercises: string[];
   confidence: ProgressionConfidence;
   rationale: string;
@@ -201,14 +202,16 @@ export function getMuscleSegmentSignals(exercises: ProgressionExercise[], histor
     const comparableSessions = actionable.reduce((total: number, entry: ProgressionEntry) => total + entry.recommendation.comparableSessions, 0);
     const confidence = confidenceForSessions(Math.round(comparableSessions / Math.max(1, actionable.length)));
     const status: MuscleSegmentSignal["status"] = !actionable.length ? "insufficient_data" : averageScore >= 0.75 ? "progressing" : averageScore <= -0.75 ? "review" : "steady";
+    const progressIndex = actionable.length ? Math.max(0, Math.min(100, Math.round(50 + averageScore * 25))) : undefined;
     return {
       muscle,
       family: muscleFamily(muscle),
       status,
+      progressIndex,
       contributingExercises: entries.map((entry: ProgressionEntry) => entry.exercise.name),
       confidence,
       rationale: status === "review" ? `Comparable exercise-context trends for this segment warrant a programming review before adding more work.` : status === "progressing" ? `Comparable exercise-context trends are moving within the planned progression model.` : status === "insufficient_data" ? `More completed, comparable logs are needed before this segment can be reviewed.` : `Comparable exercise-context trends are currently mixed or stable.`,
-      boundary: "Segment status aggregates exercise-context progression signals. It does not directly measure the strength of an individual muscle head or establish a clinical imbalance.",
+      boundary: "The progress index is an ordinal within-athlete exercise-log signal, not a direct muscle-strength score, cross-person ranking, or clinical imbalance assessment.",
     };
   });
 }
