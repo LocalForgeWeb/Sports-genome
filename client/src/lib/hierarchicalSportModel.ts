@@ -25,6 +25,7 @@ export interface SportModifier {
   type: "position" | "event" | "style" | "stroke" | "distance" | "role";
   emphasis: string[];
   evidenceScope: string;
+  evidenceSources?: string[];
   evidenceBoundary: string;
 }
 
@@ -73,6 +74,54 @@ const seeds: Record<string, SportSeed> = {
   "olympic-weightlifting": { demands: ["power", "rateOfForceDevelopment", "maxStrength", "mobility", "stability", "coordination", "balance"], modifiers: [modifier("snatch", "Snatch", "event", ["Overhead receipt", "Bar speed", "Mobility"], "Event modifier should not be read as a substitute for technical coaching."), modifier("clean-and-jerk", "Clean & jerk", "event", ["Pull/receipt", "Split or power jerk fixation", "Strength"], "Event modifier is technical and contextual.")] },
 };
 
+const modifierEvidenceSources: Record<string, string[]> = {
+  "american-football": ["American football evidence inventory — [S1] NCAA positional GPS/accelerometry, [S2] NFL player tracking, [S3] acceleration/deceleration systematic review."],
+  "ice-hockey": ["Ice hockey evidence inventory — reviewed position- and goalie-specific skating, shift, and transition-demand records."],
+  "track-and-field": ["Track & field evidence inventory — [S1] sprint-start review, [S2] 109-study sprint-phase systematic review, [S4] World Athletics biomechanics reports."],
+  swimming: ["Swimming evidence inventory — Kwok et al. (2021) front-crawl conditioning review; Vantorre et al. (2014) swim-start review; Gonjo & Olstad (2020) sprint-butterfly phase study."],
+};
+
+const modifierEvidenceRecords: Record<string, Record<string, string[]>> = {
+  "american-football": {
+    qb: ["[S4–S5] American-football workload reviews: role adjustment is descriptive; no quarterback-specific dose is inferred."],
+    rb: ["[S1] NCAA Division I positional GPS/accelerometry; [S4] workload-management review."],
+    "wr-db": ["[S1] NCAA Division I positional GPS/accelerometry; [S2] 3-year NFL positional player-tracking review."],
+    "lb-te": ["[S1] NCAA Division I positional GPS/accelerometry; [S4] workload-management review."],
+    line: ["[S2] 3-year NFL positional player-tracking review: lower high-velocity exposure and greater contact context than non-linemen."],
+  },
+  "ice-hockey": {
+    forward: ["[S3] Professional match analysis: playing-time-normalized acceleration/deceleration and positional load context."],
+    defense: ["[S3] Professional match analysis: defensemen recorded greater high-threshold decelerations per minute."],
+    skater: ["[S1] On-ice skating biomechanics; [S4] 107-study on-ice testing systematic review."],
+    goalie: ["[S2] Wearable-technology scoping review: goalie context remains device- and protocol-dependent; no skater-norm substitution."],
+  },
+  "track-and-field": {
+    sprint: ["[S1] Sprint-start narrative review; [S2] 109-study sprint-phase systematic review."],
+    hurdles: ["[S4] World Athletics event biomechanics resource; sprint-phase reviews do not directly establish hurdle prescriptions."],
+    "middle-distance": ["[S4] World Athletics event biomechanics resource; this is an event-context planning layer, not a universal load target."],
+    distance: ["[S4] World Athletics event biomechanics resource; no sprint-study values are carried into distance guidance."],
+    jumps: ["[S4] World Athletics event biomechanics resource; event-specific takeoff and landing work requires dedicated evidence."],
+    throws: ["[S4] World Athletics event biomechanics resource; sprint findings are not treated as throw-event validation."],
+    "multi-events": ["[S4] World Athletics event biomechanics resource; mixed-event priorities remain event and season-context dependent."],
+  },
+  swimming: {
+    freestyle: ["[Kwok et al., 2021] Front-crawl strength and conditioning systematic review; evidence is front-crawl-specific."],
+    butterfly: ["[Gonjo & Olstad, 2020] National-level sprint-butterfly start and turn segment study."],
+    breaststroke: ["[Costa et al., 2015] Competitive-swimming longitudinal adaptation review; no front-crawl evidence is transferred as breaststroke fact."],
+    backstroke: ["[Costa et al., 2015] Competitive-swimming longitudinal adaptation review; stroke-specific extrapolation is limited."],
+    im: ["[Costa et al., 2015] Competitive-swimming longitudinal adaptation review; medley remains a mixed-stroke planning context."],
+    sprint: ["[Vantorre et al., 2014] Swim-start biomechanics review; [Gonjo & Olstad, 2020] underwater phase study."],
+    "middle-distance": ["[Costa et al., 2015] Competitive-swimming longitudinal adaptation review; event-distance response remains heterogeneous."],
+    distance: ["[Costa et al., 2015] Competitive-swimming longitudinal adaptation review; no universal distance prescription is inferred."],
+  },
+};
+
+Object.entries(modifierEvidenceRecords).forEach(([sportId, records]) => {
+  seeds[sportId]?.modifiers?.forEach((item) => {
+    item.evidenceSources = records[item.id] || ["Reviewed sport evidence register; source scope is limited to the selected role, event, stroke, distance, or style context."];
+  });
+});
+
 const baseScore = (key: SportDemandKey, active: SportDemandKey[]) => active.includes(key) ? 0.78 : 0.32;
 
 const modifierDemandMap: Record<string, SportDemandKey[]> = {
@@ -96,7 +145,11 @@ export function getSportModifiers(sportId: string): SportModifier[] {
 
 export function getSportDemandModel(sportId: string, modifierId?: string) {
   const seed = seeds[sportId] || { demands: ["stability", "coordination", "strengthEndurance"] as SportDemandKey[] };
-  const selectedModifier = seed.modifiers?.find((item) => item.id === modifierId);
+  const activeModifier = seed.modifiers?.find((item) => item.id === modifierId);
+  const selectedModifier = activeModifier ? {
+    ...activeModifier,
+    evidenceSources: activeModifier.evidenceSources || modifierEvidenceSources[sportId] || [`${sportId} evidence inventory — reviewed source scope documented in the project register.`],
+  } : undefined;
   const boosts = modifierBoosts(selectedModifier);
   const demands: EvidenceBoundedDemand[] = (Object.keys(labels) as SportDemandKey[]).map((key) => ({
     key,
@@ -119,6 +172,7 @@ export function buildMovementReasoning(movement: SportMovementProfile, modifierI
     sport: movement.sportLabel,
     modifier: modifierText,
     modifierEvidenceScope: model.selectedModifier?.evidenceScope || "General sport-profile evidence register; no role, event, stroke, distance, or style modifier is active.",
+    modifierEvidenceSources: model.selectedModifier?.evidenceSources || ["General sport evidence inventory — reviewed source scope documented in the project register."],
     movement: movement.label,
     biomechanics: movement.bodyActions,
     physiologicalDemands: priorities.map((demand) => `${demand.label} (${demand.evidenceType === "literature-derived" ? "reviewed sport evidence" : "planning inference"})`),

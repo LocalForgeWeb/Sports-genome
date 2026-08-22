@@ -20,6 +20,7 @@ describe("hierarchical sport-to-program model", () => {
     expect(reasoning.physicalQualities.length).toBeGreaterThan(2);
     expect(reasoning.physiologicalDemands.length).toBeGreaterThan(2);
     expect(reasoning.modifierEvidenceScope).toMatch(/reviewed/i);
+    expect(reasoning.modifierEvidenceSources.join(" ")).toMatch(/soccer evidence inventory/i);
     expect(reasoning.modality).toMatch(/gym modalities/i);
     expect(reasoning.exerciseRole).toMatch(/transfer similarity/i);
     expect(reasoning.programming).toMatch(/goal/i);
@@ -40,5 +41,18 @@ describe("hierarchical sport-to-program model", () => {
     const goalieMobility = goalie.demands.find((item) => item.key === "mobility")?.score;
     expect(goalieMobility).toBeGreaterThan(generalMobility || 0);
     expect(goalie.demands.find((item) => item.key === "mobility")?.evidenceType).toBe("expert-inference");
+    expect(goalie.selectedModifier?.evidenceSources?.join(" ")).toMatch(/Wearable-technology/i);
+  });
+
+  it("attaches direct source records to expanded football, hockey, track, and swimming modifiers", () => {
+    expect(getSportDemandModel("american-football", "wr-db").selectedModifier?.evidenceSources?.join(" ")).toMatch(/NFL positional player-tracking/i);
+    expect(getSportDemandModel("ice-hockey", "defense").selectedModifier?.evidenceSources?.join(" ")).toMatch(/high-threshold decelerations/i);
+    expect(getSportDemandModel("track-and-field", "sprint").selectedModifier?.evidenceSources?.join(" ")).toMatch(/109-study/i);
+    expect(getSportDemandModel("swimming", "freestyle").selectedModifier?.evidenceSources?.join(" ")).toMatch(/front-crawl/i);
+  });
+
+  it("attaches concrete reviewed references to expanded track and swimming modifiers", () => {
+    expect(getSportDemandModel("track-and-field", "sprint").selectedModifier?.evidenceSources?.join(" ")).toMatch(/109-study/i);
+    expect(getSportDemandModel("swimming", "freestyle").selectedModifier?.evidenceSources?.join(" ")).toMatch(/Kwok/i);
   });
 });

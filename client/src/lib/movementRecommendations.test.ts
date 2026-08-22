@@ -11,6 +11,12 @@ describe("hierarchy-aware sport recommendations", () => {
     expect(context.modalityBoundary).toMatch(/sport practice/i);
     expect(context.exerciseRole).toMatch(/movement-transfer/i);
     expect(context.programmingBoundary).toMatch(/planning variables/i);
+    expect(context.modifierEvidenceSources.join(" ")).toMatch(/evidence inventory/i);
+  });
+
+  it("exposes selected modifier sources in athlete programming context", () => {
+    const context = getSportProgrammingContext("american-football", "wr-db");
+    expect(context.modifierEvidenceSources.join(" ")).toMatch(/NFL positional player-tracking/i);
   });
 
   it("changes downstream rankings when a modifier changes the model context", () => {

@@ -95,6 +95,7 @@ export function getSportProgrammingContext(sportId: string, modifierId?: string)
   const priorities = model.demands.filter((demand) => demand.score >= 0.7).slice(0, 4);
   return {
     modifierLabel: model.selectedModifier?.label || "General sport profile",
+    modifierEvidenceSources: model.selectedModifier?.evidenceSources || ["General sport evidence inventory — reviewed source scope documented in the project register."],
     priorities: priorities.map((demand) => demand.label),
     physiologicalDemands: priorities.map((demand) => `${demand.label} (${demand.evidenceType === "literature-derived" ? "reviewed evidence" : "planning inference"})`),
     adaptationTargets: priorities.map((demand) => `${demand.label.toLowerCase()} development`),
