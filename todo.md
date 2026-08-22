@@ -233,8 +233,8 @@
 - [x] Ensure imported routines populate editable prescriptions, weekly plan days, and builder context rather than only adding loose exercises.
 - [ ] Validate import of multi-day and single-session pasted routines alongside navigation and responsive task flows.
 - [ ] Audit the fixed Training Day drafting dock and identify all screen-obstruction cases across desktop and mobile.
-- [ ] Replace the blocking dock with a compact movable or repositionable planning tab that can be dismissed and reopened.
-- [ ] Persist the tab’s open/closed state and keep it reachable from Custom Builder without covering active programming controls.
+- [x] Replace the blocking dock with a compact movable or repositionable planning tab that can be dismissed and reopened.
+- [x] Persist the tab’s open/closed state and keep it reachable from Custom Builder without covering active programming controls.
 - [x] Add a concise post-quiz feature tour covering Command Center, recommendations, Custom Builder, Body Lab, Movement Atlas, and Exercise Genome.
 - [x] Make the feature tour skippable, restartable, and respectful of returning users’ saved preferences.
 - [ ] Validate drag or reposition behavior, dismissal, reopening, tutorial progression, keyboard use, and mobile clearance.

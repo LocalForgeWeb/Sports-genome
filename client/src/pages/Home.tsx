@@ -75,6 +75,7 @@ export function buildGeneratedWeekSportSeed(sportId: string, goal: TrainingGoal,
 const athleteProfileKey = "gym-optimizer-athlete-profile-v1";
 const workoutPlanKey = "gym-optimizer-workout-plan-v1";
 const plannerTabKey = "gym-optimizer-planner-tab-v1";
+const plannerOpenKey = "gym-optimizer-planner-open-v1";
 const favoriteExerciseKey = "gym-optimizer-favorite-exercise-ids-v1";
 
 type NavGroup = "Home" | "Train" | "Explore" | "Sport";
@@ -190,6 +191,7 @@ export default function Home() {
   const [activeLoadout, setActiveLoadout] = useState<LoadoutMode>("Sport Transfer");
   const [plannerOpen, setPlannerOpen] = useState(false);
   const [plannerSide, setPlannerSide] = useState<"left" | "right">("right");
+  const [plannerPreferenceHydrated, setPlannerPreferenceHydrated] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [sessionMode, setSessionMode] = useState(false);
   const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
@@ -307,8 +309,18 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    try { setPlannerOpen(window.localStorage.getItem(plannerOpenKey) === "open"); } catch { /* The planner stays collapsed without storage. */ }
+    setPlannerPreferenceHydrated(true);
+  }, []);
+
+  useEffect(() => {
     try { window.localStorage.setItem(plannerTabKey, plannerSide); } catch { /* Position persistence is optional. */ }
   }, [plannerSide]);
+
+  useEffect(() => {
+    if (!plannerPreferenceHydrated) return;
+    try { window.localStorage.setItem(plannerOpenKey, plannerOpen ? "open" : "closed"); } catch { /* Visibility persistence is optional. */ }
+  }, [plannerOpen, plannerPreferenceHydrated]);
 
   useEffect(() => {
     if (!profileHydrated || !onboardingComplete || !sportId) return;
