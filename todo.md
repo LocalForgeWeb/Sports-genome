@@ -11,7 +11,7 @@
 - [x] Add actual RPE inputs to the set-log schema, workout logger, and progression-history API with a conservative high-effort hold guardrail.
 - [x] Add focused RPE-aware model coverage for the add-repetition branch alongside repeat, add-load, hold, and reduce-load cases.
 - [x] Add an athlete-facing progression review integration test showing returned history records with high actual RPE change the visible recommendation.
-- [ ] Add a higher-level authenticated logging test that records actual RPE, retrieves progression history, and verifies the returned effort value.
+- [x] Add a higher-level authenticated logging test that records actual RPE, retrieves progression history, and verifies the returned effort value.
 - [x] Normalize real catalog muscle labels for anterior, lateral, and posterior deltoid segment signals and add catalog-based regressions.
 - [x] Build a true weekly progress review with week-bucketed trend comparison, segment-priority review, and plan-adjustment opportunities.
 - [x] Integrate approved progression and segment-priority suggestions into the planner as athlete-confirmed changes, never silent automatic rewrites.
