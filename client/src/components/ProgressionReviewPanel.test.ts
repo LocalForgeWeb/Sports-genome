@@ -35,4 +35,17 @@ describe("progression review", () => {
     expect(markup).toContain("Hold and recover");
     expect(markup).toContain("Recorded effort averaged RPE 9.6");
   });
+
+  it("offers an explicit segment review action only when an athlete-provided handler is available", () => {
+    const markup = renderToStaticMarkup(createElement(ProgressionReviewSummary, {
+      exercises: [{ id: 1, name: "Cable Lateral Raise", targetPrescription: "3 × 8–12", primaryMuscles: ["deltoid_lateral"] }],
+      history: [
+        { sessionId: 2, completedAt: "2026-08-20", catalogExerciseId: 1, exerciseName: "Cable Lateral Raise", actualWeight: 20, weightUnit: "lb", actualReps: 6, actualRpe: 9.5, completed: true },
+        { sessionId: 1, completedAt: "2026-08-13", catalogExerciseId: 1, exerciseName: "Cable Lateral Raise", actualWeight: 20, weightUnit: "lb", actualReps: 7, actualRpe: 9, completed: true },
+      ],
+      onApproveSegment: () => undefined,
+    }));
+    expect(markup).toContain("Mark for next plan review");
+    expect(markup).toContain("deltoid lateral");
+  });
 });

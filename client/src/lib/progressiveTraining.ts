@@ -133,6 +133,11 @@ export function buildApprovedProgressionNote(recommendation: { action: string; r
   return [existingNotes, next].filter(Boolean).join("\n");
 }
 
+export function buildApprovedSegmentPriorityNote(signal: Pick<MuscleSegmentSignal, "muscle" | "rationale">, existingNotes?: string) {
+  const next = `Approved segment focus: ${signal.muscle.replace(/_/g, " ")}. ${signal.rationale}`;
+  return [existingNotes, next].filter(Boolean).join("\n");
+}
+
 export function getExerciseProgressionRecommendation(exercise: ProgressionExercise, history: LoggedPerformanceSet[]): ExerciseProgressionRecommendation {
   const matching = history.filter((set) => set.completed && (set.catalogExerciseId === exercise.id || (!set.catalogExerciseId && normalizeExerciseName(set.exerciseName) === normalizeExerciseName(exercise.name))));
   const bySession = new Map<number, LoggedPerformanceSet[]>();

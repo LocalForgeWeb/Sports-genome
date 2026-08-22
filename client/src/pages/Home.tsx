@@ -19,7 +19,7 @@ import { ThreeWeekPlanner } from "@/components/ThreeWeekPlanner";
 import { WeeklyMuscleVolumePanel } from "@/components/WeeklyMuscleVolumePanel";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
 import { WorkoutExecutionPanel } from "@/components/WorkoutExecutionPanel";
-import { PROGRESSION_APPROVAL_EVENT } from "@/components/WorkoutExecutionPanel";
+import { PROGRESSION_APPROVAL_EVENT, SEGMENT_PRIORITY_APPROVAL_EVENT } from "@/components/WorkoutExecutionPanel";
 import { MovementAtlasPanel } from "@/components/MovementAtlasPanel";
 import { DayExercisePicker } from "@/components/DayExercisePicker";
 import { PrintableWorkoutSheet, PrintWorkoutButton } from "@/components/PrintableWorkoutSheet";
@@ -38,7 +38,7 @@ import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
-import { buildApprovedProgressionNote } from "@/lib/progressiveTraining";
+import { buildApprovedProgressionNote, buildApprovedSegmentPriorityNote } from "@/lib/progressiveTraining";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { toast } from "sonner";
@@ -471,8 +471,20 @@ export default function Home() {
       toast("Progression note applied", { description: `${recommendation.exerciseName} now has an athlete-approved next-session note in the planner.` });
     };
     window.addEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression);
-    return () => window.removeEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression);
-  }, []);
+    const applyApprovedSegmentPriority = (event: Event) => {
+      const signal = (event as CustomEvent<{ muscle: string; rationale: string }>).detail;
+      if (!signal?.muscle) return;
+      const target = customWorkout.find((exercise) => exercise.primaryMuscles.includes(signal.muscle));
+      if (!target) { toast("No direct exercise in this day", { description: "The segment focus was not applied because this Training Day has no directly tagged exercise for it." }); return; }
+      setExerciseSettings((current) => {
+        const existing = getExerciseSettings(current, target.id);
+        return { ...current, [target.id]: { ...existing, notes: buildApprovedSegmentPriorityNote(signal, existing.notes) } };
+      });
+      toast("Segment focus added", { description: `${target.name} now carries an athlete-approved ${signal.muscle.replace(/_/g, " ")} review note.` });
+    };
+    window.addEventListener(SEGMENT_PRIORITY_APPROVAL_EVENT, applyApprovedSegmentPriority);
+    return () => { window.removeEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression); window.removeEventListener(SEGMENT_PRIORITY_APPROVAL_EVENT, applyApprovedSegmentPriority); };
+  }, [customWorkout]);
   const activeDayIndex = Math.max(0, splitDays.findIndex((day) => day === activeSplitDay));
   const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || Object.values(importedPlanContext).find((items) => items.length) || [];
   const saveActiveDay = () => {
