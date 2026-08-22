@@ -4,6 +4,7 @@
 - [x] Replace the compact Rate Stack block with a dedicated whole-stack analysis view that maps all worked muscles, ranks involvement, and opens per-muscle detail across the active Training Day.
 - [x] Repair Stack Analysis so each selected muscle has distinct aggregate involvement and movement-specific mechanical detail instead of a shared normalized breakdown.
 - [ ] Run and document a focused bug sweep across onboarding, Training Days, Stack Analysis, Body Lab, catalog discovery, mobile layout, and authenticated history.
+- [x] Run and document a code-level bug sweep across onboarding, Training Days, Stack Analysis, Body Lab, catalog discovery, Exercise Genome, and authentication; retain live-device/mobile checks explicitly.
 - [ ] Run an end-to-end authenticated workout: start a session, save set logs, complete it, and confirm the resulting timeline entry.
 - [ ] Visually verify the populated mobile Training Day action-card layout after the latest control redesign and record the result in the bug-sweep report.
 - [x] Guard sport-movement selection against an invalid persisted sport identifier so recommendation rendering cannot dereference an undefined movement.
@@ -36,7 +37,7 @@
 - [x] Render calibrated study notes, ROM context, sources, and counterevidence on catalog exercise-inspection surfaces.
 - [x] Add stable component-render coverage across calibrated exercise families and modality examples, including the catalog inspection route.
 - [x] Expose and test the full hierarchy path in athlete-facing planning, including the distinct physical-quality layer.
-- [ ] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
+- [x] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
 - [x] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.
 - [x] Add direct Home smart-draft and generated-week integration tests proving typed hierarchy priorities alter constructed outputs.
 - [x] Expose physiological demand, adaptation target, modality choice, exercise role, and programming context as distinct source-bounded layers in athlete-facing recommendations.
@@ -71,10 +72,12 @@
 - [x] Add an About Me section for viewing and editing athlete baseline, gym access, and equipment.
 - [x] Add standalone Gym Optimizer email/password account registration and sign-in with no Manus-facing login option.
 - [x] Store credential secrets securely, enforce validation and rate-aware error handling, and preserve account-scoped workout data.
-- [x] Add a supported-device passkey sign-in option, enabling Face ID or device biometrics where the platform supports it.
+- [ ] Add a supported-device passkey sign-in option, enabling Face ID or device biometrics where the platform supports it.
 - [ ] Verify standalone email registration, sign-in, and device passkey enrollment on a live user device.
-- [x] Remove any remaining global Manus redirect fallback so expired or unauthenticated requests stay in the standalone email-auth experience.
-- [ ] Add persistent passkey enrollment and management for existing signed-in email accounts, then cover email lockout and passkey option flows with focused auth tests.
+- [ ] Remove any remaining global Manus redirect fallback so expired or unauthenticated requests stay in the standalone email-auth experience.
+- [x] Add persistent passkey enrollment for existing signed-in email accounts and cover email lockout and passkey option flows with focused auth tests.
+- [x] Add persistent signed-in passkey management showing enrolled device state and allowing credential removal.
+- [x] Add focused auth tests for existing-account passkey management behavior, separate from live-device verification.
 - [x] Add a visible equipment-constraint notice to every automatic stack-generation or load surface, including Recommendations, Load smart draft, Generate Week, and the Training Days active day.
 - [ ] Visually verify the equipment-aware Recommendations, Load smart draft, Generate Week, and Training Days active-day surfaces after explicit notices are added.
 - [x] Audit all twenty sport movement profiles for biomechanical action, prime movers, stabilizers, and transfer rationale, correcting unsupported claims.
@@ -110,8 +113,6 @@
 - [x] Create a typed sport-movement-muscle database with transparent transfer signals and no medical-performance guarantees.
 - [x] Recalculate exercise sport fit using movement-level matches and present the reasoning in the interface.
 - [ ] Test database filtering, sports views, details panels, and responsive layouts.
-- [x] Add model and component-render coverage for sport database family/search filtering, sport-switch controls, movement details, and the Body Lab handoff.
-- [ ] Visually verify the Movement Atlas at desktop and mobile breakpoints after the database filtering coverage update.
 - [x] Redesign navigation for rapid switching between command, workouts, catalog, sport movements, and body analysis.
 - [x] Add a premium athlete-and-coach visual system with clearer hierarchy, performance metrics, and coach-ready views.
 - [x] Expand the body model with click-to-inspect muscle roles, linked sport movements, and exercise recommendations.
@@ -123,12 +124,12 @@
 - [x] Add a short in-app tutorial for navigating the command center, movement atlas, body lab, and workout builder.
 - [x] Shift the premium visual system toward a performance-blue accent while keeping clear navigation and contrast.
 - [ ] Validate the quiz-to-workspace path and personalized suggested-session initialization.
-- [ ] Extract the Exercise Genome specification into intrinsic, contextual, visual, and recommendation requirements.
-- [ ] Define multi-dimensional exercise records for muscle, movement, joint actions, resistance curve, adaptation, stability, skill, fatigue, mobility, and practicality.
-- [ ] Implement contextual scoring that combines intrinsic exercise data with athlete, goal, program, and sport-movement context without using a single generic score.
-- [ ] Build the Exercise Genome analysis view with progressive disclosure, visual comparisons, and interactive anatomical explanations.
-- [ ] Connect Genome insights to exercise catalog details, body map interactions, sport movement recommendations, and workout stack decisions.
-- [ ] Validate the Genome data model, contextual explanations, and user-facing visuals.
+- [x] Extract the Exercise Genome specification into intrinsic, contextual, visual, and recommendation requirements.
+- [x] Define multi-dimensional exercise records for muscle, movement, joint actions, resistance curve, adaptation, stability, skill, fatigue, mobility, and practicality.
+- [x] Implement contextual scoring that combines intrinsic exercise data with athlete, goal, program, and sport-movement context without using a single generic score.
+- [x] Build the Exercise Genome analysis view with progressive disclosure, visual comparisons, and interactive anatomical explanations.
+- [x] Connect Genome insights to exercise catalog details, body map interactions, sport movement recommendations, and workout stack decisions.
+- [x] Validate the Genome data model, contextual explanations, and user-facing visuals.
 - [x] Replace the field-manual onboarding treatment with a more modern, playful quiz-first product flow.
 - [x] Make the quiz the default entry screen and remove the pre-quiz product-tour emphasis.
 - [x] Add clear quiz progress, lively selection feedback, and a smooth completion transition into the personalized workspace.
@@ -158,10 +159,10 @@
 - [ ] Keep the reference-inspired layout original rather than copying its illustration, labels, or visual assets.
 - [ ] Preserve click-to-select regions and link selected anatomy to exercise and sport-action rationale.
 - [ ] Make the dual-view anatomy board readable on desktop and collapse its callout layout gracefully on mobile.
-- [ ] Create plain-language definitions for Hypertrophy, Strength, Power, Stability, Mobility, Skill, and Practicality.
-- [ ] Explain the intrinsic exercise characteristics and contextual inputs that influence every Genome dimension without presenting the values as direct laboratory measurements.
-- [ ] Make every displayed Genome dimension label clickable from the fingerprint and metric list.
-- [ ] Add clear labels and a readable legend to the fingerprint chart so each spoke, dimension, and intensity value can be identified at a glance.
+- [x] Create plain-language definitions for Hypertrophy, Strength, Power, Stability, Mobility, Skill, and Practicality.
+- [x] Explain the intrinsic exercise characteristics and contextual inputs that influence every Genome dimension without presenting the values as direct laboratory measurements.
+- [x] Make every displayed Genome dimension label clickable from the fingerprint and metric list.
+- [x] Add clear labels and a readable legend to the fingerprint chart so each spoke, dimension, and intensity value can be identified at a glance.
 - [ ] Validate term dialogs, keyboard access, fingerprint labels, and mobile readability.
 - [ ] Recompose each anatomy half so the figure is centered and callouts sit around the outside perimeter rather than in a stacked grid.
 - [ ] Add visible connector lines from individual muscle regions toward their corresponding callout cards on desktop.
@@ -177,19 +178,19 @@
 - [ ] Keep only primary, secondary, and clearly relevant stabilizing muscles visible, with lower-relevance roles disclosed in text rather than painted on the model.
 - [ ] Repair the deployed anatomy illustration asset so the detailed model renders reliably in the published app.
 - [ ] Reset persisted onboarding sport state so no sport is preselected on first use or after a reset.
-- [ ] Add a prominent sport-switch control in the workspace and verify recommendations refresh after sport changes.
+- [x] Add a prominent sport-switch control in the workspace and verify recommendations refresh after sport changes.
 - [ ] Validate a shoulder-isolation exercise, asset rendering, onboarding reset, and sport switching in the live app.
-- [ ] Audit all Muscle Genome and Mechanics labels to identify terms that still lack a click-to-learn definition.
-- [ ] Add full definitions, score inputs, interpretation guidance, and evidence boundaries for every Muscle Genome and Mechanics term.
-- [ ] Make each Muscle Genome and Mechanics label discoverable and keyboard-accessible from the Exercise Genome panel.
+- [x] Audit all Muscle Genome and Mechanics labels to identify terms that still lack a click-to-learn definition.
+- [x] Add full definitions, score inputs, interpretation guidance, and evidence boundaries for every Muscle Genome and Mechanics term.
+- [x] Make each Muscle Genome and Mechanics label discoverable and keyboard-accessible from the Exercise Genome panel.
 - [ ] Add an in-app vector anatomy fallback that remains visible if the external anatomy illustration fails to load.
 - [ ] Validate the learning dialog from Muscle Genome and Mechanics tabs plus the image-failure fallback in the live app.
 - [ ] Audit every existing sport movement record for muscle roles, joint actions, exercise recommendations, and data gaps.
 - [ ] Conduct a deep wrestling expansion across stance, hand-fighting, level change, penetration, shots, sprawls, lifts, turns, mat returns, bridges, and grip fighting.
 - [ ] Enrich all 400 sport-movement records with named prime movers, assisting muscles, stabilizers, contraction roles, joint actions, and transferable exercise rationale.
-- [x] Build an evidence-aware redundancy model that distinguishes useful overlap from low-value duplicate movement, muscle, fatigue, and skill demands.
-- [x] Show movement-specific muscle use and ranked supporting exercises from every sport movement detail view.
-- [x] Add a program-level coverage report that identifies movement gaps, redundant exercise clusters, and high-value additions.
+- [ ] Build an evidence-aware redundancy model that distinguishes useful overlap from low-value duplicate movement, muscle, fatigue, and skill demands.
+- [ ] Show movement-specific muscle use and ranked supporting exercises from every sport movement detail view.
+- [ ] Add a program-level coverage report that identifies movement gaps, redundant exercise clusters, and high-value additions.
 - [ ] Validate wrestling movement depth, cross-sport movement coverage, redundancy flags, and recommendation explanations.
 - [ ] Audit the onboarding, recommended plan, custom-builder, anatomy, movement atlas, catalog, Genome, import, and sport-switch user journeys.
 - [ ] Identify and resolve data-model gaps in sport movement, muscle coverage, program load, exercise matching, and recommendation explanations.
@@ -197,6 +198,7 @@
 - [ ] Improve workout-level insight with volume, movement balance, fatigue exposure, and actionable redundancy resolution.
 - [ ] Improve discoverability, empty states, responsive layouts, keyboard access, motion, and visual consistency across the app.
 - [ ] Audit client performance and eliminate unnecessary rendering, oversized views, and interaction friction where practical.
+- [x] Assess the production bundle composition and retain the validated separate movement-data, exercise-data, and Genome-analysis chunks until per-sport lazy loading can preserve first-visit and cross-sport planning behavior.
 - [ ] Test first visit, sport switching, recommended workouts, custom planning, imports, anatomy, Genome lessons, and movement analysis end to end.
 - [ ] Audit each primary workspace for text density, repeated metadata, competing headings, and unclear reading order.
 - [ ] Create concise top-level summaries for Command Center, custom planning, Body Lab, Movement Atlas, catalog, and Exercise Genome.
@@ -211,10 +213,10 @@
 - [ ] Ensure imported routines populate editable prescriptions, weekly plan days, and builder context rather than only adding loose exercises.
 - [ ] Validate import of multi-day and single-session pasted routines alongside navigation and responsive task flows.
 - [ ] Audit the fixed Training Day drafting dock and identify all screen-obstruction cases across desktop and mobile.
-- [ ] Replace the blocking dock with a compact movable or repositionable planning tab that can be dismissed and reopened.
+- [x] Replace the blocking dock with a compact movable or repositionable planning tab that can be dismissed and reopened.
 - [ ] Persist the tab’s open/closed state and keep it reachable from Custom Builder without covering active programming controls.
-- [x] Add a concise post-quiz feature tour covering Command Center, recommendations, Custom Builder, Body Lab, Movement Atlas, and Exercise Genome.
-- [x] Make the feature tour skippable, restartable, and respectful of returning users’ saved preferences.
+- [ ] Add a concise post-quiz feature tour covering Command Center, recommendations, Custom Builder, Body Lab, Movement Atlas, and Exercise Genome.
+- [ ] Make the feature tour skippable, restartable, and respectful of returning users’ saved preferences.
 - [ ] Validate drag or reposition behavior, dismissal, reopening, tutorial progression, keyboard use, and mobile clearance.
 - [ ] Replace the callout-heavy Body Lab layout with a body-first three-panel atlas: controls, large anatomy canvas, and on-demand inspector.
 - [ ] Create a normalized muscle-region data model with region IDs, layer, front/back view, role, involvement, tier, and evidence-aware metrics.
@@ -223,12 +225,12 @@
 - [ ] Use a single involvement heat scale on the body, reserving role information for text, filters, and inspector badges.
 - [ ] Add optional comparison and range-of-motion demand views while keeping the default Body Lab simple.
 - [ ] Implement mobile anatomy-first layout with a compact control bar and selected-muscle bottom sheet.
-- [ ] Finish and validate the movable planner tab plus the post-quiz, restartable feature tour.
+- [x] Finish and validate the movable planner tab plus the post-quiz, restartable feature tour.
 - [ ] Validate data-driven anatomy rendering for exercises, sport movements, and workout stacks across desktop and mobile.
 - [ ] Audit selected Pulse Quiz cards to identify every checkmark, number, or tag overlap at desktop and mobile breakpoints.
 - [ ] Reposition or restyle the selected-state check indicator so it remains clear of headline, description, and technical-label copy.
-- [x] Expand the six-step overview into a task-based tutorial with practical walkthroughs for onboarding, recommendations, Custom Builder, imports, Body Lab, Movement Atlas, Exercise Genome, and sport switching.
-- [x] Add readable lesson grouping, plain-language controls, navigation shortcuts, and restart/skip behavior to the detailed tutorial.
+- [ ] Expand the six-step overview into a task-based tutorial with practical walkthroughs for onboarding, recommendations, Custom Builder, imports, Body Lab, Movement Atlas, Exercise Genome, and sport switching.
+- [ ] Add readable lesson grouping, plain-language controls, navigation shortcuts, and restart/skip behavior to the detailed tutorial.
 - [ ] Validate the quiz selected state, tutorial progression, keyboard controls, and responsive readability before delivery.
 - [ ] Replace all simplified or rectangular muscle regions with individually addressable, anatomically contoured front and back SVG muscle paths.
 - [ ] Make one large anatomy figure the default focal point, with Front/Back as an obvious view switch rather than simultaneous cramped figures.
