@@ -18,6 +18,20 @@ vi.mock("react", async () => {
 });
 
 describe("Body Lab architecture mechanics disclosure", () => {
+  it("renders a visible, selectable in-app vector fallback when the detailed anatomy chart is unavailable", async () => {
+    const { VectorAnatomyFallback } = await import("./AnatomyMap");
+    const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {
+      view: "FRONT",
+      ranked: [{ key: "chest", label: "Pectoralis major", score: 90 }],
+      onSelect: vi.fn(),
+      onRetry: vi.fn(),
+    }));
+
+    expect(markup).toContain("Vector anatomy fallback");
+    expect(markup).toContain("Pectoralis major · 90%");
+    expect(markup).toContain("Retry detailed anatomy chart");
+  });
+
   it("renders selected-muscle architecture, leverage, source, and model boundary context", async () => {
     const { AnatomyMap } = await import("./AnatomyMap");
     const markup = renderToStaticMarkup(createElement(AnatomyMap, {

@@ -77,6 +77,10 @@ const matches = (key: string, values: string[]) => values.some(v => (aliases[key
 const tier = (s: number) => s >= 90 ? "S" : s >= 80 ? "A" : s >= 65 ? "B" : s >= 45 ? "C" : s >= 25 ? "D" : "F";
 const heatSolid = (s: number) => s >= 90 ? "#db2f24" : s >= 75 ? "#f46933" : s >= 60 ? "#f5a13d" : s >= 40 ? "#d8c052" : s >= 20 ? "#73b8d9" : "#b0bfc8";
 
+export function VectorAnatomyFallback({ view, ranked, onSelect, onRetry }: { view: "FRONT" | "BACK"; ranked: { key: string; label: string; score: number }[]; onSelect: (key: string) => void; onRetry: () => void }) {
+  return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[#f6fafc] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your worked-muscle list and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[10px] font-bold text-[#173d69] transition-colors hover:border-[#2d6cdf] hover:text-[#2d6cdf]">{region.label} · {region.score}%</button>)}</div><button onClick={onRetry} className="mt-4 text-[10px] font-bold uppercase tracking-[.08em] text-[#2d6cdf] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
+}
+
 export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showInspector = true }: AnatomyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<BodyChart | null>(null);
@@ -84,6 +88,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
   const [selectedKey, setSelectedKey] = useState("");
   const [hoveredName, setHoveredName] = useState("");
   const [query, setQuery] = useState("");
+  const [chartFailed, setChartFailed] = useState(false);
 
   /* Compute which muscles are involved and their intensity */
   const bodyState = useMemo(() => {
@@ -129,33 +134,39 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
 
   /* Initialize and update the body-muscles chart */
   useEffect(() => {
+    if (chartFailed) return;
     if (!containerRef.current) return;
     if (chartRef.current) {
       chartRef.current.destroy();
     }
-    chartRef.current = new BodyChart(containerRef.current, {
-      view: view === "FRONT" ? ViewSide.FRONT : ViewSide.BACK,
-      bodyState,
-      onMuscleClick: (id: string, name: string) => {
-        // Find which key this muscle belongs to
-        const matchedKey = Object.entries(keyToIds).find(([, ids]) => ids.includes(id))?.[0];
-        if (matchedKey) {
-          setSelectedKey(matchedKey);
-          onSelect(matchedKey);
-        }
-      },
-      onMuscleHover: (id: string | null) => {
-        if (id) {
-          const muscle = MUSCLE_MAP.find((m: any) => m.id === id);
-          setHoveredName(muscle?.name || id);
-        } else {
-          setHoveredName("");
-        }
-      },
-      enableTransitions: true,
-    });
+    try {
+      chartRef.current = new BodyChart(containerRef.current, {
+        view: view === "FRONT" ? ViewSide.FRONT : ViewSide.BACK,
+        bodyState,
+        onMuscleClick: (id: string, name: string) => {
+          const matchedKey = Object.entries(keyToIds).find(([, ids]) => ids.includes(id))?.[0];
+          if (matchedKey) {
+            setSelectedKey(matchedKey);
+            onSelect(matchedKey);
+          }
+        },
+        onMuscleHover: (id: string | null) => {
+          if (id) {
+            const muscle = MUSCLE_MAP.find((m: any) => m.id === id);
+            setHoveredName(muscle?.name || id);
+          } else {
+            setHoveredName("");
+          }
+        },
+        enableTransitions: true,
+      });
+    } catch {
+      chartRef.current?.destroy();
+      chartRef.current = null;
+      setChartFailed(true);
+    }
     return () => { chartRef.current?.destroy(); chartRef.current = null; };
-  }, [view]);
+  }, [view, chartFailed]);
 
   /* Update body state when muscles change */
   useEffect(() => {
@@ -210,8 +221,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
 
           {/* body-muscles chart container */}
           <div className="atlas-body-chart-wrap">
-            <div ref={containerRef} className="atlas-body-chart" />
-            {hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}
+            {chartFailed ? <VectorAnatomyFallback view={view} ranked={ranked} onSelect={(key) => { setSelectedKey(key); onSelect(key); }} onRetry={() => setChartFailed(false)} /> : <><div ref={containerRef} className="atlas-body-chart" />{hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}</>}
           </div>
 
           {/* Heat legend */}
