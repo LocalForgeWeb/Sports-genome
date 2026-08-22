@@ -122,12 +122,6 @@ Object.entries(modifierEvidenceRecords).forEach(([sportId, records]) => {
   });
 });
 
-Object.entries(seeds).forEach(([sportId, seed]) => {
-  seed.modifiers?.forEach((item) => {
-    item.evidenceSources ||= [`${sportId} evidence inventory — sport-level movement-demand register. The selected ${item.type} is a transparent planning context, not a modifier-specific athlete measurement or universal prescription.`];
-  });
-});
-
 const baseScore = (key: SportDemandKey, active: SportDemandKey[]) => active.includes(key) ? 0.78 : 0.32;
 
 const modifierDemandMap: Record<string, SportDemandKey[]> = {
