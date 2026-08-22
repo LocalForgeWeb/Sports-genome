@@ -52,6 +52,7 @@ const humanMuscleAliases: Record<string, string[]> = {
 export type RecommendationBreakdown = {
   overall: number;
   muscleMatch: number;
+  movementTransferSimilarity: number;
   jointActionMatch: number;
   physicalQualityMatch: number;
   forceDirectionMatch: number;
@@ -61,7 +62,9 @@ export type RecommendationBreakdown = {
   limitations: string[];
 };
 
-export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; rationale: string; breakdown: RecommendationBreakdown };
+export type PreparationClassification = "General physical preparation" | "Special physical preparation" | "Highly specific physical preparation";
+
+export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; preparation: PreparationClassification; rationale: string; breakdown: RecommendationBreakdown };
 
 const hierarchyQualityMap: Record<string, string[]> = {
   maxStrength: ["strength"], relativeStrength: ["strength", "unilateral"], power: ["power", "jumping", "rotation"],
@@ -147,6 +150,7 @@ function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSi
   const physicalQualityMatch = percentage(42 + signalCoverage * 54);
   const jointActionMatch = percentage(38 + Math.min(4, matchedSignals.length) * 14);
   const forceDirectionMatch = percentage(36 + (matchedSignals.some((item) => ["acceleration", "push", "pull", "rotation", "lateral"].includes(item)) ? 48 : 20));
+  const movementTransferSimilarity = percentage(18 + signalCoverage * 52 + (matchedSignals.length >= 3 ? 16 : matchedSignals.length * 5) + (exercise.qualities.some((quality) => ["power", "unilateral", "rotation", "deceleration", "sprintSupport"].includes(quality)) ? 8 : 0));
   const stabilityMatch = percentage(34 + (exercise.qualities.some((quality) => ["unilateral", "bracing", "antiRotation", "scapularControl", "lateralControl"].includes(quality)) ? 50 : 20));
   const velocityMatch = percentage(30 + (exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "elasticity"].includes(quality)) ? 53 : 20));
   const strengths = [
@@ -164,6 +168,7 @@ function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSi
   return {
     overall: percentage(50 + score * 3.55),
     muscleMatch,
+    movementTransferSimilarity,
     jointActionMatch,
     physicalQualityMatch,
     forceDirectionMatch,
@@ -172,6 +177,15 @@ function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSi
     strengths: strengths.length ? strengths : ["general support for the selected movement pattern"],
     limitations: limitations.length ? limitations : ["use alongside more movement-specific work when transfer is the main goal"],
   };
+}
+
+function classifyPreparation(exercise: Exercise, matchedSignals: MovementSignal[], profile: SportMovementProfile): PreparationClassification {
+  const text = `${exercise.name} ${exercise.movement} ${exercise.qualities.join(" ")}`.toLowerCase();
+  const actionText = `${profile.label} ${profile.bodyActions}`.toLowerCase();
+  const directSportAction = ["sprint", "jump", "throw", "pitch", "serve", "shot", "takedown", "skate", "row", "swim"].some((term) => text.includes(term) && actionText.includes(term));
+  if (directSportAction && matchedSignals.length >= 3) return "Highly specific physical preparation";
+  const specialMethod = ["sled", "landmine", "medicine ball", "plyometric", "jump", "battle rope", "cable rotation", "single-leg"].some((term) => text.includes(term)) || matchedSignals.length >= 3;
+  return specialMethod ? "Special physical preparation" : "General physical preparation";
 }
 
 export function getMovementRecommendations(profile: SportMovementProfile, limit = 6): MovementRecommendation[] {
@@ -185,7 +199,8 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
     const grade = gradeForScore(score);
     const rationale = scoreReason(exercise, matchedSignals, matchedMuscles);
     const breakdown = buildBreakdown(exercise, signals, matchedSignals, matchedMuscles, score);
-    return { exercise, score, grade, matchedSignals, matchedMuscles, rationale, breakdown };
+    const preparation = classifyPreparation(exercise, matchedSignals, profile);
+    return { exercise, score, grade, matchedSignals, matchedMuscles, preparation, rationale, breakdown };
   }).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id).slice(0, limit);
 }
 

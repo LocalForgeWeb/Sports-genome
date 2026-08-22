@@ -19,7 +19,7 @@
 - [x] Extract and verify the 100 studies in the new sport-science packet, recording the evidence scope, source quality, and unresolved limits for each sport.
 - [ ] Implement the hierarchical reasoning path: sport → position/event/style → movement → biomechanical and physiological demand → physical quality → adaptation → modality → exercise → programming.
 - [ ] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
-- [ ] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.
+- [x] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.
 - [ ] Wire the hierarchy into actual recommendation and workout-construction logic with explicit physiological-demand, adaptation, modality, exercise, and programming layers.
 - [ ] Expand modifier coverage to the requested football positions, hockey roles, track events, and swimming stroke/distance splits with source metadata.
 - [x] Add tests proving modifier-aware recommendations change downstream exercise and programming outputs rather than only Atlas explanations.
