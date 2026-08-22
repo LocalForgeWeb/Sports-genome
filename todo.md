@@ -208,7 +208,7 @@
 - [ ] Validate readability and task completion on desktop and mobile after the information-architecture refresh.
 - [ ] Audit and document the correct destination workspace for planning, movement research, exercise intelligence, and anatomy information.
 - [ ] Simplify navigation labels and route each primary action to its most useful workspace without duplicated panels.
-- [ ] Expand pasted-routine support to recognize workout titles, day labels, exercise lines, sets, repetitions, time, RPE, rest, and notes.
+- [x] Expand pasted-routine support to recognize workout titles, day labels, exercise lines, sets, repetitions, time, RPE, rest, and notes.
 - [ ] Add a clear parsed-routine preview with match confidence, unmatched-line feedback, and a confirm-to-load handoff into Custom Builder.
 - [ ] Ensure imported routines populate editable prescriptions, weekly plan days, and builder context rather than only adding loose exercises.
 - [ ] Validate import of multi-day and single-session pasted routines alongside navigation and responsive task flows.
