@@ -20,4 +20,20 @@ describe("hierarchical sport-to-program model", () => {
     expect(reasoning.physicalQualities.length).toBeGreaterThan(2);
     expect(reasoning.exerciseBoundary).toBeTruthy();
   });
+
+  it("includes expanded football, hockey, track, and swimming contexts", () => {
+    expect(getSportModifiers("american-football").map((item) => item.id)).toContain("lb-te");
+    expect(getSportModifiers("ice-hockey").map((item) => item.id)).toContain("defense");
+    expect(getSportModifiers("track-and-field").map((item) => item.id)).toContain("hurdles");
+    expect(getSportModifiers("swimming").map((item) => item.id)).toEqual(expect.arrayContaining(["middle-distance", "distance", "im"]));
+  });
+
+  it("makes a role or event adjustment visible as a transparent hierarchy difference", () => {
+    const general = getSportDemandModel("ice-hockey");
+    const goalie = getSportDemandModel("ice-hockey", "goalie");
+    const generalMobility = general.demands.find((item) => item.key === "mobility")?.score;
+    const goalieMobility = goalie.demands.find((item) => item.key === "mobility")?.score;
+    expect(goalieMobility).toBeGreaterThan(generalMobility || 0);
+    expect(goalie.demands.find((item) => item.key === "mobility")?.evidenceType).toBe("expert-inference");
+  });
 });
