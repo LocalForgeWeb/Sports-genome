@@ -334,19 +334,6 @@ export default function Home() {
   }, [selectedMovement.id]);
 
   const chooseSport = (id: string) => {
-    if (!id) {
-      setSportId("");
-      setMovementId("");
-      setAthleteBaseline((current) => ({ ...current, sportModifierId: undefined }));
-      setOnboardingComplete(false);
-      setWeeklyPlan({});
-      setWeeklyPrescriptions({});
-      setPlanWeeks({});
-      setActiveWeek(1);
-      try { window.localStorage.removeItem(athleteProfileKey); } catch { /* Reset remains usable without storage. */ }
-      toast("Sport selection reset", { description: "Choose a sport again in the Pulse Quiz before building a new sport-aware plan." });
-      return;
-    }
     const changed = Boolean(sportId) && sportId !== id;
     setSportId(id);
     const first = sportMovementProfiles.find((movement) => movement.sportId === id);
