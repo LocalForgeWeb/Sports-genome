@@ -19,6 +19,9 @@ reached over the network, which is why `VITE_API_BASE_URL` is required.
 | Native OAuth via in-app browser tab + deep link | `client/src/lib/nativeAuth.ts` |
 | Status bar, keyboard, haptics | `client/src/lib/nativeShell.ts` |
 | Safe-area / webview CSS (scoped to `html.is-native`) | `client/src/native-shell.css` |
+| Offline outbox for workout writes | `client/src/lib/offlineQueue.ts` |
+| Optimistic local set logging + session snapshot | `client/src/lib/offlineSession.ts` |
+| Outbox wiring, retry/drop classification | `client/src/hooks/useWorkoutOutbox.ts` |
 | Native branch of the OAuth callback | `server/_core/oauth.ts` |
 | CORS for the `capacitor://localhost` origin | `server/_core/cors.ts` |
 
@@ -147,6 +150,34 @@ cookie, so it cannot be used to log a victim's browser into an attacker's
 account, and it only ever redirects to the server-configured scheme, so a forged
 `state` cannot aim a token at an attacker's app.
 
+
+## Offline workout logging
+
+A gym is where signal dies, so the logger does not wait for the network.
+
+- Tapping a set updates the UI immediately via `applyLocalSetLog`, then sends.
+- If the send fails in transport, the write goes into a durable outbox
+  (`offlineQueue.ts`) that survives an app relaunch, and replays in FIFO order
+  when connectivity returns.
+- Replay is safe because `upsertWorkoutSet` is keyed on the unique
+  `(sessionExerciseId, setNumber)` index — a re-sent set overwrites rather than
+  duplicating.
+- FIFO ordering is load-bearing: the server rejects set logs against a session
+  that is no longer `active`, so a queued `complete` must never overtake the
+  sets before it. `mergeIntoQueue` therefore supersedes a repeated set log **in
+  place** rather than moving it to the tail.
+- A write the server actively refuses (4xx other than 401/408/429) is dropped
+  rather than retried forever, so one bad entry cannot wedge everything behind
+  it. Transport failures, 401s, and 5xx stay queued.
+- The active session is snapshotted to device storage, so a workout survives
+  iOS reclaiming a backgrounded app.
+- Anything still unsynced is stated plainly in the panel rather than hidden.
+
+**Starting** a workout still requires a connection — it needs server-generated
+ids for the session and its exercises. Logging, finishing, and resuming all work
+offline. Making session *creation* offline-capable would mean client-generated
+ids and a schema change; it was not needed for the walk-in-with-signal case.
+
 ## Known gaps before you ship
 
 These are real, and deliberately not done blind:
@@ -155,23 +186,18 @@ These are real, and deliberately not done blind:
    backed by `UserDefaults`, which is included in device backups. Replacing
    `readNativeToken`/`writeNativeToken` in `client/src/lib/authToken.ts` with a
    Keychain plugin is a two-function change — nothing else touches storage.
-2. **Offline.** Workout logging writes straight to the network. A gym is exactly
-   where signal fails, and this is also the strongest answer to App Store review
-   guideline **4.2 (minimum functionality)**, which rejects thin webview
-   wrappers. Local persistence plus a sync queue is the highest-value next piece
-   of work.
-3. **Touch targets.** Apple's HIG asks for 44pt. A blanket `min-height` would
+2. **Touch targets.** Apple's HIG asks for 44pt. A blanket `min-height` would
    distort the dense metric rows this UI relies on, so `native-shell.css` provides
    an opt-in `.native-tap-target` class instead. Auditing the controls needs a
    real device.
-4. **Hover-dependent UI.** Radix hover-cards, tooltips, and context menus have no
+3. **Hover-dependent UI.** Radix hover-cards, tooltips, and context menus have no
    touch equivalent. They need press-and-hold or tap alternatives.
-5. **`PrintableWorkoutSheet` calls `window.print()`**, which does nothing useful
+4. **`PrintableWorkoutSheet` calls `window.print()`**, which does nothing useful
    in a webview. Replace with the native share sheet.
-6. **Sign in with Apple.** Guideline 4.8 may require offering it alongside the
+5. **Sign in with Apple.** Guideline 4.8 may require offering it alongside the
    Manus login. Worth confirming before submission.
-7. **App icon and launch screen** are still Capacitor's placeholders. Generate
+6. **App icon and launch screen** are still Capacitor's placeholders. Generate
    them with [`@capacitor/assets`](https://github.com/ionic-team/capacitor-assets).
-8. **Privacy manifest** (`PrivacyInfo.xcprivacy`) is required for App Store
+7. **Privacy manifest** (`PrivacyInfo.xcprivacy`) is required for App Store
    submission. Declare the data the app collects and the reasons for any required-
    reason APIs.
