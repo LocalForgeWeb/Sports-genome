@@ -1,6 +1,7 @@
 # Sport Movement Database Expansion
 
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
+- [x] Verify the GitHub backup inventory includes all tracked Gym Optimizer code, tests, research records, datasets, and project tracking files; document intentionally local-only exclusions.
 - [x] Add a split-aware Rate Stack with split-only muscle coverage scores, gap flags, overemphasis flags, and catalog-backed correction advice.
 - [x] Replace the compact Rate Stack block with a dedicated whole-stack analysis view that maps all worked muscles, ranks involvement, and opens per-muscle detail across the active Training Day.
 - [x] Repair Stack Analysis so each selected muscle has distinct aggregate involvement and movement-specific mechanical detail instead of a shared normalized breakdown.
