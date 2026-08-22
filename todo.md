@@ -29,10 +29,12 @@
 - [x] Add an editable athlete-selected sport role, event, stroke, distance, or style modifier to baseline persistence and About Me.
 - [x] Use the saved athlete modifier in automatic stack construction and disclose its evidence-bounded influence on the recommended session.
 - [x] Attach sport/modifier-specific evidence metadata, source identifiers, or reviewed evidence ranges to football, hockey, track, and swimming modifiers.
-- [ ] Surface modifier-specific source metadata in Movement Atlas and recommendation context with regression coverage for expanded modifiers.
-- [ ] Add concrete evidence references or reviewed evidence ranges directly to each football, hockey, track, and swimming modifier record.
+- [x] Surface modifier-specific source metadata in Movement Atlas and recommendation context with regression coverage for expanded modifiers.
+- [x] Add concrete evidence references or reviewed evidence ranges directly to each football, hockey, track, and swimming modifier record.
 - [ ] Render selected modifier sources in athlete-facing recommendation, smart-draft, and generated-stack context.
 - [ ] Add regression or component coverage proving modifier source metadata appears in recommendation surfaces.
+- [ ] Explicitly render selected modifier evidence sources on smart-draft and generated-stack UI surfaces, not just recommendation context data.
+- [ ] Add regression or component coverage proving modifier source metadata appears in recommendation, smart-draft, and generated-stack surfaces.
 - [x] Add an editable Athlete Baseline intro-quiz sequence for experience level, goal, optional bodyweight, and preferred units.
 - [x] Keep baseline measurements optional, editable, and explicitly scoped as planning context rather than health or ability scores.
 - [x] Add resilient Back and Continue navigation to every intro-quiz step, including progress updates and preserved answers.

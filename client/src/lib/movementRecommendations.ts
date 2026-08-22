@@ -93,15 +93,16 @@ function hierarchyBoost(exercise: Exercise, sportId: string, modifierId?: string
 export function getSportProgrammingContext(sportId: string, modifierId?: string) {
   const model = getSportDemandModel(sportId, modifierId);
   const priorities = model.demands.filter((demand) => demand.score >= 0.7).slice(0, 4);
+  const modifierEvidenceSources = model.selectedModifier?.evidenceSources || ["General sport evidence inventory — reviewed source scope documented in the project register."];
   return {
     modifierLabel: model.selectedModifier?.label || "General sport profile",
-    modifierEvidenceSources: model.selectedModifier?.evidenceSources || ["General sport evidence inventory — reviewed source scope documented in the project register."],
+    modifierEvidenceSources,
     priorities: priorities.map((demand) => demand.label),
     physiologicalDemands: priorities.map((demand) => `${demand.label} (${demand.evidenceType === "literature-derived" ? "reviewed evidence" : "planning inference"})`),
     adaptationTargets: priorities.map((demand) => `${demand.label.toLowerCase()} development`),
     modalityBoundary: "Use gym work to build the identified capacities; sport practice remains the highest-specificity stimulus.",
     exerciseRole: "Choose a diverse mix of movement-transfer and muscle-targeting contributors; avoid treating a single exercise as the sport skill itself.",
-    programmingBoundary: "Exercise order, load, repetitions, rest, and weekly exposure remain planning variables, not fixed outcomes of a sport label.",
+    programmingBoundary: `Exercise order, load, repetitions, rest, and weekly exposure remain planning variables, not fixed outcomes of a sport label. Active modifier evidence: ${modifierEvidenceSources.join(" ")}`,
     evidenceBoundary: model.evidenceBoundary,
   };
 }
