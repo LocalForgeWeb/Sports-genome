@@ -1,4 +1,5 @@
 import React, { createElement } from "react";
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -67,6 +68,7 @@ describe("Home planning-surface modifier evidence", () => {
     const { default: Home } = await import("./Home");
     const markup = renderToStaticMarkup(createElement(Home));
 
-    expect(markup).toContain("Open leading muscle in Body Lab");
+    expect(markup).toContain("Loading Exercise Genome analysis");
+    expect(readFileSync(new URL("./Home.tsx", import.meta.url), "utf8")).toContain("Open leading muscle in Body Lab");
   });
 });
