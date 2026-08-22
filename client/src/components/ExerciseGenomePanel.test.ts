@@ -26,5 +26,29 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
     expect(markup).toContain("Direct longitudinal exercise evidence");
     expect(markup).toContain("Key mechanics inputs");
     expect(markup).toContain("not a measured force");
+    expect(markup).toContain("Maeo et al., 2021");
+    expect(markup).toContain("protocol- and population-specific growth finding");
+    expect(markup).toContain("ROM: Setup-dependent");
+  });
+
+  it("renders source-bounded calibration and counterevidence for multiple catalog exercise families", async () => {
+    const { ExerciseGenomePanel } = await import("./ExerciseGenomePanel");
+    const cases = [
+      ["Overhead Cable Triceps Extension", "Maeo et al., 2023", "does not make an overhead variation mandatory"],
+      ["Standing Calf Raise", "Kinoshita et al., 2023", "not evidence that seated calf work lacks value"],
+      ["Back Squat", "Plotkin et al., 2023", "not a universal glute or quadriceps ranking"],
+      ["Romanian Deadlift", "Deadlift-variant EMG systematic review", "EMG is not used as a growth score"],
+      ["Machine Chest Press", "Matched modality trial", "default muscle-growth advantage"],
+    ] as const;
+
+    for (const [name, source, boundary] of cases) {
+      const exercise = exercises.find((item) => item.name === name) || exercises[0];
+      const markup = renderToStaticMarkup(createElement(ExerciseGenomePanel, {
+        exercise,
+        context: { goal: "Muscle growth", currentWorkout: [exercise] },
+      }));
+      expect(markup).toContain(source);
+      expect(markup).toContain(boundary);
+    }
   });
 });

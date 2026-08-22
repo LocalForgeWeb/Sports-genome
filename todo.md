@@ -26,9 +26,10 @@
 - [x] Extract and verify the supplied muscle-architecture and musculoskeletal-modeling studies, separating foundational mechanics from direct athlete or exercise evidence.
 - [x] Add source-bounded architecture, moment-arm, antagonist-coactivation, and model-uncertainty rules to anatomy and Exercise Genome mechanics disclosures.
 - [x] Add regression coverage proving anatomy and Exercise Genome surfaces preserve the new measurement and model-inference boundaries.
-- [ ] Populate distinct shared range-of-motion evidence descriptors for full, long-length partial, short-length partial, individualized, and setup-dependent contexts where the verified packet supports each label.
-- [ ] Render calibrated study notes and counterevidence explicitly in both athlete-facing exercise-detail and catalog surfaces.
-- [ ] Add component-render regression coverage for study-calibration and counterevidence disclosures across the named exercise families and modality examples.
+- [x] Populate distinct shared range-of-motion evidence descriptors for full, long-length partial, short-length partial, individualized, and setup-dependent contexts where the verified packet supports each label.
+- [x] Render calibrated study notes and counterevidence in athlete-facing Exercise Genome detail.
+- [x] Render calibrated study notes, ROM context, sources, and counterevidence on catalog exercise-inspection surfaces.
+- [x] Add stable component-render coverage across calibrated exercise families and modality examples, including the catalog inspection route.
 - [ ] Implement the hierarchical reasoning path: sport → position/event/style → movement → biomechanical and physiological demand → physical quality → adaptation → modality → exercise → programming.
 - [ ] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
 - [x] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.
