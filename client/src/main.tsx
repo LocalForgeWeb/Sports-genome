@@ -75,6 +75,17 @@ async function bootstrap() {
   // user into a login they had already completed.
   await loadAuthToken();
 
+  if (!isNativePlatform()) {
+    // Installable web app: Add to Home Screen on iOS gives a standalone app with
+    // its own icon, no Xcode and no Apple Developer account required.
+    //
+    // Native skips this deliberately — Capacitor already serves the bundle from
+    // disk, and a second cache layer in front of it would only add a way for the
+    // app to serve a stale build.
+    const { registerSW } = await import("virtual:pwa-register");
+    registerSW({ immediate: true });
+  }
+
   if (isNativePlatform()) {
     await initNativeShell();
     await registerNativeAuthListener(() => {

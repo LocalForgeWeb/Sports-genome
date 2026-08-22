@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { VitePWA } from "vite-plugin-pwa";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -150,7 +151,49 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+/**
+ * Installable web app.
+ *
+ * This is how the app reaches an iPhone without Xcode: Safari → Share → Add to
+ * Home Screen gives a standalone, full-screen app with its own icon, no Apple
+ * Developer account and no Mac involved. The same build also feeds the
+ * Capacitor shell, which ignores the service worker (see main.tsx) because
+ * Capacitor serves the bundle from disk itself.
+ */
+const pwaPlugin = VitePWA({
+  registerType: "autoUpdate",
+  // Registration is done by hand in main.tsx so it can be skipped on native.
+  injectRegister: null,
+  includeAssets: ["apple-touch-icon.png"],
+  manifest: {
+    name: "Sports Genome",
+    short_name: "Sports Genome",
+    description: "Sport-aware training built from a 400-exercise movement and muscle catalog.",
+    start_url: "/",
+    scope: "/",
+    display: "standalone",
+    orientation: "portrait",
+    background_color: "#0b2240",
+    theme_color: "#0b2240",
+    icons: [
+      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+    ],
+  },
+  workbox: {
+    // Hashed filenames make precaching safe: a changed file gets a new name.
+    globPatterns: ["**/*.{js,css,html,png,svg,woff2}"],
+    // The app is one client-side route, so any navigation resolves to the shell.
+    navigateFallback: "/index.html",
+    // ...except API and OAuth paths, which must always reach the server. Serving
+    // the shell for /api/oauth/callback would break login outright.
+    navigateFallbackDenylist: [/^\/api\//],
+    cleanupOutdatedCaches: true,
+  },
+});
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), pwaPlugin];
 
 export default defineConfig({
   plugins,
