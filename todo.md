@@ -10,7 +10,7 @@
 - [ ] Add a higher-level authenticated logging test that records actual RPE, retrieves progression history, and verifies the returned effort value.
 - [x] Normalize real catalog muscle labels for anterior, lateral, and posterior deltoid segment signals and add catalog-based regressions.
 - [x] Build a true weekly progress review with week-bucketed trend comparison, segment-priority review, and plan-adjustment opportunities.
-- [ ] Integrate approved progression and segment-priority suggestions into the planner as athlete-confirmed changes, never silent automatic rewrites.
+- [x] Integrate approved progression and segment-priority suggestions into the planner as athlete-confirmed changes, never silent automatic rewrites.
 - [x] Integrate athlete-confirmed exercise progression recommendations into the planner as saved next-session notes, never as silent automatic rewrites.
 - [ ] Add athlete-confirmed segment-priority suggestions that adjust future planner emphasis without altering an existing plan silently.
 - [ ] Add unit, component, and live-workflow validation for progression recommendations and segment-level plan adjustments.
