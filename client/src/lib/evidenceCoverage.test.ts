@@ -12,4 +12,30 @@ describe("evidence coverage metadata", () => {
     expect(exerciseEvidenceCoverage({ category: "Push", movementPattern: "Horizontal press", equipment: "Barbell" }).confidence).toBe("High");
     expect(exerciseEvidenceCoverage({ category: "Arms", movementPattern: "Curl", equipment: "Cable" }).sourceRange).toMatch(/Exercise-family/);
   });
+
+  it("surfaces direct-study calibration only for named exercise families and keeps its evidence boundary", () => {
+    const seatedCurl = exerciseEvidenceCoverage({ name: "Seated Leg Curl", category: "Legs", equipment: "Machine" });
+    const bench = exerciseEvidenceCoverage({ name: "Incline Barbell Bench Press", category: "Chest & push", equipment: "Barbell" });
+
+    expect(seatedCurl.sourceRange).toContain("MRI intervention");
+    expect(seatedCurl.directScope).toContain("biarticular-hamstring");
+    expect(bench.planningBoundary).toContain("not an EMG-derived hypertrophy score");
+  });
+
+  it("uses a shared catalog evidence context when one is available", () => {
+    const coverage = exerciseEvidenceCoverage({
+      name: "Example Exercise",
+      evidenceContext: {
+        rangeOfMotion: "Long-length partial",
+        evidenceKind: "Direct longitudinal adaptation",
+        sourceRange: "Verified intervention",
+        summary: "A direct study finding.",
+        counterevidence: "The finding remains protocol-specific.",
+      },
+    });
+
+    expect(coverage.sourceRange).toContain("Long-length partial");
+    expect(coverage.directScope).toBe("A direct study finding.");
+    expect(coverage.planningBoundary).toBe("The finding remains protocol-specific.");
+  });
 });

@@ -1,5 +1,7 @@
 /** Exercise Genome: intrinsic exercise vectors plus transparent contextual utility, redundancy, and marginal-value analysis. */
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
+import { getExerciseStudyCalibration, type ExerciseStudyCalibration } from "@/lib/exerciseStudyCalibration";
+import { buildMuscleTargetingEstimate, type MuscleTargetingEstimate } from "@/lib/muscleTargetingModel";
 import { getMovementMuscles, getMovementSignals } from "@/lib/movementRecommendations";
 import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
 
@@ -18,6 +20,7 @@ export interface MuscleGenomeEntry {
   fatigueContribution: number;
   tier: Exclude<Grade, "SS">;
   why: string;
+  targeting: MuscleTargetingEstimate;
 }
 
 export interface ExerciseGenome {
@@ -34,6 +37,7 @@ export interface ExerciseGenome {
   practicality: { setup: number; space: number; accessibility: number; homeGym: number; supersetEase: number };
   adaptation: { primary: string[]; secondary: string[]; rationale: string };
   evidence: { quality: EvidenceQuality; confidence: "High" | "Moderate"; note: string };
+  studyCalibration: ExerciseStudyCalibration | null;
 }
 
 export interface GenomeContext {
@@ -57,7 +61,6 @@ export interface GenomeContextAnalysis {
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 const tierFor = (value: number): Exclude<Grade, "SS"> => value >= 88 ? "S" : value >= 76 ? "A" : value >= 62 ? "B" : value >= 46 ? "C" : "D";
 const gradeFor = (value: number): Grade => value >= 91 ? "SS" : value >= 82 ? "S" : value >= 72 ? "A" : value >= 60 ? "B" : value >= 45 ? "C" : value >= 28 ? "D" : "F";
-const gradeBase: Record<Grade, number> = { F: 28, D: 40, C: 52, B: 64, A: 76, S: 88, SS: 94 };
 
 const anatomicalLabels: Record<string, string> = {
   chest: "Pectoralis major", frontDelts: "Anterior deltoid", sideDelts: "Lateral deltoid", rearDelts: "Posterior deltoid", shoulders: "Deltoid complex",
@@ -148,11 +151,13 @@ function getAdaptationProfile(fingerprint: Record<GenomeDimension, number>): Exe
 
 function getMuscleProfile(exercise: Exercise, fingerprint: Record<GenomeDimension, number>) {
   const profile = [...exercise.primaryMuscles.map((muscle) => ({ muscle, role: "Prime mover" as const })), ...exercise.secondaryMuscles.map((muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
-  return profile.map(({ muscle, role }, index) => {
-    const base = gradeBase[exercise.muscleGrade] - (role === "Prime mover" ? index * 3 : 24 + index * 4);
-    const contribution = clamp(base + (role === "Stabilizer" ? -7 : 0));
+  return profile.map(({ muscle, role }) => {
+    const targeting = buildMuscleTargetingEstimate(exercise, muscle, role);
+    const contribution = targeting.score;
     const lengthened = getResistanceProfile(exercise).bias === "Lengthened" ? clamp(contribution - 3) : clamp(contribution * .6);
     const peak = getResistanceProfile(exercise).bias === "Shortened" ? clamp(contribution - 3) : clamp(contribution * .58);
+    const mechanicsSummary = targeting.mechanicsFactors.slice(0, 5).map((factor) => factor.label.toLowerCase()).join(", ");
+    const roleSummary = role === "Prime mover" ? `${anatomicalLabels[muscle] || muscle} is ranked as a primary contributor in this movement.` : role === "Stabilizer" ? `${anatomicalLabels[muscle] || muscle} is ranked for positional-control context.` : `${anatomicalLabels[muscle] || muscle} is ranked as a supporting contributor in this movement.`;
     return {
       muscle,
       anatomicalLabel: anatomicalLabels[muscle] || muscle,
@@ -164,7 +169,8 @@ function getMuscleProfile(exercise: Exercise, fingerprint: Record<GenomeDimensio
       stabilizationDemand: role === "Stabilizer" ? clamp(66 + fingerprint.stability * .22) : clamp(18 + fingerprint.stability * .28),
       fatigueContribution: clamp(contribution * .64 + fingerprint.sfr * .15),
       tier: tierFor(contribution),
-      why: role === "Prime mover" ? `${anatomicalLabels[muscle] || muscle} produces the primary force in this ${exercise.movement.toLowerCase()} pattern.` : role === "Stabilizer" ? `${anatomicalLabels[muscle] || muscle} resists unwanted motion and helps maintain force transfer while the prime movers work.` : `${anatomicalLabels[muscle] || muscle} assists the primary motion or maintains joint position through the working range.`,
+      why: `${targeting.evidenceTier}. ${targeting.directEvidenceNote || roleSummary} Key mechanics inputs: ${mechanicsSummary}. ${targeting.uncertainty}`,
+      targeting,
     };
   });
 }
@@ -190,6 +196,7 @@ export function buildExerciseGenome(exercise: Exercise): ExerciseGenome {
     practicality: { setup: clamp(fingerprint.practicality + (exercise.equipment === "Bodyweight" ? 9 : 0)), space: clamp(fingerprint.practicality + (/carry|sled|sprint/.test(text) ? -32 : 0)), accessibility: clamp(fingerprint.practicality), homeGym: clamp(fingerprint.practicality + (/machine|sled/.test(text) ? -34 : 0)), supersetEase: clamp(90 - fatigueBase * .62) },
     adaptation: getAdaptationProfile(fingerprint),
     evidence: { quality: fingerprint.skill > 75 ? "Context-sensitive — coaching inference" : "Moderate — biomechanical inference", confidence: fingerprint.skill > 75 ? "Moderate" : "High", note: "Values are standardized estimates that summarize movement mechanics and training-practice inference; individual execution, loading, and programming change the result." },
+    studyCalibration: getExerciseStudyCalibration(exercise),
   };
 }
 

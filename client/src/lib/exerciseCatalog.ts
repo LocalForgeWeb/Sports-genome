@@ -1,9 +1,11 @@
 /** Kinetic Field Manual: app data favors transparent training logic over false precision. */
 
 import { expandedExercises } from "./exerciseCatalogExpansion";
+import { getExerciseStudyCalibration, type StudyRangeOfMotion } from "./exerciseStudyCalibration";
 
 export type Sport = 'tennis' | 'basketball' | 'soccer' | 'baseball' | 'combat';
 export type Grade = 'F' | 'D' | 'C' | 'B' | 'A' | 'S' | 'SS';
+export type RangeOfMotionDescriptor = StudyRangeOfMotion;
 
 export interface Exercise {
   id: number;
@@ -17,6 +19,14 @@ export interface Exercise {
   qualities: string[];
   muscleGrade: Grade;
   sportFit: Record<Sport, { grade: Grade; movementHelp: string }>;
+  evidenceContext?: {
+    rangeOfMotion: RangeOfMotionDescriptor;
+    comparisonRangeContexts?: RangeOfMotionDescriptor[];
+    evidenceKind: "Direct longitudinal adaptation" | "Biomechanics or transfer" | "Acute mechanics context";
+    sourceRange: string;
+    summary: string;
+    counterevidence: string;
+  };
 }
 
 export const sports: { id: Sport; label: string; descriptor: string }[] = [
@@ -13444,6 +13454,19 @@ export const baseExercises: Exercise[] = [
   }
 ] as const;
 
-export const exercises: Exercise[] = [...baseExercises, ...expandedExercises];
+export const exercises: Exercise[] = [...baseExercises, ...expandedExercises].map((exercise) => {
+  const calibration = getExerciseStudyCalibration(exercise);
+  return calibration ? {
+    ...exercise,
+    evidenceContext: {
+      rangeOfMotion: calibration.rangeOfMotion,
+      comparisonRangeContexts: calibration.comparisonRangeContexts,
+      evidenceKind: calibration.kind,
+      sourceRange: calibration.sources.map((source) => source.label).join(" · "),
+      summary: calibration.summary,
+      counterevidence: calibration.planningBoundary,
+    },
+  } : exercise;
+});
 
 export const gradeValue: Record<Grade, number> = { F: 1, D: 2, C: 3, B: 4, A: 5, S: 6, SS: 7 };

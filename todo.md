@@ -17,6 +17,18 @@
 - [x] Add focused cable fly, row, press, and curl regression coverage showing setup-dependent profile differences.
 - [x] Present evidence coverage and source limitations clearly in the Movement Atlas and Exercise Genome rather than implying individual measurements.
 - [x] Extract and verify the 100 studies in the new sport-science packet, recording the evidence scope, source quality, and unresolved limits for each sport.
+- [x] Extract and verify the 100 studies in the new exercise-science packet, distinguishing direct longitudinal or biomechanics findings from EMG-only evidence.
+- [x] Audit existing muscle-targeting scores, weight fallbacks, and athlete-facing labels against the requested causal mechanics pathway.
+- [x] Materially incorporate the causal mechanics pathway into the muscle-targeting rank rather than exposing it only as explanatory metadata.
+- [x] Strengthen direct longitudinal evidence precedence over mechanics-only inference in the final targeting rank.
+- [x] Render muscle-targeting evidence tier, uncertainty, and the key conditional mechanics factors in athlete-facing Exercise Genome detail.
+- [x] Add stable component-render regression coverage for athlete-facing muscle-targeting disclosures.
+- [ ] Extract and verify the supplied muscle-architecture and musculoskeletal-modeling studies, separating foundational mechanics from direct athlete or exercise evidence.
+- [ ] Add source-bounded architecture, moment-arm, antagonist-coactivation, and model-uncertainty rules to anatomy and Exercise Genome mechanics disclosures.
+- [ ] Add regression coverage proving anatomy and Exercise Genome surfaces preserve the new measurement and model-inference boundaries.
+- [ ] Populate distinct shared range-of-motion evidence descriptors for full, long-length partial, short-length partial, individualized, and setup-dependent contexts where the verified packet supports each label.
+- [ ] Render calibrated study notes and counterevidence explicitly in both athlete-facing exercise-detail and catalog surfaces.
+- [ ] Add component-render regression coverage for study-calibration and counterevidence disclosures across the named exercise families and modality examples.
 - [ ] Implement the hierarchical reasoning path: sport → position/event/style → movement → biomechanical and physiological demand → physical quality → adaptation → modality → exercise → programming.
 - [ ] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
 - [x] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.

@@ -1,6 +1,7 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from "react";
 import { BodyChart, ViewSide, FRONT_MUSCLES, BACK_MUSCLES, MUSCLE_MAP } from "body-muscles";
 import { ChevronDown, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
+import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import "../anatomy-clean.css";
 
 type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; muscleScores?: Record<string, number>; showInspector?: boolean };
@@ -169,6 +170,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
   const selectedScore = selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0;
   const selectedRole: Role | null = selectedKey ? (matches(selectedKey, primary) ? "Primary" : "Synergist") : null;
+  const selectedMechanics = selectedKey ? getAnatomyMechanicsEvidence(selectedKey) : null;
   const metric = (offset: number) => Math.max(12, Math.min(98, selectedScore + offset));
 
   return (
@@ -248,7 +250,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
                 <i>{tier(selectedScore)} Tier</i>
               </div>
               <div className="atlas-core-metrics">
-                {[["Modelled force exposure", metric(1)], ["Modelled long-length challenge", metric(-12)], ["Modelled stability demand", metric(-22)]].map(([name, value]) => (
+                {[["Relative role index", metric(1)], ["Modelled long-length context", metric(-12)], ["Modelled stability context", metric(-22)]].map(([name, value]) => (
                   <div key={name as string}><span>{name}</span><b>{value}</b><i><em style={{ width: `${value}%` }} /></i></div>
                 ))}
               </div>
@@ -256,6 +258,12 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
                 <p className="metric-label">Role</p>
                 <p>{selectedRole === "Primary" ? "This muscle is a primary mover in the current exercise." : "This muscle assists the primary movers as a synergist or stabilizer."}</p>
               </div>
+              {selectedMechanics && <div className="atlas-why-pro">
+                <p className="metric-label">Architecture + leverage context</p>
+                <p>{selectedMechanics.scope}</p>
+                <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Sources:</strong> {selectedMechanics.sources.join(" · ")}</p>
+                <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Boundary:</strong> {selectedMechanics.boundary}</p>
+              </div>}
               <details className="atlas-full-analysis">
                 <summary>View full analysis <ChevronDown className="h-4 w-4" /></summary>
                 <div>
