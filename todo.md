@@ -23,9 +23,9 @@
 - [x] Strengthen direct longitudinal evidence precedence over mechanics-only inference in the final targeting rank.
 - [x] Render muscle-targeting evidence tier, uncertainty, and the key conditional mechanics factors in athlete-facing Exercise Genome detail.
 - [x] Add stable component-render regression coverage for athlete-facing muscle-targeting disclosures.
-- [ ] Extract and verify the supplied muscle-architecture and musculoskeletal-modeling studies, separating foundational mechanics from direct athlete or exercise evidence.
-- [ ] Add source-bounded architecture, moment-arm, antagonist-coactivation, and model-uncertainty rules to anatomy and Exercise Genome mechanics disclosures.
-- [ ] Add regression coverage proving anatomy and Exercise Genome surfaces preserve the new measurement and model-inference boundaries.
+- [x] Extract and verify the supplied muscle-architecture and musculoskeletal-modeling studies, separating foundational mechanics from direct athlete or exercise evidence.
+- [x] Add source-bounded architecture, moment-arm, antagonist-coactivation, and model-uncertainty rules to anatomy and Exercise Genome mechanics disclosures.
+- [x] Add regression coverage proving anatomy and Exercise Genome surfaces preserve the new measurement and model-inference boundaries.
 - [ ] Populate distinct shared range-of-motion evidence descriptors for full, long-length partial, short-length partial, individualized, and setup-dependent contexts where the verified packet supports each label.
 - [ ] Render calibrated study notes and counterevidence explicitly in both athlete-facing exercise-detail and catalog surfaces.
 - [ ] Add component-render regression coverage for study-calibration and counterevidence disclosures across the named exercise families and modality examples.
