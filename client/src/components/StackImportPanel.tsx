@@ -61,7 +61,7 @@ function parseExerciseLine(raw: string) {
   return { raw, name, prescription, rpe: rpeMatch ? `RPE ${rpeMatch[1]}` : undefined, rest: restMatch ? restMatch[1].replace(/^\d+\s*s$/i, (value) => `${value.slice(0, -1)} sec`) : undefined, notes: notes && !/^(rpe|rest)/i.test(notes) ? notes : undefined };
 }
 
-function parseRoutine(source: string, manualMatches: Record<string, number>): ImportedRoutine {
+export function parseRoutine(source: string, manualMatches: Record<string, number>): ImportedRoutine {
   const days: ImportedRoutineDay[] = [];
   const unmatched: string[] = [];
   let title: string | undefined;
