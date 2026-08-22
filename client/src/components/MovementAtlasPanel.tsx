@@ -5,6 +5,11 @@ import { sportEvidenceCoverage } from "@/lib/evidenceCoverage";
 import { buildMovementReasoning, getSportModifiers } from "@/lib/hierarchicalSportModel";
 
 /** Modern Kinetic Field Manual: one action decision first; research evidence unfolds only on demand. */
+export function filterAtlasMovements(movements: SportMovementProfile[], query: string, family: string) {
+  const normalized = query.trim().toLowerCase();
+  return movements.filter((movement) => (family === "All" || movement.family === family) && (!normalized || `${movement.label} ${movement.family} ${movement.bodyActions} ${movement.primaryMuscles}`.toLowerCase().includes(normalized)));
+}
+
 export function MovementAtlasPanel({ sportName, sportId, sports, movements, selectedMovement, query, family, onQuery, onFamily, onSport, onMovement, onOpenBody }: { sportName: string; sportId: string; sports: SportProfile[]; movements: SportMovementProfile[]; selectedMovement: SportMovementProfile; query: string; family: string; onQuery: (value: string) => void; onFamily: (value: string) => void; onSport: (sportId: string) => void; onMovement: (movement: SportMovementProfile) => void; onOpenBody: () => void }) {
   const [showAllFamilies, setShowAllFamilies] = useState(false);
   const [showAllActions, setShowAllActions] = useState(false);
@@ -13,8 +18,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
   const modifiers = useMemo(() => getSportModifiers(sportId), [sportId]);
   const reasoning = useMemo(() => buildMovementReasoning(selectedMovement, modifierId || undefined), [selectedMovement, modifierId]);
   const families = useMemo(() => Array.from(new Set(movements.map((movement) => movement.family))).sort(), [movements]);
-  const normalized = query.trim().toLowerCase();
-  const visible = movements.filter((movement) => (family === "All" || movement.family === family) && (!normalized || `${movement.label} ${movement.family} ${movement.bodyActions} ${movement.primaryMuscles}`.toLowerCase().includes(normalized)));
+  const visible = filterAtlasMovements(movements, query, family);
   const shownFamilies = showAllFamilies ? families : families.slice(0, 5);
   const shownActions = showAllActions ? visible : visible.slice(0, 7);
 
