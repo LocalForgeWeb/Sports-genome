@@ -128,6 +128,11 @@ export function getWeeklyProgressReview(exercises: ProgressionExercise[], histor
   return { latest, previous, performanceChange, prompts, boundary: "Weekly buckets summarize completed comparable exercise logs. They do not diagnose readiness, quantify individual muscle strength, or prove that any one session caused the change." };
 }
 
+export function buildApprovedProgressionNote(recommendation: { action: string; rationale: string }, existingNotes?: string) {
+  const next = `Approved progression: ${recommendation.action.replace(/_/g, " ")}. ${recommendation.rationale}`;
+  return [existingNotes, next].filter(Boolean).join("\n");
+}
+
 export function getExerciseProgressionRecommendation(exercise: ProgressionExercise, history: LoggedPerformanceSet[]): ExerciseProgressionRecommendation {
   const matching = history.filter((set) => set.completed && (set.catalogExerciseId === exercise.id || (!set.catalogExerciseId && normalizeExerciseName(set.exerciseName) === normalizeExerciseName(exercise.name))));
   const bySession = new Map<number, LoggedPerformanceSet[]>();

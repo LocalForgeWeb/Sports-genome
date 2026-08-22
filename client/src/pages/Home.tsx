@@ -19,6 +19,7 @@ import { ThreeWeekPlanner } from "@/components/ThreeWeekPlanner";
 import { WeeklyMuscleVolumePanel } from "@/components/WeeklyMuscleVolumePanel";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
 import { WorkoutExecutionPanel } from "@/components/WorkoutExecutionPanel";
+import { PROGRESSION_APPROVAL_EVENT } from "@/components/WorkoutExecutionPanel";
 import { MovementAtlasPanel } from "@/components/MovementAtlasPanel";
 import { DayExercisePicker } from "@/components/DayExercisePicker";
 import { PrintableWorkoutSheet, PrintWorkoutButton } from "@/components/PrintableWorkoutSheet";
@@ -37,6 +38,7 @@ import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
+import { buildApprovedProgressionNote } from "@/lib/progressiveTraining";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { toast } from "sonner";
@@ -458,6 +460,19 @@ export default function Home() {
     toast("Smart draft loaded", { description: "A diversified sport-aware session is ready for review." });
   };
   const updateExerciseSettings = (exerciseId: number, patch: Partial<ExerciseSettings>) => setExerciseSettings((current) => ({ ...current, [exerciseId]: { ...getExerciseSettings(current, exerciseId), ...patch } }));
+  useEffect(() => {
+    const applyApprovedProgression = (event: Event) => {
+      const recommendation = (event as CustomEvent<{ exerciseId: number; exerciseName: string; action: string; rationale: string }>).detail;
+      if (!recommendation?.exerciseId) return;
+      setExerciseSettings((current) => {
+        const existing = getExerciseSettings(current, recommendation.exerciseId);
+        return { ...current, [recommendation.exerciseId]: { ...existing, notes: buildApprovedProgressionNote(recommendation, existing.notes) } };
+      });
+      toast("Progression note applied", { description: `${recommendation.exerciseName} now has an athlete-approved next-session note in the planner.` });
+    };
+    window.addEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression);
+    return () => window.removeEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression);
+  }, []);
   const activeDayIndex = Math.max(0, splitDays.findIndex((day) => day === activeSplitDay));
   const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || Object.values(importedPlanContext).find((items) => items.length) || [];
   const saveActiveDay = () => {

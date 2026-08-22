@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
-import { getExerciseProgressionRecommendation, getMuscleSegmentSignals, getWeeklyProgressReview, parseTargetRepRange, type LoggedPerformanceSet, type ProgressionExercise } from "./progressiveTraining";
+import { buildApprovedProgressionNote, getExerciseProgressionRecommendation, getMuscleSegmentSignals, getWeeklyProgressReview, parseTargetRepRange, type LoggedPerformanceSet, type ProgressionExercise } from "./progressiveTraining";
 
 const lateralRaise: ProgressionExercise = { id: 1, name: "Cable Lateral Raise", targetPrescription: "3 × 8–12", primaryMuscles: ["deltoid_lateral"] };
 const overheadPress: ProgressionExercise = { id: 2, name: "Seated Overhead Press", targetPrescription: "3 × 8–12", primaryMuscles: ["deltoid_anterior"] };
@@ -63,6 +63,10 @@ describe("progressive training model", () => {
     expect(review.previous?.weekStart).toBe("2026-08-10");
     expect(review.performanceChange).toBeGreaterThan(0);
     expect(review.boundary).toContain("do not diagnose readiness");
+  });
+
+  it("turns athlete-approved advice into an explicit next-session planner note", () => {
+    expect(buildApprovedProgressionNote({ action: "add_repetitions", rationale: "Keep load steady." }, "Tempo: controlled")).toBe("Tempo: controlled\nApproved progression: add repetitions. Keep load steady.");
   });
 
   it("normalizes real catalog front, side, and rear deltoid labels into distinct review segments", () => {

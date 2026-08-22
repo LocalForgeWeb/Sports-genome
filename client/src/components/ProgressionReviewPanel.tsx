@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import { Activity, ArrowDownRight, ArrowUpRight, Equal, Info, RotateCcw, TrendingUp } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, Check, Equal, Info, RotateCcw, TrendingUp } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
-import { getExerciseProgressionRecommendation, getMuscleSegmentSignals, getWeeklyProgressReview, type LoggedPerformanceSet, type ProgressionExercise } from "@/lib/progressiveTraining";
+import { getExerciseProgressionRecommendation, getMuscleSegmentSignals, getWeeklyProgressReview, type ExerciseProgressionRecommendation, type LoggedPerformanceSet, type ProgressionExercise } from "@/lib/progressiveTraining";
 import { trpc } from "@/lib/trpc";
 
-function actionPresentation(action: ReturnType<typeof getExerciseProgressionRecommendation>["action"]) {
+function actionPresentation(action: ExerciseProgressionRecommendation["action"]) {
   if (action === "increase_load") return { label: "Consider load increase", Icon: ArrowUpRight, tone: "text-[#297045]" };
   if (action === "add_repetitions") return { label: "Add repetitions", Icon: TrendingUp, tone: "text-[#2d6cdf]" };
   if (action === "reduce_load") return { label: "Review load", Icon: ArrowDownRight, tone: "text-[#b55b39]" };
@@ -19,14 +19,26 @@ export function buildProgressionExercises(workout: Exercise[], prescriptions: Re
   return workout.map((exercise) => ({ id: exercise.id, name: exercise.name, targetPrescription: prescriptions[exercise.id] || "3 × 8–12", primaryMuscles: exercise.primaryMuscles, bodyWeightKg }));
 }
 
-export function ProgressionReviewSummary({ exercises, history }: { exercises: ProgressionExercise[]; history: LoggedPerformanceSet[] }) {
+export function ProgressionReviewSummary({ exercises, history, onApprove }: { exercises: ProgressionExercise[]; history: LoggedPerformanceSet[]; onApprove?: (recommendation: ExerciseProgressionRecommendation) => void }) {
   const recommendations = exercises.map((exercise) => getExerciseProgressionRecommendation(exercise, history));
   const segments = getMuscleSegmentSignals(exercises, history).filter((signal) => signal.status !== "insufficient_data").slice(0, 6);
   const weekly = getWeeklyProgressReview(exercises, history);
-  return <section className="progression-review-panel" aria-label="Progression review"><div className="progression-review-head"><div><p className="metric-label">Progression review</p><h3>Use the log to decide the next exposure.</h3><p>Recommendations compare completed work within the same exercise and setup. You approve every change.</p></div><Activity className="h-5 w-5 text-[#2d6cdf]" /></div><section className="progression-weekly-review" aria-label="Weekly progression review"><p className="metric-label">Week-over-week context</p>{weekly.latest && <p className="mt-1 text-xs font-bold text-[#173d69]">Week of {weekly.latest.weekStart}: {weekly.latest.completedSets} comparable sets{weekly.performanceChange !== undefined ? ` · ${(weekly.performanceChange * 100).toFixed(0)}% estimated exercise-context change` : ""}</p>}<p>{weekly.prompts[0]}</p></section><div className="progression-recommendations">{recommendations.map((recommendation) => { const presentation = actionPresentation(recommendation.action); const Icon = presentation.Icon; return <article key={recommendation.exerciseId} className="progression-recommendation"><div><p className="metric-label">{recommendation.exerciseName}</p><p className={`mt-1 flex items-center gap-1 text-xs font-bold ${presentation.tone}`}><Icon className="h-3.5 w-3.5" />{presentation.label} <span className="font-normal text-[#657b92]">· {recommendation.confidence} confidence</span></p></div><p>{recommendation.rationale}</p>{recommendation.relativePerformance !== undefined && <small className="mt-2 block text-[#657b92]">Within-athlete load context: {recommendation.relativePerformance.toFixed(2)} estimated exercise index / kg bodyweight. Compare this exercise only across your own comparable logs.</small>}</article>; })}</div>{segments.length > 0 && <div className="progression-segments"><div><p className="metric-label">Segment performance signals</p><p>Exercise-context proxy; compare within your own logs, not against a universal muscle-strength ranking.</p></div>{segments.map((signal) => <article key={signal.muscle}><span className={`progression-status progression-status-${signal.status}`}>{signal.status}</span><strong>{signal.muscle.replace(/_/g, " ")}</strong><p>{signal.rationale}</p></article>)}</div>}<div className="progression-boundary"><Info className="h-3.5 w-3.5" />{weekly.boundary} Optional bodyweight context is only normalized within the same athlete and exercise; it is not a universal ranking.</div></section>;
+
+  return <section className="progression-review-panel" aria-label="Progression review">
+    <div className="progression-review-head"><div><p className="metric-label">Progression review</p><h3>Use the log to decide the next exposure.</h3><p>Recommendations compare completed work within the same exercise and setup. You approve every change.</p></div><Activity className="h-5 w-5 text-[#2d6cdf]" /></div>
+    <section className="progression-weekly-review" aria-label="Weekly progression review"><p className="metric-label">Week-over-week context</p>{weekly.latest && <p className="mt-1 text-xs font-bold text-[#173d69]">Week of {weekly.latest.weekStart}: {weekly.latest.completedSets} comparable sets{weekly.performanceChange !== undefined ? ` · ${(weekly.performanceChange * 100).toFixed(0)}% estimated exercise-context change` : ""}</p>}<p>{weekly.prompts[0]}</p></section>
+    <div className="progression-recommendations">{recommendations.map((recommendation) => {
+      const presentation = actionPresentation(recommendation.action);
+      const Icon = presentation.Icon;
+      const canApprove = recommendation.action !== "insufficient_data";
+      return <article key={recommendation.exerciseId} className="progression-recommendation"><div><p className="metric-label">{recommendation.exerciseName}</p><p className={`mt-1 flex items-center gap-1 text-xs font-bold ${presentation.tone}`}><Icon className="h-3.5 w-3.5" />{presentation.label} <span className="font-normal text-[#657b92]">· {recommendation.confidence} confidence</span></p></div><p>{recommendation.rationale}</p>{recommendation.relativePerformance !== undefined && <small className="mt-2 block text-[#657b92]">Within-athlete load context: {recommendation.relativePerformance.toFixed(2)} estimated exercise index / kg bodyweight. Compare this exercise only across your own comparable logs.</small>}{canApprove && onApprove && <button type="button" className="mt-3 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[.1em] text-[#2d6cdf]" onClick={() => onApprove(recommendation)}><Check className="h-3.5 w-3.5" /> Apply as next-session note</button>}</article>;
+    })}</div>
+    {segments.length > 0 && <div className="progression-segments"><div><p className="metric-label">Segment performance signals</p><p>Exercise-context proxy; compare within your own logs, not against a universal muscle-strength ranking.</p></div>{segments.map((signal) => <article key={signal.muscle}><span className={`progression-status progression-status-${signal.status}`}>{signal.status}</span><strong>{signal.muscle.replace(/_/g, " ")}</strong><p>{signal.rationale}</p></article>)}</div>}
+    <div className="progression-boundary"><Info className="h-3.5 w-3.5" />{weekly.boundary} Optional bodyweight context is only normalized within the same athlete and exercise; it is not a universal ranking.</div>
+  </section>;
 }
 
-export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyWeight, weightUnit }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; bodyWeight?: number; weightUnit?: "lb" | "kg" }) {
+export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyWeight, weightUnit, onApprove }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; bodyWeight?: number; weightUnit?: "lb" | "kg"; onApprove?: (recommendation: ExerciseProgressionRecommendation) => void }) {
   const historyQuery = trpc.workoutLog.progressionHistory.useQuery(undefined, { refetchOnWindowFocus: false });
   const storedBodyContext = useMemo(() => {
     if (bodyWeight && bodyWeight > 0) return { bodyWeight, weightUnit };
@@ -41,5 +53,5 @@ export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyW
   const history = (historyQuery.data || []) as LoggedPerformanceSet[];
   if (!workout.length) return null;
   if (historyQuery.isLoading) return <section className="progression-review-panel"><p className="metric-label">Progression review</p><p className="mt-2 text-xs text-[#657b92]">Loading comparable completed set history…</p></section>;
-  return <ProgressionReviewSummary exercises={exercises} history={history} />;
+  return <ProgressionReviewSummary exercises={exercises} history={history} onApprove={onApprove} />;
 }

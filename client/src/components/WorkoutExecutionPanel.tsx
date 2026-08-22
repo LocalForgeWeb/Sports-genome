@@ -5,9 +5,11 @@ import type { ExerciseSettings } from "@/lib/workoutPlanner";
 import { trpc } from "@/lib/trpc";
 import { WorkoutHistoryTimeline } from "@/components/WorkoutHistoryTimeline";
 import { ProgressionReviewPanel } from "@/components/ProgressionReviewPanel";
+import type { ExerciseProgressionRecommendation } from "@/lib/progressiveTraining";
 
 type WeightUnit = "lb" | "kg";
 type SetSaveValue = { weight?: number; reps?: number; rpe?: number; completed: boolean };
+export const PROGRESSION_APPROVAL_EVENT = "gym-optimizer:approve-progression";
 
 export function plannedSetCount(prescription: string) {
   const match = prescription.match(/(\d+)\s*(?:x|×)/i);
@@ -55,7 +57,7 @@ function SetLogger({ setNumber, setLog, unit, onSave, pending }: {
   </div>;
 }
 
-export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportId, goal, dayLabel, isAuthenticated, onSignIn, bodyWeight, weightUnit }: {
+export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportId, goal, dayLabel, isAuthenticated, onSignIn, bodyWeight, weightUnit, onApproveProgression }: {
   workout: Exercise[];
   prescriptions: Record<number, string>;
   settings: Record<number, ExerciseSettings>;
@@ -66,6 +68,7 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
   onSignIn: () => void;
   bodyWeight?: number;
   weightUnit?: "lb" | "kg";
+  onApproveProgression?: (recommendation: ExerciseProgressionRecommendation) => void;
 }) {
   const utils = trpc.useUtils();
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
@@ -79,6 +82,10 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
   const completedSets = activeSession?.exercises.reduce((total, exercise) => total + exercise.setLogs.filter((set) => set.completed).length, 0) || 0;
   const plannedSets = activeSession?.exercises.reduce((total, exercise) => total + plannedSetCount(exercise.plannedPrescription), 0) || 0;
   const resumable = historyQuery.data?.find((session) => session.status === "active");
+  const handleProgressionApproval = (recommendation: ExerciseProgressionRecommendation) => {
+    if (onApproveProgression) { onApproveProgression(recommendation); return; }
+    if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(PROGRESSION_APPROVAL_EVENT, { detail: recommendation }));
+  };
 
   const startWorkout = () => {
     if (!isAuthenticated) { onSignIn(); return; }
@@ -104,5 +111,5 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
     <div className="session-exercise-list">{activeSession.exercises.map((exercise, index) => <article key={exercise.id} className="session-exercise"><div><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{exercise.exerciseName}</strong><small>{exercise.plannedPrescription}{exercise.plannedRpe ? ` · ${exercise.plannedRpe}` : ""}{exercise.plannedRest ? ` · ${exercise.plannedRest} rest` : ""}</small></div></div><div className="session-set-list">{Array.from({ length: plannedSetCount(exercise.plannedPrescription) }, (_, setIndex) => <SetLogger key={setIndex} setNumber={setIndex + 1} setLog={exercise.setLogs.find((set) => set.setNumber === setIndex + 1)} unit={unit} pending={logSetMutation.isPending} onSave={(value) => logSetMutation.mutate(buildSetLogPayload(exercise.id, setIndex + 1, unit, value))} />)}</div></article>)}</div>
   </section>;
 
-  return <section className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Start when the plan is ready.</h3><p>Each saved set records actual weight, reps, optional RPE, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
+  return <section className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Start when the plan is ready.</h3><p>Each saved set records actual weight, reps, optional RPE, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} onApprove={handleProgressionApproval} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
 }

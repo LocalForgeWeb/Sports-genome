@@ -23,4 +23,16 @@ describe("progression review", () => {
     expect(markup).toContain("deltoid lateral");
     expect(markup).toContain("do not diagnose readiness");
   });
+
+  it("changes the visible recommendation when returned progression history includes high actual RPE", () => {
+    const markup = renderToStaticMarkup(createElement(ProgressionReviewSummary, {
+      exercises: [{ id: 1, name: "Cable Lateral Raise", targetPrescription: "3 × 8–12", primaryMuscles: ["deltoid_lateral"] }],
+      history: [
+        { sessionId: 2, completedAt: "2026-08-20", catalogExerciseId: 1, exerciseName: "Cable Lateral Raise", actualWeight: 20, weightUnit: "lb", actualReps: 12, actualRpe: 9.6, completed: true },
+        { sessionId: 1, completedAt: "2026-08-13", catalogExerciseId: 1, exerciseName: "Cable Lateral Raise", actualWeight: 20, weightUnit: "lb", actualReps: 11, actualRpe: 8, completed: true },
+      ],
+    }));
+    expect(markup).toContain("Hold and recover");
+    expect(markup).toContain("Recorded effort averaged RPE 9.6");
+  });
 });
