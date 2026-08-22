@@ -23,6 +23,13 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
     expect(genomeTermInfo.stabilizer.read).toContain("not a direct activation measure");
   });
 
+  it("explains that contextual fit changes with the athlete's goal and current plan rather than measuring performance", async () => {
+    const { genomeTermInfo } = await import("./ExerciseGenomePanel");
+
+    expect(genomeTermInfo.contextualFit.inputs).toContain("current workout");
+    expect(genomeTermInfo.contextualFit.read).toContain("not a laboratory measurement");
+  });
+
   it("renders evidence tier, causal mechanics input summary, and uncertainty in the Muscle Genome UI", async () => {
     const { ExerciseGenomePanel } = await import("./ExerciseGenomePanel");
     const seatedCurl = exercises.find((exercise) => exercise.name === "Seated Leg Curl") || exercises[0];
