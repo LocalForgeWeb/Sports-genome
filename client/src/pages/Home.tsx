@@ -37,6 +37,7 @@ import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
+import { initialMovementForSport } from "@/lib/sportSwitching";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { toast } from "sonner";
@@ -336,7 +337,7 @@ export default function Home() {
   const chooseSport = (id: string) => {
     const changed = Boolean(sportId) && sportId !== id;
     setSportId(id);
-    const first = sportMovementProfiles.find((movement) => movement.sportId === id);
+    const first = initialMovementForSport(id);
     if (first) {
       setMovementId(first.id);
       setActiveMuscle(getMovementMuscles(first)[0] || "abs");

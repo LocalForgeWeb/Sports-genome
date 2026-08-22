@@ -124,12 +124,12 @@
 - [x] Add a short in-app tutorial for navigating the command center, movement atlas, body lab, and workout builder.
 - [x] Shift the premium visual system toward a performance-blue accent while keeping clear navigation and contrast.
 - [ ] Validate the quiz-to-workspace path and personalized suggested-session initialization.
-- [ ] Extract the Exercise Genome specification into intrinsic, contextual, visual, and recommendation requirements.
-- [ ] Define multi-dimensional exercise records for muscle, movement, joint actions, resistance curve, adaptation, stability, skill, fatigue, mobility, and practicality.
-- [ ] Implement contextual scoring that combines intrinsic exercise data with athlete, goal, program, and sport-movement context without using a single generic score.
-- [ ] Build the Exercise Genome analysis view with progressive disclosure, visual comparisons, and interactive anatomical explanations.
-- [ ] Connect Genome insights to exercise catalog details, body map interactions, sport movement recommendations, and workout stack decisions.
-- [ ] Validate the Genome data model, contextual explanations, and user-facing visuals.
+- [x] Extract the Exercise Genome specification into intrinsic, contextual, visual, and recommendation requirements.
+- [x] Define multi-dimensional exercise records for muscle, movement, joint actions, resistance curve, adaptation, stability, skill, fatigue, mobility, and practicality.
+- [x] Implement contextual scoring that combines intrinsic exercise data with athlete, goal, program, and sport-movement context without using a single generic score.
+- [x] Build the Exercise Genome analysis view with progressive disclosure, visual comparisons, and interactive anatomical explanations.
+- [x] Connect Genome insights to exercise catalog details, body map interactions, sport movement recommendations, and workout stack decisions.
+- [x] Validate the Genome data model, contextual explanations, and user-facing visuals.
 - [x] Replace the field-manual onboarding treatment with a more modern, playful quiz-first product flow.
 - [x] Make the quiz the default entry screen and remove the pre-quiz product-tour emphasis.
 - [x] Add clear quiz progress, lively selection feedback, and a smooth completion transition into the personalized workspace.
@@ -178,7 +178,7 @@
 - [ ] Keep only primary, secondary, and clearly relevant stabilizing muscles visible, with lower-relevance roles disclosed in text rather than painted on the model.
 - [ ] Repair the deployed anatomy illustration asset so the detailed model renders reliably in the published app.
 - [ ] Reset persisted onboarding sport state so no sport is preselected on first use or after a reset.
-- [ ] Add a prominent sport-switch control in the workspace and verify recommendations refresh after sport changes.
+- [x] Add a prominent sport-switch control in the workspace and verify recommendations refresh after sport changes.
 - [ ] Validate a shoulder-isolation exercise, asset rendering, onboarding reset, and sport switching in the live app.
 - [x] Audit all Muscle Genome and Mechanics labels to identify terms that still lack a click-to-learn definition.
 - [x] Add full definitions, score inputs, interpretation guidance, and evidence boundaries for every Muscle Genome and Mechanics term.
