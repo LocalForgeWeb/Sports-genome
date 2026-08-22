@@ -2,6 +2,7 @@
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
 import { sportMovementProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
+import { getSportDemandModel } from "@/lib/hierarchicalSportModel";
 
 export type MovementSignal = "acceleration" | "braking" | "lateral" | "rotation" | "jump" | "push" | "pull" | "overhead" | "grip" | "bracing" | "posterior" | "knee" | "conditioning" | "singleLeg";
 
@@ -61,6 +62,43 @@ export type RecommendationBreakdown = {
 };
 
 export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; rationale: string; breakdown: RecommendationBreakdown };
+
+const hierarchyQualityMap: Record<string, string[]> = {
+  maxStrength: ["strength"], relativeStrength: ["strength", "unilateral"], power: ["power", "jumping", "rotation"],
+  rateOfForceDevelopment: ["power", "jumping", "sprintSupport"], acceleration: ["sprintSupport", "power", "unilateral"],
+  deceleration: ["deceleration", "unilateral", "bracing"], changeOfDirection: ["lateralControl", "unilateral", "deceleration"],
+  reactiveAgility: ["lateralControl", "unilateral", "coordination"], plyometricAbility: ["jumping", "power", "elasticity"],
+  elasticStrength: ["jumping", "elasticity", "power"], isometricStrength: ["bracing", "antiRotation", "grip"],
+  eccentricStrength: ["eccentric", "deceleration"], strengthEndurance: ["endurance", "conditioning"], grip: ["grip"],
+  rotationalPower: ["rotation", "power"], antiRotation: ["antiRotation", "bracing"], mobility: ["mobility"],
+  stability: ["bracing", "unilateral", "scapularControl"], coordination: ["coordination", "unilateral"],
+  aerobicCapacity: ["conditioning", "locomotion"], anaerobicCapacity: ["conditioning", "power"], repeatSprint: ["sprintSupport", "conditioning", "power"],
+  speed: ["sprintSupport", "power"], balance: ["unilateral", "bracing", "lateralControl"],
+};
+
+function hierarchyBoost(exercise: Exercise, sportId: string, modifierId?: string) {
+  const model = getSportDemandModel(sportId, modifierId);
+  const activeKeys = model.demands.filter((demand) => demand.score >= 0.7).map((demand) => demand.key);
+  const qualityBoost = activeKeys.reduce((total, key) => total + (hierarchyQualityMap[key] || []).filter((quality) => exercise.qualities.includes(quality)).length * 0.34, 0);
+  const emphasis = model.selectedModifier?.emphasis.join(" ").toLowerCase() || "";
+  const text = `${exercise.name} ${exercise.movement} ${exercise.qualities.join(" ")} ${exercise.primaryMuscles.join(" ")}`.toLowerCase();
+  const tokens = ["grip", "speed", "acceleration", "power", "isometric", "mobility", "rotation", "landing", "lateral", "aerobic", "hip", "shoulder", "jump", "bracing"];
+  const modifierBoost = tokens.filter((token) => emphasis.includes(token) && text.includes(token)).length * 0.55;
+  return qualityBoost + modifierBoost;
+}
+
+export function getSportProgrammingContext(sportId: string, modifierId?: string) {
+  const model = getSportDemandModel(sportId, modifierId);
+  const priorities = model.demands.filter((demand) => demand.score >= 0.7).slice(0, 4);
+  return {
+    modifierLabel: model.selectedModifier?.label || "General sport profile",
+    priorities: priorities.map((demand) => demand.label),
+    adaptationTargets: priorities.map((demand) => `${demand.label.toLowerCase()} development`),
+    modalityBoundary: "Use gym work to build the identified capacities; sport practice remains the highest-specificity stimulus.",
+    programmingBoundary: "Exercise order, load, repetitions, rest, and weekly exposure remain planning variables, not fixed outcomes of a sport label.",
+    evidenceBoundary: model.evidenceBoundary,
+  };
+}
 
 export function getMovementSignals(profile: SportMovementProfile): MovementSignal[] {
   const haystack = `${profile.label} ${profile.bodyActions} ${profile.primaryMuscles} ${profile.stabilizers} ${profile.family}`;
@@ -151,13 +189,13 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
   }).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id).slice(0, limit);
 }
 
-export function getSportSession(sportId: string, goal: string, limit = 6, equipmentProfile?: AthleteEquipmentProfile): MovementRecommendation[] {
+export function getSportSession(sportId: string, goal: string, limit = 6, equipmentProfile?: AthleteEquipmentProfile, modifierId?: string): MovementRecommendation[] {
   const profiles = sportMovementProfiles.filter((profile) => profile.sportId === sportId);
   const pooled = new Map<number, MovementRecommendation>();
   profiles.forEach((profile) => getMovementRecommendations(profile, 10).forEach((result) => {
     const existing = pooled.get(result.exercise.id);
     const goalBoost = goal === "Athleticism" && result.exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "rotation"].includes(quality)) ? 1.2 : goal === "Muscle growth" && result.exercise.qualities.includes("hypertrophy") ? 0.9 : goal === "Max strength" && result.exercise.qualities.includes("strength") ? 0.9 : 0;
-    const candidate = { ...result, score: result.score + goalBoost };
+    const candidate = { ...result, score: result.score + goalBoost + hierarchyBoost(result.exercise, sportId, modifierId) };
     if (!existing || candidate.score > existing.score) pooled.set(result.exercise.id, candidate);
   }));
   const allCandidates = Array.from(pooled.values());

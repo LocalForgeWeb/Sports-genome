@@ -16,6 +16,15 @@
 - [x] Differentiate cable resistance profiles by setup, body position, and movement pattern instead of applying a universal cable fallback.
 - [x] Add focused cable fly, row, press, and curl regression coverage showing setup-dependent profile differences.
 - [x] Present evidence coverage and source limitations clearly in the Movement Atlas and Exercise Genome rather than implying individual measurements.
+- [x] Extract and verify the 100 studies in the new sport-science packet, recording the evidence scope, source quality, and unresolved limits for each sport.
+- [ ] Implement the hierarchical reasoning path: sport → position/event/style → movement → biomechanical and physiological demand → physical quality → adaptation → modality → exercise → programming.
+- [ ] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
+- [ ] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.
+- [ ] Wire the hierarchy into actual recommendation and workout-construction logic with explicit physiological-demand, adaptation, modality, exercise, and programming layers.
+- [ ] Expand modifier coverage to the requested football positions, hockey roles, track events, and swimming stroke/distance splits with source metadata.
+- [x] Add tests proving modifier-aware recommendations change downstream exercise and programming outputs rather than only Atlas explanations.
+- [x] Add an editable athlete-selected sport role, event, stroke, distance, or style modifier to baseline persistence and About Me.
+- [x] Use the saved athlete modifier in automatic stack construction and disclose its evidence-bounded influence on the recommended session.
 - [x] Add an editable Athlete Baseline intro-quiz sequence for experience level, goal, optional bodyweight, and preferred units.
 - [x] Keep baseline measurements optional, editable, and explicitly scoped as planning context rather than health or ability scores.
 - [x] Add resilient Back and Continue navigation to every intro-quiz step, including progress updates and preserved answers.
