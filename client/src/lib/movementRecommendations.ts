@@ -96,8 +96,10 @@ export function getSportProgrammingContext(sportId: string, modifierId?: string)
   return {
     modifierLabel: model.selectedModifier?.label || "General sport profile",
     priorities: priorities.map((demand) => demand.label),
+    physiologicalDemands: priorities.map((demand) => `${demand.label} (${demand.evidenceType === "literature-derived" ? "reviewed evidence" : "planning inference"})`),
     adaptationTargets: priorities.map((demand) => `${demand.label.toLowerCase()} development`),
     modalityBoundary: "Use gym work to build the identified capacities; sport practice remains the highest-specificity stimulus.",
+    exerciseRole: "Choose a diverse mix of movement-transfer and muscle-targeting contributors; avoid treating a single exercise as the sport skill itself.",
     programmingBoundary: "Exercise order, load, repetitions, rest, and weekly exposure remain planning variables, not fixed outcomes of a sport label.",
     evidenceBoundary: model.evidenceBoundary,
   };

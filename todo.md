@@ -21,6 +21,9 @@
 - [ ] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
 - [x] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.
 - [ ] Wire the hierarchy into actual recommendation and workout-construction logic with explicit physiological-demand, adaptation, modality, exercise, and programming layers.
+- [ ] Expose physiological demand, adaptation target, modality choice, exercise role, and programming context as distinct source-bounded layers in athlete-facing recommendations.
+- [ ] Add the hierarchy layers and explicit planning-boundary language directly to recommendation rows, smart drafts, and generated stack explanations.
+- [ ] Add regression or component coverage proving recommendation surfaces render the hierarchy layers, not only Movement Atlas.
 - [ ] Expand modifier coverage to the requested football positions, hockey roles, track events, and swimming stroke/distance splits with source metadata.
 - [x] Add tests proving modifier-aware recommendations change downstream exercise and programming outputs rather than only Atlas explanations.
 - [x] Add an editable athlete-selected sport role, event, stroke, distance, or style modifier to baseline persistence and About Me.

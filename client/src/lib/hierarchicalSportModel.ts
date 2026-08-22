@@ -106,14 +106,18 @@ const adaptationFor = (demands: EvidenceBoundedDemand[]) => demands.slice(0, 3).
 export function buildMovementReasoning(movement: SportMovementProfile, modifierId?: string) {
   const model = getSportDemandModel(movement.sportId, modifierId);
   const modifierText = model.selectedModifier ? `${model.selectedModifier.label}: ${model.selectedModifier.emphasis.join(", ")}` : "General sport profile";
+  const priorities = model.demands.slice(0, 4);
   return {
     sport: movement.sportLabel,
     modifier: modifierText,
     movement: movement.label,
     biomechanics: movement.bodyActions,
-    physicalQualities: model.demands.slice(0, 4).map((demand) => demand.label),
-    adaptations: adaptationFor(model.demands),
-    modality: "Select progressively loadable gym modalities that develop the identified capacity without trying to reproduce the sport skill under load.",
+    physiologicalDemands: priorities.map((demand) => `${demand.label} (${demand.evidenceType === "literature-derived" ? "reviewed sport evidence" : "planning inference"})`),
+    physicalQualities: priorities.map((demand) => demand.label),
+    adaptations: adaptationFor(priorities),
+    modality: "Use progressively loadable gym modalities to develop the identified capacity; do not treat gym work as a reproduction of sport skill under load.",
+    exerciseRole: "Rank exercises by movement-transfer similarity and their distinct muscle-targeting contribution; select a diverse group rather than duplicate the same demand.",
+    programming: "Use the athlete’s goal, available equipment, weekly schedule, and current training tolerance to set dose. Sport context changes priorities, not fixed sets, loads, or recovery targets.",
     exerciseBoundary: movement.gymTransferCue,
     evidenceBoundary: model.evidenceBoundary,
   };

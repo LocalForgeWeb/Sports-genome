@@ -6,7 +6,10 @@ describe("hierarchy-aware sport recommendations", () => {
   it("exposes sport-model priorities as programming context rather than a fixed prescription", () => {
     const context = getSportProgrammingContext("wrestling", "greco-roman");
     expect(context.priorities).toContain("Maximal strength");
+    expect(context.physiologicalDemands.length).toBeGreaterThan(2);
+    expect(context.adaptationTargets.length).toBeGreaterThan(2);
     expect(context.modalityBoundary).toMatch(/sport practice/i);
+    expect(context.exerciseRole).toMatch(/movement-transfer/i);
     expect(context.programmingBoundary).toMatch(/planning variables/i);
   });
 

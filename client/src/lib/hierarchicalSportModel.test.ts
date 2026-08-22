@@ -18,6 +18,10 @@ describe("hierarchical sport-to-program model", () => {
     expect(reasoning.sport).toBe("Soccer");
     expect(reasoning.biomechanics.length).toBeGreaterThan(10);
     expect(reasoning.physicalQualities.length).toBeGreaterThan(2);
+    expect(reasoning.physiologicalDemands.length).toBeGreaterThan(2);
+    expect(reasoning.modality).toMatch(/gym modalities/i);
+    expect(reasoning.exerciseRole).toMatch(/transfer similarity/i);
+    expect(reasoning.programming).toMatch(/goal/i);
     expect(reasoning.exerciseBoundary).toBeTruthy();
   });
 
