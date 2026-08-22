@@ -7,7 +7,7 @@
 - [x] Commit and push the actual within-athlete segment progress dashboard source and test changes to LocalForgeWeb/Sports-genome, then verify the remote history includes those files.
 - [x] Verify GitHub main history includes the all-sport modifier evidence source and test files before recording the synchronization complete.
 - [x] Push the latest validated signed-in passkey management update to LocalForgeWeb/Sports-genome and verify the remote checkpoint history includes its source and regression files.
-- [ ] Push the latest authenticated RPE logging contract coverage to LocalForgeWeb/Sports-genome and verify the remote history includes the contract test.
+- [x] Push the latest authenticated RPE logging contract coverage to LocalForgeWeb/Sports-genome and verify the remote history includes the contract test.
 - [x] Add optional athlete bodyweight context and explicit within-athlete normalization boundaries to progression proxies, or narrow the UI copy to load/repetition context only.
 - [x] Add actual RPE inputs to the set-log schema, workout logger, and progression-history API with a conservative high-effort hold guardrail.
 - [x] Add focused RPE-aware model coverage for the add-repetition branch alongside repeat, add-load, hold, and reduce-load cases.
