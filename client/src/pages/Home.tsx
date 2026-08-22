@@ -42,6 +42,7 @@ import { buildApprovedProgressionNote, buildApprovedSegmentPriorityNote } from "
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { buildVariedLoadout } from "@/lib/loadoutTemplates";
+import { cycleSplitIndex, splitDaysForFrequency } from "@/lib/splitCycle";
 import { toast } from "sonner";
 import { EmailAuthScreen } from "@/components/EmailAuthScreen";
 import { trpc } from "@/lib/trpc";
@@ -98,7 +99,6 @@ const goalDetail: Record<Goal, string> = {
 };
 
 const initialCustomNames = ["Landmine Rotation", "Bulgarian Split Squat", "Medicine-Ball Rotational Wall Throw", "Farmer’s Walk"];
-const splitDaysForFrequency = (days: number): SplitDay[] => days === 1 ? ["Full Body"] : days === 2 ? ["Upper", "Lower"] : days === 3 ? ["Push", "Pull", "Legs"] : days === 4 ? ["Upper", "Lower", "Upper", "Lower"] : days === 5 ? ["Push", "Pull", "Legs", "Upper", "Sport Transfer"] : days === 6 ? ["Push", "Pull", "Legs", "Upper", "Lower", "Sport Transfer"] : ["Push", "Pull", "Legs", "Upper", "Lower", "Full Body", "Sport Transfer"];
 const splitKeywords: Record<SplitDay, string[]> = { Push: ["push", "press", "fly", "dip"], Pull: ["pull", "row", "curl"], Legs: ["squat", "hinge", "lunge", "calf"], Upper: ["push", "press", "pull", "row"], Lower: ["squat", "hinge", "lunge", "deadlift", "calf"], "Full Body": ["squat", "hinge", "push", "pull", "carry"], "Sport Transfer": [] };
 const muscleSearchTerms: Record<string, string[]> = {
   chest: ["pectoral"], frontDelts: ["anterior deltoid", "shoulder"], sideDelts: ["middle deltoid", "shoulder"], rearDelts: ["posterior deltoid", "shoulder"], shoulders: ["shoulder", "deltoid"],
@@ -186,6 +186,7 @@ export default function Home() {
   const [planHydrated, setPlanHydrated] = useState(false);
   const [railOpen, setRailOpen] = useState(false);
   const [activeSplitDay, setActiveSplitDay] = useState<SplitDay>("Sport Transfer");
+  const [activeSplitDayIndex, setActiveSplitDayIndex] = useState(0);
   const [activeLoadout, setActiveLoadout] = useState<LoadoutMode>("Sport Transfer");
   const [plannerOpen, setPlannerOpen] = useState(false);
   const [plannerSide, setPlannerSide] = useState<"left" | "right">("right");
@@ -206,8 +207,13 @@ export default function Home() {
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
   useEffect(() => {
-    if (!splitDays.includes(activeSplitDay)) setActiveSplitDay(splitDays[0]);
-  }, [splitDays, activeSplitDay]);
+    const indexedDay = splitDays[activeSplitDayIndex];
+    if (indexedDay === activeSplitDay) return;
+    const matchingIndex = splitDays.findIndex((day) => day === activeSplitDay);
+    if (matchingIndex >= 0) { setActiveSplitDayIndex(matchingIndex); return; }
+    setActiveSplitDayIndex(0);
+    setActiveSplitDay(splitDays[0]);
+  }, [splitDays, activeSplitDay, activeSplitDayIndex]);
   const draftedLoadout = useMemo(() => {
     const sportSeed = getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId).map((item) => item.exercise);
     const pool = filterStackForEquipment(getSplitExercisePool(exercises, activeSplitDay, sportSeed), athleteBaseline.equipment);
@@ -416,6 +422,7 @@ export default function Home() {
     setWeeklyPrescriptions((current) => ({ ...current, ...nextWeeklyPrescriptions }));
     setImportedPlanContext((current) => ({ ...current, ...nextContext }));
     setActiveSplitDay(first.splitDay);
+    setActiveSplitDayIndex(Math.max(0, splitDays.findIndex((day) => day === first.splitDay)));
     setWorkspace("day-plan");
     setImportOpen(false);
     toast("Routine loaded", { description: `${importedDays.length}-day routine loaded with ${Object.values(nextPlan).flat().length} matched exercise${Object.values(nextPlan).flat().length === 1 ? "" : "s"}.` });
@@ -493,7 +500,7 @@ export default function Home() {
     window.addEventListener(SEGMENT_SUGGESTION_APPROVAL_EVENT, applyApprovedSegmentSuggestion);
     return () => { window.removeEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression); window.removeEventListener(SEGMENT_PRIORITY_APPROVAL_EVENT, applyApprovedSegmentPriority); window.removeEventListener(SEGMENT_SUGGESTION_APPROVAL_EVENT, applyApprovedSegmentSuggestion); };
   }, [customWorkout]);
-  const activeDayIndex = Math.max(0, splitDays.findIndex((day) => day === activeSplitDay));
+  const activeDayIndex = Math.min(activeSplitDayIndex, splitDays.length - 1);
   const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || Object.values(importedPlanContext).find((items) => items.length) || [];
   const saveActiveDay = () => {
     const key = `${activeDayIndex}-${activeSplitDay}`;
@@ -505,6 +512,7 @@ export default function Home() {
     const day = splitDays[index];
     const saved = weeklyPlan[`${index}-${day}`];
     setActiveSplitDay(day);
+    setActiveSplitDayIndex(index);
     if (saved?.length) {
       setCustomWorkout(saved);
       setPrescriptions((current) => ({ ...current, ...(weeklyPrescriptions[`${index}-${day}`] || {}) }));
@@ -521,6 +529,7 @@ export default function Home() {
     setWeeklyPrescriptions(snapshot.weeklyPrescriptions);
     setImportedPlanContext(snapshot.importedPlanContext);
     setActiveSplitDay(splitDays[0]);
+    setActiveSplitDayIndex(0);
     setSessionMode(false);
     setWorkspace("day-plan");
   };
@@ -624,7 +633,7 @@ export default function Home() {
         {(workspace === "recommended" || workspace === "custom") && <section className="mt-5"><MovementIntelligencePanel movement={enrichedSelectedMovement} fallback={selectedMovement} workout={customWorkout} onAdd={addExercise} onInspect={inspectExercise} compact={workspace === "custom"} /></section>}
         {workspace === "custom" && <section className="builder-prep-workspace"><div className="builder-prep-head"><div><p className="metric-label">Before the work sets</p><h2>Prepare. Then prescribe.</h2><p>Mobility and programming recommendations update from the active exercise stack and selected training goal.</p></div></div><div className="grid gap-5 xl:grid-cols-[.9fr_1.1fr]"><div className="space-y-5"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /><ImportedPlanContext items={activeImportedContext} /></div><div className="space-y-5"><WarmupPanel workout={customWorkout} goal={goal} /><ProgrammingGuidePanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /></div></div></section>}
       </main>
-      {workspace === "custom" && <div className={`planner-float planner-float-${plannerSide}`}><button onClick={() => setPlannerOpen((value) => !value)} aria-expanded={plannerOpen} className={`planner-tab ${plannerOpen ? "planner-tab-open" : ""}`}><SlidersHorizontal className="h-4 w-4" /> {plannerOpen ? "Hide planner" : "Training day"}</button>{plannerOpen && <SplitDraftControls days={splitDays} activeDay={splitDays.includes(activeSplitDay) ? activeSplitDay : splitDays[0]} activeLoadout={activeLoadout} onDay={setActiveSplitDay} onLoadout={setActiveLoadout} onDraft={loadDraft} onClose={() => setPlannerOpen(false)} onMove={() => setPlannerSide((side) => side === "right" ? "left" : "right")} />}</div>}
+      {workspace === "custom" && <div className={`planner-float planner-float-${plannerSide}`}><button onClick={() => setPlannerOpen((value) => !value)} aria-expanded={plannerOpen} className={`planner-tab ${plannerOpen ? "planner-tab-open" : ""}`}><SlidersHorizontal className="h-4 w-4" /> {plannerOpen ? "Hide planner" : "Training day"}</button>{plannerOpen && <SplitDraftControls days={splitDays} activeDayIndex={activeDayIndex} activeLoadout={activeLoadout} onDay={(day, index) => { setActiveSplitDay(day); setActiveSplitDayIndex(index); }} onCycle={(direction) => { const nextIndex = cycleSplitIndex(splitDays, activeDayIndex, direction); setActiveSplitDayIndex(nextIndex); setActiveSplitDay(splitDays[nextIndex]); }} onLoadout={setActiveLoadout} onDraft={loadDraft} onClose={() => setPlannerOpen(false)} onMove={() => setPlannerSide((side) => side === "right" ? "left" : "right")} />}</div>}
     </div>
 
     {inspectedExercise && <div className="fixed inset-0 z-50 bg-[#09120e]/65 p-0 backdrop-blur-sm xl:p-5"><div className="ml-auto h-full w-full max-w-[720px] overflow-y-auto bg-[#f7f8f3] shadow-2xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#d8e0d7] bg-[#f7f8f3]/95 px-5 py-4 backdrop-blur"><div><p className="metric-label">Exercise intelligence</p><p className="mt-1 font-display text-2xl font-bold uppercase leading-none text-[#15221b]">{inspectedExercise.name}</p></div><button onClick={() => setInspectedExercise(null)} className="grid h-9 w-9 place-items-center border border-[#d2dad1] bg-white"><X className="h-4 w-4" /></button></div><div className="p-5"><div className="grid gap-5 lg:grid-cols-[.9fr_1.1fr]"><div className="light-panel p-4"><AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} /></div><div><p className="metric-label">Movement role</p><h3 className="mt-1 font-display text-4xl font-bold uppercase leading-none text-[#17231f]">{inspectedExercise.movement}</h3><div className="mt-4 grid gap-2"><div className="exercise-insight"><p className="metric-label">Primary target</p><p>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Support tissues</p><p>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Useful qualities</p><p>{inspectedExercise.qualities.join(" · ")}</p></div></div><button onClick={() => { addExercise(inspectedExercise); setWorkspace("custom"); setInspectedExercise(null); }} className="mt-5 inline-flex items-center gap-2 bg-[#17271f] px-4 py-3 text-[10px] font-bold uppercase tracking-[.13em] text-white hover:bg-[#b8ff5b] hover:text-[#142019]">Add to custom workout <Plus className="h-4 w-4" /></button></div></div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /><div className="mt-5 dark-panel p-5"><p className="metric-label !text-[#91a09a]">Current sport-action relevance</p><p className="mt-2 text-sm leading-6 text-[#d1dcd4]">For {selectedMovement.label}, this exercise is most useful when it supports {selectedMovement.family.toLowerCase()} through its {inspectedExercise.movement.toLowerCase()} pattern. Review the sport action in the Movement Atlas to see the full body-action reasoning.</p><button onClick={() => { setInspectedExercise(null); setWorkspace("movement"); }} className="mt-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#b8ff5b]">Open sport action <ArrowUpRight className="h-4 w-4" /></button></div><ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} /></div></div></div>}
