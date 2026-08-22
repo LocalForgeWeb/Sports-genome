@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getMovementRecommendations, getSportProgrammingContext, getSportSession, sprintPowerEvidenceRankAdjustment } from "./movementRecommendations";
+import { getMovementRecommendations, getSportProgrammingContext, getSportSession, hierarchyTraceConstructionBoost, orderHierarchyConstructedSession, sprintPowerEvidenceRankAdjustment } from "./movementRecommendations";
 import { sportMovementProfiles } from "./sportMovementDatabase";
 import { exercises } from "./exerciseCatalog";
 
@@ -35,6 +35,21 @@ describe("hierarchy-aware sport recommendations", () => {
     expect(recommendations[0].breakdown.movementTransferSimilarity).toBeTypeOf("number");
     expect(recommendations[0].breakdown.muscleMatch).toBeTypeOf("number");
     expect(["General physical preparation", "Special physical preparation", "Highly specific physical preparation"]).toContain(recommendations[0].preparation);
+    expect(recommendations[0].hierarchy.movement).toBe(sprintStart.label);
+    expect(recommendations[0].hierarchy.physiologicalDemands.length).toBeGreaterThan(0);
+    expect(recommendations[0].hierarchy.physicalQualities.length).toBeGreaterThan(0);
+    expect(recommendations[0].hierarchy.programming).toMatch(/planning variables|goal/i);
+  });
+
+  it("carries the active sport modifier hierarchy into constructed sport sessions", () => {
+    const session = getSportSession("track-and-field", "Athleticism", 8, undefined, "sprint");
+    expect(session.length).toBeGreaterThan(0);
+    expect(session.every((item) => item.hierarchy.modifier.includes("Sprint"))).toBe(true);
+    expect(session.some((item) => item.hierarchy.physicalQualities.some((quality) => /speed|power|rate of force/i.test(quality)))).toBe(true);
+    expect(session.some((item) => item.hierarchyConstructionScore > 0)).toBe(true);
+    expect(session.some((item) => hierarchyTraceConstructionBoost(item.exercise, item.hierarchy) === item.hierarchyConstructionScore)).toBe(true);
+    const reverseOrdered = orderHierarchyConstructedSession([...session].reverse());
+    expect(reverseOrdered.map((item) => item.exercise.id)).not.toEqual([...session].reverse().map((item) => item.exercise.id));
   });
 
   it("applies a capped, task-aligned sprint-and-power adjustment to actual recommendation scoring", () => {

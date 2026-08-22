@@ -50,6 +50,15 @@ describe("Home planning-surface modifier evidence", () => {
       expect(markup).toContain("General sport evidence inventory");
       expect(markup).toContain("Automatic stack filter");
       expect(markup).toContain("active training days");
+      expect(markup).toContain("Sport-to-program hierarchy");
+      expect(markup).toContain("Movement:");
+      expect(markup).toContain("Physiological demand:");
+      expect(markup).toContain("Physical quality");
+      expect(markup).toContain("Adaptation target:");
+      expect(markup).toContain("Modality:");
+      expect(markup).toContain("Exercise role:");
+      expect(markup).toContain("Programming boundary");
+      if (target === "recommended") expect(markup).toContain("Hierarchy trace");
     });
   }
 

@@ -2,7 +2,7 @@
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
 import { sportMovementProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
-import { getSportDemandModel } from "./hierarchicalSportModel";
+import { buildMovementReasoning, getSportDemandModel } from "./hierarchicalSportModel";
 import { getSprintPowerEvidenceContext } from "./sprintPowerEvidence";
 
 export type MovementSignal = "acceleration" | "braking" | "lateral" | "rotation" | "jump" | "push" | "pull" | "overhead" | "grip" | "bracing" | "posterior" | "knee" | "conditioning" | "singleLeg";
@@ -65,7 +65,9 @@ export type RecommendationBreakdown = {
 
 export type PreparationClassification = "General physical preparation" | "Special physical preparation" | "Highly specific physical preparation";
 
-export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; preparation: PreparationClassification; rationale: string; breakdown: RecommendationBreakdown };
+export type HierarchyTrace = ReturnType<typeof buildMovementReasoning>;
+
+export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; preparation: PreparationClassification; rationale: string; breakdown: RecommendationBreakdown; hierarchy: HierarchyTrace; hierarchyConstructionScore: number };
 
 const hierarchyQualityMap: Record<string, string[]> = {
   maxStrength: ["strength"], relativeStrength: ["strength", "unilateral"], power: ["power", "jumping", "rotation"],
@@ -100,6 +102,7 @@ export function getSportProgrammingContext(sportId: string, modifierId?: string)
     modifierEvidenceSources,
     priorities: priorities.map((demand) => demand.label),
     physiologicalDemands: priorities.map((demand) => `${demand.label} (${demand.evidenceType === "literature-derived" ? "reviewed evidence" : "planning inference"})`),
+    physicalQualities: priorities.map((demand) => demand.label),
     adaptationTargets: priorities.map((demand) => `${demand.label.toLowerCase()} development`),
     modalityBoundary: "Use gym work to build the identified capacities; sport practice remains the highest-specificity stimulus.",
     exerciseRole: "Choose a diverse mix of movement-transfer and muscle-targeting contributors; avoid treating a single exercise as the sport skill itself.",
@@ -207,9 +210,23 @@ export function sprintPowerEvidenceRankAdjustment(exercise: Exercise, profile: S
   return Math.min(1.2, adjustment);
 }
 
-export function getMovementRecommendations(profile: SportMovementProfile, limit = 6): MovementRecommendation[] {
+export function hierarchyTraceConstructionBoost(exercise: Exercise, hierarchy: HierarchyTrace) {
+  const matchedPriorities = hierarchy.physicalQualityKeys.reduce((total, key) => total + (hierarchyQualityMap[key] || []).filter((quality) => exercise.qualities.includes(quality)).length, 0);
+  const modifierText = hierarchy.modifier.toLowerCase();
+  const exerciseText = `${exercise.name} ${exercise.movement} ${exercise.qualities.join(" ")}`.toLowerCase();
+  const modifierTokens = ["acceleration", "speed", "elastic", "aerobic", "endurance", "economy", "jump", "rotation", "bracing", "mobility", "grip", "landing", "lateral", "power"];
+  const modifierMatches = modifierTokens.filter((token) => modifierText.includes(token) && exerciseText.includes(token)).length;
+  return Math.min(1.75, matchedPriorities * 0.3 + modifierMatches * 0.42);
+}
+
+export function orderHierarchyConstructedSession(results: MovementRecommendation[]) {
+  return [...results].sort((first, second) => second.hierarchyConstructionScore - first.hierarchyConstructionScore || second.score - first.score || first.exercise.id - second.exercise.id);
+}
+
+export function getMovementRecommendations(profile: SportMovementProfile, limit = 6, modifierId?: string): MovementRecommendation[] {
   const signals = getMovementSignals(profile);
   const profileMuscles = getMovementMuscles(profile);
+  const hierarchy = buildMovementReasoning(profile, modifierId);
   return exercises.map((exercise) => {
     const exerciseMuscles = [...exercise.primaryMuscles, ...exercise.secondaryMuscles];
     const matchedSignals = signals.filter((signal) => signalRules.find((rule) => rule.signal === signal)?.qualities.some((quality) => exercise.qualities.includes(quality)));
@@ -220,17 +237,17 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
     const rationale = scoreReason(exercise, matchedSignals, matchedMuscles);
     const breakdown = buildBreakdown(exercise, signals, matchedSignals, matchedMuscles, score);
     const preparation = classifyPreparation(exercise, matchedSignals, profile);
-    return { exercise, score, grade, matchedSignals, matchedMuscles, preparation, rationale, breakdown };
+    return { exercise, score, grade, matchedSignals, matchedMuscles, preparation, rationale, breakdown, hierarchy, hierarchyConstructionScore: hierarchyTraceConstructionBoost(exercise, hierarchy) };
   }).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id).slice(0, limit);
 }
 
 export function getSportSession(sportId: string, goal: string, limit = 6, equipmentProfile?: AthleteEquipmentProfile, modifierId?: string): MovementRecommendation[] {
   const profiles = sportMovementProfiles.filter((profile) => profile.sportId === sportId);
   const pooled = new Map<number, MovementRecommendation>();
-  profiles.forEach((profile) => getMovementRecommendations(profile, 10).forEach((result) => {
+  profiles.forEach((profile) => getMovementRecommendations(profile, 10, modifierId).forEach((result) => {
     const existing = pooled.get(result.exercise.id);
     const goalBoost = goal === "Athleticism" && result.exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "rotation"].includes(quality)) ? 1.2 : goal === "Muscle growth" && result.exercise.qualities.includes("hypertrophy") ? 0.9 : goal === "Max strength" && result.exercise.qualities.includes("strength") ? 0.9 : 0;
-    const candidate = { ...result, score: result.score + goalBoost + hierarchyBoost(result.exercise, sportId, modifierId) };
+    const candidate = { ...result, score: result.score + goalBoost + result.hierarchyConstructionScore };
     if (!existing || candidate.score > existing.score) pooled.set(result.exercise.id, candidate);
   }));
   const allCandidates = Array.from(pooled.values());
@@ -250,7 +267,8 @@ export function getSportSession(sportId: string, goal: string, limit = 6, equipm
       const averageOverlap = selected.length ? selected.reduce((total, item) => total + muscleOverlap(candidate, item), 0) / selected.length : 0;
       const novelSignals = candidate.matchedSignals.filter((signal) => !selected.some((item) => item.matchedSignals.includes(signal))).length;
       const novelMuscles = candidate.matchedMuscles.filter((muscle) => !selected.some((item) => item.matchedMuscles.includes(muscle))).length;
-      const diversityAdjustment = novelSignals * 2.2 + novelMuscles * 1.5 - sameMovement * 6.2 - averageOverlap * 5.5 - Math.max(0, sameEquipment - 2) * 0.7;
+      const uncoveredHierarchyPriorities = candidate.hierarchy.physicalQualityKeys.filter((key) => !selected.some((item) => item.hierarchy.physicalQualityKeys.includes(key))).length;
+      const diversityAdjustment = novelSignals * 2.2 + novelMuscles * 1.5 + uncoveredHierarchyPriorities * 0.45 - sameMovement * 6.2 - averageOverlap * 5.5 - Math.max(0, sameEquipment - 2) * 0.7;
       return { candidate, diversifiedScore: candidate.score + diversityAdjustment };
     }).sort((a, b) => b.diversifiedScore - a.diversifiedScore || a.candidate.exercise.id - b.candidate.exercise.id)[0]?.candidate;
     if (!next) break;

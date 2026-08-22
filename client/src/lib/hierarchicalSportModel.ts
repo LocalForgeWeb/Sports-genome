@@ -177,6 +177,7 @@ export function buildMovementReasoning(movement: SportMovementProfile, modifierI
     biomechanics: movement.bodyActions,
     physiologicalDemands: priorities.map((demand) => `${demand.label} (${demand.evidenceType === "literature-derived" ? "reviewed sport evidence" : "planning inference"})`),
     physicalQualities: priorities.map((demand) => demand.label),
+    physicalQualityKeys: priorities.map((demand) => demand.key),
     adaptations: adaptationFor(priorities),
     modality: "Use progressively loadable gym modalities to develop the identified capacity; do not treat gym work as a reproduction of sport skill under load.",
     exerciseRole: "Rank exercises by movement-transfer similarity and their distinct muscle-targeting contribution; select a diverse group rather than duplicate the same demand.",

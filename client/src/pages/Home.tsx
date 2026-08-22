@@ -28,13 +28,14 @@ import { AthleteBaselineQuiz, type AthleteBaseline, type AthleteQuizSelection } 
 import { AthleteAboutMePanel } from "@/components/AthleteAboutMePanel";
 import { EquipmentConstraintStrip } from "@/components/EquipmentConstraintStrip";
 import { ModifierEvidenceDisclosure } from "@/components/ModifierEvidenceDisclosure";
+import { HierarchyPlanningDisclosure } from "@/components/HierarchyPlanningDisclosure";
 import { defaultEquipmentProfile, equipmentProfileSummary, filterStackForEquipment } from "@/lib/equipmentProfile";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { defaultCatalogFilters, type CatalogFilters } from "@/lib/catalogDiscovery";
 import { getExerciseSettings, getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
-import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, type MovementRecommendation } from "@/lib/movementRecommendations";
+import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
@@ -50,6 +51,23 @@ type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingD
 type WeekSnapshot = { customWorkout: Exercise[]; weeklyPlan: Record<string, Exercise[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions: WeeklyPrescriptionStore; importedPlanContext: Record<string, ImportedRoutineContext[]> };
 type StoredWeekSnapshot = { customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]> };
 type StoredWorkoutPlan = { version: 1 | 2; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]>; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number };
+
+export function buildSmartDraftWorkout(results: MovementRecommendation[]) {
+  return orderHierarchyConstructedSession(results).map((result) => result.exercise);
+}
+
+export function buildGeneratedWeekSportSeed(sportId: string, goal: TrainingGoal, limit: number, equipment?: Parameters<typeof getSportSession>[3], modifierId?: string) {
+  const broaderSession = orderHierarchyConstructedSession(getSportSession(sportId, goal, Math.max(limit * 2, 12), equipment, modifierId));
+  const modifierText = broaderSession[0]?.hierarchy.modifier.toLowerCase() || "";
+  const modifierTokens = ["acceleration", "speed", "elastic", "aerobic", "endurance", "economy", "jump", "rotation", "bracing", "mobility", "grip", "landing", "lateral", "power"];
+  const hierarchyRelevant = broaderSession.filter((result) => {
+    const exerciseText = `${result.exercise.name} ${result.exercise.movement} ${result.exercise.qualities.join(" ")}`.toLowerCase();
+    return modifierTokens.some((token) => modifierText.includes(token) && exerciseText.includes(token));
+  });
+  const orderedSeed = [...hierarchyRelevant, ...broaderSession.filter((result) => !hierarchyRelevant.some((preferred) => preferred.exercise.id === result.exercise.id))].slice(0, limit);
+  return orderedSeed.map((result) => result.exercise);
+}
+
 const athleteProfileKey = "gym-optimizer-athlete-profile-v1";
 const workoutPlanKey = "gym-optimizer-workout-plan-v1";
 const plannerTabKey = "gym-optimizer-planner-tab-v1";
@@ -108,7 +126,7 @@ function RecommendationRow({ result, index, onAdd, onInspect }: { result: Moveme
     ["Stability", result.breakdown.stabilityMatch],
     ["Velocity", result.breakdown.velocityMatch],
   ];
-  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index">{String(index + 1).padStart(2, "0")}</span><button onClick={onInspect} className="recommendation-copy"><p>{result.exercise.name}</p><small>{result.rationale}</small></button><div className="recommendation-demand"><p>{result.preparation}</p><small>{result.matchedSignals.join(" · ") || "accessory support"}</small></div><button onClick={onInspect} className="recommendation-score" aria-label={`Inspect the ${result.breakdown.overall} overall match for ${result.exercise.name}`}><strong>{result.breakdown.overall}</strong><small>match</small></button><GradeStamp grade={result.grade} score={result.breakdown.overall} compact /><button onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to custom workout`}><Plus className="h-4 w-4" /></button></div><details className="recommendation-why"><summary>Why this rank? <span>Inspect transfer and targeting separately</span></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div></details></article>;
+  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index">{String(index + 1).padStart(2, "0")}</span><button onClick={onInspect} className="recommendation-copy"><p>{result.exercise.name}</p><small>{result.rationale}</small></button><div className="recommendation-demand"><p>{result.preparation}</p><small>{result.matchedSignals.join(" · ") || "accessory support"}</small></div><button onClick={onInspect} className="recommendation-score" aria-label={`Inspect the ${result.breakdown.overall} overall match for ${result.exercise.name}`}><strong>{result.breakdown.overall}</strong><small>match</small></button><GradeStamp grade={result.grade} score={result.breakdown.overall} compact /><button onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to custom workout`}><Plus className="h-4 w-4" /></button></div><details className="recommendation-why"><summary>Why this rank? <span>Inspect transfer and targeting separately</span></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><div className="mt-4 border-l-2 border-[#2d6cdf] bg-[#eef6ff] p-3 text-xs leading-5 text-[#234e76]"><p className="metric-label !text-[#2d6cdf]">Hierarchy trace</p><p className="mt-1"><strong>Movement:</strong> {result.hierarchy.movement}. <strong>Demand:</strong> {result.hierarchy.physiologicalDemands.slice(0, 2).join(" · ")}. <strong>Physical quality:</strong> {result.hierarchy.physicalQualities.slice(0, 2).join(" · ")}. <strong>Adaptation:</strong> {result.hierarchy.adaptations.slice(0, 2).join(" · ")}. <strong>Modality:</strong> {result.hierarchy.modality} <strong>Exercise role:</strong> {result.hierarchy.exerciseRole} <strong>Programming:</strong> {result.hierarchy.programming}</p></div></details></article>;
 }
 
 function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => void }) {
@@ -180,7 +198,7 @@ export default function Home() {
   const sportMovements = useMemo(() => sportMovementProfiles.filter((profile) => profile.sportId === activeSportId), [activeSportId]);
   const selectedMovement = sportMovements.find((movement) => movement.id === movementId) || findSportMovement(activeSportId);
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
-  const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6), [selectedMovement]);
+  const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId), [selectedMovement, athleteBaseline.sportModifierId]);
   const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId), [activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId]);
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
@@ -421,7 +439,7 @@ export default function Home() {
     toast("Draft loaded", { description: `${activeSplitDay} is now built with the ${activeLoadout} orientation.` });
   };
   const loadSmartDraft = () => {
-    setCustomWorkout(sessionRecommendations.map((result) => result.exercise));
+    setCustomWorkout(buildSmartDraftWorkout(sessionRecommendations));
     setPrescriptions({});
     setExerciseSettings({});
     toast("Smart draft loaded", { description: "A diversified sport-aware session is ready for review." });
@@ -469,7 +487,7 @@ export default function Home() {
   const generateWeek = () => {
     const nextWeek = nextWeekToGenerate(Object.keys(planWeeks).map(Number), activeWeek);
     if (!nextWeek) { toast("Three weeks are already generated", { description: "Switch between Week 1, Week 2, and Week 3 to review each plan." }); return; }
-    const sportSeed = getSportSession(activeSportId, goal, Math.max(10, gymTimeBudget.recommendationLimit + 4), athleteBaseline.equipment, athleteBaseline.sportModifierId).map((item) => item.exercise);
+    const sportSeed = buildGeneratedWeekSportSeed(activeSportId, goal, Math.max(10, gymTimeBudget.recommendationLimit + 4), athleteBaseline.equipment, athleteBaseline.sportModifierId);
     const generatedPlan = Object.fromEntries(splitDays.map((day, dayIndex) => {
       const source = filterStackForEquipment(getSplitExercisePool(exercises, day, sportSeed), athleteBaseline.equipment);
       const offset = (nextWeek * 3) + (dayIndex * 2);
@@ -533,6 +551,7 @@ export default function Home() {
       <main className={`apex-content ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         <EquipmentConstraintStrip profile={athleteBaseline.equipment} onOpenProfile={() => setWorkspace("profile")} />
         <ModifierEvidenceDisclosure modifierLabel={sportProgrammingContext.modifierLabel} sources={sportProgrammingContext.modifierEvidenceSources} />
+        <HierarchyPlanningDisclosure modifierLabel={sportProgrammingContext.modifierLabel} movement={selectedMovement.label} demands={sportProgrammingContext.physiologicalDemands} physicalQualities={sportProgrammingContext.physicalQualities} adaptations={sportProgrammingContext.adaptationTargets} modality={sportProgrammingContext.modalityBoundary} exerciseRole={sportProgrammingContext.exerciseRole} programming={sportProgrammingContext.programmingBoundary} />
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="view-header"><div><p className="metric-label">06 / exercise catalog</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">400 tools.<br /><em className="text-[#e4512e]">Built for choice.</em></h1></div><div className="view-header-note"><Dumbbell className="h-5 w-5 text-[#e4512e]" /><p>Search by the way you train, filter down to the right options, and heart the exercises you want to keep close. Your full catalog stays visible even when automatic stacks use an equipment profile.</p></div></div><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} /></div></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={setAthleteBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} />}
         {workspace === "command" && <section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section>}
