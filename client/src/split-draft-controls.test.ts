@@ -7,5 +7,7 @@ describe("responsive split-draft controls", () => {
     expect(css).toContain(".split-cycle-label");
     expect(css).toContain("width: 2.5rem");
     expect(css).toContain("max-width: calc(100vw - 12.2rem)");
+    expect(css).toContain("prefers-reduced-motion: reduce");
+    expect(css).toContain("transition: transform 180ms");
   });
 });
