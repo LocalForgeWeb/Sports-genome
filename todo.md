@@ -49,10 +49,10 @@
 - [x] Attach sport/modifier-specific evidence metadata, source identifiers, or reviewed evidence ranges to football, hockey, track, and swimming modifiers.
 - [x] Surface modifier-specific source metadata in Movement Atlas and recommendation context with regression coverage for expanded modifiers.
 - [x] Add concrete evidence references or reviewed evidence ranges directly to each football, hockey, track, and swimming modifier record.
-- [ ] Render selected modifier sources in athlete-facing recommendation, smart-draft, and generated-stack context.
-- [ ] Add regression or component coverage proving modifier source metadata appears in recommendation surfaces.
-- [ ] Explicitly render selected modifier evidence sources on smart-draft and generated-stack UI surfaces, not just recommendation context data.
-- [ ] Add regression or component coverage proving modifier source metadata appears in recommendation, smart-draft, and generated-stack surfaces.
+- [x] Render selected modifier sources in athlete-facing recommendation, smart-draft, and generated-stack context.
+- [x] Add integration coverage proving modifier source metadata appears in the actual recommendation workspace.
+- [x] Explicitly render selected modifier evidence sources on smart-draft and generated-stack UI surfaces, not just recommendation context data.
+- [x] Add integration coverage proving modifier source metadata appears on the actual smart-draft and generated-week planning surfaces.
 - [x] Add an editable Athlete Baseline intro-quiz sequence for experience level, goal, optional bodyweight, and preferred units.
 - [x] Keep baseline measurements optional, editable, and explicitly scoped as planning context rather than health or ability scores.
 - [x] Add resilient Back and Continue navigation to every intro-quiz step, including progress updates and preserved answers.
