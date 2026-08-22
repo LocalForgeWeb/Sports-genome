@@ -180,10 +180,10 @@
 - [ ] Keep the reference-inspired layout original rather than copying its illustration, labels, or visual assets.
 - [ ] Preserve click-to-select regions and link selected anatomy to exercise and sport-action rationale.
 - [ ] Make the dual-view anatomy board readable on desktop and collapse its callout layout gracefully on mobile.
-- [ ] Create plain-language definitions for Hypertrophy, Strength, Power, Stability, Mobility, Skill, and Practicality.
+- [x] Create plain-language definitions for Hypertrophy, Strength, Power, Stability, Mobility, Skill, and Practicality.
 - [ ] Explain the intrinsic exercise characteristics and contextual inputs that influence every Genome dimension without presenting the values as direct laboratory measurements.
-- [ ] Make every displayed Genome dimension label clickable from the fingerprint and metric list.
-- [ ] Add clear labels and a readable legend to the fingerprint chart so each spoke, dimension, and intensity value can be identified at a glance.
+- [x] Make every displayed Genome dimension label clickable from the fingerprint and metric list.
+- [x] Add clear labels and a readable legend to the fingerprint chart so each spoke, dimension, and intensity value can be identified at a glance.
 - [ ] Validate term dialogs, keyboard access, fingerprint labels, and mobile readability.
 - [ ] Recompose each anatomy half so the figure is centered and callouts sit around the outside perimeter rather than in a stacked grid.
 - [ ] Add visible connector lines from individual muscle regions toward their corresponding callout cards on desktop.

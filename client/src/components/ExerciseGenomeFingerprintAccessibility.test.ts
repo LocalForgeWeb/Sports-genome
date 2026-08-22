@@ -13,6 +13,8 @@ describe("Exercise Genome fingerprint term learning", () => {
     expect(markup).toContain('aria-label="Exercise Genome fingerprint chart with eight labeled dimensions"');
     expect(markup).toContain("Hypertrophy potential");
     expect(markup).toContain("Stimulus-to-fatigue ratio");
-    expect(markup).toContain("Click a full label below to learn what influences it.");
+    expect(markup).toContain('aria-label="Learn about Hypertrophy potential"');
+    expect(markup).toContain('aria-label="Learn about Stimulus-to-fatigue ratio"');
+    expect(markup).toContain("Select a chart label or full label to learn what influences it.");
   });
 });
