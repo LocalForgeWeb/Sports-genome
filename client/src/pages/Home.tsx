@@ -41,6 +41,7 @@ import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
 import { buildApprovedProgressionNote, buildApprovedSegmentPriorityNote } from "@/lib/progressiveTraining";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
+import { buildVariedLoadout } from "@/lib/loadoutTemplates";
 import { toast } from "sonner";
 import { EmailAuthScreen } from "@/components/EmailAuthScreen";
 import { trpc } from "@/lib/trpc";
@@ -210,10 +211,7 @@ export default function Home() {
   const draftedLoadout = useMemo(() => {
     const sportSeed = getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId).map((item) => item.exercise);
     const pool = filterStackForEquipment(getSplitExercisePool(exercises, activeSplitDay, sportSeed), athleteBaseline.equipment);
-    const offset = activeLoadout === "Athletic Power" ? 4 : activeLoadout === "Strength Foundation" ? 8 : activeLoadout === "Hypertrophy Volume" ? 12 : activeLoadout === "Capacity Circuit" ? 16 : 0;
-    const unique = [...pool.slice(offset), ...pool.slice(0, offset)].reduce<Exercise[]>((list, exercise) => list.some((item) => item.movement === exercise.movement) ? list : [...list, exercise], []);
-    const sportAnchor = activeLoadout === "Sport Transfer" || activeSplitDay === "Sport Transfer" ? sportSeed.slice(0, 2) : [];
-    return [...sportAnchor, ...unique].filter((exercise, index, array) => array.findIndex((item) => item.id === exercise.id) === index).slice(0, gymTimeBudget.recommendationLimit);
+    return buildVariedLoadout(pool, activeSplitDay === "Sport Transfer" ? sportSeed : [], activeLoadout, gymTimeBudget.recommendationLimit);
   }, [activeSportId, goal, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId]);
   const movementSignals = getMovementSignals(selectedMovement);
   const movementMuscles = getMovementMuscles(selectedMovement);

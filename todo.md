@@ -169,7 +169,7 @@
 - [x] Expand custom workout programming controls to include sets, repetitions or time, load/RPE, rest, and notes.
 - [x] Expand the onboarding schedule selector and recommendation logic from one through seven training days per week.
 - [x] Validate blue/gold contrast, atlas detail, import parsing, programming edits, and seven-day plans.
-- [ ] Define diverse plan-loadout templates with distinct exercise pools, movement priorities, and session structures.
+- [x] Define diverse plan-loadout templates with distinct exercise pools, movement priorities, and session structures.
 - [ ] Add a day-strip control that cycles through split days such as push, pull, legs, upper, lower, full body, and sport-specific sessions.
 - [ ] Make split selection adapt to the chosen training frequency while preserving manual day overrides.
 - [ ] Simplify the detailed anatomy map visual hierarchy and reduce unnecessary surface clutter while preserving named subdivisions.
