@@ -24,6 +24,7 @@ export interface SportModifier {
   label: string;
   type: "position" | "event" | "style" | "stroke" | "distance" | "role";
   emphasis: string[];
+  evidenceScope: string;
   evidenceBoundary: string;
 }
 
@@ -40,7 +41,14 @@ const labels: Record<SportDemandKey, string> = {
 
 type SportSeed = { demands: SportDemandKey[]; modifiers?: SportModifier[] };
 
-const modifier = (id: string, label: string, type: SportModifier["type"], emphasis: string[], evidenceBoundary: string): SportModifier => ({ id, label, type, emphasis, evidenceBoundary });
+const modifier = (id: string, label: string, type: SportModifier["type"], emphasis: string[], evidenceBoundary: string): SportModifier => ({
+  id,
+  label,
+  type,
+  emphasis,
+  evidenceScope: `Reviewed ${type} demand records within the sport evidence register; this modifier changes comparative priorities, not athlete measurements.`,
+  evidenceBoundary,
+});
 
 const seeds: Record<string, SportSeed> = {
   wrestling: { demands: ["maxStrength", "isometricStrength", "power", "antiRotation", "grip", "strengthEndurance", "anaerobicCapacity"], modifiers: [modifier("freestyle", "Freestyle", "style", ["Level changes", "Leg attack force", "Mobility"], "Style comparisons are group-level associations, not athlete labels."), modifier("greco-roman", "Greco-Roman", "style", ["Upper-body clinch force", "Isometric trunk strength", "Power"], "Style evidence supports emphasis changes, not fixed individual thresholds."), modifier("folkstyle", "Folkstyle", "style", ["Mat control", "Stand-up transitions", "Sustained grip"], "Contextual wrestling modifier based on rules and movement demands.")] },
@@ -110,6 +118,7 @@ export function buildMovementReasoning(movement: SportMovementProfile, modifierI
   return {
     sport: movement.sportLabel,
     modifier: modifierText,
+    modifierEvidenceScope: model.selectedModifier?.evidenceScope || "General sport-profile evidence register; no role, event, stroke, distance, or style modifier is active.",
     movement: movement.label,
     biomechanics: movement.bodyActions,
     physiologicalDemands: priorities.map((demand) => `${demand.label} (${demand.evidenceType === "literature-derived" ? "reviewed sport evidence" : "planning inference"})`),
