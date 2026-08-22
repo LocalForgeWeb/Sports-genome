@@ -28,6 +28,8 @@ describe("standalone Gym Optimizer auth screen", () => {
     expect(markup).toContain("Sign in with email");
     expect(markup).toContain("Need an account? Create one");
     expect(markup).toContain("Gym Optimizer email account");
+    expect(markup).toContain("Built by Gabe Naim-LocalForgeWeb");
+    expect(markup).toContain("https://localforgeweb.com");
     expect(markup).not.toMatch(/sign in with manus|manus oauth|continue with manus/i);
   });
 });
