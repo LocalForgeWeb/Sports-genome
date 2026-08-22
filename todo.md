@@ -1,7 +1,7 @@
 # Sport Movement Database Expansion
 
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
-- [ ] Push the latest validated progressive-training, RPE, and segment-priority updates to LocalForgeWeb/Sports-genome and verify the remote branch tip.
+- [x] Push the latest validated progressive-training, RPE, and segment-priority updates to LocalForgeWeb/Sports-genome and verify the remote branch tip.
 - [x] Add optional athlete bodyweight context and explicit within-athlete normalization boundaries to progression proxies, or narrow the UI copy to load/repetition context only.
 - [x] Add actual RPE inputs to the set-log schema, workout logger, and progression-history API with a conservative high-effort hold guardrail.
 - [x] Add focused RPE-aware model coverage for the add-repetition branch alongside repeat, add-load, hold, and reduce-load cases.
