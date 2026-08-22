@@ -198,8 +198,8 @@
 - [ ] Hide anatomical regions with no direct or supported role for the selected exercise rather than presenting them as low engagement.
 - [ ] Keep only primary, secondary, and clearly relevant stabilizing muscles visible, with lower-relevance roles disclosed in text rather than painted on the model.
 - [ ] Repair the deployed anatomy illustration asset so the detailed model renders reliably in the published app.
-- [ ] Reset persisted onboarding sport state so no sport is preselected on first use or after a reset.
-- [ ] Add a prominent sport-switch control in the workspace and verify recommendations refresh after sport changes.
+- [x] Reset persisted onboarding sport state so no sport is preselected on first use or after a reset.
+- [x] Add a prominent sport-switch control in the workspace and verify recommendations refresh after sport changes.
 - [ ] Validate a shoulder-isolation exercise, asset rendering, onboarding reset, and sport switching in the live app.
 - [x] Audit all Muscle Genome and Mechanics labels to identify terms that still lack a click-to-learn definition.
 - [x] Add full definitions, score inputs, interpretation guidance, and evidence boundaries for every Muscle Genome and Mechanics term.
