@@ -67,7 +67,7 @@
 - [x] Add editable gym-access and equipment selection to onboarding with clear preconfigured profiles and manual equipment toggles.
 - [x] Persist equipment availability in the athlete profile and use it to constrain automatically generated recommended stacks.
 - [x] Keep the full exercise catalog visible for manual inspection and manual addition, even when an exercise uses unselected equipment.
-- [ ] Disclose the active equipment constraint wherever a stack is generated or loaded.
+- [x] Disclose the active equipment constraint wherever a stack is generated or loaded.
 - [x] Add an About Me section for viewing and editing athlete baseline, gym access, and equipment.
 - [ ] Add standalone Gym Optimizer email/password account registration and sign-in with no Manus-facing login option.
 - [x] Store credential secrets securely, enforce validation and rate-aware error handling, and preserve account-scoped workout data.
@@ -75,7 +75,7 @@
 - [ ] Verify standalone email registration, sign-in, and device passkey enrollment on a live user device.
 - [ ] Remove any remaining global Manus redirect fallback so expired or unauthenticated requests stay in the standalone email-auth experience.
 - [ ] Add persistent passkey enrollment and management for existing signed-in email accounts, then cover email lockout and passkey option flows with focused auth tests.
-- [ ] Add a visible equipment-constraint notice to every automatic stack-generation or load surface, including Recommendations, Load smart draft, Generate Week, and the Training Days active day.
+- [x] Add a visible equipment-constraint notice to every automatic stack-generation or load surface, including Recommendations, Load smart draft, Generate Week, and the Training Days active day.
 - [ ] Visually verify the equipment-aware Recommendations, Load smart draft, Generate Week, and Training Days active-day surfaces after explicit notices are added.
 - [x] Audit all twenty sport movement profiles for biomechanical action, prime movers, stabilizers, and transfer rationale, correcting unsupported claims.
 - [x] Add a maintained evidence register that labels planning estimates, source-supported facts, and unresolved research gaps.

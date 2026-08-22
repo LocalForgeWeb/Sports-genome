@@ -48,6 +48,8 @@ describe("Home planning-surface modifier evidence", () => {
       expect(markup).toContain("Active sport modifier evidence");
       expect(markup).toContain("recommendations, smart drafts, and generated weeks");
       expect(markup).toContain("General sport evidence inventory");
+      expect(markup).toContain("Automatic stack filter");
+      expect(markup).toContain("active training days");
     });
   }
 
