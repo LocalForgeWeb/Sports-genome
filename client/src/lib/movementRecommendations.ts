@@ -2,7 +2,8 @@
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
 import { sportMovementProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
-import { getSportDemandModel } from "@/lib/hierarchicalSportModel";
+import { getSportDemandModel } from "./hierarchicalSportModel";
+import { getSprintPowerEvidenceContext } from "./sprintPowerEvidence";
 
 export type MovementSignal = "acceleration" | "braking" | "lateral" | "rotation" | "jump" | "push" | "pull" | "overhead" | "grip" | "bracing" | "posterior" | "knee" | "conditioning" | "singleLeg";
 
@@ -192,6 +193,20 @@ function classifyPreparation(exercise: Exercise, matchedSignals: MovementSignal[
   return specialMethod ? "Special physical preparation" : "General physical preparation";
 }
 
+export function sprintPowerEvidenceRankAdjustment(exercise: Exercise, profile: SportMovementProfile) {
+  const evidence = getSprintPowerEvidenceContext(profile);
+  if (!evidence) return 0;
+  const topicText = evidence.topics.join(" ").toLowerCase();
+  const qualities = exercise.qualities;
+  let adjustment = 0;
+  if (/acceleration|resisted sprint|force.orientation/.test(topicText) && qualities.some((quality) => ["sprintSupport", "power", "unilateral"].includes(quality))) adjustment += 0.55;
+  if (/force–velocity|ballistic|rate of force|power training/.test(topicText) && qualities.some((quality) => ["power", "jumping", "sprintSupport"].includes(quality))) adjustment += 0.45;
+  if (/reactive strength|plyometric/.test(topicText) && qualities.some((quality) => ["jumping", "elasticity", "power"].includes(quality))) adjustment += 0.4;
+  if (/change of direction|braking/.test(topicText) && qualities.some((quality) => ["deceleration", "lateralControl", "unilateral", "bracing"].includes(quality))) adjustment += 0.45;
+  if (/repeated-sprint|sprint maintenance/.test(topicText) && qualities.some((quality) => ["conditioning", "sprintSupport", "power"].includes(quality))) adjustment += 0.35;
+  return Math.min(1.2, adjustment);
+}
+
 export function getMovementRecommendations(profile: SportMovementProfile, limit = 6): MovementRecommendation[] {
   const signals = getMovementSignals(profile);
   const profileMuscles = getMovementMuscles(profile);
@@ -199,7 +214,8 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
     const exerciseMuscles = [...exercise.primaryMuscles, ...exercise.secondaryMuscles];
     const matchedSignals = signals.filter((signal) => signalRules.find((rule) => rule.signal === signal)?.qualities.some((quality) => exercise.qualities.includes(quality)));
     const matchedMuscles = profileMuscles.filter((muscle) => exerciseMuscles.includes(muscle) || (muscle === "shoulders" && exerciseMuscles.some((item) => ["frontDelts", "sideDelts", "rearDelts"].includes(item))));
-    const score = matchedSignals.length * 2.25 + matchedMuscles.length * 1.75 + (exercise.qualities.includes("power") && signals.includes("rotation") ? 1.25 : 0) + (exercise.qualities.includes("unilateral") && signals.includes("singleLeg") ? 1 : 0);
+    const sprintPowerAdjustment = sprintPowerEvidenceRankAdjustment(exercise, profile);
+    const score = matchedSignals.length * 2.25 + matchedMuscles.length * 1.75 + (exercise.qualities.includes("power") && signals.includes("rotation") ? 1.25 : 0) + (exercise.qualities.includes("unilateral") && signals.includes("singleLeg") ? 1 : 0) + sprintPowerAdjustment;
     const grade = gradeForScore(score);
     const rationale = scoreReason(exercise, matchedSignals, matchedMuscles);
     const breakdown = buildBreakdown(exercise, signals, matchedSignals, matchedMuscles, score);

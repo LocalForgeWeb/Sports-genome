@@ -4,6 +4,8 @@ import type { Exercise } from "@/lib/exerciseCatalog";
 import type { EnrichedSportMovement } from "@/lib/enrichedSportMovementDatabase";
 import { analyzeWorkoutForMovement, getMovementAssistance, type WorkoutMovementAnalysis } from "@/lib/movementProgramAnalysis";
 import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
+import { getSprintPowerEvidenceContext } from "@/lib/sprintPowerEvidence";
+import { SprintPowerEvidenceDisclosure } from "@/components/SprintPowerEvidenceDisclosure";
 
 /** Modern Kinetic Field Manual: lead with coverage and assistance; expose full anatomy, overlap, and sources only when requested. */
 function RoleList({ title, entries }: { title: string; entries: ReturnType<typeof analyzeWorkoutForMovement>["primeMovers"] }) {
@@ -16,10 +18,12 @@ export function MovementIntelligencePanel({ movement, fallback, workout, onAdd, 
   const analysis = analyzeWorkoutForMovement(movement, workout);
   const assistance = getMovementAssistance(movement, fallback, compact ? 4 : 6);
   const shownAssistance = showAllAssistance ? assistance : assistance.slice(0, 3);
+  const sprintPowerEvidence = getSprintPowerEvidenceContext(movement);
 
   return <section className={`movement-intelligence-panel ${compact ? "movement-intelligence-compact" : ""}`}>
     <div className="movement-intelligence-head"><div><p className="metric-label">Movement intelligence</p><h3>{movement.label}</h3><p>{movement.commonForceOrSkillDemand}</p></div><span className={`confidence-badge confidence-${movement.evidenceConfidence}`}>{movement.evidenceConfidence} confidence</span></div>
     <div className="movement-summary-strip"><div><span>Primary demand</span><strong>{movement.bodyActions.slice(0, 2).join(" · ")}</strong></div><div><span>Best-supported qualities</span><strong>{analysis.coverage.strengths.length ? analysis.coverage.strengths.slice(0, 2).join(" · ") : "Build the first training signal"}</strong></div><div><span>First priority</span><strong>{analysis.coverage.priorities[0] || "Maintain current balance"}</strong></div></div>
+    {sprintPowerEvidence && <SprintPowerEvidenceDisclosure evidence={sprintPowerEvidence} compact={compact} />}
     <section className="movement-coverage-conclusion"><div><p className="metric-label">Training coverage</p><strong>{analysis.coverage.percent}%</strong><span>{analysis.coverage.percent >= 75 ? "Well supported for this action" : analysis.coverage.percent >= 45 ? "Base is in place; targeted support can help" : "Several movement demands still need direct work"}</span></div><div><p>Strong coverage</p>{analysis.coverage.strengths.length ? analysis.coverage.strengths.map((item) => <span key={item}>✓ {item}</span>) : <span>Start by adding a primary movement match.</span>}</div><div><p>Needs more work</p>{analysis.coverage.priorities.length ? analysis.coverage.priorities.map((item) => <span key={item}>→ {item}</span>) : <span>Current stack covers the mapped requirements.</span>}</div></section>
 
     <div className="movement-section-heading"><Layers3 className="h-4 w-4" /><span>Best next exercise support</span></div>

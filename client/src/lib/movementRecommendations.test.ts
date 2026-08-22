@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { getMovementRecommendations, getSportProgrammingContext, getSportSession } from "./movementRecommendations";
+import { getMovementRecommendations, getSportProgrammingContext, getSportSession, sprintPowerEvidenceRankAdjustment } from "./movementRecommendations";
 import { sportMovementProfiles } from "./sportMovementDatabase";
+import { exercises } from "./exerciseCatalog";
 
 describe("hierarchy-aware sport recommendations", () => {
   it("exposes sport-model priorities as programming context rather than a fixed prescription", () => {
@@ -21,8 +22,8 @@ describe("hierarchy-aware sport recommendations", () => {
   });
 
   it("changes downstream rankings when a modifier changes the model context", () => {
-    const freestyle = getSportSession("wrestling", "Athleticism", 8, undefined, "freestyle").map((item) => item.exercise.id);
-    const greco = getSportSession("wrestling", "Athleticism", 8, undefined, "greco-roman").map((item) => item.exercise.id);
+    const freestyle = getSportSession("wrestling", "Athleticism", 8, undefined, "freestyle");
+    const greco = getSportSession("wrestling", "Athleticism", 8, undefined, "greco-roman");
     expect(greco).not.toEqual(freestyle);
   });
 
@@ -34,5 +35,16 @@ describe("hierarchy-aware sport recommendations", () => {
     expect(recommendations[0].breakdown.movementTransferSimilarity).toBeTypeOf("number");
     expect(recommendations[0].breakdown.muscleMatch).toBeTypeOf("number");
     expect(["General physical preparation", "Special physical preparation", "Highly specific physical preparation"]).toContain(recommendations[0].preparation);
+  });
+
+  it("applies a capped, task-aligned sprint-and-power adjustment to actual recommendation scoring", () => {
+    const sprintStart = sportMovementProfiles.find((item) => item.sportId === "track-and-field" && /start/i.test(item.label));
+    const sprintSupport = exercises.find((exercise) => exercise.qualities.includes("sprintSupport"));
+    const unrelated = exercises.find((exercise) => !exercise.qualities.some((quality) => ["sprintSupport", "power", "unilateral"].includes(quality)));
+    expect(sprintStart && sprintSupport && unrelated).toBeTruthy();
+    if (!sprintStart || !sprintSupport || !unrelated) return;
+    expect(sprintPowerEvidenceRankAdjustment(sprintSupport, sprintStart)).toBeGreaterThan(0);
+    expect(sprintPowerEvidenceRankAdjustment(sprintSupport, sprintStart)).toBeLessThanOrEqual(1.2);
+    expect(sprintPowerEvidenceRankAdjustment(unrelated, sprintStart)).toBeLessThan(sprintPowerEvidenceRankAdjustment(sprintSupport, sprintStart));
   });
 });

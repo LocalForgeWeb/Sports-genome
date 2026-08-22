@@ -18,6 +18,11 @@
 - [x] Present evidence coverage and source limitations clearly in the Movement Atlas and Exercise Genome rather than implying individual measurements.
 - [x] Extract and verify the 100 studies in the new sport-science packet, recording the evidence scope, source quality, and unresolved limits for each sport.
 - [x] Extract and verify the 100 studies in the new exercise-science packet, distinguishing direct longitudinal or biomechanics findings from EMG-only evidence.
+- [x] Extract, deduplicate by PMID, and verify the supplied sprint, acceleration, force-velocity, RFD, power, plyometric, COD, and repeated-sprint evidence packet.
+- [x] Add source-bounded sprint and power findings to athlete-facing Movement Intelligence disclosures without treating F-V profiling as deterministic individualized prescription.
+- [x] Integrate verified sprint and power evidence boundaries into actual exercise-transfer and recommendation model outputs.
+- [x] Add registry and recommendation-model regression coverage for RFD, power, plyometric/reactive-strength, and F-V uncertainty behavior.
+- [x] Add athlete-facing component-render coverage for RFD, power, and reactive-strength uncertainty disclosures.
 - [x] Audit existing muscle-targeting scores, weight fallbacks, and athlete-facing labels against the requested causal mechanics pathway.
 - [x] Materially incorporate the causal mechanics pathway into the muscle-targeting rank rather than exposing it only as explanatory metadata.
 - [x] Strengthen direct longitudinal evidence precedence over mechanics-only inference in the final targeting rank.
