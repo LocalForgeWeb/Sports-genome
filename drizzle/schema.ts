@@ -62,6 +62,7 @@ export const workoutSetLogs = mysqlTable("workoutSetLogs", {
   actualWeight: decimal("actualWeight", { precision: 8, scale: 2 }),
   weightUnit: mysqlEnum("weightUnit", ["lb", "kg"]).notNull().default("lb"),
   actualReps: int("actualReps"),
+  actualRpe: decimal("actualRpe", { precision: 3, scale: 1 }),
   completed: boolean("completed").notNull().default(false),
   setNotes: varchar("setNotes", { length: 500 }),
   loggedAt: timestamp("loggedAt").defaultNow().notNull(),

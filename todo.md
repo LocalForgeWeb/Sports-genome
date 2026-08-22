@@ -1,6 +1,14 @@
 # Sport Movement Database Expansion
 
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
+- [x] Add optional athlete bodyweight context and explicit within-athlete normalization boundaries to progression proxies, or narrow the UI copy to load/repetition context only.
+- [x] Add actual RPE inputs to the set-log schema, workout logger, and progression-history API with a conservative high-effort hold guardrail.
+- [x] Add focused RPE-aware model coverage for the add-repetition branch alongside repeat, add-load, hold, and reduce-load cases.
+- [ ] Add integration coverage showing logged RPE flows from workout logging through progression history into athlete-facing recommendations.
+- [x] Normalize real catalog muscle labels for anterior, lateral, and posterior deltoid segment signals and add catalog-based regressions.
+- [x] Build a true weekly progress review with week-bucketed trend comparison, segment-priority review, and plan-adjustment opportunities.
+- [ ] Integrate approved progression and segment-priority suggestions into the planner as athlete-confirmed changes, never silent automatic rewrites.
+- [ ] Add unit, component, and live-workflow validation for progression recommendations and segment-level plan adjustments.
 - [x] Verify the GitHub backup inventory includes all tracked Gym Optimizer code, tests, research records, datasets, and project tracking files; document intentionally local-only exclusions.
 - [x] Add a split-aware Rate Stack with split-only muscle coverage scores, gap flags, overemphasis flags, and catalog-backed correction advice.
 - [x] Replace the compact Rate Stack block with a dedicated whole-stack analysis view that maps all worked muscles, ranks involvement, and opens per-muscle detail across the active Training Day.

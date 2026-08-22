@@ -2,7 +2,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { completeWorkoutSession, createWorkoutSession, getWorkoutSession, listWorkoutSessions, upsertWorkoutSet } from "./workoutSessions";
+import { completeWorkoutSession, createWorkoutSession, getWorkoutSession, listProgressionSets, listWorkoutSessions, upsertWorkoutSet } from "./workoutSessions";
 import { listFavoriteExerciseIds, setFavoriteExercise } from "./favoriteExercises";
 import { beginPasskeyAuthentication, beginPasskeyRegistration, clearLocalSession, finishPasskeyAuthentication, finishPasskeyRegistration, registerEmailAccount, signInWithEmail } from "./localAuth";
 
@@ -45,12 +45,14 @@ export const appRouter = router({
       return session;
     }),
     list: protectedProcedure.query(({ ctx }) => listWorkoutSessions(ctx.user.id)),
+    progressionHistory: protectedProcedure.query(({ ctx }) => listProgressionSets(ctx.user.id)),
     logSet: protectedProcedure.input(z.object({
       sessionExerciseId: z.number().int().positive(),
       setNumber: z.number().int().min(1).max(20),
       actualWeight: z.number().min(0).max(2000).optional(),
       weightUnit: z.enum(["lb", "kg"]),
       actualReps: z.number().int().min(0).max(1000).optional(),
+      actualRpe: z.number().min(1).max(10).optional(),
       completed: z.boolean(),
       setNotes: z.string().trim().max(500).optional(),
     })).mutation(async ({ ctx, input }) => {

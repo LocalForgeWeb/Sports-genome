@@ -1,0 +1,1 @@
+ALTER TABLE `workoutSetLogs` ADD `actualRpe` decimal(3,1);

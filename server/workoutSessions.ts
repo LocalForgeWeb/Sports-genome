@@ -95,7 +95,29 @@ export async function listWorkoutSessions(userId: number) {
   }));
 }
 
-export async function upsertWorkoutSet(userId: number, input: { sessionExerciseId: number; setNumber: number; actualWeight?: number; weightUnit: "lb" | "kg"; actualReps?: number; completed: boolean; setNotes?: string }) {
+export async function listProgressionSets(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is unavailable");
+
+  return db.select({
+    sessionId: workoutSessions.id,
+    completedAt: workoutSessions.completedAt,
+    catalogExerciseId: workoutSessionExercises.catalogExerciseId,
+    exerciseName: workoutSessionExercises.exerciseName,
+    actualWeight: workoutSetLogs.actualWeight,
+    weightUnit: workoutSetLogs.weightUnit,
+    actualReps: workoutSetLogs.actualReps,
+    actualRpe: workoutSetLogs.actualRpe,
+    completed: workoutSetLogs.completed,
+  }).from(workoutSetLogs)
+    .innerJoin(workoutSessionExercises, eq(workoutSetLogs.sessionExerciseId, workoutSessionExercises.id))
+    .innerJoin(workoutSessions, eq(workoutSessionExercises.sessionId, workoutSessions.id))
+    .where(and(eq(workoutSessions.userId, userId), eq(workoutSessions.status, "completed"), eq(workoutSetLogs.completed, true)))
+    .orderBy(desc(workoutSessions.completedAt))
+    .limit(720);
+}
+
+export async function upsertWorkoutSet(userId: number, input: { sessionExerciseId: number; setNumber: number; actualWeight?: number; weightUnit: "lb" | "kg"; actualReps?: number; actualRpe?: number; completed: boolean; setNotes?: string }) {
   const db = await getDb();
   if (!db) throw new Error("Database is unavailable");
 
@@ -113,6 +135,7 @@ export async function upsertWorkoutSet(userId: number, input: { sessionExerciseI
     actualWeight: input.actualWeight === undefined ? null : input.actualWeight.toFixed(2),
     weightUnit: input.weightUnit,
     actualReps: input.actualReps ?? null,
+    actualRpe: input.actualRpe === undefined ? null : input.actualRpe.toFixed(1),
     completed: input.completed,
     setNotes: input.setNotes || null,
     loggedAt: new Date(),

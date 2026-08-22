@@ -22,6 +22,13 @@
       "when": 1787346612998,
       "tag": "0002_brave_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1787429432439,
+      "tag": "0003_chubby_bullseye",
+      "breakpoints": true
     }
   ]
 }

@@ -9,7 +9,7 @@ describe("workout redundancy analysis", () => {
     const bench = find("Barbell Bench Press");
     const dumbbellBench = find("Dumbbell Bench Press");
     const cableFly = find("Cable Fly");
-    const row = find("Barbell Row");
+    const row = find("Seated Cable Row");
     const findings = analyzeWorkoutRedundancy([bench, dumbbellBench, cableFly, row]);
     expect(findings.some((finding) => finding.classification === "Likely duplicate")).toBe(true);
     expect(findings.some((finding) => finding.classification === "Useful reinforcement")).toBe(true);
