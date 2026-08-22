@@ -36,7 +36,7 @@
 - [x] Render calibrated study notes, ROM context, sources, and counterevidence on catalog exercise-inspection surfaces.
 - [x] Add stable component-render coverage across calibrated exercise families and modality examples, including the catalog inspection route.
 - [x] Expose and test the full hierarchy path in athlete-facing planning, including the distinct physical-quality layer.
-- [ ] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
+- [x] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
 - [x] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.
 - [x] Add direct Home smart-draft and generated-week integration tests proving typed hierarchy priorities alter constructed outputs.
 - [x] Expose physiological demand, adaptation target, modality choice, exercise role, and programming context as distinct source-bounded layers in athlete-facing recommendations.
