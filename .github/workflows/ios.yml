@@ -102,6 +102,11 @@ jobs:
     #   APPSTORE_KEY_ID           App Store Connect API key id
     #   APPSTORE_ISSUER_ID        App Store Connect issuer id
     #   APPSTORE_PRIVATE_KEY      contents of the .p8 key file
+    #
+    # The team id, profile name and bundle id are read from the provisioning
+    # profile and capacitor.config.ts at build time, so they are not secrets.
+    #
+    # `bash scripts/ios-signing.sh` generates the certificate and prints these.
     # Required repository variable:
     #   VITE_API_BASE_URL         absolute origin of the deployed API
     if: inputs.job == 'testflight'
@@ -155,50 +160,97 @@ jobs:
           CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE }}
         run: |
-          # A throwaway keychain scoped to this runner, which is destroyed with
-          # the VM. Never unlock the default login keychain in CI.
+          # A throwaway keychain scoped to this runner, destroyed with the VM.
+          # Never unlock the default login keychain in CI.
           KEYCHAIN=$RUNNER_TEMP/build.keychain
           KEYCHAIN_PASSWORD=$(uuidgen)
 
-          # openssl rather than base64(1): the macOS build of base64 does not
-          # accept --decode, and -d/-D differ between versions.
+          # openssl rather than base64(1): the macOS build does not accept
+          # --decode, and -d/-D differ between versions.
           echo -n "$CERTIFICATE_P12" | openssl base64 -d -A -out "$RUNNER_TEMP/cert.p12"
           echo -n "$PROVISIONING_PROFILE" | openssl base64 -d -A -out "$RUNNER_TEMP/profile.mobileprovision"
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
           security set-keychain-settings -lut 21600 "$KEYCHAIN"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
-          security import "$RUNNER_TEMP/cert.p12" -P "$CERTIFICATE_PASSWORD" \
-            -A -t cert -f pkcs12 -k "$KEYCHAIN"
+
+          if ! security import "$RUNNER_TEMP/cert.p12" -P "$CERTIFICATE_PASSWORD" \
+               -A -t cert -f pkcs12 -k "$KEYCHAIN"; then
+            echo "::error::Could not import the signing certificate."
+            echo "The usual cause is a .p12 written by OpenSSL 3 with its default"
+            echo "AES-256 encryption, which this importer rejects. Regenerate it"
+            echo "with 'bash scripts/ios-signing.sh p12 <cert.cer>', which forces"
+            echo "the 3DES/SHA-1 encoding macOS accepts."
+            exit 1
+          fi
+
           security list-keychain -d user -s "$KEYCHAIN"
           # Lets xcodebuild use the key without an interactive prompt.
-          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
 
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp "$RUNNER_TEMP/profile.mobileprovision" ~/Library/MobileDevice/Provisioning\ Profiles/
+          # Read the team, profile name and UUID out of the profile itself
+          # rather than carrying them as extra secrets that can drift from it.
+          security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" > "$RUNNER_TEMP/profile.plist"
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" "$RUNNER_TEMP/profile.plist")
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" "$RUNNER_TEMP/profile.plist")
+          TEAM_ID=$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" "$RUNNER_TEMP/profile.plist")
+
+          # Xcode looks profiles up by UUID filename.
+          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILE_DIR"
+          cp "$RUNNER_TEMP/profile.mobileprovision" "$PROFILE_DIR/$PROFILE_UUID.mobileprovision"
+
+          BUNDLE_ID=$(grep -oE 'appId:[[:space:]]*"[^"]+"' capacitor.config.ts | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
+
+          echo "Team: $TEAM_ID"
+          echo "Profile: $PROFILE_NAME"
+          echo "Bundle id: $BUNDLE_ID"
+
+          {
+            echo "TEAM_ID=$TEAM_ID"
+            echo "PROFILE_NAME=$PROFILE_NAME"
+            echo "BUNDLE_ID=$BUNDLE_ID"
+          } >> "$GITHUB_ENV"
 
           rm -f "$RUNNER_TEMP/cert.p12"
 
       - name: Archive
         run: |
+          # Manual signing with an explicit profile. Automatic signing would ask
+          # Apple to mint a new certificate on each ephemeral runner, and the
+          # account's certificate limit is reached within a few builds.
           xcodebuild \
             -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
-            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
             archive
 
       - name: Export the .ipa
         run: |
-          cat > "$RUNNER_TEMP/ExportOptions.plist" <<'PLIST'
+          # Written with a script rather than committed, because the team id and
+          # profile name are only known once the profile has been decoded.
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>method</key>
             <string>app-store-connect</string>
+            <key>teamID</key>
+            <string>${TEAM_ID}</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${BUNDLE_ID}</key>
+              <string>${PROFILE_NAME}</string>
+            </dict>
             <key>destination</key>
             <string>export</string>
           </dict>
@@ -209,8 +261,7 @@ jobs:
             -exportArchive \
             -archivePath "$RUNNER_TEMP/App.xcarchive" \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
-            -exportPath "$RUNNER_TEMP/export" \
-            -allowProvisioningUpdates
+            -exportPath "$RUNNER_TEMP/export"
 
       - name: Upload to TestFlight
         env:
@@ -228,6 +279,8 @@ jobs:
             exit 1
           fi
 
+          # The app record must already exist in App Store Connect; the upload
+          # cannot create it.
           xcrun altool --upload-app \
             --type ios \
             --file "$IPA" \

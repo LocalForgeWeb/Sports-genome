@@ -24,6 +24,9 @@ reached over the network, which is why `VITE_API_BASE_URL` is required.
 | Outbox wiring, retry/drop classification | `client/src/hooks/useWorkoutOutbox.ts` |
 | Native share sheet in place of `window.print()` | `client/src/components/PrintableWorkoutSheet.tsx` |
 | Privacy manifest + Info.plist entries, ready to copy | `ios-assets/` |
+| Scripted native config (URL scheme, privacy manifest) | `scripts/configure-ios.sh` |
+| Signing credentials without a Mac | `scripts/ios-signing.sh` |
+| Cloud macOS build + TestFlight upload | `.github/workflows/ios.yml` |
 | Native branch of the OAuth callback | `server/_core/oauth.ts` |
 | CORS for the `capacitor://localhost` origin | `server/_core/cors.ts` |
 
@@ -70,26 +73,69 @@ free Apple ID can sign a build only through Xcode on a Mac, and the profile
 expires after seven days.
 
 With the paid account, the `testflight` job produces a signed build and uploads
-it, and you install it from the TestFlight app on your phone. Set these under
-**Settings → Secrets and variables → Actions**:
+it, and you install it from the TestFlight app on your phone.
+
+The usual instructions send you to Keychain Access to make a certificate
+request. That request is only an RSA key plus a PKCS#10 CSR, which openssl
+produces anywhere, so `scripts/ios-signing.sh` does the whole thing off a Mac.
+
+```bash
+bash scripts/ios-signing.sh csr
+#   → signing/distribution.key + signing/distribution.csr
+#   Upload the .csr at developer.apple.com → Certificates → + → Apple
+#   Distribution, and download the .cer into signing/
+
+bash scripts/ios-signing.sh p12 signing/distribution.cer
+#   → signing/distribution.p12
+
+#   Then, still in the portal:
+#     Identifiers  → register your bundle id
+#     Profiles → + → App Store → download the .mobileprovision into signing/
+#   And in App Store Connect:
+#     Users and Access → Integrations → App Store Connect API → generate a key,
+#     download the .p8 (offered once only), note the Key ID and Issuer ID
+#     Apps → + → create the app record. The upload cannot create it for you.
+
+bash scripts/ios-signing.sh secrets
+#   → prints the base64 values to paste into GitHub
+```
+
+`signing/` is gitignored. The private key never leaves your machine.
+
+Set these under **Settings → Secrets and variables → Actions**:
 
 | Secret | What it is |
 |---|---|
-| `IOS_CERTIFICATE_P12` | Distribution certificate, base64 of the `.p12` |
-| `IOS_CERTIFICATE_PASSWORD` | Password for that `.p12` |
-| `IOS_PROVISIONING_PROFILE` | App Store profile, base64 of the `.mobileprovision` |
+| `IOS_CERTIFICATE_P12` | Printed by `ios-signing.sh secrets` |
+| `IOS_CERTIFICATE_PASSWORD` | The password you chose in the `p12` step |
+| `IOS_PROVISIONING_PROFILE` | Printed by `ios-signing.sh secrets` |
 | `APPSTORE_KEY_ID` | App Store Connect API key id |
 | `APPSTORE_ISSUER_ID` | App Store Connect issuer id |
-| `APPSTORE_PRIVATE_KEY` | Contents of the `.p8` key file |
+| `APPSTORE_PRIVATE_KEY` | Contents of the `.p8`, including the BEGIN/END lines |
 
 Plus one **variable**: `VITE_API_BASE_URL`, the absolute origin of your deployed
 API. The job fails fast if it is missing rather than shipping a build that
 cannot reach the server.
 
-Expect the first signed run to need a round of iteration — signing is the part
-of iOS CI that never works first try. The `.ipa` is uploaded as a build artifact
-even when the TestFlight upload fails, so a credential problem does not cost you
-the whole build.
+The team id, profile name, and bundle id are *not* secrets — the workflow reads
+them out of the provisioning profile and `capacitor.config.ts` at build time, so
+they cannot drift from what you actually uploaded.
+
+Two details worth knowing, because both produce confusing failures:
+
+- **The `.p12` encoding matters.** OpenSSL 3 defaults to AES-256, which macOS's
+  `security import` rejects with an opaque "MAC verification failed".
+  `ios-signing.sh` forces the 3DES/SHA-1 encoding Keychain accepts; if you build
+  the `.p12` by hand, pass `-certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES
+  -macalg sha1`.
+- **Signing is manual, not automatic.** Automatic signing asks Apple to mint a
+  fresh certificate on every ephemeral runner, and the account limit is reached
+  within a handful of builds.
+
+Expect the first signed run to need a round of iteration anyway — signing is the
+part of iOS CI that never works first try. The `.ipa` is uploaded as a build
+artifact even when the TestFlight upload fails, so a credential problem does not
+cost you the whole build.
 
 ### Cost
 

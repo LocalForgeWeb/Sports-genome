@@ -125,3 +125,10 @@ ios/DerivedData/
 ios/App/output/
 *.xcuserstate
 xcuserdata/
+
+# iOS signing material — private keys and certificates. Never commit.
+signing/
+*.p12
+*.mobileprovision
+*.cer
+*.p8
