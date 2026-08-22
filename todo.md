@@ -36,7 +36,7 @@
 - [x] Render calibrated study notes, ROM context, sources, and counterevidence on catalog exercise-inspection surfaces.
 - [x] Add stable component-render coverage across calibrated exercise families and modality examples, including the catalog inspection route.
 - [x] Expose and test the full hierarchy path in athlete-facing planning, including the distinct physical-quality layer.
-- [x] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
+- [ ] Add evidence-bounded position, event, stroke, distance, and style modifiers for the sports specified in the new schema.
 - [x] Separate exercise-to-movement transfer similarity from muscle targeting and distinguish general, special, and highly specific physical preparation.
 - [x] Add direct Home smart-draft and generated-week integration tests proving typed hierarchy priorities alter constructed outputs.
 - [x] Expose physiological demand, adaptation target, modality choice, exercise role, and programming context as distinct source-bounded layers in athlete-facing recommendations.
@@ -69,11 +69,11 @@
 - [x] Keep the full exercise catalog visible for manual inspection and manual addition, even when an exercise uses unselected equipment.
 - [x] Disclose the active equipment constraint wherever a stack is generated or loaded.
 - [x] Add an About Me section for viewing and editing athlete baseline, gym access, and equipment.
-- [ ] Add standalone Gym Optimizer email/password account registration and sign-in with no Manus-facing login option.
+- [x] Add standalone Gym Optimizer email/password account registration and sign-in with no Manus-facing login option.
 - [x] Store credential secrets securely, enforce validation and rate-aware error handling, and preserve account-scoped workout data.
-- [ ] Add a supported-device passkey sign-in option, enabling Face ID or device biometrics where the platform supports it.
+- [x] Add a supported-device passkey sign-in option, enabling Face ID or device biometrics where the platform supports it.
 - [ ] Verify standalone email registration, sign-in, and device passkey enrollment on a live user device.
-- [ ] Remove any remaining global Manus redirect fallback so expired or unauthenticated requests stay in the standalone email-auth experience.
+- [x] Remove any remaining global Manus redirect fallback so expired or unauthenticated requests stay in the standalone email-auth experience.
 - [ ] Add persistent passkey enrollment and management for existing signed-in email accounts, then cover email lockout and passkey option flows with focused auth tests.
 - [x] Add a visible equipment-constraint notice to every automatic stack-generation or load surface, including Recommendations, Load smart draft, Generate Week, and the Training Days active day.
 - [ ] Visually verify the equipment-aware Recommendations, Load smart draft, Generate Week, and Training Days active-day surfaces after explicit notices are added.
@@ -110,6 +110,8 @@
 - [x] Create a typed sport-movement-muscle database with transparent transfer signals and no medical-performance guarantees.
 - [x] Recalculate exercise sport fit using movement-level matches and present the reasoning in the interface.
 - [ ] Test database filtering, sports views, details panels, and responsive layouts.
+- [x] Add model and component-render coverage for sport database family/search filtering, sport-switch controls, movement details, and the Body Lab handoff.
+- [ ] Visually verify the Movement Atlas at desktop and mobile breakpoints after the database filtering coverage update.
 - [x] Redesign navigation for rapid switching between command, workouts, catalog, sport movements, and body analysis.
 - [x] Add a premium athlete-and-coach visual system with clearer hierarchy, performance metrics, and coach-ready views.
 - [x] Expand the body model with click-to-inspect muscle roles, linked sport movements, and exercise recommendations.
