@@ -37,6 +37,7 @@ import { lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
+import { initialMovementForSport } from "@/lib/sportSwitching";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { toast } from "sonner";
@@ -334,22 +335,9 @@ export default function Home() {
   }, [selectedMovement.id]);
 
   const chooseSport = (id: string) => {
-    if (!id) {
-      setSportId("");
-      setMovementId("");
-      setAthleteBaseline((current) => ({ ...current, sportModifierId: undefined }));
-      setOnboardingComplete(false);
-      setWeeklyPlan({});
-      setWeeklyPrescriptions({});
-      setPlanWeeks({});
-      setActiveWeek(1);
-      try { window.localStorage.removeItem(athleteProfileKey); } catch { /* Reset remains usable without storage. */ }
-      toast("Sport selection reset", { description: "Choose a sport again in the Pulse Quiz before building a new sport-aware plan." });
-      return;
-    }
     const changed = Boolean(sportId) && sportId !== id;
     setSportId(id);
-    const first = sportMovementProfiles.find((movement) => movement.sportId === id);
+    const first = initialMovementForSport(id);
     if (first) {
       setMovementId(first.id);
       setActiveMuscle(getMovementMuscles(first)[0] || "abs");
