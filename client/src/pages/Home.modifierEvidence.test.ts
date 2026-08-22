@@ -50,4 +50,12 @@ describe("Home planning-surface modifier evidence", () => {
       expect(markup).toContain("General sport evidence inventory");
     });
   }
+
+  it("renders the selected Exercise Genome primary-muscle handoff to Body Lab", async () => {
+    workspace = "genome";
+    const { default: Home } = await import("./Home");
+    const markup = renderToStaticMarkup(createElement(Home));
+
+    expect(markup).toContain("Open leading muscle in Body Lab");
+  });
 });

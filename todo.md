@@ -99,7 +99,7 @@
 - [x] Test printable notes, four-set prescriptions, and timed work formatting.
 - [x] Make serratus anterior exercise discovery explicit in the catalog and direct day builder, including a clear no-results fallback.
 - [x] Repair the live serratus anterior discovery path so the quick filter, full-name search, and Body Lab finder always return tagged exercises.
-- [ ] Add a direct Exercise Genome-to-Body-Lab handoff for the selected exercise’s primary muscle.
+- [x] Add a direct Exercise Genome-to-Body-Lab handoff for the selected exercise’s primary muscle.
 - [x] Add compact Body Lab sport and movement navigation so athletes can switch or return to another movement without leaving the anatomy workflow.
 
 - [x] Normalize the user-supplied movement lists for wrestling, American football, basketball, soccer, and baseball.
