@@ -64,6 +64,8 @@
 .atlas-ranking button{display:grid;grid-template-columns:auto 1fr auto auto;gap:.15rem .5rem;align-items:center;border:1px solid #e8eff3;background:#fff;padding:.5rem .65rem;text-align:left;transition:border-color .15s,box-shadow .15s}
 .atlas-ranking button:hover{border-color:#2d6cdf}
 .atlas-ranking button.is-selected{border-color:#e4512e;box-shadow:inset 0 0 0 1px #e4512e}
+.atlas-ranking .atlas-ranking-toggle{display:inline-flex;grid-template-columns:none;align-items:center;justify-content:center;justify-self:start;border-color:#c8d9e7;background:#f5f9fc;color:#2d6cdf;padding:.45rem .6rem;font-size:.61rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase}
+.atlas-ranking .atlas-ranking-toggle:hover{border-color:#2d6cdf;background:#eaf3fb}
 .atlas-rank-dot{display:block;width:.55rem;height:.55rem;border-radius:50%}
 .atlas-ranking button span{overflow:hidden;color:#345269;font-size:.66rem;font-weight:700;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
 .atlas-ranking button em{color:#73909f;font-size:.62rem;font-style:normal;font-weight:800;text-align:right}

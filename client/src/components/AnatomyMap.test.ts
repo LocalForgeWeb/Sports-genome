@@ -45,4 +45,17 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("PMID 30117053");
     expect(markup).toContain("force or injury risk");
   });
+
+  it("keeps the anatomy canvas focused by progressively disclosing lower-ranked worked muscles", async () => {
+    const { AnatomyMap } = await import("./AnatomyMap");
+    const markup = renderToStaticMarkup(createElement(AnatomyMap, {
+      primary: ["chest", "front delts", "triceps", "abs", "quads", "glutes"],
+      secondary: ["serratus anterior", "obliques"],
+      onSelect: vi.fn(),
+    }));
+
+    expect(markup).toContain("Leading muscle signals");
+    expect(markup).toContain("Expand only when you need the lower-ranked worked muscles.");
+    expect(markup).toContain("Show 3 more muscle signals");
+  });
 });

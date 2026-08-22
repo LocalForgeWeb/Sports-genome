@@ -88,6 +88,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
   const [selectedKey, setSelectedKey] = useState("");
   const [hoveredName, setHoveredName] = useState("");
   const [query, setQuery] = useState("");
+  const [showAllRanked, setShowAllRanked] = useState(false);
   const [chartFailed, setChartFailed] = useState(false);
 
   /* Compute which muscles are involved and their intensity */
@@ -131,6 +132,9 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
     });
     return entries.sort((a, b) => b.score - a.score).slice(0, 8);
   }, [primary, secondary, muscleScores]);
+  const filteredRanked = ranked.filter(region => !query || region.label.toLowerCase().includes(query.toLowerCase()));
+  const visibleRanked = showAllRanked ? filteredRanked : filteredRanked.slice(0, 5);
+  const hiddenRankedCount = Math.max(0, filteredRanked.length - visibleRanked.length);
 
   /* Initialize and update the body-muscles chart */
   useEffect(() => {
@@ -234,8 +238,8 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
 
           {/* Ranked muscles strip */}
           <div className="atlas-ranking">
-            <div><p className="metric-label">Top muscles</p><span>Click a row to focus it on the model.</span></div>
-            {ranked.filter(r => !query || r.label.toLowerCase().includes(query.toLowerCase())).map(region => (
+            <div><p className="metric-label">Leading muscle signals</p><span>Click a row to focus it on the model. Expand only when you need the lower-ranked worked muscles.</span></div>
+            {visibleRanked.map(region => (
               <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""}>
                 <i className="atlas-rank-dot" style={{ background: heatSolid(region.score) }} />
                 <span>{region.label}</span>
@@ -243,6 +247,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
                 <b className="atlas-rank-bar"><i style={{ width: `${region.score}%`, background: heatSolid(region.score) }} /></b>
               </button>
             ))}
+            {filteredRanked.length > 5 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer muscle signals" : `Show ${hiddenRankedCount} more muscle signal${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
           </div>
         </div>
 
