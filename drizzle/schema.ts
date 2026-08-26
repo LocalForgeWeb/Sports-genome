@@ -1,4 +1,15 @@
-import { boolean, decimal, index, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import {
+  boolean,
+  decimal,
+  index,
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  varchar,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,121 +36,289 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-export const workoutSessions = mysqlTable("workoutSessions", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  title: varchar("title", { length: 180 }).notNull(),
-  sportId: varchar("sportId", { length: 80 }),
-  goal: varchar("goal", { length: 80 }),
-  dayLabel: varchar("dayLabel", { length: 100 }),
-  status: mysqlEnum("status", ["active", "completed", "abandoned"]).notNull().default("active"),
-  plannedExerciseCount: int("plannedExerciseCount").notNull(),
-  sessionNotes: text("sessionNotes"),
-  startedAt: timestamp("startedAt").defaultNow().notNull(),
-  completedAt: timestamp("completedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-}, (table) => [index("workoutSessions_user_started_idx").on(table.userId, table.startedAt)]);
+export const workoutSessions = mysqlTable(
+  "workoutSessions",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 180 }).notNull(),
+    sportId: varchar("sportId", { length: 80 }),
+    goal: varchar("goal", { length: 80 }),
+    dayLabel: varchar("dayLabel", { length: 100 }),
+    status: mysqlEnum("status", ["active", "completed", "abandoned"])
+      .notNull()
+      .default("active"),
+    plannedExerciseCount: int("plannedExerciseCount").notNull(),
+    sessionNotes: text("sessionNotes"),
+    startedAt: timestamp("startedAt").defaultNow().notNull(),
+    completedAt: timestamp("completedAt"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("workoutSessions_user_started_idx").on(table.userId, table.startedAt),
+  ]
+);
 
-export const workoutSessionExercises = mysqlTable("workoutSessionExercises", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: int("sessionId").notNull().references(() => workoutSessions.id, { onDelete: "cascade" }),
-  catalogExerciseId: int("catalogExerciseId"),
-  exerciseName: varchar("exerciseName", { length: 255 }).notNull(),
-  movement: varchar("movement", { length: 255 }),
-  primaryMuscles: text("primaryMuscles"),
-  plannedPrescription: varchar("plannedPrescription", { length: 100 }).notNull(),
-  plannedRpe: varchar("plannedRpe", { length: 40 }),
-  plannedRest: varchar("plannedRest", { length: 40 }),
-  exerciseOrder: int("exerciseOrder").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-}, (table) => [index("workoutSessionExercises_session_order_idx").on(table.sessionId, table.exerciseOrder)]);
+export const workoutSessionExercises = mysqlTable(
+  "workoutSessionExercises",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    sessionId: int("sessionId")
+      .notNull()
+      .references(() => workoutSessions.id, { onDelete: "cascade" }),
+    catalogExerciseId: int("catalogExerciseId"),
+    exerciseName: varchar("exerciseName", { length: 255 }).notNull(),
+    movement: varchar("movement", { length: 255 }),
+    primaryMuscles: text("primaryMuscles"),
+    plannedPrescription: varchar("plannedPrescription", {
+      length: 100,
+    }).notNull(),
+    plannedRpe: varchar("plannedRpe", { length: 40 }),
+    plannedRest: varchar("plannedRest", { length: 40 }),
+    exerciseOrder: int("exerciseOrder").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("workoutSessionExercises_session_order_idx").on(
+      table.sessionId,
+      table.exerciseOrder
+    ),
+  ]
+);
 
-export const workoutSetLogs = mysqlTable("workoutSetLogs", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionExerciseId: int("sessionExerciseId").notNull().references(() => workoutSessionExercises.id, { onDelete: "cascade" }),
-  setNumber: int("setNumber").notNull(),
-  actualWeight: decimal("actualWeight", { precision: 8, scale: 2 }),
-  weightUnit: mysqlEnum("weightUnit", ["lb", "kg"]).notNull().default("lb"),
-  actualReps: int("actualReps"),
-  actualRpe: decimal("actualRpe", { precision: 3, scale: 1 }),
-  completed: boolean("completed").notNull().default(false),
-  setNotes: varchar("setNotes", { length: 500 }),
-  loggedAt: timestamp("loggedAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-}, (table) => [uniqueIndex("workoutSetLogs_exercise_set_unique").on(table.sessionExerciseId, table.setNumber)]);
+export const workoutSetLogs = mysqlTable(
+  "workoutSetLogs",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    sessionExerciseId: int("sessionExerciseId")
+      .notNull()
+      .references(() => workoutSessionExercises.id, { onDelete: "cascade" }),
+    setNumber: int("setNumber").notNull(),
+    actualWeight: decimal("actualWeight", { precision: 8, scale: 2 }),
+    weightUnit: mysqlEnum("weightUnit", ["lb", "kg"]).notNull().default("lb"),
+    actualReps: int("actualReps"),
+    actualRpe: decimal("actualRpe", { precision: 3, scale: 1 }),
+    completed: boolean("completed").notNull().default(false),
+    setNotes: varchar("setNotes", { length: 500 }),
+    loggedAt: timestamp("loggedAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("workoutSetLogs_exercise_set_unique").on(
+      table.sessionExerciseId,
+      table.setNumber
+    ),
+  ]
+);
 
 export type WorkoutSession = typeof workoutSessions.$inferSelect;
-export type WorkoutSessionExercise = typeof workoutSessionExercises.$inferSelect;
+export type WorkoutSessionExercise =
+  typeof workoutSessionExercises.$inferSelect;
 export type WorkoutSetLog = typeof workoutSetLogs.$inferSelect;
 
 /** Account-owned bookmarks for static exercise-catalog records. */
-export const favoriteExercises = mysqlTable("favoriteExercises", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  catalogExerciseId: int("catalogExerciseId").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-}, (table) => [
-  uniqueIndex("favoriteExercises_user_catalog_unique").on(table.userId, table.catalogExerciseId),
-  index("favoriteExercises_user_created_idx").on(table.userId, table.createdAt),
-]);
+export const favoriteExercises = mysqlTable(
+  "favoriteExercises",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    catalogExerciseId: int("catalogExerciseId").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    uniqueIndex("favoriteExercises_user_catalog_unique").on(
+      table.userId,
+      table.catalogExerciseId
+    ),
+    index("favoriteExercises_user_created_idx").on(
+      table.userId,
+      table.createdAt
+    ),
+  ]
+);
 
 export type FavoriteExercise = typeof favoriteExercises.$inferSelect;
 
 /** Standalone Gym Optimizer email credentials; password hashes are never exposed to clients. */
-export const emailCredentials = mysqlTable("emailCredentials", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  email: varchar("email", { length: 320 }).notNull(),
-  passwordHash: varchar("passwordHash", { length: 128 }).notNull(),
-  passwordSalt: varchar("passwordSalt", { length: 64 }).notNull(),
-  failedAttempts: int("failedAttempts").notNull().default(0),
-  lockedUntil: timestamp("lockedUntil"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-}, (table) => [
-  uniqueIndex("emailCredentials_email_unique").on(table.email),
-  uniqueIndex("emailCredentials_user_unique").on(table.userId),
-]);
+export const emailCredentials = mysqlTable(
+  "emailCredentials",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    email: varchar("email", { length: 320 }).notNull(),
+    passwordHash: varchar("passwordHash", { length: 128 }).notNull(),
+    passwordSalt: varchar("passwordSalt", { length: 64 }).notNull(),
+    failedAttempts: int("failedAttempts").notNull().default(0),
+    lockedUntil: timestamp("lockedUntil"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("emailCredentials_email_unique").on(table.email),
+    uniqueIndex("emailCredentials_user_unique").on(table.userId),
+  ]
+);
 
 /** Opaque, hashed local session tokens for standalone email and passkey accounts. */
-export const localAuthSessions = mysqlTable("localAuthSessions", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  tokenHash: varchar("tokenHash", { length: 64 }).notNull(),
-  expiresAt: timestamp("expiresAt").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
-}, (table) => [
-  uniqueIndex("localAuthSessions_token_unique").on(table.tokenHash),
-  index("localAuthSessions_user_expiry_idx").on(table.userId, table.expiresAt),
-]);
+export const localAuthSessions = mysqlTable(
+  "localAuthSessions",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: varchar("tokenHash", { length: 64 }).notNull(),
+    expiresAt: timestamp("expiresAt").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
+  },
+  table => [
+    uniqueIndex("localAuthSessions_token_unique").on(table.tokenHash),
+    index("localAuthSessions_user_expiry_idx").on(
+      table.userId,
+      table.expiresAt
+    ),
+  ]
+);
 
 /** WebAuthn credentials used by Face ID / device passkeys on supported platforms. */
-export const accountPasskeys = mysqlTable("accountPasskeys", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  credentialId: varchar("credentialId", { length: 512 }).notNull(),
-  publicKey: text("publicKey").notNull(),
-  counter: int("counter").notNull().default(0),
-  transports: varchar("transports", { length: 255 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  lastUsedAt: timestamp("lastUsedAt"),
-}, (table) => [
-  uniqueIndex("accountPasskeys_credential_unique").on(table.credentialId),
-  index("accountPasskeys_user_idx").on(table.userId),
-]);
+export const accountPasskeys = mysqlTable(
+  "accountPasskeys",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    credentialId: varchar("credentialId", { length: 512 }).notNull(),
+    publicKey: text("publicKey").notNull(),
+    counter: int("counter").notNull().default(0),
+    transports: varchar("transports", { length: 255 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    lastUsedAt: timestamp("lastUsedAt"),
+  },
+  table => [
+    uniqueIndex("accountPasskeys_credential_unique").on(table.credentialId),
+    index("accountPasskeys_user_idx").on(table.userId),
+  ]
+);
 
 /** One-time WebAuthn ceremony challenges, automatically expired and deleted after use. */
-export const localAuthChallenges = mysqlTable("localAuthChallenges", {
-  id: int("id").autoincrement().primaryKey(),
-  identifier: varchar("identifier", { length: 320 }).notNull(),
-  challenge: varchar("challenge", { length: 512 }).notNull(),
-  purpose: mysqlEnum("purpose", ["register", "authenticate"]).notNull(),
-  expiresAt: timestamp("expiresAt").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-}, (table) => [index("localAuthChallenges_identifier_purpose_idx").on(table.identifier, table.purpose, table.expiresAt)]);
+export const localAuthChallenges = mysqlTable(
+  "localAuthChallenges",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    identifier: varchar("identifier", { length: 320 }).notNull(),
+    challenge: varchar("challenge", { length: 512 }).notNull(),
+    purpose: mysqlEnum("purpose", ["register", "authenticate"]).notNull(),
+    expiresAt: timestamp("expiresAt").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    index("localAuthChallenges_identifier_purpose_idx").on(
+      table.identifier,
+      table.purpose,
+      table.expiresAt
+    ),
+  ]
+);
+
+/**
+ * Verified research sources supporting transparent exercise and program evidence.
+ * `reviewStatus` is intentionally preserved so abstract-only and citation-only records
+ * cannot be represented as full-paper findings.
+ */
+export const researchStudies = mysqlTable(
+  "researchStudies",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    pmid: varchar("pmid", { length: 32 }).notNull(),
+    title: text("title").notNull(),
+    authorsJson: text("authorsJson").notNull(),
+    journal: varchar("journal", { length: 500 }),
+    year: varchar("year", { length: 12 }),
+    volume: varchar("volume", { length: 80 }),
+    issue: varchar("issue", { length: 80 }),
+    pagesOrElocation: varchar("pagesOrElocation", { length: 160 }),
+    doi: varchar("doi", { length: 512 }),
+    pmcid: varchar("pmcid", { length: 32 }),
+    pubmedUrl: varchar("pubmedUrl", { length: 512 }).notNull(),
+    pmcFullTextUrl: varchar("pmcFullTextUrl", { length: 512 }),
+    abstract: text("abstract"),
+    publicationTypesJson: text("publicationTypesJson").notNull(),
+    meshTermsJson: text("meshTermsJson").notNull(),
+    keywordsJson: text("keywordsJson").notNull(),
+    sourceMetadataStatus: varchar("sourceMetadataStatus", {
+      length: 64,
+    }).notNull(),
+    reviewStatus: mysqlEnum("reviewStatus", [
+      "FULL_TEXT_VERIFIED",
+      "ABSTRACT_VERIFIED",
+      "RECORD_ONLY",
+    ]).notNull(),
+    evidenceTier: varchar("evidenceTier", { length: 64 }).notNull(),
+    confidence: mysqlEnum("confidence", ["high", "medium", "low"]).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("researchStudies_pmid_unique").on(table.pmid),
+    index("researchStudies_review_status_idx").on(table.reviewStatus),
+    index("researchStudies_evidence_tier_idx").on(table.evidenceTier),
+  ]
+);
+
+/** Bounded interpretation layer tied to a canonical research study. */
+export const researchEvidenceNotes = mysqlTable(
+  "researchEvidenceNotes",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    studyId: int("studyId")
+      .notNull()
+      .references(() => researchStudies.id, { onDelete: "cascade" }),
+    entryNumber: int("entryNumber").notNull(),
+    topic: varchar("topic", { length: 160 }).notNull(),
+    suppliedUse: text("suppliedUse"),
+    studyDesignAndPopulation: text("studyDesignAndPopulation"),
+    interventionAndComparator: text("interventionAndComparator"),
+    primaryOutcomes: text("primaryOutcomes"),
+    directResults: text("directResults").notNull(),
+    implementationImplication: text("implementationImplication").notNull(),
+    limitations: text("limitations").notNull(),
+    evidenceTier: varchar("evidenceTier", { length: 64 }).notNull(),
+    reviewStatus: mysqlEnum("reviewStatus", [
+      "FULL_TEXT_VERIFIED",
+      "ABSTRACT_VERIFIED",
+      "RECORD_ONLY",
+    ]).notNull(),
+    confidence: mysqlEnum("confidence", ["high", "medium", "low"]).notNull(),
+    noteSource: text("noteSource").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("researchEvidenceNotes_entry_unique").on(table.entryNumber),
+    index("researchEvidenceNotes_study_idx").on(table.studyId),
+    index("researchEvidenceNotes_topic_idx").on(table.topic),
+  ]
+);
+
+/** Non-negotiable reasoning constraints that govern the evidence layer. */
+export const researchEvidenceRules = mysqlTable("researchEvidenceRules", {
+  ruleKey: varchar("ruleKey", { length: 160 }).primaryKey(),
+  ruleText: text("ruleText").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
 
 export type EmailCredential = typeof emailCredentials.$inferSelect;
 export type LocalAuthSession = typeof localAuthSessions.$inferSelect;
 export type AccountPasskey = typeof accountPasskeys.$inferSelect;
+export type ResearchStudy = typeof researchStudies.$inferSelect;
+export type ResearchEvidenceNote = typeof researchEvidenceNotes.$inferSelect;
+export type ResearchEvidenceRule = typeof researchEvidenceRules.$inferSelect;
