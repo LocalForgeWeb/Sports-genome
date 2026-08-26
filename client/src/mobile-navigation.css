@@ -38,6 +38,10 @@
   .genome-fingerprint { max-width: 230px; }
   .genome-fingerprint svg { max-width: 205px; }
   .genome-quicknote { padding: .75rem; }
+  .genome-learn-overlay { align-items: end; padding: 0; }
+  .genome-learn-card { width: 100%; max-height: min(78svh, 680px); overflow-y: auto; border-radius: 22px 22px 0 0; padding: 1.2rem 1rem calc(1.2rem + env(safe-area-inset-bottom)); }
+  .genome-learn-card h4 { max-width: calc(100% - 2rem); font-size: 2rem; }
+  .genome-learn-close { width: 44px; height: 44px; }
   .feature-guide-button { right: max(.8rem, env(safe-area-inset-right)); bottom: max(.8rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; justify-content: center; border-radius: 999px; padding: 0; }
   .feature-guide-button span { display: none; }
   .body-lab-v2 .view-header { gap: .55rem; padding: 0; }
