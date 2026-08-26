@@ -395,6 +395,14 @@
 - [ ] Add Sign in with Apple account creation and return sign-in using a secure configured Apple identity-provider flow while retaining email/password and device passkey access.
 - [ ] Prepare App Store release configuration, privacy disclosures, application identifiers, native testing, icons/screenshots, and TestFlight submission prerequisites.
 
+## Batch 2: Architecture, Moment Arms, Tendons, and Modeling
+
+- [x] Inventory the uploaded architecture, moment-arm, tendon, force-length/velocity, and musculoskeletal-modeling studies by PMID, topic, priority, and proposed model use.
+- [x] Deduplicate Batch 2 against existing Sports Genome evidence records and preserve new tags or relationships for already-known studies.
+- [x] Verify high-priority Batch 2 studies against authoritative bibliographic sources and record only source-supported claims and limitations.
+- [x] Reconcile verified Batch 2 findings with muscle-targeting, Exercise Genome, and Body Lab inference boundaries; avoid treating model outputs as direct individual measurements.
+- [x] Implement only justified evidence registry, user-facing explanation, or mechanics-model updates with focused regression coverage.
+
 ## Navigation Reliability and Placeholder Removal
 
 - [x] Audit every side-navigation item, including its click handler, keyboard behavior, active state, and intended destination workspace.

@@ -10,6 +10,7 @@ export interface MechanicsFactor {
   context: string;
   status: "Configured descriptor" | "Conditional inference" | "Not individually measured";
   rankingInfluence: number;
+  sources?: { label: string; url: string }[];
 }
 
 export interface MuscleTargetingEstimate {
@@ -23,6 +24,16 @@ export interface MuscleTargetingEstimate {
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 const textFor = (exercise: Exercise) => `${exercise.name} ${exercise.movement} ${exercise.equipment} ${exercise.qualities.join(" ")}`.toLowerCase();
 const isBiarticular = (muscle: string) => ["hamstrings", "calves", "biceps", "triceps", "rectusFemoris"].includes(muscle);
+const pubmed = (pmid: string) => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
+
+export const mechanicsEvidenceSources = [
+  { label: "Lieber & Ward, 2011 · architecture and functional demand", url: pubmed("21502118") },
+  { label: "Arnold et al., 2013 · moment-arm estimation methods", url: pubmed("23998280") },
+  { label: "Rugg et al., 2019 · shoulder moment-arm systematic review", url: pubmed("30411350") },
+  { label: "Hofmann et al., 2019 · static optimization and antagonist activity", url: pubmed("31668905") },
+  { label: "Ishikawa & Komi, 2006 · muscle–tendon dynamics review", url: pubmed("16871004") },
+  { label: "Ackland et al., 2012 · model sensitivity analysis", url: pubmed("22507351") },
+] as const;
 
 function resistanceContext(text: string) {
   if (/cable/.test(text)) return { forceVector: "Cable line of pull; the athlete’s setup sets the external-force vector.", forceLength: "Cable line and joint position create a setup-dependent length–tension context." };
@@ -68,13 +79,13 @@ export function buildMuscleTargetingEstimate(exercise: Exercise, muscle: string,
     { id: "jointAngles", label: "Joint-angle context", context: "The catalog records movement and ROM context, not the athlete’s measured joint angles or technique.", status: "Not individually measured", rankingInfluence: jointAngleSignal },
     { id: "externalForceVector", label: "External-force vector", context: setup.forceVector, status: "Configured descriptor", rankingInfluence: forceVectorSignal },
     { id: "externalMoment", label: "External moment", context: "External moment is inferred from load placement, movement direction, and range—not calculated from a recorded load vector.", status: "Conditional inference", rankingInfluence: externalMomentSignal },
-    { id: "momentArms", label: "Moment-arm context", context: "Muscle leverage changes with joint position, geometry, and method; no fixed individual moment arm is assumed.", status: "Conditional inference", rankingInfluence: momentArmSignal },
-    { id: "architecture", label: "Architecture context", context: "Architecture informs broad force/excursion capacity context but is not available as a personal measurement.", status: "Not individually measured", rankingInfluence: architectureSignal },
-    { id: "forceLength", label: "Force–length context", context: lengthened ? "The named setup plausibly preserves resistance in a relatively lengthened region; exact operating length is not measured." : setup.forceLength, status: "Conditional inference", rankingInfluence: forceLengthSignal },
-    { id: "forceVelocity", label: "Force–velocity context", context: ballistic ? "Explosive intent changes force–velocity demands; repetition velocity is not measured." : "Tempo and velocity can alter force capacity; repetition velocity is not measured.", status: "Not individually measured", rankingInfluence: forceVelocitySignal },
+    { id: "momentArms", label: "Moment-arm context", context: "Muscle leverage changes with joint position, geometry, and method; no fixed individual moment arm is assumed.", status: "Conditional inference", rankingInfluence: momentArmSignal, sources: [mechanicsEvidenceSources[1], mechanicsEvidenceSources[2]] },
+    { id: "architecture", label: "Architecture context", context: "Architecture informs broad force/excursion capacity context but is not available as a personal measurement.", status: "Not individually measured", rankingInfluence: architectureSignal, sources: [mechanicsEvidenceSources[0]] },
+    { id: "forceLength", label: "Force–length context", context: lengthened ? "The named setup plausibly preserves resistance in a relatively lengthened region; exact operating length is not measured." : setup.forceLength, status: "Conditional inference", rankingInfluence: forceLengthSignal, sources: [mechanicsEvidenceSources[0], mechanicsEvidenceSources[4], mechanicsEvidenceSources[5]] },
+    { id: "forceVelocity", label: "Force–velocity context", context: ballistic ? "Explosive intent changes force–velocity demands; repetition velocity is not measured." : "Tempo and velocity can alter force capacity; repetition velocity is not measured.", status: "Not individually measured", rankingInfluence: forceVelocitySignal, sources: [mechanicsEvidenceSources[0], mechanicsEvidenceSources[4]] },
     { id: "contractionType", label: "Contraction-type context", context: eccentric ? "The named task includes a substantial eccentric-control context." : "The catalog does not infer a unique contraction distribution without execution data.", status: "Conditional inference", rankingInfluence: contractionSignal },
     { id: "biarticularPosition", label: "Biarticular-position context", context: isBiarticular(muscle) ? "This muscle can span more than one joint, so proximal and distal positions can change its contribution." : "Biarticular-position effects are not a primary driver for this listed muscle.", status: isBiarticular(muscle) ? "Conditional inference" : "Configured descriptor", rankingInfluence: biarticularSignal },
-    { id: "stabilization", label: "Stabilization and co-contraction", context: role === "Stabilizer" || unilateral ? "Positional control can require co-contraction; a simple optimization can understate antagonist contribution." : "Co-contraction can still occur, but it is not directly measured for this exercise.", status: "Conditional inference", rankingInfluence: stabilizationSignal },
+    { id: "stabilization", label: "Stabilization and co-contraction", context: role === "Stabilizer" || unilateral ? "Positional control can require co-contraction; a simple optimization can understate antagonist contribution." : "Co-contraction can still occur, but it is not directly measured for this exercise.", status: "Conditional inference", rankingInfluence: stabilizationSignal, sources: [mechanicsEvidenceSources[3]] },
   ];
   const rolePrior: Record<MuscleTargetingRole, number> = { "Prime mover": 78, Synergist: 50, Stabilizer: 30 };
   const mechanicsScore = clamp(rolePrior[role] * 0.5 + mechanicsFactors.reduce((sum, factor) => sum + factor.rankingInfluence, 0) / mechanicsFactors.length * 0.5);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
-import { buildMuscleTargetingEstimate } from "./muscleTargetingModel";
+import { buildMuscleTargetingEstimate, mechanicsEvidenceSources } from "./muscleTargetingModel";
 
 const fallback = exercises[0];
 const byName = (name: string) => exercises.find((exercise) => exercise.name === name) || fallback;
@@ -52,5 +52,16 @@ describe("mechanics-aware muscle targeting model", () => {
 
     expect(stabilization?.context).toContain("not directly measured");
     expect(biarticular?.context).toContain("more than one joint");
+  });
+
+  it("attaches verified Batch 2 mechanics sources without changing conditional score behavior", () => {
+    const estimate = buildMuscleTargetingEstimate(byName("Romanian Deadlift"), "hamstrings", "Prime mover");
+    const momentArms = estimate.mechanicsFactors.find((factor) => factor.id === "momentArms");
+    const stabilization = estimate.mechanicsFactors.find((factor) => factor.id === "stabilization");
+
+    expect(mechanicsEvidenceSources.map((source) => source.url)).toContain("https://pubmed.ncbi.nlm.nih.gov/23998280/");
+    expect(momentArms?.sources?.map((source) => source.url)).toContain("https://pubmed.ncbi.nlm.nih.gov/30411350/");
+    expect(stabilization?.sources?.map((source) => source.url)).toContain("https://pubmed.ncbi.nlm.nih.gov/31668905/");
+    expect(estimate.evidenceTier).toBe("Conditional mechanics ranking");
   });
 });
