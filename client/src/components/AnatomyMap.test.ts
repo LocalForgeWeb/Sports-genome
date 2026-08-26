@@ -39,6 +39,19 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("Retry detailed anatomy chart");
   });
 
+  it("renders role-only fallback context without fabricating an involvement percentage", async () => {
+    const { VectorAnatomyFallback } = await import("./AnatomyMap");
+    const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {
+      view: "BACK",
+      ranked: [{ key: "lats", label: "Latissimus dorsi", role: "Primary" }],
+      onSelect: vi.fn(),
+      onRetry: vi.fn(),
+    }));
+
+    expect(markup).toContain("Latissimus dorsi · Primary role");
+    expect(markup).not.toContain("Latissimus dorsi · 90%");
+  });
+
   it("renders selected-muscle architecture, leverage, source, and model boundary context", async () => {
     const { AnatomyMap } = await import("./AnatomyMap");
     const markup = renderToStaticMarkup(createElement(AnatomyMap, {

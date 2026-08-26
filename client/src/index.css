@@ -399,6 +399,12 @@ select {
    summary card so unsupported readiness markers are never rendered. */
 .command-hero + .grid { display: none; }
 
+/* Catalog Discovery is the canonical catalog surface. The earlier fixed-count
+   grid remains in markup during the staged migration but must not render. */
+@supports selector(section:has(.catalog-card)) {
+  .apex-content > section:has(.catalog-card) { display: none; }
+}
+
 .routine-import-modal { max-width: 980px; }.routine-preview-days { display: grid; gap: .55rem; margin-top: .9rem; max-height: 360px; overflow-y: auto; }.routine-preview-day { border: 1px solid #d8e5f1; background: #fff; }.routine-preview-day summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; padding: .7rem .8rem; color: #173d69; }.routine-preview-day summary::-webkit-details-marker { display: none; }.routine-preview-day summary span { display: grid; gap: .15rem; }.routine-preview-day summary strong { font-size: .78rem; }.routine-preview-day summary small { color: #6682a0; font-size: .65rem; }.routine-preview-day[open] summary { border-bottom: 1px solid #e3edf6; }.routine-preview-day[open] summary svg { transform: rotate(90deg); }.routine-preview-empty { padding: 1.5rem; border: 1px dashed #c8d9e9; color: #617d99; font-size: .78rem; line-height: 1.5; }.stack-import-confirm { margin-top: .45rem; }
 
 /* Import review stays navigable at any plan length; Home owns editable training context. */
