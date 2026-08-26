@@ -116,6 +116,13 @@
   .atlas-pro-head h2{font-size:2.15rem}
   .atlas-pro-controls{grid-template-columns:1fr 1fr}
   .atlas-pro-search,.atlas-advanced,.atlas-reset-pro{grid-column:span 2}
+  .atlas-body-chart-wrap{min-height:390px;border-radius:12px}
+  .atlas-body-chart{height:390px}
+  .atlas-canvas-header{margin-bottom:.15rem}
+  .atlas-flip-btn{min-height:44px;padding:.45rem .6rem}
+  .atlas-ranking{gap:.25rem;margin-top:.65rem;padding-top:.6rem}
+  .atlas-ranking button{min-height:44px;padding:.42rem .55rem}
+  .atlas-pro-inspector{margin-top:.2rem}
   .atlas-illustration-wrap{min-height:420px}
   .atlas-illustration{height:clamp(400px,52vh,560px)}
   .atlas-canvas-caption{align-items:start;flex-direction:column;gap:.2rem}

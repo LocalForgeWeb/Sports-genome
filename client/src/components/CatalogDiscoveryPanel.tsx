@@ -31,22 +31,24 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
 
   return <section className="catalog-discovery">
     <div className="catalog-discovery-search"><Search className="h-4 w-4" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder="Search exercise, muscle, movement, equipment, or quality" aria-label="Search exercises" /><span>{results.length} matches</span></div>
-    <div className="catalog-discovery-controls">
-      <div className="catalog-filter-intro"><SlidersHorizontal className="h-4 w-4" /><span>Filter 400 exercises</span></div>
-      <label><span>Category</span><select value={filters.category} onChange={(event) => update("category", event.target.value)}><option value="all">All categories</option>{options.categories.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-      <label><span>Movement</span><select value={filters.movement} onChange={(event) => update("movement", event.target.value)}><option value="all">All movements</option>{options.movements.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-      <label><span>Equipment</span><select value={filters.equipment} onChange={(event) => update("equipment", event.target.value)}><option value="all">All equipment</option>{options.equipment.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-      <label><span>Muscle</span><select value={filters.muscle} onChange={(event) => update("muscle", event.target.value)}><option value="all">All muscles</option>{options.muscles.map((value) => <option key={value} value={value}>{muscleLabels[value] || value}</option>)}</select></label>
-      <label><span>Sport fit</span><select value={filters.sportTier} onChange={(event) => update("sportTier", event.target.value as CatalogFilters["sportTier"])}><option value="all">Any sport fit</option><option value="A">A-grade or higher</option><option value="S">S-grade or higher</option></select></label>
-      <button onClick={() => { setVisibleCount(visiblePerPage); onFiltersChange({ ...defaultCatalogFilters, muscle: "serratusAnterior" }); }} className={`catalog-serratus-filter ${filters.muscle === "serratusAnterior" ? "catalog-serratus-filter-on" : ""}`} aria-pressed={filters.muscle === "serratusAnterior"}><Target className="h-3.5 w-3.5" /> Serratus anterior</button>
-      <button onClick={() => update("favoritesOnly", !filters.favoritesOnly)} className={`catalog-favorites-filter ${filters.favoritesOnly ? "catalog-favorites-filter-on" : ""}`} aria-pressed={filters.favoritesOnly}><Heart className="h-3.5 w-3.5" fill={filters.favoritesOnly ? "currentColor" : "none"} /> Favorites <b>{favoriteIds.size}</b></button>
-      {(activeFilterCount || filters.query) ? <button onClick={reset} className="catalog-filter-reset"><X className="h-3.5 w-3.5" /> Clear</button> : null}
-    </div>
+    <details className="catalog-discovery-controls">
+      <summary><span><SlidersHorizontal className="h-4 w-4" /> Filter & sort</span><small>{activeFilterCount ? `${activeFilterCount} active` : "All 400 exercises"}</small></summary>
+      <div className="catalog-discovery-filter-grid">
+        <label><span>Category</span><select value={filters.category} onChange={(event) => update("category", event.target.value)}><option value="all">All categories</option>{options.categories.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+        <label><span>Movement</span><select value={filters.movement} onChange={(event) => update("movement", event.target.value)}><option value="all">All movements</option>{options.movements.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+        <label><span>Equipment</span><select value={filters.equipment} onChange={(event) => update("equipment", event.target.value)}><option value="all">All equipment</option>{options.equipment.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+        <label><span>Muscle</span><select value={filters.muscle} onChange={(event) => update("muscle", event.target.value)}><option value="all">All muscles</option>{options.muscles.map((value) => <option key={value} value={value}>{muscleLabels[value] || value}</option>)}</select></label>
+        <label><span>Sport fit</span><select value={filters.sportTier} onChange={(event) => update("sportTier", event.target.value as CatalogFilters["sportTier"])}><option value="all">Any sport fit</option><option value="A">A-grade or higher</option><option value="S">S-grade or higher</option></select></label>
+        <button type="button" onClick={() => { setVisibleCount(visiblePerPage); onFiltersChange({ ...defaultCatalogFilters, muscle: "serratusAnterior" }); }} className={`catalog-serratus-filter ${filters.muscle === "serratusAnterior" ? "catalog-serratus-filter-on" : ""}`} aria-pressed={filters.muscle === "serratusAnterior"}><Target className="h-3.5 w-3.5" /> Serratus anterior</button>
+        <button type="button" onClick={() => update("favoritesOnly", !filters.favoritesOnly)} className={`catalog-favorites-filter ${filters.favoritesOnly ? "catalog-favorites-filter-on" : ""}`} aria-pressed={filters.favoritesOnly}><Heart className="h-3.5 w-3.5" fill={filters.favoritesOnly ? "currentColor" : "none"} /> Favorites <b>{favoriteIds.size}</b></button>
+        {(activeFilterCount || filters.query) ? <button type="button" onClick={reset} className="catalog-filter-reset"><X className="h-3.5 w-3.5" /> Clear filters</button> : null}
+      </div>
+    </details>
     {results.length ? <div className="catalog-discovery-list">
       {visibleResults.map((exercise) => {
         const isFavorite = favoriteIds.has(exercise.id);
         return <article key={exercise.id} className="catalog-discovery-card">
-          <button onClick={() => onInspect(exercise)} className="catalog-discovery-card-copy"><span className="catalog-discovery-index">{String(exercise.id).padStart(3, "0")}</span><span><strong>{exercise.name}</strong><small>{exercise.movement} · {exercise.equipment}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em></span></button>
+          <button onClick={() => onInspect(exercise)} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`}><span className="catalog-discovery-index">#{String(exercise.id).padStart(3, "0")}</span><span><strong>{exercise.name}</strong><small>{exercise.movement}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em></span><span className="catalog-discovery-tier">Tier {exercise.muscleGrade}</span></button>
           <div className="catalog-discovery-actions"><button onClick={() => onToggleFavorite(exercise)} className={isFavorite ? "catalog-favorite-on" : ""} aria-label={`${isFavorite ? "Remove" : "Save"} ${exercise.name} ${isFavorite ? "from" : "to"} favorites`}><Heart className="h-4 w-4" fill={isFavorite ? "currentColor" : "none"} /></button><button onClick={() => onAdd(exercise)} aria-label={`Add ${exercise.name} to workout`}><Plus className="h-4 w-4" /></button></div>
         </article>;
       })}

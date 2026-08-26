@@ -386,3 +386,28 @@
 - [x] Add direct add, remove, move up, and move down controls for custom day composition.
 - [x] Keep per-exercise prescriptions editable and save the manually assembled day into the active week.
 - [x] Validate manual day building across desktop, mobile, and week switching before publishing.
+
+## Native iOS App Store Release
+
+- [ ] Audit the recovered web product and define a native iOS athlete-app MVP that reuses the Sports Genome backend, catalog, workout data, and recommendation logic.
+- [ ] Establish an Expo/React Native mobile application foundation with Sports Genome visual tokens, safe-area navigation, and shared data contracts.
+- [ ] Build the core native athlete flows: account entry, onboarding, Training Day, workout set logging, catalog discovery, and account history.
+- [ ] Add Sign in with Apple account creation and return sign-in using a secure configured Apple identity-provider flow while retaining email/password and device passkey access.
+- [ ] Prepare App Store release configuration, privacy disclosures, application identifiers, native testing, icons/screenshots, and TestFlight submission prerequisites.
+
+## Navigation Reliability and Placeholder Removal
+
+- [x] Audit every side-navigation item, including its click handler, keyboard behavior, active state, and intended destination workspace.
+- [x] Repair side navigation so each visible destination is reachable by pointer and keyboard and opens a usable non-placeholder workspace.
+- [x] Remove or replace remaining athlete-facing placeholder language, dead-end actions, and nonfunctional destination states.
+- [ ] Validate side navigation and destination behavior on desktop and mobile, including touch, keyboard focus, and browser history handling.
+
+## Mobile-First Information Hierarchy
+
+- [x] Collapse sport-modifier evidence and Sport-to-Program hierarchy details behind compact one-tap summaries while retaining all source and methodology content.
+- [x] Replace the cramped mobile exercise catalog grid with a full-width ranked result list, sticky search, and compact filter/sort controls.
+- [x] Compress the mobile sticky header to preserve sport, goal, training-day, and Design Day context within a compact two-row layout.
+- [x] Tighten Exercise Genome and Body Lab mobile layout, tabs, score treatment, anatomy focus, and selected-muscle information without removing data.
+- [x] Reduce the floating guide control to a safe-area-aware compact help affordance that never blocks training controls.
+- [x] Standardize mobile touch targets, card density, disclosure behavior, typography, score bars, and visual hierarchy across affected athlete workflows.
+- [ ] Validate mobile hierarchy, no-overflow behavior, readable catalog results, and reachable controls at 375px, 390px, 402px, and 430px.

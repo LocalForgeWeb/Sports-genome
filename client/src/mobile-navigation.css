@@ -1,0 +1,47 @@
+.planning-disclosure-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+.planning-disclosure-card, .planning-evidence-card { border: 1px solid #cfe0f2; border-radius: 14px; background: #f9fcff; color: #24425d; overflow: hidden; }
+.planning-disclosure-card summary, .planning-evidence-card summary { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: .75rem; cursor: pointer; list-style: none; padding: .55rem .75rem; }
+.planning-disclosure-card summary::-webkit-details-marker, .planning-evidence-card summary::-webkit-details-marker { display: none; }
+.planning-disclosure-card summary span, .planning-evidence-card summary span { min-width: 0; }
+.planning-disclosure-card summary strong, .planning-evidence-card summary strong { display: block; color: #163f6c; font-size: .64rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.planning-disclosure-card summary small, .planning-evidence-card summary small { display: block; overflow: hidden; margin-top: .2rem; color: #58748f; font-size: .62rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.planning-disclosure-card summary em, .planning-evidence-card summary em { color: #2d6cdf; font-size: .55rem; font-style: normal; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+.planning-disclosure-detail, .planning-evidence-card > div { border-top: 1px solid #dbe8f4; padding: .75rem; }
+.planning-disclosure-detail > p:not(.metric-label), .planning-evidence-card > div p { margin-top: .45rem; color: #42617f; font-size: .68rem; line-height: 1.48; }
+.planning-disclosure-detail > p:first-of-type, .planning-evidence-card > div p:first-child { margin-top: .55rem; }
+.genome-methodology { border-bottom: 1px solid #d5e0ef; background: #f7fbff; }
+.genome-methodology summary { min-height: 42px; cursor: pointer; padding: .78rem 1.1rem; color: #2d6cdf; font-size: .62rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.genome-methodology > div { border-top: 1px solid #dce7f2; padding: .75rem 1.1rem; }
+.genome-methodology p { color: #5f7890; font-size: .65rem; line-height: 1.5; }
+.genome-methodology p + p { margin-top: .45rem; }
+.genome-reading-key { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .7rem; }
+.genome-reading-key span { border: 1px solid #d0e0f0; border-radius: 999px; background: #fff; padding: .26rem .42rem; color: #58748f; font-size: .56rem; line-height: 1.25; }
+.genome-reading-key strong { color: #245b98; font-weight: 900; }
+
+@media (max-width: 640px) {
+  .apex-topbar { min-height: 94px; align-items: stretch; padding: 8px 12px; }
+  .apex-topbar > div { align-items: center; }
+  .apex-topbar .metric-label { font-size: 8px; }
+  .apex-topbar p.text-sm { max-width: 182px; overflow: hidden; font-size: .74rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+  .apex-topbar button:last-child { min-width: 44px; padding: .5rem .62rem; font-size: .56rem; letter-spacing: .06em; }
+  .apex-topbar button:last-child svg { display: none; }
+  .apex-content { padding: 12px; }
+  .planning-disclosure-row { grid-template-columns: 1fr; gap: .5rem; }
+  .planning-disclosure-card summary, .planning-evidence-card summary { min-height: 44px; padding: .45rem .65rem; }
+  .planning-disclosure-detail, .planning-evidence-card > div { padding: .65rem; }
+  .rail-nav-item { min-height: 48px; }
+  .genome-panel { margin-top: 14px; }
+  .genome-panel-head { align-items: center; gap: .75rem; padding: .9rem; }
+  .genome-panel-head h3 { max-width: 220px; font-size: 1.8rem; line-height: .86; }
+  .genome-tab { min-height: 44px; padding: .65rem .75rem; font-size: .56rem; }
+  .genome-grid, .genome-mechanics, .genome-context { gap: .85rem; padding: .85rem; }
+  .genome-fingerprint { max-width: 230px; }
+  .genome-fingerprint svg { max-width: 205px; }
+  .genome-quicknote { padding: .75rem; }
+  .feature-guide-button { right: max(.8rem, env(safe-area-inset-right)); bottom: max(.8rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; justify-content: center; border-radius: 999px; padding: 0; }
+  .feature-guide-button span { display: none; }
+  .body-lab-v2 .view-header { gap: .55rem; padding: 0; }
+  .body-lab-v2 .view-header h1 { font-size: 2.6rem; }
+  .body-lab-v2 .view-header-note { display: none; }
+  .body-lab-v2 .body-lab-quick-actions { gap: .5rem; }
+}
