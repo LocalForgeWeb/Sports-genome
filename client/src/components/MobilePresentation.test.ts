@@ -28,4 +28,10 @@ describe("mobile athlete presentation", () => {
     expect(mobileStyles).toContain(".genome-methodology");
     expect(mobileStyles).toContain(".apex-topbar { min-height: 94px");
   });
+
+  it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {
+    expect(mobileStyles).toContain("mobile-disclosure-in 180ms");
+    expect(mobileStyles).toContain("mobile-tab-in 170ms");
+    expect(mobileStyles).toContain("@media (prefers-reduced-motion: reduce)");
+  });
 });

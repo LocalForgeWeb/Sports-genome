@@ -9,6 +9,7 @@
 .planning-disclosure-detail, .planning-evidence-card > div { border-top: 1px solid #dbe8f4; padding: .75rem; }
 .planning-disclosure-detail > p:not(.metric-label), .planning-evidence-card > div p { margin-top: .45rem; color: #42617f; font-size: .68rem; line-height: 1.48; }
 .planning-disclosure-detail > p:first-of-type, .planning-evidence-card > div p:first-child { margin-top: .55rem; }
+.planning-disclosure-card[open] .planning-disclosure-detail, .planning-evidence-card[open] > div, .catalog-discovery-controls[open] .catalog-discovery-filter-grid, .genome-methodology[open] > div { animation: mobile-disclosure-in 180ms cubic-bezier(.23, 1, .32, 1) both; }
 .genome-methodology { border-bottom: 1px solid #d5e0ef; background: #f7fbff; }
 .genome-methodology summary { min-height: 42px; cursor: pointer; padding: .78rem 1.1rem; color: #2d6cdf; font-size: .62rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
 .genome-methodology > div { border-top: 1px solid #dce7f2; padding: .75rem 1.1rem; }
@@ -17,6 +18,7 @@
 .genome-reading-key { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .7rem; }
 .genome-reading-key span { border: 1px solid #d0e0f0; border-radius: 999px; background: #fff; padding: .26rem .42rem; color: #58748f; font-size: .56rem; line-height: 1.25; }
 .genome-reading-key strong { color: #245b98; font-weight: 900; }
+@keyframes mobile-disclosure-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 640px) {
   .apex-topbar { min-height: 94px; align-items: stretch; padding: 8px 12px; }
@@ -34,6 +36,7 @@
   .genome-panel-head { align-items: center; gap: .75rem; padding: .9rem; }
   .genome-panel-head h3 { max-width: 220px; font-size: 1.8rem; line-height: .86; }
   .genome-tab { min-height: 44px; padding: .65rem .75rem; font-size: .56rem; }
+  .genome-tab-active { animation: mobile-tab-in 170ms cubic-bezier(.23, 1, .32, 1) both; }
   .genome-grid, .genome-mechanics, .genome-context { gap: .85rem; padding: .85rem; }
   .genome-fingerprint { max-width: 230px; }
   .genome-fingerprint svg { max-width: 205px; }
@@ -48,4 +51,10 @@
   .body-lab-v2 .view-header h1 { font-size: 2.6rem; }
   .body-lab-v2 .view-header-note { display: none; }
   .body-lab-v2 .body-lab-quick-actions { gap: .5rem; }
+}
+
+@keyframes mobile-tab-in { from { opacity: .7; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .planning-disclosure-card[open] .planning-disclosure-detail, .planning-evidence-card[open] > div, .catalog-discovery-controls[open] .catalog-discovery-filter-grid, .genome-methodology[open] > div, .genome-tab-active { animation: none; }
 }
