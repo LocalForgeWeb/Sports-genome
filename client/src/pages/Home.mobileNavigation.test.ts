@@ -17,5 +17,18 @@ describe("workspace side navigation", () => {
     expect(source).toContain('aria-current={workspace === item.id ? "page" : undefined}');
     expect(source).toContain('window.history.pushState({ workspace: next }, "", url)');
     expect(source).toContain('window.addEventListener("popstate", restoreWorkspace)');
+    expect(source).toContain('className="rail-scrim"');
+    expect(source).toContain('aria-label="Close workspace navigation"');
+    expect(source).toContain('onClick={() => navigateWorkspace("day-plan")}');
+    expect(source).toContain('onOpenAtlas={() => navigateWorkspace("movement")}');
+    expect(source).toContain('navigateWorkspace("catalog")');
+    expect(source).toContain('navigateWorkspace("recommended")');
+  });
+
+  it("keeps the rail reachable on desktop and dismissible by an overlay on small screens", () => {
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(css).toContain('@media (min-width: 1024px)');
+    expect(css).toContain('.apex-rail { transform: translateX(0); }');
+    expect(css).toContain('.rail-scrim { position: fixed;');
   });
 });

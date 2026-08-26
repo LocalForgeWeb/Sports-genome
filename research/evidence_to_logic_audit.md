@@ -65,6 +65,8 @@ The direct source review found no athlete-facing mock training record, fabricate
 
 The audit’s complete rule is not that every integer originates in a study. It is that **every athlete-facing value has a declared role**: source-backed population anchor, bounded relative planning estimate, product constraint, or athlete-entered observation. Exact numerical coefficients remain visibly non-measurement model settings unless an individual cited study itself supplies the value and scope.
 
+Optional `primaryOutcomes` values in the research-evidence API now normalize to `null` when the source summary did not supply them. This preserves the difference between an unavailable field and a real negative or empty finding, and prevents a blank placeholder from being rendered as evidence content.
+
 ## External evidence check used for programming anchors
 
 Currier et al. conducted a systematic review and Bayesian network meta-analysis of resistance-training prescription combinations in healthy adults. The review found that all included resistance-training prescriptions improved strength and hypertrophy relative to no exercise; higher-load prescriptions ranked highest for strength, while multiple-set prescriptions ranked highly for hypertrophy. The comparison concerns populations and programmed combinations of load, sets, and frequency, not a universal individual dose. Sports Genome therefore uses this source to support editable population-level anchors and retains an explicit boundary against “optimal for every athlete” claims.[1]

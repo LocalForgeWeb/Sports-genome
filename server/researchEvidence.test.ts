@@ -3,7 +3,7 @@ import {
   evidenceModelRules,
   evidenceSeedRecords,
 } from "./researchEvidenceSeed";
-import { getEvidenceImportPreview } from "./researchEvidence";
+import { getEvidenceImportPreview, optionalEvidenceText } from "./researchEvidence";
 
 describe("verified Sportsgenome research evidence seed", () => {
   it("preserves all 100 unique PubMed study records", () => {
@@ -47,5 +47,11 @@ describe("verified Sportsgenome research evidence seed", () => {
     expect(evidenceModelRules.map(rule => rule.ruleKey)).toContain(
       "fulltext_rule"
     );
+  });
+
+  it("represents absent optional outcomes as unavailable data rather than a blank placeholder", () => {
+    expect(optionalEvidenceText("")).toBeNull();
+    expect(optionalEvidenceText("   ")).toBeNull();
+    expect(optionalEvidenceText("Muscle thickness and strength")).toBe("Muscle thickness and strength");
   });
 });

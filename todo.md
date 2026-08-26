@@ -20,6 +20,25 @@
 - [ ] Finish the remaining recalibration/relabel pass for still-untracked constants or wording, then prove full-surface usage of named calibration through regression coverage.
 - [ ] Validate the full evidence-to-logic audit, checkpoint it, synchronize GitHub, and document values that remain intentionally adjustable rather than universal.
 
+## Sidebar Navigation Repair
+
+- [x] Audit the reported non-moving sidebar across click, keyboard, mobile-menu, active-section, and browser-history behavior.
+- [ ] Repair sidebar navigation so every visible destination changes the active workspace and closes the mobile overlay when appropriate.
+- [x] Add focused regression coverage for desktop rail visibility, mobile overlay dismissal, active-state semantics, and browser-history-aware workspace changes.
+- [ ] Confirm every sidebar destination changes the populated signed-in workspace on both desktop and mobile after publication.
+- [ ] Add interaction-level sidebar tests that activate every destination and assert active workspace, aria-current, history state, and mobile-rail closure behavior.
+- [ ] Visually verify the repaired sidebar in an authenticated mobile viewport and record the result separately from code-level validation.
+- [ ] Audit visible navigation controls that call setWorkspace(...) directly and route sidebar-consistent controls through navigateWorkspace where appropriate.
+
+## Visible Data Integrity and Interactive Navigation Verification
+
+- [ ] Audit and replace every visible placeholder-style numeric display with a live athlete value, derived planning value with clear label, or explicit no-data state.
+- [ ] Remove the unsupported command-center Session readiness marker and replace it with a truthful current-plan status derived from saved workout data.
+- [ ] Remove the stale duplicate command-center branch containing Session readiness and 82 from Home.tsx rather than hiding it with CSS.
+- [ ] Decide whether command-center plan status derives from persisted saved workout data or is explicitly labeled as active staged-plan state, then add a regression against the prior placeholder.
+- [ ] Interactively activate every sidebar destination and verify active workspace, URL history, active state, desktop rail behavior, and mobile overlay closure.
+- [ ] Capture and review updated desktop and mobile workspace screenshots after visible-placeholder cleanup and sidebar verification.
+
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
 - [x] Push the latest validated progressive-training, RPE, and segment-priority updates to LocalForgeWeb/Sports-genome and verify the remote branch tip.
 - [x] Push the latest validated mobile Training Day action-layout repair to LocalForgeWeb/Sports-genome and verify the remote branch tip.

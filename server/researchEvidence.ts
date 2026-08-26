@@ -44,7 +44,7 @@ export type ResearchEvidenceRecord = {
   suppliedUse: string;
   studyDesignAndPopulation: string;
   interventionAndComparator: string;
-  primaryOutcomes: string;
+  primaryOutcomes: string | null;
   directResults: string;
   implementationImplication: string;
   limitations: string;
@@ -67,6 +67,11 @@ function asStringArray(value: string) {
   } catch {
     return [];
   }
+}
+
+export function optionalEvidenceText(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
 }
 
 /**
@@ -274,7 +279,7 @@ function serializeEvidenceRow(
     suppliedUse: row.suppliedUse || "",
     studyDesignAndPopulation: row.studyDesignAndPopulation || "",
     interventionAndComparator: row.interventionAndComparator || "",
-    primaryOutcomes: row.primaryOutcomes || "",
+    primaryOutcomes: optionalEvidenceText(row.primaryOutcomes),
     directResults: row.directResults,
     implementationImplication: row.implementationImplication,
     limitations: row.limitations,

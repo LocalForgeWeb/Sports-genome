@@ -77,6 +77,7 @@
   .apex-shell { min-height: 100vh; background: #edf0ea; }
   .apex-rail { position: fixed; inset: 0 auto 0 0; z-index: 40; display: flex; width: 270px; flex-direction: column; background: #101a18; color: #eef4ed; box-shadow: 8px 0 32px rgb(6 15 11 / .18); transform: translateX(-102%); transition: transform 230ms cubic-bezier(.23,1,.32,1); }
   .apex-rail.rail-open { transform: translateX(0); }
+  .rail-scrim { position: fixed; z-index: 35; inset: 0; background: rgb(7 27 56 / .44); backdrop-filter: blur(2px); }
   .rail-brand { display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgb(255 255 255 / .09); padding: 22px 20px; }
   .rail-athlete { display: flex; align-items: center; gap: 10px; margin: 16px 14px 10px; padding: 12px; border: 1px solid rgb(255 255 255 / .08); background: rgb(255 255 255 / .035); }
   .rail-nav { display: grid; gap: 8px; padding: 10px; }.rail-nav-group { display: grid; gap: 3px; }.rail-nav-group > p { margin: 6px 9px 2px; color: #7692b2; font-size: .52rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
@@ -90,6 +91,11 @@
   .apex-main { min-width: 0; min-height: 100vh; }
   .apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: 72px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .9); padding: 12px 18px; backdrop-filter: blur(14px); }
   .apex-content { max-width: 1720px; margin: 0 auto; padding: 18px; }
+
+  @media (min-width: 1024px) {
+    .apex-rail { transform: translateX(0); }
+    .rail-scrim { display: none; }
+  }
   .command-hero { position: relative; min-height: 405px; overflow: hidden; background: #101a18; }
   .command-hero-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right center; }
   .command-overlay { position: absolute; inset: 0; background: linear-gradient(92deg, #101a18 8%, rgb(16 26 24 / .94) 43%, rgb(16 26 24 / .34) 74%, rgb(16 26 24 / .3) 100%); }
@@ -388,6 +394,10 @@ select {
 @media (max-width: 860px) { .rail-nav-item > span > span:last-child { display: none; }.view-header { gap: 1rem; }.view-header-note { max-width: none; }.metric-label { font-size: 9px; }.apex-topbar > div:last-child > button:not(:last-child) { display: none; } }
 
 .command-signal-card > p:nth-of-type(2) { display: none; }.light-panel .space-y-2 > button > span:nth-child(2) > span:last-child { display: none; }.light-panel .space-y-2 > button { min-height: 48px; }.dark-panel .movement-list-item > span:nth-child(2) > span:last-child { display: none; }
+
+/* The live command hero carries active-plan data. Hide the superseded duplicate
+   summary card so unsupported readiness markers are never rendered. */
+.command-hero + .grid { display: none; }
 
 .routine-import-modal { max-width: 980px; }.routine-preview-days { display: grid; gap: .55rem; margin-top: .9rem; max-height: 360px; overflow-y: auto; }.routine-preview-day { border: 1px solid #d8e5f1; background: #fff; }.routine-preview-day summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; padding: .7rem .8rem; color: #173d69; }.routine-preview-day summary::-webkit-details-marker { display: none; }.routine-preview-day summary span { display: grid; gap: .15rem; }.routine-preview-day summary strong { font-size: .78rem; }.routine-preview-day summary small { color: #6682a0; font-size: .65rem; }.routine-preview-day[open] summary { border-bottom: 1px solid #e3edf6; }.routine-preview-day[open] summary svg { transform: rotate(90deg); }.routine-preview-empty { padding: 1.5rem; border: 1px dashed #c8d9e9; color: #617d99; font-size: .78rem; line-height: 1.5; }.stack-import-confirm { margin-top: .45rem; }
 

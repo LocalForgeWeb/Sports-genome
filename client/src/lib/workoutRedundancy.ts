@@ -1,4 +1,5 @@
 import type { Exercise } from "./exerciseCatalog";
+import { logicCalibration } from "./evidenceTraceability";
 
 export type WorkoutRedundancyFinding = {
   firstExercise: string;
@@ -34,6 +35,10 @@ export function analyzeWorkoutRedundancy(workout: Exercise[]): WorkoutRedundancy
       findings.push({ firstExercise: first.name, secondExercise: second.name, classification, reason, boundary: "This is a planning-overlap estimate from catalog movement and muscle context. It does not measure recovery, individual technique, or the value of an exercise in isolation." });
     }
   }
-  const order: Record<WorkoutRedundancyFinding["classification"], number> = { "Likely duplicate": 0, "Useful reinforcement": 1, Complementary: 2 };
+  const order: Record<WorkoutRedundancyFinding["classification"], number> = {
+    "Likely duplicate": logicCalibration.workoutRedundancy.likelyDuplicateDisplayOrder,
+    "Useful reinforcement": logicCalibration.workoutRedundancy.usefulReinforcementDisplayOrder,
+    Complementary: logicCalibration.workoutRedundancy.complementaryDisplayOrder,
+  };
   return findings.sort((left, right) => order[left.classification] - order[right.classification]);
 }

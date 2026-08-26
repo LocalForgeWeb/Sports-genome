@@ -61,6 +61,11 @@ export const logicCalibration = {
     minimumMatchWordLength: 4,
     minimumMatchWords: 2,
   },
+  workoutRedundancy: {
+    likelyDuplicateDisplayOrder: 0,
+    usefulReinforcementDisplayOrder: 1,
+    complementaryDisplayOrder: 2,
+  },
   exerciseGenome: {
     relativeScaleMaximum: 100,
     relativeScaleMinimum: 0,
@@ -227,6 +232,7 @@ export const logicCalibration = {
     substantialDownwardChange: -0.1,
     maintainPerformanceTolerance: -0.03,
     highEffortRpe: 9,
+    moderateEffortRpe: 8.5,
     holdEffortRpe: 9.5,
   },
   segmentProgress: {

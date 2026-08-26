@@ -11,6 +11,6 @@ describe("Home multi-day routine handoff", () => {
     expect(source).toContain('nextWeeklyPrescriptions[planKey]');
     expect(source).toContain('nextContext[planKey] = day.context');
     expect(source).toContain('setWeeklyPlan((current) => ({ ...current, ...nextPlan }))');
-    expect(source).toContain('setWorkspace("day-plan")');
+    expect(source).toContain('navigateWorkspace("day-plan")');
   });
 });
