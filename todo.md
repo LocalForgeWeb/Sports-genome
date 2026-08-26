@@ -1,5 +1,14 @@
 # Sport Movement Database Expansion
 
+## Official App and Home-Screen Icon
+
+- [x] Inspect and remove or replace conflicting favicon, Apple touch icon, and manifest icon references.
+- [x] Create official edge-to-edge deep-navy square Sports Genome icon assets at 180×180, 192×192, and 512×512 from the supplied artwork without an embedded rounded mask.
+- [x] Add the official Apple touch icon link, standalone PWA manifest, deep-navy theme metadata, and matching PWA icon references.
+- [ ] Verify icon dimensions, opaque navy edge treatment, asset paths, manifest metadata, and published Safari Add to Home Screen configuration.
+- [ ] Publish the official icon update and verify the live deployed domain serves the new Apple touch icon and manifest paths.
+- [ ] Confirm Safari Add to Home Screen icon behavior from a real iPhone, keeping this device-only check distinct from code-level verification.
+
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
 - [x] Push the latest validated progressive-training, RPE, and segment-priority updates to LocalForgeWeb/Sports-genome and verify the remote branch tip.
 - [x] Push the latest validated mobile Training Day action-layout repair to LocalForgeWeb/Sports-genome and verify the remote branch tip.
@@ -25,6 +34,9 @@
 - [x] Replace the compact Rate Stack block with a dedicated whole-stack analysis view that maps all worked muscles, ranks involvement, and opens per-muscle detail across the active Training Day.
 - [x] Repair Stack Analysis so each selected muscle has distinct aggregate involvement and movement-specific mechanical detail instead of a shared normalized breakdown.
 - [ ] Run and document a focused bug sweep across onboarding, Training Days, Stack Analysis, Body Lab, catalog discovery, mobile layout, and authenticated history.
+- [x] Inspect StackAnalysisPage and CatalogDiscoveryPanel directly, resolve or explicitly reject prior audit candidates with source evidence, and add focused regression coverage where needed.
+- [ ] Perform and document a mobile-layout bug sweep across populated Training Day, Stack Analysis, Body Lab, and catalog flows, separating code-verified findings from device-only limits.
+- [ ] Expand the bug-sweep record to cover authenticated-history and Training Day behavior, with a clear distinction between source-verified safeguards and live-device-only checks.
 - [ ] Run an end-to-end authenticated workout: start a session, save set logs, complete it, and confirm the resulting timeline entry.
 - [ ] Visually verify the populated mobile Training Day action-card layout after the latest control redesign and record the result in the bug-sweep report.
 - [x] Guard sport-movement selection against an invalid persisted sport identifier so recommendation rendering cannot dereference an undefined movement.

@@ -18,6 +18,13 @@ vi.mock("react", async () => {
 });
 
 describe("Body Lab architecture mechanics disclosure", () => {
+  it("keeps an explicit zero exposure neutral instead of falling back to a worked-muscle intensity", async () => {
+    const { muscleScoreIntensity } = await import("./AnatomyMap");
+    expect(muscleScoreIntensity(0, 9)).toBe(0);
+    expect(muscleScoreIntensity(undefined, 9)).toBe(9);
+    expect(muscleScoreIntensity(75, 9)).toBe(8);
+  });
+
   it("renders a visible, selectable in-app vector fallback when the detailed anatomy chart is unavailable", async () => {
     const { VectorAnatomyFallback } = await import("./AnatomyMap");
     const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {

@@ -31,6 +31,10 @@ export function buildSetLogPayload(sessionExerciseId: number, setNumber: number,
   };
 }
 
+export function resolvedWeightUnit(weightUnit?: WeightUnit): WeightUnit {
+  return weightUnit ?? "lb";
+}
+
 function SetLogger({ setNumber, setLog, unit, onSave, pending }: {
   setNumber: number;
   setLog?: { actualWeight: string | null; actualReps: number | null; actualRpe?: string | null; completed: boolean };
@@ -77,7 +81,8 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
 }) {
   const utils = trpc.useUtils();
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
-  const [unit, setUnit] = useState<WeightUnit>("lb");
+  const [unit, setUnit] = useState<WeightUnit>(() => resolvedWeightUnit(weightUnit));
+  useEffect(() => setUnit(resolvedWeightUnit(weightUnit)), [weightUnit]);
   const sessionQuery = trpc.workoutLog.get.useQuery({ sessionId: activeSessionId || 0 }, { enabled: Boolean(activeSessionId) && isAuthenticated, refetchOnWindowFocus: false });
   const historyQuery = trpc.workoutLog.list.useQuery(undefined, { enabled: isAuthenticated, refetchOnWindowFocus: false });
   const startMutation = trpc.workoutLog.start.useMutation({ onSuccess: (session) => { if (session) { setActiveSessionId(session.id); utils.workoutLog.list.invalidate(); } } });

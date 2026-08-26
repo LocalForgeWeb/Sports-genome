@@ -65,14 +65,19 @@ export async function registerEmailAccount(input: { email: string; password: str
   const db = await getDb();
   if (!db) throw new Error("Account service unavailable");
   const email = normalizeEmail(input.email);
-  const existing = await db.select({ id: emailCredentials.id }).from(emailCredentials).where(eq(emailCredentials.email, email)).limit(1);
-  if (existing.length) return { ok: false as const, code: "EMAIL_EXISTS" as const };
   const openId = `email-${randomUUID()}`;
   const salt = randomBytes(16).toString("hex");
-  await db.insert(users).values({ openId, email, name: publicName(email), loginMethod: "email", lastSignedIn: new Date() });
-  const user = (await db.select().from(users).where(eq(users.openId, openId)).limit(1))[0];
-  if (!user) throw new Error("Could not create account");
-  await db.insert(emailCredentials).values({ userId: user.id, email, passwordHash: passwordHash(input.password, salt), passwordSalt: salt });
+  const result = await db.transaction(async (tx) => {
+    const existing = await tx.select({ id: emailCredentials.id }).from(emailCredentials).where(eq(emailCredentials.email, email)).limit(1);
+    if (existing.length) return { ok: false as const, code: "EMAIL_EXISTS" as const };
+    await tx.insert(users).values({ openId, email, name: publicName(email), loginMethod: "email", lastSignedIn: new Date() });
+    const user = (await tx.select().from(users).where(eq(users.openId, openId)).limit(1))[0];
+    if (!user) throw new Error("Could not create account");
+    await tx.insert(emailCredentials).values({ userId: user.id, email, passwordHash: passwordHash(input.password, salt), passwordSalt: salt });
+    return { ok: true as const, user };
+  });
+  if (!result.ok) return result;
+  const user = result.user;
   await setLocalSession(user.id, req, res);
   return { ok: true as const, user };
 }

@@ -10,13 +10,18 @@ function MetricBar({ label, value }: { label: string; value: number }) {
   return <div className="stack-analysis-metric"><div><span>{label}</span><strong>{value}</strong></div><i><b style={{ width: `${value}%` }} /></i></div>;
 }
 
+export function resolveStackMuscleSelection(selectedMuscle: string, availableMuscles: string[]) {
+  return availableMuscles.includes(selectedMuscle) ? selectedMuscle : availableMuscles[0] || "";
+}
+
 export function StackAnalysisPage({ workout, split, dayLabel, onClose, onInspectExercise }: { workout: Exercise[]; split: TrainingSplit; dayLabel: string; onClose: () => void; onInspectExercise: (exerciseId: number) => void }) {
   const analysis = useMemo(() => analyzeWholeStackMuscles(workout), [workout]);
   const [selectedMuscle, setSelectedMuscle] = useState("");
   const selected = analysis.find((item) => item.muscle === selectedMuscle) || analysis[0];
 
   useEffect(() => {
-    if (!selectedMuscle && analysis[0]) setSelectedMuscle(analysis[0].muscle);
+    const nextSelection = resolveStackMuscleSelection(selectedMuscle, analysis.map((item) => item.muscle));
+    if (nextSelection !== selectedMuscle) setSelectedMuscle(nextSelection);
   }, [analysis, selectedMuscle]);
 
   const primary = analysis.filter((item) => item.primaryExercises > 0).map((item) => item.muscle);
