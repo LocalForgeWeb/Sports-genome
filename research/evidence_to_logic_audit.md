@@ -49,6 +49,21 @@ The direct source review found no athlete-facing mock training record, fabricate
 
 `evidenceTraceability.test.ts` protects the four-category registry and core calibration presence. `ExerciseGenomePanel.traceability.test.ts` ensures athletes can open a compact methodology explanation that differentiates source-backed anchors from relative planning estimates. Existing recommendation, targeting, training, split, mobility, onboarding, account-entry, and Exercise Genome suites validate that the calibrated constants preserve their prior bounded behavior.
 
+## Remaining-surface classification pass
+
+| Surface family | Classification decision | Implementation disposition |
+|---|---|---|
+| Server authentication, validation, session, and history limits | Product constraints | Registered as security, reliability, input-validation, and display rules; none is described as a training finding. |
+| Stored loads, repetitions, RPE, completion, bodyweight, and session counts | Athlete-entered observations | Retained as the athlete’s own record, with no automatic medical, readiness, strength, or cross-person interpretation. |
+| Seeded study durations, percentages, protocol loads, repetitions, and outcomes | Source-backed only inside the cited record | Kept attached to PMID/DOI/source scope; blank optional outcome fields are unavailable data, not results. |
+| Sport movement tags, role/event/style records, and catalog exercise IDs | Catalog/source data or identifiers | Preserved as taxonomy and record data; numeric identifiers are never presented as performance values. |
+| Catalog grades, sport cues, movement coverage, overlap review, ranking, and list breadth | Relative planning estimate or product constraint | Catalog output is labeled as a rank; named calibration controls scoring, truncation, overlap review, and assistance limits. |
+| Exercise mechanics, targeting, Genome, redundancy, progression, exposure, recovery, and warm-up scores | Relative planning estimate | Coefficients are named in `logicCalibration`, displayed with relative-model language, and guarded by direct-evidence precedence and uncertainty disclosures. |
+| Gym-time options, history pagination, set-log input bounds, visible list sizes, chart geometry, and unit formatting | Product constraint | Treated as interface or record-integrity behavior, not physiology or prescription. |
+| Empty-state prompts, input placeholders, and missing data | Interface state | Kept only where they accurately express absence or request normal form input; no fake athlete record, fabricated recommendation, or simulated research finding remains. |
+
+The audit’s complete rule is not that every integer originates in a study. It is that **every athlete-facing value has a declared role**: source-backed population anchor, bounded relative planning estimate, product constraint, or athlete-entered observation. Exact numerical coefficients remain visibly non-measurement model settings unless an individual cited study itself supplies the value and scope.
+
 ## External evidence check used for programming anchors
 
 Currier et al. conducted a systematic review and Bayesian network meta-analysis of resistance-training prescription combinations in healthy adults. The review found that all included resistance-training prescriptions improved strength and hypertrophy relative to no exercise; higher-load prescriptions ranked highest for strength, while multiple-set prescriptions ranked highly for hypertrophy. The comparison concerns populations and programmed combinations of load, sets, and frequency, not a universal individual dose. Sports Genome therefore uses this source to support editable population-level anchors and retains an explicit boundary against “optimal for every athlete” claims.[1]

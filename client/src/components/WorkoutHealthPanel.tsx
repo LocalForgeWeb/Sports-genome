@@ -1,6 +1,7 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getWorkoutDiagnostics, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { equipmentProfileSummary, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
+import { logicCalibration } from "@/lib/evidenceTraceability";
 
 function storedEquipmentSummary() {
   if (typeof window === "undefined") return undefined;
@@ -12,9 +13,9 @@ function storedEquipmentSummary() {
   }
 }
 
-export function WorkoutHealthPanel({ workout, prescriptions, settings, goal = "Athleticism", gymMinutes = 60, equipmentSummary }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; goal?: TrainingGoal; gymMinutes?: number; equipmentSummary?: string }) {
+export function WorkoutHealthPanel({ workout, prescriptions, settings, goal = "Athleticism", gymMinutes = logicCalibration.workoutReview.defaultGymMinutes, equipmentSummary }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; goal?: TrainingGoal; gymMinutes?: number; equipmentSummary?: string }) {
   const diagnostics = getWorkoutDiagnostics(workout, prescriptions, settings, goal, gymMinutes);
-  const signal = diagnostics.fatigueExposure >= 72 ? "High" : diagnostics.fatigueExposure >= 52 ? "Moderate" : "Managed";
+  const signal = diagnostics.fatigueExposure >= logicCalibration.workoutReview.highFatigueReview ? "High" : diagnostics.fatigueExposure >= logicCalibration.workoutReview.moderateFatigueReview ? "Moderate" : "Managed";
   const activeEquipmentSummary = equipmentSummary || storedEquipmentSummary();
   return <section className="workout-health-panel" aria-label="Session diagnostics">
     <div className="workout-health-head"><div><p className="metric-label !text-[#9cb4d0]">Session diagnostics</p><h3>Coach scan</h3></div><span className={`health-signal health-signal-${signal.toLowerCase()}`}>{signal} fatigue model</span></div>

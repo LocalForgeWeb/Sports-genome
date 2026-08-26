@@ -224,10 +224,12 @@ export const logicCalibration = {
     defaultRpe: 7,
     highRedundancyReview: 62,
     highFatigueReview: 72,
+    moderateFatigueReview: 52,
     shortStrengthRestSeconds: 150,
     highAthleticismRpe: 9,
     unusedTimeMinutes: 18,
     broadPatternGapCount: 4,
+    defaultGymMinutes: 60,
   },
   mobility: {
     athleticismRehearseBoost: 1.8,
