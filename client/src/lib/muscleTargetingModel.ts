@@ -1,5 +1,6 @@
 import type { Exercise } from "./exerciseCatalog";
 import { getExerciseStudyCalibration } from "./exerciseStudyCalibration";
+import { logicCalibration } from "./evidenceTraceability";
 
 export type MuscleTargetingRole = "Prime mover" | "Synergist" | "Stabilizer";
 export type MuscleEvidenceTier = "Direct longitudinal exercise evidence" | "Conditional mechanics ranking";
@@ -65,16 +66,17 @@ export function buildMuscleTargetingEstimate(exercise: Exercise, muscle: string,
   const eccentric = /nordic|eccentric|depth|landing/.test(text);
   const lengthened = /romanian|\brdl\b|good morning|nordic|fly|pullover|deep squat/.test(text);
   const calibration = getExerciseStudyCalibration(exercise);
-  const jointAngleSignal = calibration?.rangeOfMotion === "Full" ? 72 : calibration?.rangeOfMotion === "Long-length partial" ? 78 : calibration?.rangeOfMotion === "Individualized" ? 64 : 58;
-  const forceVectorSignal = /cable/.test(text) ? 73 : /machine|smith|leg press/.test(text) ? 63 : 68;
-  const externalMomentSignal = /squat|deadlift|hinge|press|row|lunge|split/.test(text) ? 74 : 58;
-  const momentArmSignal = /curl|extension|raise|calf|leg curl/.test(text) ? 68 : /squat|hinge|press|row/.test(text) ? 64 : 56;
-  const architectureSignal = ["hamstrings", "quads", "calves", "chest", "frontDelts", "sideDelts", "rearDelts", "biceps", "triceps"].includes(muscle) ? 66 : 56;
-  const forceLengthSignal = lengthened ? 82 : /extension|kickback|squeeze|cable fly/.test(text) ? 50 : 62;
-  const forceVelocitySignal = ballistic ? 86 : 54;
-  const contractionSignal = eccentric ? 82 : ballistic ? 68 : 58;
-  const biarticularSignal = isBiarticular(muscle) ? 72 : 50;
-  const stabilizationSignal = role === "Stabilizer" ? (unilateral ? 82 : 66) : unilateral ? 68 : 48;
+  const targeting = logicCalibration.targeting;
+  const jointAngleSignal = calibration?.rangeOfMotion === "Full" ? targeting.jointAngleFullRomSignal : calibration?.rangeOfMotion === "Long-length partial" ? targeting.jointAngleLongLengthSignal : calibration?.rangeOfMotion === "Individualized" ? targeting.jointAngleIndividualizedSignal : targeting.jointAngleFallbackSignal;
+  const forceVectorSignal = /cable/.test(text) ? targeting.cableForceVectorSignal : /machine|smith|leg press/.test(text) ? targeting.guidedForceVectorSignal : targeting.gravityForceVectorSignal;
+  const externalMomentSignal = /squat|deadlift|hinge|press|row|lunge|split/.test(text) ? targeting.broadMomentSignal : targeting.defaultMomentSignal;
+  const momentArmSignal = /curl|extension|raise|calf|leg curl/.test(text) ? targeting.focusedMomentArmSignal : /squat|hinge|press|row/.test(text) ? targeting.compoundMomentArmSignal : targeting.defaultMomentArmSignal;
+  const architectureSignal = ["hamstrings", "quads", "calves", "chest", "frontDelts", "sideDelts", "rearDelts", "biceps", "triceps"].includes(muscle) ? targeting.majorArchitectureSignal : targeting.defaultArchitectureSignal;
+  const forceLengthSignal = lengthened ? targeting.lengthenedForceLengthSignal : /extension|kickback|squeeze|cable fly/.test(text) ? targeting.shortenedForceLengthSignal : targeting.defaultForceLengthSignal;
+  const forceVelocitySignal = ballistic ? targeting.ballisticForceVelocitySignal : targeting.defaultForceVelocitySignal;
+  const contractionSignal = eccentric ? targeting.eccentricContractionSignal : ballistic ? targeting.ballisticContractionSignal : targeting.defaultContractionSignal;
+  const biarticularSignal = isBiarticular(muscle) ? targeting.biarticularSignal : targeting.nonBiarticularSignal;
+  const stabilizationSignal = role === "Stabilizer" ? (unilateral ? targeting.unilateralStabilizerSignal : targeting.stabilizerSignal) : unilateral ? targeting.unilateralSynergistSignal : targeting.defaultStabilizationSignal;
   const mechanicsFactors: MechanicsFactor[] = [
     { id: "jointAngles", label: "Joint-angle context", context: "The catalog records movement and ROM context, not the athlete’s measured joint angles or technique.", status: "Not individually measured", rankingInfluence: jointAngleSignal },
     { id: "externalForceVector", label: "External-force vector", context: setup.forceVector, status: "Configured descriptor", rankingInfluence: forceVectorSignal },
@@ -87,9 +89,9 @@ export function buildMuscleTargetingEstimate(exercise: Exercise, muscle: string,
     { id: "biarticularPosition", label: "Biarticular-position context", context: isBiarticular(muscle) ? "This muscle can span more than one joint, so proximal and distal positions can change its contribution." : "Biarticular-position effects are not a primary driver for this listed muscle.", status: isBiarticular(muscle) ? "Conditional inference" : "Configured descriptor", rankingInfluence: biarticularSignal },
     { id: "stabilization", label: "Stabilization and co-contraction", context: role === "Stabilizer" || unilateral ? "Positional control can require co-contraction; a simple optimization can understate antagonist contribution." : "Co-contraction can still occur, but it is not directly measured for this exercise.", status: "Conditional inference", rankingInfluence: stabilizationSignal, sources: [mechanicsEvidenceSources[3]] },
   ];
-  const rolePrior: Record<MuscleTargetingRole, number> = { "Prime mover": 78, Synergist: 50, Stabilizer: 30 };
-  const mechanicsScore = clamp(rolePrior[role] * 0.5 + mechanicsFactors.reduce((sum, factor) => sum + factor.rankingInfluence, 0) / mechanicsFactors.length * 0.5);
-  const score = directNote ? Math.max(mechanicsScore, 82) : mechanicsScore;
+  const rolePrior: Record<MuscleTargetingRole, number> = { "Prime mover": logicCalibration.targeting.primeMoverPrior, Synergist: logicCalibration.targeting.synergistPrior, Stabilizer: logicCalibration.targeting.stabilizerPrior };
+  const mechanicsScore = clamp(rolePrior[role] * targeting.rolePriorWeight + mechanicsFactors.reduce((sum, factor) => sum + factor.rankingInfluence, 0) / mechanicsFactors.length * targeting.mechanicsFactorsWeight);
+  const score = directNote ? Math.max(mechanicsScore, logicCalibration.targeting.directEvidenceRelativeFloor) : mechanicsScore;
 
   return {
     score,

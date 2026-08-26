@@ -1,6 +1,7 @@
 /** Kinetic Field Manual: saved-plan volume estimates that distinguish direct work sets from indirect supporting exposure. */
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
+import { logicCalibration } from "@/lib/evidenceTraceability";
 
 export type WeeklyPlan = Record<string, Exercise[]>;
 export type WeeklyPrescriptionStore = Record<string, Record<number, string>>;
@@ -40,7 +41,7 @@ export function getWeeklyMuscleVolume(plan: WeeklyPlan, weeklyPrescriptions: Wee
       });
       support.forEach((muscle) => {
         const current = volumes.get(muscle) || { muscle, label: displayNames[muscle] || muscle, directSets: 0, supportSets: 0, equivalentSets: 0, daySets: {} };
-        const contribution = Number((sets * 0.5).toFixed(1));
+        const contribution = Number((sets * logicCalibration.exposure.secondarySetConvention).toFixed(1));
         current.supportSets += contribution;
         current.daySets[dayKey] = Number(((current.daySets[dayKey] || 0) + contribution).toFixed(1));
         volumes.set(muscle, current);
@@ -52,7 +53,7 @@ export function getWeeklyMuscleVolume(plan: WeeklyPlan, weeklyPrescriptions: Wee
 
 export function getVolumeStatus(volume: MuscleVolume) {
   if (!volume.equivalentSets) return { label: "Not planned", tone: "empty" as const };
-  if (volume.directSets >= 12) return { label: "High exposure", tone: "high" as const };
-  if (volume.directSets >= 6) return { label: "Established", tone: "established" as const };
+  if (volume.directSets >= logicCalibration.exposure.highDirectSetBand) return { label: "High exposure", tone: "high" as const };
+  if (volume.directSets >= logicCalibration.exposure.lowDirectSetBand) return { label: "Established", tone: "established" as const };
   return { label: "Building", tone: "building" as const };
 }

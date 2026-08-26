@@ -3,6 +3,7 @@ import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { getMovementRecommendations } from "@/lib/movementRecommendations";
 import { getEnrichedMovement, type EnrichedSportMovement } from "@/lib/enrichedSportMovementDatabase";
 import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
+import { logicCalibration } from "@/lib/evidenceTraceability";
 
 const muscleAliases: Record<string, string[]> = {
   chest: ["pectoralis major", "pectoralis minor"],
@@ -41,7 +42,7 @@ const overlap = (left: string[], right: string[]) => {
   const a = new Set(left);
   const b = new Set(right);
   const shared = Array.from(a).filter((value) => b.has(value)).length;
-  const total = new Set([...left, ...right]).size || 1;
+  const total = new Set([...left, ...right]).size || logicCalibration.movementProgramAnalysis.nonZeroCoverageDenominator;
   return shared / total;
 };
 
@@ -81,17 +82,17 @@ export function analyzeWorkoutForMovement(movement: EnrichedSportMovement, worko
   const stabilizers = roleCoverage(movement.stabilizers, "Stabilizer", workout);
   const all = [...primeMovers, ...assistingMuscles, ...stabilizers];
   const covered = all.filter((item) => item.coveredBy.length).length;
-  const percent = Math.round((covered / Math.max(1, all.length)) * 100);
+  const percent = Math.round((covered / Math.max(logicCalibration.movementProgramAnalysis.nonZeroCoverageDenominator, all.length)) * logicCalibration.movementProgramAnalysis.displayScaleMaximum);
   const strengths = [
     ...primeMovers.filter((item) => item.coveredBy.length),
     ...assistingMuscles.filter((item) => item.coveredBy.length),
     ...stabilizers.filter((item) => item.coveredBy.length),
-  ].map((item) => item.name).slice(0, 3);
+  ].map((item) => item.name).slice(0, logicCalibration.movementProgramAnalysis.displayedStrengthLimit);
   const priorities = [
     ...primeMovers.filter((item) => !item.coveredBy.length),
     ...stabilizers.filter((item) => !item.coveredBy.length),
     ...assistingMuscles.filter((item) => !item.coveredBy.length),
-  ].map((item) => item.name).slice(0, 3);
+  ].map((item) => item.name).slice(0, logicCalibration.movementProgramAnalysis.displayedPriorityLimit);
   const redundancyFlags: RedundancyFlag[] = [];
   workout.forEach((left, index) => workout.slice(index + 1).forEach((right) => {
     const leftMuscles = [...left.primaryMuscles, ...left.secondaryMuscles];
@@ -99,11 +100,11 @@ export function analyzeWorkoutForMovement(movement: EnrichedSportMovement, worko
     const muscleOverlap = overlap(leftMuscles, rightMuscles);
     const qualityOverlap = overlap(left.qualities, right.qualities);
     const sameMovement = left.movement.toLowerCase() === right.movement.toLowerCase();
-    const closelySimilar = muscleOverlap >= 0.72 && qualityOverlap >= 0.55;
-    if ((sameMovement && muscleOverlap >= 0.5) || closelySimilar) {
-      const level = qualityOverlap >= 0.6 ? "Review overlap" : "Purposeful overlap";
+    const closelySimilar = muscleOverlap >= logicCalibration.movementProgramAnalysis.closelySimilarMuscleOverlap && qualityOverlap >= logicCalibration.movementProgramAnalysis.closelySimilarQualityOverlap;
+    if ((sameMovement && muscleOverlap >= logicCalibration.movementProgramAnalysis.sameMovementMuscleOverlap) || closelySimilar) {
+      const level = qualityOverlap >= logicCalibration.movementProgramAnalysis.reviewQualityOverlap ? "Review overlap" : "Purposeful overlap";
       const rationale = sameMovement
-        ? (qualityOverlap >= 0.6 ? `Both use a ${left.movement.toLowerCase()} pattern with substantial target-muscle and quality overlap.` : `Both share a ${left.movement.toLowerCase()} pattern, but their quality emphasis differs enough to review rather than automatically remove either.`)
+        ? (qualityOverlap >= logicCalibration.movementProgramAnalysis.reviewQualityOverlap ? `Both use a ${left.movement.toLowerCase()} pattern with substantial target-muscle and quality overlap.` : `Both share a ${left.movement.toLowerCase()} pattern, but their quality emphasis differs enough to review rather than automatically remove either.`)
         : `Their movement labels differ, but target-muscle and quality overlap are high enough to review the combined session dose.`;
       redundancyFlags.push({ left, right, level, rationale });
     }
@@ -120,15 +121,15 @@ export function analyzeWorkoutForMovement(movement: EnrichedSportMovement, worko
 export type MovementAssistance = { exercise: Exercise; rationale: string; source: "Movement record" | "Catalog match" };
 
 const nameMatches = (exercise: Exercise, phrase: string) => {
-  const words = phrase.toLowerCase().split(/[^a-z]+/).filter((word) => word.length > 3);
+  const words = phrase.toLowerCase().split(/[^a-z]+/).filter((word) => word.length >= logicCalibration.movementProgramAnalysis.minimumMatchWordLength);
   const name = exercise.name.toLowerCase();
   const matched = words.filter((word) => name.includes(word));
-  return words.length > 1 && matched.length >= 2;
+  return words.length >= logicCalibration.movementProgramAnalysis.minimumMatchWords && matched.length >= logicCalibration.movementProgramAnalysis.minimumMatchWords;
 };
 
-export function getMovementAssistance(movement: EnrichedSportMovement, fallback: SportMovementProfile, limit = 8): MovementAssistance[] {
+export function getMovementAssistance(movement: EnrichedSportMovement, fallback: SportMovementProfile, limit: number = logicCalibration.recommendation.assistanceLimit): MovementAssistance[] {
   const direct = exercises.filter((exercise) => movement.recommendedExercises.some((name) => nameMatches(exercise, name))).map((exercise) => ({ exercise, rationale: `Listed for ${movement.recommendedExercisePatterns.join(" · ")} support.`, source: "Movement record" as const }));
-  const catalog = getMovementRecommendations(fallback, 18).map((result) => ({ exercise: result.exercise, rationale: result.rationale, source: "Catalog match" as const }));
+  const catalog = getMovementRecommendations(fallback, logicCalibration.recommendation.assistanceFallbackLimit).map((result) => ({ exercise: result.exercise, rationale: result.rationale, source: "Catalog match" as const }));
   return [...direct, ...catalog].filter((entry, index, list) => list.findIndex((candidate) => candidate.exercise.id === entry.exercise.id) === index).slice(0, limit);
 }
 

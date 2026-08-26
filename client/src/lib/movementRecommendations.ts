@@ -4,6 +4,7 @@ import { sportMovementProfiles, type SportMovementProfile } from "@/lib/sportMov
 import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
 import { buildMovementReasoning, getSportDemandModel } from "./hierarchicalSportModel";
 import { getSprintPowerEvidenceContext } from "./sprintPowerEvidence";
+import { logicCalibration } from "./evidenceTraceability";
 
 export type MovementSignal = "acceleration" | "braking" | "lateral" | "rotation" | "jump" | "push" | "pull" | "overhead" | "grip" | "bracing" | "posterior" | "knee" | "conditioning" | "singleLeg";
 
@@ -84,7 +85,7 @@ const hierarchyQualityMap: Record<string, string[]> = {
 
 function hierarchyBoost(exercise: Exercise, sportId: string, modifierId?: string) {
   const model = getSportDemandModel(sportId, modifierId);
-  const activeKeys = model.demands.filter((demand) => demand.score >= 0.7).map((demand) => demand.key);
+  const activeKeys = model.demands.filter((demand) => demand.score >= logicCalibration.sportDemand.priorityFilter).map((demand) => demand.key);
   const qualityBoost = activeKeys.reduce((total, key) => total + (hierarchyQualityMap[key] || []).filter((quality) => exercise.qualities.includes(quality)).length * 0.34, 0);
   const emphasis = model.selectedModifier?.emphasis.join(" ").toLowerCase() || "";
   const text = `${exercise.name} ${exercise.movement} ${exercise.qualities.join(" ")} ${exercise.primaryMuscles.join(" ")}`.toLowerCase();
@@ -95,7 +96,7 @@ function hierarchyBoost(exercise: Exercise, sportId: string, modifierId?: string
 
 export function getSportProgrammingContext(sportId: string, modifierId?: string) {
   const model = getSportDemandModel(sportId, modifierId);
-  const priorities = model.demands.filter((demand) => demand.score >= 0.7).slice(0, 4);
+  const priorities = model.demands.filter((demand) => demand.score >= logicCalibration.sportDemand.priorityFilter).slice(0, 4);
   const modifierEvidenceSources = model.selectedModifier?.evidenceSources || ["General sport evidence inventory — reviewed source scope documented in the project register."];
   return {
     modifierLabel: model.selectedModifier?.label || "General sport profile",
@@ -207,7 +208,7 @@ export function sprintPowerEvidenceRankAdjustment(exercise: Exercise, profile: S
   if (/reactive strength|plyometric/.test(topicText) && qualities.some((quality) => ["jumping", "elasticity", "power"].includes(quality))) adjustment += 0.4;
   if (/change of direction|braking/.test(topicText) && qualities.some((quality) => ["deceleration", "lateralControl", "unilateral", "bracing"].includes(quality))) adjustment += 0.45;
   if (/repeated-sprint|sprint maintenance/.test(topicText) && qualities.some((quality) => ["conditioning", "sprintSupport", "power"].includes(quality))) adjustment += 0.35;
-  return Math.min(1.2, adjustment);
+  return Math.min(logicCalibration.recommendation.sprintPowerAdjustmentCap, adjustment);
 }
 
 export function hierarchyTraceConstructionBoost(exercise: Exercise, hierarchy: HierarchyTrace) {
@@ -232,7 +233,7 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
     const matchedSignals = signals.filter((signal) => signalRules.find((rule) => rule.signal === signal)?.qualities.some((quality) => exercise.qualities.includes(quality)));
     const matchedMuscles = profileMuscles.filter((muscle) => exerciseMuscles.includes(muscle) || (muscle === "shoulders" && exerciseMuscles.some((item) => ["frontDelts", "sideDelts", "rearDelts"].includes(item))));
     const sprintPowerAdjustment = sprintPowerEvidenceRankAdjustment(exercise, profile);
-    const score = matchedSignals.length * 2.25 + matchedMuscles.length * 1.75 + (exercise.qualities.includes("power") && signals.includes("rotation") ? 1.25 : 0) + (exercise.qualities.includes("unilateral") && signals.includes("singleLeg") ? 1 : 0) + sprintPowerAdjustment;
+    const score = matchedSignals.length * logicCalibration.recommendation.signalMatchWeight + matchedMuscles.length * logicCalibration.recommendation.muscleMatchWeight + (exercise.qualities.includes("power") && signals.includes("rotation") ? logicCalibration.recommendation.rotationalPowerBonus : 0) + (exercise.qualities.includes("unilateral") && signals.includes("singleLeg") ? logicCalibration.recommendation.unilateralBonus : 0) + sprintPowerAdjustment;
     const grade = gradeForScore(score);
     const rationale = scoreReason(exercise, matchedSignals, matchedMuscles);
     const breakdown = buildBreakdown(exercise, signals, matchedSignals, matchedMuscles, score);
@@ -246,7 +247,7 @@ export function getSportSession(sportId: string, goal: string, limit = 6, equipm
   const pooled = new Map<number, MovementRecommendation>();
   profiles.forEach((profile) => getMovementRecommendations(profile, 10, modifierId).forEach((result) => {
     const existing = pooled.get(result.exercise.id);
-    const goalBoost = goal === "Athleticism" && result.exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "rotation"].includes(quality)) ? 1.2 : goal === "Muscle growth" && result.exercise.qualities.includes("hypertrophy") ? 0.9 : goal === "Max strength" && result.exercise.qualities.includes("strength") ? 0.9 : 0;
+    const goalBoost = goal === "Athleticism" && result.exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "rotation"].includes(quality)) ? logicCalibration.recommendation.goalAthleticismLift : goal === "Muscle growth" && result.exercise.qualities.includes("hypertrophy") ? logicCalibration.recommendation.goalStrengthOrGrowthLift : goal === "Max strength" && result.exercise.qualities.includes("strength") ? logicCalibration.recommendation.goalStrengthOrGrowthLift : 0;
     const candidate = { ...result, score: result.score + goalBoost + result.hierarchyConstructionScore };
     if (!existing || candidate.score > existing.score) pooled.set(result.exercise.id, candidate);
   }));
@@ -268,7 +269,7 @@ export function getSportSession(sportId: string, goal: string, limit = 6, equipm
       const novelSignals = candidate.matchedSignals.filter((signal) => !selected.some((item) => item.matchedSignals.includes(signal))).length;
       const novelMuscles = candidate.matchedMuscles.filter((muscle) => !selected.some((item) => item.matchedMuscles.includes(muscle))).length;
       const uncoveredHierarchyPriorities = candidate.hierarchy.physicalQualityKeys.filter((key) => !selected.some((item) => item.hierarchy.physicalQualityKeys.includes(key))).length;
-      const diversityAdjustment = novelSignals * 2.2 + novelMuscles * 1.5 + uncoveredHierarchyPriorities * 0.45 - sameMovement * 6.2 - averageOverlap * 5.5 - Math.max(0, sameEquipment - 2) * 0.7;
+      const diversityAdjustment = novelSignals * logicCalibration.recommendation.noveltySignalWeight + novelMuscles * logicCalibration.recommendation.noveltyMuscleWeight + uncoveredHierarchyPriorities * logicCalibration.recommendation.noveltyHierarchyWeight - sameMovement * logicCalibration.recommendation.sameMovementPenalty - averageOverlap * logicCalibration.recommendation.overlapPenalty - Math.max(0, sameEquipment - 2) * logicCalibration.recommendation.repeatedEquipmentPenalty;
       return { candidate, diversifiedScore: candidate.score + diversityAdjustment };
     }).sort((a, b) => b.diversifiedScore - a.diversifiedScore || a.candidate.exercise.id - b.candidate.exercise.id)[0]?.candidate;
     if (!next) break;

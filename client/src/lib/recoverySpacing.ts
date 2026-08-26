@@ -1,6 +1,7 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import type { WeeklyPlan, WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
+import { logicCalibration } from "@/lib/evidenceTraceability";
 
 export type RecoverySpacingAlert = {
   previousDay: string;
@@ -23,7 +24,7 @@ function getDayExposure(workout: Exercise[], prescriptions: Record<number, strin
     const sets = parseSets(prescriptions?.[exercise.id] || getGoalPrescription(goal, index), 3);
     const primary = new Set(exercise.primaryMuscles);
     primary.forEach((muscle) => exposure.set(muscle, (exposure.get(muscle) || 0) + sets));
-    exercise.secondaryMuscles.filter((muscle) => !primary.has(muscle)).forEach((muscle) => exposure.set(muscle, Number(((exposure.get(muscle) || 0) + sets * .5).toFixed(1))));
+    exercise.secondaryMuscles.filter((muscle) => !primary.has(muscle)).forEach((muscle) => exposure.set(muscle, Number(((exposure.get(muscle) || 0) + sets * logicCalibration.exposure.secondarySetConvention).toFixed(1))));
   });
   return exposure;
 }
@@ -37,10 +38,10 @@ export function getRecoverySpacingAlerts(plan: WeeklyPlan, weeklyPrescriptions: 
     const following = getDayExposure(next[1], weeklyPrescriptions[next[0]], goal);
     const sharedMuscles = Array.from(previous.entries()).flatMap(([muscle, previousSets]) => {
       const nextSets = following.get(muscle) || 0;
-      return previousSets >= 3 && nextSets >= 3 ? [{ muscle, label: labels[muscle] || muscle, previousSets, nextSets }] : [];
+      return previousSets >= logicCalibration.exposure.consecutiveDayMinimumSets && nextSets >= logicCalibration.exposure.consecutiveDayMinimumSets ? [{ muscle, label: labels[muscle] || muscle, previousSets, nextSets }] : [];
     }).sort((a, b) => Math.min(b.previousSets, b.nextSets) - Math.min(a.previousSets, a.nextSets));
     if (!sharedMuscles.length) return [];
     const sharedExposure = sharedMuscles.reduce((sum, item) => sum + Math.min(item.previousSets, item.nextSets), 0);
-    return [{ previousDay: dayLabel(previousKey), nextDay: dayLabel(next[0]), severity: sharedExposure >= 8 ? "priority" : "watch", sharedMuscles }];
+    return [{ previousDay: dayLabel(previousKey), nextDay: dayLabel(next[0]), severity: sharedExposure >= logicCalibration.exposure.consecutiveDayPriorityExposure ? "priority" : "watch", sharedMuscles }];
   });
 }

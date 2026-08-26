@@ -82,7 +82,7 @@ function sessionPerformance(sets: LoggedPerformanceSet[]) {
   const averageReps = completed.reduce((total, set) => total + (set.actualReps || 0), 0) / completed.length;
   const estimatedPerformance = completed.reduce((total, set) => {
     const load = canonicalLoad(set.actualWeight, set.weightUnit) || 0;
-    return total + load * (1 + (set.actualReps || 0) / 30);
+    return total + load * (1 + (set.actualReps || 0) / logicCalibration.progression.relativePerformanceRepNormalizer);
   }, 0) / completed.length;
   const rpeValues = completed.map((set) => Number(set.actualRpe)).filter((value) => Number.isFinite(value) && value > 0);
   const averageRpe = rpeValues.length ? rpeValues.reduce((total, value) => total + value, 0) / rpeValues.length : undefined;
@@ -90,7 +90,7 @@ function sessionPerformance(sets: LoggedPerformanceSet[]) {
 }
 
 function confidenceForSessions(count: number): ProgressionConfidence {
-  return count >= 3 ? "high" : count >= 2 ? "medium" : "low";
+  return count >= logicCalibration.progression.highConfidenceSessions ? "high" : count >= logicCalibration.progression.mediumConfidenceSessions ? "medium" : "low";
 }
 
 function normalizeExerciseName(value: string) {
@@ -117,7 +117,7 @@ export function getWeeklyProgressReview(exercises: ProgressionExercise[], histor
     const completedSets = sets.filter((set) => canonicalLoad(set.actualWeight, set.weightUnit) && set.actualReps).length;
     const estimatedPerformance = sets.reduce((total, set) => {
       const load = canonicalLoad(set.actualWeight, set.weightUnit) || 0;
-      return total + load * (1 + (set.actualReps || 0) / 30);
+      return total + load * (1 + (set.actualReps || 0) / logicCalibration.progression.relativePerformanceRepNormalizer);
     }, 0) / Math.max(1, completedSets);
     const rpeValues = sets.map((set) => Number(set.actualRpe)).filter((value) => Number.isFinite(value) && value > 0);
     return { weekStart, completedSets, estimatedPerformance, averageRpe: rpeValues.length ? rpeValues.reduce((total, value) => total + value, 0) / rpeValues.length : undefined };
@@ -125,7 +125,7 @@ export function getWeeklyProgressReview(exercises: ProgressionExercise[], histor
   const latest = summaries[0];
   const previous = summaries[1];
   const performanceChange = latest && previous && previous.estimatedPerformance > 0 ? (latest.estimatedPerformance - previous.estimatedPerformance) / previous.estimatedPerformance : undefined;
-  const prompts = !latest ? ["Log completed comparable sets to begin a week-by-week review."] : !previous ? ["One calendar week is available. Complete another comparable week before interpreting change."] : performanceChange !== undefined && performanceChange <= -0.1 ? ["Comparable exercise-context performance was lower than the prior week. Review recovery, setup, and load before adding work."] : latest.averageRpe !== undefined && latest.averageRpe >= 9.5 ? ["This week’s recorded effort was very high. Hold progression until the next comparable exposure supports it."] : ["Use this week-over-week signal with the exercise and segment cards below; approve any planner change yourself."];
+  const prompts = !latest ? ["Log completed comparable sets to begin a week-by-week review."] : !previous ? ["One calendar week is available. Complete another comparable week before interpreting change."] : performanceChange !== undefined && performanceChange <= logicCalibration.progression.substantialDownwardChange ? ["Comparable exercise-context performance was lower than the prior week. Review recovery, setup, and load before adding work."] : latest.averageRpe !== undefined && latest.averageRpe >= logicCalibration.progression.holdEffortRpe ? ["This week’s recorded effort was very high. Hold progression until the next comparable exposure supports it."] : ["Use this week-over-week signal with the exercise and segment cards below; approve any planner change yourself."];
   return { latest, previous, performanceChange, prompts, boundary: "Weekly buckets summarize completed comparable exercise logs. They do not diagnose readiness, quantify individual muscle strength, or prove that any one session caused the change." };
 }
 
@@ -160,12 +160,12 @@ export function getExerciseProgressionRecommendation(exercise: ProgressionExerci
   const relativePerformance = exercise.bodyWeightKg && exercise.bodyWeightKg > 0 ? latest.estimatedPerformance / exercise.bodyWeightKg : undefined;
   if (comparableSessions < 2) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "insufficient_data", confidence, targetRange, latestAverageReps: latest.averageReps, relativePerformance, comparableSessions, rationale: `One comparable session is logged. Repeat ${targetRange.min}–${targetRange.max} reps to establish a trend before changing load.`, boundary };
 
-  const materialDrop = recentPerformanceChange !== undefined && recentPerformanceChange <= -0.1;
-  if (latest.averageRpe !== undefined && latest.averageRpe >= 9.5) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "hold", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recorded effort averaged RPE ${latest.averageRpe.toFixed(1)}. Hold the current load or review recovery and technique before progressing.`, boundary };
-  const highEffort = latest.averageRpe !== undefined && latest.averageRpe >= 9;
+  const materialDrop = recentPerformanceChange !== undefined && recentPerformanceChange <= logicCalibration.progression.substantialDownwardChange;
+  if (latest.averageRpe !== undefined && latest.averageRpe >= logicCalibration.progression.holdEffortRpe) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "hold", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recorded effort averaged RPE ${latest.averageRpe.toFixed(1)}. Hold the current load or review recovery and technique before progressing.`, boundary };
+  const highEffort = latest.averageRpe !== undefined && latest.averageRpe >= logicCalibration.progression.highEffortRpe;
   const moderateEffort = latest.averageRpe !== undefined && latest.averageRpe > 8.5;
-  if (latest.averageReps < targetRange.min && (materialDrop || comparableSessions >= 3 || highEffort)) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "reduce_load", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work averaged below the ${targetRange.min}-rep floor${highEffort ? ` at RPE ${latest.averageRpe?.toFixed(1)}` : materialDrop ? " with a meaningful exercise-context performance drop" : " across multiple comparable sessions"}. Consider a lighter next available increment or confirm recovery and setup first.`, boundary };
-  if (latest.averageReps >= targetRange.max && !moderateEffort && (recentPerformanceChange === undefined || recentPerformanceChange >= -0.03)) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "increase_load", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work reached the ${targetRange.max}-rep ceiling${latest.averageRpe !== undefined ? ` at RPE ${latest.averageRpe.toFixed(1)}` : ""}. Consider the next available load increment, then return to the lower end of the range.`, boundary };
+  if (latest.averageReps < targetRange.min && (materialDrop || comparableSessions >= logicCalibration.progression.highConfidenceSessions || highEffort)) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "reduce_load", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work averaged below the ${targetRange.min}-rep floor${highEffort ? ` at RPE ${latest.averageRpe?.toFixed(1)}` : materialDrop ? " with a meaningful exercise-context performance drop" : " across multiple comparable sessions"}. Consider a lighter next available increment or confirm recovery and setup first.`, boundary };
+  if (latest.averageReps >= targetRange.max && !moderateEffort && (recentPerformanceChange === undefined || recentPerformanceChange >= logicCalibration.progression.maintainPerformanceTolerance)) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "increase_load", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work reached the ${targetRange.max}-rep ceiling${latest.averageRpe !== undefined ? ` at RPE ${latest.averageRpe.toFixed(1)}` : ""}. Consider the next available load increment, then return to the lower end of the range.`, boundary };
   if (latest.averageReps >= targetRange.min && !moderateEffort) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "add_repetitions", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work is inside the ${targetRange.min}–${targetRange.max} range${latest.averageRpe !== undefined ? ` at RPE ${latest.averageRpe.toFixed(1)}` : ""}. Keep load steady and add repetitions before increasing load.`, boundary };
   return { exerciseId: exercise.id, exerciseName: exercise.name, action: "repeat", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Repeat the current load${moderateEffort ? ` because recorded effort reached RPE ${latest.averageRpe?.toFixed(1)}` : ""} and aim for the ${targetRange.min}-rep floor before progressing.`, boundary };
 }
@@ -186,7 +186,7 @@ function normalizeMuscleSegment(muscle: string) {
   return muscle;
 }
 
-const actionScore: Record<ProgressionAction, number> = { increase_load: 2, add_repetitions: 1, repeat: 0, hold: -1, reduce_load: -2, insufficient_data: 0 };
+const actionScore: Record<ProgressionAction, number> = { increase_load: logicCalibration.segmentProgress.loadIncreaseSignal, add_repetitions: logicCalibration.segmentProgress.repetitionIncreaseSignal, repeat: 0, hold: logicCalibration.segmentProgress.holdSignal, reduce_load: logicCalibration.segmentProgress.loadReductionSignal, insufficient_data: 0 };
 
 export function getMuscleSegmentSignals(exercises: ProgressionExercise[], history: LoggedPerformanceSet[]): MuscleSegmentSignal[] {
   const recommendations: ProgressionEntry[] = exercises.map((exercise) => ({ exercise, recommendation: getExerciseProgressionRecommendation(exercise, history) }));
@@ -201,8 +201,8 @@ export function getMuscleSegmentSignals(exercises: ProgressionExercise[], histor
     const averageScore = actionable.length ? actionable.reduce((total: number, entry: ProgressionEntry) => total + actionScore[entry.recommendation.action], 0) / actionable.length : 0;
     const comparableSessions = actionable.reduce((total: number, entry: ProgressionEntry) => total + entry.recommendation.comparableSessions, 0);
     const confidence = confidenceForSessions(Math.round(comparableSessions / Math.max(1, actionable.length)));
-    const status: MuscleSegmentSignal["status"] = !actionable.length ? "insufficient_data" : averageScore >= 0.75 ? "progressing" : averageScore <= -0.75 ? "review" : "steady";
-    const progressIndex = actionable.length ? Math.max(0, Math.min(100, Math.round(50 + averageScore * 25))) : undefined;
+    const status: MuscleSegmentSignal["status"] = !actionable.length ? "insufficient_data" : averageScore >= logicCalibration.segmentProgress.progressingAverageSignal ? "progressing" : averageScore <= logicCalibration.segmentProgress.reviewAverageSignal ? "review" : "steady";
+    const progressIndex = actionable.length ? Math.max(0, Math.min(100, Math.round(logicCalibration.segmentProgress.neutralIndex + averageScore * logicCalibration.segmentProgress.displayMultiplier))) : undefined;
     return {
       muscle,
       family: muscleFamily(muscle),
@@ -215,3 +215,4 @@ export function getMuscleSegmentSignals(exercises: ProgressionExercise[], histor
     };
   });
 }
+import { logicCalibration } from "./evidenceTraceability";

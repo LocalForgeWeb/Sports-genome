@@ -32,7 +32,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
   return <section className="catalog-discovery">
     <div className="catalog-discovery-search"><Search className="h-4 w-4" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder="Search exercise, muscle, movement, equipment, or quality" aria-label="Search exercises" /><span>{results.length} matches</span></div>
     <details className="catalog-discovery-controls">
-      <summary><span><SlidersHorizontal className="h-4 w-4" /> Filter & sort</span><small>{activeFilterCount ? `${activeFilterCount} active` : "All 400 exercises"}</small></summary>
+      <summary><span><SlidersHorizontal className="h-4 w-4" /> Filter & sort</span><small>{activeFilterCount ? `${activeFilterCount} active` : `All ${exercises.length} exercises`}</small></summary>
       <div className="catalog-discovery-filter-grid">
         <label><span>Category</span><select value={filters.category} onChange={(event) => update("category", event.target.value)}><option value="all">All categories</option>{options.categories.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
         <label><span>Movement</span><select value={filters.movement} onChange={(event) => update("movement", event.target.value)}><option value="all">All movements</option>{options.movements.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
@@ -48,7 +48,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       {visibleResults.map((exercise) => {
         const isFavorite = favoriteIds.has(exercise.id);
         return <article key={exercise.id} className="catalog-discovery-card">
-          <button onClick={() => onInspect(exercise)} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`}><span className="catalog-discovery-index">#{String(exercise.id).padStart(3, "0")}</span><span><strong>{exercise.name}</strong><small>{exercise.movement}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em></span><span className="catalog-discovery-tier">Tier {exercise.muscleGrade}</span></button>
+          <button onClick={() => onInspect(exercise)} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`}><span className="catalog-discovery-index">#{String(exercise.id).padStart(3, "0")}</span><span><strong>{exercise.name}</strong><small>{exercise.movement}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em></span><span className="catalog-discovery-tier">Catalog rank {exercise.muscleGrade}</span></button>
           <div className="catalog-discovery-actions"><button onClick={() => onToggleFavorite(exercise)} className={isFavorite ? "catalog-favorite-on" : ""} aria-label={`${isFavorite ? "Remove" : "Save"} ${exercise.name} ${isFavorite ? "from" : "to"} favorites`}><Heart className="h-4 w-4" fill={isFavorite ? "currentColor" : "none"} /></button><button onClick={() => onAdd(exercise)} aria-label={`Add ${exercise.name} to workout`}><Plus className="h-4 w-4" /></button></div>
         </article>;
       })}

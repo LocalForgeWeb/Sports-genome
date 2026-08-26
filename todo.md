@@ -5,9 +5,20 @@
 - [x] Inspect and remove or replace conflicting favicon, Apple touch icon, and manifest icon references.
 - [x] Create official edge-to-edge deep-navy square Sports Genome icon assets at 180×180, 192×192, and 512×512 from the supplied artwork without an embedded rounded mask.
 - [x] Add the official Apple touch icon link, standalone PWA manifest, deep-navy theme metadata, and matching PWA icon references.
-- [ ] Verify icon dimensions, opaque navy edge treatment, asset paths, manifest metadata, and published Safari Add to Home Screen configuration.
-- [ ] Publish the official icon update and verify the live deployed domain serves the new Apple touch icon and manifest paths.
+- [x] Verify icon dimensions, opaque navy edge treatment, asset paths, manifest metadata, and published Safari Add to Home Screen configuration.
+- [x] Publish the official icon update and verify the live deployed domain serves the new Apple touch icon and manifest paths.
 - [ ] Confirm Safari Add to Home Screen icon behavior from a real iPhone, keeping this device-only check distinct from code-level verification.
+
+## Evidence-to-Logic and No-Placeholder Audit
+
+- [ ] Inventory every athlete-facing numeric score, threshold, weight, volume target, rating, recommendation constant, and visible placeholder across client, server, catalog, and sport data.
+- [ ] Classify each inventoried value as source-backed, transparent product-design constraint, athlete-entered value, or unsupported placeholder; retain an evidence or rationale reference for each surviving value.
+- [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
+- [ ] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
+- [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.
+- [ ] Extend the traceability registry so each surviving athlete-facing value has an explicit category and a per-value source link or product-design rationale.
+- [ ] Finish the remaining recalibration/relabel pass for still-untracked constants or wording, then prove full-surface usage of named calibration through regression coverage.
+- [ ] Validate the full evidence-to-logic audit, checkpoint it, synchronize GitHub, and document values that remain intentionally adjustable rather than universal.
 
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
 - [x] Push the latest validated progressive-training, RPE, and segment-priority updates to LocalForgeWeb/Sports-genome and verify the remote branch tip.

@@ -1,5 +1,7 @@
 import type { SportMovementProfile } from "./sportMovementDatabase";
 
+import { logicCalibration } from "./evidenceTraceability";
+
 export type EvidenceType = "literature-derived" | "model-estimated" | "expert-inference";
 export type Confidence = "High" | "Moderate" | "Developing";
 
@@ -145,7 +147,7 @@ Object.entries(seeds).forEach(([sportId, seed]) => {
   });
 });
 
-const baseScore = (key: SportDemandKey, active: SportDemandKey[]) => active.includes(key) ? 0.78 : 0.32;
+const baseScore = (key: SportDemandKey, active: SportDemandKey[]) => active.includes(key) ? logicCalibration.sportDemand.activePriority : logicCalibration.sportDemand.backgroundPriority;
 
 const modifierDemandMap: Record<string, SportDemandKey[]> = {
   strength: ["maxStrength", "relativeStrength"], power: ["power", "rateOfForceDevelopment"], acceleration: ["acceleration", "speed"], speed: ["speed", "acceleration"], deceleration: ["deceleration", "eccentricStrength"], "change of direction": ["changeOfDirection", "reactiveAgility"], contact: ["isometricStrength", "antiRotation"], bracing: ["antiRotation", "isometricStrength"], grip: ["grip", "isometricStrength"], endurance: ["strengthEndurance", "aerobicCapacity"], aerobic: ["aerobicCapacity", "strengthEndurance"], anaerobic: ["anaerobicCapacity", "repeatSprint"], mobility: ["mobility", "stability"], shoulder: ["stability", "strengthEndurance"], hip: ["mobility", "stability"], lateral: ["changeOfDirection", "deceleration"], jump: ["plyometricAbility", "elasticStrength"], landing: ["eccentricStrength", "deceleration"], rotation: ["rotationalPower", "antiRotation"], turn: ["coordination", "power"], technique: ["coordination", "stability"], balance: ["balance", "stability"],
@@ -157,7 +159,7 @@ function modifierBoosts(modifier?: SportModifier) {
   const normalized = modifier.emphasis.join(" ").toLowerCase();
   for (const [token, demands] of Object.entries(modifierDemandMap)) {
     if (!normalized.includes(token)) continue;
-    demands.forEach((demand) => boosts.set(demand, Math.max(boosts.get(demand) || 0, 0.08)));
+    demands.forEach((demand) => boosts.set(demand, Math.max(boosts.get(demand) || 0, logicCalibration.sportDemand.modifierContextLift)));
   }
   return boosts;
 }
@@ -177,7 +179,7 @@ export function getSportDemandModel(sportId: string, modifierId?: string) {
   const demands: EvidenceBoundedDemand[] = (Object.keys(labels) as SportDemandKey[]).map((key) => ({
     key,
     label: labels[key],
-    score: Math.min(0.9, baseScore(key, seed.demands) + (boosts.get(key) || 0)),
+    score: Math.min(logicCalibration.sportDemand.displayCap, baseScore(key, seed.demands) + (boosts.get(key) || 0)),
     confidence: (seed.demands.includes(key) ? "Moderate" : boosts.has(key) ? "Moderate" : "Developing") as Confidence,
     evidenceType: (seed.demands.includes(key) ? "literature-derived" : boosts.has(key) ? "expert-inference" : "model-estimated") as EvidenceType,
     reasoning: seed.demands.includes(key) ? (boosts.has(key) ? "Included in the sport-level evidence register and elevated by the selected role/event/style planning context." : "Included as a sport-level demand from the reviewed evidence register.") : boosts.has(key) ? "Elevated as a transparent role/event/style planning inference; athlete and movement context may change it." : "Retained as a lower-priority planning estimate; athlete and movement context may change it.",

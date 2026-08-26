@@ -1,5 +1,6 @@
 /** Evidence-aware dynamic preparation library: mobility, activation, and rehearsal drills for pre-training use. */
 import type { Exercise } from "@/lib/exerciseCatalog";
+import { logicCalibration } from "@/lib/evidenceTraceability";
 
 export type MobilityTag = "general" | "squat" | "hinge" | "lunge" | "singleLeg" | "horizontalPush" | "verticalPush" | "horizontalPull" | "verticalPull" | "overhead" | "rotation" | "bracing" | "braking" | "carry" | "jump" | "sprint" | "lateral" | "ankle" | "hip" | "thoracic" | "shoulder" | "wrist" | "grip" | "knee";
 export type WarmupPhase = "raise" | "mobilize" | "activate" | "rehearse";
@@ -122,20 +123,20 @@ function inferExerciseTags(exercise: Exercise): MobilityTag[] {
 }
 
 function goalPhaseBoost(goal: WarmupGoal, phase: WarmupPhase) {
-  if (goal === "Athleticism") return phase === "rehearse" ? 1.8 : phase === "raise" ? 0.8 : 0;
-  if (goal === "Max strength") return phase === "activate" ? 1.4 : phase === "rehearse" ? 1.1 : 0;
-  if (goal === "Muscle growth") return phase === "mobilize" ? 1.15 : phase === "activate" ? 0.8 : 0;
-  return phase === "raise" ? 1.25 : phase === "rehearse" ? 0.75 : 0;
+  if (goal === "Athleticism") return phase === "rehearse" ? logicCalibration.mobility.athleticismRehearseBoost : phase === "raise" ? logicCalibration.mobility.athleticismRaiseBoost : 0;
+  if (goal === "Max strength") return phase === "activate" ? logicCalibration.mobility.strengthActivateBoost : phase === "rehearse" ? logicCalibration.mobility.strengthRehearseBoost : 0;
+  if (goal === "Muscle growth") return phase === "mobilize" ? logicCalibration.mobility.hypertrophyMobilizeBoost : phase === "activate" ? logicCalibration.mobility.hypertrophyActivateBoost : 0;
+  return phase === "raise" ? logicCalibration.mobility.capacityRaiseBoost : phase === "rehearse" ? logicCalibration.mobility.capacityRehearseBoost : 0;
 }
 
 export function getStackWarmup(workout: Exercise[], goal: WarmupGoal): WarmupRecommendation {
   const wanted = new Set<MobilityTag>(["general"]);
   workout.forEach((exercise) => inferExerciseTags(exercise).forEach((tag) => wanted.add(tag)));
-  const focusTags = Array.from(wanted).filter((tag): tag is Exclude<MobilityTag, "general"> => tag !== "general").slice(0, 7);
+  const focusTags = Array.from(wanted).filter((tag): tag is Exclude<MobilityTag, "general"> => tag !== "general").slice(0, logicCalibration.mobility.focusTagLimit);
   const ranked = preTrainingMobilityLibrary.map((drill) => {
     const matched = drill.tags.filter((tag) => wanted.has(tag)).length;
-    const direct = drill.tags.some((tag) => tag !== "general" && focusTags.includes(tag)) ? 1.25 : 0;
-    return { drill, score: matched * 2.45 + direct + goalPhaseBoost(goal, drill.phase) };
+    const direct = drill.tags.some((tag) => tag !== "general" && focusTags.includes(tag)) ? logicCalibration.mobility.directTagBoost : 0;
+    return { drill, score: matched * logicCalibration.mobility.matchedTagWeight + direct + goalPhaseBoost(goal, drill.phase) };
   }).sort((a, b) => b.score - a.score || a.drill.name.localeCompare(b.drill.name));
   const selected: MobilityDrill[] = [];
   const regions = new Set<string>();
@@ -154,11 +155,11 @@ export function getStackWarmup(workout: Exercise[], goal: WarmupGoal): WarmupRec
     const isUseful = drill.tags.some((tag) => wanted.has(tag));
     const introducesPhase = !phases.has(drill.phase);
     const introducesRegion = drill.regions.some((region) => !regions.has(region));
-    if (!isUseful || (!introducesPhase && !introducesRegion && selected.length >= 4)) continue;
+    if (!isUseful || (!introducesPhase && !introducesRegion && selected.length >= logicCalibration.mobility.minimumDistinctDrillsBeforeRepeat)) continue;
     select(drill);
-    if (selected.length === 6) break;
+    if (selected.length === logicCalibration.mobility.maximumDrills) break;
   }
-  const drills = selected.length ? selected : preTrainingMobilityLibrary.slice(0, 5);
+  const drills = selected.length ? selected : preTrainingMobilityLibrary.slice(0, logicCalibration.mobility.fallbackDrillCount);
   const estimatedMinutes = drills.reduce((total, drill) => total + drill.minutes, 0);
   const emphasis = focusTags.slice(0, 3).join(", ") || "whole-body preparation";
   return { drills, focusTags, estimatedMinutes, rationale: `Matched to ${emphasis} demands in the active stack. Begin easy, use a comfortable range, then rehearse the first loaded pattern with light sets.` };

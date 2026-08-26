@@ -64,7 +64,7 @@ export default function DashboardLayout({
               Sign in to continue
             </h1>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires a Gym Optimizer email account.
+              Access to this dashboard requires a Sports Genome email account.
             </p>
           </div>
           <Button

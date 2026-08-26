@@ -1,5 +1,6 @@
 import type { Exercise } from "./exerciseCatalog";
 import { getExerciseGenome } from "./exerciseGenome";
+import { logicCalibration } from "./evidenceTraceability";
 
 export type StackMuscleContribution = {
   exerciseId: number;
@@ -27,7 +28,7 @@ export type StackMuscleAnalysis = {
 };
 
 const average = (values: number[]) => values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
-const roleWeight = (role: StackMuscleContribution["role"]) => role === "Prime mover" ? 1 : role === "Synergist" ? 0.65 : 0.4;
+const roleWeight = (role: StackMuscleContribution["role"]) => role === "Prime mover" ? logicCalibration.exposure.primaryRoleWeight : role === "Synergist" ? logicCalibration.exposure.synergistRoleWeight : logicCalibration.exposure.stabilizerRoleWeight;
 const weightedAverage = (contributions: StackMuscleContribution[], metric: keyof Pick<StackMuscleContribution, "mechanicalLoading" | "longLengthLoading" | "peakContraction" | "stabilizationDemand">) => {
   const totalWeight = contributions.reduce((sum, entry) => sum + entry.involvement * roleWeight(entry.role), 0);
   if (!totalWeight) return 0;
@@ -70,6 +71,6 @@ export function analyzeWholeStackMuscles(workout: Exercise[]): StackMuscleAnalys
 
   return rawAnalysis.map((item) => ({
     ...item,
-    involvement: Math.max(1, Math.round((item.rawInvolvement / highestExposure) * 100)),
+    involvement: Math.max(1, Math.round((item.rawInvolvement / highestExposure) * logicCalibration.exerciseGenome.relativeScaleMaximum)),
   })).sort((first, second) => second.rawInvolvement - first.rawInvolvement || second.primaryExercises - first.primaryExercises);
 }

@@ -70,7 +70,7 @@ export function ManusDialog({
             </DialogTitle>
           ) : null}
           <DialogDescription className="text-sm text-[#858481] leading-5 tracking-[-0.154px]">
-            Please sign in with your Gym Optimizer email account to continue.
+            Please sign in with your Sports Genome email account to continue.
           </DialogDescription>
         </div>
 
