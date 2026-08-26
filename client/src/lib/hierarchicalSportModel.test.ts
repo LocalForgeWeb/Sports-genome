@@ -56,6 +56,15 @@ describe("hierarchical sport-to-program model", () => {
     expect(getSportDemandModel("swimming", "freestyle").selectedModifier?.evidenceSources?.join(" ")).toMatch(/Kwok/i);
   });
 
+  it("adds Batch 3 source context without flattening sport, role, style, or competition differences", () => {
+    expect(getSportDemandModel("wrestling", "freestyle").demands.map((item) => item.key)).toContain("aerobicCapacity");
+    expect(getSportDemandModel("basketball", "guard").selectedModifier?.evidenceSources?.join(" ")).toMatch(/29039018/);
+    expect(getSportDemandModel("soccer", "field-player").selectedModifier?.evidenceSources?.join(" ")).toMatch(/29199782/);
+    expect(getSportDemandModel("swimming", "freestyle").selectedModifier?.evidenceSources?.join(" ")).toMatch(/26839618/);
+    expect(getSportDemandModel("american-football", "wr-db").selectedModifier?.evidenceSources?.join(" ")).toMatch(/37050597/);
+    expect(getSportDemandModel("rugby", "forward").selectedModifier?.evidenceSources?.join(" ")).toMatch(/41359906/);
+  });
+
   it("gives every configured modifier an explicit evidence scope, source record, and planning boundary", () => {
     const sportIds = Array.from(new Set(sportMovementProfiles.map((movement) => movement.sportId)));
     sportIds.forEach((sportId) => {

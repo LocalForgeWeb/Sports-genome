@@ -403,6 +403,14 @@
 - [x] Reconcile verified Batch 2 findings with muscle-targeting, Exercise Genome, and Body Lab inference boundaries; avoid treating model outputs as direct individual measurements.
 - [x] Implement only justified evidence registry, user-facing explanation, or mechanics-model updates with focused regression coverage.
 
+## Batch 3: Sport-Specific Performance and Training Transfer
+
+- [x] Inventory the uploaded sport-performance records by sport, position/event/style modifier, study identifier, evidence type, and proposed algorithm use.
+- [x] Deduplicate Batch 3 study identifiers against the Sports Genome research records and note entries that require a complete citation before use.
+- [x] Verify the highest-priority identifier-complete sport records against authoritative bibliographic sources and record only bounded sport-model implications.
+- [x] Compare verified Batch 3 findings against existing sport and modifier records; keep sport, position, event, style, competition-level, and competition-context differences explicit.
+- [x] Implement only justified sport-profile, quality-priority, athlete-facing disclosure, or recommendation-model updates with focused regression coverage.
+
 ## Navigation Reliability and Placeholder Removal
 
 - [x] Audit every side-navigation item, including its click handler, keyboard behavior, active state, and intended destination workspace.

@@ -52,7 +52,7 @@ const modifier = (id: string, label: string, type: SportModifier["type"], emphas
 });
 
 const seeds: Record<string, SportSeed> = {
-  wrestling: { demands: ["maxStrength", "isometricStrength", "power", "antiRotation", "grip", "strengthEndurance", "anaerobicCapacity"], modifiers: [modifier("freestyle", "Freestyle", "style", ["Level changes", "Leg attack force", "Mobility"], "Style comparisons are group-level associations, not athlete labels."), modifier("greco-roman", "Greco-Roman", "style", ["Upper-body clinch force", "Isometric trunk strength", "Power"], "Style evidence supports emphasis changes, not fixed individual thresholds."), modifier("folkstyle", "Folkstyle", "style", ["Mat control", "Stand-up transitions", "Sustained grip"], "Contextual wrestling modifier based on rules and movement demands.")] },
+  wrestling: { demands: ["maxStrength", "isometricStrength", "power", "antiRotation", "grip", "strengthEndurance", "anaerobicCapacity", "aerobicCapacity"], modifiers: [modifier("freestyle", "Freestyle", "style", ["Level changes", "Leg attack force", "Mobility"], "Style comparisons are group-level associations, not athlete labels."), modifier("greco-roman", "Greco-Roman", "style", ["Upper-body clinch force", "Isometric trunk strength", "Power"], "Style evidence supports emphasis changes, not fixed individual thresholds."), modifier("folkstyle", "Folkstyle", "style", ["Mat control", "Stand-up transitions", "Sustained grip"], "Contextual wrestling modifier based on rules and movement demands.")] },
   "american-football": { demands: ["acceleration", "power", "maxStrength", "deceleration", "changeOfDirection", "repeatSprint", "antiRotation"], modifiers: [modifier("qb", "Quarterback", "position", ["Rotational projection", "Deceleration", "Shoulder/trunk control"], "Position context changes physical emphasis; it does not replace throwing skill practice."), modifier("rb", "Running back", "position", ["Acceleration", "Contact bracing", "Change of direction"], "Position modifier is descriptive and should be individualized."), modifier("wr-db", "Wide receiver / defensive back", "position", ["Max velocity", "Reactive acceleration", "Deceleration"], "Combine and match evidence support separate speed and change-of-direction contexts."), modifier("lb-te", "Linebacker / tight end", "position", ["Contact bracing", "Acceleration", "Repeated collision exposure"], "Hybrid position context is descriptive and must be individualized to actual role and workload."), modifier("line", "Offensive / defensive line", "position", ["Maximal strength", "Isometric force", "Short-area power"], "Position group evidence is descriptive, not a universal body-size or strength target.")] },
   basketball: { demands: ["acceleration", "deceleration", "changeOfDirection", "plyometricAbility", "repeatSprint", "reactiveAgility", "stability"], modifiers: [modifier("guard", "Guard", "position", ["Acceleration/deceleration", "Repeated shuffling", "Change of direction"], "Position patterns are observational and should be normalized to playing time."), modifier("wing", "Wing", "position", ["High-speed movement", "Jumping", "Contact bracing"], "Position modifier summarizes match-demand evidence."), modifier("forward-center", "Forward / center", "position", ["Rebound contacts", "Vertical force", "Strength endurance"], "Role emphasis is descriptive, not an individual prescription.")] },
   soccer: { demands: ["aerobicCapacity", "repeatSprint", "speed", "acceleration", "deceleration", "changeOfDirection", "plyometricAbility"], modifiers: [modifier("field-player", "Field player", "role", ["Repeat sprint", "High-speed running", "Kicking support leg"], "High-speed thresholds vary by device and individual method."), modifier("goalkeeper", "Goalkeeper", "position", ["Lateral explosion", "Diving/bracing", "Reactive power"], "Goalkeeper demands differ from field-player running exposures.")] },
@@ -75,10 +75,19 @@ const seeds: Record<string, SportSeed> = {
 };
 
 const modifierEvidenceSources: Record<string, string[]> = {
-  "american-football": ["American football evidence inventory — [S1] NCAA positional GPS/accelerometry, [S2] NFL player tracking, [S3] acceleration/deceleration systematic review."],
+  wrestling: ["Wrestling evidence inventory — [PMID 28030533] physical/physiological review: aerobic recovery, anaerobic, strength, and power are population-level performance contexts; style, weight class, and tournament context remain distinct."],
+  "american-football": ["[PMID 37050597] American-football monitoring scoping review: external-load and catch-skill applications were common; internal-load evidence remained a gap.", "American football evidence inventory — [S1] NCAA positional GPS/accelerometry, [S2] NFL player tracking, [S3] acceleration/deceleration systematic review."],
+  basketball: ["[PMID 29039018] Basketball match-play systematic review: guard, forward, and center exposure differed at group level and should be normalized to playing time and competition context."],
+  soccer: ["Soccer evidence inventory — [PMID 29199782] male systematic review: competitive level, position, and age alter group-level physical profiles; this is not an individual target or causal prescription."],
   "ice-hockey": ["Ice hockey evidence inventory — reviewed position- and goalie-specific skating, shift, and transition-demand records."],
   "track-and-field": ["Track & field evidence inventory — [S1] sprint-start review, [S2] 109-study sprint-phase systematic review, [S4] World Athletics biomechanics reports."],
-  swimming: ["Swimming evidence inventory — Kwok et al. (2021) front-crawl conditioning review; Vantorre et al. (2014) swim-start review; Gonjo & Olstad (2020) sprint-butterfly phase study."],
+  swimming: ["[PMID 26839618] Competitive-swimming longitudinal review: training responses varied by background and experience; no universal physiological marker, stroke, or distance prescription is inferred.", "Swimming evidence inventory — Kwok et al. (2021) front-crawl conditioning review; Vantorre et al. (2014) swim-start review; Gonjo & Olstad (2020) sprint-butterfly phase study."],
+  tennis: ["[PMID 36752978] Tennis singles match-demand meta-analysis: intermittent multidirectional exposure varied by sex, level, and surface; it does not validate doubles or individual prescriptions."],
+  volleyball: ["[PMID 41460726] Indoor-volleyball match-load review: jump exposure differed by position and sex; use as contextual workload information, not a dose prescription."],
+  boxing: ["[PMID 35380916] Amateur-boxing acute-response review: competition, sparring, and simulation are distinct recovery contexts."],
+  mma: ["[PMID 26993133] Adult male combat-sport review: grappling and striking success contexts differed; training priorities remain strategy- and practice-context dependent."],
+  "brazilian-jiu-jitsu": ["[PMID 28194734] Brazilian jiu-jitsu systematic review: strength findings were more consistent than VO2max discrimination, while anaerobic and power evidence remained limited; no-gi extrapolation is constrained."],
+  rugby: ["[PMID 41359906] Rugby-union systematic review: testing methods were heterogeneous and no universal essential battery was identified; use game-model and positional context."],
 };
 
 const modifierEvidenceRecords: Record<string, Record<string, string[]>> = {
@@ -118,7 +127,9 @@ const modifierEvidenceRecords: Record<string, Record<string, string[]>> = {
 
 Object.entries(modifierEvidenceRecords).forEach(([sportId, records]) => {
   seeds[sportId]?.modifiers?.forEach((item) => {
-    item.evidenceSources = records[item.id] || modifierEvidenceSources[sportId] || [`${sportId} evidence inventory — reviewed source scope is limited to the selected role, event, stroke, distance, or style context.`];
+    const directRecords = records[item.id] || [];
+    const sportRecords = modifierEvidenceSources[sportId] || [`${sportId} evidence inventory — reviewed source scope is limited to the selected role, event, stroke, distance, or style context.`];
+    item.evidenceSources = [...directRecords, ...sportRecords];
   });
 });
 
