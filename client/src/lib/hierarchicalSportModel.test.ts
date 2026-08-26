@@ -65,6 +65,12 @@ describe("hierarchical sport-to-program model", () => {
     expect(getSportDemandModel("rugby", "forward").selectedModifier?.evidenceSources?.join(" ")).toMatch(/41359906/);
   });
 
+  it("keeps newly separated basketball forward and center contexts transparent and source-bounded", () => {
+    expect(getSportModifiers("basketball").map((item) => item.id)).toEqual(expect.arrayContaining(["forward", "center"]));
+    expect(getSportDemandModel("basketball", "forward").selectedModifier?.evidenceSources?.join(" ")).toMatch(/40453900/);
+    expect(getSportDemandModel("basketball", "center").selectedModifier?.evidenceBoundary).toMatch(/group-level/i);
+  });
+
   it("gives every configured modifier an explicit evidence scope, source record, and planning boundary", () => {
     const sportIds = Array.from(new Set(sportMovementProfiles.map((movement) => movement.sportId)));
     sportIds.forEach((sportId) => {

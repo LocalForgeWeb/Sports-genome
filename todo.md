@@ -410,6 +410,8 @@
 - [x] Verify the highest-priority identifier-complete sport records against authoritative bibliographic sources and record only bounded sport-model implications.
 - [x] Compare verified Batch 3 findings against existing sport and modifier records; keep sport, position, event, style, competition-level, and competition-context differences explicit.
 - [x] Implement only justified sport-profile, quality-priority, athlete-facing disclosure, or recommendation-model updates with focused regression coverage.
+- [x] Verify the remaining thirteen identifier-complete Batch 3 sport records against authoritative sources and record bounded findings, safe uses, and limitations.
+- [x] Reconcile the complete Batch 3 record set with existing sport profiles and modifiers, implementing only additional source metadata or transparent boundary clarifications justified by those records.
 
 ## Navigation Reliability and Placeholder Removal
 

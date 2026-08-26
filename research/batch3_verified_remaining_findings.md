@@ -1,0 +1,25 @@
+# Batch 3: Remaining Verified Sport-Performance Records
+
+## Interpretation rule
+
+The records below complete the identifier-complete portion of Batch 3. They support contextual planning explanation and evidence boundaries. They do not support athlete-specific prediction, universal test batteries, fixed training doses, or guaranteed sport transfer.
+
+| Area | PMID | Verified source | Bounded finding | Safe Sports Genome use | Key limitation |
+|---|---:|---|---|---|---|
+| Basketball competition level | 32134965 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/32134965/) | Elite, sub-elite, and youth basketball differed in internal/external load context; acceleration/deceleration evidence was insufficient for a universal profile. | Preserve competition-level context in load discussion. | Methodological variability prevents universal thresholds. |
+| Basketball testing | 31610639 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/31610639/) | Common jump, aerobic, and anaerobic tests were frequent, but few were basketball-specific. | Avoid presenting a generic test list as a definitive basketball battery. | Testing-practice review, not causal performance evidence. |
+| Basketball positions | 40453900 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/40453900/) | Guards had greater distance and acceleration/deceleration context, forwards more high-speed movement, and centers more rebound/heart-rate context. | Expose guard, forward, and center separately as group-level context. | Adult male professional/semi-professional context; heterogeneity remains. |
+| Youth basketball | 38444385 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/38444385/) | Small-sided games showed more consistent intermittent-fitness and change-of-direction findings than repeated/linear-sprint changes. | Describe SSGs as one youth sport-practice option, not an automatic prescription. | Only five eligible studies. |
+| Soccer monitoring | 34347283 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/34347283/) | Biomarker and performance measures changed in parameter-specific ways across elite male soccer training periods. | Keep longitudinal monitoring discussion non-diagnostic. | Associations are not causal readiness thresholds. |
+| Football-code acceleration | 33245512 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/33245512/) | Several short-sprint methods improved performance, but no single approach was most effective. | Explain athlete-, code-, level-, and season-dependent method selection. | Aggregated heterogeneous interventions, mostly male soccer samples. |
+| Soccer HIIT | 33423603 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/33423603/) | HIIT improved aerobic and repeated-sprint measures more consistently than linear sprint or jump outcomes. | Make adaptation claims outcome-specific. | Heterogeneous male-soccer study designs. |
+| Tennis internal load | 37063547 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/37063547/) | Internal-load indicators varied across racket sports and measures. | Treat aerobic/internal-load markers as population context only. | Heterogeneous, predominantly elite male samples. |
+| Golf conditioning | 32723013 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/32723013/) | Strength-and-conditioning interventions were associated with varied average changes in clubhead speed, ball speed, and distance. | Explain golf conditioning as an individualized option. | Heterogeneous interventions and golfer populations. |
+| Golf combined practice | 34224506 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/34224506/) | Combined general resistance and coached golf-specific work showed larger average gains than general resistance work alone. | Emphasize that gym work complements skill practice. | Small and heterogeneous golf-specific evidence. |
+| Rowing periodization | 40185480 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/40185480/) | No intensity-distribution or periodization model demonstrated a clearly universal advantage. | Keep training distribution individualized and monitored. | Nine studies, 82 elite rowers. |
+| Track and field | 40721687 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/40721687/) | Event-specific competition features did not definitively distinguish medallists from non-medallists. | Prevent universal track-and-field success profiles. | No causal or individual prediction. |
+| Olympic weightlifting transfer | 37640059 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/37640059/) | Olympic-weightlifting interventions did not significantly improve short acceleration or full-sprint outcomes against comparators. | Require sport-specific testing rather than presuming sprint transfer. | Group-level, mostly young-adult studies. |
+
+## Complete-record reconciliation decision
+
+The verified Batch 3 records justified three improvements: richer source metadata; an explicit forward-versus-center basketball option; and stronger non-universal boundaries around golf, rowing, track and field, and Olympic-weightlifting transfer. They did not justify new individual scores, biomarker diagnosis, automatic plan rewrites, or universal sport prescriptions.
