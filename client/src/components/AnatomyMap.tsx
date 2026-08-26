@@ -236,19 +236,6 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
             <span>High</span><i className="atlas-swatch" style={{ background: "#db2f24" }} />
           </div>
 
-          {/* Ranked muscles strip */}
-          <div className="atlas-ranking">
-            <div><p className="metric-label">Leading muscle signals</p><span>Click a row to focus it on the model. Expand only when you need the lower-ranked worked muscles.</span></div>
-            {visibleRanked.map(region => (
-              <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""}>
-                <i className="atlas-rank-dot" style={{ background: heatSolid(region.score) }} />
-                <span>{region.label}</span>
-                <em>{region.score}%</em>
-                <b className="atlas-rank-bar"><i style={{ width: `${region.score}%`, background: heatSolid(region.score) }} /></b>
-              </button>
-            ))}
-            {filteredRanked.length > 5 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer muscle signals" : `Show ${hiddenRankedCount} more muscle signal${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
-          </div>
         </div>
 
         {/* Inspector */}
@@ -297,6 +284,18 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
             </div>
           )}
         </aside>}
+        <div className="atlas-ranking">
+          <div><p className="metric-label">Leading muscle signals</p><span>Click a row to focus it on the model. Expand only when you need the lower-ranked worked muscles.</span></div>
+          {visibleRanked.map(region => (
+            <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""}>
+              <i className="atlas-rank-dot" style={{ background: heatSolid(region.score) }} />
+              <span>{region.label}</span>
+              <em>{region.score}%</em>
+              <b className="atlas-rank-bar"><i style={{ width: `${region.score}%`, background: heatSolid(region.score) }} /></b>
+            </button>
+          ))}
+          {filteredRanked.length > 5 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer muscle signals" : `Show ${hiddenRankedCount} more muscle signal${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
+        </div>
       </div>
     </section>
   );

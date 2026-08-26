@@ -59,6 +59,7 @@
 
 /* Ranking strip — new style with color dots and bars */
 .atlas-ranking{display:grid;gap:.35rem;border-top:1px solid #dce5ea;margin-top:1rem;padding-top:.8rem}
+.atlas-pro-grid>.atlas-ranking{grid-column:2}
 .atlas-ranking>div{padding:.2rem .35rem}
 .atlas-ranking>div>span{display:block;margin-top:.18rem;color:#7c929d;font-size:.58rem;line-height:1.25}
 .atlas-ranking button{display:grid;grid-template-columns:auto 1fr auto auto;gap:.15rem .5rem;align-items:center;border:1px solid #e8eff3;background:#fff;padding:.5rem .65rem;text-align:left;transition:border-color .15s,box-shadow .15s}
@@ -110,6 +111,7 @@
   .atlas-advanced,.atlas-reset-pro{grid-column:span 2}
   .atlas-pro-inspector{border-left:0;border-top:1px solid #dce5ea;padding:1rem 0 0}
   .atlas-inspector-empty-pro{min-height:0}
+  .atlas-pro-grid>.atlas-ranking{grid-column:auto}
 }
 @media(max-width:620px){
   .anatomy-atlas-pro{padding:1rem}
@@ -132,4 +134,8 @@
   .atlas-core-metrics{grid-template-columns:1fr}
   .atlas-heat-legend-pro{gap:.25rem;font-size:.5rem;flex-wrap:wrap;justify-content:center}
   .atlas-swatch{width:.9rem;height:.4rem}
+  .atlas-ranking{display:flex;overflow-x:auto;padding-bottom:.35rem;scroll-snap-type:x proximity}
+  .atlas-ranking>div{flex:0 0 144px;padding:.25rem .35rem}
+  .atlas-ranking button{flex:0 0 186px;scroll-snap-align:start}
+  .atlas-ranking .atlas-ranking-toggle{flex:0 0 172px;min-height:44px}
 }
