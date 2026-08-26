@@ -145,31 +145,33 @@ function getFingerprint(exercise: Exercise): Record<GenomeDimension, number> {
 }
 
 function getAdaptationProfile(fingerprint: Record<GenomeDimension, number>): ExerciseGenome["adaptation"] {
+  const calibration = logicCalibration.exerciseGenome;
   const ranked = Object.entries({ Hypertrophy: fingerprint.hypertrophy, Strength: fingerprint.strength, Power: fingerprint.power, Stability: fingerprint.stability, Mobility: fingerprint.mobility, Skill: fingerprint.skill }).sort(([, first], [, second]) => second - first);
-  const primary = ranked.slice(0, 2).map(([label]) => label);
-  const secondary = ranked.slice(2, 4).map(([label]) => label);
+  const primary = ranked.slice(0, calibration.adaptationPrimaryCount).map(([label]) => label);
+  const secondary = ranked.slice(calibration.adaptationSecondaryStart, calibration.adaptationSecondaryEnd).map(([label]) => label);
   return { primary, secondary, rationale: `${primary.join(" and ")} are the highest relative opportunity or demand signals in this standardized exercise model; programming dose, technique, and athlete context determine the realised adaptation.` };
 }
 
 function getMuscleProfile(exercise: Exercise, fingerprint: Record<GenomeDimension, number>) {
+  const calibration = logicCalibration.exerciseGenome;
   const profile = [...exercise.primaryMuscles.map((muscle) => ({ muscle, role: "Prime mover" as const })), ...exercise.secondaryMuscles.map((muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
   return profile.map(({ muscle, role }) => {
     const targeting = buildMuscleTargetingEstimate(exercise, muscle, role);
     const contribution = targeting.score;
-    const lengthened = getResistanceProfile(exercise).bias === "Lengthened" ? clamp(contribution - 3) : clamp(contribution * .6);
-    const peak = getResistanceProfile(exercise).bias === "Shortened" ? clamp(contribution - 3) : clamp(contribution * .58);
-    const mechanicsSummary = targeting.mechanicsFactors.slice(0, 5).map((factor) => factor.label.toLowerCase()).join(", ");
+    const lengthened = getResistanceProfile(exercise).bias === "Lengthened" ? clamp(contribution - calibration.lengthenedLoadingOffset) : clamp(contribution * calibration.nonLengthenedLoadingMultiplier);
+    const peak = getResistanceProfile(exercise).bias === "Shortened" ? clamp(contribution - calibration.shortenedPeakOffset) : clamp(contribution * calibration.nonShortenedPeakMultiplier);
+    const mechanicsSummary = targeting.mechanicsFactors.slice(0, calibration.mechanicsSummaryLimit).map((factor) => factor.label.toLowerCase()).join(", ");
     const roleSummary = role === "Prime mover" ? `${anatomicalLabels[muscle] || muscle} is ranked as a primary contributor in this movement.` : role === "Stabilizer" ? `${anatomicalLabels[muscle] || muscle} is ranked for positional-control context.` : `${anatomicalLabels[muscle] || muscle} is ranked as a supporting contributor in this movement.`;
     return {
       muscle,
       anatomicalLabel: anatomicalLabels[muscle] || muscle,
       role,
       contribution,
-      mechanicalLoading: clamp(contribution + (fingerprint.strength > 75 ? 6 : 0)),
+      mechanicalLoading: clamp(contribution + (fingerprint.strength > calibration.mechanicalStrengthThreshold ? calibration.mechanicalStrengthLift : 0)),
       longLengthLoading: lengthened,
       peakContraction: peak,
-      stabilizationDemand: role === "Stabilizer" ? clamp(66 + fingerprint.stability * .22) : clamp(18 + fingerprint.stability * .28),
-      fatigueContribution: clamp(contribution * .64 + fingerprint.sfr * .15),
+      stabilizationDemand: role === "Stabilizer" ? clamp(calibration.stabilizerDemandBase + fingerprint.stability * calibration.stabilizerDemandMultiplier) : clamp(calibration.supportDemandBase + fingerprint.stability * calibration.supportDemandMultiplier),
+      fatigueContribution: clamp(contribution * calibration.fatigueContributionMultiplier + fingerprint.sfr * calibration.fatigueContributionSfrMultiplier),
       tier: tierFor(contribution),
       why: `${targeting.evidenceTier}. ${targeting.directEvidenceNote || roleSummary} Key mechanics inputs: ${mechanicsSummary}. ${targeting.uncertainty}`,
       targeting,
@@ -216,7 +218,7 @@ function similarity(first: Exercise, second: Exercise) {
   const secondGenome = getExerciseGenome(second);
   const muscle = overlap([...first.primaryMuscles, ...first.secondaryMuscles], [...second.primaryMuscles, ...second.secondaryMuscles]);
   const movement = overlap(firstGenome.movementPatterns, secondGenome.movementPatterns);
-  const profile = firstGenome.resistanceProfile.bias === secondGenome.resistanceProfile.bias ? 1 : .25;
+  const profile = firstGenome.resistanceProfile.bias === secondGenome.resistanceProfile.bias ? 1 : logicCalibration.exerciseGenome.resistanceProfileMismatchSimilarity;
   const qualities = overlap(first.qualities, second.qualities);
   return clamp((muscle * logicCalibration.exerciseGenome.muscleSimilarityWeight + movement * logicCalibration.exerciseGenome.movementSimilarityWeight + profile * logicCalibration.exerciseGenome.resistanceProfileSimilarityWeight + qualities * logicCalibration.exerciseGenome.qualitySimilarityWeight) * logicCalibration.exerciseGenome.relativeScaleMaximum);
 }
@@ -226,12 +228,12 @@ export function analyzeExerciseContext(exercise: Exercise, context: GenomeContex
   const goalKey: GenomeDimension = /muscle|hypertrophy/i.test(context.goal) ? "hypertrophy" : /strength/i.test(context.goal) ? "strength" : /capacity|endurance/i.test(context.goal) ? "sfr" : "power";
   const peers = context.currentWorkout.filter((item) => item.id !== exercise.id);
   const redundancy = peers.length ? clamp(peers.reduce((sum, item) => sum + similarity(exercise, item), 0) / peers.length) : logicCalibration.exerciseGenome.emptyStackRedundancyBaseline;
-  const marginalValue = clamp(logicCalibration.exerciseGenome.relativeScaleMaximum - redundancy + (genome.fingerprint.stability > 68 ? logicCalibration.exerciseGenome.contextStabilityLift : 0));
+  const marginalValue = clamp(logicCalibration.exerciseGenome.relativeScaleMaximum - redundancy + (genome.fingerprint.stability > logicCalibration.exerciseGenome.contextualGradeB ? logicCalibration.exerciseGenome.contextStabilityLift : 0));
   const selectedMuscles = context.sportMovement ? getMovementMuscles(context.sportMovement) : [];
   const selectedSignals = context.sportMovement ? getMovementSignals(context.sportMovement) : [];
-  const muscleMatch = selectedMuscles.length ? overlap([...exercise.primaryMuscles, ...exercise.secondaryMuscles], selectedMuscles) : .4;
+  const muscleMatch = selectedMuscles.length ? overlap([...exercise.primaryMuscles, ...exercise.secondaryMuscles], selectedMuscles) : logicCalibration.exerciseGenome.noSelectedSportMatchBaseline;
   const signalText = genome.movementPatterns.join(" ").toLowerCase();
-  const signalMatch = selectedSignals.length ? selectedSignals.filter((signal) => signalText.includes(signal.replace("singleLeg", "unilateral")) || exercise.qualities.some((quality) => quality.toLowerCase().includes(signal.toLowerCase()))).length / selectedSignals.length : .4;
+  const signalMatch = selectedSignals.length ? selectedSignals.filter((signal) => signalText.includes(signal.replace("singleLeg", "unilateral")) || exercise.qualities.some((quality) => quality.toLowerCase().includes(signal.toLowerCase()))).length / selectedSignals.length : logicCalibration.exerciseGenome.noSelectedSportMatchBaseline;
   const sportTransfer = clamp((muscleMatch * logicCalibration.exerciseGenome.sportMuscleMatchWeight + signalMatch * logicCalibration.exerciseGenome.sportSignalMatchWeight + (genome.fingerprint.stability / logicCalibration.exerciseGenome.relativeScaleMaximum) * logicCalibration.exerciseGenome.sportStabilityMatchWeight) * logicCalibration.exerciseGenome.relativeScaleMaximum);
   const recoveryManageability = clamp(logicCalibration.exerciseGenome.relativeScaleMaximum - (genome.fatigue.systemic * logicCalibration.exerciseGenome.systemicRecoveryCostWeight + genome.fatigue.technical * logicCalibration.exerciseGenome.technicalRecoveryCostWeight + genome.fatigue.axial * logicCalibration.exerciseGenome.axialRecoveryCostWeight));
   const signals = { goalAlignment: genome.fingerprint[goalKey], stackDistinctness: marginalValue, sportActionMatch: sportTransfer, recoveryManageability };
@@ -248,7 +250,7 @@ export function getWorkoutGenome(workout: Exercise[]) {
   const muscles = workout.flatMap((exercise) => [...exercise.primaryMuscles, ...exercise.secondaryMuscles]);
   const countBy = (items: string[]) => Object.entries(items.reduce<Record<string, number>>((all, item) => ({ ...all, [item]: (all[item] || 0) + 1 }), {})).sort((a, b) => b[1] - a[1]);
   const pairScores = workout.flatMap((exercise, index) => workout.slice(index + 1).map((peer) => similarity(exercise, peer)));
-  const redundancy = pairScores.length ? clamp(pairScores.reduce((sum, score) => sum + score, 0) / pairScores.length) : 0;
+  const redundancy = pairScores.length ? clamp(pairScores.reduce((sum, score) => sum + score, 0) / pairScores.length) : logicCalibration.exerciseGenome.emptyWorkoutRedundancy;
   const gaps = ["Horizontal push", "Horizontal pull", "Squat", "Hinge", "Rotation", "Carry"].filter((pattern) => !patterns.includes(pattern));
-  return { dominantPatterns: countBy(patterns).slice(0, 4), dominantMuscles: countBy(muscles).slice(0, 5), redundancy, gaps };
+  return { dominantPatterns: countBy(patterns).slice(0, logicCalibration.exerciseGenome.workoutPatternSummaryLimit), dominantMuscles: countBy(muscles).slice(0, logicCalibration.exerciseGenome.workoutMuscleSummaryLimit), redundancy, gaps };
 }
