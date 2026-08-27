@@ -2,6 +2,7 @@
 
 ## User-Authorized Completion Sequence
 
+- [ ] Complete the remaining safe Sports Genome work without adding new external API or integration dependencies.
 - [ ] Complete and publish the remaining non-device Sports Genome work in priority order: evidence-bounded Strength Genome, iPhone-first workflow polish, Body Lab refinement, and visible-data integrity cleanup.
 - [ ] Complete each active implementation milestone through user-facing integration, full validation, publication, and GitHub synchronization before moving to the next milestone.
 - [ ] Keep physical-device, authenticated, and Safari verification tasks explicitly open until they are observed rather than inferred from source or automated tests.
@@ -63,6 +64,7 @@
 
 ## Sidebar Navigation Repair
 
+- [x] Replace the remaining Home navigation detail “readiness & next decision” with wording that reflects plan context rather than a readiness claim.
 - [x] Audit the reported non-moving sidebar across click, keyboard, mobile-menu, active-section, and browser-history behavior.
 - [ ] Repair sidebar navigation so every visible destination changes the active workspace and closes the mobile overlay when appropriate.
 - [x] Add focused regression coverage for desktop rail visibility, mobile overlay dismissal, active-state semantics, and browser-history-aware workspace changes.

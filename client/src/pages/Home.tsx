@@ -87,7 +87,7 @@ const ExerciseGenomePanel = lazy(() => import("@/components/ExerciseGenomePanel"
 type NavGroup = "Home" | "Train" | "Explore" | "Sport";
 const navGroups: NavGroup[] = ["Home", "Train", "Sport", "Explore"];
 const navItems: { id: Workspace; label: string; icon: typeof Target; detail: string; group: NavGroup }[] = [
-  { id: "command", label: "Home", icon: Target, detail: "readiness & next decision", group: "Home" },
+  { id: "command", label: "Home", icon: Target, detail: "plan context & next action", group: "Home" },
   { id: "profile", label: "About Me", icon: UsersRound, detail: "baseline & equipment", group: "Home" },
   { id: "progress", label: "Progress", icon: BarChart3, detail: "training & observation record", group: "Home" },
   { id: "day-plan", label: "Training Days", icon: Layers3, detail: "design each saved day", group: "Train" },
