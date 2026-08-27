@@ -32,8 +32,10 @@ const muscleAliases: Record<string, string[]> = {
 };
 
 const defaultRoleOrder: BodyLabRole[] = ["Primary Mover", "Synergist", "Stabilizer", "Supporting"];
-const roleOrderFor = (phaseContext: string): BodyLabRole[] => {
-  if (phaseContext.toLowerCase().includes("isometric")) return ["Primary Mover", "Stabilizer", "Synergist", "Supporting"];
+export const getBodyLabRoleOrder = (contractionRoles: string[], jointActions: string[] = []): BodyLabRole[] => {
+  const mechanicsContext = [...contractionRoles, ...jointActions].join(" ").toLowerCase();
+  const hasExplicitStabilityDemand = /isometric|stabili[sz]|anti-rotation|brac|post(?:ing)?|attachment|clamp|connection|control/.test(mechanicsContext);
+  if (hasExplicitStabilityDemand) return ["Primary Mover", "Stabilizer", "Synergist", "Supporting"];
   return defaultRoleOrder;
 };
 const confidenceFor = (value: string | undefined): BodyLabEvidenceConfidence => {
@@ -70,7 +72,7 @@ export function getBodyLabRoleContext(sportId: string, movementId: string, fallb
 
   const rolesByMuscle: Record<string, BodyLabRoleDetail> = {};
   const phaseContext = movement.contractionRoles.filter(Boolean).slice(0, 2).join(" · ");
-  const detail = { roleOrder: roleOrderFor(phaseContext), confidence: confidenceFor(movement.evidenceConfidence), sourceScope: "Movement-specific evidence" as const, sources: movement.sources.slice(0, 2), explanation: `${movement.label} is interpreted through its stated joint actions, force/skill demand, contraction roles, and movement-specific muscle-role record.`, ...(phaseContext ? { phaseContext } : {}) };
+  const detail = { roleOrder: getBodyLabRoleOrder(movement.contractionRoles, movement.jointActions), confidence: confidenceFor(movement.evidenceConfidence), sourceScope: "Movement-specific evidence" as const, sources: movement.sources.slice(0, 2), explanation: `${movement.label} is interpreted through its stated joint actions, force/skill demand, contraction roles, and movement-specific muscle-role record.`, ...(phaseContext ? { phaseContext } : {}) };
   movement.primeMovers.forEach((name) => appendRole(rolesByMuscle, name, "Primary Mover", detail));
   movement.assistingMuscles.forEach((name) => appendRole(rolesByMuscle, name, "Synergist", detail));
   movement.stabilizers.forEach((name) => appendRole(rolesByMuscle, name, "Stabilizer", detail));

@@ -43,7 +43,7 @@
 
 - [x] Audit all Body Lab score generation, role-template defaults, heat-map intensities, model-index badges, and metric-bar display paths.
 - [x] Replace default primary/synergist template numbers with qualitative role and evidence context when no exercise or stack calculation is available.
-- [x] Show relative model indices only when they are derived from the selected exercise or active stack, with clear non-measurement labeling.
+- [x] Retire Body Lab model-index displays entirely; retain relative scores only in dedicated exercise and active-stack analysis with clear non-measurement labeling.
 - [ ] Add regression coverage preventing repeated role-template values from appearing as precise Body Lab scores, then validate the corrected layout on desktop and mobile.
 - [x] Remove all Body Lab Model index, score badge, tier, and numeric role-index display paths, including when an exercise or stack context is supplied.
 - [x] Replace numeric Body Lab exercise/stack score copy with a qualitative statement that context is available without assigning an activation, force, or capacity value.

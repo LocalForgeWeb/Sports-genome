@@ -98,4 +98,10 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).toContain("Action phase context");
     expect(source).toContain("qualitative contraction-phase description");
   });
+
+  it("orders rendered Key Muscle Roles from source-recorded qualitative role order rather than a numeric heat score", () => {
+    expect(source).toContain("detail?.roleOrder.indexOf(firstRole)");
+    expect(source).toContain("const fallbackOrder: Record<Role, number>");
+    expect(source).not.toContain("muscleScores?.[entry.key]");
+  });
 });
