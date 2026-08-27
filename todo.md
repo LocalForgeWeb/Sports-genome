@@ -64,7 +64,7 @@
 - [x] Remove the remaining Low/Medium/High gradient legend path and numeric heat color logic from Body Lab, retaining categorical role colors even when an exercise or stack score exists.
 - [x] Add evidence-confidence text to Vector Anatomy fallback role controls so fallback Body Lab views use the same confidence semantics as the main map.
 - [x] Add regression coverage proving Vector Anatomy fallback role controls include both qualitative role and evidence-confidence context.
-- [ ] Audit Body Lab selected-state styling so it remains visually distinct from qualitative role color without implying measured activation intensity.
+- [x] Audit Body Lab selected-state styling so it remains visually distinct from qualitative role color without implying measured activation intensity.
 
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
 - [x] Push the latest validated progressive-training, RPE, and segment-priority updates to LocalForgeWeb/Sports-genome and verify the remote branch tip.
