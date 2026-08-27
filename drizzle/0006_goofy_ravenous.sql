@@ -1,0 +1,1 @@
+-- The valid named reference foreign key is created in 0005. This migration is intentionally a no-op.

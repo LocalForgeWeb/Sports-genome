@@ -31,6 +31,11 @@ import {
   getResearchEvidenceByPmid,
   getResearchEvidenceLibrary,
 } from "./researchEvidence";
+import {
+  createStrengthObservation,
+  getStrengthGenomeOverview,
+  listStrengthObservations,
+} from "./strengthGenome";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -223,6 +228,52 @@ export const appRouter = router({
           });
         return session;
       }),
+  }),
+
+  strengthGenome: router({
+    overview: protectedProcedure.query(({ ctx }) =>
+      getStrengthGenomeOverview(ctx.user.id)
+    ),
+    observations: protectedProcedure.query(({ ctx }) =>
+      listStrengthObservations(ctx.user.id)
+    ),
+    addObservation: protectedProcedure
+      .input(
+        z.object({
+          catalogExerciseId: z.number().int().positive().optional(),
+          exerciseName: z.string().trim().min(1).max(255),
+          observedAt: z.date(),
+          measurementType: z.enum([
+            "MEASURED_1RM",
+            "MULTI_REP",
+            "BODYWEIGHT",
+            "ISOMETRIC",
+            "DYNAMOMETRY",
+            "JUMP",
+            "FORCE_PLATE",
+            "VELOCITY",
+          ]),
+          loadKg: z.number().min(0).max(5000).optional(),
+          repetitions: z.number().int().min(0).max(1000).optional(),
+          measuredOneRmKg: z.number().min(0).max(5000).optional(),
+          estimatedOneRmKg: z.number().min(0).max(5000).optional(),
+          estimationMethod: z.string().trim().max(120).optional(),
+          estimatedErrorPercent: z.number().min(0).max(100).optional(),
+          bodyMassKgAtTest: z.number().positive().max(1000).optional(),
+          totalSystemLoadKg: z.number().min(0).max(5000).optional(),
+          rpe: z.number().min(1).max(10).optional(),
+          rir: z.number().min(0).max(20).optional(),
+          equipment: z.string().trim().max(120).optional(),
+          romStandard: z.string().trim().max(255).optional(),
+          techniqueVariant: z.string().trim().max(255).optional(),
+          tempo: z.string().trim().max(80).optional(),
+          laterality: z.enum(["BILATERAL", "LEFT", "RIGHT"]).default("BILATERAL"),
+          externalAssistance: z.string().trim().max(255).optional(),
+          dataQuality: z.enum(["SELF_REPORTED", "STANDARDIZED", "VERIFIED", "UNCERTAIN"]).default("SELF_REPORTED"),
+          notes: z.string().trim().max(3000).optional(),
+        })
+      )
+      .mutation(({ ctx, input }) => createStrengthObservation(ctx.user.id, input)),
   }),
 
   favorites: router({

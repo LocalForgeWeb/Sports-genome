@@ -36,6 +36,20 @@
       "when": 1787779209458,
       "tag": "0004_premium_martin_li",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1787796858110,
+      "tag": "0005_nervous_yellow_claw",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1787796924217,
+      "tag": "0006_goofy_ravenous",
+      "breakpoints": true
     }
   ]
 }

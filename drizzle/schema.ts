@@ -1,6 +1,8 @@
 import {
   boolean,
+  date,
   decimal,
+  foreignKey,
   index,
   int,
   mysqlEnum,
@@ -315,6 +317,314 @@ export const researchEvidenceRules = mysqlTable("researchEvidenceRules", {
   ruleText: text("ruleText").notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
+
+/** Optional reference-matching context; body mass itself stays in dated observations. */
+export const athleteStrengthProfiles = mysqlTable(
+  "athleteStrengthProfiles",
+  {
+    userId: int("userId")
+      .primaryKey()
+      .references(() => users.id, { onDelete: "cascade" }),
+    dateOfBirth: date("dateOfBirth"),
+    sexForReference: mysqlEnum("sexForReference", [
+      "female",
+      "male",
+      "intersex",
+      "unspecified",
+    ]).notNull().default("unspecified"),
+    heightCm: decimal("heightCm", { precision: 6, scale: 2 }),
+    trainingAgeYears: decimal("trainingAgeYears", { precision: 5, scale: 2 }),
+    strengthTrainingAgeYears: decimal("strengthTrainingAgeYears", {
+      precision: 5,
+      scale: 2,
+    }),
+    maturityStatus: varchar("maturityStatus", { length: 80 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  }
+);
+
+/** Dated body mass records support historical relative-strength interpretation. */
+export const bodyMassObservations = mysqlTable(
+  "bodyMassObservations",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    bodyMassKg: decimal("bodyMassKg", { precision: 6, scale: 2 }).notNull(),
+    observedAt: timestamp("observedAt").notNull(),
+    source: mysqlEnum("source", ["athlete_entry", "workout_import"])
+      .notNull()
+      .default("athlete_entry"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [index("bodyMassObservations_user_date_idx").on(table.userId, table.observedAt)]
+);
+
+/** Functional domains are independent of anatomical presentation regions. */
+export const strengthDomains = mysqlTable("strengthDomains", {
+  id: varchar("id", { length: 80 }).primaryKey(),
+  label: varchar("label", { length: 120 }).notNull(),
+  group: varchar("group", { length: 80 }).notNull(),
+  description: text("description").notNull(),
+  sourceStatus: mysqlEnum("sourceStatus", [
+    "AWAITING_EVIDENCE",
+    "REFERENCE_SUPPORTED",
+  ])
+    .notNull()
+    .default("AWAITING_EVIDENCE"),
+  sourceIdsJson: text("sourceIdsJson"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/** Athlete-facing anatomical presentation regions; not direct muscle-force measurements. */
+export const strengthRegions = mysqlTable("strengthRegions", {
+  id: varchar("id", { length: 80 }).primaryKey(),
+  label: varchar("label", { length: 120 }).notNull(),
+  bodyArea: varchar("bodyArea", { length: 80 }).notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/** A dated athlete-entered performance observation with retained testing context. */
+export const strengthObservations = mysqlTable(
+  "strengthObservations",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    catalogExerciseId: int("catalogExerciseId"),
+    exerciseName: varchar("exerciseName", { length: 255 }).notNull(),
+    observedAt: timestamp("observedAt").notNull(),
+    measurementType: mysqlEnum("measurementType", [
+      "MEASURED_1RM",
+      "MULTI_REP",
+      "BODYWEIGHT",
+      "ISOMETRIC",
+      "DYNAMOMETRY",
+      "JUMP",
+      "FORCE_PLATE",
+      "VELOCITY",
+    ]).notNull(),
+    loadKg: decimal("loadKg", { precision: 8, scale: 2 }),
+    repetitions: int("repetitions"),
+    measuredOneRmKg: decimal("measuredOneRmKg", { precision: 8, scale: 2 }),
+    estimatedOneRmKg: decimal("estimatedOneRmKg", { precision: 8, scale: 2 }),
+    estimationMethod: varchar("estimationMethod", { length: 120 }),
+    estimatedErrorPercent: decimal("estimatedErrorPercent", {
+      precision: 5,
+      scale: 2,
+    }),
+    bodyMassKgAtTest: decimal("bodyMassKgAtTest", { precision: 6, scale: 2 }),
+    totalSystemLoadKg: decimal("totalSystemLoadKg", { precision: 8, scale: 2 }),
+    rpe: decimal("rpe", { precision: 3, scale: 1 }),
+    rir: decimal("rir", { precision: 3, scale: 1 }),
+    equipment: varchar("equipment", { length: 120 }),
+    romStandard: varchar("romStandard", { length: 255 }),
+    techniqueVariant: varchar("techniqueVariant", { length: 255 }),
+    tempo: varchar("tempo", { length: 80 }),
+    laterality: mysqlEnum("laterality", ["BILATERAL", "LEFT", "RIGHT"])
+      .notNull()
+      .default("BILATERAL"),
+    externalAssistance: varchar("externalAssistance", { length: 255 }),
+    dataQuality: mysqlEnum("dataQuality", [
+      "SELF_REPORTED",
+      "STANDARDIZED",
+      "VERIFIED",
+      "UNCERTAIN",
+    ])
+      .notNull()
+      .default("SELF_REPORTED"),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("strengthObservations_user_date_idx").on(table.userId, table.observedAt),
+    index("strengthObservations_user_exercise_idx").on(table.userId, table.catalogExerciseId),
+  ]
+);
+
+/** Source-traceable route from a standardized exercise observation to functional domains. */
+export const strengthExerciseDomainMappings = mysqlTable(
+  "strengthExerciseDomainMappings",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    catalogExerciseId: int("catalogExerciseId").notNull(),
+    domainId: varchar("domainId", { length: 80 })
+      .notNull()
+      .references(() => strengthDomains.id, { onDelete: "cascade" }),
+    independenceGroup: varchar("independenceGroup", { length: 120 }).notNull(),
+    contributionWeight: decimal("contributionWeight", { precision: 5, scale: 4 }),
+    specificityWeight: decimal("specificityWeight", { precision: 5, scale: 4 }),
+    measurementQualityWeight: decimal("measurementQualityWeight", {
+      precision: 5,
+      scale: 4,
+    }),
+    evidenceGrade: mysqlEnum("evidenceGrade", ["A", "B", "C", "D", "INFERRED"])
+      .notNull()
+      .default("INFERRED"),
+    sourceIdsJson: text("sourceIdsJson"),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("strengthExerciseDomainMappings_exercise_domain_unique").on(
+      table.catalogExerciseId,
+      table.domainId
+    ),
+    index("strengthExerciseDomainMappings_domain_idx").on(table.domainId),
+  ]
+);
+
+/** Source-traceable aggregation from functional domains to anatomical presentation regions. */
+export const strengthDomainRegionMappings = mysqlTable(
+  "strengthDomainRegionMappings",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    domainId: varchar("domainId", { length: 80 })
+      .notNull()
+      .references(() => strengthDomains.id, { onDelete: "cascade" }),
+    regionId: varchar("regionId", { length: 80 })
+      .notNull()
+      .references(() => strengthRegions.id, { onDelete: "cascade" }),
+    contributionWeight: decimal("contributionWeight", { precision: 5, scale: 4 }),
+    evidenceGrade: mysqlEnum("evidenceGrade", ["A", "B", "C", "D", "INFERRED"])
+      .notNull()
+      .default("INFERRED"),
+    sourceIdsJson: text("sourceIdsJson"),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("strengthDomainRegionMappings_domain_region_unique").on(
+      table.domainId,
+      table.regionId
+    ),
+    index("strengthDomainRegionMappings_region_idx").on(table.regionId),
+  ]
+);
+
+/** Normative evidence is stored only with its population and normalization scope. */
+export const strengthNormativeReferences = mysqlTable(
+  "strengthNormativeReferences",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    catalogExerciseId: int("catalogExerciseId"),
+    measurementType: varchar("measurementType", { length: 80 }).notNull(),
+    protocolLabel: varchar("protocolLabel", { length: 255 }).notNull(),
+    populationType: varchar("populationType", { length: 160 }).notNull(),
+    sexForReference: mysqlEnum("sexForReference", [
+      "female",
+      "male",
+      "mixed",
+      "unspecified",
+    ])
+      .notNull()
+      .default("unspecified"),
+    ageMin: int("ageMin"),
+    ageMax: int("ageMax"),
+    trainingStatus: varchar("trainingStatus", { length: 160 }),
+    sportId: varchar("sportId", { length: 80 }),
+    positionOrEvent: varchar("positionOrEvent", { length: 160 }),
+    bodyMassMinKg: decimal("bodyMassMinKg", { precision: 6, scale: 2 }),
+    bodyMassMaxKg: decimal("bodyMassMaxKg", { precision: 6, scale: 2 }),
+    normalizationMethod: varchar("normalizationMethod", { length: 160 }).notNull(),
+    p01: decimal("p01", { precision: 8, scale: 3 }),
+    p05: decimal("p05", { precision: 8, scale: 3 }),
+    p10: decimal("p10", { precision: 8, scale: 3 }),
+    p25: decimal("p25", { precision: 8, scale: 3 }),
+    p50: decimal("p50", { precision: 8, scale: 3 }),
+    p75: decimal("p75", { precision: 8, scale: 3 }),
+    p90: decimal("p90", { precision: 8, scale: 3 }),
+    p95: decimal("p95", { precision: 8, scale: 3 }),
+    p99: decimal("p99", { precision: 8, scale: 3 }),
+    sampleSize: int("sampleSize"),
+    sourceStudyId: int("sourceStudyId").references(() => researchStudies.id, {
+      onDelete: "set null",
+    }),
+    sourceUrl: varchar("sourceUrl", { length: 512 }),
+    qualityGrade: mysqlEnum("qualityGrade", ["A", "B", "C", "D"]),
+    notes: text("notes"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    index("strengthNormativeReferences_exercise_idx").on(table.catalogExerciseId),
+    index("strengthNormativeReferences_sport_idx").on(table.sportId),
+  ]
+);
+
+/** Immutable estimate history. A current view selects the latest compatible snapshot. */
+export const strengthEstimateSnapshots = mysqlTable(
+  "strengthEstimateSnapshots",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    scope: mysqlEnum("scope", ["DOMAIN", "REGION"]).notNull(),
+    targetId: varchar("targetId", { length: 80 }).notNull(),
+    sourceStatus: mysqlEnum("sourceStatus", [
+      "OBSERVATION_ONLY",
+      "INFERRED_PENDING_EVIDENCE",
+      "REFERENCE_SUPPORTED",
+      "INSUFFICIENT_DATA",
+    ]).notNull(),
+    continuousStrengthScore: decimal("continuousStrengthScore", {
+      precision: 8,
+      scale: 3,
+    }),
+    estimatedPercentile: decimal("estimatedPercentile", {
+      precision: 5,
+      scale: 2,
+    }),
+    tier: varchar("tier", { length: 8 }),
+    certaintyScore: decimal("certaintyScore", { precision: 5, scale: 2 }),
+    certaintyLabel: mysqlEnum("certaintyLabel", [
+      "VERY_LOW",
+      "LOW",
+      "MODERATE",
+      "HIGH",
+      "VERY_HIGH",
+    ]),
+    effectiveEvidenceCount: decimal("effectiveEvidenceCount", {
+      precision: 6,
+      scale: 2,
+    }),
+    independentMovementCount: int("independentMovementCount"),
+    observationCount: int("observationCount").notNull().default(0),
+    agreementScore: decimal("agreementScore", { precision: 5, scale: 2 }),
+    referenceQuality: mysqlEnum("referenceQuality", ["A", "B", "C", "D"]),
+    normativeReferenceId: int("normativeReferenceId"),
+    modelVersion: varchar("modelVersion", { length: 80 }).notNull(),
+    explanationJson: text("explanationJson"),
+    calculatedAt: timestamp("calculatedAt").defaultNow().notNull(),
+  },
+  table => [
+    index("strengthEstimateSnapshots_user_target_date_idx").on(
+      table.userId,
+      table.targetId,
+      table.calculatedAt
+    ),
+    foreignKey({
+      columns: [table.normativeReferenceId],
+      foreignColumns: [strengthNormativeReferences.id],
+      name: "strengthEstimateSnapshots_reference_fk",
+    }).onDelete("set null"),
+  ]
+);
+
+export type AthleteStrengthProfile = typeof athleteStrengthProfiles.$inferSelect;
+export type BodyMassObservation = typeof bodyMassObservations.$inferSelect;
+export type StrengthObservation = typeof strengthObservations.$inferSelect;
+export type StrengthEstimateSnapshot = typeof strengthEstimateSnapshots.$inferSelect;
 
 export type EmailCredential = typeof emailCredentials.$inferSelect;
 export type LocalAuthSession = typeof localAuthSessions.$inferSelect;

@@ -2,8 +2,8 @@
 
 ## Strength Genome
 
-- [ ] Reconcile the full user-supplied Strength Genome specification with the current athlete profile, exercise catalog, evidence registry, and workout-planning architecture.
-- [ ] Define a longitudinal athlete profile and strength-observation schema that preserves dated body-mass context, measured inputs, testing conditions, and data-quality metadata.
+- [x] Reconcile the full user-supplied Strength Genome specification with the current athlete profile, exercise catalog, evidence registry, and workout-planning architecture.
+- [x] Define a longitudinal athlete profile and strength-observation schema that preserves dated body-mass context, measured inputs, testing conditions, and data-quality metadata.
 - [ ] Build source-traceable mappings from standardized exercise observations to functional strength domains and from domains to anatomical-region presentation layers.
 - [ ] Add only verified normative-reference data with explicit population, normalization, age/sex, measurement-method, and coverage limits; render no percentile where a valid reference is absent.
 - [ ] Implement transparent continuous strength estimates, discrete F-to-SS+ tiers, estimate confidence, imbalance logic, sport relevance, and editable athlete-confirmed training priorities without representing estimates as direct measurements.
@@ -23,7 +23,8 @@
 
 ## Official App and Home-Screen Icon
 
-- [ ] Replace the incorrect sidebar and app-icon logo treatment with the newly supplied official Sports Genome — Decoding Performance artwork, then verify its live references.
+- [ ] Verify the authenticated sidebar/rail renders the newly supplied official Sports Genome — Decoding Performance artwork on the live site, separately from source-level and signed-out checks.
+- [x] Publish and browser-verify the official Sports Genome app-icon and PWA manifest references while keeping physical iPhone cache behavior separate.
 - [x] Inspect and remove or replace conflicting favicon, Apple touch icon, and manifest icon references.
 - [x] Create official edge-to-edge deep-navy square Sports Genome icon assets at 180×180, 192×192, and 512×512 from the supplied artwork without an embedded rounded mask.
 - [x] Add the official Apple touch icon link, standalone PWA manifest, deep-navy theme metadata, and matching PWA icon references.
