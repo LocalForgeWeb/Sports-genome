@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import { shouldRenderMetric, workspaceFromLocation } from "./Home";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
+const workoutTrackerSource = readFileSync(new URL("../components/WorkoutExecutionPanel.tsx", import.meta.url), "utf8");
+const stackReviewSource = readFileSync(new URL("../components/WorkoutHealthPanel.tsx", import.meta.url), "utf8");
 
 describe("workspace side navigation", () => {
   it("resolves only supported workspace values and keeps an invalid URL on the command center", () => {
@@ -75,6 +77,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain('document.querySelector<HTMLElement>("#workout-tracker")?.scrollIntoView');
     expect(source).toContain('const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);');
     expect(source).toContain('if (!sessionMode || !loggerScrollRequest) return;');
+    expect(workoutTrackerSource).toContain('id="workout-tracker"');
+    expect(stackReviewSource).toContain('id="stack-review"');
     expect(source).toContain('Log a test');
     expect(source).toContain('Open Body Lab');
     expect(source).toContain('Find exercises');
