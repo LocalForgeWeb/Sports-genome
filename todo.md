@@ -118,8 +118,8 @@
 - [x] Use source-recorded contraction and action-phase context to influence Body Lab role ordering wherever the enriched movement evidence distinguishes contribution order.
 - [x] Add regression coverage proving differing supported action-phase contexts can change qualitative Body Lab role ordering without fabricating timing or force values.
 - [x] Extend Body Lab role ordering to use explicit enriched movement mechanics and action-phase signals beyond the current isometric-context heuristic.
-- [ ] Add comparative role-context regressions using multiple source-recorded phase patterns to prove qualitative ordering changes appropriately.
-- [ ] Add a component-level regression proving the rendered Key Muscle Roles list follows source-recorded phase-sensitive ordering without fabricating timing or force values.
+- [x] Add comparative role-context regressions using multiple source-recorded phase patterns to prove qualitative ordering changes appropriately.
+- [x] Add a component-level regression proving the rendered Key Muscle Roles list follows source-recorded phase-sensitive ordering without fabricating timing or force values.
 - [x] Convert the Body Lab legend and heat map to categorical Neutral, Supporting, and Primary states, with selection styling kept separate from role color.
 - [x] Rename Leading Muscle Signals to Key Muscle Roles and rewrite inspector copy to distinguish sporting-action role from exercise or stack context.
 - [x] Tighten Body Lab inspector hierarchy to muscle name, role, confidence, explanation, and compact source context with expandable methodology.

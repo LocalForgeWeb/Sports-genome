@@ -104,4 +104,19 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).toContain("const fallbackOrder: Record<Role, number>");
     expect(source).not.toContain("muscleScores?.[entry.key]");
   });
+
+  it("renders qualitative primary, stabilizer, and synergist roles in their supplied phase-sensitive order", async () => {
+    const { AnatomyMap } = await import("./AnatomyMap");
+    const roleOrder = ["Primary Mover", "Stabilizer", "Synergist", "Supporting"] as const;
+    const roleDetails = {
+      glutes: { roles: ["Primary Mover"], roleOrder: [...roleOrder], confidence: "Direct evidence", sourceScope: "Movement-specific evidence" as const, sources: [], explanation: "Propulsion context." },
+      obliques: { roles: ["Stabilizer"], roleOrder: [...roleOrder], confidence: "Strong indirect evidence", sourceScope: "Movement-specific evidence" as const, sources: [], explanation: "Bracing context." },
+      hamstrings: { roles: ["Synergist"], roleOrder: [...roleOrder], confidence: "Moderate biomechanical inference", sourceScope: "Movement-specific evidence" as const, sources: [], explanation: "Assisting context." },
+    };
+    const markup = renderToStaticMarkup(createElement(AnatomyMap, { primary: ["glutes"], secondary: ["obliques", "hamstrings"], roleDetails, onSelect: vi.fn() }));
+
+    expect(markup.indexOf("Gluteal complex")).toBeLessThan(markup.indexOf("External oblique"));
+    expect(markup.indexOf("External oblique")).toBeLessThan(markup.indexOf("Hamstrings"));
+    expect(markup).toContain("Stabilizer · Strong indirect evidence");
+  });
 });
