@@ -29,6 +29,10 @@
 
 ## iPhone-First Product Polish
 
+- [x] Replace the floating five-icon mobile navigation with a connected safe-area workspace bar that exposes context-relevant controls for each active destination.
+- [ ] Provide Training Day shortcuts for workout tracking, split selection, and stack scoring, plus appropriate contextual actions for Home, Genome, Progress, and Profile.
+- [ ] Wire Training Day dock actions to distinct split-selection, workout-tracking, and stack-scoring workflows with functional regression coverage.
+- [ ] Verify explicit logger and stack-review anchors exist and add interaction-level regression coverage for all Training Day dock actions.
 - [x] Ensure Movement Atlas action rows and selected-action controls retain full-width 44px-or-larger touch targets at narrow mobile widths.
 - [x] Convert the mobile workspace header’s long sport/goal/days text string into compact accessible context chips with overflow-safe labels.
 - [ ] Establish one reusable Sports Genome mobile design system covering colors, elevation, radii, strokes, typography, spacing, interactive states, compact chips, and motion timing.
@@ -42,6 +46,7 @@
 
 ## Official App and Home-Screen Icon
 
+- [ ] Replace the visible top-left sidebar logo mark with the user-supplied official Sports Genome — Decoding Performance artwork.
 - [x] Replace remaining athlete-visible legacy Gym Optimizer labels in the document title, sign-in copy, and passkey relying-party prompt with Sports Genome.
 - [ ] Verify the authenticated sidebar/rail renders the newly supplied official Sports Genome — Decoding Performance artwork on the live site, separately from source-level and signed-out checks.
 - [x] Publish and browser-verify the official Sports Genome app-icon and PWA manifest references while keeping physical iPhone cache behavior separate.

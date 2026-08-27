@@ -39,8 +39,8 @@ describe("workspace side navigation", () => {
 
   it("uses the official Sports Genome drawer identity and a non-neon active state", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(source).toContain('sports-genome-official-logo-64_f1d0979d.png');
-    expect(source).toContain('alt="Sports Genome icon"');
+    expect(source).toContain('sports-genome-decoding-performance-logo_0544e065.png');
+    expect(source).toContain('alt="Sports Genome — Decoding Performance logo"');
     expect(source).toContain('>Sports Genome</p>');
     expect(source).toContain('Athlete workspace');
     expect(source).toContain('rail-data-line');
@@ -60,8 +60,17 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('detail="coach-set planning marker"');
   });
 
-  it("adds an explicit iPhone-first five-destination bar without covering the content canvas", () => {
+  it("adds a connected context-aware iPhone workspace dock without covering the content canvas", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(source).toContain('className="mobile-workspace-dock lg:hidden"');
+    expect(source).toContain('aria-label="Current workspace actions"');
+    expect(source).toContain('Track workout');
+    expect(source).toContain('Choose split');
+    expect(source).toContain('Review stack');
+    expect(source).toContain('setSessionMode(true)');
+    expect(source).toContain('document.querySelector(".day-design-rail")?.scrollIntoView');
+    expect(source).toContain('document.querySelector(".workout-health-panel")?.scrollIntoView');
+    expect(source).toContain('Log a test');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');
     expect(source).toContain('label: "Genome"');
@@ -70,7 +79,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(css).toContain('.mobile-bottom-nav { display: none; }');
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
-    expect(css).toContain('.apex-content { padding-bottom: calc(6.75rem');
+    expect(css).toContain('.apex-content { padding-bottom: calc(10.25rem');
+    expect(css).toContain('.mobile-workspace-dock { position: fixed;');
     expect(css).toContain('.planner-float { bottom: calc(5.6rem');
   });
 
