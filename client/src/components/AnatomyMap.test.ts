@@ -84,8 +84,8 @@ describe("Body Lab architecture mechanics disclosure", () => {
       onSelect: vi.fn(),
     }));
 
-    expect(markup).toContain("Leading muscle signals");
-    expect(markup).toContain("Expand only when you need the lower-ranked worked muscles.");
-    expect(markup).toContain("Show 3 more muscle signals");
+    expect(markup).toContain("Key muscle roles");
+    expect(markup).toContain("Expand only when you need the lower-ranked relevant muscles.");
+    expect(markup).toContain("Show 3 more muscle roles");
   });
 });

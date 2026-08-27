@@ -46,6 +46,21 @@
 - [x] Show relative model indices only when they are derived from the selected exercise or active stack, with clear non-measurement labeling.
 - [ ] Add regression coverage preventing repeated role-template values from appearing as precise Body Lab scores, then validate the corrected layout on desktop and mobile.
 
+## Qualitative Muscle Role and Unified Mobile Design System
+
+- [ ] Replace single primary/synergist assumptions with movement-specific multiple role tags: Primary Mover, Synergist, Stabilizer, and Supporting.
+- [ ] Attach direct, strong indirect, moderate biomechanical, or low-confidence evidence labels to every displayed muscle-role judgment.
+- [ ] Make Body Lab role ordering depend on movement mechanics and phase context rather than scaling one muscle template across actions.
+- [ ] Convert the Body Lab legend and heat map to categorical Neutral, Supporting, and Primary states, with selection styling kept separate from role color.
+- [ ] Rename Leading Muscle Signals to Key Muscle Roles and rewrite inspector copy to distinguish sporting-action role from exercise or stack context.
+- [ ] Tighten Body Lab inspector hierarchy to muscle name, role, confidence, explanation, and compact source context with expandable methodology.
+- [ ] Separate grouped anatomical regions internally where meaningful while retaining clear athlete-facing group labels and advanced anatomical detail.
+- [ ] Add a compact muscle-role methodology control, concise boundaries, ranked sources, and direct/indirect evidence labels without repeated disclaimer walls.
+- [ ] Establish reusable typography, color, spacing, radius, border, icon, button, safe-area, and floating-control tokens for the unified dark-performance and light-lab system.
+- [ ] Compress mobile header context and breadcrumbs; standardize compact context controls, relevant primary actions, touch targets, and safe-area spacing.
+- [ ] Audit every primary screen for overflow, accidental horizontal scrolling, inconsistent color meaning, clipped long labels, and small tap targets at small, medium, and large iPhone widths.
+- [ ] Add recommendation-purpose and evidence-confidence labels, compact tappable source access, clear evidence-gap states, and explicit sport-practice specificity boundaries.
+
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
 - [x] Push the latest validated progressive-training, RPE, and segment-priority updates to LocalForgeWeb/Sports-genome and verify the remote branch tip.
 - [x] Push the latest validated mobile Training Day action-layout repair to LocalForgeWeb/Sports-genome and verify the remote branch tip.

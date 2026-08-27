@@ -21,10 +21,10 @@
 @keyframes mobile-disclosure-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 640px) {
-  .apex-topbar { min-height: 94px; align-items: stretch; padding: 8px 12px; }
+  .apex-topbar { min-height: 76px; align-items: stretch; padding: 8px 12px; }
   .apex-topbar > div { align-items: center; }
   .apex-topbar .metric-label { font-size: 8px; }
-  .apex-topbar p.text-sm { max-width: 182px; overflow: hidden; font-size: .74rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+  .apex-topbar p.text-sm { max-width: 166px; overflow: hidden; font-size: .72rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
   .apex-topbar button:last-child { min-width: 44px; padding: .5rem .62rem; font-size: .56rem; letter-spacing: .06em; }
   .apex-topbar button:last-child svg { display: none; }
   .apex-content { padding: 12px; }

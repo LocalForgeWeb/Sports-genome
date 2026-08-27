@@ -2,9 +2,10 @@ import { useRef, useEffect, useMemo, useState, useCallback } from "react";
 import { BodyChart, ViewSide, FRONT_MUSCLES, BACK_MUSCLES, MUSCLE_MAP } from "body-muscles";
 import { ChevronDown, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
+import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
 
-type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; muscleScores?: Record<string, number>; showInspector?: boolean };
+type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; showInspector?: boolean };
 type Role = "Primary" | "Synergist" | "Stabilizer";
 
 /* Map our exercise catalog muscle keys to body-muscles library IDs */
@@ -87,7 +88,7 @@ export function VectorAnatomyFallback({ view, ranked, onSelect, onRetry }: { vie
   return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[#f6fafc] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your worked-muscle list and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[10px] font-bold text-[#173d69] transition-colors hover:border-[#2d6cdf] hover:text-[#2d6cdf]">{region.label} · {region.score == null ? `${region.role} role` : `${region.score}%`}</button>)}</div><button onClick={onRetry} className="mt-4 text-[10px] font-bold uppercase tracking-[.08em] text-[#2d6cdf] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
 }
 
-export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showInspector = true }: AnatomyMapProps) {
+export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<BodyChart | null>(null);
   const [view, setView] = useState<"FRONT" | "BACK">("FRONT");
@@ -197,6 +198,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
   const selectedScore = selectedKey ? muscleScores?.[selectedKey] : undefined;
   const selectedRole: Role | null = selectedKey ? (matches(selectedKey, primary) ? "Primary" : "Synergist") : null;
+  const selectedRoleDetail = selectedKey ? roleDetails?.[selectedKey] : undefined;
   const selectedMechanics = selectedKey ? getAnatomyMechanicsEvidence(selectedKey) : null;
   const hasCalculatedMuscleScores = Object.values(muscleScores || {}).some((score) => score > 0);
 
@@ -256,21 +258,23 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
                 <button onClick={() => setSelectedKey("")} aria-label="Clear muscle selection">×</button>
               </div>
               <div className="atlas-inspector-badges">
-                <span>{selectedRole}</span>
+                <span>{selectedRoleDetail?.roles.join(" · ") || selectedRole}</span>
+                {selectedRoleDetail && <i>{selectedRoleDetail.confidence}</i>}
                 {selectedScore == null ? <b>Role context</b> : <><b>Relative model index {selectedScore}/100</b><i>{tier(selectedScore)} Tier</i></>}
               </div>
               <div className="atlas-why-pro">
                 <p className="metric-label">Role</p>
-                <p>{selectedRole === "Primary" ? "This muscle is a primary mover in the current exercise." : "This muscle assists the primary movers as a synergist or stabilizer."}</p>
+                <p>{selectedRoleDetail?.explanation || (selectedRole === "Primary" ? "This muscle is a primary mover in the selected sporting action." : "This muscle supports the selected sporting action as a synergist or stabilizer.")}</p>
                 {selectedScore == null ? <p className="mt-2 text-[10px] leading-4 text-[#657b92]">No exercise or active-stack score is loaded here. Color reflects qualitative role context, not measured activation or force.</p> : <p className="mt-2 text-[10px] leading-4 text-[#657b92]">This relative model index is derived from the active exercise or stack context. It is not a measured activation, force, or individual capacity score.</p>}
               </div>
+              {selectedRoleDetail && <div className="atlas-why-pro"><p className="metric-label">Evidence context</p><p>{selectedRoleDetail.sourceScope} · {selectedRoleDetail.confidence}</p>{selectedRoleDetail.sources.length > 0 && <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Sources:</strong> {selectedRoleDetail.sources.map((source, index) => <a key={source} href={source} target="_blank" rel="noreferrer" className="underline underline-offset-2">{index === 0 ? "Primary source" : "Supporting source"}{index < selectedRoleDetail.sources.length - 1 ? " · " : ""}</a>)}</p>}</div>}
               {selectedMechanics && <div className="atlas-why-pro">
                 <p className="metric-label">Architecture + leverage context</p>
                 <p>{selectedMechanics.scope}</p>
                 <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Sources:</strong> {selectedMechanics.sources.join(" · ")}</p>
                 <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Boundary:</strong> {selectedMechanics.boundary}</p>
               </div>}
-              {selectedScore != null && <details className="atlas-full-analysis"><summary>View full model boundary <ChevronDown className="h-4 w-4" /></summary><div><p><b>Confidence:</b> Structured relative estimate based on the active exercise or stack context, stated muscle role, and available mechanics evidence. It is not a direct laboratory measurement.</p></div></details>}
+              {(selectedScore != null || roleMethodology) && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology || "The displayed context is a structured relative estimate based on the active exercise or stack, stated muscle role, and available mechanics evidence. It is not a direct laboratory measurement."}</p></div></details>}
             </>
           ) : (
             <div className="atlas-inspector-empty-pro">
@@ -281,7 +285,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
           )}
         </aside>}
         <div className="atlas-ranking">
-          <div><p className="metric-label">Leading muscle signals</p><span>Click a row to focus it on the model. Expand only when you need the lower-ranked worked muscles.</span></div>
+          <div><p className="metric-label">Key muscle roles</p><span>Click a row to focus it on the model. Expand only when you need the lower-ranked relevant muscles.</span></div>
           {visibleRanked.map(region => (
             <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""}>
               <i className="atlas-rank-dot" style={{ background: region.score == null ? (region.role === "Primary" ? "#e4512e" : "#d5ad43") : heatSolid(region.score) }} />
@@ -289,7 +293,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
               {region.score == null ? <em>{region.role} role</em> : <><em>{region.score}%</em><b className="atlas-rank-bar"><i style={{ width: `${region.score}%`, background: heatSolid(region.score) }} /></b></>}
             </button>
           ))}
-          {filteredRanked.length > 5 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer muscle signals" : `Show ${hiddenRankedCount} more muscle signal${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
+          {filteredRanked.length > 5 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer muscle roles" : `Show ${hiddenRankedCount} more muscle role${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
         </div>
       </div>
     </section>
