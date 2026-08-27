@@ -55,6 +55,9 @@ describe("workspace side navigation", () => {
   it("blocks the retired coach-set readiness placeholder from rendering", () => {
     expect(shouldRenderMetric("coach-set planning marker")).toBe(false);
     expect(shouldRenderMetric("mapped muscle groups")).toBe(true);
+    expect(source).not.toContain('label="Session readiness"');
+    expect(source).not.toContain('value="82"');
+    expect(source).not.toContain('detail="coach-set planning marker"');
   });
 
   it("adds an explicit iPhone-first five-destination bar without covering the content canvas", () => {

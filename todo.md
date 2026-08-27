@@ -90,7 +90,7 @@
 ## Visible Data Integrity and Interactive Navigation Verification
 
 - [ ] Audit and replace every visible placeholder-style numeric display with a live athlete value, derived planning value with clear label, or explicit no-data state.
-- [ ] Remove the unsupported command-center Session readiness marker and replace it with a truthful current-plan status derived from saved workout data.
+- [x] Remove the unsupported command-center Session readiness marker and replace it with a truthful current-plan status derived from saved workout data.
 - [ ] Remove the stale duplicate command-center branch containing Session readiness and 82 from Home.tsx rather than hiding it with CSS.
 - [ ] Decide whether command-center plan status derives from persisted saved workout data or is explicitly labeled as active staged-plan state, then add a regression against the prior placeholder.
 - [ ] Interactively activate every sidebar destination and verify active workspace, URL history, active state, desktop rail behavior, and mobile overlay closure.
