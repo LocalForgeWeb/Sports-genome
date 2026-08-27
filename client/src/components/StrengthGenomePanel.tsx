@@ -14,6 +14,8 @@ type MeasurementType =
   | "FORCE_PLATE"
   | "VELOCITY";
 
+type ObservationDataQuality = "SELF_REPORTED" | "STANDARDIZED" | "VERIFIED" | "UNCERTAIN";
+
 const measurementOptions: { value: MeasurementType; label: string }[] = [
   { value: "MEASURED_1RM", label: "Measured 1RM" },
   { value: "MULTI_REP", label: "Working set" },
@@ -23,6 +25,13 @@ const measurementOptions: { value: MeasurementType; label: string }[] = [
   { value: "JUMP", label: "Jump test" },
   { value: "FORCE_PLATE", label: "Force-plate test" },
   { value: "VELOCITY", label: "Velocity test" },
+];
+
+const dataQualityOptions: { value: ObservationDataQuality; label: string }[] = [
+  { value: "SELF_REPORTED", label: "Self-reported" },
+  { value: "STANDARDIZED", label: "Standardized setup" },
+  { value: "VERIFIED", label: "Verified result" },
+  { value: "UNCERTAIN", label: "Setup uncertain" },
 ];
 
 export function StrengthGenomePanel() {
@@ -36,6 +45,14 @@ export function StrengthGenomePanel() {
   const [repetitions, setRepetitions] = useState("");
   const [observedDate, setObservedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [bodyMassKg, setBodyMassKg] = useState("");
+  const [equipment, setEquipment] = useState("");
+  const [romStandard, setRomStandard] = useState("");
+  const [techniqueVariant, setTechniqueVariant] = useState("");
+  const [tempo, setTempo] = useState("");
+  const [laterality, setLaterality] = useState<"BILATERAL" | "LEFT" | "RIGHT">("BILATERAL");
+  const [externalAssistance, setExternalAssistance] = useState("");
+  const [dataQuality, setDataQuality] = useState<ObservationDataQuality>("SELF_REPORTED");
+  const [notes, setNotes] = useState("");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<StrengthRegionDefinition | null>(null);
   const addObservation = trpc.strengthGenome.addObservation.useMutation({
@@ -48,6 +65,14 @@ export function StrengthGenomePanel() {
       setLoadKg("");
       setRepetitions("");
       setBodyMassKg("");
+      setEquipment("");
+      setRomStandard("");
+      setTechniqueVariant("");
+      setTempo("");
+      setLaterality("BILATERAL");
+      setExternalAssistance("");
+      setDataQuality("SELF_REPORTED");
+      setNotes("");
       toast.success("Performance observation saved. Your Strength Genome will update only when calibrated evidence supports it.");
     },
   });
@@ -76,8 +101,14 @@ export function StrengthGenomePanel() {
       repetitions: Number.isFinite(parsedRepetitions) && repetitions !== "" ? parsedRepetitions : undefined,
       measuredOneRmKg: measurementType === "MEASURED_1RM" && Number.isFinite(parsedLoad) ? parsedLoad : undefined,
       bodyMassKgAtTest: Number.isFinite(parsedBodyMass) && bodyMassKg !== "" ? parsedBodyMass : undefined,
-      laterality: "BILATERAL",
-      dataQuality: "SELF_REPORTED",
+      equipment: equipment.trim() || undefined,
+      romStandard: romStandard.trim() || undefined,
+      techniqueVariant: techniqueVariant.trim() || undefined,
+      tempo: tempo.trim() || undefined,
+      laterality,
+      externalAssistance: externalAssistance.trim() || undefined,
+      dataQuality,
+      notes: notes.trim() || undefined,
     });
   };
 
@@ -120,7 +151,18 @@ export function StrengthGenomePanel() {
           {measurementType === "MULTI_REP" && <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Repetitions</span><input inputMode="numeric" value={repetitions} onChange={(event) => setRepetitions(event.target.value.replace(/[^0-9]/g, ""))} placeholder="Enter reps" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>}
         </div>
         <button type="button" onClick={() => setAdvancedOpen((current) => !current)} className="mt-4 text-[10px] font-bold uppercase tracking-[.12em] text-[#9fc8f4] hover:text-white">{advancedOpen ? "Hide" : "Show"} testing detail</button>
-        {advancedOpen && <div className="mt-3 grid gap-3 border-l-2 border-[#f2c14d] pl-3 sm:grid-cols-2"><label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Body mass at test (kg)</span><input inputMode="decimal" value={bodyMassKg} onChange={(event) => setBodyMassKg(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Optional" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label><p className="self-end pb-1 text-xs leading-5 text-[#c3d3e4]">Body mass is retained with this observation. Range, equipment, assistance, tempo, and verification fields are reserved for the detailed entry pass. No body-mass ratio or comparison appears without matching evidence.</p></div>}
+        {advancedOpen && <div className="mt-3 grid gap-3 border-l-2 border-[#f2c14d] pl-3 sm:grid-cols-2">
+          <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Body mass at test (kg)</span><input inputMode="decimal" value={bodyMassKg} onChange={(event) => setBodyMassKg(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Optional" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Data quality</span><select value={dataQuality} onChange={(event) => setDataQuality(event.target.value as ObservationDataQuality)} className="h-11 rounded-xl border border-white/20 bg-[#102947] px-3 text-sm text-white outline-none focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30">{dataQualityOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+          <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Laterality</span><select value={laterality} onChange={(event) => setLaterality(event.target.value as typeof laterality)} className="h-11 rounded-xl border border-white/20 bg-[#102947] px-3 text-sm text-white outline-none focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30"><option value="BILATERAL">Bilateral</option><option value="LEFT">Left</option><option value="RIGHT">Right</option></select></label>
+          <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Equipment</span><input value={equipment} onChange={(event) => setEquipment(event.target.value)} placeholder="e.g. barbell, rack" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Range or test standard</span><input value={romStandard} onChange={(event) => setRomStandard(event.target.value)} placeholder="e.g. full depth" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Variation / technique</span><input value={techniqueVariant} onChange={(event) => setTechniqueVariant(event.target.value)} placeholder="Optional" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Tempo</span><input value={tempo} onChange={(event) => setTempo(event.target.value)} placeholder="Optional" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Assistance / support</span><input value={externalAssistance} onChange={(event) => setExternalAssistance(event.target.value)} placeholder="Optional" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <label className="grid gap-1.5 sm:col-span-2"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Context note</span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Optional context for this result" className="min-h-20 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <p className="sm:col-span-2 text-xs leading-5 text-[#c3d3e4]">These fields preserve test context for your own future comparison. They do not create a body-mass ratio, universal estimate, tier, or population comparison.</p>
+        </div>}
         <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#e4512e] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving observation" : "Save performance observation"}</button>
       </section>
 
