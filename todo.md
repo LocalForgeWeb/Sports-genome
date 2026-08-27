@@ -46,6 +46,7 @@
 - [ ] Establish one reusable Sports Genome mobile design system covering colors, elevation, radii, strokes, typography, spacing, interactive states, compact chips, and motion timing.
 - [x] Rework primary mobile navigation around daily athlete actions, with persistent bottom navigation for Home, Train, Genome, Progress, and Profile while retaining the drawer for secondary tools.
 - [ ] Replace dense mobile headers and persistent tutorial clutter with compact contextual controls, clear screen titles, sport/goal chips, and first-use coach marks that can be dismissed.
+- [x] Relocate the persistent floating mobile guide control into the contextual Home dock, keeping the tutorial available without covering the content canvas.
 - [ ] Redesign the Home screen around a truthful Today action, current-plan state, weekly rhythm, Strength Genome completion, and next-best actions without invented readiness or achievement data.
 - [ ] Make recommendations, Body Lab, Exercise Genome, Training Days, and catalog rows concise, tappable, rankable, and progressively disclosed before methodology or deep evidence detail.
 - [x] Replace activation-style Body Lab guide language with the established qualitative-role-map boundary.

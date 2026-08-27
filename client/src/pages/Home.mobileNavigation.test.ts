@@ -93,6 +93,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain('Find exercises');
     expect(source).toContain('Change action');
     expect(source).toContain('View matches');
+    expect(source).toContain('onClick={() => setTutorialOpen(true)}>Guide</button>');
+    expect(source).not.toContain('className="feature-guide-button"');
     expect(source).not.toContain('Sport-aware exercise matches and rationale');
     expect(source).not.toContain('Build, track, and review your plan');
     expect(source).not.toContain('Selected sport action and body requirements');
