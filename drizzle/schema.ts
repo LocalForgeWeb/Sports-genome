@@ -344,6 +344,29 @@ export const athleteStrengthProfiles = mysqlTable(
   }
 );
 
+/** Athlete-confirmed training emphasis; never an inferred weakness or medical finding. */
+export const athleteStrengthPriorities = mysqlTable(
+  "athleteStrengthPriorities",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    regionId: varchar("regionId", { length: 80 })
+      .notNull()
+      .references(() => strengthRegions.id, { onDelete: "cascade" }),
+    status: mysqlEnum("status", ["ACTIVE", "ARCHIVED"]).notNull().default("ACTIVE"),
+    source: mysqlEnum("source", ["ATHLETE_CONFIRMED"]).notNull().default("ATHLETE_CONFIRMED"),
+    note: varchar("note", { length: 280 }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [
+    uniqueIndex("athleteStrengthPriorities_user_region_unique").on(table.userId, table.regionId),
+    index("athleteStrengthPriorities_user_status_idx").on(table.userId, table.status),
+  ]
+);
+
 /** Dated body mass records support historical relative-strength interpretation. */
 export const bodyMassObservations = mysqlTable(
   "bodyMassObservations",
@@ -622,6 +645,7 @@ export const strengthEstimateSnapshots = mysqlTable(
 );
 
 export type AthleteStrengthProfile = typeof athleteStrengthProfiles.$inferSelect;
+export type AthleteStrengthPriority = typeof athleteStrengthPriorities.$inferSelect;
 export type BodyMassObservation = typeof bodyMassObservations.$inferSelect;
 export type StrengthObservation = typeof strengthObservations.$inferSelect;
 export type StrengthEstimateSnapshot = typeof strengthEstimateSnapshots.$inferSelect;

@@ -14,5 +14,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Regional detail / no score yet");
     expect(source).toContain("Sports Genome has not assigned a regional strength rank");
     expect(source).toContain("does not claim direct regional muscle-force measurement");
+    expect(source).toContain("Athlete-confirmed training focus");
+    expect(source).toContain("It is your stated focus, not an inferred weakness, score, or diagnosis.");
+    expect(source).toContain('active: !activePriorityIds.has(selectedRegion.id)');
   });
 });

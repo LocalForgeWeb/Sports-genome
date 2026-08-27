@@ -24,5 +24,9 @@ describe("Strength Genome account and evidence contract", () => {
     expect(router).toContain("overview: protectedProcedure");
     expect(router).toContain("observations: protectedProcedure");
     expect(router).toContain("addObservation: protectedProcedure");
+    expect(router).toContain("priorities: protectedProcedure");
+    expect(router).toContain("setPriority: protectedProcedure");
+    expect(source).toContain("Unknown Strength Genome region");
+    expect(source).toContain('status: active ? "ACTIVE" : "ARCHIVED"');
   });
 });

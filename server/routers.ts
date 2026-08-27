@@ -34,7 +34,9 @@ import {
 import {
   createStrengthObservation,
   getStrengthGenomeOverview,
+  listActiveStrengthPriorities,
   listStrengthObservations,
+  setStrengthPriority,
 } from "./strengthGenome";
 
 export const appRouter = router({
@@ -237,6 +239,12 @@ export const appRouter = router({
     observations: protectedProcedure.query(({ ctx }) =>
       listStrengthObservations(ctx.user.id)
     ),
+    priorities: protectedProcedure.query(({ ctx }) =>
+      listActiveStrengthPriorities(ctx.user.id)
+    ),
+    setPriority: protectedProcedure
+      .input(z.object({ regionId: z.string().trim().min(1).max(80), active: z.boolean(), note: z.string().trim().max(280).optional() }))
+      .mutation(({ ctx, input }) => setStrengthPriority(ctx.user.id, input.regionId, input.active, input.note)),
     addObservation: protectedProcedure
       .input(
         z.object({

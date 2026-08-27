@@ -50,6 +50,13 @@
       "when": 1787796924217,
       "tag": "0006_goofy_ravenous",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1787800362140,
+      "tag": "0007_jittery_hedge_knight",
+      "breakpoints": true
     }
   ]
 }

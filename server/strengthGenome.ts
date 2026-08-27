@@ -1,5 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
-import { bodyMassObservations, strengthObservations } from "../drizzle/schema";
+import { athleteStrengthPriorities, bodyMassObservations, strengthObservations } from "../drizzle/schema";
 import { resolveStrengthObservationRoute, strengthRegionDefinitions } from "../shared/strengthGenomeDefinitions";
 import { getDb } from "./db";
 
@@ -118,8 +118,36 @@ export async function listStrengthObservations(userId: number) {
     .limit(100);
 }
 
+export async function listActiveStrengthPriorities(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is unavailable");
+  return db
+    .select()
+    .from(athleteStrengthPriorities)
+    .where(and(eq(athleteStrengthPriorities.userId, userId), eq(athleteStrengthPriorities.status, "ACTIVE")))
+    .orderBy(desc(athleteStrengthPriorities.updatedAt));
+}
+
+export async function setStrengthPriority(userId: number, regionId: string, active: boolean, note?: string) {
+  if (!strengthRegionDefinitions.some(region => region.id === regionId)) {
+    throw new Error("Unknown Strength Genome region");
+  }
+  const db = await getDb();
+  if (!db) throw new Error("Database is unavailable");
+  const existing = await db.select({ id: athleteStrengthPriorities.id }).from(athleteStrengthPriorities)
+    .where(and(eq(athleteStrengthPriorities.userId, userId), eq(athleteStrengthPriorities.regionId, regionId))).limit(1);
+  if (existing[0]) {
+    await db.update(athleteStrengthPriorities).set({ status: active ? "ACTIVE" : "ARCHIVED", note: note?.trim() || null })
+      .where(eq(athleteStrengthPriorities.id, existing[0].id));
+  } else if (active) {
+    await db.insert(athleteStrengthPriorities).values({ userId, regionId, note: note?.trim() || null });
+  }
+  return listActiveStrengthPriorities(userId);
+}
+
 export async function getStrengthGenomeOverview(userId: number) {
   const observations = await listStrengthObservations(userId);
+  const priorities = await listActiveStrengthPriorities(userId);
   const routedObservations = observations.map(observation => ({
     observation,
     route: resolveStrengthObservationRoute(observation.exerciseName),
@@ -129,6 +157,7 @@ export async function getStrengthGenomeOverview(userId: number) {
   return {
     sourceStatus: "OBSERVATION_ROUTING_ONLY" as const,
     observationCount: observations.length,
+    athleteConfirmedPriorityRegionIds: priorities.map(priority => priority.regionId),
     observedDomains: Array.from(observedDomainIds),
     unmappedObservationCount: routedObservations.filter(item => !item.route).length,
     regions: strengthRegionDefinitions.map(region => ({

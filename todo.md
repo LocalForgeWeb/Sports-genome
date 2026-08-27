@@ -3,6 +3,7 @@
 ## User-Authorized Completion Sequence
 
 - [ ] Complete and publish the remaining non-device Sports Genome work in priority order: evidence-bounded Strength Genome, iPhone-first workflow polish, Body Lab refinement, and visible-data integrity cleanup.
+- [ ] Complete each active implementation milestone through user-facing integration, full validation, publication, and GitHub synchronization before moving to the next milestone.
 - [ ] Keep physical-device, authenticated, and Safari verification tasks explicitly open until they are observed rather than inferred from source or automated tests.
 
 ## Strength Genome
@@ -10,6 +11,8 @@
 - [x] Reconcile the full user-supplied Strength Genome specification with the current athlete profile, exercise catalog, evidence registry, and workout-planning architecture.
 - [x] Define a longitudinal athlete profile and strength-observation schema that preserves dated body-mass context, measured inputs, testing conditions, and data-quality metadata.
 - [x] Add transparent non-numeric routing for recognized athlete-entered tests to broad functional domains and anatomical regions, with no regional-force estimate, tier, percentile, or cross-test comparison.
+- [x] Add an exact-match within-athlete recorded-load comparison for repeated named tests, retaining clear test-type, laterality, repetition, and non-estimate boundaries.
+- [x] Add reversible athlete-confirmed regional training priorities that are account-scoped and explicitly separate from inferred deficits, strength ranks, and diagnoses.
 - [ ] Build source-traceable mappings from standardized exercise observations to functional strength domains and from domains to anatomical-region presentation layers.
 - [ ] Add only verified normative-reference data with explicit population, normalization, age/sex, measurement-method, and coverage limits; render no percentile where a valid reference is absent.
 - [ ] Implement transparent continuous strength estimates, discrete F-to-SS+ tiers, estimate confidence, imbalance logic, sport relevance, and editable athlete-confirmed training priorities without representing estimates as direct measurements.

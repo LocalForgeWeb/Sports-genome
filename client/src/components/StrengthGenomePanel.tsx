@@ -29,6 +29,7 @@ export function StrengthGenomePanel() {
   const utils = trpc.useUtils();
   const overview = trpc.strengthGenome.overview.useQuery();
   const observations = trpc.strengthGenome.observations.useQuery();
+  const priorities = trpc.strengthGenome.priorities.useQuery();
   const [exerciseName, setExerciseName] = useState("");
   const [measurementType, setMeasurementType] = useState<MeasurementType>("MEASURED_1RM");
   const [loadKg, setLoadKg] = useState("");
@@ -58,6 +59,12 @@ export function StrengthGenomePanel() {
   const canSave = Boolean(exerciseName.trim()) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0));
   const recentObservations = observations.data?.slice(0, 4) || [];
   const regionOverview = (regionId: string) => overview.data?.regions.find(region => region.id === regionId);
+  const activePriorityIds = new Set(priorities.data?.map(priority => priority.regionId) || overview.data?.athleteConfirmedPriorityRegionIds || []);
+  const setPriority = trpc.strengthGenome.setPriority.useMutation({
+    onSuccess: async () => {
+      await Promise.all([utils.strengthGenome.overview.invalidate(), utils.strengthGenome.priorities.invalidate()]);
+    },
+  });
 
   const submit = () => {
     if (!canSave || !observedDate) return;
@@ -98,6 +105,7 @@ export function StrengthGenomePanel() {
         </button>; })}
       </div>
       {selectedRegion && <div className="border-t border-[#d5e3ef] bg-[#f8fbff] px-5 py-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="metric-label">Regional detail / no score yet</p><h3 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#102947]">{selectedRegion.label}</h3><p className="mt-3 max-w-2xl text-xs leading-5 text-[#5b758c]">{regionOverview(selectedRegion.id)?.message || selectedRegion.description} Sports Genome has not assigned a regional strength rank because the required calibration and matching reference data are not yet available.</p></div><button type="button" onClick={() => setSelectedRegion(null)} className="min-h-10 rounded-xl border border-[#c8d9e8] bg-white px-3 text-[10px] font-bold uppercase tracking-[.1em] text-[#365b7e] hover:border-[#2d6cdf] hover:text-[#2d6cdf]">Close detail</button></div><div className="mt-4 border-l-2 border-[#f2c14d] pl-3 text-xs leading-5 text-[#4d6c86]"><strong className="text-[#153b61]">Next useful data:</strong> add a standardized, repeatable performance test with its date and setup. This records the observation; it does not claim direct regional muscle-force measurement.</div></div>}
+      {selectedRegion && <div className="border-t border-[#d5e3ef] bg-white px-5 py-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="metric-label">Athlete-confirmed training focus</p><p className="mt-1 text-xs leading-5 text-[#5b758c]">Choose this only if you want your planning conversations to prioritize {selectedRegion.label.toLowerCase()}. It is your stated focus, not an inferred weakness, score, or diagnosis.</p></div><button type="button" disabled={setPriority.isPending} onClick={() => setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) })} className={`min-h-11 rounded-xl px-3 text-[10px] font-bold uppercase tracking-[.1em] transition disabled:opacity-50 ${activePriorityIds.has(selectedRegion.id) ? "border border-[#c8d9e8] bg-white text-[#365b7e]" : "bg-[#e4512e] text-white hover:bg-[#c84323]"}`}>{activePriorityIds.has(selectedRegion.id) ? "Remove focus" : "Set as my focus"}</button></div></div>}
       <div className="border-t border-[#d5e3ef] bg-white px-5 py-4 text-xs leading-5 text-[#5b758c]"><strong className="text-[#153b61]">{overview.data?.observationCount || 0} observations saved.</strong> {overview.data?.nextAction || "Loading your Strength Genome state…"}</div>
     </section>
 
