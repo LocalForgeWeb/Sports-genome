@@ -37,6 +37,13 @@
 - [ ] Repair any confirmed mobile drawer slider, scroll, close, or destination-activation failure and add focused regression coverage.
 - [ ] Capture the current mobile drawer at an iPhone width and verify logo, active styling, navigation, scroll behavior, and safe-area controls before publication.
 
+## Mobile Drawer Brand and Typography Refinement
+
+- [x] Replace the drawer brand lockup with a prominent official Sports Genome icon and concise, legible brand treatment.
+- [x] Reduce sidebar typography density by simplifying labels, group headings, account context, research context, and secondary navigation metadata.
+- [x] Increase vertical breathing room and preserve 44px-or-larger primary navigation targets without making the drawer feel crowded.
+- [ ] Validate the simplified drawer at iPhone widths for readable hierarchy, clear active state, smooth scrolling, and no clipped content.
+
 ## Visible Data Integrity and Interactive Navigation Verification
 
 - [ ] Audit and replace every visible placeholder-style numeric display with a live athlete value, derived planning value with clear label, or explicit no-data state.

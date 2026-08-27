@@ -39,12 +39,15 @@ describe("workspace side navigation", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('sports-genome-icon-192_ae889a25.png');
     expect(source).toContain('alt="Sports Genome icon"');
-    expect(source).toContain('SPORTS<br />GENOME');
+    expect(source).toContain('>Sports Genome</p>');
+    expect(source).toContain('Athlete workspace');
+    expect(source).toContain('rail-data-line');
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
     expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
     expect(css).toContain('box-shadow: inset 4px 0 var(--sg-gold)');
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
+    expect(css).toContain('.rail-data-line { display: flex; gap: 8px;');
   });
 
   it("blocks the retired coach-set readiness placeholder from rendering", () => {

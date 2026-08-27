@@ -253,7 +253,26 @@ select {
   .apex-rail { width: min(86vw, 320px); padding-bottom: max(18px, env(safe-area-inset-bottom)); }
   .rail-scrim { touch-action: manipulation; }
   .rail-nav-item { min-height: 48px; }
-  .rail-bottom { padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+.rail-bottom { padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+}
+
+/* Drawer density pass: one brand mark, one athlete row, then generous navigation rhythm. */
+.rail-brand { gap: 13px; min-height: 76px; padding: 16px 18px; }
+.rail-brand > p { line-height: 1; white-space: nowrap; }
+.rail-athlete { margin: 10px 14px 4px; padding: 11px 12px; border-radius: var(--sg-radius-tight); }
+.rail-nav { gap: 15px; padding: 18px 12px 10px; }
+.rail-nav-group { gap: 4px; }
+.rail-nav-group > p { margin: 0 9px 4px; color: #87a6c7; font-size: .56rem; letter-spacing: .16em; }
+.rail-nav-item { min-height: 50px; gap: 13px; padding: 13px 12px; border-radius: 10px; }
+.rail-nav-item > span > span:first-child { font-size: .84rem; letter-spacing: .01em; }
+.rail-bottom { margin-top: 10px; padding: 12px 18px max(18px, env(safe-area-inset-bottom)); }
+.rail-data-line { display: flex; gap: 8px; align-items: center; color: #b8cbe0; font-size: .62rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.rail-data-line span + span { border-left: 1px solid rgb(213 173 67 / .44); padding-left: 8px; }
+
+@media (max-width: 1023px) {
+  .rail-brand { padding-top: max(16px, env(safe-area-inset-top)); }
+  .rail-nav { padding-top: 16px; }
+  .rail-nav-item { min-height: 52px; }
 }
 
 /* Modern Kinetic Field Manual: use tactile inspection cards within the midnight shell. */
