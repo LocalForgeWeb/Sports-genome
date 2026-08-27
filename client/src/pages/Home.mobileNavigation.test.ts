@@ -8,6 +8,8 @@ describe("workspace side navigation", () => {
   it("resolves only supported workspace values and keeps an invalid URL on the command center", () => {
     expect(workspaceFromLocation("catalog")).toBe("catalog");
     expect(workspaceFromLocation("body")).toBe("body");
+    expect(workspaceFromLocation("strength")).toBe("strength");
+    expect(workspaceFromLocation("progress")).toBe("progress");
     expect(workspaceFromLocation("not-a-workspace")).toBe("command");
     expect(workspaceFromLocation(null)).toBe("command");
   });
@@ -53,5 +55,19 @@ describe("workspace side navigation", () => {
   it("blocks the retired coach-set readiness placeholder from rendering", () => {
     expect(shouldRenderMetric("coach-set planning marker")).toBe(false);
     expect(shouldRenderMetric("mapped muscle groups")).toBe(true);
+  });
+
+  it("adds an explicit iPhone-first five-destination bar without covering the content canvas", () => {
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(source).toContain('aria-label="Primary mobile navigation"');
+    expect(source).toContain('label: "Train"');
+    expect(source).toContain('label: "Genome"');
+    expect(source).toContain('label: "Progress"');
+    expect(source).toContain('label: "Profile"');
+    expect(source).toContain('aria-current={active ? "page" : undefined}');
+    expect(css).toContain('.mobile-bottom-nav { display: none; }');
+    expect(css).toContain('env(safe-area-inset-bottom, 0px)');
+    expect(css).toContain('.apex-content { padding-bottom: calc(6.75rem');
+    expect(css).toContain('.planner-float { bottom: calc(5.6rem');
   });
 });

@@ -1,5 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
-import { strengthObservations } from "../drizzle/schema";
+import { bodyMassObservations, strengthObservations } from "../drizzle/schema";
 import { strengthRegionDefinitions } from "../shared/strengthGenomeDefinitions";
 import { getDb } from "./db";
 
@@ -80,6 +80,14 @@ export async function createStrengthObservation(
 
   const id = inserted[0]?.id;
   if (!id) throw new Error("Strength observation could not be saved");
+  if (input.bodyMassKgAtTest !== undefined) {
+    await db.insert(bodyMassObservations).values({
+      userId,
+      bodyMassKg: input.bodyMassKgAtTest.toFixed(2),
+      observedAt: input.observedAt,
+      source: "athlete_entry",
+    });
+  }
   return getStrengthObservation(userId, id);
 }
 

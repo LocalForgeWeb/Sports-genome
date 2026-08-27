@@ -7,6 +7,9 @@ const router = readFileSync(new URL("./routers.ts", import.meta.url), "utf8");
 describe("Strength Genome account and evidence contract", () => {
   it("preserves dated account-owned observations and does not invent an early strength tier", () => {
     expect(source).toContain("eq(strengthObservations.userId, userId)");
+    expect(source).toContain("bodyMassObservations");
+    expect(source).toContain("observedAt: input.observedAt");
+    expect(source).toContain("bodyMassKg: input.bodyMassKgAtTest.toFixed(2)");
     expect(source).toContain('state: "INSUFFICIENT_DATA" as const');
     expect(source).toContain('sourceStatus: "AWAITING_EVIDENCE" as const');
     expect(source).toContain("Awaiting an approved exercise-to-domain mapping and reference dataset.");
