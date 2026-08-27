@@ -8,6 +8,7 @@
 
 ## Strength Genome
 
+- [x] Add an explicit athlete-controlled Strength Genome-to-Training Day handoff that carries no inferred deficit, tier, or automatic plan rewrite.
 - [x] Reconcile the full user-supplied Strength Genome specification with the current athlete profile, exercise catalog, evidence registry, and workout-planning architecture.
 - [x] Define a longitudinal athlete profile and strength-observation schema that preserves dated body-mass context, measured inputs, testing conditions, and data-quality metadata.
 - [x] Add transparent non-numeric routing for recognized athlete-entered tests to broad functional domains and anatomical regions, with no regional-force estimate, tier, percentile, or cross-test comparison.

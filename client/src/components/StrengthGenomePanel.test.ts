@@ -22,5 +22,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Assistance / support");
     expect(source).toContain("These fields preserve test context for your own future comparison.");
     expect(source).toContain("They do not create a body-mass ratio, universal estimate, tier, or population comparison.");
+    expect(source).toContain("Review in Training Day");
+    expect(source).toContain("This opens planning for your review. It does not automatically change your workout or prescribe a correction.");
+    expect(source).toContain("onClick={onOpenTraining}");
   });
 });
