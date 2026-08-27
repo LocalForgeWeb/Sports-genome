@@ -93,6 +93,9 @@ describe("workspace side navigation", () => {
     expect(source).toContain('Find exercises');
     expect(source).toContain('Change action');
     expect(source).toContain('View matches');
+    expect(source).not.toContain('Sport-aware exercise matches and rationale');
+    expect(source).not.toContain('Build, track, and review your plan');
+    expect(source).not.toContain('Selected sport action and body requirements');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');
     expect(source).toContain('label: "Genome"');
