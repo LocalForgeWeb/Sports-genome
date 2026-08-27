@@ -73,4 +73,14 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content { padding-bottom: calc(6.75rem');
     expect(css).toContain('.planner-float { bottom: calc(5.6rem');
   });
+
+  it("uses compact, individually truncatable sport, goal, and weekly-plan context chips in the workspace header", () => {
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(source).toContain('className="topbar-context-chips"');
+    expect(source).toContain('Current planning context: ${selectedSport.label}, ${goal}, ${trainingDays} training days');
+    expect(source).not.toContain('selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal}');
+    expect(css).toContain('.topbar-context-chips span { max-width: 12rem; overflow: hidden;');
+    expect(css).toContain('text-overflow: ellipsis; white-space: nowrap;');
+    expect(css).toContain('max-width: calc(100vw - 9.5rem);');
+  });
 });
