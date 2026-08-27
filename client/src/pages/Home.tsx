@@ -82,6 +82,9 @@ const workoutPlanKey = "gym-optimizer-workout-plan-v1";
 const plannerTabKey = "gym-optimizer-planner-tab-v1";
 const plannerOpenKey = "gym-optimizer-planner-open-v1";
 const favoriteExerciseKey = "gym-optimizer-favorite-exercise-ids-v1";
+// Temporary product-access switch. The email/password and passkey implementation
+// remains intact below and can be restored by setting this to false.
+const directWorkspaceAccess = true;
 const ExerciseGenomePanel = lazy(() => import("@/components/ExerciseGenomePanel").then((module) => ({ default: module.ExerciseGenomePanel })));
 
 type NavGroup = "Home" | "Train" | "Explore" | "Sport";
@@ -645,8 +648,8 @@ export default function Home() {
     setOnboardingComplete(false);
   };
 
-  if (loading) return <div className="account-entry-loading">Checking secure account access…</div>;
-  if (!isAuthenticated) return <EmailAuthScreen onAuthenticated={() => { void refresh(); }} loading={loading} />;
+  if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">Checking secure account access…</div>;
+  if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen onAuthenticated={() => { void refresh(); }} loading={loading} />;
   if (!onboardingComplete) return <AthleteBaselineQuiz sports={sportProfiles} onComplete={completeOnboarding} />;
 
   return <div className="apex-shell">

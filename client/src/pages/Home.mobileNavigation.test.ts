@@ -29,6 +29,12 @@ describe("workspace side navigation", () => {
     expect(source).toContain('navigateWorkspace("recommended")');
   });
 
+  it("keeps the email and passkey entry implementation available behind a reversible direct-workspace access switch", () => {
+    expect(source).toContain("const directWorkspaceAccess = true;");
+    expect(source).toContain('if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen');
+    expect(source).toContain('if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">');
+  });
+
   it("keeps the rail reachable on desktop and dismissible by an overlay on small screens", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(css).toContain('@media (min-width: 1024px)');

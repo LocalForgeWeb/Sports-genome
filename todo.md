@@ -2,6 +2,7 @@
 
 ## User-Authorized Completion Sequence
 
+- [x] Temporarily bypass the Sports Genome sign-in gate so the workspace opens directly, while preserving isolated email/password and passkey implementation for later reactivation.
 - [ ] Complete the remaining safe Sports Genome work without adding new external API or integration dependencies.
 - [ ] Complete and publish the remaining non-device Sports Genome work in priority order: evidence-bounded Strength Genome, iPhone-first workflow polish, Body Lab refinement, and visible-data integrity cleanup.
 - [ ] Complete each active implementation milestone through user-facing integration, full validation, publication, and GitHub synchronization before moving to the next milestone.
