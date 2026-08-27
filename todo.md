@@ -47,6 +47,7 @@
 ## Official App and Home-Screen Icon
 
 - [ ] Replace the visible top-left sidebar logo mark with the user-supplied official Sports Genome — Decoding Performance artwork.
+- [x] Remove any legacy rail pseudo-mark styling that hides or recolors the supplied official sidebar artwork.
 - [x] Replace remaining athlete-visible legacy Gym Optimizer labels in the document title, sign-in copy, and passkey relying-party prompt with Sports Genome.
 - [ ] Verify the authenticated sidebar/rail renders the newly supplied official Sports Genome — Decoding Performance artwork on the live site, separately from source-level and signed-out checks.
 - [x] Publish and browser-verify the official Sports Genome app-icon and PWA manifest references while keeping physical iPhone cache behavior separate.

@@ -71,6 +71,10 @@ describe("workspace side navigation", () => {
     expect(source).toContain('document.querySelector(".day-design-rail")?.scrollIntoView');
     expect(source).toContain('document.querySelector(".workout-health-panel")?.scrollIntoView');
     expect(source).toContain('Log a test');
+    expect(source).toContain('Open Body Lab');
+    expect(source).toContain('Find exercises');
+    expect(source).toContain('Change action');
+    expect(source).toContain('View matches');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');
     expect(source).toContain('label: "Genome"');
