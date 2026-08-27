@@ -664,3 +664,7 @@ select {
   .recommendation-add { width: 44px; height: 44px; }
   .recommendation-why { margin-top: .55rem; }
 }
+
+/* Recommendation equipment context is conveyed once in the compact strip above.
+   Hide the repeated header summary from the initial decision canvas. */
+.apex-content > section.space-y-5 .view-header-note { display: none; }

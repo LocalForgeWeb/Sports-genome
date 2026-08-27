@@ -35,6 +35,8 @@
 - [x] Enlarge the official Sports Genome rail logo and remove its contrasting boxed treatment so it blends with the navy navigation background.
 - [x] Remove nonessential destination-description copy from the mobile workspace dock so its context strip leads with the active task and actions.
 - [x] Collapse repeated Athlete Baseline evidence banners into concise optional disclosure so quiz questions lead with the decision, not methodology.
+- [x] Replace the redundant recommendation-header explanation with a single action-oriented line, leaving equipment context solely in its compact constraint strip.
+- [x] Add an action-oriented recommendation header cue that directs the athlete to choose an action, then inspect or add relevant exercise matches.
 - [x] Replace the floating five-icon mobile navigation with a connected safe-area workspace bar that exposes context-relevant controls for each active destination.
 - [ ] Provide Training Day shortcuts for workout tracking, split selection, and stack scoring, plus appropriate contextual actions for Home, Genome, Progress, and Profile.
 - [ ] Wire Training Day dock actions to distinct split-selection, workout-tracking, and stack-scoring workflows with functional regression coverage.
