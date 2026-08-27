@@ -16,4 +16,10 @@ describe("Body Lab movement-specific role context", () => {
     expect(context.rolesByMuscle.abs.roles).toEqual(["Supporting"]);
     expect(context.rolesByMuscle.quads.confidence).toBe("Low-confidence inference");
   });
+
+  it("uses source-recorded isometric action context to list stabilizers before assisting roles", () => {
+    const context = getBodyLabRoleContext("wrestling", "wrestling-1", ["quads"], ["abs"]);
+    expect(context.rolesByMuscle.obliques.roleOrder).toEqual(["Primary Mover", "Stabilizer", "Synergist", "Supporting"]);
+    expect(context.rolesByMuscle.obliques.phaseContext).toContain("isometric");
+  });
 });

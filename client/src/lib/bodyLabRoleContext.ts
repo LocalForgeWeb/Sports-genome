@@ -5,10 +5,12 @@ export type BodyLabEvidenceConfidence = "Direct evidence" | "Strong indirect evi
 
 export type BodyLabRoleDetail = {
   roles: BodyLabRole[];
+  roleOrder: BodyLabRole[];
   confidence: BodyLabEvidenceConfidence;
   sourceScope: "Movement-specific evidence" | "General biomechanics" | "Movement-model fallback";
   sources: string[];
   explanation: string;
+  phaseContext?: string;
 };
 
 export type BodyLabRoleContext = {
@@ -29,7 +31,11 @@ const muscleAliases: Record<string, string[]> = {
   lats: ["latissimus"], traps: ["trapezius"], rhomboids: ["rhomboid"], lowerBack: ["erector spinae", "multifidus", "lower back", "spinal erector"], rotatorCuff: ["rotator cuff", "infraspinatus", "supraspinatus", "teres minor", "subscapularis"],
 };
 
-const rolePriority: Record<BodyLabRole, number> = { "Primary Mover": 4, Synergist: 3, Stabilizer: 2, Supporting: 1 };
+const defaultRoleOrder: BodyLabRole[] = ["Primary Mover", "Synergist", "Stabilizer", "Supporting"];
+const roleOrderFor = (phaseContext: string): BodyLabRole[] => {
+  if (phaseContext.toLowerCase().includes("isometric")) return ["Primary Mover", "Stabilizer", "Synergist", "Supporting"];
+  return defaultRoleOrder;
+};
 const confidenceFor = (value: string | undefined): BodyLabEvidenceConfidence => {
   const confidence = value?.toLowerCase() || "";
   if (confidence.includes("direct")) return "Direct evidence";
@@ -47,7 +53,7 @@ const keysForName = (name: string) => {
 const appendRole = (rolesByMuscle: Record<string, BodyLabRoleDetail>, name: string, role: BodyLabRole, detail: Omit<BodyLabRoleDetail, "roles">) => {
   keysForName(name).forEach((key) => {
     const existing = rolesByMuscle[key];
-    const roles = Array.from(new Set([...(existing?.roles || []), role])).sort((left, right) => rolePriority[right] - rolePriority[left]);
+    const roles = Array.from(new Set([...(existing?.roles || []), role])).sort((left, right) => detail.roleOrder.indexOf(left) - detail.roleOrder.indexOf(right));
     rolesByMuscle[key] = { ...detail, ...existing, roles };
   });
 };
@@ -56,16 +62,17 @@ export function getBodyLabRoleContext(sportId: string, movementId: string, fallb
   const movement = getEnrichedMovement(sportId, movementId);
   if (!movement) {
     const rolesByMuscle: Record<string, BodyLabRoleDetail> = {};
-    const detail = { confidence: "Low-confidence inference" as const, sourceScope: "Movement-model fallback" as const, sources: [], explanation: "This qualitative role comes from the selected movement model because a movement-specific enriched record is unavailable." };
+    const detail = { roleOrder: defaultRoleOrder, confidence: "Low-confidence inference" as const, sourceScope: "Movement-model fallback" as const, sources: [], explanation: "This qualitative role comes from the selected movement model because a movement-specific enriched record is unavailable." };
     fallbackPrimary.forEach((name) => appendRole(rolesByMuscle, name, "Primary Mover", detail));
     fallbackSupporting.forEach((name) => appendRole(rolesByMuscle, name, "Supporting", detail));
     return { primary: Object.keys(rolesByMuscle).filter((key) => rolesByMuscle[key].roles.includes("Primary Mover")), supporting: Object.keys(rolesByMuscle).filter((key) => !rolesByMuscle[key].roles.includes("Primary Mover")), rolesByMuscle, methodology: "Roles are a qualitative fallback from the selected movement model, not measured activation or force." };
   }
 
   const rolesByMuscle: Record<string, BodyLabRoleDetail> = {};
-  const detail = { confidence: confidenceFor(movement.evidenceConfidence), sourceScope: "Movement-specific evidence" as const, sources: movement.sources.slice(0, 2), explanation: `${movement.label} is interpreted through its stated joint actions, force/skill demand, contraction roles, and movement-specific muscle-role record.` };
+  const phaseContext = movement.contractionRoles.filter(Boolean).slice(0, 2).join(" · ");
+  const detail = { roleOrder: roleOrderFor(phaseContext), confidence: confidenceFor(movement.evidenceConfidence), sourceScope: "Movement-specific evidence" as const, sources: movement.sources.slice(0, 2), explanation: `${movement.label} is interpreted through its stated joint actions, force/skill demand, contraction roles, and movement-specific muscle-role record.`, ...(phaseContext ? { phaseContext } : {}) };
   movement.primeMovers.forEach((name) => appendRole(rolesByMuscle, name, "Primary Mover", detail));
   movement.assistingMuscles.forEach((name) => appendRole(rolesByMuscle, name, "Synergist", detail));
   movement.stabilizers.forEach((name) => appendRole(rolesByMuscle, name, "Stabilizer", detail));
-  return { primary: Object.keys(rolesByMuscle).filter((key) => rolesByMuscle[key].roles.includes("Primary Mover")), supporting: Object.keys(rolesByMuscle).filter((key) => !rolesByMuscle[key].roles.includes("Primary Mover")), rolesByMuscle, methodology: "Roles describe qualitative contribution to the selected sporting action. They are not measured activation, force, or an individual capacity assessment." };
+  return { primary: Object.keys(rolesByMuscle).filter((key) => rolesByMuscle[key].roles.includes("Primary Mover")), supporting: Object.keys(rolesByMuscle).filter((key) => !rolesByMuscle[key].roles.includes("Primary Mover")), rolesByMuscle, methodology: "Roles describe qualitative contribution to the selected sporting action and its source-recorded contraction phases. They are not measured activation, force, or an individual capacity assessment." };
 }

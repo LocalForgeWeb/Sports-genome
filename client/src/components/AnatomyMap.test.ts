@@ -69,10 +69,12 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("force or injury risk");
   });
 
-  it("uses qualitative role context instead of role-template scores when no exercise or stack score is supplied", () => {
-    expect(source).toContain('selectedScore = selectedKey ? muscleScores?.[selectedKey] : undefined');
-    expect(source).toContain("No exercise or active-stack score is loaded here.");
-    expect(source).toContain('selectedScore == null ? <b>Role context</b>');
+  it("uses qualitative role context without rendering numeric role indices when exercise or stack context is supplied", () => {
+    expect(source).toContain('hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false');
+    expect(source).toContain("Exercise / stack context");
+    expect(source).toContain("The role shown remains qualitative");
+    expect(source).not.toContain("Relative model index");
+    expect(source).not.toContain("Tier</i>");
     expect(source).not.toContain('selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0');
   });
 
@@ -90,5 +92,10 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("How muscle roles are classified");
     expect(markup).toContain("Supporting role");
     expect(markup).toContain("Primary role");
+  });
+
+  it("uses source-recorded action phase context instead of fabricating timing or force values", () => {
+    expect(source).toContain("Action phase context");
+    expect(source).toContain("qualitative contraction-phase description");
   });
 });

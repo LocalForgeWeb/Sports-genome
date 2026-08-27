@@ -11,4 +11,11 @@ describe("Exercise Genome evidence-to-logic disclosure", () => {
     expect(component).toContain("evidenceTraceability.filter");
     expect(component).toContain("A number is never shown as a scientific measurement simply because it is precise.");
   });
+
+  it("retains relative exercise-specific contribution, grade, and contextual score displays", () => {
+    expect(component).toContain("<GradeStamp grade={entry.tier} compact />");
+    expect(component).toContain("Modelled ${entry.contribution}/100 involvement");
+    expect(component).toContain("Sport-action match: {analysis.signals.sportActionMatch}/100");
+    expect(component).toContain("planning comparison, not a direct performance measurement");
+  });
 });

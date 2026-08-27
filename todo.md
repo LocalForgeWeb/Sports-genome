@@ -45,12 +45,24 @@
 - [x] Replace default primary/synergist template numbers with qualitative role and evidence context when no exercise or stack calculation is available.
 - [x] Show relative model indices only when they are derived from the selected exercise or active stack, with clear non-measurement labeling.
 - [ ] Add regression coverage preventing repeated role-template values from appearing as precise Body Lab scores, then validate the corrected layout on desktop and mobile.
+- [x] Remove all Body Lab Model index, score badge, tier, and numeric role-index display paths, including when an exercise or stack context is supplied.
+- [x] Replace numeric Body Lab exercise/stack score copy with a qualitative statement that context is available without assigning an activation, force, or capacity value.
+- [x] Restore visible relative involvement percentages and scores for specific exercise and active-stack analysis only, with explicit relative-model labeling.
+- [x] Keep general Body Lab sport/action exploration qualitative, without role-template or unsupported fallback scores.
+- [x] Add context-sensitive score regression coverage proving exercise/stack views retain score displays while general Body Lab does not.
+- [x] Add a StackAnalysisPage regression proving whole-stack involvement and contribution scores retain non-measurement boundary copy.
+- [x] Add a comparative regression proving general Body Lab has no template score while Exercise Genome and Stack Analysis retain clearly labeled relative scores.
 
 ## Qualitative Muscle Role and Unified Mobile Design System
 
 - [x] Replace single primary/synergist assumptions with movement-specific multiple role tags: Primary Mover, Synergist, Stabilizer, and Supporting.
 - [x] Attach direct, strong indirect, moderate biomechanical, or low-confidence evidence labels to every displayed muscle-role judgment.
 - [ ] Make Body Lab role ordering depend on movement mechanics and phase context rather than scaling one muscle template across actions.
+- [ ] Use source-recorded contraction and action-phase context to influence Body Lab role ordering wherever the enriched movement evidence distinguishes contribution order.
+- [ ] Add regression coverage proving differing supported action-phase contexts can change qualitative Body Lab role ordering without fabricating timing or force values.
+- [ ] Extend Body Lab role ordering to use explicit enriched movement mechanics and action-phase signals beyond the current isometric-context heuristic.
+- [ ] Add comparative role-context regressions using multiple source-recorded phase patterns to prove qualitative ordering changes appropriately.
+- [ ] Add a component-level regression proving the rendered Key Muscle Roles list follows source-recorded phase-sensitive ordering without fabricating timing or force values.
 - [x] Convert the Body Lab legend and heat map to categorical Neutral, Supporting, and Primary states, with selection styling kept separate from role color.
 - [x] Rename Leading Muscle Signals to Key Muscle Roles and rewrite inspector copy to distinguish sporting-action role from exercise or stack context.
 - [x] Tighten Body Lab inspector hierarchy to muscle name, role, confidence, explanation, and compact source context with expandable methodology.
