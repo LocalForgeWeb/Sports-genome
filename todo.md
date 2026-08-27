@@ -50,6 +50,7 @@
 - [x] Add compact Direct support, Supporting link, or No mapped link indicators to exercise result rows for the selected sport action.
 - [ ] Add the connection explanation and supported movement rationale to the selected-exercise detail without fabricating transfer certainty.
 - [ ] Add regression coverage and validate readable indicators across the mobile full-width catalog list and exercise detail.
+- [x] Remove the duplicate legacy Exercise Catalog grid from Home.tsx so mobile always renders the canonical full-width Catalog Discovery list.
 
 ## Visible Data Integrity and Interactive Navigation Verification
 
