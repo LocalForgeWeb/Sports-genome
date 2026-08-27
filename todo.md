@@ -30,6 +30,13 @@
 - [ ] Visually verify the repaired sidebar in an authenticated mobile viewport and record the result separately from code-level validation.
 - [x] Audit visible navigation controls that call setWorkspace(...) directly and route sidebar-consistent controls through navigateWorkspace where appropriate.
 
+## Current Mobile Drawer, Branding, and Theme Repair
+
+- [x] Audit the reported mobile drawer against the live build for legacy Gym Optimizer logo assets, neon-green active states, old account labels, and theme-token overrides.
+- [x] Replace remaining legacy drawer branding and active-state styling with the official Sports Genome icon, navy/bone/gold/vermilion system, and accessible active indication.
+- [ ] Repair any confirmed mobile drawer slider, scroll, close, or destination-activation failure and add focused regression coverage.
+- [ ] Capture the current mobile drawer at an iPhone width and verify logo, active styling, navigation, scroll behavior, and safe-area controls before publication.
+
 ## Visible Data Integrity and Interactive Navigation Verification
 
 - [ ] Audit and replace every visible placeholder-style numeric display with a live athlete value, derived planning value with clear label, or explicit no-data state.

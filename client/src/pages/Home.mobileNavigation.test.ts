@@ -30,6 +30,21 @@ describe("workspace side navigation", () => {
     expect(css).toContain('@media (min-width: 1024px)');
     expect(css).toContain('.apex-rail { transform: translateX(0); }');
     expect(css).toContain('.rail-scrim { position: fixed;');
+    expect(css).toContain('overflow-y: auto;');
+    expect(css).toContain('overscroll-behavior-y: contain;');
+    expect(css).toContain('width: min(86vw, 320px);');
+  });
+
+  it("uses the official Sports Genome drawer identity and a non-neon active state", () => {
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(source).toContain('sports-genome-icon-192_ae889a25.png');
+    expect(source).toContain('alt="Sports Genome icon"');
+    expect(source).toContain('SPORTS<br />GENOME');
+    expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
+    expect(source).not.toContain('GYM<br />OPTIMIZER');
+    expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
+    expect(css).toContain('box-shadow: inset 4px 0 var(--sg-gold)');
+    expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
   });
 
   it("blocks the retired coach-set readiness placeholder from rendering", () => {

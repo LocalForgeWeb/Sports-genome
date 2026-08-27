@@ -229,6 +229,33 @@ select {
   }
 }
 
+/* Current Sports Genome rail: one visible visual system after legacy Gym Optimizer experiments. */
+.apex-rail {
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(180deg, var(--sg-navy-deep), var(--sg-navy) 68%, #081d38);
+}
+.rail-brand img { display: block; filter: none; }
+.rail-brand::before, .rail-brand::after { content: none; display: none; }
+.rail-brand { min-height: 88px; padding: 20px; }
+.rail-nav { flex: 1 0 auto; }
+.rail-nav-active {
+  background: linear-gradient(135deg, #1d5fae, #174785) !important;
+  color: #fff !important;
+  box-shadow: inset 4px 0 var(--sg-gold), 0 8px 18px rgb(5 23 50 / .28) !important;
+}
+.rail-nav-active .text-\[\#7d8c85\] { color: #c9ddf5 !important; }
+.rail-athlete > div:first-child { background: var(--sg-vermilion) !important; color: #fff !important; }
+.rail-data-card { border-color: rgb(213 173 67 / .5); background: linear-gradient(135deg, rgb(213 173 67 / .13), transparent 72%); }
+
+@media (max-width: 1023px) {
+  .apex-rail { width: min(86vw, 320px); padding-bottom: max(18px, env(safe-area-inset-bottom)); }
+  .rail-scrim { touch-action: manipulation; }
+  .rail-nav-item { min-height: 48px; }
+  .rail-bottom { padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+}
+
 /* Modern Kinetic Field Manual: use tactile inspection cards within the midnight shell. */
 .pulse-option {
   border-color: rgb(199 215 231 / .72);
