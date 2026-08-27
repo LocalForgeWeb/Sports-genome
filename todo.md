@@ -87,7 +87,7 @@
 
 ## Exercise-to-Action Connection Indicators
 
-- [ ] Remove the duplicate legacy Exercise Genome workspace branch so only the canonical connection-aware selector and exercise-detail flow render.
+- [x] Remove the duplicate legacy Exercise Genome workspace branch so only the canonical connection-aware selector and exercise-detail flow render.
 - [x] Audit existing exercise-to-movement transfer, sport-fit, and selected-action data available to catalog and Exercise Genome surfaces.
 - [x] Add compact Direct support, Supporting link, or No mapped link indicators to exercise result rows for the selected sport action.
 - [x] Add the connection explanation and supported movement rationale to the selected-exercise detail without fabricating transfer certainty.

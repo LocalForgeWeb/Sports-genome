@@ -68,7 +68,8 @@ describe("Home planning-surface modifier evidence", () => {
     const { default: Home } = await import("./Home");
     const markup = renderToStaticMarkup(createElement(Home));
 
-    expect(markup).toContain("Loading Exercise Genome analysis");
-    expect(readFileSync(new URL("./Home.tsx", import.meta.url), "utf8")).toContain("Open leading muscle in Body Lab");
+    expect(markup).toContain("Exercise Genome");
+    expect(readFileSync(new URL("./Home.tsx", import.meta.url), "utf8")).toContain("<ExerciseGenomeWorkspace");
+    expect(readFileSync(new URL("../components/ExerciseGenomeWorkspace.tsx", import.meta.url), "utf8")).toContain("Open leading muscle in Body Lab");
   });
 });
