@@ -29,6 +29,7 @@
 
 ## iPhone-First Product Polish
 
+- [x] Ensure Movement Atlas action rows and selected-action controls retain full-width 44px-or-larger touch targets at narrow mobile widths.
 - [x] Convert the mobile workspace header’s long sport/goal/days text string into compact accessible context chips with overflow-safe labels.
 - [ ] Establish one reusable Sports Genome mobile design system covering colors, elevation, radii, strokes, typography, spacing, interactive states, compact chips, and motion timing.
 - [x] Rework primary mobile navigation around daily athlete actions, with persistent bottom navigation for Home, Train, Genome, Progress, and Profile while retaining the drawer for secondary tools.
