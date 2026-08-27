@@ -23,4 +23,13 @@ describe("Strength Genome definitions", () => {
     expect(strengthObservationRoutes.every(route => route.basis === "EXERCISE_MOVEMENT_CLASSIFICATION")).toBe(true);
     expect(JSON.stringify(strengthObservationRoutes)).not.toContain("percentile");
   });
+
+  it("does not promote reviewed reliability or reference literature into unqualified athlete percentiles or tiers", async () => {
+    const { readFileSync } = await import("node:fs");
+    const panelSource = readFileSync(new URL("../components/StrengthGenomePanel.tsx", import.meta.url), "utf8");
+    expect(panelSource).toContain("Sports Genome has not assigned a regional strength rank");
+    expect(panelSource).toContain("No regional strength tier is shown until supporting evidence is available.");
+    expect(panelSource).not.toContain("Your percentile");
+    expect(panelSource).not.toContain("SS+");
+  });
 });

@@ -19,6 +19,7 @@
 - [x] Add an exact-match within-athlete recorded-load comparison for repeated named tests, retaining clear test-type, laterality, repetition, and non-estimate boundaries.
 - [x] Add reversible athlete-confirmed regional training priorities that are account-scoped and explicitly separate from inferred deficits, strength ranks, and diagnoses.
 - [x] Capture athlete-entered test date, body mass, equipment, range standard, technique, tempo, laterality, assistance, data quality, and notes alongside raw Strength Genome observations.
+- [x] Document reviewed 1RM reliability and adult handgrip-reference limits, and add regression protection against unqualified percentile or tier output.
 - [ ] Build source-traceable mappings from standardized exercise observations to functional strength domains and from domains to anatomical-region presentation layers.
 - [ ] Add only verified normative-reference data with explicit population, normalization, age/sex, measurement-method, and coverage limits; render no percentile where a valid reference is absent.
 - [ ] Implement transparent continuous strength estimates, discrete F-to-SS+ tiers, estimate confidence, imbalance logic, sport relevance, and editable athlete-confirmed training priorities without representing estimates as direct measurements.
