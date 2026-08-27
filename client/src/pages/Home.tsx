@@ -120,7 +120,12 @@ function prescriptionFor(index: number, goal: Goal) {
   return getGoalPrescription(goal, index);
 }
 
+export function shouldRenderMetric(detail: string) {
+  return detail !== "coach-set planning marker";
+}
+
 function Metric({ label, value, detail, tone = "lime" }: { label: string; value: string; detail: string; tone?: "lime" | "orange" | "white" }) {
+  if (!shouldRenderMetric(detail)) return null;
   return <div className="metric-card"><p className="metric-label">{label}</p><p className={`metric-value metric-${tone}`}>{value}</p><p className="metric-detail">{detail}</p></div>;
 }
 

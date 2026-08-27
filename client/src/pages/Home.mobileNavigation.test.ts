@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { workspaceFromLocation } from "./Home";
+import { shouldRenderMetric, workspaceFromLocation } from "./Home";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 
@@ -30,5 +30,10 @@ describe("workspace side navigation", () => {
     expect(css).toContain('@media (min-width: 1024px)');
     expect(css).toContain('.apex-rail { transform: translateX(0); }');
     expect(css).toContain('.rail-scrim { position: fixed;');
+  });
+
+  it("blocks the retired coach-set readiness placeholder from rendering", () => {
+    expect(shouldRenderMetric("coach-set planning marker")).toBe(false);
+    expect(shouldRenderMetric("mapped muscle groups")).toBe(true);
   });
 });
