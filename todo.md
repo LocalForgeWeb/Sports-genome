@@ -40,6 +40,7 @@
 - [ ] Replace dense mobile headers and persistent tutorial clutter with compact contextual controls, clear screen titles, sport/goal chips, and first-use coach marks that can be dismissed.
 - [ ] Redesign the Home screen around a truthful Today action, current-plan state, weekly rhythm, Strength Genome completion, and next-best actions without invented readiness or achievement data.
 - [ ] Make recommendations, Body Lab, Exercise Genome, Training Days, and catalog rows concise, tappable, rankable, and progressively disclosed before methodology or deep evidence detail.
+- [x] Replace activation-style Body Lab guide language with the established qualitative-role-map boundary.
 - [ ] Create visually distinct but semantically separate treatments for athlete strength tiers, exercise transfer matches, evidence confidence, incomplete data, PRs, and major milestones.
 - [ ] Build a non-destructive Progress area for tier, PR, confidence, bodyweight-relative, imbalance, and body-map history only when valid saved observations support each view.
 - [ ] Verify mobile layouts at small, standard, and large iPhone widths, including standalone PWA safe areas, keyboard behavior, long labels, horizontal-overflow safeguards, and authenticated workflows.
@@ -63,9 +64,11 @@
 - [ ] Inventory every athlete-facing numeric score, threshold, weight, volume target, rating, recommendation constant, and visible placeholder across client, server, catalog, and sport data.
 - [ ] Classify each inventoried value as source-backed, transparent product-design constraint, athlete-entered value, or unsupported placeholder; retain an evidence or rationale reference for each surviving value.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
-- [ ] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
+- [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.
 - [ ] Extend the traceability registry so each surviving athlete-facing value has an explicit category and a per-value source link or product-design rationale.
+- [ ] Expand traceability from current surface-level groups to per-value or per-constant entries for remaining athlete-facing scores, thresholds, and display rules, with explicit category and source or rationale metadata.
+- [ ] Add regression coverage proving remaining athlete-facing value surfaces resolve through named traceability metadata rather than uncategorized literals.
 - [ ] Finish the remaining recalibration/relabel pass for still-untracked constants or wording, then prove full-surface usage of named calibration through regression coverage.
 - [ ] Validate the full evidence-to-logic audit, checkpoint it, synchronize GitHub, and document values that remain intentionally adjustable rather than universal.
 
