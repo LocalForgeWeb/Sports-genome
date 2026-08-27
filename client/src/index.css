@@ -618,3 +618,12 @@ select {
 .topbar-context-chips span { max-width: 12rem; overflow: hidden; border: 1px solid #cbdcec; border-radius: 999px; background: #fff; padding: .18rem .48rem; color: #315a82; font-size: .62rem; font-weight: 750; letter-spacing: .02em; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-context-chips span:last-child { border-color: #ecd795; background: #fff9e8; color: #806012; }
 @media (max-width: 640px) { .apex-topbar { min-height: 4.6rem; padding: .6rem .8rem; } .topbar-context-chips { flex-wrap: nowrap; max-width: calc(100vw - 9.5rem); overflow: hidden; } .topbar-context-chips span { max-width: 7rem; flex: 0 1 auto; } .topbar-context-chips span:last-child { max-width: 4.1rem; } }
+
+/* Retire legacy neon accents from the authenticated command and inspection surfaces. */
+.command-hero .metric-label, .command-hero h1 em, .command-signal-card .metric-label, .command-signal-card button { color: #f2c14d !important; }
+.command-hero .metric-label, .command-signal-card .metric-label { color: #f2c14d !important; }
+.command-hero h1 em { color: #4ca4ff !important; }
+.command-hero .metric-label:not(:first-child), .command-hero [class*="text-[#819188]"] { color: #a9bed4 !important; }
+.command-hero [class*="text-[#c5d1c9]"], .command-signal-card [class*="text-[#b6c3bc]"] { color: #c7d8e7 !important; }
+.command-hero .command-signal-card button { color: #f2c14d !important; }
+.command-hero + .grid .dark-panel > div > button, .dark-panel [class*="hover:border-[#b8ff5b]"]:hover { color: #f2c14d !important; border-color: #f2c14d !important; }

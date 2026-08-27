@@ -87,6 +87,7 @@
 
 ## Exercise-to-Action Connection Indicators
 
+- [ ] Remove the duplicate legacy Exercise Genome workspace branch so only the canonical connection-aware selector and exercise-detail flow render.
 - [x] Audit existing exercise-to-movement transfer, sport-fit, and selected-action data available to catalog and Exercise Genome surfaces.
 - [x] Add compact Direct support, Supporting link, or No mapped link indicators to exercise result rows for the selected sport action.
 - [x] Add the connection explanation and supported movement rationale to the selected-exercise detail without fabricating transfer certainty.
@@ -410,6 +411,7 @@
 
 ## Workspace Readability and Cohesion Pass
 
+- [x] Replace remaining athlete-facing legacy neon-green command and inspection accents with Sports Genome gold, workflow blue, and vermilion semantic tokens.
 - [x] Remove the duplicate legacy Custom Builder workspace branch so the athlete sees one coherent builder rather than competing repeated panels and controls.
 - [x] Audit the support-exercise panel and every primary workspace for text collisions, clipped labels, and obstructed controls.
 - [x] Correct line-height, row structure, responsive spacing, and overflow behavior without changing existing product content.
