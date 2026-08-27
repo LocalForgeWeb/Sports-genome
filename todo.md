@@ -415,6 +415,8 @@
 
 ## Workspace Readability and Cohesion Pass
 
+- [x] Replace the remaining base-stylesheet neon rail active-state token with the established Sports Genome active palette.
+- [ ] Remove the duplicate legacy Movement Atlas branch so athletes see only the canonical compact action-discovery experience.
 - [x] Replace remaining athlete-facing legacy neon-green command and inspection accents with Sports Genome gold, workflow blue, and vermilion semantic tokens.
 - [x] Remove the duplicate legacy Custom Builder workspace branch so the athlete sees one coherent builder rather than competing repeated panels and controls.
 - [x] Audit the support-exercise panel and every primary workspace for text collisions, clipped labels, and obstructed controls.
