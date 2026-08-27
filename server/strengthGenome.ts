@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { bodyMassObservations, strengthObservations } from "../drizzle/schema";
-import { strengthRegionDefinitions } from "../shared/strengthGenomeDefinitions";
+import { resolveStrengthObservationRoute, strengthRegionDefinitions } from "../shared/strengthGenomeDefinitions";
 import { getDb } from "./db";
 
 export type StrengthMeasurementType =
@@ -120,17 +120,27 @@ export async function listStrengthObservations(userId: number) {
 
 export async function getStrengthGenomeOverview(userId: number) {
   const observations = await listStrengthObservations(userId);
+  const routedObservations = observations.map(observation => ({
+    observation,
+    route: resolveStrengthObservationRoute(observation.exerciseName),
+  }));
+  const observedDomainIds = new Set(routedObservations.flatMap(item => item.route?.domainIds || []));
+  const observedRegionIds = new Set(routedObservations.flatMap(item => item.route?.regionIds || []));
   return {
-    sourceStatus: "AWAITING_EVIDENCE" as const,
+    sourceStatus: "OBSERVATION_ROUTING_ONLY" as const,
     observationCount: observations.length,
+    observedDomains: Array.from(observedDomainIds),
+    unmappedObservationCount: routedObservations.filter(item => !item.route).length,
     regions: strengthRegionDefinitions.map(region => ({
       id: region.id,
       label: region.label,
-      state: "INSUFFICIENT_DATA" as const,
-      message: "Awaiting an approved exercise-to-domain mapping and reference dataset.",
+      state: observedRegionIds.has(region.id) ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const,
+      message: observedRegionIds.has(region.id)
+        ? "A saved test routes to this broad region. It is recorded test context, not a direct regional force measurement or strength rank."
+        : "No saved mapped test context yet. No rank or deficit is shown.",
     })),
     nextAction: observations.length
-      ? "Performance observations are saved. Strength estimates unlock only after evidence-calibrated mappings and matching reference data are available."
+      ? "Performance observations are saved. Test routing shows broad context only; estimates, tiers, and population comparison remain withheld until qualifying calibration and reference data are available."
       : "Add a standardized lift or test result to begin your performance history.",
   };
 }

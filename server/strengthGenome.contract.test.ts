@@ -10,9 +10,11 @@ describe("Strength Genome account and evidence contract", () => {
     expect(source).toContain("bodyMassObservations");
     expect(source).toContain("observedAt: input.observedAt");
     expect(source).toContain("bodyMassKg: input.bodyMassKgAtTest.toFixed(2)");
-    expect(source).toContain('state: "INSUFFICIENT_DATA" as const');
-    expect(source).toContain('sourceStatus: "AWAITING_EVIDENCE" as const');
-    expect(source).toContain("Awaiting an approved exercise-to-domain mapping and reference dataset.");
+    expect(source).toContain('"OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const');
+    expect(source).toContain('sourceStatus: "OBSERVATION_ROUTING_ONLY" as const');
+    expect(source).toContain("resolveStrengthObservationRoute(observation.exerciseName)");
+    expect(source).toContain('state: observedRegionIds.has(region.id) ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const');
+    expect(source).toContain("not a direct regional force measurement or strength rank");
     expect(source).not.toContain("estimatedPercentile:");
     expect(source).not.toContain("tier:");
   });

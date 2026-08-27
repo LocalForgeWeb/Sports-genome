@@ -74,3 +74,43 @@ export const strengthRegionDefinitions: StrengthRegionDefinition[] = [
   { id: "calves", label: "Calves", bodyArea: "Lower body", description: "An athlete-facing region informed by plantarflexion domains." },
   { id: "tibialis_anterior", label: "Tibialis anterior", bodyArea: "Lower body", description: "An athlete-facing region informed by dorsiflexion domains." },
 ];
+
+export type StrengthObservationRoute = {
+  aliases: string[];
+  domainIds: string[];
+  regionIds: string[];
+  basis: "EXERCISE_MOVEMENT_CLASSIFICATION";
+  boundary: string;
+};
+
+/**
+ * These routes classify an athlete-entered test by the exercise named, then
+ * report only where an observation belongs. They deliberately contain no
+ * conversion coefficient, regional-force estimate, tier, percentile, or
+ * cross-test comparison. A squat result, for example, is retained as a squat
+ * observation and can be shown as relevant to broad hip/knee domains; it does
+ * not measure quadriceps or glute strength directly.
+ */
+export const strengthObservationRoutes: StrengthObservationRoute[] = [
+  { aliases: ["barbell back squat", "back squat", "front squat", "barbell front squat"], domainIds: ["knee_extension", "hip_extension"], regionIds: ["quadriceps", "glutes", "hamstrings"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a squat test to broad hip and knee domains; it does not directly measure individual muscle force." },
+  { aliases: ["bench press", "barbell bench press", "dumbbell bench press", "chest press"], domainIds: ["horizontal_press", "elbow_extension"], regionIds: ["chest", "triceps", "shoulders"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a pressing test to broad pressing domains; it does not directly measure chest, shoulder, or triceps force." },
+  { aliases: ["overhead press", "barbell overhead press", "shoulder press", "military press"], domainIds: ["vertical_press", "elbow_extension"], regionIds: ["shoulders", "triceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes an overhead pressing test to broad pressing domains; it does not directly measure shoulder or triceps force." },
+  { aliases: ["deadlift", "conventional deadlift", "romanian deadlift", "rdl"], domainIds: ["hip_extension", "trunk_extension"], regionIds: ["glutes", "hamstrings", "spinal_erectors"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a hip-hinge test to broad hip and trunk domains; it does not directly measure glute, hamstring, or spinal-erector force." },
+  { aliases: ["hip thrust", "barbell hip thrust", "glute bridge"], domainIds: ["hip_extension"], regionIds: ["glutes", "hamstrings"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a hip-extension test to a broad hip-extension domain; it does not directly measure glute or hamstring force." },
+  { aliases: ["pull up", "pullup", "weighted pull up", "lat pulldown"], domainIds: ["vertical_pull", "elbow_flexion"], regionIds: ["lats", "upper_back", "biceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a vertical pulling test to broad pulling domains; it does not directly measure lat, upper-back, or biceps force." },
+  { aliases: ["barbell row", "bent over row", "seated cable row", "row"], domainIds: ["horizontal_pull", "elbow_flexion"], regionIds: ["upper_back", "lats", "biceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a horizontal pulling test to broad pulling domains; it does not directly measure individual regional force." },
+  { aliases: ["leg curl", "seated leg curl", "lying leg curl"], domainIds: ["knee_flexion"], regionIds: ["hamstrings"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a knee-flexion test to a broad hamstring-related domain; it does not directly measure hamstring force." },
+  { aliases: ["leg extension", "seated leg extension"], domainIds: ["knee_extension"], regionIds: ["quadriceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a knee-extension test to a broad quadriceps-related domain; it does not directly measure quadriceps force." },
+  { aliases: ["calf raise", "standing calf raise", "seated calf raise"], domainIds: ["plantarflexion"], regionIds: ["calves"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a plantarflexion test to a broad calf-related domain; it does not directly measure calf force." },
+  { aliases: ["grip dynamometry", "hand grip dynamometry", "grip test"], domainIds: ["grip"], regionIds: ["forearms_grip"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a stated grip test to the grip domain; comparability depends on the named dynamometer protocol." },
+  { aliases: ["plank", "front plank"], domainIds: ["anti_extension"], regionIds: ["abdominals"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a plank hold to trunk-control context; it does not measure abdominal force or a regional strength rank." },
+];
+
+function normalizedTestName(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ");
+}
+
+export function resolveStrengthObservationRoute(exerciseName: string) {
+  const normalized = normalizedTestName(exerciseName);
+  return strengthObservationRoutes.find(route => route.aliases.some(alias => normalized === normalizedTestName(alias))) ?? null;
+}
