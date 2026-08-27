@@ -28,7 +28,7 @@
 - [ ] Confirm every sidebar destination changes the populated signed-in workspace on both desktop and mobile after publication.
 - [ ] Add interaction-level sidebar tests that activate every destination and assert active workspace, aria-current, history state, and mobile-rail closure behavior.
 - [ ] Visually verify the repaired sidebar in an authenticated mobile viewport and record the result separately from code-level validation.
-- [ ] Audit visible navigation controls that call setWorkspace(...) directly and route sidebar-consistent controls through navigateWorkspace where appropriate.
+- [x] Audit visible navigation controls that call setWorkspace(...) directly and route sidebar-consistent controls through navigateWorkspace where appropriate.
 
 ## Visible Data Integrity and Interactive Navigation Verification
 

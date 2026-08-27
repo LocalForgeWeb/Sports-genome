@@ -167,7 +167,8 @@ export default function Home() {
   let { user, loading, error, isAuthenticated, logout, refresh } = useAuth();
   const startLogin = () => toast.error("Please sign in with your Gym Optimizer email account.");
 
-  const [workspace, setWorkspace] = useState<Workspace>(() => typeof window === "undefined" ? "command" : workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
+  const [workspace, setWorkspaceState] = useState<Workspace>(() => typeof window === "undefined" ? "command" : workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
+  const setWorkspace = (next: Workspace) => navigateWorkspace(next);
   const [sportId, setSportId] = useState("");
   const [goal, setGoal] = useState<Goal>("Athleticism");
   const [trainingDays, setTrainingDays] = useState(3);
@@ -393,7 +394,7 @@ export default function Home() {
   };
   const navigateWorkspace = (next: Workspace) => {
     if (next === "day-plan" && !splitDays.includes(activeSplitDay)) setActiveSplitDay(splitDays[0]);
-    setWorkspace(next);
+    setWorkspaceState(next);
     setRailOpen(false);
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
@@ -404,7 +405,7 @@ export default function Home() {
     window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
   useEffect(() => {
-    const restoreWorkspace = () => setWorkspace(workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
+    const restoreWorkspace = () => setWorkspaceState(workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
     window.addEventListener("popstate", restoreWorkspace);
     return () => window.removeEventListener("popstate", restoreWorkspace);
   }, []);
