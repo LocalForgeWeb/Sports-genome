@@ -136,3 +136,25 @@ export function getMovementAssistance(movement: EnrichedSportMovement, fallback:
 export function lookupEnrichedMovement(sportId: string, movementId: string) {
   return getEnrichedMovement(sportId, movementId);
 }
+
+export type ExerciseActionConnection = {
+  label: "Direct support" | "Supporting link" | "Not mapped";
+  detail: string;
+};
+
+export function getExerciseActionConnection(exercise: Exercise, movement?: EnrichedSportMovement): ExerciseActionConnection {
+  if (!movement) return { label: "Not mapped", detail: "No enriched record is available for the selected action." };
+  if (movement.recommendedExercises.some((name) => nameMatches(exercise, name))) {
+    return { label: "Direct support", detail: "Named in the selected action’s movement record." };
+  }
+  const exerciseMuscles = new Set([...exercise.primaryMuscles, ...exercise.secondaryMuscles]);
+  const primeTags = movement.primeMovers.flatMap(muscleTagsFor);
+  const supportingTags = [...movement.assistingMuscles, ...movement.stabilizers].flatMap(muscleTagsFor);
+  if (primeTags.some((tag) => exerciseMuscles.has(tag))) {
+    return { label: "Supporting link", detail: "Shares a listed prime-mover demand with the selected action." };
+  }
+  if (supportingTags.some((tag) => exerciseMuscles.has(tag))) {
+    return { label: "Supporting link", detail: "Shares an assisting or stabilizing demand with the selected action." };
+  }
+  return { label: "Not mapped", detail: "No direct movement-record or muscle-role link is currently mapped." };
+}

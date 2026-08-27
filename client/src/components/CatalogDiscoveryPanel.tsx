@@ -3,6 +3,7 @@ import { Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react"
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { catalogFilterOptions, defaultCatalogFilters, type CatalogFilters, filterCatalogExercises } from "@/lib/catalogDiscovery";
 import { muscleLabels } from "@/components/AnatomyMap";
+import type { ExerciseActionConnection } from "@/lib/movementProgramAnalysis";
 import "@/catalog-discovery.css";
 
 type CatalogDiscoveryPanelProps = {
@@ -13,11 +14,13 @@ type CatalogDiscoveryPanelProps = {
   onToggleFavorite: (exercise: Exercise) => void;
   onInspect: (exercise: Exercise) => void;
   onAdd: (exercise: Exercise) => void;
+  selectedActionLabel?: string;
+  connectionForExercise?: (exercise: Exercise) => ExerciseActionConnection;
 };
 
 const visiblePerPage = 36;
 
-export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd }: CatalogDiscoveryPanelProps) {
+export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, selectedActionLabel, connectionForExercise }: CatalogDiscoveryPanelProps) {
   const [visibleCount, setVisibleCount] = useState(visiblePerPage);
   const options = useMemo(() => catalogFilterOptions(exercises), [exercises]);
   const results = useMemo(() => filterCatalogExercises(exercises, filters, favoriteIds), [exercises, filters, favoriteIds]);
@@ -47,8 +50,9 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
     {results.length ? <div className="catalog-discovery-list">
       {visibleResults.map((exercise) => {
         const isFavorite = favoriteIds.has(exercise.id);
+        const connection = connectionForExercise?.(exercise);
         return <article key={exercise.id} className="catalog-discovery-card">
-          <button onClick={() => onInspect(exercise)} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`}><span className="catalog-discovery-index">#{String(exercise.id).padStart(3, "0")}</span><span><strong>{exercise.name}</strong><small>{exercise.movement}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em></span><span className="catalog-discovery-tier">Catalog rank {exercise.muscleGrade}</span></button>
+          <button onClick={() => onInspect(exercise)} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`}><span className="catalog-discovery-index">#{String(exercise.id).padStart(3, "0")}</span><span><strong>{exercise.name}</strong><small>{exercise.movement}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em>{connection ? <b className={`catalog-action-link catalog-action-link-${connection.label.toLowerCase().replace(/\s+/g, "-")}`} title={connection.detail}>{connection.label}{selectedActionLabel ? ` · ${selectedActionLabel}` : ""}</b> : null}</span><span className="catalog-discovery-tier">Catalog rank {exercise.muscleGrade}</span></button>
           <div className="catalog-discovery-actions"><button onClick={() => onToggleFavorite(exercise)} className={isFavorite ? "catalog-favorite-on" : ""} aria-label={`${isFavorite ? "Remove" : "Save"} ${exercise.name} ${isFavorite ? "from" : "to"} favorites`}><Heart className="h-4 w-4" fill={isFavorite ? "currentColor" : "none"} /></button><button onClick={() => onAdd(exercise)} aria-label={`Add ${exercise.name} to workout`}><Plus className="h-4 w-4" /></button></div>
         </article>;
       })}

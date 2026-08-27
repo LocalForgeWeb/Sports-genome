@@ -44,6 +44,13 @@
 - [x] Increase vertical breathing room and preserve 44px-or-larger primary navigation targets without making the drawer feel crowded.
 - [ ] Validate the simplified drawer at iPhone widths for readable hierarchy, clear active state, smooth scrolling, and no clipped content.
 
+## Exercise-to-Action Connection Indicators
+
+- [x] Audit existing exercise-to-movement transfer, sport-fit, and selected-action data available to catalog and Exercise Genome surfaces.
+- [x] Add compact Direct support, Supporting link, or No mapped link indicators to exercise result rows for the selected sport action.
+- [ ] Add the connection explanation and supported movement rationale to the selected-exercise detail without fabricating transfer certainty.
+- [ ] Add regression coverage and validate readable indicators across the mobile full-width catalog list and exercise detail.
+
 ## Visible Data Integrity and Interactive Navigation Verification
 
 - [ ] Audit and replace every visible placeholder-style numeric display with a live athlete value, derived planning value with clear label, or explicit no-data state.

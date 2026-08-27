@@ -6,3 +6,5 @@
 @supports selector(:has(*)) {
   .catalog-mode-active > section:has(.catalog-card) { display: none; }
 }
+
+.catalog-action-link { display: inline-flex; width: fit-content; max-width: 100%; align-items: center; margin-top: .48rem; border: 1px solid #b9d0e4; border-radius: 999px; padding: .2rem .42rem; color: #4d6f8f; font-size: .49rem; font-weight: 900; letter-spacing: .045em; line-height: 1.2; text-transform: uppercase; white-space: nowrap; }.catalog-action-link-direct-support { border-color: #cf603f; background: #fff2ec; color: #a43c22; }.catalog-action-link-supporting-link { border-color: #caa24c; background: #fff8e6; color: #795514; }.catalog-action-link-not-mapped { color: #6f8394; }
