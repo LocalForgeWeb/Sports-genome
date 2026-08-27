@@ -37,7 +37,7 @@ describe("workspace side navigation", () => {
 
   it("uses the official Sports Genome drawer identity and a non-neon active state", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(source).toContain('sports-genome-icon-192_ae889a25.png');
+    expect(source).toContain('sports-genome-official-logo-64_f1d0979d.png');
     expect(source).toContain('alt="Sports Genome icon"');
     expect(source).toContain('>Sports Genome</p>');
     expect(source).toContain('Athlete workspace');

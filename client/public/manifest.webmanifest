@@ -8,12 +8,12 @@
   "theme_color": "#0b2240",
   "icons": [
     {
-      "src": "/manus-storage/sports-genome-icon-192_ae889a25.png",
+      "src": "/manus-storage/sports-genome-official-logo-192_4a1eb468.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/manus-storage/sports-genome-icon-512_eba882de.png",
+      "src": "/manus-storage/sports-genome-official-logo-512_fd078f4c.png",
       "sizes": "512x512",
       "type": "image/png"
     }

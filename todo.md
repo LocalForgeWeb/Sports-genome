@@ -1,7 +1,29 @@
 # Sport Movement Database Expansion
 
+## Strength Genome
+
+- [ ] Reconcile the full user-supplied Strength Genome specification with the current athlete profile, exercise catalog, evidence registry, and workout-planning architecture.
+- [ ] Define a longitudinal athlete profile and strength-observation schema that preserves dated body-mass context, measured inputs, testing conditions, and data-quality metadata.
+- [ ] Build source-traceable mappings from standardized exercise observations to functional strength domains and from domains to anatomical-region presentation layers.
+- [ ] Add only verified normative-reference data with explicit population, normalization, age/sex, measurement-method, and coverage limits; render no percentile where a valid reference is absent.
+- [ ] Implement transparent continuous strength estimates, discrete F-to-SS+ tiers, estimate confidence, imbalance logic, sport relevance, and editable athlete-confirmed training priorities without representing estimates as direct measurements.
+- [ ] Create the mobile-first Strength Genome body-profile interface, regional detail flow, lift/test entry workflow, and planning handoff using source-bounded labels and no fabricated performance-transfer claims.
+- [ ] Add unit, component, schema, and integration coverage; validate accessible mobile layout, tier semantics, missing-data handling, and estimate/evidence boundaries before publication.
+
+## iPhone-First Product Polish
+
+- [ ] Establish one reusable Sports Genome mobile design system covering colors, elevation, radii, strokes, typography, spacing, interactive states, compact chips, and motion timing.
+- [ ] Rework primary mobile navigation around daily athlete actions, with persistent bottom navigation for Home, Train, Genome, Progress, and Profile while retaining the drawer for secondary tools.
+- [ ] Replace dense mobile headers and persistent tutorial clutter with compact contextual controls, clear screen titles, sport/goal chips, and first-use coach marks that can be dismissed.
+- [ ] Redesign the Home screen around a truthful Today action, current-plan state, weekly rhythm, Strength Genome completion, and next-best actions without invented readiness or achievement data.
+- [ ] Make recommendations, Body Lab, Exercise Genome, Training Days, and catalog rows concise, tappable, rankable, and progressively disclosed before methodology or deep evidence detail.
+- [ ] Create visually distinct but semantically separate treatments for athlete strength tiers, exercise transfer matches, evidence confidence, incomplete data, PRs, and major milestones.
+- [ ] Build a non-destructive Progress area for tier, PR, confidence, bodyweight-relative, imbalance, and body-map history only when valid saved observations support each view.
+- [ ] Verify mobile layouts at small, standard, and large iPhone widths, including standalone PWA safe areas, keyboard behavior, long labels, horizontal-overflow safeguards, and authenticated workflows.
+
 ## Official App and Home-Screen Icon
 
+- [ ] Replace the incorrect sidebar and app-icon logo treatment with the newly supplied official Sports Genome — Decoding Performance artwork, then verify its live references.
 - [x] Inspect and remove or replace conflicting favicon, Apple touch icon, and manifest icon references.
 - [x] Create official edge-to-edge deep-navy square Sports Genome icon assets at 180×180, 192×192, and 512×512 from the supplied artwork without an embedded rounded mask.
 - [x] Add the official Apple touch icon link, standalone PWA manifest, deep-navy theme metadata, and matching PWA icon references.

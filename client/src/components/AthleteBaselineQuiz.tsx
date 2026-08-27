@@ -88,7 +88,7 @@ export function AthleteBaselineQuiz({ sports, onComplete }: { sports: SportProfi
 
   return <div className="athlete-quiz-shell">
     <div className="athlete-quiz-grid" />
-    <header className="athlete-quiz-header"><div className="athlete-quiz-brand"><img src="/manus-storage/sports-genome-apple-touch-icon_06bc5f79.png" alt="Sports Genome logo" /><span>Sports Genome</span></div><div className="athlete-quiz-progress" aria-label={`Step ${step + 1} of ${totalSteps}`}><span>Step {step + 1} / {totalSteps}</span><div className="athlete-quiz-progress-track"><i style={{ width: `${progress}%` }} /></div></div></header>
+    <header className="athlete-quiz-header"><div className="athlete-quiz-brand"><img src="/manus-storage/sports-genome-official-logo-180_8085dfd8.png" alt="Sports Genome logo" /><span>Sports Genome</span></div><div className="athlete-quiz-progress" aria-label={`Step ${step + 1} of ${totalSteps}`}><span>Step {step + 1} / {totalSteps}</span><div className="athlete-quiz-progress-track"><i style={{ width: `${progress}%` }} /></div></div></header>
     <main className="athlete-quiz-main"><section className="athlete-quiz-stage" key={step}>
       <div className="athlete-quiz-techline" aria-hidden="true"><span>CALIBRATION FIELD</span><i /><b>01</b><b>02</b><b>03</b><b>04</b></div>
       <div className="athlete-evidence-note"><span>{evidenceNotes[0]}</span><p>{evidenceNotes[1]}</p><i>INPUT → PROGRAMMING OUTPUT</i></div>
