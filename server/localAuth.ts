@@ -125,7 +125,7 @@ export async function beginPasskeyRegistration(user: User, req: Request) {
   if (!db) throw new Error("Account service unavailable");
   const { rpID } = relyingParty(req);
   const existing = await db.select().from(accountPasskeys).where(eq(accountPasskeys.userId, user.id));
-  const options = await generateRegistrationOptions({ rpName: "Gym Optimizer", rpID, userName: user.email || `athlete-${user.id}`, userDisplayName: user.name || "Gym Optimizer athlete", userID: new TextEncoder().encode(String(user.id)), attestationType: "none", excludeCredentials: existing.map(passkey => ({ id: passkey.credentialId, transports: passkey.transports ? JSON.parse(passkey.transports) : undefined })), authenticatorSelection: { residentKey: "preferred", userVerification: "required" } });
+  const options = await generateRegistrationOptions({ rpName: "Sports Genome", rpID, userName: user.email || `athlete-${user.id}`, userDisplayName: user.name || "Sports Genome athlete", userID: new TextEncoder().encode(String(user.id)), attestationType: "none", excludeCredentials: existing.map(passkey => ({ id: passkey.credentialId, transports: passkey.transports ? JSON.parse(passkey.transports) : undefined })), authenticatorSelection: { residentKey: "preferred", userVerification: "required" } });
   await storeChallenge(String(user.id), "register", options.challenge);
   return options;
 }

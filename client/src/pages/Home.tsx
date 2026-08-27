@@ -173,7 +173,7 @@ function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; traini
 
 export default function Home() {
   let { user, loading, error, isAuthenticated, logout, refresh } = useAuth();
-  const startLogin = () => toast.error("Please sign in with your Gym Optimizer email account.");
+  const startLogin = () => toast.error("Please sign in with your Sports Genome email account.");
 
   const [workspace, setWorkspaceState] = useState<Workspace>(() => typeof window === "undefined" ? "command" : workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
   const setWorkspace = (next: Workspace) => navigateWorkspace(next);

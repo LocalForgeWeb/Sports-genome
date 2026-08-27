@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { hasPasskeyOption, nextPasswordFailureState } from "./localAuth";
+import { readFileSync } from "node:fs";
+
+const source = readFileSync(new URL("./localAuth.ts", import.meta.url), "utf8");
 
 describe("standalone email authentication safeguards", () => {
   it("locks an email credential on the fifth consecutive failed password", () => {
@@ -15,5 +18,11 @@ describe("standalone email authentication safeguards", () => {
   it("offers passkey authentication only when the email account has an enrolled credential", () => {
     expect(hasPasskeyOption(0)).toBe(false);
     expect(hasPasskeyOption(1)).toBe(true);
+  });
+
+  it("uses the current Sports Genome identity for a passkey registration prompt", () => {
+    expect(source).toContain('rpName: "Sports Genome"');
+    expect(source).toContain('"Sports Genome athlete"');
+    expect(source).not.toContain('rpName: "Gym Optimizer"');
   });
 });
