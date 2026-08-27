@@ -402,6 +402,7 @@
 
 ## Workspace Readability and Cohesion Pass
 
+- [x] Remove the duplicate legacy Custom Builder workspace branch so the athlete sees one coherent builder rather than competing repeated panels and controls.
 - [x] Audit the support-exercise panel and every primary workspace for text collisions, clipped labels, and obstructed controls.
 - [x] Correct line-height, row structure, responsive spacing, and overflow behavior without changing existing product content.
 - [x] Strengthen card hierarchy, interactive states, and visual rhythm to make the workspace feel more cohesive and engaging.

@@ -23,4 +23,11 @@ describe("canonical connected exercise catalog", () => {
     expect(homeSource).not.toContain('300 tools.<br /><em className="text-[#e4512e]">Mapped on purpose.</em>');
     expect(homeSource).not.toContain('className="mt-5 grid gap-2 md:grid-cols-2 xl:grid-cols-3">{filteredCatalog.map');
   });
+
+  it("renders one canonical Custom Builder instead of competing legacy panels", () => {
+    expect(homeSource).not.toContain('className="custom-row"');
+    expect(homeSource).not.toContain('className="finder-row"');
+    expect(homeSource).not.toContain('<p className="metric-label">Exercise finder</p>');
+    expect(homeSource).toContain('className="builder-upgrade-head"');
+  });
 });
