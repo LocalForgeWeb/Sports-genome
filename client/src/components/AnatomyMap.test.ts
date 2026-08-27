@@ -21,11 +21,11 @@ vi.mock("react", async () => {
 });
 
 describe("Body Lab architecture mechanics disclosure", () => {
-  it("keeps an explicit zero exposure neutral instead of falling back to a worked-muscle intensity", async () => {
-    const { muscleScoreIntensity } = await import("./AnatomyMap");
-    expect(muscleScoreIntensity(0, 9)).toBe(0);
-    expect(muscleScoreIntensity(undefined, 9)).toBe(9);
-    expect(muscleScoreIntensity(75, 9)).toBe(8);
+  it("uses categorical role states instead of a numeric heat scale", () => {
+    expect(source).toContain('applyKey(key, 9)');
+    expect(source).toContain('applyKey(key, 6)');
+    expect(source).not.toContain("heatSolid");
+    expect(source).not.toContain("muscleScoreIntensity");
   });
 
   it("renders a visible, selectable in-app vector fallback when the detailed anatomy chart is unavailable", async () => {
@@ -38,7 +38,7 @@ describe("Body Lab architecture mechanics disclosure", () => {
     }));
 
     expect(markup).toContain("Vector anatomy fallback");
-    expect(markup).toContain("Pectoralis major · Primary role");
+    expect(markup).toContain("Pectoralis major · Primary role · Low-confidence inference");
     expect(markup).toContain("Retry detailed anatomy chart");
   });
 

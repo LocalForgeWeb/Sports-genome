@@ -49,9 +49,9 @@
 ## Qualitative Muscle Role and Unified Mobile Design System
 
 - [x] Replace single primary/synergist assumptions with movement-specific multiple role tags: Primary Mover, Synergist, Stabilizer, and Supporting.
-- [ ] Attach direct, strong indirect, moderate biomechanical, or low-confidence evidence labels to every displayed muscle-role judgment.
+- [x] Attach direct, strong indirect, moderate biomechanical, or low-confidence evidence labels to every displayed muscle-role judgment.
 - [ ] Make Body Lab role ordering depend on movement mechanics and phase context rather than scaling one muscle template across actions.
-- [ ] Convert the Body Lab legend and heat map to categorical Neutral, Supporting, and Primary states, with selection styling kept separate from role color.
+- [x] Convert the Body Lab legend and heat map to categorical Neutral, Supporting, and Primary states, with selection styling kept separate from role color.
 - [x] Rename Leading Muscle Signals to Key Muscle Roles and rewrite inspector copy to distinguish sporting-action role from exercise or stack context.
 - [x] Tighten Body Lab inspector hierarchy to muscle name, role, confidence, explanation, and compact source context with expandable methodology.
 - [ ] Separate grouped anatomical regions internally where meaningful while retaining clear athlete-facing group labels and advanced anatomical detail.
@@ -60,8 +60,10 @@
 - [ ] Compress mobile header context and breadcrumbs; standardize compact context controls, relevant primary actions, touch targets, and safe-area spacing.
 - [ ] Audit every primary screen for overflow, accidental horizontal scrolling, inconsistent color meaning, clipped long labels, and small tap targets at small, medium, and large iPhone widths.
 - [x] Add recommendation-purpose and evidence-confidence labels, compact tappable source access, clear evidence-gap states, and explicit sport-practice specificity boundaries.
-- [ ] Add compact evidence-confidence text to each visible Key Muscle Roles row, not only the selected-muscle inspector.
-- [ ] Remove the remaining Low/Medium/High gradient legend path and numeric heat color logic from Body Lab, retaining categorical role colors even when an exercise or stack score exists.
+- [x] Add compact evidence-confidence text to each visible Key Muscle Roles row, not only the selected-muscle inspector.
+- [x] Remove the remaining Low/Medium/High gradient legend path and numeric heat color logic from Body Lab, retaining categorical role colors even when an exercise or stack score exists.
+- [x] Add evidence-confidence text to Vector Anatomy fallback role controls so fallback Body Lab views use the same confidence semantics as the main map.
+- [x] Add regression coverage proving Vector Anatomy fallback role controls include both qualitative role and evidence-confidence context.
 - [ ] Audit Body Lab selected-state styling so it remains visually distinct from qualitative role color without implying measured activation intensity.
 
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
