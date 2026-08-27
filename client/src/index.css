@@ -259,6 +259,8 @@ select {
 /* Drawer density pass: one brand mark, one athlete row, then generous navigation rhythm. */
 .rail-brand { gap: 13px; min-height: 76px; padding: 16px 18px; }
 .rail-brand > p { line-height: 1; white-space: nowrap; }
+.rail-brand-logo { width: 66px; height: 66px; clip-path: circle(44% at 50% 50%); }
+.direct-workspace-mode .rail-athlete { display: none; }
 .rail-athlete { margin: 10px 14px 4px; padding: 11px 12px; border-radius: var(--sg-radius-tight); }
 .rail-nav { gap: 15px; padding: 18px 12px 10px; }
 .rail-nav-group { gap: 4px; }
@@ -271,9 +273,15 @@ select {
 
 @media (max-width: 1023px) {
   .rail-brand { padding-top: max(16px, env(safe-area-inset-top)); }
+  .rail-brand-logo { width: 70px; height: 70px; }
   .rail-nav { padding-top: 16px; }
   .rail-nav-item { min-height: 52px; }
 }
+
+/* The complete sport-program method stays available in the compact planning
+   disclosures above; the duplicate long-form recommendation lens does not need
+   to crowd the first decision screen. */
+.apex-content > section.space-y-5 > div.border-l-2 { display: none; }
 
 /* Modern Kinetic Field Manual: use tactile inspection cards within the midnight shell. */
 .pulse-option {
@@ -645,3 +653,14 @@ select {
 .command-hero [class*="text-[#c5d1c9]"], .command-signal-card [class*="text-[#b6c3bc]"] { color: #c7d8e7 !important; }
 .command-hero .command-signal-card button { color: #f2c14d !important; }
 .command-hero + .grid .dark-panel > div > button, .dark-panel [class*="hover:border-[#b8ff5b]"]:hover { color: #f2c14d !important; border-color: #f2c14d !important; }
+
+/* Recommendation cards now lead with the one decision: exercise, stated role,
+   relative planning match, and add. Explanations remain inside the disclosure. */
+.recommendation-row-main { grid-template-columns: 30px minmax(0, 1fr) auto auto 44px; }
+.recommendation-add { width: 44px; height: 44px; }
+@media (max-width: 640px) {
+  .recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 36px auto 44px; align-items: center; gap: .5rem; }
+  .recommendation-score { display: grid; }
+  .recommendation-add { width: 44px; height: 44px; }
+  .recommendation-why { margin-top: .55rem; }
+}

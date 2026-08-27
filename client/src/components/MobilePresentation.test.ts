@@ -6,6 +6,8 @@ const evidence = readFileSync(new URL("./ModifierEvidenceDisclosure.tsx", import
 const hierarchy = readFileSync(new URL("./HierarchyPlanningDisclosure.tsx", import.meta.url), "utf8");
 const mobileStyles = readFileSync(new URL("../mobile-navigation.css", import.meta.url), "utf8");
 const catalogStyles = readFileSync(new URL("../catalog-discovery.css", import.meta.url), "utf8");
+const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8");
+const appStyles = readFileSync(new URL("../index.css", import.meta.url), "utf8");
 
 describe("mobile athlete presentation", () => {
   it("keeps source and hierarchy methodology available through compact disclosure controls", () => {
@@ -33,5 +35,16 @@ describe("mobile athlete presentation", () => {
     expect(mobileStyles).toContain("mobile-disclosure-in 180ms");
     expect(mobileStyles).toContain("mobile-tab-in 170ms");
     expect(mobileStyles).toContain("@media (prefers-reduced-motion: reduce)");
+  });
+
+  it("keeps recommendation cards decision-first on phones while retaining full reasoning behind one disclosure", () => {
+    expect(home).toContain('<summary>Why this match?</summary>');
+    expect(home).toContain('aria-label={`Inspect ${result.exercise.name}`}');
+    expect(home).toContain('relative match for ${result.exercise.name}');
+    expect(appStyles).toContain('.recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 36px auto 44px;');
+    expect(appStyles).toContain('.recommendation-score { display: grid; }');
+    expect(appStyles).toContain('.recommendation-add { width: 44px; height: 44px; }');
+    expect(appStyles).toContain('.apex-content > section.space-y-5 > div.border-l-2 { display: none; }');
+    expect(home).toContain('<HierarchyPlanningDisclosure');
   });
 });

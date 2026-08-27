@@ -49,6 +49,7 @@ describe("workspace side navigation", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('sports-genome-decoding-performance-logo_0544e065.png');
     expect(source).toContain('alt="Sports Genome — Decoding Performance logo"');
+    expect(source).toContain('className="rail-brand-logo shrink-0 object-contain"');
     expect(source).toContain('>Sports Genome</p>');
     expect(source).toContain('Athlete workspace');
     expect(source).toContain('rail-data-line');
@@ -57,6 +58,8 @@ describe("workspace side navigation", () => {
     expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
     expect(css).toContain('box-shadow: inset 4px 0 var(--sg-gold)');
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
+    expect(css).toContain('.rail-brand-logo { width: 66px; height: 66px; clip-path: circle(44% at 50% 50%); }');
+    expect(css).toContain('.direct-workspace-mode .rail-athlete { display: none; }');
     expect(css).toContain('.rail-data-line { display: flex; gap: 8px;');
   });
 

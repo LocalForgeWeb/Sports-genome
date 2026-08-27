@@ -30,6 +30,9 @@
 
 ## iPhone-First Product Polish
 
+- [x] Reduce mobile recommendation and action cards to decision-critical exercise name, role, and primary action; move list provenance and evidence detail behind concise disclosure.
+- [x] Rework the mobile recommendation overview so sport-program evidence and mechanics are available on demand rather than consuming the initial screen.
+- [x] Enlarge the official Sports Genome rail logo and remove its contrasting boxed treatment so it blends with the navy navigation background.
 - [x] Replace the floating five-icon mobile navigation with a connected safe-area workspace bar that exposes context-relevant controls for each active destination.
 - [ ] Provide Training Day shortcuts for workout tracking, split selection, and stack scoring, plus appropriate contextual actions for Home, Genome, Progress, and Profile.
 - [ ] Wire Training Day dock actions to distinct split-selection, workout-tracking, and stack-scoring workflows with functional regression coverage.

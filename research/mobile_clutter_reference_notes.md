@@ -1,0 +1,5 @@
+# Mobile Clutter Refinement Notes
+
+The user identified three concrete issues in the supplied mobile references: recommendation support cards repeated long provenance and evidence phrases below each exercise; the recommendation overview displayed a large sport-program prose block before the actionable movement and exercise choices; and the sidebar logo appeared as a small contrasting square rather than a larger mark blended into the navy rail.
+
+The resulting implementation keeps exercise name, stated support role, relative planning match, and add action visible. Detailed rationale, breakdowns, and methodology remain on demand through existing disclosure controls. The long duplicate sport-program lens is removed from the primary recommendation canvas because equivalent evidence and method context remains available through the planning disclosures. The official logo uses a larger circular crop so its square source background does not read as a separate boxed control against the navy rail.

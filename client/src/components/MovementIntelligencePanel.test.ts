@@ -11,12 +11,13 @@ const movement = {
 const fallback = { id: "test-action", sportId: "test", sportLabel: "Test", label: "Test sporting action", bodyActions: "drive and brace", primaryMuscles: "glutes", stabilizers: "obliques", muscleActions: "hip extension", family: "test", gymTransferCue: "Supports the action." };
 
 describe("Movement Intelligence recommendation context", () => {
-  it("labels gym support by purpose and keeps sport practice as the highest-specificity stimulus", async () => {
+  it("keeps the exercise decision compact while retaining a clear support purpose and sport-practice boundary", async () => {
     const { MovementIntelligencePanel } = await import("./MovementIntelligencePanel");
     const markup = renderToStaticMarkup(createElement(MovementIntelligencePanel, { movement, fallback, workout: [] }));
     expect(markup).toContain("Sport practice remains the highest-specificity stimulus.");
     expect(markup).toContain("Gym support for this action");
-    expect(markup).toContain("Movement-transfer support");
-    expect(markup).toContain("moderate evidence context");
+    expect(markup).toContain("Movement support");
+    expect(markup).not.toContain("Movement-specific context.");
+    expect(markup).not.toContain("moderate evidence context");
   });
 });
