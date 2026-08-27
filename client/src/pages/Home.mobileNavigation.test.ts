@@ -71,7 +71,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain('Review stack');
     expect(source).toContain('setSessionMode(true)');
     expect(source).toContain('document.querySelector(".day-design-rail")?.scrollIntoView');
-    expect(source).toContain('document.querySelector(".workout-health-panel")?.scrollIntoView');
+    expect(source).toContain('document.querySelector("#stack-review")?.scrollIntoView');
+    expect(source).toContain('document.querySelector<HTMLElement>("#workout-tracker")?.scrollIntoView');
     expect(source).toContain('const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);');
     expect(source).toContain('if (!sessionMode || !loggerScrollRequest) return;');
     expect(source).toContain('Log a test');

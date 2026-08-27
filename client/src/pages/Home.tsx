@@ -237,7 +237,7 @@ export default function Home() {
   }, [splitDays, activeSplitDay, activeSplitDayIndex]);
   useEffect(() => {
     if (!sessionMode || !loggerScrollRequest) return;
-    document.querySelector<HTMLElement>(".workout-execution-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelector<HTMLElement>("#workout-tracker")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [sessionMode, loggerScrollRequest]);
   const draftedLoadout = useMemo(() => {
     const sportSeed = getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId).map((item) => item.exercise);
@@ -694,7 +694,7 @@ export default function Home() {
     </div>
     <div className="mobile-workspace-dock lg:hidden" aria-label="Current workspace actions">
       <div className="mobile-workspace-actions">
-        {workspace === "day-plan" && <><span><strong>Training day</strong><small>Build, track, and review your plan</small></span><button type="button" onClick={() => document.querySelector(".day-design-rail")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Choose split</button><button type="button" onClick={() => { setSessionMode(true); setLoggerScrollRequest((request) => request + 1); }}>Track workout</button><button type="button" onClick={() => document.querySelector(".workout-health-panel")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Review stack</button></>}
+        {workspace === "day-plan" && <><span><strong>Training day</strong><small>Build, track, and review your plan</small></span><button type="button" onClick={() => document.querySelector(".day-design-rail")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Choose split</button><button type="button" onClick={() => { setSessionMode(true); setLoggerScrollRequest((request) => request + 1); }}>Track workout</button><button type="button" onClick={() => document.querySelector("#stack-review")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Review stack</button></>}
         {workspace === "command" && <><span><strong>Today</strong><small>Plan context and next action</small></span><button type="button" onClick={() => navigateWorkspace("recommended")}>Recommendations</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Design day</button></>}
         {workspace === "strength" && <><span><strong>Strength Genome</strong><small>Observations and athlete priorities</small></span><button type="button" onClick={() => navigateWorkspace("day-plan")}>Review training day</button><button type="button" onClick={() => navigateWorkspace("progress")}>View progress</button></>}
         {workspace === "progress" && <><span><strong>Progress</strong><small>Saved records and comparable tests</small></span><button type="button" onClick={() => navigateWorkspace("strength")}>Log a test</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Training days</button></>}
@@ -704,7 +704,7 @@ export default function Home() {
         {workspace === "genome" && <><span><strong>Exercise Genome</strong><small>Selected-exercise context and mapping</small></span><button type="button" onClick={() => { setActiveMuscle(genomeExercise.primaryMuscles[0] || "abs"); navigateWorkspace("body"); }}>Open Body Lab</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Review training day</button></>}
         {workspace === "catalog" && <><span><strong>Exercise Catalog</strong><small>Search and inspect the full movement library</small></span><button type="button" onClick={() => navigateWorkspace("recommended")}>View matches</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Training day</button></>}
         {workspace === "recommended" && <><span><strong>Recommendations</strong><small>Sport-aware exercise matches and rationale</small></span><button type="button" onClick={() => navigateWorkspace("movement")}>Change action</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Review training day</button></>}
-        {workspace === "custom" && <><span><strong>Workout Builder</strong><small>Build, inspect, and prescribe your session</small></span><button type="button" onClick={() => document.querySelector(".workout-health-panel")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Review stack</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Training day</button></>}
+        {workspace === "custom" && <><span><strong>Workout Builder</strong><small>Build, inspect, and prescribe your session</small></span><button type="button" onClick={() => document.querySelector("#stack-review")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Review stack</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Training day</button></>}
       </div>
       <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">{[
       { id: "command" as Workspace, label: "Home", icon: Target },

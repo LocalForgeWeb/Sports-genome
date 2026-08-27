@@ -17,7 +17,7 @@ export function WorkoutHealthPanel({ workout, prescriptions, settings, goal = "A
   const diagnostics = getWorkoutDiagnostics(workout, prescriptions, settings, goal, gymMinutes);
   const signal = diagnostics.fatigueExposure >= logicCalibration.workoutReview.highFatigueReview ? "High" : diagnostics.fatigueExposure >= logicCalibration.workoutReview.moderateFatigueReview ? "Moderate" : "Managed";
   const activeEquipmentSummary = equipmentSummary || storedEquipmentSummary();
-  return <section className="workout-health-panel" aria-label="Session diagnostics">
+  return <section id="stack-review" className="workout-health-panel" aria-label="Session diagnostics">
     <div className="workout-health-head"><div><p className="metric-label !text-[#9cb4d0]">Session diagnostics</p><h3>Coach scan</h3></div><span className={`health-signal health-signal-${signal.toLowerCase()}`}>{signal} fatigue model</span></div>
     <div className="health-stat-grid"><div><strong>{diagnostics.totalSets}</strong><span>planned work sets</span></div><div><strong>~{diagnostics.estimatedMinutes}m</strong><span>time model</span></div><div><strong>{diagnostics.sessionLoad}</strong><span>set × RPE index</span></div><div><strong>{diagnostics.redundancy}%</strong><span>overlap estimate</span></div></div>
     {activeEquipmentSummary && <div className="health-block"><p className="metric-label !text-[#9cb4d0]">Automatic stack equipment</p><p className="health-prompt">{activeEquipmentSummary}</p></div>}
