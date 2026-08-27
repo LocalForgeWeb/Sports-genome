@@ -56,6 +56,11 @@
 /* Heat legend */
 .atlas-heat-legend-pro{display:flex;align-items:center;justify-content:center;gap:.4rem;margin:.65rem auto 0;color:#718894;font-size:.58rem;font-weight:800}
 .atlas-swatch{display:inline-block;width:1.3rem;height:.5rem;border-radius:2px}
+.atlas-role-methodology{max-width:42rem;margin:.55rem auto 0;border:1px solid #dce5ea;background:#f7fafc;color:#3f5e73}
+.atlas-role-methodology summary{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:42px;padding:.55rem .7rem;cursor:pointer;color:#245b98;font-size:.62rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+.atlas-role-methodology>div{border-top:1px solid #dce5ea;padding:.6rem .7rem}
+.atlas-role-methodology p{font-size:.67rem;line-height:1.5}
+.atlas-role-methodology p+p{margin-top:.45rem}
 
 /* Ranking strip — new style with color dots and bars */
 .atlas-ranking{display:grid;gap:.35rem;border-top:1px solid #dce5ea;margin-top:1rem;padding-top:.8rem}
@@ -139,6 +144,9 @@
   .atlas-core-metrics{grid-template-columns:1fr}
   .atlas-heat-legend-pro{gap:.25rem;font-size:.5rem;flex-wrap:wrap;justify-content:center}
   .atlas-swatch{width:.9rem;height:.4rem}
+  .atlas-role-methodology summary{min-height:44px;padding:.55rem .6rem;font-size:.57rem}
+  .atlas-role-methodology>div{padding:.6rem}
+  .atlas-role-methodology p{font-size:.68rem}
   .atlas-ranking{display:grid;overflow:visible;padding-bottom:0;scroll-snap-type:none}
   .atlas-ranking>div,.atlas-ranking button,.atlas-ranking .atlas-ranking-toggle{width:100%;min-width:0}
   .atlas-ranking>div{padding:.25rem .15rem}

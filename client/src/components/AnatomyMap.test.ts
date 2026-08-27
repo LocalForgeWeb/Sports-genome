@@ -87,5 +87,8 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("Key muscle roles");
     expect(markup).toContain("Expand only when you need the lower-ranked relevant muscles.");
     expect(markup).toContain("Show 3 more muscle roles");
+    expect(markup).toContain("How muscle roles are classified");
+    expect(markup).toContain("Supporting role");
+    expect(markup).toContain("Primary role");
   });
 });

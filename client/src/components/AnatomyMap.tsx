@@ -240,6 +240,13 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
           <div className="atlas-heat-legend-pro">
             <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "#d5ad43" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></>
           </div>
+          <details className="atlas-role-methodology">
+            <summary>How muscle roles are classified <ChevronDown className="h-4 w-4" /></summary>
+            <div>
+              <p>{roleMethodology || "Roles combine the selected sporting action’s reported prime movers, assisting muscles, stabilizers, and movement demands. They describe relevant contribution to that action rather than activation magnitude or force."}</p>
+              <p><strong>Confidence labels</strong> indicate whether the role comes from direct action-specific evidence, strong indirect evidence, biomechanics-informed context, or a low-confidence fallback. These labels do not diagnose individual technique or capacity.</p>
+            </div>
+          </details>
 
         </div>
 
