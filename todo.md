@@ -8,6 +8,10 @@
 
 ## Strength Genome
 
+- [x] Require matching recorded test conditions for within-athlete Strength Genome load comparisons, returning an explicit non-comparable state rather than a misleading change card.
+- [x] Return an explicit non-comparable result when matching exercise/test/laterality observations differ by recorded testing conditions.
+- [x] Render concise Progress copy explaining when recorded test conditions prevent a like-for-like comparison.
+- [x] Add regression coverage proving mismatched equipment, range, technique, tempo, assistance, or data quality returns an explicit non-comparable state.
 - [x] Add an explicit athlete-controlled Strength Genome-to-Training Day handoff that carries no inferred deficit, tier, or automatic plan rewrite.
 - [x] Reconcile the full user-supplied Strength Genome specification with the current athlete profile, exercise catalog, evidence registry, and workout-planning architecture.
 - [x] Define a longitudinal athlete profile and strength-observation schema that preserves dated body-mass context, measured inputs, testing conditions, and data-quality metadata.

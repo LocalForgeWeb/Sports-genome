@@ -8,9 +8,11 @@ describe("Progress overview", () => {
     expect(source).toContain("trpc.workoutLog.list.useQuery()");
     expect(source).toContain("trpc.strengthGenome.observations.useQuery()");
     expect(source).toContain("Sports Genome will not create a progress story from missing data.");
-    expect(source).toContain("findWithinAthleteStrengthChanges(observations.data || [])");
+    expect(source).toContain("summarizeWithinAthleteStrengthComparisons(observations.data || [])");
     expect(source).toContain("Recorded load change");
     expect(source).toContain("not an estimated strength change or population comparison");
+    expect(source).toContain("Comparison withheld");
+    expect(source).toContain("No load-change card is shown until the same setup is repeated.");
     expect(source).not.toContain("readiness score");
     expect(source).not.toContain("Personal record");
   });
