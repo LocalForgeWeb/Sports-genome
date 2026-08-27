@@ -109,6 +109,7 @@
 
 ## Body Lab Number Semantics
 
+- [ ] Replace Body Lab’s internal 9/6 role-derived anatomy intensity values with categorical Primary and Supporting presentation states.
 - [x] Audit all Body Lab score generation, role-template defaults, heat-map intensities, model-index badges, and metric-bar display paths.
 - [x] Replace default primary/synergist template numbers with qualitative role and evidence context when no exercise or stack calculation is available.
 - [x] Retire Body Lab model-index displays entirely; retain relative scores only in dedicated exercise and active-stack analysis with clear non-measurement labeling.

@@ -8,6 +8,10 @@ import "../anatomy-clean.css";
 type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; showInspector?: boolean };
 type Role = "Primary" | "Synergist" | "Stabilizer";
 
+// Renderer-only categorical tokens required by the third-party anatomy SVG API.
+// They select colors; they are never rendered as role scores or physiological values.
+const anatomyRoleRenderState = { neutral: 0, supporting: 6, primary: 9 } as const;
+
 /* Map our exercise catalog muscle keys to body-muscles library IDs */
 const keyToIds: Record<string, string[]> = {
   chest: ["chest-upper-left", "chest-upper-right", "chest-lower-left", "chest-lower-right"],
@@ -108,12 +112,12 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
     // Categorical role color is intentionally separate from any relative exercise/stack index.
     Object.keys(keyToIds).forEach(key => {
       if (matches(key, primary)) {
-        applyKey(key, 9);
+        applyKey(key, anatomyRoleRenderState.primary);
       }
     });
     Object.keys(keyToIds).forEach(key => {
       if (!matches(key, primary) && matches(key, secondary)) {
-        applyKey(key, 6);
+        applyKey(key, anatomyRoleRenderState.supporting);
       }
     });
 

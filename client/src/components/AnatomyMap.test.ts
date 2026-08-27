@@ -22,8 +22,9 @@ vi.mock("react", async () => {
 
 describe("Body Lab architecture mechanics disclosure", () => {
   it("uses categorical role states instead of a numeric heat scale", () => {
-    expect(source).toContain('applyKey(key, 9)');
-    expect(source).toContain('applyKey(key, 6)');
+    expect(source).toContain("anatomyRoleRenderState");
+    expect(source).toContain("anatomyRoleRenderState.primary");
+    expect(source).toContain("anatomyRoleRenderState.supporting");
     expect(source).not.toContain("heatSolid");
     expect(source).not.toContain("muscleScoreIntensity");
   });
