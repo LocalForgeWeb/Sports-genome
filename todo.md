@@ -39,6 +39,13 @@
 - [ ] Interactively activate every sidebar destination and verify active workspace, URL history, active state, desktop rail behavior, and mobile overlay closure.
 - [ ] Capture and review updated desktop and mobile workspace screenshots after visible-placeholder cleanup and sidebar verification.
 
+## Body Lab Number Semantics
+
+- [x] Audit all Body Lab score generation, role-template defaults, heat-map intensities, model-index badges, and metric-bar display paths.
+- [x] Replace default primary/synergist template numbers with qualitative role and evidence context when no exercise or stack calculation is available.
+- [x] Show relative model indices only when they are derived from the selected exercise or active stack, with clear non-measurement labeling.
+- [ ] Add regression coverage preventing repeated role-template values from appearing as precise Body Lab scores, then validate the corrected layout on desktop and mobile.
+
 - [x] Push all current Gym Optimizer code, tests, research records, and data additions to LocalForgeWeb/Sports-genome and verify the remote branch is synchronized.
 - [x] Push the latest validated progressive-training, RPE, and segment-priority updates to LocalForgeWeb/Sports-genome and verify the remote branch tip.
 - [x] Push the latest validated mobile Training Day action-layout repair to LocalForgeWeb/Sports-genome and verify the remote branch tip.

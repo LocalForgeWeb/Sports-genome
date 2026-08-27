@@ -195,10 +195,10 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
 
   const reset = () => { setView("FRONT"); setSelectedKey(""); setQuery(""); };
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
-  const selectedScore = selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0;
+  const selectedScore = selectedKey ? muscleScores?.[selectedKey] : undefined;
   const selectedRole: Role | null = selectedKey ? (matches(selectedKey, primary) ? "Primary" : "Synergist") : null;
   const selectedMechanics = selectedKey ? getAnatomyMechanicsEvidence(selectedKey) : null;
-  const metric = (offset: number) => Math.max(12, Math.min(98, selectedScore + offset));
+  const hasCalculatedMuscleScores = Object.values(muscleScores || {}).some((score) => score > 0);
 
   return (
     <section className="anatomy-atlas-pro">
@@ -242,10 +242,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
 
           {/* Heat legend */}
           <div className="atlas-heat-legend-pro">
-            <span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} />
-            <span>Low</span><i className="atlas-swatch" style={{ background: "#f5a13d" }} />
-            <span>Medium</span><i className="atlas-swatch" style={{ background: "#f46933" }} />
-            <span>High</span><i className="atlas-swatch" style={{ background: "#db2f24" }} />
+            {hasCalculatedMuscleScores ? <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Low</span><i className="atlas-swatch" style={{ background: "#f5a13d" }} /><span>Medium</span><i className="atlas-swatch" style={{ background: "#f46933" }} /><span>High</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></> : <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "#f5a13d" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></>}
           </div>
 
         </div>
@@ -260,17 +257,12 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
               </div>
               <div className="atlas-inspector-badges">
                 <span>{selectedRole}</span>
-                <b>Model index {selectedScore}/100</b>
-                <i>{tier(selectedScore)} Tier</i>
-              </div>
-              <div className="atlas-core-metrics">
-                {[["Relative role index", metric(1)], ["Modelled long-length context", metric(-12)], ["Modelled stability context", metric(-22)]].map(([name, value]) => (
-                  <div key={name as string}><span>{name}</span><b>{value}</b><i><em style={{ width: `${value}%` }} /></i></div>
-                ))}
+                {selectedScore == null ? <b>Role context</b> : <><b>Relative model index {selectedScore}/100</b><i>{tier(selectedScore)} Tier</i></>}
               </div>
               <div className="atlas-why-pro">
                 <p className="metric-label">Role</p>
                 <p>{selectedRole === "Primary" ? "This muscle is a primary mover in the current exercise." : "This muscle assists the primary movers as a synergist or stabilizer."}</p>
+                {selectedScore == null ? <p className="mt-2 text-[10px] leading-4 text-[#657b92]">No exercise or active-stack score is loaded here. Color reflects qualitative role context, not measured activation or force.</p> : <p className="mt-2 text-[10px] leading-4 text-[#657b92]">This relative model index is derived from the active exercise or stack context. It is not a measured activation, force, or individual capacity score.</p>}
               </div>
               {selectedMechanics && <div className="atlas-why-pro">
                 <p className="metric-label">Architecture + leverage context</p>
@@ -278,15 +270,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, showIns
                 <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Sources:</strong> {selectedMechanics.sources.join(" · ")}</p>
                 <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Boundary:</strong> {selectedMechanics.boundary}</p>
               </div>}
-              <details className="atlas-full-analysis">
-                <summary>View full analysis <ChevronDown className="h-4 w-4" /></summary>
-                <div>
-                  {[["Mechanical tension", metric(2)], ["Hypertrophy potential", metric(-3)], ["Strength contribution", metric(0)], ["Eccentric demand", metric(-5)], ["Concentric demand", metric(3)], ["Fatigue contribution", metric(-9)]].map(([name, value]) => (
-                    <div key={name as string}><span>{name}</span><b>{value}</b><i><em style={{ width: `${value}%` }} /></i></div>
-                  ))}
-                  <p><b>Confidence:</b> Structured estimate based on the movement pattern, stated muscle role, and available mechanics evidence.</p>
-                </div>
-              </details>
+              {selectedScore != null && <details className="atlas-full-analysis"><summary>View full model boundary <ChevronDown className="h-4 w-4" /></summary><div><p><b>Confidence:</b> Structured relative estimate based on the active exercise or stack context, stated muscle role, and available mechanics evidence. It is not a direct laboratory measurement.</p></div></details>}
             </>
           ) : (
             <div className="atlas-inspector-empty-pro">

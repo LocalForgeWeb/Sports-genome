@@ -1,6 +1,9 @@
 import React, { createElement } from "react";
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+
+const source = readFileSync(new URL("./AnatomyMap.tsx", import.meta.url), "utf8");
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
@@ -64,6 +67,13 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("not mechanically interchangeable");
     expect(markup).toContain("PMID 30117053");
     expect(markup).toContain("force or injury risk");
+  });
+
+  it("uses qualitative role context instead of role-template scores when no exercise or stack score is supplied", () => {
+    expect(source).toContain('selectedScore = selectedKey ? muscleScores?.[selectedKey] : undefined');
+    expect(source).toContain("No exercise or active-stack score is loaded here.");
+    expect(source).toContain('selectedScore == null ? <b>Role context</b>');
+    expect(source).not.toContain('selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0');
   });
 
   it("keeps the anatomy canvas focused by progressively disclosing lower-ranked worked muscles", async () => {
