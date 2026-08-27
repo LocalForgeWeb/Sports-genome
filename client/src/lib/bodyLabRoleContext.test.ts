@@ -23,5 +23,6 @@ describe("Body Lab movement-specific role context", () => {
     expect(context.rolesByMuscle.obliques.phaseContext).toContain("isometric");
     expect(getBodyLabRoleOrder(["concentric propulsion"], ["hip extension"])).toEqual(["Primary Mover", "Synergist", "Stabilizer", "Supporting"]);
     expect(getBodyLabRoleOrder(["eccentric absorption with isometric trunk control"], ["trunk anti-rotation"])).toEqual(["Primary Mover", "Stabilizer", "Synergist", "Supporting"]);
+    expect(getBodyLabRoleOrder(["eccentric braking"], ["knee flexion"])).toEqual(["Primary Mover", "Stabilizer", "Synergist", "Supporting"]);
   });
 });

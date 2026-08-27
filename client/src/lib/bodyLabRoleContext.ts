@@ -35,7 +35,8 @@ const defaultRoleOrder: BodyLabRole[] = ["Primary Mover", "Synergist", "Stabiliz
 export const getBodyLabRoleOrder = (contractionRoles: string[], jointActions: string[] = []): BodyLabRole[] => {
   const mechanicsContext = [...contractionRoles, ...jointActions].join(" ").toLowerCase();
   const hasExplicitStabilityDemand = /isometric|stabili[sz]|anti-rotation|brac|post(?:ing)?|attachment|clamp|connection|control/.test(mechanicsContext);
-  if (hasExplicitStabilityDemand) return ["Primary Mover", "Stabilizer", "Synergist", "Supporting"];
+  const hasBrakingOrAbsorptionDemand = /eccentric|decelerat|brak|land|absorb|arrest/.test(mechanicsContext);
+  if (hasExplicitStabilityDemand || hasBrakingOrAbsorptionDemand) return ["Primary Mover", "Stabilizer", "Synergist", "Supporting"];
   return defaultRoleOrder;
 };
 const confidenceFor = (value: string | undefined): BodyLabEvidenceConfidence => {

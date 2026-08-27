@@ -114,10 +114,10 @@
 
 - [x] Replace single primary/synergist assumptions with movement-specific multiple role tags: Primary Mover, Synergist, Stabilizer, and Supporting.
 - [x] Attach direct, strong indirect, moderate biomechanical, or low-confidence evidence labels to every displayed muscle-role judgment.
-- [ ] Make Body Lab role ordering depend on movement mechanics and phase context rather than scaling one muscle template across actions.
-- [ ] Use source-recorded contraction and action-phase context to influence Body Lab role ordering wherever the enriched movement evidence distinguishes contribution order.
-- [ ] Add regression coverage proving differing supported action-phase contexts can change qualitative Body Lab role ordering without fabricating timing or force values.
-- [ ] Extend Body Lab role ordering to use explicit enriched movement mechanics and action-phase signals beyond the current isometric-context heuristic.
+- [x] Make Body Lab role ordering depend on movement mechanics and phase context rather than scaling one muscle template across actions.
+- [x] Use source-recorded contraction and action-phase context to influence Body Lab role ordering wherever the enriched movement evidence distinguishes contribution order.
+- [x] Add regression coverage proving differing supported action-phase contexts can change qualitative Body Lab role ordering without fabricating timing or force values.
+- [x] Extend Body Lab role ordering to use explicit enriched movement mechanics and action-phase signals beyond the current isometric-context heuristic.
 - [ ] Add comparative role-context regressions using multiple source-recorded phase patterns to prove qualitative ordering changes appropriately.
 - [ ] Add a component-level regression proving the rendered Key Muscle Roles list follows source-recorded phase-sensitive ordering without fabricating timing or force values.
 - [x] Convert the Body Lab legend and heat map to categorical Neutral, Supporting, and Primary states, with selection styling kept separate from role color.
