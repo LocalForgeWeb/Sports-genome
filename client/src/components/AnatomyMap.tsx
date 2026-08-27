@@ -208,7 +208,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
     <section className="anatomy-atlas-pro">
       <div className="atlas-pro-head">
         <div>
-          <p className="metric-label">Body Lab / involvement heat map</p>
+          <p className="metric-label">Body Lab / qualitative role map</p>
           <h2>See the work. <em>Then inspect the why.</em></h2>
         </div>
         <p>Precise anatomical SVG with 70+ muscle regions. Only worked muscles show color. Click any muscle to inspect.</p>
@@ -244,7 +244,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             {chartFailed ? <VectorAnatomyFallback view={view} ranked={ranked} onSelect={(key) => { setSelectedKey(key); onSelect(key); }} onRetry={() => setChartFailed(false)} /> : <><div ref={containerRef} className="atlas-body-chart" />{hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}</>}
           </div>
 
-          {/* Heat legend */}
+          {/* Qualitative role legend */}
           <div className="atlas-heat-legend-pro">
             <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "#d5ad43" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></>
           </div>

@@ -27,6 +27,8 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).toContain("anatomyRoleRenderState.supporting");
     expect(source).not.toContain("heatSolid");
     expect(source).not.toContain("muscleScoreIntensity");
+    expect(source).toContain("qualitative role map");
+    expect(source).not.toContain("involvement heat map");
   });
 
   it("renders a visible, selectable in-app vector fallback when the detailed anatomy chart is unavailable", async () => {
