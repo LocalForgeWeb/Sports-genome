@@ -13,6 +13,12 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogSource).toContain("connection.label");
   });
 
+  it("mounts the canonical connection-aware Exercise Genome workspace with the same selected action", () => {
+    expect(homeSource).toContain("<ExerciseGenomeWorkspace exercises={filteredCatalog}");
+    expect(homeSource).toContain("enrichedSelectedMovement={enrichedSelectedMovement}");
+    expect(homeSource).toContain("selectedMovement={selectedMovement}");
+  });
+
   it("does not restore the duplicate cramped legacy catalog grid", () => {
     expect(homeSource).not.toContain('300 tools.<br /><em className="text-[#e4512e]">Mapped on purpose.</em>');
     expect(homeSource).not.toContain('className="mt-5 grid gap-2 md:grid-cols-2 xl:grid-cols-3">{filteredCatalog.map');

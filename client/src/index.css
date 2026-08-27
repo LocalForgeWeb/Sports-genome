@@ -563,3 +563,31 @@ select {
   .planner-float { bottom: calc(5.6rem + env(safe-area-inset-bottom, 0px)); }
   .feature-guide-button { bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
 }
+
+.genome-action-connection { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 1rem; margin: 1rem 0; border: 1px solid #ceddec; border-left: 3px solid #2d6cdf; border-radius: .85rem; background: #f7fbff; padding: .95rem 1rem; }
+.genome-action-connection-label { display: inline-flex; align-items: center; min-height: 1.65rem; border-radius: 999px; padding: .2rem .55rem; font-size: .62rem; font-weight: 800; letter-spacing: .07em; line-height: 1; text-transform: uppercase; }
+.genome-action-connection-direct-support { background: #fff0ea; color: #b64126; }
+.genome-action-connection-supporting-link { background: #fff8e5; color: #87600c; }
+.genome-action-connection-not-mapped { background: #eaf1f7; color: #506d84; }
+@media (max-width: 640px) { .genome-action-connection { grid-template-columns: 1fr; gap: .65rem; padding: .85rem; } }
+
+/* The prior inline Genome selector remains in source only during staged migration; the reusable workspace is canonical. */
+@supports selector(section:has(.genome-selector-row)) { .apex-content > section:has(.genome-selector-row) { display: none; } }
+.genome-selector-row-v2 { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr) 1rem; align-items: center; width: 100%; min-height: 4.8rem; gap: .7rem; border-bottom: 1px solid rgb(255 255 255 / .1); padding: .7rem .75rem; color: #c6d7e9; text-align: left; transition: background .16s var(--ease-out), box-shadow .16s var(--ease-out); }
+.genome-selector-row-v2:hover { background: rgb(57 116 186 / .18); }
+.genome-selector-row-v2:focus-visible { outline: 2px solid #f2c14d; outline-offset: -2px; }
+.genome-selector-row-v2-active { background: rgb(45 108 223 / .25); box-shadow: inset 3px 0 0 #f2c14d; }
+.genome-selector-connection { display: inline-flex; max-width: 100%; align-items: center; margin-top: .35rem; border-radius: 999px; padding: .16rem .42rem; font-size: .56rem; font-weight: 800; letter-spacing: .045em; line-height: 1; text-transform: uppercase; white-space: nowrap; }
+.genome-selector-connection i { overflow: hidden; margin-left: .18rem; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.genome-selector-connection-direct-support { background: rgb(228 81 46 / .24); color: #ffb9a5; }
+.genome-selector-connection-supporting-link { background: rgb(242 193 77 / .2); color: #ffe09a; }
+.genome-selector-connection-not-mapped { background: rgb(177 202 225 / .14); color: #b7cce0; }
+@media (max-width: 640px) { .genome-selector-row-v2 { min-height: 5.35rem; grid-template-columns: 2.15rem minmax(0, 1fr) .85rem; padding: .75rem .85rem; } .genome-selector-connection { max-width: min(100%, 17rem); } }
+
+.inspection-action-connection-float { position: fixed; z-index: 51; right: 1rem; bottom: 1rem; width: min(672px, calc(100vw - 2rem)); }
+.inspection-action-connection { display: grid; grid-template-columns: minmax(0, .65fr) minmax(0, 1.35fr); gap: 1rem; border: 1px solid #2c5682; border-left: 3px solid #f2c14d; border-radius: .9rem; background: rgb(11 34 64 / .97); box-shadow: 0 18px 44px rgb(5 20 40 / .42); padding: .95rem 1rem; }
+.inspection-action-connection-label { display: inline-flex; min-height: 1.7rem; align-items: center; border-radius: 999px; padding: .2rem .55rem; font-size: .62rem; font-weight: 800; letter-spacing: .07em; line-height: 1; text-transform: uppercase; }
+.inspection-action-connection-direct-support { background: rgb(228 81 46 / .26); color: #ffbdab; }
+.inspection-action-connection-supporting-link { background: rgb(242 193 77 / .22); color: #ffe19b; }
+.inspection-action-connection-not-mapped { background: rgb(174 202 225 / .15); color: #cadceb; }
+@media (max-width: 1023px) { .inspection-action-connection-float { right: .85rem; bottom: calc(5.35rem + env(safe-area-inset-bottom, 0px)); left: .85rem; width: auto; } .inspection-action-connection { grid-template-columns: 1fr; gap: .7rem; padding: .85rem; } }

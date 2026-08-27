@@ -1,9 +1,11 @@
 import React, { createElement } from "react";
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
+const source = readFileSync(new URL("./ExerciseGenomePanel.tsx", import.meta.url), "utf8");
 
 vi.mock("react", async () => {
   const actual = await vi.importActual<typeof import("react")>("react");
@@ -28,6 +30,12 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
 
     expect(genomeTermInfo.contextualFit.inputs).toContain("current workout");
     expect(genomeTermInfo.contextualFit.read).toContain("not a laboratory measurement");
+  });
+
+  it("uses the shared selected-action mapping helper and clearly bounds the connection claim", () => {
+    expect(source).toContain("getExerciseActionConnection(exercise, enrichedMovement)");
+    expect(source).toContain("Selected-action mapping");
+    expect(source).toContain("catalog mapping and gym-support signal, not evidence of direct skill or performance transfer");
   });
 
   it("renders evidence tier, causal mechanics input summary, and uncertainty in the Muscle Genome UI", async () => {

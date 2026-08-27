@@ -7,5 +7,6 @@ describe("catalog inspection evidence route", () => {
 
     expect(source).toContain("<ExerciseGenomePanel exercise={inspectedExercise}");
     expect(source).toContain("{inspectedExercise && <div className=\"fixed inset-0");
+    expect(source).toContain("<SelectedActionConnectionCard exercise={inspectedExercise}");
   });
 });
