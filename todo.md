@@ -84,6 +84,8 @@
 
 - [x] Audit the reported mobile drawer against the live build for legacy Gym Optimizer logo assets, neon-green active states, old account labels, and theme-token overrides.
 - [x] Replace remaining legacy drawer branding and active-state styling with the official Sports Genome icon, navy/bone/gold/vermilion system, and accessible active indication.
+- [ ] Remove residual athlete-facing neon-green accent classes from Home and Exercise Genome surfaces, retaining navy, bone, gold, vermilion, and workflow-blue semantics.
+- [ ] Replace remaining legacy neon utility classes with explicit Sports Genome palette tokens and prove their removal with a focused source audit.
 - [ ] Repair any confirmed mobile drawer slider, scroll, close, or destination-activation failure and add focused regression coverage.
 - [ ] Capture the current mobile drawer at an iPhone width and verify logo, active styling, navigation, scroll behavior, and safe-area controls before publication.
 

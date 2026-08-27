@@ -70,6 +70,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain('setSessionMode(true)');
     expect(source).toContain('document.querySelector(".day-design-rail")?.scrollIntoView');
     expect(source).toContain('document.querySelector(".workout-health-panel")?.scrollIntoView');
+    expect(source).toContain('const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);');
+    expect(source).toContain('if (!sessionMode || !loggerScrollRequest) return;');
     expect(source).toContain('Log a test');
     expect(source).toContain('Open Body Lab');
     expect(source).toContain('Find exercises');
@@ -85,7 +87,10 @@ describe("workspace side navigation", () => {
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
     expect(css).toContain('.apex-content { padding-bottom: calc(10.25rem');
     expect(css).toContain('.mobile-workspace-dock { position: fixed;');
+    expect(css).toContain('.mobile-workspace-actions button { min-height: 2.75rem;');
     expect(css).toContain('.planner-float { bottom: calc(5.6rem');
+    expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');
+    expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');
   });
 
   it("uses compact, individually truncatable sport, goal, and weekly-plan context chips in the workspace header", () => {

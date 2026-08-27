@@ -577,6 +577,11 @@ select {
 .rail-brand img { display: block !important; filter: none !important; }
 .rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }
 
+/* Legacy green utility classes are mapped to the official gold secondary signal. */
+.text-\[\#b8ff5b\] { color: #f2c14d !important; }
+.hover\:border-\[\#b8ff5b\]:hover { border-color: #f2c14d !important; }
+.hover\:bg-\[\#b8ff5b\]:hover { background-color: #f2c14d !important; }
+
 .genome-action-connection { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 1rem; margin: 1rem 0; border: 1px solid #ceddec; border-left: 3px solid #2d6cdf; border-radius: .85rem; background: #f7fbff; padding: .95rem 1rem; }
 .genome-action-connection-label { display: inline-flex; align-items: center; min-height: 1.65rem; border-radius: 999px; padding: .2rem .55rem; font-size: .62rem; font-weight: 800; letter-spacing: .07em; line-height: 1; text-transform: uppercase; }
 .genome-action-connection-direct-support { background: #fff0ea; color: #b64126; }
