@@ -32,13 +32,13 @@ describe("Body Lab architecture mechanics disclosure", () => {
     const { VectorAnatomyFallback } = await import("./AnatomyMap");
     const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {
       view: "FRONT",
-      ranked: [{ key: "chest", label: "Pectoralis major", score: 90 }],
+      ranked: [{ key: "chest", label: "Pectoralis major", role: "Primary" }],
       onSelect: vi.fn(),
       onRetry: vi.fn(),
     }));
 
     expect(markup).toContain("Vector anatomy fallback");
-    expect(markup).toContain("Pectoralis major · 90%");
+    expect(markup).toContain("Pectoralis major · Primary role");
     expect(markup).toContain("Retry detailed anatomy chart");
   });
 

@@ -84,8 +84,8 @@ export function muscleScoreIntensity(score: number | undefined, fallback: number
   return Math.max(2, Math.min(10, Math.round(score / 10)));
 }
 
-export function VectorAnatomyFallback({ view, ranked, onSelect, onRetry }: { view: "FRONT" | "BACK"; ranked: { key: string; label: string; score?: number; role: Role }[]; onSelect: (key: string) => void; onRetry: () => void }) {
-  return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[#f6fafc] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your worked-muscle list and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[10px] font-bold text-[#173d69] transition-colors hover:border-[#2d6cdf] hover:text-[#2d6cdf]">{region.label} · {region.score == null ? `${region.role} role` : `${region.score}%`}</button>)}</div><button onClick={onRetry} className="mt-4 text-[10px] font-bold uppercase tracking-[.08em] text-[#2d6cdf] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
+export function VectorAnatomyFallback({ view, ranked, onSelect, onRetry }: { view: "FRONT" | "BACK"; ranked: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[]; onSelect: (key: string) => void; onRetry: () => void }) {
+  return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[#f6fafc] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your relevant-muscle roles and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[10px] font-bold text-[#173d69] transition-colors hover:border-[#2d6cdf] hover:text-[#2d6cdf]">{region.label} · {region.roles?.join(" / ") || `${region.role || "Relevant"} role`}</button>)}</div><button onClick={onRetry} className="mt-4 text-[10px] font-bold uppercase tracking-[.08em] text-[#2d6cdf] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
 }
 
 export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
@@ -113,38 +113,33 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
       });
     };
 
-    const modelIntensity = (key: string, fallback: number) => muscleScoreIntensity(muscleScores?.[key], fallback);
-
-    // Primary muscles: intensity follows supplied whole-stack exposure when available.
+    // Categorical role color is intentionally separate from any relative exercise/stack index.
     Object.keys(keyToIds).forEach(key => {
       if (matches(key, primary)) {
-        const intensity = modelIntensity(key, 9);
-        if (intensity > 0) applyKey(key, intensity);
+        applyKey(key, 9);
       }
     });
-    // Secondary/synergist muscles use their own whole-stack exposure when available.
     Object.keys(keyToIds).forEach(key => {
       if (!matches(key, primary) && matches(key, secondary)) {
-        const intensity = modelIntensity(key, 6);
-        if (intensity > 0) applyKey(key, intensity);
+        applyKey(key, 6);
       }
     });
 
     return state;
-  }, [primary, secondary, selectedKey, muscleScores]);
+  }, [primary, secondary, selectedKey]);
 
   /* Ranked muscles for the strip */
   const ranked = useMemo(() => {
-    const entries: { key: string; label: string; score?: number; role: Role }[] = [];
+    const entries: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[] = [];
     Object.keys(keyToIds).forEach(key => {
-      if (matches(key, primary) && (muscleScores?.[key] == null || muscleScores[key] > 0)) {
-        entries.push({ key, label: labels[key] || key, score: muscleScores?.[key], role: "Primary" });
-      } else if (matches(key, secondary) && (muscleScores?.[key] == null || muscleScores[key] > 0)) {
-        entries.push({ key, label: labels[key] || key, score: muscleScores?.[key], role: "Synergist" });
+      if (matches(key, primary)) {
+        entries.push({ key, label: labels[key] || key, role: "Primary", roles: roleDetails?.[key]?.roles, confidence: roleDetails?.[key]?.confidence || "Low-confidence inference" });
+      } else if (matches(key, secondary)) {
+        entries.push({ key, label: labels[key] || key, role: "Synergist", roles: roleDetails?.[key]?.roles, confidence: roleDetails?.[key]?.confidence || "Low-confidence inference" });
       }
     });
-    return entries.sort((a, b) => (b.score ?? (b.role === "Primary" ? 2 : 1)) - (a.score ?? (a.role === "Primary" ? 2 : 1))).slice(0, 8);
-  }, [primary, secondary, muscleScores]);
+    return entries.sort((a, b) => (b.role === "Primary" ? 2 : 1) - (a.role === "Primary" ? 2 : 1)).slice(0, 8);
+  }, [primary, secondary, roleDetails]);
   const filteredRanked = ranked.filter(region => !query || region.label.toLowerCase().includes(query.toLowerCase()));
   const visibleRanked = showAllRanked ? filteredRanked : filteredRanked.slice(0, 5);
   const hiddenRankedCount = Math.max(0, filteredRanked.length - visibleRanked.length);
@@ -200,7 +195,6 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   const selectedRole: Role | null = selectedKey ? (matches(selectedKey, primary) ? "Primary" : "Synergist") : null;
   const selectedRoleDetail = selectedKey ? roleDetails?.[selectedKey] : undefined;
   const selectedMechanics = selectedKey ? getAnatomyMechanicsEvidence(selectedKey) : null;
-  const hasCalculatedMuscleScores = Object.values(muscleScores || {}).some((score) => score > 0);
 
   return (
     <section className="anatomy-atlas-pro">
@@ -244,7 +238,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
 
           {/* Heat legend */}
           <div className="atlas-heat-legend-pro">
-            {hasCalculatedMuscleScores ? <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Low</span><i className="atlas-swatch" style={{ background: "#f5a13d" }} /><span>Medium</span><i className="atlas-swatch" style={{ background: "#f46933" }} /><span>High</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></> : <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "#f5a13d" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></>}
+            <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "#d5ad43" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></>
           </div>
 
         </div>
@@ -288,9 +282,9 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
           <div><p className="metric-label">Key muscle roles</p><span>Click a row to focus it on the model. Expand only when you need the lower-ranked relevant muscles.</span></div>
           {visibleRanked.map(region => (
             <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""}>
-              <i className="atlas-rank-dot" style={{ background: region.score == null ? (region.role === "Primary" ? "#e4512e" : "#d5ad43") : heatSolid(region.score) }} />
+              <i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : "#d5ad43" }} />
               <span>{region.label}</span>
-              {region.score == null ? <em>{region.role} role</em> : <><em>{region.score}%</em><b className="atlas-rank-bar"><i style={{ width: `${region.score}%`, background: heatSolid(region.score) }} /></b></>}
+              <em>{region.roles?.join(" · ") || `${region.role} role`} · {region.confidence}</em>
             </button>
           ))}
           {filteredRanked.length > 5 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer muscle roles" : `Show ${hiddenRankedCount} more muscle role${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
