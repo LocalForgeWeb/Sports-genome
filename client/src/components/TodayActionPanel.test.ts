@@ -9,7 +9,11 @@ describe("Today action panel", () => {
     expect(source).toContain("trpc.strengthGenome.overview.useQuery()");
     expect(source).toContain("trpc.workoutLog.list.useQuery()");
     expect(source).toContain("athlete-selected weekly rhythm");
-    expect(source).not.toContain("readiness score");
+    expect(source).not.toContain("Session readiness");
+    expect(source).not.toContain("coach-set planning marker");
+    expect(source).toContain("Weekly plan rhythm");
+    expect(source).toContain("not a completion or readiness score");
+    expect(source).toContain("today-rhythm-planned");
   });
 
   it("mounts at Home with direct Training Day and Strength Genome actions", () => {

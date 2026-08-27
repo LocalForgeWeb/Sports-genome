@@ -599,6 +599,11 @@ select {
 .today-action-cta { display: inline-flex; min-height: 2.9rem; flex: none; align-items: center; gap: .5rem; border-radius: .75rem; background: #e4512e; padding: .65rem .85rem; color: #fff; font-size: .66rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; transition: transform .16s var(--ease-out), background .16s var(--ease-out); }
 .today-action-cta:hover { background: #f0643f; transform: translateY(-1px); }
 .today-action-cta:active { transform: scale(.97); }
+.today-action-rhythm { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem 1rem; border-top: 1px solid rgb(255 255 255 / .12); background: #0d2848; padding: .65rem 1.4rem; color: #9db8d0; font-size: .61rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.today-action-rhythm > div { display: flex; gap: .35rem; }
+.today-action-rhythm i { display: grid; height: 1.45rem; width: 1.45rem; place-items: center; border: 1px solid rgb(170 199 224 / .34); border-radius: 999px; color: #8faec9; font-size: .56rem; font-style: normal; }
+.today-action-rhythm i.today-rhythm-planned { border-color: #f2c14d; background: rgb(242 193 77 / .16); color: #ffe29a; }
+.today-action-rhythm small { margin-left: auto; color: #7f9cb7; font-size: .55rem; letter-spacing: .035em; text-transform: none; }
 .today-action-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; border-top: 1px solid rgb(255 255 255 / .12); background: rgb(255 255 255 / .12); }
 .today-action-facts > div, .today-action-facts > button { display: flex; min-width: 0; align-items: center; gap: .7rem; background: #102d50; padding: .9rem 1.1rem; color: #c8d9e8; text-align: left; }
 .today-action-facts > button { transition: background .16s var(--ease-out); }
@@ -607,4 +612,4 @@ select {
 .today-action-facts strong { overflow: hidden; color: #fff; font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
 .today-action-facts span { color: #9db8d0; font-size: .61rem; line-height: 1.25; }
 .today-action-facts > button > svg:last-child { margin-left: auto; flex: none; color: #f2c14d; }
-@media (max-width: 640px) { .today-action-primary { align-items: stretch; flex-direction: column; gap: 1.1rem; padding: 1.15rem; } .today-action-cta { justify-content: center; } .today-action-facts { grid-template-columns: 1fr; } .today-action-facts > div, .today-action-facts > button { min-height: 3.45rem; padding: .8rem 1rem; } }
+@media (max-width: 640px) { .today-action-primary { align-items: stretch; flex-direction: column; gap: 1.1rem; padding: 1.15rem; } .today-action-cta { justify-content: center; } .today-action-rhythm { align-items: flex-start; flex-direction: column; gap: .55rem; padding: .75rem 1.15rem; } .today-action-rhythm small { margin-left: 0; } .today-action-facts { grid-template-columns: 1fr; } .today-action-facts > div, .today-action-facts > button { min-height: 3.45rem; padding: .8rem 1rem; } }
