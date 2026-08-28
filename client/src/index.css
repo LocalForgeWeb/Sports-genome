@@ -926,3 +926,19 @@ select {
 .hover\:bg-\[\#b8ff5b\]:hover { background-color: #f2c14d !important; }
 .hover\:text-\[\#142019\]:hover { color: #0b2240 !important; }
 .day-plan-empty button { border-color: #f2c14d; color: #f2c14d; }
+
+/* Body Lab inherits Explore’s discovery palette while the anatomy canvas stays neutral for clear muscle inspection. */
+.destination-explore .body-lab-navigator { border-color: rgb(164 200 232 / .34); background: linear-gradient(135deg, #102f53, #07182e); color: #edf7ff; }
+.destination-explore .body-lab-navigator strong, .destination-explore .body-lab-navigator label { color: #c3d7ea; }
+.destination-explore .body-lab-navigator select { border-color: rgb(164 200 232 / .42); background: #0b2240; color: #f7fbff; }
+.destination-explore .body-lab-navigator-actions button { border-color: rgb(164 200 232 / .42); background: rgb(255 255 255 / .055); color: #eaf5ff; }
+.destination-explore .body-lab-navigator-actions button:last-child { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
+.destination-explore .anatomy-atlas-pro { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, #102f53, #07182e); color: #edf7ff; box-shadow: 0 18px 42px rgb(1 12 28 / .2); }
+.destination-explore .atlas-pro-head, .destination-explore .atlas-pro-controls, .destination-explore .atlas-pro-inspector { border-color: rgb(164 200 232 / .22); }
+.destination-explore .atlas-pro-head h2, .destination-explore .atlas-view-label { color: #f7fbff; }
+.destination-explore .atlas-pro-head > p, .destination-explore .atlas-control-group > span, .destination-explore .atlas-threshold-pro, .destination-explore .atlas-reset-pro { color: #c3d7ea; }
+.destination-explore .atlas-pill-row button, .destination-explore .atlas-pro-search { border-color: rgb(164 200 232 / .35); background: rgb(255 255 255 / .055); color: #dcecf9; }
+.destination-explore .atlas-pill-row button.is-active { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
+.destination-explore .atlas-pro-search input { color: #f7fbff; }
+.destination-explore .atlas-role-methodology { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .055); color: #c3d7ea; }
+.destination-explore .atlas-role-methodology summary { color: #f2c14d; }
