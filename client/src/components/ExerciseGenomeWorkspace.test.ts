@@ -9,6 +9,7 @@ describe("Exercise Genome selected-action selector", () => {
     expect(source).toContain("genome-selector-connection");
     expect(source).toContain("connection.label");
     expect(source).toContain("selectedMovement.label");
+    expect(source).toContain("genome-selector-connection-${connection.label.toLowerCase().replace(/\\s+/g, \"-\")}");
     expect(source).toContain("ExerciseGenomePanel exercise={selectedExercise}");
   });
 });

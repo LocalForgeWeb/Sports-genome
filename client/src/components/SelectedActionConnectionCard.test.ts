@@ -9,6 +9,7 @@ describe("inspected exercise selected-action connection", () => {
     expect(source).toContain("getExerciseActionConnection(exercise, enrichedSelectedMovement)");
     expect(source).toContain("selectedMovement.label");
     expect(source).toContain("connection.label");
+    expect(source).toContain("inspection-action-connection-${connection.label.toLowerCase().replace(/\\s+/g, \"-\")}");
     expect(source).toContain("catalog mapping and gym-support signal, not evidence of direct skill or performance transfer");
     expect(home).toContain("<SelectedActionConnectionCard exercise={inspectedExercise}");
   });

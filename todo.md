@@ -270,7 +270,7 @@
 - [x] Audit existing exercise-to-movement transfer, sport-fit, and selected-action data available to catalog and Exercise Genome surfaces.
 - [x] Add compact Direct support, Supporting link, or No mapped link indicators to exercise result rows for the selected sport action.
 - [x] Add the connection explanation and supported movement rationale to the selected-exercise detail without fabricating transfer certainty.
-- [ ] Add regression coverage and validate readable indicators across the mobile full-width catalog list and exercise detail.
+- [x] Add regression coverage and validate readable indicators across the mobile full-width catalog list and exercise detail.
 - [x] Remove the duplicate legacy Exercise Catalog grid from Home.tsx so mobile always renders the canonical full-width Catalog Discovery list.
 - [x] Mirror the selected-action Direct support, Supporting link, or Not mapped indicator into the Exercise Genome selector rows shown in the reported screen.
 - [x] Show the selected-action connection explanation in the opened exercise detail and Exercise Genome context without fabricating sport-transfer certainty.

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const homeSource = readFileSync(resolve(import.meta.dirname, "Home.tsx"), "utf8");
 const catalogSource = readFileSync(resolve(import.meta.dirname, "../components/CatalogDiscoveryPanel.tsx"), "utf8");
+const catalogStyles = readFileSync(resolve(import.meta.dirname, "../catalog-discovery.css"), "utf8");
 
 describe("canonical connected exercise catalog", () => {
   it("uses Catalog Discovery with the selected sport-action connection helper", () => {
@@ -17,6 +18,15 @@ describe("canonical connected exercise catalog", () => {
     expect(homeSource).toContain("<ExerciseGenomeWorkspace exercises={filteredCatalog}");
     expect(homeSource).toContain("enrichedSelectedMovement={enrichedSelectedMovement}");
     expect(homeSource).toContain("selectedMovement={selectedMovement}");
+  });
+
+  it("keeps the mobile full-width catalog connection states visible and visually distinct without presenting them as performance ratings", () => {
+    expect(catalogSource).toContain("connection.label}{selectedActionLabel ? ` · ${selectedActionLabel}` : \"\"}");
+    expect(catalogStyles).toContain(".catalog-action-link-direct-support");
+    expect(catalogStyles).toContain(".catalog-action-link-supporting-link");
+    expect(catalogStyles).toContain(".catalog-action-link-not-mapped");
+    expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
+    expect(catalogStyles).toContain(".catalog-action-link { display: inline-flex; width: fit-content; max-width: 100%;");
   });
 
   it("does not restore the duplicate cramped legacy catalog grid", () => {
