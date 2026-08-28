@@ -247,7 +247,7 @@
 - [x] Add regression and phone-width validation for the sport-change, action-link-filter, and contrast corrections before publication.
 - [x] Reset stale Catalog query and filters after a sport change so exercise discovery starts clean for the new athlete context.
 - [x] Hide non-actionable Not mapped labels from Catalog rows while retaining no-mapping context in opened exercise detail.
-- [ ] Reduce initial-load cost by lazy-loading appropriate Explore-only workspaces without changing direct-access navigation or evidence behavior.
+- [x] Reduce initial-load cost by lazy-loading appropriate Explore-only workspaces without changing direct-access navigation or evidence behavior.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
 - [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.

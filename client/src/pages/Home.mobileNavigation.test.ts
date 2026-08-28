@@ -158,6 +158,15 @@ describe("workspace side navigation", () => {
     expect(source).toContain('className={active ? "workspace-top-switcher-active" : ""}');
   });
 
+  it("defers isolated Explore presentation workspaces from the initial planning shell", () => {
+    expect(source).toContain('const MovementAtlasPanel = lazy(() => import("@/components/MovementAtlasPanel")');
+    expect(source).toContain('const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator")');
+    expect(source).toContain('const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPanel")');
+    expect(source).toContain('const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel")');
+    expect(source).toContain('const ExerciseGenomeWorkspace = lazy(() => import("@/components/ExerciseGenomeWorkspace")');
+    expect(source).toContain('Preparing this workspace…');
+  });
+
   it("removes duplicate mobile Training Day shortcuts while keeping dedicated Tracker and Builder destinations reachable", () => {
     expect(trainingDayStyles).toContain('.day-design-import { display: none; }');
     expect(trainingDayStyles).toContain('.day-active-actions button:nth-child(1), .day-active-actions button:nth-child(2) { display: none; }');
