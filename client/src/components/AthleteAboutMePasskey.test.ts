@@ -45,4 +45,9 @@ describe("AthleteAboutMePanel passkey management", () => {
     expect(source).toContain('emitInteractionFeedback(); onBaseline({ ...baseline, equipment: { gymAccess, availableEquipment: gymAccessProfiles[gymAccess] } });');
     expect(source).not.toContain('Your current workout was retained for review');
   });
+
+  it("keeps the Profile hero concise while preserving its planning-only, non-rating boundary", () => {
+    expect(source).toContain("Planning context only — editable inputs that guide stack availability, not health or ability ratings.");
+    expect(source).not.toContain("These inputs shape planning context and automatic stack availability.");
+  });
 });
