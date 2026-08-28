@@ -1,5 +1,7 @@
 export type LogicValueKind = "source-backed anchor" | "planning estimate" | "product constraint" | "athlete-entered value";
 
+export type LogicCalibrationGroup = "sportDemand" | "recommendation" | "movementProgramAnalysis" | "workoutRedundancy" | "exerciseGenome" | "fingerprint" | "targeting" | "exposure" | "progression" | "segmentProgress" | "workoutReview" | "mobility";
+
 export type LogicTraceabilityEntry = {
   id: string;
   surface: string;
@@ -7,6 +9,7 @@ export type LogicTraceabilityEntry = {
   rationale: string;
   sourceUrls?: readonly string[];
   athleteBoundary: string;
+  calibrationGroups?: readonly LogicCalibrationGroup[];
 };
 
 const sources = {
@@ -286,6 +289,7 @@ export const evidenceTraceability: readonly LogicTraceabilityEntry[] = [
     rationale: "Population-level resistance-training evidence informs the available planning ranges; the app keeps them editable and does not treat them as personal optima.",
     sourceUrls: [sources.resistancePrescription, sources.hypertrophyLoadRange],
     athleteBoundary: "A planning anchor is not a required dose, individual response prediction, or health assessment.",
+    calibrationGroups: ["workoutReview", "mobility"],
   },
   {
     id: "rpe-log-context",
@@ -302,6 +306,7 @@ export const evidenceTraceability: readonly LogicTraceabilityEntry[] = [
     rationale: "Comparable-session count, trend, and high-effort guards make a conservative suggestion workflow possible without treating a short log as a physiological test.",
     sourceUrls: [sources.rpeRir],
     athleteBoundary: "Progression guards trigger review or an athlete-approved note; they do not prescribe a mandatory load change or diagnose recovery.",
+    calibrationGroups: ["progression", "segmentProgress"],
   },
   {
     id: "relative-model-calibration",
@@ -310,6 +315,7 @@ export const evidenceTraceability: readonly LogicTraceabilityEntry[] = [
     rationale: "Named calibration constants stabilize relative ordering across catalog records where studies support factors and boundaries but not a universal composite score.",
     sourceUrls: [sources.mechanicsUncertainty, sources.coContractionBoundary],
     athleteBoundary: "Relative model values compare configured catalog context only; they are not EMG, force, readiness, injury risk, or guaranteed transfer measurements.",
+    calibrationGroups: ["sportDemand", "recommendation", "movementProgramAnalysis", "workoutRedundancy", "exerciseGenome", "fingerprint", "targeting", "exposure"],
   },
   {
     id: "schedule-and-interface-constraints",

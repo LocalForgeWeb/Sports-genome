@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evidenceTraceability, logicCalibration } from "./evidenceTraceability";
+import { evidenceTraceability, logicCalibration, type LogicCalibrationGroup } from "./evidenceTraceability";
 
 describe("evidence-to-logic traceability", () => {
   it("gives every registered logic family a purpose, boundary, and source or product rationale", () => {
@@ -19,6 +19,14 @@ describe("evidence-to-logic traceability", () => {
     expect(logicCalibration.movementProgramAnalysis.closelySimilarMuscleOverlap).toBeGreaterThan(logicCalibration.movementProgramAnalysis.sameMovementMuscleOverlap);
     expect(logicCalibration.recommendation.assistanceFallbackLimit).toBeGreaterThan(logicCalibration.recommendation.assistanceLimit);
     expect(logicCalibration.fingerprint.fatigueStrengthThreshold).toBeGreaterThan(logicCalibration.exerciseGenome.contextualGradeB);
+  });
+
+  it("links every named calibration family to an explicit evidence or planning boundary", () => {
+    const registeredGroups = evidenceTraceability.flatMap((entry) => entry.calibrationGroups || []);
+    const calibrationGroups = Object.keys(logicCalibration) as LogicCalibrationGroup[];
+    expect([...new Set(registeredGroups)].sort()).toEqual([...calibrationGroups].sort());
+    expect(registeredGroups).toEqual(expect.arrayContaining(["workoutReview", "mobility", "progression", "segmentProgress", "targeting", "exposure"]));
+    expect(evidenceTraceability.find((entry) => entry.id === "relative-model-calibration")?.athleteBoundary).toContain("not EMG, force, readiness");
   });
 
   it("keeps external strength references separate, qualified, and unavailable when their source conditions do not match", () => {
