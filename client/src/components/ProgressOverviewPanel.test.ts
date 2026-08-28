@@ -14,12 +14,12 @@ describe("Progress overview", () => {
     expect(source).toContain("Your completed sessions.");
     expect(source).toContain("b.completedAt.getTime() - a.completedAt.getTime()");
     expect(source).toContain('session.storage === "device" ? "Device" : "Account"');
-    expect(source).toContain("Sports Genome will not create a progress story from missing data.");
+    expect(source).toContain("No comparable change yet.");
     expect(source).toContain("summarizeWithinAthleteStrengthComparisons(observations.data || [])");
-    expect(source).toContain("Recorded load change");
-    expect(source).toContain("not an estimated strength change or population comparison");
-    expect(source).toContain("Comparison withheld");
-    expect(source).toContain("No load-change card is shown until the same setup is repeated.");
+    expect(source).toContain("Recorded change");
+    expect(source).toContain("not a population comparison or estimated strength score");
+    expect(source).toContain("comparison");
+    expect(source).toContain("withheld because the recorded setup differs");
     expect(source).not.toContain("readiness score");
     expect(source).not.toContain("Personal record");
   });

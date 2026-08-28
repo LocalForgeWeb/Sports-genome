@@ -56,6 +56,8 @@
 - [ ] Reduce broad white surfaces by giving Train a deep operational navy theme and Tracker a focused dark execution theme.
 - [ ] Give Explore a layered blue discovery-lab theme, Progress a dark measured-review theme, Profile a personal-control theme, and More a compact utility theme.
 - [ ] Establish accessible dark-surface typography, panel, divider, and interaction tokens so the destination themes remain cohesive and readable.
+- [x] Reduce repeated Progress empty-state and methodology copy to concise recorded-status cards with one relevant next action.
+- [x] Retain comparison-condition explanation in an optional disclosure rather than the default Progress canvas.
 - [x] Make Training Day a planning-only workspace for building, selecting, reviewing, and rating saved training days.
 - [x] Make Tracker a distinct execution workspace where athletes select a saved day and enter completed weight, repetitions, optional effort, and completion state.
 - [x] Feed completed tracker records into Progress as recorded session data, without showing planned stack diagnostics as execution history.

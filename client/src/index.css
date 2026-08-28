@@ -772,6 +772,26 @@ select {
 .destination-more .more-workspace-actions button { border-color: rgb(164 200 232 / .48); color: #eaf5ff; }
 .destination-more .more-workspace-actions button:first-child { background: #f2c14d; color: #07182e; }
 
+/* Progress is a quiet review surface: recorded work first, comparison method only on request. */
+.destination-progress .progress-review { color: #eef7ff; }
+.destination-progress .progress-review-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgb(164 200 232 / .22); padding: .4rem .2rem 1rem; }
+.destination-progress .progress-stat-card, .destination-progress .progress-records, .destination-progress .progress-comparison-card { border: 1px solid rgb(143 190 237 / .24); background: linear-gradient(140deg, rgb(16 51 88 / .94), rgb(7 27 53 / .96)); box-shadow: 0 16px 38px rgb(0 9 25 / .18); }
+.destination-progress .progress-stat-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .85rem; padding: 1.15rem; }
+.destination-progress .progress-text-action { grid-column: 1 / -1; display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: .5rem; border: 1px solid rgb(164 200 232 / .45); color: #eaf5ff; font-size: .68rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+.destination-progress .progress-text-action:hover { border-color: #f2c14d; color: #f9db83; }
+.destination-progress .progress-records, .destination-progress .progress-comparison-card { padding: 1.15rem; }
+.destination-progress .progress-section-head { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
+.destination-progress .progress-section-head h2 { margin-top: .32rem; color: #fff; font-family: "Barlow Condensed", sans-serif; font-size: clamp(1.85rem, 5vw, 2.6rem); font-weight: 800; line-height: .88; text-transform: uppercase; }
+.destination-progress .progress-section-head > span { color: #a8c8e6; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.destination-progress .progress-session-card { position: relative; border: 1px solid rgb(164 200 232 / .24); background: rgb(255 255 255 / .055); padding: .9rem; }
+.destination-progress .progress-session-card > p { color: #f8fbff; font-size: .92rem; font-weight: 800; }
+.destination-progress .progress-session-card > strong { display: block; margin-top: .55rem; color: #f2c14d; font-family: "Barlow Condensed", sans-serif; font-size: 2rem; line-height: .9; }
+.destination-progress .progress-session-card small { display: block; margin-top: .3rem; color: #b9d2e9; font-size: .7rem; line-height: 1.45; }
+.destination-progress .progress-session-card > span { position: absolute; top: .75rem; right: .75rem; color: #87b9ea; font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.destination-progress .progress-empty-copy, .destination-progress .progress-method-note { margin-top: .9rem; border-left: 2px solid #f2c14d; padding: .6rem .75rem; color: #c6d9eb; font-size: .78rem; line-height: 1.5; }
+.destination-progress .progress-disclosure { display: inline-flex; min-height: 38px; align-items: center; gap: .4rem; color: #b9d7f5; font-size: .65rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.destination-progress .progress-disclosure:hover { color: #f2c14d; }
+
 /* Home is the command environment: dark decision cards with gold action signals. */
 .apex-content.destination-command { background: radial-gradient(circle at 82% 8%, #1d4c84 0, #0b2240 38%, #07182e 78%); color: #edf7ff; }
 .destination-command .command-hero .metric-label, .destination-command .command-hero em, .destination-command .command-signal-card .metric-label, .destination-command .command-signal-card button, .destination-command .dark-panel > div > div > button { color: #f2c14d !important; }
