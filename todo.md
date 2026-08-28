@@ -127,6 +127,8 @@
 - [x] Validate the smoother silent intro at phone and browser width without extending its brief launch duration or weakening fallback behavior.
 - [x] Profile and remove remaining video-intro motion bottlenecks that cause a choppy startup on constrained phones.
 - [x] Verify the corrected silent launch under constrained phone performance while preserving reduced-motion and fallback paths.
+- [x] Retain the smooth staged logo-formation timing while shortening the post-logo hold and fading promptly into the workspace.
+- [x] Validate that the final boot-to-workspace transition is one continuous composited fade at phone and browser width.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.
