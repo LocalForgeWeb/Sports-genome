@@ -65,6 +65,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Boolean(selectedExercise)");
     expect(resolveStrengthObservationRoute("Straight Bar Curl")?.regionIds).toContain("biceps");
     expect(resolveStrengthObservationRoute("biceps curl")?.domainIds).toContain("elbow_flexion");
+    expect(resolveStrengthObservationRoute("Machine Preacher Curl")?.regionIds).toContain("biceps");
+    expect(resolveStrengthObservationRoute("Machine Preacher Curl")?.domainIds).toContain("elbow_flexion");
   });
 
   it("keeps each selected regional record distinct when choosing body-mass context", () => {
@@ -76,5 +78,15 @@ describe("Strength Genome panel", () => {
     expect(selectStrengthRegionRecord(records, "missing")).toEqual(records[0]);
     expect(source).toContain('aria-label="Choose recorded test"');
     expect(source).toContain("setSelectedRecordId(event.target.value)");
+  });
+
+  it("shows selected-region record history and makes missing source-qualified references explicit", () => {
+    expect(source).toContain('className="strength-region-history"');
+    expect(source).toContain("Recorded history ({records.length})");
+    expect(source).toContain('aria-pressed={String(record.id) === String(latestRecord.id)}');
+    expect(source).toContain("Population reference unavailable.");
+    expect(source).toContain("does not include every required source population and standardized protocol condition");
+    expect(source).toContain("No recorded test for this region yet.");
+    expect(source).not.toContain("regional percentile");
   });
 });

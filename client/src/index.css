@@ -724,6 +724,23 @@ select {
 .destination-train .device-workout-tracker .session-set-row button { border-color: rgb(164 200 232 / .45); background: rgb(255 255 255 / .09); color: #eef7ff; }
 .destination-train .device-workout-tracker .session-set-complete { border-left-color: #f2c14d; background: rgb(242 193 77 / .11); }
 
+.strength-region-history { margin-top: .75rem; border: 1px solid #d2e1ed; background: #f6faff; }
+.strength-region-history summary { display: flex; min-height: 2.8rem; align-items: center; padding: .65rem .8rem; color: #244b70; font-size: .68rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
+.strength-region-history > div { display: grid; gap: 1px; border-top: 1px solid #d8e6f1; background: #d8e6f1; }
+.strength-region-history button { display: grid; gap: .2rem; padding: .7rem .8rem; border-left: 3px solid transparent; background: #fff; color: #2b5377; text-align: left; }
+.strength-region-history button[aria-pressed="true"] { border-left-color: #e4512e; background: #fff6f2; }
+.strength-region-history button strong { color: #102947; font-size: .8rem; }
+.strength-region-history button span { color: #5d7891; font-size: .7rem; }
+.strength-reference-unavailable { margin-top: .75rem; border-left: 3px solid #f2c14d; background: #f7fbff; padding: .65rem .75rem; color: #476782; font-size: .73rem; line-height: 1.45; }
+.strength-reference-unavailable strong { color: #173d69; }
+.destination-explore .strength-region-history { border-color: rgb(164 200 232 / .24); background: rgb(9 33 61 / .84); }
+.destination-explore .strength-region-history summary, .destination-explore .strength-region-history button strong, .destination-explore .strength-reference-unavailable strong { color: #eff8ff; }
+.destination-explore .strength-region-history > div { border-top-color: rgb(164 200 232 / .16); background: rgb(164 200 232 / .16); }
+.destination-explore .strength-region-history button { background: rgb(255 255 255 / .05); color: #bdd5ea; }
+.destination-explore .strength-region-history button[aria-pressed="true"] { background: rgb(228 81 46 / .18); }
+.destination-explore .strength-region-history button span, .destination-explore .strength-reference-unavailable { color: #bdd5ea; }
+.destination-explore .strength-reference-unavailable { background: rgb(242 193 77 / .09); }
+
 .apex-content.destination-explore { background: radial-gradient(circle at 12% 10%, #d8edff 0, #eff7ff 30%, #cbdff4 100%); }
 .destination-explore .atlas-sport-picker, .destination-explore .movement-selector, .destination-explore .body-lab-v2 > .view-header, .destination-explore .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, #103b67, #0a274b); color: #eff8ff; box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
 .destination-explore .atlas-sport-picker *, .destination-explore .movement-selector h1, .destination-explore .body-lab-v2 > .view-header h1 { color: inherit; }
