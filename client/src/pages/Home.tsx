@@ -572,10 +572,10 @@ export default function Home() {
     toast("Draft loaded", { description: `${activeSplitDay} is now built with the ${activeLoadout} orientation.` });
   };
   const loadSmartDraft = () => {
-    setCustomWorkout(buildSmartDraftWorkout(sessionRecommendations));
-    setPrescriptions({});
-    setExerciseSettings({});
-    toast("Smart draft loaded", { description: "A diversified sport-aware session is ready for review." });
+	    setCustomWorkout(draftedLoadout);
+	    setPrescriptions({});
+	    setExerciseSettings({});
+	    toast("Smart draft loaded", { description: `A diversified ${activeSplitDay.toLowerCase()} session is ready for review.` });
   };
   const updateExerciseSettings = (exerciseId: number, patch: Partial<ExerciseSettings>) => setExerciseSettings((current) => ({ ...current, [exerciseId]: { ...getExerciseSettings(current, exerciseId), ...patch } }));
   useEffect(() => {

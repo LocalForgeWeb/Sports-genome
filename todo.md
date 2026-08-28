@@ -91,6 +91,8 @@
 
 ## iPhone-First Product Polish
 
+- [x] Correct Push-day automatic stack generation so lower-body-dominant and rotational exercises do not appear unless the athlete manually adds them.
+- [x] Make Push-day stack analysis grade and map only Push target muscles by default, with non-target involvement available separately as supporting context.
 - [x] Add a short silent Sports Genome first-entry animation with visible skip and replay behavior plus a Settings toggle to disable future launch animation.
 - [x] Ensure the launch experience does not initiate or require music/audio playback.
 - [x] Replace the Catalog’s oversized marketing headline and explanatory paragraph with a compact discovery header.

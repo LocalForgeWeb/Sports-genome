@@ -24,4 +24,10 @@ describe("Home sport state safeguards", () => {
     expect(source).not.toContain('toast("Sport context updated"');
     expect(source).not.toContain("Your current workout was retained for review");
   });
+
+  it("routes automatic Smart Draft through the active split-filtered loadout instead of the sport-wide session list", () => {
+    expect(source).toContain("setCustomWorkout(draftedLoadout);");
+    expect(source).not.toContain("setCustomWorkout(buildSmartDraftWorkout(sessionRecommendations))");
+    expect(source).toContain("${activeSplitDay.toLowerCase()} session is ready for review.");
+  });
 });

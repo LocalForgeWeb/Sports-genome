@@ -11,11 +11,15 @@ describe("Stack Analysis selected muscle", () => {
     expect(resolveStackMuscleSelection("chest", [])).toBe("");
   });
 
-  it("retains whole-stack relative involvement and contribution scores while keeping split-target scoring separate from measurement claims", () => {
-    expect(component).toContain("${item.involvement}%");
-    expect(component).toContain("{contribution.involvement}/100");
-    expect(component).toContain("This full-body list shows all involvement across the stack.");
-    expect(component).toContain("not from unrelated muscles");
-    expect(component).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
+  it("keeps the default analysis target-first while retaining optional non-target involvement as supporting context", () => {
+	    expect(component).toContain("${item.involvement}%");
+	    expect(component).toContain("{contribution.involvement}/100");
+	    expect(component).toContain('import { getSplitRequirements } from "@/lib/splitStackAnalysis"');
+	    expect(component).toContain("const targetAnalysis = useMemo(() => wholeStackAnalysis.filter");
+	    expect(component).toContain("const supportingAnalysis = useMemo(() => wholeStackAnalysis.filter");
+	    expect(component).toContain("Only {split.toLowerCase()} target muscles are shown and compared by default.");
+	    expect(component).toContain("Supporting involvement");
+	    expect(component).toContain("not used in the {split.toLowerCase()} target grade or default body map");
+	    expect(component).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });
 });

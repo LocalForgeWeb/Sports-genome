@@ -13,8 +13,8 @@ describe("analysis score semantics", () => {
     expect(genome).toContain("planning comparison, not a direct performance measurement");
     expect(stack).toContain("${item.involvement}%");
     expect(stack).toContain("{contribution.involvement}/100");
-    expect(stack).toContain("This full-body list shows all involvement across the stack.");
-    expect(stack).toContain("target index is calculated separately from the selected split targets");
+	    expect(stack).toContain("Only {split.toLowerCase()} target muscles are shown and compared by default.");
+	    expect(stack).toContain("not used in the {split.toLowerCase()} target grade or default body map");
     expect(stack).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });
 });
