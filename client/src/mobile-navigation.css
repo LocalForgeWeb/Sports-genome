@@ -21,10 +21,10 @@
 @keyframes mobile-disclosure-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 640px) {
-  .apex-topbar { min-height: 78px; align-items: stretch; padding: 9px 12px; }
+  .apex-topbar { min-height: 82px; align-items: stretch; padding: 9px 12px; }
   .apex-topbar > div { align-items: center; }
   .apex-topbar .metric-label { font-size: .7rem; letter-spacing: .1em; }
-  .topbar-brand-logo { width: 52px; height: 52px; }
+  .topbar-brand-logo { width: 56px; height: 56px; }
   .topbar-context-chips { flex-wrap: nowrap; gap: .3rem; max-width: calc(100vw - 6.8rem); margin-top: .22rem; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; scroll-snap-type: x proximity; }
   .topbar-context-chips::-webkit-scrollbar { display: none; }
   .topbar-context-chips span { flex: 0 0 auto; min-height: 1.6rem; max-width: none; padding: .26rem .52rem; font-size: .66rem; white-space: nowrap; scroll-snap-align: start; }

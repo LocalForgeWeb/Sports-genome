@@ -52,8 +52,8 @@ describe("workspace side navigation", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).not.toContain('setRailOpen');
     expect(source).toContain('<div className="mobile-workspace-dock" aria-label="Primary workspace navigation">');
-    expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');
-    expect(css).toContain('.topbar-brand-logo { width: 50px; height: 50px; object-fit: contain; }');
+    expect(source).toContain('className="topbar-brand-logo shrink-0 object-cover"');
+    expect(css).toContain('.topbar-brand-logo { width: 56px; height: 56px; border-radius: 999px;');
     expect(css).toContain('@media (min-width: 1024px) {\n  .apex-content { padding-bottom: 6.25rem; }');
   });
 
@@ -68,7 +68,7 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content.destination-more');
     expect(source).toContain('sports-genome-circular-header-badge_8450998e.jpg');
     expect(source).toContain('alt="Sports Genome circular badge"');
-    expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');
+    expect(source).toContain('className="topbar-brand-logo shrink-0 object-cover"');
     expect(source).toContain('className="topbar-context-chips"');
     expect(css).not.toContain('topbar-brand-logo { width: 50px; height: 50px; clip-path');
     expect(source).toContain('workspace === "more"');
@@ -144,7 +144,7 @@ describe("workspace side navigation", () => {
     expect(mobileStyles).toContain('.workspace-top-switcher { top: 78px; min-height: 54px;');
     expect(mobileStyles).toContain('overflow-x: auto; overscroll-behavior-x: contain;');
     expect(mobileStyles).toContain('.workspace-top-switcher button { min-width: max-content; min-height: 46px;');
-    expect(mobileStyles).toContain('.topbar-brand-logo { width: 52px; height: 52px; }');
+    expect(mobileStyles).toContain('.topbar-brand-logo { width: 56px; height: 56px; }');
     expect(css).toContain('.mobile-bottom-nav { display: none; }');
     expect(css).not.toContain('main > section:has(.custom-row) { display: none; }');
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
