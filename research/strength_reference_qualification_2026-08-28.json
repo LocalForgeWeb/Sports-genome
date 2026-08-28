@@ -1,0 +1,604 @@
+{
+  "results": [
+    {
+      "input": "1. van den Hoek et al. Normative data for squat, bench press and deadlift exercises in powerlifting: Data from 809,986 competition entries. Suggested use: raw unequipped drug-tested competition SBD relative strength.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age at competition, body mass at competition, maximum successful squat, maximum successful bench press, maximum successful deadlift, unequipped status, drug-tested competition status, competition federation/rules, competition date",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/39060209/",
+        "exact_protocol_and_normalization": "Data were taken from sanctioned drug-tested, unequipped competitions. Maximum successful lift and body mass at that competition were extracted; each lift was normalized as maximum lift in kg divided by athlete body mass in kg. Technical rules could vary slightly by federation; typical successful-lift requirements are summarized by the authors.",
+        "exercise_or_test": "Maximum successful competition squat, bench press, and deadlift attempts; competition-style relative 1RM strength.",
+        "permitted_use_note": "The article is open access under CC BY 4.0, but the underlying competition records were sourced from OpenPowerlifting and may carry separate database or attribution conditions; verify both licenses and preserve source attribution before importing or redistributing numeric norms.",
+        "population_and_sample": "Retrospective global competition-record analysis of 809,986 entries from drug-tested, unequipped powerlifting competitions held from 1968–2022 across Africa, Asia, Europe, the Americas, and Oceania; 571,650 male and 238,336 female entries, ages 12–96 years. Entries may represent the same athlete more than once; mean age was 30.5 ± 13.3 years and mean body mass 82.4 ± 21.3 kg.",
+        "reference_fields_or_percentiles": "Relative-strength norms were reported by sex, United Nations age categories (12–17, 18–35, 36–59, 60–79, and 80+ years), current IPF weight class, and combined age/weight class, using deciles from the 10th through 90th percentiles with 95% confidence intervals; small cells (n\u003c20) were reported as median with 95% CI.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Daniel J. van den Hoek, Patrick L. Beaumont, Adele K. van den Hoek, Patrick J. Owen, Joel M. Garrett, Robert Buhmann, Christopher Latella (2024). Normative data for the squat, bench press and deadlift exercises in powerlifting: Data from 809,986 competition entries. DOI: 10.1016/j.jsams.2024.07.005; PMID: 39060209."
+      },
+      "error": ""
+    },
+    {
+      "input": "2. Prado et al. Reference Values for Maximal Strength in Elite Judo Athletes: National- and International-Level Competitors. Suggested tests: back squat, bench press, prone row.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age, sport, competitive level, weight category, body mass, test name, 1RM absolute load, relative-strength calculation, protocol/equipment details",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/41996598/",
+        "exact_protocol_and_normalization": "The authoritative abstract verifies 1RM testing and reports absolute and relative-strength analyses, but does not provide the detailed execution protocol, equipment, range-of-motion standards, warm-up/loading sequence, reliability criteria, or exact body-mass normalization formula; these must be verified from the full article before matching.",
+        "exercise_or_test": "One-repetition maximum (1RM) back squat, bench press, and prone row.",
+        "permitted_use_note": "The publisher page indicates the full article and numeric content require access or purchase; use numeric tables only after confirming lawful access/licensing and the complete protocol, and do not reproduce restricted tables without permission.",
+        "population_and_sample": "112 elite judo athletes (68 males, 44 females) competing at national and international levels; the authoritative abstract does not verify age range, participant geography, or the detailed distribution by sex, weight category, and competitive level.",
+        "reference_fields_or_percentiles": "Percentile-based classification tables were developed; analyses/stratification reported by sex, weight category, and competitive level (national versus international), with absolute and relative strength outcomes. Numeric percentile cut points and tables were not available in the authoritative abstract.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Campos BT, Abad CCC, Penna EM, Lima COV, Avelar AF, de Rezende CM, da Silveira-Rodrigues JG, Prado LS (2026). Reference Values for Maximal Strength in Elite Judo Athletes: National- and International-Level Competitors. DOI: 10.1080/02701367.2026.2636255; PMID: 41996598."
+      },
+      "error": ""
+    },
+    {
+      "input": "3. Lesinski et al. Maturation-, age-, and sex-specific anthropometric and physical fitness percentiles of German elite young athletes.",
+      "output": {
+        "athlete_fields_required_for_match": "test name and version, raw result and units, test date/age, sex, standing height, sitting height, leg length, body mass, calculated maturity offset/status, sport context, equipment/protocol metadata",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/32790710/",
+        "exact_protocol_and_normalization": "The article states that testing was performed under strictly standardized conditions and reports the named tests, but a comparison must verify the same test versions, equipment, trial/scoring rules, units, and whether any outcome is absolute or body-size normalized; maturity status was derived from Mirwald peak-height-velocity equations using age, standing height, sitting height, leg length, and body mass, then classified as pre-pubertal (\u003c−1 year from PHV), pubertal (±1 year), or post-pubertal (\u003e1 year).",
+        "exercise_or_test": "Standing and sitting body height, body mass, body-mass index, countermovement jump, drop jump, change-of-direction speed (T-test), trunk-muscle endurance (ventral Bourban test), dynamic lower-limb balance (Y-balance test), and hand-grip strength.",
+        "permitted_use_note": "The publisher and institutional record identify the article as open access under CC BY 4.0, subject to attribution and the license terms; numeric reuse should preserve the study’s cohort definition, citation, stratification, and exact protocol, and should not be presented as a universal or causal norm.",
+        "population_and_sample": "Cross-sectional convenience sample of 703 German elite young athletes (420 male, 283 female), aged 8–18 years, from 18 sports, recruited from German elite sport schools; athletes completed at least 10 hours of training per week and had practiced their sport for approximately 2–12 years.",
+        "reference_fields_or_percentiles": "Reference values are percentile distributions for anthropometric and physical-fitness outcomes stratified by chronological age, sex, and maturation status; the study covers elite youth athletes across multiple sports rather than a single sport or strength-only cohort.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Lesinski M, Schmelcher A, Herz M, Puta C, Gabriel H, Arampatzis A, Laube G, Büsch D, Granacher U (2020). Maturation-, age-, and sex-specific anthropometric and physical fitness percentiles of German elite young athletes. DOI: 10.1371/journal.pone.0237423; PMID: 32790710."
+      },
+      "error": ""
+    },
+    {
+      "input": "4. Eriksrud et al. NHANES analysis: Reference Curves for Field Tests of Musculoskeletal Fitness in U.S. Children and Adolescents: 2012 NHANES National Youth Fitness Survey.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, test name, test variant, raw score, units, protocol/equipment, test date or age at test, body mass, height, normalization method",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/27741055/",
+        "exact_protocol_and_normalization": "The PubMed record confirms the named tests and the relative/allometrically scaled handgrip variants, but does not provide the complete equipment, positioning, cadence, timing, scoring, or scaling equations. Any comparison therefore requires retrieval and exact matching of the article’s full methods; body-size normalization is relevant for the relative and allometrically scaled handgrip outputs, while absolute handgrip is unnormalized.",
+        "exercise_or_test": "Handgrip strength (absolute, relative, and allometrically scaled), modified pull-ups, and plank test.",
+        "permitted_use_note": "Use the PubMed-verified publication as the bibliographic authority and treat numeric curves/tables as publication-derived data subject to the publisher’s access and reuse terms; the restricted NNYFS microdata require authorized access, proposal approval, confidentiality training, and a data-use agreement.",
+        "population_and_sample": "Nationally representative U.S. National Youth Fitness Survey participants aged 3–15 years; 1,453 participants were tested on musculoskeletal fitness in the publication, while the CDC survey record reports 1,640 interviewed and 1,576 examined. The survey was conducted in 2012 through household interviews and mobile examination-center testing; no athlete-only or training-specific sample was established.",
+        "reference_fields_or_percentiles": "Age-specific and sex-specific smoothed percentile growth curves were created using LMS regression for the musculoskeletal-fitness measures; the article also used existing age- and sex-specific percentiles to assign z-scores for aerobic capacity and body composition. The accessible record does not expose the numeric curve tables or all percentile values.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Kelly R. Laurson, Pedro F. Saint-Maurice, Gregory J. Welk, and Joey C. Eisenmann (2017). Reference Curves for Field Tests of Musculoskeletal Fitness in U.S. Children and Adolescents: The 2012 NHANES National Youth Fitness Survey. DOI: 10.1519/JSC.0000000000001678; PMID: 27741055."
+      },
+      "error": ""
+    },
+    {
+      "input": "5. FitBack consortium: European fitness landscape for children and adolescents. Suggested tests: handgrip and standing long jump.",
+      "output": {
+        "athlete_fields_required_for_match": "test name, raw score, test units, test date/age, sex, country/geography, protocol/equipment, hand tested (for handgrip), body height, body mass, BMI/waist circumference if used for any normalization, training/sport context",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9985767/",
+        "exact_protocol_and_normalization": "Standing long jump: toes behind a start line, feet shoulder-width apart, jump and land with feet together, two attempts, best distance recorded to the nearest centimetre. Handgrip: adjustable-grip hand dynamometer (e.g., TKK 5101 Grip D), handle set to hand size, elbow fully extended, gradual continuous squeeze for at least 2 seconds, both hands tested twice alternately with short rest, best result recorded to 0.1 kg. The source also measures height, weight, BMI and waist circumference; no universal body-size normalization of handgrip or jump is stated in the verified summary, so raw scores must not be normalized or transformed without matching the source method.",
+        "exercise_or_test": "Handgrip strength test and standing long jump test (ALPHA fitness battery muscular-strength tests).",
+        "permitted_use_note": "The peer-reviewed article is open access and the FitBack platform is described as open access, but the platform carries its own terms and conditions and the source data are aggregated from many contributing datasets; use only the published/reference outputs and verify licensing before redistributing tables or embedding numeric norms commercially.",
+        "population_and_sample": "European children and adolescents aged 6–18 years; 7,966,693 test results from 106 datasets across 34 countries, drawn from population fitness surveillance/monitoring and usable in school and/or sport settings; the article does not establish a single athlete-only cohort.",
+        "reference_fields_or_percentiles": "Sex-specific and age-specific percentile values for ages 6–18 were derived using generalized additive models for location, scale and shape; country-level rankings and mean percentiles are also reported. The verified source does not justify substituting athlete-specific or sport-specific norms.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Ortega FB, Leskošek B, Blagus R, et al. (2023). European fitness landscape for children and adolescents: updated reference values, fitness maps and country rankings based on nearly 8 million test results from 34 countries gathered by the FitBack network. DOI: 10.1136/bjsports-2022-106176; PMID: 36623866."
+      },
+      "error": ""
+    },
+    {
+      "input": "6. IDEFICS: Physical fitness reference standards in European children. Suggested tests: handgrip and standing long jump.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, country/geography, handgrip dynamometer model, handgrip protocol and hand-size adjustment, handgrip result (kg), standing-long-jump protocol, standing-long-jump result (cm), height, weight",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/25376221/",
+        "exact_protocol_and_normalization": "Handgrip used a Takei TKK 5101 dynamometer; the child stood bipedally with arms fully extended, without the dynamometer touching the body, and the device was adjusted for sex and hand size. Standing long jump required a maximal jump from standing with a two-foot takeoff and landing with both feet together. Analytic inclusion required complete weight, height, age, and sex; the record does not establish a universal body-size-normalized score for these two tests.",
+        "exercise_or_test": "Handgrip strength test; standing long jump test (lower-limb explosive strength).",
+        "permitted_use_note": "Use the published reference tables/curves only for their stated pediatric European population and matching protocols; do not treat them as norms for trained athletes or reproduce numeric tables beyond applicable permission/licensing terms.",
+        "population_and_sample": "10,302 children aged 6–10.9 years (50.7% girls) from the IDEFICS multicentre study in eight European countries: Sweden, Germany, Hungary, Italy, Cyprus, Spain, Belgium, and Estonia; the analysis was cross-sectional and not an athlete-only sample.",
+        "reference_fields_or_percentiles": "Sex- and age-specific percentile curves were reported; percentiles were 1st, 3rd, 10th, 25th, 50th, 75th, 90th, 97th, and 99th. The paper reports handgrip in kilograms and standing long jump in centimetres, with test-specific sample sizes varying because participation was incomplete.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "De Miguel-Etayo P, Gracia-Marco L, Ortega FB, Intemann T, Foraita R, Lissner L, Oja L, Barba G, Michels N, Tornaritis M, Molnár D, Pitsiladis Y, Ahrens W, Moreno LA; IDEFICS consortium (2014). Physical fitness reference standards in European children: the IDEFICS study. DOI: 10.1038/ijo.2014.136; PMID: 25376221."
+      },
+      "error": ""
+    },
+    {
+      "input": "7. Chinese National Survey: Percentile Curves for Multiple Physical Fitness Components Among Chinese Han Children and Adolescents Aged 7–18.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, Han-ethnicity/reference-population eligibility, geography/school-population context, nutritional-status category or BMI-for-age Z-score, exact test name, raw result, units, protocol version, attempt count, and test-specific age/sex form",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8762235/",
+        "exact_protocol_and_normalization": "Standardized field protocols: FVC spirometer, maximum of two attempts; standing long jump maximum of three, nearest 1 cm; 50-m dash timed to nearest 0.1 s; sit-and-reach maximum of two, nearest 0.1 cm; grip dynamometer maximum of two, nearest 0.1 kg; specified pull-up/sit-up/shuttle/run procedures. Height and weight were measured with calibrated equipment; BMI was weight/height² and normal weight was defined using WHO 2007 BMI-for-age Z-score criteria (thinness \u003c−2 SD; overweight/obesity \u003e+1 SD). No athlete-specific or strength-to-body-mass normalization was reported.",
+        "exercise_or_test": "Forced vital capacity; standing long jump; 50-m dash; sit-and-reach; grip strength; body-muscle strength (oblique body pull-ups for boys 7–12, pull-ups for boys 13–18, 1-minute sit-ups for girls 7–18); endurance running (eight 50-m shuttle runs for ages 7–12, 1,000-m run for boys 13–18, 800-m run for girls 13–18).",
+        "permitted_use_note": "The article is CC BY for attributed publication use, but the underlying individual de-identified survey data are restricted and may be shared only after proposed-use approval by an independent review committee via the corresponding authors; do not reproduce or infer unpublished individual-level norms.",
+        "population_and_sample": "Cross-sectional 2014 Chinese National Survey on Students’ Constitution and Health: 214,228 Han children/adolescents aged 7–18 years (107,180 boys; 107,048 girls) from 26 provinces and four mainland municipalities, excluding Tibet, Hong Kong, Macau, and Taiwan; 161,999 were classified as normal weight. This is a general school-based population, not an athlete-trained cohort.",
+        "reference_fields_or_percentiles": "Sex- and age-specific percentile curves and tables for total and normal-weight populations; modeled percentiles P5, P10, P20, P30, P40, P50, P60, P70, P80, P90, and P95 using GAMLSS, with displayed curves emphasizing P20/P40/P60/P80. Pull-ups used observed-distribution nonparametric percentiles; subgroup sample sizes vary by test because not all participants completed every test.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Ma N, Dang J, Liu Y, Zhong P, Yan X, Zhang J, Dong Y, Song Y, Ma J, Lau PWC (2022). Percentile Curves for Multiple Physical Fitness Components Among Chinese Han Children and Adolescents Aged 7–18 Years From a National Survey Based on the Total and the Normal Weight Population. DOI: 10.3389/fnut.2021.770349; PMID: 35047541."
+      },
+      "error": ""
+    },
+    {
+      "input": "8. Physical fitness reference standards for Chinese children and adolescents. Suggested tests: handgrip, standing long jump, 30-second sit-ups.",
+      "output": {
+        "athlete_fields_required_for_match": "test name/protocol, result and unit, age, sex, measurement date or age basis, China-relevant population/geography, body size (height and weight/BMI) for contextual review, youth/non-athlete status",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7925655/",
+        "exact_protocol_and_normalization": "Grip strength: standing upright, feet shoulder-width apart, elbow fully extended, maximal squeeze continuously for at least 2 seconds, twice; larger value recorded. Standing long jump: take off and land with feet together; distance from start line to the nearest heel, twice; best score retained in centimeters. 30-second sit-ups: supine on a cushion, feet held by an assistant, hands crossed over chest; count repetitions in which the forehead touches the knee within 30 seconds. The paper reports age- and sex-specific raw performance standards; no body-size normalization is applied to these three test outputs, although height, weight, and BMI were recorded.",
+        "exercise_or_test": "Grip strength; standing long jump; 30-second sit-ups; plus sit-and-reach, 50-m dash, 20-second repeated straddling, and 20-m shuttle-run test.",
+        "permitted_use_note": "The PMC/publisher record identifies the article as open access; any reuse of numeric tables or derived displays should follow the article’s stated license/attribution terms and should not imply that a youth population reference is an athlete-performance norm.",
+        "population_and_sample": "85,535 Chinese children and adolescents aged 7–18 years (48.7% girls), recruited in 2015–2016 from public urban and rural schools across 27 provinces in six geographical divisions using stratified randomized cluster sampling; students with physical or mental disabilities were excluded, and 2.1% were from Lhasa/Tibet.",
+        "reference_fields_or_percentiles": "Age- and sex-specific percentile curves and percentile values were calculated with the LMS method for each test; the article also reports age/sex-stratified descriptive means and standard deviations. The reference dimensions are age 7–18 years and sex, with geography represented by the national multi-region sample rather than separate fully reported regional norms.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Feng Zhang, Cunjian Bi, Xiaojian Yin, Qi Chen, Yuqiang Li, Yuan Liu, Ting Zhang, Ming Li, Yi Sun, and Xiaofang Yang (2021). Physical fitness reference standards for Chinese children and adolescents. DOI: 10.1038/s41598-021-84634-7; PMID: 33654251."
+      },
+      "error": ""
+    },
+    {
+      "input": "9. MoMo Study: Representative Percentile Curves of Physical Fitness From Early Childhood to Early Adulthood. Suggested tests: push-ups, sit-ups, standing long jump.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, country/reference population, test name, exact protocol/version, standing-long-jump best valid distance or push-up/sit-up valid repetitions in 40 seconds, test date or wave, body size if collected for audit (not established as a normalization variable)",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7516256/",
+        "exact_protocol_and_normalization": "Standing long jump: jump from a marker on a tartan granulate mat with both legs and no backward fall; two valid attempts are evaluated. Push-ups: not administered to 4–5-year-olds; clean repetitions with arms extended, only hands and feet contacting the floor, hands briefly brought together behind the buttocks in the ground position and one hand touching the other in support; 40 seconds, counting correct repetitions. Sit-ups: not suitable up to age 5; supine with knees bent and feet fixed, fingertips at temples, elbows touch knees at the top, shoulder blades touch the mat on lowering, pelvis stays on the floor; 40 seconds, counting valid repetitions. The source specifies age/sex standardization but does not establish body-size normalization for these three outcomes; raw test results and exact execution must match the MoMo manual.",
+        "exercise_or_test": "MoMo Motor Performance Test items: standing long jump, push-ups, and sit-ups; the full profile also included ergometric endurance testing, jumping side-ways, balancing backwards, static stand, and stand-and-reach.",
+        "permitted_use_note": "Use only as a population reference with exact MoMo protocol and age/sex scope; do not present it as athlete-performance norms or extrapolate beyond Germany ages 4–17. The article is openly available through PMC under the publisher's stated license, but the underlying participant-level data and the separate test manual should not be redistributed or reused beyond their terms.",
+        "population_and_sample": "Nationwide representative Motorik-Modul (MoMo) Study, Germany, Wave 1 (2009–2012): 3,742 participants aged 4–23 years, 50.1% female; the reported representative percentile reference scope is ages 4–17 years (3,284 children/adolescents), and the sample is not representative after age 17. The cohort is population-based, not an athlete-trained or sport-specific sample.",
+        "reference_fields_or_percentiles": "LMS-derived, standardized age- and sex-specific percentile curves for the eight test items; representative reporting is for Germany ages 4–17, with age and sex as the principal stratification dimensions. The article does not provide a sport-athlete norm set.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Claudia Niessner, Till Utesch, Doris Oriwol, Anke Hanssen-Doose, Steffen C. E. Schmidt, Alexander Woll, Klaus Bös, and Annette Worth (2020). Representative Percentile Curves of Physical Fitness From Early Childhood to Early Adulthood: The MoMo Study. DOI: 10.3389/fpubh.2020.00458; PMID: 33014968."
+      },
+      "error": ""
+    },
+    {
+      "input": "10. COMO/DigiMot Study: Reference percentiles for children and adolescents for the digital motor performance test. Suggested tests: push-ups and sit-ups.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, country/population context, test name, remote-videoconference administration, 40-second duration, one trial, repetition count, standardized mat/setup, test date or age at assessment",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12913944/",
+        "exact_protocol_and_normalization": "Videoconference-administered test using a standardized non-slip foldable mat (183 × 61 × 0.4 cm); one trial for Push-ups and one trial for Sit-ups, with synchronized timing and optional recording for quality assurance. The study collected body height, weight, and BMI, but the reported percentile curves are stratified by age and sex rather than presented as BMI- or height-normalized scores.",
+        "exercise_or_test": "DigiMot Push-ups and Sit-ups; each is a remotely administered muscular-endurance test performed for 40 seconds.",
+        "permitted_use_note": "The source is available through PubMed Central and links to the Scientific Reports publisher record; use only the published DigiMot protocol and reference curves, preserve the German non-athlete reference-population boundary, and check the article's license/any publisher restrictions before redistributing extracted numeric tables.",
+        "population_and_sample": "German children and adolescents participating in the population-based COMO-1 DigiMot substudy; 1,149 participants aged 7–17 years (554 male, 595 female; mean age 11.4 ± 2.8 years). The published reference curves are presented for ages 7–15 years, with sparse older-age cells; participants were not selected as athletes.",
+        "reference_fields_or_percentiles": "Age- and sex-specific percentile curves generated with generalized additive models for location, scale, and shape; separate reference distributions are provided for boys and girls, with published figures covering ages 7–15 years. Exact percentile values must be taken from the article's tables/curves and must not be inferred from the abstract.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Klein T, Worth A, Niessner C, Merk S, Hanssen-Doose A (2026). Reference percentiles for children and adolescents for the digital motor performance test (DigiMot): results from the COMO-study. DOI: 10.1038/s41598-026-40270-7; PMID: 41699020."
+      },
+      "error": ""
+    },
+    {
+      "input": "11. Korean National Fitness Award Project: Physical Fitness Levels in Korean Adolescents. Suggested tests: handgrip and partial curl-up.",
+      "output": {
+        "athlete_fields_required_for_match": "test name, test protocol, score and units, age, sex, country/population, test date or reference era, handgrip measurement side/selection rule, body mass if requesting a normalized comparison",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/31089495/",
+        "exact_protocol_and_normalization": "Certified professional instructors administered the tests. Handgrip strength was measured twice for each hand and the highest value recorded to the nearest 0.1 kg; partial curl-up performance was the maximum repetitions completed at the beep. The reported handgrip reference is absolute strength in kg; no body-size normalization was specified for these reference curves.",
+        "exercise_or_test": "Handgrip strength test; partial curl-up test (also assessed in the battery were the 20-m PACER, 30-s endurance jump, and sit-and-reach test).",
+        "permitted_use_note": "Use only for narrowly matched Korean adolescent reference comparisons and respect the journal/PMC copyright and reuse terms; do not present these norms as athlete-specific or generalize beyond the stated age, sex, geography, tests, and protocol.",
+        "population_and_sample": "14,794 Korean adolescents aged 13–18 years (7,688 boys and 7,106 girls) participating in the National Fitness Award Project in 2013–2014; the dataset combined preliminary random samples from 10 regions with voluntary main-project participants, and was not an athlete-only sample.",
+        "reference_fields_or_percentiles": "Age- and sex-specific smoothed LMS percentile curves for ages 13–18, with the 5th, 10th, 25th, 50th, 75th, 90th, and 95th percentiles; handgrip and partial curl-up results are stratified by age and sex.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Lee S, Ko BG, Park S (2017). Physical Fitness Levels in Korean Adolescents: The National Fitness Award Project. DOI: 10.7570/jomes.2017.26.1.61; PMID: 31089495."
+      },
+      "error": ""
+    },
+    {
+      "input": "12. FUPRECOL: Normative Reference Values for Handgrip Strength in Colombian Schoolchildren.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, geography/population eligibility, handgrip value, dynamometer model and grip/procedure details, test date or age at test; body mass and height if using any relative or body-size-normalized comparison",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/27135472/",
+        "exact_protocol_and_normalization": "The accessible authoritative record verifies only an adjustable-grip hand dynamometer; it does not specify the manufacturer/model, posture, hand-selection rule, number of trials, rest interval, scoring rule, or exact body-size normalization. Do not infer these details. The abstract refers to combined HG for Health Benefit Zones and reports sex- and age-specific standards.",
+        "exercise_or_test": "Handgrip strength (HG) measured with a hand dynamometer having an adjustable grip.",
+        "permitted_use_note": "The PubMed record confirms the study and its published reference framework, but the numeric tables and full protocol are publisher-controlled through Wolters Kluwer; obtain and review the full article and licensing terms before reproducing numeric percentiles or embedding them in a commercial product.",
+        "population_and_sample": "Cross-sectional sample of 7,268 Colombian schoolchildren (3,129 boys and 4,139 girls), reported mean age 12.7 (SD 2.4) years; the study’s stated normative scope is ages 9–17.9 years (the abstract also describes the target as 10–17.9 years). No athlete-training cohort is identified in the PubMed record.",
+        "reference_fields_or_percentiles": "Sex- and age-specific centile-smoothed curves, percentile values, and tables calculated with Cole’s LMS method; the abstract explicitly lists the 3rd, 10th, 25th, 50th, 75th, 90th, and 97th percentiles, plus five Health Benefit Zones based on combined HG.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Ramírez-Vélez R, Morales O, Peña-Ibagon JC, Palacios-López A, Prieto-Benavides DH, Vivas A, Correa-Bautista JE, Lobelo F, Alonso-Martínez AM, Izquierdo M (2017). Normative Reference Values for Handgrip Strength in Colombian Schoolchildren: The FUPRECOL Study. DOI: 10.1519/JSC.0000000000001459; PMID: 27135472."
+      },
+      "error": ""
+    },
+    {
+      "input": "13. Colombian youth study: Normative values for handgrip strength in Colombian children and adolescents from 6 to 17 years, including relative handgrip strength.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, country/geography, handgrip dynamometer model, handle adjustment/hand size, body position, arm/shoulder position, trial duration, number of trials per hand, valid-score rule (mean versus maximum), body weight, optional BMI, optional stature",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/35487284/",
+        "exact_protocol_and_normalization": "Takei TKK 5101 digital dynamometer with adjustable handle, 5–100 kg range and 0.1 kg precision. Participant stood bipedally with shoulder adducted and neutrally rotated, arm extended perpendicular to the body without contact, feet hip-width apart; handle was adjusted to hand size. Two or three 3–5-second maximal trials were performed per upper limb, and the highest score for each hand was valid. Normative HS used either the mean or maximum valid measurement per subject. HSRelative was HS divided by body weight in kilograms; supplementary estimates adjusted HS by BMI and stature. Body mass was measured barefoot in light clothing with a SECA 874 scale.",
+        "exercise_or_test": "Handgrip strength (HS) measured separately in each upper limb; relative handgrip strength (HSRelative) was also evaluated.",
+        "permitted_use_note": "The record is openly available through PubMed Central/SciELO, but numerical reuse should follow the article’s stated access/license terms and attribution requirements; the source is a national youth reference sample, not an athlete-performance norm, and its methods warn that differing dynamometers, positions, trial rules, and estimation methods can materially affect comparisons.",
+        "population_and_sample": "Analytical cross-sectional secondary analysis of Colombia’s ENSIN-2015 national survey: 2,647 noninstitutional civilian children and adolescents, 6–17.9 years, permanent household residents across Colombia; 1,575 male and 1,072 female participants. Training or athlete status was not assessed, and physical-activity levels were not included in the centile values.",
+        "reference_fields_or_percentiles": "Sex- and age-specific quantile-regression reference values for absolute HS and weight-normalized HSRelative, using P5, P10, P25, P50, P75, P90, and P95; models were independently developed by sex and adjusted for the survey expansion factor. Tables provide mean-value and maximum-value variants; 98 weight observations were missing for analyses requiring weight.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Martínez-Torres J, Gallo-Villegas JA, Aguirre-Acevedo DC (2022). Normative values for handgrip strength in Colombian children and adolescents from 6 to 17 years of age: estimation using quantile regression. DOI: 10.1016/j.jped.2022.02.004; PMID: 35487284."
+      },
+      "error": ""
+    },
+    {
+      "input": "14. NHANES allometric handgrip study: How Should Youth Handgrip Strength be Normalized?",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, country/population comparability, handgrip dynamometer model, hand tested or maximum-irrespective-of-hand rule, hand-size adjustment, standing test position, number of trials per hand, rest interval, height, body mass",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12476433/",
+        "exact_protocol_and_normalization": "Takei electronic hand dynamometer T.K.K.5401; hand-size adjustment, one submaximal practice trial, standing upright with feet hip-width apart, arm extended and hanging away from the body, maximal squeeze while exhaling; three trials per hand, alternating hands, with 60 seconds’ rest between measures on the same hand. The primary allometric normalization was HGS/(height² × body mass^0.333); if only one body-size measure is available, HGS/height² was recommended. Height, body mass, and waist circumference were measured, but all three could not be used together because of collinearity.",
+        "exercise_or_test": "Maximal handgrip strength measured by electronic hand dynamometry; the outcome used was the maximum score attained irrespective of hand.",
+        "permitted_use_note": "The article is open access under a Creative Commons Attribution license, but any reproduced tables, curves, or derived numeric reference data should retain attribution and be checked against the article’s specific license notices and supplementary-material terms; NHANES source data are publicly available from CDC/NCHS. Do not present population norms as athlete-specific standards.",
+        "population_and_sample": "Final sample: 4,816 US non-institutionalized civilian youth aged 6–19 years, 51.2% male, drawn from NHANES 2011–2012 and 2013–2014; this is a representative population sample, not an athlete-only cohort.",
+        "reference_fields_or_percentiles": "Population-weighted, sex-stratified GAMLSS norms by age; percentiles from the 3rd through 97th were tabulated and smoothed percentile curves were presented for HGS/(height² × body mass^0.333).",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Nevill AM, Lang JJ, Niemz M, Tomkinson GR (2025). How Should Youth Handgrip Strength be Normalized? New Insights Using 3-D Allometry with “Generalizable” Norm-Referenced Values, Data from NHANES. DOI: 10.1007/s40279-025-02235-0; PMID: 40445551."
+      },
+      "error": ""
+    },
+    {
+      "input": "15. Tunisian adolescent grip study: Age- and Sex-Specific Reference Values for Handgrip Strength Among Healthy Tunisian Adolescents.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, country/region or population context, health status, hand tested and dominance, dynamometer model, grip setting, test posture, trial count, scoring rule, measured handgrip value, height, body mass, BMI",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12388144/",
+        "exact_protocol_and_normalization": "The authoritative abstract verifies standardized dynamometry and measurement of height, body mass, and BMI, but the exact dynamometer model, posture, grip setting, trial count, rest interval, and scoring rule could not be verified from the accessible record; body-mass-adjusted analyses are reported, so any numeric comparison requires protocol-equivalent testing and explicit body-size handling.",
+        "exercise_or_test": "Handgrip strength measured by dynamometry in both hands, with dominant-hand reference curves reported.",
+        "permitted_use_note": "The publisher identifies the article as open access under CC BY, but numeric reuse or implementation should still preserve citation and be reviewed against the license and the source's exact methods; do not present healthy Tunisian adolescent norms as athlete-specific or universal benchmarks.",
+        "population_and_sample": "Cross-sectional sample of 950 healthy Tunisian adolescents aged 13–19 years (482 males, 468 females) from northwest Tunisia; the record describes a general healthy adolescent population, not an athlete-only cohort.",
+        "reference_fields_or_percentiles": "Age- and sex-specific reference values; dominant-hand percentile curves generated using the LMS method, including P3, P5, P10, P25, P50, P75, P85, P90, P95, and P97; results also examine hand side/dominance and associations with height, body mass, and BMI.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Bchini S, Dergaa I, Moussaoui D, Ceylan Hİ, Selmi T, Muntean RI, Hammami N (2025). Age- and Sex-Specific Reference Values for Handgrip Strength Among Healthy Tunisian Adolescents. DOI: 10.3390/medicina61081383; PMID: 40870427."
+      },
+      "error": ""
+    },
+    {
+      "input": "16. Bohannon et al. Handgrip Strength: A Population-Based Study of Norms and Age Trajectories for 3- to 17-Year-Olds.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, measured hand side, grip-strength value and unit, body weight and unit, dynamometer model, protocol/posture, trial summary, test date",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/28350764/",
+        "exact_protocol_and_normalization": "The official NIH Toolbox test specifies examiner administration with a Jamar Plus+ Digital Hand Dynamometer; participants squeeze the dynamometer as hard as possible, one hand at a time. The study provides separate equations by hand side and sex using age and body weight as explanatory variables. Trial count, posture, handle setting, rest interval, and unit-conversion details were not verified from the authoritative records reviewed and must not be inferred.",
+        "exercise_or_test": "Grip strength / handgrip strength measured one hand at a time.",
+        "permitted_use_note": "The publication supports interpretation of measurements but does not by itself grant rights to reproduce or redistribute NIH Toolbox normative tables or assessment materials; review NIH Toolbox/Wolters Kluwer terms and obtain any needed license before commercial or numeric deployment.",
+        "population_and_sample": "Cross-sectional NIH Toolbox normative-phase sample of 2,706 participants aged 3–17 years; 49.2% male and 91% right-hand dominant. The PubMed record does not specify a narrower geography or athlete/training context; it is a population-based, non-athlete reference sample as described in the record.",
+        "reference_fields_or_percentiles": "Normative data are reported separately by hand side, sex, and age; separate regression equations use age and weight for each hand side-by-sex combination. Exact percentile/table values were not verified from the accessible authoritative records.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Richard W. Bohannon, Ying-Chih Wang, Deborah Bubela, and Richard C. Gershon (2017). Handgrip Strength: A Population-Based Study of Norms and Age Trajectories for 3- to 17-Year-Olds. DOI: 10.1097/PEP.0000000000000366; PMID: 28350764."
+      },
+      "error": ""
+    },
+    {
+      "input": "17. Tomkinson et al. International norms for adult handgrip strength: systematic review of data on 2.4 million adults aged 20 to 100+ years from 69 countries and regions.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age, country/region, handgrip strength value, units, dynamometer, test side, test position, number of trials, selected-score rule, height if using normalized HGS",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11863340/",
+        "exact_protocol_and_normalization": "Included studies had to use a published handgrip test protocol and report HGS in kilograms (or convertible values), but the review harmonized methodological variation rather than imposing one universal dynamometer, grip position, side, or trial protocol. Norms are provided for absolute HGS in kg and height-normalized HGS calculated as HGS divided by height in metres squared (kg/m²).",
+        "exercise_or_test": "Objectively measured maximal isometric handgrip strength (HGS) using handgrip dynamometry.",
+        "permitted_use_note": "The article is open access under a Creative Commons Attribution 4.0 license, but its pooled norms represent general adult observational populations and explicitly exclude athletic groups; reuse should preserve attribution and should not be presented as sport- or athlete-specific normative evidence.",
+        "population_and_sample": "100 unique observational studies comprising 2,405,863 adults (51.9% female), aged 20 to 100+ years, from 69 countries and regions; participants were tested from 2000 onward. Studies of specific disease, illness, occupation, or athletic groups were excluded.",
+        "reference_fields_or_percentiles": "International sex- and age-specific norms, population-weighted across countries/regions; absolute and height-normalized HGS are tabulated from the 5th through 95th percentiles and shown as smoothed percentile curves. The published tables include absolute norms based on 2,405,863 adults and normalized norms based on 2,328,890 adults.",
+        "safe_sports_genome_decision": "context_only_not_numeric",
+        "verified_citation": "Tomkinson GR et al. (2024). International norms for adult handgrip strength: A systematic review of data on 2.4 million adults aged 20 to 100+ years from 69 countries and regions. DOI: 10.1016/j.jshs.2024.101014; PMID: 39647778."
+      },
+      "error": ""
+    },
+    {
+      "input": "18. PURE study: Reference ranges of handgrip strength from 125,462 healthy adults in 21 countries.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, country/geographic region, ethnicity, height, weight, BMI, dominant hand, nondominant-hand HGS, dominant-hand HGS, number of trials, rest interval, dynamometer model, elbow angle, contraction duration, HGS summary metric",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4833755/",
+        "exact_protocol_and_normalization": "Arm held at the side with elbow flexed to 90°; maximal squeeze for 3 seconds, repeated three times with at least 30 seconds between trials. The analysis used the maximum value from each hand and defined overall HGS as the mean of maximum dominant- and nondominant-hand values; missing-hand values could be imputed. Reference ranges were additionally reported by ethnicity and body-mass index, so comparison requires protocol-compatible hand, summary metric, and BMI/ethnicity handling.",
+        "exercise_or_test": "Handgrip strength (HGS) measured with a Jamar dynamometer.",
+        "permitted_use_note": "The article is available through PubMed Central and links to the Wiley publication record; verify the applicable publisher/PMC license and obtain permission before redistributing extracted tables or incorporating numeric reference data into a commercial product.",
+        "population_and_sample": "125,462 healthy adults aged 35–70 years from 21 countries in the Prospective Urban Rural Epidemiology (PURE) study, spanning low-, middle-, and high-income settings; this was a community-based general-population sample, not an athlete cohort.",
+        "reference_fields_or_percentiles": "Reference ranges were stratified by geographic region, age, and sex, with additional analyses by ethnicity and BMI; the reported reference range is the 25th–75th percentile, with median values, and appendix results include maximum-of-both-hands ranges.",
+        "safe_sports_genome_decision": "context_only_not_numeric",
+        "verified_citation": "Leong DP et al. (2016). Reference ranges of handgrip strength from 125,462 healthy adults in 21 countries: a prospective urban rural epidemiologic (PURE) study. DOI: 10.1002/jcsm.12112; PMID: 27104109."
+      },
+      "error": ""
+    },
+    {
+      "input": "19. Reference values for handgrip strength in Europe. Suggested scope: adult absolute and relative handgrip percentiles.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age band (50+), country/European region, handgrip dynamometer and setup, dominant-arm maximum, number of trials, maximal-effort status, posture (standing/seated), body height in metres, absolute-versus-relative metric",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/41034601/",
+        "exact_protocol_and_normalization": "Elbow flexed at 90° in the handshake position and wrist neutral; intended standing posture, with seated testing permitted; two trials per arm; maximum dominant-arm value retained; only self-reported maximal-effort tests included. Absolute strength was in kg; relative strength was kg divided by height in metres squared (kg/m²).",
+        "exercise_or_test": "Handgrip strength measured with a mechanical Smedley Dynamometer (TTM, Tokyo), using the dominant arm.",
+        "permitted_use_note": "Use for benchmarking only when the athlete’s measurement exactly matches the study’s age, sex, geography, posture, device/setup, trial-selection, effort, and normalization definitions; verify the article’s open-access terms and SHARE data-use restrictions before redistributing tables or underlying data.",
+        "population_and_sample": "Non-institutionalized adults aged 50+ years from 27 European countries in SHARE Wave 9 (2021–2022); analyzed sample: 25,708 men and 32,801 women; general population, not an athlete-specific cohort.",
+        "reference_fields_or_percentiles": "Weighted percentiles P5, P10, P20, P30, P40, P50, P60, P70, P80, P90, and P95, stratified by sex, age bands 50–54 through 90+ years, standing/seated/combined posture, and pooled or European region (Central/Eastern, Northern, Southern, Western).",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Grgic J, Wazny VK, Maier AB, Schoenfeld BJ, Pedisic Z (2025). Reference values for handgrip strength in Europe: analysis of individual participant data from 27 countries. DOI: 10.1007/s11357-025-01919-9; PMID: 41034601."
+      },
+      "error": ""
+    },
+    {
+      "input": "20. Grip Strength in Young Tennis Players: Normative Values and Predictors of Performance.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, sport/competitive tennis status, dominant hand, tested hand, raw grip-strength value, dynamometer model and protocol, body mass, height, maturity-status method, testing date",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/41765013/",
+        "exact_protocol_and_normalization": "The verified abstract states only that testing was standardized and used a dynamometer, with body mass measured by medical scale and height by stadiometer; it does not disclose device model, handle setting, posture, familiarization, number/timing of trials, selection of score, units, or an exact normalization formula. Body mass, height, age, sex, and maturity status were measured or estimated as covariates.",
+        "exercise_or_test": "Dominant- and nondominant-hand maximal handgrip-strength assessment using a dynamometer (handgrip dynamometry).",
+        "permitted_use_note": "The publisher record identifies the article as restricted access and offers purchase or subscription access; do not reproduce or operationalize numerical normative tables without obtaining the article and reviewing applicable publisher/licensing terms.",
+        "population_and_sample": "214 competitive tennis players, boys and girls aged 9–18, associated with the University of Zagreb and Croatian tennis context; competitive level was recorded and maturity status was estimated. The abstract does not provide a more detailed geographic breakdown or subgroup counts.",
+        "reference_fields_or_percentiles": "Normative values were established across four adolescent age groups and by sex, with dominant versus nondominant hand considered; the accessible record does not expose the numerical tables, percentile definitions, or all stratification cells. Results also report body-mass associations and competitive-level comparisons adjusted for age, maturity, and body size.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Novak D, Viboh V, Barbaros P, Bilić Z, Marković G (2026). Grip Strength in Young Tennis Players: Normative Values and Predictors of Performance. DOI: 10.1123/ijspp.2025-0220; PMID: 41765013."
+      },
+      "error": ""
+    },
+    {
+      "input": "21. Hand Grip Strength in Senior Athletes: Normative Data and Community-Dwelling Comparisons.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex/gender, National Senior Games-style senior-athlete status, sport/competitive context, hand tested, hand dominance, Jamar hydraulic dynamometer, dynamometer position 2, seated posture with arm at side and elbow at 90°, three trials per side, 3–5-second maximal squeeze, analyzed second trial, grip strength in kg, test year",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/33354385/",
+        "exact_protocol_and_normalization": "Seated participant, arm at the side, elbow flexed to 90°, Jamar hydraulic hand-grip dynamometer set to position 2; three alternating trials per side, maximal squeeze for 3–5 seconds, recorded in kg; the second trial was analyzed, and the side with the higher average was designated dominant. No body-size normalization was reported in the verified article; exact device, setting, posture, trial number, analyzed trial, units, age band, sex, and dominance must match for numeric comparison.",
+        "exercise_or_test": "Maximal hand-grip strength testing of the right and left hands, including dominant and non-dominant hand values.",
+        "permitted_use_note": "The article is available through PubMed/PMC, but open access does not by itself establish permission to reproduce or commercialize its normative tables; obtain publisher/license clearance before embedding numeric reference values in Sports Genome, and preserve attribution and source limitations.",
+        "population_and_sample": "Cross-sectional sample of 2,333 National Senior Games athletes tested during 2011–2017; age 50–100 years (mean 68.07, SD 9.25), 948 men and 1,385 women, recruited at the Games in the United States; all were qualified competitors, with no additional health-based inclusion/exclusion criteria.",
+        "reference_fields_or_percentiles": "Normative means are reported in kilograms stratified by age, sex/gender, and hand dominance, with age bands 50–54, 55–59, 60–64, 65–69, 70–74, 75–79, 80–85, and 86+; the article reports descriptive normative tables and comparisons, not percentile curves. The abstract reports dominant-hand differences versus community-dwelling norms but those differences are not substitutes for the underlying table values.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Jordre B, Schweinle W (2020). HAND GRIP STRENGTH IN SENIOR ATHLETES: NORMATIVE DATA AND COMMUNITY-DWELLING COMPARISONS. DOI: 10.26603/ijspt202001; PMID: 33354385."
+      },
+      "error": ""
+    },
+    {
+      "input": "22. Eccentric hamstring strength in young athletes normalized to body mass. Suggested test: NordBord/Nordic hamstring strength.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, chronological age or age category, sport context, injury/training status, test date or season, NordBord model/protocol, left-leg peak force, right-leg peak force, body mass (kg), skeletal age/FELS status if using skeletal-age strata",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/37867754/",
+        "exact_protocol_and_normalization": "One familiarization/submaximal effort followed by one set of three maximal bilateral NHE repetitions on a VALD NordBord, kneeling with ankles secured immediately above the lateral malleoli; athletes leaned forward slowly while resisting the fall with a neutral trunk/pelvis. Uniaxial ankle load cells recorded force in newtons; the mean of left- and right-leg maximum force was the absolute score, and relative strength was normalized by dividing force by contemporaneous body mass in kilograms (N/kg).",
+        "exercise_or_test": "Nordic hamstring exercise (NHE) eccentric knee-flexor strength measured with the NordBord.",
+        "permitted_use_note": "The article is available through PubMed Central and states Biology of Sport copyright; numeric reuse, redistribution, and incorporation into a commercial Sports Genome product should be checked against the PMC/article license and publisher terms, and the source population and exact NordBord protocol must be disclosed.",
+        "population_and_sample": "Male full-time student athletes at Aspire Academy in Doha, Qatar, in football, athletics, and multi-sport programs; 330 athletes with 676 standardized tests, including 244 U12–U18 student-athlete observations, plus 346 Qatar Stars League professional male football players used for adult comparison. Student athletes were approximately 12.6–17.5 years across U13–U18 categories; participants were injury-free and able to train fully at testing.",
+        "reference_fields_or_percentiles": "Normative means with dispersion are reported by chronological age category (U13–U18), skeletal age (FELS method), sport category, and student-versus-Qatar Stars League professional status, for both absolute N and body-mass-normalized N/kg; the abstract reports approximately 3.6 N/kg for U13 and 4.5–4.7 N/kg for U14–U18. The record does not establish a universal percentile table for arbitrary athletes.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Jeanguyot E, Salcinovic B, Johnson A, van Dyk N, Whiteley R (2023). Eccentric hamstring strength in young athletes is best documented when normalised to body mass: A cross-sectional study with normative data of 590 athletes from different age categories. DOI: 10.5114/biolsport.2023.125585; PMID: 37867754."
+      },
+      "error": ""
+    },
+    {
+      "input": "23. Normalized Eccentric Hamstring Strength in Collegiate American Football: Position-Based Norms and Longitudinal Patterns.",
+      "output": {
+        "athlete_fields_required_for_match": "NordBord test protocol/version, body mass, player position, age, team/program affiliation, season or testing timepoint",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/42506958/",
+        "exact_protocol_and_normalization": "NordBord measurement normalized to body mass and expressed in N·kg−1; the abstract does not provide repetition count, familiarization, position/setup, force-selection rule, or other procedural details.",
+        "exercise_or_test": "Eccentric hamstring strength measured with a NordBord device; the abstract does not specify a more detailed exercise name or execution variant.",
+        "permitted_use_note": "The publisher record is a copyrighted, publish-ahead-of-print article and exposes an abstract rather than the full normative tables; numeric reuse and implementation should undergo publisher/license review, and no values should be transcribed from the abstract alone.",
+        "population_and_sample": "332 NCAA Division I American-football athletes from 4 teams; the authoritative abstract does not report sex, age range, or geographic locations. Longitudinal analysis included 50 athletes from 2 teams across 3 seasons.",
+        "reference_fields_or_percentiles": "The study states that it established normative values and reports stratification/predictor dimensions of player position, age, and team affiliation, plus longitudinal change across 3 seasons; no percentile values or complete reference table are available in the authoritative abstract.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Wilwand M, VanderAkker J, Guymon I, Mortensen BB, Johnson AW (2026). Normalized Eccentric Hamstring Strength in Collegiate American Football: Position-Based Norms and Longitudinal Patterns. DOI: 10.1519/JSC.0000000000005632; PMID: 42506958."
+      },
+      "error": ""
+    },
+    {
+      "input": "24. Normative values of hip strength in adult male association football players. Suggested tests: isometric hip flexion and adduction.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age, sport, injury status, competition/training level, test name, hip side/dominance, hip-flexion test angle, dynamometer protocol/device, raw strength unit and value, body mass if normalization is intended",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/19574097/",
+        "exact_protocol_and_normalization": "Handheld-dynamometry isometric testing; the authoritative abstract does not specify the full participant positioning, stabilization, contraction duration, device model, gravity correction, number of trials, rest intervals, tester procedures, or body-size normalization. Do not normalize or convert values without the full article protocol; reported values are in kg.",
+        "exercise_or_test": "Maximal isometric hip-flexor strength and hip-adductor strength assessed with a handheld dynamometer: hip flexion on dominant and non-dominant legs; hip adduction at 0°, 45°, and 90° of hip flexion.",
+        "permitted_use_note": "The publisher record indicates full-text access restrictions and provides a rights/reprints pathway; use numeric reference data only after confirming lawful access/licensing and reproducing the study's exact protocol. The accessible record does not authorize redistribution of tables or equations.",
+        "population_and_sample": "120 injury-free adult male association football (soccer) players recruited in New Zealand; mean age 24.9 years (SD 5.9); 80 participants (67%) reported previous groin pain. The abstract does not provide a narrower age range, competition level, or club/geographic sampling details.",
+        "reference_fields_or_percentiles": "Means with 95% confidence intervals are reported: dominant hip flexion 47.3 kg (45.6–49.0), non-dominant hip flexion 42.5 kg (41.1–43.9), adduction at 0° 35.6 kg (34.1–37.1), 45° 32.0 kg (30.9–33.1), and 90° 25.5 kg (24.4–26.5). The study also states that predictive equations and reference ranges were established, but percentile tables and their stratification dimensions are not available from the accessible authoritative record.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Hanna CM, Fulcher ML, Elley CR, Moyes SA (2010). Normative values of hip strength in adult male association football players assessed by handheld dynamometry. DOI: 10.1016/j.jsams.2009.05.001; PMID: 19574097."
+      },
+      "error": ""
+    },
+    {
+      "input": "25. Normative data for hip strength, flexibility and stiffness in male soccer athletes.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, sport, athlete status/team level, age, test name, limb side/dominance, measurement device, test position/protocol, raw outcome unit, body mass/height if the licensed table uses normalization",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/33197873/",
+        "exact_protocol_and_normalization": "The accessible abstract identifies a goniometer for flexibility, an inclinometer for passive hip stiffness, and a handheld dynamometer for isometric strength. Exact test positions, contraction procedures, trial structure, side/dominance definition, reliability procedures, and any body-size normalization are not available in the accessible record and must not be inferred.",
+        "exercise_or_test": "Rectus femoris, iliopsoas, and hamstring flexibility; passive hip stiffness; isometric hip extensors and external-rotators strength/torque.",
+        "permitted_use_note": "The publisher record is an article preview with full-text access restricted through organizational access and provides a rights-management link; numeric extraction, redistribution, and production use require review of the article/license terms.",
+        "population_and_sample": "293 asymptomatic male soccer athletes from three professional soccer teams: 159 elite youth players aged 15–17 years and 134 professional adult players aged 18–29 years. The accessible record identifies the teams and age groups but does not explicitly state the study geography.",
+        "reference_fields_or_percentiles": "Publisher preview states that reference values were reported by age category (elite youth versus professional adults) and lower limb/dominance for flexibility, passive hip stiffness, hip-extensor torque, and external-rotator torque. The accessible record does not expose the numeric table, percentile cut points, or additional stratification fields.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Juliana M. Ocarino, Renan A. Resende, Natalia F.N. Bittencourt, Ricardo V.A. Correa, Luciana M. Mendonça, Guilherme F. Reis, Thales R. Souza, and Sergio T. Fonseca (2021). Normative data for hip strength, flexibility and stiffness in male soccer athletes and effect of age and limb dominance. DOI: 10.1016/j.ptsp.2020.11.022; PMID: 33197873."
+      },
+      "error": ""
+    },
+    {
+      "input": "26. Field-based evaluation of hip adductor and abductor strength in professional male ice hockey players.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age/adult status, country/league level, sport, playing position, asymptomatic status, test date/season, dynamometer/device, test position/joint angle, contraction protocol, adductor strength, abductor strength, strength units, body-size normalization variables, pain score",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/32222647/",
+        "exact_protocol_and_normalization": "A straightforward approximately 5-minute on-field dynamometry procedure using maximal squeeze contractions; the accessible authoritative abstract/preview does not fully specify the device model, joint angles, contraction duration, repetitions, stabilization, or normalization formula. It does identify absolute and relative strength outcomes, so the athlete record must preserve the study's exact absolute/relative units and calculation method rather than substitute another normalization.",
+        "exercise_or_test": "Field-based hip adductor and hip abductor strength testing with dynamometry, including the hip adductor:abductor strength ratio; concomitant hip/groin pain was recorded with a visual analogue scale during testing.",
+        "permitted_use_note": "The article is Elsevier copyrighted and the numeric reference tables are not openly reproduced in the authoritative abstract/preview; use only with appropriate rights or license review, and do not redistribute copied table values without permission.",
+        "population_and_sample": "187 professional male ice hockey players from different teams in the Swiss National League (Switzerland); age range and exact age distribution are not stated in the accessible abstract/preview. Players underage and those with a time-loss injury on the test day were excluded; reference values were for asymptomatic athletes.",
+        "reference_fields_or_percentiles": "Reference values are reported for asymptomatic athletes stratified by playing position (goalkeepers, defenders, forwards), with absolute hip adductor strength, absolute hip abductor strength, relative strength measures, and the adductor:abductor ratio; the publisher preview states that low and high denote the 25th and 75th percentiles, respectively.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Ruben Oliveras, Mario Bizzini, Romana Brunner, Nicola A. Maffiuletti (2020). Field-based evaluation of hip adductor and abductor strength in professional male ice hockey players: Reference values and influencing factors. DOI: 10.1016/j.ptsp.2020.03.006; PMID: 32222647."
+      },
+      "error": ""
+    },
+    {
+      "input": "27. Physical Performance Measures of Flexibility, Hip Strength, Lower Limb Power, and Trunk Endurance in Healthy Navy Cadets.",
+      "output": {
+        "athlete_fields_required_for_match": "population/academy context, sex, test name, exact protocol and scoring units, limb side/dominance where applicable, raw test result, and any required body-size normalization variables",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/29351158/",
+        "exact_protocol_and_normalization": "The authoritative abstract identifies the tests but does not specify the detailed protocol, equipment, test timing/repetitions, scoring conventions, or body-size normalization; these must be verified from the full article before numeric matching.",
+        "exercise_or_test": "Ankle dorsiflexion range of motion; sit-and-reach test; isometric hip strength; single-leg hop test; plank test; side-plank tests.",
+        "permitted_use_note": "The record is a copyrighted journal article and the publisher full-text page was access-restricted; do not reproduce or ingest numeric tables without confirming access and licensing permissions.",
+        "population_and_sample": "545 Brazilian Navy cadets, including 394 men, representing 79% of the academy cadets; the abstract characterizes them as healthy, young, active cadets, but does not provide an age range.",
+        "reference_fields_or_percentiles": "Normative tables report mean ± SD, 95% confidence intervals, and percentiles, with comparisons stratified by sex and limb dominance; the abstract does not expose the table values or additional stratification fields.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Lopes, Thiago J. A.; Simic, Milena; Alves, Daniel de Souza; Bunn, Priscila dos Santos; Rodrigues, Allan I.; Terra, Bruno de Souza; Lima, Maicom da Silva; Ribeiro, Fabrício M.; Vilão, Patrick; Pappas, Evangelos (2021). Physical Performance Measures of Flexibility, Hip Strength, Lower Limb Power, and Trunk Endurance in Healthy Navy Cadets: Normative Data and Differences Between Sex and Limb Dominance. DOI: 10.1519/JSC.0000000000002365; PMID: 29351158."
+      },
+      "error": ""
+    },
+    {
+      "input": "28. Isometric shoulder strength reference values for physically active collegiate males and females.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, geography/institutional context, shoulder health/injury status, body mass, arm dominance, test movement and position, dynamometer model/equipment, dynamometer placement, contraction duration, number of trials, selected-trial rule, raw force, body-mass-normalized force",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3548662/",
+        "exact_protocol_and_normalization": "Lafayette Instrument handheld dynamometer (model 01163); two trials per side and position, using the greatest force from a 5-second maximal contraction rather than a break test. The dynamometer was placed just proximal to the elbow for abduction and just proximal to the wrist styloid for other tests. Strength means and standard deviations were reported both as raw force and normalized by body mass (strength/body mass), analyzed by sex and arm dominance.",
+        "exercise_or_test": "Bilateral isometric shoulder internal rotation, external rotation, and abduction in the neutral position; supine internal rotation and external rotation at 45° shoulder abduction; and prone flexion/lower-trapezius testing.",
+        "permitted_use_note": "Use only within the study's narrowly defined healthy, physically active 17–21-year-old military-academy student population and with a materially equivalent handheld-dynamometry protocol; do not generalize the values to other ages, sports, institutions, injury states, equipment, or protocols. Verify any redistribution or commercial use against the PMC/publisher license and source terms.",
+        "population_and_sample": "619 physically active freshman students, ages 17–21, entering the United States Military Academy at West Point, New York: 546 males (18.8 ± 1.0 years; 75.3 ± 12.2 kg) and 73 females (18.7 ± 0.9 years; 62.6 ± 7.0 kg). Participants had normal shoulder examinations and were excluded for current symptoms, prior shoulder surgery, instability or trauma, neurological disease, or cervical/thoracic injury.",
+        "reference_fields_or_percentiles": "Reference means and standard deviations, stratified by sex and dominant versus nondominant arm, for each of the six shoulder/lower-trapezius test positions; the article reports normative values rather than percentile bands.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Richard B. Westrick, Michele L. Duffey, Kenneth L. Cameron, J. Parry Gerber, and Brett D. Owens (2013). Isometric Shoulder Strength Reference Values for Physically Active Collegiate Males and Females. DOI: 10.1177/1941738112456280; PMID: 24381696."
+      },
+      "error": ""
+    },
+    {
+      "input": "29. Normative Values of Isometric Shoulder Strength Among Healthy Adults.",
+      "output": {
+        "athlete_fields_required_for_match": "test movement, dynamometer make-test protocol, device, contraction duration, trial count and averaging rule, arm side/dominance, sex, age decade, body mass, force units, normalization method, symptom/injury status, activity level",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/37547848/",
+        "exact_protocol_and_normalization": "Calibrated MicroFET 2 handheld dynamometer; five-second maximal isometric make contraction; three bilateral trials per position, averaged; five-second rest between repetitions and 30-second rest between movements; randomized test order with verbal encouragement. Muscle force was normalized as Newtons of force divided by body mass in kilograms; an external-rotation/internal-rotation ratio was also calculated.",
+        "exercise_or_test": "Bilateral maximal isometric shoulder strength using seven movements: external rotation at side (ER0), internal rotation at side (IR0), abduction at 90° shoulder abduction (ABD), external rotation at 90° abduction (ER90), internal rotation at 90° abduction (IR90), belly press (BP), and scapular-plane abduction at 90° elevation with neutral rotation (SCAP).",
+        "permitted_use_note": "The article is openly available through PubMed Central, but any reuse or redistribution of numeric tables should follow the article’s stated copyright/license terms and attribution requirements; clinical normative values should not be presented as athlete-specific standards without an exact protocol and population match.",
+        "population_and_sample": "Observational cohort of 400 healthy adults recruited by convenience sampling through hospital employees, local health fairs, community events, and word of mouth in the Vail Health community: 200 men and 200 women, with 50 men and 50 women in each age group (20–29, 30–39, 40–49, and 50–59 years). Participants had no upper-extremity impairment, recent shoulder/elbow/wrist pain, prior shoulder surgery, or upper-extremity radicular symptoms; activity level and overhead/contact-sport participation were recorded, but this was not an athlete-specific cohort.",
+        "reference_fields_or_percentiles": "Reported means with standard deviations or 95% confidence intervals, plus 5th, 25th, 50th, 75th, and 95th percentiles, stratified by age decade, sex, arm dominance, and test position; regression examined age, sex, weight, height, and activity level.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Helen Bradley and Lauren Pierpoint (2023). Normative Values of Isometric Shoulder Strength Among Healthy Adults. DOI: 10.26603/001c.83938; PMID: 37547848."
+      },
+      "error": ""
+    },
+    {
+      "input": "30. Profile of upper extremity strength and function in Division 1 collegiate athletes.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, sport, age or class/freshman status, injury/pain eligibility, shoulder test, internal/external rotation or forward elevation, dominant/non-dominant side, hand-held dynamometer protocol, force units, CKCUEST protocol, CKCUEST touches",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/32330847/",
+        "exact_protocol_and_normalization": "Two trials of each test; shoulder force measured with a hand-held dynamometer and reported in kilograms for dominant and non-dominant sides; CKCUEST reported as touches. The accessible authoritative record does not specify the full joint-position, stabilization, contraction-duration, rest-interval, dynamometer-placement, or CKCUEST timing/setup details, and does not report body-size normalization.",
+        "exercise_or_test": "Isometric shoulder peak force for internal rotation, external rotation, and forward elevation; Closed Kinetic Chain Upper Extremity Stability Test (CKCUEST), scored as number of touches.",
+        "permitted_use_note": "Use only as a potentially comparable research reference after confirming the complete published protocol and any publisher/licensing restrictions; do not extrapolate the reported means to other ages, competition levels, sports, devices, normalization methods, or non-healthy populations.",
+        "population_and_sample": "476 healthy Division I collegiate athletes at a University of Pennsylvania Division I university, including 270 males and 206 females, mean age 18 years; incoming freshmen from three consecutive years across 27 varsity sports (14 men’s and 14 women’s sports). Athletes with current or previous cervical-spine or upper-extremity injury, or current related pain, were excluded. Geography beyond the institution is not reported in the accessible record.",
+        "reference_fields_or_percentiles": "Sex-stratified mean (SD) values are reported, with dominant/non-dominant stratification for shoulder peak force; CKCUEST mean (SD) values are reported by sex and the article describes sport-dependent normative comparisons. No percentile table is identified in the accessible record.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Pontillo M, Sennett BJ (2020). Profile of upper extremity strength and function in division 1 collegiate athletes. DOI: 10.1016/j.ptsp.2020.03.003; PMID: 32330847."
+      },
+      "error": ""
+    },
+    {
+      "input": "31. Upper-Extremity Functional Performance Tests: Reference Values for Overhead Athletes.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, sport, exact test, test side for YBT-UQ, protocol/equipment version, normalization variables if required by the full methods",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/29564843/",
+        "exact_protocol_and_normalization": "The authoritative abstract confirms that participants performed the three named functional tests but does not state the exact trial instructions, equipment specifications, scoring equations, rest periods, or body-size/limb-length normalization requirements. Do not match numerically until the full methods and tables are reviewed under the applicable access/licensing terms.",
+        "exercise_or_test": "Y Balance Test–Upper Quarter (YBT-UQ), Closed Kinetic Chain Upper Extremity Stability Test (CKCUEST), and Seated Medicine Ball Throw (SMBT).",
+        "permitted_use_note": "The institutional record states “No license (in copyright)”; use the bibliographic record for discovery and qualification, and review publisher/licensing terms before reproducing or operationalizing numeric reference tables.",
+        "population_and_sample": "206 overhead athletes (106 male, 100 female), ages 18–50, from volleyball, tennis, and handball; affiliated with Ghent University, Belgium. The PubMed abstract does not provide further geographic recruitment details or sport-specific subgroup counts.",
+        "reference_fields_or_percentiles": "Normative values were established and divided by sex, sport, and age; YBT-UQ additionally had side-related differences. The abstract does not specify whether the published tables are percentiles or provide the statistic values.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Borms D, Cools A (2018). Upper-Extremity Functional Performance Tests: Reference Values for Overhead Athletes. DOI: 10.1055/a-0573-1388; PMID: 29564843."
+      },
+      "error": ""
+    },
+    {
+      "input": "32. Upper limb functional testing: does age, gender, and sport influence performance? Suggested tests: single-arm medicine-ball throw, seated single-arm shot put, MAST, CKCUEST, posterior shoulder endurance.",
+      "output": {
+        "athlete_fields_required_for_match": "test name and exact protocol/equipment, sport, sex, age or study age group, dominant/nondominant side where applicable, raw score and units, height/upper-limb length where normalization applies, injury/pain status, training frequency/level",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11733552/",
+        "exact_protocol_and_normalization": "Participants supplied age, height, weight, sex, practice hours/level, and injury history. After standardized warm-up and two familiarization trials, tests were randomized; generally three repetitions were performed with the best score retained, one-minute rests between repetitions and five-minute rests between tests; PSET was performed last after 15 minutes’ recovery and was not repeated to limit fatigue. SAMBT and SSASPT were recorded as maximal distance in meters; MCKCUEST and ULRT as maximal repetitions/touches; PSET as time to exhaustion at 30 beats/min with a shoulder-height bar and compensatory-movement criteria; UQYBT distances were normalized to upper-limb length; M-AST dynamometer values were multiplied by upper-limb length to yield N·m. Exact equipment/load details from Appendix A must be matched before comparison.",
+        "exercise_or_test": "Modified-Athletic Shoulder Test (M-AST), Single Arm Medicine Ball Throw (SAMBT), Seated Single Arm Shot Put Test (SSASPT), Upper Limb Rotation Test (ULRT), Upper Quarter Y Balance Test (UQYBT), Modified Closed Kinetic Chain Upper Extremity Stability Test (MCKCUEST), and Posterior Shoulder Endurance Test (PSET).",
+        "permitted_use_note": "Use only for research or benchmarking after confirming the article’s full-text license and reproducing its exact protocol, inclusion/exclusion criteria, age grouping, sport strata, side designation, and normalization; do not treat the reported means/SDs as universal norms or redistribute tables without license review.",
+        "population_and_sample": "587 male and female athletes aged 14–35 years in Belgium, practicing handball, rugby, swimming, tennis, or volleyball at least twice weekly; after exclusions for pain, prior shoulder injury, professional/high-volume status, and insufficient sport experience, 496 athletes were analyzed (40 handball, 89 rugby, 96 swimmers, 88 tennis, 183 volleyball).",
+        "reference_fields_or_percentiles": "Normative mean ± standard deviation values are reported, stratified by sport, sex, adolescent versus adult age group, and dominant/nondominant side where applicable; SAMBT and SSASPT are in meters, ULRT/MCKCUEST in repetitions or touches, PSET in exhaustion time, UQYBT as a percentage of upper-limb length, and M-AST in N·m. The article reports normative values for the analyzed athletes but does not establish universal percentile cutoffs in the verified abstract/full-text sections.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Tooth C, Schwartz C, Croisier J-L, Gofflot A, Bornheim S, Forthomme B (2024). Upper limb functional testing: does age, gender, and sport influence performance? DOI: 10.1016/j.jseint.2024.08.177; PMID: 39822833."
+      },
+      "error": ""
+    },
+    {
+      "input": "33. Taylor et al. Upper-Extremity Physical-Performance Tests in College Athletes.",
+      "output": {
+        "athlete_fields_required_for_match": "test name, exact protocol/version, sex, NCAA Division I status, sport, arm dominance, limb length (for UQYBT normalization), directional UQYBT scores, UQYBT composite, CKCUEST reaches, test date/context",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/25611827/",
+        "exact_protocol_and_normalization": "CKCUEST: push-up position with hands on tape targets, alternating cross-body touches as rapidly as possible for 15 seconds; one trial, score is total reaches. UQYBT: push-up position, balancing on one arm while moving a target in lateral, overhead, and underbody directions with the opposite arm; three trials per side, best reach in each direction recorded. UQYBT reaches are normalized as greatest reach divided by limb length (C7 spinous process to middle fingertip with arms at 90° abduction) ×100; composite is the mean of the three directional best scores. Tests were analyzed by dominant/non-dominant arm, with dominance defined as self-reported preferred throwing arm. No body-weight or height normalization is reported for CKCUEST.",
+        "exercise_or_test": "Closed Kinetic Chain Upper-Extremity Stability Test (CKCUEST) and Upper-Quarter Y-Balance Test (UQYBT).",
+        "permitted_use_note": "The PubMed record and publisher abstract support citation and scope verification; numeric normative values should be reproduced only from the lawfully obtained article/tables and under applicable publisher/licensing terms, with no extrapolation beyond the studied Division I sport-sex strata.",
+        "population_and_sample": "257 NCAA Division I college athletes (118 male, 139 female) in basketball, soccer, baseball, lacrosse, volleyball, track and field, and cross-country; the abstract reports nine men's and women's sport groups, but does not provide age range or geography.",
+        "reference_fields_or_percentiles": "Means, SDs, and 10th–90th percentile values are reported for CKCUEST and UQYBT, stratified by sex (men/women) and dominant versus non-dominant arm for UQYBT; sport-specific mean/SD results are also reported for the listed men's and women's sports. Year in school and sport/sex interactions were analyzed.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Taylor JB, Wright AA, Smoliga JM, DePew JT, Hegedus EJ (2016). Upper-Extremity Physical-Performance Tests in College Athletes. DOI: 10.1123/jsr.2014-0296; PMID: 25611827."
+      },
+      "error": ""
+    },
+    {
+      "input": "34. Roush et al. Reference Values for the Closed Kinetic Chain Upper Extremity Stability Test for Collegiate Baseball Players.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age, sport, collegiate level/context, current injury/pain status, recent upper-extremity surgery status, medical clearance, CKCUEST setup spacing, trial duration, number of trials, inter-trial rest, scoring method, position",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/21522211/",
+        "exact_protocol_and_normalization": "Two 1.5-inch-wide athletic-tape lines were placed 36 inches apart on a tile floor. Starting in a traditional push-up position with one hand on each line, the athlete alternately reached across the body to touch the opposite line and returned the hand. After a warm-up, three 15-second trials were performed with 45 seconds of rest; the mean of the three trials was analyzed. Height and weight were recorded and BMI reported, but the CKCUEST outcome itself was not body-size normalized.",
+        "exercise_or_test": "Closed Kinetic Chain Upper Extremity Stability Test (CKCUEST), scored as the number of hand touches in 15 seconds.",
+        "permitted_use_note": "Use only as a clinical/reference comparator for the narrowly defined male collegiate baseball population and the published protocol; do not generalize to females, other sports or levels, injured athletes, different CKCUEST setups, or substitute unreported percentiles. Verify the PMC article's reuse/license terms before reproducing tables or distributing numeric reference data.",
+        "population_and_sample": "77 male collegiate baseball players, ages 18–22, recruited from two community colleges in Arizona and one NCAA Division III college in California; participants had no recent shoulder, elbow, or hand-wrist injury, no upper-extremity surgery within the prior year, were medically cleared for practice/competition, and had no current upper-extremity pain or fatigue.",
+        "reference_fields_or_percentiles": "Overall and playing-position (pitcher, catcher, infielder, outfielder) descriptive reference statistics were reported as mean touches and standard deviation; overall n=77, mean=30.41 touches, SD=3.87. The abstract reports normally distributed data and calculated reference values, but no percentile table is identified in the PubMed abstract.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Roush JR, Kitamura J, Waits MC (2007). Reference Values for the Closed Kinetic Chain Upper Extremity Stability Test (CKCUEST) for Collegiate Baseball Players. PMID: 21522211; PMCID: PMC2953295."
+      },
+      "error": ""
+    },
+    {
+      "input": "35. Assef et al. CKCUEST Reference Values for NCAA American Football.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, sport, NCAA competition level/division, football position, upper-extremity injury history, year in school, height, mass, BMI, CKCUEST setup (36-inch spacing), trial duration (15 seconds), number of trials (3), rest interval (45 seconds), scoring rule (mean touches)",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/40904720/",
+        "exact_protocol_and_normalization": "Push-up position with one hand on each tape line 36 inches apart and shoulders aligned over the hands; alternating hand touches across to the dorsum of the opposite hand, returning each hand to its line; maximum effort for 15 seconds. After practice, three trials were performed with 45 seconds rest after each, and the mean number of touches was the score. Height, mass, and BMI were collected, but the reported reference score was not body-size normalized; the paper notes normalized/power values as future work.",
+        "exercise_or_test": "Closed Kinetic Chain Upper Extremity Stability Test (CKCUEST).",
+        "permitted_use_note": "The full text is available through PMC, but the retrieved record does not establish a product-reuse or commercial-licensing grant; obtain permission or complete license review before reproducing numeric tables or embedding the reference in a commercial system. Use the study’s scope and protocol faithfully, and do not present the mean as a percentile.",
+        "population_and_sample": "Eighty male NCAA American football players from three institutions, competing at NCAA Division I, II, or III level; mean 2.5 years in school (95% CI 2.2–2.8); data collected in spring and summer 2024. Players were eligible regardless of injury status; those unable to complete the CKCUEST were excluded.",
+        "reference_fields_or_percentiles": "Overall mean 27.3 touches; conclusion reference value 27 touches; minimal detectable change 1.2, interpreted as at least 2 touches for measurable change. Means with 95% CIs were reported by NCAA division (I/II/III), position group, and upper-extremity-injury history; notable means included linebackers 29.7, offensive linemen 24.8, linemen combined 25.7, and all other positions combined 28.1. No percentile table was reported.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Assef N, Endsley C, Skoumal C, Schlafke J, Dewald M (2025). Closed Kinetic Chain Upper Extremity Stability Test Reference Values for NCAA American Football. DOI: 10.26603/001c.143374; PMID: 40904720."
+      },
+      "error": ""
+    },
+    {
+      "input": "36. Isometric Trunk Strength Assessment of Athletes: Effects of Sex, Sport, and Low Back Pain History.",
+      "output": {
+        "athlete_fields_required_for_match": "test modality and apparatus, trunk movement/test direction, participant position and restraints, contraction/trial protocol, body mass, sex, sport category, low-back-pain history/status",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/34552035/",
+        "exact_protocol_and_normalization": "The verified abstract states that normalized maximal strength was calculated in N·m/kg and that strength ratios were calculated, but it does not specify the apparatus, participant positioning, restraint setup, contraction duration, trial structure, or full normalization procedure; exact matching therefore requires the restricted full text.",
+        "exercise_or_test": "Isometric trunk strength testing for trunk flexors, trunk extensors, and left/right lateral flexors; strength ratios were also evaluated.",
+        "permitted_use_note": "The publisher record is marked restricted access; do not reproduce or operationalize numeric normative tables unless lawfully obtained and licensed, and do not infer missing protocol details from the abstract.",
+        "population_and_sample": "Five hundred sixty-seven elite athletes, including 186 females, from different sports, with and without a history of low back pain; the PubMed abstract does not provide verified age range or geography.",
+        "reference_fields_or_percentiles": "The study aimed to provide normative values and stratified analyses by sex, low-back-pain status, and seven sport categories. The abstract reports means and 95% confidence intervals for selected strength ratios (extensors/flexors and left/right flexors), plus effect sizes and ROC AUCs, but does not verify percentile tables or complete sport-by-sex reference fields.",
+        "safe_sports_genome_decision": "candidate_after_license_review",
+        "verified_citation": "Spudić, Darjan; Vodičar, Janez; Vodičar, Miha; Hadžić, Vedran (2022). Isometric Trunk Strength Assessment of Athletes: Effects of Sex, Sport, and Low Back Pain History. DOI: 10.1123/jsr.2021-0002; PMID: 34552035."
+      },
+      "error": ""
+    },
+    {
+      "input": "37. Harbo et al. Maximal isokinetic and isometric muscle strength of major muscle groups related to age, body mass, height, and sex.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age, height, body mass, joint/muscle group, contraction mode, Biodex System 3 PRO protocol, angular velocity, joint angle, side tested, peak torque",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/21537927/",
+        "exact_protocol_and_normalization": "Testing used a Biodex System 3 PRO dynamometer; the outcome was peak torque. The study modeled strength separately by sex with age, height, and body mass as predictors. Specific joint angles, contraction velocities, repetitions, side tested, and normalization formulas are not available in the authoritative abstract and must not be inferred.",
+        "exercise_or_test": "Eighteen sex-specific test protocols assessing maximal concentric isokinetic and maximal isometric muscle strength at the knee, ankle, hip, shoulder, elbow, and wrist.",
+        "permitted_use_note": "The publisher record indicates subscription access, so reuse of full numeric tables, prediction equations, or derived reference displays requires access and license review; the cohort is non-athletic and should not be presented as athlete norms.",
+        "population_and_sample": "178 healthy non-athletic Danish volunteers (93 male, 85 female), aged 15–83 years; recruited in Denmark, with no athlete-specific cohort reported.",
+        "reference_fields_or_percentiles": "Sex-specific multiple-linear-regression normative models and estimated prediction intervals; age, height, and body mass were adjustment dimensions. The abstract reports explained-variance ranges but does not provide percentile tables or numeric reference values.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Thomas Harbo, John Brincks, Henning Andersen (2012). Maximal isokinetic and isometric muscle strength of major muscle groups related to age, body mass, height, and sex in 178 healthy subjects. DOI: 10.1007/s00421-011-1975-3; PMID: 21537927."
+      },
+      "error": ""
+    },
+    {
+      "input": "38. Systematic Review of Isokinetic Muscle Strength in a Healthy Population. Suggested scope: 31 studies and normative values across limbs.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, age, geography/study population, training status, joint, movement, side, dynamometer/device, test position, angular velocity, sets, repetitions, warm-up, rest interval, outcome parameter, normalization method, measurement units",
+        "authoritative_url": "https://pubmed.ncbi.nlm.nih.gov/36645122/",
+        "exact_protocol_and_normalization": "Protocols were heterogeneous across studies: angular velocities ranged from 10 to 300 deg/s, with differences in dynamometer device, joint/movement, participant position, sets, repetitions, warm-up, rest intervals, stopping criteria, calibration, and reporting units. Some studies normalized peak torque by body weight (Nm/kg), while others used unnormalized or differing units; exact protocol and normalization must therefore be matched study-by-study.",
+        "exercise_or_test": "Upper- and lower-limb isokinetic muscle-strength testing, including joint-specific agonist/antagonist movements; peak torque was the most frequently measured parameter.",
+        "permitted_use_note": "The article is available through PubMed/PMC, but its normative tables aggregate heterogeneous underlying studies and protocols; use only the cited source values with appropriate attribution and verify any reuse, licensing, and supplementary-table terms before product deployment.",
+        "population_and_sample": "Systematic review of 31 eligible studies of healthy, untrained and/or inactive, noninjured people who did not practice sports or regular physical training; individual study samples ranged from 28 to 3,587, ages 6–93 years, with mostly mixed-sex samples. The review searched MEDLINE/PubMed, Scopus, Scielo, and CINAHL through June 2020; participant geography was heterogeneous and is not a single pooled population.",
+        "reference_fields_or_percentiles": "The review extracted 1,845 normative data items (1,181 lower-limb and 664 upper-limb) and synthesized values by age group/stage of life and sex; tables also organize results by articulation and isokinetic parameter. It reports reference values rather than one uniform pooled percentile framework; no single universal percentile set should be inferred.",
+        "safe_sports_genome_decision": "context_only_not_numeric",
+        "verified_citation": "Schindler IFSR, Pontes SS, Bertoni MBM, Junior GF, Júnior BRN, de Jesus FLA, Neto MG (2023). A Systematic Review of Isokinetic Muscle Strength in a Healthy Population With Special Reference to Age and Gender. DOI: 10.1177/19417381221146258; PMID: 36645122."
+      },
+      "error": ""
+    },
+    {
+      "input": "39. Neuromuscular Profile of CrossFit Athletes: Part 1—Isometric and Ballistic Performance. Suggested test: relative IMTP peak force, RFD, ballistic measures.",
+      "output": {
+        "athlete_fields_required_for_match": "sex, CrossFit® competitive/training status, age, body mass, prior-injury/medical eligibility, IMTP bar height and joint angles, IMTP equipment/sampling rate, IMTP peak force, IMTP RFD time windows, IMTP time to peak force, CMJ hands-on-hips protocol, CMJ equipment/sampling rate, CMJ jump height, CMJ force variables, CMJ/IMTP peak force for DSI",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028203/",
+        "exact_protocol_and_normalization": "Fifth-generation Hawkin Dynamics dual force plates, 1000 Hz. IMTP used a fixed bar at the second-pull/power position (knee angle 125–145°, hip angle 140–150°), clean grip with straps, two 5-second maximal pulls separated by 1 minute; the highest peak-force trial was analyzed. CMJ used hands on hips, three maximal jumps separated by 30 seconds; the highest jump-height trial was analyzed. Relative IMTP peak force and CMJ force variables were normalized to body mass (N/kg); DSI was CMJ peak force divided by IMTP peak force. Jump height used force-plate impulse–momentum calculations.",
+        "exercise_or_test": "Two maximal isometric mid-thigh pull (IMTP) trials and three countermovement jump (CMJ) trials in one session; reported IMTP peak force, relative peak force, RFD at 0–50 ms and 0–250 ms, time to peak force, and DSI, plus CMJ jump height, take-off velocity, jump momentum, relative braking and propulsive peak force, and modified reactive strength index.",
+        "permitted_use_note": "The publisher identifies the article as open access under a Creative Commons CC BY license, permitting reuse with appropriate citation; numeric benchmarking should remain limited to athletes and measurements matching the study’s sex-stratified population, equipment, protocol, normalization, and test definitions.",
+        "population_and_sample": "72 actively competitive, performance-oriented CrossFit® athletes from three CrossFit® boxes in Spain: 41 males (35.78 ± 8.23 years) and 31 females (36.61 ± 8.41 years); mean CrossFit® experience 4.32 ± 1.24 and 3.00 ± 2.18 years, respectively. The authors classify the sample as Tier 2 trained/developmental; participants had no musculoskeletal injury in the prior 12 months or limiting medical condition.",
+        "reference_fields_or_percentiles": "Descriptive mean ± SD and sex-stratified percentile cutoffs are provided for males and females separately. IMTP tables include peak force, relative peak force, RFD 0–50 ms, RFD 0–250 ms, time to peak force, and DSI; CMJ tables include jump height, jump momentum, relative braking force, relative propulsive force, and mRSI. Cutoffs cover approximately the 0.15th, 3rd, 16th, 25th, 30.85th, 50th, 69.15th, 75th, 84th, 97th, and 99.85th percentiles. No age- or geography-specific strata beyond the male/female sample are reported.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Alonso-Aubin DA, Jiménez-Ormeño E, Gallo-Salazar C, Giráldez-Costas V, Ruiz-Vicente D, Zafra-Díaz S, Areces-Corcuera F, Ruiz-Moreno C (2026). Neuromuscular Profile of CrossFit® Athletes: Part 1—Isometric and Ballistic Performance. DOI: 10.3390/jfmk11010118; PMID: 41900525."
+      },
+      "error": ""
+    },
+    {
+      "input": "40. Normative values for calf muscle strength-endurance in the general population assessed with the Calf Raise Application. Suggested test: single-leg heel raise.",
+      "output": {
+        "athlete_fields_required_for_match": "age, sex, height, body mass, BMI, physical activity level, tested leg/dominance, repetitions, total work, total vertical displacement, peak height, 10° incline-board barefoot protocol, metronome cadence, Calf Raise Application measurement",
+        "authoritative_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11923623/",
+        "exact_protocol_and_normalization": "Barefoot single-leg stance on a 10° incline board, knee fully extended and trunk erect, with optional fingertip wall support; heel raised maximally and returned to the board at 30 repetitions/minute using a 60-beats/minute metronome until predefined failure criteria. An iPad/iPhone recorded from the side at 30 cm (up to 50 cm for longer feet); a 2.5-cm sticker below the distal lateral malleolus was tracked by computer vision. Normative quantile-regression models incorporated relevant personal characteristics, including age, height, mass, BMI, sex, and physical-activity level; the article does not define a simple universal body-size normalization formula.",
+        "exercise_or_test": "Single-leg Heel Rise Endurance Test (HRET), performed on both dominant and non-dominant legs and assessed with the validated Calf Raise Application.",
+        "permitted_use_note": "The publisher record identifies the article as open access under a Creative Commons Attribution 4.0 license; reuse should still retain attribution and comply with the license. The Calf Raise Application is developer-associated, so app/software terms and any underlying-data restrictions should be checked before redistribution or commercial integration.",
+        "population_and_sample": "500 adults aged 18–81 years recruited at Erasmus MC University Medical Centre (Netherlands) and the University of Leicester (United Kingdom); 55% were female and 88% participated in physical activities. Participants had no current or prior Achilles tendon symptoms, Achilles/ankle surgery, recent lower-limb immobilization, or specified systemic inflammatory/internal disease.",
+        "reference_fields_or_percentiles": "Reference outcomes were repetition count, total work (J), total vertical displacement (cm), and peak height (cm), reported with medians (50th percentile) and 95% reference intervals (2.5th–97.5th percentiles), stratified/adjusted by personal characteristics and leg dominance. Abstract medians for dominant/non-dominant legs were 25/24 repetitions, 1374/1325 J total work, 192/186 cm displacement, and 9.3/9.6 cm peak height.",
+        "safe_sports_genome_decision": "candidate_exact_match_only",
+        "verified_citation": "Tjerk SO Sleeswijk Visser, Seth O’Neill, Kim Hébert-Losier, Denise Eygendaal, and Robert-Jan de Vos (2025). Normative values for calf muscle strength-endurance in the general population assessed with the Calf Raise Application: A large international cross-sectional study. DOI: 10.1016/j.bjpt.2025.101188; PMID: 40020545."
+      },
+      "error": ""
+    }
+  ]
+}

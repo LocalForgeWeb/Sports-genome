@@ -89,8 +89,10 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('className="strength-region-history"');
     expect(source).toContain("Recorded history ({records.length})");
     expect(source).toContain('aria-pressed={String(record.id) === String(latestRecord.id)}');
-    expect(source).toContain("Population reference unavailable.");
-    expect(source).toContain("does not include every required source population and standardized protocol condition");
+    expect(source).toContain('getStrengthReferencePresentation');
+    expect(source).toContain('referencePresentation.title');
+    expect(source).toContain('referencePresentation.message');
+    expect(source).toContain('View source scope');
     expect(source).toContain("No recorded test for this region yet.");
     expect(source).not.toContain("regional percentile");
   });

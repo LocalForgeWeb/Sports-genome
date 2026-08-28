@@ -9,6 +9,8 @@ import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { displayWeightToKilograms, formatDisplayWeight, weightUnitLabel, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
+import { getStrengthReferencePresentation } from "../../../shared/strengthReferencePresentation";
+import type { StrengthReferenceMatchInput } from "../../../shared/strengthReferenceQualification";
 
 type MeasurementType =
   | "MEASURED_1RM"
@@ -52,6 +54,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const setObservationBodyMass = trpc.strengthGenome.setObservationBodyMass.useMutation({ onSuccess: async () => { emitInteractionFeedback([10, 30, 10]); setBodyMassSaveError(null); setBodyMassEntry(""); toast.success("Test body mass saved. Your recorded ratio is ready."); await Promise.all([utils.strengthGenome.observations.invalidate(), utils.strengthGenome.overview.invalidate()]); }, onError: () => { setBodyMassSaveError("Body mass was not saved. Your entry is still here—check your connection and try again."); toast.error("Could not save test body mass. Check your connection and try again."); } });
   const latestRecord = selectStrengthRegionRecord(records, selectedRecordId);
   const bodyMassRatio = latestRecord?.loadKg != null && latestRecord.bodyMassKgAtTest != null && latestRecord.bodyMassKgAtTest > 0 ? latestRecord.loadKg / latestRecord.bodyMassKgAtTest : null;
+  const referencePresentation = latestRecord ? getStrengthReferencePresentation({ exerciseName: latestRecord.exerciseName, testType: latestRecord.measurementType as StrengthReferenceMatchInput["testType"], repetitions: latestRecord.repetitions ?? undefined, bodyMassKgAtTest: latestRecord.bodyMassKgAtTest ?? undefined, equipment: latestRecord.equipment ?? undefined }) : undefined;
   const parsedBodyMassEntry = Number(bodyMassEntry);
   return <section className="strength-region-record-detail" aria-label={`${region.label} recorded strength context`}>
     <div className="strength-region-record-heading"><div><p className="metric-label">Regional record</p><h2 tabIndex={-1} data-strength-region-heading>{region.label}</h2></div><button type="button" onClick={() => { emitInteractionFeedback(); onClose(); }} className="strength-region-close" aria-label={`Close ${region.label} detail`}><X className="h-4 w-4" /></button></div>
@@ -63,7 +66,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}</span>
       </article>
       <details className="strength-region-history"><summary>Recorded history ({records.length})</summary><div>{records.map((record) => <button type="button" key={record.id} aria-pressed={String(record.id) === String(latestRecord.id)} onClick={() => { emitInteractionFeedback(); setSelectedRecordId(String(record.id)); }}><strong>{record.exerciseName}</strong><span>{record.loadKg != null ? formatDisplayWeight(record.loadKg, weightUnit) : "No load"}{record.repetitions ? ` · ${record.repetitions} reps` : ""} · {new Date(record.observedAt).toLocaleDateString()}</span></button>)}</div></details>
-      <p className="strength-reference-unavailable"><strong>Population reference unavailable.</strong> This record does not include every required source population and standardized protocol condition, so no percentile, rank, or general benchmark is shown.</p>
+      {referencePresentation && <p className="strength-reference-unavailable"><strong>{referencePresentation.title}</strong> {referencePresentation.message}{referencePresentation.sourceUrl && <> <a href={referencePresentation.sourceUrl} target="_blank" rel="noreferrer">View source scope</a>.</>}</p>}
     </> : <div className="strength-region-record-empty"><p>No recorded test for this region yet.</p><p>Population reference unavailable until there is a fully documented, source-matched test.</p></div>}
     <details className="strength-region-boundary"><summary>About this rating</summary><p>This is your recorded lift relative to the body mass logged with that same test. A percentile, universal rank, and regional force score are not shown without a matching validated reference.</p></details>
   </section>;

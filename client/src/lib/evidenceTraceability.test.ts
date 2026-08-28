@@ -20,4 +20,10 @@ describe("evidence-to-logic traceability", () => {
     expect(logicCalibration.recommendation.assistanceFallbackLimit).toBeGreaterThan(logicCalibration.recommendation.assistanceLimit);
     expect(logicCalibration.fingerprint.fatigueStrengthThreshold).toBeGreaterThan(logicCalibration.exerciseGenome.contextualGradeB);
   });
+
+  it("keeps external strength references separate, qualified, and unavailable when their source conditions do not match", () => {
+    const entry = evidenceTraceability.find((item) => item.id === "source-qualified-strength-references");
+    expect(entry?.sourceUrls).toContain("https://strengthlevel.com/terms-and-conditions");
+    expect(entry?.athleteBoundary).toContain("Unmatched, incomplete, unlicensed, or generic observations remain unavailable");
+  });
 });

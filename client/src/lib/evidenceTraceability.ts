@@ -341,6 +341,14 @@ export const evidenceTraceability: readonly LogicTraceabilityEntry[] = [
     athleteBoundary: "A cited study result is population- and protocol-specific. A blank or unavailable source field is shown as unavailable, never as a favorable or unfavorable athlete result.",
   },
   {
+    id: "source-qualified-strength-references",
+    surface: "Strength Genome reference qualification and unavailable-reference states",
+    kind: "product constraint",
+    rationale: "Each external strength reference is stored as a separate source qualification with declared exercise, protocol, demographic, body-size, and population gates. Numeric tables remain absent until data use, table provenance, and source conditions are independently authorized and verified.",
+    sourceUrls: ["https://pubmed.ncbi.nlm.nih.gov/39060209/", "https://doi.org/10.47206/ijsc.v1i1.40", "https://strengthlevel.com/terms-and-conditions"],
+    athleteBoundary: "A qualified source scope is not a population result. Unmatched, incomplete, unlicensed, or generic observations remain unavailable rather than being converted into a percentile, tier, regional force value, or sport-performance claim.",
+  },
+  {
     id: "session-and-history-display",
     surface: "Set-log controls, completion counts, session history, trend cards, and formatted catalog or workout identifiers",
     kind: "athlete-entered value",

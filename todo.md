@@ -86,8 +86,17 @@
 - [x] Remove automatic launch content from the opened workspace so active screens are never covered after initialization.
 - [x] Validate the configurable boot screen at a phone viewport and publish the corrected launch behavior.
 - [x] Slow the silent document-level Sports Genome boot animation and make its line, mark, and label transitions continuous and restrained.
-- [ ] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
-- [ ] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
+- [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
+- [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
+- [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.
+- [x] Add representative youth, sport-specific, competition-only, and license-blocked regression paths proving unmatched source conditions remain unavailable.
+- [x] Require an explicitly installed exact test identity for every audited source before a fully populated source gate can become qualified.
+- [x] Require an explicit source-specific normalization identity before any reference candidate can qualify.
+- [x] Machine-gate each audited source’s licensing or access-review state rather than relying on narrative boundary text.
+- [x] Add sport-specific and competition-only mismatch regressions alongside youth and license-blocked reference tests.
+- [x] Wire source qualification into the athlete-facing Strength Genome unavailable-reference flow so no comparison bypasses access, population, protocol, test, or normalization gates.
+- [x] Add audit-backed coverage verifying every preserved source record has one registry entry with a corresponding machine access state.
+- [x] Add athlete-facing unavailable-state coverage across youth, sport-specific, competition-only, context-only, and license-blocked source categories.
 - [x] Make Strength Genome load and body-mass fields follow the athlete’s saved pound or kilogram preference, converting transparently only at the persistence boundary.
 - [x] Add focused conversion and UI-label coverage proving a pound-profile athlete is never asked to enter kilograms by default.
 - [x] Render the Strength Genome entry interface with a pound profile and assert its visible load and body-mass prompts are pound-first with no kilogram default.
