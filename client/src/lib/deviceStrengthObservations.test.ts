@@ -12,4 +12,10 @@ describe("device-local Strength Genome observations", () => {
   it("adds test-day body mass only to the selected local record", () => {
     expect(setDeviceStrengthObservationBodyMass([newer, older], "newer", 81.6466266)).toEqual([{ ...newer, bodyMassKgAtTest: 81.6466266 }, older]);
   });
+
+  it("preserves an explicit source-condition declaration with a direct-access test", () => {
+    const context = JSON.stringify({ referenceId: "piper_2021_preacher_curl_10rm", sex: "male", ageYears: 21, collegeStudentConfirmed: true, preTrainingConfirmed: true, directlyObservedConfirmed: true, exactProtocolConfirmed: true });
+    const record = { ...newer, exerciseName: "Preacher Curl", referenceContextJson: context };
+    expect(prependDeviceStrengthObservation([older], record)[0]?.referenceContextJson).toBe(context);
+  });
 });

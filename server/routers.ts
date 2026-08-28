@@ -282,6 +282,7 @@ export const appRouter = router({
           laterality: z.enum(["BILATERAL", "LEFT", "RIGHT"]).default("BILATERAL"),
           externalAssistance: z.string().trim().max(255).optional(),
           dataQuality: z.enum(["SELF_REPORTED", "STANDARDIZED", "VERIFIED", "UNCERTAIN"]).default("SELF_REPORTED"),
+          referenceContextJson: z.string().trim().max(1600).optional(),
           notes: z.string().trim().max(3000).optional(),
         })
       )

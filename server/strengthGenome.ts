@@ -35,6 +35,7 @@ export type CreateStrengthObservationInput = {
   laterality: "BILATERAL" | "LEFT" | "RIGHT";
   externalAssistance?: string;
   dataQuality: "SELF_REPORTED" | "STANDARDIZED" | "VERIFIED" | "UNCERTAIN";
+  referenceContextJson?: string;
   notes?: string;
 };
 
@@ -74,6 +75,7 @@ export async function createStrengthObservation(
       laterality: input.laterality,
       externalAssistance: input.externalAssistance || null,
       dataQuality: input.dataQuality,
+      referenceContextJson: input.referenceContextJson || null,
       notes: input.notes || null,
     })
     .$returningId();

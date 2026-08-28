@@ -13,6 +13,7 @@ export type DeviceStrengthObservation = {
   laterality?: "BILATERAL" | "LEFT" | "RIGHT";
   externalAssistance?: string;
   dataQuality?: string;
+  referenceContextJson?: string;
   notes?: string;
 };
 

@@ -11,7 +11,11 @@
 ## Strength Genome
 
 - [x] Replace free-text Strength Genome exercise entry with a searchable catalog picker that requires deliberate exercise selection and preserves exercise-to-region routing.
-- [ ] Show a one-test population-relative benchmark only when the selected standardized exercise, test type, normalization, and athlete reference fields match a reviewed source; otherwise retain a clear unavailable state.
+- [x] Show a one-test population-relative benchmark only when the selected standardized exercise, test type, normalization, and athlete reference fields match a reviewed source; otherwise retain a clear unavailable state.
+- [x] Verify the complete Piper 2021 pre-training preacher-curl 10RM table, body-mass bands, and standardization details against the publisher source before encoding any cut point.
+- [x] Capture explicit adult-male age-18–25 source-population confirmation, body-mass band, standardized preacher-curl 10RM protocol, and pre-training condition for the narrow benchmark.
+- [x] Keep all curls, unstandardized protocols, different rep counts, missing conditions, and nonmatching athletes in the current unavailable-reference state.
+- [x] Browser-verify the fully matched Piper 2021 result at phone width and confirm its source-sample boundary remains visible beside the recorded ratio.
 - [x] Show selected primary and supporting catalog muscles for the logged exercise, with verified curl routing to biceps context.
 - [x] Verify selected Strength Genome catalog exercises across multiple movement families map cleanly from catalog selection into recorded region/domain routing.
 - [x] Route the real Machine Preacher Curl catalog entry to biceps/elbow-flexion context and protect the selected-region history workflow from this alias gap.
@@ -113,8 +117,10 @@
 - [x] Add focused regression coverage for Stack Analysis overlay contrast tokens and controls, separate from split-target scoring semantics.
 - [x] Reduce broad white surfaces by giving Train a deep operational navy theme and Tracker a focused dark execution theme.
 - [x] Convert the visible Training Day weekly-planning and Tracker execution panels from broad white cards to readable layered navy operational surfaces.
-- [ ] Give Explore a layered blue discovery-lab theme, Progress a dark measured-review theme, Profile a personal-control theme, and More a compact utility theme.
+- [x] Give Explore a layered blue discovery-lab theme, Progress a dark measured-review theme, Profile a personal-control theme, and More a compact utility theme.
+- [x] Audit the mounted Explore, Progress, Profile, and More canvases at phone width before applying destination-specific surface refinements.
 - [ ] Establish accessible dark-surface typography, panel, divider, and interaction tokens so the destination themes remain cohesive and readable.
+- [x] Ensure Strength Genome selected-record and source-comparison detail content has sufficient bottom safe-area clearance above the fixed six-destination mobile navigation.
 - [x] Reduce repeated Progress empty-state and methodology copy to concise recorded-status cards with one relevant next action.
 - [x] Retain comparison-condition explanation in an optional disclosure rather than the default Progress canvas.
 - [ ] Reduce Training Day’s default canvas to day selection, saved stack, split-target index, and one next action; move diagnostics, preparation detail, and catalog expansion behind Train contextual tabs or disclosures.
@@ -128,9 +134,9 @@
 - [x] Add focused regression coverage for the Tracker-to-Progress handoff without restoring planned stack diagnostics into Tracker.
 - [x] Repair the blank Training Day and Tracker canvases reported after the mobile navigation changes, then add rendering regression coverage.
 - [ ] Verify populated Training Day and Tracker content at an iPhone viewport and desktop viewport before publishing the repair.
-- [ ] Give Train an operational session-planning visual system distinct from exploration, review, and profile surfaces.
+- [x] Give Train an operational session-planning visual system distinct from exploration, review, and profile surfaces.
 - [ ] Give Explore a discovery-lab visual system with clearer atlas, anatomy, catalog, and genome modes.
-- [ ] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
+- [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.
 - [x] Group Training Day, Workout Builder, Recommendations, Stack Review, and preparation into one Train destination with a context-aware top switcher.

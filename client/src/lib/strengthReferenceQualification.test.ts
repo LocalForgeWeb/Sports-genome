@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 import { qualifyStrengthReference, strengthReferenceCandidates } from "../../../shared/strengthReferenceQualification";
 
 describe("Strength reference qualification", () => {
-  it("keeps every candidate source scoped and table-free until authorized numeric data is separately introduced", () => {
+  it("keeps every candidate source scoped and table-free unless a reviewed source table is explicitly installed", () => {
     expect(strengthReferenceCandidates.length).toBeGreaterThanOrEqual(40);
     strengthReferenceCandidates.forEach((candidate) => {
       expect(candidate.citationUrl).toMatch(/^https:\/\//);
       expect(candidate.requiredFields.length).toBeGreaterThan(2);
       expect(candidate.boundary.length).toBeGreaterThan(45);
-      expect(candidate.numericReferenceStatus).not.toBe("ingested");
+      expect(["not_ingested", "blocked_pending_license", "verified_installed"]).toContain(candidate.numericReferenceStatus);
       expect(candidate.sourcePopulationId).toBe(`${candidate.id}:population`);
       expect(candidate.sourceProtocolId).toBe(`${candidate.id}:protocol`);
       expect(candidate.sourceTestId).toBe(`${candidate.id}:exact-test`);
@@ -19,12 +19,13 @@ describe("Strength reference qualification", () => {
     expect(auditedOrdinals).toEqual(Array.from({ length: 40 }, (_, index) => index + 1));
   });
 
-  it("withholds the preacher-curl reference until all demographic, load-context, and 10RM conditions match", () => {
+  it("withholds the preacher-curl reference until every population, protocol, and 10RM declaration matches", () => {
     const pending = qualifyStrengthReference("piper_2021_preacher_curl_10rm", { exerciseName: "Preacher Curl", testType: "MULTI_REP", repetitions: 10 });
     expect(pending?.status).toBe("needs_details");
     expect(pending?.missingFields).toContain("sex");
+    expect(pending?.missingFields).toContain("directlyObservedConfirmed");
 
-    const mismatch = qualifyStrengthReference("piper_2021_preacher_curl_10rm", { exerciseName: "Machine Preacher Curl", testType: "MULTI_REP", repetitions: 10, sex: "male", ageYears: 21, bodyMassKgAtTest: 80, equipment: "preacher bench", sourcePopulationId: "piper_2021_preacher_curl_10rm:population", sourceProtocolId: "piper_2021_preacher_curl_10rm:protocol", sourceTestId: "piper_2021_preacher_curl_10rm:exact-test", sourceNormalizationId: "piper_2021_preacher_curl_10rm:normalization" });
+    const mismatch = qualifyStrengthReference("piper_2021_preacher_curl_10rm", { exerciseName: "Machine Preacher Curl", testType: "MULTI_REP", repetitions: 10, sex: "male", ageYears: 21, bodyMassKgAtTest: 80, equipment: "preacher bench", collegeStudentConfirmed: true, preTrainingConfirmed: true, exactProtocolConfirmed: true, directlyObservedConfirmed: true, sourcePopulationId: "piper_2021_preacher_curl_10rm:population", sourceProtocolId: "piper_2021_preacher_curl_10rm:protocol", sourceTestId: "piper_2021_preacher_curl_10rm:exact-test", sourceNormalizationId: "piper_2021_preacher_curl_10rm:normalization" });
     expect(mismatch?.status).toBe("not_eligible");
     expect(mismatch?.mismatchReason).toContain("preacher-curl 10RM scope");
   });
@@ -50,9 +51,14 @@ describe("Strength reference qualification", () => {
   });
 
   it("does not treat a generic exercise name as a source-installed test identity", () => {
-    const result = qualifyStrengthReference("piper_2021_preacher_curl_10rm", { exerciseName: "Preacher Curl", testType: "MULTI_REP", repetitions: 10, sex: "male", ageYears: 21, bodyMassKgAtTest: 80, equipment: "preacher bench", sourcePopulationId: "piper_2021_preacher_curl_10rm:population", sourceProtocolId: "piper_2021_preacher_curl_10rm:protocol", sourceTestId: "generic-curl", sourceNormalizationId: "piper_2021_preacher_curl_10rm:normalization" });
+    const result = qualifyStrengthReference("piper_2021_preacher_curl_10rm", { exerciseName: "Preacher Curl", testType: "MULTI_REP", repetitions: 10, sex: "male", ageYears: 21, bodyMassKgAtTest: 80, equipment: "preacher bench", collegeStudentConfirmed: true, preTrainingConfirmed: true, exactProtocolConfirmed: true, directlyObservedConfirmed: true, sourcePopulationId: "piper_2021_preacher_curl_10rm:population", sourceProtocolId: "piper_2021_preacher_curl_10rm:protocol", sourceTestId: "generic-curl", sourceNormalizationId: "piper_2021_preacher_curl_10rm:normalization" });
     expect(result?.status).toBe("not_eligible");
     expect(result?.mismatchReason).toContain("exact test identity");
+  });
+
+  it("makes only the fully confirmed Piper 2021 condition set table-available", () => {
+    const result = qualifyStrengthReference("piper_2021_preacher_curl_10rm", { exerciseName: "Preacher Curl", testType: "MULTI_REP", repetitions: 10, sex: "male", ageYears: 21, bodyMassKgAtTest: 80, equipment: "Body Masters BE 207", collegeStudentConfirmed: true, preTrainingConfirmed: true, exactProtocolConfirmed: true, directlyObservedConfirmed: true, sourcePopulationId: "piper_2021_preacher_curl_10rm:population", sourceProtocolId: "piper_2021_preacher_curl_10rm:protocol", sourceTestId: "piper_2021_preacher_curl_10rm:exact-test", sourceNormalizationId: "piper_2021_preacher_curl_10rm:normalization" });
+    expect(result?.status).toBe("verified_table_available");
   });
 
   it("keeps sport-specific and competition-only records unavailable when their own scope does not match", () => {

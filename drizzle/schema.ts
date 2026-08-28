@@ -462,6 +462,7 @@ export const strengthObservations = mysqlTable(
     ])
       .notNull()
       .default("SELF_REPORTED"),
+    referenceContextJson: text("referenceContextJson"),
     notes: text("notes"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

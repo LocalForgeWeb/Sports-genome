@@ -1,0 +1,1 @@
+ALTER TABLE `strengthObservations` ADD `referenceContextJson` text;

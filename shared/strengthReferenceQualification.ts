@@ -5,7 +5,8 @@ export type ReferenceGateStatus =
   | "not_eligible"
   | "source_access_not_authorized"
   | "context_only_not_numeric"
-  | "qualified_but_no_authorized_table";
+  | "qualified_but_no_authorized_table"
+  | "verified_table_available";
 
 export type SourceAccess = "authorized_not_ingested" | "license_review_required" | "context_only" | "blocked";
 
@@ -23,7 +24,7 @@ export type StrengthReferenceCandidate = {
   sourceAccess: SourceAccess;
   expectedSport?: string;
   auditRecordNumber?: number;
-  numericReferenceStatus: "not_ingested" | "blocked_pending_license";
+  numericReferenceStatus: "not_ingested" | "blocked_pending_license" | "verified_installed";
   boundary: string;
 };
 
@@ -54,6 +55,10 @@ export type StrengthReferenceMatchInput = {
   jointAngle?: string;
   servicePopulation?: string;
   contractionMode?: string;
+  collegeStudentConfirmed?: boolean;
+  preTrainingConfirmed?: boolean;
+  exactProtocolConfirmed?: boolean;
+  directlyObservedConfirmed?: boolean;
 };
 
 export type StrengthReferenceQualification = {
@@ -78,13 +83,13 @@ export const strengthReferenceCandidates: readonly StrengthReferenceCandidate[] 
     citationUrl: "https://doi.org/10.47206/ijsc.v1i1.40",
     referencePopulation: "College-aged males, 18–25 years, tested in one facility on the study protocol.",
     scope: "Preacher curl 10RM only; exact body-mass category and protocol required.",
-    requiredFields: ["exerciseName", "testType", "repetitions", "sex", "ageYears", "bodyMassKgAtTest", "equipment", ...exactSourceFields],
+    requiredFields: ["exerciseName", "testType", "repetitions", "sex", "ageYears", "bodyMassKgAtTest", "equipment", "collegeStudentConfirmed", "preTrainingConfirmed", "exactProtocolConfirmed", "directlyObservedConfirmed", ...exactSourceFields],
     sourcePopulationId: "piper_2021_preacher_curl_10rm:population",
     sourceProtocolId: "piper_2021_preacher_curl_10rm:protocol",
     sourceTestId: "piper_2021_preacher_curl_10rm:exact-test",
     sourceNormalizationId: "piper_2021_preacher_curl_10rm:normalization",
     sourceAccess: "authorized_not_ingested",
-    numericReferenceStatus: "not_ingested",
+    numericReferenceStatus: "verified_installed",
     boundary: "It must not rate a generic curl, a 1RM, another repetition count, a regional biceps value, or sport ability.",
   },
   {
@@ -159,7 +164,7 @@ export function qualifyStrengthReference(candidateId: string, input: StrengthRef
   if (candidate.sourceAccess === "context_only") return { status: "context_only_not_numeric", candidate, missingFields: [], mismatchReason: "This source is context only and cannot provide a numeric athlete reference." };
   if (candidate.sourceAccess === "blocked" || candidate.sourceAccess === "license_review_required" || candidate.numericReferenceStatus === "blocked_pending_license") return { status: "source_access_not_authorized", candidate, missingFields: [], mismatchReason: "This source requires a completed written authorization or license review before numeric use." };
 
-  if (candidate.id === "piper_2021_preacher_curl_10rm" && (input.exerciseName !== "Preacher Curl" || input.testType !== "MULTI_REP" || input.repetitions !== 10 || input.sex !== "male" || (input.ageYears ?? 0) < 18 || (input.ageYears ?? 0) > 25)) return { status: "not_eligible", candidate, missingFields: [], mismatchReason: "This observation does not match the reviewed college-aged male preacher-curl 10RM scope." };
+  if (candidate.id === "piper_2021_preacher_curl_10rm" && (input.exerciseName !== "Preacher Curl" || input.testType !== "MULTI_REP" || input.repetitions !== 10 || input.sex !== "male" || (input.ageYears ?? 0) < 18 || (input.ageYears ?? 0) > 25 || input.collegeStudentConfirmed !== true || input.preTrainingConfirmed !== true || input.exactProtocolConfirmed !== true || input.directlyObservedConfirmed !== true)) return { status: "not_eligible", candidate, missingFields: [], mismatchReason: "This observation does not match the reviewed college-aged male, pre-training, standardized preacher-curl 10RM scope." };
 
   if (candidate.id === "van_den_hoek_2024_powerlifting") {
     const supportedLift = ["Back Squat", "Bench Press", "Deadlift"].includes(input.exerciseName ?? "");
@@ -167,5 +172,5 @@ export function qualifyStrengthReference(candidateId: string, input: StrengthRef
   }
 
   if (candidate.id === "tomkinson_2025_adult_handgrip" && (input.testType !== "DYNAMOMETRY" || (input.ageYears ?? 0) < 20)) return { status: "not_eligible", candidate, missingFields: [], mismatchReason: "This observation does not match the adult handgrip reference scope." };
-  return { status: "qualified_but_no_authorized_table", candidate, missingFields: [] };
+  return { status: candidate.numericReferenceStatus === "verified_installed" ? "verified_table_available" : "qualified_but_no_authorized_table", candidate, missingFields: [] };
 }
