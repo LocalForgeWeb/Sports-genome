@@ -6,6 +6,8 @@ const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const workoutTrackerSource = readFileSync(new URL("../components/WorkoutExecutionPanel.tsx", import.meta.url), "utf8");
 const deviceTrackerSource = readFileSync(new URL("../components/DeviceWorkoutTracker.tsx", import.meta.url), "utf8");
 const stackReviewSource = readFileSync(new URL("../components/WorkoutHealthPanel.tsx", import.meta.url), "utf8");
+const aboutMeSource = readFileSync(new URL("../components/AthleteAboutMePanel.tsx", import.meta.url), "utf8");
+const anatomySource = readFileSync(new URL("../components/AnatomyMap.tsx", import.meta.url), "utf8");
 const mobileStyles = readFileSync(new URL("../mobile-navigation.css", import.meta.url), "utf8");
 const trainingDayStyles = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
 
@@ -195,5 +197,17 @@ describe("workspace side navigation", () => {
     expect(source).toContain('id: "movement", label: "Movement"');
     expect(source).toContain('id: "body", label: "Body Lab"');
     expect(source).toContain('id: "catalog", label: "Catalog"');
+  });
+
+  it("keeps equipment editing and evidence details reachable on demand after Plan Context removal", () => {
+    expect(source).not.toContain('<details className="plan-context">');
+    expect(source).toContain('label: "Profile"');
+    expect(source).toContain('workspace === "profile" && <AthleteAboutMePanel');
+    expect(aboutMeSource).toContain("Available equipment");
+    expect(source).toContain('workspace === "movement" && <MovementAtlasPanel');
+    expect(source).toContain('workspace === "body" && <section className="body-lab-v2');
+    expect(source).toContain('<CatalogExerciseEvidenceCard exercise={inspectedExercise} />');
+    expect(anatomySource).toContain("View methodology");
+    expect(anatomySource).toContain("Evidence context");
   });
 });
