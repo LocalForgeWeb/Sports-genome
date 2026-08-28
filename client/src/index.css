@@ -720,7 +720,8 @@ select {
 
 .apex-content.destination-profile { background: linear-gradient(155deg, #0a203d 0%, #173a63 52%, #0b2240 100%); color: #edf6ff; }
 .destination-profile .light-panel, .destination-profile .profile-panel { border-color: rgb(242 193 77 / .42); background: rgb(9 33 61 / .9); color: #edf6ff; }
-.apex-content.destination-more { background: linear-gradient(145deg, #061525, #102b4b); color: #edf6ff; }
+.apex-shell:has(.destination-more), .apex-main:has(.destination-more) { background: #061525; }
+.apex-content.destination-more { min-height: calc(100vh - 10.5rem); background: linear-gradient(145deg, #061525, #102b4b); color: #edf6ff; }
 .destination-more .light-panel, .destination-more .more-workspace-card { border-color: rgb(164 200 232 / .3); background: rgb(12 43 75 / .88); color: #edf6ff; }
 
 /* Carry the destination identity into the fixed app chrome, not only the page canvas. */
