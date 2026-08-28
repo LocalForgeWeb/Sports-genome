@@ -7,7 +7,7 @@ describe("launch workspace timing", () => {
   it("defers the heavy workspace import until the video intro reaches its held final frame", () => {
     expect(source).not.toContain('import App from "./App"');
     expect(source).toContain('const { default: App } = await import("./App")');
-		    expect(source).toContain("const workspaceMountDelayMs = Math.max(0, 1_220 - elapsedBootMs)");
+		    expect(source).toContain("const workspaceMountDelayMs = Math.max(0, 1_340 - elapsedBootMs)");
     expect(source).toContain("window.setTimeout(() => { void mountWorkspace(); }, workspaceMountDelayMs)");
   });
 });

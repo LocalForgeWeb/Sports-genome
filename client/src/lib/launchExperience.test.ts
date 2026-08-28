@@ -19,8 +19,8 @@ describe("launch experience preference", () => {
   });
 
   it("uses a brief staged launch while immediately bypassing it for reduced-motion users", () => {
-	    expect(bootSplashSource).toContain("export const minimumBootPresentationMs = 1_380");
-		    expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 260)");
+	    expect(bootSplashSource).toContain("export const minimumBootPresentationMs = 1_520");
+		    expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 280)");
     expect(bootLifecycleSource).toContain("minimumBootPresentationMs");
     expect(bootLifecycleSource).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
     expect(bootLifecycleSource).toContain("document.documentElement.dataset.sportsGenomeBootStartedAt");
@@ -56,10 +56,11 @@ describe("launch experience preference", () => {
     expect(bootDocumentSource).toContain('video.muted=true');
     expect(bootDocumentSource).toContain('sports-genome-boot-video-ready');
     expect(bootDocumentSource).toContain('const stopVideo=()=>{video?.pause();document.documentElement.classList.add("sports-genome-boot-video-held")}');
-		    expect(bootDocumentSource).toContain('window.setTimeout(stopVideo,Math.max(0,1_330-(Date.now()-startedAt)))');
+		    expect(bootDocumentSource).toContain('window.setTimeout(stopVideo,Math.max(0,1_480-(Date.now()-startedAt)))');
 	    expect(bootDocumentSource).toContain("boot-video-in 320ms");
-    expect(bootDocumentSource).toContain("boot-wordmark-in 420ms .84s");
-		    expect(bootDocumentSource).toContain("transition:opacity 260ms");
+	    expect(bootDocumentSource).toContain("boot-wordmark-in 480ms .88s");
+		    expect(bootDocumentSource).toContain("transition:opacity 280ms");
+	    expect(bootDocumentSource).toContain("72%{opacity:1;transform:translateY(-1px) scale(1.012)}");
 	    expect(bootDocumentSource).toContain("@media (min-width:641px){html.sports-genome-boot-video-ready .sports-genome-boot-video");
 	    expect(bootDocumentSource).toContain("width:min(100%,620px);height:min(100%,620px)");
     expect(bootDocumentSource).toContain('if(video&&!reduced&&document.documentElement.dataset.sportsGenomeBoot!=="off")');

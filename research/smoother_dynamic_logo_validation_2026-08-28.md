@@ -1,0 +1,5 @@
+# Smoother Dynamic Logo Validation — 2026-08-28
+
+The document-level Sports Genome launch remains silent and uses only the supplied upright S/DNA assets and approved muted source video. Its fallback mark is now larger at `min(208px, 54vw)`. The video-led wordmark entrance was extended to 480ms with a 400ms subtitle entrance, and the shared wordmark keyframe now settles through a restrained upward overshoot before returning to its final position. This retains the requested small bounce while avoiding a sharp pop.
+
+The document-level presentation now pauses the video around 1.48 seconds, defers workspace mounting to 1.34 seconds, and dismisses through a 280ms composited opacity/visibility fade after a 1.52-second minimum display. Generated 390 × 844 and 1366 × 768 captures showed the larger upright mark, legible wordmark, and clean composition. A repeated four-times CPU-throttled sample recorded 34ms p95 frame pacing over the pre-mount visual window; one separate attempt recorded a startup outlier, so this remains simulation evidence rather than a physical-device guarantee.

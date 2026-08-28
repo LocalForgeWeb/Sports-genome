@@ -32,5 +32,5 @@ async function mountWorkspace() {
 
 const documentBootStartedAt = Number(document.documentElement.dataset.sportsGenomeBootStartedAt);
 const elapsedBootMs = Number.isFinite(documentBootStartedAt) ? Math.max(0, Date.now() - documentBootStartedAt) : 0;
-const workspaceMountDelayMs = Math.max(0, 1_220 - elapsedBootMs);
+const workspaceMountDelayMs = Math.max(0, 1_340 - elapsedBootMs);
 window.setTimeout(() => { void mountWorkspace(); }, workspaceMountDelayMs);
