@@ -7,6 +7,7 @@ const workoutTrackerSource = readFileSync(new URL("../components/WorkoutExecutio
 const deviceTrackerSource = readFileSync(new URL("../components/DeviceWorkoutTracker.tsx", import.meta.url), "utf8");
 const stackReviewSource = readFileSync(new URL("../components/WorkoutHealthPanel.tsx", import.meta.url), "utf8");
 const mobileStyles = readFileSync(new URL("../mobile-navigation.css", import.meta.url), "utf8");
+const trainingDayStyles = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
 
 describe("workspace side navigation", () => {
   it("resolves only supported workspace values and keeps an invalid URL on the command center", () => {
@@ -152,5 +153,14 @@ describe("workspace side navigation", () => {
     expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('className={active ? "workspace-top-switcher-active" : ""}');
+  });
+
+  it("removes duplicate mobile Training Day shortcuts while keeping dedicated Tracker and Builder destinations reachable", () => {
+    expect(trainingDayStyles).toContain('.day-design-import { display: none; }');
+    expect(trainingDayStyles).toContain('.day-active-actions button:nth-child(1), .day-active-actions button:nth-child(2) { display: none; }');
+    expect(source).toContain('label: "Tracker", workspace: "tracker"');
+    expect(source).toContain('label: "Builder", workspace: "custom"');
+    expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
+    expect(source).toContain('Import this plan');
   });
 });
