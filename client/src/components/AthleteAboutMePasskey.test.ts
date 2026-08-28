@@ -1,4 +1,6 @@
 import React, { createElement } from "react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -16,6 +18,7 @@ vi.mock("@/lib/trpc", () => ({
 import { AthleteAboutMePanel } from "./AthleteAboutMePanel";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
+const source = readFileSync(resolve(process.cwd(), "client/src/components/AthleteAboutMePanel.tsx"), "utf8");
 
 describe("AthleteAboutMePanel passkey management", () => {
   it("shows an enrolled passkey with a distinct scoped removal control", () => {
@@ -31,5 +34,15 @@ describe("AthleteAboutMePanel passkey management", () => {
     expect(markup).toContain("Enrolled passkeys");
     expect(markup).toContain("Device passkey 1");
     expect(markup).toContain("Remove device passkey 1");
+  });
+
+  it("uses nonblocking optional feedback for deliberate athlete-context and equipment changes", () => {
+    expect(source).toContain('import { emitInteractionFeedback } from "@/lib/interactionFeedback";');
+    expect(source).toContain('emitInteractionFeedback(); onGoal(event.target.value as TrainingGoal);');
+    expect(source).toContain('emitInteractionFeedback(); onSport(event.target.value);');
+    expect(source).toContain('emitInteractionFeedback(); onDays(Number(event.target.value));');
+    expect(source).toContain('emitInteractionFeedback(); onBaseline({ ...baseline, sportModifierId: event.target.value || undefined });');
+    expect(source).toContain('emitInteractionFeedback(); onBaseline({ ...baseline, equipment: { gymAccess, availableEquipment: gymAccessProfiles[gymAccess] } });');
+    expect(source).not.toContain('Your current workout was retained for review');
   });
 });
