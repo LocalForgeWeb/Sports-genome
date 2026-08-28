@@ -725,6 +725,7 @@ select {
 .destination-train .device-workout-tracker .session-set-complete { border-left-color: #f2c14d; background: rgb(242 193 77 / .11); }
 
 .strength-region-history { margin-top: .75rem; border: 1px solid #d2e1ed; background: #f6faff; }
+.strength-region-record-detail { scroll-margin-top: 11rem; }
 .strength-region-history summary { display: flex; min-height: 2.8rem; align-items: center; padding: .65rem .8rem; color: #244b70; font-size: .68rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
 .strength-region-history > div { display: grid; gap: 1px; border-top: 1px solid #d8e6f1; background: #d8e6f1; }
 .strength-region-history button { display: grid; gap: .2rem; padding: .7rem .8rem; border-left: 3px solid transparent; background: #fff; color: #2b5377; text-align: left; }

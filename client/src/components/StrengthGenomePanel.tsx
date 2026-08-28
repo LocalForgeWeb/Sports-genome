@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Activity, ChevronRight, CircleHelp, Dumbbell, Plus, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -53,7 +53,7 @@ function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit,
   const bodyMassRatio = latestRecord?.loadKg != null && latestRecord.bodyMassKgAtTest != null && latestRecord.bodyMassKgAtTest > 0 ? latestRecord.loadKg / latestRecord.bodyMassKgAtTest : null;
   const parsedBodyMassEntry = Number(bodyMassEntry);
   return <section className="strength-region-record-detail" aria-label={`${region.label} recorded strength context`}>
-    <div className="strength-region-record-heading"><div><p className="metric-label">Regional record</p><h2>{region.label}</h2></div><button type="button" onClick={() => { emitInteractionFeedback(); onClose(); }} className="strength-region-close" aria-label={`Close ${region.label} detail`}><X className="h-4 w-4" /></button></div>
+    <div className="strength-region-record-heading"><div><p className="metric-label">Regional record</p><h2 tabIndex={-1} data-strength-region-heading>{region.label}</h2></div><button type="button" onClick={() => { emitInteractionFeedback(); onClose(); }} className="strength-region-close" aria-label={`Close ${region.label} detail`}><X className="h-4 w-4" /></button></div>
     {latestRecord ? <>
       <article className="strength-region-record-card">
         {records.length > 1 && <label className="strength-region-record-picker"><span>Recorded test</span><select aria-label="Choose recorded test" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label>}
@@ -110,6 +110,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const [advancedOpen, setAdvancedOpen] = useState(defaultTestingDetailOpen);
   const [selectedRegion, setSelectedRegion] = useState<StrengthRegionDefinition | null>(null);
   const [selectedObservationId, setSelectedObservationId] = useState("");
+  const regionDetailRef = useRef<HTMLDivElement | null>(null);
   const [deviceObservations, setDeviceObservations] = useState<DeviceStrengthObservation[]>(() => loadDeviceStrengthObservations());
   useEffect(() => {
     if (!directAccess) return;
@@ -162,6 +163,16 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     setSelectedObservationId(String(observation.id));
     setSelectedRegion(region);
   };
+  useEffect(() => {
+    const detail = regionDetailRef.current;
+    if (!selectedRegion || !detail || typeof window === "undefined") return;
+    const frame = window.requestAnimationFrame(() => {
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      detail.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
+      detail.querySelector<HTMLElement>("[data-strength-region-heading]")?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedRegion?.id, selectedObservationId]);
   const setPriority = trpc.strengthGenome.setPriority.useMutation({
     onSuccess: async () => {
       await Promise.all([utils.strengthGenome.overview.invalidate(), utils.strengthGenome.priorities.invalidate()]);
@@ -214,7 +225,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         </div>
       </div>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { emitInteractionFeedback(); setSelectedRegion(region); }} />
-      {selectedRegion && <StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} />}
+      {selectedRegion && <div ref={regionDetailRef}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} /></div>}
       {selectedRegion && <div className="strength-region-focus-row"><p><strong>Planning focus</strong> Optional. Does not change this day automatically.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>}
       <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{directAccess ? (activeObservations.length ? "Device-local records stay on this device." : "Add a result to start a device-local record.") : (overview.data?.nextAction || "Add a result to build your record.")}</span></div>
     </section>

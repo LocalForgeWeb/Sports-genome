@@ -89,4 +89,12 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("No recorded test for this region yet.");
     expect(source).not.toContain("regional percentile");
   });
+
+  it("moves a newly selected region into view with reduced-motion-safe behavior and focuses its heading", () => {
+    expect(source).toContain("const regionDetailRef = useRef<HTMLDivElement | null>(null)");
+    expect(source).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
+    expect(source).toContain('detail.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" })');
+    expect(source).toContain('data-strength-region-heading');
+    expect(source).toContain('focus({ preventScroll: true })');
+  });
 });

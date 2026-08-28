@@ -42,6 +42,7 @@
 - [ ] Add evidence-bounded selected-region reference context only when a reviewed reference exists, with explicit no-reference and non-comparable states otherwise.
 - [ ] Add focused Strength Genome body-map coverage for observed-region detail, no-data detail, and the prohibition on invented percentile or rank output.
 - [x] Present selected-region direct-access record history with a concise explicit unavailable-reference state when no exact reviewed reference applies.
+- [x] Move a newly selected Strength Genome region detail into a readable mobile position and focus its accessible heading without forcing motion for reduced-motion users.
 - [x] Require matching recorded test conditions for within-athlete Strength Genome load comparisons, returning an explicit non-comparable state rather than a misleading change card.
 - [x] Return an explicit non-comparable result when matching exercise/test/laterality observations differ by recorded testing conditions.
 - [x] Render concise Progress copy explaining when recorded test conditions prevent a like-for-like comparison.
