@@ -1,11 +1,16 @@
 import { useEffect } from "react";
-import { dismissBootSplash } from "@/lib/bootSplash";
+import { dismissBootSplash, minimumBootPresentationMs } from "@/lib/bootSplash";
 
 /** This has no visual app-layer output: the screen itself exists in index.html before React loads. */
 export function BootSplashLifecycle() {
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => dismissBootSplash());
-    return () => window.cancelAnimationFrame(frame);
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      dismissBootSplash();
+      return;
+    }
+    const timeout = window.setTimeout(() => dismissBootSplash(), minimumBootPresentationMs);
+    return () => window.clearTimeout(timeout);
   }, []);
   return null;
 }

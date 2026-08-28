@@ -49,3 +49,19 @@ Piper T, Furman S, Smith T, Waller M. *Establishing Normative Data for 10RM Stre
 The study reports 10RM reference values for biceps curl, alongside leg press, bench press, seated overhead press, preacher curl, and lat pulldown. It used 1,095 college-aged males aged 18–25 (mean 19.94 years), testing in one facility on fixed equipment with NSCA-guided procedures. The abstract reports bodyweight-category percentile break points.
 
 **Strict implementation limit:** This is a potential benchmark only for an intentionally selected, exact 10RM biceps-curl protocol in an athlete whose age, sex, body-mass category, bar/equipment, and test procedure match the source. It does not support a universal curl rating, a body-mass-only rank, a generic loaded-curl percentile, regional biceps force, or sports-performance inference. Exact table cut points must be extracted and independently checked before any numerical app benchmark is shown.
+
+## User-supplied source hierarchy intake — 2026-08-28
+
+The proposed sources must remain **separate reference populations**, not inputs to one blended “Strength Genome score.” Each source needs an explicit exercise, protocol, sex, age or age-band, body-size normalization, training/population definition, and permission-to-use review before data can enter athlete-facing logic.
+
+### Strength Level broad exercise coverage: candidate source, not yet integrated
+
+Strength Level states that its 2026 standards cover 287 exercises from 195,513,376 community-submitted lifts by 27,893,268 users; it frames an exercise result against other lifters by gender, bodyweight, and age. The page includes barbell, bodyweight, dumbbell, machine, and cable categories. This makes it a potential **separate community-lifter reference**, not a scientific or sport-specific normative population. It is not ingested: its terms prohibit automated or programmatic service access, including scraping, bots, scripts, and unauthorized API usage without explicit written authorization. No table extraction, copying, or derivative Sports Genome percentile is permitted until a written license or approved data-access pathway is obtained. No Sports Genome percentile, tier, or regional score is enabled from this source.
+
+Sources: https://strengthlevel.com/strength-standards and https://strengthlevel.com/terms-and-conditions (accessed 2026-08-28)
+
+### van den Hoek et al. 2024: narrow powerlifting reference candidate
+
+PubMed identifies the study as a retrospective reference set of **809,986** global drug-tested, unequipped powerlifting competition entries: 571,650 male and 238,336 female samples. It covers squat, bench press, and deadlift only; results are relative lift/bodyweight ratios and are stratified by sex, United Nations age classifications, and competitive powerlifting weight class, with 10th–90th percentile values. It is a strong candidate only for comparable raw, unequipped, drug-tested competition-lift context. It must not rate a generic gym back squat, bench, or deadlift without the required protocol and population match.
+
+Source: https://pubmed.ncbi.nlm.nih.gov/39060209/ (accessed 2026-08-28); DOI: https://doi.org/10.1016/j.jsams.2024.07.005

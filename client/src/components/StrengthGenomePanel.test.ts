@@ -54,6 +54,11 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("formatDisplayWeight(latestRecord.loadKg, weightUnit)");
     expect(source).toContain("Test body mass saved. Your recorded ratio is ready.");
     expect(source).toContain("Could not save test body mass. Check your connection and try again.");
+    expect(source).toContain("setBodyMassSaveError");
+    expect(source).toContain("Body mass was not saved. Your entry is still here");
+    expect(source).toContain('role="status"');
+    expect(source).toContain('role="alert"');
+    expect(source).toContain('aria-busy={!directAccess && setObservationBodyMass.isPending}');
   });
 
   it("requires catalog exercise selection and routes common curl names to biceps context", () => {

@@ -22,14 +22,19 @@
 - [x] Replace verbose Strength Genome region-detail methodology copy with a compact rating-first summary and one optional evidence-boundary disclosure.
 - [x] Let athletes complete missing body mass for a selected recorded test so its load-to-body-mass ratio can be calculated without a fabricated score.
 - [ ] Add best-effort browser interaction feedback on supported devices and reliable visual press feedback everywhere, without claiming native iPhone web haptics.
-- [ ] Add an interaction test for missing-body-mass submission that confirms the saved observation updates and the selected-region ratio appears afterward.
+- [x] Add an interaction test for missing-body-mass submission that confirms the saved observation updates and the selected-region ratio appears afterward.
 - [x] Make body-mass completion usable in temporary direct-entry mode, or explicitly explain and route to authentication before the protected save path.
 - [x] Persist direct-access Strength Genome observations only in local device storage, keeping them visibly distinct from account-backed observations.
 - [x] Support device-local Strength observation body-mass completion and ratio display with the athlete’s saved pound or kilogram preference.
 - [x] Add focused and browser validation for direct-access Strength test save, reload persistence, and unit-aware ratio display.
 - [x] Let athletes select a specific recorded test within a Strength region before adding missing body mass or reading its recorded ratio.
 - [x] Validate direct-access body-mass completion and ratio display for both pound and kilogram profiles through rendered or live browser workflow checks.
-- [ ] Add loading and error UI plus regression coverage for body-mass completion failures.
+- [x] Add loading and error UI plus regression coverage for body-mass completion failures.
+- [x] Keep a failed account-backed body-mass value in place and provide inline retry guidance without affecting device-local completion.
+- [x] Add an interaction regression that mocks account-backed body-mass save success and confirms the selected-region ratio appears after mutation completion.
+- [x] Add an interaction regression that mocks account-backed body-mass save failure and confirms loading state, inline alert, preserved value, and retry behavior.
+- [ ] Test the account-backed body-mass completion pending state with visible saving text and `aria-busy` before driving its error and retry path.
+- [x] Confirm the direct-access body-mass completion flow remains local and unaffected by account-save failure handling.
 - [ ] Verify the interaction-feedback utility behavior and visible press states for Strength map regions and region-detail actions without claiming native iPhone web haptics.
 - [x] Add source-level regression coverage confirming browser vibration is optional and non-blocking when unavailable.
 - [x] Show selected-region raw load-to-body-mass ratios only when both athlete-entered test load and body mass from that same test are recorded.
@@ -80,6 +85,9 @@
 - [x] Honor the existing launch preference before React mounts, while retaining More controls to enable, disable, or replay the boot presentation.
 - [x] Remove automatic launch content from the opened workspace so active screens are never covered after initialization.
 - [x] Validate the configurable boot screen at a phone viewport and publish the corrected launch behavior.
+- [x] Slow the silent document-level Sports Genome boot animation and make its line, mark, and label transitions continuous and restrained.
+- [ ] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
+- [ ] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Make Strength Genome load and body-mass fields follow the athlete’s saved pound or kilogram preference, converting transparently only at the persistence boundary.
 - [x] Add focused conversion and UI-label coverage proving a pound-profile athlete is never asked to enter kilograms by default.
 - [x] Render the Strength Genome entry interface with a pound profile and assert its visible load and body-mass prompts are pound-first with no kilogram default.

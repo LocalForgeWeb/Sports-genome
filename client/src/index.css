@@ -734,6 +734,9 @@ select {
 .strength-region-history button span { color: #5d7891; font-size: .7rem; }
 .strength-reference-unavailable { margin-top: .75rem; border-left: 3px solid #f2c14d; background: #f7fbff; padding: .65rem .75rem; color: #476782; font-size: .73rem; line-height: 1.45; }
 .strength-reference-unavailable strong { color: #173d69; }
+.strength-ratio-status, .strength-ratio-error { margin: 0; font-size: .72rem; line-height: 1.4; }
+.strength-ratio-status { color: #7baee1; }
+.strength-ratio-error { border-left: 3px solid #e4512e; background: rgb(228 81 46 / .12); padding: .45rem .55rem; color: #ffd6ca; }
 .destination-explore .strength-region-history { border-color: rgb(164 200 232 / .24); background: rgb(9 33 61 / .84); }
 .destination-explore .strength-region-history summary, .destination-explore .strength-region-history button strong, .destination-explore .strength-reference-unavailable strong { color: #eff8ff; }
 .destination-explore .strength-region-history > div { border-top-color: rgb(164 200 232 / .16); background: rgb(164 200 232 / .16); }
