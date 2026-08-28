@@ -129,6 +129,7 @@
 - [x] Verify the corrected silent launch under constrained phone performance while preserving reduced-motion and fallback paths.
 - [x] Retain the smooth staged logo-formation timing while shortening the post-logo hold and fading promptly into the workspace.
 - [x] Validate that the final boot-to-workspace transition is one continuous composited fade at phone and browser width.
+- [x] Shorten the silent staged S/DNA logo intro further while preserving its smooth formation and continuous fade into the workspace.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.
@@ -156,7 +157,7 @@
 - [x] Convert the visible Training Day weekly-planning and Tracker execution panels from broad white cards to readable layered navy operational surfaces.
 - [x] Give Explore a layered blue discovery-lab theme, Progress a dark measured-review theme, Profile a personal-control theme, and More a compact utility theme.
 - [x] Audit the mounted Explore, Progress, Profile, and More canvases at phone width before applying destination-specific surface refinements.
-- [ ] Establish accessible dark-surface typography, panel, divider, and interaction tokens so the destination themes remain cohesive and readable.
+- [x] Establish accessible dark-surface typography, panel, divider, and interaction tokens so the destination themes remain cohesive and readable.
 - [x] Ensure Strength Genome selected-record and source-comparison detail content has sufficient bottom safe-area clearance above the fixed six-destination mobile navigation.
 - [x] Ensure programmatic navigation to a matched Strength source-comparison card respects the mobile bottom-nav safe area as well as manual scrolling.
 - [x] Reduce repeated Progress empty-state and methodology copy to concise recorded-status cards with one relevant next action.

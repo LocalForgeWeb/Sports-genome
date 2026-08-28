@@ -961,3 +961,207 @@ select {
 .destination-train .programming-guide-boundary summary { display: flex; min-height: 44px; align-items: center; padding: 0 1rem; color: #f2c14d; cursor: pointer; font-size: .64rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .destination-train .programming-guide-boundary p { margin: 0; border-top: 1px solid rgb(164 200 232 / .18); padding: .7rem 1rem .9rem; color: #c3d7ea; font-size: .72rem; line-height: 1.5; }
 .destination-train .programming-guide-boundary summary:focus-visible { outline: 2px solid #f2c14d; outline-offset: -3px; }
+
+/* Shared dark-surface contract: readable primary/muted text, subtle structure,
+   clear controls, and a gold focus treatment across athlete-facing navy panels. */
+:root {
+  --sg-surface-deep: #07182e;
+  --sg-surface-raised: #0b2240;
+  --sg-surface-panel: #102f53;
+  --sg-text-on-dark: #f7fbff;
+  --sg-text-muted-on-dark: #c3d7ea;
+  --sg-text-subtle-on-dark: #9fc8f4;
+  --sg-divider-on-dark: rgb(164 200 232 / .24);
+  --sg-control-on-dark: rgb(255 255 255 / .055);
+  --sg-control-border-on-dark: rgb(164 200 232 / .35);
+  --sg-focus-on-dark: #f2c14d;
+}
+
+/* Train: planning and review panels use the same contrast hierarchy. */
+.workout-health-panel,
+.workout-programming-panel,
+.day-programming-panel,
+.destination-train .programming-guide-panel {
+  border-color: var(--sg-control-border-on-dark);
+  background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));
+  color: var(--sg-text-on-dark);
+}
+
+.workout-health-disclosure > summary,
+.weekly-plan-head,
+.programming-panel-head,
+.day-programming-head,
+.destination-train .programming-guide-head,
+.destination-train .programming-guide-boundary {
+  border-color: var(--sg-divider-on-dark);
+}
+
+.health-stat-grid,
+.health-stat-grid > div,
+.health-block,
+.custom-prescription,
+.destination-train .programming-guide-stats > div {
+  border-color: var(--sg-divider-on-dark);
+}
+
+.health-stat-grid strong,
+.completion-toggle,
+.custom-detail-row select,
+.custom-detail-row textarea,
+.destination-train .programming-guide-head h3,
+.destination-train .programming-guide-stats strong {
+  color: var(--sg-text-on-dark);
+}
+
+.health-stat-grid span,
+.health-boundary,
+.custom-detail-row label,
+.destination-train .programming-guide-head p:last-child,
+.destination-train .programming-guide-stats small,
+.destination-train .programming-guide-boundary,
+.destination-train .programming-guide-boundary p {
+  color: var(--sg-text-muted-on-dark);
+}
+
+.custom-detail-row select,
+.custom-detail-row textarea,
+.completion-toggle {
+  border-color: var(--sg-control-border-on-dark);
+  background: var(--sg-surface-raised);
+}
+
+/* Explore: catalog, atlas, and body discovery panels use one readable navy system. */
+.destination-explore .atlas-tool-row,
+.destination-explore .atlas-action-list,
+.destination-explore .atlas-focus-card,
+.destination-explore .body-lab-navigator,
+.destination-explore .anatomy-atlas-pro {
+  border-color: var(--sg-control-border-on-dark);
+  background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));
+  color: var(--sg-text-on-dark);
+}
+
+.destination-explore .atlas-tool-main input,
+.destination-explore .atlas-tool-main select,
+.destination-explore .atlas-sport-select,
+.destination-explore .body-lab-navigator select {
+  border-color: var(--sg-control-border-on-dark);
+  background: var(--sg-surface-deep);
+  color: var(--sg-text-on-dark);
+}
+
+.destination-explore .atlas-tool-row label,
+.destination-explore .atlas-sport-select,
+.destination-explore .atlas-action-item small,
+.destination-explore .atlas-focus-card p,
+.destination-explore .atlas-details dd,
+.destination-explore .body-lab-navigator strong,
+.destination-explore .body-lab-navigator label,
+.destination-explore .atlas-pro-head > p,
+.destination-explore .atlas-control-group > span,
+.destination-explore .atlas-threshold-pro,
+.destination-explore .atlas-reset-pro,
+.destination-explore .atlas-role-methodology {
+  color: var(--sg-text-muted-on-dark);
+}
+
+.destination-explore .atlas-family-row button,
+.destination-explore .atlas-action-item,
+.destination-explore .body-lab-navigator-actions button,
+.destination-explore .atlas-pill-row button,
+.destination-explore .atlas-pro-search,
+.destination-explore .atlas-role-methodology {
+  border-color: var(--sg-control-border-on-dark);
+  background: var(--sg-control-on-dark);
+  color: var(--sg-text-on-dark);
+}
+
+.destination-explore .atlas-details,
+.destination-explore .atlas-pro-head,
+.destination-explore .atlas-pro-controls,
+.destination-explore .atlas-pro-inspector {
+  border-color: var(--sg-divider-on-dark);
+}
+
+/* Catalog and Profile retain their distinctive panels while inheriting the same contrast roles. */
+.catalog-discovery {
+  border-color: var(--sg-control-border-on-dark);
+  background: linear-gradient(155deg, var(--sg-surface-panel), var(--sg-surface-deep));
+  color: var(--sg-text-on-dark);
+}
+
+.catalog-discovery-search,
+.catalog-discovery-controls,
+.catalog-discovery-card,
+.catalog-discovery-empty {
+  border-color: var(--sg-control-border-on-dark);
+  color: var(--sg-text-on-dark);
+}
+
+.catalog-discovery-search,
+.catalog-discovery-controls,
+.catalog-discovery-empty {
+  background: var(--sg-surface-raised);
+}
+
+.catalog-discovery-card {
+  background: linear-gradient(105deg, var(--sg-surface-panel), var(--sg-surface-raised));
+}
+
+.catalog-discovery-card-copy strong,
+.catalog-discovery-search input,
+.catalog-discovery-controls select,
+.catalog-discovery-empty strong {
+  color: var(--sg-text-on-dark);
+}
+
+.catalog-discovery-controls summary small,
+.catalog-discovery-controls label,
+.catalog-filter-reset,
+.catalog-discovery-card-copy small,
+.catalog-discovery-empty {
+  color: var(--sg-text-muted-on-dark);
+}
+
+.catalog-discovery-filter-grid,
+.catalog-discovery-actions,
+.catalog-discovery-actions button + button {
+  border-color: var(--sg-divider-on-dark);
+}
+
+.catalog-discovery-controls select,
+.catalog-favorites-filter,
+.catalog-filter-reset,
+.catalog-serratus-filter,
+.catalog-load-more {
+  border-color: var(--sg-control-border-on-dark);
+  background: var(--sg-surface-raised);
+}
+
+.about-me-equipment {
+  border-color: var(--sg-control-border-on-dark);
+  background: var(--sg-surface-raised);
+  color: var(--sg-text-on-dark);
+}
+
+.about-me-equipment p:not(.metric-label),
+.about-me-access-row button,
+.about-me-equipment-grid button {
+  color: var(--sg-text-muted-on-dark);
+}
+
+.about-me-access-row button,
+.about-me-equipment-grid button {
+  border-color: var(--sg-control-border-on-dark);
+}
+
+/* Dark-surface focus remains visibly distinct even where custom controls reset outlines. */
+.workout-health-panel :is(button, select, textarea, summary):focus-visible,
+.workout-programming-panel :is(button, select, textarea, summary):focus-visible,
+.day-programming-panel :is(button, select, textarea, summary):focus-visible,
+.destination-explore :is(button, input, select, summary):focus-visible,
+.catalog-discovery :is(button, input, select, summary):focus-visible,
+.about-me-equipment button:focus-visible {
+  outline: 2px solid var(--sg-focus-on-dark);
+  outline-offset: 2px;
+}

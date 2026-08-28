@@ -19,8 +19,8 @@ describe("launch experience preference", () => {
   });
 
   it("uses a brief staged launch while immediately bypassing it for reduced-motion users", () => {
-	    expect(bootSplashSource).toContain("export const minimumBootPresentationMs = 1_620");
-		    expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 340)");
+	    expect(bootSplashSource).toContain("export const minimumBootPresentationMs = 1_380");
+		    expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 260)");
     expect(bootLifecycleSource).toContain("minimumBootPresentationMs");
     expect(bootLifecycleSource).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
     expect(bootLifecycleSource).toContain("document.documentElement.dataset.sportsGenomeBootStartedAt");
@@ -56,10 +56,10 @@ describe("launch experience preference", () => {
     expect(bootDocumentSource).toContain('video.muted=true');
     expect(bootDocumentSource).toContain('sports-genome-boot-video-ready');
     expect(bootDocumentSource).toContain('const stopVideo=()=>{video?.pause();document.documentElement.classList.add("sports-genome-boot-video-held")}');
-	    expect(bootDocumentSource).toContain('window.setTimeout(stopVideo,Math.max(0,1_580-(Date.now()-startedAt)))');
+		    expect(bootDocumentSource).toContain('window.setTimeout(stopVideo,Math.max(0,1_330-(Date.now()-startedAt)))');
 	    expect(bootDocumentSource).toContain("boot-video-in 320ms");
     expect(bootDocumentSource).toContain("boot-wordmark-in 420ms .84s");
-	    expect(bootDocumentSource).toContain("transition:opacity 340ms");
+		    expect(bootDocumentSource).toContain("transition:opacity 260ms");
 	    expect(bootDocumentSource).toContain("@media (min-width:641px){html.sports-genome-boot-video-ready .sports-genome-boot-video");
 	    expect(bootDocumentSource).toContain("width:min(100%,620px);height:min(100%,620px)");
     expect(bootDocumentSource).toContain('if(video&&!reduced&&document.documentElement.dataset.sportsGenomeBoot!=="off")');
