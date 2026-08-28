@@ -120,7 +120,8 @@
 - [x] Move the official Sports Genome mark into the compact top header as a larger unboxed, blended brand anchor.
 - [x] Expose the six primary destinations through the bottom navigation at desktop widths after sidebar removal, with regression and browser verification.
 - [ ] Ensure contextual top navigation has exactly one active tab for every Train and Explore state, including Tracker, Stack Review, and Prep routes.
-- [ ] Increase mobile top-navigation type size and spacing, prevent tight tab labels, and simplify the header presentation so the shell feels app-first rather than website-like.
+- [x] Increase mobile top-navigation type size and spacing, prevent tight tab labels, and simplify the header presentation so the shell feels app-first rather than website-like.
+- [x] Make mobile contextual tabs retain 44px touch targets, readable type, and a visible single-active state while allowing horizontal scroll without clipped labels.
 - [x] Audit any header-layer media or visual element that obscures the top controls in the reported mobile view; no application-owned overlay was present in the inspected DOM.
 - [x] Document that the reported vertical media overlay is external to the inspected Sports Genome interface.
 - [ ] Visually verify the mobile header and top navigation remain readable and unobscured with real device/browser chrome present, separately from the overlay-source audit.

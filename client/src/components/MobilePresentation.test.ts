@@ -28,7 +28,7 @@ describe("mobile athlete presentation", () => {
     expect(mobileStyles).toContain("env(safe-area-inset-bottom)");
     expect(mobileStyles).toContain(".feature-guide-button span { display: none; }");
     expect(mobileStyles).toContain(".genome-methodology");
-    expect(mobileStyles).toContain(".apex-topbar { min-height: 88px");
+    expect(mobileStyles).toContain(".apex-topbar { min-height: 78px");
   });
 
   it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {
