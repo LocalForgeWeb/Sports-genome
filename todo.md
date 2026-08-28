@@ -30,6 +30,12 @@
 
 ## iPhone-First Product Polish
 
+- [x] Repair the blank Training Day and Tracker canvases reported after the mobile navigation changes, then add rendering regression coverage.
+- [ ] Verify populated Training Day and Tracker content at an iPhone viewport and desktop viewport before publishing the repair.
+- [ ] Give Train an operational session-planning visual system distinct from exploration, review, and profile surfaces.
+- [ ] Give Explore a discovery-lab visual system with clearer atlas, anatomy, catalog, and genome modes.
+- [ ] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
+- [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.
 - [x] Group Training Day, Workout Builder, Recommendations, Stack Review, and preparation into one Train destination with a context-aware top switcher.
 - [x] Group Movement Atlas, Body Lab, Exercise Genome, and Exercise Catalog into one Explore destination with context-aware top subnavigation.

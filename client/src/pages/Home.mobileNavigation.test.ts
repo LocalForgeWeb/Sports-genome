@@ -107,6 +107,7 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.workspace-top-switcher button { min-height: 52px; padding: 0 .9rem; font-size: .74rem; }');
     expect(css).toContain('.topbar-brand-logo { width: 60px; height: 60px; }');
     expect(css).toContain('.mobile-bottom-nav { display: none; }');
+    expect(css).not.toContain('main > section:has(.custom-row) { display: none; }');
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
     expect(css).toContain('.apex-content { padding-bottom: calc(5.8rem');
     expect(css).toContain('.mobile-workspace-dock { position: fixed;');
