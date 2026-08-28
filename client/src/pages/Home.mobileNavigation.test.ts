@@ -64,8 +64,8 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content.destination-progress');
     expect(css).toContain('.apex-content.destination-profile');
     expect(css).toContain('.apex-content.destination-more');
-    expect(source).toContain('sports-genome-upright-s-dna-logo_5c4f7a92.jpg');
-    expect(source).toContain('alt="Sports Genome upright S/DNA logo"');
+    expect(source).toContain('sports-genome-circular-header-badge_8450998e.jpg');
+    expect(source).toContain('alt="Sports Genome circular badge"');
     expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');
     expect(source).toContain('className="topbar-context-chips"');
     expect(css).not.toContain('topbar-brand-logo { width: 50px; height: 50px; clip-path');

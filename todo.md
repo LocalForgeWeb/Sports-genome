@@ -232,6 +232,7 @@
 ## Official App and Home-Screen Icon
 
 - [x] Replace the visible top-header logo mark with the newly supplied upright S/DNA artwork while preserving the Home title and sport, goal, and days context chips unchanged.
+- [x] Replace the visible top-left in-app header mark with the newly supplied circular Sports Genome badge while preserving the Home title and sport, goal, and days context chips unchanged.
 - [x] Replace the iPhone Home Screen and PWA icon assets with the supplied upright S/DNA artwork while leaving the in-app header title and context chips unchanged.
 - [x] Replace the visible top-left sidebar logo mark with the user-supplied official Sports Genome — Decoding Performance artwork.
 - [x] Remove any legacy rail pseudo-mark styling that hides or recolors the supplied official sidebar artwork.
