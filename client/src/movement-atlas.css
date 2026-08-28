@@ -6,5 +6,18 @@
 .apex-content > section:has(.atlas-sport-row) { display: none; }
 @media (max-width: 850px) { .atlas-analysis-grid, .atlas-tool-main { grid-template-columns: 1fr; }.atlas-improved-head { align-items: start; }.atlas-inventory { align-self: start; } }
 @media (max-width: 640px) { .atlas-action-item { min-height: 3.15rem; padding: .75rem .85rem; }.atlas-action-item > div { min-width: 0; }.atlas-action-item strong { font-size: .9rem; }.atlas-focus-card > button:not(.atlas-show-more) { min-height: 2.75rem; width: 100%; justify-content: center; } }
+
+/* On a phone, lead with action discovery and keep the full family filter set in one intentional horizontal rail. */
+@media (max-width: 640px) {
+  .atlas-improved-head { gap: .55rem; }
+  .atlas-improved-head > div:first-child > p:last-child { display: none; }
+  .atlas-improved-head h1 { font-size: 2.65rem; }
+  .atlas-inventory { width: 100%; gap: .5rem; padding: .5rem .65rem; }
+  .atlas-inventory strong { font-size: 1.85rem; }
+  .atlas-inventory span { font-size: .56rem; line-height: 1.25; }
+  .atlas-tool-row { gap: .6rem; padding: .8rem; }
+  .atlas-family-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .2rem; scrollbar-width: thin; }
+  .atlas-family-row button { flex: 0 0 auto; min-height: 38px; white-space: nowrap; }
+}
 .atlas-family-row button, .atlas-action-item, .atlas-show-more, .atlas-focus-card > button:not(.atlas-show-more) { transition: transform .16s var(--ease-out), background-color .16s var(--ease-out), border-color .16s var(--ease-out), color .16s var(--ease-out); }
 .atlas-family-row button:active, .atlas-action-item:active, .atlas-show-more:active, .atlas-focus-card > button:not(.atlas-show-more):active { transform: scale(.97); }

@@ -176,6 +176,7 @@
 - [ ] Verify populated Training Day and Tracker content at an iPhone viewport and desktop viewport before publishing the repair.
 - [x] Give Train an operational session-planning visual system distinct from exploration, review, and profile surfaces.
 - [ ] Give Explore a discovery-lab visual system with clearer atlas, anatomy, catalog, and genome modes.
+- [x] Compress the Movement Atlas mobile hero and preserve its complete action-family filter set in a readable horizontal discovery rail.
 - [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.

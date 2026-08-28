@@ -186,4 +186,14 @@ describe("workspace side navigation", () => {
     expect(source).toContain("<ThreeWeekPlanner activeWeek={activeWeek}");
     expect(source).toContain("<WeeklyPlanBoard days={splitDays}");
   });
+
+  it("keeps Movement Atlas mobile discovery concise while retaining every family filter", () => {
+    const atlasStyles = readFileSync(new URL("../movement-atlas.css", import.meta.url), "utf8");
+    expect(atlasStyles).toContain(".atlas-improved-head > div:first-child > p:last-child { display: none; }");
+    expect(atlasStyles).toContain(".atlas-family-row { flex-wrap: nowrap; overflow-x: auto;");
+    expect(atlasStyles).toContain(".atlas-family-row button { flex: 0 0 auto; min-height: 38px; white-space: nowrap; }");
+    expect(source).toContain('id: "movement", label: "Movement"');
+    expect(source).toContain('id: "body", label: "Body Lab"');
+    expect(source).toContain('id: "catalog", label: "Catalog"');
+  });
 });
