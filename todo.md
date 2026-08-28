@@ -125,6 +125,8 @@
 - [x] Verify the visible video-led launch on the live site at phone and browser width without weakening reduced-motion or athlete preference controls.
 - [x] Smooth the video-ready wordmark entrance and video-to-workspace handoff using only GPU-friendly transform and opacity transitions.
 - [x] Validate the smoother silent intro at phone and browser width without extending its brief launch duration or weakening fallback behavior.
+- [x] Profile and remove remaining video-intro motion bottlenecks that cause a choppy startup on constrained phones.
+- [x] Verify the corrected silent launch under constrained phone performance while preserving reduced-motion and fallback paths.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.
@@ -249,6 +251,7 @@
 - [x] Hide non-actionable Not mapped labels from Catalog rows while retaining no-mapping context in opened exercise detail.
 - [x] Reduce initial-load cost by lazy-loading appropriate Explore-only workspaces without changing direct-access navigation or evidence behavior.
 - [x] Compress the Profile mobile hero into one clear planning-context boundary without hiding editable athlete details or evidence limits.
+- [ ] Make the first-run mobile onboarding header show the official Sports Genome mark with a concise readable wordmark while preserving quiz progress.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
 - [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.

@@ -69,3 +69,7 @@ The final contained 390×844 wordmark frame shows the supplied upright S/DNA mar
 ## Smoothed video-ready transition
 
 The revised 390×844 wordmark frame retains the fully visible upright S/DNA mark above the wordmark and subtitle, with clear vertical separation on the matched navy field. The video fade-in and wordmark entrance now use opacity and transform only, while the document handoff uses a longer composited opacity fade; the ready frame confirms that the workspace is reached with no retained boot layer or visible flash.
+
+## Constrained-device held-frame launch
+
+The final generated 390×844 wordmark frame keeps the upright S/DNA mark fully visible and centered, with the wordmark and subtitle below it on the matched near-black navy surface. The following ready frame shows the normal Home workspace with no retained splash overlay. Under a four-times CPU-throttled phone simulation, the animated launch window recorded a 34 ms p95 frame gap and 67 ms maximum gap before the muted video reached its held final frame. The clip paused at 1.44 s and heavy workspace mounting began only after that hold point, avoiding continued video decoding during app startup.

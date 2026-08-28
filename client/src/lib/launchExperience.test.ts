@@ -55,7 +55,8 @@ describe("launch experience preference", () => {
     expect(bootDocumentSource).toContain('object-fit:contain;background:#07182e');
     expect(bootDocumentSource).toContain('video.muted=true');
     expect(bootDocumentSource).toContain('sports-genome-boot-video-ready');
-    expect(bootDocumentSource).toContain('if(video.currentTime>=1.82)video.pause()');
+    expect(bootDocumentSource).toContain('const stopVideo=()=>{video?.pause();document.documentElement.classList.add("sports-genome-boot-video-held")}');
+    expect(bootDocumentSource).toContain('window.setTimeout(stopVideo,Math.max(0,1_760-(Date.now()-startedAt)))');
 	    expect(bootDocumentSource).toContain("boot-video-in 320ms");
     expect(bootDocumentSource).toContain("boot-wordmark-in 420ms .84s");
     expect(bootDocumentSource).toContain("transition:opacity 280ms");
@@ -66,5 +67,14 @@ describe("launch experience preference", () => {
     expect(bootDocumentSource).toContain('bottom:12.8%');
     expect(bootDocumentSource).toContain('sports-genome-upright-s-silhouette-exact_349405db.png');
     expect(bootDocumentSource).toContain('sports-genome-upright-dna-detail-exact_8e94e37f.png');
+  });
+
+  it("keeps the launch motion on lightweight composited properties rather than costly boot-surface filters", () => {
+    expect(bootDocumentSource).toContain("contain:layout paint style");
+    expect(bootDocumentSource).toContain("transform:translateZ(0);backface-visibility:hidden;will-change:opacity");
+    expect(bootDocumentSource).toContain("will-change:transform,opacity");
+    expect(bootDocumentSource).not.toContain("filter:blur(64px)");
+    expect(bootDocumentSource).not.toContain("blur(5px)");
+    expect(bootDocumentSource).not.toContain("drop-shadow(0 10px 18px");
   });
 });

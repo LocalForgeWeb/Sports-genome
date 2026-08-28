@@ -24,4 +24,11 @@ describe("Athlete Baseline quiz navigation", () => {
     expect(styles).toContain(".athlete-evidence-note summary { display: flex;");
     expect(styles).toContain(".athlete-evidence-note summary::-webkit-details-marker { display: none; }");
   });
+
+  it("keeps the official brand name visible beside its mark on mobile without removing quiz progress", () => {
+    expect(source).toContain('<span>Sports Genome</span>');
+    expect(source).toContain('className="athlete-quiz-progress"');
+    expect(styles).toContain('.athlete-quiz-brand span { display: inline;');
+    expect(styles).toContain('.athlete-quiz-progress { min-width: 112px;');
+  });
 });
