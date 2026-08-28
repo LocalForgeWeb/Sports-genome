@@ -15,3 +15,11 @@ The generated 390×844 late-sequence capture shows the supplied upright artwork 
 ## Upright boot logo, ready state
 
 The generated 390×844 ready-state capture shows the normal Sports Genome Home workspace with no boot-logo overlay. Together with the source checks and launch-preference tests, this confirms the boot presentation is silent, document-level, reduced-motion-safe, uses the supplied upright logo directly, and clears before the workspace is available.
+
+## Training Day disclosure capture note
+
+The first 390×844 automated Training Day capture recorded the document boot screen because the launch preference was enabled in that isolated browser context. It is not a Training Day visual result and must not be used to judge the default canvas. The verification harness will disable the optional boot presentation before recapturing the collapsed and expanded Stack Review states.
+
+## Training Day Stack Review disclosure
+
+With the boot preference disabled in the isolated browser, the populated 390×844 Training Day capture shows the Coach Scan as a compact, visible `Stack review` trigger rather than an expanded diagnostics block. The trigger presents only a managed planning signal and `Review` affordance in the default flow, while the automated browser check confirms that its detailed set, time, and overlap information expands only on request. The existing multi-action day card remains a separate decluttering opportunity and is not claimed as resolved by this refinement.
