@@ -177,4 +177,13 @@ describe("workspace side navigation", () => {
     expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
     expect(source).toContain('Import this plan');
   });
+
+  it("compresses Training Day’s mobile default without removing week-selection controls", () => {
+    expect(trainingDayStyles).toContain(".day-design-hero p:last-child { display: none; }");
+    expect(trainingDayStyles).toContain(".three-week-head p:last-child { display: none; }");
+    expect(trainingDayStyles).toContain(".three-week-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }");
+    expect(trainingDayStyles).toContain(".three-week-tabs button { min-height: 76px;");
+    expect(source).toContain("<ThreeWeekPlanner activeWeek={activeWeek}");
+    expect(source).toContain("<WeeklyPlanBoard days={splitDays}");
+  });
 });

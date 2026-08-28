@@ -164,6 +164,7 @@
 - [x] Retain comparison-condition explanation in an optional disclosure rather than the default Progress canvas.
 - [ ] Reduce Training Day’s default canvas to day selection, saved stack, split-target index, and one next action; move diagnostics, preparation detail, and catalog expansion behind Train contextual tabs or disclosures.
 - [ ] Remove repeated set, time, fatigue, equipment, planning-band, and methodology prose from the default Training Day view while retaining concise editable prescription controls.
+- [x] Compress the Training Day mobile hero and three-week selector so the first viewport prioritizes the day heading, week choice, and weekly map without removing planning controls.
 - [x] Make Training Day a planning-only workspace for building, selecting, reviewing, and rating saved training days.
 - [x] Make Tracker a distinct execution workspace where athletes select a saved day and enter completed weight, repetitions, optional effort, and completion state.
 - [x] Feed completed tracker records into Progress as recorded session data, without showing planned stack diagnostics as execution history.
