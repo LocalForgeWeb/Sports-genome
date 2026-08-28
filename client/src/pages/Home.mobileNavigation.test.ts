@@ -8,6 +8,8 @@ const deviceTrackerSource = readFileSync(new URL("../components/DeviceWorkoutTra
 const stackReviewSource = readFileSync(new URL("../components/WorkoutHealthPanel.tsx", import.meta.url), "utf8");
 const aboutMeSource = readFileSync(new URL("../components/AthleteAboutMePanel.tsx", import.meta.url), "utf8");
 const anatomySource = readFileSync(new URL("../components/AnatomyMap.tsx", import.meta.url), "utf8");
+const athleteQuizSource = readFileSync(new URL("../components/AthleteBaselineQuiz.tsx", import.meta.url), "utf8");
+const athleteQuizStyles = readFileSync(new URL("../athlete-baseline-quiz.css", import.meta.url), "utf8");
 const mobileStyles = readFileSync(new URL("../mobile-navigation.css", import.meta.url), "utf8");
 const trainingDayStyles = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
 
@@ -75,6 +77,24 @@ describe("workspace side navigation", () => {
     expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
     expect(css).toContain('box-shadow: inset 4px 0 var(--sg-gold)');
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
+  });
+
+  it("uses the supplied circular badge as a larger natural onboarding mark without changing title or progress controls", () => {
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(source).toContain('src="/manus-storage/sports-genome-circular-header-badge_8450998e.jpg" alt="Sports Genome circular badge" className="pulse-brand-badge"');
+    expect(source).toContain('<span className="font-display text-2xl font-bold uppercase tracking-wide text-white">Sports Genome</span>');
+    expect(source).toContain('<div className="pulse-progress"><span>STEP {step + 1} / 4</span>');
+    expect(css).toContain('.pulse-header .pulse-brand-badge { display: block !important; width: 54px; height: 54px;');
+    expect(css).toContain('border-radius: 999px;');
+    expect(css).toContain('.pulse-header > div:first-child::before, .pulse-header > div:first-child::after { content: none; display: none; }');
+  });
+
+  it("uses the supplied circular badge in the active eleven-step onboarding header at a natural readable scale", () => {
+    expect(athleteQuizSource).toContain('src="/manus-storage/sports-genome-circular-header-badge_8450998e.jpg" alt="Sports Genome circular badge"');
+    expect(athleteQuizSource).toContain('<span>Sports Genome</span></div><div className="athlete-quiz-progress"');
+    expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 54px; height: 54px; flex: 0 0 54px; border-radius: 999px;');
+    expect(athleteQuizStyles).toContain('@media (max-width: 720px) { .athlete-quiz-header { min-height: 82px;');
+    expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 48px; height: 48px; flex: 0 0 48px; }');
   });
 
   it("blocks the retired coach-set readiness placeholder from rendering", () => {
@@ -149,6 +169,9 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.topbar-context-chips span { max-width: none; flex: 0 0 auto; }');
     expect(mobileStyles).toContain('max-width: calc(100vw - 6.8rem);');
     expect(mobileStyles).toContain('flex: 0 0 auto;');
+    expect(mobileStyles).toContain('overflow-x: auto; overscroll-behavior-x: contain;');
+    expect(mobileStyles).toContain('.topbar-context-chips::-webkit-scrollbar { display: none; }');
+    expect(mobileStyles).toContain('scroll-snap-align: start;');
     expect(mobileStyles).toContain('.apex-topbar button:last-child { display: none; }');
     expect(css).toContain('.text-\\[\\#b8ff5b\\] { color: #f2c14d !important; }');
     expect(css).toContain('.hover\\:bg-\\[\\#b8ff5b\\]:hover { background-color: #f2c14d !important; }');

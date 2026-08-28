@@ -261,6 +261,7 @@
 - [ ] Separate movement-data consumers not required for the first visible Home state from the initial application mount to improve post-intro responsiveness.
 - [x] Compress the Profile mobile hero into one clear planning-context boundary without hiding editable athlete details or evidence limits.
 - [x] Make the first-run mobile onboarding header show the official Sports Genome mark with a concise readable wordmark while preserving quiz progress.
+- [x] Replace the small square onboarding-header logo with the supplied circular Sports Genome badge, rendered larger as a natural round mark while preserving the quiz title and progress controls.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
 - [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.

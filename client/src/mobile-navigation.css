@@ -25,8 +25,9 @@
   .apex-topbar > div { align-items: center; }
   .apex-topbar .metric-label { font-size: .7rem; letter-spacing: .1em; }
   .topbar-brand-logo { width: 52px; height: 52px; }
-  .topbar-context-chips { flex-wrap: nowrap; gap: .3rem; margin-top: .22rem; max-width: calc(100vw - 6.8rem); }
-  .topbar-context-chips span { flex: 0 0 auto; min-height: 1.6rem; max-width: none; padding: .26rem .52rem; font-size: .66rem; white-space: nowrap; }
+  .topbar-context-chips { flex-wrap: nowrap; gap: .3rem; max-width: calc(100vw - 6.8rem); margin-top: .22rem; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; scroll-snap-type: x proximity; }
+  .topbar-context-chips::-webkit-scrollbar { display: none; }
+  .topbar-context-chips span { flex: 0 0 auto; min-height: 1.6rem; max-width: none; padding: .26rem .52rem; font-size: .66rem; white-space: nowrap; scroll-snap-align: start; }
   .apex-topbar p.text-sm { max-width: 176px; overflow: hidden; font-size: .86rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
   .apex-topbar button:last-child { display: none; }
   .workspace-top-switcher { top: 78px; min-height: 54px; gap: .42rem; overflow-x: auto; overscroll-behavior-x: contain; padding: .35rem .75rem; scroll-padding-inline: .75rem; scroll-snap-type: x proximity; scrollbar-width: none; }
