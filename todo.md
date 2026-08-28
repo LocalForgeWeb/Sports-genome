@@ -89,7 +89,8 @@
 - [x] Visually audit the full Training Day stack-analysis overlay and add regression coverage for its dark-surface label and control contrast.
 - [x] Add explicit high-contrast dark-surface styles for Stack Analysis headings, labels, metric text, rows, and controls.
 - [x] Add focused regression coverage for Stack Analysis overlay contrast tokens and controls, separate from split-target scoring semantics.
-- [ ] Reduce broad white surfaces by giving Train a deep operational navy theme and Tracker a focused dark execution theme.
+- [x] Reduce broad white surfaces by giving Train a deep operational navy theme and Tracker a focused dark execution theme.
+- [x] Convert the visible Training Day weekly-planning and Tracker execution panels from broad white cards to readable layered navy operational surfaces.
 - [ ] Give Explore a layered blue discovery-lab theme, Progress a dark measured-review theme, Profile a personal-control theme, and More a compact utility theme.
 - [ ] Establish accessible dark-surface typography, panel, divider, and interaction tokens so the destination themes remain cohesive and readable.
 - [x] Reduce repeated Progress empty-state and methodology copy to concise recorded-status cards with one relevant next action.

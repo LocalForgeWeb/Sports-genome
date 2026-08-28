@@ -707,6 +707,22 @@ select {
 .destination-train .day-programming-panel .metric-label, .destination-train .day-programming-panel strong, .destination-train .day-programming-panel label, .destination-train .day-programming-panel summary { color: #edf7ff; }
 .destination-train .day-programming-panel small, .destination-train .day-programming-panel p, .destination-train .day-programming-panel .custom-detail-row label { color: #c3d7ea; }
 .destination-train .day-programming-panel select, .destination-train .day-programming-panel textarea { border-color: rgb(164 200 232 / .42); background: #0b2240; color: #f7fbff; }
+.destination-train .three-week-planner, .destination-train .weekly-plan-board { border: 1px solid rgb(164 200 232 / .26); background: linear-gradient(140deg, rgb(16 52 88 / .94), rgb(7 25 47 / .98)); box-shadow: 0 16px 36px rgb(1 12 28 / .22); color: #edf7ff; }
+.destination-train .three-week-head, .destination-train .weekly-plan-head { border-bottom-color: rgb(164 200 232 / .2); }
+.destination-train .three-week-head h2, .destination-train .weekly-plan-head h3, .destination-train .three-week-head .metric-label, .destination-train .weekly-plan-head .metric-label { color: #f7fbff; }
+.destination-train .three-week-head p, .destination-train .weekly-plan-head p { color: #bfd5ea; }
+.destination-train .three-week-head > button, .destination-train .weekly-plan-head > button { border-color: #f2c14d; background: #e4512e; color: #fff7e7; }
+.destination-train .three-week-tabs { border-color: rgb(164 200 232 / .22); background: rgb(255 255 255 / .05); }
+.destination-train .three-week-tabs button, .destination-train .weekly-day-card { border-color: rgb(164 200 232 / .2); background: rgb(255 255 255 / .055); color: #dceafb; }
+.destination-train .three-week-tabs button strong, .destination-train .weekly-day-card strong { color: #f7fbff; }
+.destination-train .three-week-tabs button small, .destination-train .weekly-day-card small { color: #acc9e4; }
+.destination-train .three-week-tabs button[aria-pressed="true"], .destination-train .weekly-day-card[aria-pressed="true"] { border-color: #f2c14d; background: linear-gradient(115deg, rgb(228 81 46 / .34), rgb(45 108 223 / .28)); box-shadow: inset 3px 0 0 #e4512e; }
+.destination-train .device-workout-tracker .session-exercise { border-color: rgb(164 200 232 / .22); background: rgb(5 23 44 / .72); }
+.destination-train .device-workout-tracker .session-exercise strong, .destination-train .device-workout-tracker .session-exercise small, .destination-train .device-workout-tracker .session-set-row strong, .destination-train .device-workout-tracker .session-set-row label span { color: #e7f2fc; }
+.destination-train .device-workout-tracker .session-set-row { border-top-color: rgb(164 200 232 / .18); background: rgb(255 255 255 / .035); }
+.destination-train .device-workout-tracker .session-set-row input { border-color: rgb(164 200 232 / .4); background: #0b2240; color: #f7fbff; }
+.destination-train .device-workout-tracker .session-set-row button { border-color: rgb(164 200 232 / .45); background: rgb(255 255 255 / .09); color: #eef7ff; }
+.destination-train .device-workout-tracker .session-set-complete { border-left-color: #f2c14d; background: rgb(242 193 77 / .11); }
 
 .apex-content.destination-explore { background: radial-gradient(circle at 12% 10%, #d8edff 0, #eff7ff 30%, #cbdff4 100%); }
 .destination-explore .atlas-sport-picker, .destination-explore .movement-selector, .destination-explore .body-lab-v2 > .view-header, .destination-explore .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, #103b67, #0a274b); color: #eff8ff; box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
