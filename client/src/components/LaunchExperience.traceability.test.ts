@@ -7,9 +7,9 @@ const home = readFileSync(resolve(process.cwd(), "client/src/pages/Home.tsx"), "
 const documentShell = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
 
 describe("silent document boot screen", () => {
-  it("is a black pre-React visual treatment with no audio and reduced-motion suppression", () => {
+  it("is a deep-navy pre-React visual treatment with no audio and reduced-motion suppression", () => {
     expect(documentShell).toContain('id="sports-genome-boot-splash"');
-    expect(documentShell).toContain('background:#000');
+    expect(documentShell).toContain('background:#0b2240');
     expect(documentShell).toContain('data-sports-genome-boot');
     expect(documentShell).toContain('@media (prefers-reduced-motion:reduce)');
     expect(documentShell).not.toMatch(/<audio|new Audio|AudioContext/i);

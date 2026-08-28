@@ -18,18 +18,29 @@ describe("launch experience preference", () => {
     expect("shouldShowLaunchExperience" in { isLaunchExperienceEnabled }).toBe(false);
   });
 
-  it("keeps normal launch pacing deliberate while immediately bypassing it for reduced-motion users", () => {
-    expect(bootSplashSource).toContain("export const minimumBootPresentationMs = 3_200");
-    expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 560)");
+  it("uses a brief staged launch while immediately bypassing it for reduced-motion users", () => {
+    expect(bootSplashSource).toContain("export const minimumBootPresentationMs = 1_900");
+    expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 180)");
     expect(bootLifecycleSource).toContain("minimumBootPresentationMs");
     expect(bootLifecycleSource).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
-    expect(bootLifecycleSource).toContain("window.setTimeout(() => dismissBootSplash(), minimumBootPresentationMs)");
+    expect(bootLifecycleSource).toContain("document.documentElement.dataset.sportsGenomeBootStartedAt");
+    expect(bootLifecycleSource).toContain("Math.max(0, minimumBootPresentationMs - elapsedMs)");
   });
 
   it("uses the supplied upright S/DNA Sports Genome mark rather than the retired sideways strand drawing", () => {
-    expect(bootDocumentSource).toContain("sports-genome-upright-s-dna-logo_53affec0.jpg");
+    expect(bootDocumentSource).toContain("sports-genome-upright-s-silhouette-exact_349405db.png");
+    expect(bootDocumentSource).toContain("sports-genome-upright-dna-detail-exact_8e94e37f.png");
+    expect(bootDocumentSource).not.toContain("sports-genome-upright-s-dna-logo_53affec0.jpg");
     expect(bootDocumentSource).toContain('class="sports-genome-boot-logo"');
-    expect(bootDocumentSource).toContain("boot-upright-logo");
+    expect(bootDocumentSource).toContain("boot-mark-form");
+    expect(bootDocumentSource).toContain("boot-dna-lines-in");
+    expect(bootDocumentSource).toContain("boot-wordmark-in");
+    expect(bootDocumentSource).toContain('class="sports-genome-boot-dna-detail"');
+    expect(bootDocumentSource).not.toContain("sports-genome-boot-dna-mask");
+    expect(bootDocumentSource).toContain("sportsGenomeBootStartedAt=String(Date.now())");
+    expect(bootDocumentSource).toContain("background:#0b2240");
+    expect(bootDocumentSource).not.toContain("boot-content-in");
+    expect(bootDocumentSource).not.toContain("boot-upright-logo");
     expect(bootDocumentSource).not.toContain("sports-genome-boot-strand");
     expect(bootDocumentSource).not.toContain("boot-mark-orbit");
     expect(bootDocumentSource).not.toContain("M22 105C65 105");

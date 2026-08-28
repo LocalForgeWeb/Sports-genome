@@ -9,7 +9,9 @@ export function BootSplashLifecycle() {
       dismissBootSplash();
       return;
     }
-    const timeout = window.setTimeout(() => dismissBootSplash(), minimumBootPresentationMs);
+    const documentStartedAt = Number(document.documentElement.dataset.sportsGenomeBootStartedAt);
+    const elapsedMs = Number.isFinite(documentStartedAt) ? Math.max(0, Date.now() - documentStartedAt) : 0;
+    const timeout = window.setTimeout(() => dismissBootSplash(), Math.max(0, minimumBootPresentationMs - elapsedMs));
     return () => window.clearTimeout(timeout);
   }, []);
   return null;

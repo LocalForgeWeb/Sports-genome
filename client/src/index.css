@@ -942,3 +942,18 @@ select {
 .destination-explore .atlas-pro-search input { color: #f7fbff; }
 .destination-explore .atlas-role-methodology { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .055); color: #c3d7ea; }
 .destination-explore .atlas-role-methodology summary { color: #f2c14d; }
+
+/* Training defaults are editable planning starts; their boundary stays available without lengthening the default card. */
+.destination-train .programming-guide-panel { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, #102f53, #07182e); color: #edf7ff; box-shadow: 0 16px 38px rgb(1 12 28 / .2); }
+.destination-train .programming-guide-head { border-bottom-color: rgb(164 200 232 / .22); background: rgb(255 255 255 / .045); }
+.destination-train .programming-guide-head h3, .destination-train .programming-guide-stats strong { color: #f7fbff; }
+.destination-train .programming-guide-head p:last-child, .destination-train .programming-guide-stats small { color: #c3d7ea; }
+.destination-train .programming-guide-head > svg, .destination-train .programming-guide-stats span { color: #9fc8f4; }
+.destination-train .programming-guide-stats > div { border-color: rgb(164 200 232 / .2); }
+.destination-train .programming-guide-cues article { border-left-color: #e4512e; background: rgb(228 81 46 / .1); }
+.destination-train .programming-guide-cues article span { color: #ffd2c4; }
+.destination-train .programming-guide-cues article p { color: #dcecf9; }
+.destination-train .programming-guide-boundary { border-top: 1px solid rgb(164 200 232 / .24); background: rgb(255 255 255 / .045); color: #c3d7ea; }
+.destination-train .programming-guide-boundary summary { display: flex; min-height: 44px; align-items: center; padding: 0 1rem; color: #f2c14d; cursor: pointer; font-size: .64rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.destination-train .programming-guide-boundary p { margin: 0; border-top: 1px solid rgb(164 200 232 / .18); padding: .7rem 1rem .9rem; color: #c3d7ea; font-size: .72rem; line-height: 1.5; }
+.destination-train .programming-guide-boundary summary:focus-visible { outline: 2px solid #f2c14d; outline-offset: -3px; }

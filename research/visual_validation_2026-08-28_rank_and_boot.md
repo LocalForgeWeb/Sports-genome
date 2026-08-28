@@ -35,3 +35,11 @@ The populated 390×844 action-card capture confirms that the duplicate `Start se
 The populated 390×844 catalog view shows the evidence-bounded action signal directly beneath each exercise’s primary-muscle line. `Supporting link · Acceleration` is readable in gold, while `Not mapped · Acceleration` is visibly muted and explicit; neither is presented as a sport-performance rating. The selected active action did not yield an on-screen Direct support row in the initial catalog page, but deterministic classifier regression coverage verifies the Direct support label only when an exercise is named in the selected action record.
 
 The refreshed 390×844 catalog capture confirms grade pills now read `Catalog tag A`, avoiding the ambiguous population-comparison language previously used for the configured catalog classification. The evidence-qualified source-sample rank remains reserved for the strict Piper record path.
+
+The first staged-boot phone frame exposed a visible dark-blue square around the upright source artwork; that frame failed the intended background-free compositing requirement. A generative transparent variation also changed the protected brand mark and was rejected. The replacement asset therefore removes only the edge-connected original navy background while retaining the source mark pixels for the next boot validation pass.
+
+The exact-background-free replacement removed the square-card appearance in the next 390×844 S-form capture. However, the first CSS mask introduced visible horizontal bands across the mark and is not an acceptable DNA-detail reveal; the staged animation must instead use separate exact-color layers for the S silhouette and the existing vermilion DNA detail.
+
+The corrected 390×844 S-first frame now shows only the upright silver S silhouette on the boot background, without a square, rotation, substitute mark, or mask artifacts. The subsequent DNA-detail frame cleanly restores the original vermilion linework before the wordmark fully resolves.
+
+The following 390×844 wordmark frame shows `SPORTS GENOME` and `DECODING PERFORMANCE` after the full upright S/DNA mark, with a scale-and-focus reveal rather than a content-card slide. The ready frame confirms the boot surface is removed before the Home workspace appears.
