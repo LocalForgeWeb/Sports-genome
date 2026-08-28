@@ -41,6 +41,7 @@ describe("Strength Genome direct Review workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Review" }));
     expect(mocks.feedback).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("region", { name: "Biceps recorded strength context" })).toBeTruthy();
-    expect(screen.getByText("Recorded load / test body mass")).toBeTruthy();
+    expect(screen.getByText("Recorded measurement")).toBeTruthy();
+    expect(screen.getByText("Rank unavailable for this test.")).toBeTruthy();
   });
 });

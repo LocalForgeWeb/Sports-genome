@@ -5,6 +5,7 @@ import { isLaunchExperienceEnabled } from "./launchExperience";
 
 const bootSplashSource = readFileSync(resolve(process.cwd(), "client/src/lib/bootSplash.ts"), "utf8");
 const bootLifecycleSource = readFileSync(resolve(process.cwd(), "client/src/components/BootSplashLifecycle.tsx"), "utf8");
+const bootDocumentSource = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
 
 describe("launch experience preference", () => {
   it("defaults to enabled unless the athlete explicitly turns it off", () => {
@@ -23,5 +24,14 @@ describe("launch experience preference", () => {
     expect(bootLifecycleSource).toContain("minimumBootPresentationMs");
     expect(bootLifecycleSource).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
     expect(bootLifecycleSource).toContain("window.setTimeout(() => dismissBootSplash(), minimumBootPresentationMs)");
+  });
+
+  it("uses the supplied upright S/DNA Sports Genome mark rather than the retired sideways strand drawing", () => {
+    expect(bootDocumentSource).toContain("sports-genome-upright-s-dna-logo_53affec0.jpg");
+    expect(bootDocumentSource).toContain('class="sports-genome-boot-logo"');
+    expect(bootDocumentSource).toContain("boot-upright-logo");
+    expect(bootDocumentSource).not.toContain("sports-genome-boot-strand");
+    expect(bootDocumentSource).not.toContain("boot-mark-orbit");
+    expect(bootDocumentSource).not.toContain("M22 105C65 105");
   });
 });

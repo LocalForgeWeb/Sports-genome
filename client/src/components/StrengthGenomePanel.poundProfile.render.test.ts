@@ -33,4 +33,11 @@ describe("Strength Genome mounted pound-profile entry", () => {
     expect(markup).not.toContain("Load in kilograms");
     expect(markup).not.toContain("Body mass at test (kg)");
   });
+
+  it("prepopulates the saved athlete baseline weight for a pound-profile test entry", () => {
+    const markup = renderToStaticMarkup(React.createElement(StrengthGenomePanel, { weightUnit: "lb", baselineBodyWeight: 180, defaultTestingDetailOpen: true }));
+    expect(markup).toContain("Body mass at test (lb)");
+    expect(markup).toContain('value="180"');
+    expect(markup).not.toContain("Enter weight in lb");
+  });
 });

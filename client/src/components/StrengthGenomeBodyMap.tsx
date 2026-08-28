@@ -23,7 +23,7 @@ const regionToMuscles: Record<string, string[]> = {
   tibialis_anterior: ["tibialis-anterior-left", "tibialis-anterior-right"],
 };
 
-export function StrengthGenomeBodyMap({ regions, activePriorityIds, selectedRegionId, onSelect }: { regions: (StrengthRegionDefinition & { state: RegionState })[]; activePriorityIds: Set<string>; selectedRegionId?: string; onSelect: (region: StrengthRegionDefinition) => void }) {
+export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePriorityIds, selectedRegionId, onSelect }: { regions: (StrengthRegionDefinition & { state: RegionState })[]; activePriorityIds: Set<string>; selectedRegionId?: string; onSelect: (region: StrengthRegionDefinition) => void }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<BodyChart | null>(null);
   const [view, setView] = useState<"FRONT" | "BACK">("FRONT");
@@ -33,11 +33,11 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds, selectedRegi
   const bodyState = useMemo(() => {
     const state: Record<string, { intensity: number; selected: boolean }> = {};
     regions.forEach((region) => {
-      const intensity = region.state === "OBSERVED_TEST_CONTEXT" ? 9 : activePriorityIds.has(region.id) ? 6 : 0;
+      const intensity = selectedRegionId === region.id ? 9 : 0;
       (regionToMuscles[region.id] || []).forEach((muscleId) => { state[muscleId] = { intensity, selected: selectedRegionId === region.id }; });
     });
     return state;
-  }, [activePriorityIds, regions, selectedRegionId]);
+  }, [regions, selectedRegionId]);
 
   useEffect(() => {
     if (failed || !mapRef.current) return;
@@ -53,15 +53,14 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds, selectedRegi
   useEffect(() => { chartRef.current?.update({ bodyState }); }, [bodyState]);
 
   return <section className="strength-body-map" aria-label="Interactive strength context body map">
-    <div className="strength-body-map-head"><div><p className="metric-label">Regional context map</p><h2>Tap a region to inspect <em>your record.</em></h2></div><button type="button" onClick={() => { emitInteractionFeedback(); setView((current) => current === "FRONT" ? "BACK" : "FRONT"); }}><RotateCw className="h-4 w-4" /> {view === "FRONT" ? "Back" : "Front"}</button></div>
+    <div className="strength-body-map-head"><div><p className="metric-label">Test regions</p><h2>Select a region to inspect <em>a saved test.</em></h2></div><button type="button" onClick={() => { emitInteractionFeedback(); setView((current) => current === "FRONT" ? "BACK" : "FRONT"); }}><RotateCw className="h-4 w-4" /> {view === "FRONT" ? "Back" : "Front"}</button></div>
     {failed ? <p className="strength-body-map-fallback">The anatomy view is unavailable. Use a standardized observation to build your record.</p> : <div ref={mapRef} className="strength-body-chart" />}
     <details className="strength-map-region-selector">
       <summary>Choose a region</summary>
       <div role="list" aria-label="Strength Genome regions">
-        {regions.map((region) => <button key={region.id} type="button" role="listitem" aria-pressed={selectedRegionId === region.id} onClick={() => { emitInteractionFeedback(); onSelect(region); }}><span>{region.label}</span><small>{region.state === "OBSERVED_TEST_CONTEXT" ? "Recorded" : "No test"}</small></button>)}
+        {regions.map((region) => <button key={region.id} type="button" role="listitem" aria-pressed={selectedRegionId === region.id} onClick={() => { emitInteractionFeedback(); onSelect(region); }}><span>{region.label}</span><small>{region.state === "OBSERVED_TEST_CONTEXT" ? "Saved test" : "No test yet"}</small></button>)}
       </div>
     </details>
-    <div className="strength-body-map-legend"><span><i className="strength-map-observed" /> Recorded test context</span><span><i className="strength-map-focus" /> Athlete-selected focus</span><span><i className="strength-map-empty" /> No mapped test context</span></div>
-    <p className="strength-body-map-boundary">Map color shows available record context only. It is not muscle activation, a strength rank, or a percentile.</p>
+    <p className="strength-body-map-boundary">Use the map to choose a test area. It is not a muscle ranking or percentile.</p>
   </section>;
 }

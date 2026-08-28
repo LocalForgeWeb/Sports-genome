@@ -16,6 +16,12 @@
 - [x] Capture explicit adult-male age-18–25 source-population confirmation, body-mass band, standardized preacher-curl 10RM protocol, and pre-training condition for the narrow benchmark.
 - [x] Keep all curls, unstandardized protocols, different rep counts, missing conditions, and nonmatching athletes in the current unavailable-reference state.
 - [x] Browser-verify the fully matched Piper 2021 result at phone width and confirm its source-sample boundary remains visible beside the recorded ratio.
+- [x] Use saved athlete baseline body weight automatically for Strength Genome test context when a same-day body-mass entry is absent, with a clear editable fallback only when no baseline weight exists.
+- [x] Apply the saved profile body weight as the visible comparison fallback for existing Strength records with no same-day body-mass entry, while labeling it as a profile fallback rather than test-day measurement.
+- [x] Make the verified Piper 2021 source-sample percentile interval the primary matched-record result, while moving the recorded load/body-mass ratio into optional supporting detail.
+- [x] Replace the Strength Genome map’s recorded/focus/no-context dot legend with a simpler selected-test navigation treatment that does not imply an unrelated muscle ranking.
+- [x] Keep nonmatching tests visibly rank-unavailable and never substitute ratio, color, focus, or catalog routing for a population rank.
+- [x] Validate rank-first matching and no-rank fallback in the mounted mobile Strength Genome experience using saved profile body weight.
 - [x] Show selected primary and supporting catalog muscles for the logged exercise, with verified curl routing to biceps context.
 - [x] Verify selected Strength Genome catalog exercises across multiple movement families map cleanly from catalog selection into recorded region/domain routing.
 - [x] Route the real Machine Preacher Curl catalog entry to biceps/elbow-flexion context and protect the selected-region history workflow from this alias gap.
@@ -103,6 +109,10 @@
 - [x] Remove automatic launch content from the opened workspace so active screens are never covered after initialization.
 - [x] Validate the configurable boot screen at a phone viewport and publish the corrected launch behavior.
 - [x] Slow the silent document-level Sports Genome boot animation and make its line, mark, and label transitions continuous and restrained.
+- [x] Replace the sideways document boot mark with the user-supplied upright Sports Genome S/DNA logo, preserving its silver loop, vermilion genetic lines, and vertical proportions.
+- [x] Remove non-logo boot-mark overlays so the supplied upright S/DNA artwork remains the only visible symbol during the launch sequence.
+- [x] Reveal the supplied upright S/DNA artwork itself through a restrained vertical boot transition rather than substituting a separate DNA animation.
+- [x] Validate the upright logo during the silent boot sequence at phone width and confirm it clears before the workspace opens.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.
