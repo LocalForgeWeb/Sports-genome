@@ -30,6 +30,15 @@
 
 ## iPhone-First Product Polish
 
+- [x] Repair low-contrast Training Day text and controls so every active planning and stack-analysis label is readable on its blue/black surface.
+- [x] Keep whole-body involvement visible in Training Day analysis while calculating the split rating and coverage guidance only from the selected split’s target muscles.
+- [x] Label split-target rating and whole-body context distinctly so relative planning indices are not confused with muscle activation measurements.
+- [x] Visually audit the full Training Day stack-analysis overlay and add regression coverage for its dark-surface label and control contrast.
+- [x] Add explicit high-contrast dark-surface styles for Stack Analysis headings, labels, metric text, rows, and controls.
+- [x] Add focused regression coverage for Stack Analysis overlay contrast tokens and controls, separate from split-target scoring semantics.
+- [ ] Reduce broad white surfaces by giving Train a deep operational navy theme and Tracker a focused dark execution theme.
+- [ ] Give Explore a layered blue discovery-lab theme, Progress a dark measured-review theme, Profile a personal-control theme, and More a compact utility theme.
+- [ ] Establish accessible dark-surface typography, panel, divider, and interaction tokens so the destination themes remain cohesive and readable.
 - [x] Make Training Day a planning-only workspace for building, selecting, reviewing, and rating saved training days.
 - [x] Make Tracker a distinct execution workspace where athletes select a saved day and enter completed weight, repetitions, optional effort, and completion state.
 - [x] Feed completed tracker records into Progress as recorded session data, without showing planned stack diagnostics as execution history.

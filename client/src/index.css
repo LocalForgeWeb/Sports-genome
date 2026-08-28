@@ -691,3 +691,63 @@ select {
 .apex-content > section.space-y-5 .view-header-note { display: none; }
 .day-design-workspace .workout-execution-panel { display: none; }
 .tracker-workspace { display: grid; gap: 1rem; }.tracker-day-selector { display: grid; gap: 1rem; border: 1px solid #c9d9e8; background: linear-gradient(135deg, #f8fbff, #eef6ff); padding: 1.1rem; }.tracker-day-selector h1 { margin-top: .25rem; color: #0b2240; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 6vw, 3.1rem); font-weight: 800; line-height: .88; text-transform: uppercase; }.tracker-day-selector p:last-child { max-width: 46rem; margin-top: .55rem; color: #57738d; font-size: .88rem; line-height: 1.5; }.tracker-day-options { display: flex; flex-wrap: wrap; gap: .55rem; }.tracker-day-options button { min-height: 2.75rem; border: 1px solid #b6cce2; background: #fff; padding: .55rem .75rem; color: #315979; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }.tracker-day-options button[aria-pressed="true"] { border-color: #e4512e; background: #0b2240; color: #fff; box-shadow: inset 0 -3px 0 #f2c14d; }
+
+/* Destination systems: shared Sports Genome colors, distinct task environments. */
+.apex-content.destination-train { background: radial-gradient(circle at 82% 4%, #1d4c84 0, #0b2240 34%, #07182e 76%); color: #edf6ff; }
+.destination-train .day-design-workspace, .destination-train .tracker-workspace { color: #edf6ff; }
+.destination-train .day-design-hero, .destination-train .tracker-day-selector, .destination-train .device-workout-tracker, .destination-train .day-design-rail-note { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, rgb(18 54 92 / .96), rgb(8 29 54 / .98)); box-shadow: 0 18px 38px rgb(1 12 28 / .22); }
+.destination-train .day-design-hero h1, .destination-train .tracker-day-selector h1, .destination-train .device-workout-tracker h3, .destination-train .day-design-rail-note p { color: #f7fbff; }
+.destination-train .day-design-hero p, .destination-train .tracker-day-selector p:last-child, .destination-train .device-workout-tracker p { color: #bdd1e5; }
+.destination-train .tracker-day-options button { border-color: rgb(164 200 232 / .5); background: rgb(255 255 255 / .08); color: #e8f3ff; }
+.destination-train .day-active-card, .destination-train .day-programming-panel, .destination-train .day-design-rail { border-color: rgb(164 200 232 / .22); background: rgb(8 27 50 / .74); }
+.destination-train .day-active-card h2, .destination-train .day-active-card .metric-label, .destination-train .day-active-card p:last-child { color: #edf7ff; }
+.destination-train .day-active-card h2 span { color: #f2c14d; }
+.destination-train .day-active-actions button { border-color: rgb(164 200 232 / .48); background: rgb(255 255 255 / .08); color: #edf7ff; }
+.destination-train .day-active-actions button:first-child { border-color: #f2c14d; color: #ffe9a2; }
+.destination-train .day-programming-panel .metric-label, .destination-train .day-programming-panel strong, .destination-train .day-programming-panel label, .destination-train .day-programming-panel summary { color: #edf7ff; }
+.destination-train .day-programming-panel small, .destination-train .day-programming-panel p, .destination-train .day-programming-panel .custom-detail-row label { color: #c3d7ea; }
+.destination-train .day-programming-panel select, .destination-train .day-programming-panel textarea { border-color: rgb(164 200 232 / .42); background: #0b2240; color: #f7fbff; }
+
+.apex-content.destination-explore { background: radial-gradient(circle at 12% 10%, #d8edff 0, #eff7ff 30%, #cbdff4 100%); }
+.destination-explore .atlas-sport-picker, .destination-explore .movement-selector, .destination-explore .body-lab-v2 > .view-header, .destination-explore .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, #103b67, #0a274b); color: #eff8ff; box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
+.destination-explore .atlas-sport-picker *, .destination-explore .movement-selector h1, .destination-explore .body-lab-v2 > .view-header h1 { color: inherit; }
+
+.apex-content.destination-progress { background: radial-gradient(circle at 88% 0, #315b8f 0, #102b4b 36%, #07182e 100%); color: #edf6ff; }
+.destination-progress .view-header h1, .destination-progress .view-header p, .destination-progress .metric-label { color: #eef7ff; }
+.destination-progress .light-panel { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, #103459, #0a243f); color: #eaf4ff; box-shadow: 0 14px 30px rgb(0 11 25 / .22); }
+.destination-progress .light-panel h2, .destination-progress .light-panel p { color: inherit; }
+.destination-progress .light-panel article { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .07); }
+
+.apex-content.destination-profile { background: linear-gradient(155deg, #0a203d 0%, #173a63 52%, #0b2240 100%); color: #edf6ff; }
+.destination-profile .light-panel, .destination-profile .profile-panel { border-color: rgb(242 193 77 / .42); background: rgb(9 33 61 / .9); color: #edf6ff; }
+.apex-content.destination-more { background: linear-gradient(145deg, #061525, #102b4b); color: #edf6ff; }
+.destination-more .light-panel, .destination-more .more-workspace-card { border-color: rgb(164 200 232 / .3); background: rgb(12 43 75 / .88); color: #edf6ff; }
+
+/* Carry the destination identity into the fixed app chrome, not only the page canvas. */
+.shell-train .workspace-topbar, .shell-progress .workspace-topbar, .shell-profile .workspace-topbar, .shell-more .workspace-topbar { border-bottom-color: rgb(164 200 232 / .2); background: linear-gradient(110deg, #07182e, #123b68); color: #f4f9ff; }
+.shell-train .workspace-context-tabs, .shell-progress .workspace-context-tabs, .shell-profile .workspace-context-tabs, .shell-more .workspace-context-tabs { border-bottom-color: rgb(164 200 232 / .2); background: #0b2240; }
+.shell-train .workspace-context-tab, .shell-progress .workspace-context-tab, .shell-profile .workspace-context-tab, .shell-more .workspace-context-tab { color: #c6d8eb; }
+.shell-train .workspace-context-tab[aria-current="page"], .shell-progress .workspace-context-tab[aria-current="page"], .shell-profile .workspace-context-tab[aria-current="page"], .shell-more .workspace-context-tab[aria-current="page"] { color: #fff; box-shadow: inset 0 -4px 0 #f2c14d; }
+.shell-explore .workspace-topbar { border-bottom-color: #b9d4ea; background: linear-gradient(110deg, #e2f1ff, #f7fbff); }
+.shell-explore .workspace-context-tabs { background: #e9f5ff; border-bottom-color: #b9d4ea; }
+
+/* Stack Analysis keeps whole-body context legible on an explicitly dark review surface. */
+.stack-analysis-page { background: #07182e; color: #edf7ff; }
+.stack-analysis-head { border-bottom-color: rgb(164 200 232 / .24); background: linear-gradient(115deg, #07182e, #123b68); }
+.stack-analysis-head h1, .stack-analysis-head button { color: #fff; }
+.stack-analysis-head p { color: #c7dcef; }
+.stack-analysis-main { background: #07182e; }
+.stack-analysis-body, .stack-analysis-rank, .stack-analysis-detail { border-color: rgb(164 200 232 / .22); background: #0b2240; }
+.stack-analysis-rank-head h2, .stack-analysis-detail h2, .stack-analysis-detail-head h2 { color: #f7fbff; }
+.stack-analysis-rank-head .metric-label, .stack-analysis-detail .metric-label, .stack-analysis-contributions > .metric-label { color: #9cc4ea; }
+.stack-analysis-hint, .stack-analysis-detail-head p, .stack-analysis-contributions small { color: #c3d7ea; }
+.stack-analysis-summary, .stack-analysis-target-index { border-color: rgb(164 200 232 / .35); background: rgb(255 255 255 / .07); color: #eaf5ff; }
+.stack-analysis-target-index strong { color: #ffe49a; }
+.stack-analysis-target-index small { color: #b8d4ef; }
+.stack-analysis-row { border-color: rgb(164 200 232 / .28); background: #102f53; }
+.stack-analysis-row:hover, .stack-analysis-row-active { border-color: #f2c14d; background: #173f6e; }
+.stack-analysis-row > span, .stack-analysis-row small, .stack-analysis-row svg { color: #b9d5ee; }
+.stack-analysis-row strong, .stack-analysis-row em, .stack-analysis-metric div, .stack-analysis-metric strong, .stack-analysis-contributions strong, .stack-analysis-contributions button > span { color: #f7fbff; }
+.stack-analysis-row i, .stack-analysis-metric i { background: rgb(255 255 255 / .14); }
+.stack-analysis-contributions article { border-top-color: rgb(164 200 232 / .22); }
+.stack-analysis-boundary { background: #102f53; color: #c3d7ea; }

@@ -53,6 +53,13 @@ describe("workspace side navigation", () => {
 
   it("uses the official Sports Genome header identity and a non-neon active state", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(source).toContain('shell-${activePrimaryDestination}');
+    expect(source).toContain('destination-${activePrimaryDestination}');
+    expect(css).toContain('.apex-content.destination-train');
+    expect(css).toContain('.apex-content.destination-explore');
+    expect(css).toContain('.apex-content.destination-progress');
+    expect(css).toContain('.apex-content.destination-profile');
+    expect(css).toContain('.apex-content.destination-more');
     expect(source).toContain('sports-genome-decoding-performance-logo_0544e065.png');
     expect(source).toContain('alt="Sports Genome — Decoding Performance logo"');
     expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');

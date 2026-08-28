@@ -11,10 +11,11 @@ describe("Stack Analysis selected muscle", () => {
     expect(resolveStackMuscleSelection("chest", [])).toBe("");
   });
 
-  it("retains whole-stack relative involvement and contribution scores with a non-measurement boundary", () => {
+  it("retains whole-stack relative involvement and contribution scores while keeping split-target scoring separate from measurement claims", () => {
     expect(component).toContain("${item.involvement}%");
     expect(component).toContain("{contribution.involvement}/100");
-    expect(component).toContain("not a direct measurement of individual muscle activation");
+    expect(component).toContain("This full-body list shows all involvement across the stack.");
+    expect(component).toContain("not from unrelated muscles");
     expect(component).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });
 });
