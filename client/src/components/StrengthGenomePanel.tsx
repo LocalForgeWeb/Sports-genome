@@ -172,7 +172,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     if (!selectedRegion || !detail || typeof window === "undefined") return;
     const frame = window.requestAnimationFrame(() => {
       const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      detail.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
+      const stickyOffset = window.matchMedia?.("(max-width: 640px)").matches ? 172 : 28;
+      const targetTop = Math.max(0, window.scrollY + detail.getBoundingClientRect().top - stickyOffset);
+      window.scrollTo({ top: targetTop, behavior: reduceMotion ? "auto" : "smooth" });
       detail.querySelector<HTMLElement>("[data-strength-region-heading]")?.focus({ preventScroll: true });
     });
     return () => window.cancelAnimationFrame(frame);

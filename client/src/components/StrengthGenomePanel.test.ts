@@ -100,7 +100,8 @@ describe("Strength Genome panel", () => {
   it("moves a newly selected region into view with reduced-motion-safe behavior and focuses its heading", () => {
     expect(source).toContain("const regionDetailRef = useRef<HTMLDivElement | null>(null)");
     expect(source).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
-    expect(source).toContain('detail.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" })');
+    expect(source).toContain('const stickyOffset = window.matchMedia?.("(max-width: 640px)").matches ? 172 : 28');
+    expect(source).toContain('window.scrollTo({ top: targetTop, behavior: reduceMotion ? "auto" : "smooth" })');
     expect(source).toContain('data-strength-region-heading');
     expect(source).toContain('focus({ preventScroll: true })');
   });

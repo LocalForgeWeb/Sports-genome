@@ -42,10 +42,12 @@
 - [x] Add focused ratio and no-body-mass regression coverage in the Strength Genome region detail.
 - [x] Replace the Strength Genome long regional no-data list with the existing interactive full-body qualitative map.
 - [x] Use categorical color to distinguish recorded test context, athlete-confirmed focus, and no mapped test context without implying activation or strength rank.
-- [ ] Open a region detail panel on body-map selection showing raw athlete records, valid reference context when available, and explicit no-data or non-comparable boundaries instead of invented percentiles or ranks.
+- [x] Open a region detail panel on body-map selection showing raw athlete records, valid reference context when available, and explicit no-data or non-comparable boundaries instead of invented percentiles or ranks.
 - [x] Render selected-region raw observation history by filtering saved observations through the recorded Strength Genome region/domain routing.
-- [ ] Add evidence-bounded selected-region reference context only when a reviewed reference exists, with explicit no-reference and non-comparable states otherwise.
-- [ ] Add focused Strength Genome body-map coverage for observed-region detail, no-data detail, and the prohibition on invented percentile or rank output.
+- [x] Add evidence-bounded selected-region reference context only when a reviewed reference exists, with explicit no-reference and non-comparable states otherwise.
+- [x] Add focused Strength Genome body-map coverage for observed-region detail, no-data detail, and the prohibition on invented percentile or rank output.
+- [x] Provide a compact accessible region selector alongside the interactive body map so athletes can inspect unrecorded as well as recorded regions without relying only on SVG clicks.
+- [x] Browser-verify that the Strength Genome region selector opens both a recorded test detail and a no-test detail at phone width without displaying a percentile or rank.
 - [x] Present selected-region direct-access record history with a concise explicit unavailable-reference state when no exact reviewed reference applies.
 - [x] Move a newly selected Strength Genome region detail into a readable mobile position and focus its accessible heading without forcing motion for reduced-motion users.
 - [x] Require matching recorded test conditions for within-athlete Strength Genome load comparisons, returning an explicit non-comparable state rather than a misleading change card.

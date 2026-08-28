@@ -54,6 +54,12 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds, selectedRegi
   return <section className="strength-body-map" aria-label="Interactive strength context body map">
     <div className="strength-body-map-head"><div><p className="metric-label">Regional context map</p><h2>Tap a region to inspect <em>your record.</em></h2></div><button type="button" onClick={() => setView((current) => current === "FRONT" ? "BACK" : "FRONT")}><RotateCw className="h-4 w-4" /> {view === "FRONT" ? "Back" : "Front"}</button></div>
     {failed ? <p className="strength-body-map-fallback">The anatomy view is unavailable. Use a standardized observation to build your record.</p> : <div ref={mapRef} className="strength-body-chart" />}
+    <details className="strength-map-region-selector">
+      <summary>Choose a region</summary>
+      <div role="list" aria-label="Strength Genome regions">
+        {regions.map((region) => <button key={region.id} type="button" role="listitem" aria-pressed={selectedRegionId === region.id} onClick={() => onSelect(region)}><span>{region.label}</span><small>{region.state === "OBSERVED_TEST_CONTEXT" ? "Recorded" : "No test"}</small></button>)}
+      </div>
+    </details>
     <div className="strength-body-map-legend"><span><i className="strength-map-observed" /> Recorded test context</span><span><i className="strength-map-focus" /> Athlete-selected focus</span><span><i className="strength-map-empty" /> No mapped test context</span></div>
     <p className="strength-body-map-boundary">Map color shows available record context only. It is not muscle activation, a strength rank, or a percentile.</p>
   </section>;
