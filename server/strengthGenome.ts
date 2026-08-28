@@ -91,6 +91,33 @@ export async function createStrengthObservation(
   return getStrengthObservation(userId, id);
 }
 
+/** Adds athlete-entered body mass to the same dated observation; it never estimates missing load or rank. */
+export async function setStrengthObservationBodyMass(
+  userId: number,
+  observationId: number,
+  bodyMassKgAtTest: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is unavailable");
+
+  const existing = await getStrengthObservation(userId, observationId);
+  if (!existing) throw new Error("Strength observation was not found");
+
+  await db
+    .update(strengthObservations)
+    .set({ bodyMassKgAtTest: bodyMassKgAtTest.toFixed(2) })
+    .where(and(eq(strengthObservations.userId, userId), eq(strengthObservations.id, observationId)));
+
+  await db.insert(bodyMassObservations).values({
+    userId,
+    bodyMassKg: bodyMassKgAtTest.toFixed(2),
+    observedAt: existing.observedAt,
+    source: "athlete_entry",
+  });
+
+  return getStrengthObservation(userId, observationId);
+}
+
 export async function getStrengthObservation(userId: number, observationId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is unavailable");
