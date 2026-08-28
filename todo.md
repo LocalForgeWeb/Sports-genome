@@ -250,8 +250,9 @@
 - [x] Reset stale Catalog query and filters after a sport change so exercise discovery starts clean for the new athlete context.
 - [x] Hide non-actionable Not mapped labels from Catalog rows while retaining no-mapping context in opened exercise detail.
 - [x] Reduce initial-load cost by lazy-loading appropriate Explore-only workspaces without changing direct-access navigation or evidence behavior.
+- [ ] Separate movement-data consumers not required for the first visible Home state from the initial application mount to improve post-intro responsiveness.
 - [x] Compress the Profile mobile hero into one clear planning-context boundary without hiding editable athlete details or evidence limits.
-- [ ] Make the first-run mobile onboarding header show the official Sports Genome mark with a concise readable wordmark while preserving quiz progress.
+- [x] Make the first-run mobile onboarding header show the official Sports Genome mark with a concise readable wordmark while preserving quiz progress.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
 - [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.
