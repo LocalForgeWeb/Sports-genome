@@ -828,3 +828,12 @@ select {
 .destination-explore .atlas-action-item small, .destination-explore .atlas-focus-card p, .destination-explore .atlas-details dd { color: #c3d7ea; }
 .destination-explore .atlas-details { border-color: rgb(164 200 232 / .24); }
 .destination-explore .atlas-focus-card > button { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
+
+.strength-exercise-picker { display: grid; max-height: 14rem; gap: .35rem; overflow: auto; border: 1px solid rgb(164 200 232 / .34); background: #07182e; padding: .45rem; }
+.strength-exercise-picker button { display: grid; min-height: 3rem; gap: .12rem; border: 1px solid transparent; background: rgb(255 255 255 / .055); padding: .5rem .65rem; color: #edf7ff; text-align: left; transition: border-color 160ms ease-out, background 160ms ease-out; }
+.strength-exercise-picker button:hover, .strength-exercise-picker button:focus-visible { border-color: #f2c14d; background: rgb(242 193 77 / .13); outline: none; }
+.strength-exercise-picker button strong { font-size: .78rem; line-height: 1.15; }
+.strength-exercise-picker button span, .strength-exercise-picker p { color: #b9d5ee; font-size: .65rem; line-height: 1.25; }
+.strength-selected-exercise { display: grid; gap: .18rem; border-left: 3px solid #f2c14d; background: rgb(242 193 77 / .1); padding: .55rem .7rem; color: #fff4ca; }
+.strength-selected-exercise strong { font-size: .8rem; }
+.strength-selected-exercise span { color: #d7e8f6; font-size: .67rem; line-height: 1.35; }

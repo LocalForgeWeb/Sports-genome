@@ -6,6 +6,7 @@ import { strengthRegionDefinitions, type StrengthRegionDefinition } from "../../
 import { StrengthGenomeBodyMap } from "@/components/StrengthGenomeBodyMap";
 import { resolveStrengthObservationRoute } from "../../../shared/strengthGenomeDefinitions";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 
 type MeasurementType =
   | "MEASURED_1RM"
@@ -56,6 +57,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {} }: { onOpenTrain
   const observations = trpc.strengthGenome.observations.useQuery();
   const priorities = trpc.strengthGenome.priorities.useQuery();
   const [exerciseName, setExerciseName] = useState("");
+  const [exerciseSearch, setExerciseSearch] = useState("");
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [measurementType, setMeasurementType] = useState<MeasurementType>("MEASURED_1RM");
   const [loadKg, setLoadKg] = useState("");
   const [repetitions, setRepetitions] = useState("");
@@ -78,6 +81,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {} }: { onOpenTrain
         utils.strengthGenome.observations.invalidate(),
       ]);
       setExerciseName("");
+      setExerciseSearch("");
+      setSelectedExercise(null);
       setLoadKg("");
       setRepetitions("");
       setBodyMassKg("");
@@ -97,7 +102,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {} }: { onOpenTrain
   const parsedRepetitions = useMemo(() => Number(repetitions), [repetitions]);
   const parsedBodyMass = useMemo(() => Number(bodyMassKg), [bodyMassKg]);
   const needsLoad = ["MEASURED_1RM", "MULTI_REP"].includes(measurementType);
-  const canSave = Boolean(exerciseName.trim()) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0));
+  const exerciseMatches = useMemo(() => exercises.filter((exercise) => exercise.name.toLowerCase().includes(exerciseSearch.trim().toLowerCase())).slice(0, 8), [exerciseSearch]);
+  const canSave = Boolean(selectedExercise) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0));
   const recentObservations = observations.data?.slice(0, 4) || [];
   const regionOverview = (regionId: string) => overview.data?.regions.find(region => region.id === regionId);
   const activePriorityIds = new Set(priorities.data?.map(priority => priority.regionId) || overview.data?.athleteConfirmedPriorityRegionIds || []);
@@ -155,7 +161,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {} }: { onOpenTrain
       <section className="dark-panel p-5">
         <div className="flex items-start justify-between gap-4"><div><p className="metric-label !text-[#9eb3cb]">Add a performance test</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Log a lift.</h2><p className="mt-3 max-w-xl text-xs leading-5 text-[#c3d3e4]">Start with the result you already know. Test date and measurement context remain attached to the private performance record.</p></div><Dumbbell className="h-7 w-7 shrink-0 text-[#f2c14d]" /></div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-1.5 sm:col-span-2"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Exercise or test</span><input value={exerciseName} onChange={(event) => setExerciseName(event.target.value)} placeholder="e.g. Barbell back squat" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <div className="grid gap-1.5 sm:col-span-2"><label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Choose exercise</span><input aria-label="Search and choose a catalog exercise" value={exerciseSearch} onChange={(event) => { setExerciseSearch(event.target.value); setSelectedExercise(null); setExerciseName(""); }} placeholder="Search catalog, then select" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>{exerciseSearch.trim() && !selectedExercise && <div className="strength-exercise-picker" role="listbox" aria-label="Catalog exercise results">{exerciseMatches.length ? exerciseMatches.map((exercise) => <button type="button" role="option" key={exercise.id} onClick={() => { emitInteractionFeedback(); setSelectedExercise(exercise); setExerciseName(exercise.name); setExerciseSearch(exercise.name); }}><strong>{exercise.name}</strong><span>{exercise.primaryMuscles.join(" · ")}</span></button>) : <p>No matching catalog exercise.</p>}</div>}{selectedExercise && <div className="strength-selected-exercise" aria-live="polite"><strong>{selectedExercise.name}</strong><span>Primary: {selectedExercise.primaryMuscles.join(" · ")}{selectedExercise.secondaryMuscles.length ? ` · Supporting: ${selectedExercise.secondaryMuscles.join(" · ")}` : ""}</span></div>}</div>
           <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Measurement</span><select value={measurementType} onChange={(event) => setMeasurementType(event.target.value as MeasurementType)} className="h-12 rounded-xl border border-white/20 bg-[#102947] px-3 text-sm text-white outline-none focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30">{measurementOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Test date</span><input type="date" value={observedDate} onChange={(event) => setObservedDate(event.target.value)} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
           <label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Load in kilograms {needsLoad ? "· required" : "· optional"}</span><input inputMode="decimal" value={loadKg} onChange={(event) => setLoadKg(event.target.value.replace(/[^0-9.]/g, ""))} placeholder={needsLoad ? "Enter load" : "Optional"} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>

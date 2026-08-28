@@ -10,6 +10,12 @@
 
 ## Strength Genome
 
+- [x] Replace free-text Strength Genome exercise entry with a searchable catalog picker that requires deliberate exercise selection and preserves exercise-to-region routing.
+- [ ] Show a one-test population-relative benchmark only when the selected standardized exercise, test type, normalization, and athlete reference fields match a reviewed source; otherwise retain a clear unavailable state.
+- [x] Show selected primary and supporting catalog muscles for the logged exercise, with verified curl routing to biceps context.
+- [ ] Verify selected Strength Genome catalog exercises across multiple movement families map cleanly from catalog selection into recorded region/domain routing.
+- [ ] Add focused coverage for multiple catalog exercises displaying primary/supporting muscles and routing expected Strength Genome context.
+- [x] Add focused test coverage for catalog selection and biceps-curl routing; retain the one-test benchmark and unmatched-reference coverage as a separate task.
 - [x] Replace verbose Strength Genome region-detail methodology copy with a compact rating-first summary and one optional evidence-boundary disclosure.
 - [ ] Let athletes complete missing body mass for a selected recorded test so its load-to-body-mass ratio can be calculated without a fabricated score.
 - [ ] Add best-effort browser interaction feedback on supported devices and reliable visual press feedback everywhere, without claiming native iPhone web haptics.
@@ -58,6 +64,8 @@
 - [ ] Establish accessible dark-surface typography, panel, divider, and interaction tokens so the destination themes remain cohesive and readable.
 - [x] Reduce repeated Progress empty-state and methodology copy to concise recorded-status cards with one relevant next action.
 - [x] Retain comparison-condition explanation in an optional disclosure rather than the default Progress canvas.
+- [ ] Reduce Training Day’s default canvas to day selection, saved stack, split-target index, and one next action; move diagnostics, preparation detail, and catalog expansion behind Train contextual tabs or disclosures.
+- [ ] Remove repeated set, time, fatigue, equipment, planning-band, and methodology prose from the default Training Day view while retaining concise editable prescription controls.
 - [x] Make Training Day a planning-only workspace for building, selecting, reviewing, and rating saved training days.
 - [x] Make Tracker a distinct execution workspace where athletes select a saved day and enter completed weight, repetitions, optional effort, and completion state.
 - [x] Feed completed tracker records into Progress as recorded session data, without showing planned stack diagnostics as execution history.

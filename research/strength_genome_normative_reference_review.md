@@ -33,3 +33,11 @@ This Australian population study illustrates why protocol matching matters: it u
 ## Decision for the current release
 
 Continue to show athlete-entered observations, documented test context, broad movement routing, athlete-confirmed priorities, and within-athlete like-for-like recorded-load changes. Keep reference percentile, universal tier, medical/health interpretation, regional-force estimate, and direct sport-performance transfer outputs unavailable until a complete, source-qualified reference implementation is built.
+
+## Candidate: 30-second biceps curl percentiles in schoolchildren
+
+Cossio-Bolaños M, Vidal-Espinoza R, Sulla-Torres J, et al. *Reliability of the biceps curl test and proposed percentiles in schoolchildren living at moderate altitude in Peru.* Scientific Reports. 2025;15:10045. PMCID: PMC11930944. <https://pmc.ncbi.nlm.nih.gov/articles/PMC11930944/>
+
+The study reports age- and sex-specific percentile curves for a **30-second seated dumbbell biceps-curl endurance test** in 1,103 Peruvian schoolchildren aged 6–17 years living at moderate altitude. The protocol used a 1 kg dumbbell for ages 6–11 and 2 kg for ages 12–17; it is not a free-weight curl 1RM, is not load-to-body-mass normalized, and does not supply adult athlete references.
+
+**Current decision:** do not apply these percentiles to adult users, loaded curls, generic biceps strength, regional force, or sport ability. It may support a future pediatric 30-second protocol only after the app collects the exact age, sex, protocol, side, load, and population-match fields. The proposed searchable catalog selection can improve exercise-to-region routing now, but does not itself unlock a generic biceps-curl benchmark.

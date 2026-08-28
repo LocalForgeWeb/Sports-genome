@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { resolveStrengthObservationRoute } from "../../../shared/strengthGenomeDefinitions";
 
 const source = readFileSync(new URL("./StrengthGenomePanel.tsx", import.meta.url), "utf8");
 const bodyMapSource = readFileSync(new URL("./StrengthGenomeBodyMap.tsx", import.meta.url), "utf8");
@@ -49,5 +50,15 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Body mass on test day in kilograms");
     expect(source).toContain("Test body mass saved. Your recorded ratio is ready.");
     expect(source).toContain("Could not save test body mass. Check your connection and try again.");
+  });
+
+  it("requires catalog exercise selection and routes common curl names to biceps context", () => {
+    expect(source).toContain("Search and choose a catalog exercise");
+    expect(source).toContain("Search catalog, then select");
+    expect(source).toContain("setSelectedExercise(exercise)");
+    expect(source).toContain("Primary: {selectedExercise.primaryMuscles.join");
+    expect(source).toContain("Boolean(selectedExercise)");
+    expect(resolveStrengthObservationRoute("Straight Bar Curl")?.regionIds).toContain("biceps");
+    expect(resolveStrengthObservationRoute("biceps curl")?.domainIds).toContain("elbow_flexion");
   });
 });
