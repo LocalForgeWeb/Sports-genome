@@ -90,6 +90,7 @@
   .rail-data-card { border: 1px solid rgb(184 255 91 / .28); background: linear-gradient(135deg, rgb(184 255 91 / .08), transparent 70%); padding: 14px; }
   .apex-main { min-width: 0; min-height: 100vh; }
   .apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: 72px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .9); padding: 12px 18px; backdrop-filter: blur(14px); }
+  .topbar-brand-logo { width: 44px; height: 44px; clip-path: circle(44% at 50% 50%); }
   .workspace-top-switcher { position: sticky; top: 72px; z-index: 29; display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .96); padding: 6px 18px; scrollbar-width: none; }
   .workspace-top-switcher::-webkit-scrollbar { display: none; }
   .workspace-top-switcher button { min-height: 38px; flex: 0 0 auto; border-bottom: 2px solid transparent; padding: 0 10px; color: #58728e; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; transition: color .16s var(--ease-out), border-color .16s var(--ease-out); }
@@ -392,7 +393,7 @@ select {
 .rail-athlete { margin: 16px 12px 7px; border: 1px solid rgb(255 255 255 / .1); border-radius: 14px; background: rgb(255 255 255 / .06); }.rail-data-card { border-radius: 15px; background: linear-gradient(145deg, rgb(78 155 255 / .2), rgb(255 255 255 / .04)); }
 .apex-topbar { min-height: 74px; border-bottom-color: #d9e7f7; background: rgb(250 253 255 / .84); backdrop-filter: blur(18px); }.apex-content { max-width: 1600px; }.dark-panel { border-radius: 20px; background: linear-gradient(145deg, #082444, #071a35); box-shadow: 0 16px 36px rgb(18 72 129 / .15); }.light-panel { border: 1px solid rgb(202 221 241 / .88); border-radius: 20px; background: rgb(255 255 255 / .88); box-shadow: 0 16px 38px rgb(34 91 152 / .08); }.view-header { align-items: end; }.view-header h1 { color: #102b4f; }.view-header h1 em { color: #2f82eb !important; }.view-header::after { background: #c9dced; }
 .command-hero { overflow: hidden; border-radius: 22px; box-shadow: 0 20px 48px rgb(12 62 118 / .18); }.command-signal-card { border-radius: 15px; background: rgb(4 26 53 / .85); backdrop-filter: blur(12px); }.metric-card { border-radius: 13px; background: rgb(255 255 255 / .055); }.sport-chip, .goal-button { border-radius: 999px; }.sport-chip-active, .goal-button-active { background: #2f82eb !important; color: white !important; }.catalog-card, .finder-row, .body-link-row, .atlas-movement-card, .movement-list-item { border-radius: 12px; }.recommendation-row { transition: background-color 160ms ease-out, transform 160ms ease-out; }.recommendation-row:hover { transform: translateX(3px); }
-@media (min-width: 1024px) { .apex-main { margin-left: 280px; } }
+@media (min-width: 1024px) { .apex-main { margin-left: 0; } }
 
 /* Brand correction: maintain the blue foundation while reserving gold and white for the Gym Optimizer mark and secondary signals. */
 .pulse-header img, .rail-brand img { filter: sepia(1) saturate(1.8) hue-rotate(350deg) brightness(1.08); }.pulse-header .font-display, .rail-brand .font-display { color: #fff !important; }.pulse-kicker { border-color: rgb(213 173 67 / .55); color: #f5dc9a; background: rgb(213 173 67 / .07); }.pulse-progress i.pulse-progress-on { background: #4ca1ff; }.pulse-option-index, .pulse-sport > span { color: #d8b451; }.pulse-next { background: linear-gradient(135deg, #e85c37, #bd3a21); box-shadow: 0 11px 28px rgb(189 58 33 / .32); }.pulse-next:hover { box-shadow: 0 16px 32px rgb(189 58 33 / .48); }.rail-data-card span, .command-hero .text-\[\#b8ff5b\], .dark-panel .text-\[\#b8ff5b\] { color: #f5d26f !important; }.rail-nav-active { background: linear-gradient(135deg, #276ecf, #154f9f) !important; box-shadow: inset 3px 0 #d5ad43, 0 8px 18px rgb(12 91 206 / .28) !important; }
@@ -402,6 +403,7 @@ select {
 .pulse-option:nth-child(1) > span:nth-child(2)::before { content: "COACH READ / FORCE-VELOCITY"; }.pulse-option:nth-child(2) > span:nth-child(2)::before { content: "COACH READ / TISSUE VOLUME"; }.pulse-option:nth-child(3) > span:nth-child(2)::before { content: "COACH READ / FORCE EXPRESSION"; }.pulse-option:nth-child(4) > span:nth-child(2)::before { content: "COACH READ / REPEATABILITY"; }.pulse-stage::before { content: "CALIBRATION 01  /  MOVEMENT BIAS\A SPORT TRANSFER  /  LOAD TOLERANCE\A PRIORITY SIGNAL  /  SESSION INTENT"; white-space: pre; position: absolute; right: -128px; top: 142px; width: 190px; border-left: 2px solid #e4512e; padding: 8px 0 8px 10px; color: #8eaaca; font-size: 8px; font-weight: 800; letter-spacing: .12em; line-height: 1.9; }@media (max-width: 1120px) { .pulse-stage::before { display: none; } }
 
 .builder-prep-workspace { margin-top: 1.25rem; }.builder-prep-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }.builder-prep-head h2 { margin-top: .35rem; color: #102b4f; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: .88; text-transform: uppercase; }.builder-prep-head p:last-child { max-width: 560px; margin-top: .55rem; color: #5e7892; font-size: .75rem; line-height: 1.48; }
+.more-workspace { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem; border: 1px solid #cddbef; background: #fff; padding: clamp(1.25rem, 4vw, 2.5rem); }.more-workspace h1 { margin-top: .35rem; color: #102b4f; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; line-height: .84; text-transform: uppercase; }.more-workspace p:last-child { max-width: 33rem; margin-top: .8rem; color: #5e7892; font-size: .85rem; line-height: 1.5; }.more-workspace-actions { display: flex; flex-wrap: wrap; gap: .6rem; }.more-workspace-actions button { display: inline-flex; min-height: 44px; align-items: center; gap: .5rem; border: 1px solid #2d6cdf; padding: 0 .9rem; color: #173d69; font-size: .68rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }.more-workspace-actions button:first-child { background: #0b2240; color: #fff; }
 
 /* Workspace readability polish: functional field-manual detailing without changing product content. */
 .pulse-shell { background-image: linear-gradient(90deg, transparent 0 76%, rgb(119 173 235 / .08) 76% 76.1%, transparent 76.1%), linear-gradient(0deg, transparent 0 86%, rgb(119 173 235 / .06) 86% 86.1%, transparent 86.1%); }
@@ -536,16 +538,18 @@ select {
 /* iPhone-first primary navigation: five clear daily destinations, guarded by the safe area. */
 .mobile-bottom-nav { display: none; }
 
+@media (min-width: 1024px) {
+  .apex-content { padding-bottom: 6.25rem; }
+  .mobile-workspace-dock { position: fixed; z-index: 46; right: 1.25rem; bottom: 1.25rem; left: 1.25rem; max-width: 780px; margin: 0 auto; border: 1px solid rgb(99 137 175 / .45); border-radius: 16px; background: rgb(8 31 59 / .97); box-shadow: 0 16px 38px rgb(4 20 40 / .26); backdrop-filter: blur(18px); }
+  .mobile-bottom-nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); overflow: hidden; border-radius: inherit; }
+  .mobile-bottom-nav button { display: grid; min-width: 0; min-height: 4.1rem; place-content: center; gap: .28rem; color: #b8cde0; font-size: .62rem; font-weight: 800; letter-spacing: .025em; line-height: 1; text-align: center; transition: background .16s var(--ease-out), color .16s var(--ease-out), transform .16s var(--ease-out); }
+  .mobile-bottom-nav button:hover, .mobile-bottom-nav-active { background: linear-gradient(180deg, rgb(45 108 223 / .3), rgb(25 78 150 / .4)); color: #fff; }
+  .mobile-bottom-nav-active svg { color: #f2c14d; }
+}
+
 @media (max-width: 1023px) {
-  .apex-content { padding-bottom: calc(10.25rem + env(safe-area-inset-bottom, 0px)); }
+  .apex-content { padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
   .mobile-workspace-dock { position: fixed; z-index: 46; right: 0; bottom: 0; left: 0; border-top: 1px solid rgb(99 137 175 / .45); background: rgb(8 31 59 / .97); box-shadow: 0 -14px 34px rgb(4 20 40 / .22); backdrop-filter: blur(18px); }
-  .mobile-workspace-actions { display: flex; min-height: 3.35rem; align-items: center; gap: .5rem; overflow-x: auto; padding: .4rem .7rem; color: #dcecff; scrollbar-width: none; }
-  .mobile-workspace-actions::-webkit-scrollbar { display: none; }
-  .mobile-workspace-actions > span { display: grid; min-width: 7rem; margin-right: auto; gap: .08rem; }
-  .mobile-workspace-actions strong { font-size: .66rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-  .mobile-workspace-actions small { color: #9ab9d7; font-size: .56rem; line-height: 1.25; }
-  .mobile-workspace-actions button { min-height: 2.75rem; flex: 0 0 auto; border: 1px solid rgb(255 255 255 / .22); padding: 0 .62rem; color: #fff; font-size: .58rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
-  .mobile-workspace-actions button:active { transform: scale(.97); }
   .mobile-bottom-nav {
     position: relative;
     z-index: 1;
@@ -562,6 +566,7 @@ select {
     border-radius: 0;
     background: transparent;
     box-shadow: none;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .mobile-bottom-nav button {
     display: grid;

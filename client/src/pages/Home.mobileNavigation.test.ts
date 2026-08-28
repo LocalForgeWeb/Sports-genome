@@ -20,14 +20,14 @@ describe("workspace side navigation", () => {
     expect(primaryDestinationForWorkspace("strength")).toBe("explore");
   });
 
-  it("uses buttons with active-state semantics and browser history-aware navigation", () => {
-    expect(source).toContain('aria-label="Primary workspace navigation"');
+  it("uses bottom-only primary navigation and browser history-aware contextual navigation", () => {
+    expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('const active = activePrimaryDestination === item.id;');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('window.history.pushState({ workspace: next }, "", url)');
     expect(source).toContain('window.addEventListener("popstate", restoreWorkspace)');
-    expect(source).toContain('className="rail-scrim"');
-    expect(source).toContain('aria-label="Close workspace navigation"');
+    expect(source).not.toContain('className="apex-rail');
+    expect(source).not.toContain('className="rail-scrim"');
     expect(source).toContain('onClick={() => navigateWorkspace("day-plan")}');
     expect(source).toContain('onOpenAtlas={() => navigateWorkspace("movement")}');
     expect(source).toContain('navigateWorkspace("catalog")');
@@ -40,32 +40,26 @@ describe("workspace side navigation", () => {
     expect(source).toContain('if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">');
   });
 
-  it("keeps the rail reachable on desktop and dismissible by an overlay on small screens", () => {
+  it("keeps the sidebar out of the active app shell", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(css).toContain('@media (min-width: 1024px)');
-    expect(css).toContain('.apex-rail { transform: translateX(0); }');
-    expect(css).toContain('.rail-scrim { position: fixed;');
-    expect(css).toContain('overflow-y: auto;');
-    expect(css).toContain('overscroll-behavior-y: contain;');
-    expect(css).toContain('width: min(86vw, 320px);');
+    expect(source).not.toContain('setRailOpen');
+    expect(source).toContain('<div className="mobile-workspace-dock" aria-label="Primary workspace navigation">');
+    expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');
+    expect(css).toContain('.topbar-brand-logo { width: 44px; height: 44px; clip-path: circle(44% at 50% 50%); }');
+    expect(css).toContain('@media (min-width: 1024px) {\n  .apex-content { padding-bottom: 6.25rem; }');
   });
 
-  it("uses the official Sports Genome drawer identity and a non-neon active state", () => {
+  it("uses the official Sports Genome header identity and a non-neon active state", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('sports-genome-decoding-performance-logo_0544e065.png');
     expect(source).toContain('alt="Sports Genome — Decoding Performance logo"');
-    expect(source).toContain('className="rail-brand-logo shrink-0 object-contain"');
-    expect(source).toContain('>Sports Genome</p>');
-    expect(source).toContain('Athlete workspace');
-    expect(source).toContain('rail-data-line');
+    expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');
+    expect(source).toContain('workspace === "more"');
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
     expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
     expect(css).toContain('box-shadow: inset 4px 0 var(--sg-gold)');
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
-    expect(css).toContain('.rail-brand-logo { width: 66px; height: 66px; clip-path: circle(44% at 50% 50%); }');
-    expect(css).toContain('.direct-workspace-mode .rail-athlete { display: none; }');
-    expect(css).toContain('.rail-data-line { display: flex; gap: 8px;');
   });
 
   it("blocks the retired coach-set readiness placeholder from rendering", () => {
@@ -78,31 +72,20 @@ describe("workspace side navigation", () => {
     expect(source).toContain('const activePlanStatusDetail = customWorkout.length ? `${completedExerciseCount} marked complete in the active workspace` : "No exercises are staged in the current Training Day";');
   });
 
-  it("adds a connected context-aware iPhone workspace dock without covering the content canvas", () => {
+  it("uses a six-item mobile bottom bar and moves contextual workspace controls to the top", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(source).toContain('className="mobile-workspace-dock lg:hidden"');
-    expect(source).toContain('aria-label="Current workspace actions"');
-    expect(source).toContain('Track workout');
-    expect(source).toContain('Choose split');
-    expect(source).toContain('Review stack');
+    expect(source).toContain('className="mobile-workspace-dock"');
+    expect(source).toContain('aria-label="Primary workspace navigation"');
+    expect(source).toContain('label: "Tracker", workspace: "day-plan"');
+    expect(source).toContain('label: "Stack Review", workspace: "day-plan"');
+    expect(source).toContain('label: "Prep", workspace: "custom"');
     expect(source).toContain('setSessionMode(true)');
-    expect(source).toContain('document.querySelector(".day-design-rail")?.scrollIntoView');
-    expect(source).toContain('document.querySelector("#stack-review")?.scrollIntoView');
+    expect(source).toContain('document.querySelector(scrollTarget)?.scrollIntoView');
     expect(source).toContain('document.querySelector<HTMLElement>("#workout-tracker")?.scrollIntoView');
     expect(source).toContain('const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);');
     expect(source).toContain('if (!sessionMode || !loggerScrollRequest) return;');
     expect(workoutTrackerSource).toContain('id="workout-tracker"');
     expect(stackReviewSource).toContain('id="stack-review"');
-    expect(source).toContain('Log a test');
-    expect(source).toContain('Open Body Lab');
-    expect(source).toContain('Find exercises');
-    expect(source).toContain('Change action');
-    expect(source).toContain('View matches');
-    expect(source).toContain('onClick={() => setTutorialOpen(true)}>Guide</button>');
-    expect(source).not.toContain('className="feature-guide-button"');
-    expect(source).not.toContain('Sport-aware exercise matches and rationale');
-    expect(source).not.toContain('Build, track, and review your plan');
-    expect(source).not.toContain('Selected sport action and body requirements');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');
     expect(source).toContain('label: "Explore"');
@@ -118,9 +101,10 @@ describe("workspace side navigation", () => {
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(css).toContain('.mobile-bottom-nav { display: none; }');
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
-    expect(css).toContain('.apex-content { padding-bottom: calc(10.25rem');
+    expect(css).toContain('.apex-content { padding-bottom: calc(5rem');
     expect(css).toContain('.mobile-workspace-dock { position: fixed;');
-    expect(css).toContain('.mobile-workspace-actions button { min-height: 2.75rem;');
+    expect(source).not.toContain('className="mobile-workspace-actions"');
+    expect(css).toContain('grid-template-columns: repeat(6, minmax(0, 1fr));');
     expect(css).toContain('.planner-float { bottom: calc(5.6rem');
     expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');

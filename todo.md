@@ -34,6 +34,12 @@
 - [x] Group Training Day, Workout Builder, Recommendations, Stack Review, and preparation into one Train destination with a context-aware top switcher.
 - [x] Group Movement Atlas, Body Lab, Exercise Genome, and Exercise Catalog into one Explore destination with context-aware top subnavigation.
 - [x] Update the bottom bar, More-menu rail, deep-link behavior, and regression coverage so the active destination and contextual page remain clear and navigable.
+- [x] Remove the contextual action strip from the bottom dock so the bottom edge contains only the six primary navigation items.
+- [x] Surface Train and Explore contextual controls beside or below the changing top header, with only the relevant group visible for the active primary destination.
+- [x] Remove the persistent desktop and mobile sidebar entirely, moving primary entry points to a responsive bottom bar and retaining contextual navigation at the top.
+- [x] Make More a true sixth bottom destination with a lightweight utility surface rather than a sidebar trigger.
+- [x] Move the official Sports Genome mark into the compact top header as a larger unboxed, blended brand anchor.
+- [x] Expose the six primary destinations through the bottom navigation at desktop widths after sidebar removal, with regression and browser verification.
 - [x] Reduce mobile recommendation and action cards to decision-critical exercise name, role, and primary action; move list provenance and evidence detail behind concise disclosure.
 - [x] Rework the mobile recommendation overview so sport-program evidence and mechanics are available on demand rather than consuming the initial screen.
 - [x] Enlarge the official Sports Genome rail logo and remove its contrasting boxed treatment so it blends with the navy navigation background.
@@ -42,9 +48,9 @@
 - [x] Replace the redundant recommendation-header explanation with a single action-oriented line, leaving equipment context solely in its compact constraint strip.
 - [x] Add an action-oriented recommendation header cue that directs the athlete to choose an action, then inspect or add relevant exercise matches.
 - [x] Replace the floating five-icon mobile navigation with a connected safe-area workspace bar that exposes context-relevant controls for each active destination.
-- [ ] Provide Training Day shortcuts for workout tracking, split selection, and stack scoring, plus appropriate contextual actions for Home, Genome, Progress, and Profile.
-- [ ] Wire Training Day dock actions to distinct split-selection, workout-tracking, and stack-scoring workflows with functional regression coverage.
-- [ ] Verify explicit logger and stack-review anchors exist and add interaction-level regression coverage for all Training Day dock actions.
+- [x] Replace the prior Training Day dock-action model with top-level Train navigation for Training Day, Tracker, Matches, Builder, Stack Review, and Prep.
+- [x] Wire contextual Train controls to the distinct Training Day, workout-tracker, stack-review, and preparation workflows with focused regression coverage.
+- [x] Verify explicit logger, stack-review, and preparation anchors exist and protect their contextual Train navigation with source-level regression coverage.
 - [x] Ensure Movement Atlas action rows and selected-action controls retain full-width 44px-or-larger touch targets at narrow mobile widths.
 - [x] Convert the mobile workspace header’s long sport/goal/days text string into compact accessible context chips with overflow-safe labels.
 - [ ] Establish one reusable Sports Genome mobile design system covering colors, elevation, radii, strokes, typography, spacing, interactive states, compact chips, and motion timing.
