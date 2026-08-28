@@ -56,7 +56,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Search and choose a catalog exercise");
     expect(source).toContain("Search catalog, then select");
     expect(source).toContain("setSelectedExercise(exercise)");
-    expect(source).toContain("Primary: {selectedExercise.primaryMuscles.join");
+    expect(source).toContain("getStrengthCatalogSelectionContext(selectedExercise)");
+    expect(source).toContain("<StrengthCatalogSelectionPreview context={selectedExerciseContext} />");
     expect(source).toContain("Boolean(selectedExercise)");
     expect(resolveStrengthObservationRoute("Straight Bar Curl")?.regionIds).toContain("biceps");
     expect(resolveStrengthObservationRoute("biceps curl")?.domainIds).toContain("elbow_flexion");

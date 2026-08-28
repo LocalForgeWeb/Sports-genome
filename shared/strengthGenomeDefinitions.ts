@@ -104,7 +104,7 @@ export const strengthObservationRoutes: StrengthObservationRoute[] = [
   { aliases: ["leg extension", "seated leg extension"], domainIds: ["knee_extension"], regionIds: ["quadriceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a knee-extension test to a broad quadriceps-related domain; it does not directly measure quadriceps force." },
   { aliases: ["calf raise", "standing calf raise", "seated calf raise"], domainIds: ["plantarflexion"], regionIds: ["calves"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a plantarflexion test to a broad calf-related domain; it does not directly measure calf force." },
   { aliases: ["grip dynamometry", "hand grip dynamometry", "grip test"], domainIds: ["grip"], regionIds: ["forearms_grip"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a stated grip test to the grip domain; comparability depends on the named dynamometer protocol." },
-  { aliases: ["plank", "front plank"], domainIds: ["anti_extension"], regionIds: ["abdominals"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a plank hold to trunk-control context; it does not measure abdominal force or a regional strength rank." },
+  { aliases: ["plank", "front plank", "rkc plank", "weighted plank"], domainIds: ["anti_extension"], regionIds: ["abdominals"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a plank hold to trunk-control context; it does not measure abdominal force or a regional strength rank." },
 ];
 
 function normalizedTestName(value: string) {
@@ -114,4 +114,22 @@ function normalizedTestName(value: string) {
 export function resolveStrengthObservationRoute(exerciseName: string) {
   const normalized = normalizedTestName(exerciseName);
   return strengthObservationRoutes.find(route => route.aliases.some(alias => normalized === normalizedTestName(alias))) ?? null;
+}
+
+export type StrengthCatalogSelection = { name: string; primaryMuscles: string[]; secondaryMuscles: string[] };
+
+/**
+ * Presentation context for a deliberately selected catalog exercise. The route
+ * remains a broad classification, never a measured regional-strength result.
+ */
+export function getStrengthCatalogSelectionContext(exercise: StrengthCatalogSelection) {
+  const route = resolveStrengthObservationRoute(exercise.name);
+  return {
+    exerciseName: exercise.name,
+    primaryMuscles: exercise.primaryMuscles,
+    supportingMuscles: exercise.secondaryMuscles,
+    domainLabels: route?.domainIds.map((id) => strengthDomainDefinitions.find((domain) => domain.id === id)?.label ?? id) ?? [],
+    regionLabels: route?.regionIds.map((id) => strengthRegionDefinitions.find((region) => region.id === id)?.label ?? id) ?? [],
+    boundary: route?.boundary ?? "No broad Strength Genome test context is mapped for this catalog exercise yet.",
+  };
 }

@@ -13,8 +13,10 @@
 - [x] Replace free-text Strength Genome exercise entry with a searchable catalog picker that requires deliberate exercise selection and preserves exercise-to-region routing.
 - [ ] Show a one-test population-relative benchmark only when the selected standardized exercise, test type, normalization, and athlete reference fields match a reviewed source; otherwise retain a clear unavailable state.
 - [x] Show selected primary and supporting catalog muscles for the logged exercise, with verified curl routing to biceps context.
-- [ ] Verify selected Strength Genome catalog exercises across multiple movement families map cleanly from catalog selection into recorded region/domain routing.
-- [ ] Add focused coverage for multiple catalog exercises displaying primary/supporting muscles and routing expected Strength Genome context.
+- [x] Verify selected Strength Genome catalog exercises across multiple movement families map cleanly from catalog selection into recorded region/domain routing.
+- [x] Add focused coverage for multiple catalog exercises displaying primary/supporting muscles and routing expected Strength Genome context.
+- [x] Render the selected-catalog Strength Genome preview for multiple real exercise families and assert primary, supporting, and broad recorded context remain distinct from scores or benchmarks.
+- [x] Expose concise selected-catalog primary, supporting, and broad recorded-context labels in Strength Genome without introducing a score, rank, or benchmark.
 - [x] Add focused test coverage for catalog selection and biceps-curl routing; retain the one-test benchmark and unmatched-reference coverage as a separate task.
 - [x] Replace verbose Strength Genome region-detail methodology copy with a compact rating-first summary and one optional evidence-boundary disclosure.
 - [ ] Let athletes complete missing body mass for a selected recorded test so its load-to-body-mass ratio can be calculated without a fabricated score.
