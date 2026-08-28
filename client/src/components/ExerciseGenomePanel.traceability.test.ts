@@ -15,7 +15,9 @@ describe("Exercise Genome evidence-to-logic disclosure", () => {
   it("retains relative exercise-specific contribution, grade, and contextual score displays", () => {
     expect(component).toContain("<GradeStamp grade={entry.tier} compact />");
     expect(component).toContain("Modelled ${entry.contribution}/100 involvement");
-    expect(component).toContain("Sport-action match: {analysis.signals.sportActionMatch}/100");
+    expect(component).toContain("Catalog action-match index: {analysis.signals.sportActionMatch}/100");
+    expect(component).toContain("not a sport-skill, performance, population, or strength rank");
+    expect(component).not.toContain("Sport-action match: {analysis.signals.sportActionMatch}/100");
     expect(component).toContain("planning comparison, not a direct performance measurement");
   });
 });

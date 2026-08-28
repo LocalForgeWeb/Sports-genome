@@ -460,7 +460,6 @@ export default function Home() {
       setWeeklyPrescriptions({});
       setPlanWeeks({});
       setActiveWeek(1);
-      toast("Sport context updated", { description: "Your current workout was retained for review; weekly drafts were cleared to avoid a silent mismatch." });
     }
   };
   const navigateWorkspace = (next: Workspace) => {

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 const homeSource = readFileSync(resolve(import.meta.dirname, "Home.tsx"), "utf8");
 const catalogSource = readFileSync(resolve(import.meta.dirname, "../components/CatalogDiscoveryPanel.tsx"), "utf8");
 const catalogStyles = readFileSync(resolve(import.meta.dirname, "../catalog-discovery.css"), "utf8");
+const globalStyles = readFileSync(resolve(import.meta.dirname, "../index.css"), "utf8");
 
 describe("canonical connected exercise catalog", () => {
   it("uses Catalog Discovery with the selected sport-action connection helper", () => {
@@ -12,6 +13,11 @@ describe("canonical connected exercise catalog", () => {
     expect(homeSource).toContain("selectedActionLabel={selectedMovement.label}");
     expect(catalogSource).toContain("catalog-action-link");
     expect(catalogSource).toContain("connection.label");
+    expect(catalogSource).toContain("All action links");
+    expect(catalogSource).toContain("Direct support");
+    expect(catalogSource).toContain("Supporting link");
+    expect(catalogSource).not.toContain("Any sport fit");
+    expect(catalogSource).not.toContain("A-grade or higher");
   });
 
   it("mounts the canonical connection-aware Exercise Genome workspace with the same selected action", () => {
@@ -27,6 +33,12 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogStyles).toContain(".catalog-action-link-not-mapped");
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
     expect(catalogStyles).toContain(".catalog-action-link { display: inline-flex; width: fit-content; max-width: 100%;");
+  });
+
+  it("keeps Movement Atlas labels readable after the Explore workspace applies its dark operational surface", () => {
+    expect(globalStyles).toContain(".destination-explore .atlas-action-item strong { color: #f7fbff; }");
+    expect(globalStyles).toContain(".destination-explore .atlas-action-item > span { color: #d3e5f5; }");
+    expect(globalStyles).toContain(".destination-explore .atlas-action-item svg { color: #84b6ff; }");
   });
 
   it("does not restore the duplicate cramped legacy catalog grid", () => {

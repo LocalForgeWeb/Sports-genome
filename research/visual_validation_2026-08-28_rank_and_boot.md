@@ -53,3 +53,5 @@ The corresponding desktop DNA-detail and wordmark frames retain that centered, u
 The final 1366×768 ready frame confirms the boot surface clears before the Home workspace renders, with the page controls and fixed destination navigation reachable after the short handoff.
 
 Runtime verification at 390×844 with `prefers-reduced-motion: reduce` emulated confirmed the document splash is immediately bypassed or removed and the workspace is mounted, preserving a non-animated entry path.
+
+The populated 390×844 Wrestling double-leg Catalog verification shows four `Direct support` results when that action-link filter is selected and readable `Supporting link` results when its companion filter is selected. The legacy sport-fit grade selector is absent from the DOM; catalog tags remain separately labeled and are not used for the action-link filter.

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import { catalogFilterOptions, defaultCatalogFilters, type CatalogFilters, filterCatalogExercises } from "@/lib/catalogDiscovery";
+import { catalogFilterOptions, defaultCatalogFilters, type CatalogFilters, filterCatalogByActionLink, filterCatalogExercises } from "@/lib/catalogDiscovery";
 import { muscleLabels } from "@/components/AnatomyMap";
 import type { ExerciseActionConnection } from "@/lib/movementProgramAnalysis";
 import "@/catalog-discovery.css";
@@ -23,14 +23,15 @@ const visiblePerPage = 36;
 export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, selectedActionLabel, connectionForExercise }: CatalogDiscoveryPanelProps) {
   const [visibleCount, setVisibleCount] = useState(visiblePerPage);
   const options = useMemo(() => catalogFilterOptions(exercises), [exercises]);
-  const results = useMemo(() => filterCatalogExercises(exercises, filters, favoriteIds), [exercises, filters, favoriteIds]);
+  const baseResults = useMemo(() => filterCatalogExercises(exercises, filters, favoriteIds), [exercises, filters, favoriteIds]);
+  const results = useMemo(() => filterCatalogByActionLink(baseResults, filters.actionLink, connectionForExercise), [baseResults, connectionForExercise, filters.actionLink]);
   const visibleResults = results.slice(0, visibleCount);
   const update = <K extends keyof CatalogFilters>(key: K, value: CatalogFilters[K]) => {
     setVisibleCount(visiblePerPage);
     onFiltersChange({ ...filters, [key]: value });
   };
-  const reset = () => onFiltersChange({ query: "", category: "all", movement: "all", equipment: "all", muscle: "all", sportTier: "all", favoritesOnly: false });
-  const activeFilterCount = [filters.category, filters.movement, filters.equipment, filters.muscle, filters.sportTier].filter((value) => value !== "all").length + Number(filters.favoritesOnly);
+  const reset = () => onFiltersChange(defaultCatalogFilters);
+  const activeFilterCount = [filters.category, filters.movement, filters.equipment, filters.muscle, filters.actionLink].filter((value) => value !== "all").length + Number(filters.favoritesOnly);
 
   return <section className="catalog-discovery">
     <header className="catalog-discovery-heading">
@@ -45,7 +46,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
         <label><span>Movement</span><select value={filters.movement} onChange={(event) => update("movement", event.target.value)}><option value="all">All movements</option>{options.movements.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
         <label><span>Equipment</span><select value={filters.equipment} onChange={(event) => update("equipment", event.target.value)}><option value="all">All equipment</option>{options.equipment.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
         <label><span>Muscle</span><select value={filters.muscle} onChange={(event) => update("muscle", event.target.value)}><option value="all">All muscles</option>{options.muscles.map((value) => <option key={value} value={value}>{muscleLabels[value] || value}</option>)}</select></label>
-        <label><span>Sport fit</span><select value={filters.sportTier} onChange={(event) => update("sportTier", event.target.value as CatalogFilters["sportTier"])}><option value="all">Any sport fit</option><option value="A">A-grade or higher</option><option value="S">S-grade or higher</option></select></label>
+        {connectionForExercise ? <label><span>Action link</span><select value={filters.actionLink} onChange={(event) => update("actionLink", event.target.value as CatalogFilters["actionLink"])}><option value="all">All action links</option><option value="direct">Direct support</option><option value="supporting">Supporting link</option></select></label> : null}
         <button type="button" onClick={() => { setVisibleCount(visiblePerPage); onFiltersChange({ ...defaultCatalogFilters, muscle: "serratusAnterior" }); }} className={`catalog-serratus-filter ${filters.muscle === "serratusAnterior" ? "catalog-serratus-filter-on" : ""}`} aria-pressed={filters.muscle === "serratusAnterior"}><Target className="h-3.5 w-3.5" /> Serratus anterior</button>
         <button type="button" onClick={() => update("favoritesOnly", !filters.favoritesOnly)} className={`catalog-favorites-filter ${filters.favoritesOnly ? "catalog-favorites-filter-on" : ""}`} aria-pressed={filters.favoritesOnly}><Heart className="h-3.5 w-3.5" fill={filters.favoritesOnly ? "currentColor" : "none"} /> Favorites <b>{favoriteIds.size}</b></button>
         {(activeFilterCount || filters.query) ? <button type="button" onClick={reset} className="catalog-filter-reset"><X className="h-3.5 w-3.5" /> Clear filters</button> : null}

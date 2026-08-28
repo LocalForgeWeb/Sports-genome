@@ -233,6 +233,11 @@
 
 - [ ] Inventory every athlete-facing numeric score, threshold, weight, volume target, rating, recommendation constant, and visible placeholder across client, server, catalog, and sport data.
 - [ ] Classify each inventoried value as source-backed, transparent product-design constraint, athlete-entered value, or unsupported placeholder; retain an evidence or rationale reference for each surviving value.
+- [ ] Clarify the Exercise Genome sport-action 0–100 value as a catalog mapping input rather than a skill, performance, population, or strength rank.
+- [x] Remove the obstructive post-sport-change feedback message from mobile Profile and retain only nonblocking state updates.
+- [x] Replace the confusing Catalog sport-fit selector with a simple action-link filter that offers Direct support and Supporting link only.
+- [x] Correct low-contrast athlete-facing text across the reported mobile Movement, Profile, and Catalog dark surfaces.
+- [x] Add regression and phone-width validation for the sport-change, action-link-filter, and contrast corrections before publication.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
 - [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.

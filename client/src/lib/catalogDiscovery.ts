@@ -1,4 +1,5 @@
-import type { Exercise, Grade } from "./exerciseCatalog";
+import type { Exercise } from "./exerciseCatalog";
+import type { ExerciseActionConnection } from "./movementProgramAnalysis";
 
 export type CatalogFilters = {
   query: string;
@@ -6,7 +7,7 @@ export type CatalogFilters = {
   movement: string;
   equipment: string;
   muscle: string;
-  sportTier: "all" | "A" | "S";
+  actionLink: "all" | "direct" | "supporting";
   favoritesOnly: boolean;
 };
 
@@ -16,21 +17,24 @@ export const defaultCatalogFilters: CatalogFilters = {
   movement: "all",
   equipment: "all",
   muscle: "all",
-  sportTier: "all",
+  actionLink: "all",
   favoritesOnly: false,
 };
 
-const gradeScore: Record<Grade, number> = { F: 0, D: 1, C: 2, B: 3, A: 4, S: 5, SS: 6 };
 const humanizeMuscleKey = (muscle: string) => muscle.replace(/([a-z])([A-Z])/g, "$1 $2");
 
-export function bestSportScore(exercise: Exercise) {
-  return Math.max(...Object.values(exercise.sportFit).map((fit) => gradeScore[fit.grade]));
+export function filterCatalogByActionLink(
+  exerciseList: Exercise[],
+  actionLink: CatalogFilters["actionLink"],
+  connectionForExercise?: (exercise: Exercise) => ExerciseActionConnection,
+) {
+  if (actionLink === "all" || !connectionForExercise) return exerciseList;
+  const requiredLabel = actionLink === "direct" ? "Direct support" : "Supporting link";
+  return exerciseList.filter((exercise) => connectionForExercise(exercise).label === requiredLabel);
 }
 
 export function filterCatalogExercises(exerciseList: Exercise[], filters: CatalogFilters, favoriteIds: Set<number>) {
   const query = filters.query.trim().toLowerCase();
-  const tierFloor = filters.sportTier === "S" ? gradeScore.S : filters.sportTier === "A" ? gradeScore.A : 0;
-
   return exerciseList.filter((exercise) => {
     const searchable = [
       exercise.name,
@@ -46,7 +50,6 @@ export function filterCatalogExercises(exerciseList: Exercise[], filters: Catalo
       && (filters.movement === "all" || exercise.movement === filters.movement)
       && (filters.equipment === "all" || exercise.equipment === filters.equipment)
       && (filters.muscle === "all" || exercise.primaryMuscles.includes(filters.muscle) || exercise.secondaryMuscles.includes(filters.muscle))
-      && (!tierFloor || bestSportScore(exercise) >= tierFloor)
       && (!filters.favoritesOnly || favoriteIds.has(exercise.id));
   });
 }

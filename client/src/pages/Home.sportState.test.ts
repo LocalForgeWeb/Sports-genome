@@ -15,4 +15,11 @@ describe("Home sport state safeguards", () => {
     expect(source).toContain('onSport={chooseSport}');
     expect(source).toContain('onClick={() => chooseSport(profile.id)}');
   });
+
+  it("resets weekly sport-specific drafts without rendering an obstructive sport-change toast", () => {
+    expect(source).toContain('setPlanWeeks({});');
+    expect(source).toContain('setActiveWeek(1);');
+    expect(source).not.toContain('toast("Sport context updated"');
+    expect(source).not.toContain("Your current workout was retained for review");
+  });
 });
