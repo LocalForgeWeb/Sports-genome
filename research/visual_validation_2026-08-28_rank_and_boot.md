@@ -65,3 +65,7 @@ The supplied video-led boot sequence was captured at 390×844 with the video con
 An initial contain-framed wordmark review confirmed clear separation from the upright mark but exposed a visible square video-field seam against the surrounding boot navy. The next adjustment aligns the boot surface to the source video field while retaining the whole unaltered mark and the separate wordmark placement.
 
 The final contained 390×844 wordmark frame shows the supplied upright S/DNA mark fully visible on a continuous near-black navy field, with `Sports Genome` and `Decoding performance` separated beneath it. The ready frame shows the document splash fully cleared to the workspace before the source clip can enter its later unrelated animation.
+
+## Smoothed video-ready transition
+
+The revised 390×844 wordmark frame retains the fully visible upright S/DNA mark above the wordmark and subtitle, with clear vertical separation on the matched navy field. The video fade-in and wordmark entrance now use opacity and transform only, while the document handoff uses a longer composited opacity fade; the ready frame confirms that the workspace is reached with no retained boot layer or visible flash.
