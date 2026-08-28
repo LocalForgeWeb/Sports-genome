@@ -751,3 +751,56 @@ select {
 .stack-analysis-row i, .stack-analysis-metric i { background: rgb(255 255 255 / .14); }
 .stack-analysis-contributions article { border-top-color: rgb(164 200 232 / .22); }
 .stack-analysis-boundary { background: #102f53; color: #c3d7ea; }
+
+/* Profile is a personal control center, not a stack of generic white form cards. */
+.destination-profile .about-me-panel { color: #edf7ff; }
+.destination-profile .about-me-head { border-bottom-color: rgb(164 200 232 / .28); }
+.destination-profile .about-me-head h1, .destination-profile .about-me-card-head, .destination-profile .about-me-security h2, .destination-profile .about-me-equipment h2 { color: #f7fbff; }
+.destination-profile .about-me-head p:not(.metric-label), .destination-profile .about-me-security p:not(.metric-label), .destination-profile .about-me-equipment p:not(.metric-label) { color: #c3d7ea; }
+.destination-profile .about-me-card, .destination-profile .about-me-security { border-color: rgb(164 200 232 / .28); background: linear-gradient(145deg, #112f52, #0a203d); }
+.destination-profile .about-me-card label { color: #b9d5ee; }
+.destination-profile .about-me-card input, .destination-profile .about-me-card select { border-color: rgb(164 200 232 / .4); background: #07182e; color: #f7fbff; }
+.destination-profile .about-me-security button { background: #f2c14d; color: #07182e; }
+.destination-profile .about-me-equipment { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(145deg, #0d3157, #07182e); }
+.destination-profile .about-me-equipment-grid .about-me-equipment-active { background: #f2c14d; color: #07182e; }
+
+/* More stays intentionally light on content, but shares the app’s dark utility surface. */
+.destination-more .more-workspace { border-color: rgb(164 200 232 / .3); background: linear-gradient(135deg, #112f52, #07182e); color: #edf7ff; box-shadow: 0 18px 42px rgb(1 12 28 / .24); }
+.destination-more .more-workspace h1 { color: #f7fbff; }
+.destination-more .more-workspace p:last-child { color: #c3d7ea; }
+.destination-more .more-workspace-actions button { border-color: rgb(164 200 232 / .48); color: #eaf5ff; }
+.destination-more .more-workspace-actions button:first-child { background: #f2c14d; color: #07182e; }
+
+/* Home is the command environment: dark decision cards with gold action signals. */
+.apex-content.destination-command { background: radial-gradient(circle at 82% 8%, #1d4c84 0, #0b2240 38%, #07182e 78%); color: #edf7ff; }
+.destination-command .command-hero .metric-label, .destination-command .command-hero em, .destination-command .command-signal-card .metric-label, .destination-command .command-signal-card button, .destination-command .dark-panel > div > div > button { color: #f2c14d !important; }
+.destination-command .light-panel { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, #143a63, #0a203d); color: #edf7ff; box-shadow: 0 18px 40px rgb(1 12 28 / .2); }
+.destination-command .light-panel .metric-label, .destination-command .light-panel h2, .destination-command .light-panel strong { color: #f7fbff; }
+.destination-command .light-panel button { border-color: rgb(164 200 232 / .3); background: rgb(255 255 255 / .06); color: #edf7ff; }
+.destination-command .light-panel button:hover { border-color: #f2c14d; background: rgb(242 193 77 / .1); }
+.destination-command .light-panel button span:last-child { color: #c3d7ea; }
+.destination-command .light-panel button > span:first-child { color: #9cc4ea; }
+
+.strength-body-map { padding: clamp(1rem, 3vw, 1.5rem); background: linear-gradient(145deg, #0b294b, #07182e); color: #edf7ff; }
+.strength-body-map-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }.strength-body-map-head h2 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; line-height: .9; text-transform: uppercase; }.strength-body-map-head h2 em { color: #f2c14d; }.strength-body-map-head button { display: inline-flex; min-height: 44px; align-items: center; gap: .45rem; border: 1px solid rgb(164 200 232 / .45); background: rgb(255 255 255 / .06); padding: 0 .75rem; color: #edf7ff; font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.strength-body-chart { min-height: 400px; margin-top: 1rem; border: 1px solid rgb(164 200 232 / .25); background: radial-gradient(circle at center, rgb(45 108 223 / .14), transparent 68%); }.strength-body-chart .body-chart { max-width: 100%; }.strength-body-map-legend { display: flex; flex-wrap: wrap; gap: .75rem 1rem; margin-top: 1rem; color: #c3d7ea; font-size: .72rem; }.strength-body-map-legend span { display: inline-flex; align-items: center; gap: .42rem; }.strength-body-map-legend i { width: .7rem; height: .7rem; border-radius: 999px; }.strength-map-observed { background: #db2f24; }.strength-map-focus { background: #d5ad43; }.strength-map-empty { border: 1px solid #8eaac4; background: #c0cdd6; }.strength-body-map-boundary, .strength-body-map-fallback { margin: .8rem 0 0; color: #b9d5ee; font-size: .72rem; line-height: 1.5; }
+
+.strength-region-record-detail { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(135deg, #123b68, #07182e); padding: clamp(1rem, 3vw, 1.5rem); color: #edf7ff; }.strength-region-record-detail h2 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.55rem, 4vw, 2.25rem); font-weight: 800; line-height: .9; text-transform: uppercase; }.strength-region-record-detail h2 em { color: #f2c14d; }.strength-region-record-list { display: grid; gap: .5rem; margin-top: 1rem; }.strength-region-record-list article { display: grid; gap: .2rem; border-left: 2px solid #f2c14d; background: rgb(255 255 255 / .06); padding: .7rem .8rem; }.strength-region-record-list strong { color: #fff; font-size: .85rem; }.strength-region-record-list span, .strength-region-record-empty { color: #c3d7ea; font-size: .74rem; line-height: 1.45; }.strength-region-record-empty { margin-top: .85rem; }.strength-region-reference-boundary { margin-top: 1rem; border-left: 2px solid #e4512e; padding-left: .75rem; color: #c3d7ea; font-size: .74rem; line-height: 1.45; }.strength-region-reference-boundary strong { color: #ffd2c4; }
+
+/* Explore is the discovery lab: cool layered blue panels, not a white document canvas. */
+.apex-content.destination-explore { background: radial-gradient(circle at 14% 3%, #1e5f98 0, #0d3157 35%, #07182e 82%); color: #edf7ff; }
+.shell-explore .workspace-topbar { border-bottom-color: rgb(164 200 232 / .25); background: linear-gradient(110deg, #0a203d, #16446f); color: #f4f9ff; }
+.shell-explore .workspace-context-tabs { border-bottom-color: rgb(164 200 232 / .24); background: #0b2240; }
+.shell-explore .workspace-context-tab { color: #c3d7ea; }
+.shell-explore .workspace-context-tab[aria-current="page"] { color: #fff; box-shadow: inset 0 -4px 0 #f2c14d; }
+.destination-explore .movement-atlas-improved { color: #edf7ff; }
+.destination-explore .atlas-improved-head { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, #123b68, #0a203d); }
+.destination-explore .atlas-improved-head h1, .destination-explore .atlas-improved-head strong, .destination-explore .atlas-improved-head p { color: #f5faff; }
+.destination-explore .atlas-improved-head em, .destination-explore .atlas-inventory strong { color: #f2c14d; }
+.destination-explore .atlas-tool-row, .destination-explore .atlas-action-list, .destination-explore .atlas-focus-card { border-color: rgb(164 200 232 / .3); background: rgb(8 31 58 / .84); color: #edf7ff; box-shadow: 0 16px 34px rgb(1 12 28 / .18); }
+.destination-explore .atlas-tool-main input, .destination-explore .atlas-tool-main select, .destination-explore .atlas-sport-select { border-color: rgb(164 200 232 / .4); background: #07182e; color: #f7fbff; }
+.destination-explore .atlas-family-row button, .destination-explore .atlas-action-item { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .05); color: #eaf5ff; }
+.destination-explore .atlas-family-row button[aria-pressed="true"], .destination-explore .atlas-action-item[aria-pressed="true"] { border-color: #f2c14d; background: rgb(242 193 77 / .13); color: #fff4ca; }
+.destination-explore .atlas-action-item small, .destination-explore .atlas-focus-card p, .destination-explore .atlas-details dd { color: #c3d7ea; }
+.destination-explore .atlas-details { border-color: rgb(164 200 232 / .24); }
+.destination-explore .atlas-focus-card > button { border-color: #f2c14d; background: #f2c14d; color: #07182e; }

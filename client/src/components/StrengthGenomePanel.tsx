@@ -3,6 +3,8 @@ import { Activity, ChevronRight, CircleHelp, Dumbbell, Plus, ShieldCheck } from 
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { strengthRegionDefinitions, type StrengthRegionDefinition } from "../../../shared/strengthGenomeDefinitions";
+import { StrengthGenomeBodyMap } from "@/components/StrengthGenomeBodyMap";
+import { resolveStrengthObservationRoute } from "../../../shared/strengthGenomeDefinitions";
 
 type MeasurementType =
   | "MEASURED_1RM"
@@ -15,6 +17,13 @@ type MeasurementType =
   | "VELOCITY";
 
 type ObservationDataQuality = "SELF_REPORTED" | "STANDARDIZED" | "VERIFIED" | "UNCERTAIN";
+
+type StrengthObservationRecord = { id: string | number; exerciseName: string; observedAt: Date | string; measurementType: string; loadKg?: number | null; repetitions?: number | null; equipment?: string | null; romStandard?: string | null; dataQuality?: string | null };
+
+function StrengthRegionRecordDetail({ region, observations }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[] }) {
+  const records = observations.filter((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id));
+  return <section className="strength-region-record-detail"><div><p className="metric-label">Recorded observation context</p><h2>{region.label} <em>records.</em></h2></div>{records.length ? <div className="strength-region-record-list">{records.slice(0, 4).map((record) => <article key={record.id}><strong>{record.exerciseName}</strong><span>{new Date(record.observedAt).toLocaleDateString()} · {record.measurementType.replace(/_/g, " ")}</span><span>{record.loadKg != null ? `${record.loadKg} kg` : "No load recorded"}{record.repetitions ? ` · ${record.repetitions} reps` : ""}{record.equipment ? ` · ${record.equipment}` : ""}</span></article>)}</div> : <p className="strength-region-record-empty">No routed athlete record for this region yet. Add a standardized test to preserve its raw result and setup.</p>}<div className="strength-region-reference-boundary"><strong>Reference context unavailable.</strong> Sports Genome has not connected a reviewed, matching population reference for this region and test setup, so no percentile or strength rank is shown.</div></section>;
+}
 
 const measurementOptions: { value: MeasurementType; label: string }[] = [
   { value: "MEASURED_1RM", label: "Measured 1RM" },
@@ -122,24 +131,20 @@ export function StrengthGenomePanel({ onOpenTraining = () => {} }: { onOpenTrain
       <div className="view-header-note"><ShieldCheck className="h-5 w-5 text-[#2d6cdf]" /><p>Performance observations, estimate confidence, and population comparison stay separate—never one generic score.</p></div>
     </div>
 
-    <section className="light-panel overflow-hidden p-0">
+      <section className="light-panel overflow-hidden p-0">
       <div className="border-b border-[#d5e3ef] bg-[#f5faff] px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div><p className="metric-label">Strength profile state</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#102947]">{overview.data?.observationCount ? "Test context recorded" : "Build your baseline"}</h2></div>
           <span className="inline-flex items-center gap-2 rounded-full border border-[#c8d9e8] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-[#42647f]"><CircleHelp className="h-3.5 w-3.5" /> Observation routing only</span>
         </div>
       </div>
-      <div className="grid gap-px bg-[#d5e3ef] sm:grid-cols-2 lg:grid-cols-3">
-        {strengthRegionDefinitions.map((region) => { const state = regionOverview(region.id); const observed = state?.state === "OBSERVED_TEST_CONTEXT"; return <button key={region.id} type="button" onClick={() => setSelectedRegion(region)} aria-expanded={selectedRegion?.id === region.id} className="group min-h-28 bg-white p-4 text-left transition hover:bg-[#f8fbff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2d6cdf]">
-          <div className="flex items-start justify-between gap-3"><span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border text-lg font-bold ${observed ? "border-[#76a1cd] bg-[#edf6ff] text-[#2d6cdf]" : "border-dashed border-[#b7c9d9] text-[#64819a]"}`}>{observed ? "•" : "?"}</span><ChevronRight className="mt-2 h-4 w-4 text-[#93a9bb] transition group-hover:translate-x-0.5 group-hover:text-[#2d6cdf]" /></div>
-          <p className="mt-3 text-sm font-bold text-[#153b61]">{region.label}</p><p className="mt-1 text-[11px] leading-4 text-[#668198]">{observed ? "Mapped test context · no rank" : "No mapped test context"}</p>
-        </button>; })}
-      </div>
+      <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={setSelectedRegion} />
       {selectedRegion && <div className="border-t border-[#d5e3ef] bg-[#f8fbff] px-5 py-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="metric-label">Regional detail / no score yet</p><h3 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#102947]">{selectedRegion.label}</h3><p className="mt-3 max-w-2xl text-xs leading-5 text-[#5b758c]">{regionOverview(selectedRegion.id)?.message || selectedRegion.description} Sports Genome has not assigned a regional strength rank because the required calibration and matching reference data are not yet available.</p></div><button type="button" onClick={() => setSelectedRegion(null)} className="min-h-10 rounded-xl border border-[#c8d9e8] bg-white px-3 text-[10px] font-bold uppercase tracking-[.1em] text-[#365b7e] hover:border-[#2d6cdf] hover:text-[#2d6cdf]">Close detail</button></div><div className="mt-4 border-l-2 border-[#f2c14d] pl-3 text-xs leading-5 text-[#4d6c86]"><strong className="text-[#153b61]">Next useful data:</strong> add a standardized, repeatable performance test with its date and setup. This records the observation; it does not claim direct regional muscle-force measurement.</div></div>}
       {selectedRegion && <div className="border-t border-[#d5e3ef] bg-white px-5 py-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="metric-label">Athlete-confirmed training focus</p><p className="mt-1 text-xs leading-5 text-[#5b758c]">Choose this only if you want your planning conversations to prioritize {selectedRegion.label.toLowerCase()}. It is your stated focus, not an inferred weakness, score, or diagnosis.</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={onOpenTraining} className="min-h-11 rounded-xl border border-[#c8d9e8] bg-white px-3 text-[10px] font-bold uppercase tracking-[.1em] text-[#365b7e] hover:border-[#2d6cdf] hover:text-[#2d6cdf]">Review in Training Day</button><button type="button" disabled={setPriority.isPending} onClick={() => setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) })} className={`min-h-11 rounded-xl px-3 text-[10px] font-bold uppercase tracking-[.1em] transition disabled:opacity-50 ${activePriorityIds.has(selectedRegion.id) ? "border border-[#c8d9e8] bg-white text-[#365b7e]" : "bg-[#e4512e] text-white hover:bg-[#c84323]"}`}>{activePriorityIds.has(selectedRegion.id) ? "Remove focus" : "Set as my focus"}</button></div></div><p className="mt-3 text-[10px] leading-4 text-[#668198]">This opens planning for your review. It does not automatically change your workout or prescribe a correction.</p></div>}
       <div className="border-t border-[#d5e3ef] bg-white px-5 py-4 text-xs leading-5 text-[#5b758c]"><strong className="text-[#153b61]">{overview.data?.observationCount || 0} observations saved.</strong> {overview.data?.nextAction || "Loading your Strength Genome state…"}</div>
     </section>
 
+    {selectedRegion && <StrengthRegionRecordDetail region={selectedRegion} observations={(observations.data || []) as StrengthObservationRecord[]} />}
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
       <section className="dark-panel p-5">
         <div className="flex items-start justify-between gap-4"><div><p className="metric-label !text-[#9eb3cb]">Add a performance test</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Log a lift.</h2><p className="mt-3 max-w-xl text-xs leading-5 text-[#c3d3e4]">Start with the result you already know. Test date and measurement context remain attached to the private performance record.</p></div><Dumbbell className="h-7 w-7 shrink-0 text-[#f2c14d]" /></div>

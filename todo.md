@@ -10,6 +10,12 @@
 
 ## Strength Genome
 
+- [x] Replace the Strength Genome long regional no-data list with the existing interactive full-body qualitative map.
+- [x] Use categorical color to distinguish recorded test context, athlete-confirmed focus, and no mapped test context without implying activation or strength rank.
+- [ ] Open a region detail panel on body-map selection showing raw athlete records, valid reference context when available, and explicit no-data or non-comparable boundaries instead of invented percentiles or ranks.
+- [ ] Render selected-region raw observation history by filtering saved observations through the recorded Strength Genome region/domain routing.
+- [ ] Add evidence-bounded selected-region reference context only when a reviewed reference exists, with explicit no-reference and non-comparable states otherwise.
+- [ ] Add focused Strength Genome body-map coverage for observed-region detail, no-data detail, and the prohibition on invented percentile or rank output.
 - [x] Require matching recorded test conditions for within-athlete Strength Genome load comparisons, returning an explicit non-comparable state rather than a misleading change card.
 - [x] Return an explicit non-comparable result when matching exercise/test/laterality observations differ by recorded testing conditions.
 - [x] Render concise Progress copy explaining when recorded test conditions prevent a like-for-like comparison.
