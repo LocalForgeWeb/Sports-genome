@@ -33,3 +33,5 @@ The populated 390×844 action-card capture confirms that the duplicate `Start se
 ## Exercise-to-action connection indicators
 
 The populated 390×844 catalog view shows the evidence-bounded action signal directly beneath each exercise’s primary-muscle line. `Supporting link · Acceleration` is readable in gold, while `Not mapped · Acceleration` is visibly muted and explicit; neither is presented as a sport-performance rating. The selected active action did not yield an on-screen Direct support row in the initial catalog page, but deterministic classifier regression coverage verifies the Direct support label only when an exercise is named in the selected action record.
+
+The refreshed 390×844 catalog capture confirms grade pills now read `Catalog tag A`, avoiding the ambiguous population-comparison language previously used for the configured catalog classification. The evidence-qualified source-sample rank remains reserved for the strict Piper record path.

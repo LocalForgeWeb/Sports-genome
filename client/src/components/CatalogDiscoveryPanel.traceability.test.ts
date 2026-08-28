@@ -5,9 +5,10 @@ import { resolve } from "node:path";
 const component = readFileSync(resolve(process.cwd(), "client/src/components/CatalogDiscoveryPanel.tsx"), "utf8");
 
 describe("Catalog Discovery traceability presentation", () => {
-  it("derives its visible catalog total and frames grade output as a catalog rank", () => {
+  it("derives its visible catalog total and labels configured grades without implying a population rank", () => {
     expect(component).toContain("`All ${exercises.length} exercises`");
-    expect(component).toContain("Catalog rank {exercise.muscleGrade}");
+    expect(component).toContain("Catalog tag {exercise.muscleGrade}");
+    expect(component).toContain("Configured catalog classification; not a population rank or strength measurement.");
     expect(component).not.toContain("All 400 exercises");
   });
 
