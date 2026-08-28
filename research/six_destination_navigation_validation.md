@@ -7,3 +7,11 @@ This verifies the local desktop rendering and source-wired contextual route. Ded
 ## Sidebar-free shell verification — 2026-08-28
 
 The local `?workspace=more` view renders **More tools** in the main content canvas with guide and onboarding-reset actions. No sidebar occupies the layout. The official header mark is rendered from the supplied Sports Genome asset, with a visible 44 × 44 px clipped circular presentation. Dedicated physical iPhone and standalone-PWA validation remain open.
+
+## Contextual tab state investigation — 2026-08-28
+
+Direct entry to local Training Day rendered the expected Train tabs. After selecting **Tracker**, the local visual displayed both Training Day and Tracker underlines, confirming the reported duplicate-selection defect requires a state-model correction rather than only a spacing adjustment. Physical iPhone validation remains open.
+
+## Mobile overlay-source audit — 2026-08-28
+
+The active local Sports Genome workspace contains only the official 50 × 50 px header logo as a rendered image. No application-owned vertical media element was present in the DOM. The control-obscuring vertical image in the supplied phone captures therefore appears external to the app canvas (for example, a device-level overlay), so no product media has been removed on that basis. The app shell will still be styled to remain readable behind external device chrome.

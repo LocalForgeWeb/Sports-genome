@@ -46,7 +46,8 @@ describe("mobile athlete presentation", () => {
     expect(appStyles).toContain('.recommendation-add { width: 44px; height: 44px; }');
     expect(appStyles).toContain('.apex-content > section.space-y-5 > div.border-l-2 { display: none; }');
     expect(appStyles).toContain('.apex-content > section.space-y-5 .view-header-note { display: none; }');
-    expect(home).toContain('actionCue="Choose an action, then inspect or add matches."');
+    expect(home).toContain('<details className="plan-context">');
+    expect(home).toContain('Plan context</span><small>Equipment & evidence</small>');
     expect(home).toContain('<HierarchyPlanningDisclosure');
   });
 });

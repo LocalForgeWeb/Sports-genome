@@ -40,6 +40,16 @@
 - [x] Make More a true sixth bottom destination with a lightweight utility surface rather than a sidebar trigger.
 - [x] Move the official Sports Genome mark into the compact top header as a larger unboxed, blended brand anchor.
 - [x] Expose the six primary destinations through the bottom navigation at desktop widths after sidebar removal, with regression and browser verification.
+- [ ] Ensure contextual top navigation has exactly one active tab for every Train and Explore state, including Tracker, Stack Review, and Prep routes.
+- [ ] Increase mobile top-navigation type size and spacing, prevent tight tab labels, and simplify the header presentation so the shell feels app-first rather than website-like.
+- [x] Audit any header-layer media or visual element that obscures the top controls in the reported mobile view; no application-owned overlay was present in the inspected DOM.
+- [x] Document that the reported vertical media overlay is external to the inspected Sports Genome interface.
+- [ ] Visually verify the mobile header and top navigation remain readable and unobscured with real device/browser chrome present, separately from the overlay-source audit.
+- [ ] Further adjust top and bottom navigation label size and spacing if the live device view remains cramped, then revalidate its single-active-state behavior.
+- [ ] Increase the Sports Genome header mark and the mobile bottom/top navigation labels to a comfortably readable app-scale size.
+- [ ] Establish cohesive navy, bone, gold, vermilion, and workflow-blue app-surface styling for the mobile shell and its primary planning panels.
+- [x] Remove persistent Automatic Stacks, Evidence, and Program Lens cards from the primary mobile canvas, replacing them with a single optional Plan Context disclosure.
+- [x] Preserve access to equipment editing and source/methodology detail from the compact Plan Context disclosure without repeating those blocks on every workspace.
 - [x] Reduce mobile recommendation and action cards to decision-critical exercise name, role, and primary action; move list provenance and evidence detail behind concise disclosure.
 - [x] Rework the mobile recommendation overview so sport-program evidence and mechanics are available on demand rather than consuming the initial screen.
 - [x] Enlarge the official Sports Genome rail logo and remove its contrasting boxed treatment so it blends with the navy navigation background.

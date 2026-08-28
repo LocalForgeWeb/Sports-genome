@@ -90,11 +90,21 @@
   .rail-data-card { border: 1px solid rgb(184 255 91 / .28); background: linear-gradient(135deg, rgb(184 255 91 / .08), transparent 70%); padding: 14px; }
   .apex-main { min-width: 0; min-height: 100vh; }
   .apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: 72px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .9); padding: 12px 18px; backdrop-filter: blur(14px); }
-  .topbar-brand-logo { width: 44px; height: 44px; clip-path: circle(44% at 50% 50%); }
-  .workspace-top-switcher { position: sticky; top: 72px; z-index: 29; display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .96); padding: 6px 18px; scrollbar-width: none; }
+  .topbar-brand-logo { width: 50px; height: 50px; clip-path: circle(44% at 50% 50%); }
+  .workspace-top-switcher { position: sticky; top: 72px; z-index: 29; display: flex; gap: 12px; overflow-x: auto; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .96); padding: 7px 18px; scrollbar-width: none; }
   .workspace-top-switcher::-webkit-scrollbar { display: none; }
-  .workspace-top-switcher button { min-height: 38px; flex: 0 0 auto; border-bottom: 2px solid transparent; padding: 0 10px; color: #58728e; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; transition: color .16s var(--ease-out), border-color .16s var(--ease-out); }
+  .workspace-top-switcher button { min-height: 46px; flex: 0 0 auto; border-bottom: 3px solid transparent; padding: 0 12px; color: #58728e; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; transition: color .16s var(--ease-out), border-color .16s var(--ease-out); }
+  .workspace-top-switcher button:not(.workspace-top-switcher-active) { border-bottom-color: transparent !important; }
   .workspace-top-switcher-active { border-bottom-color: #e4512e !important; color: #0b2240 !important; }
+  .plan-context { margin-bottom: 1rem; border: 1px solid #cddbef; border-radius: 14px; background: rgb(255 255 255 / .82); overflow: hidden; }
+  .plan-context summary { display: flex; min-height: 48px; align-items: center; gap: .6rem; cursor: pointer; list-style: none; padding: .65rem .85rem; color: #14375e; }
+  .plan-context summary::-webkit-details-marker { display: none; }
+  .plan-context summary > span { display: inline-flex; align-items: center; gap: .45rem; font-size: .72rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+  .plan-context summary small { margin-left: auto; color: #66819b; font-size: .62rem; font-weight: 750; }
+  .plan-context summary > svg { color: #2d6cdf; transition: transform .16s var(--ease-out); }
+  .plan-context[open] summary > svg { transform: rotate(180deg); }
+  .plan-context-detail { border-top: 1px solid #dbe8f4; padding: .75rem; }
+  .plan-context-detail .mb-4 { margin-bottom: .65rem; }
   .apex-content { max-width: 1720px; margin: 0 auto; padding: 18px; }
 
   @media (min-width: 1024px) {
@@ -586,8 +596,12 @@ select {
   .mobile-bottom-nav button:focus-visible { outline: 2px solid #f2c14d; outline-offset: -3px; }
   .mobile-bottom-nav button:hover, .mobile-bottom-nav-active { background: linear-gradient(180deg, rgb(45 108 223 / .3), rgb(25 78 150 / .4)); color: #fff; }
   .mobile-bottom-nav-active svg { color: #f2c14d; }
-  .workspace-top-switcher { top: 64px; min-height: 48px; padding: 4px .7rem; }
-  .workspace-top-switcher button { min-height: 40px; padding: 0 .65rem; font-size: .57rem; }
+  .workspace-top-switcher { top: 72px; min-height: 54px; gap: .5rem; padding: 4px .75rem; }
+  .workspace-top-switcher button { min-height: 48px; padding: 0 .78rem; font-size: .68rem; }
+  .plan-context { margin: .8rem 0; border-radius: 12px; }
+  .plan-context summary { min-height: 52px; padding: .65rem .85rem; }
+  .plan-context summary > span { font-size: .76rem; }
+  .plan-context summary small { font-size: .68rem; }
   .planner-float { bottom: calc(5.6rem + env(safe-area-inset-bottom, 0px)); }
   .feature-guide-button { bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
 }
@@ -652,9 +666,9 @@ select {
 @media (max-width: 640px) { .today-action-primary { align-items: stretch; flex-direction: column; gap: 1.1rem; padding: 1.15rem; } .today-action-cta { justify-content: center; } .today-action-rhythm { align-items: flex-start; flex-direction: column; gap: .55rem; padding: .75rem 1.15rem; } .today-action-rhythm small { margin-left: 0; } .today-action-facts { grid-template-columns: 1fr; } .today-action-facts > div, .today-action-facts > button { min-height: 3.45rem; padding: .8rem 1rem; } }
 
 .topbar-context-chips { display: flex; min-width: 0; flex-wrap: wrap; gap: .35rem; margin-top: .32rem; }
-.topbar-context-chips span { max-width: 12rem; overflow: hidden; border: 1px solid #cbdcec; border-radius: 999px; background: #fff; padding: .18rem .48rem; color: #315a82; font-size: .62rem; font-weight: 750; letter-spacing: .02em; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-context-chips span { max-width: 12rem; overflow: hidden; border: 1px solid #cbdcec; border-radius: 999px; background: #fff; padding: .24rem .58rem; color: #315a82; font-size: .7rem; font-weight: 750; letter-spacing: .02em; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-context-chips span:last-child { border-color: #ecd795; background: #fff9e8; color: #806012; }
-@media (max-width: 640px) { .apex-topbar { min-height: 4.6rem; padding: .6rem .8rem; } .topbar-context-chips { flex-wrap: nowrap; max-width: calc(100vw - 9.5rem); overflow: hidden; } .topbar-context-chips span { max-width: 7rem; flex: 0 1 auto; } .topbar-context-chips span:last-child { max-width: 4.1rem; } }
+@media (max-width: 640px) { .apex-topbar { min-height: 5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .64rem; letter-spacing: .12em; } .topbar-brand-logo { width: 52px; height: 52px; } .topbar-context-chips { flex-wrap: nowrap; max-width: calc(100vw - 10rem); overflow: hidden; } .topbar-context-chips span { max-width: 7.4rem; flex: 0 1 auto; } .topbar-context-chips span:last-child { max-width: 4.5rem; } }
 
 /* Retire legacy neon accents from the authenticated command and inspection surfaces. */
 .command-hero .metric-label, .command-hero h1 em, .command-signal-card .metric-label, .command-signal-card button { color: #f2c14d !important; }

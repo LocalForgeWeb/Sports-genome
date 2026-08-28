@@ -45,7 +45,7 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('setRailOpen');
     expect(source).toContain('<div className="mobile-workspace-dock" aria-label="Primary workspace navigation">');
     expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');
-    expect(css).toContain('.topbar-brand-logo { width: 44px; height: 44px; clip-path: circle(44% at 50% 50%); }');
+    expect(css).toContain('.topbar-brand-logo { width: 50px; height: 50px; clip-path: circle(44% at 50% 50%); }');
     expect(css).toContain('@media (min-width: 1024px) {\n  .apex-content { padding-bottom: 6.25rem; }');
   });
 
@@ -94,11 +94,14 @@ describe("workspace side navigation", () => {
     expect(source).toContain('label: "More"');
     expect(source).toContain('contextualWorkspaces');
     expect(source).toContain('className="workspace-top-switcher"');
+    expect(source).toContain('<details className="plan-context">');
+    expect(source).toContain('Plan context</span><small>Equipment & evidence</small>');
     expect(source).toContain('workspace pages`');
     expect(source).toContain('label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review"');
     expect(source).toContain('label: "Prep", workspace: "custom", scrollTarget: "#session-prep"');
     expect(source).toContain('const navigateContextualWorkspace = (tab: ContextualWorkspaceTab)');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
+    expect(css).toContain('.workspace-top-switcher button:not(.workspace-top-switcher-active) { border-bottom-color: transparent !important; }');
     expect(css).toContain('.mobile-bottom-nav { display: none; }');
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
     expect(css).toContain('.apex-content { padding-bottom: calc(5rem');
@@ -117,6 +120,6 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal}');
     expect(css).toContain('.topbar-context-chips span { max-width: 12rem; overflow: hidden;');
     expect(css).toContain('text-overflow: ellipsis; white-space: nowrap;');
-    expect(css).toContain('max-width: calc(100vw - 9.5rem);');
+    expect(css).toContain('max-width: calc(100vw - 10rem);');
   });
 });
