@@ -90,7 +90,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain('label: "Stack Review", workspace: "day-plan"');
     expect(source).toContain('label: "Prep", workspace: "custom"');
     expect(source).toContain('navigateWorkspace("tracker")');
-    expect(source).toContain('document.querySelector(scrollTarget)?.scrollIntoView');
+    expect(source).toContain('const target = document.querySelector(scrollTarget);');
+    expect(source).toContain('target?.scrollIntoView({ behavior: "smooth", block: "start" });');
     expect(source).toContain('<DeviceWorkoutTracker');
     expect(workoutTrackerSource).toContain('id="workout-tracker"');
     expect(deviceTrackerSource).toContain('id="workout-tracker"');
@@ -109,6 +110,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain('label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review"');
     expect(source).toContain('label: "Prep", workspace: "custom", scrollTarget: "#session-prep"');
     expect(source).toContain('const navigateContextualWorkspace = (tab: ContextualWorkspaceTab)');
+    expect(source).toContain('if (scrollTarget) window.requestAnimationFrame(() => window.requestAnimationFrame(() => {');
+    expect(source).toContain('if (tab.id === "stack-review") target?.querySelector<HTMLDetailsElement>("details")?.setAttribute("open", "");');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('const active = activeContextTabId === tab.id;');

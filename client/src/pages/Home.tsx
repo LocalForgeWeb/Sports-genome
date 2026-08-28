@@ -721,7 +721,11 @@ export default function Home() {
     setActiveContextTab(tab.id);
     if (tab.id === "tracker") return;
     const scrollTarget = tab.scrollTarget;
-    if (scrollTarget) window.setTimeout(() => document.querySelector(scrollTarget)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+    if (scrollTarget) window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      const target = document.querySelector(scrollTarget);
+      if (tab.id === "stack-review") target?.querySelector<HTMLDetailsElement>("details")?.setAttribute("open", "");
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
   };
 
   if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">Checking secure account access…</div>;
