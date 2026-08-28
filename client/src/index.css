@@ -746,8 +746,12 @@ select {
 .destination-explore .strength-reference-unavailable { background: rgb(242 193 77 / .09); }
 
 .apex-content.destination-explore { background: radial-gradient(circle at 12% 10%, #d8edff 0, #eff7ff 30%, #cbdff4 100%); }
-.destination-explore .atlas-sport-picker, .destination-explore .movement-selector, .destination-explore .body-lab-v2 > .view-header, .destination-explore .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, #103b67, #0a274b); color: #eff8ff; box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
-.destination-explore .atlas-sport-picker *, .destination-explore .movement-selector h1, .destination-explore .body-lab-v2 > .view-header h1 { color: inherit; }
+.destination-explore .atlas-sport-picker, .destination-explore .movement-selector, .destination-explore .body-lab-v2 > .view-header, .destination-explore .body-lab-workspace-context, .destination-explore .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, #103b67, #0a274b); color: #eff8ff; box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
+.destination-explore .atlas-sport-picker *, .destination-explore .movement-selector h1, .destination-explore .body-lab-v2 > .view-header h1, .destination-explore .body-lab-workspace-context h1 { color: inherit; }
+.body-lab-workspace-context { display:flex; align-items:end; justify-content:space-between; gap:1rem; border:1px solid; padding:1rem 1.15rem; }
+.body-lab-workspace-context h1 { margin:.18rem 0 0; font-family:var(--font-display, sans-serif); font-size:clamp(1.8rem, 5vw, 3rem); font-weight:800; line-height:.92; text-transform:uppercase; }
+.body-lab-workspace-context > p { max-width:25rem; margin:0; color:rgb(239 248 255 / .82); font-size:.78rem; line-height:1.45; }
+@media (max-width:700px){ .body-lab-workspace-context { align-items:start; padding:.8rem 1rem; } .body-lab-workspace-context > p { max-width:12rem; font-size:.68rem; } }
 
 .apex-content.destination-progress { background: radial-gradient(circle at 88% 0, #315b8f 0, #102b4b 36%, #07182e 100%); color: #edf6ff; }
 .destination-progress .view-header h1, .destination-progress .view-header p, .destination-progress .metric-label { color: #eef7ff; }

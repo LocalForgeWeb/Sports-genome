@@ -31,6 +31,13 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).not.toContain("involvement heat map");
   });
 
+  it("keeps the default anatomy canvas concise while preserving its qualitative-role boundary", () => {
+    expect(source).toContain("Selected action <em>role map.</em>");
+    expect(source).toContain("Color shows qualitative action roles, not activation or strength.");
+    expect(source).not.toContain("Precise anatomical SVG with 70+ muscle regions");
+    expect(source).not.toContain("See the work. <em>Then inspect the why.</em>");
+  });
+
   it("renders a visible, selectable in-app vector fallback when the detailed anatomy chart is unavailable", async () => {
     const { VectorAnatomyFallback } = await import("./AnatomyMap");
     const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {
@@ -90,7 +97,7 @@ describe("Body Lab architecture mechanics disclosure", () => {
     }));
 
     expect(markup).toContain("Key muscle roles");
-    expect(markup).toContain("Expand only when you need the lower-ranked relevant muscles.");
+    expect(markup).toContain("Select a muscle to inspect its action context.");
     expect(markup).toContain("Show 3 more muscle roles");
     expect(markup).toContain("How muscle roles are classified");
     expect(markup).toContain("Supporting role");

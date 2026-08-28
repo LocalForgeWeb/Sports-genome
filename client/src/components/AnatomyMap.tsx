@@ -209,9 +209,9 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
       <div className="atlas-pro-head">
         <div>
           <p className="metric-label">Body Lab / qualitative role map</p>
-          <h2>See the work. <em>Then inspect the why.</em></h2>
+          <h2>Selected action <em>role map.</em></h2>
         </div>
-        <p>Precise anatomical SVG with 70+ muscle regions. Only worked muscles show color. Click any muscle to inspect.</p>
+        <p>Color shows qualitative action roles, not activation or strength. Select a muscle to inspect.</p>
       </div>
 
       <div className="atlas-pro-grid">
@@ -290,12 +290,12 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             <div className="atlas-inspector-empty-pro">
               <Target className="h-5 w-5" />
               <strong>Explore through the body</strong>
-              <p>Only worked muscles show color. Click any highlighted muscle to inspect its role and detailed analysis. Use the flip button to switch views.</p>
+              <p>Select a colored muscle to inspect its qualitative role. Switch views to see the opposite side.</p>
             </div>
           )}
         </aside>}
         <div className="atlas-ranking">
-          <div><p className="metric-label">Key muscle roles</p><span>Click a row to focus it on the model. Expand only when you need the lower-ranked relevant muscles.</span></div>
+          <div><p className="metric-label">Key muscle roles</p><span>Select a muscle to inspect its action context.</span></div>
           {visibleRanked.map(region => (
             <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""}>
               <i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : "#d5ad43" }} />
