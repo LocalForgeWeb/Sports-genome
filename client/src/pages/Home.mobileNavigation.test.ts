@@ -146,6 +146,9 @@ describe("workspace side navigation", () => {
     expect(mobileStyles).toContain('max-width: calc(100vw - 6.8rem);');
     expect(mobileStyles).toContain('flex: 0 0 auto;');
     expect(mobileStyles).toContain('.apex-topbar button:last-child { display: none; }');
+    expect(css).toContain('.text-\\[\\#b8ff5b\\] { color: #f2c14d !important; }');
+    expect(css).toContain('.hover\\:bg-\\[\\#b8ff5b\\]:hover { background-color: #f2c14d !important; }');
+    expect(css).toContain('.hover\\:text-\\[\\#142019\\]:hover { color: #0b2240 !important; }');
   });
 
   it("retains one explicit active contextual route for every Train and Explore tab", () => {

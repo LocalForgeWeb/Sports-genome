@@ -920,3 +920,9 @@ select {
   .strength-region-record-detail { scroll-margin-bottom: calc(6.5rem + env(safe-area-inset-bottom)); }
   .strength-mobile-detail-spacer { min-height: calc(6.5rem + env(safe-area-inset-bottom)); }
 }
+
+/* Palette guard: legacy utility classes resolve to the Sports Genome gold/navy action system. */
+.text-\[\#b8ff5b\] { color: #f2c14d !important; }
+.hover\:bg-\[\#b8ff5b\]:hover { background-color: #f2c14d !important; }
+.hover\:text-\[\#142019\]:hover { color: #0b2240 !important; }
+.day-plan-empty button { border-color: #f2c14d; color: #f2c14d; }
