@@ -49,7 +49,7 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('setRailOpen');
     expect(source).toContain('<div className="mobile-workspace-dock" aria-label="Primary workspace navigation">');
     expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');
-    expect(css).toContain('.topbar-brand-logo { width: 50px; height: 50px; clip-path: circle(44% at 50% 50%); }');
+    expect(css).toContain('.topbar-brand-logo { width: 50px; height: 50px; object-fit: contain; }');
     expect(css).toContain('@media (min-width: 1024px) {\n  .apex-content { padding-bottom: 6.25rem; }');
   });
 
@@ -62,9 +62,11 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content.destination-progress');
     expect(css).toContain('.apex-content.destination-profile');
     expect(css).toContain('.apex-content.destination-more');
-    expect(source).toContain('sports-genome-decoding-performance-logo_0544e065.png');
-    expect(source).toContain('alt="Sports Genome — Decoding Performance logo"');
+    expect(source).toContain('sports-genome-upright-s-dna-logo_5c4f7a92.jpg');
+    expect(source).toContain('alt="Sports Genome upright S/DNA logo"');
     expect(source).toContain('className="topbar-brand-logo shrink-0 object-contain"');
+    expect(source).toContain('className="topbar-context-chips"');
+    expect(css).not.toContain('topbar-brand-logo { width: 50px; height: 50px; clip-path');
     expect(source).toContain('workspace === "more"');
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
