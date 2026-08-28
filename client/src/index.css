@@ -664,7 +664,7 @@ select {
 .topbar-context-chips { display: flex; min-width: 0; flex-wrap: wrap; gap: .35rem; margin-top: .32rem; }
 .topbar-context-chips span { max-width: 12rem; overflow: hidden; border: 1px solid #cbdcec; border-radius: 999px; background: #fff; padding: .24rem .58rem; color: #315a82; font-size: .7rem; font-weight: 750; letter-spacing: .02em; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-context-chips span:last-child { border-color: #ecd795; background: #fff9e8; color: #806012; }
-@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .68rem; letter-spacing: .12em; } .topbar-brand-logo { width: 60px; height: 60px; } .topbar-context-chips { flex-wrap: nowrap; max-width: calc(100vw - 11.5rem); overflow: hidden; } .topbar-context-chips span { max-width: 7.4rem; flex: 0 1 auto; } .topbar-context-chips span:last-child { max-width: 4.5rem; } }
+@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .68rem; letter-spacing: .12em; } .topbar-brand-logo { width: 60px; height: 60px; } .topbar-context-chips { flex-wrap: nowrap; max-width: calc(100vw - 6.8rem); overflow: visible; } .topbar-context-chips span { max-width: none; flex: 0 0 auto; } .topbar-context-chips span:last-child { max-width: none; } }
 
 /* Retire legacy neon accents from the authenticated command and inspection surfaces. */
 .command-hero .metric-label, .command-hero h1 em, .command-signal-card .metric-label, .command-signal-card button { color: #f2c14d !important; }
