@@ -120,7 +120,7 @@
 - [x] Make More a true sixth bottom destination with a lightweight utility surface rather than a sidebar trigger.
 - [x] Move the official Sports Genome mark into the compact top header as a larger unboxed, blended brand anchor.
 - [x] Expose the six primary destinations through the bottom navigation at desktop widths after sidebar removal, with regression and browser verification.
-- [ ] Ensure contextual top navigation has exactly one active tab for every Train and Explore state, including Tracker, Stack Review, and Prep routes.
+- [x] Ensure contextual top navigation has exactly one active tab for every Train and Explore state, including Tracker, Stack Review, and Prep routes.
 - [x] Increase mobile top-navigation type size and spacing, prevent tight tab labels, and simplify the header presentation so the shell feels app-first rather than website-like.
 - [x] Make mobile contextual tabs retain 44px touch targets, readable type, and a visible single-active state while allowing horizontal scroll without clipped labels.
 - [x] Audit any header-layer media or visual element that obscures the top controls in the reported mobile view; no application-owned overlay was present in the inspected DOM.
@@ -134,7 +134,7 @@
 - [x] Remove Plan Context from the default workspace canvas.
 - [ ] Verify dedicated, on-demand access to equipment editing and evidence/methodology after Plan Context removal.
 - [x] Correct contextual Train and Explore visual state so exactly one top tab receives the active underline at a time, with local Tracker and Body Lab browser checks.
-- [ ] Add interaction or render coverage for each Train and Explore contextual tab, asserting exactly one `aria-current="page"` and active visual class after navigation.
+- [x] Add interaction or render coverage for each Train and Explore contextual tab, asserting exactly one `aria-current="page"` and active visual class after navigation.
 - [ ] Verify explicit on-demand routes for equipment editing and evidence/methodology after Plan Context removal, then protect them with focused regression coverage.
 - [x] Reduce mobile recommendation and action cards to decision-critical exercise name, role, and primary action; move list provenance and evidence detail behind concise disclosure.
 - [x] Rework the mobile recommendation overview so sport-program evidence and mechanics are available on demand rather than consuming the initial screen.

@@ -6,6 +6,7 @@ const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const workoutTrackerSource = readFileSync(new URL("../components/WorkoutExecutionPanel.tsx", import.meta.url), "utf8");
 const deviceTrackerSource = readFileSync(new URL("../components/DeviceWorkoutTracker.tsx", import.meta.url), "utf8");
 const stackReviewSource = readFileSync(new URL("../components/WorkoutHealthPanel.tsx", import.meta.url), "utf8");
+const mobileStyles = readFileSync(new URL("../mobile-navigation.css", import.meta.url), "utf8");
 
 describe("workspace side navigation", () => {
   it("resolves only supported workspace values and keeps an invalid URL on the command center", () => {
@@ -112,9 +113,10 @@ describe("workspace side navigation", () => {
     expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('const active = activeContextTabId === tab.id;');
     expect(css).toContain('.workspace-top-switcher button:not(.workspace-top-switcher-active) { border-bottom-color: transparent !important; }');
-    expect(css).toContain('.workspace-top-switcher { top: 88px; min-height: 58px; gap: .75rem; padding: 5px .85rem; }');
-    expect(css).toContain('.workspace-top-switcher button { min-height: 52px; padding: 0 .9rem; font-size: .74rem; }');
-    expect(css).toContain('.topbar-brand-logo { width: 60px; height: 60px; }');
+    expect(mobileStyles).toContain('.workspace-top-switcher { top: 78px; min-height: 54px;');
+    expect(mobileStyles).toContain('overflow-x: auto; overscroll-behavior-x: contain;');
+    expect(mobileStyles).toContain('.workspace-top-switcher button { min-width: max-content; min-height: 46px;');
+    expect(mobileStyles).toContain('.topbar-brand-logo { width: 52px; height: 52px; }');
     expect(css).toContain('.mobile-bottom-nav { display: none; }');
     expect(css).not.toContain('main > section:has(.custom-row) { display: none; }');
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
@@ -136,6 +138,13 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal}');
     expect(css).toContain('.topbar-context-chips span { max-width: 12rem; overflow: hidden;');
     expect(css).toContain('text-overflow: ellipsis; white-space: nowrap;');
-    expect(css).toContain('max-width: calc(100vw - 11.5rem);');
+    expect(mobileStyles).toContain('max-width: calc(100vw - 10rem);');
+  });
+
+  it("retains one explicit active contextual route for every Train and Explore tab", () => {
+    ["Training Day", "Tracker", "Matches", "Builder", "Stack Review", "Prep", "Movement", "Body Lab", "Catalog", "Exercise Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
+    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    expect(source).toContain('aria-current={active ? "page" : undefined}');
+    expect(source).toContain('className={active ? "workspace-top-switcher-active" : ""}');
   });
 });
