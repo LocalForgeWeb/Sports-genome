@@ -53,6 +53,19 @@
 
 ## iPhone-First Product Polish
 
+- [x] Add a short silent Sports Genome first-entry animation with visible skip and replay behavior plus a Settings toggle to disable future launch animation.
+- [x] Ensure the launch experience does not initiate or require music/audio playback.
+- [x] Replace the Catalog’s oversized marketing headline and explanatory paragraph with a compact discovery header.
+- [x] Compress Catalog exercise results into clear search, filters, exercise name, key muscle, connection label, favorite, and add controls without oversized white cards.
+- [x] Add a short intentional Sports Genome first-entry loading experience inspired by the user-supplied motion reference, with clear skip and replay behavior.
+- [x] Do not add launch sound design in this batch; the athlete explicitly requested a sound-free experience.
+- [x] Apply best-effort browser interaction feedback and reliable visual feedback to launch and first-use interactions, without claiming native iPhone web haptics.
+- [x] Respect reduced-motion preference and ensure the launch experience never blocks direct entry into onboarding or the workspace.
+- [x] Remove the legacy Catalog marketing header and explanatory paragraph markup from Home so Catalog is driven only by the compact discovery header.
+- [x] Bypass the automatic first-entry overlay for reduced-motion preference while retaining optional explicit replay and visible skip behavior.
+- [x] Make the normal first-entry visual transition nonblocking while retaining an immediately available skip control and the optional replay path.
+- [x] Keep the normal first-entry launch compact enough that onboarding and workspace controls remain visibly available, and protect that behavior with focused coverage.
+- [x] Browser-verify the compact first-entry transition at phone width with a mounted workspace, recording that primary content remains visible and reachable.
 - [x] Repair low-contrast Training Day text and controls so every active planning and stack-analysis label is readable on its blue/black surface.
 - [x] Keep whole-body involvement visible in Training Day analysis while calculating the split rating and coverage guidance only from the selected split’s target muscles.
 - [x] Label split-target rating and whole-body context distinctly so relative planning indices are not confused with muscle activation measurements.

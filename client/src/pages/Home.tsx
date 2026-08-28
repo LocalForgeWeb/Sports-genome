@@ -51,7 +51,10 @@ import { buildVariedLoadout } from "@/lib/loadoutTemplates";
 import { cycleSplitIndex, splitDaysForFrequency } from "@/lib/splitCycle";
 import { toast } from "sonner";
 import { EmailAuthScreen } from "@/components/EmailAuthScreen";
+import { LaunchExperience } from "@/components/LaunchExperience";
 import { trpc } from "@/lib/trpc";
+import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { isLaunchExperienceEnabled, launchExperiencePreferenceKey, launchExperienceSeenKey, shouldShowLaunchExperience } from "@/lib/launchExperience";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 
 type Workspace = "command" | "profile" | "progress" | "recommended" | "custom" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "genome" | "strength" | "more";
@@ -258,6 +261,9 @@ export default function Home() {
   const [sessionMode, setSessionMode] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
   const [activeContextTab, setActiveContextTab] = useState<string | null>(null);
+  const [launchExperienceEnabled, setLaunchExperienceEnabled] = useState(true);
+  const [showLaunchExperience, setShowLaunchExperience] = useState(false);
+  const [launchExperienceReplay, setLaunchExperienceReplay] = useState(false);
   const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
   const favoriteMutation = trpc.favorites.set.useMutation();
 
@@ -338,6 +344,16 @@ export default function Home() {
       }
     } catch { /* Stored context is optional and may be cleared safely. */ }
     setProfileHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    try {
+      const enabled = isLaunchExperienceEnabled(window.localStorage.getItem(launchExperiencePreferenceKey));
+      const hasBeenSeen = window.localStorage.getItem(launchExperienceSeenKey) === "seen";
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      setLaunchExperienceEnabled(enabled);
+      setShowLaunchExperience(shouldShowLaunchExperience(enabled, hasBeenSeen, prefersReducedMotion));
+    } catch { /* Launch preferences are optional and default to enabled. */ }
   }, []);
 
   useEffect(() => {
@@ -690,6 +706,25 @@ export default function Home() {
     setActiveWeek(1);
     setOnboardingComplete(false);
   };
+  const finishLaunchExperience = () => {
+    setShowLaunchExperience(false);
+    setLaunchExperienceReplay(false);
+    try { window.localStorage.setItem(launchExperienceSeenKey, "seen"); } catch { /* The experience still closes without device storage. */ }
+  };
+  const setLaunchPreference = (enabled: boolean) => {
+    emitInteractionFeedback(12);
+    setLaunchExperienceEnabled(enabled);
+    try {
+      window.localStorage.setItem(launchExperiencePreferenceKey, enabled ? "on" : "off");
+      if (!enabled) window.localStorage.setItem(launchExperienceSeenKey, "seen");
+    } catch { /* The setting remains effective for this session if storage is unavailable. */ }
+    if (!enabled) { setShowLaunchExperience(false); setLaunchExperienceReplay(false); }
+  };
+  const replayLaunchExperience = () => {
+    emitInteractionFeedback(12);
+    setLaunchExperienceReplay(true);
+    setShowLaunchExperience(true);
+  };
 
   const activePrimaryDestination = primaryDestinationForWorkspace(workspace);
   const contextualWorkspaceTabs = activePrimaryDestination === "more" ? [] : contextualWorkspaces[activePrimaryDestination];
@@ -704,7 +739,7 @@ export default function Home() {
 
   if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">Checking secure account access…</div>;
   if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen onAuthenticated={() => { void refresh(); }} loading={loading} />;
-  if (!onboardingComplete) return <AthleteBaselineQuiz sports={sportProfiles} onComplete={completeOnboarding} />;
+  if (!onboardingComplete) return <><AthleteBaselineQuiz sports={sportProfiles} onComplete={completeOnboarding} />{showLaunchExperience && <LaunchExperience onFinish={finishLaunchExperience} />}</>;
 
   return <div className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
     <div className="apex-main">
@@ -718,9 +753,9 @@ export default function Home() {
       {contextualWorkspaceTabs.length > 1 && <nav className="workspace-top-switcher" aria-label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}>{contextualWorkspaceTabs.map((tab) => { const active = activeContextTabId === tab.id; return <button type="button" key={tab.id} onClick={() => navigateContextualWorkspace(tab)} aria-current={active ? "page" : undefined} className={active ? "workspace-top-switcher-active" : ""}>{tab.label}</button>; })}</nav>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[#58728e]">Loading Exercise Genome analysis…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace"><div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseWeeklyDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
-        {workspace === "catalog" && <section className="catalog-experience-surface"><div className="view-header"><div><p className="metric-label">06 / exercise catalog</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">{exercises.length} tools.<br /><em className="text-[#e4512e]">Built for choice.</em></h1></div><div className="view-header-note"><Dumbbell className="h-5 w-5 text-[#e4512e]" /><p>Search by the way you train, filter down to the right options, and heart the exercises you want to keep close. Connection badges compare each tool with the currently selected sport action; they describe mapped support, not guaranteed transfer.</p></div></div><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
+        {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={setAthleteBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} />}
-        {workspace === "more" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={rebuildPlan}>Restart onboarding</button></div></section>}
+        {workspace === "more" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={rebuildPlan}>Restart onboarding</button></div><div className="launch-setting"><div><p className="metric-label">Launch experience</p><h2>First-entry animation</h2><p>A brief, visual-only Sports Genome transition. It plays once per device; there is no audio.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Show on first entry</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Replay intro</button></div></section>}
         {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={`Week ${activeWeek} · ${activeSplitDay}`} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "command" && <section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section>}
         {workspace === "command" && <section className="gym-time-budget-card"><div><p className="metric-label">Gym-time budget</p><h2>How long do you have today?</h2><p>{gymTimeBudget.scopeCue} Recommended stacks now cap at {gymTimeBudget.recommendationLimit} exercises, while the builder keeps the session-time estimate visible.</p></div><label><span>Available time</span><select value={gymMinutes} onChange={(event) => setGymMinutes(Number(event.target.value))}>{gymTimeOptions.map((minutes) => <option key={minutes} value={minutes}>{minutes === 90 ? "90+ minutes" : `${minutes} minutes`}</option>)}</select><small>{gymTimeBudget.restGuidance}</small></label></section>}
@@ -748,6 +783,7 @@ export default function Home() {
 
     {inspectedExercise && <div className="fixed inset-0 z-50 bg-[#09120e]/65 p-0 backdrop-blur-sm xl:p-5"><div className="ml-auto h-full w-full max-w-[720px] overflow-y-auto bg-[#f7f8f3] shadow-2xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#d8e0d7] bg-[#f7f8f3]/95 px-5 py-4 backdrop-blur"><div><p className="metric-label">Exercise intelligence</p><p className="mt-1 font-display text-2xl font-bold uppercase leading-none text-[#15221b]">{inspectedExercise.name}</p></div><button onClick={() => setInspectedExercise(null)} className="grid h-9 w-9 place-items-center border border-[#d2dad1] bg-white"><X className="h-4 w-4" /></button></div><div className="p-5"><div className="grid gap-5 lg:grid-cols-[.9fr_1.1fr]"><div className="light-panel p-4"><AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} /></div><div><p className="metric-label">Movement role</p><h3 className="mt-1 font-display text-4xl font-bold uppercase leading-none text-[#17231f]">{inspectedExercise.movement}</h3><div className="mt-4 grid gap-2"><div className="exercise-insight"><p className="metric-label">Primary target</p><p>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Support tissues</p><p>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Useful qualities</p><p>{inspectedExercise.qualities.join(" · ")}</p></div></div><button onClick={() => { addExercise(inspectedExercise); setWorkspace("custom"); setInspectedExercise(null); }} className="mt-5 inline-flex items-center gap-2 bg-[#17271f] px-4 py-3 text-[10px] font-bold uppercase tracking-[.13em] text-white hover:bg-[#b8ff5b] hover:text-[#142019]">Add to custom workout <Plus className="h-4 w-4" /></button></div></div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /><div className="mt-5 dark-panel p-5"><p className="metric-label !text-[#91a09a]">Current sport-action relevance</p><p className="mt-2 text-sm leading-6 text-[#d1dcd4]">For {selectedMovement.label}, this exercise is most useful when it supports {selectedMovement.family.toLowerCase()} through its {inspectedExercise.movement.toLowerCase()} pattern. Review the sport action in the Movement Atlas to see the full body-action reasoning.</p><button onClick={() => { setInspectedExercise(null); setWorkspace("movement"); }} className="mt-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#b8ff5b]">Open sport action <ArrowUpRight className="h-4 w-4" /></button></div><ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} /></div></div></div>}
     {inspectedExercise && <div className="inspection-action-connection-float"><SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} /></div>}
+    {showLaunchExperience && <LaunchExperience onFinish={finishLaunchExperience} interactive={launchExperienceReplay} />}
     {tutorialOpen && <FeatureTour onClose={() => setTutorialOpen(false)} onNavigate={(view) => navigateWorkspace(view as Workspace)} />}
     {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} />}
   </div>;

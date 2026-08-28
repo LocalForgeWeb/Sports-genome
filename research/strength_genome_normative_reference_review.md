@@ -41,3 +41,11 @@ Cossio-Bolaños M, Vidal-Espinoza R, Sulla-Torres J, et al. *Reliability of the 
 The study reports age- and sex-specific percentile curves for a **30-second seated dumbbell biceps-curl endurance test** in 1,103 Peruvian schoolchildren aged 6–17 years living at moderate altitude. The protocol used a 1 kg dumbbell for ages 6–11 and 2 kg for ages 12–17; it is not a free-weight curl 1RM, is not load-to-body-mass normalized, and does not supply adult athlete references.
 
 **Current decision:** do not apply these percentiles to adult users, loaded curls, generic biceps strength, regional force, or sport ability. It may support a future pediatric 30-second protocol only after the app collects the exact age, sex, protocol, side, load, and population-match fields. The proposed searchable catalog selection can improve exercise-to-region routing now, but does not itself unlock a generic biceps-curl benchmark.
+
+## Candidate: college-aged male 10RM biceps-curl norms
+
+Piper T, Furman S, Smith T, Waller M. *Establishing Normative Data for 10RM Strength Scores in College-Aged Males.* International Journal of Strength and Conditioning. 2021;1(1). DOI: <https://doi.org/10.47206/ijsc.v1i1.40>. Article: <https://journal.iusca.org/index.php/Journal/article/view/40>.
+
+The study reports 10RM reference values for biceps curl, alongside leg press, bench press, seated overhead press, preacher curl, and lat pulldown. It used 1,095 college-aged males aged 18–25 (mean 19.94 years), testing in one facility on fixed equipment with NSCA-guided procedures. The abstract reports bodyweight-category percentile break points.
+
+**Strict implementation limit:** This is a potential benchmark only for an intentionally selected, exact 10RM biceps-curl protocol in an athlete whose age, sex, body-mass category, bar/equipment, and test procedure match the source. It does not support a universal curl rating, a body-mass-only rank, a generic loaded-curl percentile, regional biceps force, or sports-performance inference. Exact table cut points must be extracted and independently checked before any numerical app benchmark is shown.

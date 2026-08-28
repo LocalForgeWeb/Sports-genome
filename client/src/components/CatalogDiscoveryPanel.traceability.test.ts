@@ -10,4 +10,14 @@ describe("Catalog Discovery traceability presentation", () => {
     expect(component).toContain("Catalog rank {exercise.muscleGrade}");
     expect(component).not.toContain("All 400 exercises");
   });
+
+  it("leads with a concise discovery header while keeping search and exercise actions available", () => {
+    expect(component).toContain("Exercise catalog");
+    expect(component).toContain("Find an exercise");
+    expect(component).toContain("{exercises.length} options");
+    expect(component).toContain('aria-label="Search exercises"');
+    expect(component).toContain("Filter & sort");
+    expect(component).toContain("onToggleFavorite(exercise)");
+    expect(component).toContain("onAdd(exercise)");
+  });
 });

@@ -33,6 +33,10 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
   const activeFilterCount = [filters.category, filters.movement, filters.equipment, filters.muscle, filters.sportTier].filter((value) => value !== "all").length + Number(filters.favoritesOnly);
 
   return <section className="catalog-discovery">
+    <header className="catalog-discovery-heading">
+      <div><p>Exercise catalog</p><h1>Find an exercise</h1></div>
+      <span>{exercises.length} options</span>
+    </header>
     <div className="catalog-discovery-search"><Search className="h-4 w-4" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder="Search exercise, muscle, movement, equipment, or quality" aria-label="Search exercises" /><span>{results.length} matches</span></div>
     <details className="catalog-discovery-controls">
       <summary><span><SlidersHorizontal className="h-4 w-4" /> Filter & sort</span><small>{activeFilterCount ? `${activeFilterCount} active` : `All ${exercises.length} exercises`}</small></summary>
