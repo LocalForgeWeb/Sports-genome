@@ -19,10 +19,15 @@
 - [x] Expose concise selected-catalog primary, supporting, and broad recorded-context labels in Strength Genome without introducing a score, rank, or benchmark.
 - [x] Add focused test coverage for catalog selection and biceps-curl routing; retain the one-test benchmark and unmatched-reference coverage as a separate task.
 - [x] Replace verbose Strength Genome region-detail methodology copy with a compact rating-first summary and one optional evidence-boundary disclosure.
-- [ ] Let athletes complete missing body mass for a selected recorded test so its load-to-body-mass ratio can be calculated without a fabricated score.
+- [x] Let athletes complete missing body mass for a selected recorded test so its load-to-body-mass ratio can be calculated without a fabricated score.
 - [ ] Add best-effort browser interaction feedback on supported devices and reliable visual press feedback everywhere, without claiming native iPhone web haptics.
 - [ ] Add an interaction test for missing-body-mass submission that confirms the saved observation updates and the selected-region ratio appears afterward.
-- [ ] Make body-mass completion usable in temporary direct-entry mode, or explicitly explain and route to authentication before the protected save path.
+- [x] Make body-mass completion usable in temporary direct-entry mode, or explicitly explain and route to authentication before the protected save path.
+- [x] Persist direct-access Strength Genome observations only in local device storage, keeping them visibly distinct from account-backed observations.
+- [x] Support device-local Strength observation body-mass completion and ratio display with the athlete’s saved pound or kilogram preference.
+- [x] Add focused and browser validation for direct-access Strength test save, reload persistence, and unit-aware ratio display.
+- [x] Let athletes select a specific recorded test within a Strength region before adding missing body mass or reading its recorded ratio.
+- [x] Validate direct-access body-mass completion and ratio display for both pound and kilogram profiles through rendered or live browser workflow checks.
 - [ ] Add loading and error UI plus regression coverage for body-mass completion failures.
 - [ ] Verify the interaction-feedback utility behavior and visible press states for Strength map regions and region-detail actions without claiming native iPhone web haptics.
 - [x] Add source-level regression coverage confirming browser vibration is optional and non-blocking when unavailable.

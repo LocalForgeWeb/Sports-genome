@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolveStrengthObservationRoute } from "../../../shared/strengthGenomeDefinitions";
+import { selectStrengthRegionRecord } from "./StrengthGenomePanel";
 
 const source = readFileSync(new URL("./StrengthGenomePanel.tsx", import.meta.url), "utf8");
 const bodyMapSource = readFileSync(new URL("./StrengthGenomeBodyMap.tsx", import.meta.url), "utf8");
@@ -64,5 +65,16 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Boolean(selectedExercise)");
     expect(resolveStrengthObservationRoute("Straight Bar Curl")?.regionIds).toContain("biceps");
     expect(resolveStrengthObservationRoute("biceps curl")?.domainIds).toContain("elbow_flexion");
+  });
+
+  it("keeps each selected regional record distinct when choosing body-mass context", () => {
+    const records = [
+      { id: "first", exerciseName: "Preacher Curl" },
+      { id: "second", exerciseName: "EZ-Bar Preacher Curl" },
+    ];
+    expect(selectStrengthRegionRecord(records, "second")).toEqual(records[1]);
+    expect(selectStrengthRegionRecord(records, "missing")).toEqual(records[0]);
+    expect(source).toContain('aria-label="Choose recorded test"');
+    expect(source).toContain("setSelectedRecordId(event.target.value)");
   });
 });
