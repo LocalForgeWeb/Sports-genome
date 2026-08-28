@@ -30,6 +30,10 @@
 
 ## iPhone-First Product Polish
 
+- [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.
+- [x] Group Training Day, Workout Builder, Recommendations, Stack Review, and preparation into one Train destination with a context-aware top switcher.
+- [x] Group Movement Atlas, Body Lab, Exercise Genome, and Exercise Catalog into one Explore destination with context-aware top subnavigation.
+- [x] Update the bottom bar, More-menu rail, deep-link behavior, and regression coverage so the active destination and contextual page remain clear and navigable.
 - [x] Reduce mobile recommendation and action cards to decision-critical exercise name, role, and primary action; move list provenance and evidence detail behind concise disclosure.
 - [x] Rework the mobile recommendation overview so sport-program evidence and mechanics are available on demand rather than consuming the initial screen.
 - [x] Enlarge the official Sports Genome rail logo and remove its contrasting boxed treatment so it blends with the navy navigation background.

@@ -103,6 +103,43 @@ const navItems: { id: Workspace; label: string; icon: typeof Target; detail: str
   { id: "genome", label: "Exercise Genome", icon: Dna, detail: "contextual exercise intelligence", group: "Explore" },
 ];
 
+type PrimaryDestination = "home" | "train" | "explore" | "progress" | "profile" | "more";
+type ContextualWorkspaceTab = { id: string; label: string; workspace: Workspace; scrollTarget?: string };
+const primaryDestinations: { id: PrimaryDestination; label: string; icon: typeof Target; defaultWorkspace?: Workspace }[] = [
+  { id: "home", label: "Home", icon: Target, defaultWorkspace: "command" },
+  { id: "train", label: "Train", icon: Layers3, defaultWorkspace: "day-plan" },
+  { id: "explore", label: "Explore", icon: Dna, defaultWorkspace: "movement" },
+  { id: "progress", label: "Progress", icon: BarChart3, defaultWorkspace: "progress" },
+  { id: "profile", label: "Profile", icon: UsersRound, defaultWorkspace: "profile" },
+  { id: "more", label: "More", icon: Menu },
+];
+const contextualWorkspaces: Record<Exclude<PrimaryDestination, "more">, ContextualWorkspaceTab[]> = {
+  home: [{ id: "command", label: "Home", workspace: "command" }],
+  train: [
+    { id: "day-plan", label: "Training Day", workspace: "day-plan" },
+    { id: "recommended", label: "Matches", workspace: "recommended" },
+    { id: "custom", label: "Builder", workspace: "custom" },
+    { id: "stack-review", label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review" },
+    { id: "prep", label: "Prep", workspace: "custom", scrollTarget: "#session-prep" },
+  ],
+  explore: [
+    { id: "movement", label: "Movement", workspace: "movement" },
+    { id: "body", label: "Body Lab", workspace: "body" },
+    { id: "catalog", label: "Catalog", workspace: "catalog" },
+    { id: "genome", label: "Exercise Genome", workspace: "genome" },
+    { id: "strength", label: "Strength", workspace: "strength" },
+  ],
+  progress: [{ id: "progress", label: "Progress", workspace: "progress" }],
+  profile: [{ id: "profile", label: "Profile", workspace: "profile" }],
+};
+export function primaryDestinationForWorkspace(workspace: Workspace): PrimaryDestination {
+  if (contextualWorkspaces.train.some((tab) => tab.workspace === workspace)) return "train";
+  if (contextualWorkspaces.explore.some((tab) => tab.workspace === workspace)) return "explore";
+  if (workspace === "progress") return "progress";
+  if (workspace === "profile") return "profile";
+  return "home";
+}
+
 export function workspaceFromLocation(value: string | null): Workspace {
   return navItems.some((item) => item.id === value) ? value as Workspace : "command";
 }
@@ -216,6 +253,7 @@ export default function Home() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [sessionMode, setSessionMode] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
+  const [activeContextTab, setActiveContextTab] = useState<string | null>(null);
   const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
   const favoriteMutation = trpc.favorites.set.useMutation();
 
@@ -410,6 +448,7 @@ export default function Home() {
     }
   };
   const navigateWorkspace = (next: Workspace) => {
+    setActiveContextTab(null);
     if (next === "day-plan" && !splitDays.includes(activeSplitDay)) setActiveSplitDay(splitDays[0]);
     setWorkspaceState(next);
     setRailOpen(false);
@@ -648,6 +687,15 @@ export default function Home() {
     setOnboardingComplete(false);
   };
 
+  const activePrimaryDestination = primaryDestinationForWorkspace(workspace);
+  const contextualWorkspaceTabs = activePrimaryDestination === "more" ? [] : contextualWorkspaces[activePrimaryDestination];
+  const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => {
+    navigateWorkspace(tab.workspace);
+    setActiveContextTab(tab.id);
+    const scrollTarget = tab.scrollTarget;
+    if (scrollTarget) window.setTimeout(() => document.querySelector(scrollTarget)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  };
+
   if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">Checking secure account access…</div>;
   if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen onAuthenticated={() => { void refresh(); }} loading={loading} />;
   if (!onboardingComplete) return <AthleteBaselineQuiz sports={sportProfiles} onComplete={completeOnboarding} />;
@@ -657,7 +705,7 @@ export default function Home() {
     <aside className={`apex-rail ${railOpen ? "rail-open" : ""}`}>
       <div className="rail-brand"><img src="/manus-storage/sports-genome-decoding-performance-logo_0544e065.png" alt="Sports Genome — Decoding Performance logo" className="rail-brand-logo shrink-0 object-contain" /><p className="font-display text-[26px] font-bold uppercase tracking-wide text-white">Sports Genome</p><button onClick={() => setRailOpen(false)} className="ml-auto text-[#c8d8e7] lg:hidden" aria-label="Close navigation"><X className="h-5 w-5" /></button></div>
       <div className="rail-athlete"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e4512e] font-display text-xl font-bold text-white">{(user?.name || "A").slice(0, 1).toUpperCase()}</div><div><p className="text-sm font-bold text-white">{user?.name || "Athlete"}</p><p className="mt-0.5 text-[10px] text-[#b8cbe0]">Athlete workspace</p></div><button type="button" onClick={() => logout()} className="ml-auto text-[10px] font-bold uppercase tracking-[.1em] text-[#f7cf6c]">Sign out</button></div>
-      <nav className="rail-nav" aria-label="Primary workspace navigation">{navGroups.map((group) => <div key={group} className="rail-nav-group"><p>{group}</p>{navItems.filter((item) => item.group === group).map((item) => { const Icon = item.icon; return <button type="button" key={item.id} onClick={() => navigateWorkspace(item.id)} aria-current={workspace === item.id ? "page" : undefined} className={`rail-nav-item ${workspace === item.id ? "rail-nav-active" : ""}`}><Icon className="h-4 w-4" /><span><span className="block text-xs font-bold">{item.label}</span><span className="mt-0.5 block text-[9px] text-[#7d8c85]">{item.detail}</span></span></button>; })}</div>)}</nav>
+      <nav className="rail-nav" aria-label="Primary workspace navigation">{primaryDestinations.filter((item) => item.id !== "more").map((item) => { const Icon = item.icon; const active = activePrimaryDestination === item.id; return <button type="button" key={item.id} onClick={() => navigateWorkspace(item.defaultWorkspace!)} aria-current={active ? "page" : undefined} className={`rail-nav-item ${active ? "rail-nav-active" : ""}`}><Icon className="h-4 w-4" /><span><span className="block text-xs font-bold">{item.label}</span><span className="mt-0.5 block text-[9px] text-[#7d8c85]">{item.id === "train" ? "plan, builder & matches" : item.id === "explore" ? "movement, body & catalog" : "workspace"}</span></span></button>; })}</nav>
       <div className="rail-bottom"><div className="rail-data-line"><span>{sportProfiles.length} sports</span><span>{sportMovementProfiles.length} movement maps</span></div><a href="https://localforgeweb.com" target="_blank" rel="noreferrer" className="mt-4 block text-[10px] text-[#9ab1ca]">built by Gabe Naim-LocalForgeWeb</a></div>
     </aside>
 
@@ -669,6 +717,7 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={rebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Rebuild plan</button><button onClick={() => navigateWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[#0b2240] px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[#2d6cdf]"><Plus className="h-3.5 w-3.5" /> Design day</button></div>
       </header>
+      {contextualWorkspaceTabs.length > 1 && <nav className="workspace-top-switcher" aria-label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}>{contextualWorkspaceTabs.map((tab) => { const active = activeContextTab === tab.id || (!activeContextTab && workspace === tab.workspace && !tab.scrollTarget); return <button type="button" key={tab.id} onClick={() => navigateContextualWorkspace(tab)} aria-current={active ? "page" : undefined} className={active ? "workspace-top-switcher-active" : ""}>{tab.label}</button>; })}</nav>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[#58728e]">Loading Exercise Genome analysis…</div></main>}><main className={`apex-content ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         <EquipmentConstraintStrip profile={athleteBaseline.equipment} onOpenProfile={() => navigateWorkspace("profile")} actionCue="Choose an action, then inspect or add matches." />
         <div className="planning-disclosure-row"><ModifierEvidenceDisclosure modifierLabel={sportProgrammingContext.modifierLabel} sources={sportProgrammingContext.modifierEvidenceSources} /><HierarchyPlanningDisclosure modifierLabel={sportProgrammingContext.modifierLabel} movement={selectedMovement.label} demands={sportProgrammingContext.physiologicalDemands} physicalQualities={sportProgrammingContext.physicalQualities} adaptations={sportProgrammingContext.adaptationTargets} modality={sportProgrammingContext.modalityBoundary} exerciseRole={sportProgrammingContext.exerciseRole} programming={sportProgrammingContext.programmingBoundary} /></div>
@@ -709,13 +758,7 @@ export default function Home() {
         {workspace === "recommended" && <><span><strong>Recommendations</strong></span><button type="button" onClick={() => navigateWorkspace("movement")}>Change action</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Review training day</button></>}
         {workspace === "custom" && <><span><strong>Workout Builder</strong></span><button type="button" onClick={() => document.querySelector("#stack-review")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Review stack</button><button type="button" onClick={() => navigateWorkspace("day-plan")}>Training day</button></>}
       </div>
-      <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">{[
-      { id: "command" as Workspace, label: "Home", icon: Target },
-      { id: "day-plan" as Workspace, label: "Train", icon: Layers3 },
-      { id: "strength" as Workspace, label: "Genome", icon: BrainCircuit },
-      { id: "progress" as Workspace, label: "Progress", icon: BarChart3 },
-      { id: "profile" as Workspace, label: "Profile", icon: UsersRound },
-    ].map((item) => { const Icon = item.icon; const active = workspace === item.id; return <button type="button" key={item.id} onClick={() => navigateWorkspace(item.id)} aria-current={active ? "page" : undefined} className={active ? "mobile-bottom-nav-active" : ""}><Icon className="h-4 w-4" /><span>{item.label}</span></button>; })}</nav>
+      <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">{primaryDestinations.map((item) => { const Icon = item.icon; const active = activePrimaryDestination === item.id; return <button type="button" key={item.id} onClick={() => item.defaultWorkspace ? navigateWorkspace(item.defaultWorkspace) : setRailOpen(true)} aria-current={active ? "page" : undefined} className={active ? "mobile-bottom-nav-active" : ""}><Icon className="h-4 w-4" /><span>{item.label}</span></button>; })}</nav>
     </div>
 
     {inspectedExercise && <div className="fixed inset-0 z-50 bg-[#09120e]/65 p-0 backdrop-blur-sm xl:p-5"><div className="ml-auto h-full w-full max-w-[720px] overflow-y-auto bg-[#f7f8f3] shadow-2xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#d8e0d7] bg-[#f7f8f3]/95 px-5 py-4 backdrop-blur"><div><p className="metric-label">Exercise intelligence</p><p className="mt-1 font-display text-2xl font-bold uppercase leading-none text-[#15221b]">{inspectedExercise.name}</p></div><button onClick={() => setInspectedExercise(null)} className="grid h-9 w-9 place-items-center border border-[#d2dad1] bg-white"><X className="h-4 w-4" /></button></div><div className="p-5"><div className="grid gap-5 lg:grid-cols-[.9fr_1.1fr]"><div className="light-panel p-4"><AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} /></div><div><p className="metric-label">Movement role</p><h3 className="mt-1 font-display text-4xl font-bold uppercase leading-none text-[#17231f]">{inspectedExercise.movement}</h3><div className="mt-4 grid gap-2"><div className="exercise-insight"><p className="metric-label">Primary target</p><p>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Support tissues</p><p>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Useful qualities</p><p>{inspectedExercise.qualities.join(" · ")}</p></div></div><button onClick={() => { addExercise(inspectedExercise); setWorkspace("custom"); setInspectedExercise(null); }} className="mt-5 inline-flex items-center gap-2 bg-[#17271f] px-4 py-3 text-[10px] font-bold uppercase tracking-[.13em] text-white hover:bg-[#b8ff5b] hover:text-[#142019]">Add to custom workout <Plus className="h-4 w-4" /></button></div></div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /><div className="mt-5 dark-panel p-5"><p className="metric-label !text-[#91a09a]">Current sport-action relevance</p><p className="mt-2 text-sm leading-6 text-[#d1dcd4]">For {selectedMovement.label}, this exercise is most useful when it supports {selectedMovement.family.toLowerCase()} through its {inspectedExercise.movement.toLowerCase()} pattern. Review the sport action in the Movement Atlas to see the full body-action reasoning.</p><button onClick={() => { setInspectedExercise(null); setWorkspace("movement"); }} className="mt-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#b8ff5b]">Open sport action <ArrowUpRight className="h-4 w-4" /></button></div><ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} /></div></div></div>}

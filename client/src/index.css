@@ -90,6 +90,10 @@
   .rail-data-card { border: 1px solid rgb(184 255 91 / .28); background: linear-gradient(135deg, rgb(184 255 91 / .08), transparent 70%); padding: 14px; }
   .apex-main { min-width: 0; min-height: 100vh; }
   .apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: 72px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .9); padding: 12px 18px; backdrop-filter: blur(14px); }
+  .workspace-top-switcher { position: sticky; top: 72px; z-index: 29; display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .96); padding: 6px 18px; scrollbar-width: none; }
+  .workspace-top-switcher::-webkit-scrollbar { display: none; }
+  .workspace-top-switcher button { min-height: 38px; flex: 0 0 auto; border-bottom: 2px solid transparent; padding: 0 10px; color: #58728e; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; transition: color .16s var(--ease-out), border-color .16s var(--ease-out); }
+  .workspace-top-switcher-active { border-bottom-color: #e4512e !important; color: #0b2240 !important; }
   .apex-content { max-width: 1720px; margin: 0 auto; padding: 18px; }
 
   @media (min-width: 1024px) {
@@ -549,7 +553,7 @@ select {
     bottom: auto;
     left: auto;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     align-items: stretch;
     overflow: hidden;
     border: 1px solid rgb(99 137 175 / .35);
@@ -566,7 +570,7 @@ select {
     place-content: center;
     gap: .22rem;
     color: #b8cde0;
-    font-size: .58rem;
+    font-size: .52rem;
     font-weight: 800;
     letter-spacing: .025em;
     line-height: 1;
@@ -577,6 +581,8 @@ select {
   .mobile-bottom-nav button:focus-visible { outline: 2px solid #f2c14d; outline-offset: -3px; }
   .mobile-bottom-nav button:hover, .mobile-bottom-nav-active { background: linear-gradient(180deg, rgb(45 108 223 / .3), rgb(25 78 150 / .4)); color: #fff; }
   .mobile-bottom-nav-active svg { color: #f2c14d; }
+  .workspace-top-switcher { top: 64px; min-height: 48px; padding: 4px .7rem; }
+  .workspace-top-switcher button { min-height: 40px; padding: 0 .65rem; font-size: .57rem; }
   .planner-float { bottom: calc(5.6rem + env(safe-area-inset-bottom, 0px)); }
   .feature-guide-button { bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
 }

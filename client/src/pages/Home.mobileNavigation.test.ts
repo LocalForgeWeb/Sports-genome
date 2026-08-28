@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { shouldRenderMetric, workspaceFromLocation } from "./Home";
+import { primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation } from "./Home";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const workoutTrackerSource = readFileSync(new URL("../components/WorkoutExecutionPanel.tsx", import.meta.url), "utf8");
@@ -14,11 +14,16 @@ describe("workspace side navigation", () => {
     expect(workspaceFromLocation("progress")).toBe("progress");
     expect(workspaceFromLocation("not-a-workspace")).toBe("command");
     expect(workspaceFromLocation(null)).toBe("command");
+    expect(primaryDestinationForWorkspace("day-plan")).toBe("train");
+    expect(primaryDestinationForWorkspace("recommended")).toBe("train");
+    expect(primaryDestinationForWorkspace("catalog")).toBe("explore");
+    expect(primaryDestinationForWorkspace("strength")).toBe("explore");
   });
 
   it("uses buttons with active-state semantics and browser history-aware navigation", () => {
     expect(source).toContain('aria-label="Primary workspace navigation"');
-    expect(source).toContain('aria-current={workspace === item.id ? "page" : undefined}');
+    expect(source).toContain('const active = activePrimaryDestination === item.id;');
+    expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('window.history.pushState({ workspace: next }, "", url)');
     expect(source).toContain('window.addEventListener("popstate", restoreWorkspace)');
     expect(source).toContain('className="rail-scrim"');
@@ -100,9 +105,16 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('Selected sport action and body requirements');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');
-    expect(source).toContain('label: "Genome"');
+    expect(source).toContain('label: "Explore"');
     expect(source).toContain('label: "Progress"');
     expect(source).toContain('label: "Profile"');
+    expect(source).toContain('label: "More"');
+    expect(source).toContain('contextualWorkspaces');
+    expect(source).toContain('className="workspace-top-switcher"');
+    expect(source).toContain('workspace pages`');
+    expect(source).toContain('label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review"');
+    expect(source).toContain('label: "Prep", workspace: "custom", scrollTarget: "#session-prep"');
+    expect(source).toContain('const navigateContextualWorkspace = (tab: ContextualWorkspaceTab)');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(css).toContain('.mobile-bottom-nav { display: none; }');
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
