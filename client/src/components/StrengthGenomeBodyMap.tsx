@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import React from "react";
 import { BodyChart, ViewSide } from "body-muscles";
 import { RotateCw } from "lucide-react";
 import type { StrengthRegionDefinition } from "../../../shared/strengthGenomeDefinitions";

@@ -68,6 +68,16 @@
 - [x] Make the normal first-entry visual transition nonblocking while retaining an immediately available skip control and the optional replay path.
 - [x] Keep the normal first-entry launch compact enough that onboarding and workspace controls remain visibly available, and protect that behavior with focused coverage.
 - [x] Browser-verify the compact first-entry transition at phone width with a mounted workspace, recording that primary content remains visible and reachable.
+- [x] Replace the automatic in-workspace launch transition with a black document-level boot screen that renders while Sports Genome initializes.
+- [x] Honor the existing launch preference before React mounts, while retaining More controls to enable, disable, or replay the boot presentation.
+- [x] Remove automatic launch content from the opened workspace so active screens are never covered after initialization.
+- [x] Validate the configurable boot screen at a phone viewport and publish the corrected launch behavior.
+- [x] Make Strength Genome load and body-mass fields follow the athlete’s saved pound or kilogram preference, converting transparently only at the persistence boundary.
+- [x] Add focused conversion and UI-label coverage proving a pound-profile athlete is never asked to enter kilograms by default.
+- [x] Render the Strength Genome entry interface with a pound profile and assert its visible load and body-mass prompts are pound-first with no kilogram default.
+- [x] Browser-verify the live pound-profile Strength Genome advanced testing detail, including its body-mass unit label.
+- [x] Mount the actual Strength Genome panel with a pound profile and the advanced detail open to test its fully wired entry labels.
+- [x] Capture browser-DOM text assertions for the live pound-profile advanced entry detail rather than relying only on visual review.
 - [x] Repair low-contrast Training Day text and controls so every active planning and stack-analysis label is readable on its blue/black surface.
 - [x] Keep whole-body involvement visible in Training Day analysis while calculating the split rating and coverage guidance only from the selected split’s target muscles.
 - [x] Label split-target rating and whole-body context distinctly so relative planning indices are not confused with muscle activation measurements.

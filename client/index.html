@@ -15,8 +15,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+    <script>try{document.documentElement.dataset.sportsGenomeBoot=localStorage.getItem("sports-genome-launch-experience-enabled-v1")==="off"?"off":"on"}catch(e){document.documentElement.dataset.sportsGenomeBoot="on"}</script>
+    <style>
+      html,body{margin:0;min-height:100%;background:#000}
+      #sports-genome-boot-splash{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:#000;color:#f7f4ec;isolation:isolate;transition:opacity 160ms cubic-bezier(.23,1,.32,1),visibility 160ms}
+      #sports-genome-boot-splash:before,#sports-genome-boot-splash:after{position:absolute;content:"";border-radius:999px;filter:blur(54px);opacity:.52;pointer-events:none}
+      #sports-genome-boot-splash:before{width:62vw;height:26vh;background:#0b2240;transform:translate(-28vw,-24vh)}
+      #sports-genome-boot-splash:after{width:42vw;height:20vh;background:#e4512e;transform:translate(35vw,31vh);opacity:.16}
+      .sports-genome-boot-content{position:relative;display:grid;justify-items:center;gap:15px;padding:32px;text-align:center}
+      .sports-genome-boot-mark{width:min(190px,48vw);height:auto;filter:drop-shadow(0 0 30px rgba(228,81,46,.18))}
+      .sports-genome-boot-strand{stroke:#e7edf3;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.88;stroke-dasharray:210;animation:boot-draw 1.15s cubic-bezier(.23,1,.32,1) both}
+      .sports-genome-boot-rung{stroke:#e4512e;stroke-width:2;stroke-linecap:round;animation:boot-rung .8s .3s ease-out both}
+      .sports-genome-boot-pulse{fill:#e4512e;animation:boot-pulse 1.15s .45s ease-out infinite alternate}
+      .sports-genome-boot-name{margin:0;font:800 clamp(22px,6vw,34px)/.92 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase}
+      .sports-genome-boot-label{margin:0;color:#b8c8d9;font:700 10px/1 "DM Sans",sans-serif;letter-spacing:.24em;text-transform:uppercase}
+      html[data-sports-genome-boot="off"] #sports-genome-boot-splash,html.sports-genome-app-ready #sports-genome-boot-splash{opacity:0;visibility:hidden;pointer-events:none}
+      @keyframes boot-draw{from{stroke-dashoffset:210;opacity:.15}to{stroke-dashoffset:0;opacity:.88}}
+      @keyframes boot-rung{from{opacity:0;transform:scale(.75)}to{opacity:1;transform:scale(1)}}
+      @keyframes boot-pulse{from{opacity:.35;r:5}to{opacity:1;r:10}}
+      @media (prefers-reduced-motion:reduce){#sports-genome-boot-splash{display:none}.sports-genome-boot-strand,.sports-genome-boot-rung,.sports-genome-boot-pulse{animation:none}}
+    </style>
   </head>
   <body>
+    <div id="sports-genome-boot-splash" aria-hidden="true"><div class="sports-genome-boot-content"><svg class="sports-genome-boot-mark" viewBox="0 0 240 140" fill="none"><path class="sports-genome-boot-strand" d="M22 105C65 105 67 35 120 35C173 35 175 105 218 105"/><path class="sports-genome-boot-strand" d="M22 35C65 35 67 105 120 105C173 105 175 35 218 35"/><path class="sports-genome-boot-rung" d="M48 54L72 86"/><path class="sports-genome-boot-rung" d="M89 42L111 70"/><path class="sports-genome-boot-rung" d="M129 70L151 98"/><path class="sports-genome-boot-rung" d="M169 42L193 74"/><circle class="sports-genome-boot-pulse" cx="120" cy="70" r="8"/></svg><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>

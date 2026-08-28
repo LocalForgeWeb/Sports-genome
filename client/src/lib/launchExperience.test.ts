@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isLaunchExperienceEnabled, shouldShowLaunchExperience } from "./launchExperience";
+import { isLaunchExperienceEnabled } from "./launchExperience";
 
 describe("launch experience preference", () => {
   it("defaults to enabled unless the athlete explicitly turns it off", () => {
@@ -8,10 +8,7 @@ describe("launch experience preference", () => {
     expect(isLaunchExperienceEnabled("off")).toBe(false);
   });
 
-  it("runs only for an enabled first entry", () => {
-    expect(shouldShowLaunchExperience(true, false)).toBe(true);
-    expect(shouldShowLaunchExperience(true, true)).toBe(false);
-    expect(shouldShowLaunchExperience(false, false)).toBe(false);
-    expect(shouldShowLaunchExperience(true, false, true)).toBe(false);
+  it("has no workspace-overlay or seen-once state because the document handles the boot screen before React mounts", () => {
+    expect("shouldShowLaunchExperience" in { isLaunchExperienceEnabled }).toBe(false);
   });
 });

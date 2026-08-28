@@ -41,13 +41,16 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("A percentile, universal rank, and regional force score are not shown");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Recorded load / test body mass");
-    expect(source).toContain("Body mass on test day (kg)");
+    expect(source).toContain("Body mass on test day ({weightUnit})");
     expect(source).toContain("About this rating");
     expect(source).toContain("matching validated reference");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
     expect(source).toContain("Calculate ratio");
-    expect(source).toContain("Body mass on test day in kilograms");
+    expect(source).toContain("weightUnitLabel(weightUnit)");
+    expect(source).toContain("displayWeightToKilograms(parsedLoad, weightUnit)");
+    expect(source).toContain("displayWeightToKilograms(parsedBodyMass, weightUnit)");
+    expect(source).toContain("formatDisplayWeight(latestRecord.loadKg, weightUnit)");
     expect(source).toContain("Test body mass saved. Your recorded ratio is ready.");
     expect(source).toContain("Could not save test body mass. Check your connection and try again.");
   });

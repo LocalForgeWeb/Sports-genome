@@ -2,31 +2,28 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const launchComponent = readFileSync(resolve(process.cwd(), "client/src/components/LaunchExperience.tsx"), "utf8");
+const bootLifecycle = readFileSync(resolve(process.cwd(), "client/src/components/BootSplashLifecycle.tsx"), "utf8");
 const home = readFileSync(resolve(process.cwd(), "client/src/pages/Home.tsx"), "utf8");
-const launchStyles = readFileSync(resolve(process.cwd(), "client/src/index.css"), "utf8");
+const documentShell = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
 
-describe("silent launch experience", () => {
-  it("offers immediate skip and responds to reduced-motion preferences without audio playback", () => {
-    expect(launchComponent).toContain("Skip intro");
-    expect(launchComponent).toContain("prefers-reduced-motion: reduce");
-    expect(launchComponent).not.toMatch(/<audio|new Audio|AudioContext/i);
-    expect(launchComponent).toContain("launch-experience-underlay");
-    expect(launchComponent).toContain("launch-experience-replay");
-    expect(launchComponent).toContain("if (interactive) skipButtonRef.current?.focus()");
+describe("silent document boot screen", () => {
+  it("is a black pre-React visual treatment with no audio and reduced-motion suppression", () => {
+    expect(documentShell).toContain('id="sports-genome-boot-splash"');
+    expect(documentShell).toContain('background:#000');
+    expect(documentShell).toContain('data-sports-genome-boot');
+    expect(documentShell).toContain('@media (prefers-reduced-motion:reduce)');
+    expect(documentShell).not.toMatch(/<audio|new Audio|AudioContext/i);
+    expect(documentShell.indexOf('sports-genome-boot-splash')).toBeLessThan(documentShell.indexOf('id="root"'));
+    expect(bootLifecycle).toContain("dismissBootSplash");
   });
 
-  it("keeps a visible More setting for disabling and replaying the first-entry experience", () => {
-    expect(home).toContain("Launch experience");
-    expect(home).toContain("Show on first entry");
-    expect(home).toContain("Replay intro");
-    expect(home).toContain("there is no audio");
-    expect(home).toContain("prefers-reduced-motion: reduce");
-    expect(home).toContain("interactive");
-  });
-
-  it("keeps the automatic transition compact so the underlying app remains available", () => {
-    expect(launchStyles).toContain(".launch-experience-underlay { pointer-events: none; position: fixed; top:");
-    expect(launchStyles).toContain("height: min(220px, 31vh)");
+  it("keeps a More setting that controls the next document boot and never renders an app-layer launch overlay", () => {
+    expect(home).toContain("Launch screen");
+    expect(home).toContain("Show while app opens");
+    expect(home).toContain("Preview on reload");
+    expect(home).toContain("There is no audio");
+    expect(home).toContain("replayBootSplash()");
+    expect(home).not.toContain("showLaunchExperience");
+    expect(home).not.toContain("<LaunchExperience");
   });
 });
