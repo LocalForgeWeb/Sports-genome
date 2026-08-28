@@ -903,6 +903,13 @@ select {
 .strength-piper-fields span { color: #9eb3cb; font-size: .64rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .strength-piper-fields select, .strength-piper-fields input[inputmode] { min-height: 2.6rem; border: 1px solid rgb(255 255 255 / .2); border-radius: .5rem; background: rgb(255 255 255 / .05); color: #fff; padding: 0 .7rem; }
 .strength-piper-fields input[type="checkbox"] { width: 1rem; height: 1rem; margin-top: .05rem; accent-color: #f2c14d; }
+.strength-body-chart .body-chart-muscle { cursor: pointer; transform-box: fill-box; transform-origin: center; transition: transform 140ms var(--ease-out), filter 140ms var(--ease-out), stroke 140ms var(--ease-out); }
+.strength-body-chart .body-chart-muscle:active { transform: scale(.98); filter: brightness(1.22); stroke: #f2c14d; stroke-width: 3px; }
+.strength-body-chart .body-chart-muscle:focus-visible { outline: none; stroke: #f2c14d; stroke-width: 3px; filter: brightness(1.18); }
+.strength-reference-matched { scroll-margin-bottom: calc(11rem + env(safe-area-inset-bottom)); }
+.strength-body-map-head button, .strength-map-region-selector button, .strength-region-close, .strength-region-history button, .strength-ratio-entry button, .strength-observation-review, .strength-reference-matched a { transition: transform 140ms var(--ease-out), filter 140ms var(--ease-out), background-color 140ms var(--ease-out); }
+.strength-body-map-head button:active, .strength-map-region-selector button:active, .strength-region-close:active, .strength-region-history button:active, .strength-ratio-entry button:active, .strength-observation-review:active, .strength-reference-matched a:active { transform: scale(.97); filter: brightness(1.12); }
+.strength-map-region-selector button:focus-visible, .strength-region-history button:focus-visible, .strength-ratio-entry button:focus-visible, .strength-region-close:focus-visible, .strength-observation-review:focus-visible { outline: 2px solid #f2c14d; outline-offset: 2px; }
 
 @media (max-width: 720px) {
   .apex-content.destination-explore:has(.strength-region-record-detail) { padding-bottom: calc(8.5rem + env(safe-area-inset-bottom)); }

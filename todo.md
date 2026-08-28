@@ -37,9 +37,20 @@
 - [x] Keep a failed account-backed body-mass value in place and provide inline retry guidance without affecting device-local completion.
 - [x] Add an interaction regression that mocks account-backed body-mass save success and confirms the selected-region ratio appears after mutation completion.
 - [x] Add an interaction regression that mocks account-backed body-mass save failure and confirms loading state, inline alert, preserved value, and retry behavior.
-- [ ] Test the account-backed body-mass completion pending state with visible saving text and `aria-busy` before driving its error and retry path.
+- [x] Test the account-backed body-mass completion pending state with visible saving text and `aria-busy` before driving its error and retry path.
 - [x] Confirm the direct-access body-mass completion flow remains local and unaffected by account-save failure handling.
-- [ ] Verify the interaction-feedback utility behavior and visible press states for Strength map regions and region-detail actions without claiming native iPhone web haptics.
+- [x] Verify the interaction-feedback utility behavior and visible press states for Strength map regions and region-detail actions without claiming native iPhone web haptics.
+- [x] Apply and test visible pressed-state feedback on Strength map-region, record-history, review, close, and ratio-completion actions while retaining optional browser vibration only.
+- [x] Wire optional nonblocking feedback into Strength region-detail close, record-history selection, review, and ratio-completion actions.
+- [x] Add behavioral region-detail interaction coverage for optional feedback on close, history selection, review, and ratio completion alongside pressed-state CSS safeguards.
+- [x] Confirm the rendered saved-record Review action invokes optional feedback, opens its routed region detail, and has an equivalent visible pressed state.
+- [x] Add an integrated Strength Genome panel test that clicks a rendered device-local Review control and opens its routed regional detail.
+- [x] Implement and test a visible keyboard and pressed state for actual clickable body-map muscle regions, not only the accessible selector fallback.
+- [x] Add rendered SVG evidence that a real body-map muscle path exposes button keyboard semantics and the dedicated pressed/focus styling hooks.
+- [x] Extend interaction-style coverage to assert rendered Review and Close controls carry their dedicated pressed-state class hooks.
+- [x] Browser-verify the actual mounted body-muscles SVG paths expose keyboard button semantics and `.body-chart-muscle` pressed/focus hooks.
+- [x] Add a jsdom regression against the actual `body-muscles` renderer output rather than a mocked chart path.
+- [x] Ensure a Strength body-map region selection emits one optional feedback signal rather than duplicating it through nested callbacks.
 - [x] Add source-level regression coverage confirming browser vibration is optional and non-blocking when unavailable.
 - [x] Show selected-region raw load-to-body-mass ratios only when both athlete-entered test load and body mass from that same test are recorded.
 - [x] Label body-mass-relative values as test-specific recorded ratios and keep percentiles, generic ranks, and regional force scores unavailable.
@@ -121,6 +132,7 @@
 - [x] Audit the mounted Explore, Progress, Profile, and More canvases at phone width before applying destination-specific surface refinements.
 - [ ] Establish accessible dark-surface typography, panel, divider, and interaction tokens so the destination themes remain cohesive and readable.
 - [x] Ensure Strength Genome selected-record and source-comparison detail content has sufficient bottom safe-area clearance above the fixed six-destination mobile navigation.
+- [x] Ensure programmatic navigation to a matched Strength source-comparison card respects the mobile bottom-nav safe area as well as manual scrolling.
 - [x] Reduce repeated Progress empty-state and methodology copy to concise recorded-status cards with one relevant next action.
 - [x] Retain comparison-condition explanation in an optional disclosure rather than the default Progress canvas.
 - [ ] Reduce Training Day’s default canvas to day selection, saved stack, split-target index, and one next action; move diagnostics, preparation detail, and catalog expansion behind Train contextual tabs or disclosures.

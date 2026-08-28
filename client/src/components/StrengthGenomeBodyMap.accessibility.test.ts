@@ -12,7 +12,7 @@ describe("Strength Genome body-map accessible region selection", () => {
     expect(source).toContain('aria-label="Strength Genome regions"');
     expect(source).toContain('aria-pressed={selectedRegionId === region.id}');
     expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? "Recorded" : "No test"');
-    expect(source).toContain('onClick={() => onSelect(region)}');
+    expect(source).toContain('onClick={() => { emitInteractionFeedback(); onSelect(region); }}');
     expect(selector).not.toContain("percentile");
     expect(styles).toContain(".strength-map-region-selector button { min-height: 44px");
   });

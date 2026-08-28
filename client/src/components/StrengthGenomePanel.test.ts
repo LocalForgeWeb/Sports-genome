@@ -13,7 +13,7 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("new Date(`${observedDate}T12:00:00`)");
     expect(source).toContain("They do not create a body-mass ratio, universal estimate, tier, or population comparison.");
     expect(source).toContain("No regional strength tier is shown until supporting evidence is available.");
-    expect(source).toContain("onSelect={(region) => { emitInteractionFeedback(); setSelectedRegion(region); }}");
+    expect(source).toContain("onSelect={setSelectedRegion}");
     expect(source).toContain("Regional record");
     expect(source).toContain("Planning focus");
     expect(source).toContain('active: !activePriorityIds.has(selectedRegion.id)');

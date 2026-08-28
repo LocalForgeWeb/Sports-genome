@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   bodyMassMutation: { mutate: vi.fn(), isPending: false },
   mutationOptions: null as null | { onSuccess: () => Promise<void>; onError: () => void },
   invalidate: vi.fn(),
+  feedback: vi.fn(),
 }));
 
 vi.mock("@/lib/trpc", () => ({
@@ -24,7 +25,7 @@ vi.mock("@/lib/trpc", () => ({
   },
 }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
-vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: vi.fn() }));
+vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: mocks.feedback }));
 
 import { StrengthRegionRecordDetail } from "./StrengthGenomePanel";
 
@@ -48,6 +49,7 @@ describe("Strength region body-mass completion", () => {
     mocks.bodyMassMutation.isPending = false;
     mocks.mutationOptions = null;
     mocks.invalidate.mockReset();
+    mocks.feedback.mockReset();
   });
 
   it("submits an account-backed missing body mass and shows the selected-record ratio after refreshed data returns", async () => {
@@ -87,5 +89,25 @@ describe("Strength region body-mass completion", () => {
     fireEvent.click(screen.getByRole("button", { name: "Calculate ratio" }));
     expect(setDeviceBodyMass).toHaveBeenCalledWith("101", 81.6466266);
     expect(mocks.bodyMassMutation.mutate).not.toHaveBeenCalled();
+    expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
+  });
+
+  it("uses optional feedback for direct ratio completion, record-history selection, and close", () => {
+    const onClose = vi.fn();
+    const alternate = { ...missingBodyMassObservation[0], id: 102, exerciseName: "Machine Preacher Curl", loadKg: 40, bodyMassKgAtTest: 81.6466266 };
+    renderDetail({ directAccess: true, onSetDeviceBodyMass: vi.fn(), onClose, observations: [missingBodyMassObservation[0], alternate] });
+
+    fireEvent.change(screen.getByLabelText("Body mass on test day in pounds"), { target: { value: "180" } });
+    fireEvent.click(screen.getByRole("button", { name: "Calculate ratio" }));
+    expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
+
+    fireEvent.click(screen.getByText("Recorded history (2)"));
+    fireEvent.click(screen.getByText("Machine Preacher Curl"));
+    expect(mocks.feedback).toHaveBeenCalledTimes(2);
+
+    expect(screen.getByRole("button", { name: "Close Biceps detail" }).className).toContain("strength-region-close");
+    fireEvent.click(screen.getByRole("button", { name: "Close Biceps detail" }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(mocks.feedback).toHaveBeenCalledTimes(3);
   });
 });
