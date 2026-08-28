@@ -241,7 +241,7 @@
 - [x] Replace the confusing Catalog sport-fit selector with a simple action-link filter that offers Direct support and Supporting link only.
 - [x] Correct low-contrast athlete-facing text across the reported mobile Movement, Profile, and Catalog dark surfaces.
 - [x] Add regression and phone-width validation for the sport-change, action-link-filter, and contrast corrections before publication.
-- [ ] Reset stale Catalog query and filters after a sport change so exercise discovery starts clean for the new athlete context.
+- [x] Reset stale Catalog query and filters after a sport change so exercise discovery starts clean for the new athlete context.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
 - [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.

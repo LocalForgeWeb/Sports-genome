@@ -460,6 +460,8 @@ export default function Home() {
       setWeeklyPrescriptions({});
       setPlanWeeks({});
       setActiveWeek(1);
+	      setCatalogQuery("");
+	      setCatalogFilters(defaultCatalogFilters);
     }
   };
   const navigateWorkspace = (next: Workspace) => {
