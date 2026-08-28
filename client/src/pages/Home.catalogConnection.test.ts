@@ -26,11 +26,12 @@ describe("canonical connected exercise catalog", () => {
     expect(homeSource).toContain("selectedMovement={selectedMovement}");
   });
 
-  it("keeps the mobile full-width catalog connection states visible and visually distinct without presenting them as performance ratings", () => {
+	  it("keeps only actionable mobile Catalog connection states visible and visually distinct without presenting them as performance ratings", () => {
     expect(catalogSource).toContain("connection.label}{selectedActionLabel ? ` · ${selectedActionLabel}` : \"\"}");
+	    expect(catalogSource).toContain('connection && connection.label !== "Not mapped"');
     expect(catalogStyles).toContain(".catalog-action-link-direct-support");
     expect(catalogStyles).toContain(".catalog-action-link-supporting-link");
-    expect(catalogStyles).toContain(".catalog-action-link-not-mapped");
+	    expect(catalogStyles).not.toContain(".catalog-action-link-not-mapped");
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
     expect(catalogStyles).toContain(".catalog-action-link { display: inline-flex; width: fit-content; max-width: 100%;");
   });

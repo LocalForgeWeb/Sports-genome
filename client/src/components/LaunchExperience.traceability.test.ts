@@ -18,10 +18,11 @@ describe("silent document boot screen", () => {
   });
 
   it("keeps a More setting that controls the next document boot and never renders an app-layer launch overlay", () => {
-    expect(home).toContain("Launch screen");
-    expect(home).toContain("Show while app opens");
-    expect(home).toContain("Preview on reload");
-    expect(home).toContain("There is no audio");
+    expect(home).toContain("Launch video");
+    expect(home).toContain("Play video while app opens");
+    expect(home).toContain("Preview intro video");
+    expect(home).toContain("Your supplied visual plays silently");
+	    expect(home).toContain("plays silently");
     expect(home).toContain("replayBootSplash()");
     expect(home).not.toContain("showLaunchExperience");
     expect(home).not.toContain("<LaunchExperience");

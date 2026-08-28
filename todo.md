@@ -121,6 +121,8 @@
 - [x] Evaluate the supplied intro video and, if suitable, integrate it as a muted short launch visual without replacing the protected upright Sports Genome mark.
 - [x] Preserve the existing silent staged logo fallback for reduced-motion, failed video loading, or unavailable autoplay.
 - [x] Validate video-led intro playback, muting, fallback, and mobile handoff before publication.
+- [x] Diagnose and correct any live launch-preference, preview, caching, or asset-delivery issue that prevents the supplied intro video from being visible after publication.
+- [x] Verify the visible video-led launch on the live site at phone and browser width without weakening reduced-motion or athlete preference controls.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.
@@ -242,6 +244,7 @@
 - [x] Correct low-contrast athlete-facing text across the reported mobile Movement, Profile, and Catalog dark surfaces.
 - [x] Add regression and phone-width validation for the sport-change, action-link-filter, and contrast corrections before publication.
 - [x] Reset stale Catalog query and filters after a sport change so exercise discovery starts clean for the new athlete context.
+- [x] Hide non-actionable Not mapped labels from Catalog rows while retaining no-mapping context in opened exercise detail.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
 - [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.
