@@ -1,4 +1,5 @@
 import { auditedStrengthReferenceGates } from "./strengthReferenceAuditGates";
+import { piper2021PreacherCurlReferenceId } from "./piper2021PreacherCurlReference";
 
 export type ReferenceGateStatus =
   | "needs_details"
@@ -78,7 +79,7 @@ const exactSourceFields = ["sourcePopulationId", "sourceProtocolId", "sourceTest
  */
 export const strengthReferenceCandidates: readonly StrengthReferenceCandidate[] = [
   {
-    id: "piper_2021_preacher_curl_10rm",
+    id: piper2021PreacherCurlReferenceId,
     label: "College-aged male standardized preacher-curl 10RM",
     citationUrl: "https://doi.org/10.47206/ijsc.v1i1.40",
     referencePopulation: "College-aged males, 18–25 years, tested in one facility on the study protocol.",

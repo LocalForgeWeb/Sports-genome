@@ -1,3 +1,5 @@
+export const piper2021PreacherCurlReferenceId = "piper_2021_preacher_curl_10rm";
+
 export type Piper2021PreacherCurlContext = {
   exerciseName: string;
   measurementType: string;

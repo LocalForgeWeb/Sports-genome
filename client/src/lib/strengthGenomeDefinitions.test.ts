@@ -6,6 +6,8 @@ import {
   strengthObservationRoutes,
   strengthRegionDefinitions,
 } from "../../../shared/strengthGenomeDefinitions";
+import { getStrengthReferenceCandidate } from "../../../shared/strengthReferenceQualification";
+import { piper2021PreacherCurlReferenceId } from "../../../shared/piper2021PreacherCurlReference";
 import { exercises } from "./exerciseCatalog";
 
 describe("Strength Genome definitions", () => {
@@ -24,6 +26,18 @@ describe("Strength Genome definitions", () => {
     expect(squat?.boundary).toContain("does not directly measure");
     expect(strengthObservationRoutes.every(route => route.basis === "EXERCISE_MOVEMENT_CLASSIFICATION")).toBe(true);
     expect(JSON.stringify(strengthObservationRoutes)).not.toContain("percentile");
+  });
+
+  it("traces only the exact Preacher Curl route to the installed Piper candidate without promoting other curls to a population comparison", () => {
+    const preacherCurl = resolveStrengthObservationRoute("Preacher Curl");
+    const machinePreacherCurl = resolveStrengthObservationRoute("Machine Preacher Curl");
+
+    expect(preacherCurl?.reviewedReferenceCandidateIds).toEqual([piper2021PreacherCurlReferenceId]);
+    expect(preacherCurl?.boundary).toContain("every source-specific condition");
+    expect(machinePreacherCurl?.reviewedReferenceCandidateIds ?? []).toEqual([]);
+    expect(machinePreacherCurl?.boundary).toContain("generic strength rank");
+    expect(getStrengthReferenceCandidate(preacherCurl?.reviewedReferenceCandidateIds?.[0] ?? "")?.id).toBe(piper2021PreacherCurlReferenceId);
+    expect(getStrengthCatalogSelectionContext(exercises.find((exercise) => exercise.name === "Preacher Curl")!).reviewedReferenceCandidateIds).toEqual([piper2021PreacherCurlReferenceId]);
   });
 
   it("routes representative selectable catalog exercises across movement families without creating regional strength scores", () => {

@@ -9,7 +9,7 @@ import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { displayWeightToKilograms, formatDisplayWeight, kilogramsToDisplayWeight, weightUnitLabel, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
-import { getPiper2021PreacherCurlReference, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
+import { getPiper2021PreacherCurlReference, piper2021PreacherCurlReferenceId, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
 
 type MeasurementType =
   | "MEASURED_1RM"
@@ -33,7 +33,7 @@ function parsePiperReferenceDeclaration(value?: string | null): PiperReferenceDe
   if (!value) return null;
   try {
     const parsed = JSON.parse(value) as Partial<PiperReferenceDeclaration & { referenceId?: string }>;
-    if (parsed.referenceId !== "piper_2021_preacher_curl_10rm") return null;
+    if (parsed.referenceId !== piper2021PreacherCurlReferenceId) return null;
     return { sex: parsed.sex, ageYears: parsed.ageYears, collegeStudentConfirmed: parsed.collegeStudentConfirmed === true, preTrainingConfirmed: parsed.preTrainingConfirmed === true, exactProtocolConfirmed: parsed.exactProtocolConfirmed === true, directlyObservedConfirmed: parsed.directlyObservedConfirmed === true };
   } catch { return null; }
 }

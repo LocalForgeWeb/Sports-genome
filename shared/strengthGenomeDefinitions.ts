@@ -1,3 +1,5 @@
+import { piper2021PreacherCurlReferenceId } from "./piper2021PreacherCurlReference";
+
 export type StrengthEvidenceStatus =
   | "AWAITING_EVIDENCE"
   | "REFERENCE_SUPPORTED";
@@ -80,6 +82,7 @@ export type StrengthObservationRoute = {
   domainIds: string[];
   regionIds: string[];
   basis: "EXERCISE_MOVEMENT_CLASSIFICATION";
+  reviewedReferenceCandidateIds?: readonly string[];
   boundary: string;
 };
 
@@ -99,7 +102,8 @@ export const strengthObservationRoutes: StrengthObservationRoute[] = [
   { aliases: ["hip thrust", "barbell hip thrust", "glute bridge"], domainIds: ["hip_extension"], regionIds: ["glutes", "hamstrings"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a hip-extension test to a broad hip-extension domain; it does not directly measure glute or hamstring force." },
   { aliases: ["pull up", "pullup", "weighted pull up", "lat pulldown"], domainIds: ["vertical_pull", "elbow_flexion"], regionIds: ["lats", "upper_back", "biceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a vertical pulling test to broad pulling domains; it does not directly measure lat, upper-back, or biceps force." },
   { aliases: ["barbell row", "bent over row", "seated cable row", "row"], domainIds: ["horizontal_pull", "elbow_flexion"], regionIds: ["upper_back", "lats", "biceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a horizontal pulling test to broad pulling domains; it does not directly measure individual regional force." },
-  { aliases: ["biceps curl", "barbell curl", "straight bar curl", "ez bar curl", "dumbbell curl", "alternating dumbbell curl", "cable curl", "preacher curl", "machine preacher curl", "hammer curl"], domainIds: ["elbow_flexion"], regionIds: ["biceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes an elbow-flexion curl test to broad biceps context; it does not directly measure biceps force or create a generic strength rank." },
+  { aliases: ["preacher curl"], domainIds: ["elbow_flexion"], regionIds: ["biceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", reviewedReferenceCandidateIds: [piper2021PreacherCurlReferenceId], boundary: "Routes the exact Preacher Curl test to broad biceps context and traces the separate Piper 2021 candidate; it does not create a generic biceps rank without every source-specific condition." },
+  { aliases: ["biceps curl", "barbell curl", "straight bar curl", "ez bar curl", "dumbbell curl", "alternating dumbbell curl", "cable curl", "machine preacher curl", "hammer curl"], domainIds: ["elbow_flexion"], regionIds: ["biceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes an elbow-flexion curl test to broad biceps context; it does not directly measure biceps force or create a generic strength rank." },
   { aliases: ["leg curl", "seated leg curl", "lying leg curl"], domainIds: ["knee_flexion"], regionIds: ["hamstrings"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a knee-flexion test to a broad hamstring-related domain; it does not directly measure hamstring force." },
   { aliases: ["leg extension", "seated leg extension"], domainIds: ["knee_extension"], regionIds: ["quadriceps"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a knee-extension test to a broad quadriceps-related domain; it does not directly measure quadriceps force." },
   { aliases: ["calf raise", "standing calf raise", "seated calf raise"], domainIds: ["plantarflexion"], regionIds: ["calves"], basis: "EXERCISE_MOVEMENT_CLASSIFICATION", boundary: "Routes a plantarflexion test to a broad calf-related domain; it does not directly measure calf force." },
@@ -130,6 +134,7 @@ export function getStrengthCatalogSelectionContext(exercise: StrengthCatalogSele
     supportingMuscles: exercise.secondaryMuscles,
     domainLabels: route?.domainIds.map((id) => strengthDomainDefinitions.find((domain) => domain.id === id)?.label ?? id) ?? [],
     regionLabels: route?.regionIds.map((id) => strengthRegionDefinitions.find((region) => region.id === id)?.label ?? id) ?? [],
+    reviewedReferenceCandidateIds: route?.reviewedReferenceCandidateIds ?? [],
     boundary: route?.boundary ?? "No broad Strength Genome test context is mapped for this catalog exercise yet.",
   };
 }
