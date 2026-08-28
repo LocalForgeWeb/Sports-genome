@@ -117,6 +117,7 @@
 - [x] Replace the slide-up boot behavior with a silent approximately two-second staged reveal: S silhouette first, DNA-line detail second, wordmark third, then workspace transition.
 - [x] Keep the staged boot reveal smooth, reduced-motion safe, and visually centered without audio, rotation, sideways marks, or substitute/orbit graphics.
 - [x] Add regression and phone-width visual validation for the corrected staged boot sequence before publication.
+- [x] Preload the exact boot silhouette and DNA-detail layers so the short staged launch does not wait for image loading.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.

@@ -30,6 +30,8 @@ describe("launch experience preference", () => {
   it("uses the supplied upright S/DNA Sports Genome mark rather than the retired sideways strand drawing", () => {
     expect(bootDocumentSource).toContain("sports-genome-upright-s-silhouette-exact_349405db.png");
     expect(bootDocumentSource).toContain("sports-genome-upright-dna-detail-exact_8e94e37f.png");
+    expect(bootDocumentSource).toContain('rel="preload" as="image" href="/manus-storage/sports-genome-upright-s-silhouette-exact_349405db.png" fetchpriority="high"');
+    expect(bootDocumentSource).toContain('rel="preload" as="image" href="/manus-storage/sports-genome-upright-dna-detail-exact_8e94e37f.png" fetchpriority="high"');
     expect(bootDocumentSource).not.toContain("sports-genome-upright-s-dna-logo_53affec0.jpg");
     expect(bootDocumentSource).toContain('class="sports-genome-boot-logo"');
     expect(bootDocumentSource).toContain("boot-mark-form");

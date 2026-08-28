@@ -43,3 +43,13 @@ The exact-background-free replacement removed the square-card appearance in the 
 The corrected 390×844 S-first frame now shows only the upright silver S silhouette on the boot background, without a square, rotation, substitute mark, or mask artifacts. The subsequent DNA-detail frame cleanly restores the original vermilion linework before the wordmark fully resolves.
 
 The following 390×844 wordmark frame shows `SPORTS GENOME` and `DECODING PERFORMANCE` after the full upright S/DNA mark, with a scale-and-focus reveal rather than a content-card slide. The ready frame confirms the boot surface is removed before the Home workspace appears.
+
+The published 390×844 Training Day Planning limits disclosure now uses a readable dark operational panel: gold summary label, high-contrast body copy, clear cue cards, and unobstructed fixed-bottom navigation. No further contrast correction is required for this state.
+
+At the 1366×768 desktop viewport reported in the boot feedback, the corrected first boot frame shows the upright silver S cleanly centered on the deep-navy surface with no pasted square or background-card edge.
+
+The corresponding desktop DNA-detail and wordmark frames retain that centered, upright mark while progressively revealing the original vermilion linework and then the brand text. Neither frame contains a photo card, horizontal banding, sidebar, sideways mark, orbit, or audio control.
+
+The final 1366×768 ready frame confirms the boot surface clears before the Home workspace renders, with the page controls and fixed destination navigation reachable after the short handoff.
+
+Runtime verification at 390×844 with `prefers-reduced-motion: reduce` emulated confirmed the document splash is immediately bypassed or removed and the workspace is mounted, preserving a non-animated entry path.
