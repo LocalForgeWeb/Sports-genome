@@ -26,8 +26,16 @@ describe("Home sport state safeguards", () => {
   });
 
   it("routes automatic Smart Draft through the active split-filtered loadout instead of the sport-wide session list", () => {
-    expect(source).toContain("setCustomWorkout(draftedLoadout);");
-    expect(source).not.toContain("setCustomWorkout(buildSmartDraftWorkout(sessionRecommendations))");
-    expect(source).toContain("${activeSplitDay.toLowerCase()} session is ready for review.");
+	    expect(source).toContain("setCustomWorkout(draftedLoadout);");
+	    expect(source).not.toContain("setCustomWorkout(buildSmartDraftWorkout(sessionRecommendations))");
+	    expect(source).toContain("${activeSplitDay.toLowerCase()} session is ready for review.");
+  });
+
+  it("persists the departing day but clears an empty selected split slot rather than carrying a mixed active stack into Push", () => {
+	    expect(source).toContain('const previousKey = `${activeDayIndex}-${activeSplitDay}`;');
+	    expect(source).toContain("setWeeklyPlan((current) => ({ ...current, [previousKey]: customWorkout }));");
+	    expect(source).toContain("if (saved?.length) {");
+	    expect(source).toContain("setCustomWorkout([]);");
+	    expect(source).toContain("const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || [];");
   });
 });

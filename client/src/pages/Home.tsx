@@ -614,25 +614,32 @@ export default function Home() {
     return () => { window.removeEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression); window.removeEventListener(SEGMENT_PRIORITY_APPROVAL_EVENT, applyApprovedSegmentPriority); window.removeEventListener(SEGMENT_SUGGESTION_APPROVAL_EVENT, applyApprovedSegmentSuggestion); };
   }, [customWorkout]);
   const activeDayIndex = Math.min(activeSplitDayIndex, splitDays.length - 1);
-  const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || Object.values(importedPlanContext).find((items) => items.length) || [];
+	  const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || [];
   const saveActiveDay = () => {
     const key = `${activeDayIndex}-${activeSplitDay}`;
     setWeeklyPlan((current) => ({ ...current, [key]: customWorkout }));
     setWeeklyPrescriptions((current) => ({ ...current, [key]: Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal)])) }));
     toast("Weekly day saved", { description: `${activeSplitDay} now has ${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"} saved.` });
   };
-  const chooseWeeklyDay = (index: number) => {
-    const day = splitDays[index];
-    const saved = weeklyPlan[`${index}-${day}`];
-    setActiveSplitDay(day);
-    setActiveSplitDayIndex(index);
-    if (saved?.length) {
-      setCustomWorkout(saved);
-      setPrescriptions((current) => ({ ...current, ...(weeklyPrescriptions[`${index}-${day}`] || {}) }));
-      navigateWorkspace("day-plan");
-      toast("Saved day loaded", { description: `${day} was restored from your weekly map.` });
-    }
-  };
+	  const chooseWeeklyDay = (index: number) => {
+	    const day = splitDays[index];
+	    const saved = weeklyPlan[`${index}-${day}`];
+	    const previousKey = `${activeDayIndex}-${activeSplitDay}`;
+	    setWeeklyPlan((current) => ({ ...current, [previousKey]: customWorkout }));
+	    setWeeklyPrescriptions((current) => ({ ...current, [previousKey]: Object.fromEntries(customWorkout.map((exercise, exerciseIndex) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(exerciseIndex, goal)])) }));
+	    setActiveSplitDay(day);
+	    setActiveSplitDayIndex(index);
+	    if (saved?.length) {
+	      setCustomWorkout(saved);
+	      setPrescriptions((current) => ({ ...current, ...(weeklyPrescriptions[`${index}-${day}`] || {}) }));
+	      navigateWorkspace("day-plan");
+	      toast("Saved day loaded", { description: `${day} was restored from your weekly map.` });
+	      return;
+	    }
+	    setCustomWorkout([]);
+	    setPrescriptions({});
+	    setExerciseSettings({});
+	  };
   const applyWeek = (week: number, snapshot: WeekSnapshot) => {
     setActiveWeek(week);
     setCustomWorkout(snapshot.customWorkout);
