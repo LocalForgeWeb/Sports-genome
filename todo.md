@@ -10,6 +10,9 @@
 
 ## Strength Genome
 
+- [x] Show selected-region raw load-to-body-mass ratios only when both athlete-entered test load and body mass from that same test are recorded.
+- [x] Label body-mass-relative values as test-specific recorded ratios and keep percentiles, generic ranks, and regional force scores unavailable.
+- [x] Add focused ratio and no-body-mass regression coverage in the Strength Genome region detail.
 - [x] Replace the Strength Genome long regional no-data list with the existing interactive full-body qualitative map.
 - [x] Use categorical color to distinguish recorded test context, athlete-confirmed focus, and no mapped test context without implying activation or strength rank.
 - [ ] Open a region detail panel on body-map selection showing raw athlete records, valid reference context when available, and explicit no-data or non-comparable boundaries instead of invented percentiles or ranks.

@@ -42,5 +42,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Recorded observation context");
     expect(source).toContain("Reference context unavailable.");
     expect(source).toContain("no percentile or strength rank is shown");
+    expect(source).toContain("record.bodyMassKgAtTest");
+    expect(source).toContain("recorded load / test body mass");
+    expect(source).toContain("Add body mass from this test to show a relative load ratio.");
   });
 });
