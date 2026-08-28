@@ -344,9 +344,17 @@ export const evidenceTraceability: readonly LogicTraceabilityEntry[] = [
     id: "source-qualified-strength-references",
     surface: "Strength Genome reference qualification and unavailable-reference states",
     kind: "product constraint",
-    rationale: "Each external strength reference is stored as a separate source qualification with declared exercise, protocol, demographic, body-size, and population gates. Numeric tables remain absent until data use, table provenance, and source conditions are independently authorized and verified.",
+    rationale: "Each external strength reference is stored as a separate source qualification with declared exercise, protocol, demographic, body-size, and population gates. Numeric tables remain absent unless data use, table provenance, and every source condition are independently authorized and verified.",
     sourceUrls: ["https://pubmed.ncbi.nlm.nih.gov/39060209/", "https://doi.org/10.47206/ijsc.v1i1.40", "https://strengthlevel.com/terms-and-conditions"],
     athleteBoundary: "A qualified source scope is not a population result. Unmatched, incomplete, unlicensed, or generic observations remain unavailable rather than being converted into a percentile, tier, regional force value, or sport-performance claim.",
+  },
+  {
+    id: "piper-2021-exact-source-sample-rank",
+    surface: "Strength Genome exact Preacher Curl 10RM source-sample rank range",
+    kind: "source-backed anchor",
+    rationale: "The installed Piper et al. table is used only after the athlete records the exact standardized Preacher Curl 10RM protocol, the source-population declarations, and body mass attached to that same test record.",
+    sourceUrls: ["https://doi.org/10.47206/ijsc.v1i1.40"],
+    athleteBoundary: "This is a source-sample percentile interval for the reviewed male college-aged pre-training protocol only. Machine Preacher Curl, generic curls, unmatched protocols, and missing test-day body mass remain rank-unavailable.",
   },
   {
     id: "session-and-history-display",
