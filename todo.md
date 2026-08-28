@@ -30,6 +30,13 @@
 
 ## iPhone-First Product Polish
 
+- [x] Make Training Day a planning-only workspace for building, selecting, reviewing, and rating saved training days.
+- [x] Make Tracker a distinct execution workspace where athletes select a saved day and enter completed weight, repetitions, optional effort, and completion state.
+- [x] Feed completed tracker records into Progress as recorded session data, without showing planned stack diagnostics as execution history.
+- [x] Remove repeated planning boxes and long instructional copy from the Tracker default screen.
+- [x] Render completed Tracker sessions in Progress as actual recorded workout entries or summaries, including completed-set information where appropriate, rather than only a count and latest title.
+- [x] Merge and sort device-local and account-backed completed sessions consistently in Progress so latest-session and history views reflect true recorded chronology.
+- [x] Add focused regression coverage for the Tracker-to-Progress handoff without restoring planned stack diagnostics into Tracker.
 - [x] Repair the blank Training Day and Tracker canvases reported after the mobile navigation changes, then add rendering regression coverage.
 - [ ] Verify populated Training Day and Tracker content at an iPhone viewport and desktop viewport before publishing the repair.
 - [ ] Give Train an operational session-planning visual system distinct from exploration, review, and profile surfaces.

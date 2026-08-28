@@ -4,6 +4,7 @@ import { primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocati
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const workoutTrackerSource = readFileSync(new URL("../components/WorkoutExecutionPanel.tsx", import.meta.url), "utf8");
+const deviceTrackerSource = readFileSync(new URL("../components/DeviceWorkoutTracker.tsx", import.meta.url), "utf8");
 const stackReviewSource = readFileSync(new URL("../components/WorkoutHealthPanel.tsx", import.meta.url), "utf8");
 
 describe("workspace side navigation", () => {
@@ -12,6 +13,7 @@ describe("workspace side navigation", () => {
     expect(workspaceFromLocation("body")).toBe("body");
     expect(workspaceFromLocation("strength")).toBe("strength");
     expect(workspaceFromLocation("progress")).toBe("progress");
+    expect(workspaceFromLocation("tracker")).toBe("tracker");
     expect(workspaceFromLocation("not-a-workspace")).toBe("command");
     expect(workspaceFromLocation(null)).toBe("command");
     expect(primaryDestinationForWorkspace("day-plan")).toBe("train");
@@ -76,15 +78,15 @@ describe("workspace side navigation", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('className="mobile-workspace-dock"');
     expect(source).toContain('aria-label="Primary workspace navigation"');
-    expect(source).toContain('label: "Tracker", workspace: "day-plan"');
+    expect(source).toContain('label: "Tracker", workspace: "tracker"');
     expect(source).toContain('label: "Stack Review", workspace: "day-plan"');
     expect(source).toContain('label: "Prep", workspace: "custom"');
-    expect(source).toContain('setSessionMode(true)');
+    expect(source).toContain('navigateWorkspace("tracker")');
     expect(source).toContain('document.querySelector(scrollTarget)?.scrollIntoView');
-    expect(source).toContain('document.querySelector<HTMLElement>("#workout-tracker")?.scrollIntoView');
-    expect(source).toContain('const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);');
-    expect(source).toContain('if (!sessionMode || !loggerScrollRequest) return;');
+    expect(source).toContain('<DeviceWorkoutTracker');
     expect(workoutTrackerSource).toContain('id="workout-tracker"');
+    expect(deviceTrackerSource).toContain('id="workout-tracker"');
+    expect(deviceTrackerSource).toContain('Finish workout');
     expect(stackReviewSource).toContain('id="stack-review"');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');

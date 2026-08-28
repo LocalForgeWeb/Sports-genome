@@ -19,6 +19,7 @@ import { WeeklyMuscleVolumePanel } from "@/components/WeeklyMuscleVolumePanel";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
 import { WorkoutExecutionPanel } from "@/components/WorkoutExecutionPanel";
 import { PROGRESSION_APPROVAL_EVENT, SEGMENT_PRIORITY_APPROVAL_EVENT, SEGMENT_SUGGESTION_APPROVAL_EVENT } from "@/components/WorkoutExecutionPanel";
+import { DeviceWorkoutTracker } from "@/components/DeviceWorkoutTracker";
 import { MovementAtlasPanel } from "@/components/MovementAtlasPanel";
 import { DayExercisePicker } from "@/components/DayExercisePicker";
 import { PrintableWorkoutSheet, PrintWorkoutButton } from "@/components/PrintableWorkoutSheet";
@@ -53,7 +54,7 @@ import { EmailAuthScreen } from "@/components/EmailAuthScreen";
 import { trpc } from "@/lib/trpc";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 
-type Workspace = "command" | "profile" | "progress" | "recommended" | "custom" | "day-plan" | "body" | "movement" | "catalog" | "genome" | "strength" | "more";
+type Workspace = "command" | "profile" | "progress" | "recommended" | "custom" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "genome" | "strength" | "more";
 type Goal = TrainingGoal;
 type StackMode = "suggested" | "custom";
 type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
@@ -94,6 +95,7 @@ const navItems: { id: Workspace; label: string; icon: typeof Target; detail: str
   { id: "profile", label: "About Me", icon: UsersRound, detail: "baseline & equipment", group: "Home" },
   { id: "progress", label: "Progress", icon: BarChart3, detail: "training & observation record", group: "Home" },
   { id: "day-plan", label: "Training Days", icon: Layers3, detail: "design each saved day", group: "Train" },
+  { id: "tracker", label: "Tracker", icon: Activity, detail: "record completed workout sets", group: "Train" },
   { id: "recommended", label: "Recommendations", icon: Sparkles, detail: "sport-fit session plans", group: "Train" },
   { id: "custom", label: "Workout Builder", icon: SlidersHorizontal, detail: "coach-editable session", group: "Train" },
   { id: "movement", label: "Movement Atlas", icon: Move3d, detail: `${sportMovementProfiles.length} researched sport actions`, group: "Sport" },
@@ -118,7 +120,7 @@ const contextualWorkspaces: Record<Exclude<PrimaryDestination, "more">, Contextu
   home: [{ id: "command", label: "Home", workspace: "command" }],
   train: [
     { id: "day-plan", label: "Training Day", workspace: "day-plan" },
-    { id: "tracker", label: "Tracker", workspace: "day-plan" },
+    { id: "tracker", label: "Tracker", workspace: "tracker" },
     { id: "recommended", label: "Matches", workspace: "recommended" },
     { id: "custom", label: "Builder", workspace: "custom" },
     { id: "stack-review", label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review" },
@@ -279,9 +281,10 @@ export default function Home() {
     setActiveSplitDay(splitDays[0]);
   }, [splitDays, activeSplitDay, activeSplitDayIndex]);
   useEffect(() => {
-    if (!sessionMode || !loggerScrollRequest) return;
-    document.querySelector<HTMLElement>("#workout-tracker")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [sessionMode, loggerScrollRequest]);
+    if (!sessionMode) return;
+    setSessionMode(false);
+    navigateWorkspace("tracker");
+  }, [sessionMode]);
   const draftedLoadout = useMemo(() => {
     const sportSeed = getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId).map((item) => item.exercise);
     const pool = filterStackForEquipment(getSplitExercisePool(exercises, activeSplitDay, sportSeed), athleteBaseline.equipment);
@@ -694,11 +697,7 @@ export default function Home() {
   const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => {
     navigateWorkspace(tab.workspace);
     setActiveContextTab(tab.id);
-    if (tab.id === "tracker") {
-      setSessionMode(true);
-      setLoggerScrollRequest((request) => request + 1);
-      return;
-    }
+    if (tab.id === "tracker") return;
     const scrollTarget = tab.scrollTarget;
     if (scrollTarget) window.setTimeout(() => document.querySelector(scrollTarget)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   };
@@ -718,6 +717,7 @@ export default function Home() {
       </header>
       {contextualWorkspaceTabs.length > 1 && <nav className="workspace-top-switcher" aria-label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}>{contextualWorkspaceTabs.map((tab) => { const active = activeContextTabId === tab.id; return <button type="button" key={tab.id} onClick={() => navigateContextualWorkspace(tab)} aria-current={active ? "page" : undefined} className={active ? "workspace-top-switcher-active" : ""}>{tab.label}</button>; })}</nav>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[#58728e]">Loading Exercise Genome analysis…</div></main>}><main className={`apex-content ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
+        {workspace === "tracker" && <section className="tracker-workspace"><div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseWeeklyDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="view-header"><div><p className="metric-label">06 / exercise catalog</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">{exercises.length} tools.<br /><em className="text-[#e4512e]">Built for choice.</em></h1></div><div className="view-header-note"><Dumbbell className="h-5 w-5 text-[#e4512e]" /><p>Search by the way you train, filter down to the right options, and heart the exercises you want to keep close. Connection badges compare each tool with the currently selected sport action; they describe mapped support, not guaranteed transfer.</p></div></div><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={setAthleteBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} />}
         {workspace === "more" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={rebuildPlan}>Restart onboarding</button></div></section>}
