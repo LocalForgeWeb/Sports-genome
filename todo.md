@@ -50,6 +50,11 @@
 - [ ] Establish cohesive navy, bone, gold, vermilion, and workflow-blue app-surface styling for the mobile shell and its primary planning panels.
 - [x] Remove persistent Automatic Stacks, Evidence, and Program Lens cards from the primary mobile canvas, replacing them with a single optional Plan Context disclosure.
 - [x] Preserve access to equipment editing and source/methodology detail from the compact Plan Context disclosure without repeating those blocks on every workspace.
+- [x] Remove Plan Context from the default workspace canvas.
+- [ ] Verify dedicated, on-demand access to equipment editing and evidence/methodology after Plan Context removal.
+- [x] Correct contextual Train and Explore visual state so exactly one top tab receives the active underline at a time, with local Tracker and Body Lab browser checks.
+- [ ] Add interaction or render coverage for each Train and Explore contextual tab, asserting exactly one `aria-current="page"` and active visual class after navigation.
+- [ ] Verify explicit on-demand routes for equipment editing and evidence/methodology after Plan Context removal, then protect them with focused regression coverage.
 - [x] Reduce mobile recommendation and action cards to decision-critical exercise name, role, and primary action; move list provenance and evidence detail behind concise disclosure.
 - [x] Rework the mobile recommendation overview so sport-program evidence and mechanics are available on demand rather than consuming the initial screen.
 - [x] Enlarge the official Sports Genome rail logo and remove its contrasting boxed treatment so it blends with the navy navigation background.

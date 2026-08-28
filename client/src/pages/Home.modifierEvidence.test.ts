@@ -37,31 +37,21 @@ vi.mock("@/lib/trpc", () => ({
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
-describe("Home planning-surface modifier evidence", () => {
+describe("Home decision-first planning surfaces", () => {
   beforeEach(() => { stateCalls = 0; });
 
   for (const target of ["recommended", "custom", "day-plan"] as const) {
-    it(`renders selected modifier sources in the ${target} planning surface`, async () => {
+    it(`keeps equipment and methodology detail off the initial ${target} planning surface`, async () => {
       workspace = target;
       const { default: Home } = await import("./Home");
       const markup = renderToStaticMarkup(createElement(Home));
 
-      expect(markup).toContain("Active sport modifier evidence");
-      expect(markup).toContain("recommendations, smart drafts, and generated weeks");
-      expect(markup).toContain("General sport evidence inventory");
-      expect(markup).toContain("Automatic stacks:");
-      expect(markup).toContain("Commercial gym equipment");
-      expect(markup).toContain('aria-label="Edit available equipment"');
-      expect(markup).not.toContain("This applies to recommendations, smart drafts, generated weeks, and active training days");
-      expect(markup).toContain("Sport-to-program hierarchy");
-      expect(markup).toContain("Movement:");
-      expect(markup).toContain("Physiological demand:");
-      expect(markup).toContain("Physical quality");
-      expect(markup).toContain("Adaptation target:");
-      expect(markup).toContain("Modality:");
-      expect(markup).toContain("Exercise role:");
-      expect(markup).toContain("Programming boundary");
-      if (target === "recommended") expect(markup).toContain("Hierarchy trace");
+      expect(markup).not.toContain("Active sport modifier evidence");
+      expect(markup).not.toContain("Automatic stacks:");
+      expect(markup).not.toContain('aria-label="Edit available equipment"');
+      expect(markup).not.toContain("Sport-to-program hierarchy");
+      expect(markup).not.toContain("Physiological demand:");
+      expect(markup).not.toContain("Programming boundary");
     });
   }
 

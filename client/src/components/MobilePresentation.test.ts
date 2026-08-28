@@ -28,7 +28,7 @@ describe("mobile athlete presentation", () => {
     expect(mobileStyles).toContain("env(safe-area-inset-bottom)");
     expect(mobileStyles).toContain(".feature-guide-button span { display: none; }");
     expect(mobileStyles).toContain(".genome-methodology");
-    expect(mobileStyles).toContain(".apex-topbar { min-height: 76px");
+    expect(mobileStyles).toContain(".apex-topbar { min-height: 88px");
   });
 
   it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {
@@ -46,8 +46,7 @@ describe("mobile athlete presentation", () => {
     expect(appStyles).toContain('.recommendation-add { width: 44px; height: 44px; }');
     expect(appStyles).toContain('.apex-content > section.space-y-5 > div.border-l-2 { display: none; }');
     expect(appStyles).toContain('.apex-content > section.space-y-5 .view-header-note { display: none; }');
-    expect(home).toContain('<details className="plan-context">');
-    expect(home).toContain('Plan context</span><small>Equipment & evidence</small>');
-    expect(home).toContain('<HierarchyPlanningDisclosure');
+    expect(home).not.toContain('<details className="plan-context">');
+    expect(home).not.toContain('<HierarchyPlanningDisclosure');
   });
 });

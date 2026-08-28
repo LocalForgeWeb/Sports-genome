@@ -545,7 +545,7 @@ select {
   }
 }
 
-/* iPhone-first primary navigation: five clear daily destinations, guarded by the safe area. */
+/* iPhone-first primary navigation: six clear daily destinations, guarded by the safe area. */
 .mobile-bottom-nav { display: none; }
 
 @media (min-width: 1024px) {
@@ -558,7 +558,7 @@ select {
 }
 
 @media (max-width: 1023px) {
-  .apex-content { padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
+  .apex-content { padding-bottom: calc(5.8rem + env(safe-area-inset-bottom, 0px)); }
   .mobile-workspace-dock { position: fixed; z-index: 46; right: 0; bottom: 0; left: 0; border-top: 1px solid rgb(99 137 175 / .45); background: rgb(8 31 59 / .97); box-shadow: 0 -14px 34px rgb(4 20 40 / .22); backdrop-filter: blur(18px); }
   .mobile-bottom-nav {
     position: relative;
@@ -581,23 +581,24 @@ select {
   .mobile-bottom-nav button {
     display: grid;
     min-width: 0;
-    min-height: 3.65rem;
+    min-height: 4.25rem;
     place-content: center;
-    gap: .22rem;
+    gap: .34rem;
     color: #b8cde0;
-    font-size: .52rem;
+    font-size: .66rem;
     font-weight: 800;
-    letter-spacing: .025em;
+    letter-spacing: .015em;
     line-height: 1;
     text-align: center;
     transition: background .16s var(--ease-out), color .16s var(--ease-out), transform .16s var(--ease-out);
   }
   .mobile-bottom-nav button:active { transform: scale(.96); }
+  .mobile-bottom-nav button svg { width: 1.2rem; height: 1.2rem; }
   .mobile-bottom-nav button:focus-visible { outline: 2px solid #f2c14d; outline-offset: -3px; }
   .mobile-bottom-nav button:hover, .mobile-bottom-nav-active { background: linear-gradient(180deg, rgb(45 108 223 / .3), rgb(25 78 150 / .4)); color: #fff; }
   .mobile-bottom-nav-active svg { color: #f2c14d; }
-  .workspace-top-switcher { top: 72px; min-height: 54px; gap: .5rem; padding: 4px .75rem; }
-  .workspace-top-switcher button { min-height: 48px; padding: 0 .78rem; font-size: .68rem; }
+  .workspace-top-switcher { top: 88px; min-height: 58px; gap: .75rem; padding: 5px .85rem; }
+  .workspace-top-switcher button { min-height: 52px; padding: 0 .9rem; font-size: .74rem; }
   .plan-context { margin: .8rem 0; border-radius: 12px; }
   .plan-context summary { min-height: 52px; padding: .65rem .85rem; }
   .plan-context summary > span { font-size: .76rem; }
@@ -668,7 +669,7 @@ select {
 .topbar-context-chips { display: flex; min-width: 0; flex-wrap: wrap; gap: .35rem; margin-top: .32rem; }
 .topbar-context-chips span { max-width: 12rem; overflow: hidden; border: 1px solid #cbdcec; border-radius: 999px; background: #fff; padding: .24rem .58rem; color: #315a82; font-size: .7rem; font-weight: 750; letter-spacing: .02em; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-context-chips span:last-child { border-color: #ecd795; background: #fff9e8; color: #806012; }
-@media (max-width: 640px) { .apex-topbar { min-height: 5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .64rem; letter-spacing: .12em; } .topbar-brand-logo { width: 52px; height: 52px; } .topbar-context-chips { flex-wrap: nowrap; max-width: calc(100vw - 10rem); overflow: hidden; } .topbar-context-chips span { max-width: 7.4rem; flex: 0 1 auto; } .topbar-context-chips span:last-child { max-width: 4.5rem; } }
+@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .68rem; letter-spacing: .12em; } .topbar-brand-logo { width: 60px; height: 60px; } .topbar-context-chips { flex-wrap: nowrap; max-width: calc(100vw - 11.5rem); overflow: hidden; } .topbar-context-chips span { max-width: 7.4rem; flex: 0 1 auto; } .topbar-context-chips span:last-child { max-width: 4.5rem; } }
 
 /* Retire legacy neon accents from the authenticated command and inspection surfaces. */
 .command-hero .metric-label, .command-hero h1 em, .command-signal-card .metric-label, .command-signal-card button { color: #f2c14d !important; }
