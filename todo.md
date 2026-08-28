@@ -118,6 +118,9 @@
 - [x] Keep the staged boot reveal smooth, reduced-motion safe, and visually centered without audio, rotation, sideways marks, or substitute/orbit graphics.
 - [x] Add regression and phone-width visual validation for the corrected staged boot sequence before publication.
 - [x] Preload the exact boot silhouette and DNA-detail layers so the short staged launch does not wait for image loading.
+- [x] Evaluate the supplied intro video and, if suitable, integrate it as a muted short launch visual without replacing the protected upright Sports Genome mark.
+- [x] Preserve the existing silent staged logo fallback for reduced-motion, failed video loading, or unavailable autoplay.
+- [x] Validate video-led intro playback, muting, fallback, and mobile handoff before publication.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.
@@ -233,11 +236,12 @@
 
 - [ ] Inventory every athlete-facing numeric score, threshold, weight, volume target, rating, recommendation constant, and visible placeholder across client, server, catalog, and sport data.
 - [ ] Classify each inventoried value as source-backed, transparent product-design constraint, athlete-entered value, or unsupported placeholder; retain an evidence or rationale reference for each surviving value.
-- [ ] Clarify the Exercise Genome sport-action 0–100 value as a catalog mapping input rather than a skill, performance, population, or strength rank.
+- [x] Clarify the Exercise Genome sport-action 0–100 value as a catalog mapping input rather than a skill, performance, population, or strength rank.
 - [x] Remove the obstructive post-sport-change feedback message from mobile Profile and retain only nonblocking state updates.
 - [x] Replace the confusing Catalog sport-fit selector with a simple action-link filter that offers Direct support and Supporting link only.
 - [x] Correct low-contrast athlete-facing text across the reported mobile Movement, Profile, and Catalog dark surfaces.
 - [x] Add regression and phone-width validation for the sport-change, action-link-filter, and contrast corrections before publication.
+- [ ] Reset stale Catalog query and filters after a sport change so exercise discovery starts clean for the new athlete context.
 - [ ] Recalibrate, relabel, or remove unsupported fixed values and athlete-facing placeholders without representing planning estimates as direct scientific measurements.
 - [x] Add central traceability metadata and regression coverage so calibrated values, source boundaries, and non-placeholder states do not silently drift.
 - [ ] Complete an exhaustive evidence-to-logic inventory across remaining client components, server auth/logging paths, catalog data, and sport-data records; record every athlete-facing numeric or placeholder surface.

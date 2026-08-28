@@ -15,30 +15,40 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
-    <link rel="preload" as="image" href="/manus-storage/sports-genome-upright-s-silhouette-exact_349405db.png" fetchpriority="high" />
-    <link rel="preload" as="image" href="/manus-storage/sports-genome-upright-dna-detail-exact_8e94e37f.png" fetchpriority="high" />
+	    <link rel="preload" as="image" href="/manus-storage/sports-genome-upright-s-silhouette-exact_349405db.png" fetchpriority="high" />
+	    <link rel="preload" as="image" href="/manus-storage/sports-genome-upright-dna-detail-exact_8e94e37f.png" fetchpriority="high" />
+	    <link rel="preload" as="video" href="/manus-storage/sports-genome-intro-source_07000a26.mp4" type="video/mp4" fetchpriority="high" />
     <script>try{document.documentElement.dataset.sportsGenomeBoot=localStorage.getItem("sports-genome-launch-experience-enabled-v1")==="off"?"off":"on";if(document.documentElement.dataset.sportsGenomeBoot==="on")document.documentElement.dataset.sportsGenomeBootStartedAt=String(Date.now())}catch(e){document.documentElement.dataset.sportsGenomeBoot="on";document.documentElement.dataset.sportsGenomeBootStartedAt=String(Date.now())}</script>
     <style>
       html,body{margin:0;min-height:100%;background:#0b2240}
-      #sports-genome-boot-splash{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:#0b2240;color:#f7f4ec;isolation:isolate;transition:opacity 180ms cubic-bezier(.23,1,.32,1),visibility 180ms}
+	      #sports-genome-boot-splash{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:#07182e;color:#f7f4ec;isolation:isolate;transition:opacity 180ms cubic-bezier(.23,1,.32,1),visibility 180ms}
       #sports-genome-boot-splash:before,#sports-genome-boot-splash:after{position:absolute;content:"";border-radius:999px;filter:blur(64px);pointer-events:none}
       #sports-genome-boot-splash:before{width:58vw;height:34vh;background:#07182e;transform:translate(-24vw,-20vh);opacity:.74}
       #sports-genome-boot-splash:after{width:38vw;height:24vh;background:#153d69;transform:translate(34vw,28vh);opacity:.3}
-      .sports-genome-boot-content{position:relative;display:grid;justify-items:center;gap:10px;padding:28px;text-align:center}
-      .sports-genome-boot-mark{position:relative;width:min(188px,48vw);aspect-ratio:1;display:grid;place-items:center;filter:drop-shadow(0 0 26px rgba(228,81,46,.14))}
+	      .sports-genome-boot-content{position:relative;display:grid;justify-items:center;gap:10px;padding:28px;text-align:center}
+	      .sports-genome-boot-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#07182e;opacity:0;pointer-events:none}
+	      .sports-genome-boot-mark{position:relative;width:min(188px,48vw);aspect-ratio:1;display:grid;place-items:center;filter:drop-shadow(0 0 26px rgba(228,81,46,.14))}
       .sports-genome-boot-logo{display:block;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(.94);filter:brightness(.52) drop-shadow(0 10px 18px rgba(0,0,0,.2));will-change:transform,opacity,filter;animation:boot-mark-form 640ms 110ms cubic-bezier(.23,1,.32,1) both}
       .sports-genome-boot-dna-detail{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:0;transform:scale(.96);filter:brightness(.58) drop-shadow(0 8px 15px rgba(228,81,46,.12));will-change:transform,opacity,filter;animation:boot-dna-lines-in 310ms 700ms cubic-bezier(.23,1,.32,1) both}
       .sports-genome-boot-name{margin:0;font:800 clamp(22px,6vw,32px)/.92 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;opacity:0;transform:scale(.98);animation:boot-wordmark-in 300ms 930ms cubic-bezier(.23,1,.32,1) both}
-      .sports-genome-boot-label{margin:0;color:#c4d4e4;font:700 10px/1 "DM Sans",sans-serif;letter-spacing:.24em;text-transform:uppercase;opacity:0;transform:scale(.98);animation:boot-wordmark-in 260ms 1.08s cubic-bezier(.23,1,.32,1) both}
-      html[data-sports-genome-boot="off"] #sports-genome-boot-splash,html.sports-genome-app-ready #sports-genome-boot-splash{opacity:0;visibility:hidden;pointer-events:none}
+	      .sports-genome-boot-label{margin:0;color:#c4d4e4;font:700 10px/1 "DM Sans",sans-serif;letter-spacing:.24em;text-transform:uppercase;opacity:0;transform:scale(.98);animation:boot-wordmark-in 260ms 1.08s cubic-bezier(.23,1,.32,1) both}
+	      html.sports-genome-boot-video-ready .sports-genome-boot-video{animation:boot-video-in 160ms cubic-bezier(.23,1,.32,1) both}
+	      html.sports-genome-boot-video-ready .sports-genome-boot-content{position:absolute;inset:0;display:block;padding:0}
+	      html.sports-genome-boot-video-ready .sports-genome-boot-mark{opacity:0;filter:none}
+	      html.sports-genome-boot-video-ready .sports-genome-boot-logo,html.sports-genome-boot-video-ready .sports-genome-boot-dna-detail{animation:none;opacity:0}
+	      html.sports-genome-boot-video-ready .sports-genome-boot-name{position:absolute;right:0;bottom:17%;left:0;z-index:1;animation:boot-wordmark-in 260ms 1.08s cubic-bezier(.23,1,.32,1) both}
+	      html.sports-genome-boot-video-ready .sports-genome-boot-label{position:absolute;right:0;bottom:12.8%;left:0;z-index:1;animation:boot-wordmark-in 220ms 1.27s cubic-bezier(.23,1,.32,1) both}
+	      html[data-sports-genome-boot="off"] #sports-genome-boot-splash,html.sports-genome-app-ready #sports-genome-boot-splash{opacity:0;visibility:hidden;pointer-events:none}
+	      @keyframes boot-video-in{from{opacity:0}to{opacity:1}}
       @keyframes boot-mark-form{0%{opacity:0;transform:scale(.94);filter:brightness(.45) blur(5px) drop-shadow(0 10px 18px rgba(0,0,0,.2))}62%{opacity:1;transform:scale(1.012);filter:brightness(1.08) blur(0) drop-shadow(0 10px 18px rgba(0,0,0,.2))}100%{opacity:1;transform:scale(1);filter:brightness(1) blur(0) drop-shadow(0 10px 18px rgba(0,0,0,.2))}}
       @keyframes boot-dna-lines-in{0%{opacity:0;transform:scale(.96);filter:brightness(.58) blur(2px) drop-shadow(0 8px 15px rgba(228,81,46,.12))}68%{opacity:1;transform:scale(1.01);filter:brightness(1.08) blur(0) drop-shadow(0 8px 15px rgba(228,81,46,.12))}100%{opacity:1;transform:scale(1);filter:brightness(1) blur(0) drop-shadow(0 8px 15px rgba(228,81,46,.12))}}
       @keyframes boot-wordmark-in{from{opacity:0;transform:scale(.98);filter:blur(4px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
-      @media (prefers-reduced-motion:reduce){#sports-genome-boot-splash{display:none}.sports-genome-boot-logo,.sports-genome-boot-dna-detail,.sports-genome-boot-name,.sports-genome-boot-label{animation:none}}
+	      @media (prefers-reduced-motion:reduce){#sports-genome-boot-splash{display:none}.sports-genome-boot-video,.sports-genome-boot-logo,.sports-genome-boot-dna-detail,.sports-genome-boot-name,.sports-genome-boot-label{animation:none}}
     </style>
   </head>
   <body>
-    <div id="sports-genome-boot-splash" aria-hidden="true"><div class="sports-genome-boot-content"><div class="sports-genome-boot-mark"><img class="sports-genome-boot-logo" src="/manus-storage/sports-genome-upright-s-silhouette-exact_349405db.png" alt="" /><img class="sports-genome-boot-dna-detail" src="/manus-storage/sports-genome-upright-dna-detail-exact_8e94e37f.png" alt="" /></div><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div></div>
+	    <div id="sports-genome-boot-splash" aria-hidden="true"><video id="sports-genome-boot-video" class="sports-genome-boot-video" src="/manus-storage/sports-genome-intro-source_07000a26.mp4" muted playsinline preload="auto" disablepictureinpicture></video><div class="sports-genome-boot-content"><div class="sports-genome-boot-mark"><img class="sports-genome-boot-logo" src="/manus-storage/sports-genome-upright-s-silhouette-exact_349405db.png" alt="" /><img class="sports-genome-boot-dna-detail" src="/manus-storage/sports-genome-upright-dna-detail-exact_8e94e37f.png" alt="" /></div><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div></div>
+	    <script>try{const video=document.getElementById("sports-genome-boot-video");const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;const startedAt=Number(document.documentElement.dataset.sportsGenomeBootStartedAt||Date.now());if(video&&!reduced&&document.documentElement.dataset.sportsGenomeBoot!=="off"){video.muted=true;video.addEventListener("canplay",()=>{if(Date.now()-startedAt>360)return;video.play().then(()=>document.documentElement.classList.add("sports-genome-boot-video-ready")).catch(()=>{});},{once:true});video.addEventListener("timeupdate",()=>{if(video.currentTime>=1.82)video.pause();});}}catch(e){}</script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>

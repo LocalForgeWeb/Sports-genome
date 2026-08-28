@@ -40,11 +40,26 @@ describe("launch experience preference", () => {
     expect(bootDocumentSource).toContain('class="sports-genome-boot-dna-detail"');
     expect(bootDocumentSource).not.toContain("sports-genome-boot-dna-mask");
     expect(bootDocumentSource).toContain("sportsGenomeBootStartedAt=String(Date.now())");
-    expect(bootDocumentSource).toContain("background:#0b2240");
+    expect(bootDocumentSource).toContain("background:#07182e");
     expect(bootDocumentSource).not.toContain("boot-content-in");
     expect(bootDocumentSource).not.toContain("boot-upright-logo");
     expect(bootDocumentSource).not.toContain("sports-genome-boot-strand");
     expect(bootDocumentSource).not.toContain("boot-mark-orbit");
     expect(bootDocumentSource).not.toContain("M22 105C65 105");
+  });
+
+  it("uses the supplied clip only as a muted, short intro and retains the exact layered mark as its non-video fallback", () => {
+    expect(bootDocumentSource).toContain('rel="preload" as="video" href="/manus-storage/sports-genome-intro-source_07000a26.mp4" type="video/mp4" fetchpriority="high"');
+    expect(bootDocumentSource).toContain('id="sports-genome-boot-video"');
+    expect(bootDocumentSource).toContain('muted playsinline preload="auto" disablepictureinpicture');
+    expect(bootDocumentSource).toContain('object-fit:contain;background:#07182e');
+    expect(bootDocumentSource).toContain('video.muted=true');
+    expect(bootDocumentSource).toContain('sports-genome-boot-video-ready');
+    expect(bootDocumentSource).toContain('if(video.currentTime>=1.82)video.pause()');
+    expect(bootDocumentSource).toContain('if(video&&!reduced&&document.documentElement.dataset.sportsGenomeBoot!=="off")');
+    expect(bootDocumentSource).toContain('bottom:17%');
+    expect(bootDocumentSource).toContain('bottom:12.8%');
+    expect(bootDocumentSource).toContain('sports-genome-upright-s-silhouette-exact_349405db.png');
+    expect(bootDocumentSource).toContain('sports-genome-upright-dna-detail-exact_8e94e37f.png');
   });
 });

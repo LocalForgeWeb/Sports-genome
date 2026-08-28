@@ -55,3 +55,13 @@ The final 1366×768 ready frame confirms the boot surface clears before the Home
 Runtime verification at 390×844 with `prefers-reduced-motion: reduce` emulated confirmed the document splash is immediately bypassed or removed and the workspace is mounted, preserving a non-animated entry path.
 
 The populated 390×844 Wrestling double-leg Catalog verification shows four `Direct support` results when that action-link filter is selected and readable `Supporting link` results when its companion filter is selected. The legacy sport-fit grade selector is absent from the DOM; catalog tags remain separately labeled and are not used for the action-link filter.
+
+The expanded 390×844 double-leg Catalog control review confirms that the replacement filter is visibly labeled `Action link`, displays `Direct support` as the selected option, and sits with the established category, movement, equipment, muscle, favorites, and clear controls. The retired `Sport fit` selector is absent.
+
+The populated 390×844 Profile capture immediately after changing sports shows the updated sport chip and editable athlete-profile controls with no retained-workout or sport-context toast covering the form.
+
+The supplied video-led boot sequence was captured at 390×844 with the video confirmed decoded, muted, playing, and stopped before its late non-launch sequence. Its early frame presents a large centered upright silver S on an edge-to-edge navy field with no square-card treatment; the next captured stage retains the upright S while the source’s vermilion inner detail resolves.
+
+An initial contain-framed wordmark review confirmed clear separation from the upright mark but exposed a visible square video-field seam against the surrounding boot navy. The next adjustment aligns the boot surface to the source video field while retaining the whole unaltered mark and the separate wordmark placement.
+
+The final contained 390×844 wordmark frame shows the supplied upright S/DNA mark fully visible on a continuous near-black navy field, with `Sports Genome` and `Decoding performance` separated beneath it. The ready frame shows the document splash fully cleared to the workspace before the source clip can enter its later unrelated animation.
