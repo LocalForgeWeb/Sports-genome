@@ -1,0 +1,50 @@
+[
+  {
+    "key": "32084107",
+    "relevance_score": 85,
+    "methodological_quality_score": 70,
+    "population_relevance_score": 80,
+    "measurement_reliability_score": 75,
+    "specificity_score": 80,
+    "extraction_confidence_score": 95,
+    "decision": "review",
+    "rationale": "Retrospective study on DI athletes' back squat and injury association; no causal claims.",
+    "safety_flags": "injury risk association"
+  },
+  {
+    "key": "10.47206/ijsc.v2i1.138",
+    "relevance_score": 70,
+    "methodological_quality_score": 80,
+    "population_relevance_score": 65,
+    "measurement_reliability_score": 85,
+    "specificity_score": 70,
+    "extraction_confidence_score": 95,
+    "decision": "review",
+    "rationale": "Normative reference for female preacher curl 10RM; limited to college-aged females.",
+    "safety_flags": "none"
+  },
+  {
+    "key": "11474340",
+    "relevance_score": 75,
+    "methodological_quality_score": 60,
+    "population_relevance_score": 70,
+    "measurement_reliability_score": 70,
+    "specificity_score": 75,
+    "extraction_confidence_score": 95,
+    "decision": "review",
+    "rationale": "Small sample of DI wrestlers evaluating simulated tournament responses and weight loss.",
+    "safety_flags": "weight loss protocols"
+  },
+  {
+    "key": "19675471",
+    "relevance_score": 70,
+    "methodological_quality_score": 60,
+    "population_relevance_score": 60,
+    "measurement_reliability_score": 75,
+    "specificity_score": 70,
+    "extraction_confidence_score": 95,
+    "decision": "review",
+    "rationale": "Correlational study on teenage male tennis players; small sample size and no causal claims.",
+    "safety_flags": "none"
+  }
+]

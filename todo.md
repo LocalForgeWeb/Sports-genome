@@ -7,6 +7,9 @@
 - [ ] Complete and publish the remaining non-device Sports Genome work in priority order: evidence-bounded Strength Genome, iPhone-first workflow polish, Body Lab refinement, and visible-data integrity cleanup.
 - [ ] Complete each active implementation milestone through user-facing integration, full validation, publication, and GitHub synchronization before moving to the next milestone.
 - [ ] Keep physical-device, authenticated, and Safari verification tasks explicitly open until they are observed rather than inferred from source or automated tests.
+- [x] Design a Supabase-backed raw-to-staging research-ingestion foundation that preserves provenance, duplicate checks, explicit validation status, and separation from private athlete data.
+- [x] Connect the approved Zapier data path for a small manual and ten-candidate research-ingestion pilot before any larger-scale import.
+- [ ] Expand research only through provenance-preserving raw intake, staging validation, duplicate review, explicit approval, and versioned integration; audit athlete-facing values against exact source and user-data qualification gates.
 
 ## Strength Genome
 

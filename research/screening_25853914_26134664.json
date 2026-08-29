@@ -1,0 +1,50 @@
+[
+  {
+    "key": "25853914",
+    "relevance_score": 85,
+    "methodological_quality_score": 80,
+    "population_relevance_score": 75,
+    "measurement_reliability_score": 80,
+    "specificity_score": 60,
+    "extraction_confidence_score": 95,
+    "decision": "review",
+    "rationale": "Randomized parallel-group on training load and hypertrophy, but lacks broad norms or sport transfer.",
+    "safety_flags": "none"
+  },
+  {
+    "key": "33049982",
+    "relevance_score": 45,
+    "methodological_quality_score": 55,
+    "population_relevance_score": 70,
+    "measurement_reliability_score": 50,
+    "specificity_score": 35,
+    "extraction_confidence_score": 95,
+    "decision": "reject",
+    "rationale": "Acute surface-EMG study lacking individual contribution, hypertrophy outcomes, or sport transfer.",
+    "safety_flags": "none"
+  },
+  {
+    "key": "28538321",
+    "relevance_score": 50,
+    "methodological_quality_score": 60,
+    "population_relevance_score": 65,
+    "measurement_reliability_score": 55,
+    "specificity_score": 40,
+    "extraction_confidence_score": 95,
+    "decision": "reject",
+    "rationale": "Controlled EMG comparison of squats lacking long-term adaptation, norms, or sport transfer.",
+    "safety_flags": "none"
+  },
+  {
+    "key": "26134664",
+    "relevance_score": 40,
+    "methodological_quality_score": 55,
+    "population_relevance_score": 65,
+    "measurement_reliability_score": 50,
+    "specificity_score": 30,
+    "extraction_confidence_score": 95,
+    "decision": "reject",
+    "rationale": "Comparative EMG of core in row variations lacking comprehensive whole-body involvement.",
+    "safety_flags": "none"
+  }
+]

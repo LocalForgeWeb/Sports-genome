@@ -1,0 +1,23 @@
+# Sports Genome Ingestion Connector Audit — 2026-08-29
+
+The Zapier connection was provisioned against Gabe's connected accounts. Confirmed authenticated services are Apify (connection: `drumming_anniversary`), Google AI Studio (Gemini), API by Zapier, Notion (Gabe Naim's Space), Google Drive (`pokedevour@gmail.com`), and Google Sheets (`pokedevour@gmail.com`). No existing Zap workflows were returned.
+
+Apify exposes candidate-run and dataset-read actions. Gemini exposes prompt and document-understanding actions. Notion, Drive, and Sheets have read and write actions. The API by Zapier request action accepts method, URL, optional query parameters, headers, and body, but requires a URL that matches its configured domain filter.
+
+The direct Supabase connector is enabled at `https://mcp.supabase.com/mcp` and advertises project listing, SQL execution, migrations, and table inspection; however, in this session its registered callable server name was not available to the command-line integration client. The initial implementation must therefore prepare the migration and deterministic staging logic locally, then perform remote schema application and pilot execution only once the direct Supabase connection is callable in the current task or the user supplies a confirmed API path.
+
+Official Supabase guidance confirms that migrations should carry database policy changes, RLS should be enabled for exposed tables, and secret/service-role keys must never be exposed in browser code because they bypass RLS. The ingestion schema will therefore be server-controlled, default-deny for browser roles, and use a privileged ingestion actor only outside the frontend. Sources: [Database migrations](https://supabase.com/docs/guides/local-development/database-migrations), [Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security), and [Securing your data](https://supabase.com/docs/guides/database/secure-data).
+
+For the first manual screening pilot, the connected Google AI Studio action exposes `google_ai_studio_gemini_send_prompt` through Zapier with `apiVersion`, `model`, `systemInstructions`, `prompt`, `temperature`, grounding, and output-token controls. The pilot uses `gemini-2.5-flash` at low temperature and asks for a structured screening decision only; it does not permit the model to invent identifiers, numeric outcomes, or source text.
+
+The first discovered PubMed candidate (PMID 30779716) was excluded before ingestion because its PubMed page labels it as a retracted article. The manual pilot candidate is the non-retracted PubMed record [PMID 37414459](https://pubmed.ncbi.nlm.nih.gov/37414459/): *Resistance training prescription for muscle strength and hypertrophy in healthy adults: a systematic review and Bayesian network meta-analysis* (Currier et al., 2023), DOI `10.1136/bjsports-2023-106807`, PMCID `PMC10579494`.
+
+The controlled manual pilot succeeded. A connected Gemini 3.5 Flash screening action returned `review` for PMID 37414459; its raw import and staging row were created with source identities `pmid:37414459` and `doi:10.1136/bjsports-2023-106807`, source payload SHA-256 `142970d7f6c60c2089a90a01ed7e8f4da676d4f9b05923e62daf40271c1e6e38`, and validation status `needs_review`. A verification query confirmed one raw row and one review-stage row with **zero** production study rows. The Supabase security advisor’s `RLS Enabled No Policy` findings are expected informational findings for this private, default-deny reference-data store because browser roles are explicitly revoked; no public read or write policy has been granted.
+
+## Ten-candidate breadth pilot
+
+The discovery batch produced ten provenance-ready research candidates. All ten were stored first in `raw_imports` with a normalized source URL, extracted external identifier when present, immutable payload hash, and no production linkage.
+
+Gemini screening is review triage only. One malformed response using a 0–5 scale was rejected and logged as `screening_score_scale_invalid`; it was not staged. Three narrowly scoped acute EMG candidates were recorded as review-scope rejections rather than used for broad exercise or athlete claims. Six candidates plus the earlier manual pilot are now in `staging_studies` with `validation_status = needs_review`. Their population and protocol limitations remain stored alongside them, including injury-association, weight-loss, sex, age, and correlational-design boundaries.
+
+The verified database boundary after this pilot is **11 raw imports, 7 staged raw records, 4 rejected or invalid raw records, 7 staging studies, and 0 production studies**. No source has been approved for athlete-facing ranks, recommendations, norms, or exercise-muscle claims by this pilot.
