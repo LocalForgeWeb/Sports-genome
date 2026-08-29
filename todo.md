@@ -204,6 +204,9 @@
 - [x] Add a ring-style Strength Genome status visual that represents recorded test coverage by default and a source-qualified comparison only when the exact reference gate passes, never an invented strength rank.
 - [x] Repair Stack Analysis mobile target rows so labels, descriptors, values, selection, and navigation have one consistent full-width readable layout with no overlapping or irregular cards.
 - [x] Reorganize Stack Analysis into a compact split-target summary with optional supporting detail and direct gap recommendations, without automatically opening or interrupting the flow with Body Lab content.
+- [x] Further compact Stack Analysis mobile hierarchy and surface the best direct split-compatible gap recommendations directly beneath the coverage summary before the detailed target list.
+- [x] Simplify the Strength Genome default screen by moving coverage methodology and unavailable-reference explanation behind a concise on-demand disclosure.
+- [ ] Research and integrate additional relative-strength references only when exercise identity, test protocol, equipment, population, athlete context, licensing/access, and source provenance can support a gated comparative result.
 - [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.

@@ -267,24 +267,18 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     </div>
 
 	      <section className="strength-profile-status">
-	      <div className="strength-profile-status-head">
 	        <div className="strength-profile-status-overview">
-          <div><p className="metric-label">Strength profile state</p><h2>{activeObservations.length ? "Your recorded context" : "Build your baseline"}</h2></div>
-          <div className="strength-profile-status-tools"><div className={`strength-profile-coverage-ring ${sourceMatchedObservationCount ? "is-source-qualified" : ""}`} style={{ "--coverage-progress": `${recordedCoveragePercent}%` } as CSSProperties} aria-label={`${recordedCoveragePercent}% recorded test coverage; not a strength rank`}><div><strong>{recordedCoveragePercent}</strong><span>%</span><small>coverage</small></div></div><span className="strength-profile-device-boundary"><CircleHelp className="h-3.5 w-3.5" /> {directAccess ? "This device only" : "Observation routing only"}</span></div>
-        </div>
-	        <div className="strength-profile-status-rail" aria-label="Strength profile status">
-	          <div><span>Recorded test coverage</span><strong>{observedRegionCount} <small>regions</small></strong></div>
-	          <div><span>Exact source match</span><strong>{sourceMatchedObservationCount ? `${sourceMatchedObservationCount} qualified` : "No comparative rank yet"}</strong></div>
-	          <p>{sourceMatchedObservationCount ? "A source-qualified comparison is available only for those exact reviewed-source matches." : "Coverage reflects saved test context. A comparison appears only for an exact reviewed-source match."}</p>
+          <div><p className="metric-label">Strength profile</p><h2>{activeObservations.length ? "Recorded testing" : "Start your record"}</h2><p>{observedRegionCount} mapped region{observedRegionCount === 1 ? "" : "s"}</p></div>
+          <div className="strength-profile-status-tools"><div className={`strength-profile-coverage-ring ${sourceMatchedObservationCount ? "is-source-qualified" : ""}`} style={{ "--coverage-progress": `${recordedCoveragePercent}%` } as CSSProperties} aria-label={`${recordedCoveragePercent}% recorded test coverage; not a strength rank`}><div><strong>{recordedCoveragePercent}</strong><span>%</span><small>coverage</small></div></div><span className="strength-profile-device-boundary"><CircleHelp className="h-3.5 w-3.5" /> {directAccess ? "This device" : "Private record"}</span></div>
 	        </div>
+	        <div className="strength-profile-reference-summary" aria-label="Comparative reference status"><span>Reference status</span><strong>{sourceMatchedObservationCount ? "Qualified comparison ready" : "Reference unavailable"}</strong></div>
+	        <details className="strength-profile-reference-details"><summary>How comparison works</summary><p>A comparison is shown only when your exercise, test protocol, population, and test-day body mass match a reviewed source.</p></details>
 	        <div className="strength-reference-state-visual" aria-hidden="true"><img src={sourceMatchedObservationCount ? strengthReferenceStateVisuals.qualified : strengthReferenceStateVisuals.unavailable} alt="" /></div>
-	      </div>
-      <p className="strength-profile-coverage-boundary">Recorded coverage only · not a rank.</p>
+	      </section>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
       {selectedRegion && <div ref={regionDetailRef}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} /></div>}
       {selectedRegion && <div className="strength-region-focus-row"><p><strong>Planning focus</strong> Optional. Does not change this day automatically.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>}
       <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{directAccess ? (activeObservations.length ? "Device-local records stay on this device." : "Add a result to start a device-local record.") : (overview.data?.nextAction || "Add a result to build your record.")}</span></div>
-    </section>
 
     <div className="strength-progress-grid grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
       <section className="strength-log-entry dark-panel p-5">

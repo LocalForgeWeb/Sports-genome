@@ -15,15 +15,15 @@ describe("Rate Stack split-target index", () => {
     expect(source).toContain('<details className="rate-stack-scope">');
     expect(source).toContain("Target-only score and planning note");
     expect(source).toContain("targetIndex={analysis.score}");
-    expect(stackAnalysisSource).toContain("{split} target index");
+    expect(stackAnalysisSource).toContain("{split} coverage");
     expect(stackAnalysisSource).toContain("Target coverage is calculated from this split’s intended muscles only.");
   });
 
   it("passes catalog-backed missing-target suggestions into the full review as direct add actions", () => {
     expect(source).toContain("suggestions={analysis.suggestions}");
     expect(source).toContain("onAddSuggestion={onAdd}");
-    expect(stackAnalysisSource).toContain("Suggested target additions");
-    expect(stackAnalysisSource).toContain("Add to {split} day");
+    expect(stackAnalysisSource).toContain("Best next picks");
+    expect(stackAnalysisSource).toContain("<Plus className=\"h-3.5 w-3.5\" /> Add");
   });
 
   it("uses shared high-contrast tokens for Training Day and other athlete-facing dark panels", () => {

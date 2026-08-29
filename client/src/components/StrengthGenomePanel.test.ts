@@ -63,20 +63,28 @@ describe("Strength Genome panel", () => {
 
   it("leads with recorded test coverage and exposes a comparative result only after an exact source match", () => {
     expect(source).toContain('className="strength-profile-status"');
-    expect(source).toContain('className="strength-profile-status-rail"');
+    expect(source).toContain('className="strength-profile-reference-summary"');
+    expect(source).toContain('className="strength-profile-reference-details"');
     expect(source).toContain('className={`strength-profile-coverage-ring');
-    expect(source).toContain('Recorded coverage only · not a rank');
+    expect(source).toContain('recorded test coverage; not a strength rank');
     expect(source).toContain('setSelectedRegion(null); setSelectedObservationId("");');
     expect(source).toContain('className="strength-reference-state-visual"');
     expect(source).toContain('/manus-storage/strength-qualified-reference-state_3ccc4f09.png');
     expect(source).toContain('/manus-storage/strength-reference-unavailable-state_f08bbf9c.png');
-    expect(source).toContain("Recorded test coverage");
-    expect(source).toContain("Exact source match");
-    expect(source).toContain("source-qualified comparison");
-    expect(source).toContain("No comparative rank yet");
+    expect(source).toContain("Reference status");
+    expect(source).toContain("Qualified comparison ready");
+    expect(source).toContain("match a reviewed source");
+    expect(source).toContain("Reference unavailable");
     expect(source).toContain("sourceMatchedObservationCount");
     expect(source).toContain("getPiperReferenceForObservation(observation)?.status === \"matched\"");
     expect(source).not.toContain("Top 1%");
+  });
+
+  it("keeps the default profile status concise while leaving source-match limits available on demand", () => {
+    expect(source).toContain('className="strength-profile-reference-summary"');
+    expect(source).toContain('className="strength-profile-reference-details"');
+    expect(source).toContain("Reference unavailable");
+    expect(source).toContain("How comparison works");
   });
 
   it("requires catalog exercise selection and routes common curl names to biceps context", () => {

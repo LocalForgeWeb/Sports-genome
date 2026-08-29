@@ -34,4 +34,10 @@ describe("Stack Analysis selected muscle", () => {
     expect(styles).toContain("grid-template-columns: auto minmax(0, 1fr) auto auto");
     expect(styles).toContain(".stack-analysis-row-copy { min-width: 0;");
   });
+
+  it("places direct split-compatible target additions ahead of detailed target rows", () => {
+    expect(component).toContain('className="stack-analysis-next-picks"');
+    expect(component.indexOf('className="stack-analysis-next-picks"')).toBeLessThan(component.indexOf('className="stack-analysis-list"'));
+    expect(component).toContain("Best next picks");
+  });
 });
