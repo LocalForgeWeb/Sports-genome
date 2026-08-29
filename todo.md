@@ -137,7 +137,7 @@
 - [x] Validate that the final boot-to-workspace transition is one continuous composited fade at phone and browser width.
 - [x] Shorten the silent staged S/DNA logo intro further while preserving its smooth formation and continuous fade into the workspace.
 - [x] Make the circular Sports Genome badge more prominent and slow the silent logo reveal slightly while preserving its smooth formation, dynamic wordmark bounce, and prompt workspace fade.
-- [ ] Refine the silent launch into a brief dynamic sequence where the S appears, DNA lines resolve smoothly, the wordmark arrives, and the app fades in cleanly.
+- [x] Refine the silent launch into a brief dynamic sequence where the S appears, DNA lines resolve smoothly, the wordmark arrives, and the app fades in cleanly.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.

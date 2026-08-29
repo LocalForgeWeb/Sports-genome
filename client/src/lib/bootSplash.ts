@@ -1,5 +1,5 @@
 export const bootSplashId = "sports-genome-boot-splash";
-export const minimumBootPresentationMs = 1_520;
+export const minimumBootPresentationMs = 1_720;
 
 /** Removes the document-level boot screen only after React has mounted the app. */
 export function dismissBootSplash() {
@@ -7,7 +7,7 @@ export function dismissBootSplash() {
   const splash = document.getElementById(bootSplashId);
   if (!splash) return;
   document.documentElement.classList.add("sports-genome-app-ready");
-	  window.setTimeout(() => splash.remove(), 280);
+  window.setTimeout(() => splash.remove(), 300);
 }
 
 /** A replay deliberately reloads the document so the boot screen occurs before the workspace opens. */

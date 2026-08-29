@@ -1,0 +1,7 @@
+# Launch refinement validation — 2026-08-29
+
+The 390×844 document-level capture decoded the supplied intro video, confirmed it was muted and playing, and confirmed both fallback layers were available. The generated video-path samples showed the supplied upright S/DNA artwork centered on the continuous near-black navy surface with no substitute mark, orbit, static-card seam, or audio UI. The captured 0.95-second frame already included the supplied video’s full upright artwork and wordmark; therefore, it does not independently demonstrate an earlier fallback-layer-only S frame. The source contract continues to stage the fallback S, DNA detail, and wordmark in that order, while the video remains the preferred visual path when available.
+
+The capture harness was extended from a 380ms assertion delay to 1050ms to accommodate cold video decoding before asserting video-ready state. This is a harness-only timing adjustment, not an application runtime change. The next validation step is a constrained-device pacing measurement using the longer 1.58s workspace mount threshold and 1.68s video hold.
+
+The constrained 390×844 check at four-times CPU throttling passed with 38 animation-frame samples, a 34ms p95 frame gap, and a 67ms maximum frame gap. It confirmed muted playback, a 1.43-second held video frame, and no fallback requirement on that run. This remains generated-browser validation only; iPhone Safari and installed-PWA behavior require manual device observation.
