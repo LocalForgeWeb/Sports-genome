@@ -16,4 +16,11 @@ describe("Programming Guide default-value boundary", () => {
     expect(styles).toContain(".destination-train .programming-guide-boundary summary { display: flex; min-height: 44px;");
     expect(styles).toContain(".destination-train .programming-guide-boundary summary:focus-visible");
   });
+
+  it("keeps the full planning guide on demand while exposing only a compact editable-prescription summary by default", () => {
+    expect(source).toContain('<details className="programming-guide-disclosure">');
+    expect(source).toContain("<summary>");
+    expect(source).toContain("Open planning guide");
+    expect(source).toContain("{diagnostics.totalSets} work sets");
+  });
 });
