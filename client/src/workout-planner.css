@@ -81,3 +81,6 @@
   .day-exercise-picker-head h3 { font-size: 1.35rem; }
   .day-exercise-picker-head p:last-child { display: none; }
 }
+
+/* Shared high-contrast controls for the navy prescription surface. */
+.day-order-controls button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-muted-on-dark); }.day-picker-result-count { margin: .8rem 0 0; color: #4c6c89; font-size: .66rem; line-height: 1.45; }.day-picker-result-count strong { color: #173f66; font-family: var(--font-display, sans-serif); font-size: 1.1rem; font-weight: 800; }.day-picker-result-direct { border-left: 3px solid #e4512e; background: #fff9f6; }.day-picker-result-direct em { color: #a5422b; }.day-picker-more { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; margin-top: .7rem; border: 1px solid #9ec0e2; background: #f4f9ff; color: #245f99; font-size: .65rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }.day-picker-more:hover { border-color: #2d6cdf; background: #e8f3ff; }

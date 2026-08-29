@@ -1,5 +1,5 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
-import type { TrainingSplit } from "@/lib/splitAssignment";
+import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment";
 import { logicCalibration } from "@/lib/evidenceTraceability";
 
 export type SplitMuscleRequirement = { muscle: string; role: "primary" | "support"; target: number };
@@ -31,9 +31,11 @@ export function analyzeSplitStack(workout: Exercise[], catalog: Exercise[], spli
   });
   const gaps = ratings.filter((rating) => rating.state === "gap");
   const high = ratings.find((rating) => rating.state === "high");
-  const existingIds = new Set(workout.map((exercise) => exercise.id));
+  const existingCatalogIds = new Set(workout.map((exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id));
   const suggestions: StackSuggestion[] = gaps.slice(0, 2).flatMap((gap) => {
-    const candidate = catalog.find((exercise) => !existingIds.has(exercise.id) && involvement(exercise, gap.muscle) > 0);
+    const candidate = catalog
+      .filter((exercise) => matchesTrainingSplit(exercise, split) && !existingCatalogIds.has(exercise.id) && involvement(exercise, gap.muscle) > 0)
+      .sort((left, right) => involvement(right, gap.muscle) - involvement(left, gap.muscle) || left.name.localeCompare(right.name))[0];
     const replaceExercise = high ? workout.find((exercise) => involvement(exercise, high.muscle) > 0) : undefined;
     return candidate ? [{ muscle: gap.muscle, candidate, replaceExercise, swapCue: replaceExercise ? `Replace ${replaceExercise.name} if total volume is fixed.` : undefined }] : [];
   });

@@ -59,4 +59,9 @@ describe("mobile athlete presentation", () => {
     expect(trainingCardStyles).toContain("position: absolute !important; top: .7rem; right: .7rem");
     expect(trainingCardStyles).toContain("width: 34px; min-width: 34px; height: 34px; min-height: 34px");
   });
+
+  it("keeps mobile navigation opaque and Training Day dark-surface controls legible against navy panels", () => {
+    expect(appStyles).toContain(".apex-topbar, .workspace-top-switcher { background: #fffdf8;");
+    expect(plannerStyles).toContain(".day-order-controls button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-muted-on-dark); }");
+  });
 });

@@ -18,4 +18,11 @@ describe("Training Day exercise finder disclosure", () => {
     expect(source).toContain("onInspect(exercise)");
     expect(source).toContain("onAdd(exercise)");
   });
+
+  it("prioritizes direct muscle matches and makes the number of matching catalog options visible before an athlete scans results", () => {
+    expect(source).toContain("export function sortDayExerciseResults");
+    expect(source).toContain("Direct target");
+    expect(source).toContain("matching options");
+    expect(source).toContain("Show more options");
+  });
 });

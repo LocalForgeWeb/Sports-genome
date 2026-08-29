@@ -19,6 +19,13 @@ describe("Rate Stack split-target index", () => {
     expect(stackAnalysisSource).toContain("not from unrelated muscles");
   });
 
+  it("passes catalog-backed missing-target suggestions into the full review as direct add actions", () => {
+    expect(source).toContain("suggestions={analysis.suggestions}");
+    expect(source).toContain("onAddSuggestion={onAdd}");
+    expect(stackAnalysisSource).toContain("Suggested target additions");
+    expect(stackAnalysisSource).toContain("Add to {split} day");
+  });
+
   it("uses shared high-contrast tokens for Training Day and other athlete-facing dark panels", () => {
     expect(globalCss).toContain("--sg-text-on-dark: #f7fbff");
     expect(globalCss).toContain("--sg-text-muted-on-dark: #c3d7ea");

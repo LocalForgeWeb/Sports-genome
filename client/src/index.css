@@ -1170,3 +1170,15 @@ select {
   outline: 2px solid var(--sg-focus-on-dark);
   outline-offset: 2px;
 }
+
+/* Phone navigation and Training Day controls must stay readable over moving content. */
+@media (max-width: 1023px) {
+  .apex-topbar, .workspace-top-switcher { background: #fffdf8; box-shadow: 0 1px 0 rgb(153 180 207 / .62); }
+}
+.destination-train :is(.day-design-hero, .day-programming-panel, .workout-health-panel) .metric-label,
+.destination-train .workout-health-disclosure > summary .metric-label,
+.destination-train .custom-prescription-inputs label,
+.destination-train .custom-detail-row label { color: var(--sg-text-muted-on-dark) !important; }
+.destination-train .day-order-controls button,
+.destination-train .duplicate-prescription,
+.destination-train .custom-prescription-inputs input { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }

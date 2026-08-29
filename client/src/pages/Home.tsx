@@ -651,6 +651,13 @@ export default function Home() {
 	  const chooseWeeklyDay = (index: number) => {
 	    const day = splitDays[index];
 	    const saved = weeklyPlan[`${index}-${day}`];
+	    if (index === activeDayIndex && day === activeSplitDay && !customWorkout.length && saved?.length) {
+	      setCustomWorkout(saved);
+	      setPrescriptions((current) => ({ ...current, ...(weeklyPrescriptions[`${index}-${day}`] || {}) }));
+	      toast("Saved day restored", { description: `${day} was restored from your weekly map.` });
+	      return;
+	    }
+	    if (index === activeDayIndex && day === activeSplitDay) return;
 	    const previousKey = `${activeDayIndex}-${activeSplitDay}`;
 	    setWeeklyPlan((current) => ({ ...current, [previousKey]: customWorkout }));
 	    setWeeklyPrescriptions((current) => ({ ...current, [previousKey]: Object.fromEntries(customWorkout.map((exercise, exerciseIndex) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(exerciseIndex, goal)])) }));

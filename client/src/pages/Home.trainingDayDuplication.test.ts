@@ -23,4 +23,13 @@ describe("Training Day duplicate prescriptions", () => {
     expect(source).toContain('window.addEventListener("duplicate-training-exercise", duplicateFromPrescription)');
     expect(source).toContain("if (current.some((item) => catalogExerciseIdFor(item) === exercise.id))");
   });
+
+  it("never clears the active Push stack when an athlete reselects the already active Training Day", () => {
+    expect(source).toContain("if (index === activeDayIndex && day === activeSplitDay) return;");
+  });
+
+  it("recovers a saved active Push stack when a prior session persisted an empty active snapshot", () => {
+    expect(source).toContain("if (index === activeDayIndex && day === activeSplitDay && !customWorkout.length && saved?.length)");
+    expect(source).toContain('toast("Saved day restored"');
+  });
 });

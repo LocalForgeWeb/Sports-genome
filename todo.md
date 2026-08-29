@@ -189,6 +189,10 @@
 - [x] Refine Body Lab mobile so the full anatomical model fits as the primary workspace element, role rows and context are compact and tappable, and evidence detail remains progressively disclosed.
 - [x] Allow athletes to edit Training Day set counts and rep targets freely and duplicate an exercise into distinct working or test prescriptions without merging stack entries.
 - [x] Reorganize Training Day mobile into a compact build flow with grouped prescription rows, optional Stack Analysis, and an on-demand exercise finder while preserving all planning data and controls.
+- [x] Repair the reported Push stack data-loss regression and prevent saved workout entries from being overwritten during hydration or navigation.
+- [x] Make split-target exercise discovery easier and show direct split-compatible exercise recommendations when Stack Analysis finds a missing target muscle.
+- [x] Clarify exercise-score scope and source so exercise scores such as pec-fly `71/100` cannot be mistaken for an overall quality, activation, strength, or athlete rating.
+- [x] Restore readable contrast for Training Day labels, descriptions, controls, selected states, and evidence disclosures against their actual navy, white, and blue surfaces.
 - [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.
