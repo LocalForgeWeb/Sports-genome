@@ -42,7 +42,7 @@
 /* Body chart container (body-muscles library) */
 .atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:clamp(480px,60vh,700px);margin-top:.3rem;overflow:hidden;background:radial-gradient(circle at 50% 38%,#f5f8f9 0%,#fbfcfc 56%,#eef4f6 100%);border:1px solid #e8eff3}
 .atlas-body-chart{width:100%;height:clamp(460px,58vh,680px);display:flex;justify-content:center;align-items:center}
-.atlas-body-chart svg{max-height:100%;width:auto}
+.atlas-body-chart svg{height:100%!important;width:auto!important;max-width:100%!important;max-height:100%;object-fit:contain}
 .atlas-hover-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #cbd9e1;box-shadow:0 4px 12px rgb(24 53 70 / .12);padding:.4rem .7rem;font-size:.7rem;font-weight:700;color:#173b51;pointer-events:none;white-space:nowrap;z-index:5}
 
 
@@ -63,18 +63,18 @@
 .atlas-role-methodology p+p{margin-top:.45rem}
 
 /* Ranking strip — new style with color dots and bars */
-.atlas-ranking{display:grid;gap:.35rem;border-top:1px solid #dce5ea;margin-top:1rem;padding-top:.8rem}
+.atlas-ranking{display:grid;gap:.55rem;border-top:1px solid #dce5ea;margin-top:1rem;padding-top:.8rem}
 .atlas-pro-grid>.atlas-ranking{grid-column:2}
-.atlas-ranking>div{padding:.2rem .35rem}
+.atlas-ranking>div{padding:.1rem 0}
 .atlas-ranking>div>span{display:block;margin-top:.18rem;color:#7c929d;font-size:.58rem;line-height:1.25}
-.atlas-ranking button{display:grid;grid-template-columns:auto 1fr auto auto;gap:.15rem .5rem;align-items:center;border:1px solid #e8eff3;background:#fff;padding:.5rem .65rem;text-align:left;transition:border-color .15s,box-shadow .15s}
+.atlas-ranking button{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:.15rem .5rem;align-items:center;border:0;border-bottom:1px solid #dce5ea;background:transparent;padding:.5rem .35rem;text-align:left;transition:background-color .18s var(--ease-out),box-shadow .18s var(--ease-out),transform .18s var(--ease-out)}
 .atlas-ranking button:hover{border-color:#2d6cdf}
-.atlas-ranking button.is-selected{border-color:#e4512e;box-shadow:inset 0 0 0 1px #e4512e}
-.atlas-ranking .atlas-ranking-toggle{display:inline-flex;grid-template-columns:none;align-items:center;justify-content:center;justify-self:start;border-color:#c8d9e7;background:#f5f9fc;color:#2d6cdf;padding:.45rem .6rem;font-size:.61rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase}
+.atlas-ranking button.is-selected{background:#eef5fb;box-shadow:inset 3px 0 #e4512e}
+.atlas-ranking .atlas-ranking-toggle{display:inline-flex;grid-template-columns:none;align-items:center;justify-content:flex-start;justify-self:start;border:0;background:transparent;color:#2d6cdf;padding:.35rem;font-size:.61rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase}
 .atlas-ranking .atlas-ranking-toggle:hover{border-color:#2d6cdf;background:#eaf3fb}
 .atlas-rank-dot{display:block;width:.55rem;height:.55rem;border-radius:50%}
 .atlas-ranking button span{overflow:hidden;color:#345269;font-size:.66rem;font-weight:700;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
-.atlas-ranking button em{color:#73909f;font-size:.62rem;font-style:normal;font-weight:800;text-align:right}
+.atlas-ranking button em{color:#52758f;font-size:.56rem;font-style:normal;font-weight:800;text-align:right;text-transform:uppercase}.atlas-ranking button svg{color:#64849d}.atlas-ranking button:active{transform:scale(.98)}.atlas-role-section{display:grid;gap:0}.atlas-role-section>p{display:flex;justify-content:space-between;padding:.35rem 0 .15rem;color:#6e8597;font-size:.58rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.atlas-role-section>p b{color:#7990a3}.atlas-ranking-head strong{display:block;margin-top:.18rem;color:#24485e;font-size:.72rem}.atlas-ranking-head span{display:block;margin-top:.18rem;color:#6e8597;font-size:.6rem}
 .atlas-rank-bar{display:block;grid-column:span 4;height:.25rem;overflow:hidden;background:#e8eff3;border-radius:2px;margin-top:.15rem}
 .atlas-rank-bar i{display:block;height:100%;border-radius:2px;transition:width .3s ease}
 
@@ -123,8 +123,8 @@
   .atlas-pro-head h2{font-size:2.15rem}
   .atlas-pro-controls{grid-template-columns:1fr 1fr}
   .atlas-pro-search,.atlas-advanced,.atlas-reset-pro{grid-column:span 2}
-  .atlas-body-chart-wrap{min-height:390px;border-radius:12px}
-  .atlas-body-chart{height:390px}
+  .atlas-body-chart-wrap{min-height:clamp(440px,138vw,560px);border-radius:12px}
+  .atlas-body-chart{height:clamp(440px,138vw,560px)}
   .atlas-canvas-header{margin-bottom:.15rem}
   .atlas-flip-btn{min-height:44px;padding:.45rem .6rem}
   .atlas-ranking{gap:.25rem;margin-top:.65rem;padding-top:.6rem}
@@ -150,6 +150,8 @@
   .atlas-ranking{display:grid;overflow:visible;padding-bottom:0;scroll-snap-type:none}
   .atlas-ranking>div,.atlas-ranking button,.atlas-ranking .atlas-ranking-toggle{width:100%;min-width:0}
   .atlas-ranking>div{padding:.25rem .15rem}
-  .atlas-ranking button{grid-template-columns:auto 1fr auto;min-height:48px;scroll-snap-align:none}
+  .atlas-ranking button{grid-template-columns:auto minmax(0,1fr) auto auto;min-height:44px;scroll-snap-align:none}
+  .atlas-ranking button span{white-space:normal;overflow:visible;text-overflow:clip}
+  .atlas-ranking button em{font-size:.52rem}
   .atlas-ranking .atlas-ranking-toggle{justify-self:stretch;min-height:44px}
 }

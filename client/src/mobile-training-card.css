@@ -1,12 +1,17 @@
 @media (max-width: 640px) {
   .day-orderable-exercise { display: flex; flex-direction: column; }
-  .day-orderable-exercise .day-order-controls { position: static !important; order: -1; display: grid; grid-template-columns: repeat(2, minmax(44px, 1fr)); align-self: stretch; gap: .5rem; padding: .65rem .7rem .1rem; }
-  .day-orderable-exercise .day-order-controls button { width: 100%; min-height: 44px; min-width: 44px; }
+  .day-orderable-exercise .day-order-controls { position: absolute !important; top: .7rem; right: .7rem; z-index: 2; display: flex; align-self: auto; gap: .25rem; padding: 0; }
+  .day-orderable-exercise .day-order-controls button { width: 34px; min-width: 34px; height: 34px; min-height: 34px; }
   .custom-row { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: .65rem; align-items: start; padding: .7rem; }
   .custom-row > span { padding-top: .25rem; }
-  .custom-row > button:nth-child(2) { min-width: 0; }
+  .custom-row > button:nth-child(2) { min-width: 0; padding-right: 4.75rem; }
   .custom-row-actions { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: .65rem; width: 100%; }
   .custom-row-actions select, .custom-row-actions button { min-height: 44px; }
+  .duplicate-prescription { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; border: 1px solid rgb(126 171 210 / .4); background: #0b2240; color: #d6e8fa; font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  .custom-prescription-inputs { display: grid; grid-template-columns: .7fr 1.3fr; gap: .65rem; padding: 0 .7rem .65rem; }
+  .custom-prescription-inputs label { display: grid; gap: .3rem; color: #b7d8f4; font-size: .6rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .custom-prescription-inputs input { min-width: 0; min-height: 44px; border: 1px solid rgb(126 171 210 / .4); background: #0b2240; padding: 0 .65rem; color: #fff; font-size: .82rem; font-weight: 700; outline: none; }
+  .custom-prescription-inputs input:focus-visible, .duplicate-prescription:focus-visible { border-color: #f2c14d; box-shadow: 0 0 0 3px rgb(242 193 77 / .25); }
   .custom-detail-row { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; padding: 0 .7rem .85rem; }
   .custom-detail-row > button { grid-column: 1 / -1; min-height: 44px; }
   .custom-detail-row details { grid-column: 1 / -1; }

@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 const source = readFileSync(new URL("./AnatomyMap.tsx", import.meta.url), "utf8");
+const styles = readFileSync(new URL("../anatomy-clean.css", import.meta.url), "utf8");
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
@@ -88,7 +89,7 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).not.toContain('selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0');
   });
 
-  it("keeps the anatomy canvas focused by progressively disclosing lower-ranked worked muscles", async () => {
+  it("groups compact role rows by importance and progressively discloses lower-priority worked muscles", async () => {
     const { AnatomyMap } = await import("./AnatomyMap");
     const markup = renderToStaticMarkup(createElement(AnatomyMap, {
       primary: ["chest", "front delts", "triceps", "abs", "quads", "glutes"],
@@ -97,8 +98,9 @@ describe("Body Lab architecture mechanics disclosure", () => {
     }));
 
     expect(markup).toContain("Key muscle roles");
-    expect(markup).toContain("Select a muscle to inspect its action context.");
-    expect(markup).toContain("Show 3 more muscle roles");
+    expect(markup).toContain("muscles involved");
+    expect(markup).toContain("Primary movers");
+    expect(markup).toContain("+ 3 supporting muscles");
     expect(markup).toContain("How muscle roles are classified");
     expect(markup).toContain("Supporting role");
     expect(markup).toContain("Primary role");
@@ -127,6 +129,13 @@ describe("Body Lab architecture mechanics disclosure", () => {
 
     expect(markup.indexOf("Gluteal complex")).toBeLessThan(markup.indexOf("External oblique"));
     expect(markup.indexOf("External oblique")).toBeLessThan(markup.indexOf("Hamstrings"));
-    expect(markup).toContain("Stabilizer · Strong indirect evidence");
+    expect(markup).toContain("Stabilizers");
+    expect(markup).not.toContain("Stabilizer · Strong indirect evidence");
+  });
+
+  it("forces the third-party portrait SVG to fit the full mobile canvas height without clipping", () => {
+    expect(styles).toContain(".atlas-body-chart svg{height:100%!important;width:auto!important;max-width:100%!important;max-height:100%;object-fit:contain}");
+    expect(styles).toContain(".atlas-body-chart-wrap{min-height:clamp(440px,138vw,560px);border-radius:12px}");
+    expect(styles).toContain(".atlas-body-chart{height:clamp(440px,138vw,560px)}");
   });
 });

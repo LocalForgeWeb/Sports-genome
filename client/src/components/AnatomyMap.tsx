@@ -1,6 +1,6 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from "react";
 import { BodyChart, ViewSide, FRONT_MUSCLES, BACK_MUSCLES, MUSCLE_MAP } from "body-muscles";
-import { ChevronDown, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
+import { ChevronDown, ChevronRight, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
@@ -128,6 +128,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   const ranked = useMemo(() => {
     const entries: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[] = [];
     const displayRole = (key: string): Role => {
+      if (matches(key, primary)) return "Primary";
       const roles = roleDetails?.[key]?.roles || [];
       if (roles.includes("Primary Mover")) return "Primary";
       if (roles.includes("Stabilizer")) return "Stabilizer";
@@ -151,6 +152,12 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   const filteredRanked = ranked.filter(region => !query || region.label.toLowerCase().includes(query.toLowerCase()));
   const visibleRanked = showAllRanked ? filteredRanked : filteredRanked.slice(0, 5);
   const hiddenRankedCount = Math.max(0, filteredRanked.length - visibleRanked.length);
+  const roleSections: { role: Role; label: string; items: typeof visibleRanked }[] = [
+    { role: "Primary", label: "Primary movers", items: visibleRanked.filter((region) => region.role === "Primary") },
+    { role: "Stabilizer", label: "Stabilizers", items: visibleRanked.filter((region) => region.role === "Stabilizer") },
+    { role: "Synergist", label: "Supporting", items: visibleRanked.filter((region) => region.role === "Synergist") },
+  ];
+  const roleCounts = { primary: ranked.filter((region) => region.role === "Primary").length, stabilizer: ranked.filter((region) => region.role === "Stabilizer").length, supporting: ranked.filter((region) => region.role === "Synergist").length };
 
   /* Initialize and update the body-muscles chart */
   useEffect(() => {
@@ -294,17 +301,11 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             </div>
           )}
         </aside>}
-        <div className="atlas-ranking">
-          <div><p className="metric-label">Key muscle roles</p><span>Select a muscle to inspect its action context.</span></div>
-          {visibleRanked.map(region => (
-            <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""}>
-              <i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : "#d5ad43" }} />
-              <span>{region.label}</span>
-              <em>{region.roles?.join(" · ") || `${region.role} role`} · {region.confidence}</em>
-            </button>
-          ))}
-          {filteredRanked.length > 5 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer muscle roles" : `Show ${hiddenRankedCount} more muscle role${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
-        </div>
+        <section className="atlas-ranking" aria-label="Key muscle roles">
+          <div className="atlas-ranking-head"><p className="metric-label">Key muscle roles</p><strong>{ranked.length} muscles involved</strong><span>{roleCounts.primary} primary · {roleCounts.stabilizer} stabilizer · {roleCounts.supporting} supporting</span></div>
+          {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span><em>{region.roles?.[0] || `${region.role} role`}</em><ChevronRight className="h-4 w-4" /></button>)}</div>)}
+          {hiddenRankedCount > 0 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `+ ${hiddenRankedCount} supporting muscle${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
+        </section>
       </div>
     </section>
   );

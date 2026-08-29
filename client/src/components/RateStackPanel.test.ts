@@ -12,6 +12,8 @@ describe("Rate Stack split-target index", () => {
     expect(source).toContain("{split} target index {analysis.score}/100");
     expect(source).toContain("The index evaluates {split.toLowerCase()} targets only.");
     expect(source).toContain("full body map to inspect all involved muscles");
+    expect(source).toContain('<details className="rate-stack-scope">');
+    expect(source).toContain("Target-only score and planning note");
     expect(source).toContain("targetIndex={analysis.score}");
     expect(stackAnalysisSource).toContain("{split} target index");
     expect(stackAnalysisSource).toContain("not from unrelated muscles");

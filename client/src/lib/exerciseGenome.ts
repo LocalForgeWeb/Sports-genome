@@ -206,7 +206,11 @@ export function buildExerciseGenome(exercise: Exercise): ExerciseGenome {
 }
 
 export const exerciseGenomes: Record<number, ExerciseGenome> = Object.fromEntries(exercises.map((exercise) => [exercise.id, buildExerciseGenome(exercise)]));
-export const getExerciseGenome = (exercise: Exercise | number) => exerciseGenomes[typeof exercise === "number" ? exercise : exercise.id];
+export const getExerciseGenome = (exercise: Exercise | number) => {
+  if (typeof exercise === "number") return exerciseGenomes[exercise];
+  const catalogExerciseId = (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id;
+  return exerciseGenomes[catalogExerciseId];
+};
 
 const overlap = (first: string[], second: string[]) => {
   const shared = first.filter((item) => second.includes(item));

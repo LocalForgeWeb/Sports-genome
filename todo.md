@@ -186,6 +186,9 @@
 - [ ] Give Explore a discovery-lab visual system with clearer atlas, anatomy, catalog, and genome modes.
 - [x] Compress the Movement Atlas mobile hero and preserve its complete action-family filter set in a readable horizontal discovery rail.
 - [x] Clean up Movement Atlas with a shorter integrated count hero, compact athlete-facing filters, advanced taxonomy disclosure, useful sorting, and lighter tappable results while preserving all data and navigation.
+- [x] Refine Body Lab mobile so the full anatomical model fits as the primary workspace element, role rows and context are compact and tappable, and evidence detail remains progressively disclosed.
+- [x] Allow athletes to edit Training Day set counts and rep targets freely and duplicate an exercise into distinct working or test prescriptions without merging stack entries.
+- [x] Reorganize Training Day mobile into a compact build flow with grouped prescription rows, optional Stack Analysis, and an on-demand exercise finder while preserving all planning data and controls.
 - [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.

@@ -8,6 +8,8 @@ const mobileStyles = readFileSync(new URL("../mobile-navigation.css", import.met
 const catalogStyles = readFileSync(new URL("../catalog-discovery.css", import.meta.url), "utf8");
 const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8");
 const appStyles = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+const plannerStyles = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
+const trainingCardStyles = readFileSync(new URL("../mobile-training-card.css", import.meta.url), "utf8");
 
 describe("mobile athlete presentation", () => {
   it("keeps source and hierarchy methodology available through compact disclosure controls", () => {
@@ -48,5 +50,13 @@ describe("mobile athlete presentation", () => {
     expect(appStyles).toContain('.apex-content > section.space-y-5 .view-header-note { display: none; }');
     expect(home).not.toContain('<details className="plan-context">');
     expect(home).not.toContain('<HierarchyPlanningDisclosure');
+  });
+
+  it("keeps Training Day prescription-first and makes reordering a compact in-row control on phones", () => {
+    expect(plannerStyles).toContain(".day-design-main > .grid > div:first-child { order: 2; }");
+    expect(plannerStyles).toContain(".day-design-main > .grid > .day-programming-panel { order: 1; }");
+    expect(plannerStyles).toContain(".day-programming-head p:last-child { display: none; }");
+    expect(trainingCardStyles).toContain("position: absolute !important; top: .7rem; right: .7rem");
+    expect(trainingCardStyles).toContain("width: 34px; min-width: 34px; height: 34px; min-height: 34px");
   });
 });

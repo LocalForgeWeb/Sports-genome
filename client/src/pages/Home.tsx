@@ -54,9 +54,16 @@ type Workspace = "command" | "profile" | "progress" | "recommended" | "custom" |
 type Goal = TrainingGoal;
 type StackMode = "suggested" | "custom";
 type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
+type StoredWorkoutEntry = { entryId: number; catalogExerciseId: number };
+type WorkoutEntry = Exercise & { catalogExerciseId?: number };
 type WeekSnapshot = { customWorkout: Exercise[]; weeklyPlan: Record<string, Exercise[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions: WeeklyPrescriptionStore; importedPlanContext: Record<string, ImportedRoutineContext[]> };
-type StoredWeekSnapshot = { customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]> };
-type StoredWorkoutPlan = { version: 1 | 2; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]>; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number };
+type StoredWeekSnapshot = { customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; customWorkoutEntries?: StoredWorkoutEntry[]; weeklyPlanEntries?: Record<string, StoredWorkoutEntry[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]> };
+type StoredWorkoutPlan = { version: 1 | 2; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; customWorkoutEntries?: StoredWorkoutEntry[]; weeklyPlanEntries?: Record<string, StoredWorkoutEntry[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]>; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number };
+
+let duplicateEntrySequence = 0;
+const catalogExerciseIdFor = (exercise: WorkoutEntry) => exercise.catalogExerciseId || exercise.id;
+const serializeWorkoutEntries = (workout: Exercise[]): StoredWorkoutEntry[] => workout.map((exercise) => ({ entryId: exercise.id, catalogExerciseId: catalogExerciseIdFor(exercise) }));
+const duplicateWorkoutEntry = (exercise: Exercise): WorkoutEntry => ({ ...exercise, id: -(Date.now() + ++duplicateEntrySequence), catalogExerciseId: catalogExerciseIdFor(exercise) });
 
 export function buildSmartDraftWorkout(results: MovementRecommendation[]) {
   return orderHierarchyConstructedSession(results).map((result) => result.exercise);
@@ -315,6 +322,8 @@ export default function Home() {
   const serializeWeekSnapshot = (snapshot: WeekSnapshot): StoredWeekSnapshot => ({
     customWorkoutIds: snapshot.customWorkout.map((exercise) => exercise.id),
     weeklyPlanIds: Object.fromEntries(Object.entries(snapshot.weeklyPlan).map(([key, workout]) => [key, workout.map((exercise) => exercise.id)])),
+    customWorkoutEntries: serializeWorkoutEntries(snapshot.customWorkout),
+    weeklyPlanEntries: Object.fromEntries(Object.entries(snapshot.weeklyPlan).map(([key, workout]) => [key, serializeWorkoutEntries(workout)])),
     prescriptions: snapshot.prescriptions,
     exerciseSettings: snapshot.exerciseSettings,
     weeklyPrescriptions: snapshot.weeklyPrescriptions,
@@ -322,7 +331,9 @@ export default function Home() {
   });
   const restoreWeekSnapshot = (snapshot: StoredWeekSnapshot): WeekSnapshot => {
     const fromIds = (ids: number[]) => ids.map((id) => exercises.find((exercise) => exercise.id === id)).filter((exercise): exercise is Exercise => Boolean(exercise));
-    return { customWorkout: fromIds(snapshot.customWorkoutIds || []), weeklyPlan: Object.fromEntries(Object.entries(snapshot.weeklyPlanIds || {}).map(([key, ids]) => [key, fromIds(ids)])), prescriptions: snapshot.prescriptions || {}, exerciseSettings: snapshot.exerciseSettings || {}, weeklyPrescriptions: snapshot.weeklyPrescriptions || {}, importedPlanContext: snapshot.importedPlanContext || {} };
+    const fromEntries = (entries: StoredWorkoutEntry[] | undefined, fallbackIds: number[] = []) => entries?.map((entry) => { const catalogExercise = exercises.find((exercise) => exercise.id === entry.catalogExerciseId); return catalogExercise ? { ...catalogExercise, id: entry.entryId, ...(entry.entryId === entry.catalogExerciseId ? {} : { catalogExerciseId: entry.catalogExerciseId }) } : null; }).filter((exercise): exercise is Exercise => Boolean(exercise)) || fromIds(fallbackIds);
+    const planKeys = new Set([...Object.keys(snapshot.weeklyPlanEntries || {}), ...Object.keys(snapshot.weeklyPlanIds || {})]);
+    return { customWorkout: fromEntries(snapshot.customWorkoutEntries, snapshot.customWorkoutIds || []), weeklyPlan: Object.fromEntries(Array.from(planKeys).map((key) => [key, fromEntries(snapshot.weeklyPlanEntries?.[key], snapshot.weeklyPlanIds?.[key] || [])])), prescriptions: snapshot.prescriptions || {}, exerciseSettings: snapshot.exerciseSettings || {}, weeklyPrescriptions: snapshot.weeklyPrescriptions || {}, importedPlanContext: snapshot.importedPlanContext || {} };
   };
 
   useEffect(() => {
@@ -367,7 +378,7 @@ export default function Home() {
       const stored = window.localStorage.getItem(workoutPlanKey);
       if (stored) {
         const plan = JSON.parse(stored) as StoredWorkoutPlan;
-        const legacy: StoredWeekSnapshot = { customWorkoutIds: plan.customWorkoutIds || [], weeklyPlanIds: plan.weeklyPlanIds || {}, prescriptions: plan.prescriptions || {}, exerciseSettings: plan.exerciseSettings || {}, weeklyPrescriptions: plan.weeklyPrescriptions || {}, importedPlanContext: plan.importedPlanContext || {} };
+        const legacy: StoredWeekSnapshot = { customWorkoutIds: plan.customWorkoutIds || [], weeklyPlanIds: plan.weeklyPlanIds || {}, customWorkoutEntries: plan.customWorkoutEntries, weeklyPlanEntries: plan.weeklyPlanEntries, prescriptions: plan.prescriptions || {}, exerciseSettings: plan.exerciseSettings || {}, weeklyPrescriptions: plan.weeklyPrescriptions || {}, importedPlanContext: plan.importedPlanContext || {} };
         const restoredWeeks = Object.fromEntries(Object.entries(plan.weeks || { "1": legacy }).map(([week, snapshot]) => [Number(week), restoreWeekSnapshot(snapshot)]));
         const nextActiveWeek = Math.max(1, Math.min(3, plan.activeWeek || 1));
         const activeSnapshot = restoredWeeks[nextActiveWeek] || restoredWeeks[1] || restoreWeekSnapshot(legacy);
@@ -419,6 +430,8 @@ export default function Home() {
       version: 2,
       customWorkoutIds: customWorkout.map((exercise) => exercise.id),
       weeklyPlanIds: Object.fromEntries(Object.entries(weeklyPlan).map(([key, workout]) => [key, workout.map((exercise) => exercise.id)])),
+      customWorkoutEntries: serializeWorkoutEntries(customWorkout),
+      weeklyPlanEntries: Object.fromEntries(Object.entries(weeklyPlan).map(([key, workout]) => [key, serializeWorkoutEntries(workout)])),
       prescriptions,
       exerciseSettings,
       weeklyPrescriptions,
@@ -482,7 +495,7 @@ export default function Home() {
     return () => window.removeEventListener("popstate", restoreWorkspace);
   }, []);
   const addExercise = (exercise: Exercise) => setCustomWorkout((current) => {
-    if (current.some((item) => item.id === exercise.id)) {
+    if (current.some((item) => catalogExerciseIdFor(item) === exercise.id)) {
       toast("Already in this workout", { description: `${exercise.name} is already part of the active session.` });
       return current;
     }
@@ -541,6 +554,12 @@ export default function Home() {
     toast("Routine loaded", { description: `${importedDays.length}-day routine loaded with ${Object.values(nextPlan).flat().length} matched exercise${Object.values(nextPlan).flat().length === 1 ? "" : "s"}.` });
   };
   const removeExercise = (id: number) => setCustomWorkout((current) => current.filter((exercise) => exercise.id !== id));
+  const duplicateExercise = (exercise: Exercise, prescription: string, settings: ExerciseSettings) => {
+    const duplicate = duplicateWorkoutEntry(exercise);
+    setCustomWorkout((current) => [...current, duplicate]);
+    setPrescriptions((current) => ({ ...current, [duplicate.id]: prescription }));
+    setExerciseSettings((current) => ({ ...current, [duplicate.id]: { ...settings, completed: false } }));
+  };
   const replaceExercise = (outgoing: Exercise, incoming: Exercise) => {
     if (outgoing.id === incoming.id || customWorkout.some((exercise) => exercise.id === incoming.id)) return;
     setCustomWorkout((current) => current.map((exercise) => exercise.id === outgoing.id ? incoming : exercise));
@@ -578,6 +597,14 @@ export default function Home() {
 	    toast("Smart draft loaded", { description: `A diversified ${activeSplitDay.toLowerCase()} session is ready for review.` });
   };
   const updateExerciseSettings = (exerciseId: number, patch: Partial<ExerciseSettings>) => setExerciseSettings((current) => ({ ...current, [exerciseId]: { ...getExerciseSettings(current, exerciseId), ...patch } }));
+  useEffect(() => {
+    const duplicateFromPrescription = (event: Event) => {
+      const detail = (event as CustomEvent<{ exercise?: Exercise; prescription?: string; settings?: ExerciseSettings }>).detail;
+      if (detail?.exercise && detail.prescription && detail.settings) duplicateExercise(detail.exercise, detail.prescription, detail.settings);
+    };
+    window.addEventListener("duplicate-training-exercise", duplicateFromPrescription);
+    return () => window.removeEventListener("duplicate-training-exercise", duplicateFromPrescription);
+  }, [customWorkout, prescriptions, exerciseSettings]);
   useEffect(() => {
     const applyApprovedProgression = (event: Event) => {
       const recommendation = (event as CustomEvent<{ exerciseId: number; exerciseName: string; action: string; rationale: string }>).detail;
