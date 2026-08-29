@@ -10,6 +10,10 @@ After the semantic contrast update, a refreshed mounted Strength Genome inspecti
 
 The final mounted layout check confirmed the large Strength Genome header now owns an opaque deep-navy hero rather than inheriting light-panel treatment. Its white heading, gold emphasis, and muted explanation are visibly paired with that dark field. The status rail still reports only the true device-local count and unavailable comparative state; it does not show an inferred rank.
 
+### Selection and coverage-ring follow-up
+
+At 390px, the Strength profile now renders a compact circular coverage indicator beside the device boundary. It labels itself **coverage** and the adjacent boundary says **Recorded coverage only · not a rank**. A browser-driven check selected Chest through the accessible region control, verified its detail state and `aria-pressed="true"`, selected Chest again, and verified the detail cleared with `aria-pressed="false"`. This implements reversible map/selector inspection without converting saved test coverage into a comparative strength claim.
+
 ## Visual-state boundary
 
 Two new decorative Strength Genome state assets are being produced: one for a valid exact source match and one for unavailable reference context. Neither asset carries a numeral, tier, medal, percent, source result, or performance claim. Live components must continue to provide any actual source-bound comparison as text drawn from the qualified reference record, not baked into imagery.

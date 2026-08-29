@@ -8,7 +8,7 @@ describe("Strength Genome interaction feedback", () => {
   it("uses the optional nonblocking feedback helper for muscle-map, selector, and view-switch actions", () => {
     expect(source).toContain('import { emitInteractionFeedback } from "@/lib/interactionFeedback"');
     expect((source.match(/emitInteractionFeedback\(\)/g) || []).length).toBeGreaterThanOrEqual(3);
-    expect(source).toContain('if (region) { emitInteractionFeedback(); onSelect(region); }');
+    expect(source).toContain('if (region) { emitInteractionFeedback(); onSelect(selectedRegionId === region.id ? undefined : region); }');
   });
 
   it("provides a visual pressed state and visible keyboard focus for map and regional-detail actions", () => {

@@ -13,7 +13,7 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("new Date(`${observedDate}T12:00:00`)");
     expect(source).toContain("They do not create a body-mass ratio, universal estimate, tier, or population comparison.");
     expect(source).toContain("No regional strength tier is shown until supporting evidence is available.");
-    expect(source).toContain("onSelect={setSelectedRegion}");
+    expect(source).toContain('onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }}');
     expect(source).toContain("Regional record");
     expect(source).toContain("Planning focus");
     expect(source).toContain('active: !activePriorityIds.has(selectedRegion.id)');
@@ -64,6 +64,9 @@ describe("Strength Genome panel", () => {
   it("leads with recorded test coverage and exposes a comparative result only after an exact source match", () => {
     expect(source).toContain('className="strength-profile-status"');
     expect(source).toContain('className="strength-profile-status-rail"');
+    expect(source).toContain('className={`strength-profile-coverage-ring');
+    expect(source).toContain('Recorded coverage only · not a rank');
+    expect(source).toContain('setSelectedRegion(null); setSelectedObservationId("");');
     expect(source).toContain('className="strength-reference-state-visual"');
     expect(source).toContain('/manus-storage/strength-qualified-reference-state_3ccc4f09.png');
     expect(source).toContain('/manus-storage/strength-reference-unavailable-state_f08bbf9c.png');

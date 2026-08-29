@@ -23,7 +23,7 @@ const regionToMuscles: Record<string, string[]> = {
   tibialis_anterior: ["tibialis-anterior-left", "tibialis-anterior-right"],
 };
 
-export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePriorityIds, selectedRegionId, onSelect }: { regions: (StrengthRegionDefinition & { state: RegionState })[]; activePriorityIds: Set<string>; selectedRegionId?: string; onSelect: (region: StrengthRegionDefinition) => void }) {
+export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePriorityIds, selectedRegionId, onSelect }: { regions: (StrengthRegionDefinition & { state: RegionState })[]; activePriorityIds: Set<string>; selectedRegionId?: string; onSelect: (region?: StrengthRegionDefinition) => void }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<BodyChart | null>(null);
   const [view, setView] = useState<"FRONT" | "BACK">("FRONT");
@@ -45,20 +45,20 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
     try {
       chartRef.current = new BodyChart(mapRef.current, { view: view === "FRONT" ? ViewSide.FRONT : ViewSide.BACK, bodyState, enableTransitions: true, onMuscleClick: (muscleId: string) => {
         const region = regionById.get(regionByMuscle.get(muscleId) || "");
-        if (region) { emitInteractionFeedback(); onSelect(region); }
+        if (region) { emitInteractionFeedback(); onSelect(selectedRegionId === region.id ? undefined : region); }
       } });
     } catch { setFailed(true); }
     return () => { chartRef.current?.destroy(); chartRef.current = null; };
-  }, [failed, onSelect, regionById, regionByMuscle, view]);
+  }, [failed, onSelect, regionById, regionByMuscle, selectedRegionId, view]);
   useEffect(() => { chartRef.current?.update({ bodyState }); }, [bodyState]);
 
   return <section className="strength-body-map" aria-label="Interactive strength context body map">
-    <div className="strength-body-map-head"><div><p className="metric-label">Test regions</p><h2>Select a region to inspect <em>a saved test.</em></h2></div><button type="button" onClick={() => { emitInteractionFeedback(); setView((current) => current === "FRONT" ? "BACK" : "FRONT"); }}><RotateCw className="h-4 w-4" /> {view === "FRONT" ? "Back" : "Front"}</button></div>
+    <div className="strength-body-map-head"><div><p className="metric-label">Test regions</p><h2>Select a region to inspect <em>a saved test.</em></h2></div><div className="strength-body-map-actions"><button type="button" onClick={() => { emitInteractionFeedback(); setView((current) => current === "FRONT" ? "BACK" : "FRONT"); }}><RotateCw className="h-4 w-4" /> {view === "FRONT" ? "Back" : "Front"}</button>{selectedRegionId && <button type="button" aria-label="Clear selected strength region" onClick={() => { emitInteractionFeedback(); onSelect(undefined); }}>Clear</button>}</div></div>
     {failed ? <p className="strength-body-map-fallback">The anatomy view is unavailable. Use a standardized observation to build your record.</p> : <div ref={mapRef} className="strength-body-chart" />}
     <details className="strength-map-region-selector">
       <summary>Choose a region</summary>
       <div role="list" aria-label="Strength Genome regions">
-        {regions.map((region) => <button key={region.id} type="button" role="listitem" aria-pressed={selectedRegionId === region.id} onClick={() => { emitInteractionFeedback(); onSelect(region); }}><span>{region.label}</span><small>{region.state === "OBSERVED_TEST_CONTEXT" ? "Saved test" : "No test yet"}</small></button>)}
+        {regions.map((region) => <button key={region.id} type="button" role="listitem" aria-pressed={selectedRegionId === region.id} onClick={() => { emitInteractionFeedback(); onSelect(selectedRegionId === region.id ? undefined : region); }}><span>{region.label}</span><small>{region.state === "OBSERVED_TEST_CONTEXT" ? "Saved test" : "No test yet"}</small></button>)}
       </div>
     </details>
     <p className="strength-body-map-boundary">Use the map to choose a test area. It is not a muscle ranking or percentile.</p>

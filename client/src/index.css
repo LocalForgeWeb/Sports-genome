@@ -1221,3 +1221,16 @@ select {
 @media (max-width: 639px) {
   .strength-reference-state-visual { right: -2.5rem; top: -.35rem; width: 8rem; opacity: .13; }
 }
+
+/* Recorded coverage only · not a rank. */
+.strength-profile-status-overview { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1rem; }
+.strength-profile-status-tools { display: flex; align-items: center; gap: .65rem; }
+.strength-profile-coverage-ring { display: grid; width: 4rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#6ea6dd 0 var(--coverage-progress), rgb(215 233 248 / .16) var(--coverage-progress) 100%); box-shadow: 0 0 0 1px rgb(215 233 248 / .18), inset 0 0 0 1px rgb(215 233 248 / .14); }
+.strength-profile-coverage-ring > div { display: grid; width: calc(100% - .42rem); aspect-ratio: 1; place-items: center; align-content: center; border-radius: 50%; background: #0b2240; line-height: .8; }
+.strength-profile-coverage-ring strong { color: #f7fbff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; letter-spacing: -.03em; }
+.strength-profile-coverage-ring span { margin-top: -.2rem; color: #aac7e2; font-size: .58rem; font-weight: 850; }
+.strength-profile-coverage-ring small { margin-top: .12rem; color: #c7dbee; font-size: .42rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.strength-profile-coverage-ring.is-source-qualified { background: conic-gradient(#f2c14d 0 var(--coverage-progress), rgb(242 193 77 / .18) var(--coverage-progress) 100%); box-shadow: 0 0 0 1px rgb(242 193 77 / .38), 0 0 20px rgb(242 193 77 / .16); }
+.strength-profile-coverage-boundary { margin: .5rem clamp(1rem, 3vw, 1.5rem) 0; color: #aac7e2; font-size: .59rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
+.strength-body-map-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
+.strength-body-map-actions button { min-width: 3.25rem; }

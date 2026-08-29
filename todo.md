@@ -200,6 +200,8 @@
 - [x] Audit and repair text contrast across every Sports Genome destination, control, disclosure, state, and surface at phone and desktop widths.
 - [x] Audit athlete-facing numerical values so each either names its source and calculation scope or is withheld when no qualifying data exists.
 - [x] Create premium Strength Genome visual assets for qualified comparative outcomes and the equally intentional unavailable-reference state, never generating invented rank, percentile, tier, or record imagery.
+- [x] Allow a second tap on a selected Strength Genome body-map region or accessible region control to clear the active selection and close the detail state.
+- [x] Add a ring-style Strength Genome status visual that represents recorded test coverage by default and a source-qualified comparison only when the exact reference gate passes, never an invented strength rank.
 - [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.

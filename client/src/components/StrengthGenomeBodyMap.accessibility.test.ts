@@ -12,7 +12,8 @@ describe("Strength Genome body-map accessible region selection", () => {
     expect(source).toContain('aria-label="Strength Genome regions"');
     expect(source).toContain('aria-pressed={selectedRegionId === region.id}');
     expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? "Saved test" : "No test yet"');
-    expect(source).toContain('onClick={() => { emitInteractionFeedback(); onSelect(region); }}');
+    expect(source).toContain('selectedRegionId === region.id ? undefined : region');
+    expect(source).toContain('aria-label="Clear selected strength region"');
     expect(selector).not.toContain("percentile");
     expect(styles).toContain(".strength-map-region-selector button { min-height: 44px");
   });
@@ -21,5 +22,12 @@ describe("Strength Genome body-map accessible region selection", () => {
     expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? 4 : 0');
     expect(source).toContain('selectedRegionId === region.id ? 9');
     expect(source).not.toContain("Top 1%");
+  });
+
+  it("lets a repeated region tap clear the detail state and keeps the profile ring scoped to recorded coverage", () => {
+    expect(source).toContain('onSelect: (region?: StrengthRegionDefinition) => void');
+    expect(styles).toContain('.strength-profile-coverage-ring {');
+    expect(styles).toContain('conic-gradient');
+    expect(styles).toContain('Recorded coverage only · not a rank');
   });
 });
