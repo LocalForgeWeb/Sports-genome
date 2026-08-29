@@ -133,7 +133,7 @@ const contextualWorkspaces: Record<Exclude<PrimaryDestination, "more">, Contextu
     { id: "movement", label: "Movement", workspace: "movement" },
     { id: "body", label: "Body Lab", workspace: "body" },
     { id: "catalog", label: "Catalog", workspace: "catalog" },
-    { id: "genome", label: "Exercise Genome", workspace: "genome" },
+    { id: "genome", label: "Genome", workspace: "genome" },
     { id: "strength", label: "Strength", workspace: "strength" },
   ],
   progress: [{ id: "progress", label: "Progress", workspace: "progress" }],

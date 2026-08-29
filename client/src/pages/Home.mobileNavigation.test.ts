@@ -167,7 +167,7 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.topbar-context-chips span { max-width: 12rem; overflow: hidden;');
     expect(css).toContain('max-width: calc(100vw - 6.8rem); overflow: visible;');
     expect(css).toContain('.topbar-context-chips span { max-width: none; flex: 0 0 auto; }');
-    expect(mobileStyles).toContain('max-width: calc(100vw - 6.8rem);');
+    expect(mobileStyles).toContain('max-width: calc(100vw - 5.5rem);');
     expect(mobileStyles).toContain('flex: 0 0 auto;');
     expect(mobileStyles).toContain('overflow-x: auto; overscroll-behavior-x: contain;');
     expect(mobileStyles).toContain('.topbar-context-chips::-webkit-scrollbar { display: none; }');
@@ -179,7 +179,7 @@ describe("workspace side navigation", () => {
   });
 
   it("retains one explicit active contextual route for every Train and Explore tab", () => {
-    ["Training Day", "Tracker", "Matches", "Builder", "Stack Review", "Prep", "Movement", "Body Lab", "Catalog", "Exercise Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
+    ["Training Day", "Tracker", "Matches", "Builder", "Stack Review", "Prep", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
     expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('className={active ? "workspace-top-switcher-active" : ""}');

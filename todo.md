@@ -137,6 +137,7 @@
 - [x] Validate that the final boot-to-workspace transition is one continuous composited fade at phone and browser width.
 - [x] Shorten the silent staged S/DNA logo intro further while preserving its smooth formation and continuous fade into the workspace.
 - [x] Make the circular Sports Genome badge more prominent and slow the silent logo reveal slightly while preserving its smooth formation, dynamic wordmark bounce, and prompt workspace fade.
+- [ ] Refine the silent launch into a brief dynamic sequence where the S appears, DNA lines resolve smoothly, the wordmark arrives, and the app fades in cleanly.
 - [x] Audit the user-supplied normative source hierarchy for exact protocols, population boundaries, reproducibility, and permitted data use before adding any benchmark data.
 - [x] Define source-specific athlete, test, normalization, and population gates so no source can become an undifferentiated generic strength percentile.
 - [x] Expand the Strength Genome reference-qualification registry so every audited normative source has its own athlete, test, normalization, population, and licensing gate instead of a grouped-source fallback.
@@ -184,6 +185,7 @@
 - [x] Give Train an operational session-planning visual system distinct from exploration, review, and profile surfaces.
 - [ ] Give Explore a discovery-lab visual system with clearer atlas, anatomy, catalog, and genome modes.
 - [x] Compress the Movement Atlas mobile hero and preserve its complete action-family filter set in a readable horizontal discovery rail.
+- [x] Clean up Movement Atlas with a shorter integrated count hero, compact athlete-facing filters, advanced taxonomy disclosure, useful sorting, and lighter tappable results while preserving all data and navigation.
 - [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.
