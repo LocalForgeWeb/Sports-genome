@@ -66,8 +66,18 @@ describe("mobile athlete presentation", () => {
   });
 
   it("keeps the Strength Genome heading and evidence-gated status rail readable on the blue Explore surface", () => {
+    expect(appStyles).toContain(".destination-explore .strength-genome-workspace .view-header { background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));");
     expect(appStyles).toContain(".destination-explore .strength-genome-workspace .view-header h1 { color: #f7fbff; }");
     expect(appStyles).toContain(".destination-explore .strength-genome-workspace .view-header em { color: #f2c14d; }");
+    expect(appStyles).toContain(".destination-explore .strength-genome-workspace .view-header > div > p:not(.metric-label) { color: var(--sg-text-muted-on-dark); }");
     expect(appStyles).toContain(".strength-profile-status { overflow: hidden;");
+  });
+
+  it("defines semantic readable-text roles for active light and dark destination surfaces", () => {
+    expect(appStyles).toContain("--sg-text-on-dark: #f7fbff;");
+    expect(appStyles).toContain("--sg-text-muted-on-dark: #c3d7ea;");
+    expect(appStyles).toContain("--sg-text-on-light: #102947;");
+    expect(appStyles).toContain("--sg-text-muted-on-light: #355774;");
+    expect(appStyles).toContain(".destination-progress .progress-review { color: var(--sg-text-on-dark);");
   });
 });

@@ -197,6 +197,9 @@
 - [x] Present comparative status only behind exact reviewed-source, test, protocol, population, and body-mass gates; otherwise show a concise unavailable-reference state beside athlete-recorded progress.
 - [x] Redesign Tracker as a polished execution-focused mobile flow with clear exercise, set progress, editable weight and reps, and one clear set-completion action.
 - [x] Remove RPE from the athlete-facing Tracker and completed-session records while preserving weight, repetitions, completion state, saved session history, and Progress handoff.
+- [x] Audit and repair text contrast across every Sports Genome destination, control, disclosure, state, and surface at phone and desktop widths.
+- [x] Audit athlete-facing numerical values so each either names its source and calculation scope or is withheld when no qualifying data exists.
+- [x] Create premium Strength Genome visual assets for qualified comparative outcomes and the equally intentional unavailable-reference state, never generating invented rank, percentile, tier, or record imagery.
 - [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.

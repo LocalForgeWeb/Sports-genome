@@ -988,6 +988,8 @@ select {
   --sg-text-on-dark: #f7fbff;
   --sg-text-muted-on-dark: #c3d7ea;
   --sg-text-subtle-on-dark: #9fc8f4;
+  --sg-text-on-light: #102947;
+  --sg-text-muted-on-light: #355774;
   --sg-divider-on-dark: rgb(164 200 232 / .24);
   --sg-control-on-dark: rgb(255 255 255 / .055);
   --sg-control-border-on-dark: rgb(164 200 232 / .35);
@@ -1194,3 +1196,28 @@ select {
 .destination-train .day-order-controls button,
 .destination-train .duplicate-prescription,
 .destination-train .custom-prescription-inputs input { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
+
+/* Readability guard: each destination declares a semantic foreground role before local accents. */
+.destination-progress .progress-review { color: var(--sg-text-on-dark); }
+.destination-progress .progress-review :is(.progress-section-head span, .progress-session-card small, .progress-empty-copy, .progress-comparison-card > p) { color: var(--sg-text-muted-on-dark); }
+.destination-profile :is(.about-me-equipment, .about-me-access-row) { color: var(--sg-text-on-dark); }
+.destination-profile :is(.about-me-equipment p:not(.metric-label), .about-me-access-row p) { color: var(--sg-text-muted-on-dark); }
+.strength-progress-log { color: var(--sg-text-on-light); }
+.strength-progress-log :is(.metric-label, p:not(.font-bold)) { color: var(--sg-text-muted-on-light); }
+
+/* Strength is an Explore workspace, so its large entry heading always owns a dark readable surface. */
+.destination-explore .strength-genome-workspace .view-header { background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); border: 1px solid var(--sg-control-border-on-dark); border-radius: 1.25rem; padding: clamp(1rem, 3vw, 1.5rem); color: var(--sg-text-on-dark); box-shadow: 0 16px 38px rgb(1 12 28 / .2); }
+.destination-explore .strength-genome-workspace .view-header h1 { color: #f7fbff; }
+.destination-explore .strength-genome-workspace .view-header em { color: #f2c14d; }
+.destination-explore .strength-genome-workspace .view-header > div > p:not(.metric-label) { color: var(--sg-text-muted-on-dark); }
+.destination-explore .strength-genome-workspace .view-header .metric-label { color: var(--sg-text-subtle-on-dark); }
+.destination-explore .strength-genome-workspace .view-header-note { border-color: var(--sg-divider-on-dark); background: var(--sg-control-on-dark); color: var(--sg-text-muted-on-dark); }
+
+/* Decorative visual context reinforces, but never replaces, the text-based evidence gate. */
+.strength-profile-status { position: relative; overflow: hidden; isolation: isolate; }
+.strength-profile-status-head, .strength-profile-status-rail { position: relative; z-index: 1; }
+.strength-reference-state-visual { position: absolute; z-index: 0; right: -1.25rem; top: -.75rem; width: clamp(7rem, 14vw, 12rem); opacity: .16; pointer-events: none; }
+.strength-reference-state-visual img { display: block; width: 100%; height: auto; mix-blend-mode: screen; }
+@media (max-width: 639px) {
+  .strength-reference-state-visual { right: -2.5rem; top: -.35rem; width: 8rem; opacity: .13; }
+}

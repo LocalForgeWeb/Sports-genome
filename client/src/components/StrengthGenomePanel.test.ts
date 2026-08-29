@@ -64,8 +64,12 @@ describe("Strength Genome panel", () => {
   it("leads with recorded test coverage and exposes a comparative result only after an exact source match", () => {
     expect(source).toContain('className="strength-profile-status"');
     expect(source).toContain('className="strength-profile-status-rail"');
+    expect(source).toContain('className="strength-reference-state-visual"');
+    expect(source).toContain('/manus-storage/strength-qualified-reference-state_3ccc4f09.png');
+    expect(source).toContain('/manus-storage/strength-reference-unavailable-state_f08bbf9c.png');
     expect(source).toContain("Recorded test coverage");
     expect(source).toContain("Exact source match");
+    expect(source).toContain("source-qualified comparison");
     expect(source).toContain("No comparative rank yet");
     expect(source).toContain("sourceMatchedObservationCount");
     expect(source).toContain("getPiperReferenceForObservation(observation)?.status === \"matched\"");

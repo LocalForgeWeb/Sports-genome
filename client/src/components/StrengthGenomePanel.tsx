@@ -28,6 +28,10 @@ type StrengthObservationRecord = { id: string | number; exerciseName: string; ob
 type PiperReferenceDeclaration = Pick<Piper2021PreacherCurlContext, "sex" | "ageYears" | "collegeStudentConfirmed" | "preTrainingConfirmed" | "exactProtocolConfirmed" | "directlyObservedConfirmed">;
 
 const emptyPiperDeclaration: PiperReferenceDeclaration = { sex: undefined, ageYears: undefined, collegeStudentConfirmed: false, preTrainingConfirmed: false, exactProtocolConfirmed: false, directlyObservedConfirmed: false };
+const strengthReferenceStateVisuals = {
+  qualified: "/manus-storage/strength-qualified-reference-state_3ccc4f09.png",
+  unavailable: "/manus-storage/strength-reference-unavailable-state_f08bbf9c.png",
+} as const;
 
 function parsePiperReferenceDeclaration(value?: string | null): PiperReferenceDeclaration | null {
   if (!value) return null;
@@ -260,18 +264,19 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       <div className="view-header-note"><ShieldCheck className="h-5 w-5 text-[#2d6cdf]" /><p>Performance observations, estimate confidence, and population comparison stay separate—never one generic score.</p></div>
     </div>
 
-      <section className="strength-profile-status">
-      <div className="strength-profile-status-head">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+	      <section className="strength-profile-status">
+	      <div className="strength-profile-status-head">
+	        <div className="flex flex-wrap items-center justify-between gap-3">
           <div><p className="metric-label">Strength profile state</p><h2>{activeObservations.length ? "Your recorded context" : "Build your baseline"}</h2></div>
           <span className="strength-profile-device-boundary"><CircleHelp className="h-3.5 w-3.5" /> {directAccess ? "This device only" : "Observation routing only"}</span>
         </div>
-        <div className="strength-profile-status-rail" aria-label="Strength profile status">
-          <div><span>Recorded test coverage</span><strong>{observedRegionCount} <small>regions</small></strong></div>
-          <div><span>Exact source match</span><strong>{sourceMatchedObservationCount ? `${sourceMatchedObservationCount} qualified` : "No comparative rank yet"}</strong></div>
-          <p>Coverage reflects saved test context. A comparison appears only for an exact reviewed-source match.</p>
-        </div>
-      </div>
+	        <div className="strength-profile-status-rail" aria-label="Strength profile status">
+	          <div><span>Recorded test coverage</span><strong>{observedRegionCount} <small>regions</small></strong></div>
+	          <div><span>Exact source match</span><strong>{sourceMatchedObservationCount ? `${sourceMatchedObservationCount} qualified` : "No comparative rank yet"}</strong></div>
+	          <p>{sourceMatchedObservationCount ? "A source-qualified comparison is available only for those exact reviewed-source matches." : "Coverage reflects saved test context. A comparison appears only for an exact reviewed-source match."}</p>
+	        </div>
+	        <div className="strength-reference-state-visual" aria-hidden="true"><img src={sourceMatchedObservationCount ? strengthReferenceStateVisuals.qualified : strengthReferenceStateVisuals.unavailable} alt="" /></div>
+	      </div>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={setSelectedRegion} />
       {selectedRegion && <div ref={regionDetailRef}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} /></div>}
       {selectedRegion && <div className="strength-region-focus-row"><p><strong>Planning focus</strong> Optional. Does not change this day automatically.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>}
