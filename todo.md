@@ -207,6 +207,9 @@
 - [x] Further compact Stack Analysis mobile hierarchy and surface the best direct split-compatible gap recommendations directly beneath the coverage summary before the detailed target list.
 - [x] Simplify the Strength Genome default screen by moving coverage methodology and unavailable-reference explanation behind a concise on-demand disclosure.
 - [ ] Research and integrate additional relative-strength references only when exercise identity, test protocol, equipment, population, athlete context, licensing/access, and source provenance can support a gated comparative result.
+- [x] Confirm the reported device notification is not a Sports Genome product issue; make no notification-code change and keep the athlete experience work focused on the requested interfaces.
+- [x] Repair the mobile bottom navigation so one deliberate tap changes the selected destination without requiring a second tap.
+- [x] Deliver a source-qualified relative-strength percentile and rank workflow for explicitly eligible lift tests, with visible protocol/population context and an unavailable state for every nonmatching test.
 - [x] Give Progress a measured review visual system, Profile a personal-control visual system, and More a compact utility visual system.
 - [ ] Preserve a coherent Sports Genome navy, bone, gold, vermilion, and workflow-blue design language while differentiating destination hierarchy and panel rhythm.
 - [x] Consolidate mobile navigation into six stable bottom-bar slots—Home, Train, Explore, Progress, Profile, and More—while preserving every existing page through contextual top-level subnavigation.

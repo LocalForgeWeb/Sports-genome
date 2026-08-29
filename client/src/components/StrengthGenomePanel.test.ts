@@ -27,7 +27,7 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("onClick={() => { emitInteractionFeedback(); onOpenTraining(); }}");
   });
 
-  it("uses an interactive body map for regional context without inventing percentile or rank output", () => {
+  it("uses an interactive body map without inventing an unqualified percentile or rank", () => {
     expect(source).toContain('import { StrengthGenomeBodyMap }');
     expect(source).toContain("<StrengthGenomeBodyMap");
     expect(source).not.toContain('className="group min-h-28 bg-white p-4 text-left');
@@ -42,7 +42,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Recorded measurement");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("Rank unavailable for this test.");
+    expect(source).toContain("Reference unavailable for this test.");
+    expect(source).toContain("Source-sample percentile band");
     expect(source).toContain("About this rating");
     expect(source).toContain("matching validated reference");
     expect(source).toContain("emitInteractionFeedback");
@@ -77,6 +78,10 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Reference unavailable");
     expect(source).toContain("sourceMatchedObservationCount");
     expect(source).toContain("getPiperReferenceForObservation(observation)?.status === \"matched\"");
+    expect(source).toContain("getVanDenHoek2024PowerliftingReference");
+    expect(source).toContain("Competitive powerlifting reference");
+    expect(source).toContain("Source-sample percentile band");
+    expect(source).toContain("drug-tested, unequipped competition");
     expect(source).not.toContain("Top 1%");
   });
 
@@ -111,14 +116,16 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("setSelectedRecordId(event.target.value)");
   });
 
-  it("shows selected-region record history and makes missing source-qualified references explicit", () => {
+  it("shows selected-region record history, qualified percentile routes, and missing-reference state", () => {
     expect(source).toContain('className="strength-region-history"');
     expect(source).toContain("Recorded history ({records.length})");
     expect(source).toContain('aria-pressed={String(record.id) === String(latestRecord.id)}');
     expect(source).toContain('getPiperReferenceForObservation');
+    expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
-    expect(source).toContain("Rank unavailable for this test.");
+    expect(source).toContain("Reference unavailable for this test.");
     expect(source).toContain("Source-sample rank range");
+    expect(source).toContain("Source-sample percentile band");
     expect(source).toContain("No recorded test for this region yet.");
     expect(source).not.toContain("regional percentile");
   });

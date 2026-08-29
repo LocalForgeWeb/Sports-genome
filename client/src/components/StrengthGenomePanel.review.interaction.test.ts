@@ -42,6 +42,6 @@ describe("Strength Genome direct Review workflow", () => {
     expect(mocks.feedback).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("region", { name: "Biceps recorded strength context" })).toBeTruthy();
     expect(screen.getByText("Recorded measurement")).toBeTruthy();
-    expect(screen.getByText("Rank unavailable for this test.")).toBeTruthy();
+    expect(screen.getByText("Reference unavailable for this test.")).toBeTruthy();
   });
 });

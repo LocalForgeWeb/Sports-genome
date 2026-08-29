@@ -31,6 +31,10 @@ describe("workspace side navigation", () => {
   it("uses bottom-only primary navigation and browser history-aware contextual navigation", () => {
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('const active = activePrimaryDestination === item.id;');
+    expect(source).toContain('const dockTouchNavigationRef = useRef');
+    expect(source).toContain('const navigateDockDestination = (next: Workspace, event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) =>');
+    expect(source).toContain('onPointerUp={(event) => navigateDockDestination(item.defaultWorkspace!, event)}');
+    expect(source).toContain('onClick={(event) => navigateDockDestination(item.defaultWorkspace!, event)}');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('window.history.pushState({ workspace: next }, "", url)');
     expect(source).toContain('window.addEventListener("popstate", restoreWorkspace)');
@@ -153,6 +157,7 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('className="mobile-workspace-actions"');
     expect(css).toContain('grid-template-columns: repeat(6, minmax(0, 1fr));');
     expect(css).toContain('min-height: 4.25rem;');
+    expect(css).toContain('touch-action: manipulation;');
     expect(css).toContain('font-size: .66rem;');
     expect(css).toContain('.planner-float { bottom: calc(5.6rem');
     expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');

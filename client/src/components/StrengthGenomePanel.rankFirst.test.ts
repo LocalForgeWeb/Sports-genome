@@ -18,7 +18,7 @@ describe("Strength Genome rank-first presentation", () => {
     const measurementPosition = panel.indexOf("Recorded measurement");
     expect(rankPosition).toBeGreaterThan(-1);
     expect(measurementPosition).toBeGreaterThan(rankPosition);
-    expect(panel).toContain("Rank unavailable for this test.");
+    expect(panel).toContain("Reference unavailable for this test.");
     expect(panel).toContain("Supporting context only—not a rank.");
   });
 

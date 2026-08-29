@@ -11,6 +11,7 @@ import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { displayWeightToKilograms, formatDisplayWeight, kilogramsToDisplayWeight, weightUnitLabel, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
 import { getPiper2021PreacherCurlReference, piper2021PreacherCurlReferenceId, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
+import { getVanDenHoek2024PowerliftingReference, vanDenHoek2024ReferenceId, type PowerliftingReferenceDeclaration } from "@/lib/powerliftingReference";
 
 type MeasurementType =
   | "MEASURED_1RM"
@@ -29,6 +30,7 @@ type StrengthObservationRecord = { id: string | number; exerciseName: string; ob
 type PiperReferenceDeclaration = Pick<Piper2021PreacherCurlContext, "sex" | "ageYears" | "collegeStudentConfirmed" | "preTrainingConfirmed" | "exactProtocolConfirmed" | "directlyObservedConfirmed">;
 
 const emptyPiperDeclaration: PiperReferenceDeclaration = { sex: undefined, ageYears: undefined, collegeStudentConfirmed: false, preTrainingConfirmed: false, exactProtocolConfirmed: false, directlyObservedConfirmed: false };
+const emptyPowerliftingDeclaration: PowerliftingReferenceDeclaration = { sex: undefined, ageYears: undefined, drugTestedCompetitionConfirmed: false, unequippedCompetitionConfirmed: false, maximumSuccessfulLiftConfirmed: false };
 const strengthReferenceStateVisuals = {
   qualified: "/manus-storage/strength-qualified-reference-state_3ccc4f09.png",
   unavailable: "/manus-storage/strength-reference-unavailable-state_f08bbf9c.png",
@@ -43,10 +45,31 @@ function parsePiperReferenceDeclaration(value?: string | null): PiperReferenceDe
   } catch { return null; }
 }
 
+function parsePowerliftingReferenceDeclaration(value?: string | null): PowerliftingReferenceDeclaration | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value) as Partial<PowerliftingReferenceDeclaration & { referenceId?: string }>;
+    if (parsed.referenceId !== vanDenHoek2024ReferenceId) return null;
+    return {
+      sex: parsed.sex === "female" || parsed.sex === "male" ? parsed.sex : undefined,
+      ageYears: parsed.ageYears,
+      drugTestedCompetitionConfirmed: parsed.drugTestedCompetitionConfirmed === true,
+      unequippedCompetitionConfirmed: parsed.unequippedCompetitionConfirmed === true,
+      maximumSuccessfulLiftConfirmed: parsed.maximumSuccessfulLiftConfirmed === true,
+    };
+  } catch { return null; }
+}
+
 export function getPiperReferenceForObservation(observation: StrengthObservationRecord) {
   const declaration = parsePiperReferenceDeclaration(observation.referenceContextJson);
   if (!declaration || observation.loadKg == null || observation.bodyMassKgAtTest == null) return null;
   return getPiper2021PreacherCurlReference({ exerciseName: observation.exerciseName, measurementType: observation.measurementType, repetitions: observation.repetitions, loadLb: kilogramsToDisplayWeight(Number(observation.loadKg), "lb"), bodyMassLb: kilogramsToDisplayWeight(Number(observation.bodyMassKgAtTest), "lb"), ...declaration });
+}
+
+export function getPowerliftingReferenceForObservation(observation: StrengthObservationRecord) {
+  const declaration = parsePowerliftingReferenceDeclaration(observation.referenceContextJson);
+  if (!declaration) return null;
+  return getVanDenHoek2024PowerliftingReference({ exerciseName: observation.exerciseName, measurementType: observation.measurementType, loadKg: observation.loadKg, bodyMassKgAtTest: observation.bodyMassKgAtTest, declaration });
 }
 
 export function selectStrengthRegionRecord<T extends { id: string | number }>(records: T[], selectedRecordId: string) {
@@ -83,6 +106,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const latestRecord = selectStrengthRegionRecord(records, selectedRecordId);
   const bodyMassRatio = latestRecord?.loadKg != null && latestRecord.bodyMassKgAtTest != null && latestRecord.bodyMassKgAtTest > 0 ? latestRecord.loadKg / latestRecord.bodyMassKgAtTest : null;
   const piperReference = latestRecord ? getPiperReferenceForObservation(latestRecord) : null;
+  const powerliftingReference = latestRecord ? getPowerliftingReferenceForObservation(latestRecord) : null;
   useEffect(() => {
     if (piperReference?.status !== "matched" || !matchedReferenceRef.current) return;
     const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -95,7 +119,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       <article className="strength-region-record-card">
         {records.length > 1 && <label className="strength-region-record-picker"><span>Recorded test</span><select aria-label="Choose recorded test" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label>}
         <span className="strength-region-test-name">{latestRecord.exerciseName}</span>
-        {piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : <p className="strength-reference-unavailable strength-reference-rank-unavailable"><strong>Rank unavailable for this test.</strong> A population rank appears only when the exercise, protocol, sample, and test-day body weight match a reviewed table.</p>}
+        {powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample percentile band</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body mass · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : <p className="strength-reference-unavailable strength-reference-rank-unavailable"><strong>Reference unavailable for this test.</strong> A percentile appears only when the exercise, protocol, source population, and test-day body mass match a reviewed table.</p>}
         <details className="strength-recorded-measurement"><summary>{latestRecord.bodyMassKgAtTest != null ? "Recorded measurement" : baselineBodyWeight != null ? "Use saved profile weight" : "Add test body weight"}</summary>{bodyMassRatio != null ? <p>{bodyMassRatio.toFixed(2)}× load / test-day body mass. Supporting context only—not a rank.</p> : <form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{baselineBodyWeight != null ? `Saved profile body weight (${weightUnit})` : `Body mass on test day (${weightUnit})`}</span><input aria-label={`${baselineBodyWeight != null ? "Saved profile body weight" : "Body mass on test day"} in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : baselineBodyWeight != null ? "Use saved weight" : "Save test body weight"}</button>{baselineBodyWeight != null && <small>Your saved profile value is ready. Change it first only if your test-day weight differed.</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form>}</details>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}</span>
       </article>
@@ -147,6 +171,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const [notes, setNotes] = useState("");
   const [piperReferenceOpen, setPiperReferenceOpen] = useState(false);
   const [piperDeclaration, setPiperDeclaration] = useState<PiperReferenceDeclaration>(emptyPiperDeclaration);
+  const [powerliftingReferenceOpen, setPowerliftingReferenceOpen] = useState(false);
+  const [powerliftingDeclaration, setPowerliftingDeclaration] = useState<PowerliftingReferenceDeclaration>(emptyPowerliftingDeclaration);
   const [advancedOpen, setAdvancedOpen] = useState(defaultTestingDetailOpen);
   const [selectedRegion, setSelectedRegion] = useState<StrengthRegionDefinition | null>(null);
   const [selectedObservationId, setSelectedObservationId] = useState("");
@@ -179,6 +205,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       setDataQuality("SELF_REPORTED");
       setPiperReferenceOpen(false);
       setPiperDeclaration(emptyPiperDeclaration);
+      setPowerliftingReferenceOpen(false);
+      setPowerliftingDeclaration(emptyPowerliftingDeclaration);
       setNotes("");
       toast.success("Performance observation saved. Your Strength Genome will update only when calibrated evidence supports it.");
     },
@@ -191,12 +219,13 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const exerciseMatches = useMemo(() => exercises.filter((exercise) => exercise.name.toLowerCase().includes(exerciseSearch.trim().toLowerCase())).slice(0, 8), [exerciseSearch]);
   const selectedExerciseContext = useMemo(() => selectedExercise ? getStrengthCatalogSelectionContext(selectedExercise) : null, [selectedExercise]);
   const piperCaptureAvailable = exerciseName === "Preacher Curl" && measurementType === "MULTI_REP";
+  const powerliftingCaptureAvailable = ["Back Squat", "Barbell Bench Press", "Conventional Deadlift"].includes(exerciseName) && measurementType === "MEASURED_1RM";
   const canSave = Boolean(selectedExercise) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0));
   const activeObservations = directAccess ? deviceObservations : (observations.data || []) as StrengthObservationRecord[];
   const recentObservations = activeObservations.slice(0, 4);
   const regionOverview = (regionId: string) => directAccess ? { state: activeObservations.some((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(regionId)) ? "OBSERVED_TEST_CONTEXT" : "INSUFFICIENT_DATA" } : overview.data?.regions.find(region => region.id === regionId);
   const observedRegionCount = strengthRegionDefinitions.filter((region) => regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT").length;
-  const sourceMatchedObservationCount = activeObservations.filter((observation) => getPiperReferenceForObservation(observation)?.status === "matched").length;
+  const sourceMatchedObservationCount = activeObservations.filter((observation) => getPiperReferenceForObservation(observation)?.status === "matched" || getPowerliftingReferenceForObservation(observation)?.status === "matched").length;
   const recordedCoveragePercent = Math.round((observedRegionCount / strengthRegionDefinitions.length) * 100);
   const activePriorityIds = new Set(priorities.data?.map(priority => priority.regionId) || overview.data?.athleteConfirmedPriorityRegionIds || []);
   const persistDeviceObservations = (next: DeviceStrengthObservation[]) => { setDeviceObservations(next); saveDeviceStrengthObservations(next); };
@@ -244,12 +273,12 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       laterality,
       externalAssistance: externalAssistance.trim() || undefined,
       dataQuality,
-      referenceContextJson: piperCaptureAvailable && piperReferenceOpen ? JSON.stringify({ referenceId: "piper_2021_preacher_curl_10rm", ...piperDeclaration }) : undefined,
+      referenceContextJson: powerliftingCaptureAvailable && powerliftingReferenceOpen ? JSON.stringify({ referenceId: vanDenHoek2024ReferenceId, ...powerliftingDeclaration }) : piperCaptureAvailable && piperReferenceOpen ? JSON.stringify({ referenceId: piper2021PreacherCurlReferenceId, ...piperDeclaration }) : undefined,
       notes: notes.trim() || undefined,
     };
     if (directAccess) {
       persistDeviceObservations(prependDeviceStrengthObservation(deviceObservations, { ...nextObservation, id: `device-strength-${Date.now()}`, observedAt: nextObservation.observedAt.toISOString() }));
-      setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(""); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(emptyPiperDeclaration); setNotes("");
+      setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(""); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(emptyPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(emptyPowerliftingDeclaration); setNotes("");
       emitInteractionFeedback([10, 30, 10]); toast.success("Performance observation saved on this device.");
       return;
     }
@@ -304,6 +333,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
           <p className="sm:col-span-2 text-xs leading-5 text-[#c3d3e4]">These fields preserve test context for your own future comparison. They do not create a body-mass ratio, universal estimate, tier, or population comparison.</p>
         </div>}
         {piperCaptureAvailable && <details className="strength-piper-capture" open={piperReferenceOpen} onToggle={(event) => setPiperReferenceOpen(event.currentTarget.open)}><summary>Check exact Piper 2021 preacher-curl 10RM conditions</summary><p>This is optional. It is the only route to the source’s narrow adult-male college sample reference; it does not rate generic curls.</p>{piperReferenceOpen && <div className="strength-piper-fields"><label><span>Sex in this source comparison</span><select value={piperDeclaration.sex || ""} onChange={(event) => setPiperDeclaration((current) => ({ ...current, sex: (event.target.value || undefined) as PiperReferenceDeclaration["sex"] }))}><option value="">Choose</option><option value="male">Male</option><option value="female">Female</option><option value="intersex">Intersex</option><option value="self_described">Self-described</option><option value="prefer_not_to_say">Prefer not to say</option></select></label><label><span>Age on test day</span><input aria-label="Age on test day for Piper 2021 reference" inputMode="numeric" value={piperDeclaration.ageYears || ""} onChange={(event) => setPiperDeclaration((current) => ({ ...current, ageYears: Number(event.target.value.replace(/[^0-9]/g, "")) || undefined }))} placeholder="18–25" /></label><label><input type="checkbox" checked={piperDeclaration.collegeStudentConfirmed} onChange={(event) => setPiperDeclaration((current) => ({ ...current, collegeStudentConfirmed: event.target.checked }))} /> I match the source’s male college-student population (18–25).</label><label><input type="checkbox" checked={piperDeclaration.preTrainingConfirmed} onChange={(event) => setPiperDeclaration((current) => ({ ...current, preTrainingConfirmed: event.target.checked }))} /> This is a pre-training observation.</label><label><input type="checkbox" checked={piperDeclaration.directlyObservedConfirmed} onChange={(event) => setPiperDeclaration((current) => ({ ...current, directlyObservedConfirmed: event.target.checked }))} /> This 10RM was directly observed with valid technique and no assistance.</label><label><input type="checkbox" checked={piperDeclaration.exactProtocolConfirmed} onChange={(event) => setPiperDeclaration((current) => ({ ...current, exactProtocolConfirmed: event.target.checked }))} /> I used the source’s Body Masters BE 207 seated 40° pad, 22 lb York EZ-bar, and stated technique protocol.</label></div>}</details>}
+        {powerliftingCaptureAvailable && <details className="strength-piper-capture strength-powerlifting-capture" open={powerliftingReferenceOpen} onToggle={(event) => setPowerliftingReferenceOpen(event.currentTarget.open)}><summary>Competitive powerlifting reference</summary><p>Optional. This compares one exact maximum under drug-tested, unequipped competition standards for adults aged 18–35; it does not rate everyday gym lifts.</p>{powerliftingReferenceOpen && <div className="strength-piper-fields strength-powerlifting-fields"><label><span>Source comparison category</span><select value={powerliftingDeclaration.sex || ""} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, sex: (event.target.value || undefined) as PowerliftingReferenceDeclaration["sex"] }))}><option value="">Choose source category</option><option value="female">Female competition table</option><option value="male">Male competition table</option></select></label><label><span>Age on test day</span><input aria-label="Age on test day for powerlifting reference" inputMode="numeric" value={powerliftingDeclaration.ageYears || ""} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, ageYears: Number(event.target.value.replace(/[^0-9]/g, "")) || undefined }))} placeholder="18–35" /></label><label><input type="checkbox" checked={powerliftingDeclaration.drugTestedCompetitionConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, drugTestedCompetitionConfirmed: event.target.checked }))} /> This was a drug-tested powerlifting competition lift.</label><label><input type="checkbox" checked={powerliftingDeclaration.unequippedCompetitionConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, unequippedCompetitionConfirmed: event.target.checked }))} /> The lift was unequipped under the competition standard.</label><label><input type="checkbox" checked={powerliftingDeclaration.maximumSuccessfulLiftConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, maximumSuccessfulLiftConfirmed: event.target.checked }))} /> This was the maximum successful competition lift.</label><p>Use the saved profile weight only if it matches your body mass on this test day.</p></div>}</details>}
         <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#e4512e] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving observation" : "Save performance observation"}</button>
       </section>
 
