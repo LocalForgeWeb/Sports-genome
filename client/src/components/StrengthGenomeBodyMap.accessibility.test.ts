@@ -16,4 +16,10 @@ describe("Strength Genome body-map accessible region selection", () => {
     expect(selector).not.toContain("percentile");
     expect(styles).toContain(".strength-map-region-selector button { min-height: 44px");
   });
+
+  it("uses the map to distinguish saved-test coverage from an untested region without a strength score", () => {
+    expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? 4 : 0');
+    expect(source).toContain('selectedRegionId === region.id ? 9');
+    expect(source).not.toContain("Top 1%");
+  });
 });

@@ -64,4 +64,10 @@ describe("mobile athlete presentation", () => {
     expect(appStyles).toContain(".apex-topbar, .workspace-top-switcher { background: #fffdf8;");
     expect(plannerStyles).toContain(".day-order-controls button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-muted-on-dark); }");
   });
+
+  it("keeps the Strength Genome heading and evidence-gated status rail readable on the blue Explore surface", () => {
+    expect(appStyles).toContain(".destination-explore .strength-genome-workspace .view-header h1 { color: #f7fbff; }");
+    expect(appStyles).toContain(".destination-explore .strength-genome-workspace .view-header em { color: #f2c14d; }");
+    expect(appStyles).toContain(".strength-profile-status { overflow: hidden;");
+  });
 });

@@ -61,6 +61,17 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('aria-busy={!directAccess && setObservationBodyMass.isPending}');
   });
 
+  it("leads with recorded test coverage and exposes a comparative result only after an exact source match", () => {
+    expect(source).toContain('className="strength-profile-status"');
+    expect(source).toContain('className="strength-profile-status-rail"');
+    expect(source).toContain("Recorded test coverage");
+    expect(source).toContain("Exact source match");
+    expect(source).toContain("No comparative rank yet");
+    expect(source).toContain("sourceMatchedObservationCount");
+    expect(source).toContain("getPiperReferenceForObservation(observation)?.status === \"matched\"");
+    expect(source).not.toContain("Top 1%");
+  });
+
   it("requires catalog exercise selection and routes common curl names to biceps context", () => {
     expect(source).toContain("Search and choose a catalog exercise");
     expect(source).toContain("Search catalog, then select");

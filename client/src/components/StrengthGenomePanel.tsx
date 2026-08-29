@@ -190,6 +190,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const activeObservations = directAccess ? deviceObservations : (observations.data || []) as StrengthObservationRecord[];
   const recentObservations = activeObservations.slice(0, 4);
   const regionOverview = (regionId: string) => directAccess ? { state: activeObservations.some((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(regionId)) ? "OBSERVED_TEST_CONTEXT" : "INSUFFICIENT_DATA" } : overview.data?.regions.find(region => region.id === regionId);
+  const observedRegionCount = strengthRegionDefinitions.filter((region) => regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT").length;
+  const sourceMatchedObservationCount = activeObservations.filter((observation) => getPiperReferenceForObservation(observation)?.status === "matched").length;
   const activePriorityIds = new Set(priorities.data?.map(priority => priority.regionId) || overview.data?.athleteConfirmedPriorityRegionIds || []);
   const persistDeviceObservations = (next: DeviceStrengthObservation[]) => { setDeviceObservations(next); saveDeviceStrengthObservations(next); };
   const setDeviceBodyMass = (observationId: string, bodyMassKgAtTest: number) => persistDeviceObservations(setDeviceStrengthObservationBodyMass(deviceObservations, observationId, bodyMassKgAtTest));
@@ -248,7 +250,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     addObservation.mutate(nextObservation);
   };
 
-  return <section className="space-y-5">
+  return <section className="strength-genome-workspace space-y-5">
     <div className="view-header">
       <div>
         <p className="metric-label">Personal performance profile</p>
@@ -258,11 +260,16 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       <div className="view-header-note"><ShieldCheck className="h-5 w-5 text-[#2d6cdf]" /><p>Performance observations, estimate confidence, and population comparison stay separate—never one generic score.</p></div>
     </div>
 
-      <section className="light-panel overflow-hidden p-0">
-      <div className="border-b border-[#d5e3ef] bg-[#f5faff] px-5 py-4">
+      <section className="strength-profile-status">
+      <div className="strength-profile-status-head">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div><p className="metric-label">Strength profile state</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#102947]">{activeObservations.length ? "Test context recorded" : "Build your baseline"}</h2></div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#c8d9e8] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-[#42647f]"><CircleHelp className="h-3.5 w-3.5" /> {directAccess ? "This device only" : "Observation routing only"}</span>
+          <div><p className="metric-label">Strength profile state</p><h2>{activeObservations.length ? "Your recorded context" : "Build your baseline"}</h2></div>
+          <span className="strength-profile-device-boundary"><CircleHelp className="h-3.5 w-3.5" /> {directAccess ? "This device only" : "Observation routing only"}</span>
+        </div>
+        <div className="strength-profile-status-rail" aria-label="Strength profile status">
+          <div><span>Recorded test coverage</span><strong>{observedRegionCount} <small>regions</small></strong></div>
+          <div><span>Exact source match</span><strong>{sourceMatchedObservationCount ? `${sourceMatchedObservationCount} qualified` : "No comparative rank yet"}</strong></div>
+          <p>Coverage reflects saved test context. A comparison appears only for an exact reviewed-source match.</p>
         </div>
       </div>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={setSelectedRegion} />
@@ -271,8 +278,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{directAccess ? (activeObservations.length ? "Device-local records stay on this device." : "Add a result to start a device-local record.") : (overview.data?.nextAction || "Add a result to build your record.")}</span></div>
     </section>
 
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-      <section className="dark-panel p-5">
+    <div className="strength-progress-grid grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <section className="strength-log-entry dark-panel p-5">
         <div className="flex items-start justify-between gap-4"><div><p className="metric-label !text-[#9eb3cb]">Add a performance test</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Log a lift.</h2><p className="mt-3 max-w-xl text-xs leading-5 text-[#c3d3e4]">Start with the result you already know. Test date and measurement context remain attached to the private performance record.</p></div><Dumbbell className="h-7 w-7 shrink-0 text-[#f2c14d]" /></div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <div className="grid gap-1.5 sm:col-span-2"><label className="grid gap-1.5"><span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9eb3cb]">Choose exercise</span><input aria-label="Search and choose a catalog exercise" value={exerciseSearch} onChange={(event) => { setExerciseSearch(event.target.value); setSelectedExercise(null); setExerciseName(""); }} placeholder="Search catalog, then select" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[#829ab3] focus:border-[#5b9cf1] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>{exerciseSearch.trim() && !selectedExercise && <div className="strength-exercise-picker" role="listbox" aria-label="Catalog exercise results">{exerciseMatches.length ? exerciseMatches.map((exercise) => <button type="button" role="option" key={exercise.id} onClick={() => { emitInteractionFeedback(); setSelectedExercise(exercise); setExerciseName(exercise.name); setExerciseSearch(exercise.name); }}><strong>{exercise.name}</strong><span>{exercise.primaryMuscles.join(" · ")}</span></button>) : <p>No matching catalog exercise.</p>}</div>}{selectedExerciseContext && <StrengthCatalogSelectionPreview context={selectedExerciseContext} />}</div>
@@ -298,7 +305,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#e4512e] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving observation" : "Save performance observation"}</button>
       </section>
 
-      <aside className="light-panel p-5"><p className="metric-label">Recent observations</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#102947]">Performance log</h2>{recentObservations.length ? <div className="mt-4 divide-y divide-[#d9e5ef]">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div><p className="text-sm font-bold text-[#153b61]">{observation.exerciseName}</p><p className="mt-1 text-[11px] text-[#607b91]">{observation.measurementType.replace(/_/g, " ")} · {new Date(observation.observedAt).toLocaleDateString()}</p></div>{directAccess && resolveStrengthObservationRoute(observation.exerciseName) && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} />}</div>)}</div> : <div className="mt-4 rounded-xl border border-dashed border-[#c7d8e6] bg-[#f8fbff] p-4"><Activity className="h-5 w-5 text-[#2d6cdf]" /><p className="mt-3 text-sm font-bold text-[#153b61]">No performance data yet</p><p className="mt-1 text-xs leading-5 text-[#607b91]">One standardized result begins your private performance history. No regional strength tier is shown until supporting evidence is available.</p></div>}</aside>
+      <aside className="strength-progress-log light-panel p-5"><p className="metric-label">Recorded progress</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#102947]">Performance log</h2>{recentObservations.length ? <div className="mt-4 divide-y divide-[#d9e5ef]">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div><p className="text-sm font-bold text-[#153b61]">{observation.exerciseName}</p><p className="mt-1 text-[11px] text-[#607b91]">{observation.measurementType.replace(/_/g, " ")} · {new Date(observation.observedAt).toLocaleDateString()}</p></div>{directAccess && resolveStrengthObservationRoute(observation.exerciseName) && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} />}</div>)}</div> : <div className="mt-4 rounded-xl border border-dashed border-[#c7d8e6] bg-[#f8fbff] p-4"><Activity className="h-5 w-5 text-[#2d6cdf]" /><p className="mt-3 text-sm font-bold text-[#153b61]">No performance data yet</p><p className="mt-1 text-xs leading-5 text-[#607b91]">One standardized result begins your private performance history. No regional strength tier is shown until supporting evidence is available.</p></div>}</aside>
     </div>
   </section>;
 }

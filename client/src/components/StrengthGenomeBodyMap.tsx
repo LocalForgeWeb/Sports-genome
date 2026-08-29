@@ -33,7 +33,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
   const bodyState = useMemo(() => {
     const state: Record<string, { intensity: number; selected: boolean }> = {};
     regions.forEach((region) => {
-      const intensity = selectedRegionId === region.id ? 9 : 0;
+      const intensity = selectedRegionId === region.id ? 9 : region.state === "OBSERVED_TEST_CONTEXT" ? 4 : 0;
       (regionToMuscles[region.id] || []).forEach((muscleId) => { state[muscleId] = { intensity, selected: selectedRegionId === region.id }; });
     });
     return state;
