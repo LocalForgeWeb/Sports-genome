@@ -9,7 +9,7 @@ import type { ExerciseProgressionRecommendation, MuscleSegmentSignal } from "@/l
 import type { SegmentPrioritySuggestion } from "@/lib/segmentPrioritySuggestions";
 
 type WeightUnit = "lb" | "kg";
-type SetSaveValue = { weight?: number; reps?: number; rpe?: number; completed: boolean };
+type SetSaveValue = { weight?: number; reps?: number; completed: boolean };
 export const PROGRESSION_APPROVAL_EVENT = "gym-optimizer:approve-progression";
 export const SEGMENT_PRIORITY_APPROVAL_EVENT = "gym-optimizer:approve-segment-priority";
 export const SEGMENT_SUGGESTION_APPROVAL_EVENT = "gym-optimizer:approve-segment-suggestion";
@@ -26,7 +26,6 @@ export function buildSetLogPayload(sessionExerciseId: number, setNumber: number,
     actualWeight: value.weight,
     weightUnit: unit,
     actualReps: value.reps,
-    actualRpe: value.rpe,
     completed: value.completed,
   };
 }
@@ -37,28 +36,25 @@ export function resolvedWeightUnit(weightUnit?: WeightUnit): WeightUnit {
 
 function SetLogger({ setNumber, setLog, unit, onSave, pending }: {
   setNumber: number;
-  setLog?: { actualWeight: string | null; actualReps: number | null; actualRpe?: string | null; completed: boolean };
+  setLog?: { actualWeight: string | null; actualReps: number | null; completed: boolean };
   unit: WeightUnit;
   onSave: (value: SetSaveValue) => void;
   pending: boolean;
 }) {
   const [weight, setWeight] = useState(setLog?.actualWeight || "");
   const [reps, setReps] = useState(setLog?.actualReps?.toString() || "");
-  const [rpe, setRpe] = useState(setLog?.actualRpe || "");
   useEffect(() => {
     setWeight(setLog?.actualWeight || "");
     setReps(setLog?.actualReps?.toString() || "");
-    setRpe(setLog?.actualRpe || "");
-  }, [setLog?.actualReps, setLog?.actualWeight, setLog?.actualRpe]);
+  }, [setLog?.actualReps, setLog?.actualWeight]);
   const complete = setLog?.completed || false;
 
   return <div className={`session-set-row ${complete ? "session-set-complete" : ""}`}>
     <strong>Set {setNumber}</strong>
     <label><span>Weight</span><input value={weight} inputMode="decimal" type="number" min="0" step="0.5" onChange={(event) => setWeight(event.target.value)} placeholder="—" /><em>{unit}</em></label>
     <label><span>Reps</span><input value={reps} inputMode="numeric" type="number" min="0" step="1" onChange={(event) => setReps(event.target.value)} placeholder="—" /></label>
-    <label><span>RPE</span><input value={rpe} inputMode="decimal" type="number" min="1" max="10" step="0.5" onChange={(event) => setRpe(event.target.value)} placeholder="—" /></label>
-    <button disabled={pending} onClick={() => onSave({ weight: weight ? Number(weight) : undefined, reps: reps ? Number(reps) : undefined, rpe: rpe ? Number(rpe) : undefined, completed: !complete })} aria-pressed={complete}>
-      {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : complete ? <Check className="h-3.5 w-3.5" /> : "Save"}
+    <button disabled={pending} onClick={() => onSave({ weight: weight ? Number(weight) : undefined, reps: reps ? Number(reps) : undefined, completed: !complete })} aria-pressed={complete}>
+      {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : complete ? <Check className="h-3.5 w-3.5" /> : null}
       <span>{complete ? "Saved" : "Save set"}</span>
     </button>
   </div>;
@@ -116,18 +112,17 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
         movement: exercise.movement,
         primaryMuscles: exercise.primaryMuscles,
         plannedPrescription: prescriptions[exercise.id] || "3 × 8–12",
-        plannedRpe: settings[exercise.id]?.rpe,
         plannedRest: settings[exercise.id]?.rest,
       })),
     });
   };
 
-  if (!isAuthenticated) return <section id="workout-tracker" className="workout-execution-panel workout-auth-gate"><div><p className="metric-label">Save your training</p><h3>Sign in to log the work.</h3><p>Start this built workout, record actual weight, repetitions, and effort for every set, and keep the completed session in your private history.</p></div><button onClick={onSignIn}><LogIn className="h-4 w-4" /> Sign in to start</button></section>;
+  if (!isAuthenticated) return <section id="workout-tracker" className="workout-execution-panel workout-auth-gate"><div><p className="metric-label">Save your training</p><h3>Sign in to log the work.</h3><p>Start this built workout, record actual weight and repetitions for every set, and keep the completed session in your private history.</p></div><button onClick={onSignIn}><LogIn className="h-4 w-4" /> Sign in to start</button></section>;
 
   if (activeSession?.status === "active") return <section id="workout-tracker" className="workout-execution-panel">
-    <div className="execution-head"><div><p className="metric-label">Live workout / {dayLabel}</p><h3>{completedSets} of {plannedSets || "—"} work sets saved</h3><p>Actual set data, including optional RPE, saves to your account as you go. Planned values remain visible for reference.</p></div><div className="execution-tools"><label><Weight className="h-3.5 w-3.5" /><select value={unit} onChange={(event) => setUnit(event.target.value as WeightUnit)} aria-label="Weight unit"><option value="lb">lb</option><option value="kg">kg</option></select></label><button onClick={() => completeMutation.mutate({ sessionId: activeSession.id })} disabled={completeMutation.isPending}>{completeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Finish workout</button></div></div>
-    <div className="session-exercise-list">{activeSession.exercises.map((exercise, index) => <article key={exercise.id} className="session-exercise"><div><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{exercise.exerciseName}</strong><small>{exercise.plannedPrescription}{exercise.plannedRpe ? ` · ${exercise.plannedRpe}` : ""}{exercise.plannedRest ? ` · ${exercise.plannedRest} rest` : ""}</small></div></div><div className="session-set-list">{Array.from({ length: plannedSetCount(exercise.plannedPrescription) }, (_, setIndex) => <SetLogger key={setIndex} setNumber={setIndex + 1} setLog={exercise.setLogs.find((set) => set.setNumber === setIndex + 1)} unit={unit} pending={logSetMutation.isPending} onSave={(value) => logSetMutation.mutate(buildSetLogPayload(exercise.id, setIndex + 1, unit, value))} />)}</div></article>)}</div>
+    <div className="execution-head"><div><p className="metric-label">Live workout / {dayLabel}</p><h3>{completedSets} / {plannedSets || "—"} work sets logged</h3><p>Actual weight, reps, and completion save to your account as you go.</p></div><div className="execution-tools"><label><Weight className="h-3.5 w-3.5" /><select value={unit} onChange={(event) => setUnit(event.target.value as WeightUnit)} aria-label="Weight unit"><option value="lb">lb</option><option value="kg">kg</option></select></label><button onClick={() => completeMutation.mutate({ sessionId: activeSession.id })} disabled={completeMutation.isPending}>{completeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Finish workout</button></div></div>
+    <div className="session-exercise-list">{activeSession.exercises.map((exercise, index) => <article key={exercise.id} className="session-exercise"><div><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{exercise.exerciseName}</strong><small>{exercise.plannedPrescription}{exercise.plannedRest ? ` · ${exercise.plannedRest} rest` : ""}</small></div></div><div className="session-set-list">{Array.from({ length: plannedSetCount(exercise.plannedPrescription) }, (_, setIndex) => <SetLogger key={setIndex} setNumber={setIndex + 1} setLog={exercise.setLogs.find((set) => set.setNumber === setIndex + 1)} unit={unit} pending={logSetMutation.isPending} onSave={(value) => logSetMutation.mutate(buildSetLogPayload(exercise.id, setIndex + 1, unit, value))} />)}</div></article>)}</div>
   </section>;
 
-  return <section id="workout-tracker" className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Start when the plan is ready.</h3><p>Each saved set records actual weight, reps, optional RPE, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} onApprove={handleProgressionApproval} onApproveSegment={handleSegmentApproval} onAddSuggestion={handleSegmentSuggestion} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
+  return <section id="workout-tracker" className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Ready to train.</h3><p>Each logged set records actual weight, reps, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} onApprove={handleProgressionApproval} onApproveSegment={handleSegmentApproval} onAddSuggestion={handleSegmentSuggestion} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
 }

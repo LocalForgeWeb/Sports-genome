@@ -1,4 +1,4 @@
-export type DeviceSetLog = { weight: string; reps: string; rpe: string; completed: boolean };
+export type DeviceSetLog = { weight: string; reps: string; completed: boolean };
 export type DeviceWorkoutExercise = {
   id: string;
   exerciseName: string;
@@ -22,7 +22,13 @@ export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey) || "[]");
-    return Array.isArray(parsed) ? parsed as DeviceWorkoutSession[] : [];
+    return Array.isArray(parsed) ? parsed.map((session) => ({
+      ...session,
+      exercises: Array.isArray(session.exercises) ? session.exercises.map((exercise: DeviceWorkoutExercise) => ({
+        ...exercise,
+        sets: Array.isArray(exercise.sets) ? exercise.sets.map((set: DeviceSetLog) => ({ weight: String(set.weight || ""), reps: String(set.reps || ""), completed: Boolean(set.completed) })) : [],
+      })) : [],
+    })) as DeviceWorkoutSession[] : [];
   } catch {
     return [];
   }
@@ -30,6 +36,7 @@ export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
 
 export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[]) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify(sessions));
+  const normalized = sessions.map((session) => ({ ...session, exercises: session.exercises.map((exercise) => ({ ...exercise, sets: exercise.sets.map((set) => ({ weight: set.weight, reps: set.reps, completed: set.completed })) })) }));
+  window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify(normalized));
   window.dispatchEvent(new Event(deviceWorkoutHistoryEvent));
 }
