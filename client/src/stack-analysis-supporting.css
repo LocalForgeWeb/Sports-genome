@@ -1,52 +1,7 @@
-.stack-analysis-supporting {
-  margin-top: .85rem;
-  border: 1px solid #d7e5ef;
-  background: #f7fbfe;
-}
-
-.stack-analysis-supporting summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-  padding: .7rem;
-  color: #194d79;
-  cursor: pointer;
-  font-size: .67rem;
-  font-weight: 900;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-
-.stack-analysis-supporting summary small {
-  color: #65809a;
-  font-size: .56rem;
-  letter-spacing: .03em;
-}
-
-.stack-analysis-supporting p {
-  margin: 0;
-  padding: 0 .7rem .65rem;
-  color: #5e7891;
-  font-size: .63rem;
-  line-height: 1.45;
-}
-
-.stack-analysis-supporting > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
-  padding: 0 .7rem .7rem;
-}
-
-.stack-analysis-supporting > div span {
-  border: 1px solid #d9e7f0;
-  background: #fff;
-  padding: .28rem .38rem;
-  color: #42627c;
-  font-size: .58rem;
-}
-
-.stack-analysis-supporting > div b {
-  color: #1d5685;
-}
+.stack-analysis-supporting { margin-top: .85rem; border: 1px solid rgb(164 200 232 / .28); background: #102f53; }
+.stack-analysis-supporting summary { display: flex; min-height: 3rem; align-items: center; justify-content: space-between; gap: .75rem; padding: .7rem; color: #f7fbff; cursor: pointer; font-size: .67rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.stack-analysis-supporting summary small { color: #b9d5ee; font-size: .56rem; letter-spacing: .03em; }
+.stack-analysis-supporting p { margin: 0; padding: 0 .7rem .65rem; color: #c3d7ea; font-size: .63rem; line-height: 1.45; }
+.stack-analysis-supporting > div { display: flex; flex-wrap: wrap; gap: .35rem; padding: 0 .7rem .7rem; }
+.stack-analysis-supporting > div span { border: 1px solid rgb(164 200 232 / .25); background: #0b2240; padding: .28rem .38rem; color: #c3d7ea; font-size: .58rem; }
+.stack-analysis-supporting > div b { color: #f7fbff; }

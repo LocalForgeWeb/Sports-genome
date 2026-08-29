@@ -16,7 +16,7 @@ describe("Rate Stack split-target index", () => {
     expect(source).toContain("Target-only score and planning note");
     expect(source).toContain("targetIndex={analysis.score}");
     expect(stackAnalysisSource).toContain("{split} target index");
-    expect(stackAnalysisSource).toContain("not from unrelated muscles");
+    expect(stackAnalysisSource).toContain("Target coverage is calculated from this split’s intended muscles only.");
   });
 
   it("passes catalog-backed missing-target suggestions into the full review as direct add actions", () => {
