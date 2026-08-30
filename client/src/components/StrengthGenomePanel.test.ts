@@ -70,8 +70,9 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('recorded test coverage; not a strength rank');
     expect(source).toContain('setSelectedRegion(null); setSelectedObservationId("");');
     expect(source).toContain('className="strength-reference-state-visual"');
-    expect(source).toContain('/manus-storage/strength-qualified-reference-state_3ccc4f09.png');
-    expect(source).toContain('/manus-storage/strength-reference-unavailable-state_f08bbf9c.png');
+    expect(source).toContain('sportsGenomeAssets.strengthQualified');
+    expect(source).toContain('sportsGenomeAssets.strengthUnavailable');
+    expect(source).not.toContain('/manus-storage/');
     expect(source).toContain("Reference status");
     expect(source).toContain("Qualified comparison ready");
     expect(source).toContain("match a reviewed source");

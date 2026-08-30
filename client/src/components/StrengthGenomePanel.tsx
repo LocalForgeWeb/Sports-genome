@@ -12,6 +12,7 @@ import { displayWeightToKilograms, formatDisplayWeight, kilogramsToDisplayWeight
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
 import { getPiper2021PreacherCurlReference, piper2021PreacherCurlReferenceId, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
 import { getVanDenHoek2024PowerliftingReference, vanDenHoek2024ReferenceId, type PowerliftingReferenceDeclaration } from "@/lib/powerliftingReference";
+import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 
 type MeasurementType =
   | "MEASURED_1RM"
@@ -32,8 +33,8 @@ type PiperReferenceDeclaration = Pick<Piper2021PreacherCurlContext, "sex" | "age
 const emptyPiperDeclaration: PiperReferenceDeclaration = { sex: undefined, ageYears: undefined, collegeStudentConfirmed: false, preTrainingConfirmed: false, exactProtocolConfirmed: false, directlyObservedConfirmed: false };
 const emptyPowerliftingDeclaration: PowerliftingReferenceDeclaration = { sex: undefined, ageYears: undefined, drugTestedCompetitionConfirmed: false, unequippedCompetitionConfirmed: false, maximumSuccessfulLiftConfirmed: false };
 const strengthReferenceStateVisuals = {
-  qualified: "/manus-storage/strength-qualified-reference-state_3ccc4f09.png",
-  unavailable: "/manus-storage/strength-reference-unavailable-state_f08bbf9c.png",
+  qualified: sportsGenomeAssets.strengthQualified,
+  unavailable: sportsGenomeAssets.strengthUnavailable,
 } as const;
 
 function parsePiperReferenceDeclaration(value?: string | null): PiperReferenceDeclaration | null {

@@ -70,7 +70,7 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content.destination-progress');
     expect(css).toContain('.apex-content.destination-profile');
     expect(css).toContain('.apex-content.destination-more');
-    expect(source).toContain('sports-genome-circular-header-badge_8450998e.jpg');
+    expect(source).toContain('sportsGenomeAssets.circularBadge');
     expect(source).toContain('alt="Sports Genome circular badge"');
     expect(source).toContain('className="topbar-brand-logo shrink-0 object-cover"');
     expect(source).toContain('className="topbar-context-chips"');
@@ -85,7 +85,7 @@ describe("workspace side navigation", () => {
 
   it("uses the supplied circular badge as a larger natural onboarding mark without changing title or progress controls", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(source).toContain('src="/manus-storage/sports-genome-circular-header-badge_8450998e.jpg" alt="Sports Genome circular badge" className="pulse-brand-badge"');
+    expect(source).toContain('src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="pulse-brand-badge"');
     expect(source).toContain('<span className="font-display text-2xl font-bold uppercase tracking-wide text-white">Sports Genome</span>');
     expect(source).toContain('<div className="pulse-progress"><span>STEP {step + 1} / 4</span>');
     expect(css).toContain('.pulse-header .pulse-brand-badge { display: block !important; width: 54px; height: 54px;');
@@ -94,7 +94,7 @@ describe("workspace side navigation", () => {
   });
 
   it("uses the supplied circular badge in the active eleven-step onboarding header at a natural readable scale", () => {
-    expect(athleteQuizSource).toContain('src="/manus-storage/sports-genome-circular-header-badge_8450998e.jpg" alt="Sports Genome circular badge"');
+    expect(athleteQuizSource).toContain('src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge"');
     expect(athleteQuizSource).toContain('<span>Sports Genome</span></div><div className="athlete-quiz-progress"');
     expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 54px; height: 54px; flex: 0 0 54px; border-radius: 999px;');
     expect(athleteQuizStyles).toContain('@media (max-width: 720px) { .athlete-quiz-header { min-height: 82px;');

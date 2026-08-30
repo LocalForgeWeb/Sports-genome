@@ -4,6 +4,7 @@ import type { SportProfile } from "@/lib/sportMovementDatabase";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { catalogEquipment, defaultEquipmentProfile, gymAccessProfiles, type AthleteEquipmentProfile, type CatalogEquipment, type GymAccess } from "@/lib/equipmentProfile";
 import { getSportModifiers } from "@/lib/hierarchicalSportModel";
+import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import "@/athlete-baseline-quiz.css";
 
 export type AthleteExperience = "Beginner" | "Intermediate" | "Advanced";
@@ -88,7 +89,7 @@ export function AthleteBaselineQuiz({ sports, onComplete }: { sports: SportProfi
 
   return <div className="athlete-quiz-shell">
     <div className="athlete-quiz-grid" />
-    <header className="athlete-quiz-header"><div className="athlete-quiz-brand"><img src="/manus-storage/sports-genome-circular-header-badge_8450998e.jpg" alt="Sports Genome circular badge" /><span>Sports Genome</span></div><div className="athlete-quiz-progress" aria-label={`Step ${step + 1} of ${totalSteps}`}><span>Step {step + 1} / {totalSteps}</span><div className="athlete-quiz-progress-track"><i style={{ width: `${progress}%` }} /></div></div></header>
+    <header className="athlete-quiz-header"><div className="athlete-quiz-brand"><img src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" /><span>Sports Genome</span></div><div className="athlete-quiz-progress" aria-label={`Step ${step + 1} of ${totalSteps}`}><span>Step {step + 1} / {totalSteps}</span><div className="athlete-quiz-progress-track"><i style={{ width: `${progress}%` }} /></div></div></header>
     <main className="athlete-quiz-main"><section className="athlete-quiz-stage" key={step}>
       <div className="athlete-quiz-techline" aria-hidden="true"><span>CALIBRATION FIELD</span><i /><b>01</b><b>02</b><b>03</b><b>04</b></div>
       <details className="athlete-evidence-note"><summary><span>{evidenceNotes[0]}</span><small>Why this matters</small></summary><p>{evidenceNotes[1]}</p><i>INPUT → PROGRAMMING OUTPUT</i></details>

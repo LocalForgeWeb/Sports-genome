@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Sports Genome — Decoding Performance</title>
     <meta name="description" content="Build sport-aware workouts from a 400-exercise movement and muscle catalog." />
-    <link rel="icon" type="image/png" sizes="64x64" href="/manus-storage/sports-genome-upright-s-dna-64_904d4b7b.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/manus-storage/sports-genome-upright-s-dna-180_c496e9d0.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="%VITE_SUPABASE_URL%/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-dna-64_904d4b7b.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%VITE_SUPABASE_URL%/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-dna-180_c496e9d0.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#0b2240" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -15,9 +15,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
-    <link rel="preload" as="image" href="/manus-storage/sports-genome-upright-s-silhouette-exact_349405db.png" fetchpriority="high" />
-    <link rel="preload" as="image" href="/manus-storage/sports-genome-upright-dna-detail-exact_8e94e37f.png" fetchpriority="high" />
-    <link rel="preload" as="video" href="/manus-storage/sports-genome-intro-source_07000a26.mp4" type="video/mp4" fetchpriority="high" />
+    <link rel="preload" as="image" href="%VITE_SUPABASE_URL%/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-silhouette-exact_349405db.png" fetchpriority="high" />
+    <link rel="preload" as="image" href="%VITE_SUPABASE_URL%/storage/v1/object/public/sports-genome-assets/sports-genome-upright-dna-detail-exact_8e94e37f.png" fetchpriority="high" />
+    <link rel="preload" as="video" href="%VITE_SUPABASE_URL%/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4" type="video/mp4" fetchpriority="high" />
     <script>try{document.documentElement.dataset.sportsGenomeBoot=localStorage.getItem("sports-genome-launch-experience-enabled-v1")==="off"?"off":"on";if(document.documentElement.dataset.sportsGenomeBoot==="on")document.documentElement.dataset.sportsGenomeBootStartedAt=String(Date.now())}catch(e){document.documentElement.dataset.sportsGenomeBoot="on";document.documentElement.dataset.sportsGenomeBootStartedAt=String(Date.now())}</script>
     <style>
       html,body{margin:0;min-height:100%;background:#0b2240}
@@ -45,7 +45,7 @@
     </style>
   </head>
   <body>
-    <div id="sports-genome-boot-splash" aria-hidden="true"><video id="sports-genome-boot-video" class="sports-genome-boot-video" src="/manus-storage/sports-genome-intro-source_07000a26.mp4" muted playsinline preload="auto" disablepictureinpicture></video><div class="sports-genome-boot-content"><div class="sports-genome-boot-mark"><img class="sports-genome-boot-logo" src="/manus-storage/sports-genome-upright-s-silhouette-exact_349405db.png" alt="" /><img class="sports-genome-boot-dna-detail" src="/manus-storage/sports-genome-upright-dna-detail-exact_8e94e37f.png" alt="" /></div><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div></div>
+    <div id="sports-genome-boot-splash" aria-hidden="true"><video id="sports-genome-boot-video" class="sports-genome-boot-video" src="%VITE_SUPABASE_URL%/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4" muted playsinline preload="auto" disablepictureinpicture></video><div class="sports-genome-boot-content"><div class="sports-genome-boot-mark"><img class="sports-genome-boot-logo" src="%VITE_SUPABASE_URL%/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-silhouette-exact_349405db.png" alt="" /><img class="sports-genome-boot-dna-detail" src="%VITE_SUPABASE_URL%/storage/v1/object/public/sports-genome-assets/sports-genome-upright-dna-detail-exact_8e94e37f.png" alt="" /></div><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div></div>
     <script>try{const video=document.getElementById("sports-genome-boot-video");const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;const startedAt=Number(document.documentElement.dataset.sportsGenomeBootStartedAt||Date.now());const stopVideo=()=>{video?.pause();document.documentElement.classList.add("sports-genome-boot-video-held")};if(video&&!reduced&&document.documentElement.dataset.sportsGenomeBoot!=="off"){video.muted=true;video.addEventListener("canplay",()=>{if(Date.now()-startedAt>360)return;video.play().then(()=>{document.documentElement.classList.add("sports-genome-boot-video-ready");window.setTimeout(stopVideo,Math.max(0,1_680-(Date.now()-startedAt)))}).catch(()=>{});},{once:true});}}catch(e){}</script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

@@ -6,8 +6,8 @@ const onboarding = readFileSync(new URL("./AthleteBaselineQuiz.tsx", import.meta
 
 describe("official Sports Genome logo references", () => {
   it("keeps official artwork in account entry and uses the latest user-supplied circular badge in active onboarding", () => {
-    expect(authScreen).toContain('sports-genome-official-logo-180_8085dfd8.png');
-    expect(onboarding).toContain('sports-genome-circular-header-badge_8450998e.jpg');
+    expect(authScreen).toContain('sportsGenomeAssets.officialLogo');
+    expect(onboarding).toContain('sportsGenomeAssets.circularBadge');
     expect(authScreen).not.toContain('sports-genome-apple-touch-icon_06bc5f79.png');
     expect(onboarding).not.toContain('sports-genome-apple-touch-icon_06bc5f79.png');
   });

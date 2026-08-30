@@ -2,6 +2,12 @@
 
 ## User-Authorized Completion Sequence
 
+- [x] Inventory and replace all Manus-specific runtime, storage, debug, Forge, and server dependencies with portable Supabase, standard Vite, or normal server equivalents while preserving current behavior.
+- [x] Migrate every current `/manus-storage/` asset reference into Supabase Storage with a durable filename mapping and update all frontend references.
+- [ ] Verify independent production build, Supabase asset loading, Vercel frontend readiness, visual parity, and GitHub migration commit.
+- [x] Verify the current GitHub synchronization and whether deployed Sports Genome code is connected to Supabase at runtime.
+- [x] Inspect and report the current connected Supabase research-ingestion inventory without changing database data.
+- [x] Export the current complete Sports Genome exercise catalog in a readable file for the user.
 - [x] Temporarily bypass the Sports Genome sign-in gate so the workspace opens directly, while preserving isolated email/password and passkey implementation for later reactivation.
 - [ ] Complete the remaining safe Sports Genome work without adding new external API or integration dependencies.
 - [ ] Complete and publish the remaining non-device Sports Genome work in priority order: evidence-bounded Strength Genome, iPhone-first workflow polish, Body Lab refinement, and visible-data integrity cleanup.

@@ -8,12 +8,12 @@
   "theme_color": "#0b2240",
   "icons": [
     {
-      "src": "/manus-storage/sports-genome-upright-s-dna-192_979589c2.png",
+      "src": "https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-dna-192_979589c2.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/manus-storage/sports-genome-upright-s-dna-512_1a0f292a.png",
+      "src": "https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-dna-512_1a0f292a.png",
       "sizes": "512x512",
       "type": "image/png"
     }
