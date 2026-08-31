@@ -47,6 +47,10 @@ The live Strength Genome view also displayed a concise on-demand connected-libra
 
 After the source-outcome metadata extension, the live Incline Barbell Bench Press context showed its direct-outcome classification, six indexed source outcomes, and a capped list of named outcome variables from its linked crossover study. It displayed no outcome values, arithmetic, generic score, recommendation rewrite, or personal rank. This validates that the populated `study_outcomes` table is connected to the existing exercise detail flow only through a factual, source-specific metadata boundary.
 
+## On-demand source library
+
+The existing More workspace now includes a compact, closed-by-default **Research library**. Its server-only Supabase adapter returns up to eight citation-safe study records, each with title, publication year, source URL, study type, population descriptor, and counts of linked exercises and indexed outcomes. It does not expose outcome values, raw imports, staging rows, formulas, inferred confidence scores, percentiles, or recommendations. The live workspace loaded all eight highlighted records without browser-console errors after a clean server restart.
+
 ## Current source-only exercise boundary
 
 Twenty-two upstream exercise rows do not carry a `source_catalog_id`, including generic duplicate labels such as `Biceps Curl`, `Chest Press`, and `Leg Curl`, plus several specialist isometric or machine-controlled sport records. Some have no equipment, plane, stability, or loadability data; others use a protocol-specific device not represented in the active catalog. They are counted in the connected repository but are intentionally not auto-added to workout generation, muscle maps, or sport scoring. Adding them to those surfaces without a reviewed canonical merge and explicit muscle/programming mapping would fabricate a level of certainty that the database does not currently contain.

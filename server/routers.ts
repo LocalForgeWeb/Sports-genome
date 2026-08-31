@@ -33,6 +33,7 @@ import {
 import {
   getSupabaseEvidenceInventory,
   getSupabaseExerciseEvidence,
+  getSupabaseResearchLibrary,
 } from "./supabaseEvidence";
 import {
   createStrengthObservation,
@@ -114,6 +115,7 @@ export const appRouter = router({
     supabaseInventory: publicProcedure.query(() =>
       getSupabaseEvidenceInventory()
     ),
+    supabaseLibrary: publicProcedure.query(() => getSupabaseResearchLibrary()),
     supabaseExercise: publicProcedure
       .input(z.object({ catalogExerciseId: z.number().int().positive() }))
       .query(({ input }) =>

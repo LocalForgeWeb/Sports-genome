@@ -46,3 +46,21 @@ export type SupabaseEvidenceInventory = {
   stagingStudies: number;
   boundary: string;
 };
+
+export type SupabaseResearchLibrarySource = {
+  id: string;
+  title: string;
+  publicationYear: number | null;
+  sourceUrl: string;
+  studyType: string | null;
+  populationSummary: string | null;
+  evidenceLevel: string | null;
+  linkedExerciseCount: number;
+  sourceOutcomeCount: number;
+};
+
+export type SupabaseResearchLibrary = {
+  status: "connected" | "unavailable";
+  sources: SupabaseResearchLibrarySource[];
+  boundary: string;
+};
