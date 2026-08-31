@@ -185,7 +185,6 @@ function unavailableInventory(): SupabaseEvidenceInventory {
     performanceTests: 0,
     performanceNorms: 0,
     strengthEstimationModels: 0,
-    stagingStudies: 0,
     boundary:
       "The upstream research repository is unavailable, so the app retains its local reviewed evidence and does not infer new claims.",
   };
@@ -327,7 +326,6 @@ export function createSupabaseEvidenceClient({
         { table: "performance_tests", countColumn: "id" },
         { table: "performance_norms", countColumn: "id" },
         { table: "strength_estimation_models", countColumn: "id" },
-        { table: "staging_studies", countColumn: "id" },
         { table: "exercise_evidence_coverage", countColumn: "exercise_id" },
       ] as const;
       const counts = await Promise.all(
@@ -367,7 +365,6 @@ export function createSupabaseEvidenceClient({
         performanceTests: countByTable.performance_tests,
         performanceNorms: countByTable.performance_norms,
         strengthEstimationModels: countByTable.strength_estimation_models,
-        stagingStudies: countByTable.staging_studies,
         boundary:
           "Counts describe connected upstream data. Staging records, source-only exercises, and heterogeneous norms are not automatically used to create athlete-facing recommendations, percentiles, or medical claims.",
       };

@@ -43,7 +43,6 @@ export type SupabaseEvidenceInventory = {
   performanceTests: number;
   performanceNorms: number;
   strengthEstimationModels: number;
-  stagingStudies: number;
   boundary: string;
 };
 
