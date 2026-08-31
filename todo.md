@@ -8,6 +8,7 @@
 - [x] Inspect and summarize the current connected Supabase Storage and database inventory added by the user, without changing any project data.
 - [x] Connect populated Supabase research, linked exercise evidence, and norm/test repository metadata through a server-only source-gated adapter, Exercise Genome citation context, Strength Genome library status, tests, and RLS hardening without automatic unqualified athlete-facing claims.
 - [ ] Expose qualified linked study outcomes and source-specific performance-test/norm context through existing app surfaces only where canonical mappings, population, measurement, and protocol gates are complete.
+- [ ] Audit and, where source semantics match existing inputs, connect the Supabase standardized performance-test and strength-estimation-model registries through source-bounded Strength Genome context without automatic benchmark or formula substitution.
 - [ ] Define and implement the reviewed canonical-mapping workflow for the 22 Supabase source-only exercises before they can enter workout generation, muscle maps, or sport scoring.
 - [ ] Integrate additional populated supporting tables into concrete athlete-facing runtime surfaces only after their relationship, evidence quality, and claim boundaries are reviewed and tested.
 - [x] Verify the current GitHub synchronization and whether deployed Sports Genome code is connected to Supabase at runtime.
