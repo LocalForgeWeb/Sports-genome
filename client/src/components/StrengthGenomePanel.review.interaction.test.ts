@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate
 vi.mock("@/lib/trpc", () => ({
   trpc: {
     useUtils: () => ({ strengthGenome: { overview: { invalidate: mocks.invalidate }, observations: { invalidate: mocks.invalidate }, priorities: { invalidate: mocks.invalidate } } }),
+    researchEvidence: { supabaseInventory: { useQuery: () => ({ data: { status: "unavailable" } }) } },
     strengthGenome: {
       overview: { useQuery: () => ({ data: { regions: [], athleteConfirmedPriorityRegionIds: [], nextAction: "Add a result" } }) },
       observations: { useQuery: () => ({ data: [] }) },

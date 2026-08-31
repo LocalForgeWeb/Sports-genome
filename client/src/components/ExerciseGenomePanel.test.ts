@@ -38,6 +38,16 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
     expect(source).toContain("catalog mapping and gym-support signal, not evidence of direct skill or performance transfer");
   });
 
+  it("renders a connected Supabase record as source context without turning source norms into a personal rank", () => {
+    expect(source).toContain("Connected research record");
+    expect(source).toContain("supabaseEvidence.normativeRecordCount");
+    expect(source).toContain("supabaseEvidence.sourceOutcomeCount");
+    expect(source).toContain("supabaseEvidence.sourceOutcomeMetrics");
+    expect(source).toContain("Variables are source labels");
+    expect(source).toContain("supabaseEvidence.boundary");
+    expect(source).not.toContain("supabaseEvidence.percentile");
+  });
+
   it("renders evidence tier, causal mechanics input summary, and uncertainty in the Muscle Genome UI", async () => {
     const { ExerciseGenomePanel } = await import("./ExerciseGenomePanel");
     const seatedCurl = exercises.find((exercise) => exercise.name === "Seated Leg Curl") || exercises[0];

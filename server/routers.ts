@@ -31,6 +31,10 @@ import {
   getResearchEvidenceLibrary,
 } from "./researchEvidence";
 import {
+  getSupabaseEvidenceInventory,
+  getSupabaseExerciseEvidence,
+} from "./supabaseEvidence";
+import {
   createStrengthObservation,
   getStrengthGenomeOverview,
   listActiveStrengthPriorities,
@@ -107,6 +111,14 @@ export const appRouter = router({
   researchEvidence: router({
     summary: publicProcedure.query(() => getEvidenceLibrarySummary()),
     importPreview: publicProcedure.query(() => getEvidenceImportPreview()),
+    supabaseInventory: publicProcedure.query(() =>
+      getSupabaseEvidenceInventory()
+    ),
+    supabaseExercise: publicProcedure
+      .input(z.object({ catalogExerciseId: z.number().int().positive() }))
+      .query(({ input }) =>
+        getSupabaseExerciseEvidence(input.catalogExerciseId)
+      ),
     list: publicProcedure
       .input(
         z

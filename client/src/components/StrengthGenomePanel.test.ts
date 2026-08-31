@@ -83,6 +83,9 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Competitive powerlifting reference");
     expect(source).toContain("Source-sample percentile band");
     expect(source).toContain("drug-tested, unequipped competition");
+    expect(source).toContain("trpc.researchEvidence.supabaseInventory.useQuery");
+    expect(source).toContain("Connected library:");
+    expect(source).toContain("do not create a generic rank");
     expect(source).not.toContain("Top 1%");
   });
 

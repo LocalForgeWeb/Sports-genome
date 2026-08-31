@@ -154,6 +154,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const overview = trpc.strengthGenome.overview.useQuery(undefined, { enabled: !directAccess });
   const observations = trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess });
   const priorities = trpc.strengthGenome.priorities.useQuery(undefined, { enabled: !directAccess });
+  const supabaseEvidenceInventory = trpc.researchEvidence.supabaseInventory.useQuery(undefined, { staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false });
   const [exerciseName, setExerciseName] = useState("");
   const [exerciseSearch, setExerciseSearch] = useState("");
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
@@ -302,7 +303,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
           <div className="strength-profile-status-tools"><div className={`strength-profile-coverage-ring ${sourceMatchedObservationCount ? "is-source-qualified" : ""}`} style={{ "--coverage-progress": `${recordedCoveragePercent}%` } as CSSProperties} aria-label={`${recordedCoveragePercent}% recorded test coverage; not a strength rank`}><div><strong>{recordedCoveragePercent}</strong><span>%</span><small>coverage</small></div></div><span className="strength-profile-device-boundary"><CircleHelp className="h-3.5 w-3.5" /> {directAccess ? "This device" : "Private record"}</span></div>
 	        </div>
 	        <div className="strength-profile-reference-summary" aria-label="Comparative reference status"><span>Reference status</span><strong>{sourceMatchedObservationCount ? "Qualified comparison ready" : "Reference unavailable"}</strong></div>
-	        <details className="strength-profile-reference-details"><summary>How comparison works</summary><p>A comparison is shown only when your exercise, test protocol, population, and test-day body mass match a reviewed source.</p></details>
+        <details className="strength-profile-reference-details"><summary>How comparison works</summary><p>A comparison is shown only when your exercise, test protocol, population, and test-day body mass match a reviewed source.</p>{supabaseEvidenceInventory.data?.status === "connected" && <p className="mt-2">Connected library: {supabaseEvidenceInventory.data.strengthNorms} source strength-norm records, {supabaseEvidenceInventory.data.performanceNorms} source performance-norm records, and {supabaseEvidenceInventory.data.performanceTests} standardized tests. These records are available for source qualification; they do not create a generic rank or automatically change your comparison.</p>}</details>
 	        <div className="strength-reference-state-visual" aria-hidden="true"><img src={sourceMatchedObservationCount ? strengthReferenceStateVisuals.qualified : strengthReferenceStateVisuals.unavailable} alt="" /></div>
 	      </section>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />

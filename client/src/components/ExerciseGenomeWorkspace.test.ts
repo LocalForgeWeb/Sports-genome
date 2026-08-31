@@ -11,5 +11,8 @@ describe("Exercise Genome selected-action selector", () => {
     expect(source).toContain("selectedMovement.label");
     expect(source).toContain("genome-selector-connection-${connection.label.toLowerCase().replace(/\\s+/g, \"-\")}");
     expect(source).toContain("ExerciseGenomePanel exercise={selectedExercise}");
+    expect(source).toContain("trpc.researchEvidence.supabaseExercise.useQuery");
+    expect(source).toContain("trpc.researchEvidence.supabaseInventory.useQuery");
+    expect(source).toContain("supabaseEvidence={connectedEvidence.data}");
   });
 });
