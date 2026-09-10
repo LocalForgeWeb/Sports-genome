@@ -2,7 +2,11 @@ import { useState } from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import type { SupabaseSportExerciseRecommendation } from "@shared/supabaseSportProfile";
+import type {
+  SupabaseSportExerciseRecommendation,
+  SupabaseSportMovementDemand,
+  SupabaseSportMuscleDemand,
+} from "@shared/supabaseSportProfile";
 
 function formatLabel(value: string | null) {
   return value ? value.replace(/_/g, " ") : null;
@@ -26,6 +30,73 @@ function shortReason(recommendation: SupabaseSportExerciseRecommendation) {
   if (role) return role;
   const firstSentence = recommendation.rationale?.split(/(?<=\.)\s+/)[0];
   return firstSentence || null;
+}
+
+/**
+ * Aligned label+bar rows, not a radar/spider chart: the philosophy blueprint's Data
+ * Visualization domain (Sport Profile demand-map contract) explicitly prohibits radar
+ * as the primary quantitative view because polygon area misleadingly implies overall
+ * fit. A single-value, magnitude-from-zero bar per row is the compliant fallback here
+ * since athlete capability isn't paired against it (that's a larger future feature).
+ */
+function DemandMapSection({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: { name: string; region?: string | null; importanceWeight: number | null }[];
+}) {
+  if (!rows.length) return null;
+  return (
+    <div>
+      <p className="metric-label !text-[#91a09a]">{title}</p>
+      <div className="mt-2 space-y-2">
+        {rows.map(row => (
+          <div key={row.name} className="flex items-center gap-3">
+            <span className="w-32 shrink-0 truncate text-xs text-[#c5d1c9]" title={row.name}>
+              {row.name}
+            </span>
+            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+              {row.importanceWeight !== null && (
+                <span
+                  className="block h-full rounded-full bg-[#b8ff5b]/70"
+                  style={{ width: `${Math.round(Math.min(1, Math.max(0, row.importanceWeight)) * 100)}%` }}
+                />
+              )}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DemandMap({
+  movementDemands,
+  muscleDemands,
+}: {
+  movementDemands: SupabaseSportMovementDemand[];
+  muscleDemands: SupabaseSportMuscleDemand[];
+}) {
+  if (!movementDemands.length && !muscleDemands.length) return null;
+  return (
+    <div className="grid gap-5 border-b border-white/10 p-5 sm:grid-cols-2">
+      <DemandMapSection
+        title="Highest-weighted movement demands"
+        rows={movementDemands.map(demand => ({
+          name: demand.patternName,
+          importanceWeight: demand.importanceWeight,
+        }))}
+      />
+      <DemandMapSection
+        title="Highest-weighted muscle demands"
+        rows={muscleDemands.map(demand => ({
+          name: demand.muscleName,
+          importanceWeight: demand.importanceWeight,
+        }))}
+      />
+    </div>
+  );
 }
 
 function RecommendationRow({
@@ -173,6 +244,7 @@ export function SportEvidencePanel({
           </div>
         )}
       </div>
+      <DemandMap movementDemands={data.movementDemands} muscleDemands={data.muscleDemands} />
       <div className="divide-y divide-white/10">
         {data.recommendations.map((recommendation, index) => (
           <RecommendationRow
