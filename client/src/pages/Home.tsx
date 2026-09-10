@@ -37,7 +37,7 @@ import { getExerciseSettings, getGoalPrescription, type ExerciseSettings, type T
 import { getExerciseActionConnection, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { getBodyLabRoleContext } from "@/lib/bodyLabRoleContext";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
-import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation } from "@/lib/movementRecommendations";
+import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation, type RegistryEvidenceMap } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions } from "@/lib/gymTimeBudget";
 import { buildApprovedProgressionNote, buildApprovedSegmentPriorityNote } from "@/lib/progressiveTraining";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
@@ -72,8 +72,8 @@ export function buildSmartDraftWorkout(results: MovementRecommendation[]) {
   return orderHierarchyConstructedSession(results).map((result) => result.exercise);
 }
 
-export function buildGeneratedWeekSportSeed(sportId: string, goal: TrainingGoal, limit: number, equipment?: Parameters<typeof getSportSession>[3], modifierId?: string) {
-  const broaderSession = orderHierarchyConstructedSession(getSportSession(sportId, goal, Math.max(limit * 2, 12), equipment, modifierId));
+export function buildGeneratedWeekSportSeed(sportId: string, goal: TrainingGoal, limit: number, equipment?: Parameters<typeof getSportSession>[3], modifierId?: string, registryEvidence?: RegistryEvidenceMap) {
+  const broaderSession = orderHierarchyConstructedSession(getSportSession(sportId, goal, Math.max(limit * 2, 12), equipment, modifierId, registryEvidence));
   const modifierText = broaderSession[0]?.hierarchy.modifier.toLowerCase() || "";
   const modifierTokens = ["acceleration", "speed", "elastic", "aerobic", "endurance", "economy", "jump", "rotation", "bracing", "mobility", "grip", "landing", "lateral", "power"];
   const hierarchyRelevant = broaderSession.filter((result) => {
@@ -205,7 +205,7 @@ function RecommendationRow({ result, index, onAdd, onInspect }: { result: Moveme
     ["Stability", result.breakdown.stabilityMatch],
     ["Velocity", result.breakdown.velocityMatch],
   ];
-  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index">{String(index + 1).padStart(2, "0")}</span><button onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}</p><small>{result.preparation}</small></button><button onClick={onInspect} className="recommendation-score" aria-label={`Inspect the ${result.breakdown.overall} relative match for ${result.exercise.name}`}><strong>{result.breakdown.overall}</strong><small>match</small></button><GradeStamp grade={result.grade} score={result.breakdown.overall} compact /><button onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to custom workout`}><Plus className="h-4 w-4" /></button></div><details className="recommendation-why"><summary>Why this match?</summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><div className="mt-4 border-l-2 border-[#2d6cdf] bg-[#eef6ff] p-3 text-xs leading-5 text-[#234e76]"><p className="metric-label !text-[#2d6cdf]">Hierarchy trace</p><p className="mt-1"><strong>Movement:</strong> {result.hierarchy.movement}. <strong>Demand:</strong> {result.hierarchy.physiologicalDemands.slice(0, 2).join(" · ")}. <strong>Physical quality:</strong> {result.hierarchy.physicalQualities.slice(0, 2).join(" · ")}. <strong>Adaptation:</strong> {result.hierarchy.adaptations.slice(0, 2).join(" · ")}. <strong>Modality:</strong> {result.hierarchy.modality} <strong>Exercise role:</strong> {result.hierarchy.exerciseRole} <strong>Programming:</strong> {result.hierarchy.programming}</p></div></details></article>;
+  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index">{String(index + 1).padStart(2, "0")}</span><button onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="ml-2 inline-flex items-center border border-[#2d6cdf]/40 bg-[#2d6cdf]/10 px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-[.08em] text-[#2d6cdf]" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button onClick={onInspect} className="recommendation-score" aria-label={`Inspect the ${result.breakdown.overall} relative match for ${result.exercise.name}`}><strong>{result.breakdown.overall}</strong><small>match</small></button><GradeStamp grade={result.grade} score={result.breakdown.overall} compact /><button onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to custom workout`}><Plus className="h-4 w-4" /></button></div><details className="recommendation-why"><summary>Why this match?</summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><div className="mt-4 border-l-2 border-[#2d6cdf] bg-[#eef6ff] p-3 text-xs leading-5 text-[#234e76]"><p className="metric-label !text-[#2d6cdf]">Hierarchy trace</p><p className="mt-1"><strong>Movement:</strong> {result.hierarchy.movement}. <strong>Demand:</strong> {result.hierarchy.physiologicalDemands.slice(0, 2).join(" · ")}. <strong>Physical quality:</strong> {result.hierarchy.physicalQualities.slice(0, 2).join(" · ")}. <strong>Adaptation:</strong> {result.hierarchy.adaptations.slice(0, 2).join(" · ")}. <strong>Modality:</strong> {result.hierarchy.modality} <strong>Exercise role:</strong> {result.hierarchy.exerciseRole} <strong>Programming:</strong> {result.hierarchy.programming}</p></div></details></article>;
 }
 
 function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => void }) {
@@ -280,11 +280,28 @@ export default function Home() {
   const activeSportId = sportId || selectedSport.id;
   const gymTimeBudget = getGymTimeBudget(gymMinutes);
   const favoriteIds = useMemo(() => new Set<number>([...localFavoriteIds, ...(favoriteQuery.data || [])]), [localFavoriteIds, favoriteQuery.data]);
+  // Grounds recommendation scoring in reviewed Sports Genome research-registry (Supabase) evidence
+  // for this sport when it exists, rather than the local heuristic model alone.
+  const sportProfileQuery = trpc.sportsGenome.profile.useQuery({ sportId: activeSportId }, { staleTime: 5 * 60 * 1000 });
+  const registryEvidenceMap = useMemo<RegistryEvidenceMap>(() => {
+    const map: RegistryEvidenceMap = new Map();
+    if (sportProfileQuery.data?.status === "connected") {
+      for (const recommendation of sportProfileQuery.data.recommendations) {
+        if (recommendation.catalogExerciseId === null) continue;
+        map.set(recommendation.catalogExerciseId, {
+          confidenceScore: recommendation.confidenceScore,
+          rationale: recommendation.rationale,
+          recommendationRole: recommendation.recommendationRole,
+        });
+      }
+    }
+    return map;
+  }, [sportProfileQuery.data]);
   const sportMovements = useMemo(() => sportMovementProfiles.filter((profile) => profile.sportId === activeSportId), [activeSportId]);
   const selectedMovement = sportMovements.find((movement) => movement.id === movementId) || findSportMovement(activeSportId);
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
-  const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId), [selectedMovement, athleteBaseline.sportModifierId]);
-  const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId), [activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId]);
+  const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId, registryEvidenceMap), [selectedMovement, athleteBaseline.sportModifierId, registryEvidenceMap]);
+  const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap), [activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
   useEffect(() => {
@@ -301,10 +318,10 @@ export default function Home() {
     navigateWorkspace("tracker");
   }, [sessionMode]);
   const draftedLoadout = useMemo(() => {
-    const sportSeed = getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId).map((item) => item.exercise);
+    const sportSeed = getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap).map((item) => item.exercise);
     const pool = filterStackForEquipment(getSplitExercisePool(exercises, activeSplitDay, sportSeed), athleteBaseline.equipment);
     return buildVariedLoadout(pool, activeSplitDay === "Sport Transfer" ? sportSeed : [], activeLoadout, gymTimeBudget.recommendationLimit);
-  }, [activeSportId, goal, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId]);
+  }, [activeSportId, goal, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
   const movementSignals = getMovementSignals(selectedMovement);
   const movementMuscles = getMovementMuscles(selectedMovement);
   const bodyLabRoleContext = getBodyLabRoleContext(activeSportId, selectedMovement.id, movementMuscles, movementSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
@@ -715,7 +732,7 @@ export default function Home() {
   const generateWeek = () => {
     const nextWeek = nextWeekToGenerate(Object.keys(planWeeks).map(Number), activeWeek);
     if (!nextWeek) { toast("Three weeks are already generated", { description: "Switch between Week 1, Week 2, and Week 3 to review each plan." }); return; }
-    const sportSeed = buildGeneratedWeekSportSeed(activeSportId, goal, Math.max(10, gymTimeBudget.recommendationLimit + 4), athleteBaseline.equipment, athleteBaseline.sportModifierId);
+    const sportSeed = buildGeneratedWeekSportSeed(activeSportId, goal, Math.max(10, gymTimeBudget.recommendationLimit + 4), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap);
     const generatedPlan = Object.fromEntries(splitDays.map((day, dayIndex) => {
       const source = filterStackForEquipment(getSplitExercisePool(exercises, day, sportSeed), athleteBaseline.equipment);
       const offset = (nextWeek * 3) + (dayIndex * 2);

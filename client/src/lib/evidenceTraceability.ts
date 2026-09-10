@@ -39,6 +39,7 @@ export const logicCalibration = {
     rotationalPowerBonus: 1.25,
     unilateralBonus: 1,
     sprintPowerAdjustmentCap: 1.2,
+    registryEvidenceAdjustmentCap: 1.4,
     goalAthleticismLift: 1.2,
     goalStrengthOrGrowthLift: 0.9,
     noveltySignalWeight: 2.2,

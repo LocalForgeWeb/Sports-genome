@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getMovementRecommendations, getSportProgrammingContext, getSportSession, hierarchyTraceConstructionBoost, orderHierarchyConstructedSession, sprintPowerEvidenceRankAdjustment } from "./movementRecommendations";
+import { getMovementRecommendations, getSportProgrammingContext, getSportSession, hierarchyTraceConstructionBoost, orderHierarchyConstructedSession, registryEvidenceRankAdjustment, sprintPowerEvidenceRankAdjustment, type RegistryEvidenceMap } from "./movementRecommendations";
 import { sportMovementProfiles } from "./sportMovementDatabase";
 import { exercises } from "./exerciseCatalog";
 
@@ -61,5 +61,36 @@ describe("hierarchy-aware sport recommendations", () => {
     expect(sprintPowerEvidenceRankAdjustment(sprintSupport, sprintStart)).toBeGreaterThan(0);
     expect(sprintPowerEvidenceRankAdjustment(sprintSupport, sprintStart)).toBeLessThanOrEqual(1.2);
     expect(sprintPowerEvidenceRankAdjustment(unrelated, sprintStart)).toBeLessThan(sprintPowerEvidenceRankAdjustment(sprintSupport, sprintStart));
+  });
+
+  it("grounds a matched exercise's score in a reviewed Sports Genome research-registry recommendation", () => {
+    const sprintStart = sportMovementProfiles.find((item) => item.sportId === "track-and-field" && /start/i.test(item.label));
+    expect(sprintStart).toBeTruthy();
+    if (!sprintStart) return;
+    const target = exercises[0];
+    const registryEvidence: RegistryEvidenceMap = new Map([
+      [target.id, { confidenceScore: 0.9, rationale: "Direct same-sport intervention.", recommendationRole: "primary strength driver" }],
+    ]);
+
+    expect(registryEvidenceRankAdjustment(target, registryEvidence)).toBeGreaterThan(0);
+    expect(registryEvidenceRankAdjustment(target, registryEvidence)).toBeLessThanOrEqual(1.4);
+    expect(registryEvidenceRankAdjustment(target, undefined)).toBe(0);
+    expect(registryEvidenceRankAdjustment(exercises[1], registryEvidence)).toBe(0);
+
+    const withoutEvidence = getMovementRecommendations(sprintStart, exercises.length).find((item) => item.exercise.id === target.id);
+    const withEvidence = getMovementRecommendations(sprintStart, exercises.length, undefined, registryEvidence).find((item) => item.exercise.id === target.id);
+    expect(withoutEvidence).toBeTruthy();
+    expect(withEvidence).toBeTruthy();
+    if (!withoutEvidence || !withEvidence) return;
+
+    expect(withEvidence.score).toBeGreaterThan(withoutEvidence.score);
+    expect(withoutEvidence.registryEvidence).toBeNull();
+    expect(withEvidence.registryEvidence).toMatchObject({ confidenceScore: 0.9 });
+    expect(withEvidence.breakdown.strengths).toContain(
+      "confirmed by a reviewed Sports Genome research-registry recommendation for this sport"
+    );
+    expect(withoutEvidence.breakdown.strengths).not.toContain(
+      "confirmed by a reviewed Sports Genome research-registry recommendation for this sport"
+    );
   });
 });

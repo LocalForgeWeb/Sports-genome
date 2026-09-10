@@ -51,6 +51,14 @@ const humanMuscleAliases: Record<string, string[]> = {
   rotatorCuff: ["rotator cuff"],
 };
 
+/** A Sports Genome research-registry (Supabase) recommendation for one catalog exercise within the active sport, keyed by catalogExerciseId. */
+export type RegistryEvidenceEntry = {
+  confidenceScore: number | null;
+  rationale: string | null;
+  recommendationRole: string | null;
+};
+export type RegistryEvidenceMap = Map<number, RegistryEvidenceEntry>;
+
 export type RecommendationBreakdown = {
   overall: number;
   muscleMatch: number;
@@ -68,7 +76,7 @@ export type PreparationClassification = "General physical preparation" | "Specia
 
 export type HierarchyTrace = ReturnType<typeof buildMovementReasoning>;
 
-export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; preparation: PreparationClassification; rationale: string; breakdown: RecommendationBreakdown; hierarchy: HierarchyTrace; hierarchyConstructionScore: number };
+export type MovementRecommendation = { exercise: Exercise; score: number; grade: Grade; matchedSignals: MovementSignal[]; matchedMuscles: string[]; preparation: PreparationClassification; rationale: string; breakdown: RecommendationBreakdown; hierarchy: HierarchyTrace; hierarchyConstructionScore: number; registryEvidence: RegistryEvidenceEntry | null };
 
 const hierarchyQualityMap: Record<string, string[]> = {
   maxStrength: ["strength"], relativeStrength: ["strength", "unilateral"], power: ["power", "jumping", "rotation"],
@@ -153,7 +161,7 @@ function scoreReason(exercise: Exercise, matchedSignals: MovementSignal[], match
   return "Useful accessory support, with more limited movement-specific transfer than the top choices.";
 }
 
-function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSignals: MovementSignal[], matchedMuscles: string[], score: number): RecommendationBreakdown {
+function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSignals: MovementSignal[], matchedMuscles: string[], score: number, registryEvidence?: RegistryEvidenceEntry | null): RecommendationBreakdown {
   const signalCoverage = matchedSignals.length / Math.max(1, signals.length);
   const muscleMatch = percentage(40 + matchedMuscles.length * 16);
   const physicalQualityMatch = percentage(42 + signalCoverage * 54);
@@ -163,6 +171,7 @@ function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSi
   const stabilityMatch = percentage(34 + (exercise.qualities.some((quality) => ["unilateral", "bracing", "antiRotation", "scapularControl", "lateralControl"].includes(quality)) ? 50 : 20));
   const velocityMatch = percentage(30 + (exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "elasticity"].includes(quality)) ? 53 : 20));
   const strengths = [
+    registryEvidence ? "confirmed by a reviewed Sports Genome research-registry recommendation for this sport" : "",
     matchedSignals.includes("singleLeg") && exercise.qualities.includes("unilateral") ? "unilateral force-production correspondence" : "",
     matchedSignals.includes("acceleration") && exercise.qualities.includes("power") ? "forward projection and acceleration qualities" : "",
     matchedSignals.includes("rotation") && exercise.qualities.includes("rotation") ? "trunk-to-hip rotational transfer" : "",
@@ -211,6 +220,20 @@ export function sprintPowerEvidenceRankAdjustment(exercise: Exercise, profile: S
   return Math.min(logicCalibration.recommendation.sprintPowerAdjustmentCap, adjustment);
 }
 
+/**
+ * Grounds the score in the Sports Genome research registry (Supabase) when a
+ * reviewed sport-specific recommendation exists for this exact exercise. Capped
+ * and weighted by the registry's own confidence, mirroring sprintPowerEvidenceRankAdjustment's
+ * pattern: real evidence nudges the score, it never invents one for exercises the
+ * registry has no reviewed record for.
+ */
+export function registryEvidenceRankAdjustment(exercise: Exercise, registryEvidence?: RegistryEvidenceMap): number {
+  const entry = registryEvidence?.get(exercise.id);
+  if (!entry) return 0;
+  const confidence = entry.confidenceScore ?? 0.5;
+  return Math.min(logicCalibration.recommendation.registryEvidenceAdjustmentCap, confidence * logicCalibration.recommendation.registryEvidenceAdjustmentCap);
+}
+
 export function hierarchyTraceConstructionBoost(exercise: Exercise, hierarchy: HierarchyTrace) {
   const matchedPriorities = hierarchy.physicalQualityKeys.reduce((total, key) => total + (hierarchyQualityMap[key] || []).filter((quality) => exercise.qualities.includes(quality)).length, 0);
   const modifierText = hierarchy.modifier.toLowerCase();
@@ -224,7 +247,7 @@ export function orderHierarchyConstructedSession(results: MovementRecommendation
   return [...results].sort((first, second) => second.hierarchyConstructionScore - first.hierarchyConstructionScore || second.score - first.score || first.exercise.id - second.exercise.id);
 }
 
-export function getMovementRecommendations(profile: SportMovementProfile, limit = 6, modifierId?: string): MovementRecommendation[] {
+export function getMovementRecommendations(profile: SportMovementProfile, limit = 6, modifierId?: string, registryEvidence?: RegistryEvidenceMap): MovementRecommendation[] {
   const signals = getMovementSignals(profile);
   const profileMuscles = getMovementMuscles(profile);
   const hierarchy = buildMovementReasoning(profile, modifierId);
@@ -233,19 +256,21 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
     const matchedSignals = signals.filter((signal) => signalRules.find((rule) => rule.signal === signal)?.qualities.some((quality) => exercise.qualities.includes(quality)));
     const matchedMuscles = profileMuscles.filter((muscle) => exerciseMuscles.includes(muscle) || (muscle === "shoulders" && exerciseMuscles.some((item) => ["frontDelts", "sideDelts", "rearDelts"].includes(item))));
     const sprintPowerAdjustment = sprintPowerEvidenceRankAdjustment(exercise, profile);
-    const score = matchedSignals.length * logicCalibration.recommendation.signalMatchWeight + matchedMuscles.length * logicCalibration.recommendation.muscleMatchWeight + (exercise.qualities.includes("power") && signals.includes("rotation") ? logicCalibration.recommendation.rotationalPowerBonus : 0) + (exercise.qualities.includes("unilateral") && signals.includes("singleLeg") ? logicCalibration.recommendation.unilateralBonus : 0) + sprintPowerAdjustment;
+    const registryAdjustment = registryEvidenceRankAdjustment(exercise, registryEvidence);
+    const score = matchedSignals.length * logicCalibration.recommendation.signalMatchWeight + matchedMuscles.length * logicCalibration.recommendation.muscleMatchWeight + (exercise.qualities.includes("power") && signals.includes("rotation") ? logicCalibration.recommendation.rotationalPowerBonus : 0) + (exercise.qualities.includes("unilateral") && signals.includes("singleLeg") ? logicCalibration.recommendation.unilateralBonus : 0) + sprintPowerAdjustment + registryAdjustment;
     const grade = gradeForScore(score);
     const rationale = scoreReason(exercise, matchedSignals, matchedMuscles);
-    const breakdown = buildBreakdown(exercise, signals, matchedSignals, matchedMuscles, score);
+    const registryEntry = registryEvidence?.get(exercise.id) ?? null;
+    const breakdown = buildBreakdown(exercise, signals, matchedSignals, matchedMuscles, score, registryEntry);
     const preparation = classifyPreparation(exercise, matchedSignals, profile);
-    return { exercise, score, grade, matchedSignals, matchedMuscles, preparation, rationale, breakdown, hierarchy, hierarchyConstructionScore: hierarchyTraceConstructionBoost(exercise, hierarchy) };
+    return { exercise, score, grade, matchedSignals, matchedMuscles, preparation, rationale, breakdown, hierarchy, hierarchyConstructionScore: hierarchyTraceConstructionBoost(exercise, hierarchy), registryEvidence: registryEntry };
   }).sort((a, b) => b.score - a.score || a.exercise.id - b.exercise.id).slice(0, limit);
 }
 
-export function getSportSession(sportId: string, goal: string, limit = 6, equipmentProfile?: AthleteEquipmentProfile, modifierId?: string): MovementRecommendation[] {
+export function getSportSession(sportId: string, goal: string, limit = 6, equipmentProfile?: AthleteEquipmentProfile, modifierId?: string, registryEvidence?: RegistryEvidenceMap): MovementRecommendation[] {
   const profiles = sportMovementProfiles.filter((profile) => profile.sportId === sportId);
   const pooled = new Map<number, MovementRecommendation>();
-  profiles.forEach((profile) => getMovementRecommendations(profile, 10, modifierId).forEach((result) => {
+  profiles.forEach((profile) => getMovementRecommendations(profile, 10, modifierId, registryEvidence).forEach((result) => {
     const existing = pooled.get(result.exercise.id);
     const goalBoost = goal === "Athleticism" && result.exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "rotation"].includes(quality)) ? logicCalibration.recommendation.goalAthleticismLift : goal === "Muscle growth" && result.exercise.qualities.includes("hypertrophy") ? logicCalibration.recommendation.goalStrengthOrGrowthLift : goal === "Max strength" && result.exercise.qualities.includes("strength") ? logicCalibration.recommendation.goalStrengthOrGrowthLift : 0;
     const candidate = { ...result, score: result.score + goalBoost + result.hierarchyConstructionScore };
