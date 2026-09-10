@@ -34,6 +34,7 @@ import {
   getSupabaseEvidenceInventory,
   getSupabaseExerciseEvidence,
 } from "./supabaseEvidence";
+import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import {
   createStrengthObservation,
   getStrengthGenomeOverview,
@@ -296,6 +297,12 @@ export const appRouter = router({
         })
       )
       .mutation(({ ctx, input }) => createStrengthObservation(ctx.user.id, input)),
+  }),
+
+  sportsGenome: router({
+    profile: publicProcedure
+      .input(z.object({ sportId: z.string().trim().min(1).max(80) }))
+      .query(({ input }) => getSupabaseSportProfile(input.sportId)),
   }),
 
   favorites: router({
