@@ -7,6 +7,7 @@
 - [x] Verify independent production build, Supabase asset loading, Vercel frontend readiness, visual parity, and GitHub migration commit.
 - [x] Inspect and summarize the current connected Supabase Storage and database inventory added by the user, without changing any project data.
 - [x] Connect populated Supabase research, linked exercise evidence, and norm/test repository metadata through a server-only source-gated adapter, Exercise Genome citation context, Strength Genome library status, tests, and RLS hardening without automatic unqualified athlete-facing claims.
+- [x] Add a compact, closed-by-default More-workspace research library that lists server-fetched citation metadata and linked-record counts without raw values, ranks, or recommendation changes.
 - [ ] Expose qualified linked study outcomes and source-specific performance-test/norm context through existing app surfaces only where canonical mappings, population, measurement, and protocol gates are complete.
 - [ ] Audit and, where source semantics match existing inputs, connect the Supabase standardized performance-test and strength-estimation-model registries through source-bounded Strength Genome context without automatic benchmark or formula substitution.
 - [ ] Define and implement the reviewed canonical-mapping workflow for the 22 Supabase source-only exercises before they can enter workout generation, muscle maps, or sport scoring.
@@ -842,3 +843,4 @@
 - [x] Reduce the floating guide control to a safe-area-aware compact help affordance that never blocks training controls.
 - [x] Standardize mobile touch targets, card density, disclosure behavior, typography, score bars, and visual hierarchy across affected athlete workflows.
 - [ ] Validate mobile hierarchy, no-overflow behavior, readable catalog results, and reachable controls at 375px, 390px, 402px, and 430px.
+- [x] Restore the Sports Genome intro animation on the GitHub-hosted site and verify its asset URL, startup choreography, and static-host compatibility

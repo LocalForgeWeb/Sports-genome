@@ -111,4 +111,50 @@ describe("Supabase evidence adapter", () => {
     });
     expect(fetchImplementation).toHaveBeenCalledTimes(1);
   });
+
+  it("returns only citation metadata and linked-record counts for the on-demand source library", async () => {
+    const fetchImplementation = vi.fn<typeof fetch>().mockResolvedValueOnce(
+      jsonResponse(
+        [
+          {
+            id: "study-1",
+            title: "Reviewed source record",
+            publication_year: 2025,
+            source_url: "https://example.edu/source",
+            study_type: "intervention",
+            population_summary: "Adults under a documented protocol",
+            evidence_level: "direct",
+            exercise_evidence_coverage: [{ exercise_id: "exercise-1" }],
+            study_outcomes: [{ id: "outcome-1" }, { id: "outcome-2" }],
+          },
+        ],
+        1
+      )
+    );
+    const client = createSupabaseEvidenceClient({
+      url: "https://sports.example.supabase.co",
+      serviceRoleKey: "server-only-test-key",
+      fetchImplementation,
+    });
+
+    const result = await client.getResearchLibrary();
+
+    expect(result).toMatchObject({
+      status: "connected",
+      sources: [
+        {
+          id: "study-1",
+          title: "Reviewed source record",
+          publicationYear: 2025,
+          linkedExerciseCount: 1,
+          sourceOutcomeCount: 2,
+        },
+      ],
+    });
+    expect(result.boundary).toContain("does not display raw outcome values");
+    expect(result).not.toHaveProperty("percentile");
+    const request = new URL(String(fetchImplementation.mock.calls[0]?.[0]));
+    expect(request.pathname).toBe("/rest/v1/studies");
+    expect(request.searchParams.get("select")).toContain("study_outcomes");
+  });
 });

@@ -19,6 +19,10 @@ describe("launch experience preference", () => {
   it("uses the supplied upright S/DNA layers and a muted short video with a held final frame", () => {
     expect(bootDocumentSource).toContain("sports-genome-upright-s-silhouette-exact_349405db.png"); expect(bootDocumentSource).toContain("sports-genome-upright-dna-detail-exact_8e94e37f.png"); expect(bootDocumentSource).toContain('muted playsinline preload="auto" disablepictureinpicture'); expect(bootDocumentSource).toContain("video.muted=true"); expect(bootDocumentSource).toContain('window.setTimeout(stopVideo,Math.max(0,1_680-(Date.now()-startedAt)))'); expect(bootDocumentSource).toContain("sports-genome-boot-video-held");
   });
+  it("expands public launch asset URLs for static GitHub/Vercel builds", () => {
+    expect(bootDocumentSource).not.toContain("%VITE_SUPABASE_URL%");
+    expect(bootDocumentSource).toContain("https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4");
+  });
   it("keeps launch motion composited and excludes retired mark, orbit, and costly blur treatments", () => {
     expect(bootDocumentSource).toContain("contain:layout paint style"); expect(bootDocumentSource).toContain("will-change:transform,opacity"); expect(bootDocumentSource).not.toContain("filter:blur(64px)"); expect(bootDocumentSource).not.toContain("drop-shadow(0 10px 18px"); expect(bootDocumentSource).not.toContain("boot-mark-orbit"); expect(bootDocumentSource).not.toContain("sports-genome-boot-strand");
   });

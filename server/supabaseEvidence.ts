@@ -3,6 +3,8 @@ import type {
   SupabaseEvidenceInventory,
   SupabaseEvidenceSource,
   SupabaseExerciseEvidence,
+  SupabaseResearchLibrary,
+  SupabaseResearchLibrarySource,
 } from "../shared/supabaseEvidence";
 
 type FetchImplementation = typeof fetch;
@@ -42,6 +44,18 @@ type SupabaseOutcomeRow = {
   metric?: unknown;
 };
 
+type SupabaseStudyLibraryRow = {
+  id?: unknown;
+  title?: unknown;
+  publication_year?: unknown;
+  source_url?: unknown;
+  study_type?: unknown;
+  population_summary?: unknown;
+  evidence_level?: unknown;
+  exercise_evidence_coverage?: Array<{ exercise_id?: unknown }> | null;
+  study_outcomes?: Array<{ id?: unknown }> | null;
+};
+
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const evidenceCache = new Map<
   number,
@@ -49,6 +63,9 @@ const evidenceCache = new Map<
 >();
 let inventoryCache:
   | { expiresAt: number; value: SupabaseEvidenceInventory }
+  | undefined;
+let researchLibraryCache:
+  | { expiresAt: number; value: SupabaseResearchLibrary }
   | undefined;
 
 function textOrNull(value: unknown): string | null {
@@ -168,9 +185,41 @@ function unavailableInventory(): SupabaseEvidenceInventory {
     performanceTests: 0,
     performanceNorms: 0,
     strengthEstimationModels: 0,
-    stagingStudies: 0,
     boundary:
       "The upstream research repository is unavailable, so the app retains its local reviewed evidence and does not infer new claims.",
+  };
+}
+
+function unavailableResearchLibrary(): SupabaseResearchLibrary {
+  return {
+    status: "unavailable",
+    sources: [],
+    boundary:
+      "The connected source library is unavailable. Sports Genome retains its existing reviewed local evidence and does not infer new athlete claims.",
+  };
+}
+
+function sourceLibraryRecord(
+  row: SupabaseStudyLibraryRow
+): SupabaseResearchLibrarySource | null {
+  const id = textOrNull(row.id);
+  const title = textOrNull(row.title);
+  const sourceUrl = textOrNull(row.source_url);
+  if (!id || !title || !sourceUrl) return null;
+  return {
+    id,
+    title,
+    publicationYear: numberOrNull(row.publication_year),
+    sourceUrl,
+    studyType: textOrNull(row.study_type),
+    populationSummary: textOrNull(row.population_summary),
+    evidenceLevel: textOrNull(row.evidence_level),
+    linkedExerciseCount: Array.isArray(row.exercise_evidence_coverage)
+      ? row.exercise_evidence_coverage.length
+      : 0,
+    sourceOutcomeCount: Array.isArray(row.study_outcomes)
+      ? row.study_outcomes.length
+      : 0,
   };
 }
 
@@ -252,6 +301,22 @@ export function createSupabaseEvidenceClient({
           "This connected source record provides citation and coverage context. It does not replace local exercise mechanics, change catalog grades, or create a personal rank; normative rows remain unavailable for athlete comparison until an exact reviewed protocol and population gate is implemented.",
       };
     },
+    async getResearchLibrary(): Promise<SupabaseResearchLibrary> {
+      const studies = await getRows<SupabaseStudyLibraryRow>("studies", {
+        select:
+          "id,title,publication_year,source_url,study_type,population_summary,evidence_level,exercise_evidence_coverage(exercise_id),study_outcomes(id)",
+        order: "publication_year.desc.nullslast",
+        limit: "8",
+      });
+      return {
+        status: "connected",
+        sources: studies.data
+          .map(sourceLibraryRecord)
+          .filter((record): record is SupabaseResearchLibrarySource => Boolean(record)),
+        boundary:
+          "This library lists connected study metadata and linked-record counts. It does not display raw outcome values, change exercise grades, prescribe a program, or create a personal rank.",
+      };
+    },
     async getInventory(): Promise<SupabaseEvidenceInventory> {
       const countedTables = [
         { table: "exercises", countColumn: "id" },
@@ -261,7 +326,6 @@ export function createSupabaseEvidenceClient({
         { table: "performance_tests", countColumn: "id" },
         { table: "performance_norms", countColumn: "id" },
         { table: "strength_estimation_models", countColumn: "id" },
-        { table: "staging_studies", countColumn: "id" },
         { table: "exercise_evidence_coverage", countColumn: "exercise_id" },
       ] as const;
       const counts = await Promise.all(
@@ -301,7 +365,6 @@ export function createSupabaseEvidenceClient({
         performanceTests: countByTable.performance_tests,
         performanceNorms: countByTable.performance_norms,
         strengthEstimationModels: countByTable.strength_estimation_models,
-        stagingStudies: countByTable.staging_studies,
         boundary:
           "Counts describe connected upstream data. Staging records, source-only exercises, and heterogeneous norms are not automatically used to create athlete-facing recommendations, percentiles, or medical claims.",
       };
@@ -354,5 +417,23 @@ export async function getSupabaseEvidenceInventory(): Promise<SupabaseEvidenceIn
       message: error instanceof Error ? error.message : "Unknown error",
     });
     return unavailableInventory();
+  }
+}
+
+export async function getSupabaseResearchLibrary(): Promise<SupabaseResearchLibrary> {
+  if (researchLibraryCache && researchLibraryCache.expiresAt > Date.now()) {
+    return researchLibraryCache.value;
+  }
+  const client = getRuntimeClient();
+  if (!client) return unavailableResearchLibrary();
+  try {
+    const value = await client.getResearchLibrary();
+    researchLibraryCache = { value, expiresAt: Date.now() + CACHE_TTL_MS };
+    return value;
+  } catch (error) {
+    console.warn("[Supabase evidence] research library unavailable", {
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+    return unavailableResearchLibrary();
   }
 }
