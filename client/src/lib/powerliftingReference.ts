@@ -1,3 +1,5 @@
+import type { PowerliftingNormRow } from "@shared/powerliftingNormsReference";
+
 export const vanDenHoek2024ReferenceId = "van_den_hoek_2024_powerlifting_relative_strength" as const;
 
 export type PowerliftingComparisonSex = "female" | "male";
@@ -74,24 +76,50 @@ function decileBandLabel(relativeStrength: number, deciles: readonly [number, nu
   return `${lower}th–${upper}th percentile band`;
 }
 
-export function getVanDenHoek2024PowerliftingReference(context: ReferenceContext): PowerliftingReferenceResult {
+function ageBandLabel(ageMin: number, ageMax: number) {
+  return ageMax >= 100 ? `${Math.round(ageMin)}+` : `${Math.round(ageMin)}–${Math.round(ageMax)}`;
+}
+
+/**
+ * Prefers the full reported decile table from the Sports Genome research registry
+ * (all age bands van den Hoek et al. 2024 actually published) when it's available.
+ * Falls back to the hand-transcribed 18-35 table below when the registry is
+ * unreachable, so this comparison keeps working offline for its original range.
+ */
+export function getVanDenHoek2024PowerliftingReference(
+  context: ReferenceContext,
+  registryNorms: readonly PowerliftingNormRow[] = []
+): PowerliftingReferenceResult {
   const lift = liftForExerciseName[context.exerciseName];
   if (!lift) return { status: "unavailable", reason: "exercise_not_in_reference" };
   if (context.measurementType !== "MEASURED_1RM" || !context.declaration.maximumSuccessfulLiftConfirmed) return { status: "unavailable", reason: "maximum_lift_required" };
   if (!Number.isFinite(context.loadKg) || !Number.isFinite(context.bodyMassKgAtTest) || !context.bodyMassKgAtTest || context.bodyMassKgAtTest <= 0) return { status: "unavailable", reason: "body_mass_required" };
   if (!context.declaration.sex) return { status: "unavailable", reason: "comparison_sex_required" };
-  if (!context.declaration.ageYears || context.declaration.ageYears < 18 || context.declaration.ageYears > 35) return { status: "unavailable", reason: "age_group_not_in_initial_route" };
+  if (!context.declaration.ageYears) return { status: "unavailable", reason: "age_group_not_in_initial_route" };
   if (!context.declaration.drugTestedCompetitionConfirmed || !context.declaration.unequippedCompetitionConfirmed) return { status: "unavailable", reason: "competition_context_required" };
 
+  const sex = context.declaration.sex;
+  const ageYears = context.declaration.ageYears;
+  const matchedBand = registryNorms
+    .filter(row => row.exerciseName === context.exerciseName && row.sex === sex && ageYears >= row.ageMin && ageYears <= row.ageMax)
+    .sort((a, b) => a.percentile - b.percentile);
+  const usingRegistryBand = matchedBand.length >= 3;
+  const deciles: readonly [number, number][] = usingRegistryBand
+    ? matchedBand.map(row => [row.percentile, row.relativeStrength])
+    : ageYears >= 18 && ageYears <= 35
+      ? decilesBySexAndLift[sex][lift]
+      : [];
+  if (!deciles.length) return { status: "unavailable", reason: "age_group_not_in_initial_route" };
+
   const relativeStrength = Number((Number(context.loadKg) / Number(context.bodyMassKgAtTest)).toFixed(2));
-  const deciles = decilesBySexAndLift[context.declaration.sex][lift];
+  const ageLabel = usingRegistryBand ? ageBandLabel(matchedBand[0].ageMin, matchedBand[0].ageMax) : "18–35";
   return {
     status: "matched",
     referenceId: vanDenHoek2024ReferenceId,
     lift,
     relativeStrength,
     percentileBandLabel: decileBandLabel(relativeStrength, deciles),
-    sourceLabel: `van den Hoek et al. 2024 · drug-tested, unequipped powerlifting competitors · ${context.declaration.sex === "male" ? "males" : "females"} 18–35`,
+    sourceLabel: `van den Hoek et al. 2024 · drug-tested, unequipped powerlifting competitors · ${sex === "male" ? "males" : "females"} ${ageLabel}`,
     sourceUrl: "https://www.sciencedirect.com/science/article/pii/S1440244024002469",
   };
 }

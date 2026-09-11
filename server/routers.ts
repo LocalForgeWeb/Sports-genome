@@ -35,6 +35,7 @@ import {
   getSupabaseExerciseEvidence,
 } from "./supabaseEvidence";
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
+import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import {
   createStrengthObservation,
   getStrengthGenomeOverview,
@@ -297,6 +298,7 @@ export const appRouter = router({
         })
       )
       .mutation(({ ctx, input }) => createStrengthObservation(ctx.user.id, input)),
+    powerliftingNorms: publicProcedure.query(() => getPowerliftingNormsReference()),
   }),
 
   sportsGenome: router({
