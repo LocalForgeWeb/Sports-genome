@@ -36,10 +36,10 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogStyles).toContain(".catalog-action-link { display: inline-flex; width: fit-content; max-width: 100%;");
   });
 
-  it("keeps Movement Atlas labels readable after the Explore workspace applies its dark operational surface", () => {
-    expect(globalStyles).toContain(".destination-explore .atlas-action-item strong { color: #f7fbff; }");
-    expect(globalStyles).toContain(".destination-explore .atlas-action-item > span { color: #d3e5f5; }");
-    expect(globalStyles).toContain(".destination-explore .atlas-action-item svg { color: #84b6ff; }");
+  it("keeps Movement Atlas labels readable after the Body Lab workspace applies its dark operational surface", () => {
+    expect(globalStyles).toContain(".destination-body .atlas-action-item strong { color: #f7fbff; }");
+    expect(globalStyles).toContain(".destination-body .atlas-action-item > span { color: #d3e5f5; }");
+    expect(globalStyles).toContain(".destination-body .atlas-action-item svg { color: #84b6ff; }");
   });
 
   it("does not restore the duplicate cramped legacy catalog grid", () => {
