@@ -13,6 +13,20 @@ import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prepend
 import { getPiper2021PreacherCurlReference, piper2021PreacherCurlReferenceId, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
 import { getVanDenHoek2024PowerliftingReference, vanDenHoek2024ReferenceId, type PowerliftingReferenceDeclaration } from "@/lib/powerliftingReference";
 import type { PowerliftingNormRow } from "@shared/powerliftingNormsReference";
+import type { SexForReference } from "@/components/AthleteBaselineQuiz";
+import { summarizeWithinAthleteStrengthComparisons, type ChangeState, type ComparableStrengthObservation, type WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
+import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
+
+const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
+  insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
+  stable: { label: "Stable", tone: "#9eb3cb" },
+  directional_signal_emerging: { label: "Signal emerging", tone: "#f2c14d" },
+  meaningful_change_supported: { label: "Confirmed change", tone: "#5bc07a" },
+};
+
+function normalizedName(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 
 type MeasurementType =
@@ -94,7 +108,7 @@ export function StrengthObservationReviewButton({ observation, onReview }: { obs
   return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review">Review</button>;
 }
 
-export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [] }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[] }) {
+export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [] }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[] }) {
   const records = useMemo(() => observations.filter((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id)), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
@@ -109,6 +123,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const bodyMassRatio = latestRecord?.loadKg != null && latestRecord.bodyMassKgAtTest != null && latestRecord.bodyMassKgAtTest > 0 ? latestRecord.loadKg / latestRecord.bodyMassKgAtTest : null;
   const piperReference = latestRecord ? getPiperReferenceForObservation(latestRecord) : null;
   const powerliftingReference = latestRecord ? getPowerliftingReferenceForObservation(latestRecord, powerliftingNorms) : null;
+  const strengthTrend = latestRecord ? strengthChanges.find((change) => normalizedName(change.exerciseName) === normalizedName(latestRecord.exerciseName)) : undefined;
   useEffect(() => {
     if (piperReference?.status !== "matched" || !matchedReferenceRef.current) return;
     const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -121,6 +136,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       <article className="strength-region-record-card">
         {records.length > 1 && <label className="strength-region-record-picker"><span>Recorded test</span><select aria-label="Choose recorded test" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label>}
         <span className="strength-region-test-name">{latestRecord.exerciseName}</span>
+        {strengthTrend && <article className="strength-reference-matched strength-reference-primary" style={{ borderColor: changeStateCopy[strengthTrend.changeState].tone }}><p className="metric-label">Your progress on this lift</p><strong style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{strengthTrend.relativeChangePercent >= 0 ? "+" : ""}{strengthTrend.relativeChangePercent.toFixed(0)}% estimated 1RM</strong><p>{changeStateCopy[strengthTrend.changeState].label} · {strengthTrend.observationCount} logs since {strengthTrend.firstPoint.observedAt.toLocaleDateString()}, combining Strength Genome tests and completed tracker sets. Estimated with the Epley formula, not a direct measurement.</p></article>}
         {powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample percentile band</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body mass · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : <p className="strength-reference-unavailable strength-reference-rank-unavailable"><strong>Reference unavailable for this test.</strong> A percentile appears only when the exercise, protocol, source population, and test-day body mass match a reviewed table.</p>}
         <details className="strength-recorded-measurement"><summary>{latestRecord.bodyMassKgAtTest != null ? "Recorded measurement" : baselineBodyWeight != null ? "Use saved profile weight" : "Add test body weight"}</summary>{bodyMassRatio != null ? <p>{bodyMassRatio.toFixed(2)}× load / test-day body mass. Supporting context only—not a rank.</p> : <form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{baselineBodyWeight != null ? `Saved profile body weight (${weightUnit})` : `Body mass on test day (${weightUnit})`}</span><input aria-label={`${baselineBodyWeight != null ? "Saved profile body weight" : "Body mass on test day"} in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : baselineBodyWeight != null ? "Use saved weight" : "Save test body weight"}</button>{baselineBodyWeight != null && <small>Your saved profile value is ready. Change it first only if your test-day weight differed.</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form>}</details>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}</span>
@@ -150,7 +166,21 @@ const dataQualityOptions: { value: ObservationDataQuality; label: string }[] = [
   { value: "UNCERTAIN", label: "Setup uncertain" },
 ];
 
-export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "lb", baselineBodyWeight, defaultTestingDetailOpen = false, directAccess = false }: { onOpenTraining?: () => void; weightUnit?: DisplayWeightUnit; baselineBodyWeight?: number; defaultTestingDetailOpen?: boolean; directAccess?: boolean }) {
+function mapSexForPiper(sexForReference?: SexForReference): PiperReferenceDeclaration["sex"] {
+  if (sexForReference === "female" || sexForReference === "male" || sexForReference === "intersex") return sexForReference;
+  if (sexForReference === "unspecified") return "prefer_not_to_say";
+  return undefined;
+}
+
+function mapSexForPowerlifting(sexForReference?: SexForReference): PowerliftingReferenceDeclaration["sex"] {
+  return sexForReference === "female" || sexForReference === "male" ? sexForReference : undefined;
+}
+
+function ageFromBirthYear(birthYear?: number): number | undefined {
+  return birthYear ? new Date().getFullYear() - birthYear : undefined;
+}
+
+export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "lb", baselineBodyWeight, sexForReference, birthYear, defaultTestingDetailOpen = false, directAccess = false }: { onOpenTraining?: () => void; weightUnit?: DisplayWeightUnit; baselineBodyWeight?: number; sexForReference?: SexForReference; birthYear?: number; defaultTestingDetailOpen?: boolean; directAccess?: boolean }) {
   const utils = trpc.useUtils();
   const overview = trpc.strengthGenome.overview.useQuery(undefined, { enabled: !directAccess });
   const observations = trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess });
@@ -158,6 +188,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const supabaseEvidenceInventory = trpc.researchEvidence.supabaseInventory.useQuery(undefined, { staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false });
   const powerliftingNormsQuery = trpc.strengthGenome.powerliftingNorms.useQuery(undefined, { staleTime: 60 * 60 * 1000, refetchOnWindowFocus: false });
   const powerliftingNorms = powerliftingNormsQuery.data || [];
+  const trackedSets = trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: !directAccess });
+  const prefilledPiperDeclaration: PiperReferenceDeclaration = { ...emptyPiperDeclaration, sex: mapSexForPiper(sexForReference), ageYears: ageFromBirthYear(birthYear) };
+  const prefilledPowerliftingDeclaration: PowerliftingReferenceDeclaration = { ...emptyPowerliftingDeclaration, sex: mapSexForPowerlifting(sexForReference), ageYears: ageFromBirthYear(birthYear) };
   const [exerciseName, setExerciseName] = useState("");
   const [exerciseSearch, setExerciseSearch] = useState("");
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
@@ -175,9 +208,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const [dataQuality, setDataQuality] = useState<ObservationDataQuality>("SELF_REPORTED");
   const [notes, setNotes] = useState("");
   const [piperReferenceOpen, setPiperReferenceOpen] = useState(false);
-  const [piperDeclaration, setPiperDeclaration] = useState<PiperReferenceDeclaration>(emptyPiperDeclaration);
+  const [piperDeclaration, setPiperDeclaration] = useState<PiperReferenceDeclaration>(prefilledPiperDeclaration);
   const [powerliftingReferenceOpen, setPowerliftingReferenceOpen] = useState(false);
-  const [powerliftingDeclaration, setPowerliftingDeclaration] = useState<PowerliftingReferenceDeclaration>(emptyPowerliftingDeclaration);
+  const [powerliftingDeclaration, setPowerliftingDeclaration] = useState<PowerliftingReferenceDeclaration>(prefilledPowerliftingDeclaration);
   const [advancedOpen, setAdvancedOpen] = useState(defaultTestingDetailOpen);
   const [selectedRegion, setSelectedRegion] = useState<StrengthRegionDefinition | null>(null);
   const [selectedObservationId, setSelectedObservationId] = useState("");
@@ -209,9 +242,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       setExternalAssistance("");
       setDataQuality("SELF_REPORTED");
       setPiperReferenceOpen(false);
-      setPiperDeclaration(emptyPiperDeclaration);
+      setPiperDeclaration(prefilledPiperDeclaration);
       setPowerliftingReferenceOpen(false);
-      setPowerliftingDeclaration(emptyPowerliftingDeclaration);
+      setPowerliftingDeclaration(prefilledPowerliftingDeclaration);
       setNotes("");
       toast.success("Performance observation saved. Your Strength Genome will update only when calibrated evidence supports it.");
     },
@@ -228,6 +261,17 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const canSave = Boolean(selectedExercise) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0));
   const activeObservations = directAccess ? deviceObservations : (observations.data || []) as StrengthObservationRecord[];
   const recentObservations = activeObservations.slice(0, 4);
+  const unifiedStrengthHistory = useMemo(
+    () => mergeStrengthHistory(
+      activeObservations.map((observation) => ({ ...observation, loadKg: observation.loadKg ?? null, repetitions: observation.repetitions ?? null })),
+      trackedSets.data || []
+    ),
+    [activeObservations, trackedSets.data]
+  );
+  const comparableStrengthChanges = useMemo(
+    () => summarizeWithinAthleteStrengthComparisons(unifiedStrengthHistory).comparable,
+    [unifiedStrengthHistory]
+  );
   const regionOverview = (regionId: string) => directAccess ? { state: activeObservations.some((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(regionId)) ? "OBSERVED_TEST_CONTEXT" : "INSUFFICIENT_DATA" } : overview.data?.regions.find(region => region.id === regionId);
   const observedRegionCount = strengthRegionDefinitions.filter((region) => regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT").length;
   const sourceMatchedObservationCount = activeObservations.filter((observation) => getPiperReferenceForObservation(observation)?.status === "matched" || getPowerliftingReferenceForObservation(observation, powerliftingNorms)?.status === "matched").length;
@@ -283,7 +327,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     };
     if (directAccess) {
       persistDeviceObservations(prependDeviceStrengthObservation(deviceObservations, { ...nextObservation, id: `device-strength-${Date.now()}`, observedAt: nextObservation.observedAt.toISOString() }));
-      setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(""); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(emptyPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(emptyPowerliftingDeclaration); setNotes("");
+      setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(""); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(prefilledPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(prefilledPowerliftingDeclaration); setNotes("");
       emitInteractionFeedback([10, 30, 10]); toast.success("Performance observation saved on this device.");
       return;
     }
@@ -310,7 +354,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
 	        <div className="strength-reference-state-visual" aria-hidden="true"><img src={sourceMatchedObservationCount ? strengthReferenceStateVisuals.qualified : strengthReferenceStateVisuals.unavailable} alt="" /></div>
 	      </section>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
-      {selectedRegion && <div ref={regionDetailRef}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} /></div>}
+      {selectedRegion && <div ref={regionDetailRef}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} /></div>}
       {selectedRegion && <div className="strength-region-focus-row"><p><strong>Planning focus</strong> Optional. Does not change this day automatically.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>}
       <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{directAccess ? (activeObservations.length ? "Device-local records stay on this device." : "Add a result to start a device-local record.") : (overview.data?.nextAction || "Add a result to build your record.")}</span></div>
 

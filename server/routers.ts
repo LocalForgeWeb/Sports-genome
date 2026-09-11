@@ -37,6 +37,10 @@ import {
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import {
+  getAthleteStrengthProfile,
+  upsertAthleteStrengthProfile,
+} from "./athleteStrengthProfile";
+import {
   createStrengthObservation,
   getStrengthGenomeOverview,
   listActiveStrengthPriorities,
@@ -299,6 +303,20 @@ export const appRouter = router({
       )
       .mutation(({ ctx, input }) => createStrengthObservation(ctx.user.id, input)),
     powerliftingNorms: publicProcedure.query(() => getPowerliftingNormsReference()),
+    profile: protectedProcedure.query(({ ctx }) => getAthleteStrengthProfile(ctx.user.id)),
+    setProfile: protectedProcedure
+      .input(
+        z.object({
+          dateOfBirth: z
+            .string()
+            .regex(/^\d{4}-\d{2}-\d{2}$/)
+            .optional(),
+          sexForReference: z
+            .enum(["female", "male", "intersex", "unspecified"])
+            .optional(),
+        })
+      )
+      .mutation(({ ctx, input }) => upsertAthleteStrengthProfile(ctx.user.id, input)),
   }),
 
   sportsGenome: router({

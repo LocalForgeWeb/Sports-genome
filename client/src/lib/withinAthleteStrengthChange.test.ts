@@ -1,44 +1,59 @@
 import { describe, expect, it } from "vitest";
 import { findWithinAthleteStrengthChanges, summarizeWithinAthleteStrengthComparisons } from "./withinAthleteStrengthChange";
 
-describe("within-athlete recorded strength changes", () => {
-  it("compares only repeated matching observations and returns a directly recorded load change", () => {
+describe("within-athlete estimated strength change", () => {
+  it("compares different rep counts via estimated one-rep max instead of requiring an exact rep match", () => {
+    // 30 lb x 10 -> e1RM 40; later 50 lb x 12 -> e1RM 70: a real ~75% jump, not comparable under the old exact-rep-match rule.
     const changes = findWithinAthleteStrengthChanges([
-      { id: 1, exerciseName: "Barbell Back Squat", measurementType: "MEASURED_1RM", observedAt: "2026-01-01", loadKg: "100", repetitions: null, laterality: "BILATERAL" },
-      { id: 2, exerciseName: "Barbell Back Squat", measurementType: "MEASURED_1RM", observedAt: "2026-02-01", loadKg: "110", repetitions: null, laterality: "BILATERAL" },
-      { id: 3, exerciseName: "Barbell Back Squat", measurementType: "MULTI_REP", observedAt: "2026-02-01", loadKg: "90", repetitions: 5, laterality: "BILATERAL" },
+      { id: 1, exerciseName: "Barbell Curl", measurementType: "MULTI_REP", observedAt: "2026-01-01", loadKg: 30, repetitions: 10, laterality: "BILATERAL" },
+      { id: 2, exerciseName: "Barbell Curl", measurementType: "MULTI_REP", observedAt: "2026-04-01", loadKg: 50, repetitions: 12, laterality: "BILATERAL" },
     ]);
     expect(changes).toHaveLength(1);
-    expect(changes[0]).toMatchObject({ exerciseName: "Barbell Back Squat", loadChangeKg: 10, relativeLoadChangePercent: 10 });
+    expect(changes[0].changeState).toBe("meaningful_change_supported");
+    expect(changes[0].relativeChangePercent).toBeGreaterThan(15);
+    expect(changes[0].firstPoint.estimatedOneRmKg).toBeCloseTo(30 * (1 + 10 / 30), 2);
+    expect(changes[0].latestPoint.estimatedOneRmKg).toBeCloseTo(50 * (1 + 12 / 30), 2);
   });
 
-  it("does not compare working sets with different repetitions or observations with different laterality", () => {
+  it("labels a small fluctuation as stable rather than a false improvement or decline claim", () => {
+    const changes = findWithinAthleteStrengthChanges([
+      { id: 1, exerciseName: "Bench Press", measurementType: "MEASURED_1RM", observedAt: "2026-01-01", loadKg: 100, repetitions: null, laterality: "BILATERAL" },
+      { id: 2, exerciseName: "Bench Press", measurementType: "MEASURED_1RM", observedAt: "2026-02-01", loadKg: 102, repetitions: null, laterality: "BILATERAL" },
+    ]);
+    expect(changes).toHaveLength(1);
+    expect(changes[0].changeState).toBe("stable");
+  });
+
+  it("labels a moderate change as an emerging signal, not yet a confirmed change", () => {
+    const changes = findWithinAthleteStrengthChanges([
+      { id: 1, exerciseName: "Deadlift", measurementType: "MEASURED_1RM", observedAt: "2026-01-01", loadKg: 100, repetitions: null, laterality: "BILATERAL" },
+      { id: 2, exerciseName: "Deadlift", measurementType: "MEASURED_1RM", observedAt: "2026-02-01", loadKg: 110, repetitions: null, laterality: "BILATERAL" },
+    ]);
+    expect(changes).toHaveLength(1);
+    expect(changes[0].changeState).toBe("directional_signal_emerging");
+  });
+
+  it("does not compare different laterality and keeps exercises separate", () => {
     const changes = findWithinAthleteStrengthChanges([
       { id: 1, exerciseName: "Row", measurementType: "MULTI_REP", observedAt: "2026-01-01", loadKg: 50, repetitions: 8, laterality: "LEFT" },
-      { id: 2, exerciseName: "Row", measurementType: "MULTI_REP", observedAt: "2026-02-01", loadKg: 55, repetitions: 10, laterality: "LEFT" },
-      { id: 3, exerciseName: "Row", measurementType: "MULTI_REP", observedAt: "2026-03-01", loadKg: 55, repetitions: 8, laterality: "RIGHT" },
+      { id: 2, exerciseName: "Row", measurementType: "MULTI_REP", observedAt: "2026-02-01", loadKg: 55, repetitions: 10, laterality: "RIGHT" },
     ]);
     expect(changes).toHaveLength(0);
   });
 
-  it("does not compare otherwise matching observations when stated testing conditions differ", () => {
+  it("never fabricates a change from a single observation", () => {
     const changes = findWithinAthleteStrengthChanges([
-      { id: 1, exerciseName: "Bench Press", measurementType: "MEASURED_1RM", observedAt: "2026-01-01", loadKg: 100, repetitions: null, laterality: "BILATERAL", equipment: "Barbell", romStandard: "Touch chest", techniqueVariant: "Paused", tempo: "Controlled", externalAssistance: "None", dataQuality: "STANDARDIZED" },
-      { id: 2, exerciseName: "Bench Press", measurementType: "MEASURED_1RM", observedAt: "2026-02-01", loadKg: 105, repetitions: null, laterality: "BILATERAL", equipment: "Barbell", romStandard: "Touch chest", techniqueVariant: "Touch-and-go", tempo: "Controlled", externalAssistance: "None", dataQuality: "STANDARDIZED" },
-      { id: 3, exerciseName: "Bench Press", measurementType: "MEASURED_1RM", observedAt: "2026-03-01", loadKg: 110, repetitions: null, laterality: "BILATERAL", equipment: "Barbell", romStandard: "Touch chest", techniqueVariant: "Paused", tempo: "Controlled", externalAssistance: "None", dataQuality: "STANDARDIZED" },
+      { id: 1, exerciseName: "Overhead Press", measurementType: "MEASURED_1RM", observedAt: "2026-01-01", loadKg: 60, repetitions: null, laterality: "BILATERAL" },
     ]);
-
-    expect(changes).toHaveLength(1);
-    expect(changes[0]).toMatchObject({ firstLoadKg: 100, latestLoadKg: 110, loadChangeKg: 10 });
+    expect(changes).toHaveLength(0);
   });
 
-  it("returns an explicit non-comparable result naming the documented conditions that differ", () => {
+  it("excludes and reports sets whose rep count is outside the validated estimation range, rather than guessing", () => {
     const summary = summarizeWithinAthleteStrengthComparisons([
-      { id: 1, exerciseName: "Bench Press", measurementType: "MEASURED_1RM", observedAt: "2026-01-01", loadKg: 100, repetitions: null, laterality: "BILATERAL", equipment: "Barbell", romStandard: "Touch chest", techniqueVariant: "Paused", tempo: "Controlled", externalAssistance: "None", dataQuality: "STANDARDIZED" },
-      { id: 2, exerciseName: "Bench Press", measurementType: "MEASURED_1RM", observedAt: "2026-02-01", loadKg: 105, repetitions: null, laterality: "BILATERAL", equipment: "Dumbbells", romStandard: "Touch chest", techniqueVariant: "Paused", tempo: "Controlled", externalAssistance: "None", dataQuality: "SELF_REPORTED" },
+      { id: 1, exerciseName: "Leg Press", measurementType: "MULTI_REP", observedAt: "2026-01-01", loadKg: 200, repetitions: 20, laterality: "BILATERAL" },
+      { id: 2, exerciseName: "Leg Press", measurementType: "MULTI_REP", observedAt: "2026-02-01", loadKg: 210, repetitions: 22, laterality: "BILATERAL" },
     ]);
-
     expect(summary.comparable).toHaveLength(0);
-    expect(summary.nonComparable).toEqual([expect.objectContaining({ exerciseName: "Bench Press", observationCount: 2, differingConditions: ["equipment", "data quality"] })]);
+    expect(summary.excluded).toEqual([expect.objectContaining({ exerciseName: "Leg Press", observationCount: 2, reason: "reps_outside_estimation_range" })]);
   });
 });

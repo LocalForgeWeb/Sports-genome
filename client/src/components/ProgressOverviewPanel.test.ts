@@ -4,9 +4,11 @@ import { readFileSync } from "node:fs";
 const source = readFileSync(new URL("./ProgressOverviewPanel.tsx", import.meta.url), "utf8");
 
 describe("Progress overview", () => {
-  it("summarizes only saved session and observation records without invented performance outcomes", () => {
+  it("summarizes saved session and observation records, merged with tracker history, without invented performance outcomes", () => {
     expect(source).toContain("trpc.workoutLog.list.useQuery()");
     expect(source).toContain("trpc.strengthGenome.observations.useQuery()");
+    expect(source).toContain("trpc.workoutLog.progressionHistory.useQuery()");
+    expect(source).toContain("mergeStrengthHistory(observations.data || [], trackedSets.data || [])");
     expect(source).toContain("loadDeviceWorkoutSessions()");
     expect(source).toContain("deviceWorkoutHistoryEvent");
     expect(source).toContain('status === "completed"');
@@ -14,12 +16,12 @@ describe("Progress overview", () => {
     expect(source).toContain("Your completed sessions.");
     expect(source).toContain("b.completedAt.getTime() - a.completedAt.getTime()");
     expect(source).toContain('session.storage === "device" ? "Device" : "Account"');
-    expect(source).toContain("No comparable change yet.");
-    expect(source).toContain("summarizeWithinAthleteStrengthComparisons(observations.data || [])");
-    expect(source).toContain("Recorded change");
-    expect(source).toContain("not a population comparison or estimated strength score");
-    expect(source).toContain("comparison");
-    expect(source).toContain("withheld because the recorded setup differs");
+    expect(source).toContain("No comparable history yet.");
+    expect(source).toContain("summarizeWithinAthleteStrengthComparisons(unifiedHistory)");
+    expect(source).toContain("Estimated change since your first log");
+    expect(source).toContain("within-athlete trend only, never a population comparison");
+    expect(source).toContain("Epley formula");
+    expect(source).toContain("outside the validated rep range for estimation");
     expect(source).not.toContain("readiness score");
     expect(source).not.toContain("Personal record");
   });
