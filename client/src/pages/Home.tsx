@@ -2,7 +2,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Activity, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Layers3, Menu, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
+import { Activity, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { GradeStamp } from "@/components/GradeStamp";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
@@ -53,7 +53,7 @@ import { isLaunchExperienceEnabled, launchExperiencePreferenceKey } from "@/lib/
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 
-type Workspace = "command" | "profile" | "progress" | "recommended" | "custom" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "genome" | "strength" | "more";
+type Workspace = "command" | "profile" | "progress" | "recommended" | "custom" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "genome" | "strength";
 type Goal = TrainingGoal;
 type StackMode = "suggested" | "custom";
 type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
@@ -116,20 +116,22 @@ const navItems: { id: Workspace; label: string; icon: typeof Target; detail: str
   { id: "strength", label: "Strength Genome", icon: BrainCircuit, detail: "your performance profile", group: "Explore" },
   { id: "catalog", label: "Exercise Catalog", icon: BookOpen, detail: `${exercises.length} mapped exercises`, group: "Explore" },
   { id: "genome", label: "Exercise Genome", icon: Dna, detail: "contextual exercise intelligence", group: "Explore" },
-  { id: "more", label: "More", icon: Menu, detail: "guide & plan reset", group: "Home" },
 ];
 
-type PrimaryDestination = "home" | "train" | "explore" | "progress" | "profile" | "more";
+// FIXED DEFAULT per the Sports Genome philosophy's Mobile global navigation contract: four
+// persistent labeled destinations (Home / Body Lab / Train / Progress). Sport stays a
+// contextual, deep-linkable object reachable from Home/Body Lab/Progress and search rather
+// than a permanent fifth tab; Profile/settings use one consistent secondary entry instead of
+// occupying primary nav space, so it is intentionally absent from this array.
+type PrimaryDestination = "home" | "train" | "body" | "progress" | "secondary";
 type ContextualWorkspaceTab = { id: string; label: string; workspace: Workspace; scrollTarget?: string };
 const primaryDestinations: { id: PrimaryDestination; label: string; icon: typeof Target; defaultWorkspace?: Workspace }[] = [
   { id: "home", label: "Home", icon: Target, defaultWorkspace: "command" },
+  { id: "body", label: "Body Lab", icon: Activity, defaultWorkspace: "body" },
   { id: "train", label: "Train", icon: Layers3, defaultWorkspace: "day-plan" },
-  { id: "explore", label: "Explore", icon: Dna, defaultWorkspace: "movement" },
   { id: "progress", label: "Progress", icon: BarChart3, defaultWorkspace: "progress" },
-  { id: "profile", label: "Profile", icon: UsersRound, defaultWorkspace: "profile" },
-  { id: "more", label: "More", icon: Menu, defaultWorkspace: "more" },
 ];
-const contextualWorkspaces: Record<Exclude<PrimaryDestination, "more">, ContextualWorkspaceTab[]> = {
+const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, ContextualWorkspaceTab[]> = {
   home: [{ id: "command", label: "Home", workspace: "command" }],
   train: [
     { id: "day-plan", label: "Training Day", workspace: "day-plan" },
@@ -139,7 +141,7 @@ const contextualWorkspaces: Record<Exclude<PrimaryDestination, "more">, Contextu
     { id: "stack-review", label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review" },
     { id: "prep", label: "Prep", workspace: "custom", scrollTarget: "#session-prep" },
   ],
-  explore: [
+  body: [
     { id: "movement", label: "Movement", workspace: "movement" },
     { id: "body", label: "Body Lab", workspace: "body" },
     { id: "catalog", label: "Catalog", workspace: "catalog" },
@@ -147,14 +149,12 @@ const contextualWorkspaces: Record<Exclude<PrimaryDestination, "more">, Contextu
     { id: "strength", label: "Strength", workspace: "strength" },
   ],
   progress: [{ id: "progress", label: "Progress", workspace: "progress" }],
-  profile: [{ id: "profile", label: "Profile", workspace: "profile" }],
 };
 export function primaryDestinationForWorkspace(workspace: Workspace): PrimaryDestination {
-  if (workspace === "more") return "more";
+  if (workspace === "profile") return "secondary";
   if (contextualWorkspaces.train.some((tab) => tab.workspace === workspace)) return "train";
-  if (contextualWorkspaces.explore.some((tab) => tab.workspace === workspace)) return "explore";
+  if (contextualWorkspaces.body.some((tab) => tab.workspace === workspace)) return "body";
   if (workspace === "progress") return "progress";
-  if (workspace === "profile") return "profile";
   return "home";
 }
 
@@ -790,7 +790,7 @@ export default function Home() {
   };
 
   const activePrimaryDestination = primaryDestinationForWorkspace(workspace);
-  const contextualWorkspaceTabs = activePrimaryDestination === "more" ? [] : contextualWorkspaces[activePrimaryDestination];
+  const contextualWorkspaceTabs = activePrimaryDestination === "secondary" ? [] : contextualWorkspaces[activePrimaryDestination];
   const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;
   const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => {
     navigateWorkspace(tab.workspace);
@@ -815,14 +815,14 @@ export default function Home() {
           <img src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="topbar-brand-logo shrink-0 object-cover" />
           <div className="min-w-0"><p className="metric-label">{navItems.find((item) => item.id === workspace)?.label}</p><div className="topbar-context-chips" aria-label={`Current planning context: ${selectedSport.label}, ${goal}, ${trainingDays} training days`}><span title={selectedSport.label}>{selectedSport.label}</span><span title={goal}>{goal}</span><span>{trainingDays} days</span></div></div>
         </div>
-        <div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={rebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Rebuild plan</button><button onClick={() => navigateWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[#0b2240] px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[#2d6cdf]"><Plus className="h-3.5 w-3.5" /> Design day</button></div>
+        <div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={rebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Rebuild plan</button><button type="button" onClick={() => navigateWorkspace("profile")} aria-label="Profile and settings" aria-current={workspace === "profile" ? "page" : undefined} className="topbar-profile-button inline-flex h-9 w-9 items-center justify-center border border-[#cddbef] bg-white text-[#38658f] transition-colors hover:border-[#2d6cdf] hover:text-[#2d6cdf]"><UsersRound className="h-4 w-4" /></button><button onClick={() => navigateWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[#0b2240] px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[#2d6cdf]"><Plus className="h-3.5 w-3.5" /> Design day</button></div>
       </header>
       {contextualWorkspaceTabs.length > 1 && <nav className="workspace-top-switcher" aria-label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}>{contextualWorkspaceTabs.map((tab) => { const active = activeContextTabId === tab.id; return <button type="button" key={tab.id} onClick={() => navigateContextualWorkspace(tab)} aria-current={active ? "page" : undefined} className={active ? "workspace-top-switcher-active" : ""}>{tab.label}</button>; })}</nav>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[#58728e]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace"><div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseWeeklyDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={setAthleteBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} />}
-	    {workspace === "more" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={rebuildPlan}>Restart onboarding</button></div><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div></section>}
+        {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={rebuildPlan}>Restart onboarding</button></div><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div></section>}
         {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={`Week ${activeWeek} · ${activeSplitDay}`} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "command" && <section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section>}
         {workspace === "command" && <section className="gym-time-budget-card"><div><p className="metric-label">Gym-time budget</p><h2>How long do you have today?</h2><p>{gymTimeBudget.scopeCue} Recommended stacks now cap at {gymTimeBudget.recommendationLimit} exercises, while the builder keeps the session-time estimate visible.</p></div><label><span>Available time</span><select value={gymMinutes} onChange={(event) => setGymMinutes(Number(event.target.value))}>{gymTimeOptions.map((minutes) => <option key={minutes} value={minutes}>{minutes === 90 ? "90+ minutes" : `${minutes} minutes`}</option>)}</select><small>{gymTimeBudget.restGuidance}</small></label></section>}

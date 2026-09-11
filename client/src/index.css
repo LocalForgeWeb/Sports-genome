@@ -478,7 +478,7 @@ select {
 
 /* Calm reading rhythm: navigation and technical metadata support the decision rather than competing with it. */
 .rail-nav-item > span > span:last-child { display: none; }.rail-nav-item { min-height: 42px; padding-block: .68rem; }.rail-nav-item > span > span:first-child { line-height: 1.2; }.metric-label { font-size: 10px; letter-spacing: .12em; }.view-header { align-items: end; }.view-header > div:first-child { max-width: 650px; }.view-header h1 { font-size: clamp(2.7rem, 4vw, 4.4rem); line-height: .86; }.view-header-note { max-width: 300px; }.view-header-note p { font-size: .8rem; line-height: 1.5; }.dark-panel p, .light-panel p { max-width: 68ch; }.apex-content { padding-bottom: 8rem; }
-@media (max-width: 860px) { .rail-nav-item > span > span:last-child { display: none; }.view-header { gap: 1rem; }.view-header-note { max-width: none; }.metric-label { font-size: 9px; }.apex-topbar > div:last-child > button:not(:last-child) { display: none; } }
+@media (max-width: 860px) { .rail-nav-item > span > span:last-child { display: none; }.view-header { gap: 1rem; }.view-header-note { max-width: none; }.metric-label { font-size: 9px; }.apex-topbar > div:last-child > button:not(:last-child):not(.topbar-profile-button) { display: none; } }
 
 .command-signal-card > p:nth-of-type(2) { display: none; }.light-panel .space-y-2 > button > span:nth-child(2) > span:last-child { display: none; }.light-panel .space-y-2 > button { min-height: 48px; }.dark-panel .movement-list-item > span:nth-child(2) > span:last-child { display: none; }
 
@@ -545,13 +545,16 @@ select {
   }
 }
 
-/* iPhone-first primary navigation: six clear daily destinations, guarded by the safe area. */
+/* Profile/settings use one consistent secondary entry point (not a primary nav destination). */
+.topbar-profile-button[aria-current="page"] { border-color: #2d6cdf; color: #2d6cdf; }
+
+/* iPhone-first primary navigation: four persistent destinations, guarded by the safe area. */
 .mobile-bottom-nav { display: none; }
 
 @media (min-width: 1024px) {
   .apex-content { padding-bottom: 6.25rem; }
   .mobile-workspace-dock { position: fixed; z-index: 46; right: 1.25rem; bottom: 1.25rem; left: 1.25rem; max-width: 780px; margin: 0 auto; border: 1px solid rgb(99 137 175 / .45); border-radius: 16px; background: rgb(8 31 59 / .97); box-shadow: 0 16px 38px rgb(4 20 40 / .26); backdrop-filter: blur(18px); }
-  .mobile-bottom-nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); overflow: hidden; border-radius: inherit; }
+  .mobile-bottom-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: hidden; border-radius: inherit; }
   .mobile-bottom-nav button { display: grid; min-width: 0; min-height: 4.1rem; place-content: center; gap: .28rem; color: #b8cde0; font-size: .62rem; font-weight: 800; letter-spacing: .025em; line-height: 1; text-align: center; transition: background .16s var(--ease-out), color .16s var(--ease-out), transform .16s var(--ease-out); }
   .mobile-bottom-nav button:hover, .mobile-bottom-nav-active { background: linear-gradient(180deg, rgb(45 108 223 / .3), rgb(25 78 150 / .4)); color: #fff; }
   .mobile-bottom-nav-active svg { color: #f2c14d; }
@@ -567,7 +570,7 @@ select {
     bottom: auto;
     left: auto;
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: stretch;
     overflow: hidden;
     border: 1px solid rgb(99 137 175 / .35);
@@ -742,17 +745,17 @@ select {
 .strength-ratio-status, .strength-ratio-error { margin: 0; font-size: .72rem; line-height: 1.4; }
 .strength-ratio-status { color: #7baee1; }
 .strength-ratio-error { border-left: 3px solid #e4512e; background: rgb(228 81 46 / .12); padding: .45rem .55rem; color: #ffd6ca; }
-.destination-explore .strength-region-history { border-color: rgb(164 200 232 / .24); background: rgb(9 33 61 / .84); }
-.destination-explore .strength-region-history summary, .destination-explore .strength-region-history button strong, .destination-explore .strength-reference-unavailable strong { color: #eff8ff; }
-.destination-explore .strength-region-history > div { border-top-color: rgb(164 200 232 / .16); background: rgb(164 200 232 / .16); }
-.destination-explore .strength-region-history button { background: rgb(255 255 255 / .05); color: #bdd5ea; }
-.destination-explore .strength-region-history button[aria-pressed="true"] { background: rgb(228 81 46 / .18); }
-.destination-explore .strength-region-history button span, .destination-explore .strength-reference-unavailable { color: #bdd5ea; }
-.destination-explore .strength-reference-unavailable { background: rgb(242 193 77 / .09); }
+.destination-body .strength-region-history { border-color: rgb(164 200 232 / .24); background: rgb(9 33 61 / .84); }
+.destination-body .strength-region-history summary, .destination-body .strength-region-history button strong, .destination-body .strength-reference-unavailable strong { color: #eff8ff; }
+.destination-body .strength-region-history > div { border-top-color: rgb(164 200 232 / .16); background: rgb(164 200 232 / .16); }
+.destination-body .strength-region-history button { background: rgb(255 255 255 / .05); color: #bdd5ea; }
+.destination-body .strength-region-history button[aria-pressed="true"] { background: rgb(228 81 46 / .18); }
+.destination-body .strength-region-history button span, .destination-body .strength-reference-unavailable { color: #bdd5ea; }
+.destination-body .strength-reference-unavailable { background: rgb(242 193 77 / .09); }
 
-.apex-content.destination-explore { background: radial-gradient(circle at 12% 10%, #d8edff 0, #eff7ff 30%, #cbdff4 100%); }
-.destination-explore .atlas-sport-picker, .destination-explore .movement-selector, .destination-explore .body-lab-v2 > .view-header, .destination-explore .body-lab-workspace-context, .destination-explore .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, #103b67, #0a274b); color: #eff8ff; box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
-.destination-explore .atlas-sport-picker *, .destination-explore .movement-selector h1, .destination-explore .body-lab-v2 > .view-header h1, .destination-explore .body-lab-workspace-context h1 { color: inherit; }
+.apex-content.destination-body { background: radial-gradient(circle at 12% 10%, #d8edff 0, #eff7ff 30%, #cbdff4 100%); }
+.destination-body .atlas-sport-picker, .destination-body .movement-selector, .destination-body .body-lab-v2 > .view-header, .destination-body .body-lab-workspace-context, .destination-body .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, #103b67, #0a274b); color: #eff8ff; box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
+.destination-body .atlas-sport-picker *, .destination-body .movement-selector h1, .destination-body .body-lab-v2 > .view-header h1, .destination-body .body-lab-workspace-context h1 { color: inherit; }
 .body-lab-workspace-context { display:flex; align-items:end; justify-content:space-between; gap:1rem; border:1px solid; padding:1rem 1.15rem; }
 .body-lab-workspace-context h1 { margin:.18rem 0 0; font-family:var(--font-display, sans-serif); font-size:clamp(1.8rem, 5vw, 3rem); font-weight:800; line-height:.92; text-transform:uppercase; }
 .body-lab-workspace-context > p { max-width:25rem; margin:0; color:rgb(239 248 255 / .82); font-size:.78rem; line-height:1.45; }
@@ -764,19 +767,18 @@ select {
 .destination-progress .light-panel h2, .destination-progress .light-panel p { color: inherit; }
 .destination-progress .light-panel article { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .07); }
 
-.apex-content.destination-profile { background: linear-gradient(155deg, #0a203d 0%, #173a63 52%, #0b2240 100%); color: #edf6ff; }
-.destination-profile .light-panel, .destination-profile .profile-panel { border-color: rgb(242 193 77 / .42); background: rgb(9 33 61 / .9); color: #edf6ff; }
-.apex-shell:has(.destination-more), .apex-main:has(.destination-more) { background: #061525; }
-.apex-content.destination-more { min-height: calc(100vh - 10.5rem); background: linear-gradient(145deg, #061525, #102b4b); color: #edf6ff; }
-.destination-more .light-panel, .destination-more .more-workspace-card { border-color: rgb(164 200 232 / .3); background: rgb(12 43 75 / .88); color: #edf6ff; }
+.apex-content.destination-secondary { background: linear-gradient(155deg, #0a203d 0%, #173a63 52%, #0b2240 100%); color: #edf6ff; }
+.destination-secondary .light-panel, .destination-secondary .profile-panel { border-color: rgb(242 193 77 / .42); background: rgb(9 33 61 / .9); color: #edf6ff; }
+.apex-shell:has(.destination-secondary), .apex-main:has(.destination-secondary) { background: #061525; }
+.destination-secondary .more-workspace-card { border-color: rgb(164 200 232 / .3); background: rgb(12 43 75 / .88); color: #edf6ff; }
 
 /* Carry the destination identity into the fixed app chrome, not only the page canvas. */
-.shell-train .workspace-topbar, .shell-progress .workspace-topbar, .shell-profile .workspace-topbar, .shell-more .workspace-topbar { border-bottom-color: rgb(164 200 232 / .2); background: linear-gradient(110deg, #07182e, #123b68); color: #f4f9ff; }
-.shell-train .workspace-context-tabs, .shell-progress .workspace-context-tabs, .shell-profile .workspace-context-tabs, .shell-more .workspace-context-tabs { border-bottom-color: rgb(164 200 232 / .2); background: #0b2240; }
-.shell-train .workspace-context-tab, .shell-progress .workspace-context-tab, .shell-profile .workspace-context-tab, .shell-more .workspace-context-tab { color: #c6d8eb; }
-.shell-train .workspace-context-tab[aria-current="page"], .shell-progress .workspace-context-tab[aria-current="page"], .shell-profile .workspace-context-tab[aria-current="page"], .shell-more .workspace-context-tab[aria-current="page"] { color: #fff; box-shadow: inset 0 -4px 0 #f2c14d; }
-.shell-explore .workspace-topbar { border-bottom-color: #b9d4ea; background: linear-gradient(110deg, #e2f1ff, #f7fbff); }
-.shell-explore .workspace-context-tabs { background: #e9f5ff; border-bottom-color: #b9d4ea; }
+.shell-train .workspace-topbar, .shell-progress .workspace-topbar, .shell-secondary .workspace-topbar { border-bottom-color: rgb(164 200 232 / .2); background: linear-gradient(110deg, #07182e, #123b68); color: #f4f9ff; }
+.shell-train .workspace-context-tabs, .shell-progress .workspace-context-tabs, .shell-secondary .workspace-context-tabs { border-bottom-color: rgb(164 200 232 / .2); background: #0b2240; }
+.shell-train .workspace-context-tab, .shell-progress .workspace-context-tab, .shell-secondary .workspace-context-tab { color: #c6d8eb; }
+.shell-train .workspace-context-tab[aria-current="page"], .shell-progress .workspace-context-tab[aria-current="page"], .shell-secondary .workspace-context-tab[aria-current="page"] { color: #fff; box-shadow: inset 0 -4px 0 #f2c14d; }
+.shell-body .workspace-topbar { border-bottom-color: #b9d4ea; background: linear-gradient(110deg, #e2f1ff, #f7fbff); }
+.shell-body .workspace-context-tabs { background: #e9f5ff; border-bottom-color: #b9d4ea; }
 
 /* Stack Analysis keeps whole-body context legible on an explicitly dark review surface. */
 .stack-analysis-page { background: #07182e; color: #edf7ff; }
@@ -800,23 +802,23 @@ select {
 .stack-analysis-boundary { background: #102f53; color: #c3d7ea; }
 
 /* Profile is a personal control center, not a stack of generic white form cards. */
-.destination-profile .about-me-panel { color: #edf7ff; }
-.destination-profile .about-me-head { border-bottom-color: rgb(164 200 232 / .28); }
-.destination-profile .about-me-head h1, .destination-profile .about-me-card-head, .destination-profile .about-me-security h2, .destination-profile .about-me-equipment h2 { color: #f7fbff; }
-.destination-profile .about-me-head p:not(.metric-label), .destination-profile .about-me-security p:not(.metric-label), .destination-profile .about-me-equipment p:not(.metric-label) { color: #c3d7ea; }
-.destination-profile .about-me-card, .destination-profile .about-me-security { border-color: rgb(164 200 232 / .28); background: linear-gradient(145deg, #112f52, #0a203d); }
-.destination-profile .about-me-card label { color: #b9d5ee; }
-.destination-profile .about-me-card input, .destination-profile .about-me-card select { border-color: rgb(164 200 232 / .4); background: #07182e; color: #f7fbff; }
-.destination-profile .about-me-security button { background: #f2c14d; color: #07182e; }
-.destination-profile .about-me-equipment { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(145deg, #0d3157, #07182e); }
-.destination-profile .about-me-equipment-grid .about-me-equipment-active { background: #f2c14d; color: #07182e; }
+.destination-secondary .about-me-panel { color: #edf7ff; }
+.destination-secondary .about-me-head { border-bottom-color: rgb(164 200 232 / .28); }
+.destination-secondary .about-me-head h1, .destination-secondary .about-me-card-head, .destination-secondary .about-me-security h2, .destination-secondary .about-me-equipment h2 { color: #f7fbff; }
+.destination-secondary .about-me-head p:not(.metric-label), .destination-secondary .about-me-security p:not(.metric-label), .destination-secondary .about-me-equipment p:not(.metric-label) { color: #c3d7ea; }
+.destination-secondary .about-me-card, .destination-secondary .about-me-security { border-color: rgb(164 200 232 / .28); background: linear-gradient(145deg, #112f52, #0a203d); }
+.destination-secondary .about-me-card label { color: #b9d5ee; }
+.destination-secondary .about-me-card input, .destination-secondary .about-me-card select { border-color: rgb(164 200 232 / .4); background: #07182e; color: #f7fbff; }
+.destination-secondary .about-me-security button { background: #f2c14d; color: #07182e; }
+.destination-secondary .about-me-equipment { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(145deg, #0d3157, #07182e); }
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active { background: #f2c14d; color: #07182e; }
 
 /* More stays intentionally light on content, but shares the app’s dark utility surface. */
-.destination-more .more-workspace { border-color: rgb(164 200 232 / .3); background: linear-gradient(135deg, #112f52, #07182e); color: #edf7ff; box-shadow: 0 18px 42px rgb(1 12 28 / .24); }
-.destination-more .more-workspace h1 { color: #f7fbff; }
-.destination-more .more-workspace p:last-child { color: #c3d7ea; }
-.destination-more .more-workspace-actions button { border-color: rgb(164 200 232 / .48); color: #eaf5ff; }
-.destination-more .more-workspace-actions button:first-child { background: #f2c14d; color: #07182e; }
+.destination-secondary .more-workspace { border-color: rgb(164 200 232 / .3); background: linear-gradient(135deg, #112f52, #07182e); color: #edf7ff; box-shadow: 0 18px 42px rgb(1 12 28 / .24); }
+.destination-secondary .more-workspace h1 { color: #f7fbff; }
+.destination-secondary .more-workspace p:last-child { color: #c3d7ea; }
+.destination-secondary .more-workspace-actions button { border-color: rgb(164 200 232 / .48); color: #eaf5ff; }
+.destination-secondary .more-workspace-actions button:first-child { background: #f2c14d; color: #07182e; }
 
 /* Progress is a quiet review surface: recorded work first, comparison method only on request. */
 .destination-progress .progress-review { color: #eef7ff; }
@@ -861,31 +863,31 @@ select {
 .strength-ratio-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .55rem; align-items: end; margin-top: .25rem; }.strength-ratio-entry label { display: grid; gap: .3rem; }.strength-ratio-entry label span { color: #c3d7ea; font-size: .67rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }.strength-ratio-entry input { min-height: 2.7rem; border: 1px solid rgb(195 215 234 / .3); background: rgb(255 255 255 / .08); color: #fff; padding: 0 .7rem; outline: none; }.strength-ratio-entry input:focus { border-color: #f2c14d; box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-ratio-entry button { min-height: 2.7rem; padding: 0 .7rem; background: #f2c14d; color: #102947; font-size: .65rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }.strength-ratio-entry button:disabled { cursor: not-allowed; opacity: .55; }
 
 /* Explore is the discovery lab: cool layered blue panels, not a white document canvas. */
-.apex-content.destination-explore { background: radial-gradient(circle at 14% 3%, #1e5f98 0, #0d3157 35%, #07182e 82%); color: #edf7ff; }
-.shell-explore .workspace-topbar { border-bottom-color: rgb(164 200 232 / .25); background: linear-gradient(110deg, #0a203d, #16446f); color: #f4f9ff; }
-.shell-explore .workspace-context-tabs { border-bottom-color: rgb(164 200 232 / .24); background: #0b2240; }
-.shell-explore .workspace-context-tab { color: #c3d7ea; }
-.shell-explore .workspace-context-tab[aria-current="page"] { color: #fff; box-shadow: inset 0 -4px 0 #f2c14d; }
-.destination-explore .movement-atlas-improved { color: #edf7ff; }
-.destination-explore .atlas-improved-head { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, #123b68, #0a203d); }
-.destination-explore .atlas-improved-head h1, .destination-explore .atlas-improved-head strong, .destination-explore .atlas-improved-head p { color: #f5faff; }
-.destination-explore .atlas-improved-head em, .destination-explore .atlas-inventory strong { color: #f2c14d; }
-.destination-explore .atlas-tool-row, .destination-explore .atlas-action-list, .destination-explore .atlas-focus-card { border-color: rgb(164 200 232 / .3); background: rgb(8 31 58 / .84); color: #edf7ff; box-shadow: 0 16px 34px rgb(1 12 28 / .18); }
-.destination-explore .atlas-tool-main input, .destination-explore .atlas-tool-main select, .destination-explore .atlas-sport-select { border-color: rgb(164 200 232 / .4); background: #07182e; color: #f7fbff; }
-.destination-explore .atlas-tool-row label, .destination-explore .atlas-sport-select { color: #c9dced; }
-.destination-explore .atlas-family-row button, .destination-explore .atlas-action-item { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .05); color: #eaf5ff; }
-.destination-explore .atlas-family-row button[aria-pressed="true"], .destination-explore .atlas-action-item[aria-pressed="true"] { border-color: #f2c14d; background: rgb(242 193 77 / .13); color: #fff4ca; }
-.destination-explore .atlas-action-item > span { color: #d3e5f5; }
-.destination-explore .atlas-action-item strong { color: #f7fbff; }
-.destination-explore .atlas-action-item small, .destination-explore .atlas-focus-card p, .destination-explore .atlas-details dd { color: #c3d7ea; }
-.destination-explore .atlas-action-item svg { color: #84b6ff; }
-.destination-explore .atlas-details { border-color: rgb(164 200 232 / .24); }
-.destination-explore .atlas-focus-card > button { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
+.apex-content.destination-body { background: radial-gradient(circle at 14% 3%, #1e5f98 0, #0d3157 35%, #07182e 82%); color: #edf7ff; }
+.shell-body .workspace-topbar { border-bottom-color: rgb(164 200 232 / .25); background: linear-gradient(110deg, #0a203d, #16446f); color: #f4f9ff; }
+.shell-body .workspace-context-tabs { border-bottom-color: rgb(164 200 232 / .24); background: #0b2240; }
+.shell-body .workspace-context-tab { color: #c3d7ea; }
+.shell-body .workspace-context-tab[aria-current="page"] { color: #fff; box-shadow: inset 0 -4px 0 #f2c14d; }
+.destination-body .movement-atlas-improved { color: #edf7ff; }
+.destination-body .atlas-improved-head { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, #123b68, #0a203d); }
+.destination-body .atlas-improved-head h1, .destination-body .atlas-improved-head strong, .destination-body .atlas-improved-head p { color: #f5faff; }
+.destination-body .atlas-improved-head em, .destination-body .atlas-inventory strong { color: #f2c14d; }
+.destination-body .atlas-tool-row, .destination-body .atlas-action-list, .destination-body .atlas-focus-card { border-color: rgb(164 200 232 / .3); background: rgb(8 31 58 / .84); color: #edf7ff; box-shadow: 0 16px 34px rgb(1 12 28 / .18); }
+.destination-body .atlas-tool-main input, .destination-body .atlas-tool-main select, .destination-body .atlas-sport-select { border-color: rgb(164 200 232 / .4); background: #07182e; color: #f7fbff; }
+.destination-body .atlas-tool-row label, .destination-body .atlas-sport-select { color: #c9dced; }
+.destination-body .atlas-family-row button, .destination-body .atlas-action-item { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .05); color: #eaf5ff; }
+.destination-body .atlas-family-row button[aria-pressed="true"], .destination-body .atlas-action-item[aria-pressed="true"] { border-color: #f2c14d; background: rgb(242 193 77 / .13); color: #fff4ca; }
+.destination-body .atlas-action-item > span { color: #d3e5f5; }
+.destination-body .atlas-action-item strong { color: #f7fbff; }
+.destination-body .atlas-action-item small, .destination-body .atlas-focus-card p, .destination-body .atlas-details dd { color: #c3d7ea; }
+.destination-body .atlas-action-item svg { color: #84b6ff; }
+.destination-body .atlas-details { border-color: rgb(164 200 232 / .24); }
+.destination-body .atlas-focus-card > button { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
 
 /* Strength Genome shares Explore's blue canvas, so the light-page heading colors need a deliberate high-contrast override. */
-.destination-explore .strength-genome-workspace .view-header h1 { color: #f7fbff; }
-.destination-explore .strength-genome-workspace .view-header em { color: #f2c14d; }
-.destination-explore .strength-genome-workspace .view-header > div > p:not(.metric-label) { color: #d0e1f0; }
+.destination-body .strength-genome-workspace .view-header h1 { color: #f7fbff; }
+.destination-body .strength-genome-workspace .view-header em { color: #f2c14d; }
+.destination-body .strength-genome-workspace .view-header > div > p:not(.metric-label) { color: #d0e1f0; }
 
 .strength-exercise-picker { display: grid; max-height: 14rem; gap: .35rem; overflow: auto; border: 1px solid rgb(164 200 232 / .34); background: #07182e; padding: .45rem; }
 .strength-exercise-picker button { display: grid; min-height: 3rem; gap: .12rem; border: 1px solid transparent; background: rgb(255 255 255 / .055); padding: .5rem .65rem; color: #edf7ff; text-align: left; transition: border-color 160ms ease-out, background 160ms ease-out; }
@@ -937,7 +939,7 @@ select {
 }
 
 @media (max-width: 720px) {
-  .apex-content.destination-explore:has(.strength-region-record-detail) { padding-bottom: calc(8.5rem + env(safe-area-inset-bottom)); }
+  .apex-content.destination-body:has(.strength-region-record-detail) { padding-bottom: calc(8.5rem + env(safe-area-inset-bottom)); }
   .strength-region-record-detail { scroll-margin-bottom: calc(6.5rem + env(safe-area-inset-bottom)); }
   .strength-mobile-detail-spacer { min-height: calc(6.5rem + env(safe-area-inset-bottom)); }
 }
@@ -949,20 +951,20 @@ select {
 .day-plan-empty button { border-color: #f2c14d; color: #f2c14d; }
 
 /* Body Lab inherits Explore’s discovery palette while the anatomy canvas stays neutral for clear muscle inspection. */
-.destination-explore .body-lab-navigator { border-color: rgb(164 200 232 / .34); background: linear-gradient(135deg, #102f53, #07182e); color: #edf7ff; }
-.destination-explore .body-lab-navigator strong, .destination-explore .body-lab-navigator label { color: #c3d7ea; }
-.destination-explore .body-lab-navigator select { border-color: rgb(164 200 232 / .42); background: #0b2240; color: #f7fbff; }
-.destination-explore .body-lab-navigator-actions button { border-color: rgb(164 200 232 / .42); background: rgb(255 255 255 / .055); color: #eaf5ff; }
-.destination-explore .body-lab-navigator-actions button:last-child { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
-.destination-explore .anatomy-atlas-pro { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, #102f53, #07182e); color: #edf7ff; box-shadow: 0 18px 42px rgb(1 12 28 / .2); }
-.destination-explore .atlas-pro-head, .destination-explore .atlas-pro-controls, .destination-explore .atlas-pro-inspector { border-color: rgb(164 200 232 / .22); }
-.destination-explore .atlas-pro-head h2, .destination-explore .atlas-view-label { color: #f7fbff; }
-.destination-explore .atlas-pro-head > p, .destination-explore .atlas-control-group > span, .destination-explore .atlas-threshold-pro, .destination-explore .atlas-reset-pro { color: #c3d7ea; }
-.destination-explore .atlas-pill-row button, .destination-explore .atlas-pro-search { border-color: rgb(164 200 232 / .35); background: rgb(255 255 255 / .055); color: #dcecf9; }
-.destination-explore .atlas-pill-row button.is-active { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
-.destination-explore .atlas-pro-search input { color: #f7fbff; }
-.destination-explore .atlas-role-methodology { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .055); color: #c3d7ea; }
-.destination-explore .atlas-role-methodology summary { color: #f2c14d; }
+.destination-body .body-lab-navigator { border-color: rgb(164 200 232 / .34); background: linear-gradient(135deg, #102f53, #07182e); color: #edf7ff; }
+.destination-body .body-lab-navigator strong, .destination-body .body-lab-navigator label { color: #c3d7ea; }
+.destination-body .body-lab-navigator select { border-color: rgb(164 200 232 / .42); background: #0b2240; color: #f7fbff; }
+.destination-body .body-lab-navigator-actions button { border-color: rgb(164 200 232 / .42); background: rgb(255 255 255 / .055); color: #eaf5ff; }
+.destination-body .body-lab-navigator-actions button:last-child { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
+.destination-body .anatomy-atlas-pro { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, #102f53, #07182e); color: #edf7ff; box-shadow: 0 18px 42px rgb(1 12 28 / .2); }
+.destination-body .atlas-pro-head, .destination-body .atlas-pro-controls, .destination-body .atlas-pro-inspector { border-color: rgb(164 200 232 / .22); }
+.destination-body .atlas-pro-head h2, .destination-body .atlas-view-label { color: #f7fbff; }
+.destination-body .atlas-pro-head > p, .destination-body .atlas-control-group > span, .destination-body .atlas-threshold-pro, .destination-body .atlas-reset-pro { color: #c3d7ea; }
+.destination-body .atlas-pill-row button, .destination-body .atlas-pro-search { border-color: rgb(164 200 232 / .35); background: rgb(255 255 255 / .055); color: #dcecf9; }
+.destination-body .atlas-pill-row button.is-active { border-color: #f2c14d; background: #f2c14d; color: #07182e; }
+.destination-body .atlas-pro-search input { color: #f7fbff; }
+.destination-body .atlas-role-methodology { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .055); color: #c3d7ea; }
+.destination-body .atlas-role-methodology summary { color: #f2c14d; }
 
 /* Training defaults are editable planning starts; their boundary stays available without lengthening the default card. */
 .destination-train .programming-guide-panel { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, #102f53, #07182e); color: #edf7ff; box-shadow: 0 16px 38px rgb(1 12 28 / .2); }
@@ -1050,55 +1052,55 @@ select {
 }
 
 /* Explore: catalog, atlas, and body discovery panels use one readable navy system. */
-.destination-explore .atlas-tool-row,
-.destination-explore .atlas-action-list,
-.destination-explore .atlas-focus-card,
-.destination-explore .body-lab-navigator,
-.destination-explore .anatomy-atlas-pro {
+.destination-body .atlas-tool-row,
+.destination-body .atlas-action-list,
+.destination-body .atlas-focus-card,
+.destination-body .body-lab-navigator,
+.destination-body .anatomy-atlas-pro {
   border-color: var(--sg-control-border-on-dark);
   background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));
   color: var(--sg-text-on-dark);
 }
 
-.destination-explore .atlas-tool-main input,
-.destination-explore .atlas-tool-main select,
-.destination-explore .atlas-sport-select,
-.destination-explore .body-lab-navigator select {
+.destination-body .atlas-tool-main input,
+.destination-body .atlas-tool-main select,
+.destination-body .atlas-sport-select,
+.destination-body .body-lab-navigator select {
   border-color: var(--sg-control-border-on-dark);
   background: var(--sg-surface-deep);
   color: var(--sg-text-on-dark);
 }
 
-.destination-explore .atlas-tool-row label,
-.destination-explore .atlas-sport-select,
-.destination-explore .atlas-action-item small,
-.destination-explore .atlas-focus-card p,
-.destination-explore .atlas-details dd,
-.destination-explore .body-lab-navigator strong,
-.destination-explore .body-lab-navigator label,
-.destination-explore .atlas-pro-head > p,
-.destination-explore .atlas-control-group > span,
-.destination-explore .atlas-threshold-pro,
-.destination-explore .atlas-reset-pro,
-.destination-explore .atlas-role-methodology {
+.destination-body .atlas-tool-row label,
+.destination-body .atlas-sport-select,
+.destination-body .atlas-action-item small,
+.destination-body .atlas-focus-card p,
+.destination-body .atlas-details dd,
+.destination-body .body-lab-navigator strong,
+.destination-body .body-lab-navigator label,
+.destination-body .atlas-pro-head > p,
+.destination-body .atlas-control-group > span,
+.destination-body .atlas-threshold-pro,
+.destination-body .atlas-reset-pro,
+.destination-body .atlas-role-methodology {
   color: var(--sg-text-muted-on-dark);
 }
 
-.destination-explore .atlas-family-row button,
-.destination-explore .atlas-action-item,
-.destination-explore .body-lab-navigator-actions button,
-.destination-explore .atlas-pill-row button,
-.destination-explore .atlas-pro-search,
-.destination-explore .atlas-role-methodology {
+.destination-body .atlas-family-row button,
+.destination-body .atlas-action-item,
+.destination-body .body-lab-navigator-actions button,
+.destination-body .atlas-pill-row button,
+.destination-body .atlas-pro-search,
+.destination-body .atlas-role-methodology {
   border-color: var(--sg-control-border-on-dark);
   background: var(--sg-control-on-dark);
   color: var(--sg-text-on-dark);
 }
 
-.destination-explore .atlas-details,
-.destination-explore .atlas-pro-head,
-.destination-explore .atlas-pro-controls,
-.destination-explore .atlas-pro-inspector {
+.destination-body .atlas-details,
+.destination-body .atlas-pro-head,
+.destination-body .atlas-pro-controls,
+.destination-body .atlas-pro-inspector {
   border-color: var(--sg-divider-on-dark);
 }
 
@@ -1178,7 +1180,7 @@ select {
 .workout-health-panel :is(button, select, textarea, summary):focus-visible,
 .workout-programming-panel :is(button, select, textarea, summary):focus-visible,
 .day-programming-panel :is(button, select, textarea, summary):focus-visible,
-.destination-explore :is(button, input, select, summary):focus-visible,
+.destination-body :is(button, input, select, summary):focus-visible,
 .catalog-discovery :is(button, input, select, summary):focus-visible,
 .about-me-equipment button:focus-visible {
   outline: 2px solid var(--sg-focus-on-dark);
@@ -1200,18 +1202,18 @@ select {
 /* Readability guard: each destination declares a semantic foreground role before local accents. */
 .destination-progress .progress-review { color: var(--sg-text-on-dark); }
 .destination-progress .progress-review :is(.progress-section-head span, .progress-session-card small, .progress-empty-copy, .progress-comparison-card > p) { color: var(--sg-text-muted-on-dark); }
-.destination-profile :is(.about-me-equipment, .about-me-access-row) { color: var(--sg-text-on-dark); }
-.destination-profile :is(.about-me-equipment p:not(.metric-label), .about-me-access-row p) { color: var(--sg-text-muted-on-dark); }
+.destination-secondary :is(.about-me-equipment, .about-me-access-row) { color: var(--sg-text-on-dark); }
+.destination-secondary :is(.about-me-equipment p:not(.metric-label), .about-me-access-row p) { color: var(--sg-text-muted-on-dark); }
 .strength-progress-log { color: var(--sg-text-on-light); }
 .strength-progress-log :is(.metric-label, p:not(.font-bold)) { color: var(--sg-text-muted-on-light); }
 
 /* Strength is an Explore workspace, so its large entry heading always owns a dark readable surface. */
-.destination-explore .strength-genome-workspace .view-header { background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); border: 1px solid var(--sg-control-border-on-dark); border-radius: 1.25rem; padding: clamp(1rem, 3vw, 1.5rem); color: var(--sg-text-on-dark); box-shadow: 0 16px 38px rgb(1 12 28 / .2); }
-.destination-explore .strength-genome-workspace .view-header h1 { color: #f7fbff; }
-.destination-explore .strength-genome-workspace .view-header em { color: #f2c14d; }
-.destination-explore .strength-genome-workspace .view-header > div > p:not(.metric-label) { color: var(--sg-text-muted-on-dark); }
-.destination-explore .strength-genome-workspace .view-header .metric-label { color: var(--sg-text-subtle-on-dark); }
-.destination-explore .strength-genome-workspace .view-header-note { border-color: var(--sg-divider-on-dark); background: var(--sg-control-on-dark); color: var(--sg-text-muted-on-dark); }
+.destination-body .strength-genome-workspace .view-header { background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); border: 1px solid var(--sg-control-border-on-dark); border-radius: 1.25rem; padding: clamp(1rem, 3vw, 1.5rem); color: var(--sg-text-on-dark); box-shadow: 0 16px 38px rgb(1 12 28 / .2); }
+.destination-body .strength-genome-workspace .view-header h1 { color: #f7fbff; }
+.destination-body .strength-genome-workspace .view-header em { color: #f2c14d; }
+.destination-body .strength-genome-workspace .view-header > div > p:not(.metric-label) { color: var(--sg-text-muted-on-dark); }
+.destination-body .strength-genome-workspace .view-header .metric-label { color: var(--sg-text-subtle-on-dark); }
+.destination-body .strength-genome-workspace .view-header-note { border-color: var(--sg-divider-on-dark); background: var(--sg-control-on-dark); color: var(--sg-text-muted-on-dark); }
 
 /* Decorative visual context reinforces, but never replaces, the text-based evidence gate. */
 .strength-profile-status { position: relative; overflow: hidden; isolation: isolate; }

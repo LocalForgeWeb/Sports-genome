@@ -24,8 +24,9 @@ describe("workspace side navigation", () => {
     expect(workspaceFromLocation(null)).toBe("command");
     expect(primaryDestinationForWorkspace("day-plan")).toBe("train");
     expect(primaryDestinationForWorkspace("recommended")).toBe("train");
-    expect(primaryDestinationForWorkspace("catalog")).toBe("explore");
-    expect(primaryDestinationForWorkspace("strength")).toBe("explore");
+    expect(primaryDestinationForWorkspace("catalog")).toBe("body");
+    expect(primaryDestinationForWorkspace("strength")).toBe("body");
+    expect(primaryDestinationForWorkspace("profile")).toBe("secondary");
   });
 
   it("uses bottom-only primary navigation and browser history-aware contextual navigation", () => {
@@ -66,16 +67,15 @@ describe("workspace side navigation", () => {
     expect(source).toContain('shell-${activePrimaryDestination}');
     expect(source).toContain('destination-${activePrimaryDestination}');
     expect(css).toContain('.apex-content.destination-train');
-    expect(css).toContain('.apex-content.destination-explore');
+    expect(css).toContain('.apex-content.destination-body');
     expect(css).toContain('.apex-content.destination-progress');
-    expect(css).toContain('.apex-content.destination-profile');
-    expect(css).toContain('.apex-content.destination-more');
+    expect(css).toContain('.apex-content.destination-secondary');
     expect(source).toContain('sportsGenomeAssets.circularBadge');
     expect(source).toContain('alt="Sports Genome circular badge"');
     expect(source).toContain('className="topbar-brand-logo shrink-0 object-cover"');
     expect(source).toContain('className="topbar-context-chips"');
     expect(css).not.toContain('topbar-brand-logo { width: 50px; height: 50px; clip-path');
-    expect(source).toContain('workspace === "more"');
+    expect(source).toContain('workspace === "profile" && <section className="more-workspace"');
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
     expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
@@ -111,7 +111,7 @@ describe("workspace side navigation", () => {
     expect(source).toContain('const activePlanStatusDetail = customWorkout.length ? `${completedExerciseCount} marked complete in the active workspace` : "No exercises are staged in the current Training Day";');
   });
 
-  it("uses a six-item mobile bottom bar and moves contextual workspace controls to the top", () => {
+  it("uses a four-item mobile bottom bar (the philosophy's Home/Body Lab/Train/Progress contract) and moves contextual workspace controls to the top", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('className="mobile-workspace-dock"');
     expect(source).toContain('aria-label="Primary workspace navigation"');
@@ -128,10 +128,10 @@ describe("workspace side navigation", () => {
     expect(stackReviewSource).toContain('id="stack-review"');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');
-    expect(source).toContain('label: "Explore"');
+    expect(source).toContain('label: "Body Lab"');
     expect(source).toContain('label: "Progress"');
-    expect(source).toContain('label: "Profile"');
-    expect(source).toContain('label: "More"');
+    expect(source).toContain('aria-label="Profile and settings"');
+    expect(source).toContain('type PrimaryDestination = "home" | "train" | "body" | "progress" | "secondary";');
     expect(source).toContain('contextualWorkspaces');
     expect(source).toContain('className="workspace-top-switcher"');
     expect(source).not.toContain('<details className="plan-context">');
@@ -155,7 +155,7 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content { padding-bottom: calc(5.8rem');
     expect(css).toContain('.mobile-workspace-dock { position: fixed;');
     expect(source).not.toContain('className="mobile-workspace-actions"');
-    expect(css).toContain('grid-template-columns: repeat(6, minmax(0, 1fr));');
+    expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));');
     expect(css).toContain('min-height: 4.25rem;');
     expect(css).toContain('touch-action: manipulation;');
     expect(css).toContain('font-size: .66rem;');
@@ -183,7 +183,7 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.hover\\:text-\\[\\#142019\\]:hover { color: #0b2240 !important; }');
   });
 
-  it("retains one explicit active contextual route for every Train and Explore tab", () => {
+  it("retains one explicit active contextual route for every Train and Body Lab tab", () => {
     ["Training Day", "Tracker", "Matches", "Builder", "Stack Review", "Prep", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
     expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
@@ -229,7 +229,7 @@ describe("workspace side navigation", () => {
 
   it("keeps equipment editing and evidence details reachable on demand after Plan Context removal", () => {
     expect(source).not.toContain('<details className="plan-context">');
-    expect(source).toContain('label: "Profile"');
+    expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('workspace === "profile" && <AthleteAboutMePanel');
     expect(aboutMeSource).toContain("Available equipment");
     expect(source).toContain('workspace === "movement" && <MovementAtlasPanel');

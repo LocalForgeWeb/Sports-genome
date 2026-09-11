@@ -33,7 +33,7 @@ describe("Rate Stack split-target index", () => {
     expect(globalCss).toContain("--sg-control-border-on-dark: rgb(164 200 232 / .35)");
     expect(globalCss).toContain("--sg-focus-on-dark: #f2c14d");
     expect(globalCss).toContain(".workout-health-panel,");
-    expect(globalCss).toContain(".destination-explore .atlas-tool-row,");
+    expect(globalCss).toContain(".destination-body .atlas-tool-row,");
     expect(globalCss).toContain(".catalog-discovery {");
     expect(globalCss).toContain(".about-me-equipment {");
     expect(globalCss).toContain("background: var(--sg-surface-raised)");
