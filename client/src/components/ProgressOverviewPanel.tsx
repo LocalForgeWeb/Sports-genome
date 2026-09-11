@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Activity, ArrowUpRight, CalendarDays, Dumbbell, Info, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
+import { summarizeWithinAthleteStrengthComparisons, type ChangeState } from "@/lib/withinAthleteStrengthChange";
+import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
+
+const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
+  insufficient_history: { label: "Not enough history yet", tone: "#9fb2c6" },
+  stable: { label: "Stable", tone: "#9fb2c6" },
+  directional_signal_emerging: { label: "Signal emerging", tone: "#f2c14d" },
+  meaningful_change_supported: { label: "Confirmed change", tone: "#4fae6c" },
+};
 
 type RecordedSessionCard = {
   id: string;
@@ -16,6 +24,7 @@ type RecordedSessionCard = {
 export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining }: { onOpenStrength: () => void; onOpenTraining: () => void }) {
   const sessions = trpc.workoutLog.list.useQuery();
   const observations = trpc.strengthGenome.observations.useQuery();
+  const trackedSets = trpc.workoutLog.progressionHistory.useQuery();
   const [deviceSessions, setDeviceSessions] = useState(() => loadDeviceWorkoutSessions());
   const [showComparisonDetails, setShowComparisonDetails] = useState(false);
 
@@ -47,9 +56,13 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining }: { onOp
 
   const latestSession = recordedSessions[0];
   const latestObservation = observations.data?.[0];
-  const strengthComparisonSummary = summarizeWithinAthleteStrengthComparisons(observations.data || []);
+  const unifiedHistory = useMemo(
+    () => mergeStrengthHistory(observations.data || [], trackedSets.data || []),
+    [observations.data, trackedSets.data]
+  );
+  const strengthComparisonSummary = summarizeWithinAthleteStrengthComparisons(unifiedHistory);
   const comparableStrengthChanges = strengthComparisonSummary.comparable;
-  const nonComparableStrengthSets = strengthComparisonSummary.nonComparable;
+  const excludedStrengthSets = strengthComparisonSummary.excluded;
   const deviceRecordCount = recordedSessions.filter((session) => session.storage === "device").length;
 
   return <section className="progress-review space-y-4">
@@ -62,6 +75,6 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining }: { onOp
       <section className="dark-panel progress-stat-card"><div><p className="metric-label !text-[#a9bed4]">Strength observations</p><p className="mt-2 font-display text-6xl font-bold leading-none text-white">{observations.data?.length || 0}</p><p className="mt-2 text-xs leading-5 text-[#c4d3e2]">{latestObservation ? latestObservation.exerciseName : "No test recorded yet."}</p></div><Dumbbell className="h-7 w-7 text-[#e4512e]" /><button type="button" onClick={onOpenStrength} className="progress-text-action">Strength Genome <Sparkles className="h-4 w-4" /></button></section>
     </div>
     <section className="dark-panel progress-records"><div className="progress-section-head"><div><p className="metric-label !text-[#a9bed4]">Recorded workouts</p><h2>Your completed sessions.</h2></div><span>{recordedSessions.length} total</span></div>{recordedSessions.length ? <div className="mt-4 grid gap-2 md:grid-cols-2">{recordedSessions.slice(0, 6).map((session) => <article key={session.id} className="progress-session-card"><p>{session.title}</p><small>{session.completedAt.toLocaleDateString()} · {session.exerciseCount} exercises · {session.completedSetCount} sets</small><span>{session.storage === "device" ? "Device" : "Account"}</span></article>)}</div> : <p className="progress-empty-copy">Complete a Tracker workout to create your first record.</p>}</section>
-    <section className="dark-panel progress-comparison-card"><div className="progress-section-head"><div><p className="metric-label !text-[#a9bed4]">Repeated test context</p><h2>{comparableStrengthChanges.length ? "Recorded change" : "No comparable change yet."}</h2></div><button type="button" aria-expanded={showComparisonDetails} onClick={() => setShowComparisonDetails((current) => !current)} className="progress-disclosure"><Info className="h-4 w-4" />How it works</button></div>{comparableStrengthChanges.length > 0 && <div className="mt-4 grid gap-2 md:grid-cols-2">{comparableStrengthChanges.slice(0, 4).map((change) => <article key={`${change.exerciseName}-${change.latestObservedAt.toISOString()}`} className="progress-session-card"><p>{change.exerciseName}</p><strong>{change.loadChangeKg >= 0 ? "+" : ""}{change.loadChangeKg.toFixed(1)} kg</strong><small>{change.measurementType.replace(/_/g, " ")}{change.measurementType === "MULTI_REP" && change.repetitions ? ` · ${change.repetitions} reps` : ""}</small></article>)}</div>}{showComparisonDetails && <div className="progress-method-note">Repeat the same named test with matching setup and repetitions to compare recorded load. Non-matching records stay separate; this is not a population comparison or estimated strength score.</div>}{nonComparableStrengthSets.length > 0 && <p className="mt-3 text-xs leading-5 text-[#c4d3e2]">{nonComparableStrengthSets.length} comparison{nonComparableStrengthSets.length === 1 ? " is" : "s are"} withheld because the recorded setup differs.</p>}</section>
+    <section className="dark-panel progress-comparison-card"><div className="progress-section-head"><div><p className="metric-label !text-[#a9bed4]">Strength progress</p><h2>{comparableStrengthChanges.length ? "Estimated change since your first log" : "No comparable history yet."}</h2></div><button type="button" aria-expanded={showComparisonDetails} onClick={() => setShowComparisonDetails((current) => !current)} className="progress-disclosure"><Info className="h-4 w-4" />How it works</button></div>{comparableStrengthChanges.length > 0 && <div className="mt-4 grid gap-2 md:grid-cols-2">{comparableStrengthChanges.slice(0, 4).map((change) => <article key={`${change.exerciseName}-${change.laterality}`} className="progress-session-card"><p>{change.exerciseName}</p><strong style={{ color: changeStateCopy[change.changeState].tone }}>{change.relativeChangePercent >= 0 ? "+" : ""}{change.relativeChangePercent.toFixed(0)}% e1RM</strong><small>{changeStateCopy[change.changeState].label} · {change.observationCount} logs</small></article>)}</div>}{showComparisonDetails && <div className="progress-method-note">Combines your Strength Genome logs and completed tracker sets, estimating one-rep max (Epley formula) so different rep counts remain comparable. Stable means the change is within typical estimation noise; a confirmed change clears that noise. This is a within-athlete trend only, never a population comparison.</div>}{excludedStrengthSets.length > 0 && <p className="mt-3 text-xs leading-5 text-[#c4d3e2]">{excludedStrengthSets.reduce((total, item) => total + item.observationCount, 0)} logged set{excludedStrengthSets.length === 1 && excludedStrengthSets[0].observationCount === 1 ? "" : "s"} outside the validated rep range for estimation are recorded but not used for this trend.</p>}</section>
   </section>;
 }
