@@ -32,6 +32,9 @@ vi.mock("@/lib/trpc", () => ({
       list: { useQuery: () => ({ data: [] }) },
       set: { useMutation: () => ({ mutate: vi.fn() }) },
     },
+    sportsGenome: {
+      profile: { useQuery: () => ({ data: undefined }) },
+    },
   },
 }));
 
