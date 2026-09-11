@@ -843,3 +843,4 @@
 - [x] Reduce the floating guide control to a safe-area-aware compact help affordance that never blocks training controls.
 - [x] Standardize mobile touch targets, card density, disclosure behavior, typography, score bars, and visual hierarchy across affected athlete workflows.
 - [ ] Validate mobile hierarchy, no-overflow behavior, readable catalog results, and reachable controls at 375px, 390px, 402px, and 430px.
+- [x] Restore the Sports Genome intro animation on the GitHub-hosted site and verify its asset URL, startup choreography, and static-host compatibility
