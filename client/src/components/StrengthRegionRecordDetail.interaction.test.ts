@@ -109,8 +109,13 @@ describe("Strength region body-mass completion", () => {
     expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
 
     expect(screen.queryByText(/Recorded history/)).toBeNull();
-    fireEvent.change(screen.getByLabelText("Choose recorded test"), { target: { value: "102" } });
-    expect(screen.getByText("Machine Preacher Curl")).toBeTruthy();
+    const picker = screen.getByLabelText("Choose recorded test") as HTMLSelectElement;
+    fireEvent.change(picker, { target: { value: "102" } });
+    // The picker itself names the selected test, so assert the displayed record actually
+    // switched rather than looking for a duplicate name beneath it.
+    expect(picker.value).toBe("102");
+    expect(screen.getByText(/Machine Preacher Curl/)).toBeTruthy();
+    expect(screen.getByText(/88\.2 lb/)).toBeTruthy();
 
     expect(screen.getByRole("button", { name: "Close Biceps detail" }).className).toContain("strength-region-close");
     fireEvent.click(screen.getByRole("button", { name: "Close Biceps detail" }));

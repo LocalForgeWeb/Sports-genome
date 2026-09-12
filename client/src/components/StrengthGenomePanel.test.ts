@@ -116,6 +116,19 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("setSelectedRecordId(event.target.value)");
   });
 
+  it("falls back to the newest dated test rather than whichever record happens to sit first", () => {
+    const chronological = [
+      { id: "old", exerciseName: "Preacher Curl", observedAt: "2026-06-01T12:00:00.000Z" },
+      { id: "new", exerciseName: "Preacher Curl", observedAt: "2026-08-28T12:00:00.000Z" },
+    ];
+    expect(selectStrengthRegionRecord(chronological, "")?.id).toBe("new");
+    expect(selectStrengthRegionRecord([...chronological].reverse(), "")?.id).toBe("new");
+    expect(selectStrengthRegionRecord(chronological, "old")?.id).toBe("old");
+    expect(selectStrengthRegionRecord([], "")).toBeUndefined();
+    // The picker lists tests newest-first so the listed order matches what opens by default.
+    expect(source).toContain("new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()");
+  });
+
   it("switches between a region's recorded tests via the test picker instead of a separate raw history list, and shows qualified percentile routes plus the missing-reference state", () => {
     expect(source).not.toContain('className="strength-region-history"');
     expect(source).toContain('aria-label="Choose recorded test"');
