@@ -45,6 +45,7 @@ import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { buildVariedLoadout } from "@/lib/loadoutTemplates";
 import { cycleSplitIndex, splitDaysForFrequency } from "@/lib/splitCycle";
 import { toast } from "sonner";
+import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { EmailAuthScreen } from "@/components/EmailAuthScreen";
 import { SupabaseResearchLibraryPanel } from "@/components/SupabaseResearchLibraryPanel";
 import { trpc } from "@/lib/trpc";
@@ -243,6 +244,7 @@ export default function Home() {
   const [athleteBaseline, setAthleteBaseline] = useState<AthleteBaseline>({ experience: "Intermediate", weightUnit: "lb", equipment: defaultEquipmentProfile });
   const [gymMinutes, setGymMinutes] = useState(60);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [pendingDestructiveAction, setPendingDestructiveAction] = useState<ConfirmDialogRequest | null>(null);
   const [movementId, setMovementId] = useState("");
   const [activeMuscle, setActiveMuscle] = useState("obliques");
   const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
@@ -469,34 +471,56 @@ export default function Home() {
     if (nextMuscle) setActiveMuscle(nextMuscle);
   }, [selectedMovement.id]);
 
+  const resetSportSelection = () => {
+    setSportId("");
+    setMovementId("");
+    setAthleteBaseline((current) => ({ ...current, sportModifierId: undefined }));
+    setOnboardingComplete(false);
+    setWeeklyPlan({});
+    setWeeklyPrescriptions({});
+    setPlanWeeks({});
+    setActiveWeek(1);
+    try { window.localStorage.removeItem(athleteProfileKey); } catch { /* Reset remains usable without storage. */ }
+    toast("Sport selection reset", { description: "Choose a sport again in the Pulse Quiz before building a new sport-aware plan." });
+  };
+
   const chooseSport = (id: string) => {
     if (!id) {
-      setSportId("");
-      setMovementId("");
-      setAthleteBaseline((current) => ({ ...current, sportModifierId: undefined }));
-      setOnboardingComplete(false);
+      setPendingDestructiveAction({
+        title: "Reset sport selection?",
+        body: "This clears your current sport, sends you back through the Pulse Quiz, and removes every saved training day across all weeks. This cannot be undone.",
+        confirmLabel: "Reset sport",
+        onConfirm: resetSportSelection,
+      });
+      return;
+    }
+    const changed = Boolean(sportId) && sportId !== id;
+    if (changed) {
+      const previous = { sportId, movementId, activeMuscle, weeklyPlan, weeklyPrescriptions, planWeeks, activeWeek, catalogQuery, catalogFilters };
+      const undoSwitch = () => {
+        setSportId(previous.sportId);
+        setMovementId(previous.movementId);
+        setActiveMuscle(previous.activeMuscle);
+        setWeeklyPlan(previous.weeklyPlan);
+        setWeeklyPrescriptions(previous.weeklyPrescriptions);
+        setPlanWeeks(previous.planWeeks);
+        setActiveWeek(previous.activeWeek);
+        setCatalogQuery(previous.catalogQuery);
+        setCatalogFilters(previous.catalogFilters);
+      };
       setWeeklyPlan({});
       setWeeklyPrescriptions({});
       setPlanWeeks({});
       setActiveWeek(1);
-      try { window.localStorage.removeItem(athleteProfileKey); } catch { /* Reset remains usable without storage. */ }
-      toast("Sport selection reset", { description: "Choose a sport again in the Pulse Quiz before building a new sport-aware plan." });
-      return;
+      setCatalogQuery("");
+      setCatalogFilters(defaultCatalogFilters);
+      toast("Sport changed", { description: "Saved training days for the previous sport were cleared.", action: { label: "Undo", onClick: undoSwitch } });
     }
-    const changed = Boolean(sportId) && sportId !== id;
     setSportId(id);
     const first = sportMovementProfiles.find((movement) => movement.sportId === id);
     if (first) {
       setMovementId(first.id);
       setActiveMuscle(getMovementMuscles(first)[0] || "abs");
-    }
-    if (changed) {
-      setWeeklyPlan({});
-      setWeeklyPrescriptions({});
-      setPlanWeeks({});
-      setActiveWeek(1);
-	      setCatalogQuery("");
-	      setCatalogFilters(defaultCatalogFilters);
     }
   };
   const navigateWorkspace = (next: Workspace) => {
@@ -575,6 +599,7 @@ export default function Home() {
       });
       return { splitDay, exercises: dayExercises };
     });
+    const overwrittenDayLabels = Object.keys(nextPlan).filter((key) => weeklyPlan[key]?.length).map((key) => key.split("-").slice(1).join("-"));
     const first = assignments[0];
     setCustomWorkout(first.exercises);
     setPrescriptions(nextPrescriptions);
@@ -586,9 +611,31 @@ export default function Home() {
     setActiveSplitDayIndex(Math.max(0, splitDays.findIndex((day) => day === first.splitDay)));
     navigateWorkspace("day-plan");
     setImportOpen(false);
-    toast("Routine loaded", { description: `${importedDays.length}-day routine loaded with ${Object.values(nextPlan).flat().length} matched exercise${Object.values(nextPlan).flat().length === 1 ? "" : "s"}.` });
+    const matchedCount = Object.values(nextPlan).flat().length;
+    toast("Routine loaded", {
+      description: overwrittenDayLabels.length
+        ? `${importedDays.length}-day routine loaded with ${matchedCount} matched exercise${matchedCount === 1 ? "" : "s"}. Replaced your previously saved ${overwrittenDayLabels.join(", ")}.`
+        : `${importedDays.length}-day routine loaded with ${matchedCount} matched exercise${matchedCount === 1 ? "" : "s"}.`,
+    });
   };
-  const removeExercise = (id: number) => setCustomWorkout((current) => current.filter((exercise) => exercise.id !== id));
+  const removeExercise = (id: number) => {
+    const removedIndex = customWorkout.findIndex((exercise) => exercise.id === id);
+    if (removedIndex === -1) return;
+    const removed = customWorkout[removedIndex];
+    const removedPrescription = prescriptions[id];
+    const removedSettings = exerciseSettings[id];
+    setCustomWorkout((current) => current.filter((exercise) => exercise.id !== id));
+    toast(`${removed.name} removed`, {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          setCustomWorkout((current) => current.some((exercise) => exercise.id === id) ? current : [...current.slice(0, removedIndex), removed, ...current.slice(removedIndex)]);
+          if (removedPrescription !== undefined) setPrescriptions((current) => ({ ...current, [id]: removedPrescription }));
+          if (removedSettings !== undefined) setExerciseSettings((current) => ({ ...current, [id]: removedSettings }));
+        },
+      },
+    });
+  };
   const duplicateExercise = (exercise: Exercise, prescription: string, settings: ExerciseSettings) => {
     const duplicate = duplicateWorkoutEntry(exercise);
     setCustomWorkout((current) => [...current, duplicate]);
@@ -778,6 +825,12 @@ export default function Home() {
     setActiveWeek(1);
     setOnboardingComplete(false);
   };
+  const requestRebuildPlan = () => setPendingDestructiveAction({
+    title: "Restart onboarding?",
+    body: "This permanently deletes every saved training day across all weeks, your current sport, movement, and custom workout, then sends you back through setup. This cannot be undone.",
+    confirmLabel: "Restart onboarding",
+    onConfirm: rebuildPlan,
+  });
   const setLaunchPreference = (enabled: boolean) => {
     emitInteractionFeedback(12);
     setLaunchExperienceEnabled(enabled);
@@ -816,14 +869,14 @@ export default function Home() {
           <img src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="topbar-brand-logo shrink-0 object-cover" />
           <div className="min-w-0"><p className="metric-label">{navItems.find((item) => item.id === workspace)?.label}</p><div className="topbar-context-chips" aria-label={`Current planning context: ${selectedSport.label}, ${goal}, ${trainingDays} training days`}><span title={selectedSport.label}>{selectedSport.label}</span><span title={goal}>{goal}</span><span>{trainingDays} days</span></div></div>
         </div>
-        <div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={rebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Rebuild plan</button><button type="button" onClick={() => navigateWorkspace("profile")} aria-label="Profile and settings" aria-current={workspace === "profile" ? "page" : undefined} className="topbar-profile-button inline-flex h-9 w-9 items-center justify-center border border-[#cddbef] bg-white text-[#38658f] transition-colors hover:border-[#2d6cdf] hover:text-[#2d6cdf]"><UsersRound className="h-4 w-4" /></button><button onClick={() => navigateWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[#0b2240] px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[#2d6cdf]"><Plus className="h-3.5 w-3.5" /> Design day</button></div>
+        <div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={requestRebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[#2d6cdf] hover:text-[#2d6cdf] md:inline">Rebuild plan</button><button type="button" onClick={() => navigateWorkspace("profile")} aria-label="Profile and settings" aria-current={workspace === "profile" ? "page" : undefined} className="topbar-profile-button inline-flex h-9 w-9 items-center justify-center border border-[#cddbef] bg-white text-[#38658f] transition-colors hover:border-[#2d6cdf] hover:text-[#2d6cdf]"><UsersRound className="h-4 w-4" /></button><button onClick={() => navigateWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[#0b2240] px-3 py-2 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[#2d6cdf]"><Plus className="h-3.5 w-3.5" /> Design day</button></div>
       </header>
       {contextualWorkspaceTabs.length > 1 && <nav className="workspace-top-switcher" aria-label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}>{contextualWorkspaceTabs.map((tab) => { const active = activeContextTabId === tab.id; return <button type="button" key={tab.id} onClick={() => navigateContextualWorkspace(tab)} aria-current={active ? "page" : undefined} className={active ? "workspace-top-switcher-active" : ""}>{tab.label}</button>; })}</nav>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[#58728e]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace"><div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseWeeklyDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={setAthleteBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} />}
-        {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={rebuildPlan}>Restart onboarding</button></div><SupabaseResearchLibraryPanel /><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div></section>}
+        {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><SupabaseResearchLibraryPanel /><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div></section>}
         {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={`Week ${activeWeek} · ${activeSplitDay}`} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "command" && <section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section>}
         {workspace === "command" && <section className="gym-time-budget-card"><div><p className="metric-label">Gym-time budget</p><h2>How long do you have today?</h2><p>{gymTimeBudget.scopeCue} Recommended stacks now cap at {gymTimeBudget.recommendationLimit} exercises, while the builder keeps the session-time estimate visible.</p></div><label><span>Available time</span><select value={gymMinutes} onChange={(event) => setGymMinutes(Number(event.target.value))}>{gymTimeOptions.map((minutes) => <option key={minutes} value={minutes}>{minutes === 90 ? "90+ minutes" : `${minutes} minutes`}</option>)}</select><small>{gymTimeBudget.restGuidance}</small></label></section>}
@@ -853,5 +906,6 @@ export default function Home() {
     {inspectedExercise && <div className="inspection-action-connection-float"><SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} /></div>}
     {tutorialOpen && <FeatureTour onClose={() => setTutorialOpen(false)} onNavigate={(view) => navigateWorkspace(view as Workspace)} />}
     {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} />}
+    {pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => setPendingDestructiveAction(null)} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}
   </div>;
 }
