@@ -88,8 +88,19 @@ export function getPowerliftingReferenceForObservation(observation: StrengthObse
   return getVanDenHoek2024PowerliftingReference({ exerciseName: observation.exerciseName, measurementType: observation.measurementType, loadKg: observation.loadKg, bodyMassKgAtTest: observation.bodyMassKgAtTest, declaration }, registryNorms);
 }
 
-export function selectStrengthRegionRecord<T extends { id: string | number }>(records: T[], selectedRecordId: string) {
-  return records.find((record) => String(record.id) === selectedRecordId) || records[0];
+export function selectStrengthRegionRecord<T extends { id: string | number; observedAt?: string | Date }>(records: T[], selectedRecordId: string) {
+  const chosen = records.find((record) => String(record.id) === selectedRecordId);
+  if (chosen) return chosen;
+  // Both callers hand these over newest-first today, but nothing in the type enforces it,
+  // so resolve the newest test by its date rather than trusting array order.
+  return records.reduce<T | undefined>((newest, record) => {
+    if (!newest) return record;
+    const candidate = record.observedAt ? new Date(record.observedAt).getTime() : Number.NaN;
+    const incumbent = newest.observedAt ? new Date(newest.observedAt).getTime() : Number.NaN;
+    if (Number.isNaN(candidate)) return newest;
+    if (Number.isNaN(incumbent)) return record;
+    return candidate > incumbent ? record : newest;
+  }, undefined);
 }
 
 export function StrengthCatalogSelectionPreview({ context }: { context: ReturnType<typeof getStrengthCatalogSelectionContext> }) {
@@ -109,7 +120,7 @@ export function StrengthObservationReviewButton({ observation, onReview }: { obs
 }
 
 export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [] }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[] }) {
-  const records = useMemo(() => observations.filter((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id)), [observations, region.id]);
+  const records = useMemo(() => observations.filter((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id)).sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
   const [bodyMassEntry, setBodyMassEntry] = useState(() => baselineBodyWeight != null ? String(baselineBodyWeight) : "");
@@ -134,8 +145,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     <div className="strength-region-record-heading"><div><p className="metric-label">Your record</p><h2 tabIndex={-1} data-strength-region-heading>{region.label}</h2></div><button type="button" onClick={() => { emitInteractionFeedback(); onClose(); }} className="strength-region-close" aria-label={`Close ${region.label} detail`}><X className="h-4 w-4" /></button></div>
     {latestRecord ? <>
       <article className="strength-region-record-card">
-        {records.length > 1 && <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Choose recorded test" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label>}
-        <span className="strength-region-test-name">{latestRecord.exerciseName}</span>
+        {records.length > 1 ? <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Choose recorded test" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label> : <span className="strength-region-test-name">{latestRecord.exerciseName}</span>}
         {strengthTrend ? <article className="strength-reference-matched strength-reference-primary strength-rating-card" style={{ borderColor: changeStateCopy[strengthTrend.changeState].tone }}>
           <p className="metric-label">Your rating on this lift</p>
           <strong className="strength-body-mass-ratio" style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{strengthTrend.relativeChangePercent >= 0 ? "+" : ""}{strengthTrend.relativeChangePercent.toFixed(0)}%</strong>
@@ -268,7 +278,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const powerliftingCaptureAvailable = ["Back Squat", "Barbell Bench Press", "Conventional Deadlift"].includes(exerciseName) && measurementType === "MEASURED_1RM";
   const canSave = Boolean(selectedExercise) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0));
   const activeObservations = directAccess ? deviceObservations : (observations.data || []) as StrengthObservationRecord[];
-  const recentObservations = activeObservations.slice(0, 4);
+  // Labeled "Recent lifts", so order by date here instead of trusting how the caller
+  // built the array.
+  const recentObservations = [...activeObservations].sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()).slice(0, 4);
   const unifiedStrengthHistory = useMemo(
     () => mergeStrengthHistory(
       activeObservations.map((observation) => ({ ...observation, loadKg: observation.loadKg ?? null, repetitions: observation.repetitions ?? null })),
