@@ -9,7 +9,7 @@ describe("Catalog Discovery traceability presentation", () => {
   it("derives its visible catalog total and labels configured grades without implying a population rank", () => {
     expect(component).toContain("`All ${exercises.length} exercises`");
     expect(component).toContain("Catalog tag {exercise.muscleGrade}");
-    expect(component).toContain("Configured catalog classification; not a population rank or strength measurement.");
+    expect(component).toContain("A label from the exercise catalog. It is not a strength rank or a measurement of you.");
     expect(component).not.toContain("All 400 exercises");
   });
 

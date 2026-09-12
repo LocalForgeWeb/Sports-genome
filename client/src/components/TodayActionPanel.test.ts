@@ -8,7 +8,7 @@ describe("Today action panel", () => {
   it("uses saved workout and observation records rather than a fabricated readiness metric", () => {
     expect(source).toContain("trpc.strengthGenome.overview.useQuery()");
     expect(source).toContain("trpc.workoutLog.list.useQuery()");
-    expect(source).toContain("athlete-selected weekly rhythm");
+    expect(source).toContain("your weekly rhythm");
     expect(source).not.toContain("Session readiness");
     expect(source).not.toContain("coach-set planning marker");
     expect(source).toContain("Weekly plan rhythm");

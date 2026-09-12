@@ -34,8 +34,8 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
 
   it("uses the shared selected-action mapping helper and clearly bounds the connection claim", () => {
     expect(source).toContain("getExerciseActionConnection(exercise, enrichedMovement)");
-    expect(source).toContain("Selected-action mapping");
-    expect(source).toContain("catalog mapping and gym-support signal, not evidence of direct skill or performance transfer");
+    expect(source).toContain("Your selected sport action");
+    expect(source).toContain("It is not proof that training it improves your skill on the field");
   });
 
   it("renders a connected Supabase record as source context without turning source norms into a personal rank", () => {

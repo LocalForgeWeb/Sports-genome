@@ -17,20 +17,20 @@ describe("van den Hoek 2024 powerlifting reference", () => {
     },
   };
 
-  it("returns the reported 50th-percentile cut point for an exact eligible male 18–35 bench result", () => {
+  it("returns the reported 50th percentile for an exact eligible male 18–35 bench result", () => {
     const result = getVanDenHoek2024PowerliftingReference(eligibleBenchContext);
     expect(result).toMatchObject({
       status: "matched",
       lift: "Bench press",
       relativeStrength: 1.56,
-      percentileBandLabel: "50th percentile cut point",
+      percentileBandLabel: "50th percentile",
       sourceLabel: "van den Hoek et al. 2024 · drug-tested, unequipped powerlifting competitors · males 18–35",
     });
   });
 
-  it("uses a reported decile band rather than inventing an interpolated percentile between cut points", () => {
+  it("uses a reported decile band rather than inventing an interpolated percentile between reported points", () => {
     const result = getVanDenHoek2024PowerliftingReference({ ...eligibleBenchContext, loadKg: 128, bodyMassKgAtTest: 80 });
-    expect(result).toMatchObject({ status: "matched", relativeStrength: 1.6, percentileBandLabel: "50th–60th percentile band" });
+    expect(result).toMatchObject({ status: "matched", relativeStrength: 1.6, percentileBandLabel: "50th–60th percentile" });
   });
 
   it("keeps ordinary, noncompetition and mismatched tests unavailable", () => {
@@ -52,7 +52,7 @@ describe("van den Hoek 2024 powerlifting reference", () => {
     expect(getVanDenHoek2024PowerliftingReference(midlifeContext, registryNorms)).toMatchObject({
       status: "matched",
       relativeStrength: 1.56,
-      percentileBandLabel: "50th percentile cut point",
+      percentileBandLabel: "50th percentile",
       sourceLabel: "van den Hoek et al. 2024 · drug-tested, unequipped powerlifting competitors · males 36–59",
     });
   });
@@ -65,7 +65,7 @@ describe("van den Hoek 2024 powerlifting reference", () => {
     ];
     expect(getVanDenHoek2024PowerliftingReference(eligibleBenchContext, registryNorms)).toMatchObject({
       status: "matched",
-      percentileBandLabel: "50th percentile cut point",
+      percentileBandLabel: "50th percentile",
       sourceLabel: "van den Hoek et al. 2024 · drug-tested, unequipped powerlifting competitors · males 18–35",
     });
   });

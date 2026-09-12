@@ -41,7 +41,7 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("Why no comparison to other people?");
-    expect(source).toContain("Source-sample percentile band");
+    expect(source).toContain("Compared to that competition group");
     expect(source).toContain("match a published study");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
@@ -78,10 +78,10 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("getPiperReferenceForObservation(observation)?.status === \"matched\"");
     expect(source).toContain("getVanDenHoek2024PowerliftingReference");
     expect(source).toContain("Competitive powerlifting reference");
-    expect(source).toContain("Source-sample percentile band");
+    expect(source).toContain("Compared to that competition group");
     expect(source).toContain("drug-tested, unequipped competition");
     expect(source).toContain("trpc.researchEvidence.supabaseInventory.useQuery");
-    expect(source).toContain("Connected research library:");
+    expect(source).toContain("Research on file:");
     expect(source).toContain("does not by itself create a rank for you");
     expect(source).not.toContain("Top 1%");
   });
@@ -124,7 +124,7 @@ describe("Strength Genome panel", () => {
     expect(source).not.toContain('getStrengthReferencePresentation');
     expect(source).toContain("Why no comparison to other people?");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("Source-sample percentile band");
+    expect(source).toContain("Compared to that competition group");
     expect(source).toContain("Nothing logged for this muscle group yet.");
     expect(source).not.toContain("regional percentile");
   });

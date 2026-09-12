@@ -47,6 +47,6 @@ export function getPiper2021PreacherCurlReference(context: Piper2021PreacherCurl
   if (missing.length) return { status: "unavailable", missing };
   const band = bands.find((candidate) => (candidate.min == null || context.bodyMassLb! >= candidate.min) && (candidate.max == null || context.bodyMassLb! <= candidate.max))!;
   const firstAbove = band.cutPoints.findIndex((cutPoint) => context.loadLb! < cutPoint);
-  const comparison = firstAbove === 0 ? "Below the source sample’s 5th-percentile cut point" : firstAbove === -1 ? "At or above the source sample’s 95th-percentile cut point" : `Between the source sample’s ${percentiles[firstAbove - 1]}th and ${percentiles[firstAbove]}th percentile cut points`;
+  const comparison = firstAbove === 0 ? "Below the study group’s 5th percentile" : firstAbove === -1 ? "At or above the study group’s 95th percentile" : `Between the study group’s ${percentiles[firstAbove - 1]}th and ${percentiles[firstAbove]}th percentile`;
   return { status: "matched", bodyMassBand: band.label, comparison, sourceLabel: "Piper et al. 2021 pre-training college-aged male preacher-curl 10RM reference" };
 }

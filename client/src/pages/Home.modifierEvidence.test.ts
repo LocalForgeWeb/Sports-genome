@@ -54,7 +54,7 @@ describe("Home decision-first planning surfaces", () => {
       expect(markup).not.toContain('aria-label="Edit available equipment"');
       expect(markup).not.toContain("Sport-to-program hierarchy");
       expect(markup).not.toContain("Physiological demand:");
-      expect(markup).not.toContain("Programming boundary");
+      expect(markup).not.toContain("Planning note:");
     });
   }
 

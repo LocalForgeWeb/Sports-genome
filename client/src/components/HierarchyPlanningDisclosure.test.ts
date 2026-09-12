@@ -15,6 +15,6 @@ describe("hierarchy planning disclosure", () => {
     expect(markup).toContain("Physiological demand");
     expect(markup).toContain("Physical quality");
     expect(markup).toContain("Adaptation target");
-    expect(markup).toContain("Programming boundary");
+    expect(markup).toContain("Planning note:");
   });
 });

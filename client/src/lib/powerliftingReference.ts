@@ -67,13 +67,13 @@ const decilesBySexAndLift: Record<PowerliftingComparisonSex, Record<Powerlifting
 
 function decileBandLabel(relativeStrength: number, deciles: readonly [number, number][]) {
   const exact = deciles.find(([, cutPoint]) => Math.abs(relativeStrength - cutPoint) < 0.005);
-  if (exact) return `${exact[0]}th percentile cut point`;
-  if (relativeStrength < deciles[0][1]) return "Below the reported 10th-percentile cut point";
-  if (relativeStrength > deciles[deciles.length - 1][1]) return "Above the reported 90th-percentile cut point";
+  if (exact) return `${exact[0]}th percentile`;
+  if (relativeStrength < deciles[0][1]) return "Below the 10th percentile";
+  if (relativeStrength > deciles[deciles.length - 1][1]) return "Above the 90th percentile";
   const upperIndex = deciles.findIndex(([, cutPoint]) => relativeStrength < cutPoint);
   const lower = deciles[upperIndex - 1][0];
   const upper = deciles[upperIndex][0];
-  return `${lower}th–${upper}th percentile band`;
+  return `${lower}th–${upper}th percentile`;
 }
 
 function ageBandLabel(ageMin: number, ageMax: number) {
