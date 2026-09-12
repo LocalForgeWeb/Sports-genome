@@ -65,7 +65,7 @@ describe("Strength region body-mass completion", () => {
     expect(mocks.bodyMassMutation.mutate).toHaveBeenCalledWith({ observationId: 101, bodyMassKgAtTest: 81.6466266 });
     await act(async () => { await mocks.mutationOptions?.onSuccess(); });
     rerender(React.createElement(StrengthRegionRecordDetail, { region: biceps, observations: [{ ...missingBodyMassObservation[0], bodyMassKgAtTest: 81.6466266 }], onClose: noOp, weightUnit: "lb", directAccess: false, onSetDeviceBodyMass: noOp }));
-    expect(screen.getByText(/0\.44× body mass on test day — supporting context only, not a rank\./)).toBeTruthy();
+    expect(screen.getByText(/0\.44× your body weight on that day — for your own context, not a rank\./)).toBeTruthy();
   });
 
   it("shows pending status before preserving a failed account-backed entry for inline retry", () => {

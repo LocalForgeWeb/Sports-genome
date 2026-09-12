@@ -83,7 +83,7 @@ describe("Strength Genome definitions", () => {
     const { readFileSync } = await import("node:fs");
     const panelSource = readFileSync(new URL("../components/StrengthGenomePanel.tsx", import.meta.url), "utf8");
     expect(panelSource).toContain("not a percentile, universal rank, or regional force score");
-    expect(panelSource).toContain("No regional strength tier is shown until supporting evidence is available.");
+    expect(panelSource).toContain("Log your first lift and your progress starts tracking from there.");
     expect(panelSource).not.toContain("Your percentile");
     expect(panelSource).not.toContain("SS+");
   });
