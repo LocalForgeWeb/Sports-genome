@@ -289,7 +289,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
                 <p className="metric-label">Architecture + leverage context</p>
                 <p>{selectedMechanics.scope}</p>
                 <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Sources:</strong> {selectedMechanics.sources.join(" · ")}</p>
-                <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Boundary:</strong> {selectedMechanics.boundary}</p>
+                <p className="mt-2 text-[10px] leading-4 text-[#657b92]"><strong>Worth knowing:</strong> {selectedMechanics.boundary}</p>
               </div>}
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
             </>

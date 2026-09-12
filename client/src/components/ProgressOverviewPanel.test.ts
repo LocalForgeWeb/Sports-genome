@@ -19,7 +19,7 @@ describe("Progress overview", () => {
     expect(source).toContain("No comparable history yet.");
     expect(source).toContain("summarizeWithinAthleteStrengthComparisons(unifiedHistory)");
     expect(source).toContain("Estimated change since your first log");
-    expect(source).toContain("within-athlete trend only, never a population comparison");
+    expect(source).toContain("tracks you against your own past only — never against anyone else");
     expect(source).toContain("Epley formula");
     expect(source).toContain("outside the validated rep range for estimation");
     expect(source).not.toContain("readiness score");

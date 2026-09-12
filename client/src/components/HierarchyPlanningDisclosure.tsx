@@ -12,7 +12,7 @@ export function HierarchyPlanningDisclosure({ modifierLabel, movement, demands, 
       <p><strong>Adaptation target:</strong> {adaptations.join(" · ")}</p>
       <p><strong>Modality:</strong> {modality}</p>
       <p><strong>Exercise role:</strong> {exerciseRole}</p>
-      <p><strong>Programming boundary:</strong> {programming}</p>
+      <p><strong>Planning note:</strong> {programming}</p>
     </div>
   </details>;
 }

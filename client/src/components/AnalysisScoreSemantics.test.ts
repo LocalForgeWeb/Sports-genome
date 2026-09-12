@@ -9,7 +9,7 @@ describe("analysis score semantics", () => {
   it("keeps general Body Lab qualitative while preserving labeled relative exercise and stack analysis", () => {
     expect(anatomy).not.toContain("Relative model index");
     expect(anatomy).toContain("Sporting-action role");
-    expect(genome).toContain("Modelled ${entry.contribution}/100 involvement");
+    expect(genome).toContain("Estimated ${entry.contribution}/100 involvement");
     expect(genome).toContain("planning comparison, not a direct performance measurement");
     expect(stack).toContain("${item.involvement}%");
     expect(stack).toContain("{contribution.involvement}/100");

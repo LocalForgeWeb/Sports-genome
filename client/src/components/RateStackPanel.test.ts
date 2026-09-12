@@ -9,8 +9,8 @@ const plannerCss = readFileSync(new URL("../workout-planner.css", import.meta.ur
 describe("Rate Stack split-target index", () => {
   it("uses split analysis for the visible index and distinguishes it from the full-body involvement view", () => {
     expect(source).toContain("analyzeSplitStack(workout, catalog, split)");
-    expect(source).toContain("{split} target index {analysis.score}/100");
-    expect(source).toContain("The index evaluates {split.toLowerCase()} targets only.");
+    expect(source).toContain("{split} target score {analysis.score}/100");
+    expect(source).toContain("This score looks at {split.toLowerCase()} targets only.");
     expect(source).toContain("full body map to inspect all involved muscles");
     expect(source).toContain('<details className="rate-stack-scope">');
     expect(source).toContain("Target-only score and planning note");

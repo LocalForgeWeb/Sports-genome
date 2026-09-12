@@ -14,7 +14,7 @@ describe("Movement Intelligence recommendation context", () => {
   it("keeps the exercise decision compact while retaining a clear support purpose and sport-practice boundary", async () => {
     const { MovementIntelligencePanel } = await import("./MovementIntelligencePanel");
     const markup = renderToStaticMarkup(createElement(MovementIntelligencePanel, { movement, fallback, workout: [] }));
-    expect(markup).toContain("Sport practice remains the highest-specificity stimulus.");
+    expect(markup).toContain("Nothing in the gym replaces practice in your actual sport.");
     expect(markup).toContain("Gym support for this action");
     expect(markup).toContain("Movement support");
     expect(markup).not.toContain("Movement-specific context.");

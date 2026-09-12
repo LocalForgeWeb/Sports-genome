@@ -19,8 +19,8 @@ describe("WorkoutHealthPanel progressive disclosure", () => {
   it("retains all diagnostic content inside the expandable disclosure with keyboard-focusable summary styling", () => {
     expect(source).toContain('className="workout-health-content"');
     expect(source).toContain("planned work sets");
-    expect(source).toContain("overlap estimate");
-    expect(source).toContain("Planning estimates use the current prescription");
+    expect(source).toContain("muscle overlap");
+    expect(source).toContain("These are planning estimates from the workout as written");
     expect(styles).toContain(".workout-health-disclosure > summary");
     expect(styles).toContain(".workout-health-disclosure > summary:focus-visible");
     expect(styles).toContain("cursor: pointer");
