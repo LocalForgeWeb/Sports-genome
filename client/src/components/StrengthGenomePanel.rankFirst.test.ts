@@ -20,13 +20,13 @@ describe("Strength Genome rank-first presentation", () => {
     expect(ratingPosition).toBeGreaterThan(-1);
     expect(rankPosition).toBeGreaterThan(ratingPosition);
     expect(measurementPosition).toBeGreaterThan(rankPosition);
-    expect(panel).toContain("Why isn't there a population rank?");
-    expect(panel).toContain("supporting context only, not a rank.");
+    expect(panel).toContain("Why no comparison to other people?");
+    expect(panel).toContain("for your own context, not a rank.");
   });
 
   it("removes record-context color legend language and keeps the map as a test selector", () => {
-    expect(map).toContain("Test regions");
-    expect(map).toContain("Use the map to choose a test area. It is not a muscle ranking or percentile.");
+    expect(map).toContain("Your body");
+    expect(map).toContain("Highlighting shows where you have lifts on record, not how strong you are.");
     expect(map).not.toContain("strength-body-map-legend");
     expect(map).not.toContain("Athlete-selected focus");
   });

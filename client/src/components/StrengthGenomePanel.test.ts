@@ -11,19 +11,18 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('type="date"');
     expect(source).toContain("bodyMassKgAtTest");
     expect(source).toContain("new Date(`${observedDate}T12:00:00`)");
-    expect(source).toContain("They do not create a body-mass ratio, universal estimate, tier, or population comparison.");
-    expect(source).toContain("No regional strength tier is shown until supporting evidence is available.");
+    expect(source).toContain("All optional. They just help you compare like with like later on.");
+    expect(source).toContain("Log your first lift and your progress starts tracking from there.");
     expect(source).toContain('onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }}');
-    expect(source).toContain("Regional record");
-    expect(source).toContain("Planning focus");
+    expect(source).toContain("Your record");
+    expect(source).toContain("Want to prioritize this?");
     expect(source).toContain('active: !activePriorityIds.has(selectedRegion.id)');
-    expect(source).toContain("Range or test standard");
-    expect(source).toContain("Variation / technique");
-    expect(source).toContain("Assistance / support");
-    expect(source).toContain("These fields preserve test context for your own future comparison.");
-    expect(source).toContain("They do not create a body-mass ratio, universal estimate, tier, or population comparison.");
+    expect(source).toContain("Range of motion");
+    expect(source).toContain("Variation");
+    expect(source).toContain("Assistance used");
+    expect(source).toContain("All optional. They just help you compare like with like later on.");
     expect(source).toContain("Review training");
-    expect(source).toContain("Does not change this day automatically.");
+    expect(source).toContain("It will not change today&apos;s workout on its own.");
     expect(source).toContain("onClick={() => { emitInteractionFeedback(); onOpenTraining(); }}");
   });
 
@@ -32,18 +31,18 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("<StrengthGenomeBodyMap");
     expect(source).not.toContain('className="group min-h-28 bg-white p-4 text-left');
     expect(bodyMapSource).toContain('aria-label="Interactive strength context body map"');
-    expect(bodyMapSource).toContain("Test regions");
-    expect(bodyMapSource).toContain("Select a region to inspect");
-    expect(bodyMapSource).toContain("Use the map to choose a test area. It is not a muscle ranking or percentile.");
+    expect(bodyMapSource).toContain("Your body");
+    expect(bodyMapSource).toContain("Tap a muscle group to see");
+    expect(bodyMapSource).toContain("Highlighting shows where you have lifts on record, not how strong you are.");
     expect(bodyMapSource).not.toContain("percentile score");
     expect(source).toContain("resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id)");
-    expect(source).toContain("Regional record");
+    expect(source).toContain("Your record");
     expect(source).toContain("not a percentile, universal rank, or regional force score");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("Why isn't there a population rank?");
+    expect(source).toContain("Why no comparison to other people?");
     expect(source).toContain("Source-sample percentile band");
-    expect(source).toContain("match a reviewed table");
+    expect(source).toContain("match a published study");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
     expect(source).toContain("Use saved weight");
@@ -71,10 +70,10 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('sportsGenomeAssets.strengthQualified');
     expect(source).toContain('sportsGenomeAssets.strengthUnavailable');
     expect(source).not.toContain('/manus-storage/');
-    expect(source).toContain("Reference status");
-    expect(source).toContain("Qualified comparison ready");
-    expect(source).toContain("match a reviewed source");
-    expect(source).toContain("Reference unavailable");
+    expect(source).toContain("<span>Comparison</span>");
+    expect(source).toContain("Ready on {sourceMatchedObservationCount} lift");
+    expect(source).toContain("line up with a study");
+    expect(source).toContain("sourceMatchedObservationCount > 0 &&");
     expect(source).toContain("sourceMatchedObservationCount");
     expect(source).toContain("getPiperReferenceForObservation(observation)?.status === \"matched\"");
     expect(source).toContain("getVanDenHoek2024PowerliftingReference");
@@ -82,15 +81,14 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Source-sample percentile band");
     expect(source).toContain("drug-tested, unequipped competition");
     expect(source).toContain("trpc.researchEvidence.supabaseInventory.useQuery");
-    expect(source).toContain("Connected library:");
-    expect(source).toContain("do not create a generic rank");
+    expect(source).toContain("Connected research library:");
+    expect(source).toContain("does not by itself create a rank for you");
     expect(source).not.toContain("Top 1%");
   });
 
   it("keeps the default profile status concise while leaving source-match limits available on demand", () => {
     expect(source).toContain('className="strength-profile-reference-summary"');
     expect(source).toContain('className="strength-profile-reference-details"');
-    expect(source).toContain("Reference unavailable");
     expect(source).toContain("How comparison works");
   });
 
@@ -124,10 +122,10 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('getPiperReferenceForObservation');
     expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
-    expect(source).toContain("Why isn't there a population rank?");
+    expect(source).toContain("Why no comparison to other people?");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("Source-sample percentile band");
-    expect(source).toContain("No recorded test for this region yet.");
+    expect(source).toContain("Nothing logged for this muscle group yet.");
     expect(source).not.toContain("regional percentile");
   });
 

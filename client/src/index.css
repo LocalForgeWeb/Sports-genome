@@ -958,7 +958,6 @@ select {
 @media (max-width: 720px) {
   .apex-content.destination-body:has(.strength-region-record-detail) { padding-bottom: calc(8.5rem + env(safe-area-inset-bottom)); }
   .strength-region-record-detail { scroll-margin-bottom: calc(6.5rem + env(safe-area-inset-bottom)); }
-  .strength-mobile-detail-spacer { min-height: calc(6.5rem + env(safe-area-inset-bottom)); }
 }
 
 /* Palette guard: legacy utility classes resolve to the Sports Genome gold/navy action system. */
