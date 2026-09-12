@@ -82,7 +82,7 @@ describe("Strength Genome definitions", () => {
   it("does not promote reviewed reliability or reference literature into unqualified athlete percentiles or tiers", async () => {
     const { readFileSync } = await import("node:fs");
     const panelSource = readFileSync(new URL("../components/StrengthGenomePanel.tsx", import.meta.url), "utf8");
-    expect(panelSource).toContain("A percentile, universal rank, and regional force score are not shown");
+    expect(panelSource).toContain("not a percentile, universal rank, or regional force score");
     expect(panelSource).toContain("No regional strength tier is shown until supporting evidence is available.");
     expect(panelSource).not.toContain("Your percentile");
     expect(panelSource).not.toContain("SS+");

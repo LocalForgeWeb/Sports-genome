@@ -13,13 +13,15 @@ describe("Strength Genome rank-first presentation", () => {
     expect(panel).toContain("Use saved weight");
   });
 
-  it("places an exact source-sample rank ahead of optional recorded ratio detail", () => {
+  it("places an exact source-sample rank ahead of the optional manual body-weight entry, and a within-athlete rating ahead of both", () => {
+    const ratingPosition = panel.indexOf("Your rating on this lift");
     const rankPosition = panel.indexOf("Source-sample rank range");
-    const measurementPosition = panel.indexOf("Recorded measurement");
-    expect(rankPosition).toBeGreaterThan(-1);
+    const measurementPosition = panel.indexOf('className="strength-recorded-measurement"');
+    expect(ratingPosition).toBeGreaterThan(-1);
+    expect(rankPosition).toBeGreaterThan(ratingPosition);
     expect(measurementPosition).toBeGreaterThan(rankPosition);
-    expect(panel).toContain("Reference unavailable for this test.");
-    expect(panel).toContain("Supporting context only—not a rank.");
+    expect(panel).toContain("Why isn't there a population rank?");
+    expect(panel).toContain("supporting context only, not a rank.");
   });
 
   it("removes record-context color legend language and keeps the map as a test selector", () => {

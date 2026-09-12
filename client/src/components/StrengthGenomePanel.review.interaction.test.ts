@@ -46,7 +46,7 @@ describe("Strength Genome direct Review workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Review" }));
     expect(mocks.feedback).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("region", { name: "Biceps recorded strength context" })).toBeTruthy();
-    expect(screen.getByText("Recorded measurement")).toBeTruthy();
-    expect(screen.getByText("Reference unavailable for this test.")).toBeTruthy();
+    expect(screen.getByText(/0\.44× body mass on test day — supporting context only, not a rank\./)).toBeTruthy();
+    expect(screen.getByText("Why isn't there a population rank?")).toBeTruthy();
   });
 });

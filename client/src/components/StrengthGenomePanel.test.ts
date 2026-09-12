@@ -38,14 +38,12 @@ describe("Strength Genome panel", () => {
     expect(bodyMapSource).not.toContain("percentile score");
     expect(source).toContain("resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id)");
     expect(source).toContain("Regional record");
-    expect(source).toContain("A percentile, universal rank, and regional force score are not shown");
+    expect(source).toContain("not a percentile, universal rank, or regional force score");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
-    expect(source).toContain("Recorded measurement");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("Reference unavailable for this test.");
+    expect(source).toContain("Why isn't there a population rank?");
     expect(source).toContain("Source-sample percentile band");
-    expect(source).toContain("About this rating");
-    expect(source).toContain("matching validated reference");
+    expect(source).toContain("match a reviewed table");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
     expect(source).toContain("Use saved weight");
@@ -120,14 +118,13 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("setSelectedRecordId(event.target.value)");
   });
 
-  it("shows selected-region record history, qualified percentile routes, and missing-reference state", () => {
-    expect(source).toContain('className="strength-region-history"');
-    expect(source).toContain("Recorded history ({records.length})");
-    expect(source).toContain('aria-pressed={String(record.id) === String(latestRecord.id)}');
+  it("switches between a region's recorded tests via the test picker instead of a separate raw history list, and shows qualified percentile routes plus the missing-reference state", () => {
+    expect(source).not.toContain('className="strength-region-history"');
+    expect(source).toContain('aria-label="Choose recorded test"');
     expect(source).toContain('getPiperReferenceForObservation');
     expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
-    expect(source).toContain("Reference unavailable for this test.");
+    expect(source).toContain("Why isn't there a population rank?");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("Source-sample percentile band");
     expect(source).toContain("No recorded test for this region yet.");
