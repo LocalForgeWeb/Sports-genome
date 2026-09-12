@@ -59,14 +59,13 @@ describe("Strength region body-mass completion", () => {
   });
 
   it("submits an account-backed missing body mass and keeps the ratio as supporting detail after refreshed data returns", async () => {
-    const { rerender, container } = renderDetail();
+    const { rerender } = renderDetail();
     fireEvent.change(screen.getByLabelText("Body mass on test day in pounds"), { target: { value: "180" } });
     fireEvent.click(screen.getByRole("button", { name: "Save test body weight" }));
     expect(mocks.bodyMassMutation.mutate).toHaveBeenCalledWith({ observationId: 101, bodyMassKgAtTest: 81.6466266 });
     await act(async () => { await mocks.mutationOptions?.onSuccess(); });
     rerender(React.createElement(StrengthRegionRecordDetail, { region: biceps, observations: [{ ...missingBodyMassObservation[0], bodyMassKgAtTest: 81.6466266 }], onClose: noOp, weightUnit: "lb", directAccess: false, onSetDeviceBodyMass: noOp }));
-    openMeasurementDetail(container);
-    expect(screen.getByText(/0\.44\s*× load \/ test-day body mass\. Supporting context only—not a rank\./)).toBeTruthy();
+    expect(screen.getByText(/0\.44× body mass on test day — supporting context only, not a rank\./)).toBeTruthy();
   });
 
   it("shows pending status before preserving a failed account-backed entry for inline retry", () => {
@@ -100,7 +99,7 @@ describe("Strength region body-mass completion", () => {
     expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
   });
 
-  it("uses optional feedback for direct supporting-measurement completion, record-history selection, and close", () => {
+  it("uses optional feedback for direct supporting-measurement completion and close, and switches between recorded tests via the picker instead of a raw history list", () => {
     const onClose = vi.fn();
     const alternate = { ...missingBodyMassObservation[0], id: 102, exerciseName: "Machine Preacher Curl", loadKg: 40, bodyMassKgAtTest: 81.6466266 };
     renderDetail({ directAccess: true, onSetDeviceBodyMass: vi.fn(), onClose, observations: [missingBodyMassObservation[0], alternate] });
@@ -109,13 +108,13 @@ describe("Strength region body-mass completion", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save test body weight" }));
     expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
 
-    fireEvent.click(screen.getByText("Recorded history (2)"));
-    fireEvent.click(screen.getByText("Machine Preacher Curl"));
-    expect(mocks.feedback).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText(/Recorded history/)).toBeNull();
+    fireEvent.change(screen.getByLabelText("Choose recorded test"), { target: { value: "102" } });
+    expect(screen.getByText("Machine Preacher Curl")).toBeTruthy();
 
     expect(screen.getByRole("button", { name: "Close Biceps detail" }).className).toContain("strength-region-close");
     fireEvent.click(screen.getByRole("button", { name: "Close Biceps detail" }));
     expect(onClose).toHaveBeenCalledTimes(1);
-    expect(mocks.feedback).toHaveBeenCalledTimes(3);
+    expect(mocks.feedback).toHaveBeenCalledTimes(2);
   });
 });
