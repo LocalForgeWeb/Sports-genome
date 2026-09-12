@@ -48,6 +48,8 @@ describe("progression review", () => {
     }));
     expect(markup).toContain("Mark for next plan review");
     expect(markup).toContain("deltoid lateral");
+    expect(markup).toContain(">Needs review<");
+    expect(markup).not.toMatch(/progression-status[^>]*>review</);
   });
 
   it("shows optional equipment-aware segment additions only after a review signal", () => {
