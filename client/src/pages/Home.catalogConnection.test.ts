@@ -33,7 +33,9 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogStyles).toContain(".catalog-action-link-supporting-link");
 	    expect(catalogStyles).not.toContain(".catalog-action-link-not-mapped");
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
-    expect(catalogStyles).toContain(".catalog-action-link { display: inline-flex; width: fit-content; max-width: 100%;");
+    // inline-block plus overflow/text-overflow so the label truncates inside the
+    // pill; as inline-flex with only max-width it painted past the rounded border.
+    expect(catalogStyles).toContain(".catalog-action-link { display: inline-block; width: fit-content; max-width: 100%; overflow: hidden; text-overflow: ellipsis;");
   });
 
   it("keeps Movement Atlas labels readable after the Body Lab workspace applies its dark operational surface", () => {

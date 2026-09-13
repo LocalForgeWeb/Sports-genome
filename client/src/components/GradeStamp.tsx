@@ -2,7 +2,7 @@
 import type { Grade } from "@/lib/exerciseCatalog";
 
 const tones: Record<Grade, string> = {
-  SS: "bg-[var(--sg-action)] text-white border-[var(--sg-action)]",
+  SS: "bg-[var(--sg-action-fill)] text-white border-[var(--sg-action)]",
   S: "bg-[#f7cf6c] text-[#1c2937] border-[#f7cf6c]",
   A: "bg-[#5d755c] text-white border-[#5d755c]",
   B: "bg-[#dce1d8] text-[#1c2937] border-[#dce1d8]",
