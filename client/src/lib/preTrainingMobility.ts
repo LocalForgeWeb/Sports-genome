@@ -92,6 +92,40 @@ export const preTrainingMobilityLibrary: MobilityDrill[] = [
 ];
 
 type WarmupGoal = "Athleticism" | "Muscle growth" | "Max strength" | "Capacity";
+/** Athlete-facing names for mobility tags. The tags are code identifiers, and
+ *  joining them straight into copy printed "Matched to singleLeg, rotation,
+ *  lateral demands" on the Builder. */
+const mobilityTagLabels: Record<MobilityTag, string> = {
+  general: "whole-body",
+  squat: "squat",
+  hinge: "hinge",
+  lunge: "lunge",
+  singleLeg: "single-leg",
+  horizontalPush: "horizontal push",
+  verticalPush: "overhead push",
+  horizontalPull: "horizontal pull",
+  verticalPull: "vertical pull",
+  overhead: "overhead",
+  rotation: "rotation",
+  bracing: "bracing",
+  braking: "braking",
+  carry: "loaded carry",
+  jump: "jumping",
+  sprint: "sprinting",
+  lateral: "lateral",
+  ankle: "ankle",
+  hip: "hip",
+  thoracic: "upper back",
+  shoulder: "shoulder",
+  wrist: "wrist",
+  grip: "grip",
+  knee: "knee",
+};
+
+export function mobilityTagLabel(tag: MobilityTag): string {
+  return mobilityTagLabels[tag] || tag;
+}
+
 export type WarmupRecommendation = { drills: MobilityDrill[]; focusTags: MobilityTag[]; estimatedMinutes: number; rationale: string };
 
 function inferExerciseTags(exercise: Exercise): MobilityTag[] {
@@ -161,6 +195,6 @@ export function getStackWarmup(workout: Exercise[], goal: WarmupGoal): WarmupRec
   }
   const drills = selected.length ? selected : preTrainingMobilityLibrary.slice(0, logicCalibration.mobility.fallbackDrillCount);
   const estimatedMinutes = drills.reduce((total, drill) => total + drill.minutes, 0);
-  const emphasis = focusTags.slice(0, 3).join(", ") || "whole-body preparation";
+  const emphasis = focusTags.slice(0, 3).map(mobilityTagLabel).join(", ") || "whole-body preparation";
   return { drills, focusTags, estimatedMinutes, rationale: `Matched to ${emphasis} demands in the active stack. Begin easy, use a comfortable range, then rehearse the first loaded pattern with light sets.` };
 }

@@ -47,10 +47,15 @@ describe("layout integrity", () => {
   it("gives every light surface its own foreground colour", () => {
     // A light background that sets no colour inherits the destination shell's
     // light text; on Matches and Builder that rendered body copy at 1.04:1.
-    const rule = css.match(/\.light-panel,[^{]*\{\s*color:\s*var\(--sg-text-on-light\);\s*\}/);
+    const rule = css.match(/\.light-panel,[^{]*\{[^}]*color:\s*var\(--sg-text-on-light\);[^}]*\}/);
     expect(rule, "the light-surface foreground rule is present").toBeTruthy();
-    ["movement-intelligence-panel", "genome-panel", "weekly-plan-board", "session-exercise", "atlas-inspector"]
+    ["movement-intelligence-panel", "genome-panel", "weekly-plan-board", "session-exercise",
+     "atlas-inspector", "body-lab-quick-actions", "recovery-spacing-panel", "builder-finder"]
       .forEach((cls) => expect(rule![0], `${cls} declares a foreground`).toContain(cls));
+    // The label colour is declared in the same rule so the two cannot drift apart:
+    // a light card nested in a dark destination resets it, and children inherit.
+    expect(rule![0], "the same rule sets the label colour").toContain("--sg-label-color: var(--sg-text-subtle-on-light)");
+    expect(css).toMatch(/\.metric-label\s*\{\s*color:\s*var\(--sg-label-color/);
   });
 
   it("gives form controls a real tap target", () => {

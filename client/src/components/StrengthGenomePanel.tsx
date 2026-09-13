@@ -358,7 +358,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     <div className="view-header">
       <div>
         <p className="metric-label">Your lifts</p>
-        <h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[var(--sg-text-on-light)]">Your Strength<br /><em className="text-[var(--sg-info-strong)]">Genome.</em></h1>
+        <h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[var(--sg-text-on-light)]">Your Strength<br /><em className="text-[var(--sg-info)]">Genome.</em></h1>
         <p className="mt-4 max-w-2xl text-sm leading-6 text-[#53718d]">Log what you lift and watch your strength move over time. Tap any muscle group to see what you have recorded there.</p>
       </div>
       <div className="view-header-note"><ShieldCheck className="h-5 w-5 text-[var(--sg-info-strong)]" /><p>Your own progress and any outside comparison stay separate—never blended into one made-up score.</p></div>
