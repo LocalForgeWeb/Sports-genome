@@ -46,6 +46,9 @@ const keyToIds: Record<string, string[]> = {
 };
 
 const labels: Record<string, string> = {
+  // Rows render `muscleLabels[key] || key`, so any catalog key missing here
+  // leaks into the UI as a raw identifier.
+  upperBack: "Upper back", shoulders: "Shoulders", feet: "Feet",
   chest: "Pectoralis major", frontDelts: "Anterior deltoid", sideDelts: "Lateral deltoid",
   rearDelts: "Posterior deltoid", biceps: "Biceps brachii", brachialis: "Brachialis",
   brachioradialis: "Brachioradialis", triceps: "Triceps brachii", forearms: "Forearm compartments",
