@@ -10,6 +10,6 @@ describe("mobile contextual navigation styling", () => {
     expect(source).toContain("scroll-snap-type: x proximity");
     expect(source).toContain("min-height: 46px");
     expect(source).toContain('button[aria-current="page"]');
-    expect(source).toContain("box-shadow: inset 0 -3px 0 #f2c14d");
+    expect(source).toContain("box-shadow: inset 0 -3px 0 var(--sg-focus-on-dark)");
   });
 });

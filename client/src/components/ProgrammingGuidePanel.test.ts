@@ -11,8 +11,8 @@ describe("Programming Guide default-value boundary", () => {
     expect(source).toContain('<details className="programming-guide-boundary">');
     expect(source).toContain("<summary>Planning limits</summary>");
     expect(source).toContain("{target.evidenceBoundary}");
-    expect(styles).toContain(".destination-train .programming-guide-panel { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, #102f53, #07182e); color: #edf7ff;");
-    expect(styles).toContain(".destination-train .programming-guide-boundary p { margin: 0; border-top: 1px solid rgb(164 200 232 / .18); padding: .7rem 1rem .9rem; color: #c3d7ea;");
+    expect(styles).toContain(".destination-train .programming-guide-panel { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark);");
+    expect(styles).toContain(".destination-train .programming-guide-boundary p { margin: 0; border-top: 1px solid rgb(164 200 232 / .18); padding: .7rem 1rem .9rem; color: var(--sg-text-muted-on-dark);");
     expect(styles).toContain(".destination-train .programming-guide-boundary summary { display: flex; min-height: 44px;");
     expect(styles).toContain(".destination-train .programming-guide-boundary summary:focus-visible");
   });

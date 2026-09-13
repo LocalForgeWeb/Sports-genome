@@ -19,7 +19,7 @@ export function SupabaseResearchLibraryPanel() {
     <div className="mt-3 space-y-3">
       <p className="text-xs leading-5 text-[#536b84]">{library.data.boundary}</p>
       <div className="grid gap-2 md:grid-cols-2">
-        {library.data.sources.map((source) => <article key={source.id} className="border border-[#d7e3f0] bg-white p-3 text-xs leading-5 text-[#405b77]">
+        {library.data.sources.map((source) => <article key={source.id} className="border border-[var(--sg-divider-on-light)] bg-white p-3 text-xs leading-5 text-[var(--sg-text-muted-on-light)]">
           <a href={source.sourceUrl} target="_blank" rel="noreferrer" className="font-bold text-[#153b61] underline underline-offset-2">{source.title}{source.publicationYear ? ` (${source.publicationYear})` : ""}</a>
           {source.studyType && <p className="mt-1">{source.studyType}</p>}
           {source.populationSummary && <p className="mt-1">{source.populationSummary}</p>}

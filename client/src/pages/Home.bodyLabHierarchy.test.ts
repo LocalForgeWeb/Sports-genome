@@ -16,7 +16,7 @@ describe("Body Lab workspace hierarchy", () => {
   it("uses the Body Lab destination palette for its own framing while retaining a neutral anatomy canvas for inspection", () => {
     expect(styles).toContain(".destination-body .body-lab-navigator");
     expect(styles).toContain(".destination-body .anatomy-atlas-pro");
-    expect(styles).toContain(".destination-body .body-lab-navigator-actions button:last-child { border-color: #f2c14d; background: #f2c14d; color: #07182e; }");
+    expect(styles).toContain(".destination-body .body-lab-navigator-actions button:last-child { border-color: var(--sg-action); background: var(--sg-action); color: var(--sg-action-on); }");
     expect(anatomyStyles).toContain(".atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center");
   });
 });
