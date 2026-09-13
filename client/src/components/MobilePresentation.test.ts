@@ -61,14 +61,14 @@ describe("mobile athlete presentation", () => {
   });
 
   it("keeps mobile navigation opaque and Training Day dark-surface controls legible against navy panels", () => {
-    expect(appStyles).toContain(".apex-topbar, .workspace-top-switcher { background: #fffdf8;");
+    expect(appStyles).toContain(".apex-topbar, .workspace-top-switcher { background: var(--sg-surface-light);");
     expect(plannerStyles).toContain(".day-order-controls button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-muted-on-dark); }");
   });
 
   it("keeps the Strength Genome heading and evidence-gated status rail readable on the blue Body Lab surface", () => {
     expect(appStyles).toContain(".destination-body .strength-genome-workspace .view-header { background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));");
-    expect(appStyles).toContain(".destination-body .strength-genome-workspace .view-header h1 { color: #f7fbff; }");
-    expect(appStyles).toContain(".destination-body .strength-genome-workspace .view-header em { color: #f2c14d; }");
+    expect(appStyles).toContain(".destination-body .strength-genome-workspace .view-header h1 { color: var(--sg-text-on-dark); }");
+    expect(appStyles).toContain(".destination-body .strength-genome-workspace .view-header em { color: var(--sg-focus-on-dark); }");
     expect(appStyles).toContain(".destination-body .strength-genome-workspace .view-header > div > p:not(.metric-label) { color: var(--sg-text-muted-on-dark); }");
     expect(appStyles).toContain(".strength-profile-status { overflow: hidden;");
   });

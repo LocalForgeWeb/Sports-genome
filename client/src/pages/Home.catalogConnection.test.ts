@@ -37,7 +37,7 @@ describe("canonical connected exercise catalog", () => {
   });
 
   it("keeps Movement Atlas labels readable after the Body Lab workspace applies its dark operational surface", () => {
-    expect(globalStyles).toContain(".destination-body .atlas-action-item strong { color: #f7fbff; }");
+    expect(globalStyles).toContain(".destination-body .atlas-action-item strong { color: var(--sg-text-on-dark); }");
     expect(globalStyles).toContain(".destination-body .atlas-action-item > span { color: #d3e5f5; }");
     expect(globalStyles).toContain(".destination-body .atlas-action-item svg { color: #84b6ff; }");
   });

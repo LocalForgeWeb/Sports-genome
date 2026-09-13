@@ -39,9 +39,9 @@ describe("Rate Stack split-target index", () => {
     expect(globalCss).toContain("background: var(--sg-surface-raised)");
     expect(globalCss).toContain("outline: 2px solid var(--sg-focus-on-dark)");
     expect(plannerCss).toContain(".workout-health-panel");
-    expect(globalCss).toContain(".stack-analysis-page { background: #07182e; color: #edf7ff; }");
-    expect(globalCss).toContain(".stack-analysis-head { border-bottom-color: rgb(164 200 232 / .24); background: linear-gradient(115deg, #07182e, #123b68); }");
-    expect(globalCss).toContain(".stack-analysis-rank-head h2, .stack-analysis-detail h2, .stack-analysis-detail-head h2 { color: #f7fbff; }");
-    expect(globalCss).toContain(".stack-analysis-row strong, .stack-analysis-row em, .stack-analysis-metric div, .stack-analysis-metric strong, .stack-analysis-contributions strong, .stack-analysis-contributions button > span { color: #f7fbff; }");
+    expect(globalCss).toContain(".stack-analysis-page { background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }");
+    expect(globalCss).toContain(".stack-analysis-head { border-bottom-color: rgb(164 200 232 / .24); background: linear-gradient(115deg, var(--sg-surface-deep), var(--sg-surface-overlay)); }");
+    expect(globalCss).toContain(".stack-analysis-rank-head h2, .stack-analysis-detail h2, .stack-analysis-detail-head h2 { color: var(--sg-text-on-dark); }");
+    expect(globalCss).toContain(".stack-analysis-row strong, .stack-analysis-row em, .stack-analysis-metric div, .stack-analysis-metric strong, .stack-analysis-contributions strong, .stack-analysis-contributions button > span { color: var(--sg-text-on-dark); }");
   });
 });

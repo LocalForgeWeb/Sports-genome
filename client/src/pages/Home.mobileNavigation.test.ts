@@ -178,9 +178,12 @@ describe("workspace side navigation", () => {
     expect(mobileStyles).toContain('.topbar-context-chips::-webkit-scrollbar { display: none; }');
     expect(mobileStyles).toContain('scroll-snap-align: start;');
     expect(mobileStyles).toContain('.apex-topbar button:last-child { display: none; }');
-    expect(css).toContain('.text-\\[\\#b8ff5b\\] { color: #f2c14d !important; }');
-    expect(css).toContain('.hover\\:bg-\\[\\#b8ff5b\\]:hover { background-color: #f2c14d !important; }');
-    expect(css).toContain('.hover\\:text-\\[\\#142019\\]:hover { color: #0b2240 !important; }');
+    // The acid-lime accent is retired: it was the calm_precision anti-pattern
+    // ("competing highlights") and had accumulated four conflicting !important
+    // override mappings. Guard that it stays gone rather than re-suppressed.
+    expect(css).not.toContain('#b8ff5b');
+    expect(css).not.toContain('metric-lime');
+    expect(css).toContain('.hover\\:text-\\[\\#142019\\]:hover { color: var(--sg-text-on-light) !important; }');
   });
 
   it("retains one explicit active contextual route for every Train and Body Lab tab", () => {

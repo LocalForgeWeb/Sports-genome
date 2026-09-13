@@ -59,7 +59,7 @@ function DemandMapSection({
             <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
               {row.importanceWeight !== null && (
                 <span
-                  className="block h-full rounded-full bg-[#b8ff5b]/70"
+                  className="block h-full rounded-full bg-[var(--sg-seq-4)]"
                   style={{ width: `${Math.round(Math.min(1, Math.max(0, row.importanceWeight)) * 100)}%` }}
                 />
               )}
@@ -153,7 +153,7 @@ function RecommendationRow({
             <button
               type="button"
               onClick={() => onInspect(exercise)}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-[#b8ff5b]"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-[var(--sg-info)]"
             >
               Inspect <ArrowUpRight className="h-3 w-3" />
             </button>
@@ -236,7 +236,7 @@ export function SportEvidencePanel({
             {data.qualityDemands.map(quality => (
               <span
                 key={quality.qualityName}
-                className="border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-[#b8ff5b]"
+                className="border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-[var(--sg-info)]"
               >
                 {quality.qualityName}
               </span>
