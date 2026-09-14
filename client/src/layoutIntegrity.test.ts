@@ -88,6 +88,21 @@ describe("layout integrity", () => {
     expect(rule).toMatch(/overflow-x: auto/);
   });
 
+  it("gives every control in the workspace a 44px tap target", () => {
+    // "Live-session control priority": use "at least platform-recommended
+    // 44x44pt hit areas for primary touch controls rather than treating WCAG's
+    // 24px minimum as the design target". The audit measured 34 controls below
+    // it, eleven at 17px tall, and the Builder's add-exercise button at 30x30.
+    expect(css).toMatch(/\.apex-content :is\(button, summary\)[^{]*\{\s*\n?\s*min-height: 2\.75rem;/);
+  });
+
+  it("extends the hit area of inline text buttons instead of inflating the line", () => {
+    // A 17px inline link cannot become a 44px box without breaking the line it
+    // sits on, so the target grows and the type does not.
+    expect(css).toMatch(/\.apex-content :is\(\.atlas-reset-pro, \.genome-term-button\)::after \{ content: ""; position: absolute; inset: -14px -8px; \}/);
+    expect(css).toMatch(/\.local-search-scope > button::after \{ content: ""; position: absolute; inset: -8px -6px; \}/);
+  });
+
   it("retires the acid-lime accent across every stylesheet", () => {
     expect(allCss).not.toContain("#b8ff5b");
   });
