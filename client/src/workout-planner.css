@@ -291,3 +291,10 @@
   letter-spacing: .01em;
 }
 .device-workout-tracker .live-set-card h4 { font-size: clamp(1.75rem, 8vw, 2.4rem); }
+
+/* The reorder controls are absolutely positioned over the top-right of each
+   Training Day row, so the row's own title button ran underneath them: a tap
+   near the title's end hit "move earlier" instead of opening the exercise.
+   The 44px tap-target floor made that dead zone taller (34x34 -> 34x44), so
+   the row reserves the space instead of letting the two overlap. */
+.day-orderable-exercise .custom-row > button { margin-right: 4.75rem; }

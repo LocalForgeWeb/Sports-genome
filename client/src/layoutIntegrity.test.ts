@@ -103,6 +103,17 @@ describe("layout integrity", () => {
     expect(css).toMatch(/\.local-search-scope > button::after \{ content: ""; position: absolute; inset: -8px -6px; \}/);
   });
 
+  it("keeps a row's own action clear of the controls floating over it", () => {
+    // The Training Day reorder controls are absolutely positioned at the
+    // top-right of each row, and the row's title button ran underneath them:
+    // tapping near the end of the title hit "move earlier" instead of opening
+    // the exercise. The 44px tap floor made the dead zone taller, 34x34 -> 34x44.
+    const planner = readFileSync(join(SRC, "workout-planner.css"), "utf8");
+    // A margin, not padding: padding leaves the border box — and so the measured
+    // overlap — exactly where it was.
+    expect(planner).toMatch(/\.day-orderable-exercise \.custom-row > button \{ margin-right:/);
+  });
+
   it("retires the acid-lime accent across every stylesheet", () => {
     expect(allCss).not.toContain("#b8ff5b");
   });
