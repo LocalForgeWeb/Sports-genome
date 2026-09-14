@@ -8,7 +8,7 @@ import {
 } from "../shared/normsReference";
 import { getAthleteStrengthProfile } from "./athleteStrengthProfile";
 import { getApprovedNormsReference } from "./normsRegistry";
-import { listStrengthObservations } from "./strengthGenome";
+import { getStrengthGenomeOverview, listStrengthObservations } from "./strengthGenome";
 
 /**
  * Binds a saved Strength Genome observation to the approved research registry.
@@ -128,5 +128,37 @@ export async function getNormsRegistryStatus() {
     approvedCutPointCount: rows.length,
     exerciseNames,
     referenceFamilies: Array.from(new Set(rows.map(row => row.referenceFamily))).sort(),
+  };
+}
+
+/**
+ * The Strength Genome overview, with the registry's verdict folded in.
+ *
+ * The overview's own summary describes routing only; it cannot say whether any
+ * saved test actually reached an approved population comparison. Composing it here
+ * keeps `strengthGenome.ts` free of a dependency on the registry - the import
+ * direction stays one-way - while letting the workspace state what really happened.
+ */
+export async function getStrengthGenomeOverviewWithReferences(userId: number) {
+  const [overview, references] = await Promise.all([
+    getStrengthGenomeOverview(userId),
+    getStrengthObservationReferences(userId),
+  ]);
+  return summarizeOverviewWithReferences(overview, references);
+}
+
+/** Pure merge, so the summary wording is testable without a database. */
+export function summarizeOverviewWithReferences<T extends { nextAction: string }>(
+  overview: T,
+  references: readonly StrengthObservationReference[]
+) {
+  const comparedObservationCount = references.filter(entry => entry.resolution.status === "matched").length;
+  if (comparedObservationCount === 0) return { ...overview, comparedObservationCount };
+  const subject = comparedObservationCount === 1 ? "test matches" : "tests match";
+  const pronoun = comparedObservationCount === 1 ? "it" : "them";
+  return {
+    ...overview,
+    comparedObservationCount,
+    nextAction: `${comparedObservationCount} saved ${subject} a reviewed source's exact population and protocol, so a comparison is shown for ${pronoun}. Every other saved test stays on your own logs only.`,
   };
 }

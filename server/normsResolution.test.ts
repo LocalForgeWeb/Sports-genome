@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NormsReferenceRow } from "../shared/normsReference";
-import { ageYearsAt, buildAthleteContext, resolveObservations } from "./normsResolution";
+import { ageYearsAt, buildAthleteContext, resolveObservations, summarizeOverviewWithReferences } from "./normsResolution";
 
 type Observation = Parameters<typeof buildAthleteContext>[0];
 
@@ -149,5 +149,31 @@ describe("resolveObservations", () => {
     );
     expect(results.map(result => result.resolution.status)).toEqual(["matched", "unavailable"]);
     expect(results[1].resolution).toMatchObject({ reason: "no_reference_for_exercise" });
+  });
+});
+
+describe("summarizeOverviewWithReferences", () => {
+  const overview = { nextAction: "Test routing shows broad context only." };
+  const matched = { observationId: 1, exerciseName: "Back Squat", resolution: { status: "matched" } } as never;
+  const unmatched = { observationId: 2, exerciseName: "Landmine Press", resolution: { status: "unavailable" } } as never;
+
+  it("leaves the routing-only summary alone when nothing reached a comparison", () => {
+    const result = summarizeOverviewWithReferences(overview, [unmatched, unmatched]);
+    expect(result.comparedObservationCount).toBe(0);
+    expect(result.nextAction).toBe(overview.nextAction);
+  });
+
+  it("counts only the tests that actually matched an approved source", () => {
+    const result = summarizeOverviewWithReferences(overview, [matched, unmatched, matched]);
+    expect(result.comparedObservationCount).toBe(2);
+    expect(result.nextAction).toContain("2 saved tests match");
+    // The boundary travels with the count: the rest are still logs-only.
+    expect(result.nextAction).toContain("Every other saved test stays on your own logs only.");
+  });
+
+  it("reads correctly for a single matched test", () => {
+    const result = summarizeOverviewWithReferences(overview, [matched, unmatched]);
+    expect(result.nextAction).toContain("1 saved test matches");
+    expect(result.nextAction).toContain("shown for it");
   });
 });

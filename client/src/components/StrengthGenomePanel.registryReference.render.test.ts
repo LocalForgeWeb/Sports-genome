@@ -131,6 +131,26 @@ describe("Strength Genome registry comparison", () => {
     expect(screen.getByText("Why no comparison to other people?")).toBeTruthy();
   });
 
+  it("names the gate that closed the comparison rather than only the general rule", () => {
+    // Everything matches except the body mass a relative-strength reference needs.
+    renderDetail({
+      referenceRows: squatLadder,
+      athleteProfile: { sexForReference: "male", birthYear: 1999 },
+      observations: [{ ...squatRecord, bodyMassKgAtTest: null }],
+    });
+
+    expect(screen.queryByText("Compared to that study group")).toBeNull();
+    expect(
+      screen.getByText("Add your body weight on the test day to see whether a study matches.")
+    ).toBeTruthy();
+  });
+
+  it("names the age gate when the athlete falls outside the reported band", () => {
+    renderDetail({ referenceRows: squatLadder, athleteProfile: { sexForReference: "male", birthYear: 1960 } });
+
+    expect(screen.getByText("The matching study does not report your age group.")).toBeTruthy();
+  });
+
   it("shows no comparison while the registry has not loaded", () => {
     renderDetail({ referenceRows: [], athleteProfile: { sexForReference: "male", birthYear: 1999 } });
 

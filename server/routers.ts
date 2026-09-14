@@ -37,7 +37,7 @@ import {
 } from "./supabaseEvidence";
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
-import { getNormsRegistryStatus, getStrengthObservationReferences } from "./normsResolution";
+import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
 import { getApprovedNormsReference } from "./normsRegistry";
 import {
   getAthleteStrengthProfile,
@@ -45,7 +45,6 @@ import {
 } from "./athleteStrengthProfile";
 import {
   createStrengthObservation,
-  getStrengthGenomeOverview,
   listActiveStrengthPriorities,
   listStrengthObservations,
   setStrengthObservationBodyMass,
@@ -254,7 +253,7 @@ export const appRouter = router({
 
   strengthGenome: router({
     overview: protectedProcedure.query(({ ctx }) =>
-      getStrengthGenomeOverview(ctx.user.id)
+      getStrengthGenomeOverviewWithReferences(ctx.user.id)
     ),
     observations: protectedProcedure.query(({ ctx }) =>
       listStrengthObservations(ctx.user.id)
