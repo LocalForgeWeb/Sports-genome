@@ -91,3 +91,203 @@
 
 /* Shared high-contrast controls for the navy prescription surface. */
 .day-order-controls button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-muted-on-dark); }.day-picker-result-count { margin: .8rem 0 0; color: #4c6c89; font-size: .66rem; line-height: 1.45; }.day-picker-result-count strong { color: #173f66; font-family: var(--font-display, sans-serif); font-size: 1.1rem; font-weight: 800; }.day-picker-result-direct { border-left: 3px solid var(--sg-action); background: var(--sg-surface-light); }.day-picker-result-direct em { color: #a5422b; }.day-picker-more { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; margin-top: .7rem; border: 1px solid #9ec0e2; background: var(--sg-surface-light-sunken); color: #245f99; font-size: .65rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }.day-picker-more:hover { border-color: var(--sg-info-strong); background: var(--sg-surface-light-sunken); }
+
+/* ── Live workout execution surface ──────────────────────────────────────────
+   "Live workout glance contract" (FIXED): the first view leads with the active
+   exercise/set, the prescribed variable, rest state, and ONE dominant next
+   action. "Live-session control priority": that loop is a protected interaction
+   zone with platform-recommended 44x44pt targets, generous spacing, and no
+   competing control beside load/reps/completion. */
+
+.tracker-storage-warning {
+  margin: 0 .85rem;
+  border-left: 3px solid var(--sg-state-critical);
+  background: rgb(226 86 74 / .16);
+  padding: .7rem .8rem;
+  color: var(--sg-text-on-dark);
+  font-size: .72rem;
+  line-height: 1.5;
+}
+
+.tracker-resume-cue {
+  margin: .85rem .85rem 0;
+  border-left: 3px solid var(--sg-info);
+  background: rgb(91 156 241 / .12);
+  padding: .65rem .8rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: .72rem;
+  line-height: 1.5;
+}
+
+.live-set-card {
+  margin: .85rem;
+  border: 1px solid rgb(176 214 247 / .22);
+  border-radius: 16px;
+  background: rgb(7 26 49 / .78);
+  box-shadow: var(--sg-elevation-2);
+  padding: 1rem .9rem;
+}
+.live-set-card .metric-label { color: var(--sg-text-subtle-on-dark); }
+.live-set-card h4 {
+  margin-top: .3rem;
+  color: var(--sg-text-on-dark);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: clamp(1.5rem, 6.5vw, 2rem);
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.live-set-prescription { margin-top: .35rem; color: var(--sg-text-muted-on-dark); font-size: .78rem; }
+.live-set-last { margin-top: .25rem; color: var(--sg-text-subtle-on-dark); font-size: .7rem; }
+
+/* The protected zone: two entry fields and nothing else on their row. */
+.live-set-entry { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .85rem; }
+.live-set-entry label {
+  position: relative;
+  display: grid;
+  gap: .3rem;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+.live-set-entry input {
+  width: 100%;
+  height: 3.25rem;
+  border: 1px solid rgb(176 214 247 / .32);
+  border-radius: 10px;
+  background: var(--sg-surface-raised);
+  padding: 0 .7rem;
+  color: var(--sg-text-on-dark);
+  font-size: 1.15rem;
+  font-weight: 700;
+  outline: none;
+}
+.live-set-entry input:focus-visible { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .3); }
+.live-set-entry em { position: absolute; right: .7rem; bottom: 1.1rem; color: var(--sg-text-subtle-on-dark); font-size: .62rem; font-style: normal; }
+
+/* The one dominant next action: full width, tallest control on the surface. */
+.live-set-commit {
+  display: flex;
+  width: 100%;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  margin-top: .75rem;
+  border-radius: 12px;
+  background: var(--sg-action-fill);
+  color: var(--sg-action-on);
+  font-size: .8rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.live-set-commit:hover { background: var(--sg-action-strong); }
+.live-set-commit:active { transform: scale(.985); }
+.live-set-card-done h4 { color: var(--sg-state-positive); }
+
+/* Rest is persistent and adjustable but subordinate: its own row below the
+   commit action, lighter weight, never beside load/reps/completion. */
+.live-rest-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin: 0 .85rem;
+  border-top: 1px solid rgb(176 214 247 / .15);
+  padding: .7rem 0;
+  color: var(--sg-text-muted-on-dark);
+}
+.live-rest-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  color: var(--sg-text-on-dark);
+  font-variant-numeric: tabular-nums;
+  font-size: .95rem;
+  font-weight: 800;
+}
+.live-rest-state { font-size: .62rem; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; color: var(--sg-text-subtle-on-dark); }
+.live-rest-controls { display: inline-flex; margin-left: auto; gap: .4rem; }
+.live-rest-controls button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  border: 1px solid rgb(176 214 247 / .28);
+  border-radius: 9px;
+  padding: 0 .55rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: .68rem;
+  font-weight: 800;
+}
+.live-rest-controls button:hover { border-color: var(--sg-info); color: var(--sg-text-on-dark); }
+
+/* Explicit drill-down to the whole session; opening it never moves the active
+   set, so active-set context is preserved. */
+.live-session-queue { margin: 0 .85rem .85rem; border-top: 1px solid rgb(176 214 247 / .15); }
+.live-session-queue > summary {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: .6rem;
+  padding: .7rem 0;
+  color: var(--sg-text-on-dark);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+.live-session-queue > summary::-webkit-details-marker { display: none; }
+.live-session-queue > summary small { color: var(--sg-text-subtle-on-dark); font-size: .64rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.live-session-queue > summary > svg { margin-left: auto; transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.live-session-queue[open] > summary > svg { transform: rotate(90deg); }
+.device-workout-tracker .live-session-queue .session-exercise-list { padding: 0 0 .2rem; }
+
+/* A typed-but-never-logged set is a draft, not an observation, and says so. */
+.device-workout-tracker .session-set-draft { border-color: rgb(242 193 77 / .45); }
+.device-workout-tracker .session-set-draft > strong { color: var(--sg-state-caution); }
+
+/* While a session is running the dominant action is logging the next set, so
+   finishing steps down to a secondary treatment. The glance contract allows
+   exactly one dominant next action on the first view. */
+.device-workout-tracker .execution-head > button.execution-secondary-action {
+  border: 1px solid rgb(176 214 247 / .4);
+  background: transparent;
+  box-shadow: none;
+  color: var(--sg-text-on-dark);
+}
+.device-workout-tracker .execution-head > button.execution-secondary-action:hover {
+  border-color: var(--sg-info);
+  background: rgb(91 156 241 / .12);
+}
+
+/* While a session runs, the day chooser collapses to a context line so the
+   active exercise and set are legible on the first view. */
+.tracker-live-context {
+  margin-bottom: .75rem;
+  border-left: 3px solid var(--sg-action);
+  padding: .3rem 0 .3rem .7rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* Rest finished: the state change is the cue, because haptics are best-effort. */
+.live-rest-row-done { border-top-color: rgb(91 192 122 / .5); }
+.live-rest-row-done .live-rest-clock { color: var(--sg-state-positive); }
+.live-rest-row-done .live-rest-state { color: var(--sg-state-positive); }
+
+/* Hierarchy on the live surface: the active exercise is the biggest thing on
+   the screen, not the progress counter. Measured before this rule, the counter
+   rendered at 32px against the exercise name's 25px — the glance contract's
+   order, inverted. */
+.device-workout-tracker:has(.live-set-card) .execution-head h3 {
+  font-size: 1.4rem;
+  letter-spacing: .01em;
+}
+.device-workout-tracker .live-set-card h4 { font-size: clamp(1.75rem, 8vw, 2.4rem); }

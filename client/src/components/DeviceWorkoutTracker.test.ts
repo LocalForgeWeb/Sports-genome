@@ -24,6 +24,29 @@ describe("Device Workout Tracker execution focus", () => {
     expect(styles).toContain(".device-workout-tracker .session-exercise");
   });
 
+  it("keeps the progress counter smaller than the active exercise it sits above", () => {
+    // "Live workout glance contract": the active exercise leads the first view.
+    // Measured before this rule the counter rendered at 32px and the exercise
+    // name at 25px, which is that order inverted.
+    expect(styles).toContain(".device-workout-tracker:has(.live-set-card) .execution-head h3");
+    expect(styles).toContain(".device-workout-tracker .live-set-card h4 { font-size: clamp(1.75rem, 8vw, 2.4rem); }");
+  });
+
+  it("steps the finish action down while a session is running", () => {
+    // Two full-width vermilion buttons would be two dominant actions; the
+    // contract allows one.
+    expect(source).toContain('className="execution-secondary-action"');
+    expect(styles).toContain(".device-workout-tracker .execution-head > button.execution-secondary-action");
+  });
+
+  it("collapses the tracker day chooser once a session is live", () => {
+    // Pre-session setup above an execution surface pushed the active set below
+    // the fold: the live card started at y=650 on a 390x844 viewport.
+    const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8");
+    expect(home).toContain("trackerSessionLive ? <p className=\"tracker-live-context\">");
+    expect(home).toContain("window.addEventListener(deviceWorkoutHistoryEvent, syncTrackerSession)");
+  });
+
   it("renders one concise set-log label instead of duplicating the action copy", () => {
     expect(source).not.toContain(': "Log"}<span>{set.completed ? "Logged" : "Log set"}</span>');
   });
