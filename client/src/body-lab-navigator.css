@@ -46,7 +46,7 @@
   gap: .28rem;
   min-width: 0;
   /* Was .54rem — 8.6px of uppercase tracking is not a readable field label. */
-  font-size: .68rem;
+  font-size: .6875rem;
   font-weight: 800;
   letter-spacing: .05em;
   text-transform: uppercase;
@@ -76,7 +76,7 @@
   border-radius: 8px;
   background: var(--sg-surface-light);
   padding: 0 .5rem;
-  font-size: .64rem;
+  font-size: .6875rem;
   font-weight: 900;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -84,7 +84,7 @@
 .body-lab-navigator-actions button:last-child { border-color: #0b2240; background: var(--sg-surface-raised); color: #fff; }
 
 .body-lab-selection-position {
-  font-size: .68rem;
+  font-size: .6875rem;
   font-weight: 700;
 }
 

@@ -132,7 +132,7 @@ function RecommendationRow({
         </div>
         {confidence && (
           <span
-            className="shrink-0 border border-white/20 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.1em] text-[#c5d1c9]"
+            className="shrink-0 border border-white/20 bg-white/5 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[.1em] text-[#c5d1c9]"
             title="Evidence-quality judgment, not a calibrated probability"
           >
             {confidence} confidence
@@ -146,14 +146,14 @@ function RecommendationRow({
             <button
               type="button"
               onClick={() => onAdd(exercise)}
-              className="border border-white/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-white"
+              className="border border-white/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-white"
             >
               Add
             </button>
             <button
               type="button"
               onClick={() => onInspect(exercise)}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-[var(--sg-info)]"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-[var(--sg-info)]"
             >
               Inspect <ArrowUpRight className="h-3 w-3" />
             </button>
@@ -164,7 +164,7 @@ function RecommendationRow({
             type="button"
             onClick={() => setExpanded(value => !value)}
             aria-expanded={expanded}
-            className="ml-auto inline-flex items-center gap-1 px-2 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-[#8d9c95]"
+            className="ml-auto inline-flex items-center gap-1 px-2 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-[#8d9c95]"
           >
             {expanded ? "Hide reasoning" : "Why this exercise"}
             <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
@@ -236,7 +236,7 @@ export function SportEvidencePanel({
             {data.qualityDemands.map(quality => (
               <span
                 key={quality.qualityName}
-                className="border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-[var(--sg-info)]"
+                className="border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-[var(--sg-info)]"
               >
                 {quality.qualityName}
               </span>
