@@ -170,7 +170,11 @@ describe("workspace side navigation", () => {
     expect(source).toContain('Current planning context: ${selectedSport.label}, ${goal}, ${trainingDays} training days');
     expect(source).not.toContain('selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal}');
     expect(css).toContain('.topbar-context-chips span { max-width: 12rem; overflow: hidden;');
-    expect(css).toContain('max-width: calc(100vw - 6.8rem); overflow: visible;');
+    // The strip is bounded by its own column, not by the viewport: a
+    // viewport-derived width cannot know how wide the topbar's right-hand
+    // cluster is, and `overflow: visible` let the chips run underneath it
+    // (measured: "5 days" 57px behind the search trigger at 390px).
+    expect(css).toContain('.topbar-context-chips { flex-wrap: nowrap; max-width: 100%; overflow-x: auto;');
     expect(css).toContain('.topbar-context-chips span { max-width: none; flex: 0 0 auto; }');
     expect(mobileStyles).toContain('max-width: calc(100vw - 5.5rem);');
     expect(mobileStyles).toContain('flex: 0 0 auto;');

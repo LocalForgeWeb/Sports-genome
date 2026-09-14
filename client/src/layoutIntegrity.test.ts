@@ -78,6 +78,16 @@ describe("layout integrity", () => {
     expect(contrast(token("--sg-text-subtle-on-light"), "#ffffff")).toBeGreaterThanOrEqual(4.5);
   });
 
+  it("keeps the topbar context chips inside their own column", () => {
+    // A viewport-derived max-width cannot account for the topbar's right-hand
+    // cluster, so the chip strip ran underneath it: "5 days" was 57px behind the
+    // search trigger at 390px. The strip is bounded by its column and scrolls.
+    const rule = css.match(/\.topbar-context-chips \{ flex-wrap: nowrap;[^}]*\}/g)?.join("\n") || "";
+    expect(rule, "the phone-width chip rule is present").toBeTruthy();
+    expect(rule).not.toMatch(/max-width: calc\(100vw/);
+    expect(rule).toMatch(/overflow-x: auto/);
+  });
+
   it("retires the acid-lime accent across every stylesheet", () => {
     expect(allCss).not.toContain("#b8ff5b");
   });

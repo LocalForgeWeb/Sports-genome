@@ -69,6 +69,9 @@
   /* -- Informational emphasis: display accents, links, supporting data ---- */
   --sg-info: #5b9cf1;
   --sg-info-strong: #2861cc;  /* 5.16:1 on the sunken surface; #2d6cdf was 4.39 */
+  /* Inline links on a dark ground. --sg-info reads 3.77:1 on the lightest dark
+     surface (--sg-surface-overlay), which small link text cannot use. */
+  --sg-link-on-dark: #7fb4f6;
 
   /* -- State semantics. Every one of these pairs with a non-colour cue
         (label, icon, or position) in the markup, per the FIXED rule that
@@ -627,7 +630,7 @@ select {
 
 /* Calm reading rhythm: navigation and technical metadata support the decision rather than competing with it. */
 .rail-nav-item > span > span:last-child { display: none; }.rail-nav-item { min-height: 42px; padding-block: .68rem; }.rail-nav-item > span > span:first-child { line-height: 1.2; }.metric-label { font-size: 10px; letter-spacing: .12em; }.view-header { align-items: end; }.view-header > div:first-child { max-width: 650px; }.view-header h1 { font-size: clamp(2.7rem, 4vw, 4.4rem); line-height: .86; }.view-header-note { max-width: 300px; }.view-header-note p { font-size: .8rem; line-height: 1.5; }.dark-panel p, .light-panel p { max-width: 68ch; }.apex-content { padding-bottom: 8rem; }
-@media (max-width: 860px) { .rail-nav-item > span > span:last-child { display: none; }.view-header { gap: 1rem; }.view-header-note { max-width: none; }.metric-label { font-size: 9px; }.apex-topbar > div:last-child > button:not(:last-child):not(.topbar-profile-button) { display: none; } }
+@media (max-width: 860px) { .rail-nav-item > span > span:last-child { display: none; }.view-header { gap: 1rem; }.view-header-note { max-width: none; }.metric-label { font-size: 9px; }.apex-topbar > div:last-child > button:not(:last-child):not(.topbar-profile-button):not(.universal-search-trigger) { display: none; } }
 
 .command-signal-card > p:nth-of-type(2) { display: none; }.light-panel .space-y-2 > button > span:nth-child(2) > span:last-child { display: none; }.light-panel .space-y-2 > button { min-height: 48px; }.dark-panel .movement-list-item > span:nth-child(2) > span:last-child { display: none; }
 
@@ -831,7 +834,7 @@ select {
 .topbar-context-chips { display: flex; min-width: 0; flex-wrap: wrap; gap: .35rem; margin-top: .32rem; }
 .topbar-context-chips span { max-width: 12rem; overflow: hidden; border: 1px solid var(--sg-divider-on-light); border-radius: 999px; background: #fff; padding: .24rem .58rem; color: #315a82; font-size: .7rem; font-weight: 750; letter-spacing: .02em; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-context-chips span:last-child { border-color: #ecd795; background: #fff9e8; color: #806012; }
-@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .68rem; letter-spacing: .12em; } .topbar-brand-logo { width: 60px; height: 60px; } .topbar-context-chips { flex-wrap: nowrap; max-width: calc(100vw - 6.8rem); overflow: visible; } .topbar-context-chips span { max-width: none; flex: 0 0 auto; } .topbar-context-chips span:last-child { max-width: none; } }
+@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .68rem; letter-spacing: .12em; } .topbar-brand-logo { width: 60px; height: 60px; } .topbar-context-chips { flex-wrap: nowrap; max-width: 100%; overflow-x: auto; scrollbar-width: none; } .topbar-context-chips span { max-width: none; flex: 0 0 auto; } .topbar-context-chips span:last-child { max-width: none; } }
 
 /* Retire legacy neon accents from the authenticated command and inspection surfaces. */
 .command-hero .metric-label, .command-hero h1 em, .command-signal-card .metric-label, .command-signal-card button { color: var(--sg-focus-on-dark) !important; }
@@ -1481,11 +1484,12 @@ details:not([open]) > *:not(summary) {
 .movement-assistance-row, .redundancy-panel, .weekly-plan-board, .builder-finder-row,
 .day-design-rail-note, .day-active-card, .session-execution-strip, .session-exercise,
 .session-set-row, .day-exercise-disclosure, .day-picker-scope, .day-picker-result, .body-lab-quick-actions, .recovery-spacing-panel,
-.weekly-volume-panel, .builder-finder {
+.weekly-volume-panel, .builder-finder, .universal-search-sheet {
   color: var(--sg-text-on-light);
   /* Labels travel with the surface: a light card nested inside a dark
      destination resets this, and anything deeper inherits it. */
   --sg-label-color: var(--sg-text-subtle-on-light);
+  --sg-link-color: var(--sg-info-strong);
 }
 
 /* Dark destinations own their foreground. Body Lab and Train render on a dark
@@ -1498,6 +1502,7 @@ details:not([open]) > *:not(summary) {
 .destination-body,
 .destination-progress {
   --sg-label-color: var(--sg-text-subtle-on-dark);
+  --sg-link-color: var(--sg-link-on-dark);
 }
 
 .metric-label {
@@ -1570,4 +1575,233 @@ details:not([open]) > *:not(summary) {
     justify-content: space-between;
     gap: .75rem;
   }
+}
+
+
+/* ── Universal search ────────────────────────────────────────────────────────
+   The philosophy's "Universal search and retrieval contract" (FIXED) asks for
+   ONE predictable entry across every canonical object type. The trigger keeps a
+   44px tap target at phone width and the sheet opens under the topbar rather
+   than centred, so a thumb reaches the field and the results without a stretch.
+   Colours are semantic tokens only — the calm_precision trait's anti-pattern is
+   "neon-everything dashboards, excessive badges, competing highlights". */
+.universal-search-trigger {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: .45rem;
+  border: 1px solid var(--sg-divider-on-light);
+  background: var(--sg-surface-light);
+  padding: 0 .75rem;
+  font-size: var(--sg-text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--sg-tracking-label);
+  color: var(--sg-text-muted-on-light);
+  transition: border-color var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
+}
+.universal-search-trigger:hover { border-color: var(--sg-info-strong); color: var(--sg-info-strong); }
+
+.universal-search-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + .75rem) var(--sg-space-3) var(--sg-space-4);
+  background: rgb(7 24 46 / .55);
+  backdrop-filter: blur(3px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .universal-search-scrim { animation: universal-search-in var(--sg-motion-base) var(--sg-ease) both; }
+}
+@keyframes universal-search-in { from { opacity: 0; } to { opacity: 1; } }
+
+.universal-search-sheet {
+  display: flex;
+  width: min(40rem, 100%);
+  max-height: min(34rem, calc(100dvh - 5rem));
+  flex-direction: column;
+  border: 1px solid var(--sg-divider-on-light);
+  border-radius: var(--sg-radius, 14px);
+  background: var(--sg-surface-light);
+  box-shadow: var(--sg-elevation-3);
+  overflow: hidden;
+}
+
+.universal-search-field {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  border-bottom: 1px solid var(--sg-divider-on-light);
+  padding: 0 .6rem 0 .85rem;
+  color: var(--sg-text-subtle-on-light);
+}
+.universal-search-field input {
+  min-height: 3rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--sg-text-lg);
+  color: var(--sg-text-on-light);
+  outline: none;
+}
+.universal-search-field input::placeholder { color: var(--sg-text-subtle-on-light); }
+/* type=search gives iOS the Search return key, but it also paints a native
+   clear affordance right next to the sheet's own close button. One × is
+   enough, and the native one is not a 44px target. */
+.universal-search-field input::-webkit-search-cancel-button,
+.universal-search-field input::-webkit-search-decoration { appearance: none; display: none; }
+.universal-search-close {
+  display: inline-flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--sg-text-subtle-on-light);
+}
+.universal-search-close:hover { color: var(--sg-text-on-light); }
+
+.universal-search-results { flex: 0 1 auto; overflow-y: auto; padding: .35rem 0 .5rem; }
+.universal-search-group { padding-top: .35rem; }
+.universal-search-group > h2 { padding: .5rem .85rem .3rem; }
+
+.universal-search-result {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .55rem .85rem;
+  text-align: left;
+}
+/* Selection and focus are different states and never share a treatment. */
+.universal-search-result-active { background: var(--sg-surface-light-sunken); box-shadow: inset 2px 0 0 var(--sg-info-strong); }
+.universal-search-result:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: -2px; }
+.universal-search-result-copy { display: flex; min-width: 0; flex-direction: column; gap: .12rem; }
+.universal-search-result-copy > strong {
+  font-size: var(--sg-text-base);
+  font-weight: 700;
+  line-height: var(--sg-leading-tight);
+  color: var(--sg-text-on-light);
+}
+/* The contract requires disambiguating context on every result, so it stays
+   readable rather than being trimmed to an ellipsis whisper. */
+.universal-search-result-copy > small {
+  font-size: var(--sg-text-xs);
+  line-height: 1.35;
+  color: var(--sg-text-subtle-on-light);
+}
+.universal-search-result-type {
+  flex: 0 0 auto;
+  border: 1px solid var(--sg-divider-on-light);
+  padding: .2rem .4rem;
+  font-size: var(--sg-text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--sg-tracking-label);
+  color: var(--sg-text-muted-on-light);
+}
+
+.universal-search-scope,
+.universal-search-empty > p {
+  padding: .5rem .85rem;
+  font-size: var(--sg-text-sm);
+  line-height: var(--sg-leading-body);
+  color: var(--sg-text-subtle-on-light);
+}
+.universal-search-empty > p:first-child { color: var(--sg-text-on-light); }
+.universal-search-suggestions { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 .85rem .6rem; }
+.universal-search-suggestions > button {
+  min-height: 2.25rem;
+  border: 1px solid var(--sg-divider-on-light);
+  background: var(--sg-surface-light-sunken);
+  padding: .3rem .6rem;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-text-on-light);
+}
+.universal-search-suggestions > button:hover { border-color: var(--sg-info-strong); color: var(--sg-info-strong); }
+
+.universal-search-footer {
+  border-top: 1px solid var(--sg-divider-on-light);
+  padding: .5rem .85rem;
+  font-size: var(--sg-text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--sg-tracking-label);
+  color: var(--sg-text-subtle-on-light);
+}
+/* A pointer-only hint is noise on a phone, where there is no Esc key. */
+@media (max-width: 720px) { .universal-search-footer { display: none; } }
+
+/* Return context: a selected result opens the canonical object, and the way
+   back to where the athlete was stays visible rather than relying on history. */
+.search-return-bar {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: .5rem;
+  border-bottom: 1px solid var(--sg-divider-on-light);
+  background: var(--sg-surface-light-sunken);
+  padding: .4rem 18px;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-text-muted-on-light);
+}
+.search-return-bar > button {
+  display: inline-flex;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: .3rem;
+  font-weight: 700;
+  color: var(--sg-info-strong);
+}
+.search-return-bar > button:hover { text-decoration: underline; }
+@media (min-width: 1024px) { .search-return-bar { padding-inline: 28px; } }
+
+/* At phone width the trigger is icon-only, but it keeps the full 44px target
+   and its accessible name. */
+@media (max-width: 720px) {
+  .universal-search-trigger { width: 2.75rem; justify-content: center; padding: 0; }
+  .universal-search-trigger > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+
+/* A dark panel can sit inside a light destination, so the inline link colour
+   travels with the panel the same way the label colour travels with a surface. */
+.dark-panel, .strength-genome-panel { --sg-link-color: var(--sg-link-on-dark); }
+
+/* Every bounded local search states what it covers and offers the broader
+   search, per the universal search contract. One muted line, no banner. */
+.local-search-scope {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem .5rem;
+  margin-top: .45rem;
+  font-size: var(--sg-text-xs);
+  line-height: 1.4;
+  color: var(--sg-label-color, var(--sg-text-subtle-on-light));
+}
+.local-search-scope > button {
+  position: relative;
+  min-height: 1.75rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+  color: var(--sg-link-color, var(--sg-info-strong));
+}
+/* An inline link cannot be 44px tall without breaking the line, so extend the
+   hit area instead of the box: 28px of text becomes a 44px thumb target. */
+.local-search-scope > button::after { content: ""; position: absolute; inset: -8px -6px; }
+.local-search-scope > button:hover { text-decoration: underline; }
+.local-search-scope > button:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 2px; }
+
+/* .atlas-tool-row and .catalog-discovery are listed as light surfaces above,
+   but their own stylesheets paint them with a dark gradient. Declare the
+   polarity where the paint actually happens, so labels and inline links nested
+   inside them inherit the on-dark pair instead of the on-light one (measured
+   2.36:1 and 3.05:1 before this rule). */
+.atlas-tool-row, .catalog-discovery {
+  --sg-label-color: var(--sg-text-subtle-on-dark);
+  --sg-link-color: var(--sg-link-on-dark);
 }

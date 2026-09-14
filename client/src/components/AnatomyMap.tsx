@@ -1,4 +1,5 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from "react";
+import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { BodyChart, ViewSide, FRONT_MUSCLES, BACK_MUSCLES, MUSCLE_MAP } from "body-muscles";
 import { ChevronDown, ChevronRight, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
@@ -237,6 +238,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             <Search className="h-4 w-4" />
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search muscle" />
           </label>
+          <LocalSearchScope scope="Searching muscle names on this map." query={query} />
           <button className="atlas-reset-pro" onClick={reset}><RotateCcw className="h-3.5 w-3.5" /> Reset view</button>
         </aside>
 
