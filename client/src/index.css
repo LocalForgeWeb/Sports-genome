@@ -1826,4 +1826,4 @@ details:not([open]) > *:not(summary) {
 
 /* Running copy needs leading it can be scanned at; display headings keep their
    tight editorial setting. */
-.catalog-card strong, .genome-selector-row-v2 strong { line-height: 1.3; }
+.genome-selector-row-v2 strong { line-height: 1.3; }

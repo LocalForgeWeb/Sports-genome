@@ -169,3 +169,11 @@
   --sg-surface-light-sunken: rgb(255 255 255 / .06);
   --sg-info-strong: var(--sg-info);
 }
+
+/* The selection, restated where the athlete just tapped. */
+.atlas-selected-strip{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;margin-top:.75rem;border-left:3px solid var(--sg-action);background:var(--sg-surface-light-sunken);padding:.65rem .8rem}
+.atlas-selected-strip>div{min-width:0}
+.atlas-selected-strip strong{display:block;font-family:var(--font-display,"Barlow Condensed",sans-serif);font-size:1.35rem;font-weight:800;line-height:1.05;text-transform:uppercase}
+.atlas-selected-role{border:1px solid var(--sg-divider-on-light);padding:.22rem .45rem;font-size:.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.atlas-selected-confidence{font-size:.6875rem;line-height:1.35;color:var(--sg-text-subtle-on-light)}
+@media (min-width:901px){.atlas-selected-strip{display:none}}

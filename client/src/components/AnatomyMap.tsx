@@ -256,6 +256,22 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             {chartFailed ? <VectorAnatomyFallback view={view} ranked={ranked} onSelect={(key) => { setSelectedKey(key); onSelect(key); }} onRetry={() => setChartFailed(false)} /> : <><div ref={containerRef} className="atlas-body-chart" />{hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}</>}
           </div>
 
+          {/* Scan layer for the selection. The full inspector sits further down
+              the page, past the legend and the methodology disclosure — on a
+              phone that is a long scroll from the muscle you just tapped. The
+              "Body Lab anatomical interaction and mode contract" asks that
+              "selecting a region immediately exposes its state and a compact
+              local action layer", so the decision-relevant part travels with
+              the body, and the inspector stays the Explain/Inspect depth. */}
+          {showInspector && selectedKey && <div className="atlas-selected-strip">
+            <div>
+              <p className="metric-label">Selected muscle</p>
+              <strong>{selectedLabel}</strong>
+            </div>
+            <span className="atlas-selected-role">{selectedRoleDetail?.roles.join(" · ") || selectedRole}</span>
+            <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Low-confidence inference"}</span>
+          </div>}
+
           {/* Qualitative role legend */}
           <div className="atlas-heat-legend-pro">
             <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "#d5ad43" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></>
