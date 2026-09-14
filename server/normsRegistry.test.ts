@@ -68,6 +68,7 @@ const defaultResponder: Responder = path => {
   if (path === "app_reference_eligibility") return [eligibilityRow];
   if (path === "strength_norms") return [strengthNormRow];
   if (path === "exercises") return [{ id: "exercise-1", name: "Back Squat" }];
+  if (path === "studies") return [{ id: "study-1", source_url: "https://example.org/van-den-hoek-2024" }];
   if (path === "app_exercise_source_mappings") {
     return [
       { supabase_exercise_id: "exercise-1", local_catalog_id: 101 },
@@ -108,6 +109,7 @@ describe("createNormsRegistryClient", () => {
       value: 2.28,
       sampleSize: 103984,
       boundary: "Existing van den Hoek 2024 route preserved.",
+      sourceUrl: "https://example.org/van-den-hoek-2024",
     });
   });
 

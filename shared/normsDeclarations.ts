@@ -18,6 +18,20 @@
 export type NormsDeclarationContext = {
   trainingStatus: string | null;
   confirmedContexts: readonly string[];
+  /**
+   * Sex and age as declared for this specific test. The workspace captures these
+   * beside the confirmations, which lets a saved observation resolve even when the
+   * athlete has not filled in a profile. Only male and female are carried, because
+   * those are the only populations the registry reports.
+   */
+  declaredSex: "male" | "female" | null;
+  declaredAgeYears: number | null;
+  /**
+   * True only when the athlete confirmed this test was a directly measured maximum.
+   * A 1RM reference compares measured maxima, so without this the recorded load is
+   * never promoted into that comparison.
+   */
+  declaresMeasuredMaximum: boolean;
 };
 
 type DeclarationRule = {
@@ -28,6 +42,8 @@ type DeclarationRule = {
   trainingStatus: string | null;
   /** The registry's `competition_conditions`, matched verbatim. */
   competitionConditions?: string;
+  /** Whether this route's confirmations establish a directly measured maximum. */
+  measuredMaximum?: boolean;
 };
 
 /**
@@ -45,6 +61,7 @@ export const declarationRules: readonly DeclarationRule[] = [
     ],
     trainingStatus: "strength-trained competitive",
     competitionConditions: "powerlifting; drug-tested unequipped competition",
+    measuredMaximum: true,
   },
   {
     referenceId: "piper_2021_preacher_curl_10rm",
@@ -58,7 +75,21 @@ export const declarationRules: readonly DeclarationRule[] = [
   },
 ];
 
-const emptyContext: NormsDeclarationContext = { trainingStatus: null, confirmedContexts: [] };
+const emptyContext: NormsDeclarationContext = {
+  trainingStatus: null,
+  confirmedContexts: [],
+  declaredSex: null,
+  declaredAgeYears: null,
+  declaresMeasuredMaximum: false,
+};
+
+function declaredSex(value: unknown): "male" | "female" | null {
+  return value === "male" || value === "female" ? value : null;
+}
+
+function declaredAge(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 && value < 130 ? value : null;
+}
 
 /**
  * Reads a saved `referenceContextJson` blob. Returns an empty context for missing,
@@ -89,5 +120,8 @@ export function parseNormsDeclaration(referenceContextJson: string | null | unde
   return {
     trainingStatus: rule.trainingStatus,
     confirmedContexts: rule.competitionConditions ? [rule.competitionConditions] : [],
+    declaredSex: declaredSex(declaration.sex),
+    declaredAgeYears: declaredAge(declaration.ageYears),
+    declaresMeasuredMaximum: rule.measuredMaximum === true,
   };
 }

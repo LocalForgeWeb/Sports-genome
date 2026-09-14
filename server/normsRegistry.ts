@@ -64,6 +64,8 @@ type PerformanceNormRow = {
 
 type ExerciseRow = { id?: unknown; name?: unknown };
 
+type StudyRow = { id?: unknown; source_url?: unknown };
+
 type MappingRow = { supabase_exercise_id?: unknown; local_catalog_id?: unknown };
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
@@ -162,7 +164,21 @@ export function createNormsRegistryClient({
         new Set(rankable.map(row => text(row.exercise_id)).filter((id): id is string => id !== null))
       );
 
-      const [strengthNorms, performanceNorms, exercises, mappings] = await Promise.all([
+      const studyIds = Array.from(
+        new Set(
+          rankable
+            .map(row => {
+              const provenance =
+                typeof row.provenance === "object" && row.provenance !== null
+                  ? (row.provenance as Record<string, unknown>)
+                  : {};
+              return text(provenance.source_study_id);
+            })
+            .filter((id): id is string => id !== null)
+        )
+      );
+
+      const [strengthNorms, performanceNorms, exercises, mappings, studies] = await Promise.all([
         strengthIds.length
           ? getByIds<StrengthNormRow>(
               "strength_norms",
@@ -185,7 +201,12 @@ export function createNormsRegistryClient({
           mapping_status: "eq.approved",
           limit: "2000",
         }),
+        studyIds.length ? getByIds<StudyRow>("studies", "id,source_url", studyIds) : Promise.resolve([]),
       ]);
+
+      const studyUrlById = new Map(
+        studies.map(row => [text(row.id) ?? "", text(row.source_url)] as const).filter(([id]) => id !== "")
+      );
 
       const strengthById = new Map(
         strengthNorms.map(row => [text(row.id) ?? "", row] as const).filter(([id]) => id !== "")
@@ -262,6 +283,7 @@ export function createNormsRegistryClient({
             sampleSize: numberOrNull(norm.sample_size) ?? numberOrNull(provenance.sample_size),
             sourceText: text(norm.source_text) ?? text(provenance.source_text),
             sourceStudyId: text(norm.source_study_id) ?? text(provenance.source_study_id),
+            sourceUrl: studyUrlById.get(text(norm.source_study_id) ?? text(provenance.source_study_id) ?? "") ?? null,
             boundary: text(row.blocking_reason),
           };
         })

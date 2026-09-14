@@ -48,6 +48,8 @@ export type NormsReferenceRow = {
   sampleSize: number | null;
   sourceText: string | null;
   sourceStudyId: string | null;
+  /** Citation link for the source study, when the registry records one. */
+  sourceUrl: string | null;
   /** The reviewer's recorded boundary on what this reference may not be used for. */
   boundary: string | null;
 };
@@ -117,6 +119,7 @@ export type NormsMatch = {
   sampleSize: number | null;
   sourceText: string | null;
   sourceStudyId: string | null;
+  sourceUrl: string | null;
   boundary: string | null;
   /** Every cut point in the matched table, for transparent display. */
   cutPoints: readonly { percentile: number; value: number }[];
@@ -418,6 +421,7 @@ export function resolveNormsReference(
     sampleSize: primary.row.sampleSize,
     sourceText: primary.row.sourceText,
     sourceStudyId: primary.row.sourceStudyId,
+    sourceUrl: primary.row.sourceUrl,
     boundary: primary.row.boundary,
     cutPoints,
   };

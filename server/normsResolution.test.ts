@@ -58,6 +58,7 @@ const squatDeciles: NormsReferenceRow[] = [
   sampleSize: 103984,
   sourceText: "van den Hoek et al. 2024",
   sourceStudyId: "study-1",
+  sourceUrl: "https://example.org/study-1",
   boundary: "Competitive drug-tested unequipped powerlifting only.",
 }));
 

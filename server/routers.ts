@@ -38,6 +38,7 @@ import {
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthObservationReferences } from "./normsResolution";
+import { getApprovedNormsReference } from "./normsRegistry";
 import {
   getAthleteStrengthProfile,
   upsertAthleteStrengthProfile,
@@ -316,6 +317,13 @@ export const appRouter = router({
     ),
     /** Inventory of what the registry currently approves; implies no athlete rank. */
     referenceRegistryStatus: publicProcedure.query(() => getNormsRegistryStatus()),
+    /**
+     * The approved reference cut points themselves, so the workspace can resolve a
+     * comparison for device-local observations that never reach the database.
+     * Only rows the registry marks approved are ever sent, and each one is already
+     * published percentile data - no athlete record is involved.
+     */
+    referenceRows: publicProcedure.query(() => getApprovedNormsReference()),
     profile: protectedProcedure.query(({ ctx }) => getAthleteStrengthProfile(ctx.user.id)),
     setProfile: protectedProcedure
       .input(

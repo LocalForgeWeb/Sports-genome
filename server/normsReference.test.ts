@@ -33,6 +33,7 @@ function row(overrides: Partial<NormsReferenceRow> = {}): NormsReferenceRow {
     sampleSize: 103984,
     sourceText: "Published age-by-sex decile from van den Hoek et al. 2024",
     sourceStudyId: "study-van-den-hoek",
+    sourceUrl: "https://example.org/van-den-hoek-2024",
     boundary: "Competitive drug-tested unequipped powerlifting only.",
     ...overrides,
   };
