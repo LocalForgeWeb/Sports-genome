@@ -828,6 +828,21 @@ select {
 .today-action-state-tag { border: 1px solid var(--sg-state-positive); border-radius: 999px; padding: .15rem .55rem; color: var(--sg-state-positive); font-size: .55rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
 .today-action-state small { display: block; margin-top: .5rem; max-width: 40rem; color: var(--sg-text-subtle-on-dark); font-size: .68rem; line-height: 1.5; }
 
+/* The priority slot answers "where should attention go?" and carries the posture the
+   uncertainty rule selects: measure when a missing input blocks interpretation,
+   inspect when a result deserves reading, act when the plan is the next move. The
+   posture tints the rail only - it never becomes the sole carrier of the meaning,
+   which is stated in the label text. */
+.today-action-priority { display: flex; align-items: end; justify-content: space-between; gap: 1.25rem; border-bottom: 1px solid rgb(255 255 255 / .12); border-left: 3px solid var(--sg-info); padding: 1.05rem 1.4rem; }
+.today-action-priority h2 { margin-top: .3rem; color: #fff; font-family: var(--font-display, sans-serif); font-size: clamp(1.15rem, 3.4vw, 1.7rem); font-weight: 800; line-height: 1.02; text-transform: uppercase; }
+.today-action-priority p:not(.metric-label) { max-width: 44rem; margin-top: .45rem; color: var(--sg-text-muted-on-dark); font-size: .74rem; line-height: 1.5; }
+.today-action-priority-measure { border-left-color: var(--sg-state-caution); }
+.today-action-priority-inspect { border-left-color: var(--sg-info); }
+.today-action-priority-act { border-left-color: var(--sg-state-positive); }
+.today-action-priority-cta { display: inline-flex; min-height: 2.6rem; flex: none; align-items: center; gap: .45rem; border: 1px solid rgb(170 199 224 / .4); border-radius: .7rem; padding: .55rem .8rem; color: #fff; font-size: .62rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; transition: border-color .16s var(--ease-out), background .16s var(--ease-out); }
+.today-action-priority-cta:hover { border-color: var(--sg-focus-on-dark); background: rgb(255 255 255 / .07); }
+@media (max-width: 640px) { .today-action-priority { flex-direction: column; align-items: stretch; }.today-action-priority-cta { justify-content: center; } }
+
 .today-action-primary { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; padding: 1.4rem; }
 .today-action-primary h2 { margin-top: .25rem; color: #fff; font-family: var(--font-display, sans-serif); font-size: clamp(2rem, 5vw, 3.3rem); font-weight: 800; line-height: .86; text-transform: uppercase; }
 .today-action-primary p:not(.metric-label) { max-width: 40rem; margin-top: .85rem; color: var(--sg-text-muted-on-dark); font-size: .85rem; line-height: 1.55; }

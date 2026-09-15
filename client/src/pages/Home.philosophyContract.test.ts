@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { leadingConfirmedChange } from "@/lib/homeStateSummary";
+import { leadingConfirmedChange, selectHomePriority, type HomePriorityInput } from "@/lib/homeStateSummary";
 import type { WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
 
 const home = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
@@ -99,5 +99,122 @@ describe("Home does not narrate noise as progress", () => {
     expect(panel).toContain("No change yet is large enough to call a real one rather than normal variation.");
     // The boundary the app states everywhere else travels with the headline.
     expect(panel).toContain("not a rank against other people");
+  });
+});
+
+describe("Home names one priority and gives it an action posture", () => {
+  // "home-state-priority-action": one highest-value priority, answering "where should
+  // attention go?". Its failure modes are a metric wall when too many qualify and an
+  // arbitrary-feeling dashboard when the ranking is unstable, so selection is a fixed
+  // order returning exactly one item.
+  const settled: HomePriorityInput = {
+    collectableGate: null,
+    hasConfirmedChange: false,
+    trackedChangeCount: 3,
+    stagedExerciseCount: 5,
+    observationCount: 9,
+  };
+
+  it("always yields exactly one priority with a usable action", () => {
+    const priority = selectHomePriority(settled);
+    expect(priority.headline.length).toBeGreaterThan(0);
+    expect(priority.ctaLabel.length).toBeGreaterThan(0);
+    expect(["act", "inspect", "measure"]).toContain(priority.posture);
+  });
+
+  // "make-uncertainty-operational": where uncertainty can change the practical action,
+  // the next step defaults to collecting the missing measurement rather than
+  // prescribing training on top of the gap.
+  it("asks for a missing measurement before prescribing any training", () => {
+    const priority = selectHomePriority({
+      ...settled,
+      collectableGate: { reason: "body_mass_required", exerciseName: "Back Squat" },
+    });
+    expect(priority.posture).toBe("measure");
+    expect(priority.headline).toBe("Add your test-day body weight");
+    expect(priority.detail).toContain("Back Squat");
+    expect(priority.target).toBe("strength");
+  });
+
+  it("outranks a staged-day prompt with the collectable measurement", () => {
+    const priority = selectHomePriority({
+      ...settled,
+      stagedExerciseCount: 0,
+      collectableGate: { reason: "age_required", exerciseName: "Bench Press" },
+    });
+    expect(priority.posture).toBe("measure");
+  });
+
+  it("ignores a gate the athlete cannot close", () => {
+    // No reviewed study covers the lift: there is nothing to act on, so this must not
+    // become the priority.
+    const priority = selectHomePriority({
+      ...settled,
+      collectableGate: { reason: "no_reference_for_exercise", exerciseName: "Landmine Press" },
+    });
+    expect(priority.posture).not.toBe("measure");
+    expect(priority.id).not.toContain("no_reference_for_exercise");
+  });
+
+  it("asks for a first measurement before anything else when nothing is logged", () => {
+    const priority = selectHomePriority({ ...settled, observationCount: 0, stagedExerciseCount: 0 });
+    expect(priority).toMatchObject({ id: "first-lift", posture: "measure" });
+  });
+
+  it("prompts to stage a day when the plan is the missing piece", () => {
+    expect(selectHomePriority({ ...settled, stagedExerciseCount: 0 })).toMatchObject({
+      id: "stage-day",
+      posture: "act",
+      target: "day-plan",
+    });
+  });
+
+  it("asks for a repeat test when change cannot be established yet", () => {
+    expect(selectHomePriority({ ...settled, trackedChangeCount: 0 })).toMatchObject({
+      id: "repeat-lift",
+      posture: "measure",
+    });
+  });
+
+  it("sends a confirmed change to inspection rather than straight to a prescription", () => {
+    expect(selectHomePriority({ ...settled, hasConfirmedChange: true })).toMatchObject({
+      id: "review-change",
+      posture: "inspect",
+    });
+  });
+
+  it("is stable: the same input always selects the same priority", () => {
+    const first = selectHomePriority(settled);
+    const second = selectHomePriority({ ...settled });
+    expect(second).toEqual(first);
+  });
+
+  it("renders the priority between the state layer and the next action", () => {
+    expect(panel.indexOf('className="today-action-state"')).toBeLessThan(
+      panel.indexOf("today-action-priority")
+    );
+    expect(panel.indexOf("today-action-priority")).toBeLessThan(
+      panel.indexOf('className="today-action-primary"')
+    );
+    expect(styles).toContain(".today-action-priority {");
+  });
+
+  it("keeps heading levels in document order for assistive navigation", () => {
+    // semantic-accessibility-equivalence: "focus order diverging from logical order".
+    // The priority sits above the next action, so it must not be a deeper heading
+    // level than the block that follows it.
+    const levels = [...panel.matchAll(/<h([1-6])/g)].map(match => Number(match[1]));
+    expect(levels.length).toBeGreaterThan(1);
+    levels.slice(1).forEach((level, index) => {
+      expect(level, `heading ${index + 2} does not jump backwards`).toBeLessThanOrEqual(levels[index] + 1);
+    });
+    expect(new Set(levels).size, "sibling blocks share one heading level").toBe(1);
+  });
+
+  it("states the posture in text rather than leaving colour to carry it", () => {
+    // semantic-accessibility-equivalence: meaning must survive when colour is absent.
+    expect(panel).toContain("Where attention goes");
+    expect(panel).toContain('postureLabel[priority.posture]');
+    expect(panel).toContain('act: "Act", inspect: "Inspect", measure: "Measure"');
   });
 });
