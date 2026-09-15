@@ -1,4 +1,5 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from "react";
+import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { BodyChart, ViewSide, FRONT_MUSCLES, BACK_MUSCLES, MUSCLE_MAP } from "body-muscles";
 import { ChevronDown, ChevronRight, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
@@ -84,7 +85,7 @@ const clean = (v: string) => v.toLowerCase().replace(/[^a-z]/g, "");
 const matches = (key: string, values: string[]) => values.some(v => (aliases[key] || [key]).some(a => clean(v).includes(a)));
 
 export function VectorAnatomyFallback({ view, ranked, onSelect, onRetry }: { view: "FRONT" | "BACK"; ranked: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[]; onSelect: (key: string) => void; onRetry: () => void }) {
-  return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[var(--sg-surface-light)] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your relevant-muscle roles and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[10px] font-bold text-[#173d69] transition-colors hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)]">{region.label} · {region.roles?.join(" / ") || `${region.role || "Relevant"} role`} · {region.confidence || "Low-confidence inference"}</button>)}</div><button onClick={onRetry} className="mt-4 text-[10px] font-bold uppercase tracking-[.08em] text-[var(--sg-info-strong)] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
+  return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[var(--sg-surface-light)] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your relevant-muscle roles and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[11px] font-bold text-[#173d69] transition-colors hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)]">{region.label} · {region.roles?.join(" / ") || `${region.role || "Relevant"} role`} · {region.confidence || "Low-confidence inference"}</button>)}</div><button onClick={onRetry} className="mt-4 text-[11px] font-bold uppercase tracking-[.08em] text-[var(--sg-info-strong)] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
 }
 
 export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
@@ -237,6 +238,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             <Search className="h-4 w-4" />
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search muscle" />
           </label>
+          <LocalSearchScope scope="Searching muscle names on this map." query={query} />
           <button className="atlas-reset-pro" onClick={reset}><RotateCcw className="h-3.5 w-3.5" /> Reset view</button>
         </aside>
 
@@ -253,6 +255,22 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
           <div className="atlas-body-chart-wrap">
             {chartFailed ? <VectorAnatomyFallback view={view} ranked={ranked} onSelect={(key) => { setSelectedKey(key); onSelect(key); }} onRetry={() => setChartFailed(false)} /> : <><div ref={containerRef} className="atlas-body-chart" />{hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}</>}
           </div>
+
+          {/* Scan layer for the selection. The full inspector sits further down
+              the page, past the legend and the methodology disclosure — on a
+              phone that is a long scroll from the muscle you just tapped. The
+              "Body Lab anatomical interaction and mode contract" asks that
+              "selecting a region immediately exposes its state and a compact
+              local action layer", so the decision-relevant part travels with
+              the body, and the inspector stays the Explain/Inspect depth. */}
+          {showInspector && selectedKey && <div className="atlas-selected-strip">
+            <div>
+              <p className="metric-label">Selected muscle</p>
+              <strong>{selectedLabel}</strong>
+            </div>
+            <span className="atlas-selected-role">{selectedRoleDetail?.roles.join(" · ") || selectedRole}</span>
+            <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Low-confidence inference"}</span>
+          </div>}
 
           {/* Qualitative role legend */}
           <div className="atlas-heat-legend-pro">
@@ -284,15 +302,15 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
               <div className="atlas-why-pro">
                 <p className="metric-label">Role</p>
                 <p>{selectedRoleDetail?.explanation || (selectedRole === "Primary" ? "This muscle is a primary mover in the selected sporting action." : "This muscle supports the selected sporting action as a synergist or stabilizer.")}</p>
-                {hasLinkedExerciseOrStackContext ? <p className="mt-2 text-[10px] leading-4 text-[var(--sg-text-subtle-on-light)]">A selected exercise or active stack provides additional context. The role shown remains qualitative; it is not an activation, force, or individual capacity measurement.</p> : <p className="mt-2 text-[10px] leading-4 text-[var(--sg-text-subtle-on-light)]">No exercise or active stack is loaded here. Color reflects qualitative role context, not measured activation or force.</p>}
+                {hasLinkedExerciseOrStackContext ? <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">A selected exercise or active stack provides additional context. The role shown remains qualitative; it is not an activation, force, or individual capacity measurement.</p> : <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">No exercise or active stack is loaded here. Color reflects qualitative role context, not measured activation or force.</p>}
               </div>
-              {selectedRoleDetail?.phaseContext && <div className="atlas-why-pro"><p className="metric-label">Action phase context</p><p>{selectedRoleDetail.phaseContext}</p><p className="mt-2 text-[10px] leading-4 text-[var(--sg-text-subtle-on-light)]">This is the movement record’s qualitative contraction-phase description, not a timing or force measurement.</p></div>}
-              {selectedRoleDetail && <div className="atlas-why-pro"><p className="metric-label">Evidence context</p><p>{selectedRoleDetail.sourceScope} · {selectedRoleDetail.confidence}</p>{selectedRoleDetail.sources.length > 0 && <p className="mt-2 text-[10px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Sources:</strong> {selectedRoleDetail.sources.map((source, index) => <a key={source} href={source} target="_blank" rel="noreferrer" className="underline underline-offset-2">{index === 0 ? "Primary source" : "Supporting source"}{index < selectedRoleDetail.sources.length - 1 ? " · " : ""}</a>)}</p>}</div>}
+              {selectedRoleDetail?.phaseContext && <div className="atlas-why-pro"><p className="metric-label">Action phase context</p><p>{selectedRoleDetail.phaseContext}</p><p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">This is the movement record’s qualitative contraction-phase description, not a timing or force measurement.</p></div>}
+              {selectedRoleDetail && <div className="atlas-why-pro"><p className="metric-label">Evidence context</p><p>{selectedRoleDetail.sourceScope} · {selectedRoleDetail.confidence}</p>{selectedRoleDetail.sources.length > 0 && <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Sources:</strong> {selectedRoleDetail.sources.map((source, index) => <a key={source} href={source} target="_blank" rel="noreferrer" className="underline underline-offset-2">{index === 0 ? "Primary source" : "Supporting source"}{index < selectedRoleDetail.sources.length - 1 ? " · " : ""}</a>)}</p>}</div>}
               {selectedMechanics && <div className="atlas-why-pro">
                 <p className="metric-label">Architecture + leverage context</p>
                 <p>{selectedMechanics.scope}</p>
-                <p className="mt-2 text-[10px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Sources:</strong> {selectedMechanics.sources.join(" · ")}</p>
-                <p className="mt-2 text-[10px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Worth knowing:</strong> {selectedMechanics.boundary}</p>
+                <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Sources:</strong> {selectedMechanics.sources.join(" · ")}</p>
+                <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Worth knowing:</strong> {selectedMechanics.boundary}</p>
               </div>}
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
             </>

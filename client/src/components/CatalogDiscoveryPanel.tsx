@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { catalogFilterOptions, defaultCatalogFilters, type CatalogFilters, filterCatalogByActionLink, filterCatalogExercises } from "@/lib/catalogDiscovery";
@@ -41,6 +42,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       <span>{exercises.length} options</span>
     </header>
     <div className="catalog-discovery-search"><Search className="h-4 w-4" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder="Search exercise, muscle, movement, equipment, or quality" aria-label="Search exercises" /><span>{results.length} matches</span></div>
+    <LocalSearchScope scope={`Searching the ${exercises.length} exercises in this catalog.`} query={filters.query} />
     <details className="catalog-discovery-controls">
       <summary><span><SlidersHorizontal className="h-4 w-4" /> Filter & sort</span><small>{activeFilterCount ? `${activeFilterCount} active` : `All ${exercises.length} exercises`}</small></summary>
       <div className="catalog-discovery-filter-grid">

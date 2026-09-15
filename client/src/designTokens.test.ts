@@ -85,6 +85,17 @@ describe("Sports Genome semantic colour architecture", () => {
     expect(contrast(ring, tokenValue("--sg-surface-light")), "ring on the light ground").toBeGreaterThanOrEqual(3);
   });
 
+  it("keeps an inline link readable on every ground it is used on", () => {
+    // Small link text, so AA is 4.5:1 — including on --sg-surface-overlay, the
+    // lightest of the dark surfaces, where --sg-info itself reads only 3.77:1.
+    const onDark = tokenValue("--sg-link-on-dark");
+    ["--sg-surface-overlay", "--sg-surface-panel", "--sg-surface-raised", "--sg-surface-deep"].forEach((surface) => {
+      expect(contrast(onDark, tokenValue(surface)), `link on ${surface}`).toBeGreaterThanOrEqual(4.5);
+    });
+    expect(contrast(tokenValue("--sg-info-strong"), tokenValue("--sg-surface-light")), "link on white").toBeGreaterThanOrEqual(4.5);
+    expect(contrast(tokenValue("--sg-info-strong"), tokenValue("--sg-surface-light-sunken")), "link on the sunken light surface").toBeGreaterThanOrEqual(4.5);
+  });
+
   it("collapses motion durations under the OS reduced-motion preference", () => {
     // "Motion and state-transition contract": reduced motion must preserve all
     // information with instant state changes.

@@ -7,9 +7,9 @@
   .custom-row > button:nth-child(2) { min-width: 0; padding-right: 4.75rem; }
   .custom-row-actions { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: .65rem; width: 100%; }
   .custom-row-actions select, .custom-row-actions button { min-height: 44px; }
-  .duplicate-prescription { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); color: #d6e8fa; font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  .duplicate-prescription { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
   .custom-prescription-inputs { display: grid; grid-template-columns: .7fr 1.3fr; gap: .65rem; padding: 0 .7rem .65rem; }
-  .custom-prescription-inputs label { display: grid; gap: .3rem; color: #b7d8f4; font-size: .6rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .custom-prescription-inputs label { display: grid; gap: .3rem; color: #b7d8f4; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
   .custom-prescription-inputs input { min-width: 0; min-height: 44px; border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); padding: 0 .65rem; color: #fff; font-size: .82rem; font-weight: 700; outline: none; }
   .custom-prescription-inputs input:focus-visible, .duplicate-prescription:focus-visible { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 3px rgb(242 193 77 / .25); }
   .custom-detail-row { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; padding: 0 .7rem .85rem; }
@@ -17,5 +17,5 @@
   .custom-detail-row details { grid-column: 1 / -1; }
   .custom-detail-row label { min-width: 0; }
   .custom-detail-row select { width: 100%; min-height: 44px; }
-  .day-picker-serratus-cue { margin-top: .75rem; border-left: 3px solid #d5ad43; background: #fffaf0; padding: .65rem .72rem; color: #735d2b; font-size: .67rem; line-height: 1.5; }
+  .day-picker-serratus-cue { margin-top: .75rem; border-left: 3px solid #d5ad43; background: #fffaf0; padding: .65rem .72rem; color: #735d2b; font-size: .6875rem; line-height: 1.5; }
 }

@@ -21,6 +21,38 @@ vi.mock("react", async () => {
   };
 });
 
+describe("Body Lab selection proximity", () => {
+  // "Body Lab anatomical interaction and mode contract": "selecting a region
+  // immediately exposes its state and a compact local action layer". The full
+  // inspector sits past the legend and the methodology disclosure inside a
+  // panel measured at 1984px tall, which on a phone is a long scroll from the
+  // muscle just tapped.
+  it("restates the selection directly under the body chart, before the legend", () => {
+    const chart = source.indexOf('className="atlas-body-chart-wrap"');
+    const strip = source.indexOf('className="atlas-selected-strip"');
+    const legend = source.indexOf('className="atlas-heat-legend-pro"');
+    const inspector = source.indexOf('className={`atlas-pro-inspector');
+
+    expect(strip, "the selection strip is rendered").toBeGreaterThan(-1);
+    expect(strip, "it follows the chart").toBeGreaterThan(chart);
+    expect(strip, "it comes before the legend").toBeLessThan(legend);
+    expect(strip, "the full inspector stays the deeper layer").toBeLessThan(inspector);
+  });
+
+  it("carries the decision-relevant state, not just a name", () => {
+    const block = source.slice(source.indexOf('className="atlas-selected-strip"'), source.indexOf("Qualitative role legend"));
+    expect(block).toContain("Selected muscle");
+    expect(block).toContain("selectedLabel");
+    expect(block).toContain("atlas-selected-role");
+    // Confidence travels with the role, never implied by its absence.
+    expect(block).toContain("atlas-selected-confidence");
+  });
+
+  it("stands down on wide screens, where the inspector is already beside the body", () => {
+    expect(styles).toMatch(/@media \(min-width:\s*901px\)\{\.atlas-selected-strip\{display:none\}\}/);
+  });
+});
+
 describe("Body Lab architecture mechanics disclosure", () => {
   it("uses categorical role states instead of a numeric heat scale", () => {
     expect(source).toContain("anatomyRoleRenderState");

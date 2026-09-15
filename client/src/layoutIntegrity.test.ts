@@ -78,6 +78,42 @@ describe("layout integrity", () => {
     expect(contrast(token("--sg-text-subtle-on-light"), "#ffffff")).toBeGreaterThanOrEqual(4.5);
   });
 
+  it("keeps the topbar context chips inside their own column", () => {
+    // A viewport-derived max-width cannot account for the topbar's right-hand
+    // cluster, so the chip strip ran underneath it: "5 days" was 57px behind the
+    // search trigger at 390px. The strip is bounded by its column and scrolls.
+    const rule = css.match(/\.topbar-context-chips \{ flex-wrap: nowrap;[^}]*\}/g)?.join("\n") || "";
+    expect(rule, "the phone-width chip rule is present").toBeTruthy();
+    expect(rule).not.toMatch(/max-width: calc\(100vw/);
+    expect(rule).toMatch(/overflow-x: auto/);
+  });
+
+  it("gives every control in the workspace a 44px tap target", () => {
+    // "Live-session control priority": use "at least platform-recommended
+    // 44x44pt hit areas for primary touch controls rather than treating WCAG's
+    // 24px minimum as the design target". The audit measured 34 controls below
+    // it, eleven at 17px tall, and the Builder's add-exercise button at 30x30.
+    expect(css).toMatch(/\.apex-content :is\(button, summary\)[^{]*\{\s*\n?\s*min-height: 2\.75rem;/);
+  });
+
+  it("extends the hit area of inline text buttons instead of inflating the line", () => {
+    // A 17px inline link cannot become a 44px box without breaking the line it
+    // sits on, so the target grows and the type does not.
+    expect(css).toMatch(/\.apex-content :is\(\.atlas-reset-pro, \.genome-term-button\)::after \{ content: ""; position: absolute; inset: -14px -8px; \}/);
+    expect(css).toMatch(/\.local-search-scope > button::after \{ content: ""; position: absolute; inset: -8px -6px; \}/);
+  });
+
+  it("keeps a row's own action clear of the controls floating over it", () => {
+    // The Training Day reorder controls are absolutely positioned at the
+    // top-right of each row, and the row's title button ran underneath them:
+    // tapping near the end of the title hit "move earlier" instead of opening
+    // the exercise. The 44px tap floor made the dead zone taller, 34x34 -> 34x44.
+    const planner = readFileSync(join(SRC, "workout-planner.css"), "utf8");
+    // A margin, not padding: padding leaves the border box — and so the measured
+    // overlap — exactly where it was.
+    expect(planner).toMatch(/\.day-orderable-exercise \.custom-row > button \{ margin-right:/);
+  });
+
   it("retires the acid-lime accent across every stylesheet", () => {
     expect(allCss).not.toContain("#b8ff5b");
   });

@@ -3,20 +3,20 @@
 .planning-disclosure-card summary, .planning-evidence-card summary { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: .75rem; cursor: pointer; list-style: none; padding: .55rem .75rem; }
 .planning-disclosure-card summary::-webkit-details-marker, .planning-evidence-card summary::-webkit-details-marker { display: none; }
 .planning-disclosure-card summary span, .planning-evidence-card summary span { min-width: 0; }
-.planning-disclosure-card summary strong, .planning-evidence-card summary strong { display: block; color: #163f6c; font-size: .64rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
-.planning-disclosure-card summary small, .planning-evidence-card summary small { display: block; overflow: hidden; margin-top: .2rem; color: var(--sg-text-subtle-on-light); font-size: .62rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
-.planning-disclosure-card summary em, .planning-evidence-card summary em { color: var(--sg-info-strong); font-size: .55rem; font-style: normal; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+.planning-disclosure-card summary strong, .planning-evidence-card summary strong { display: block; color: #163f6c; font-size: .6875rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.planning-disclosure-card summary small, .planning-evidence-card summary small { display: block; overflow: hidden; margin-top: .2rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.planning-disclosure-card summary em, .planning-evidence-card summary em { color: var(--sg-info-strong); font-size: .6875rem; font-style: normal; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
 .planning-disclosure-detail, .planning-evidence-card > div { border-top: 1px solid var(--sg-divider-on-light); padding: .75rem; }
-.planning-disclosure-detail > p:not(.metric-label), .planning-evidence-card > div p { margin-top: .45rem; color: var(--sg-text-muted-on-light); font-size: .68rem; line-height: 1.48; }
+.planning-disclosure-detail > p:not(.metric-label), .planning-evidence-card > div p { margin-top: .45rem; color: var(--sg-text-muted-on-light); font-size: .6875rem; line-height: 1.48; }
 .planning-disclosure-detail > p:first-of-type, .planning-evidence-card > div p:first-child { margin-top: .55rem; }
 .planning-disclosure-card[open] .planning-disclosure-detail, .planning-evidence-card[open] > div, .catalog-discovery-controls[open] .catalog-discovery-filter-grid, .genome-methodology[open] > div { animation: mobile-disclosure-in 180ms cubic-bezier(.23, 1, .32, 1) both; }
 .genome-methodology { border-bottom: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light-sunken); }
-.genome-methodology summary { min-height: 42px; cursor: pointer; padding: .78rem 1.1rem; color: var(--sg-info-strong); font-size: .62rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.genome-methodology summary { min-height: 42px; cursor: pointer; padding: .78rem 1.1rem; color: var(--sg-info-strong); font-size: .6875rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
 .genome-methodology > div { border-top: 1px solid var(--sg-divider-on-light); padding: .75rem 1.1rem; }
-.genome-methodology p { color: var(--sg-text-subtle-on-light); font-size: .65rem; line-height: 1.5; }
+.genome-methodology p { color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.5; }
 .genome-methodology p + p { margin-top: .45rem; }
 .genome-reading-key { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .7rem; }
-.genome-reading-key span { border: 1px solid var(--sg-divider-on-light); border-radius: 999px; background: #fff; padding: .26rem .42rem; color: var(--sg-text-subtle-on-light); font-size: .56rem; line-height: 1.25; }
+.genome-reading-key span { border: 1px solid var(--sg-divider-on-light); border-radius: 999px; background: #fff; padding: .26rem .42rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.25; }
 .genome-reading-key strong { color: #245b98; font-weight: 900; }
 @keyframes mobile-disclosure-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -27,7 +27,7 @@
   .topbar-brand-logo { width: 56px; height: 56px; }
   .topbar-context-chips { flex-wrap: nowrap; gap: .3rem; max-width: calc(100vw - 5.5rem); margin-top: .22rem; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; scroll-snap-type: x proximity; }
   .topbar-context-chips::-webkit-scrollbar { display: none; }
-  .topbar-context-chips span { flex: 0 0 auto; min-height: 1.6rem; max-width: none; padding: .26rem .52rem; font-size: .66rem; white-space: nowrap; scroll-snap-align: start; }
+  .topbar-context-chips span { flex: 0 0 auto; min-height: 1.6rem; max-width: none; padding: .26rem .52rem; font-size: .6875rem; white-space: nowrap; scroll-snap-align: start; }
   .apex-topbar p.text-sm { max-width: 176px; overflow: hidden; font-size: .86rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
   .apex-topbar button:last-child { display: none; }
   .workspace-top-switcher { top: 78px; min-height: 54px; gap: .42rem; overflow-x: auto; overscroll-behavior-x: contain; padding: .35rem .75rem; scroll-padding-inline: .75rem; scroll-snap-type: x proximity; scrollbar-width: none; }
@@ -42,7 +42,7 @@
   .genome-panel { margin-top: 14px; }
   .genome-panel-head { align-items: center; gap: .75rem; padding: .9rem; }
   .genome-panel-head h3 { max-width: 220px; font-size: 1.8rem; line-height: .86; }
-  .genome-tab { min-height: 44px; padding: .65rem .75rem; font-size: .56rem; }
+  .genome-tab { min-height: 44px; padding: .65rem .75rem; font-size: .6875rem; }
   .genome-tab-active { animation: mobile-tab-in 170ms cubic-bezier(.23, 1, .32, 1) both; }
   .genome-grid, .genome-mechanics, .genome-context { gap: .85rem; padding: .85rem; }
   .genome-fingerprint { max-width: 230px; }
