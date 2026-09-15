@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createServer, type Server } from "node:http";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import apiHandler from "../api/[...path]";
+import apiHandler from "./serverless";
 
 const read = (relative: string) => readFileSync(join(process.cwd(), relative), "utf8");
 const vercelConfig = JSON.parse(read("vercel.json"));
@@ -33,13 +33,26 @@ describe("the API is actually deployed", () => {
   });
 
   it("defines the API as one catch-all function so /api/trpc keeps its mount path", () => {
-    const source = read("api/[...path].ts");
+    const source = read("server/_core/serverless.ts");
     // The router and context are imported, never redefined, so the deployed surface
     // cannot drift from the one the dev server runs.
-    expect(source).toContain('from "../server/routers"');
-    expect(source).toContain('from "../server/_core/context"');
+    expect(source).toContain('from "../routers"');
+    expect(source).toContain('from "./context"');
     expect(source).toContain('app.use(\n  "/api/trpc",');
     expect(source).not.toContain("listen(");
+  });
+
+  it("ships the function as a bundle, because the platform transpiles without bundling", () => {
+    // Vercel emitted api/[...path].js with its extensionless `../server/routers`
+    // import intact. Under "type": "module" Node refuses to resolve that, and every
+    // invocation died with ERR_MODULE_NOT_FOUND. A bundle has no internal specifiers
+    // left to resolve.
+    const entry = read("api/[...path].js");
+    expect(entry).toContain('export { default } from "../dist/serverless.js"');
+    // The extension is what Node's ESM resolver requires; dropping it reintroduces
+    // exactly the failure above.
+    expect(entry).toContain(".js\"");
+    expect(JSON.parse(read("package.json")).scripts.build).toContain("--outfile=dist/serverless.js");
   });
 });
 
