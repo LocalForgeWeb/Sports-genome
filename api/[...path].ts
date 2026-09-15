@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
@@ -39,7 +39,7 @@ app.use(
 
 // Anything else under /api is a genuine 404. Answering in JSON keeps clients from
 // parsing an HTML error page as a tRPC response.
-app.use((_req, res) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: "Not found" });
 });
 
