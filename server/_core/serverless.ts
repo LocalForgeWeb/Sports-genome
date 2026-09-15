@@ -28,6 +28,28 @@ app.set("trust proxy", 1);
 app.use(express.json({ limit: "4mb" }));
 app.use(express.urlencoded({ limit: "4mb", extended: true }));
 
+/**
+ * Restores the tRPC path when the platform routes through a rewrite.
+ *
+ * `/api/trpc/<procedure>` is rewritten to the function file, and depending on how the
+ * platform resolves that, the app may receive the function's own path instead of the
+ * request path. The rewrite carries the original procedure path in `__trpc`, so when
+ * the mount point is missing it can be rebuilt exactly. When the request arrives
+ * unmodified this is a no-op.
+ */
+app.use((req, _res, next) => {
+  const carried = typeof req.query.__trpc === "string" ? req.query.__trpc : null;
+  if (carried && !req.path.startsWith("/api/trpc")) {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(req.query)) {
+      if (key !== "__trpc" && typeof value === "string") search.set(key, value);
+    }
+    const query = search.toString();
+    req.url = `/api/trpc/${carried}${query ? `?${query}` : ""}`;
+  }
+  next();
+});
+
 app.use(
   "/api/trpc",
   createExpressMiddleware({
@@ -38,8 +60,8 @@ app.use(
 
 // Anything else under /api is a genuine 404. Answering in JSON stops a client from
 // parsing an HTML error page as if it were a tRPC response.
-app.use((_req: Request, res: Response) => {
-  res.status(404).json({ error: "Not found" });
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ error: "Not found", path: req.originalUrl });
 });
 
 export default app;
