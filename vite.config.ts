@@ -20,12 +20,24 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
+        /**
+         * Only dependency-free modules may be split by hand.
+         *
+         * The lib modules in this app form one cyclic cluster - exerciseCatalog imports
+         * exerciseStudyCalibration which imports exerciseCatalog back, and workoutPlanner
+         * imports exerciseGenome which imports exerciseCatalog. Cutting a cycle across
+         * chunk boundaries makes one chunk evaluate before the chunk it depends on, which
+         * surfaces in the browser as "Cannot access 'X' before initialization" and kills
+         * the whole dynamic import. Rollup places cyclic modules safely on its own, so
+         * everything entangled is left to it.
+         *
+         * The two researched datasets import nothing at all, so isolating them is safe
+         * and keeps roughly 1.25 MB of stable data in its own cacheable chunk.
+         */
         manualChunks(id) {
           if (id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/wouter")) return "framework";
           if (id.includes("node_modules/lucide-react")) return "icons";
-          if (id.includes("/exerciseCatalog") || id.includes("/workoutPlanner")) return "exercise-data";
-          if (id.includes("/sportMovementDatabase") || id.includes("/enrichedSportMovementDatabase") || id.includes("/movementRecommendations") || id.includes("/movementProgramAnalysis")) return "movement-data";
-          if (id.includes("/exerciseGenome") || id.includes("/ExerciseGenomePanel")) return "genome-analysis";
+          if (id.includes("/sportMovementDatabase") || id.includes("/enrichedSportMovementDatabase")) return "movement-data";
         },
       },
     },
