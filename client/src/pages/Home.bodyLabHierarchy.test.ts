@@ -7,8 +7,16 @@ const anatomyStyles = readFileSync(new URL("../anatomy-clean.css", import.meta.u
 
 describe("Body Lab workspace hierarchy", () => {
   it("leads with compact selected-action context rather than the retired marketing hero", () => {
-    expect(source).toContain('className="body-lab-workspace-context"');
-    expect(source).toContain("Qualitative action roles. Select a muscle to inspect.");
+    // The separate context card was merged into the navigator: a title card and
+    // an unlabelled pair of selects in two unconnected boxes left it unclear
+    // what the map was showing or where to change it.
+    const navigator = readFileSync(new URL("../components/BodyLabNavigator.tsx", import.meta.url), "utf8");
+    expect(source).not.toContain('className="body-lab-workspace-context"');
+    expect(navigator).toContain('className="body-lab-navigator body-lab-selection"');
+    expect(navigator).toContain("Body Lab is showing · Sport action");
+    expect(navigator).toContain("Change what the map shows");
+    // Athletes read a body map and assume an exercise drives it; say otherwise.
+    expect(navigator).toContain("This is a sport action, not a single exercise.");
     expect(source).not.toContain("Body first.<br /><em className=\"text-[#e4512e]\">Details on demand.");
     expect(source).not.toContain("Switch sport actions directly below, then use the role map");
   });
