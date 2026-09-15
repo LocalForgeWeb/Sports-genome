@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createServer, type Server } from "node:http";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import apiHandler from "./serverless";
+import apiHandler from "./_core/serverless";
 
 const read = (relative: string) => readFileSync(join(process.cwd(), relative), "utf8");
 const vercelConfig = JSON.parse(read("vercel.json"));
