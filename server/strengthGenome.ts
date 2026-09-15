@@ -198,7 +198,7 @@ export async function getStrengthGenomeOverview(userId: number) {
         : "No saved mapped test context yet. No rank or deficit is shown.",
     })),
     nextAction: observations.length
-      ? "Performance observations are saved. Test routing shows broad context only; estimates, tiers, and population comparison remain withheld until qualifying calibration and reference data are available."
+      ? "Performance observations are saved. Test routing shows broad context only; a population comparison appears for a saved test only where it matches a reviewed source's exact population and protocol."
       : "Add a standardized lift or test result to begin your performance history.",
   };
 }

@@ -17,6 +17,7 @@ vi.mock("@/lib/trpc", () => ({
       setPriority: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
       setObservationBodyMass: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
       powerliftingNorms: { useQuery: () => ({ data: [] }) },
+      referenceRows: { useQuery: () => ({ data: [] }) },
     },
     workoutLog: {
       progressionHistory: { useQuery: () => ({ data: [] }) },

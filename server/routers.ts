@@ -37,13 +37,14 @@ import {
 } from "./supabaseEvidence";
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
+import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
+import { getApprovedNormsReference } from "./normsRegistry";
 import {
   getAthleteStrengthProfile,
   upsertAthleteStrengthProfile,
 } from "./athleteStrengthProfile";
 import {
   createStrengthObservation,
-  getStrengthGenomeOverview,
   listActiveStrengthPriorities,
   listStrengthObservations,
   setStrengthObservationBodyMass,
@@ -252,7 +253,7 @@ export const appRouter = router({
 
   strengthGenome: router({
     overview: protectedProcedure.query(({ ctx }) =>
-      getStrengthGenomeOverview(ctx.user.id)
+      getStrengthGenomeOverviewWithReferences(ctx.user.id)
     ),
     observations: protectedProcedure.query(({ ctx }) =>
       listStrengthObservations(ctx.user.id)
@@ -305,6 +306,23 @@ export const appRouter = router({
       )
       .mutation(({ ctx, input }) => createStrengthObservation(ctx.user.id, input)),
     powerliftingNorms: publicProcedure.query(() => getPowerliftingNormsReference()),
+    /**
+     * Resolves every saved observation against the approved research registry.
+     * Each entry is either a source-bounded percentile band or the typed reason no
+     * approved reference applies; the gate lives in the registry, not in this layer.
+     */
+    referenceComparisons: protectedProcedure.query(({ ctx }) =>
+      getStrengthObservationReferences(ctx.user.id)
+    ),
+    /** Inventory of what the registry currently approves; implies no athlete rank. */
+    referenceRegistryStatus: publicProcedure.query(() => getNormsRegistryStatus()),
+    /**
+     * The approved reference cut points themselves, so the workspace can resolve a
+     * comparison for device-local observations that never reach the database.
+     * Only rows the registry marks approved are ever sent, and each one is already
+     * published percentile data - no athlete record is involved.
+     */
+    referenceRows: publicProcedure.query(() => getApprovedNormsReference()),
     profile: protectedProcedure.query(({ ctx }) => getAthleteStrengthProfile(ctx.user.id)),
     setProfile: protectedProcedure
       .input(
