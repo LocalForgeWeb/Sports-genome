@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { dismissBootSplash } from "@/lib/bootSplash";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Component, ReactNode } from "react";
 
@@ -19,6 +20,13 @@ class ErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
+  }
+
+  componentDidCatch() {
+    // The boot screen is dismissed by a component inside this boundary, so a caught
+    // error would otherwise unmount the only thing that lifts it and render this
+    // message underneath a full-screen opaque overlay.
+    dismissBootSplash();
   }
 
   render() {

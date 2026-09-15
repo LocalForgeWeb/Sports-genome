@@ -28,12 +28,15 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
+      {/* Outside the providers: dismissing the boot screen must not depend on any of
+          them rendering successfully, or a provider that throws leaves the app
+          unreachable behind it. */}
+      <BootSplashLifecycle />
       <ThemeProvider
         defaultTheme="light"
         // switchable
       >
         <TooltipProvider>
-          <BootSplashLifecycle />
           <Toaster />
           <Router />
         </TooltipProvider>
