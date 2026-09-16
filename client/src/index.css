@@ -1844,3 +1844,53 @@ details:not([open]) > *:not(summary) {
    the local-search scope line uses. */
 .apex-content :is(.atlas-reset-pro, .genome-term-button) { position: relative; }
 .apex-content :is(.atlas-reset-pro, .genome-term-button)::after { content: ""; position: absolute; inset: -14px -8px; }
+
+/* ── Matches: why a match ranked, without the schema ─────────────────────────
+   The row carried a "Hierarchy trace" paragraph with seven bolded field names.
+   Three of them (Demand, Physical quality, Adaptation) were the same priority
+   list restated in three grammatical forms, and the other three (Modality,
+   Exercise role, Programming) are hardcoded constants — identical on every row
+   of every sport. The "Insight explanation depth contract" is explicit: "Do not
+   expose raw model attribution as if it were a user explanation", and
+   methodology "lives one level deeper". */
+.recommendation-trace {
+  margin-top: .9rem;
+  border-top: 1px solid var(--sg-divider-on-dark);
+  padding-top: .7rem;
+  font-size: var(--sg-text-sm);
+  line-height: 1.5;
+  color: var(--sg-text-subtle-on-dark);
+}
+.recommendation-trace strong { color: var(--sg-text-on-dark); font-weight: 700; }
+
+/* The sport lens states the priorities once, as chips, with the method rules
+   behind a disclosure rather than in front of every athlete on every visit. */
+.matches-lens {
+  border-left: 3px solid var(--sg-action);
+  background: var(--sg-surface-light);
+  padding: .85rem 1rem;
+  color: var(--sg-text-on-light);
+  --sg-label-color: var(--sg-text-subtle-on-light);
+}
+.matches-lens-priorities { display: flex; flex-wrap: wrap; gap: .4rem; }
+.matches-lens-priorities > span {
+  border: 1px solid var(--sg-divider-on-light);
+  background: var(--sg-surface-light-sunken);
+  padding: .25rem .5rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+}
+.matches-lens-note { margin-top: .5rem; font-size: var(--sg-text-xs); color: var(--sg-text-subtle-on-light); }
+.matches-lens-method { margin-top: .35rem; border-top: 1px solid var(--sg-divider-on-light); }
+.matches-lens-method > summary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sg-info-strong);
+  cursor: pointer;
+}
+.matches-lens-method > div > p { margin-top: .5rem; font-size: var(--sg-text-xs); line-height: 1.55; color: var(--sg-text-subtle-on-light); }
