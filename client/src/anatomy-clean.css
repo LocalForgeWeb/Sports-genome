@@ -43,7 +43,21 @@
 .atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:clamp(480px,60vh,700px);margin-top:.3rem;overflow:hidden;background:radial-gradient(circle at 50% 38%,var(--sg-surface-light) 0%,var(--sg-surface-light) 56%,var(--sg-surface-light-sunken) 100%);border:1px solid var(--sg-surface-light-sunken)}
 .atlas-body-chart{width:100%;height:clamp(460px,58vh,680px);display:flex;justify-content:center;align-items:center}
 .atlas-body-chart svg{height:100%!important;width:auto!important;max-width:100%!important;max-height:100%;object-fit:contain}
-.atlas-hover-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--sg-divider-on-light);box-shadow:0 4px 12px rgb(24 53 70 / .12);padding:.4rem .7rem;font-size:.7rem;font-weight:700;color:var(--sg-text-on-light);pointer-events:none;white-space:nowrap;z-index:5}
+/* The hover chip names the exact region under the finger.
+   It hardcoded a white background while taking its text colour from
+   --sg-text-on-light. On the dark destination that token is remapped to the
+   light-text value, so the chip rendered white-on-white and the muscle name
+   under the finger was unreadable. Both ends of the pair are now tokens, so the
+   chip flips polarity with the panel it sits in. */
+.atlas-hover-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);max-width:calc(100% - 1.5rem);background:var(--sg-atlas-tooltip-surface,#fff);border:1px solid var(--sg-atlas-tooltip-border,var(--sg-divider-on-light));border-radius:999px;box-shadow:var(--sg-elevation-2);padding:.4rem .85rem;font-size:.7rem;font-weight:700;color:var(--sg-atlas-tooltip-text,#102947);pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:5}
+@media (prefers-reduced-motion: no-preference){.atlas-hover-label{animation:atlas-hover-label-in var(--sg-motion-fast) var(--sg-ease-entrance) both}}
+@keyframes atlas-hover-label-in{from{opacity:0;transform:translate(-50%,-.25rem)}to{opacity:1;transform:translateX(-50%)}}
+
+/* The selected region, spelled out rather than collapsed to its parent muscle. */
+.atlas-selected-part{display:block;margin-top:.15rem;color:var(--sg-action);font-size:.7rem;font-style:normal;font-weight:800;letter-spacing:.04em;text-transform:none}
+.atlas-selected-distinction{display:block;margin-top:.3rem;max-width:34rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.45}
+.atlas-selected-approximation{display:flex;flex-basis:100%;gap:.4rem;align-items:flex-start;margin-top:.5rem;border-left:2px solid var(--sg-state-caution);padding:.35rem .5rem;background:rgb(242 193 77 / .1);color:var(--sg-text-muted-on-light);font-size:.6875rem;line-height:1.45}
+.atlas-selected-approximation svg{flex:none;margin-top:.15rem;color:var(--sg-state-caution)}
 
 
 /* Tooltip */
@@ -168,6 +182,11 @@
   --sg-surface-light: transparent;
   --sg-surface-light-sunken: rgb(255 255 255 / .06);
   --sg-info-strong: var(--sg-info);
+  /* The hover chip is an opaque overlay, so it needs a real surface rather than
+     the transparent one the rest of the subtree uses. */
+  --sg-atlas-tooltip-surface: var(--sg-surface-overlay);
+  --sg-atlas-tooltip-text: var(--sg-text-on-dark);
+  --sg-atlas-tooltip-border: var(--sg-control-border-on-dark);
 }
 
 /* The selection, restated where the athlete just tapped. */
