@@ -108,3 +108,42 @@ describe("reduced motion is honoured app-wide", () => {
     expect(universal).not.toContain("transition: none");
   });
 });
+
+/**
+ * On a phone there is no hover, so the press response is the only confirmation that a
+ * tap landed. The app had 106 hover rules against 33 :active rules.
+ */
+describe("a press is answered everywhere", () => {
+  const root = sources.get("index.css")!;
+
+  it("defines the press response as a token", () => {
+    expect(root).toMatch(/--sg-press-scale:\s*\.97;/);
+  });
+
+  it("answers a press on buttons, button roles, and disclosure summaries", () => {
+    const block = root.slice(root.indexOf("button:not(:disabled)"));
+    expect(block.slice(0, 400)).toContain('[role="button"]:not([aria-disabled="true"]):active');
+    expect(block.slice(0, 400)).toContain("summary:active");
+    expect(block.slice(0, 400)).toContain("transform: scale(var(--sg-press-scale))");
+  });
+
+  it("says nothing on a disabled control, which has no state to confirm", () => {
+    const block = root.slice(root.indexOf("button:not(:disabled)"), root.indexOf("button:not(:disabled)") + 200);
+    expect(block).toContain(":not(:disabled)");
+    expect(block).toContain(':not([aria-disabled="true"])');
+  });
+
+  it("is a floor rather than an override, so considered presses survive", () => {
+    // Element selectors lose to the class selectors that already define a press.
+    const block = root.slice(root.indexOf("button:not(:disabled)"), root.indexOf("button:not(:disabled)") + 400);
+    expect(block).not.toContain("!important");
+  });
+
+  it("does not run for a reduced-motion reader", () => {
+    const pressAt = root.indexOf("button:not(:disabled)");
+    const gateAt = root.lastIndexOf("@media (prefers-reduced-motion: no-preference)", pressAt);
+    expect(gateAt).toBeGreaterThan(-1);
+    // The gate must be the block this rule actually sits in.
+    expect(root.slice(gateAt, pressAt)).not.toContain("}\n}");
+  });
+});

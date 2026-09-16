@@ -163,6 +163,12 @@
   /* Entrance curve: a longer tail, so arriving content decelerates into place
      instead of stopping dead. Reserved for things appearing, never for hover. */
   --sg-ease-entrance: cubic-bezier(.23, 1, .32, 1);
+
+  /* The answer to a press. On a phone there is no hover, so this is the only
+     confirmation that a tap landed - and 106 hover rules against 33 :active rules
+     meant two thirds of this app's controls gave none. Small enough to read as the
+     control yielding rather than as an animation. */
+  --sg-press-scale: .97;
 }
 
 /* Reduced motion: instant state changes, all information preserved. The
@@ -190,6 +196,26 @@
     transition-duration: 1ms !important;
     transition-delay: 0ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* The recognizable_rhythm trait asks for a repeatable feedback rhythm across
+   surfaces, and calm_precision asks motion to be state-explanatory. A control
+   yielding under the finger is both: it says the tap registered, in the same way
+   everywhere.
+
+   This is a floor, not an override. Element selectors lose to the class selectors
+   that already define a press, so anything with its own considered response keeps
+   it; everything else stops being inert. Disabled controls are excluded because
+   there is no state to confirm. */
+@media (prefers-reduced-motion: no-preference) {
+  button:not(:disabled):not([aria-disabled="true"]):active,
+  [role="button"]:not([aria-disabled="true"]):active,
+  summary:active {
+    transform: scale(var(--sg-press-scale));
+  }
+  button, [role="button"], summary {
+    transition: transform var(--sg-motion-fast) var(--sg-ease);
   }
 }
 
