@@ -127,7 +127,6 @@ export async function getNormsRegistryStatus() {
     available: rows.length > 0,
     approvedCutPointCount: rows.length,
     exerciseNames,
-    referenceFamilies: Array.from(new Set(rows.map(row => row.referenceFamily))).sort(),
     // Read after the lookup above, so it reflects that attempt rather than the last one.
     connection: describeRegistryConnection(),
   };

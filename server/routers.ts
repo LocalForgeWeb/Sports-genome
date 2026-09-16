@@ -38,7 +38,7 @@ import {
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
-import { getApprovedNormsReference } from "./normsRegistry";
+import { getPublicNormsReference } from "./normsRegistry";
 import {
   getAthleteStrengthProfile,
   upsertAthleteStrengthProfile,
@@ -322,7 +322,7 @@ export const appRouter = router({
      * Only rows the registry marks approved are ever sent, and each one is already
      * published percentile data - no athlete record is involved.
      */
-    referenceRows: publicProcedure.query(() => getApprovedNormsReference()),
+    referenceRows: publicProcedure.query(() => getPublicNormsReference()),
     profile: protectedProcedure.query(({ ctx }) => getAthleteStrengthProfile(ctx.user.id)),
     setProfile: protectedProcedure
       .input(

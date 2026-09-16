@@ -71,7 +71,7 @@ type MappingRow = { supabase_exercise_id?: unknown; local_catalog_id?: unknown }
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const ID_BATCH_SIZE = 80;
 
-let cache: { expiresAt: number; value: NormsReferenceRow[] } | null = null;
+let cache: { expiresAt: number; value: RegistryRow[] } | null = null;
 
 function text(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
@@ -136,7 +136,7 @@ export function createNormsRegistryClient({
      * its canonical exercise name, and the approved local-catalog identities that
      * let a saved observation find it.
      */
-    async getApprovedReferenceRows(): Promise<NormsReferenceRow[]> {
+    async getApprovedReferenceRows(): Promise<RegistryRow[]> {
       const eligibility = await get<EligibilityRow>("app_reference_eligibility", {
         select:
           "id,source_table,source_record_id,reference_family,exercise_id,measurement_type,unit,sex,age_min,age_max,training_status,equipment,protocol,competition_conditions,body_mass_normalization_method,population_definition,blocking_reason,provenance",
@@ -229,7 +229,7 @@ export function createNormsRegistryClient({
       }
 
       return rankable
-        .map((row): NormsReferenceRow | null => {
+        .map((row): RegistryRow | null => {
           const referenceKey = text(row.id);
           const sourceRecordId = text(row.source_record_id);
           const sourceTable = text(row.source_table);
@@ -258,7 +258,9 @@ export function createNormsRegistryClient({
           const strengthNorm = sourceTable === "strength_norms" ? (norm as StrengthNormRow) : null;
 
           return {
-            referenceKey,
+            // Opaque on the wire: the device needs these to be distinct, not readable.
+            referenceKey: opaqueDigest(referenceKey),
+            tableGroup: opaqueDigest(sourceTable),
             sourceRecordId,
             sourceTable,
             referenceFamily: text(row.reference_family) ?? sourceTable,
@@ -276,7 +278,6 @@ export function createNormsRegistryClient({
             equipment: text(row.equipment),
             protocol: text(row.protocol),
             competitionConditions: text(row.competition_conditions),
-            normalizationMethod: text(row.body_mass_normalization_method),
             populationDefinition: text(row.population_definition),
             percentile,
             value,
@@ -284,10 +285,11 @@ export function createNormsRegistryClient({
             sourceText: text(norm.source_text) ?? text(provenance.source_text),
             sourceStudyId: text(norm.source_study_id) ?? text(provenance.source_study_id),
             sourceUrl: studyUrlById.get(text(norm.source_study_id) ?? text(provenance.source_study_id) ?? "") ?? null,
-            boundary: text(row.blocking_reason),
+            normalizationMethod: text(row.body_mass_normalization_method),
+            reviewerNote: text(row.blocking_reason),
           };
         })
-        .filter((row): row is NormsReferenceRow => row !== null);
+        .filter((row): row is RegistryRow => row !== null);
     },
   };
 }
@@ -333,6 +335,41 @@ export function describeRegistryConnection(): RegistryConnection {
   return { state: "connected" };
 }
 
+/**
+ * What the registry holds beyond what the browser is sent.
+ *
+ * `strengthGenome.referenceRows` is public and unauthenticated, so anything on
+ * NormsReferenceRow is readable by anyone who loads the app. These columns are the
+ * registry's own bookkeeping and stay here: the primary keys, the table names, the
+ * internal taxonomy, and `blocking_reason` - which is a note the reviewers wrote to
+ * each other, not a sentence meant for an athlete.
+ */
+export type RegistryRow = NormsReferenceRow & {
+  sourceRecordId: string;
+  sourceTable: string;
+  referenceFamily: string;
+  normalizationMethod: string | null;
+  reviewerNote: string | null;
+};
+
+/**
+ * A short, stable digest.
+ *
+ * Grouping and memo keys need their inputs to be *distinct*; they never need them to
+ * be readable. Hashing lets a primary key and a table name keep doing their job on
+ * the device without travelling there in a form anyone can interpret. FNV-1a: not a
+ * security boundary, just an opaque, deterministic label - the values it hides are
+ * not secrets, only internals with no business being on a public payload.
+ */
+export function opaqueDigest(value: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(36).padStart(7, "0");
+}
+
 function getRuntimeClient() {
   const url = process.env.VITE_SUPABASE_URL?.trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
@@ -346,7 +383,7 @@ function getRuntimeClient() {
  * outcome the app already shows when no reference qualifies - it never degrades
  * into an ungated comparison.
  */
-export async function getApprovedNormsReference(): Promise<NormsReferenceRow[]> {
+export async function getApprovedNormsReference(): Promise<RegistryRow[]> {
   if (cache && cache.expiresAt > Date.now()) return cache.value;
   const client = getRuntimeClient();
   if (!client) return [];
@@ -361,6 +398,47 @@ export async function getApprovedNormsReference(): Promise<NormsReferenceRow[]> 
     console.warn("[Norms registry] approved reference lookup unavailable", { message });
     return [];
   }
+}
+
+/**
+ * The rows as the browser receives them.
+ *
+ * Types do not strip fields at runtime, so this projection has to be explicit and
+ * has to be what the public procedure actually returns. It is written as a literal
+ * rather than a delete-list so that a column added to RegistryRow later is absent
+ * here by default: a new internal field cannot reach the wire by being forgotten.
+ */
+export function toPublicReferenceRow(row: RegistryRow): NormsReferenceRow {
+  return {
+    referenceKey: row.referenceKey,
+    tableGroup: row.tableGroup,
+    exerciseId: row.exerciseId,
+    exerciseName: row.exerciseName,
+    localCatalogIds: row.localCatalogIds,
+    measurementType: row.measurementType,
+    unit: row.unit,
+    sex: row.sex,
+    ageMin: row.ageMin,
+    ageMax: row.ageMax,
+    bodyweightMinKg: row.bodyweightMinKg,
+    bodyweightMaxKg: row.bodyweightMaxKg,
+    trainingStatus: row.trainingStatus,
+    equipment: row.equipment,
+    protocol: row.protocol,
+    competitionConditions: row.competitionConditions,
+    populationDefinition: row.populationDefinition,
+    percentile: row.percentile,
+    value: row.value,
+    sampleSize: row.sampleSize,
+    sourceText: row.sourceText,
+    sourceStudyId: row.sourceStudyId,
+    sourceUrl: row.sourceUrl,
+  };
+}
+
+/** What `strengthGenome.referenceRows` serves: approved cut points, internals removed. */
+export async function getPublicNormsReference(): Promise<NormsReferenceRow[]> {
+  return (await getApprovedNormsReference()).map(toPublicReferenceRow);
 }
 
 /** Test seam: drops the memoized registry so a fresh fetch runs. */

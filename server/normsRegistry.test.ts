@@ -94,8 +94,9 @@ describe("createNormsRegistryClient", () => {
     const [row] = await registry.getApprovedReferenceRows();
 
     expect(row).toMatchObject({
-      referenceKey: "gate-1",
+      // The registry keeps the database identity; only the wire sees the digest.
       sourceRecordId: "norm-1",
+      sourceTable: "strength_norms",
       exerciseName: "Back Squat",
       localCatalogIds: [101, 102],
       measurementType: "direct_relative_1rm_by_age_sex",
@@ -108,7 +109,7 @@ describe("createNormsRegistryClient", () => {
       percentile: 50,
       value: 2.28,
       sampleSize: 103984,
-      boundary: "Existing van den Hoek 2024 route preserved.",
+      reviewerNote: "Existing van den Hoek 2024 route preserved.",
       sourceUrl: "https://example.org/van-den-hoek-2024",
     });
   });
