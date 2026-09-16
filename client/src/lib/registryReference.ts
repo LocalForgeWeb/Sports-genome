@@ -125,3 +125,23 @@ export const registryUnavailableExplanation: Record<string, string> = {
   competition_context_confirmation_required: "Confirm the exact competition conditions to use this study.",
   ambiguous_reference_match: "More than one study matches this test, so no single rank is shown.",
 };
+
+export type RegistryConnectionState =
+  | { state: "unconfigured"; missingSettings: string[] }
+  | { state: "unreachable"; detail: string }
+  | { state: "connected" };
+
+/**
+ * Athlete-facing wording for the library's own availability.
+ *
+ * Deliberately separate from the per-observation gates above. "No comparison,
+ * because the library is offline" and "no comparison, because this lift does not
+ * qualify" are different claims, and showing the second when the first is true tells
+ * the athlete something untrue about their own training. The operator-facing detail -
+ * which setting is missing, what the backend said - travels in the API response and
+ * never in this sentence.
+ */
+export function registryConnectionNotice(connection: RegistryConnectionState | null | undefined): string | null {
+  if (!connection || connection.state === "connected") return null;
+  return "The reviewed research library is offline right now, so no outside comparison can be shown. This says nothing about your lifts.";
+}

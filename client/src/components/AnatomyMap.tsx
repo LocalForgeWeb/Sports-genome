@@ -3,6 +3,7 @@ import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { BodyChart, ViewSide, FRONT_MUSCLES, BACK_MUSCLES, MUSCLE_MAP } from "body-muscles";
 import { ChevronDown, ChevronRight, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
+import { approximateRegionNotes, describeSubregion, regionDisplayName } from "@/lib/anatomyRegions";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
 
@@ -93,6 +94,13 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   const chartRef = useRef<BodyChart | null>(null);
   const [view, setView] = useState<"FRONT" | "BACK">("FRONT");
   const [selectedKey, setSelectedKey] = useState("");
+  /**
+   * The exact region under the finger. The chart draws the lats in three bands and
+   * the traps in three parts; collapsing straight to the parent key made every one of
+   * them read identically and left the selected band indistinguishable from its
+   * neighbours.
+   */
+  const [selectedId, setSelectedId] = useState("");
   const [hoveredName, setHoveredName] = useState("");
   const [query, setQuery] = useState("");
   const [showAllRanked, setShowAllRanked] = useState(false);
@@ -108,7 +116,10 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
       ids.forEach(id => {
         const existing = state[id];
         if (!existing || existing.intensity < intensity) {
-          state[id] = { intensity, selected: selectedKey === key };
+          // Only the band actually tapped reads as selected. Marking every id of the
+          // parent key lit all three lat bands at once, which is what made them
+          // impossible to tell apart.
+          state[id] = { intensity, selected: selectedId === id };
         }
       });
     };
@@ -126,7 +137,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
     });
 
     return state;
-  }, [primary, secondary, selectedKey]);
+  }, [primary, secondary, selectedId]);
 
   /* Ranked muscles for the strip */
   const ranked = useMemo(() => {
@@ -174,17 +185,18 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
       chartRef.current = new BodyChart(containerRef.current, {
         view: view === "FRONT" ? ViewSide.FRONT : ViewSide.BACK,
         bodyState,
-        onMuscleClick: (id: string, name: string) => {
+        onMuscleClick: (id: string) => {
           const matchedKey = Object.entries(keyToIds).find(([, ids]) => ids.includes(id))?.[0];
           if (matchedKey) {
+            setSelectedId(id);
             setSelectedKey(matchedKey);
             onSelect(matchedKey);
           }
         },
         onMuscleHover: (id: string | null) => {
           if (id) {
-            const muscle = MUSCLE_MAP.find((m: any) => m.id === id);
-            setHoveredName(muscle?.name || id);
+            const muscle = MUSCLE_MAP.find((m: { id: string; name: string }) => m.id === id);
+            setHoveredName(regionDisplayName(id, muscle?.name || id));
           } else {
             setHoveredName("");
           }
@@ -208,8 +220,13 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
     setView(v => v === "FRONT" ? "BACK" : "FRONT");
   }, []);
 
-  const reset = () => { setView("FRONT"); setSelectedKey(""); setQuery(""); };
+  const reset = () => { setView("FRONT"); setSelectedKey(""); setSelectedId(""); setQuery(""); };
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
+  /** The exact band, when the selection came from tapping the chart. */
+  const selectedAnatomy = selectedId ? describeSubregion(selectedId) : null;
+  const selectedPreciseName = selectedId ? regionDisplayName(selectedId, selectedLabel) : selectedLabel;
+  /** Set when the chart has no path for this muscle and borrows a neighbouring one. */
+  const selectedApproximation = selectedKey ? approximateRegionNotes[selectedKey] : undefined;
   const hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false;
   const selectedRole: Role | null = selectedKey ? (matches(selectedKey, primary) ? "Primary" : "Synergist") : null;
   const selectedRoleDetail = selectedKey ? roleDetails?.[selectedKey] : undefined;
@@ -266,10 +283,19 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
           {showInspector && selectedKey && <div className="atlas-selected-strip">
             <div>
               <p className="metric-label">Selected muscle</p>
-              <strong>{selectedLabel}</strong>
+              <strong>{selectedAnatomy?.muscle || selectedLabel}</strong>
+              {/* The part, spelled out. Without this the three lat bands and the three
+                  trapezius parts all read as one name, and the subdivision the chart
+                  draws carries no meaning. */}
+              {selectedAnatomy?.part && <em className="atlas-selected-part">{selectedAnatomy.part}{selectedAnatomy.side ? ` · ${selectedAnatomy.side}` : ""}</em>}
+              {selectedAnatomy?.distinction && <small className="atlas-selected-distinction">{selectedAnatomy.distinction}</small>}
             </div>
             <span className="atlas-selected-role">{selectedRoleDetail?.roles.join(" · ") || selectedRole}</span>
             <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Low-confidence inference"}</span>
+            {/* Where the chart has no path for this muscle it borrows a neighbour's.
+                Saying so beats letting a highlighted posterior deltoid be read as the
+                rotator cuff, which is a different muscle at a different depth. */}
+            {selectedApproximation && <p className="atlas-selected-approximation"><Target className="h-3 w-3" /><span>Approximate position. {selectedApproximation}</span></p>}
           </div>}
 
           {/* Qualitative role legend */}

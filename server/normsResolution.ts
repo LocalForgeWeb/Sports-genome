@@ -7,7 +7,7 @@ import {
   type NormsResolution,
 } from "../shared/normsReference";
 import { getAthleteStrengthProfile } from "./athleteStrengthProfile";
-import { getApprovedNormsReference } from "./normsRegistry";
+import { describeRegistryConnection, getApprovedNormsReference } from "./normsRegistry";
 import { getStrengthGenomeOverview, listStrengthObservations } from "./strengthGenome";
 
 /**
@@ -128,6 +128,8 @@ export async function getNormsRegistryStatus() {
     approvedCutPointCount: rows.length,
     exerciseNames,
     referenceFamilies: Array.from(new Set(rows.map(row => row.referenceFamily))).sort(),
+    // Read after the lookup above, so it reflects that attempt rather than the last one.
+    connection: describeRegistryConnection(),
   };
 }
 

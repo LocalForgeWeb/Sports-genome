@@ -151,3 +151,38 @@ export function selectHomePriority(input: HomePriorityInput): HomePriority {
     target: "day-plan",
   };
 }
+
+/**
+ * How Home should present a confirmed change.
+ *
+ * Two DNA traits meet here. `living_genome` wants motion that clarifies "what
+ * changed, where, and why", so a confirmed change announces itself rather than
+ * appearing as inert text. `earned_progress` scales celebration "with significance
+ * and rarity" and names meaningless inflation as the anti-pattern, so the stronger
+ * reveal is reserved for a gain well past the confirmation threshold.
+ *
+ * A decline is still change, and still legible - it just never gets the amplified
+ * treatment. Celebrating a regression would be dishonest, and dramatising one would
+ * be the punishment-heavy pattern the same trait rules out.
+ */
+export type ConfirmedChangeEmphasis = {
+  direction: "gain" | "loss";
+  intensity: "standard" | "pronounced";
+};
+
+/**
+ * Twice the threshold at which a change is confirmed at all. Below this a change is
+ * real but ordinary; above it, rare enough that the extra emphasis means something.
+ */
+const pronouncedChangePercent = 30;
+
+export function confirmedChangeEmphasis(
+  change: Pick<WithinAthleteStrengthChange, "relativeChangePercent">
+): ConfirmedChangeEmphasis {
+  const direction = change.relativeChangePercent >= 0 ? "gain" : "loss";
+  const magnitude = Math.abs(change.relativeChangePercent);
+  return {
+    direction,
+    intensity: direction === "gain" && magnitude >= pronouncedChangePercent ? "pronounced" : "standard",
+  };
+}

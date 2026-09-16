@@ -3,7 +3,7 @@ import { ArrowUpRight, ClipboardCheck, Dumbbell, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
-import { leadingConfirmedChange, selectHomePriority } from "@/lib/homeStateSummary";
+import { confirmedChangeEmphasis, leadingConfirmedChange, selectHomePriority } from "@/lib/homeStateSummary";
 import { getRegistryReferenceForObservation, type RegistryReferenceProfile } from "@/lib/registryReference";
 
 /**
@@ -49,6 +49,8 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
     [observations.data, trackedSets.data]
   );
   const leadingChange = useMemo(() => leadingConfirmedChange(trackedChanges), [trackedChanges]);
+  /** Direction and intensity for the reveal; see confirmedChangeEmphasis for the rules. */
+  const changeEmphasis = useMemo(() => leadingChange ? confirmedChangeEmphasis(leadingChange) : null, [leadingChange]);
 
   const athleteProfile = useMemo<RegistryReferenceProfile>(() => ({ sexForReference, birthYear }), [sexForReference, birthYear]);
   /**
@@ -90,10 +92,14 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
       <p className="metric-label !text-[#adc4dc]">Where you are now</p>
       {leadingChange
         ? <>
-            <p className="today-action-state-headline">
+            <p
+              className="today-action-state-headline"
+              data-sg-change={changeEmphasis?.direction}
+              data-sg-change-intensity={changeEmphasis?.intensity}
+            >
               <strong>{leadingChange.exerciseName}</strong>
               <span className="today-action-state-delta">{leadingChange.relativeChangePercent >= 0 ? "+" : ""}{leadingChange.relativeChangePercent.toFixed(0)}%</span>
-              <span className="today-action-state-tag">Confirmed change</span>
+              <span className="today-action-state-tag">{changeEmphasis?.direction === "loss" ? "Confirmed decline" : "Confirmed gain"}</span>
             </p>
             <small>Across {leadingChange.observationCount} logs since {leadingChange.firstPoint.observedAt.toLocaleDateString()}. Your own logs only — not a rank against other people.</small>
           </>

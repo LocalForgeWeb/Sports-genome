@@ -292,6 +292,47 @@ export function createNormsRegistryClient({
   };
 }
 
+/**
+ * The two settings the registry runs on. Reported by name only - a value here would
+ * put a service-role key into a public response.
+ */
+export const registrySettingNames = ["VITE_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"] as const;
+
+export type RegistryConnection =
+  | { state: "unconfigured"; missingSettings: string[] }
+  | { state: "unreachable"; detail: string }
+  | { state: "connected" };
+
+export function missingRegistrySettings(env: Record<string, string | undefined> = process.env): string[] {
+  return registrySettingNames.filter(name => !(env[name] ?? "").trim());
+}
+
+/** Set by the last lookup attempt, so the status can tell a bad key from a missing one. */
+let lastLookupFailure: string | null = null;
+
+/**
+ * A transport error can quote the request it failed on. Anything JWT-shaped is
+ * redacted before it can travel to a browser.
+ */
+export function redactSecrets(detail: string): string {
+  return detail
+    .replace(/eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g, "[redacted]")
+    .replace(/\bsb_[a-z]+_[A-Za-z0-9_-]{8,}/g, "[redacted]")
+    .replace(/(apikey|authorization|access[_-]?token)=[^&\s]+/gi, "$1=[redacted]");
+}
+
+/**
+ * What the evidence backend is doing right now, in the terms an operator can act on:
+ * a setting that was never provided, a backend that refused the last call, or a
+ * working connection.
+ */
+export function describeRegistryConnection(): RegistryConnection {
+  const missingSettings = missingRegistrySettings();
+  if (missingSettings.length > 0) return { state: "unconfigured", missingSettings };
+  if (lastLookupFailure) return { state: "unreachable", detail: redactSecrets(lastLookupFailure) };
+  return { state: "connected" };
+}
+
 function getRuntimeClient() {
   const url = process.env.VITE_SUPABASE_URL?.trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
@@ -312,11 +353,12 @@ export async function getApprovedNormsReference(): Promise<NormsReferenceRow[]> 
   try {
     const value = await client.getApprovedReferenceRows();
     cache = { value, expiresAt: Date.now() + CACHE_TTL_MS };
+    lastLookupFailure = null;
     return value;
   } catch (error) {
-    console.warn("[Norms registry] approved reference lookup unavailable", {
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    lastLookupFailure = message;
+    console.warn("[Norms registry] approved reference lookup unavailable", { message });
     return [];
   }
 }
@@ -324,4 +366,5 @@ export async function getApprovedNormsReference(): Promise<NormsReferenceRow[]> 
 /** Test seam: drops the memoized registry so a fresh fetch runs. */
 export function resetNormsReferenceCache() {
   cache = null;
+  lastLookupFailure = null;
 }

@@ -25,6 +25,8 @@ vi.mock("@/lib/trpc", () => ({
       setObservationBodyMass: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
       powerliftingNorms: { useQuery: () => ({ data: [] }) },
       referenceRows: { useQuery: () => ({ data: [] }) },
+      // Undefined stands for the status still loading: the offline notice stays hidden.
+      referenceRegistryStatus: { useQuery: () => ({ data: undefined }) },
     },
     workoutLog: { progressionHistory: { useQuery: () => ({ data: [] }) } },
   },

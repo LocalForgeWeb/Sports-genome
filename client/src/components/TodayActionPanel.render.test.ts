@@ -72,8 +72,45 @@ describe("Today action panel state layer", () => {
 
     expect(screen.getByText("Back Squat")).toBeTruthy();
     expect(screen.getByText(/^\+\d+%$/)).toBeTruthy();
-    expect(screen.getByText("Confirmed change")).toBeTruthy();
+    expect(screen.getByText("Confirmed gain")).toBeTruthy();
     expect(screen.getByText(/not a rank against other people/)).toBeTruthy();
+  });
+
+  it("reads a confirmed decline as a decline, in the losing colour", () => {
+    // This rendered in the positive-state green with a "Confirmed change" badge, so a
+    // regression and a gain were visually identical.
+    mocks.observations = [
+      observation(1, 145, "2026-01-05T12:00:00.000Z"),
+      observation(2, 100, "2026-06-05T12:00:00.000Z"),
+    ];
+    const { container } = renderPanel();
+
+    expect(screen.getByText("Confirmed decline")).toBeTruthy();
+    expect(screen.getByText(/^-\d+%$/)).toBeTruthy();
+    expect(screen.queryByText("Confirmed gain")).toBeNull();
+    // The direction is on the element the colour rule keys off.
+    expect(container.querySelector('[data-sg-change="loss"]')).toBeTruthy();
+    // A decline never takes the amplified reveal.
+    expect(container.querySelector('[data-sg-change-intensity="pronounced"]')).toBeNull();
+  });
+
+  it("marks a large gain for the pronounced reveal, and a modest one for the standard reveal", () => {
+    mocks.observations = [
+      observation(1, 100, "2026-01-05T12:00:00.000Z"),
+      observation(2, 145, "2026-06-05T12:00:00.000Z"),
+    ];
+    const large = renderPanel();
+    expect(large.container.querySelector('[data-sg-change-intensity="pronounced"]')).toBeTruthy();
+    document.body.innerHTML = "";
+
+    // ~18%: confirmed, but not rare enough to amplify.
+    mocks.observations = [
+      observation(1, 100, "2026-01-05T12:00:00.000Z"),
+      observation(2, 118, "2026-06-05T12:00:00.000Z"),
+    ];
+    const modest = renderPanel();
+    expect(modest.container.querySelector('[data-sg-change="gain"]')).toBeTruthy();
+    expect(modest.container.querySelector('[data-sg-change-intensity="standard"]')).toBeTruthy();
   });
 
   it("states no direction when the movement sits inside normal variation", () => {
@@ -84,7 +121,7 @@ describe("Today action panel state layer", () => {
     ];
     renderPanel();
 
-    expect(screen.queryByText("Confirmed change")).toBeNull();
+    expect(screen.queryByText(/^Confirmed (gain|decline)$/)).toBeNull();
     expect(
       screen.getByText("No change yet is large enough to call a real one rather than normal variation.")
     ).toBeTruthy();
@@ -95,7 +132,7 @@ describe("Today action panel state layer", () => {
 
     expect(screen.getByText("No tracked lifts yet")).toBeTruthy();
     expect(screen.getByText("Log the same lift twice and your change starts tracking here.")).toBeTruthy();
-    expect(screen.queryByText("Confirmed change")).toBeNull();
+    expect(screen.queryByText(/^Confirmed (gain|decline)$/)).toBeNull();
   });
 
   it("still carries the next action beneath the state layer", () => {
