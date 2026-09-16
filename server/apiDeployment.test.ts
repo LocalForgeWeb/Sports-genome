@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createServer, type Server } from "node:http";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import apiHandler from "../api/[...path]";
+import apiHandler from "./_core/serverless";
 
 const read = (relative: string) => readFileSync(join(process.cwd(), relative), "utf8");
 const vercelConfig = JSON.parse(read("vercel.json"));
@@ -14,6 +14,14 @@ const vercelConfig = JSON.parse(read("vercel.json"));
  * function, and that function has to answer as an API.
  */
 describe("the API is actually deployed", () => {
+  it("routes the tRPC path explicitly, carrying the procedure path through", () => {
+    // The catch-all alone matched only a single segment under this framework preset:
+    // /api/anything reached the function, /api/trpc/healthcheck did not.
+    const api = (vercelConfig.rewrites || []).find((r: { source: string }) => r.source.startsWith("/api/trpc"));
+    expect(api, "an explicit /api/trpc rewrite exists").toBeTruthy();
+    expect(api.destination).toContain("__trpc=:path*");
+  });
+
   it("keeps the SPA rewrite away from /api", () => {
     const rewrites = vercelConfig.rewrites || [];
     expect(rewrites.length).toBeGreaterThan(0);
@@ -33,13 +41,26 @@ describe("the API is actually deployed", () => {
   });
 
   it("defines the API as one catch-all function so /api/trpc keeps its mount path", () => {
-    const source = read("api/[...path].ts");
+    const source = read("server/_core/serverless.ts");
     // The router and context are imported, never redefined, so the deployed surface
     // cannot drift from the one the dev server runs.
-    expect(source).toContain('from "../server/routers"');
-    expect(source).toContain('from "../server/_core/context"');
+    expect(source).toContain('from "../routers"');
+    expect(source).toContain('from "./context"');
     expect(source).toContain('app.use(\n  "/api/trpc",');
     expect(source).not.toContain("listen(");
+  });
+
+  it("ships the function as a bundle, because the platform transpiles without bundling", () => {
+    // Vercel emitted api/[...path].js with its extensionless `../server/routers`
+    // import intact. Under "type": "module" Node refuses to resolve that, and every
+    // invocation died with ERR_MODULE_NOT_FOUND. A bundle has no internal specifiers
+    // left to resolve.
+    const entry = read("api/[...path].js");
+    expect(entry).toContain('export { default } from "../dist/serverless.js"');
+    // The extension is what Node's ESM resolver requires; dropping it reintroduces
+    // exactly the failure above.
+    expect(entry).toContain(".js\"");
+    expect(JSON.parse(read("package.json")).scripts.build).toContain("--outfile=dist/serverless.js");
   });
 });
 
@@ -67,10 +88,20 @@ describe("the deployed handler answers as an API", () => {
     expect(Array.isArray(body.result.data.json)).toBe(true);
   });
 
+  it("restores the tRPC mount path when the platform delivers the function path", async () => {
+    // Simulates the rewritten shape: the function's own path plus the carried
+    // procedure. Without the normalizer this 404s instead of reaching tRPC.
+    const response = await fetch(base + "/api/%5B...path%5D?__trpc=strengthGenome.referenceRows");
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toMatch(/application\/json/);
+    const body = await response.json();
+    expect(Array.isArray(body.result.data.json)).toBe(true);
+  });
+
   it("404s unknown API paths in JSON, so a client never parses an HTML error page", async () => {
     const response = await fetch(base + "/api/not-a-route");
     expect(response.status).toBe(404);
     expect(response.headers.get("content-type")).toMatch(/application\/json/);
-    await expect(response.json()).resolves.toEqual({ error: "Not found" });
+    await expect(response.json()).resolves.toMatchObject({ error: "Not found", path: "/api/not-a-route" });
   });
 });
