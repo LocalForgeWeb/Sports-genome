@@ -1,0 +1,301 @@
+id	name	primaryMuscles	secondaryMuscles
+1	Barbell Bench Press	chest	triceps,frontDelts,abs
+2	Incline Barbell Bench Press	chest	triceps,frontDelts,abs
+3	Decline Barbell Bench Press	chest	triceps,frontDelts,abs
+4	Dumbbell Bench Press	chest	triceps,frontDelts,abs
+5	Incline Dumbbell Bench Press	chest	triceps,frontDelts,abs
+6	Decline Dumbbell Bench Press	chest	triceps,frontDelts,abs
+7	Dumbbell Floor Press	chest	triceps,frontDelts,abs
+8	Dumbbell Squeeze Press	chest	triceps,frontDelts,abs
+9	Alternating Dumbbell Bench Press	chest	triceps,frontDelts,abs
+10	Single-Arm Dumbbell Bench Press	chest	triceps,frontDelts,abs
+11	Machine Chest Press	chest	triceps,frontDelts,abs
+12	Incline Machine Chest Press	chest	triceps,frontDelts,abs
+13	Plate-Loaded Chest Press	chest	triceps,frontDelts,abs
+14	Smith Machine Bench Press	chest	triceps,frontDelts,abs
+15	Smith Machine Incline Press	chest	triceps,frontDelts,abs
+16	Cable Chest Press	chest	triceps,frontDelts,abs
+17	Single-Arm Cable Chest Press	chest	triceps,frontDelts,abs
+18	Cable Fly	chest	triceps,frontDelts
+19	Low-to-High Cable Fly	chest	triceps,frontDelts
+20	High-to-Low Cable Fly	chest	triceps,frontDelts
+21	Pec Deck Fly	chest	triceps,frontDelts
+22	Dumbbell Fly	chest	triceps,frontDelts
+23	Incline Dumbbell Fly	chest	triceps,frontDelts
+24	Dumbbell Pullover	lats,upperBack	biceps,rearDelts,forearms
+25	Plate Squeeze Press	chest	triceps,frontDelts,abs
+26	Standard Push-Up	chest	triceps,frontDelts,abs
+27	Wide-Grip Push-Up	chest	triceps,frontDelts,abs
+28	Diamond Push-Up	chest	triceps,frontDelts,abs
+29	Decline Push-Up	chest	triceps,frontDelts,abs
+30	Incline Push-Up	chest	triceps,frontDelts,abs
+31	Archer Push-Up	chest	triceps,frontDelts,abs
+32	Plyometric Push-Up	chest	triceps,frontDelts,abs
+33	Clap Push-Up	chest	triceps,frontDelts,abs
+34	Explosive Depth Push-Up	chest	triceps,frontDelts,abs
+35	Deficit Push-Up	chest	triceps,frontDelts,abs
+36	Ring Push-Up	chest	triceps,frontDelts,abs
+37	Weighted Push-Up	chest	triceps,frontDelts,abs
+38	Spiderman Push-Up	chest	triceps,frontDelts,abs
+39	Typewriter Push-Up	chest	triceps,frontDelts,abs
+40	Parallel-Bar Dip	chest	triceps,frontDelts,abs
+41	Conventional Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+42	Romanian Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+43	Barbell Bent-Over Row	lats,upperBack	biceps,rearDelts,forearms
+44	Pendlay Row	lats,upperBack	biceps,rearDelts,forearms
+45	Underhand Barbell Row	lats,upperBack	biceps,rearDelts,forearms
+46	Dumbbell Row	lats,upperBack	biceps,rearDelts,forearms
+47	Chest-Supported Dumbbell Row	lats,upperBack	biceps,rearDelts,forearms
+48	Seal Row	lats,upperBack	biceps,rearDelts,forearms
+49	Meadows Row	lats,upperBack	biceps,rearDelts,forearms
+50	T-Bar Row	lats,upperBack	biceps,rearDelts,forearms
+51	Chest-Supported T-Bar Row	lats,upperBack	biceps,rearDelts,forearms
+52	Machine High Row	lats,upperBack	biceps,rearDelts,forearms
+53	Machine Low Row	lats,upperBack	biceps,rearDelts,forearms
+54	Seated Cable Row	lats,upperBack	biceps,rearDelts,forearms
+55	Wide-Grip Cable Row	lats,upperBack	biceps,rearDelts,forearms
+56	Single-Arm Cable Row	lats,upperBack	biceps,rearDelts,forearms
+57	Lat Pulldown	lats,upperBack	biceps,rearDelts,forearms
+58	Wide-Grip Lat Pulldown	lats,upperBack	biceps,rearDelts,forearms
+59	Neutral-Grip Lat Pulldown	lats,upperBack	biceps,rearDelts,forearms
+60	Underhand Lat Pulldown	lats,upperBack	biceps,rearDelts,forearms
+61	Single-Arm Lat Pulldown	lats,upperBack	biceps,rearDelts,forearms
+62	Straight-Arm Cable Pulldown	lats,upperBack	biceps,rearDelts,forearms
+63	Cable Pullover	lats,upperBack	biceps,rearDelts,forearms
+64	Machine Pullover	lats,upperBack	biceps,rearDelts,forearms
+65	Dumbbell Pullover	lats,upperBack	biceps,rearDelts,forearms
+66	Pull-Up	lats,upperBack	biceps,rearDelts,forearms
+67	Chin-Up	lats,upperBack	biceps,rearDelts,forearms
+68	Neutral-Grip Pull-Up	lats,upperBack	biceps,rearDelts,forearms
+69	Wide-Grip Pull-Up	lats,upperBack	biceps,rearDelts,forearms
+70	Weighted Pull-Up	lats,upperBack	biceps,rearDelts,forearms
+71	Weighted Chin-Up	lats,upperBack	biceps,rearDelts,forearms
+72	Commando Pull-Up	lats,upperBack	biceps,rearDelts,forearms
+73	Archer Pull-Up	lats,upperBack	biceps,rearDelts,forearms
+74	L-Sit Pull-Up	abs	obliques,hipFlexors
+75	Inverted Row	lats,upperBack	biceps,rearDelts,forearms
+76	Feet-Elevated Inverted Row	lats,upperBack	biceps,rearDelts,forearms
+77	Ring Row	lats,upperBack	biceps,rearDelts,forearms
+78	Towel Pull-Up	lats,upperBack	biceps,rearDelts,forearms
+79	Scapular Pull-Up	lats,upperBack	biceps,rearDelts,forearms
+80	Rope Climb	lats,upperBack	biceps,rearDelts,forearms
+81	Barbell Shrug	traps	forearms,upperBack
+82	Dumbbell Shrug	traps	forearms,upperBack
+83	Trap-Bar Shrug	traps	forearms,upperBack
+84	Cable Shrug	traps	forearms,upperBack
+85	Machine Shrug	traps	forearms,upperBack
+86	Incline Dumbbell Shrug	traps	forearms,upperBack
+87	Face Pull	rearDelts,traps	rotatorCuff,upperBack
+88	Rope Face Pull with External Rotation	rearDelts,traps	rotatorCuff,upperBack
+89	Reverse Pec Deck	rearDelts,traps	upperBack,rotatorCuff
+90	Bent-Over Rear-Delt Fly	rearDelts,traps	rotatorCuff,upperBack
+91	Chest-Supported Rear-Delt Raise	rearDelts,traps	rotatorCuff,upperBack
+92	Cable Rear-Delt Fly	rearDelts,traps	rotatorCuff,upperBack
+93	Single-Arm Cable Rear-Delt Fly	rearDelts,traps	rotatorCuff,upperBack
+94	Dumbbell Y-Raise	rearDelts,traps	rotatorCuff,upperBack
+95	Cable Y-Raise	rearDelts,traps	rotatorCuff,upperBack
+96	Prone Y-Raise	rearDelts,traps	rotatorCuff,upperBack
+97	Prone T-Raise	rearDelts,traps	rotatorCuff,upperBack
+98	Prone W-Raise	rearDelts,traps	rotatorCuff,upperBack
+99	Scapular Wall Slide	serratusAnterior,traps	rotatorCuff,upperBack
+100	Band Pull-Apart	rearDelts,traps	rotatorCuff,upperBack
+101	Barbell Overhead Press	frontDelts,sideDelts	triceps,frontDelts,abs
+102	Seated Barbell Overhead Press	frontDelts,sideDelts	triceps,frontDelts,abs
+103	Dumbbell Shoulder Press	frontDelts,sideDelts	triceps,frontDelts,abs
+104	Seated Dumbbell Shoulder Press	frontDelts,sideDelts	triceps,frontDelts,abs
+105	Arnold Press	chest	triceps,frontDelts,abs
+106	Machine Shoulder Press	frontDelts,sideDelts	triceps,frontDelts,abs
+107	Smith Machine Shoulder Press	frontDelts,sideDelts	triceps,frontDelts,abs
+108	Single-Arm Dumbbell Overhead Press	frontDelts,sideDelts	triceps,frontDelts,abs
+109	Z-Press	frontDelts,sideDelts	triceps,frontDelts,abs
+110	Push Press	chest	triceps,frontDelts,abs
+111	Dumbbell Lateral Raise	sideDelts	traps
+112	Cable Lateral Raise	sideDelts	traps
+113	Machine Lateral Raise	sideDelts	traps
+114	Leaning Cable Lateral Raise	sideDelts	traps
+115	Behind-the-Back Cable Lateral Raise	sideDelts	traps
+116	Incline Dumbbell Lateral Raise	sideDelts	traps
+117	Dumbbell Front Raise	frontDelts	chest
+118	Cable Front Raise	frontDelts	chest
+119	Plate Front Raise	frontDelts	chest
+120	Handstand Push-Up	frontDelts,sideDelts	triceps,frontDelts,abs
+121	Barbell Curl	biceps,brachialis	forearms
+122	EZ-Bar Curl	biceps,brachialis	forearms
+123	Dumbbell Curl	biceps,brachialis	forearms
+124	Alternating Dumbbell Curl	biceps,brachialis	forearms
+125	Incline Dumbbell Curl	biceps,brachialis	forearms
+126	Preacher Curl	biceps,brachialis	forearms
+127	Machine Preacher Curl	biceps,brachialis	forearms
+128	Cable Curl	biceps,brachialis	forearms
+129	Bayesian Cable Curl	biceps,brachialis	forearms
+130	Spider Curl	biceps,brachialis	forearms
+131	Concentration Curl	biceps,brachialis	forearms
+132	Hammer Curl	biceps,brachialis	forearms
+133	Cross-Body Hammer Curl	biceps,brachialis	forearms
+134	Rope Hammer Curl	biceps,brachialis	forearms
+135	Reverse Curl	biceps,brachialis	forearms
+136	Zottman Curl	biceps,brachialis	forearms
+137	Drag Curl	biceps,brachialis	forearms
+138	Chin-Up Curl	biceps,brachialis	forearms
+139	Wrist Curl	forearms	forearms
+140	Reverse Wrist Curl	forearms	forearms
+141	Wrist Roller	forearms	forearms
+142	Plate Pinch	forearms	forearms
+143	Dead Hang	forearms	forearms
+144	Towel Dead Hang	forearms	forearms
+145	Farmer Hold	forearms	forearms
+146	Close-Grip Bench Press	chest	triceps,frontDelts,abs
+147	JM Press	chest	triceps,frontDelts,abs
+148	Skull Crusher	triceps	frontDelts
+149	Dumbbell Skull Crusher	triceps	frontDelts
+150	Cable Triceps Pushdown	triceps	frontDelts
+151	Rope Triceps Pushdown	triceps	frontDelts
+152	Reverse-Grip Pushdown	triceps	frontDelts
+153	Single-Arm Cable Pushdown	triceps	frontDelts
+154	Overhead Cable Triceps Extension	triceps	frontDelts
+155	Dumbbell Overhead Triceps Extension	triceps	frontDelts
+156	Single-Arm Dumbbell Triceps Extension	triceps	frontDelts
+157	Machine Triceps Extension	triceps	frontDelts
+158	Bench Dip	chest	triceps,frontDelts,abs
+159	Ring Dip	chest	triceps,frontDelts,abs
+160	Bodyweight Triceps Extension	triceps	frontDelts
+161	Back Squat	quads,glutes	adductors,calves,abs
+162	High-Bar Back Squat	quads,glutes	adductors,calves,abs
+163	Front Squat	quads,glutes	adductors,calves,abs
+164	Zercher Squat	quads,glutes	adductors,calves,abs
+165	Goblet Squat	quads,glutes	adductors,calves,abs
+166	Hack Squat	quads,glutes	adductors,calves,abs
+167	Pendulum Squat	quads,glutes	adductors,calves,abs
+168	Smith Machine Squat	quads,glutes	adductors,calves,abs
+169	Leg Press	quads,glutes	adductors,calves,abs
+170	Single-Leg Leg Press	quads,glutes	adductors,calves,abs
+171	Leg Extension	quads,glutes	adductors,calves,abs
+172	Single-Leg Leg Extension	quads,glutes	adductors,calves,abs
+173	Bulgarian Split Squat	quads,glutes	adductors,calves,abs
+174	Front-Foot-Elevated Split Squat	quads,glutes	adductors,calves,abs
+175	Reverse Lunge	quads,glutes	adductors,calves,abs
+176	Forward Lunge	quads,glutes	adductors,calves,abs
+177	Walking Lunge	quads,glutes	adductors,calves,abs
+178	Deficit Reverse Lunge	quads,glutes	adductors,calves,abs
+179	Step-Up	quads,glutes	adductors,calves,abs
+180	Peterson Step-Up	quads,glutes	adductors,calves,abs
+181	Cyclist Squat	quads,glutes	adductors,calves,abs
+182	Sissy Squat	quads,glutes	adductors,calves,abs
+183	Spanish Squat	quads,glutes	adductors,calves,abs
+184	Pistol Squat	quads,glutes	adductors,calves,abs
+185	Assisted Pistol Squat	quads,glutes	adductors,calves,abs
+186	Romanian Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+187	Stiff-Leg Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+188	Single-Leg Romanian Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+189	Dumbbell Romanian Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+190	Good Morning	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+191	Seated Good Morning	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+192	Nordic Hamstring Curl	hamstrings	calves,glutes
+193	Assisted Nordic Curl	hamstrings	calves,glutes
+194	Lying Leg Curl	hamstrings	calves,glutes
+195	Seated Leg Curl	hamstrings	calves,glutes
+196	Standing Single-Leg Curl	hamstrings	calves,glutes
+197	Stability-Ball Hamstring Curl	hamstrings	calves,glutes
+198	Slider Hamstring Curl	hamstrings	calves,glutes
+199	Glute-Ham Raise	hamstrings	calves,glutes
+200	45-Degree Back Extension	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+201	Reverse Hyperextension	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+202	Cable Pull-Through	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+203	Kettlebell Swing	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+204	Barbell Hip Hinge	hamstrings,glutes	lowerBack,forearms,abs
+205	B-Stance Romanian Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+206	Barbell Hip Thrust	glutes	hamstrings,abs
+207	Smith Machine Hip Thrust	glutes	hamstrings,abs
+208	Dumbbell Hip Thrust	glutes	hamstrings,abs
+209	Single-Leg Hip Thrust	glutes	hamstrings,abs
+210	Glute Bridge	glutes	hamstrings,abs
+211	Single-Leg Glute Bridge	glutes	hamstrings,abs
+212	Cable Glute Kickback	glutes	hamstrings,abs
+213	Machine Glute Kickback	glutes	hamstrings,abs
+214	Hip Abduction Machine	abductors,glutes	adductors,quads
+215	Cable Hip Abduction	abductors,glutes	adductors,quads
+216	Lateral Band Walk	abductors,glutes	adductors,quads
+217	Copenhagen Plank	abs	obliques,hipFlexors
+218	Cable Hip Adduction	adductors	obliques,glutes
+219	Hip Adduction Machine	adductors	obliques,glutes
+220	Cossack Squat	abductors,glutes	adductors,quads
+221	Standing Calf Raise	calves	feet
+222	Seated Calf Raise	calves	feet
+223	Leg-Press Calf Raise	chest	triceps,frontDelts,abs
+224	Single-Leg Calf Raise	calves	feet
+225	Donkey Calf Raise	calves	feet
+226	Smith Machine Calf Raise	calves	feet
+227	Tibialis Raise	tibialis	feet
+228	Weighted Tibialis Raise	tibialis	feet
+229	Toe Walk	calves	feet
+230	Heel Walk	tibialis	feet
+231	Hanging Leg Raise	abs	obliques,hipFlexors
+232	Hanging Knee Raise	forearms	forearms
+233	Captain’s-Chair Leg Raise	abs	obliques,hipFlexors
+234	Toes-to-Bar	abs,obliques	hipFlexors,lowerBack
+235	L-Sit	abs	obliques,hipFlexors
+236	V-Up	abs	obliques,hipFlexors
+237	Ab-Wheel Rollout	abs	obliques,hipFlexors
+238	Barbell Rollout	abs	obliques,hipFlexors
+239	Cable Crunch	abs	obliques,hipFlexors
+240	Machine Crunch	abs	obliques,hipFlexors
+241	Decline Sit-Up	abs	obliques,hipFlexors
+242	Weighted Decline Sit-Up	abs	obliques,hipFlexors
+243	Reverse Crunch	abs	obliques,hipFlexors
+244	Dead Bug	abs	obliques,hipFlexors
+245	Hollow-Body Hold	abs	obliques,hipFlexors
+246	RKC Plank	abs	obliques,hipFlexors
+247	Side Plank	abs	obliques,hipFlexors
+248	Weighted Plank	abs	obliques,hipFlexors
+249	Pallof Press	chest	triceps,frontDelts,abs
+250	Cable Wood Chop	obliques,glutes	abs,shoulders,chest
+251	Landmine Press	chest	triceps,frontDelts,abs
+252	Half-Kneeling Landmine Press	chest	triceps,frontDelts,abs
+253	Single-Arm Standing Landmine Press	chest	triceps,frontDelts,abs
+254	Landmine Push Press	chest	triceps,frontDelts,abs
+255	Landmine Squat-to-Press	chest	triceps,frontDelts,abs
+256	Landmine Row	lats,upperBack	biceps,rearDelts,forearms
+257	Meadows Landmine Row	lats,upperBack	biceps,rearDelts,forearms
+258	Landmine T-Bar Row	lats,upperBack	biceps,rearDelts,forearms
+259	Landmine Squat	quads,glutes	adductors,calves,abs
+260	Landmine Hack Squat	quads,glutes	adductors,calves,abs
+261	Landmine Reverse Lunge	quads,glutes	adductors,calves,abs
+262	Landmine Lateral Lunge	quads,glutes	adductors,calves,abs
+263	Landmine Romanian Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+264	Landmine Single-Leg Romanian Deadlift	hamstrings,glutes	lowerBack,upperBack,forearms,abs
+265	Landmine Rotation	obliques,glutes	abs,shoulders,chest
+266	Landmine 180	obliques,glutes	abs,shoulders,chest
+267	Landmine Anti-Rotation Press	chest	triceps,frontDelts,abs
+268	Landmine Thruster	shoulders,chest,glutes	triceps,upperBack,obliques,quads
+269	Landmine Clean and Press	chest	triceps,frontDelts,abs
+270	Landmine Split Jerk	shoulders,chest,glutes	triceps,upperBack,obliques,quads
+271	Medicine-Ball Chest Pass	obliques,chest,shoulders	glutes,quads,triceps,abs
+272	Explosive Medicine-Ball Push-Up	chest	triceps,frontDelts,abs
+273	Medicine-Ball Overhead Slam	obliques,chest,shoulders	glutes,quads,triceps,abs
+274	Medicine-Ball Rotational Slam	obliques,glutes	abs,shoulders,chest
+275	Medicine-Ball Side Throw	obliques,glutes	abs,shoulders,chest
+276	Medicine-Ball Rotational Wall Throw	obliques,glutes	abs,shoulders,chest
+277	Medicine-Ball Scoop Toss	obliques,glutes	abs,shoulders,chest
+278	Medicine-Ball Shot-Put Throw	obliques,glutes	abs,shoulders,chest
+279	Medicine-Ball Overhead Backward Throw	lats,upperBack	biceps,rearDelts,forearms
+280	Medicine-Ball Forward Overhead Throw	lats,upperBack	biceps,rearDelts,forearms
+281	Kneeling Medicine-Ball Chest Pass	obliques,chest,shoulders	glutes,quads,triceps,abs
+282	Half-Kneeling Rotational Throw	obliques,glutes	abs,shoulders,chest
+283	Medicine-Ball Sit-Up Throw	abs	obliques,hipFlexors
+284	Medicine-Ball Sprawl-to-Slam	obliques,chest,shoulders	glutes,quads,triceps,abs
+285	Medicine-Ball Slam-to-Sprint	obliques,chest,shoulders	glutes,quads,triceps,abs
+286	Box Jump	quads,glutes,calves	hamstrings,abs
+287	Depth Jump	quads,glutes,calves	hamstrings,abs
+288	Broad Jump	quads,glutes,calves	hamstrings,abs
+289	Weighted Box Jump	quads,glutes,calves	hamstrings,abs
+290	Lateral Bound	quads,glutes,calves	hamstrings,abs
+291	Single-Leg Broad Jump	quads,glutes,calves	hamstrings,abs
+292	Pogo Jump	quads,glutes,calves	hamstrings,abs
+293	Jump Squat	quads,glutes,calves	hamstrings,abs
+294	Split-Squat Jump	quads,glutes,calves	hamstrings,abs
+295	Explosive Step-Up	quads,glutes,calves	hamstrings,abs
+296	Heavy Sled Push	quads,glutes	calves,abs,shoulders
+297	Backward Sled Drag	quads,glutes	calves,abs,shoulders
+298	Sled Sprint	quads,glutes	calves,abs,shoulders
+299	Farmer’s Walk	forearms,upperBack,abs	glutes,quads,calves
+300	Zercher Carry	forearms,upperBack,abs	glutes,quads,calves
