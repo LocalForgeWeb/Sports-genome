@@ -1430,6 +1430,8 @@ select {
 .strength-profile-reference-details { position: relative; z-index: 1; margin-top: .7rem; }
 .strength-profile-reference-details summary { cursor: pointer; color: #dcecff; font-size: .7rem; font-weight: 800; letter-spacing: .05em; }
 .strength-profile-reference-details p { max-width: 42rem; margin: .55rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .76rem; line-height: 1.45; }
+/* The library being offline is a different fact from a lift not qualifying, so it reads as a notice rather than as body copy. */
+.strength-profile-reference-details p.strength-profile-reference-offline { margin-top: .55rem; padding: .5rem .65rem; border-left: 3px solid var(--sg-accent, #e4512e); border-radius: 0 6px 6px 0; background: rgba(228, 81, 46, .1); color: #f2dcd4; font-weight: 600; }
 .strength-body-map-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
 .strength-body-map-actions button { min-width: 3.25rem; }
 
