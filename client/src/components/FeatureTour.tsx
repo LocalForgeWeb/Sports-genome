@@ -1,25 +1,96 @@
 import { useState } from "react";
-import { Activity, ArrowLeft, ArrowRight, BookOpenCheck, BrainCircuit, ClipboardPlus, Compass, Dna, Dumbbell, FileInput, Move3d, Network, SlidersHorizontal, Target, X } from "lucide-react";
+import { Activity, ArrowLeft, ArrowRight, Dumbbell, Home, LineChart, X } from "lucide-react";
 
-/** Task-based guide: every step shows location, action, and reason before opening the relevant workspace. */
+/**
+ * First-run guide.
+ *
+ * The previous version had ten modal steps and roughly forty instructions before
+ * the athlete had done anything, and seven of them pointed at a "left rail" that
+ * does not exist anywhere in this app - the navigation is a bottom tab bar. It also
+ * never mentioned Strength Genome, which is where a logged lift actually goes.
+ *
+ * This one is four steps, each naming a real destination and one thing to do there.
+ * Every step opens that destination, so the guide is a way into the app rather than
+ * reading to get through first. Anything deeper belongs beside the feature it
+ * explains, not in a modal before the athlete has context for it.
+ */
 const steps = [
-  { icon: Compass, label: "Start here", title: "Your training profile", copy: "The quiz turns your goal, sport, training days, and preferred planning start into the context used throughout the app.", where: "Quiz → finish your four setup steps", tasks: ["Choose the quality you want to bias first.", "Choose the sport you want the plan to serve.", "Set the number of days you can realistically train."], view: "command" },
-  { icon: Network, label: "Navigation", title: "Use the left rail", copy: "The rail is your map. Each destination has one job, so you do not need to search through the same data in several places.", where: "Left rail → choose a workspace", tasks: ["Command Center: decide what matters today.", "Recommended Workouts: see sport-aware exercise matches.", "Custom Builder: edit, save, and organize sessions."], view: "command" },
-  { icon: Target, label: "Daily decision", title: "Command Center", copy: "Start each session here when you want a quick decision. It surfaces your current sport lens, priority movement, and the next training action.", where: "Left rail → Command Center", tasks: ["Check your selected sport and movement lens.", "Open the priority recommendation when you need a next step.", "Use the movement rationale before adding work."], view: "command" },
-  { icon: BrainCircuit, label: "Match exercises", title: "Recommended Workouts", copy: "This workspace connects a sport action to muscles, body actions, and exercise options. It explains why a recommendation appears instead of giving a generic list.", where: "Left rail → Recommended Workouts", tasks: ["Choose a sport action from the movement list.", "Read the prime movers and stabilizers.", "Inspect or add the exercise matches that fit the action."], view: "recommended" },
-  { icon: SlidersHorizontal, label: "Build a session", title: "Custom Builder", copy: "Use the builder for the actual workout. You can adjust exercises, prescriptions, RPE, rest, coach notes, completion, and weekly placement.", where: "Left rail → Custom Builder", tasks: ["Load a smart draft or start from an empty session.", "Edit sets and reps, then set effort and rest.", "Save the current workout to a day in the weekly map."], view: "custom" },
-  { icon: FileInput, label: "Bring your plan", title: "Import a routine", copy: "Paste a full routine when you already have one. The importer recognizes exercise lines, days, sets, reps, rest, RPE, and notes before asking you to confirm the load.", where: "Top bar → Import stack", tasks: ["Paste one session or several labeled training days.", "Review matched exercises and unmatched lines.", "Load the confirmed routine into Custom Builder and the weekly map."], view: "custom" },
-  { icon: ClipboardPlus, label: "Organize the week", title: "Weekly planning", copy: "The weekly map prevents a good session from becoming an unstructured week. Use it to keep Push, Pull, Legs, or sport-specific days distinct.", where: "Custom Builder → Weekly map", tasks: ["Use the Training Day tab only when you need a split or loadout change.", "Save the active session to the correct day.", "Open a saved day to edit it without rebuilding the week."], view: "custom" },
-  { icon: Activity, label: "See the body", title: "Body Lab", copy: "Body Lab is the anatomy view. It keeps the body central, lets you filter relevant tissue, and opens mechanics only after you select a region.", where: "Left rail → Body Lab", tasks: ["Switch front/back or surface/deep layers.", "Use the qualitative role map to see which muscles are primary or supporting in the selected action.", "Select a muscle for its role, demand bars, and reasoning."], view: "body" },
-  { icon: Move3d, label: "Study movement", title: "Movement Atlas", copy: "Use the Movement Atlas when you want the sporting action itself—not just an exercise. It organizes all researched actions by sport and movement family.", where: "Left rail → Movement Atlas", tasks: ["Filter to the sport you are training for.", "Choose an action and open only the details you need.", "Hand the selected action to Body Lab or exercise recommendations."], view: "movement" },
-  { icon: Dna, label: "Learn the exercise", title: "Exercise Genome", copy: "Exercise Genome is the deeper exercise analysis. Each dimension is clickable, so you can learn what strength, stability, mobility, fatigue, and practical demand mean.", where: "Left rail → Exercise Genome", tasks: ["Search for the exercise you want to understand.", "Open any Genome term to read what the model weighs.", "Use the context tab to see fit, overlap, and marginal value in your current stack."], view: "genome" },
+  {
+    icon: Home,
+    tab: "Home",
+    title: "Start on Home",
+    copy: "Home answers one question: what deserves your attention right now. It shows a single priority, your week so far, and the next action.",
+    task: "Read the priority card, then open what it points you at.",
+    view: "command",
+  },
+  {
+    icon: Dumbbell,
+    tab: "Train",
+    title: "Build and run a session",
+    copy: "Train is where a workout gets designed from your sport and equipment, then logged set by set while you do it.",
+    task: "Stage a session, then start it when you are ready to lift.",
+    view: "custom",
+  },
+  {
+    icon: Activity,
+    tab: "Body Lab",
+    title: "See what you are loading",
+    copy: "Body Lab maps a movement onto the body. Tap any muscle for its role in that action and the reasoning behind it.",
+    task: "Tap a highlighted muscle to open its role and reasoning.",
+    view: "body",
+  },
+  {
+    icon: LineChart,
+    tab: "Progress",
+    title: "Track what changes",
+    copy: "Log the same lift twice and Progress starts tracking your own change over time. Where a reviewed study matches your exact test, a comparison appears too.",
+    task: "Log your first lift so there is something to track.",
+    view: "strength",
+  },
 ] as const;
 
 export function FeatureTour({ onClose, onNavigate }: { onClose: () => void; onNavigate: (view: string) => void }) {
   const [step, setStep] = useState(0);
   const current = steps[step];
   const Icon = current.icon;
-  const openCurrent = () => onNavigate(current.view);
-  const finish = () => { openCurrent(); onClose(); };
-  return <div className="feature-tour-layer" role="dialog" aria-modal="true" aria-labelledby="feature-tour-title"><section className="feature-tour-card feature-tour-deep"><button onClick={onClose} className="feature-tour-close" aria-label="Skip feature tour"><X className="h-4 w-4" /></button><div className="feature-tour-icon"><Icon className="h-6 w-6" /></div><p className="metric-label">Sports Genome field guide · {String(step + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}</p><h2 id="feature-tour-title">{current.title}</h2><p className="feature-tour-copy">{current.copy}</p><div className="feature-tour-location"><BookOpenCheck className="h-4 w-4" /><span><b>Where to go</b>{current.where}</span></div><div className="feature-tour-tasks"><p className="metric-label">Try this</p>{current.tasks.map((task, index) => <div key={task}><span>{String(index + 1).padStart(2, "0")}</span><p>{task}</p></div>)}</div><button onClick={openCurrent} className="feature-tour-open">Open this area <ArrowRight className="h-4 w-4" /></button><div className="feature-tour-progress">{steps.map((item, index) => <span key={item.title} className={index === step ? "feature-tour-progress-active" : index < step ? "feature-tour-progress-done" : ""} />)}</div><div className="feature-tour-actions"><button onClick={onClose} className="feature-tour-skip">Skip guide</button><div className="flex gap-2">{step > 0 && <button onClick={() => setStep((value) => value - 1)} className="feature-tour-back"><ArrowLeft className="h-4 w-4" /> Back</button>}<button onClick={() => step === steps.length - 1 ? finish() : setStep((value) => value + 1)} className="feature-tour-next">{step === steps.length - 1 ? "Open workspace" : "Next lesson"}<ArrowRight className="h-4 w-4" /></button></div></div></section></div>;
+  const isLast = step === steps.length - 1;
+  const openCurrent = () => { onNavigate(current.view); onClose(); };
+
+  return <div className="feature-tour-layer" role="dialog" aria-modal="true" aria-labelledby="feature-tour-title">
+    <section className="feature-tour-card">
+      <button onClick={onClose} className="feature-tour-close" aria-label="Close guide"><X className="h-4 w-4" /></button>
+
+      <div className="feature-tour-icon"><Icon className="h-6 w-6" /></div>
+      <p className="metric-label">{current.tab} tab · {step + 1} of {steps.length}</p>
+      <h2 id="feature-tour-title">{current.title}</h2>
+      <p className="feature-tour-copy">{current.copy}</p>
+
+      {/* One thing to do, not a checklist. A step the athlete can finish is worth
+          more than three they will skim. */}
+      <p className="feature-tour-task"><span>Try this</span>{current.task}</p>
+
+      <button onClick={openCurrent} className="feature-tour-open">
+        Open {current.tab} <ArrowRight className="h-4 w-4" />
+      </button>
+
+      <div className="feature-tour-progress" aria-hidden="true">
+        {steps.map((item, index) => <span
+          key={item.title}
+          className={index === step ? "feature-tour-progress-active" : index < step ? "feature-tour-progress-done" : ""}
+        />)}
+      </div>
+
+      <div className="feature-tour-actions">
+        <button onClick={onClose} className="feature-tour-skip">{isLast ? "Close" : "Skip guide"}</button>
+        <div className="flex gap-2">
+          {step > 0 && <button onClick={() => setStep(value => value - 1)} className="feature-tour-back">
+            <ArrowLeft className="h-4 w-4" /> Back
+          </button>}
+          {!isLast && <button onClick={() => setStep(value => value + 1)} className="feature-tour-next">
+            Next <ArrowRight className="h-4 w-4" />
+          </button>}
+        </div>
+      </div>
+    </section>
+  </div>;
 }
