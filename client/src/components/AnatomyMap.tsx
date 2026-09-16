@@ -86,7 +86,7 @@ const clean = (v: string) => v.toLowerCase().replace(/[^a-z]/g, "");
 const matches = (key: string, values: string[]) => values.some(v => (aliases[key] || [key]).some(a => clean(v).includes(a)));
 
 export function VectorAnatomyFallback({ view, ranked, onSelect, onRetry }: { view: "FRONT" | "BACK"; ranked: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[]; onSelect: (key: string) => void; onRetry: () => void }) {
-  return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[var(--sg-surface-light)] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your relevant-muscle roles and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[11px] font-bold text-[#173d69] transition-colors hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)]">{region.label} · {region.roles?.join(" / ") || `${region.role || "Relevant"} role`} · {region.confidence || "Low-confidence inference"}</button>)}</div><button onClick={onRetry} className="mt-4 text-[11px] font-bold uppercase tracking-[.08em] text-[var(--sg-info-strong)] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
+  return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[var(--sg-surface-light)] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your relevant-muscle roles and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[11px] font-bold text-[#173d69] transition-colors hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)]">{region.label} · {region.roles?.join(" / ") || `${region.role || "Relevant"} role`} · {region.confidence || "Movement model"}</button>)}</div><button onClick={onRetry} className="mt-4 text-[11px] font-bold uppercase tracking-[.08em] text-[var(--sg-info-strong)] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
 }
 
 export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
@@ -151,9 +151,9 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
     };
     Object.keys(keyToIds).forEach(key => {
       if (matches(key, primary)) {
-        entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: roleDetails?.[key]?.roles, confidence: roleDetails?.[key]?.confidence || "Low-confidence inference" });
+        entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: roleDetails?.[key]?.roles, confidence: roleDetails?.[key]?.confidence || "Movement model" });
       } else if (matches(key, secondary)) {
-        entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: roleDetails?.[key]?.roles, confidence: roleDetails?.[key]?.confidence || "Low-confidence inference" });
+        entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: roleDetails?.[key]?.roles, confidence: roleDetails?.[key]?.confidence || "Movement model" });
       }
     });
     const fallbackOrder: Record<Role, number> = { Primary: 0, Stabilizer: 1, Synergist: 2 };
@@ -291,7 +291,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
               {selectedAnatomy?.distinction && <small className="atlas-selected-distinction">{selectedAnatomy.distinction}</small>}
             </div>
             <span className="atlas-selected-role">{selectedRoleDetail?.roles.join(" · ") || selectedRole}</span>
-            <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Low-confidence inference"}</span>
+            <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Movement model"}</span>
             {/* Where the chart has no path for this muscle it borrows a neighbour's.
                 Saying so beats letting a highlighted posterior deltoid be read as the
                 rotator cuff, which is a different muscle at a different depth. */}
@@ -322,7 +322,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
               </div>
               <div className="atlas-inspector-badges">
                 <span>{selectedRoleDetail?.roles.join(" · ") || selectedRole}</span>
-                <i>{selectedRoleDetail?.confidence || "Low-confidence inference"}</i>
+                <i>{selectedRoleDetail?.confidence || "Movement model"}</i>
                 <b>{hasLinkedExerciseOrStackContext ? "Exercise / stack context" : "Sporting-action role"}</b>
               </div>
               <div className="atlas-why-pro">

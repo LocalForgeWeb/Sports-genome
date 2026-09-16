@@ -81,7 +81,8 @@ describe("Body Lab architecture mechanics disclosure", () => {
     }));
 
     expect(markup).toContain("Vector anatomy fallback");
-    expect(markup).toContain("Pectoralis major · Primary role · Low-confidence inference");
+    // The ladder now names the basis for a role instead of grading its weakness.
+    expect(markup).toContain("Pectoralis major · Primary role · Movement model");
     expect(markup).toContain("Retry detailed anatomy chart");
   });
 

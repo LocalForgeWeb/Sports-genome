@@ -7,14 +7,14 @@ describe("Body Lab movement-specific role context", () => {
     expect(context.rolesByMuscle.glutes.roles).toContain("Primary Mover");
     expect(context.rolesByMuscle.hamstrings.roles).toContain("Synergist");
     expect(context.rolesByMuscle.obliques.roles).toContain("Stabilizer");
-    expect(context.rolesByMuscle.glutes.confidence).toBe("Moderate biomechanical inference");
+    expect(context.rolesByMuscle.glutes.confidence).toBe("Biomechanical model");
   });
 
-  it("uses an explicit low-confidence qualitative fallback when a movement lacks an enriched record", () => {
+  it("falls back to the movement model when a record has no enriched evidence", () => {
     const context = getBodyLabRoleContext("test", "missing", ["quads"], ["abs"]);
     expect(context.rolesByMuscle.quads.roles).toEqual(["Primary Mover"]);
     expect(context.rolesByMuscle.abs.roles).toEqual(["Supporting"]);
-    expect(context.rolesByMuscle.quads.confidence).toBe("Low-confidence inference");
+    expect(context.rolesByMuscle.quads.confidence).toBe("Movement model");
   });
 
   it("uses source-recorded action phases and stability mechanics to list stabilizers before assisting roles", () => {
