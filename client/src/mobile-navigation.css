@@ -9,7 +9,7 @@
 .planning-disclosure-detail, .planning-evidence-card > div { border-top: 1px solid var(--sg-divider-on-light); padding: .75rem; }
 .planning-disclosure-detail > p:not(.metric-label), .planning-evidence-card > div p { margin-top: .45rem; color: var(--sg-text-muted-on-light); font-size: .6875rem; line-height: 1.48; }
 .planning-disclosure-detail > p:first-of-type, .planning-evidence-card > div p:first-child { margin-top: .55rem; }
-.planning-disclosure-card[open] .planning-disclosure-detail, .planning-evidence-card[open] > div, .catalog-discovery-controls[open] .catalog-discovery-filter-grid, .genome-methodology[open] > div { animation: mobile-disclosure-in 180ms cubic-bezier(.23, 1, .32, 1) both; }
+.planning-disclosure-card[open] .planning-disclosure-detail, .planning-evidence-card[open] > div, .catalog-discovery-controls[open] .catalog-discovery-filter-grid, .genome-methodology[open] > div { animation: mobile-disclosure-in var(--sg-motion-fast) var(--sg-ease-entrance) both; }
 .genome-methodology { border-bottom: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light-sunken); }
 .genome-methodology summary { min-height: 42px; cursor: pointer; padding: .78rem 1.1rem; color: var(--sg-info-strong); font-size: .6875rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
 .genome-methodology > div { border-top: 1px solid var(--sg-divider-on-light); padding: .75rem 1.1rem; }
@@ -43,7 +43,7 @@
   .genome-panel-head { align-items: center; gap: .75rem; padding: .9rem; }
   .genome-panel-head h3 { max-width: 220px; font-size: 1.8rem; line-height: .86; }
   .genome-tab { min-height: 44px; padding: .65rem .75rem; font-size: .6875rem; }
-  .genome-tab-active { animation: mobile-tab-in 170ms cubic-bezier(.23, 1, .32, 1) both; }
+  .genome-tab-active { animation: mobile-tab-in var(--sg-motion-fast) var(--sg-ease-entrance) both; }
   .genome-grid, .genome-mechanics, .genome-context { gap: .85rem; padding: .85rem; }
   .genome-fingerprint { max-width: 230px; }
   .genome-fingerprint svg { max-width: 205px; }

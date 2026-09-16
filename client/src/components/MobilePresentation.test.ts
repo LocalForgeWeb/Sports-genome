@@ -34,8 +34,11 @@ describe("mobile athlete presentation", () => {
   });
 
   it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {
-    expect(mobileStyles).toContain("mobile-disclosure-in 180ms");
-    expect(mobileStyles).toContain("mobile-tab-in 170ms");
+    // Both were inline timings (180ms, 170ms) that no longer collapsed under the
+    // reduced-motion preference. On the shared token they are still brief and now
+    // shorten with everything else.
+    expect(mobileStyles).toContain("mobile-disclosure-in var(--sg-motion-fast)");
+    expect(mobileStyles).toContain("mobile-tab-in var(--sg-motion-fast)");
     expect(mobileStyles).toContain("@media (prefers-reduced-motion: reduce)");
   });
 
