@@ -7,7 +7,8 @@ export function BootSplashLifecycle() {
   useEffect(() => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion) {
-      dismissBootSplash();
+      // Nothing is animating, so there is no paint to wait for.
+      dismissBootSplash({ immediate: true });
       return;
     }
     const documentStartedAt = Number(document.documentElement.dataset.sportsGenomeBootStartedAt);

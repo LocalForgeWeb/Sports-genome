@@ -28,7 +28,7 @@ const trpcClient = trpc.createClient({
  * explanation - never a silent rejection.
  */
 function renderStartupFailure(root: HTMLElement, error: unknown) {
-  dismissBootSplash();
+  dismissBootSplash({ immediate: true });
   const detail = error instanceof Error ? error.message : "The application could not be loaded.";
   root.innerHTML = "";
 

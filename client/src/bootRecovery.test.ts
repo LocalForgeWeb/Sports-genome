@@ -45,7 +45,7 @@ describe("boot screen always lifts", () => {
 
   it("dismisses on a render error so the error message is not covered", () => {
     expect(errorBoundarySource).toContain("componentDidCatch");
-    expect(errorBoundarySource).toContain("dismissBootSplash()");
+    expect(errorBoundarySource).toContain("dismissBootSplash({ immediate: true })");
   });
 
   it("keeps the dismissing component outside the providers it must not depend on", () => {
@@ -59,10 +59,21 @@ describe("boot screen always lifts", () => {
 
   it("dismissBootSplash marks the document ready and clears the node", () => {
     vi.useFakeTimers();
-    dismissBootSplash();
+    // Immediate mode is the error path: no app paint to wait for, and frame
+    // callbacks never run in a background tab.
+    dismissBootSplash({ immediate: true });
     expect(document.documentElement.classList.contains("sports-genome-app-ready")).toBe(true);
-    vi.advanceTimersByTime(400);
+    vi.advanceTimersByTime(600);
     expect(document.getElementById(bootSplashId)).toBeNull();
+  });
+
+  it("waits for the app's first paint before starting the cross-fade", async () => {
+    // Effects run before the browser paints, so fading there put a full-screen
+    // compositor animation against React's heaviest paint.
+    dismissBootSplash();
+    expect(document.documentElement.classList.contains("sports-genome-app-ready")).toBe(false);
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    expect(document.documentElement.classList.contains("sports-genome-app-ready")).toBe(true);
   });
 
   it("is safe to call when the splash is already gone", () => {
@@ -81,7 +92,7 @@ describe("startup failures surface instead of rejecting silently", () => {
 
   it("renders a reload path rather than leaving the boot screen up", () => {
     expect(mainSource).toContain("renderStartupFailure");
-    expect(mainSource).toContain("dismissBootSplash()");
+    expect(mainSource).toContain("dismissBootSplash({ immediate: true })");
     expect(mainSource).toContain('reload.addEventListener("click", () => window.location.reload())');
     expect(mainSource).toContain('setAttribute("role", "alert")');
   });
