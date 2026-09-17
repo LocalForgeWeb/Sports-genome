@@ -6,6 +6,7 @@ import {
   index,
   int,
   mysqlEnum,
+  mediumtext,
   mysqlTable,
   text,
   timestamp,
@@ -644,6 +645,42 @@ export const strengthEstimateSnapshots = mysqlTable(
     }).onDelete("set null"),
   ]
 );
+
+/**
+ * The athlete's training plan, so it survives the device it was built on.
+ *
+ * The plan lived only in localStorage, which meant building a week on a phone and
+ * opening a laptop showed nothing. It is stored as the same JSON document the client
+ * already serialises rather than exploded into rows: the client owns its shape, it
+ * is read and written whole, and nothing server-side queries inside it. Normalising
+ * it would buy nothing and couple the schema to a UI structure that still moves.
+ *
+ * One row per athlete - the plan is a single current document, not a history.
+ */
+export const athleteWorkoutPlans = mysqlTable(
+  "athleteWorkoutPlans",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    /** Serialised StoredWorkoutPlan. MEDIUMTEXT: TEXT caps at 64KB and a multi-week
+     *  plan with per-exercise entries and prescriptions can pass that. */
+    planJson: mediumtext("planJson").notNull(),
+    /** The client's own schema version, so an older document can be migrated on read. */
+    planVersion: int("planVersion").notNull().default(2),
+    /** Set by the writer, used to resolve which side is newer without trusting clocks blindly. */
+    revision: int("revision").notNull().default(1),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  table => [
+    // One plan per athlete: the upsert depends on this.
+    uniqueIndex("athleteWorkoutPlans_user_unique").on(table.userId),
+  ]
+);
+
+export type AthleteWorkoutPlan = typeof athleteWorkoutPlans.$inferSelect;
 
 export type AthleteStrengthProfile = typeof athleteStrengthProfiles.$inferSelect;
 export type AthleteStrengthPriority = typeof athleteStrengthPriorities.$inferSelect;

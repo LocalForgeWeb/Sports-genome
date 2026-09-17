@@ -33,7 +33,7 @@ describe("Home answers state, priority, and next action", () => {
   // viewport communicates current state/trend, the highest-value priority, and the
   // next best action. Secondary content must not compete for first attention.
   it("puts the state and next-action panel ahead of the hero and the decision grid", () => {
-    expect(order("<TodayActionPanel")).toBeLessThan(order('className="command-hero"'));
+    expect(order("<TodayActionPanel")).toBeLessThan(order("<CommandHero"));
   });
 
   // Anti-pattern for the same principle: "surfacing low-value novelty above a
@@ -42,7 +42,7 @@ describe("Home answers state, priority, and next action", () => {
   it("keeps plan-input configuration below the decision content", () => {
     const inputs = order('className="home-input-disclosure"');
     expect(order("<TodayActionPanel")).toBeLessThan(inputs);
-    expect(order('className="command-hero"')).toBeLessThan(inputs);
+    expect(order("<CommandHero")).toBeLessThan(inputs);
   });
 
   // "overview-first-detail-on-demand": complexity stays reachable behind a labelled

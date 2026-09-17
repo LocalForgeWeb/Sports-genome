@@ -26,7 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
     // The boot screen is dismissed by a component inside this boundary, so a caught
     // error would otherwise unmount the only thing that lifts it and render this
     // message underneath a full-screen opaque overlay.
-    dismissBootSplash();
+    dismissBootSplash({ immediate: true });
   }
 
   render() {

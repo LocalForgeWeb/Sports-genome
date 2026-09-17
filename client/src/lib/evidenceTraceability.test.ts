@@ -32,14 +32,15 @@ describe("evidence-to-logic traceability", () => {
   it("keeps external strength references separate, qualified, and unavailable when their source conditions do not match", () => {
     const entry = evidenceTraceability.find((item) => item.id === "source-qualified-strength-references");
     expect(entry?.sourceUrls).toContain("https://strengthlevel.com/terms-and-conditions");
-    expect(entry?.athleteBoundary).toContain("Unmatched, incomplete, unlicensed, or generic observations remain unavailable");
+    // Still says a test that matches no study stays on the athlete's own record.
+    expect(entry?.athleteBoundary).toContain("stays on your own record");
   });
 
-  it("identifies the single installed source-sample table without widening it into a generic curl rank", () => {
+  it("identifies the single installed source sample without widening it into a generic curl rank", () => {
     const entry = evidenceTraceability.find((item) => item.id === "piper-2021-exact-source-sample-rank");
     expect(entry?.kind).toBe("source-backed anchor");
     expect(entry?.sourceUrls).toEqual(["https://doi.org/10.47206/ijsc.v1i1.40"]);
     expect(entry?.athleteBoundary).toContain("Machine Preacher Curl");
-    expect(entry?.athleteBoundary).toContain("rank-unavailable");
+    expect(entry?.athleteBoundary).toContain("fall outside them");
   });
 });

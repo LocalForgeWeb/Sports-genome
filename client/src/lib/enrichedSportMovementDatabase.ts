@@ -7,7 +7,6 @@ export type EnrichedSportMovement = {
   id: string;
   sportId: string;
   label: string;
-  movementFamily: string;
   bodyActions: string[];
   jointActions: string[];
   primeMovers: string[];
@@ -17,11 +16,9 @@ export type EnrichedSportMovement = {
   commonForceOrSkillDemand: string;
   recommendedExercisePatterns: string[];
   recommendedExercises: string[];
-  transferRationale: string;
   exerciseSelectionCautions: string;
   evidenceConfidence: string;
   sources: string[];
-  sourceSummary: string;
 };
 
 export const enrichedSportMovements: EnrichedSportMovement[] = [
@@ -29,7 +26,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
     "id": "wrestling-1",
     "sportId": "wrestling",
     "label": "penetration step",
-    "movementFamily": "penetration and entry",
     "bodyActions": [
       "step deeply with one leg while lowering the hips and maintaining forward projection"
     ],
@@ -73,7 +69,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "landmine press"
     ],
-    "transferRationale": "Unilateral squatting and sled work overlap with leg drive and low-position force direction; transfer remains mechanical rather than causal.",
     "exerciseSelectionCautions": "Use controlled range and avoid collapsing the front knee or loading speed before positional skill.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -81,13 +76,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-2",
     "sportId": "wrestling",
     "label": "double-leg shot",
-    "movementFamily": "bilateral takedown attack",
     "bodyActions": [
       "penetrate beneath the opponent’s center, connect the arms, and drive through the legs"
     ],
@@ -131,7 +124,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "bear-hug carry"
     ],
-    "transferRationale": "Deadlift/sled/carry patterns share leg-driven horizontal force and close-load bracing, but no exercise alone teaches shot timing or finishing skill.",
     "exerciseSelectionCautions": "Use a neutral spine and coach the entry; avoid maximal loaded speed or neck loading.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -139,13 +131,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-3",
     "sportId": "wrestling",
     "label": "single-leg shot",
-    "movementFamily": "unilateral takedown attack",
     "bodyActions": [
       "drop and penetrate on one leg, elevate or control the opponent’s leg, and finish from an angled base"
     ],
@@ -189,7 +179,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-arm cable row",
       "suitcase carry"
     ],
-    "transferRationale": "Unilateral strength and anti-rotation exercises address shared base and attachment demands, not the technical chain or opponent variability.",
     "exerciseSelectionCautions": "Progress unilateral loading gradually; monitor hip, knee, and lumbar position during fatigue.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -197,13 +186,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-4",
     "sportId": "wrestling",
     "label": "high-crotch entry",
-    "movementFamily": "penetration and entry",
     "bodyActions": [
       "step deeply with one leg while lowering the hips and maintaining forward projection"
     ],
@@ -247,7 +234,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "landmine press"
     ],
-    "transferRationale": "Unilateral squatting and sled work overlap with leg drive and low-position force direction; transfer remains mechanical rather than causal.",
     "exerciseSelectionCautions": "Use controlled range and avoid collapsing the front knee or loading speed before positional skill.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -255,13 +241,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-5",
     "sportId": "wrestling",
     "label": "sprawl",
-    "movementFamily": "shot defense and sprawl",
     "bodyActions": [
       "rapidly extend the hips back and down while distributing weight through the opponent and recovering the base"
     ],
@@ -306,7 +290,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "broad jump",
       "sled drag"
     ],
-    "transferRationale": "Hip-extension and braking drills share posterior-chain demands, but reactive sprawl timing and safe contact are sport skills.",
     "exerciseSelectionCautions": "Do not substitute repeated uncontrolled prone landings for strength work; scale impact and protect shoulders.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -314,13 +297,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-6",
     "sportId": "wrestling",
     "label": "reshot",
-    "movementFamily": "shot defense and sprawl",
     "bodyActions": [
       "rapidly extend the hips back and down while distributing weight through the opponent and recovering the base"
     ],
@@ -365,7 +346,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "broad jump",
       "sled drag"
     ],
-    "transferRationale": "Hip-extension and braking drills share posterior-chain demands, but reactive sprawl timing and safe contact are sport skills.",
     "exerciseSelectionCautions": "Do not substitute repeated uncontrolled prone landings for strength work; scale impact and protect shoulders.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -373,13 +353,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-7",
     "sportId": "wrestling",
     "label": "stand-up escape",
-    "movementFamily": "hip-heist and escape",
     "bodyActions": [
       "rotate the pelvis around a posted hand while extending the hips to create space or re-face the opponent"
     ],
@@ -423,7 +401,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "single-arm press"
     ],
-    "transferRationale": "Hip-extension and rotational patterns overlap with the pelvic redirection component, not the technical leverage or opponent pressure.",
     "exerciseSelectionCautions": "Use supported variations and avoid forced shoulder rotation or wrist extension.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -431,13 +408,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-8",
     "sportId": "wrestling",
     "label": "hip-heist",
-    "movementFamily": "hip-heist and escape",
     "bodyActions": [
       "rotate the pelvis around a posted hand while extending the hips to create space or re-face the opponent"
     ],
@@ -481,7 +456,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "single-arm press"
     ],
-    "transferRationale": "Hip-extension and rotational patterns overlap with the pelvic redirection component, not the technical leverage or opponent pressure.",
     "exerciseSelectionCautions": "Use supported variations and avoid forced shoulder rotation or wrist extension.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -489,13 +463,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-9",
     "sportId": "wrestling",
     "label": "sit-out",
-    "movementFamily": "bottom escape",
     "bodyActions": [
       "rotate from a seated base, post the hand, extend the hips, and clear the pelvis"
     ],
@@ -539,7 +511,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "step-up"
     ],
-    "transferRationale": "Unilateral hip extension and rotational pressing share positional force demands, while the escape remains technique- and timing-dependent.",
     "exerciseSelectionCautions": "Keep the posting shoulder centered and use a reduced range if wrist or shoulder tolerance is limited.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -547,13 +518,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-10",
     "sportId": "wrestling",
     "label": "switch",
-    "movementFamily": "reversal and hip-switch",
     "bodyActions": [
       "change hip orientation around a posted base to turn toward or through the opponent"
     ],
@@ -597,7 +566,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable chop",
       "single-arm press"
     ],
-    "transferRationale": "Split-stance and rotational exercises address shared force orientation but do not establish a direct performance effect.",
     "exerciseSelectionCautions": "Control the knee and shoulder; practice technical switching separately from heavy resistance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -605,13 +573,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-11",
     "sportId": "wrestling",
     "label": "mat return",
-    "movementFamily": "mat return and lowering",
     "bodyActions": [
       "lift or steer a standing opponent and lower them while maintaining close body contact"
     ],
@@ -655,7 +621,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sandbag load",
       "front squat"
     ],
-    "transferRationale": "Carries and deadlifts share close-load bracing and lowering; they cannot validate technical safety or scoring outcomes.",
     "exerciseSelectionCautions": "Use crash mats and coaching for returns; avoid twisting under maximal load.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -663,13 +628,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-12",
     "sportId": "wrestling",
     "label": "body-lock lift",
-    "movementFamily": "body-lock lift",
     "bodyActions": [
       "compress the trunk, extend the hips and knees, and elevate or off-balance the opponent"
     ],
@@ -714,7 +677,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "bear-hug carry",
       "sandbag load"
     ],
-    "transferRationale": "Close-load lifting and carries reproduce shared force vectors and bracing, not opponent dynamics or technique.",
     "exerciseSelectionCautions": "Keep the load close, hinge before lifting, and use appropriate spotting and landing surfaces.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -722,13 +684,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-13",
     "sportId": "wrestling",
     "label": "underhook drive",
-    "movementFamily": "underhook drive",
     "bodyActions": [
       "use inside arm control with forward steps, hip pressure, and shoulder-to-hip connection"
     ],
@@ -772,7 +732,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-arm row",
       "landmine press"
     ],
-    "transferRationale": "Sleds, unilateral legs, and single-arm pulls overlap with drive and connection, without proving direct transfer to match success.",
     "exerciseSelectionCautions": "Avoid lumbar hyperextension and excessive shoulder internal rotation; vary sides and loading.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -780,13 +739,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-14",
     "sportId": "wrestling",
     "label": "overhook/whizzer",
-    "movementFamily": "overhook counter-control",
     "bodyActions": [
       "press the opponent’s arm inward/downward while rotating the trunk and positioning the hips"
     ],
@@ -830,7 +787,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "suitcase carry",
       "Pallof press"
     ],
-    "transferRationale": "Single-arm pulls, carries, and anti-rotation overlap with arm-to-trunk control; exact leverage is skill-specific.",
     "exerciseSelectionCautions": "Respect shoulder range and avoid forceful end-range internal rotation or neck traction.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -838,13 +794,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-15",
     "sportId": "wrestling",
     "label": "snapdown",
-    "movementFamily": "snapdown and head control",
     "bodyActions": [
       "pull the opponent’s head/upper trunk downward while hinging and maintaining a stable base"
     ],
@@ -888,7 +842,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable row",
       "farmer carry"
     ],
-    "transferRationale": "Rows and hinges share pulling-plus-base mechanics, but head control and timing require coached partner practice.",
     "exerciseSelectionCautions": "Never apply uncoached cervical traction; use handles and loads that preserve shoulder and spine position.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -896,13 +849,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-16",
     "sportId": "wrestling",
     "label": "front-headlock pull",
-    "movementFamily": "front-head control",
     "bodyActions": [
       "maintain head-and-arm control with downward traction, torso flexion, and steering"
     ],
@@ -946,7 +897,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "suitcase carry",
       "Pallof press"
     ],
-    "transferRationale": "Rows and anti-rotation carries address shared attachment and trunk demands but not the technical control or neck risk.",
     "exerciseSelectionCautions": "Use neutral neck alignment and avoid aggressive loading of cervical flexion or traction.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -954,13 +904,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-17",
     "sportId": "wrestling",
     "label": "hand fighting",
-    "movementFamily": "hand fighting and pummeling",
     "bodyActions": [
       "repeated posting, pulling, wrist control, pummeling, and short foot/trunk adjustments"
     ],
@@ -1006,7 +954,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "farmer carry",
       "towel pull-up"
     ],
-    "transferRationale": "Pulling, pushing, and carries share grip and scapular demands, but hand fighting is highly technical and opponent-dependent.",
     "exerciseSelectionCautions": "Manage elbow/wrist volume and use neutral grips when possible; avoid training to failure before technical practice.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1014,13 +961,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-18",
     "sportId": "wrestling",
     "label": "lateral shuffle",
-    "movementFamily": "lateral footwork",
     "bodyActions": [
       "shuffle side to side with hip/knee flexion, frontal-plane push-off, and rapid re-centering"
     ],
@@ -1064,7 +1009,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Copenhagen plank",
       "suitcase carry"
     ],
-    "transferRationale": "Lateral strength and anti-lateral-flexion patterns overlap with footwork and base control, not reactive tactical success.",
     "exerciseSelectionCautions": "Land quietly, keep the knee aligned, and reduce bound amplitude if ankle or adductor tolerance is limited.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1072,13 +1016,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-19",
     "sportId": "wrestling",
     "label": "bridge",
-    "movementFamily": "bridge and arch",
     "bodyActions": [
       "extend the hips and trunk from supine support, sometimes rotating to create space or resist a pin"
     ],
@@ -1122,7 +1064,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Romanian deadlift",
       "cable anti-rotation"
     ],
-    "transferRationale": "Hip-extension and anti-rotation work overlaps with pelvic elevation, but does not justify claims about pin-escape performance.",
     "exerciseSelectionCautions": "Progress neck involvement conservatively; avoid loaded cervical extension and uncontrolled bridging.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1130,13 +1071,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "wrestling-20",
     "sportId": "wrestling",
     "label": "rotational finish",
-    "movementFamily": "rotational takedown finish",
     "bodyActions": [
       "continue leg/hip drive while rotating the torso, changing angle, and steering around the opponent"
     ],
@@ -1183,7 +1122,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable lift",
       "suitcase carry"
     ],
-    "transferRationale": "Unilateral leg drive, rotation, and carries share broad mechanical qualities; they do not establish causal improvement in finishing skill.",
     "exerciseSelectionCautions": "Train rotation through the hips and trunk without forcing lumbar range; coach partner finishes separately.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1191,13 +1129,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/articles/kinetic-select/wrestling/",
       "https://www.mdpi.com/2076-3417/11/22/10658"
     ],
-    "sourceSummary": "The enrichment uses a peer-reviewed double-leg biomechanics study, NSCA wrestling strength-and-conditioning education, and a combat-sport conditioning review; evidence supports mechanical-demand descriptions but does not establish direct EMG findings or causal exercise-to-performance effects for each movement."
   },
   {
     "id": "american-football-1",
     "sportId": "american-football",
     "label": "acceleration sprint",
-    "movementFamily": "linear acceleration",
     "bodyActions": [
       "Forward projection from a split or staggered stance",
       "Progressive hip, knee and ankle extension with aggressive arm drive"
@@ -1247,7 +1183,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "resisted sprint",
       "Romanian deadlift"
     ],
-    "transferRationale": "These patterns share forward force orientation, unilateral stance control, hip extension and trunk bracing; they support preparation for acceleration but do not establish direct game-performance causation.",
     "exerciseSelectionCautions": "Keep resisted sprint loads light enough to preserve sprint posture and shin projection; progress hamstring and calf loading gradually; stop for pain or loss of mechanics.",
     "evidenceConfidence": "high",
     "sources": [
@@ -1255,13 +1190,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/journals/nsca-coach/football-issue-5-4/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-2",
     "sportId": "american-football",
     "label": "max-velocity sprint",
-    "movementFamily": "maximal-speed locomotion",
     "bodyActions": [
       "Tall upright cyclical running",
       "Rapid front-side recovery and elastic ground contact"
@@ -1309,7 +1242,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Nordic hamstring curl",
       "standing calf raise"
     ],
-    "transferRationale": "Fast sprinting and these exercises overlap in hip-extension capacity, hamstring force control and ankle stiffness, while maximal-speed technique itself requires sprint practice.",
     "exerciseSelectionCautions": "Use maximal-speed work only after a progressive warm-up and acceleration exposure; Nordic curls and sprint volume need conservative progression because eccentric hamstring demand is high.",
     "evidenceConfidence": "high",
     "sources": [
@@ -1317,13 +1249,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/",
       "https://www.nsca.com/education/journals/nsca-coach/football-issue-5-4/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-3",
     "sportId": "american-football",
     "label": "backpedal",
-    "movementFamily": "backward locomotion",
     "bodyActions": [
       "Backward displacement while keeping the field in view",
       "Low hip position with repeated posterior pushes"
@@ -1370,7 +1300,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat",
       "Pallof press"
     ],
-    "transferRationale": "Backward drags and unilateral squatting reproduce hip-knee loading and posture demands; anti-rotation work supports trunk control during visual-orientation changes.",
     "exerciseSelectionCautions": "Do not use loaded backward dragging if it causes knee pain or forced lumbar extension; teach controlled transition mechanics separately from strength loading.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1378,13 +1307,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/",
       "https://www.americanfootball.sport/a-guide-to-tackle-football/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-4",
     "sportId": "american-football",
     "label": "lateral shuffle",
-    "movementFamily": "lateral shuffle",
     "bodyActions": [
       "Sideways displacement without crossing the feet",
       "Repeated lateral push-off while maintaining a low center of mass"
@@ -1431,7 +1358,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral lunge",
       "single-leg squat"
     ],
-    "transferRationale": "The exercises overlap lateral hip/adductor loading and single-leg control, but they cannot reproduce opponent perception or the exact field-surface interaction.",
     "exerciseSelectionCautions": "Use tolerable ranges for adductors and knees; avoid letting the knee collapse medially; increase speed only after quiet, controlled contacts are consistent.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1439,13 +1365,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-5",
     "sportId": "american-football",
     "label": "crossover run",
-    "movementFamily": "multidirectional locomotion",
     "bodyActions": [
       "Angled acceleration with crossover steps",
       "Reorientation of pelvis and shoulders while preserving forward intent"
@@ -1492,7 +1416,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "single-leg squat-to-stick"
     ],
-    "transferRationale": "These drills combine diagonal foot placement, unilateral hip force and trunk rotation similar to the movement family, without claiming skill transfer beyond shared mechanics.",
     "exerciseSelectionCautions": "Start slowly to avoid uncontrolled knee valgus or twisting; rotational loading should be limited when the athlete cannot maintain foot and pelvis alignment.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1500,13 +1423,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-6",
     "sportId": "american-football",
     "label": "three-point-stance start",
-    "movementFamily": "linear acceleration",
     "bodyActions": [
       "Explosive rise from a crouched three-point stance",
       "Forward projection with coordinated arm drive"
@@ -1554,7 +1475,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "trap bar jump",
       "resisted sprint"
     ],
-    "transferRationale": "The patterns share initial joint extension and horizontal force orientation; start technique remains highly task-specific.",
     "exerciseSelectionCautions": "Do not overload the start position to the point that spinal posture or first-step mechanics deteriorate; use qualified coaching for explosive lifts.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1562,13 +1482,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/journals/nsca-coach/football-issue-5-4/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-7",
     "sportId": "american-football",
     "label": "blocking drive",
-    "movementFamily": "contact force production",
     "bodyActions": [
       "Low forward body drive against resistance",
       "Leg-driven extension while maintaining a rigid torso and hand connection"
@@ -1618,7 +1536,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "farmer carry",
       "front plank"
     ],
-    "transferRationale": "These patterns share horizontal force, bracing and force transmission, but a gym exercise cannot recreate opponent mass, hand placement or technique.",
     "exerciseSelectionCautions": "Prioritize neutral spine, shoulder control and gradual contact exposure; avoid treating pressing strength as a substitute for coached blocking technique.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1626,13 +1543,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-8",
     "sportId": "american-football",
     "label": "pass-rush bull rush",
-    "movementFamily": "contact force production",
     "bodyActions": [
       "Forward drive through an opponent with a tight body angle",
       "Arm extension and torso bracing during collision"
@@ -1681,7 +1596,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "farmer carry",
       "ab wheel rollout"
     ],
-    "transferRationale": "Shared qualities are horizontal impulse, pressing force and torso stiffness; direct pass-rush efficacy is not inferred.",
     "exerciseSelectionCautions": "Avoid maximal-load contact simulation in the weight room; use progressive, supervised pressing and bracing with shoulder-friendly ranges.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1689,13 +1603,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.nsca.com/education/journals/nsca-coach/football-issue-5-4/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-9",
     "sportId": "american-football",
     "label": "pass-rush bend",
-    "movementFamily": "lateral acceleration and trunk control",
     "bodyActions": [
       "High-speed arc around an edge",
       "Lowered center of mass with trunk inclination and foot reorientation"
@@ -1743,7 +1655,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat-to-stick",
       "suitcase carry"
     ],
-    "transferRationale": "Curved running, unilateral braking and anti-lateral-flexion loading overlap the broad physical demands, while bend technique needs field coaching.",
     "exerciseSelectionCautions": "Progress curve radius and speed gradually; monitor groin, knee and ankle symptoms; do not force deep trunk lean under load.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -1751,13 +1662,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-10",
     "sportId": "american-football",
     "label": "tackling drive",
-    "movementFamily": "contact force production and absorption",
     "bodyActions": [
       "Approach, lower the hips and drive through contact",
       "Wrap and maintain a braced torso while redirecting the ball carrier"
@@ -1808,7 +1717,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "bear-hug carry",
       "Pallof press"
     ],
-    "transferRationale": "These patterns train force production, bracing and load carriage that are mechanically relevant, but safe tackling requires coached technique and appropriate contact progression.",
     "exerciseSelectionCautions": "Never use weight-room exercises as a replacement for certified tackle instruction; contact exposure must be supervised and follow governing-body safety protocols.",
     "evidenceConfidence": "high",
     "sources": [
@@ -1816,13 +1724,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.americanfootball.sport/a-guide-to-tackle-football/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-11",
     "sportId": "american-football",
     "label": "cutting",
-    "movementFamily": "cutting and change of direction",
     "bodyActions": [
       "Plant and redirect from a sprint",
       "Lower center of mass while projecting into a new line"
@@ -1870,7 +1776,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "drop landing",
       "lateral bound"
     ],
-    "transferRationale": "Unilateral strength and controlled landing share braking and redirection qualities; change-of-direction skill must still be practiced with progressive speed and decision demands.",
     "exerciseSelectionCautions": "Emphasize quiet, aligned landings and adequate recovery; do not increase speed, angle and fatigue simultaneously.",
     "evidenceConfidence": "high",
     "sources": [
@@ -1878,13 +1783,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-12",
     "sportId": "american-football",
     "label": "deceleration",
-    "movementFamily": "braking and force absorption",
     "bodyActions": [
       "Reduce forward velocity with controlled lowering",
       "Maintain balance and prepare for immediate re-acceleration"
@@ -1930,7 +1833,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat-to-stick",
       "split squat"
     ],
-    "transferRationale": "The selected patterns expose the athlete to controlled eccentric absorption and single-leg stability, which are shared demands without promising injury prevention.",
     "exerciseSelectionCautions": "Scale height, speed and fatigue carefully; use a surface and footwear appropriate to the athlete; pain, swelling or giving way warrants clinical assessment.",
     "evidenceConfidence": "high",
     "sources": [
@@ -1938,13 +1840,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-13",
     "sportId": "american-football",
     "label": "route break",
-    "movementFamily": "cutting and route change",
     "bodyActions": [
       "Accelerate, sink and break at a planned angle",
       "Re-accelerate while coordinating head, trunk and arms"
@@ -1991,7 +1891,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "resisted sprint",
       "drop landing"
     ],
-    "transferRationale": "These exercises overlap braking, lateral projection and sprint force qualities; route timing, disguise and catching remain skill-specific.",
     "exerciseSelectionCautions": "Avoid excessive plyometric volume when sprint or route practice is high; preserve technical quality and introduce reactive cues separately.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -1999,13 +1898,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-14",
     "sportId": "american-football",
     "label": "vertical jump",
-    "movementFamily": "jumping and landing power",
     "bodyActions": [
       "Countermovement followed by vertical projection",
       "Controlled landing with renewed readiness"
@@ -2051,7 +1948,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "drop landing",
       "front squat"
     ],
-    "transferRationale": "The patterns share triple-extension power and landing control, while reach, timing and contested-ball context require sport practice.",
     "exerciseSelectionCautions": "Use low volumes of maximal jumps, land softly with aligned knees and hips, and avoid loaded jumps when fatigue compromises landing quality.",
     "evidenceConfidence": "high",
     "sources": [
@@ -2059,13 +1955,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/",
       "https://www.nsca.com/education/journals/nsca-coach/football-issue-5-4/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-15",
     "sportId": "american-football",
     "label": "stiff-arm",
-    "movementFamily": "contact-resisted upper-body projection",
     "bodyActions": [
       "Maintain balance while extending one arm to manage an opponent",
       "Drive through the legs and resist trunk rotation"
@@ -2115,7 +2009,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "Pallof press"
     ],
-    "transferRationale": "Unilateral pressing, carries and anti-rotation share force transmission and bracing demands, but hand placement and opponent interaction are not reproduced.",
     "exerciseSelectionCautions": "Keep the shoulder centered and avoid aggressive end-range loading; use neutral-grip variants if pressing provokes symptoms.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2123,13 +2016,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/",
       "https://www.americanfootball.sport/a-guide-to-tackle-football/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-16",
     "sportId": "american-football",
     "label": "throwing",
-    "movementFamily": "rotational and overhead skill",
     "bodyActions": [
       "Stride or plant, rotate pelvis and trunk, then accelerate the arm",
       "Decelerate the arm and regain balanced posture"
@@ -2182,7 +2073,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-arm cable press",
       "face pull"
     ],
-    "transferRationale": "The patterns train trunk rotation, unilateral force and shoulder-girdle control that are mechanically related to passing, but throwing accuracy, release and velocity are not guaranteed by lifting.",
     "exerciseSelectionCautions": "Avoid high-volume overhead work during heavy throwing periods; progress rotational throws and monitor shoulder or elbow soreness.",
     "evidenceConfidence": "high",
     "sources": [
@@ -2190,13 +2080,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://ijspt.scholasticahq.com/article/142488-kinematic-sequencing-of-the-football-pass-using-inertial-motion-analysis",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-17",
     "sportId": "american-football",
     "label": "catching overhead",
-    "movementFamily": "overhead reach and ball reception",
     "bodyActions": [
       "Accelerate hands to an overhead or high outside target",
       "Absorb the ball while maintaining shoulder and trunk control"
@@ -2247,7 +2135,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-arm cable press",
       "farmer carry"
     ],
-    "transferRationale": "These exercises overlap overhead endurance, scapular control, unilateral bracing and grip, while ball tracking and reception require direct practice.",
     "exerciseSelectionCautions": "Use pain-free overhead ranges and avoid fatigue-induced shoulder shrugging; catching drills should use appropriate ball speed and contact progression.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2255,13 +2142,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/",
       "https://www.americanfootball.sport/a-guide-to-tackle-football/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-18",
     "sportId": "american-football",
     "label": "hip turn",
-    "movementFamily": "hip rotation and reorientation",
     "bodyActions": [
       "Rotate from a defensive or running stance to face a new line",
       "Coordinate feet, pelvis and trunk while preserving balance"
@@ -2309,7 +2194,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat-to-stick",
       "lateral lunge"
     ],
-    "transferRationale": "The selected movements share transverse-plane control and unilateral pelvic stability, but reactive hip turns require field-specific perception and footwork.",
     "exerciseSelectionCautions": "Avoid twisting on a fixed foot under heavy load; keep rotational range controlled and progress speed only after stable positions are automatic.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2317,13 +2201,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-19",
     "sportId": "american-football",
     "label": "change of direction",
-    "movementFamily": "multidirectional change of direction",
     "bodyActions": [
       "Brake, plant and accelerate in a new direction",
       "Manage center of mass while responding to a cue or opponent"
@@ -2371,7 +2253,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat-to-stick",
       "resisted sprint"
     ],
-    "transferRationale": "These patterns develop shared braking, unilateral force and re-acceleration qualities; reactive decision-making and technique require multidirectional field practice.",
     "exerciseSelectionCautions": "Increase one variable at a time—angle, speed, volume or reaction demand—and maintain adequate recovery from sprint and plyometric work.",
     "evidenceConfidence": "high",
     "sources": [
@@ -2379,13 +2260,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10098592/",
       "https://www.ncbi.nlm.nih.gov/books/NBK554393/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "american-football-20",
     "sportId": "american-football",
     "label": "ball-carrying contact absorption",
-    "movementFamily": "contact force absorption and locomotion",
     "bodyActions": [
       "Run while absorbing bumps and external perturbations",
       "Maintain ball security, balance and forward progress"
@@ -2436,7 +2315,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "Pallof press"
     ],
-    "transferRationale": "Carries, sled work and unilateral strength overlap load carriage, bracing and force transmission, but ball security and collision skill remain sport-specific.",
     "exerciseSelectionCautions": "Use loads that allow normal gait and breathing; vary carry duration conservatively and do not substitute loaded carries for supervised contact preparation.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2444,13 +2322,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://link.springer.com/article/10.1007/s10439-020-02625-7",
       "https://www.americanfootball.sport/a-guide-to-tackle-football/"
     ],
-    "sourceSummary": "The records synthesize American-football biomechanics reviews, peer-reviewed cutting and tackling studies, quarterback throwing analyses, anatomy references, and governing-body guidance; confidence is reduced where position-specific evidence or direct exercise-to-performance transfer is limited."
   },
   {
     "id": "basketball-1",
     "sportId": "basketball",
     "label": "acceleration",
-    "movementFamily": "linear acceleration",
     "bodyActions": [
       "Forward trunk lean, rapid projection of the center of mass, and repeated powerful steps."
     ],
@@ -2493,7 +2369,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "resisted march"
     ],
-    "transferRationale": "These patterns train horizontal projection and unilateral-to-bilateral leg drive, sharing force direction and timing without claiming guaranteed sprint transfer.",
     "exerciseSelectionCautions": "Keep resisted loads light enough to preserve posture and step mechanics; progress speed gradually.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2501,13 +2376,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-2",
     "sportId": "basketball",
     "label": "defensive shuffle",
-    "movementFamily": "lateral locomotion",
     "bodyActions": [
       "Low center of mass with repeated side-to-side repositioning and short contacts."
     ],
@@ -2548,7 +2421,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral sled drag",
       "Copenhagen plank"
     ],
-    "transferRationale": "Lateral lunges and drags provide controlled frontal-plane loading and bracing relevant to shuffle demands.",
     "exerciseSelectionCautions": "Avoid excessive depth or valgus collapse; lateral strength work does not replace reactive defensive skill.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2556,13 +2428,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-3",
     "sportId": "basketball",
     "label": "crossover step",
-    "movementFamily": "change of direction",
     "bodyActions": [
       "Lateral push-off followed by diagonal crossing step and rapid reorientation."
     ],
@@ -2603,7 +2473,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral bound",
       "single-leg squat"
     ],
-    "transferRationale": "Unilateral step and bound patterns expose the athlete to diagonal projection and landing control similar to a crossover, with scalable load.",
     "exerciseSelectionCautions": "Begin with planned, submaximal angles; do not infer injury prevention or sport-performance causality.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2611,13 +2480,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-4",
     "sportId": "basketball",
     "label": "hard deceleration",
-    "movementFamily": "deceleration and braking",
     "bodyActions": [
       "Shortened steps, lowered center of mass, and progressive absorption of forward momentum."
     ],
@@ -2656,7 +2523,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "reverse lunge",
       "drop landing"
     ],
-    "transferRationale": "Split-stance lowering and landing patterns develop eccentric capacity and alignment under braking-like joint positions.",
     "exerciseSelectionCautions": "Use low heights and adequate recovery; speed, surface, footwear, and technique materially alter demand.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2664,13 +2530,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-5",
     "sportId": "basketball",
     "label": "cutting",
-    "movementFamily": "multidirectional change of direction",
     "bodyActions": [
       "Plant, absorb horizontal momentum, redirect the center of mass, and reaccelerate at an angle."
     ],
@@ -2711,7 +2575,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat-to-stick",
       "split squat"
     ],
-    "transferRationale": "Unilateral deceleration and bound-to-stick patterns overlap the mechanical sequence of absorbing and redirecting force.",
     "exerciseSelectionCautions": "Progress angle, speed, and perceptual reaction separately; avoid treating gym drills as technical cutting instruction.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2719,13 +2582,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-6",
     "sportId": "basketball",
     "label": "jump shot",
-    "movementFamily": "vertical jump and projectile release",
     "bodyActions": [
       "Countermovement, bilateral takeoff, aerial organization, and coordinated ball release."
     ],
@@ -2768,7 +2629,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "push press",
       "medicine-ball chest pass"
     ],
-    "transferRationale": "These exercises train broad leg-to-trunk-to-arm sequencing and rate of force development, while the precise shot remains a skill task.",
     "exerciseSelectionCautions": "Use loads that preserve jump and release mechanics; do not claim strength training directly improves shooting accuracy.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2776,13 +2636,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-7",
     "sportId": "basketball",
     "label": "layup takeoff",
-    "movementFamily": "approach jump",
     "bodyActions": [
       "Approach steps, penultimate braking, unilateral or bilateral takeoff, and airborne reach."
     ],
@@ -2822,7 +2680,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "step-up",
       "approach jump"
     ],
-    "transferRationale": "Unilateral bounds and step-ups provide scalable single-leg propulsion and force absorption related to takeoff mechanics.",
     "exerciseSelectionCautions": "Limit volume and use landing-quality criteria; approach timing and layup technique require court practice.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2830,13 +2687,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-8",
     "sportId": "basketball",
     "label": "dunk takeoff",
-    "movementFamily": "maximal approach jump",
     "bodyActions": [
       "High-speed approach, penultimate conversion, maximal vertical impulse, and arm swing."
     ],
@@ -2876,7 +2731,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "trap-bar jump",
       "bounding"
     ],
-    "transferRationale": "Loaded jumps and bounds can develop forceful extension and elastic projection, but dunking depends on technique, approach, and individual capacity.",
     "exerciseSelectionCautions": "Use conservative loading, low repetitions, and qualified supervision; do not chase fatigue in maximal jumps.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2884,13 +2738,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-9",
     "sportId": "basketball",
     "label": "rebounding jump",
-    "movementFamily": "reactive vertical jump",
     "bodyActions": [
       "Rapid countermovement, vertical contest, arm elevation, and controlled landing in traffic."
     ],
@@ -2930,7 +2782,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "trap-bar jump",
       "drop landing"
     ],
-    "transferRationale": "Jump-and-stick and landing progressions address takeoff-to-absorption sequencing relevant to repeated rebounding.",
     "exerciseSelectionCautions": "Control contact and landing density; avoid adding load before consistent bilateral and unilateral landing mechanics.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2938,13 +2789,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-10",
     "sportId": "basketball",
     "label": "box-out",
-    "movementFamily": "contact positioning",
     "bodyActions": [
       "Wide base, flexed stance, pelvis positioning, contact absorption, and reach while maintaining space."
     ],
@@ -2987,7 +2836,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "belt-squat hold",
       "farmer carry"
     ],
-    "transferRationale": "Isometrics and carries develop bracing and positional force, but opponent contact and rebounding judgment remain sport-specific.",
     "exerciseSelectionCautions": "Use predictable resistance and neutral joint positions; partner drills require coaching and communication.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -2995,13 +2843,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-11",
     "sportId": "basketball",
     "label": "crossover dribble",
-    "movementFamily": "ball-handling change of direction",
     "bodyActions": [
       "Low stance, lateral weight shift, rapid foot repositioning, and unilateral hand transfer."
     ],
@@ -3043,7 +2889,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split-stance cable press",
       "single-leg balance"
     ],
-    "transferRationale": "These patterns support unilateral base control and trunk stiffness that can complement, but not substitute for, dribbling practice.",
     "exerciseSelectionCautions": "Keep resistance secondary to coordination; avoid grip or shoulder fatigue that changes ball-control mechanics.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3051,13 +2896,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-12",
     "sportId": "basketball",
     "label": "drive initiation",
-    "movementFamily": "first-step acceleration",
     "bodyActions": [
       "Low stance, decisive first-step projection, forward trunk angle, and protective ball position."
     ],
@@ -3099,7 +2942,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split-stance jump",
       "resisted march"
     ],
-    "transferRationale": "Resisted starts and split-stance jumps overlap the first-step projection and unilateral impulse demands.",
     "exerciseSelectionCautions": "Do not let sled load lengthen contact times excessively; preserve realistic first-step angles.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3107,13 +2949,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-13",
     "sportId": "basketball",
     "label": "drop step",
-    "movementFamily": "pivoting and post footwork",
     "bodyActions": [
       "Rotate around a support leg and step behind or around an opponent to create separation."
     ],
@@ -3154,7 +2994,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "step-behind lunge"
     ],
-    "transferRationale": "Rotational split squats and controlled step-behind patterns train support-leg loading and trunk-hip coordination.",
     "exerciseSelectionCautions": "Use controlled ranges and stable surfaces; pivot mechanics are sensitive to footwear and knee alignment.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3162,13 +3001,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-14",
     "sportId": "basketball",
     "label": "pivot",
-    "movementFamily": "rotational footwork",
     "bodyActions": [
       "One foot remains planted while pelvis and trunk rotate and the free foot repositions."
     ],
@@ -3208,7 +3045,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "split squat"
     ],
-    "transferRationale": "Balance reaches and anti-rotation presses develop support-leg and trunk control that underpins pivot stability.",
     "exerciseSelectionCautions": "Avoid forced foot rotation or loaded twisting at end range; technical pivoting must be coached on court.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3216,13 +3052,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-15",
     "sportId": "basketball",
     "label": "closeout",
-    "movementFamily": "approach-to-braking defense",
     "bodyActions": [
       "Accelerate toward a shooter, shorten steps, lower the hips, and finish balanced with active hands."
     ],
@@ -3263,7 +3097,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral lunge",
       "split-squat isometric"
     ],
-    "transferRationale": "Sprint-to-stop and stance isometrics reproduce the broad approach-to-braking sequence with adjustable intensity.",
     "exerciseSelectionCautions": "Teach deceleration before maximal speed; active-hand movement should not compromise trunk or knee alignment.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3271,13 +3104,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-16",
     "sportId": "basketball",
     "label": "backpedal",
-    "movementFamily": "backward locomotion",
     "bodyActions": [
       "Rearward steps with posterior weight shift while retaining visual awareness and readiness to reaccelerate."
     ],
@@ -3318,7 +3149,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "reverse lunge",
       "backpedal-to-sprint"
     ],
-    "transferRationale": "Backward drags and reverse lunges train posterior-chain force and controlled backward loading; transition speed remains skill-specific.",
     "exerciseSelectionCautions": "Use clear space and low speeds initially; avoid excessive backward lean or visual obstruction.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3326,13 +3156,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-17",
     "sportId": "basketball",
     "label": "screen contact",
-    "movementFamily": "contact bracing",
     "bodyActions": [
       "Braced stance absorbs or redirects external force while preserving position and upper-body organization."
     ],
@@ -3376,7 +3204,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split-squat isometric",
       "front-rack carry"
     ],
-    "transferRationale": "Carries and split-stance isometrics provide bracing and positional force under external load without implying direct contact-performance gains.",
     "exerciseSelectionCautions": "Use submaximal predictable perturbations; contact drills need qualified coaching and appropriate rules.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3384,13 +3211,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-18",
     "sportId": "basketball",
     "label": "overhead pass",
-    "movementFamily": "overhead press/throw",
     "bodyActions": [
       "Stable base, forward weight transfer, overhead arm path, and release through the hands."
     ],
@@ -3432,7 +3257,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine press",
       "cable press"
     ],
-    "transferRationale": "Ballistic throws and landmine presses share broad projection and proximal-to-distal sequencing, while pass accuracy remains technical.",
     "exerciseSelectionCautions": "Use appropriate ball mass and stop before release mechanics deteriorate; protect the shoulder with balanced pulling and cuff work.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3440,13 +3264,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-19",
     "sportId": "basketball",
     "label": "chest pass",
-    "movementFamily": "horizontal press and ballistic pass",
     "bodyActions": [
       "Bilateral base, forward weight transfer, horizontal arm projection, and hand release."
     ],
@@ -3488,7 +3310,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "push-up",
       "cable press"
     ],
-    "transferRationale": "Chest throws and pressing patterns overlap horizontal projection and trunk-controlled force transfer.",
     "exerciseSelectionCautions": "Do not use excessive ball mass or fatigue; keep shoulders centered and use pain-free range.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3496,13 +3317,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "basketball-20",
     "sportId": "basketball",
     "label": "lateral recovery",
-    "movementFamily": "lateral recovery and change of direction",
     "bodyActions": [
       "Reorient after displacement, push laterally, regain flexed defensive posture, and restore alignment."
     ],
@@ -3543,7 +3362,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "crossover step-up",
       "lateral sled drag"
     ],
-    "transferRationale": "Lateral bounds, step-ups, and drags train the broad braking-to-propulsion sequence relevant to recovery movement.",
     "exerciseSelectionCautions": "Progress from planned to reactive work; monitor cumulative high-intensity change-of-direction volume.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3551,13 +3369,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8355634/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC7857967/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed basketball biomechanics and sports-movement studies on jump shooting, landing, acceleration, deceleration, and change of direction, with evidence confidence kept moderate because exercise-to-sport transfer is inferred from shared mechanical demands rather than demonstrated as direct causal performance improvement."
   },
   {
     "id": "soccer-1",
     "sportId": "soccer",
     "label": "acceleration",
-    "movementFamily": "locomotion and first-step propulsion",
     "bodyActions": [
       "forward projection",
       "rapid hip/knee extension"
@@ -3599,7 +3415,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "calf raise"
     ],
-    "transferRationale": "Hip and knee extensors plus ankle stiffness help reproduce the force direction and unilateral control of the first steps; gym work supports capacity, not sprint skill.",
     "exerciseSelectionCautions": "Progress load and velocity separately; avoid treating bilateral strength as proof of faster acceleration.",
     "evidenceConfidence": "high",
     "sources": [
@@ -3607,13 +3422,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-2",
     "sportId": "soccer",
     "label": "max-speed sprinting",
-    "movementFamily": "high-speed upright running",
     "bodyActions": [
       "cyclic hip flexion/extension",
       "stiff ankle rebound"
@@ -3656,7 +3469,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "hip thrust",
       "calf raise"
     ],
-    "transferRationale": "Posterior-chain and calf patterns address force production and braking demands that coexist in sprinting, while technical exposure remains essential.",
     "exerciseSelectionCautions": "Use conservative sprint volumes and hamstring progressions; do not infer injury prevention from one exercise.",
     "evidenceConfidence": "high",
     "sources": [
@@ -3664,13 +3476,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-3",
     "sportId": "soccer",
     "label": "cutting",
-    "movementFamily": "angled deceleration and redirection",
     "bodyActions": [
       "plant-and-brake",
       "lateral re-acceleration"
@@ -3713,7 +3523,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral bound",
       "Copenhagen plank"
     ],
-    "transferRationale": "Frontal-plane and unilateral strength overlaps with the plant, brake, and push-off sequence; actual cutting transfer requires reactive practice.",
     "exerciseSelectionCautions": "Control knee valgus and foot collapse; progress angle, speed, and decision demand gradually.",
     "evidenceConfidence": "high",
     "sources": [
@@ -3721,13 +3530,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-4",
     "sportId": "soccer",
     "label": "lateral shuffle",
-    "movementFamily": "lateral repositioning",
     "bodyActions": [
       "sideways push-off",
       "rapid repeated foot contacts"
@@ -3770,7 +3577,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Copenhagen plank",
       "split squat"
     ],
-    "transferRationale": "Lateral lunges and bounds train the broad force directions and pelvic control used in shuffling without claiming identical timing.",
     "exerciseSelectionCautions": "Avoid excessive depth or unstable surfaces when fatigue degrades knee and ankle alignment.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3778,13 +3584,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-5",
     "sportId": "soccer",
     "label": "deceleration",
-    "movementFamily": "braking from running",
     "bodyActions": [
       "lowering center of mass",
       "absorbing forward momentum"
@@ -3827,7 +3631,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "step-down",
       "Nordic hamstring curl"
     ],
-    "transferRationale": "Eccentric knee/hip capacity and unilateral control are relevant to braking; deceleration skill must still be trained at appropriate speeds.",
     "exerciseSelectionCautions": "Increase speed and stopping distance progressively; monitor soreness and prior lower-limb injury.",
     "evidenceConfidence": "high",
     "sources": [
@@ -3835,13 +3638,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-6",
     "sportId": "soccer",
     "label": "instep kick",
-    "movementFamily": "maximal ball striking",
     "bodyActions": [
       "backswing",
       "pelvic/trunk rotation",
@@ -3885,7 +3686,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable rotation",
       "calf raise"
     ],
-    "transferRationale": "Strength patterns support the plant leg and proximal force base described in kicking biomechanics, but ball velocity depends strongly on technique and coordination.",
     "exerciseSelectionCautions": "Avoid overloading the kicking leg while neglecting plant-leg control; preserve full hip and knee range.",
     "evidenceConfidence": "high",
     "sources": [
@@ -3893,13 +3693,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-7",
     "sportId": "soccer",
     "label": "driven pass",
-    "movementFamily": "driven pass",
     "bodyActions": [
       "short-to-medium firm ball strike"
     ],
@@ -3941,7 +3739,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg RDL",
       "calf raise"
     ],
-    "transferRationale": "Unilateral strength and rotational control provide a plausible base for a firm pass, while accuracy is a technical skill rather than a gym outcome.",
     "exerciseSelectionCautions": "Use submaximal loads for rotational work and avoid forcing lumbar rotation.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -3949,13 +3746,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-8",
     "sportId": "soccer",
     "label": "long pass",
-    "movementFamily": "long pass",
     "bodyActions": [
       "long-range instep striking"
     ],
@@ -3997,7 +3792,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable rotation",
       "hip thrust"
     ],
-    "transferRationale": "Posterior-chain and unilateral rotational patterns overlap with the force base and balance of long passing, but no direct performance claim is warranted.",
     "exerciseSelectionCautions": "Progress range and velocity; avoid excessive kicking-volume spikes alongside heavy lower-body training.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4005,13 +3799,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-9",
     "sportId": "soccer",
     "label": "crossing",
-    "movementFamily": "running or angled ball delivery",
     "bodyActions": [
       "approach run",
       "plant-leg stabilization",
@@ -4055,7 +3847,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable rotation",
       "lateral lunge"
     ],
-    "transferRationale": "Unilateral hip control and rotation are relevant to crossing mechanics; exercise transfer should be viewed as general physical preparation.",
     "exerciseSelectionCautions": "Do not substitute loaded rotation for technical crossing; keep the plant knee tracking over the foot.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4063,13 +3854,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-10",
     "sportId": "soccer",
     "label": "shooting",
-    "movementFamily": "high-velocity ball striking",
     "bodyActions": [
       "approach and plant",
       "pelvis-to-trunk rotation",
@@ -4114,7 +3903,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable rotation",
       "medicine-ball rotational throw"
     ],
-    "transferRationale": "Lower-body power and rotational sequencing are sensible preparatory targets, but shooting outcome is not established by these exercises alone.",
     "exerciseSelectionCautions": "Manage high-intensity kicking and rotational loads; prioritize technique, tissue tolerance, and bilateral development.",
     "evidenceConfidence": "high",
     "sources": [
@@ -4122,13 +3910,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-11",
     "sportId": "soccer",
     "label": "jumping header",
-    "movementFamily": "jumping header",
     "bodyActions": [
       "vertical takeoff and aerial contact"
     ],
@@ -4170,7 +3956,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "landing drill"
     ],
-    "transferRationale": "Jump patterns train takeoff and landing capacity; heading timing and neck-ball interaction remain sport-specific.",
     "exerciseSelectionCautions": "Teach landing mechanics and neck control; avoid implying resistance training prevents concussion.",
     "evidenceConfidence": "high",
     "sources": [
@@ -4178,13 +3963,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-12",
     "sportId": "soccer",
     "label": "standing header",
-    "movementFamily": "stationary aerial ball contact",
     "bodyActions": [
       "braced stance",
       "trunk extension/flexion impulse",
@@ -4228,7 +4011,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "medicine-ball chest pass"
     ],
-    "transferRationale": "Trunk bracing and stance strength support body control, but no gym exercise is a substitute for heading technique or concussion protocols.",
     "exerciseSelectionCautions": "Avoid loaded cervical flexion/extension; follow governing-body heading guidance and age-appropriate exposure.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4236,13 +4018,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-13",
     "sportId": "soccer",
     "label": "tackling",
-    "movementFamily": "grounded or sliding challenge",
     "bodyActions": [
       "approach and plant",
       "low-level entry",
@@ -4286,7 +4066,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "front plank"
     ],
-    "transferRationale": "Unilateral leg and trunk bracing patterns overlap with entering and recovering from a tackle, while technique and rules govern safety.",
     "exerciseSelectionCautions": "Do not use maximal-contact drills as conditioning; coach legal technique and protect knees/ankles.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -4294,13 +4073,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-14",
     "sportId": "soccer",
     "label": "shielding",
-    "movementFamily": "ball protection with opponent between ball and defender",
     "bodyActions": [
       "wide base",
       "hip rotation",
@@ -4344,7 +4121,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "suitcase carry"
     ],
-    "transferRationale": "Adductor, lateral-hip, and anti-rotation work mirrors the broad physical demands of shielding without reproducing opponent contact.",
     "exerciseSelectionCautions": "Progress adductor loading gradually; avoid excessive spinal twisting under load.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4352,13 +4128,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-15",
     "sportId": "soccer",
     "label": "jockeying",
-    "movementFamily": "defensive low stance and reactive mirroring",
     "bodyActions": [
       "low posture",
       "short lateral/diagonal steps",
@@ -4402,7 +4176,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral bound",
       "Copenhagen plank"
     ],
-    "transferRationale": "Isometric split-stance and frontal-plane patterns support positional endurance; reactive perceptual skill requires field training.",
     "exerciseSelectionCautions": "Do not hold deep positions to failure; keep foot contacts quiet and progress reaction speed carefully.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4410,13 +4183,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-16",
     "sportId": "soccer",
     "label": "backpedaling",
-    "movementFamily": "backward locomotion",
     "bodyActions": [
       "backward propulsion",
       "visual tracking",
@@ -4460,7 +4231,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "calf raise"
     ],
-    "transferRationale": "Reverse locomotion patterns provide directional exposure and leg strength; they do not replace perceptual backpedaling practice.",
     "exerciseSelectionCautions": "Begin slowly with clear space; avoid relying on unstable or overloaded backward movement.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4468,13 +4238,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-17",
     "sportId": "soccer",
     "label": "hip turn",
-    "movementFamily": "rapid reorientation",
     "bodyActions": [
       "pelvis/femur rotation",
       "weight transfer",
@@ -4518,7 +4286,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral lunge",
       "single-leg RDL"
     ],
-    "transferRationale": "Rotational split squats and unilateral hinge work develop general hip/trunk control relevant to turning, while timing and footwork remain sport-specific.",
     "exerciseSelectionCautions": "Keep rotation distributed through hip and trunk; stop if knee or groin symptoms appear.",
     "evidenceConfidence": "high",
     "sources": [
@@ -4526,13 +4293,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-18",
     "sportId": "soccer",
     "label": "single-leg landing",
-    "movementFamily": "unilateral force absorption",
     "bodyActions": [
       "ankle-foot contact",
       "hip/knee flexion",
@@ -4576,7 +4341,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg RDL",
       "calf raise"
     ],
-    "transferRationale": "Unilateral eccentric strength and landing control are directly aligned with the movement’s mechanical demand; performance and injury outcomes still depend on whole programs.",
     "exerciseSelectionCautions": "Use progressive height and speed; prioritize quiet landing, knee tracking, and adequate recovery.",
     "evidenceConfidence": "high",
     "sources": [
@@ -4584,13 +4348,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-19",
     "sportId": "soccer",
     "label": "goalkeeper dive",
-    "movementFamily": "lateral projection and landing",
     "bodyActions": [
       "lateral push-off",
       "airborne reach",
@@ -4634,7 +4396,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Turkish get-up",
       "Pallof press"
     ],
-    "transferRationale": "Lateral power, trunk control, and get-up patterns prepare general qualities of a dive; goalkeeper technique and surface-specific landing are decisive.",
     "exerciseSelectionCautions": "Progress landing surface and height conservatively; protect shoulder, wrist, hip, and neck.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -4642,13 +4403,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "soccer-20",
     "sportId": "soccer",
     "label": "throw-in",
-    "movementFamily": "legal overhead ball projection",
     "bodyActions": [
       "bilateral stance",
       "trunk extension then flexion",
@@ -4692,7 +4451,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "front plank"
     ],
-    "transferRationale": "Medicine-ball projection and trunk anti-rotation overlap with force sequencing, but throw-in distance and legality require specific practice.",
     "exerciseSelectionCautions": "Use light-to-moderate implement loads and pain-free shoulder range; maintain two-foot contact and avoid lumbar hyperextension.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4700,13 +4458,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3786235/",
       "https://inside.fifa.com/health-and-medical/injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed soccer biomechanics and kicking reviews plus FIFA injury-prevention guidance; evidence is strongest for movement mechanics and general physical preparation, while direct gym-to-sport performance transfer remains limited or indirect for several technical and contact skills."
   },
   {
     "id": "baseball-1",
     "sportId": "baseball",
     "label": "batting rotation",
-    "movementFamily": "rotational power and kinetic-chain transfer",
     "bodyActions": [
       "The hitter loads the lower body, separates pelvis and thorax, then rotates the trunk and accelerates the bat before braked follow-through."
     ],
@@ -4757,7 +4513,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "split-stance cable press"
     ],
-    "transferRationale": "These patterns share lower-body-to-trunk-to-arm sequencing and transverse-plane force transfer, but they train physical qualities rather than batting skill or bat speed causally.",
     "exerciseSelectionCautions": "Use submaximal volume when fatigued; avoid treating loaded rotation as a substitute for hitting practice; respect back and shoulder symptoms.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4765,13 +4520,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-2",
     "sportId": "baseball",
     "label": "pitching acceleration",
-    "movementFamily": "overhand throwing and kinetic-chain propulsion",
     "bodyActions": [
       "The stride and lead-leg block allow pelvis and trunk rotation to precede rapid shoulder internal rotation and elbow extension toward release."
     ],
@@ -4821,7 +4574,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine press",
       "rear-foot-elevated split squat"
     ],
-    "transferRationale": "Lower-body ballistic and split-stance patterns overlap with force initiation and sequencing, while medicine-ball and landmine work can limit distal joint load relative to maximal throwing.",
     "exerciseSelectionCautions": "Do not chase throwing velocity with heavy arm work; preserve throwing-program workload, shoulder range, and technical supervision.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4829,13 +4581,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-3",
     "sportId": "baseball",
     "label": "pitching deceleration",
-    "movementFamily": "arm deceleration and braking",
     "bodyActions": [
       "After release, the arm and trunk rapidly dissipate angular momentum while the athlete maintains posture and recovers balance."
     ],
@@ -4882,20 +4632,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "external-rotation cable work",
       "single-leg Romanian deadlift"
     ],
-    "transferRationale": "Rows, face pulls, controlled external rotation, and unilateral hinges expose relevant braking and postural-control actions without claiming identical throwing kinetics.",
     "exerciseSelectionCautions": "Prioritize quality and low-to-moderate load; avoid painful end-range external rotation or excessive eccentric volume after throwing.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9950989/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-4",
     "sportId": "baseball",
     "label": "overhand throwing",
-    "movementFamily": "overhand throwing",
     "bodyActions": [
       "A step and pelvic-trunk rotation precede arm elevation, acceleration, release, and follow-through."
     ],
@@ -4943,7 +4690,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine press",
       "one-arm cable row"
     ],
-    "transferRationale": "The selected patterns reinforce stepping, trunk-to-arm force transfer, and scapular control; they cannot reproduce ball release, timing, or arm-care demands exactly.",
     "exerciseSelectionCautions": "Keep ballistic drills light and crisp; do not substitute gym pressing for a structured throwing progression.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -4951,13 +4697,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-5",
     "sportId": "baseball",
     "label": "fielding ground balls",
-    "movementFamily": "squat, hinge, ground transition",
     "bodyActions": [
       "Lower, hinge and reach to the ball, then extend to rise and throw."
     ],
@@ -4996,7 +4740,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral lunge",
       "one-arm cable row"
     ],
-    "transferRationale": "Squat, hinge, lateral reach, and rowing patterns overlap with fielding posture and recovery.",
     "exerciseSelectionCautions": "Do not load deep flexion if hip, knee, or back tolerance is limited; skill and glove work remain specific.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5004,13 +4747,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-6",
     "sportId": "baseball",
     "label": "lateral fielding shuffle",
-    "movementFamily": "lateral locomotion and braking",
     "bodyActions": [
       "Repeated side pushes reposition the feet and trunk without sacrificing readiness."
     ],
@@ -5049,7 +4790,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "Pallof press"
     ],
-    "transferRationale": "Unilateral lateral force and anti-rotation patterns share the support-leg and trunk demands.",
     "exerciseSelectionCautions": "Progress landing volume gradually; avoid crossing-foot drills when surface or athlete control is poor.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5057,13 +4797,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-7",
     "sportId": "baseball",
     "label": "sprinting from the plate",
-    "movementFamily": "linear acceleration",
     "bodyActions": [
       "A short standing start projects the center of mass forward with alternating knee drive."
     ],
@@ -5104,7 +4842,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "calf raise"
     ],
-    "transferRationale": "Short sprints and resisted pushes target acceleration mechanics and lower-body force.",
     "exerciseSelectionCautions": "Use adequate recovery and acceleration distance; hamstring risk rises with poorly progressed high-speed running.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5112,13 +4849,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-8",
     "sportId": "baseball",
     "label": "base stealing start",
-    "movementFamily": "reactive acceleration",
     "bodyActions": [
       "From a lead-off stance, the athlete repositions laterally and projects into the first forward steps."
     ],
@@ -5157,7 +4892,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "reaction-step drill"
     ],
-    "transferRationale": "Short accelerations and lateral bounds share projection and unilateral force demands.",
     "exerciseSelectionCautions": "Do not use fatigue or maximal resisted loads to train reaction timing; timing must be practiced on the basepaths.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5165,13 +4899,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-9",
     "sportId": "baseball",
     "label": "rounding bases",
-    "movementFamily": "curved sprinting and change of direction",
     "bodyActions": [
       "High-speed running around a curve requires lean, foot-placement adjustment, and braking decisions."
     ],
@@ -5211,7 +4943,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg Romanian deadlift",
       "split squat"
     ],
-    "transferRationale": "Curved sprints and unilateral strength expose lean, support-leg, and braking qualities.",
     "exerciseSelectionCautions": "Progress curvature and speed separately; manage foot, groin, and hamstring load.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5219,13 +4950,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-10",
     "sportId": "baseball",
     "label": "sliding",
-    "movementFamily": "ground transition and momentum management",
     "bodyActions": [
       "The athlete descends rapidly, positions the hips and trunk, and manages friction while reaching the base."
     ],
@@ -5265,7 +4994,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "bear crawl",
       "get-up"
     ],
-    "transferRationale": "Low-position strength and controlled transitions can support general movement capacity, not slide technique itself.",
     "exerciseSelectionCautions": "Practice slides only under qualified supervision on an appropriate surface; gym drills do not remove collision or hand/finger risk.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5273,13 +5001,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-11",
     "sportId": "baseball",
     "label": "diving catch",
-    "movementFamily": "explosive projection and ground recovery",
     "bodyActions": [
       "The fielder projects forward or laterally, reaches in flight, absorbs contact, and recovers."
     ],
@@ -5319,7 +5045,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "push-up",
       "bear crawl"
     ],
-    "transferRationale": "Bounds, jumps, and ground locomotion develop general projection and landing capacities.",
     "exerciseSelectionCautions": "Progress from low amplitude and controlled landings; never use maximal diving as a conditioning substitute.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5327,13 +5052,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-12",
     "sportId": "baseball",
     "label": "vertical jump catch",
-    "movementFamily": "vertical power and landing",
     "bodyActions": [
       "A countermovement produces triple extension, overhead reach, and a controlled landing."
     ],
@@ -5374,7 +5097,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "landmine press"
     ],
-    "transferRationale": "Jump and split-stance patterns overlap with takeoff, force production, and landing control.",
     "exerciseSelectionCautions": "Use a box height that permits quiet landings; overhead loading is not required for jump development.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5382,13 +5104,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-13",
     "sportId": "baseball",
     "label": "crow hop",
-    "movementFamily": "locomotor-to-throw transfer",
     "bodyActions": [
       "A gather and brief hop organize the feet and transfer ground force into a throw."
     ],
@@ -5430,7 +5150,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "step-up jump",
       "landmine rotation"
     ],
-    "transferRationale": "Hop-and-throw patterns address rhythm, unilateral force, and trunk rotation without claiming direct throwing gains.",
     "exerciseSelectionCautions": "Keep hops low and landings stable; avoid adding arm velocity when the lower-body rhythm is inconsistent.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5438,13 +5157,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-14",
     "sportId": "baseball",
     "label": "catcher squat",
-    "movementFamily": "squat endurance and positional strength",
     "bodyActions": [
       "The catcher sustains a deep squat with ankle mobility, upright trunk, and repeated rises."
     ],
@@ -5484,7 +5201,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat isometric",
       "calf raise"
     ],
-    "transferRationale": "Squats and isometrics build general lower-body capacity in a similar joint configuration.",
     "exerciseSelectionCautions": "Individualize depth and volume for hip, knee, ankle, and back tolerance; catching stance technique remains specific.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5492,13 +5208,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-15",
     "sportId": "baseball",
     "label": "catcher throw",
-    "movementFamily": "squat-to-throw power",
     "bodyActions": [
       "The catcher rises, repositions, rotates, throws, and brakes the arm in a compressed time window."
     ],
@@ -5541,7 +5255,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split-stance cable press",
       "face pull"
     ],
-    "transferRationale": "Combining a squat pattern, rotational throw, and scapular control mirrors broad physical components of the action.",
     "exerciseSelectionCautions": "Do not pair high throwing volume with high ballistic gym volume; monitor shoulder and knee symptoms.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5549,13 +5262,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-16",
     "sportId": "baseball",
     "label": "first-base stretch",
-    "movementFamily": "unilateral reach and balance",
     "bodyActions": [
       "A support leg remains rooted while the athlete hinges and reaches to receive the ball."
     ],
@@ -5595,7 +5306,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg balance",
       "cable row"
     ],
-    "transferRationale": "Unilateral hinge, balance, and row patterns overlap with support-leg and reach control.",
     "exerciseSelectionCautions": "Use a stable range before adding reach distance; do not force end-range hamstring or groin stretch.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5603,13 +5313,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-17",
     "sportId": "baseball",
     "label": "rotational transfer",
-    "movementFamily": "kinetic-chain force transfer",
     "bodyActions": [
       "Force is transmitted from the ground through pelvis and trunk to the bat or upper limb while the center remains controlled."
     ],
@@ -5652,7 +5360,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "medicine-ball rotational throw"
     ],
-    "transferRationale": "Rotational and anti-rotation patterns provide complementary dynamic and isometric trunk demands.",
     "exerciseSelectionCautions": "Avoid excessive lumbar rotation; let hips and thorax share motion and keep loads technically manageable.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5660,13 +5367,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-18",
     "sportId": "baseball",
     "label": "single-leg pitching balance",
-    "movementFamily": "unilateral balance and control",
     "bodyActions": [
       "During wind-up and leg lift, the support leg controls the pelvis and trunk while the free leg moves."
     ],
@@ -5708,7 +5413,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat isometric",
       "Pallof press"
     ],
-    "transferRationale": "Unilateral balance, hinge, and anti-rotation drills share support-leg control but not pitching timing.",
     "exerciseSelectionCautions": "Do not equate eyes-closed instability with pitching benefit; progress from stable, repeatable positions.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5716,13 +5420,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-19",
     "sportId": "baseball",
     "label": "scapular retraction",
-    "movementFamily": "scapular control",
     "bodyActions": [
       "The scapula retracts and upwardly coordinates with thoracic posture while the humerus remains controlled."
     ],
@@ -5764,7 +5466,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "prone Y raise",
       "external-rotation cable work"
     ],
-    "transferRationale": "Rows, Y raises, face pulls, and external rotation train scapular and cuff actions relevant to throwing preparation and recovery.",
     "exerciseSelectionCautions": "Avoid aggressive scapular pinning or painful ranges; retraction is not the sole goal of healthy overhead mechanics.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5772,13 +5473,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "baseball-20",
     "sportId": "baseball",
     "label": "trunk anti-rotation",
-    "movementFamily": "trunk stabilization",
     "bodyActions": [
       "The trunk resists unwanted rotation while the hips, legs, or arms move and transfer force."
     ],
@@ -5820,7 +5519,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "suitcase carry",
       "dead bug"
     ],
-    "transferRationale": "Anti-rotation drills share trunk-bracing demands that can support, but cannot replace, hitting and throwing coordination.",
     "exerciseSelectionCautions": "Brace without breath-holding; avoid treating high trunk stiffness as universally beneficial or as injury prevention.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -5828,13 +5526,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3778685/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4675191/"
     ],
-    "sourceSummary": "The enrichment is grounded primarily in peer-reviewed baseball pitching and hitting biomechanics reviews and a clinical biomechanics guide, with exercise-transfer rationales kept heuristic and no unsupported direct EMG or causal performance claims."
   },
   {
     "id": "track-and-field-1",
     "sportId": "track-and-field",
     "label": "block start",
-    "movementFamily": "sprint acceleration",
     "bodyActions": [
       "Crouched projection into the first steps",
       "horizontal body angle is progressively raised."
@@ -5883,20 +5579,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "standing calf raise",
       "ab wheel rollout"
     ],
-    "transferRationale": "Sled pushing and lower-body strength reproduce the broad projection and extension vectors, while trunk and ankle work support force transfer; they do not reproduce block geometry or sprint timing.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6684547/",
       "https://worldathletics.org/about-iaaf/documents/research-centre"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-2",
     "sportId": "track-and-field",
     "label": "acceleration",
-    "movementFamily": "sprint acceleration",
     "bodyActions": [
       "Progressive forward projection with forceful knee recovery and dorsiflexed foot contacts."
     ],
@@ -5944,7 +5637,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "seated calf raise",
       "Pallof press"
     ],
-    "transferRationale": "Resisted acceleration and unilateral strength share projection, extension, and pelvic-control demands, but transfer is mechanical overlap rather than a demonstrated causal performance guarantee.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
@@ -5952,13 +5644,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/35226345/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-3",
     "sportId": "track-and-field",
     "label": "upright sprinting",
-    "movementFamily": "sprinting gait",
     "bodyActions": [
       "Tall cyclical gait with front-side knee lift, pawback, and elastic rebound."
     ],
@@ -6007,20 +5697,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "standing calf raise",
       "dead bug"
     ],
-    "transferRationale": "Hamstring eccentric and calf work target relevant tissue actions and sprint drills preserve coordination; gym exercises should support, not replace, high-speed running exposure.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/35226345/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-4",
     "sportId": "track-and-field",
     "label": "maximal-velocity sprinting",
-    "movementFamily": "sprinting gait",
     "bodyActions": [
       "Upright high-speed flight with powerful backward leg action and rapid contacts."
     ],
@@ -6065,20 +5752,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "isometric calf raise",
       "single-leg Romanian deadlift"
     ],
-    "transferRationale": "The recommended patterns address hip-extension capacity, hamstring braking, and ankle stiffness, while only sprinting supplies event-specific maximal-velocity coordination.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/35226345/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-5",
     "sportId": "track-and-field",
     "label": "sprint deceleration",
-    "movementFamily": "braking and force absorption",
     "bodyActions": [
       "Shortens steps and lowers the center of mass to dissipate momentum before reacceleration."
     ],
@@ -6121,20 +5805,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "seated calf raise",
       "Pallof press"
     ],
-    "transferRationale": "Eccentric squatting, unilateral landing, and trunk control overlap with braking demands; no weight-room exercise guarantees improved cutting or deceleration skill.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/29497391/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-6",
     "sportId": "track-and-field",
     "label": "hurdle takeoff",
-    "movementFamily": "horizontal-to-vertical projection",
     "bodyActions": [
       "Penultimate-step lowering precedes rapid support-leg extension and lead-leg swing."
     ],
@@ -6181,20 +5862,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "pogos",
       "front plank"
     ],
-    "transferRationale": "Unilateral jump and bound patterns reflect the plant-to-projection sequence, but hurdle rhythm, clearance height, and approach accuracy require event practice.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/30089292/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-7",
     "sportId": "track-and-field",
     "label": "hurdle clearance",
-    "movementFamily": "hurdle mobility and flight",
     "bodyActions": [
       "Lead-leg flexion and extension combine with trail-leg abduction/external rotation and compact trunk repositioning."
     ],
@@ -6239,20 +5917,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral step-down",
       "side plank"
     ],
-    "transferRationale": "Mobility and unilateral control can support positions seen in clearance, but technical hurdle timing and morphology-specific range must be coached directly.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/30089292/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-8",
     "sportId": "track-and-field",
     "label": "long-jump takeoff",
-    "movementFamily": "horizontal-to-vertical jump",
     "bodyActions": [
       "A single-leg plant converts approach speed into forward-upward projection with free-knee and arm swing."
     ],
@@ -6297,20 +5972,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "pogos",
       "drop landing"
     ],
-    "transferRationale": "Unilateral strength and plyometrics share the plant and projection qualities, but takeoff-board accuracy and flight mechanics remain event-specific.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/30089292/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-9",
     "sportId": "track-and-field",
     "label": "triple-jump bound",
-    "movementFamily": "repeated horizontal plyometrics",
     "bodyActions": [
       "Alternating hop, step, and jump actions maintain horizontal velocity through repeated single-leg landings."
     ],
@@ -6354,20 +6026,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "pogos",
       "single-leg Romanian deadlift"
     ],
-    "transferRationale": "Bounds and unilateral strength directly resemble repeated support-to-rebound actions, but volume and intensity must be progressed carefully because event contacts are highly demanding.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/30089292/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-10",
     "sportId": "track-and-field",
     "label": "high-jump takeoff",
-    "movementFamily": "vertical jump and rotation",
     "bodyActions": [
       "Curved approach and penultimate lowering lead to single-leg extension, free-knee drive, and backward rotation."
     ],
@@ -6412,20 +6081,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "pogos",
       "Pallof press"
     ],
-    "transferRationale": "Jump and unilateral patterns train broad projection and stiffness qualities, not the bar clearance, curve, or takeoff-angle technique.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/30089292/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-11",
     "sportId": "track-and-field",
     "label": "pole-vault plant",
-    "movementFamily": "run-up-to-plant projection",
     "bodyActions": [
       "A fast run-up is preserved while the pole is lowered, hands are placed, and the takeoff leg braces."
     ],
@@ -6471,20 +6137,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "farmer carry",
       "front plank"
     ],
-    "transferRationale": "These patterns support speed, single-leg projection, overhead bracing, and grip, but the pole's elastic return and inversion phases cannot be safely replicated in the gym.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/31977900/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-12",
     "sportId": "track-and-field",
     "label": "shot-put drive",
-    "movementFamily": "explosive linear push",
     "bodyActions": [
       "From a flexed power position, the athlete drives through the legs and transfers force through the trunk to the implement."
     ],
@@ -6530,20 +6193,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "Pallof press"
     ],
-    "transferRationale": "Medicine-ball and push-press patterns share rapid leg-to-arm sequencing and release intent; they do not establish shot-specific technical or causal performance effects.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/31977900/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-13",
     "sportId": "track-and-field",
     "label": "shot-put release",
-    "movementFamily": "ballistic pushing",
     "bodyActions": [
       "A braced front side permits rapid trunk action and elbow extension to release the shot."
     ],
@@ -6590,20 +6250,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "front plank",
       "farmer carry"
     ],
-    "transferRationale": "Ballistic pressing and bracing overlap with release mechanics, while the shot's implement, circle, and legal technique require event-specific practice.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/31977900/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-14",
     "sportId": "track-and-field",
     "label": "discus rotation",
-    "movementFamily": "rotational throwing",
     "bodyActions": [
       "Turns and pivots sequence force from rear support through hips and trunk into the arm and release."
     ],
@@ -6653,20 +6310,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg Romanian deadlift",
       "Pallof press"
     ],
-    "transferRationale": "Rotational medicine-ball and landmine patterns share sequencing and bracing demands, but implement orbit, sector rules, and ring footwork are not reproduced by resistance exercises.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/31977900/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-15",
     "sportId": "track-and-field",
     "label": "hammer rotation",
-    "movementFamily": "rotational orbit and pivoting",
     "bodyActions": [
       "Repeated turns maintain implement radius while alternating single- and double-support pivots."
     ],
@@ -6714,20 +6368,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg Romanian deadlift",
       "Pallof press"
     ],
-    "transferRationale": "Cable, landmine, carry, and unilateral patterns develop general rotational control and grip, but the hammer's long-chain orbit and turning rhythm require specialized coaching.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/31977900/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-16",
     "sportId": "track-and-field",
     "label": "javelin approach",
-    "movementFamily": "run-up and transition",
     "bodyActions": [
       "A relaxed run-up uses controlled crossover steps to prepare a braced throwing stance."
     ],
@@ -6774,20 +6425,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "front plank",
       "face pull"
     ],
-    "transferRationale": "Sprint and unilateral-control exercises support the approach and transition, but crossover rhythm and throwing alignment remain highly technical.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/31977900/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-17",
     "sportId": "track-and-field",
     "label": "javelin throw",
-    "movementFamily": "rotational overhead throwing",
     "bodyActions": [
       "Crossover-to-block transition uses lower-body drive, trunk rotation, and a long overhead delivery path."
     ],
@@ -6837,20 +6485,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "face pull",
       "Pallof press"
     ],
-    "transferRationale": "Overhead and rotational medicine-ball work shares broad sequencing and release intent; loads, range, and volume require shoulder-specific screening and coaching.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/31977900/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-18",
     "sportId": "track-and-field",
     "label": "distance-running stride",
-    "movementFamily": "endurance running gait",
     "bodyActions": [
       "Economical repeated stance and flight with moderate hip extension, knee recovery, and elastic ankle action."
     ],
@@ -6895,20 +6540,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "side plank",
       "step-up"
     ],
-    "transferRationale": "Single-leg strength, calf capacity, and trunk endurance support tissue and posture demands, but endurance performance depends primarily on running-specific volume and metabolic training.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/35226345/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-19",
     "sportId": "track-and-field",
     "label": "race-walking stride",
-    "movementFamily": "constrained endurance gait",
     "bodyActions": [
       "Alternating single support keeps the knee straight at contact, with pelvic rotation and continuous ground contact."
     ],
@@ -6956,20 +6598,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "side plank"
     ],
-    "transferRationale": "Unilateral strength and pelvic/trunk control address general support demands; legal knee and contact constraints make race-walking technique itself non-substitutable.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/35226345/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "track-and-field-20",
     "sportId": "track-and-field",
     "label": "steeplechase barrier clearance",
-    "movementFamily": "obstacle running and landing",
     "bodyActions": [
       "Approach-to-takeoff produces compact flight, deliberate landing, and immediate running transition."
     ],
@@ -7016,20 +6655,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "step-up",
       "pogos"
     ],
-    "transferRationale": "Barrier drills and landing progressions overlap with clearance and re-entry demands, but water-jump strategy, race rhythm, and fatigue tolerance require event-specific practice.",
     "exerciseSelectionCautions": "Exercise choices are proxies for shared force, posture, and contraction demands rather than event-skill substitutes; progress load and velocity conservatively, preserve technical quality, and individualize for injury history, event phase, and training age.",
     "evidenceConfidence": "high",
     "sources": [
       "https://worldathletics.org/about-iaaf/documents/research-centre",
       "https://pubmed.ncbi.nlm.nih.gov/30089292/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed sprint and jump biomechanics, World Athletics technical/research materials, and throwing/event biomechanics sources; confidence is highest for sprint and jump force phases, while apparatus-specific transfer for pole vault and rotational throws remains an evidence-aware mechanical proxy rather than a causal performance claim."
   },
   {
     "id": "swimming-1",
     "sportId": "swimming",
     "label": "freestyle pull",
-    "movementFamily": "alternating underwater propulsion",
     "bodyActions": [
       "Reach, anchor the hand and forearm, then sweep the upper limb backward while the trunk rolls around the long axis."
     ],
@@ -7075,7 +6711,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable row",
       "half-kneeling cable pulldown"
     ],
-    "transferRationale": "These patterns share shoulder extension/adduction, scapular control and trunk bracing, but do not reproduce aquatic propulsion or timing.",
     "exerciseSelectionCautions": "Prefer controlled loads and neutral shoulder mechanics; avoid forcing end-range internal rotation or training to fatigue when scapular control deteriorates.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7083,13 +6718,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-2",
     "sportId": "swimming",
     "label": "freestyle catch",
-    "movementFamily": "early propulsive catch",
     "bodyActions": [
       "Set the hand and forearm as a forward-facing paddle while the elbow remains relatively high and the body moves past the anchor."
     ],
@@ -7131,7 +6764,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "straight-arm pulldown",
       "cable row"
     ],
-    "transferRationale": "Vertical pulling and straight-arm work approximate the shoulder/scapular force direction and bracing requirement; technical catch feel remains water-specific.",
     "exerciseSelectionCautions": "Do not chase a very deep shoulder stretch or aggressive high-elbow position under load; use pain-free range and coach scapular rhythm.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7139,13 +6771,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-3",
     "sportId": "swimming",
     "label": "freestyle kick",
-    "movementFamily": "hip-driven alternating kick",
     "bodyActions": [
       "Alternate small-amplitude leg motions from the hips while maintaining plantarflexed feet and a streamlined pelvis."
     ],
@@ -7187,7 +6817,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "glute bridge",
       "standing calf raise"
     ],
-    "transferRationale": "These exercises train hip flexion/extension and plantarflexion capacity that underpin the kick, without claiming identical hydrodynamic output.",
     "exerciseSelectionCautions": "Avoid excessive knee-dominant kicking, lumbar extension, or loaded ankle range that provokes calf/Achilles symptoms.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7195,13 +6824,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-4",
     "sportId": "swimming",
     "label": "freestyle body rotation",
-    "movementFamily": "axial rotation and roll",
     "bodyActions": [
       "Rotate the trunk and pelvis side-to-side to coordinate breathing and shoulder recovery while preserving a long body line."
     ],
@@ -7244,7 +6871,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "side plank rotation",
       "dead bug"
     ],
-    "transferRationale": "Rotational and anti-rotational patterns develop trunk control that can support body-line maintenance during roll; stroke timing must still be learned in water.",
     "exerciseSelectionCautions": "Use thoracic-led rotation and keep the lumbar spine comfortable; do not add neck motion by lifting the head.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7252,13 +6878,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-5",
     "sportId": "swimming",
     "label": "backstroke pull",
-    "movementFamily": "supine alternating propulsion",
     "bodyActions": [
       "Pull water from overhead toward the hip while the body rolls and the opposite arm recovers."
     ],
@@ -7301,7 +6925,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "straight-arm pulldown",
       "assisted pull-up"
     ],
-    "transferRationale": "Pulling patterns overlap the major shoulder-extension and scapular demands while the supine roll and aquatic resistance remain specific.",
     "exerciseSelectionCautions": "Avoid rib flare and excessive lumbar arch; adjust grip and volume for shoulder tolerance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7309,13 +6932,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-6",
     "sportId": "swimming",
     "label": "backstroke kick",
-    "movementFamily": "supine hip-driven flutter kick",
     "bodyActions": [
       "Produce alternating hip-driven kicks with relaxed knees and plantarflexed ankles while keeping the pelvis near the surface."
     ],
@@ -7357,7 +6978,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "glute bridge",
       "standing calf raise"
     ],
-    "transferRationale": "Hip and calf exercises address the primary land-based capacities of the kick but not buoyancy or ankle drag.",
     "exerciseSelectionCautions": "Keep knees soft rather than snapping them; limit volume if hip-flexor or lumbar fatigue changes the body line.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7365,13 +6985,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-7",
     "sportId": "swimming",
     "label": "breaststroke pull",
-    "movementFamily": "bilateral outsweep-insweep recovery",
     "bodyActions": [
       "Sweep the hands outward, catch water, draw the forearms and hands inward toward the chest, then shoot forward into recovery."
     ],
@@ -7415,7 +7033,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable press",
       "triceps pressdown"
     ],
-    "transferRationale": "Pressing and pulling patterns overlap the bilateral arm force demands and scapular control, but breaststroke sequencing and resistance direction are aquatic-specific.",
     "exerciseSelectionCautions": "Use moderate range and avoid aggressive loaded horizontal abduction; coordinate with shoulder-health work.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7423,13 +7040,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-8",
     "sportId": "swimming",
     "label": "breaststroke kick",
-    "movementFamily": "whip kick propulsion",
     "bodyActions": [
       "Recover the heels toward the hips, rotate the feet outward, sweep the lower legs backward and inward, then snap together into streamline."
     ],
@@ -7475,7 +7090,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "hamstring curl",
       "goblet squat"
     ],
-    "transferRationale": "These patterns train adductor, hamstring and squat capacities resembling the force-producing phases without claiming stroke-specific performance gains.",
     "exerciseSelectionCautions": "Progress adductor loading gradually; do not force turnout or knee valgus, and stop if groin pain appears.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7483,13 +7097,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-9",
     "sportId": "swimming",
     "label": "butterfly pull",
-    "movementFamily": "bilateral undulatory pull",
     "bodyActions": [
       "Enter both hands, catch, press water backward with simultaneous arms, then recover forward over the surface as the trunk undulates."
     ],
@@ -7533,7 +7145,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable row",
       "medicine-ball pullover"
     ],
-    "transferRationale": "Bilateral pulling and pullover patterns share broad shoulder and trunk force directions, but butterfly timing and water feel are not replicated.",
     "exerciseSelectionCautions": "Manage shoulder volume carefully; avoid deep fatigue, forced extension, or substituting lumbar hyperextension for thoracic/hip undulation.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7541,13 +7152,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-10",
     "sportId": "swimming",
     "label": "dolphin kick",
-    "movementFamily": "whole-body undulatory propulsion",
     "bodyActions": [
       "Transmit a wave from the trunk through the pelvis, knees and ankles with small, fast foot motion."
     ],
@@ -7593,7 +7202,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "glute bridge",
       "standing calf raise"
     ],
-    "transferRationale": "Hollow-body, hip-extension and calf patterns develop supporting capacities for an undulatory kick; they do not establish the aquatic wave automatically.",
     "exerciseSelectionCautions": "Keep wave amplitude controlled and avoid painful lumbar compression; prioritize technique and ankle mobility.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7601,13 +7209,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-11",
     "sportId": "swimming",
     "label": "streamline",
-    "movementFamily": "hydrodynamic body-line alignment",
     "bodyActions": [
       "Hold both arms overhead with hands stacked, elbows extended and ribs/pelvis aligned during glide."
     ],
@@ -7650,7 +7256,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "serratus wall slide",
       "dead bug"
     ],
-    "transferRationale": "Overhead carries, hollow holds and serratus work overlap the alignment and anti-extension demands; drag reduction and aquatic posture require pool practice.",
     "exerciseSelectionCautions": "Do not force shoulder flexion if it causes pain or rib flare; regress to wall-supported positions.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7658,13 +7263,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-12",
     "sportId": "swimming",
     "label": "wall push-off",
-    "movementFamily": "horizontal leg-drive push",
     "bodyActions": [
       "Plant the feet on the wall, flex hips and knees, then extend the lower limbs to project into streamline."
     ],
@@ -7707,7 +7310,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "standing calf raise",
       "hollow-body hold"
     ],
-    "transferRationale": "Leg press, jumps and calf work share extension and force-direction qualities; pool-wall angle, timing and tactile foot placement remain specific.",
     "exerciseSelectionCautions": "Use safe jump volume and avoid maximal depth or load when knees, hips or Achilles are symptomatic.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7715,13 +7317,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-13",
     "sportId": "swimming",
     "label": "flip turn",
-    "movementFamily": "tuck rotation and re-extension",
     "bodyActions": [
       "Accelerate into a forward somersault, compact the hips and knees, then extend to plant feet and push into streamline."
     ],
@@ -7766,7 +7366,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "squat jump",
       "leg press"
     ],
-    "transferRationale": "These patterns support compression, trunk control and leg-drive qualities, but vestibular timing and wall orientation must be practiced in water.",
     "exerciseSelectionCautions": "Do not load cervical flexion; use coached rolls, adequate space and gradual speed progression.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7774,13 +7373,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-14",
     "sportId": "swimming",
     "label": "open turn",
-    "movementFamily": "two-hand touch, fold and push",
     "bodyActions": [
       "Touch with both hands, flex and rotate the body toward the wall, bring the feet under the body, then push away in streamline."
     ],
@@ -7827,7 +7424,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable chop",
       "squat jump"
     ],
-    "transferRationale": "Press, squat, rotation and jump patterns overlap component qualities but not the exact wall-touch choreography.",
     "exerciseSelectionCautions": "Avoid shoulder overreach at the touch; keep turn speed submaximal until technical accuracy is consistent.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7835,13 +7431,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-15",
     "sportId": "swimming",
     "label": "diving start",
-    "movementFamily": "block projection and entry",
     "bodyActions": [
       "Move from a crouched set position through rapid triple extension, flight alignment, water entry and streamline."
     ],
@@ -7886,7 +7480,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "squat jump",
       "overhead carry"
     ],
-    "transferRationale": "Jump and carry patterns train projection and body-line capacities, while block reaction, flight angle and entry are highly technical.",
     "exerciseSelectionCautions": "Use qualified coaching and safe landing/entry progressions; do not equate loaded jumps with dive skill.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7894,13 +7487,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-16",
     "sportId": "swimming",
     "label": "underwater dolphin",
-    "movementFamily": "streamlined submerged undulation",
     "bodyActions": [
       "Maintain streamline while producing repeated trunk-to-ankle waves after starts and turns."
     ],
@@ -7946,7 +7537,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "glute bridge",
       "standing calf raise"
     ],
-    "transferRationale": "The exercise set targets trunk stiffness, hip drive and plantarflexion that support the movement, without promising faster underwater times.",
     "exerciseSelectionCautions": "Respect breath-hold safety and avoid hyperventilation; keep amplitude low enough to preserve streamline and lumbar comfort.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -7954,13 +7544,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-17",
     "sportId": "swimming",
     "label": "breathing rotation",
-    "movementFamily": "breath-linked axial rotation",
     "bodyActions": [
       "Roll the trunk and pelvis with controlled cervical turn so the mouth clears the surface while the opposite arm supports the body."
     ],
@@ -8004,7 +7592,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable chop",
       "dead bug"
     ],
-    "transferRationale": "Anti-rotation and controlled rotation build trunk control relevant to the roll, while breathing timing and buoyancy remain stroke-specific.",
     "exerciseSelectionCautions": "Avoid loaded end-range cervical rotation; keep the head aligned with the spine and stop for neck symptoms.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -8012,13 +7599,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-18",
     "sportId": "swimming",
     "label": "scapular protraction",
-    "movementFamily": "scapulothoracic reach and anchor",
     "bodyActions": [
       "Glide the scapula around the rib cage during overhead reach and hand anchoring, then control return during pull/recovery."
     ],
@@ -8058,7 +7643,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "serratus wall slide",
       "overhead carry"
     ],
-    "transferRationale": "These patterns directly train scapular protraction and upward-rotation capacity, but should complement rather than replace stroke technique.",
     "exerciseSelectionCautions": "Avoid shrugging or winging; use pain-free ranges and low-to-moderate fatigue because shoulder-cycle tolerance is a key constraint.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -8066,13 +7650,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-19",
     "sportId": "swimming",
     "label": "shoulder internal rotation",
-    "movementFamily": "underwater medial-rotation pull",
     "bodyActions": [
       "Rotate the humerus medially while combining shoulder extension/adduction during the underwater pull."
     ],
@@ -8117,7 +7699,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lat pulldown",
       "straight-arm pulldown"
     ],
-    "transferRationale": "Rotator-cuff and pulldown patterns overlap the action and proximal control needs, but exercise volume must be balanced with external-rotation and scapular work.",
     "exerciseSelectionCautions": "Use light-to-moderate resistance and neutral humeral alignment; do not treat internal-rotation strengthening as a license for painful range or excessive volume.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -8125,13 +7706,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "swimming-20",
     "sportId": "swimming",
     "label": "finishing reach",
-    "movementFamily": "terminal reach and wall-line extension",
     "bodyActions": [
       "Lengthen forward at the end of the stroke while keeping the trunk long, then decelerate after the wall touch or next entry."
     ],
@@ -8175,7 +7754,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "serratus wall slide",
       "hollow-body hold"
     ],
-    "transferRationale": "Pressing, triceps, serratus and anti-extension patterns overlap the terminal reach and alignment demands without reproducing aquatic timing.",
     "exerciseSelectionCautions": "Avoid rib flare and forced overhead range; prioritize smooth deceleration and shoulder comfort.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -8183,13 +7761,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.jssm.org/hf.php?id=jssm-13-223.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9566274/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed swimming biomechanics and sports-medicine literature on stroke mechanics, shoulder/scapular loading, swim starts, turns, and underwater undulatory propulsion; evidence confidence is moderate because gym exercises provide mechanical overlap rather than direct proof of sport-performance causation."
   },
   {
     "id": "tennis-1",
     "sportId": "tennis",
     "label": "forehand",
-    "movementFamily": "rotational striking",
     "bodyActions": [
       "Open or semi-open stance loads the outside leg, rotates pelvis and trunk, then accelerates the racquet into forehand contact."
     ],
@@ -8234,20 +7810,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "These patterns overlap with unilateral loading, proximal-to-distal rotation, and trunk stiffness; they are preparatory strength proxies rather than technical substitutes.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-2",
     "sportId": "tennis",
     "label": "backhand",
-    "movementFamily": "rotational striking",
     "bodyActions": [
       "Closed or neutral stance loads the legs and rotates the pelvis and trunk while the racquet travels across the body into backhand contact."
     ],
@@ -8293,20 +7866,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "single-leg Romanian deadlift"
     ],
-    "transferRationale": "The selected patterns train leg-to-trunk force transfer and unilateral balance shared by a backhand, without claiming identical muscle activation.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-3",
     "sportId": "tennis",
     "label": "serve",
-    "movementFamily": "overhead propulsion",
     "bodyActions": [
       "Leg drive and trunk coil elevate the body while the hitting arm reaches, accelerates, and pronates into contact."
     ],
@@ -8352,20 +7922,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.lww.com/nsca-scj/fulltext/2009/08000/biomechanics_of_the_tennis_serve__implications_for.4.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-4",
     "sportId": "tennis",
     "label": "overhead smash",
-    "movementFamily": "overhead propulsion",
     "bodyActions": [
       "Rapid preparation, leg-supported elevation, trunk rotation, and high point overhead racquet acceleration."
     ],
@@ -8410,20 +7977,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-5",
     "sportId": "tennis",
     "label": "volley",
-    "movementFamily": "compact push and reactive stance",
     "bodyActions": [
       "Short preparation from a balanced stance with a compact racquet push and immediate recovery."
     ],
@@ -8465,20 +8029,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-6",
     "sportId": "tennis",
     "label": "backhand volley",
-    "movementFamily": "compact push and reactive stance",
     "bodyActions": [
       "Low compact stance supports a short backhand-side block and rapid repositioning."
     ],
@@ -8520,20 +8081,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-7",
     "sportId": "tennis",
     "label": "slice",
-    "movementFamily": "controlled rotational striking",
     "bodyActions": [
       "A forward step and racquet path produce a controlled underspin stroke with a low center of mass."
     ],
@@ -8576,20 +8134,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-8",
     "sportId": "tennis",
     "label": "topspin drive",
-    "movementFamily": "rotational striking",
     "bodyActions": [
       "Leg loading and pelvic-trunk rotation combine with upward racquet acceleration and forearm pronation."
     ],
@@ -8633,20 +8188,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-9",
     "sportId": "tennis",
     "label": "lateral shuffle",
-    "movementFamily": "lateral locomotion and change of direction",
     "bodyActions": [
       "Repeated side steps reposition the pelvis while the trunk remains available for the next shot."
     ],
@@ -8685,20 +8237,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10009273/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5304280/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-10",
     "sportId": "tennis",
     "label": "split step",
-    "movementFamily": "compact push and reactive stance",
     "bodyActions": [
       "Brief countermovement and elastic landing create a neutral base for the next directional push."
     ],
@@ -8737,20 +8286,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5304280/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10009273/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-11",
     "sportId": "tennis",
     "label": "crossover recovery",
-    "movementFamily": "lateral locomotion and change of direction",
     "bodyActions": [
       "Crossover steps redirect the pelvis and center of mass toward court recovery after a wide stroke."
     ],
@@ -8790,20 +8336,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10009273/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5304280/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-12",
     "sportId": "tennis",
     "label": "forward acceleration",
-    "movementFamily": "linear acceleration and braking",
     "bodyActions": [
       "Forward projection uses aggressive backward-directed ground force and coordinated arm action."
     ],
@@ -8842,19 +8385,16 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10009273/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-13",
     "sportId": "tennis",
     "label": "deceleration",
-    "movementFamily": "linear acceleration and braking",
     "bodyActions": [
       "The athlete lowers the center of mass and absorbs horizontal momentum before the next action."
     ],
@@ -8894,20 +8434,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://journals.lww.com/nsca-scj/fulltext/2008/12000/Efficient_Deceleration__The_Forgotten_Factor_in.9.aspx",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10009273/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-14",
     "sportId": "tennis",
     "label": "open-stance rotation",
-    "movementFamily": "rotational striking",
     "bodyActions": [
       "Outside-leg loading permits pelvis and trunk rotation without requiring a full step across the body."
     ],
@@ -8949,20 +8486,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-15",
     "sportId": "tennis",
     "label": "closed-stance drive",
-    "movementFamily": "rotational striking",
     "bodyActions": [
       "Forward or diagonal step loads the front leg, then transfers force through pelvis, trunk, and racquet."
     ],
@@ -9004,20 +8538,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-16",
     "sportId": "tennis",
     "label": "serve leg drive",
-    "movementFamily": "vertical propulsion",
     "bodyActions": [
       "Countermovement and triple extension elevate the hitting shoulder and body into the serve."
     ],
@@ -9056,20 +8587,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.lww.com/nsca-scj/fulltext/2009/08000/biomechanics_of_the_tennis_serve__implications_for.4.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-17",
     "sportId": "tennis",
     "label": "jumping forehand",
-    "movementFamily": "plyometric rotational striking",
     "bodyActions": [
       "Approach and takeoff create airborne rotation, racquet acceleration, and landing absorption."
     ],
@@ -9112,20 +8640,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0290320"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-18",
     "sportId": "tennis",
     "label": "drop-shot reach",
-    "movementFamily": "low-center-of-mass reach",
     "bodyActions": [
       "Forward or lateral lowering permits precise racquet placement while preserving balance and recovery capacity."
     ],
@@ -9167,20 +8692,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC2577481/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10009273/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-19",
     "sportId": "tennis",
     "label": "wide-ball lunge",
-    "movementFamily": "lateral locomotion and change of direction",
     "bodyActions": [
       "A deep lateral or diagonal step absorbs momentum, stabilizes the racket side, and initiates push-off."
     ],
@@ -9219,20 +8741,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10009273/",
       "https://journals.lww.com/nsca-scj/fulltext/2008/12000/Efficient_Deceleration__The_Forgotten_Factor_in.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "tennis-20",
     "sportId": "tennis",
     "label": "rotational recovery",
-    "movementFamily": "rotational change of direction",
     "bodyActions": [
       "Braking is followed by pelvic-trunk reorientation, crossover or shuffle steps, and renewed acceleration."
     ],
@@ -9273,20 +8792,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Pallof press"
     ],
-    "transferRationale": "The patterns share broad force vectors, unilateral control, or trunk/shoulder demands with the movement; they do not reproduce perception, timing, racquet technique, or opponent interaction.",
     "exerciseSelectionCautions": "Use loads that preserve tennis-like sequencing and shoulder control; do not infer that the exercise directly improves stroke performance or prevents injury.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10009273/",
       "https://journals.lww.com/nsca-scj/fulltext/2008/12000/Efficient_Deceleration__The_Forgotten_Factor_in.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed tennis biomechanics and change-of-direction research plus strength-and-conditioning guidance, with moderate confidence for most movement-to-exercise transfer inferences and higher confidence for serve leg-drive mechanics; the file avoids unsupported direct EMG or causal performance claims."
   },
   {
     "id": "volleyball-1",
     "sportId": "volleyball",
     "label": "approach jump",
-    "movementFamily": "vertical jump and landing",
     "bodyActions": [
       "Penultimate-step braking, bilateral countermovement, arm swing, and rapid takeoff."
     ],
@@ -9320,7 +8836,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Barbell back squats",
       "Hang power cleans"
     ],
-    "transferRationale": "Squat/jump and triple-extension patterns share lower-limb impulse demands, while landing practice addresses the absorption phase; volleyball-specific evidence supports repeated jump and landing exposure, not guaranteed transfer. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Land with quiet, aligned feet and progress volume conservatively; Olympic derivatives require coaching.",
     "evidenceConfidence": "high",
     "sources": [
@@ -9328,13 +8843,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-2",
     "sportId": "volleyball",
     "label": "vertical block jump",
-    "movementFamily": "vertical jump and overhead reach",
     "bodyActions": [
       "Short dip, bilateral takeoff, vertical reach, and controlled landing near the net."
     ],
@@ -9369,7 +8882,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Push presses",
       "Landmine presses"
     ],
-    "transferRationale": "The movement directly combines jump, reach, and landing demands described in volleyball conditioning literature. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Avoid fatigue-driven valgus or forced overhead range; separate high-impact jumps from shoulder-heavy work when needed.",
     "evidenceConfidence": "high",
     "sources": [
@@ -9377,13 +8889,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-3",
     "sportId": "volleyball",
     "label": "spike",
-    "movementFamily": "rotational overhead striking",
     "bodyActions": [
       "Approach jump, trunk-pelvis separation, arm cocking, rapid acceleration to ball contact, and deceleration."
     ],
@@ -9419,7 +8929,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable rows",
       "Serratus wall slides"
     ],
-    "transferRationale": "Biomechanical literature identifies large upper-limb kinetics in spike actions; selected drills overlap sequencing and deceleration without claiming causal performance gains. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Use light-to-moderate ballistic loads and prioritize shoulder deceleration; do not infer that strength work alone improves spike speed.",
     "evidenceConfidence": "high",
     "sources": [
@@ -9427,13 +8936,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-4",
     "sportId": "volleyball",
     "label": "overhead serve",
-    "movementFamily": "overhead striking and kinetic-chain sequencing",
     "bodyActions": [
       "Stance-to-leg-drive action with trunk extension/rotation and overhead arm acceleration to contact."
     ],
@@ -9467,7 +8974,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable chops",
       "Pallof presses"
     ],
-    "transferRationale": "Serve/spike studies support the overhead kinetic-chain emphasis; gym choices train shared force directions and proximal control rather than the technical skill itself. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Keep throws submaximal until mechanics are stable; avoid painful overhead loading and excessive lumbar extension.",
     "evidenceConfidence": "high",
     "sources": [
@@ -9475,13 +8981,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-5",
     "sportId": "volleyball",
     "label": "jump serve",
-    "movementFamily": "jump plus overhead striking",
     "bodyActions": [
       "Approach and bilateral jump followed by trunk rotation and overhead strike, then landing."
     ],
@@ -9515,7 +9019,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Medicine-ball rotational throws",
       "Drop landings"
     ],
-    "transferRationale": "The combined demands are consistent with volleyball conditioning and serve/spike biomechanics, but exercise-to-serve transfer remains inferential. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Limit ballistic contacts when landing quality deteriorates; use technical serving practice for skill, not heavier resistance.",
     "evidenceConfidence": "high",
     "sources": [
@@ -9523,13 +9026,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-6",
     "sportId": "volleyball",
     "label": "forearm pass",
-    "movementFamily": "low stance and projection",
     "bodyActions": [
       "Flexed-knee stance, hip hinge, forearm platform, and subtle leg-driven projection."
     ],
@@ -9563,7 +9064,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable-resisted anti-rotation",
       "Front-foot-elevated split squats"
     ],
-    "transferRationale": "The stance and shoulder/scapular roles are mechanically clear, while direct training effects on passing accuracy are not established. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Do not turn a platform skill into heavy shoulder pressing; maintain comfortable knee and back positions.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -9571,13 +9071,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-7",
     "sportId": "volleyball",
     "label": "overhead set",
-    "movementFamily": "overhead reach and precision projection",
     "bodyActions": [
       "Leg-assisted overhead hand set with fingertip contact above the forehead."
     ],
@@ -9611,7 +9109,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Landmine presses",
       "Serratus wall slides"
     ],
-    "transferRationale": "Exercise selection overlaps leg-assisted overhead projection and scapular upward rotation, but setting precision is skill-specific. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Use low loads and preserve hand/finger technique; avoid treating fingertip skill as a maximal-force task.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -9619,13 +9116,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-8",
     "sportId": "volleyball",
     "label": "lateral blocking shuffle",
-    "movementFamily": "lateral locomotion and defensive positioning",
     "bodyActions": [
       "Repeated lateral steps in a semi-flexed posture while maintaining blocking alignment."
     ],
@@ -9659,7 +9154,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Sled drags",
       "Band-resisted shuffle intervals"
     ],
-    "transferRationale": "The lateral and change-of-direction demands are directly represented in volleyball conditioning guidance; transfer is mechanical, not guaranteed. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Progress frontal-plane volume gradually and avoid uncontrolled knee collapse; drills should match court spacing.",
     "evidenceConfidence": "high",
     "sources": [
@@ -9667,13 +9161,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-9",
     "sportId": "volleyball",
     "label": "crossover block step",
-    "movementFamily": "lateral locomotion plus vertical jump",
     "bodyActions": [
       "Crossover to cover distance, braking, reorientation, and block-jump preparation."
     ],
@@ -9707,7 +9199,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Deceleration runs",
       "Countermovement jumps"
     ],
-    "transferRationale": "The exercise menu shares lateral redirection and jump preparation; exact crossover timing is technical and position-dependent. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Teach foot placement before adding speed; avoid excessive crossover depth if hip or knee control is poor.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -9715,13 +9206,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-10",
     "sportId": "volleyball",
     "label": "dive",
-    "movementFamily": "ground-oriented defensive locomotion",
     "bodyActions": [
       "Rapid forward/lateral lowering, trunk bracing, extended-arm contact, and controlled ground absorption."
     ],
@@ -9756,7 +9245,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Split-stance reaches",
       "Pallof presses"
     ],
-    "transferRationale": "Volleyball sources identify dives and ground recovery as recurring demands, while the gym rationale is a cautious mechanical analogy. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Learn landing surfaces and technique with a coach; never use loaded dives or substitute them for skill instruction.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -9764,13 +9252,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-11",
     "sportId": "volleyball",
     "label": "roll recovery",
-    "movementFamily": "ground recovery and rotational transition",
     "bodyActions": [
       "Post-dive roll from ground contact through trunk/hip rotation to supported standing."
     ],
@@ -9803,7 +9289,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Half-kneeling-to-stand drills",
       "Bear-crawl transitions"
     ],
-    "transferRationale": "Movement descriptions support the pattern, but evidence linking these exercises to volleyball outcomes is limited and skill-specific. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Use soft surfaces and progressive ranges; exclude cervical loading and stop for pain or dizziness.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -9811,13 +9296,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-12",
     "sportId": "volleyball",
     "label": "low defensive stance",
-    "movementFamily": "isometric athletic stance",
     "bodyActions": [
       "Sustained hip/knee/ankle flexion with forward trunk inclination and ready weight distribution."
     ],
@@ -9849,7 +9332,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Lateral-resistance stance work",
       "Goblet squat holds"
     ],
-    "transferRationale": "The stance is directly observable, but optimal depth and duration vary by position, athlete, and tactical situation. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Use tolerable joint angles and avoid prolonged fatigue that changes spinal or knee alignment.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -9857,13 +9339,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-13",
     "sportId": "volleyball",
     "label": "single-leg takeoff",
-    "movementFamily": "unilateral jump",
     "bodyActions": [
       "Unilateral countermovement and forceful extension through one leg with contralateral drive."
     ],
@@ -9897,7 +9377,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Rear-foot-elevated split squats",
       "Single-leg squat-to-stick"
     ],
-    "transferRationale": "Unilateral jump mechanics are a logical extension of volleyball approach variability, but no causal claim is made for the listed exercises. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Start with low contacts and stable landings; monitor asymmetry and tendon irritability.",
     "evidenceConfidence": "high",
     "sources": [
@@ -9905,13 +9384,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-14",
     "sportId": "volleyball",
     "label": "bilateral takeoff",
-    "movementFamily": "bilateral vertical jump",
     "bodyActions": [
       "Symmetrical countermovement followed by synchronized hip, knee, and ankle extension."
     ],
@@ -9945,7 +9422,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Loaded jump squats",
       "Hang power cleans"
     ],
-    "transferRationale": "Repeated jumping is a defining volleyball demand and the selected patterns share the relevant bilateral force phases. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Use load that preserves jump velocity and landing mechanics; high-volume plyometrics require recovery.",
     "evidenceConfidence": "high",
     "sources": [
@@ -9953,13 +9429,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-15",
     "sportId": "volleyball",
     "label": "landing",
-    "movementFamily": "deceleration and landing",
     "bodyActions": [
       "Absorb jump momentum through coordinated hip, knee, ankle flexion with trunk and foot alignment."
     ],
@@ -9993,7 +9467,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Single-leg squat-to-stick",
       "Deceleration runs"
     ],
-    "transferRationale": "Volleyball literature emphasizes repeated landing and lower-limb injury exposure; exercises train absorption but are not proven injury-prevention guarantees. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Use appropriate box height and surface; quality and alignment take priority over fatigue or depth.",
     "evidenceConfidence": "high",
     "sources": [
@@ -10001,13 +9474,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-16",
     "sportId": "volleyball",
     "label": "overhead reach",
-    "movementFamily": "overhead reach",
     "bodyActions": [
       "Arm elevation with scapular upward rotation and leg/trunk contribution to contact above shoulder height."
     ],
@@ -10041,7 +9512,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Serratus wall slides",
       "Half-kneeling landmine presses"
     ],
-    "transferRationale": "Overhead actions are central to volleyball and shoulder kinetics are documented, but this generic reach is less studied than serve/spike. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Avoid painful end range and excessive rib flare; progress overhead volume separately from maximal hitting.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10049,13 +9519,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-17",
     "sportId": "volleyball",
     "label": "shoulder swing",
-    "movementFamily": "upper-limb striking",
     "bodyActions": [
       "Rapid arm acceleration through flexion/horizontal adduction or internal rotation, followed by braking."
     ],
@@ -10089,7 +9557,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable rows",
       "Serratus wall slides"
     ],
-    "transferRationale": "Serve/spike biomechanics document high shoulder and elbow kinetics; the exercise rationale remains shared-action based. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Keep ballistic implements light and stop with pain or loss of scapular control; balance pressing with pulling and deceleration work.",
     "evidenceConfidence": "high",
     "sources": [
@@ -10097,13 +9564,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-18",
     "sportId": "volleyball",
     "label": "trunk rotation",
-    "movementFamily": "rotational force transfer",
     "bodyActions": [
       "Transverse-plane rotation and anti-rotation linking pelvis, torso, and shoulder complex."
     ],
@@ -10137,7 +9602,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Landmine rotations",
       "Pallof presses"
     ],
-    "transferRationale": "Whole-body sequencing and trunk rotation are supported by overhead-skill biomechanics, but exact muscle contributions vary by technique. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Avoid forcing lumbar rotation; rotate through the thoracic spine and hips with a braced pelvis.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10145,13 +9609,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-19",
     "sportId": "volleyball",
     "label": "quick acceleration",
-    "movementFamily": "acceleration and sprint mechanics",
     "bodyActions": [
       "Short-step center-of-mass projection with forward lean and forceful hip/knee/ankle extension."
     ],
@@ -10185,7 +9647,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Short shuttle starts",
       "Split-stance jumps"
     ],
-    "transferRationale": "Volleyball conditioning sources describe frequent changes of direction and explosive efforts; direct acceleration data are less specific than jump/serve data. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Keep resistance low enough to preserve acceleration posture; separate maximal sprinting from fatigued conditioning.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10193,13 +9654,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "volleyball-20",
     "sportId": "volleyball",
     "label": "backward defensive movement",
-    "movementFamily": "backward locomotion and deceleration",
     "bodyActions": [
       "Backward shuffle or crossover with flexed hips/knees, torso organization, and rapid braking."
     ],
@@ -10233,7 +9692,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Multidirectional shuttle drills",
       "Lateral-resistance stance work"
     ],
-    "transferRationale": "The movement is a recognized court-demand pattern, but evidence is stronger for general change-of-direction demands than this exact drill. Use mechanical overlap as a training heuristic; it does not establish direct performance causation.",
     "exerciseSelectionCautions": "Teach backward footwork slowly and avoid blind maximal-speed drills; maintain court awareness and knee alignment.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10241,13 +9699,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://journals.sagepub.com/doi/abs/10.1177/1941738110374624",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10499142/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed volleyball biomechanics and strength-and-conditioning literature on repeated jumping, landing, change of direction, overhead hitting, and shoulder/elbow kinetics, while treating gym transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "boxing-1",
     "sportId": "boxing",
     "label": "jab",
-    "movementFamily": "straight-punch",
     "bodyActions": [
       "Rapid lead-arm projection from a balanced stance with subtle lower-body push and fast retraction."
     ],
@@ -10297,7 +9753,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "Pallof press"
     ],
-    "transferRationale": "Pressing plus stance and anti-rotation work overlaps the jab’s linear arm action and proximal support, but not its skill timing.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10305,13 +9760,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-2",
     "sportId": "boxing",
     "label": "cross",
-    "movementFamily": "straight-punch",
     "bodyActions": [
       "Rear-side drive transfers through pelvis and trunk into a straight rear-hand punch."
     ],
@@ -10361,7 +9814,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "cable anti-rotation"
     ],
-    "transferRationale": "Rotational pressing and medicine-ball projection train related sequencing and force direction without proving sport transfer.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10369,13 +9821,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-3",
     "sportId": "boxing",
     "label": "lead hook",
-    "movementFamily": "rotational-punch",
     "bodyActions": [
       "Lead-side horizontal swing driven by stance rotation and trunk turning."
     ],
@@ -10422,7 +9872,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine press",
       "split squat"
     ],
-    "transferRationale": "Rotational throws and cable chops share trunk rotation and leg-supported force transfer; they do not replicate impact or opponent distance.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10430,13 +9879,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-4",
     "sportId": "boxing",
     "label": "rear hook",
-    "movementFamily": "rotational-punch",
     "bodyActions": [
       "Rear-side rotational punch with larger pelvic and trunk contribution than a lead hook."
     ],
@@ -10484,7 +9931,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine press",
       "split squat"
     ],
-    "transferRationale": "The exercise set develops rotational power and support-leg strength that overlap the hook’s mechanics, with limited direct evidence for punch outcomes.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10492,13 +9938,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-5",
     "sportId": "boxing",
     "label": "uppercut",
-    "movementFamily": "rising/level-change punch",
     "bodyActions": [
       "Leg-supported upward punch from flexed stance with vertical and rotational trunk extension."
     ],
@@ -10548,7 +9992,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "cable lift"
     ],
-    "transferRationale": "Triple-extension and upward-throw patterns share the rising force direction, but the uppercut remains a technical open-skill action.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10556,13 +9999,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-6",
     "sportId": "boxing",
     "label": "overhand",
-    "movementFamily": "rotational-punch",
     "bodyActions": [
       "Arcing rear-hand strike combining lateral trunk inclination, rotation, and shoulder flexion."
     ],
@@ -10610,7 +10051,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine press",
       "split squat"
     ],
-    "transferRationale": "Diagonal throws and landmine pressing overlap the diagonal kinetic chain while avoiding claims of identical punch loading.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10618,13 +10058,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-7",
     "sportId": "boxing",
     "label": "body shot",
-    "movementFamily": "rising/level-change punch",
     "bodyActions": [
       "Lower-target punch performed with knee/hip flexion and forceful return through the trunk."
     ],
@@ -10672,7 +10110,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball scoop throws",
       "Pallof press"
     ],
-    "transferRationale": "Unilateral leg and diagonal trunk exercises overlap the body-shot base and rise, but target height and defense are skill-specific.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10680,13 +10117,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-8",
     "sportId": "boxing",
     "label": "slip",
-    "movementFamily": "defensive-evasion and redirection",
     "bodyActions": [
       "Small lateral and rotational head displacement under a stable, loaded stance."
     ],
@@ -10731,7 +10166,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg balance",
       "split-squat isometric"
     ],
-    "transferRationale": "Lateral and anti-rotation patterns build supporting capacities, not the perceptual timing or exact cervical skill of slipping.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10739,13 +10173,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-9",
     "sportId": "boxing",
     "label": "roll",
-    "movementFamily": "defensive-evasion and redirection",
     "bodyActions": [
       "Circular duck-under movement combining squat-like lowering with lateral trunk travel and rise."
     ],
@@ -10790,7 +10222,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable anti-rotation",
       "medicine-ball rotational throws"
     ],
-    "transferRationale": "Squat and lateral-rotation patterns overlap joint excursions and bracing, but do not reproduce an incoming punch or timing.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10798,13 +10229,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-10",
     "sportId": "boxing",
     "label": "pull-back",
-    "movementFamily": "defensive-evasion and redirection",
     "bodyActions": [
       "Posterior weight shift and trunk withdrawal while preserving guard and stance."
     ],
@@ -10850,7 +10279,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "single-leg balance"
     ],
-    "transferRationale": "Reverse-stance and bracing exercises share posterior control, but transfer is a mechanical heuristic only.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10858,13 +10286,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-11",
     "sportId": "boxing",
     "label": "parry",
-    "movementFamily": "defensive-evasion and redirection",
     "bodyActions": [
       "Short hand/forearm redirection of an incoming line with a stable trunk and rapid recovery."
     ],
@@ -10908,7 +10334,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "band internal rotation"
     ],
-    "transferRationale": "Push-pull and shoulder-control patterns address capacity around the parry, not reactive interception skill.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10916,13 +10341,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-12",
     "sportId": "boxing",
     "label": "high guard",
-    "movementFamily": "guard and close-range control",
     "bodyActions": [
       "Raised forearms and hands protect the head while the trunk and legs absorb contact and preserve posture."
     ],
@@ -10968,7 +10391,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split-squat isometric",
       "Pallof press"
     ],
-    "transferRationale": "Carries and isometrics overlap bracing and shoulder endurance; contact tolerance and tactical guard use remain sport-specific.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -10976,13 +10398,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-13",
     "sportId": "boxing",
     "label": "lateral step",
-    "movementFamily": "footwork displacement and pivot",
     "bodyActions": [
       "Sideways stance-preserving displacement with controlled push-off and foot placement."
     ],
@@ -11027,7 +10447,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "band walks",
       "single-leg balance"
     ],
-    "transferRationale": "These patterns share frontal-plane force and unilateral control, but footwork transfer depends on technique and reaction.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11035,13 +10454,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-14",
     "sportId": "boxing",
     "label": "pivot",
-    "movementFamily": "footwork displacement and pivot",
     "bodyActions": [
       "Rotation around a planted or lightly loaded foot to create angle while maintaining balance."
     ],
@@ -11085,7 +10502,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg balance",
       "split squat"
     ],
-    "transferRationale": "Rotational and unilateral patterns overlap pivot support, not the exact foot-ground friction or tactical angle.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11093,13 +10509,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-15",
     "sportId": "boxing",
     "label": "forward step",
-    "movementFamily": "footwork displacement and pivot",
     "bodyActions": [
       "Anterior displacement using lead-leg placement and rear-leg push-off without crossing the stance."
     ],
@@ -11143,7 +10557,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "calf raise",
       "single-leg balance"
     ],
-    "transferRationale": "Horizontal push and unilateral leg training overlap propulsion and support, without replicating boxing distance management.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11151,13 +10564,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-16",
     "sportId": "boxing",
     "label": "backward step",
-    "movementFamily": "footwork displacement and pivot",
     "bodyActions": [
       "Posterior displacement initiated by rear-foot placement and lead-leg push-off with controlled braking."
     ],
@@ -11201,7 +10612,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "single-leg balance"
     ],
-    "transferRationale": "Reverse locomotion and unilateral braking share force direction and balance demands, but not opponent-driven decision-making.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11209,13 +10619,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-17",
     "sportId": "boxing",
     "label": "rotational punch drive",
-    "movementFamily": "kinetic-chain power and repeated striking",
     "bodyActions": [
       "Sequential ground reaction, leg extension, pelvic/trunk rotation, and upper-limb acceleration."
     ],
@@ -11266,7 +10674,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "push press",
       "cable anti-rotation"
     ],
-    "transferRationale": "The exercise combination targets leg drive, rotation, pressing, and trunk linkage emphasized in punch biomechanics, but evidence for direct performance gains is not assumed.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11274,13 +10681,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-18",
     "sportId": "boxing",
     "label": "level change",
-    "movementFamily": "level-change-footwork",
     "bodyActions": [
       "Lowering the center of mass through coordinated leg flexion before displacement or attack."
     ],
@@ -11325,7 +10730,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral squat",
       "split-squat isometric"
     ],
-    "transferRationale": "Squat and split-stance patterns share lowering and re-extension, while boxing level changes remain technique- and context-dependent.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11333,13 +10737,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-19",
     "sportId": "boxing",
     "label": "clinch control",
-    "movementFamily": "guard and close-range control",
     "bodyActions": [
       "Close-range isometric pushing, pulling, framing, and trunk bracing while adjusting hip position."
     ],
@@ -11386,7 +10788,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "one-arm cable press",
       "Pallof press"
     ],
-    "transferRationale": "Carries and push-pull bracing overlap contact posture and grip capacity, but clinch skill and legal context are not reproduced.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11394,13 +10795,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "boxing-20",
     "sportId": "boxing",
     "label": "explosive combination punching",
-    "movementFamily": "repeated-striking-combination",
     "bodyActions": [
       "Repeated straight and rotational punches linked by weight shifts, footwork, guard recovery, and fatigue-resistant rhythm."
     ],
@@ -11454,7 +10853,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "cable anti-rotation"
     ],
-    "transferRationale": "Ballistic whole-body work plus leg drive and anti-rotation overlaps repeated combination demands; conditioning and skill transfer remain indirect.",
     "exerciseSelectionCautions": "Use technically controlled loads and preserve boxing stance; gym exercises share selected force or muscle actions but do not reproduce timing, perception, opponent contact, or guarantee punch performance.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11462,13 +10860,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12729554/",
       "https://www.mdpi.com/2076-7363/14/21/9706"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed boxing punch and movement biomechanics with a boxing strength-training scoping review; evidence is strongest for general kinetic-chain and conditioning principles, while exercise-to-sport transfer remains an indirect heuristic rather than a causal performance claim."
   },
   {
     "id": "mma-1",
     "sportId": "mma",
     "label": "jab",
-    "movementFamily": "straight-line striking",
     "bodyActions": [
       "stance pressure, lead-arm shoulder flexion and elbow extension, rapid guard recovery"
     ],
@@ -11514,7 +10910,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball chest pass",
       "push-up"
     ],
-    "transferRationale": "Gym patterns share linear pushing, proximal-to-distal sequencing, and guard-recovery bracing, but they do not reproduce timing, targeting, or opponent interaction.",
     "exerciseSelectionCautions": "Keep the load light enough for fast, controlled retraction; avoid shoulder or wrist pain and do not equate gym force with punch effectiveness",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11522,13 +10917,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-2",
     "sportId": "mma",
     "label": "cross",
-    "movementFamily": "rotational striking",
     "bodyActions": [
       "rear-side drive, pelvis-trunk rotation, shoulder horizontal adduction and elbow extension"
     ],
@@ -11575,7 +10968,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "cable chop"
     ],
-    "transferRationale": "The overlap is rotational sequencing from the ground through pelvis and trunk to the arm; technical velocity and impact mechanics remain sport-specific.",
     "exerciseSelectionCautions": "Control the pivot and lumbar position; progress rotational speed before load and avoid forcing end-range spinal rotation",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11583,13 +10975,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-3",
     "sportId": "mma",
     "label": "hook",
-    "movementFamily": "rotational striking",
     "bodyActions": [
       "compact lead or rear arm arc with pelvis and trunk rotation and shoulder horizontal adduction"
     ],
@@ -11634,7 +11024,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "split-stance cable press"
     ],
-    "transferRationale": "Compact rotational pressing and medicine-ball work train shared trunk-to-arm force direction and braking demands without claiming direct transfer.",
     "exerciseSelectionCautions": "Use a compact elbow path, no ballistic loaded shoulder end range, and stop if anterior shoulder symptoms appear",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11642,13 +11031,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-4",
     "sportId": "mma",
     "label": "roundhouse kick",
-    "movementFamily": "rotational kicking",
     "bodyActions": [
       "support-leg pivot, hip circumduction, knee extension and foot/leg impact preparation"
     ],
@@ -11694,7 +11081,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg RDL",
       "landmine rotational press"
     ],
-    "transferRationale": "These patterns address unilateral hip force, pivot control, and trunk rotation; they do not model kicking technique, range, or impact surface.",
     "exerciseSelectionCautions": "Prioritize a stable support foot and pelvis; do not add load to painful knee or hip rotation and use technical coaching for impact work",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11702,13 +11088,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-5",
     "sportId": "mma",
     "label": "front kick",
-    "movementFamily": "linear kicking",
     "bodyActions": [
       "single-leg stance, hip flexion and knee extension, then rapid recoil"
     ],
@@ -11754,7 +11138,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg balance reach",
       "Pallof press"
     ],
-    "transferRationale": "Cable knee-drive and unilateral patterns share hip flexion, knee extension, and support-leg control, while the kick remains skill- and distance-dependent.",
     "exerciseSelectionCautions": "Do not overload the knee extension or force hip range; maintain neutral trunk and use low resistance for speed",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11762,13 +11145,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-6",
     "sportId": "mma",
     "label": "knee strike",
-    "movementFamily": "close-range linear striking",
     "bodyActions": [
       "hip flexion drive with close-range trunk bracing and possible pull from the arms"
     ],
@@ -11814,7 +11195,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "bear-hug carry",
       "split squat"
     ],
-    "transferRationale": "The rationale is shared hip-drive, trunk-bracing, and clinch-like load carriage; no exercise is evidence of improved knee-strike damage.",
     "exerciseSelectionCautions": "Avoid lumbar flexion compensation and excessive hip-flexor volume; use a stable anchor and controlled range",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11822,13 +11202,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-7",
     "sportId": "mma",
     "label": "elbow strike",
-    "movementFamily": "compact rotational striking",
     "bodyActions": [
       "short-range shoulder and elbow motion with trunk rotation and stable base"
     ],
@@ -11874,7 +11252,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine press",
       "push-up"
     ],
-    "transferRationale": "Half-kneeling and cable patterns constrain the base while linking trunk rotation to compact upper-limb action; contact skill is not reproduced.",
     "exerciseSelectionCautions": "Keep shoulder centration and avoid loaded elbow hyperextension; train speed and positioning rather than maximal resistance",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -11882,13 +11259,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-8",
     "sportId": "mma",
     "label": "double-leg takedown",
-    "movementFamily": "shot entry and bilateral takedown",
     "bodyActions": [
       "level change, penetration step, bilateral leg drive, lift or finish, and trunk brace"
     ],
@@ -11935,7 +11310,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split-stance row",
       "farmer carry"
     ],
-    "transferRationale": "These exercises overlap bilateral leg drive, low posture, pulling, and loaded locomotion identified in MMA conditioning reviews, but cannot substitute for coached penetration mechanics.",
     "exerciseSelectionCautions": "Do not chase depth or load at the expense of spinal position; separate heavy strength from high-volume technical shots",
     "evidenceConfidence": "high",
     "sources": [
@@ -11943,13 +11317,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-9",
     "sportId": "mma",
     "label": "single-leg takedown",
-    "movementFamily": "unilateral takedown",
     "bodyActions": [
       "level change, single-leg capture, posture control, running-the-pipe or finish"
     ],
@@ -11996,7 +11368,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "suitcase carry",
       "split-stance row"
     ],
-    "transferRationale": "Unilateral lower-limb strength, anti-rotation, and pulling have mechanical overlap with a single-leg finish, but opponent balance and technique dominate outcomes.",
     "exerciseSelectionCautions": "Use supported progressions for balance; avoid twisting under load and keep the knee aligned over the foot",
     "evidenceConfidence": "high",
     "sources": [
@@ -12004,13 +11375,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-10",
     "sportId": "mma",
     "label": "sprawl",
-    "movementFamily": "defensive hip extension and anti-shot",
     "bodyActions": [
       "rapid hip extension and leg projection back while hands post and trunk resists collapse"
     ],
@@ -12057,7 +11426,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "broad jump and stick"
     ],
-    "transferRationale": "Hip-hinge power, posting strength, and braking are shared qualities, but a sprawl is a reactive technical action rather than a generic conditioning drill.",
     "exerciseSelectionCautions": "Land softly with ribs controlled; scale impact and wrist loading, and avoid repeated fatigue-induced lumbar hyperextension",
     "evidenceConfidence": "high",
     "sources": [
@@ -12065,13 +11433,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-11",
     "sportId": "mma",
     "label": "body-lock takedown",
-    "movementFamily": "clinch lifting and rotation",
     "bodyActions": [
       "close-range trunk compression, hip extension, lift, rotation, and controlled descent"
     ],
@@ -12118,7 +11484,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "rotational sandbag lift",
       "Pallof press"
     ],
-    "transferRationale": "Carries and hinges share hip extension, trunk stiffness, and close-load control; they are preparatory patterns, not proof of better takedown success.",
     "exerciseSelectionCautions": "Use a neutral spine and safe object height; never practice loaded rotation by wrenching the lumbar spine",
     "evidenceConfidence": "high",
     "sources": [
@@ -12126,13 +11491,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-12",
     "sportId": "mma",
     "label": "hip throw",
-    "movementFamily": "rotational throwing",
     "bodyActions": [
       "hip entry, body positioning, trunk rotation, leg drive and controlled projection"
     ],
@@ -12179,7 +11542,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split-stance rotational lift",
       "front squat"
     ],
-    "transferRationale": "Close-load lifting and rotational sequencing are relevant preparation, while throw timing, kuzushi, and safe falling require coached practice.",
     "exerciseSelectionCautions": "Use a soft implement and technical progression; avoid maximal-load twisting or uncontrolled throws",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -12187,13 +11549,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-13",
     "sportId": "mma",
     "label": "technical stand-up",
-    "movementFamily": "ground-to-standing transition",
     "bodyActions": [
       "posting, hip withdrawal, guarded rise, and stable stance re-entry"
     ],
@@ -12240,7 +11600,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sit-to-stand",
       "suitcase carry"
     ],
-    "transferRationale": "Get-up and asymmetric carry patterns overlap posting, trunk control, and transition, but tactical guard and opponent threat are not represented.",
     "exerciseSelectionCautions": "Progress slowly, protect the posting wrist/shoulder, and use a stable surface before adding load",
     "evidenceConfidence": "high",
     "sources": [
@@ -12248,13 +11607,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-14",
     "sportId": "mma",
     "label": "guard retention",
-    "movementFamily": "ground mobility and framing",
     "bodyActions": [
       "hip flexion/abduction, pummeling legs, framing, and anti-rotation while maintaining space"
     ],
@@ -12300,7 +11657,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "dead bug",
       "Pallof press"
     ],
-    "transferRationale": "These patterns develop hip control, adductor capacity, and trunk anti-rotation that support ground movement, without claiming direct guard-retention improvement.",
     "exerciseSelectionCautions": "Use pain-free hip abduction and shoulder flexion; avoid forcing inversion or fatigue-driven cervical loading",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -12308,13 +11664,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-15",
     "sportId": "mma",
     "label": "bridge-and-shrimp escape",
-    "movementFamily": "ground bridging and hip escape",
     "bodyActions": [
       "hip extension bridge, lateral trunk curl, foot post, and space-creating hip translation"
     ],
@@ -12360,7 +11714,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "dead bug",
       "Copenhagen plank"
     ],
-    "transferRationale": "Hip extension, lateral trunk control, and framed bracing overlap with the physical components of an escape; technique and opponent pressure remain decisive.",
     "exerciseSelectionCautions": "Keep the neck neutral and do not bridge through painful lumbar extension; use low-load high-quality repetitions",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -12368,13 +11721,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-16",
     "sportId": "mma",
     "label": "ground-and-pound",
-    "movementFamily": "top-control striking",
     "bodyActions": [
       "top-position base, shoulder flexion/horizontal adduction, elbow extension, and trunk rotation"
     ],
@@ -12421,7 +11772,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "front-rack hold",
       "Pallof press"
     ],
-    "transferRationale": "Half-kneeling pushing and front-rack bracing share constrained-base force transfer; they do not establish greater ground-and-pound effectiveness.",
     "exerciseSelectionCautions": "Avoid high-volume ballistic shoulder loading and wrist collapse; prioritize a stable base and controlled range",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -12429,13 +11779,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-17",
     "sportId": "mma",
     "label": "clinch pummeling",
-    "movementFamily": "clinch hand-fighting",
     "bodyActions": [
       "reciprocal arm swimming, scapular motion, frames, posture, and foot repositioning"
     ],
@@ -12481,7 +11829,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "row",
       "anti-rotation hold"
     ],
-    "transferRationale": "Rows, face pulls, and anti-rotation work address scapular control, pulling, and posture; partner timing and tactile skill require live practice.",
     "exerciseSelectionCautions": "Avoid aggressive end-range shoulder rotation and excessive shrugging; keep resistance low enough to preserve scapular rhythm",
     "evidenceConfidence": "high",
     "sources": [
@@ -12489,13 +11836,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-18",
     "sportId": "mma",
     "label": "cage wrestling drive",
-    "movementFamily": "positional pushing and wall wrestling",
     "bodyActions": [
       "forward leg drive, trunk inclination, shoulder pressure, grip, and step-by-step wall pressure"
     ],
@@ -12542,7 +11887,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "row",
       "bear-hug carry"
     ],
-    "transferRationale": "Sleds, split squats, rows, and carries overlap horizontal drive, unilateral stepping, pulling, and close-load bracing; wall tactics are not reproduced.",
     "exerciseSelectionCautions": "Use a friction-appropriate surface and avoid excessive spinal flexion; cap volume when grip or neck fatigue degrades posture",
     "evidenceConfidence": "high",
     "sources": [
@@ -12550,13 +11894,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-19",
     "sportId": "mma",
     "label": "submission squeeze",
-    "movementFamily": "isometric compression and control",
     "bodyActions": [
       "sustained clamp, hip adduction/flexion, upper-limb pulling, and trunk compression with small adjustments"
     ],
@@ -12600,7 +11942,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "towel-grip row",
       "bear-hug hold"
     ],
-    "transferRationale": "Anti-rotation, adductor isometrics, and grip pulling share force-maintenance demands, but submission outcomes depend on leverage, positioning, and rules.",
     "exerciseSelectionCautions": "Build isometric duration gradually; avoid breath holding, painful hip compression, or aggressive neck loading",
     "evidenceConfidence": "high",
     "sources": [
@@ -12608,13 +11949,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "mma-20",
     "sportId": "mma",
     "label": "scramble",
-    "movementFamily": "reactive ground-to-standing transition",
     "bodyActions": [
       "rapid hip extension/flexion, rotation, posting, bridging, crawling, and standing under changing base"
     ],
@@ -12665,7 +12004,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "bear crawl",
       "farmer carry"
     ],
-    "transferRationale": "Get-ups, sprawls, shuffles, crawls, and carries expose overlapping transition, bracing, locomotion, and deceleration qualities; scramble skill remains highly context-dependent.",
     "exerciseSelectionCautions": "Progress complexity before speed under fatigue; protect wrists, shoulders, knees, and neck and stop when landing mechanics deteriorate",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -12673,13 +12011,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.tandfonline.com/doi/abs/10.1080/02640414.2020.1802093",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6714373/"
     ],
-    "sourceSummary": "The enrichment synthesizes peer-reviewed MMA and combat-sport biomechanics/conditioning reviews plus grappling-action research, while treating exercise-to-sport transfer as mechanical rationale rather than proof of causal performance improvement."
   },
   {
     "id": "brazilian-jiu-jitsu-1",
     "sportId": "brazilian-jiu-jitsu",
     "label": "shrimp",
-    "movementFamily": "hip escape and space creation",
     "bodyActions": [
       "Supine lateral trunk curl and pelvic translation create a frame-and-foot escape angle."
     ],
@@ -12721,20 +12057,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "dead bug",
       "single-leg glute bridge"
     ],
-    "transferRationale": "Hip-extension and lateral-trunk exercises share the space-creation force direction, but cannot reproduce opponent timing or framing.",
     "exerciseSelectionCautions": "Do not load the cervical spine or force lumbar rotation; scale range and speed to mat skill.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260595/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-2",
     "sportId": "brazilian-jiu-jitsu",
     "label": "bridge",
-    "movementFamily": "bridging and hip-extension power",
     "bodyActions": [
       "Supine pelvic elevation, sometimes combined with rotation, lifts the hips and changes the base."
     ],
@@ -12774,20 +12107,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Romanian deadlift",
       "front plank"
     ],
-    "transferRationale": "Hip-extension strength and trunk stiffness are mechanically relevant to elevating the pelvis, but transfer is indirect.",
     "exerciseSelectionCautions": "Avoid excessive lumbar hyperextension and high-load bridging when rib, neck, or back symptoms are present.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-3",
     "sportId": "brazilian-jiu-jitsu",
     "label": "technical stand-up",
-    "movementFamily": "unilateral base transition",
     "bodyActions": [
       "From seated or supine, a hand post and one foot support a protected rise while the free leg retracts."
     ],
@@ -12830,20 +12160,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-arm farmer carry",
       "half-kneeling cable press"
     ],
-    "transferRationale": "Unilateral squat, get-up, carry, and anti-rotation patterns overlap with the base and posting demands.",
     "exerciseSelectionCautions": "Use a stable shoulder and pain-free wrist angle; prioritize the movement pattern before adding load.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-4",
     "sportId": "brazilian-jiu-jitsu",
     "label": "guard retention",
-    "movementFamily": "guard retention, inversion, and hip mobility",
     "bodyActions": [
       "The hips rotate, flex, abduct, and pummel the legs to keep the opponent aligned in front."
     ],
@@ -12886,20 +12213,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "dead bug",
       "Pallof press"
     ],
-    "transferRationale": "Hip-control and anti-rotation work develops relevant capacity, but technical retention depends on perception and timing.",
     "exerciseSelectionCautions": "Mobility drills should be controlled and non-forced; avoid end-range loading when knee, hip, or lumbar symptoms occur.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-5",
     "sportId": "brazilian-jiu-jitsu",
     "label": "closed-guard squeeze",
-    "movementFamily": "isometric clamps, hooks, and positional control",
     "bodyActions": [
       "The legs encircle the opponent and maintain trunk-to-pelvis contact through sustained compression."
     ],
@@ -12941,20 +12265,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "dead bug",
       "front plank"
     ],
-    "transferRationale": "Adductor isometrics and trunk-control drills target shared force and endurance qualities without implying submission-specific causation.",
     "exerciseSelectionCautions": "Do not use maximal or prolonged breath-holding squeezes; keep knees and hips in tolerable alignment.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-6",
     "sportId": "brazilian-jiu-jitsu",
     "label": "hip escape",
-    "movementFamily": "hip escape and space creation",
     "bodyActions": [
       "Repeated unilateral hip extension and lateral displacement are assisted by a rigid frame."
     ],
@@ -12996,20 +12317,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "hip thrust"
     ],
-    "transferRationale": "The exercises reinforce lateral hip force and trunk bracing that support, but do not replace, skilled hip-escape mechanics.",
     "exerciseSelectionCautions": "Keep the foot active and avoid turning the drill into uncontrolled lumbar twisting.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-7",
     "sportId": "brazilian-jiu-jitsu",
     "label": "armbar hip extension",
-    "movementFamily": "guard retention and lower-body clamping",
     "bodyActions": [
       "Pelvic elevation and hip extension tighten a leg clamp while the trunk aligns the opponent’s arm."
     ],
@@ -13052,20 +12370,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "hamstring curl",
       "dead bug"
     ],
-    "transferRationale": "The rationale is anatomical and mechanical; direct studies linking these exercises to armbar success were not identified.",
     "exerciseSelectionCautions": "Do not pursue extreme hip or knee angles under load; the gym exercise supports capacity, not armbar technique.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-8",
     "sportId": "brazilian-jiu-jitsu",
     "label": "triangle squeeze",
-    "movementFamily": "isometric clamps, hooks, and positional control",
     "bodyActions": [
       "One leg crosses and the knees draw together while the hips flex and rotate to maintain a closed leg frame."
     ],
@@ -13106,20 +12421,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "adductor ball squeeze",
       "dead bug"
     ],
-    "transferRationale": "Adductor and hip-flexor exercises reflect shared actions, while triangle application is highly technique- and position-dependent.",
     "exerciseSelectionCautions": "Avoid aggressive neck flexion or loaded end-range hip external rotation; use assisted variations.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-9",
     "sportId": "brazilian-jiu-jitsu",
     "label": "rear-naked-choke squeeze",
-    "movementFamily": "grip fighting and upper-body pulling",
     "bodyActions": [
       "The arms close around the upper trunk/neck line while the elbows flex and the scapulae stabilize."
     ],
@@ -13160,7 +12472,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "towel hang",
       "farmer carry"
     ],
-    "transferRationale": "Rows, pulldowns, and grip holds share pulling and isometric demands; they do not model cervical or submission effects.",
     "exerciseSelectionCautions": "Never train by compressing the neck or using maximal choking simulations; keep cervical loading absent.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -13168,13 +12479,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10563762/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-10",
     "sportId": "brazilian-jiu-jitsu",
     "label": "guillotine squeeze",
-    "movementFamily": "grip fighting and upper-body pulling",
     "bodyActions": [
       "An arm wraps the head-and-neck line while the elbows draw in and the trunk braces."
     ],
@@ -13216,7 +12525,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "farmer carry",
       "Pallof press"
     ],
-    "transferRationale": "Neutral pulls and trunk anti-rotation develop general capacity relevant to clamping, without claiming choke-performance transfer.",
     "exerciseSelectionCautions": "Do not load or compress the cervical spine; stop for neurological, vascular, or shoulder symptoms.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -13224,13 +12532,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10563762/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-11",
     "sportId": "brazilian-jiu-jitsu",
     "label": "hip-bump sweep",
-    "movementFamily": "rotational sweeps and base disruption",
     "bodyActions": [
       "A seated hip extension and trunk rotation elevate and turn the opponent around a posting arm."
     ],
@@ -13273,20 +12579,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "Pallof press"
     ],
-    "transferRationale": "Rotational throws and split-stance strength overlap with force direction, but sweep success also requires leverage, grips, and timing.",
     "exerciseSelectionCautions": "Use low volume and controlled rotation; avoid ballistic twisting with a fatigued or painful lumbar spine.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-12",
     "sportId": "brazilian-jiu-jitsu",
     "label": "scissor sweep",
-    "movementFamily": "rotational sweeps and base disruption",
     "bodyActions": [
       "One leg acts as a lever while the other sweeps laterally, with trunk rotation and grips redirecting the base."
     ],
@@ -13329,20 +12632,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball rotational throw",
       "Copenhagen plank"
     ],
-    "transferRationale": "Lateral lunges, chops, and adductor work share components but not the opponent-dependent lever mechanics.",
     "exerciseSelectionCautions": "Do not force lumbar rotation or load a knee in valgus; build range before speed.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-13",
     "sportId": "brazilian-jiu-jitsu",
     "label": "wrestling stand-up",
-    "movementFamily": "standing, passing, and pressure-based force production",
     "bodyActions": [
       "From the ground, the athlete posts and hand-fights, extends hips and legs, and rises to a safe angle."
     ],
@@ -13386,7 +12686,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-arm farmer carry",
       "neutral-grip row"
     ],
-    "transferRationale": "Deadlift, split squat, carry, and row patterns overlap with rising, bracing, and pulling demands.",
     "exerciseSelectionCautions": "Train the rise without cervical loading; use stable surfaces and stop if wrist or shoulder posting is painful.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -13394,13 +12693,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260595/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-14",
     "sportId": "brazilian-jiu-jitsu",
     "label": "guard pass drive",
-    "movementFamily": "standing, passing, and pressure-based force production",
     "bodyActions": [
       "Forward hip and knee drive applies pressure while the trunk and arms maintain a stable passing frame."
     ],
@@ -13443,20 +12740,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat isometric",
       "front plank"
     ],
-    "transferRationale": "Sleds, carries, and split-squat isometrics train general drive and bracing, not pass-specific skill.",
     "exerciseSelectionCautions": "Do not substitute maximal spinal compression or neck pressure for technical passing posture.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260595/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-15",
     "sportId": "brazilian-jiu-jitsu",
     "label": "knee-cut pass",
-    "movementFamily": "standing, passing, and pressure-based force production",
     "bodyActions": [
       "A lateral weight shift and knee path cut across the legs while the torso rotates and the upper body frames."
     ],
@@ -13499,20 +12793,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "suitcase carry"
     ],
-    "transferRationale": "Lateral unilateral strength and anti-rotation match components of the pass while technical knee positioning remains sport-specific.",
     "exerciseSelectionCautions": "Protect knee tracking and avoid forcing the knee across a resisting partner; use pain-free range.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-16",
     "sportId": "brazilian-jiu-jitsu",
     "label": "body-lock pass",
-    "movementFamily": "standing, passing, and pressure-based force production",
     "bodyActions": [
       "The athlete clamps the trunk, extends the hips, flexes the trunk, and steps laterally to compress and steer."
     ],
@@ -13554,7 +12845,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral-loaded carry",
       "Romanian deadlift"
     ],
-    "transferRationale": "Bear-hug and loaded carries reproduce general clamp, bracing, and locomotor demands without opponent-specific leverage.",
     "exerciseSelectionCautions": "Keep the load away from the neck and avoid forced spinal flexion; choose manageable breathing and step quality.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -13562,13 +12852,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC10563762/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-17",
     "sportId": "brazilian-jiu-jitsu",
     "label": "mount stabilization",
-    "movementFamily": "isometric clamps, hooks, and positional control",
     "bodyActions": [
       "A wide base and small hip/trunk adjustments distribute weight and resist bridging or turning."
     ],
@@ -13610,20 +12898,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "side plank",
       "Copenhagen plank"
     ],
-    "transferRationale": "Unilateral isometrics, carries, and side planks build general base and anti-lateral-flexion capacity.",
     "exerciseSelectionCautions": "Use a neutral spine and avoid partner drills that load the neck or collapse the knees inward.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-18",
     "sportId": "brazilian-jiu-jitsu",
     "label": "back-control hooks",
-    "movementFamily": "isometric clamps, hooks, and positional control",
     "bodyActions": [
       "The legs insert and retain hooks while the trunk stays attached and the upper body controls the opponent."
     ],
@@ -13667,20 +12952,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "calf raise isometric",
       "neutral-grip row"
     ],
-    "transferRationale": "The exercise choices develop component strength and endurance; direct hook-retention transfer evidence is limited.",
     "exerciseSelectionCautions": "Avoid high-volume hanging if shoulder or lumbar symptoms exist; do not use neck traction to simulate attachment.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260595/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-19",
     "sportId": "brazilian-jiu-jitsu",
     "label": "grip fighting",
-    "movementFamily": "grip fighting and upper-body pulling",
     "bodyActions": [
       "Repeated wrist, finger, elbow, and shoulder repositioning combines pulling, posting, and rotation."
     ],
@@ -13725,7 +13007,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "wrist extension",
       "neutral-grip row"
     ],
-    "transferRationale": "Grip-specific testing shows grip type affects force production, while carries, hangs, and rows address related capacity rather than proving match improvement.",
     "exerciseSelectionCautions": "Progress grip volume gradually and balance flexor work with extensor conditioning; stop for numbness or elbow pain.",
     "evidenceConfidence": "high",
     "sources": [
@@ -13733,13 +13014,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260595/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "brazilian-jiu-jitsu-20",
     "sportId": "brazilian-jiu-jitsu",
     "label": "inversion",
-    "movementFamily": "guard retention, inversion, and hip mobility",
     "bodyActions": [
       "The trunk flexes and rotates as the hips move overhead or around the opponent while the shoulders and hands frame."
     ],
@@ -13784,20 +13063,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "dead bug",
       "thoracic rotation"
     ],
-    "transferRationale": "The rationale is based on shared trunk, hip, and shoulder actions; inversion-specific performance evidence is limited.",
     "exerciseSelectionCautions": "Do not load the neck or force end-range spinal flexion; use regression and coaching for shoulder/wrist tolerance.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC5294948/",
       "https://pubmed.ncbi.nlm.nih.gov/31879196/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Brazilian jiu-jitsu physiology and biomechanics studies, grip-specific research, and injury evidence, while keeping sport-transfer claims heuristic and acknowledging limited movement-specific causal evidence."
   },
   {
     "id": "ice-hockey-1",
     "sportId": "ice-hockey",
     "label": "skating acceleration",
-    "movementFamily": "acceleration and propulsion",
     "bodyActions": [
       "forward trunk inclination",
       "rapid unilateral skate push",
@@ -13849,20 +13125,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg Romanian deadlift",
       "Pallof press"
     ],
-    "transferRationale": "These patterns train hip extension, unilateral force transfer, and trunk control that mechanically overlap with the first skating strides; they do not substitute for on-ice technique or establish a guaranteed speed gain.",
     "exerciseSelectionCautions": "Use conservative loads until knee-over-foot and pelvis control are consistent; avoid treating sled or split-squat strength as direct proof of skating improvement.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0127324"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-2",
     "sportId": "ice-hockey",
     "label": "forward stride",
-    "movementFamily": "cyclical skating and edge control",
     "bodyActions": [
       "alternating lateral-to-rearward push",
       "single-leg glide",
@@ -13914,20 +13187,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "standing calf raise",
       "tibialis raise"
     ],
-    "transferRationale": "Unilateral strength and lateral elastic work share the support-leg and push-off demands of a skating stride, while the transfer remains indirect because blade-ice interaction and timing are not reproduced in the gym.",
     "exerciseSelectionCautions": "Progress landing volume gradually and keep the foot tripod and knee alignment controlled; do not force ankle range or use unstable surfaces as a proxy for skating skill.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-3",
     "sportId": "ice-hockey",
     "label": "backward skating",
-    "movementFamily": "cyclical skating and edge control",
     "bodyActions": [
       "low backward-facing stance",
       "repeated forward-directed skate-edge pushes",
@@ -13978,20 +13248,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "tibialis raise"
     ],
-    "transferRationale": "Flexed-leg strength, adductor capacity, and anti-rotation are shared physical qualities, but backward skating perception and blade edges must be trained on ice.",
     "exerciseSelectionCautions": "Adductor loading should be introduced progressively, especially for athletes with groin symptoms; keep squat depth within pain-free control.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-4",
     "sportId": "ice-hockey",
     "label": "crossover",
-    "movementFamily": "cyclical skating and edge control",
     "bodyActions": [
       "curved-path lateral acceleration",
       "crossing one skate over the other",
@@ -14042,20 +13309,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Copenhagen plank",
       "Pallof press"
     ],
-    "transferRationale": "Lateral and transverse-plane unilateral exercises reinforce the force and balance qualities used in crossovers, while curved skating coordination remains sport-specific.",
     "exerciseSelectionCautions": "Do not add high-volume bounds before the athlete can absorb landings quietly and maintain frontal-plane knee control.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-5",
     "sportId": "ice-hockey",
     "label": "backward crossover",
-    "movementFamily": "cyclical skating and edge control",
     "bodyActions": [
       "backward curved locomotion",
       "cross-step over the support skate",
@@ -14105,20 +13369,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg Romanian deadlift",
       "Pallof press"
     ],
-    "transferRationale": "The selected patterns address lateral hip/adductor force and single-leg bracing that support crossover mechanics, but the backward visual and edge demands require on-ice practice.",
     "exerciseSelectionCautions": "Use lower amplitude and slower tempo if groin or knee control is limited; avoid assuming a Copenhagen plank reproduces the full skating action.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-6",
     "sportId": "ice-hockey",
     "label": "hard stop",
-    "movementFamily": "braking and change of direction",
     "bodyActions": [
       "rapid deceleration",
       "deep flexion with simultaneous skate-edge friction",
@@ -14167,20 +13428,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "single-leg squat-to-stick"
     ],
-    "transferRationale": "Eccentric lower-body training and controlled landing patterns share momentum absorption demands, but ice friction and blade angle are not reproduced off ice.",
     "exerciseSelectionCautions": "Introduce drop landings from low heights and stop if valgus, heel lift, or uncontrolled trunk motion appears; braking training is not injury prevention by itself.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-7",
     "sportId": "ice-hockey",
     "label": "directional cut",
-    "movementFamily": "braking and change of direction",
     "bodyActions": [
       "forward approach",
       "hard plant and deceleration",
@@ -14230,20 +13488,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "Pallof press"
     ],
-    "transferRationale": "The exercises target force absorption, lateral drive, and trunk control that overlap with cutting, but decision timing and skate-edge mechanics require sport practice.",
     "exerciseSelectionCautions": "Keep cutting drills low volume when fatigued and progress from planned to reactive tasks only after consistent landing mechanics.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-8",
     "sportId": "ice-hockey",
     "label": "slapshot",
-    "movementFamily": "rotational striking and puck skills",
     "bodyActions": [
       "large backswing",
       "trunk rotation and flexion",
@@ -14298,20 +13553,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable row",
       "Pallof press"
     ],
-    "transferRationale": "Rotational throws and landmine work share sequencing and trunk-bracing demands; they develop general force qualities rather than proving faster or more accurate shooting.",
     "exerciseSelectionCautions": "Use submaximal rotational volume first and stop if lumbar extension substitutes for hip/thoracic rotation; preserve shoulder recovery and avoid chasing fatigue-based velocity.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.mdpi.com/2077-0383/14/6/2090",
       "https://thesportjournal.org/article/biomechanics-of-ice-hockey-slap-shots-which-stick-is-best/"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-9",
     "sportId": "ice-hockey",
     "label": "wrist shot",
-    "movementFamily": "rotational striking and puck skills",
     "bodyActions": [
       "compact weight shift",
       "stick and puck contact maintained through loading",
@@ -14364,20 +13616,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable row",
       "Pallof press"
     ],
-    "transferRationale": "Short-range pressing, rotation, and trunk control overlap with the general force sequence of a wrist shot, but puck release and accuracy remain technical skills.",
     "exerciseSelectionCautions": "Keep pressing balanced with pulling and scapular control; avoid high-volume wrist loading if elbow or forearm irritation develops.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.mdpi.com/2077-0383/14/6/2090",
       "https://link.springer.com/article/10.1007/BF02844158"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-10",
     "sportId": "ice-hockey",
     "label": "snap shot",
-    "movementFamily": "rotational striking and puck skills",
     "bodyActions": [
       "rapid compact draw",
       "quick trunk and shoulder rotation",
@@ -14429,20 +13678,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-arm cable press",
       "Pallof press"
     ],
-    "transferRationale": "Ballistic throws and fast pressing train general rate-of-force and trunk-to-arm sequencing that resemble the snap shot’s compact action, without claiming direct shot-performance causation.",
     "exerciseSelectionCautions": "Use full recovery between ballistic sets and prioritize precision over fatigue; limit shoulder volume when combined with extensive on-ice shooting.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.mdpi.com/2077-0383/14/6/2090",
       "https://link.springer.com/article/10.1007/BF02844158"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-11",
     "sportId": "ice-hockey",
     "label": "one-timer",
-    "movementFamily": "rotational striking and puck skills",
     "bodyActions": [
       "rapid repositioning into a loaded stance",
       "weight transfer",
@@ -14497,20 +13743,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable row",
       "Pallof press"
     ],
-    "transferRationale": "The patterns train general rotational power, split-stance bracing, and force sequencing; the pass-reading and millisecond timing must be developed through hockey practice.",
     "exerciseSelectionCautions": "Avoid maximal ballistic work when fatigued or when the athlete cannot control the lead-leg and trunk position; shoulder recovery is a programming priority.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.mdpi.com/2077-0383/14/6/2090",
       "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0127324"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-12",
     "sportId": "ice-hockey",
     "label": "stick handling",
-    "movementFamily": "rotational striking and puck skills",
     "bodyActions": [
       "repeated small-amplitude stick oscillations",
       "bilateral hand repositioning",
@@ -14563,20 +13806,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "reverse wrist curl",
       "split-squat isometric hold"
     ],
-    "transferRationale": "Carries, rows, and forearm endurance address grip, scapular, and trunk qualities that support stick control, but dexterity and puck perception are not gym-derived.",
     "exerciseSelectionCautions": "Balance flexor work with extensors and monitor medial/lateral elbow symptoms; keep grip training compatible with stick-handling and contact workloads.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://link.springer.com/content/pdf/10.1007/978-1-4939-3020-3.pdf#page=316",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-13",
     "sportId": "ice-hockey",
     "label": "poke check",
-    "movementFamily": "rotational striking and puck skills",
     "bodyActions": [
       "brief reach with the stick",
       "trunk and shoulder bracing",
@@ -14628,20 +13868,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "rear-foot-elevated split squat",
       "farmer carry"
     ],
-    "transferRationale": "Unilateral pressing/pulling and anti-rotation bracing share the reach-and-recover force demands, but stick contact accuracy and defensive timing are technical.",
     "exerciseSelectionCautions": "Avoid excessive loaded shoulder reach if scapular control is poor; train balance and recovery under coach supervision rather than adding unstable gym equipment.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://link.springer.com/content/pdf/10.1007/978-1-4939-3020-3.pdf#page=316",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-14",
     "sportId": "ice-hockey",
     "label": "body check",
-    "movementFamily": "contact and resisted grappling",
     "bodyActions": [
       "accelerated approach",
       "low-body contact alignment",
@@ -14695,20 +13932,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "rear-foot-elevated split squat",
       "front plank"
     ],
-    "transferRationale": "Loaded carries, squats, and sleds develop general bracing and lower-body force qualities relevant to contact, but they cannot reproduce opponent interaction or establish collision safety.",
     "exerciseSelectionCautions": "Do not use maximal loads or deliberate impacts to simulate checking; coach spinal position, neck safety, and sport rules separately.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://journals.lww.com/nsca-jscr/fulltext/2021/12002/testing_specific_skating_performance_in_ice_hockey.11.aspx",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-15",
     "sportId": "ice-hockey",
     "label": "board battle",
-    "movementFamily": "contact and resisted grappling",
     "bodyActions": [
       "sustained bent-knee pushing and pulling",
       "edge-preserving repositioning",
@@ -14763,20 +13997,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-arm cable row",
       "towel hang"
     ],
-    "transferRationale": "Carries, unilateral isometrics, rows, and sleds overlap with bracing and resisted force transfer, but board geometry, balance, and opponent tactics are not reproduced.",
     "exerciseSelectionCautions": "Limit prolonged gripping if elbow or hand symptoms arise; maintain neutral spine and avoid turning a fatigue drill into uncontrolled spinal flexion.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://journals.lww.com/nsca-jscr/fulltext/2021/12002/testing_specific_skating_performance_in_ice_hockey.11.aspx",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-16",
     "sportId": "ice-hockey",
     "label": "faceoff pull",
-    "movementFamily": "contact and resisted grappling",
     "bodyActions": [
       "low stance",
       "rapid bilateral or unilateral stick pull",
@@ -14831,20 +14062,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine rotation",
       "Pallof press"
     ],
-    "transferRationale": "Rows, grip work, and trunk rotation share the broad pulling and bracing qualities of a faceoff, but hand position, stick leverage, and opponent reaction remain sport-specific.",
     "exerciseSelectionCautions": "Use neutral or semi-supinated grips when possible and avoid jerking through the shoulder; progress towel work slowly for the fingers and elbows.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://journals.lww.com/nsca-jscr/fulltext/2021/12002/testing_specific_skating_performance_in_ice_hockey.11.aspx",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-17",
     "sportId": "ice-hockey",
     "label": "low skating stance",
-    "movementFamily": "low-stance isometric endurance",
     "bodyActions": [
       "sustained hip, knee, and ankle flexion",
       "forward-compatible trunk position",
@@ -14895,20 +14123,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "front plank",
       "seated calf raise"
     ],
-    "transferRationale": "Isometric and front-loaded squat patterns address general low-position force endurance and trunk control; they do not reproduce skating-specific blade balance.",
     "exerciseSelectionCautions": "Avoid forcing depth or lumbar flexion; use interval duration and load that preserve posture rather than chasing maximal burn.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-18",
     "sportId": "ice-hockey",
     "label": "lateral goalie push",
-    "movementFamily": "lateral goalie power and recovery",
     "bodyActions": [
       "explosive push from one skate edge",
       "lateral displacement",
@@ -14961,20 +14186,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Copenhagen plank",
       "suitcase carry"
     ],
-    "transferRationale": "Lateral resisted pushes, bounds, adductor work, and unilateral landing control share force-direction and stabilization qualities; goalie-specific crease movement remains highly technical.",
     "exerciseSelectionCautions": "Progress lateral range and landing height conservatively; avoid forcing wide hip positions or adding load when the pelvis cannot remain controlled.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-19",
     "sportId": "ice-hockey",
     "label": "goalie butterfly",
-    "movementFamily": "lateral goalie power and recovery",
     "bodyActions": [
       "rapid low blocking posture",
       "wide knee separation with controlled hip positioning",
@@ -15025,20 +14247,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "front plank",
       "goblet squat"
     ],
-    "transferRationale": "Adductor and lateral-hip strength plus controlled transitions support general positional capacity, but the butterfly technique and required range are goalie-specific.",
     "exerciseSelectionCautions": "Do not force end-range hip abduction or external rotation; coordinate with goalie coaching and medical assessment for hip, groin, knee, or lumbar symptoms.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "ice-hockey-20",
     "sportId": "ice-hockey",
     "label": "explosive crease recovery",
-    "movementFamily": "lateral goalie power and recovery",
     "bodyActions": [
       "rise from low or sprawled position",
       "hip and knee extension",
@@ -15091,20 +14310,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat-to-stick",
       "Pallof press"
     ],
-    "transferRationale": "Get-up, lateral propulsion, landing, and anti-rotation patterns share broad rise-and-recover force demands, but crease-specific perception, equipment, and movement sequencing must be coached on ice.",
     "exerciseSelectionCautions": "Use low complexity first and protect the knees, hips, shoulders, and wrists during floor transitions; stop when recovery speed compromises alignment.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC4431820/",
       "https://ojs.ub.uni-konstanz.de/cpa/article/view/2985/2830"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed on-ice skating biomechanics and muscle-activity research, peer-reviewed shooting biomechanics, and scholarly power-skating literature, while limiting transfer claims because direct gym-to-ice causal evidence is sparse for several contact and goalie-specific movements."
   },
   {
     "id": "lacrosse-1",
     "sportId": "lacrosse",
     "label": "overhand shot",
-    "movementFamily": "overhead rotational power",
     "bodyActions": [
       "Approach or set position, trunk extension/rotation, shoulder elevation and external-to-internal rotation, elbow extension, and wrist release."
     ],
@@ -15142,20 +14358,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Split squat",
       "Pallof press"
     ],
-    "transferRationale": "These patterns train rotational impulse, split-stance force transfer, and anti-rotation control that share broad mechanics with shooting, but they do not reproduce stick timing or prove performance gains.",
     "exerciseSelectionCautions": "Use submaximal throws initially; avoid forcing lumbar extension or high-volume overhead work with shoulder or back symptoms.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://thesportjournal.org/article/description-of-phases-and-discrete-events-of-the-lacrosse-shot/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-2",
     "sportId": "lacrosse",
     "label": "sidearm shot",
-    "movementFamily": "rotational/horizontal arm power",
     "bodyActions": [
       "Split or moving stance with transverse-plane trunk rotation, horizontal arm path, elbow extension, and forearm/wrist snap."
     ],
@@ -15193,20 +14406,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Split squat",
       "Pallof press"
     ],
-    "transferRationale": "Rotational throws and cable rotations develop comparable sequencing and trunk control; unilateral strength supports the base, without implying direct shot-speed causation.",
     "exerciseSelectionCautions": "Keep load light enough for speed and control; do not substitute loaded rotation for technical shooting practice.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://thesportjournal.org/article/description-of-phases-and-discrete-events-of-the-lacrosse-shot/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-3",
     "sportId": "lacrosse",
     "label": "underhand shot",
-    "movementFamily": "low-to-high rotational power",
     "bodyActions": [
       "Lowered center of mass, hip/knee extension with trunk rotation, shoulder extension-to-flexion, elbow extension, and wrist release."
     ],
@@ -15244,20 +14454,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable chop",
       "Medicine-ball scoop toss"
     ],
-    "transferRationale": "Squat/split-squat and low-to-high throw patterns overlap with the shot's leg-drive and trunk-to-stick sequence, but not the sport skill itself.",
     "exerciseSelectionCautions": "Progress depth and rotation separately; protect knees, hips, and lumbar spine from rushed combined loading.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://thesportjournal.org/article/description-of-phases-and-discrete-events-of-the-lacrosse-shot/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-4",
     "sportId": "lacrosse",
     "label": "passing",
-    "movementFamily": "rotational pushing/throwing",
     "bodyActions": [
       "Coordinated trunk rotation with shoulder horizontal adduction/flexion, elbow extension, and wrist/finger control."
     ],
@@ -15294,20 +14501,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "Cable rotation"
     ],
-    "transferRationale": "Chest passes and cable presses share upper-body projection; anti-rotation and rotation drills support force transfer, not passing accuracy or decision-making.",
     "exerciseSelectionCautions": "Avoid excessive pressing volume; balance pressing with pulling and scapular control.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-5",
     "sportId": "lacrosse",
     "label": "catching",
-    "movementFamily": "receiving/deceleration",
     "bodyActions": [
       "Shoulder and elbow flexion with forearm rotation and compliant wrist give to absorb ball momentum."
     ],
@@ -15342,20 +14546,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Farmer carry",
       "Face pull"
     ],
-    "transferRationale": "Rows, catches, carries, and face pulls develop general pulling, grip, and scapular control relevant to receiving, with no claim of direct catching improvement.",
     "exerciseSelectionCautions": "Use low-velocity catches and neutral shoulder positions; stop for pain, instability, or numbness.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-6",
     "sportId": "lacrosse",
     "label": "cradling",
-    "movementFamily": "stick-control locomotion",
     "bodyActions": [
       "Low-amplitude shoulder, elbow, forearm, and wrist oscillations while pelvis and trunk stabilize during locomotion."
     ],
@@ -15390,20 +14591,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Unilateral row",
       "Band walk"
     ],
-    "transferRationale": "Carries and unilateral rows build grip and proximal control while band walks address locomotor pelvic stability; they cannot replicate ball protection or skill perception.",
     "exerciseSelectionCautions": "Keep grip relaxed enough to avoid forearm overuse; vary carry duration and side.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-7",
     "sportId": "lacrosse",
     "label": "dodging",
-    "movementFamily": "multidirectional acceleration/deceleration",
     "bodyActions": [
       "Rapid braking, lateral displacement, trunk lean, reacceleration, and stick-side shielding."
     ],
@@ -15438,20 +14636,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Resisted sprint",
       "Split squat"
     ],
-    "transferRationale": "These patterns overlap with braking, unilateral force, and reacceleration; reactive opponent reading and stick protection remain sport-specific.",
     "exerciseSelectionCautions": "Progress landing and braking volume gradually; prioritize knee-over-foot alignment.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-8",
     "sportId": "lacrosse",
     "label": "split dodge",
-    "movementFamily": "unilateral change of direction",
     "bodyActions": [
       "Forward drive, hard plant, crossover/direction change, hip rotation, and trunk redirection."
     ],
@@ -15486,20 +14681,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Crossover bound",
       "Resisted sprint"
     ],
-    "transferRationale": "Unilateral strength and bounds provide mechanical preparation for planting and pushing, not a guarantee of better dodging.",
     "exerciseSelectionCautions": "Use stable surfaces and controlled amplitudes before reactive crossover work.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-9",
     "sportId": "lacrosse",
     "label": "roll dodge",
-    "movementFamily": "rotational change of direction",
     "bodyActions": [
       "Unilateral plant, body rotation around a defender, lateral push-off, and trunk/stick shielding."
     ],
@@ -15534,20 +14726,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Split squat",
       "Deceleration lunge"
     ],
-    "transferRationale": "The combination addresses unilateral loading, transverse-plane force, and braking; it does not reproduce defender interaction.",
     "exerciseSelectionCautions": "Avoid high-speed 180-degree work until deceleration mechanics are consistent.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-10",
     "sportId": "lacrosse",
     "label": "faceoff clamp",
-    "movementFamily": "low-position pulling and grip power",
     "bodyActions": [
       "Low crouch with braced trunk, rapid shoulder/wrist rotation, and forceful stick pull."
     ],
@@ -15585,20 +14774,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Split squat",
       "Pallof press"
     ],
-    "transferRationale": "Carries, rows, split squats, and anti-rotation share grip, pulling, stance, and trunk-bracing demands without modeling faceoff timing.",
     "exerciseSelectionCautions": "Use neutral wrists and conservative grip volume; avoid maximal pulls in flexed lumbar positions.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-11",
     "sportId": "lacrosse",
     "label": "ground-ball scoop",
-    "movementFamily": "ground-to-standing hinge/squat",
     "bodyActions": [
       "Deep flexion to rapid leg and trunk extension while lifting and controlling the stick."
     ],
@@ -15634,20 +14820,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Loaded carry",
       "Row"
     ],
-    "transferRationale": "Squat/hinge and carry patterns overlap with rising force and braced locomotion; scoop technique and visual tracking must be practiced separately.",
     "exerciseSelectionCautions": "Use a neutral spine and elevate the implement if mobility limits depth.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-12",
     "sportId": "lacrosse",
     "label": "sprinting",
-    "movementFamily": "linear acceleration",
     "bodyActions": [
       "Repeated single-leg hip extension, knee drive, knee extension, plantarflexion, and coordinated arm swing."
     ],
@@ -15682,20 +14865,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Hip thrust",
       "Calf raise"
     ],
-    "transferRationale": "Resisted acceleration and hip/calf strength share broad propulsive demands; sprinting skill and exposure must remain primary.",
     "exerciseSelectionCautions": "Progress sprint volume and intensity; allow recovery and monitor hamstring/calf symptoms.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-13",
     "sportId": "lacrosse",
     "label": "lateral defensive shuffle",
-    "movementFamily": "lateral locomotion",
     "bodyActions": [
       "Partial-squat stance, repeated lateral push-offs, foot repositioning, and upright trunk alignment."
     ],
@@ -15730,20 +14910,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Band walk",
       "Lateral sled drag"
     ],
-    "transferRationale": "These patterns train frontal-plane hip/adductor capacity and lateral propulsion; defensive perception and stick positioning are not reproduced.",
     "exerciseSelectionCautions": "Adductor loading should be progressed gradually; avoid collapsing knees or excessive stance width.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-14",
     "sportId": "lacrosse",
     "label": "backpedal",
-    "movementFamily": "backward locomotion",
     "bodyActions": [
       "Repeated backward steps with posterior weight control, hip/knee flexion, dorsiflexion, and ready arms."
     ],
@@ -15778,20 +14955,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Eccentric squat",
       "Resisted sprint"
     ],
-    "transferRationale": "Reverse sleds/lunges and eccentric squats build posterior control; actual backpedal technique and field awareness require field practice.",
     "exerciseSelectionCautions": "Use clear space and controlled speed; avoid backward running on unstable surfaces.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-15",
     "sportId": "lacrosse",
     "label": "checking",
-    "movementFamily": "contact force and collision control",
     "bodyActions": [
       "Stick/body contact with trunk rotation, hip drive, elbow control, rapid deceleration, and force absorption."
     ],
@@ -15827,20 +15001,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Landmine press",
       "Pallof press"
     ],
-    "transferRationale": "Carries, pulls, presses, and anti-rotation develop general bracing and force-transfer qualities; they do not certify safe checking technique.",
     "exerciseSelectionCautions": "Do not train collision intent with heavy uncontrolled loads; neck work should be coached and symptom-free.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-16",
     "sportId": "lacrosse",
     "label": "body positioning",
-    "movementFamily": "athletic stance and positional control",
     "bodyActions": [
       "Continuous stance adjustment, lateral weight shifts, trunk orientation, and stick-side shielding."
     ],
@@ -15876,20 +15047,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Lateral lunge",
       "Pallof press"
     ],
-    "transferRationale": "Unilateral loading and anti-rotation share base-control demands, while live positioning depends on opponent, ball, and tactical context.",
     "exerciseSelectionCautions": "Use manageable isometric durations and preserve breathing; do not chase fatigue at the expense of posture.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-17",
     "sportId": "lacrosse",
     "label": "rotational shooting",
-    "movementFamily": "rotational power",
     "bodyActions": [
       "Foot pressure transfers through hip and trunk rotation into shoulder, elbow, and wrist release."
     ],
@@ -15927,20 +15095,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable rotation",
       "Split squat"
     ],
-    "transferRationale": "These drills share rotational sequencing and force transfer but cannot establish shot accuracy, release timing, or causal sport-performance benefit.",
     "exerciseSelectionCautions": "Keep medicine-ball loads light and throws crisp; avoid repeated maximal lumbar rotation.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://thesportjournal.org/article/description-of-phases-and-discrete-events-of-the-lacrosse-shot/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-18",
     "sportId": "lacrosse",
     "label": "overhead checking",
-    "movementFamily": "overhead contact/pushing",
     "bodyActions": [
       "Shoulder elevation/horizontal movement with trunk rotation, elbow extension, wrist control, and lower-body bracing."
     ],
@@ -15978,20 +15143,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Row",
       "Dead bug"
     ],
-    "transferRationale": "Landmine pressing and carries train overhead bracing with less fixed-path stress; rows and dead bugs support scapular and trunk control.",
     "exerciseSelectionCautions": "Use pain-free range and moderate loads; overhead work is not a substitute for coached checking rules.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-19",
     "sportId": "lacrosse",
     "label": "jumping shot",
-    "movementFamily": "jump-to-throw power",
     "bodyActions": [
       "Countermovement, triple extension, airborne trunk rotation and release, followed by controlled landing."
     ],
@@ -16030,20 +15192,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Split squat",
       "Snap-down"
     ],
-    "transferRationale": "Jumps and throws address broad propulsion and landing qualities; they do not reproduce stick timing or demonstrate shooting improvement.",
     "exerciseSelectionCautions": "Land quietly with aligned knees/feet; progress jump height and throw intensity separately before combining.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://thesportjournal.org/article/description-of-phases-and-discrete-events-of-the-lacrosse-shot/"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "lacrosse-20",
     "sportId": "lacrosse",
     "label": "rapid deceleration",
-    "movementFamily": "deceleration and braking",
     "bodyActions": [
       "Shortened steps, hip/knee flexion, ankle dorsiflexion, trunk control, and force redirection from forward or lateral motion."
     ],
@@ -16078,20 +15237,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Split squat",
       "Eccentric hamstring curl"
     ],
-    "transferRationale": "These exercises develop braking positions, unilateral control, and posterior-chain capacity; transfer is mechanical rather than a guarantee of fewer injuries or faster play.",
     "exerciseSelectionCautions": "Increase speed and angle gradually; stop if pain, giving-way, or loss of alignment occurs.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.tandfonline.com/doi/full/10.1080/23335432.2015.1017608",
       "https://journals.lww.com/acsm-csmr/fulltext/2018/06000/Core_and_Back_Rehabilitation_for_High_speed.9.aspx"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed lacrosse-shot biomechanics and sport-movement research with sports-medicine and strength-and-conditioning evidence; direct evidence for exercise-to-lacrosse performance transfer remains limited and is explicitly treated as mechanical rationale rather than causal proof."
   },
   {
     "id": "rugby-1",
     "sportId": "rugby",
     "label": "acceleration",
-    "movementFamily": "acceleration and horizontal force",
     "bodyActions": [
       "forward trunk lean",
       "rapid hip, knee and ankle extension",
@@ -16139,7 +15295,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "Romanian deadlift"
     ],
-    "transferRationale": "Shared projection and horizontal-force demands make these patterns useful general physical preparation, but they do not reproduce rugby perception, ball skills, or contact.",
     "exerciseSelectionCautions": "Progress sprint and sled loading gradually; preserve shin and trunk angles; stop if hamstring or calf symptoms emerge.",
     "evidenceConfidence": "high",
     "sources": [
@@ -16147,13 +15302,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-2",
     "sportId": "rugby",
     "label": "maximal sprinting",
-    "movementFamily": "linear speed and elastic running",
     "bodyActions": [
       "upright high-speed running",
       "cyclical hip flexion-extension",
@@ -16202,7 +15355,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral bounds",
       "loaded jumps"
     ],
-    "transferRationale": "Hip-extension and elastic-contact exercises overlap with sprint force production, while transfer remains indirect without sprint technique and exposure management.",
     "exerciseSelectionCautions": "Use low volumes and full recovery; avoid fatigued maximal sprinting after heavy posterior-chain work.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -16210,13 +15362,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-3",
     "sportId": "rugby",
     "label": "lateral cutting",
-    "movementFamily": "braking and frontal-plane change of direction",
     "bodyActions": [
       "deceleration",
       "lateral trunk control",
@@ -16266,7 +15416,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "reverse sled drag"
     ],
-    "transferRationale": "Unilateral frontal-plane strength and braking patterns share force-absorption features with cutting, but reactive decision-making and exact plant mechanics are sport-specific.",
     "exerciseSelectionCautions": "Control knee-over-foot alignment and progress amplitude before speed; respect groin and lateral-ankle history.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -16274,13 +15423,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-4",
     "sportId": "rugby",
     "label": "sidestep",
-    "movementFamily": "evasive lateral agility",
     "bodyActions": [
       "rapid lateral displacement",
       "single-leg loading",
@@ -16330,7 +15477,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "skater squat",
       "Pallof press"
     ],
-    "transferRationale": "Lateral single-leg force and trunk control provide a physical base for sidestepping, but no gym exercise substitutes for perception-action coupling.",
     "exerciseSelectionCautions": "Begin with planned low-speed drills; avoid excessive valgus or uncontrolled foot collapse.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -16338,13 +15484,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-5",
     "sportId": "rugby",
     "label": "tackling",
-    "movementFamily": "contact acceleration and whole-body force transfer",
     "bodyActions": [
       "lowered center of mass",
       "forward projection",
@@ -16399,7 +15543,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "bear-hug carry",
       "landmine press"
     ],
-    "transferRationale": "Lower-body projection, braced carries, and horizontal pressing overlap with general tackle force preparation; technical tackling and safety must be coached separately.",
     "exerciseSelectionCautions": "Never use live partner contact as a casual loading method; maintain safe cervical position and use qualified tackle coaching.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -16407,13 +15550,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-6",
     "sportId": "rugby",
     "label": "tackle absorption",
-    "movementFamily": "contact deceleration and robustness",
     "bodyActions": [
       "braced stance",
       "hip/knee yielding",
@@ -16464,7 +15605,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "reverse sled drag",
       "landing-stick drill"
     ],
-    "transferRationale": "Eccentric lower-limb and isometric trunk work shares broad force-absorption demands, but collision magnitude and technique are not recreated in the gym.",
     "exerciseSelectionCautions": "Use predictable external loads and progressive landings; do not equate soreness or load tolerance with collision readiness.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -16472,13 +15612,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-7",
     "sportId": "rugby",
     "label": "rucking drive",
-    "movementFamily": "low-position horizontal pushing",
     "bodyActions": [
       "low body position",
       "forward lean",
@@ -16530,7 +15668,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "front squat",
       "anti-rotation press"
     ],
-    "transferRationale": "Sleds and front-loaded carries reproduce some low-position force-vector and bracing demands without opponent unpredictability.",
     "exerciseSelectionCautions": "Keep neutral spine and avoid excessive cervical loading; use coached contact technique for any rugby-specific progression.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -16538,13 +15675,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-8",
     "sportId": "rugby",
     "label": "mauling drive",
-    "movementFamily": "resisted team-force transfer",
     "bodyActions": [
       "linked forward propulsion",
       "torso-to-torso bracing",
@@ -16596,7 +15731,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Pallof press",
       "split squat"
     ],
-    "transferRationale": "Connected carries and anti-rotation drills offer mechanical overlap with braced team propulsion, but cannot establish group timing or maul legality.",
     "exerciseSelectionCautions": "Use stable implements before partner drills; avoid twisting under load and monitor shoulder/cervical position.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -16604,13 +15738,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-9",
     "sportId": "rugby",
     "label": "scrum push",
-    "movementFamily": "sustained horizontal pushing",
     "bodyActions": [
       "deep flexed stance",
       "near-horizontal force application",
@@ -16662,7 +15794,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "belt-squat hold",
       "Pallof press"
     ],
-    "transferRationale": "Research on scrum mechanics supports horizontal impulse and coordinated forward force as relevant qualities; gym patterns are preparatory, not scrum replicas.",
     "exerciseSelectionCautions": "Prioritize technique and progressive scrum-specific exposure; avoid maximal spinal loading in deep flexion.",
     "evidenceConfidence": "high",
     "sources": [
@@ -16670,13 +15801,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-10",
     "sportId": "rugby",
     "label": "lineout jump",
-    "movementFamily": "vertical power and landing control",
     "bodyActions": [
       "countermovement",
       "triple extension",
@@ -16729,7 +15858,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "loaded jump",
       "landing-stick drill"
     ],
-    "transferRationale": "Jump and landing exercises overlap with vertical impulse and force attenuation, while lineout timing, lifting support, and ball tracking require sport practice.",
     "exerciseSelectionCautions": "Use low-volume quality jumps; land quietly with knees aligned and avoid loaded jumps if fatigued.",
     "evidenceConfidence": "high",
     "sources": [
@@ -16737,13 +15865,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-11",
     "sportId": "rugby",
     "label": "lineout lift",
-    "movementFamily": "cooperative vertical lifting",
     "bodyActions": [
       "squat-to-stand lift",
       "coordinated leg extension",
@@ -16795,7 +15921,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "overhead carry",
       "split squat"
     ],
-    "transferRationale": "Squat-to-stand and overhead stabilization share broad force-production requirements, but partner safety, timing, and hand placement are not represented by solo exercises.",
     "exerciseSelectionCautions": "Progress partner lifting only with qualified coaching and clear communication; use stable loads and do not test fatigue-induced overhead instability.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -16803,13 +15928,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-12",
     "sportId": "rugby",
     "label": "stiff-arm",
-    "movementFamily": "unilateral upper-body contact leverage",
     "bodyActions": [
       "unilateral shoulder/elbow extension",
       "scapular protraction",
@@ -16861,7 +15984,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "suitcase carry",
       "Pallof press"
     ],
-    "transferRationale": "Unilateral pressing and anti-rotation exercises address general force transfer and bracing; they do not validate contact effectiveness or hand placement.",
     "exerciseSelectionCautions": "Use controlled ranges and neutral shoulder position; avoid aggressive neck or shoulder loading and separate technique coaching from strength work.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -16869,13 +15991,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-13",
     "sportId": "rugby",
     "label": "passing",
-    "movementFamily": "upper-body projection and coordination",
     "bodyActions": [
       "ball transfer",
       "shoulder horizontal movement",
@@ -16927,7 +16047,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "one-arm cable row",
       "landmine press"
     ],
-    "transferRationale": "Medicine-ball and cable patterns can reinforce general sequencing and force projection, but passing accuracy, ball spin, and timing require rugby practice.",
     "exerciseSelectionCautions": "Keep throws submaximal until technique is stable; avoid high-volume ballistic work with painful shoulders or elbows.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -16935,13 +16054,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-14",
     "sportId": "rugby",
     "label": "rotational pass",
-    "movementFamily": "transverse-plane power",
     "bodyActions": [
       "pelvis-to-trunk rotation",
       "shoulder horizontal adduction",
@@ -16993,7 +16110,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable chop",
       "Pallof press"
     ],
-    "transferRationale": "Rotational throws and cable patterns share proximal-to-distal sequencing and braking demands, but they cannot establish pass selection or ball-release skill.",
     "exerciseSelectionCautions": "Use hips to initiate and keep the lumbar spine controlled; limit volume if rib, lumbar, or shoulder symptoms occur.",
     "evidenceConfidence": "high",
     "sources": [
@@ -17001,13 +16117,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-15",
     "sportId": "rugby",
     "label": "kicking",
-    "movementFamily": "unilateral striking and rotational skill",
     "bodyActions": [
       "single-leg support",
       "kicking-leg hip flexion and knee extension",
@@ -17058,7 +16172,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable chop",
       "medicine-ball rotational throw"
     ],
-    "transferRationale": "Unilateral hinge, split-stance strength, and rotation overlap with support-leg and trunk demands, while kicking accuracy and ball contact remain technical.",
     "exerciseSelectionCautions": "Avoid excessive kicking-leg volume after fatigue; progress support-leg balance and protect hip flexor/groin tissues.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -17066,13 +16179,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-16",
     "sportId": "rugby",
     "label": "jumping catch",
-    "movementFamily": "reactive aerial ability",
     "bodyActions": [
       "vertical/horizontal jump",
       "aerial body control",
@@ -17125,7 +16236,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "loaded jump",
       "landing-stick drill"
     ],
-    "transferRationale": "Jumping and catching drills share general aerial coordination and force absorption, but visual competition for the ball and opponent contact require field practice.",
     "exerciseSelectionCautions": "Use safe landing space and soft implements; progress visual and contact constraints separately.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -17133,13 +16243,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-17",
     "sportId": "rugby",
     "label": "ground-to-feet recovery",
-    "movementFamily": "floor-to-standing agility",
     "bodyActions": [
       "prone/supine transition",
       "arm push",
@@ -17191,7 +16299,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sprawl-to-stand",
       "split squat"
     ],
-    "transferRationale": "Technical get-ups and crawl transitions share sequencing and floor-to-standing strength, but rugby recovery includes ball, opponent, and tactical constraints.",
     "exerciseSelectionCautions": "Teach controlled pathways first; protect wrists, shoulders, knees, and avoid rushing unstable transitions.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -17199,13 +16306,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-18",
     "sportId": "rugby",
     "label": "ball-carrying drive",
-    "movementFamily": "locomotion under external load",
     "bodyActions": [
       "forward running under load",
       "trunk bracing",
@@ -17258,7 +16363,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled march",
       "split squat"
     ],
-    "transferRationale": "Loaded carries and sled marches overlap with bracing, grip, and locomotion under resistance, but ball security, evasive skill, and contact are sport-specific.",
     "exerciseSelectionCautions": "Use symmetrical and offset loads progressively; maintain breathing and avoid excessive neck or lumbar extension.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -17266,13 +16370,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-19",
     "sportId": "rugby",
     "label": "backward defensive movement",
-    "movementFamily": "multidirectional locomotion and retreat",
     "bodyActions": [
       "reverse running",
       "posterior weight control",
@@ -17323,7 +16425,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "backward shuffle",
       "Romanian deadlift"
     ],
-    "transferRationale": "Reverse drags and lunges provide posterior-chain and braking exposure, but defensive scanning and reactive transition must be trained on the field.",
     "exerciseSelectionCautions": "Start with clear space and low speed; avoid crossing feet or uncontrolled backward falls.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -17331,13 +16432,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "rugby-20",
     "sportId": "rugby",
     "label": "change of direction",
-    "movementFamily": "multidirectional agility",
     "bodyActions": [
       "braking",
       "center-of-mass reorientation",
@@ -17388,7 +16487,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "sled push"
     ],
-    "transferRationale": "Unilateral strength and braking drills share mechanical qualities with change of direction, but reactive perception and rugby-specific running lines are not captured.",
     "exerciseSelectionCautions": "Progress planned to reactive drills; keep deceleration volume conservative for groin, knee, Achilles, and hamstring tolerance.",
     "evidenceConfidence": "high",
     "sources": [
@@ -17396,13 +16494,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC8184906/",
       "https://bjsm.bmj.com/content/49/8/520"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed rugby biomechanics research on sprinting, tackling, scrummaging, and force demands with evidence-aware anatomical reasoning; direct exercise-to-performance causation and EMG claims were avoided, and confidence is lower for complex cooperative or reactive skills."
   },
   {
     "id": "golf-1",
     "sportId": "golf",
     "label": "backswing rotation",
-    "movementFamily": "transverse-plane rotation",
     "bodyActions": [
       "Trail-side pelvis and thorax rotate away from target while the golfer maintains address posture and creates a reversible coil."
     ],
@@ -17448,7 +16544,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Landmine rotation",
       "Half-kneeling cable lift"
     ],
-    "transferRationale": "These patterns share hip-to-trunk rotation and braced posture, but they train general capacity rather than the golf timing or club interaction.",
     "exerciseSelectionCautions": "Do not force lumbar rotation; scale range and load for hip/thoracic mobility and avoid turning a mobility drill into a maximal lift.",
     "evidenceConfidence": "high",
     "sources": [
@@ -17456,13 +16551,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://doi.org/10.2165/00007256-200535050-00005",
       "https://www.mytpi.com/articles/biomechanics/kinematic-sequence-basics"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-2",
     "sportId": "golf",
     "label": "downswing rotation",
-    "movementFamily": "rotational power and sequencing",
     "bodyActions": [
       "Pelvis begins rotating toward target, followed by thorax, arms, and club with rapid angular-velocity transfer."
     ],
@@ -17507,7 +16600,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable chop",
       "Landmine rotation"
     ],
-    "transferRationale": "Ballistic throws expose the athlete to rapid whole-body rotation and bracing, mechanically overlapping the sequence without proving better clubhead speed.",
     "exerciseSelectionCautions": "Use submaximal volumes, clear space, and bilateral directions; do not infer that throwing power directly improves a player’s score.",
     "evidenceConfidence": "high",
     "sources": [
@@ -17515,13 +16607,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://doi.org/10.2165/00007256-200535050-00005",
       "https://www.mytpi.com/articles/biomechanics/kinematic-sequence-basics"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-3",
     "sportId": "golf",
     "label": "hip initiation",
-    "movementFamily": "proximal sequencing",
     "bodyActions": [
       "Lead-side pelvic rotation and extension precede substantial thorax and arm acceleration."
     ],
@@ -17563,7 +16653,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable rotation",
       "Single-leg Romanian deadlift"
     ],
-    "transferRationale": "Unilateral lower-body patterns can build the force and balance prerequisites for initiating rotation, while cable rotation adds a task-relevant direction.",
     "exerciseSelectionCautions": "Keep pelvis and knee aligned; use technique-first loads because sequencing cannot be isolated perfectly with a gym exercise.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -17571,13 +16660,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.mytpi.com/articles/biomechanics/kinematic-sequence-basics",
       "https://doi.org/10.1080/14763141.2012.670662"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-4",
     "sportId": "golf",
     "label": "shoulder rotation",
-    "movementFamily": "glenohumeral rotation and scapulohumeral control",
     "bodyActions": [
       "Humerus rotates relative to the scapula while the trunk carries the shoulder girdle through the swing."
     ],
@@ -17619,20 +16706,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Face pull",
       "Chest-supported row"
     ],
-    "transferRationale": "These exercises train shoulder rotation, scapular positioning, and posterior-chain control that support the arm segment, not the complete swing.",
     "exerciseSelectionCautions": "Avoid high-fatigue or painful end-range internal rotation; use individualized range and preserve scapular motion rather than pinning it back.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://journals.lww.com/nsca-scj/_layouts/15/oaks.journals/downloadpdf.aspx?an=00126548-201310000-00001"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-5",
     "sportId": "golf",
     "label": "weight shift",
-    "movementFamily": "weight transfer and unilateral force acceptance",
     "bodyActions": [
       "Center of mass shifts from trail to lead side while the trunk remains organized and the feet exchange pressure."
     ],
@@ -17675,20 +16759,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Split squat",
       "Step-up"
     ],
-    "transferRationale": "Unilateral and lateral exercises overlap pressure transfer and force acceptance, but they do not reproduce club constraints or perceptual timing.",
     "exerciseSelectionCautions": "Begin with controlled step-and-stick variations; monitor knee valgus, foot collapse, and back symptoms.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://doi.org/10.2165/00007256-200535050-00005"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-6",
     "sportId": "golf",
     "label": "lead-leg bracing",
-    "movementFamily": "deceleration and force transfer",
     "bodyActions": [
       "Lead hip, knee, and ankle accept momentum and provide a firm base for late downswing and follow-through."
     ],
@@ -17730,20 +16811,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Step-down",
       "Single-leg squat"
     ],
-    "transferRationale": "These patterns expose the lead side to unilateral force absorption and alignment demands relevant to bracing.",
     "exerciseSelectionCautions": "Do not chase maximal depth or load if ankle/hip mobility causes compensations; bracing is not a reason to lock the knee.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://doi.org/10.1080/14763141.2012.670662"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-7",
     "sportId": "golf",
     "label": "trail-leg drive",
-    "movementFamily": "lower-body propulsion",
     "bodyActions": [
       "Trail hip and knee extend and the trail foot applies force as the pelvis begins to rotate toward target."
     ],
@@ -17786,20 +16864,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Romanian deadlift",
       "Jump squat"
     ],
-    "transferRationale": "These patterns develop general hip extension and ground-force expression; they are not evidence that a particular lift changes swing mechanics.",
     "exerciseSelectionCautions": "Use loads that preserve posture; excessive vertical jumping or sled load may change rather than match the intended force direction.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://doi.org/10.2165/00007256-200535050-00005"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-8",
     "sportId": "golf",
     "label": "trunk anti-extension",
-    "movementFamily": "trunk bracing and posture",
     "bodyActions": [
       "Resist lumbar extension and rib flare while hips and shoulders rotate around a controlled spine."
     ],
@@ -17841,20 +16916,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Front plank",
       "Suitcase carry"
     ],
-    "transferRationale": "Anti-extension exercises share the requirement to keep the ribcage and pelvis organized while limbs move, supporting general trunk control.",
     "exerciseSelectionCautions": "Avoid breath-holding and lumbar sag; regress lever length or load before adding instability.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://journals.lww.com/nsca-scj/_layouts/15/oaks.journals/downloadpdf.aspx?an=00126548-201310000-00001"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-9",
     "sportId": "golf",
     "label": "trunk anti-rotation",
-    "movementFamily": "anti-rotation stability",
     "bodyActions": [
       "Resist unwanted torso rotation when asymmetric ground and club forces act through the body."
     ],
@@ -17893,7 +16965,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Suitcase carry",
       "Half-kneeling cable hold"
     ],
-    "transferRationale": "These patterns train resistance to external rotation and asymmetrical loading, a plausible shared physical quality but not a direct golf-performance intervention.",
     "exerciseSelectionCautions": "Keep pelvis square enough for the drill; do not turn anti-rotation into painful spinal rigidity or maximal breath-holding.",
     "evidenceConfidence": "high",
     "sources": [
@@ -17901,13 +16972,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://doi.org/10.1080/14763141.2012.670662",
       "https://journals.lww.com/nsca-scj/_layouts/15/oaks.journals/downloadpdf.aspx?an=00126548-201310000-00001"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-10",
     "sportId": "golf",
     "label": "wrist hinge",
-    "movementFamily": "distal lever control",
     "bodyActions": [
       "Maintain radial/ulnar wrist angle and forearm orientation during backswing and transition."
     ],
@@ -17950,20 +17019,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Reverse wrist curl",
       "Farmer carry"
     ],
-    "transferRationale": "Forearm and grip exercises address local endurance and co-contraction needed to control a club, but do not establish the correct swing release.",
     "exerciseSelectionCautions": "Use light loads and neutral wrist alignment; avoid high-volume loaded deviation with elbow or wrist pain.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://journals.lww.com/nsca-scj/_layouts/15/oaks.journals/downloadpdf.aspx?an=00126548-201310000-00001"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-11",
     "sportId": "golf",
     "label": "wrist release",
-    "movementFamily": "distal speed generation",
     "bodyActions": [
       "Timed wrist uncocking and forearm rotation deliver the club through impact and then decelerate it."
     ],
@@ -18005,7 +17071,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable woodchop",
       "Reverse wrist curl"
     ],
-    "transferRationale": "Ballistic patterns can train intent and general release/braking qualities, but the evidence does not support claiming a causal clubhead-speed gain from one exercise.",
     "exerciseSelectionCautions": "Progress speed gradually; avoid heavy wrist snapping, uncontrolled catches, or pain at the medial/lateral elbow.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -18013,13 +17078,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://doi.org/10.2165/00007256-200535050-00005",
       "https://doi.org/10.1080/14763141.2012.670662"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-12",
     "sportId": "golf",
     "label": "scapular retraction",
-    "movementFamily": "scapular control",
     "bodyActions": [
       "Scapulae retract and position the arms during set-up, backswing, and transition without excessive shrugging."
     ],
@@ -18057,20 +17120,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Face pull",
       "Prone Y raise"
     ],
-    "transferRationale": "Rows and face pulls build scapular strength/endurance that can support arm control, without implying a fixed “pin the shoulders back” swing cue.",
     "exerciseSelectionCautions": "Do not over-retract or depress the scapula; stop if shoulder symptoms increase and retain normal upward rotation.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://journals.lww.com/nsca-scj/_layouts/15/oaks.journals/downloadpdf.aspx?an=00126548-201310000-00001"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-13",
     "sportId": "golf",
     "label": "shoulder adduction",
-    "movementFamily": "upper-limb linkage",
     "bodyActions": [
       "Upper arm moves toward the trunk through downswing and impact while the scapula and trunk coordinate the club path."
     ],
@@ -18111,20 +17171,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Straight-arm pulldown",
       "Pallof press"
     ],
-    "transferRationale": "Unilateral pulls combine shoulder adduction with trunk control, approximating shared muscle actions while leaving golf-specific timing to practice.",
     "exerciseSelectionCautions": "Avoid shoulder depression and humeral anterior glide; use pain-free range and do not substitute lumbar extension for latissimus work.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://journals.lww.com/nsca-scj/_layouts/15/oaks.journals/downloadpdf.aspx?an=00126548-201310000-00001"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-14",
     "sportId": "golf",
     "label": "driving swing",
-    "movementFamily": "full-swing rotational power",
     "bodyActions": [
       "Full-amplitude high-velocity rotation uses ground pressure, proximal sequencing, arm-club delivery, and follow-through braking."
     ],
@@ -18172,7 +17229,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Bulgarian split squat",
       "Cable chop"
     ],
-    "transferRationale": "These exercises cover major physical qualities—rotation, lower-body force, and bracing—but cannot reproduce club mass, ball contact, or technical skill.",
     "exerciseSelectionCautions": "Use progressive intensity and low fatigue; high-speed rotation is inappropriate during acute back, hip, shoulder, or elbow symptoms.",
     "evidenceConfidence": "high",
     "sources": [
@@ -18180,13 +17236,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://doi.org/10.2165/00007256-200535050-00005",
       "https://www.mytpi.com/articles/biomechanics/kinematic-sequence-basics"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-15",
     "sportId": "golf",
     "label": "iron swing",
-    "movementFamily": "rotational technique and force transfer",
     "bodyActions": [
       "Controlled rotational swing emphasizes posture, low-point control, forward shaft delivery, and repeatable ground contact."
     ],
@@ -18232,7 +17286,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Romanian deadlift",
       "Dead bug"
     ],
-    "transferRationale": "These patterns support posture, unilateral base, and rotational force transfer without claiming they teach clubface or low-point control.",
     "exerciseSelectionCautions": "Favor controlled tempo and technical quality; avoid excessive loading if it changes the athlete’s address posture.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -18240,13 +17293,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.mytpi.com/articles/biomechanics/kinematic-sequence-basics",
       "https://doi.org/10.1080/14763141.2012.670662"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-16",
     "sportId": "golf",
     "label": "pitching motion",
-    "movementFamily": "submaximal rotational control",
     "bodyActions": [
       "Partial-amplitude swing modulates club speed and distance with precise trunk, shoulder, wrist, and foot control."
     ],
@@ -18290,7 +17341,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Cable chop",
       "Face pull"
     ],
-    "transferRationale": "Tempo and half-kneeling patterns reduce degrees of freedom while training trunk/shoulder coordination relevant to distance modulation.",
     "exerciseSelectionCautions": "Do not overstate transfer from kneeling drills; retain standing practice and use light, pain-free wrist loading.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -18298,13 +17348,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.mytpi.com/articles/biomechanics/kinematic-sequence-basics",
       "https://journals.lww.com/nsca-scj/_layouts/15/oaks.journals/downloadpdf.aspx?an=00126548-201310000-00001"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-17",
     "sportId": "golf",
     "label": "bunker swing",
-    "movementFamily": "variable-surface rotational power",
     "bodyActions": [
       "Open-stance swing uses a wider base, lower-body bracing, and forceful interaction with sand followed by a high finish."
     ],
@@ -18352,7 +17400,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Lateral lunge",
       "Cable rotation"
     ],
-    "transferRationale": "Variable-load carries/throws and lateral strength share bracing and force-direction challenges, but sand impact and club-soil interaction require actual skill practice.",
     "exerciseSelectionCautions": "Keep loads moderate and surfaces predictable; do not use unstable surfaces to mimic sand unless coached and medically appropriate.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -18360,13 +17407,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://doi.org/10.2165/00007256-200535050-00005",
       "https://doi.org/10.1080/14763141.2012.670662"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-18",
     "sportId": "golf",
     "label": "putting stroke",
-    "movementFamily": "precision pendulum",
     "bodyActions": [
       "Small shoulder-and-arm pendulum motion occurs with quiet wrists, stable pelvis, and visual-motor precision."
     ],
@@ -18409,7 +17454,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Face pull",
       "Pallof press"
     ],
-    "transferRationale": "These exercises can support postural and scapular endurance but have weak direct transfer to green-reading, touch, and visual-motor skill.",
     "exerciseSelectionCautions": "Keep loads light and avoid fatigue immediately before putting practice; do not treat strength work as a substitute for putting technique.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -18417,13 +17461,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.mytpi.com/articles/biomechanics/kinematic-sequence-basics",
       "https://journals.lww.com/nsca-scj/_layouts/15/oaks.journals/downloadpdf.aspx?an=00126548-201310000-00001"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-19",
     "sportId": "golf",
     "label": "rotational deceleration",
-    "movementFamily": "rotational braking",
     "bodyActions": [
       "Pelvis, thorax, arms, and club are slowed after impact while the golfer maintains balance and a controlled finish."
     ],
@@ -18467,7 +17509,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Bulgarian split squat",
       "Face pull"
     ],
-    "transferRationale": "Catch-and-stick and unilateral eccentric work share braking and balance demands; they do not prove protection from injury or improved ball striking.",
     "exerciseSelectionCautions": "Begin with low-speed catches and predictable ranges; avoid maximal rotational catches when fatigued or symptomatic.",
     "evidenceConfidence": "high",
     "sources": [
@@ -18475,13 +17516,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://doi.org/10.2165/00007256-200535050-00005",
       "https://doi.org/10.1080/14763141.2012.670662"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "golf-20",
     "sportId": "golf",
     "label": "single-leg stabilization",
-    "movementFamily": "unilateral balance",
     "bodyActions": [
       "Maintain pelvis, knee, ankle, and trunk alignment on one support leg during setup, weight transfer, and recovery."
     ],
@@ -18528,20 +17567,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Suitcase carry",
       "Bulgarian split squat"
     ],
-    "transferRationale": "These exercises train unilateral hip, knee, ankle, and trunk control that overlaps a stable golf base, though balance skill remains task-specific.",
     "exerciseSelectionCautions": "Use external support initially; prioritize knee-over-foot alignment and avoid unstable-surface progressions that obscure force production.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9227529/",
       "https://doi.org/10.2165/00007256-200535050-00005"
     ],
-    "sourceSummary": "The records synthesize a peer-reviewed systematic review of golf-swing kinematics, Sports Medicine biomechanics evidence on force production and accuracy, lumbar-load/ground-reaction research, and TPI biomechanics education, while limiting causal exercise-transfer claims because direct intervention evidence is not established for each movement."
   },
   {
     "id": "gymnastics-1",
     "sportId": "gymnastics",
     "label": "handstand",
-    "movementFamily": "inverted straight-arm support",
     "bodyActions": [
       "Body inverted over hands with stacked trunk and active shoulder elevation."
     ],
@@ -18583,7 +17619,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "scapular push-up",
       "hollow-body hold"
     ],
-    "transferRationale": "These patterns share overhead support, scapular elevation, trunk stiffness, and balance, but not the full inverted skill.",
     "exerciseSelectionCautions": "Use wall or box progressions; avoid fatigue-driven lumbar extension and painful wrist loading.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -18591,13 +17626,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-2",
     "sportId": "gymnastics",
     "label": "handstand push",
-    "movementFamily": "inverted pressing",
     "bodyActions": [
       "Lowering and pressing the body vertically while inverted."
     ],
@@ -18637,7 +17670,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "wall handstand hold",
       "triceps extension"
     ],
-    "transferRationale": "Pressing and overhead-support patterns overlap with force direction and scapular demands, not apparatus timing.",
     "exerciseSelectionCautions": "Scale range and load; protect wrists and shoulders; no claim of skill transfer without coaching.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -18645,13 +17677,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-3",
     "sportId": "gymnastics",
     "label": "planche",
-    "movementFamily": "straight-arm horizontal support",
     "bodyActions": [
       "Body held nearly horizontal with shoulders protracted and feet off the floor."
     ],
@@ -18693,7 +17723,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "scapular push-up",
       "hollow-body hold"
     ],
-    "transferRationale": "Leans and protraction drills reproduce shoulder-angle and trunk-bracing demands without reproducing planche balance.",
     "exerciseSelectionCautions": "Progress gradually; straight-arm loading can aggravate wrists, elbows, or anterior shoulders.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -18701,13 +17730,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-4",
     "sportId": "gymnastics",
     "label": "front lever",
-    "movementFamily": "straight-arm horizontal pull/support",
     "bodyActions": [
       "Suspended body held horizontal with shoulders extended and trunk rigid."
     ],
@@ -18749,7 +17776,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "scapular pull-up",
       "hollow-body hold"
     ],
-    "transferRationale": "These exercises address shoulder extension, scapular depression, and bodyline control; they do not establish direct lever-skill improvement.",
     "exerciseSelectionCautions": "Use tuck/regressed levers; avoid swinging and anterior shoulder pain.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -18757,13 +17783,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-5",
     "sportId": "gymnastics",
     "label": "back lever",
-    "movementFamily": "straight-arm horizontal support",
     "bodyActions": [
       "Suspended prone bodyline supported below rings or bar."
     ],
@@ -18805,7 +17829,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "ring support hold",
       "hollow-body hold"
     ],
-    "transferRationale": "Regressed lever and ring-support patterns share straight-arm support and bodyline demands.",
     "exerciseSelectionCautions": "Do not force shoulder extension; use supervised progressions and stop for pain or instability.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -18813,13 +17836,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-6",
     "sportId": "gymnastics",
     "label": "muscle-up",
-    "movementFamily": "explosive pull-to-push transition",
     "bodyActions": [
       "Powerful pull transitions the torso over a bar or rings into support."
     ],
@@ -18860,7 +17881,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "straight-bar dip",
       "ring support hold"
     ],
-    "transferRationale": "Pulling plus dip and support patterns cover force components, but transition timing and technical skill require practice.",
     "exerciseSelectionCautions": "Use low rings/bands and strict prerequisites; avoid kipping under shoulder or elbow symptoms.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -18868,13 +17888,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-7",
     "sportId": "gymnastics",
     "label": "ring dip",
-    "movementFamily": "unstable straight-arm ring support",
     "bodyActions": [
       "Controlled descent and press between independent rings."
     ],
@@ -18914,7 +17932,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "push-up",
       "triceps extension"
     ],
-    "transferRationale": "Dips reproduce pressing; ring support adds instability and straight-arm stabilization but not full apparatus specificity.",
     "exerciseSelectionCautions": "Limit depth to controlled shoulder range; regress instability for pain or poor scapular control.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -18922,13 +17939,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-8",
     "sportId": "gymnastics",
     "label": "iron cross",
-    "movementFamily": "straight-arm ring support",
     "bodyActions": [
       "Arms abducted near horizontal while body is suspended and rings stabilized."
     ],
@@ -18970,7 +17985,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "isometric chest fly",
       "scapular depression"
     ],
-    "transferRationale": "Assistance exercises develop relevant adduction/depression and support control, but evidence for direct cross transfer is limited.",
     "exerciseSelectionCautions": "Use very conservative assisted progressions; never substitute heavy fly loading for coached ring preparation.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -18978,13 +17992,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-9",
     "sportId": "gymnastics",
     "label": "L-sit",
-    "movementFamily": "compression and seated support hold",
     "bodyActions": [
       "Hands support the body while hips flex and legs extend horizontally."
     ],
@@ -19027,7 +18039,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "hanging knee raise",
       "compression lift"
     ],
-    "transferRationale": "These patterns share hip-flexor compression and support strength; exact lever and balance remain skill-specific.",
     "exerciseSelectionCautions": "Avoid lumbar rounding compensation and anterior hip pain; regress with bent knees.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19035,13 +18046,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-10",
     "sportId": "gymnastics",
     "label": "V-sit",
-    "movementFamily": "compression and elevated seated support",
     "bodyActions": [
       "Supported body with hips deeply flexed and legs elevated above horizontal."
     ],
@@ -19084,7 +18093,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "compression lift",
       "parallel-bar support hold"
     ],
-    "transferRationale": "L-sit and compression patterns share the active range and support demands, but V-sit requires greater mobility and balance.",
     "exerciseSelectionCautions": "Do not chase range with spinal collapse; modify for hamstring, hip, or wrist limitations.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -19092,13 +18100,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-11",
     "sportId": "gymnastics",
     "label": "hollow-body hold",
-    "movementFamily": "hollow/arch body-shape isometric",
     "bodyActions": [
       "Supine posterior pelvic tilt with shoulders and legs lifted in a rounded bodyline."
     ],
@@ -19139,7 +18145,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "reverse crunch",
       "plank"
     ],
-    "transferRationale": "These drills develop trunk anti-extension and body-shape awareness shared across skills, without proving better tumbling.",
     "exerciseSelectionCautions": "Keep ribs and pelvis controlled; regress lever length if lumbar extension appears.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19147,13 +18152,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-12",
     "sportId": "gymnastics",
     "label": "arch-body hold",
-    "movementFamily": "hollow/arch body-shape isometric",
     "bodyActions": [
       "Prone bodyline uses spinal and hip extension with shoulders and legs elevated."
     ],
@@ -19195,7 +18198,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "superman hold",
       "bird dog"
     ],
-    "transferRationale": "Posterior-chain and scapular endurance overlap with arch shaping, but aerial orientation and timing remain technical.",
     "exerciseSelectionCautions": "Avoid compressive lumbar hyperextension; use short holds and neutral neck.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19203,13 +18205,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-13",
     "sportId": "gymnastics",
     "label": "rope climb",
-    "movementFamily": "vertical pulling and rope climbing",
     "bodyActions": [
       "Repeated hand-over-hand pulling with leg clamp, hip flexion, and standing-up actions."
     ],
@@ -19253,7 +18253,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "pull-up",
       "farmer carry"
     ],
-    "transferRationale": "Pulling and grip exercises share vertical force and hand endurance, while foot locks and rope technique must be learned directly.",
     "exerciseSelectionCautions": "Use secure rope and qualified supervision; control descent to reduce elbow/shoulder overload.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19261,13 +18260,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-14",
     "sportId": "gymnastics",
     "label": "pull-up",
-    "movementFamily": "vertical pulling",
     "bodyActions": [
       "Hanging body is raised by pulling the upper arms toward the torso."
     ],
@@ -19308,7 +18305,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "scapular pull-up",
       "eccentric pull-up"
     ],
-    "transferRationale": "These patterns share the principal joint actions and scapular control relevant to suspended pulling.",
     "exerciseSelectionCautions": "Avoid kipping until strict control exists; adjust grip and range for shoulder symptoms.",
     "evidenceConfidence": "high",
     "sources": [
@@ -19316,13 +18312,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-15",
     "sportId": "gymnastics",
     "label": "press-to-handstand",
-    "movementFamily": "inverted pressing and compression",
     "bodyActions": [
       "From pike/straddle, shoulders elevate while hips compress and body rises to handstand."
     ],
@@ -19366,7 +18360,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "wall handstand hold",
       "negative handstand press"
     ],
-    "transferRationale": "Press and compression patterns reproduce components of the action; skill-specific balance and mobility need direct practice.",
     "exerciseSelectionCautions": "Use boxes and straddle regressions; stop if wrists or shoulders cannot tolerate loading.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19374,13 +18367,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-16",
     "sportId": "gymnastics",
     "label": "tumbling takeoff",
-    "movementFamily": "sprint-to-rebound propulsion",
     "bodyActions": [
       "Run and hurdle transition into rapid lower-limb extension and stiff floor rebound."
     ],
@@ -19425,7 +18416,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "pogo jump",
       "snap-down"
     ],
-    "transferRationale": "Jump and sprint patterns share propulsion and contact qualities; they do not establish safer or better tumbling by themselves.",
     "exerciseSelectionCautions": "Keep volume low and landings coached; surface, fatigue, and prior injury matter.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19433,13 +18423,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-17",
     "sportId": "gymnastics",
     "label": "backflip",
-    "movementFamily": "backward aerial rotation",
     "bodyActions": [
       "Explosive takeoff creates vertical impulse and backward angular momentum, followed by shape change and landing opening."
     ],
@@ -19482,7 +18470,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "arch-body hold",
       "drop landing"
     ],
-    "transferRationale": "These drills target impulse, body shapes, and landing absorption, but the aerial skill requires supervised progressions.",
     "exerciseSelectionCautions": "Never self-teach from a flat surface; use qualified coach, appropriate apparatus, and progressions.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -19490,13 +18477,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-18",
     "sportId": "gymnastics",
     "label": "front flip",
-    "movementFamily": "forward aerial rotation",
     "bodyActions": [
       "Forward takeoff and rotation use trunk/hip flexion before active opening for landing."
     ],
@@ -19540,7 +18525,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "snap-down",
       "drop landing"
     ],
-    "transferRationale": "Jump, bodyline, and landing drills overlap with components, not the complete forward-rotation skill.",
     "exerciseSelectionCautions": "Require qualified supervision and appropriate pit/trampoline progressions; avoid fatigue practice.",
     "evidenceConfidence": "limited",
     "sources": [
@@ -19548,13 +18532,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-19",
     "sportId": "gymnastics",
     "label": "vault takeoff",
-    "movementFamily": "sprint-to-board rebound and shoulder block",
     "bodyActions": [
       "High-speed approach contacts board, rebounds through legs, then transfers force through extended shoulders onto table."
     ],
@@ -19601,7 +18583,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "plyometric push-up",
       "handstand snap-down"
     ],
-    "transferRationale": "Sprint/plyometric and overhead-block patterns share force transfer, but board/table timing is apparatus-specific.",
     "exerciseSelectionCautions": "Progress impact and volume cautiously; use coach, correct board distance, and wrist/shoulder screening.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19609,13 +18590,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "gymnastics-20",
     "sportId": "gymnastics",
     "label": "landing stabilization",
-    "movementFamily": "landing absorption and postural control",
     "bodyActions": [
       "After aerial flight, the body accepts ground contact with coordinated flexion and recovers a stable posture."
     ],
@@ -19659,7 +18638,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat-to-stick",
       "step-down"
     ],
-    "transferRationale": "Progressive landing drills share braking and alignment demands; they cannot guarantee injury prevention or competition transfer.",
     "exerciseSelectionCautions": "Use appropriate height/surface and quiet aligned contacts; stop for pain or loss of control.",
     "evidenceConfidence": "high",
     "sources": [
@@ -19667,13 +18645,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179790/",
       "https://www.orthoinfo.org/staying-healthy/gymnastics-injury-prevention"
     ],
-    "sourceSummary": "The enrichment uses peer-reviewed gymnastics biomechanics and landing reviews plus AAOS gymnastics injury-prevention guidance, while marking complex skill-to-exercise transfer as moderate or limited because direct causal performance evidence is sparse."
   },
   {
     "id": "rowing-1",
     "sportId": "rowing",
     "label": "catch position",
-    "movementFamily": "repeatable end-range preparation with stable foot pressure and torso control",
     "bodyActions": [
       "compressed bilateral setup",
       "forward trunk inclination and extended arms"
@@ -19705,7 +18681,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Romanian deadlift",
       "seated cable row"
     ],
-    "transferRationale": "The catch shares deep lower-limb flexion, forward hip position, extended-arm reach, and braced force-transfer demands; it is a mechanical preparation analogue, not a technical substitute.",
     "exerciseSelectionCautions": "Avoid forcing lumbar flexion or excessive slide length; use a controlled pause and load only within comfortable hip, ankle, and shoulder range.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19713,13 +18688,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.concept2.com/training/rowing-technique",
       "https://pubmed.ncbi.nlm.nih.gov/21510717/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-2",
     "sportId": "rowing",
     "label": "leg drive",
-    "movementFamily": "high bilateral force application early in the drive",
     "bodyActions": [
       "bilateral push from the foot stretcher with trunk held organized"
     ],
@@ -19750,7 +18723,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "Romanian deadlift"
     ],
-    "transferRationale": "These exercises overlap the bilateral lower-body force vector and proximal-to-distal drive sequence, while the rower still requires stroke-specific timing.",
     "exerciseSelectionCautions": "Do not turn the drive into an early arm pull or allow knees to collapse; avoid maximal loading when technique or back position deteriorates.",
     "evidenceConfidence": "high",
     "sources": [
@@ -19758,13 +18730,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.concept2.com/training/rowing-technique",
       "https://pubmed.ncbi.nlm.nih.gov/21510717/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-3",
     "sportId": "rowing",
     "label": "hip swing",
-    "movementFamily": "sequenced hip-driven transfer without lumbar overextension",
     "bodyActions": [
       "torso opens after the legs, using the pelvis as the hinge"
     ],
@@ -19795,7 +18765,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable pull-through",
       "back extension"
     ],
-    "transferRationale": "Hinge patterns train hip extension while demanding a rigid torso; the rationale is shared joint action and sequencing rather than proof of improved rowing performance.",
     "exerciseSelectionCautions": "Keep motion at the hips and stop before lumbar hyperextension; back-extension loading should be conservative for athletes with back symptoms.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19803,13 +18772,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.concept2.com/training/rowing-technique",
       "https://pubmed.ncbi.nlm.nih.gov/21510717/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-4",
     "sportId": "rowing",
     "label": "arm pull",
-    "movementFamily": "repeated horizontal pulling with coordinated shoulder and elbow action",
     "bodyActions": [
       "handle is drawn toward the lower ribs after leg and trunk acceleration"
     ],
@@ -19841,7 +18808,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lat pulldown",
       "one-arm dumbbell row"
     ],
-    "transferRationale": "These patterns reproduce the principal upper-limb pulling actions while allowing torso and scapular control to be coached separately.",
     "exerciseSelectionCautions": "Do not shrug, yank, or excessively extend the shoulder; use a neutral wrist and avoid painful end-range shoulder motion.",
     "evidenceConfidence": "high",
     "sources": [
@@ -19849,13 +18815,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.concept2.com/training/rowing-technique",
       "https://pubmed.ncbi.nlm.nih.gov/21510717/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-5",
     "sportId": "rowing",
     "label": "finish position",
-    "movementFamily": "terminal force absorption and posture control at the end of propulsion",
     "bodyActions": [
       "legs extended, hips open, slight trunk layback, handle at lower ribs"
     ],
@@ -19888,7 +18852,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "chest-supported row",
       "Pallof press"
     ],
-    "transferRationale": "A controlled row lockout plus hip-extension exercise reflects the finish’s combined pull and pelvic control; it does not replicate handle velocity or water/ergometer rhythm.",
     "exerciseSelectionCautions": "Avoid leaning back by flexing or extending the lumbar spine; finish with elbows and shoulders controlled rather than forced behind the body.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19896,13 +18859,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.concept2.com/training/rowing-technique",
       "https://pubmed.ncbi.nlm.nih.gov/21510717/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-6",
     "sportId": "rowing",
     "label": "recovery",
-    "movementFamily": "repeatable low-force return and deceleration between strokes",
     "bodyActions": [
       "arms extend, trunk inclines, then knees flex toward the catch"
     ],
@@ -19934,7 +18895,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "controlled cable row eccentric",
       "dead bug"
     ],
-    "transferRationale": "Eccentric strength and sequencing drills address the braking and return qualities of recovery, not the complete coordination or timing of rowing.",
     "exerciseSelectionCautions": "Use slow, pain-free range; do not collapse into spinal flexion or combine fatigue with uncontrolled slide speed.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -19942,13 +18902,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://www.concept2.com/training/rowing-technique",
       "https://pubmed.ncbi.nlm.nih.gov/21510717/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-7",
     "sportId": "rowing",
     "label": "scapular retraction",
-    "movementFamily": "scapular control under repeated pulling",
     "bodyActions": [
       "scapulae approximate during the pull while humeri extend"
     ],
@@ -19978,7 +18936,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "face pull",
       "prone Y raise"
     ],
-    "transferRationale": "These exercises train retraction/depression with reduced need for compensatory lumbar movement, supporting a controlled pulling base.",
     "exerciseSelectionCautions": "Retraction is not maximal pinching; preserve scapular upward rotation and stop if anterior shoulder pain or numbness occurs.",
     "evidenceConfidence": "high",
     "sources": [
@@ -19986,13 +18943,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-8",
     "sportId": "rowing",
     "label": "shoulder extension",
-    "movementFamily": "controlled shoulder extension coupled to trunk and handle motion",
     "bodyActions": [
       "upper arm travels posteriorly during the latter drive"
     ],
@@ -20022,7 +18977,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "seated cable row",
       "dumbbell pullover"
     ],
-    "transferRationale": "The exercises share shoulder-extension loading but should complement, not replace, technical sequencing from legs through trunk to arms.",
     "exerciseSelectionCautions": "Avoid forcing the humerus behind the trunk or depressing the shoulder aggressively; select a load that preserves rib and scapular control.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -20030,13 +18984,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-9",
     "sportId": "rowing",
     "label": "knee extension",
-    "movementFamily": "bilateral knee-extension force applied through a fixed foot contact",
     "bodyActions": [
       "lower leg straightens during the first drive segment"
     ],
@@ -20066,7 +19018,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "sled push"
     ],
-    "transferRationale": "These exercises load knee extension and foot-ground force transfer, with the caveat that rowing is seated and bilateral rather than a free-standing squat task.",
     "exerciseSelectionCautions": "Track knees over the feet and avoid abrupt lockout; regress depth or load for anterior knee symptoms.",
     "evidenceConfidence": "high",
     "sources": [
@@ -20074,13 +19025,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-10",
     "sportId": "rowing",
     "label": "hip extension",
-    "movementFamily": "posterior-chain force and hip-dominant sequencing",
     "bodyActions": [
       "thighs move from flexion toward alignment with the trunk"
     ],
@@ -20111,7 +19060,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "kettlebell swing",
       "cable pull-through"
     ],
-    "transferRationale": "Hinge and thrust patterns share hip-extension demand and teach force production without making the lumbar spine the prime mover.",
     "exerciseSelectionCautions": "Maintain a neutral spine and use swing variations only with established hinge skill; reduce load if hamstring or back symptoms appear.",
     "evidenceConfidence": "high",
     "sources": [
@@ -20119,13 +19067,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-11",
     "sportId": "rowing",
     "label": "ankle plantarflexion",
-    "movementFamily": "distal force transmission without losing foot contact",
     "bodyActions": [
       "foot presses into the stretcher as the drive finishes"
     ],
@@ -20155,7 +19101,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "farmer carry"
     ],
-    "transferRationale": "Calf and loaded-locomotion patterns build plantarflexor capacity and foot stiffness that can support force transfer through the stretcher.",
     "exerciseSelectionCautions": "Do not chase maximal heel lift or let the arch collapse; use moderate range when the ankle or Achilles is irritable.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -20163,13 +19108,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-12",
     "sportId": "rowing",
     "label": "trunk bracing",
-    "movementFamily": "stiff-but-breathable trunk force transfer across repeated strokes",
     "bodyActions": [
       "torso resists flexion, extension, and rotation while linking legs to handle"
     ],
@@ -20198,7 +19141,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "suitcase carry",
       "Pallof press"
     ],
-    "transferRationale": "These drills train anti-motion trunk control and breathing under load, a shared requirement for transferring leg force without excessive torso motion.",
     "exerciseSelectionCautions": "Brace without breath-holding for prolonged intervals; avoid treating maximal stiffness as a substitute for rowing posture and mobility.",
     "evidenceConfidence": "high",
     "sources": [
@@ -20206,13 +19148,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-13",
     "sportId": "rowing",
     "label": "trunk hinge",
-    "movementFamily": "repeatable torso-angle change while preserving force transmission",
     "bodyActions": [
       "torso pivots from the hips between forward and open angles"
     ],
@@ -20243,7 +19183,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "cable pull-through",
       "back extension"
     ],
-    "transferRationale": "Hip-hinge practice maps to the rowing trunk-angle change and emphasizes moving from the hip rather than folding through the lumbar spine.",
     "exerciseSelectionCautions": "Use a short range until control is reliable; avoid loaded spinal flexion and stop with pain, radiating symptoms, or loss of neutral alignment.",
     "evidenceConfidence": "high",
     "sources": [
@@ -20251,13 +19190,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-14",
     "sportId": "rowing",
     "label": "grip endurance",
-    "movementFamily": "long-duration submaximal grip without excessive forearm tension",
     "bodyActions": [
       "hands maintain handle contact through drive and recovery"
     ],
@@ -20288,7 +19225,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "suitcase carry",
       "seated cable row"
     ],
-    "transferRationale": "Carries, hangs, and rows expose the hand and forearm to sustained gripping while allowing intensity and duration to be scaled.",
     "exerciseSelectionCautions": "Use a relaxed hook-like grip when appropriate; stop for numbness, tingling, or persistent elbow/wrist pain and avoid maximal hangs in unprepared athletes.",
     "evidenceConfidence": "high",
     "sources": [
@@ -20296,13 +19232,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-15",
     "sportId": "rowing",
     "label": "repeated pulling",
-    "movementFamily": "upper-body pulling endurance with technique retained under repetition",
     "bodyActions": [
       "cyclic shoulder extension, scapular retraction, and elbow flexion"
     ],
@@ -20334,7 +19268,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lat pulldown",
       "inverted row"
     ],
-    "transferRationale": "These exercises provide scalable pulling volume and reduce the need to use lumbar motion to create handle travel.",
     "exerciseSelectionCautions": "Balance pulling volume with pressing and shoulder-control work; avoid training to failure when scapular mechanics or grip posture deteriorates.",
     "evidenceConfidence": "high",
     "sources": [
@@ -20342,13 +19275,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-16",
     "sportId": "rowing",
     "label": "explosive start stroke",
-    "movementFamily": "short-duration power and acceleration from a compressed start",
     "bodyActions": [
       "rapid leg-dominant force from the catch followed by hip swing and arm pull"
     ],
@@ -20379,7 +19310,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "trap-bar deadlift",
       "medicine-ball scoop toss"
     ],
-    "transferRationale": "These patterns overlap rapid lower-body force production and whole-body sequencing; they do not establish that gym power training causes faster starts.",
     "exerciseSelectionCautions": "Use low volume and full recovery; do not sacrifice catch position, land stiffly, or use ballistic loading without landing and hinge competency.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -20387,13 +19317,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-17",
     "sportId": "rowing",
     "label": "high-rate stroke",
-    "movementFamily": "high-cadence coordination and power-endurance",
     "bodyActions": [
       "rapidly repeated leg drive, hip swing, arm pull, and recovery"
     ],
@@ -20422,7 +19350,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled push",
       "kettlebell swing"
     ],
-    "transferRationale": "Intervals can train repeatability and rhythm while preserving a lower technical complexity than adding maximal resistance to every stroke.",
     "exerciseSelectionCautions": "Keep resistance and interval length appropriate to technique; high rate with shortened recovery can overload the back, forearms, or shoulders.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -20430,13 +19357,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-18",
     "sportId": "rowing",
     "label": "power stroke",
-    "movementFamily": "whole-body power with proximal-to-distal sequencing",
     "bodyActions": [
       "strong full-sequence force application from legs through trunk to arms"
     ],
@@ -20468,7 +19393,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "seated cable row",
       "medicine-ball scoop toss"
     ],
-    "transferRationale": "The combination trains lower-body force, trunk transfer, and horizontal pulling in separate controllable components; no direct performance guarantee is implied.",
     "exerciseSelectionCautions": "Avoid combining maximal lower-body and pulling loads when fatigued; maintain handle path, neutral spine, and controlled catch-to-drive transition.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -20476,13 +19400,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-19",
     "sportId": "rowing",
     "label": "sustained stroke cycle",
-    "movementFamily": "aerobic power-endurance, rhythm, and technical consistency",
     "bodyActions": [
       "continuous drive, finish, and recovery at submaximal to moderate intensity"
     ],
@@ -20513,7 +19435,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "air-bike",
       "sled push"
     ],
-    "transferRationale": "These patterns target repeatable whole-body work and pacing, with the rower offering the closest movement-specific practice.",
     "exerciseSelectionCautions": "Progress duration before intensity when needed; monitor technique, lumbar fatigue, skin/hand irritation, and recovery between sessions.",
     "evidenceConfidence": "high",
     "sources": [
@@ -20521,13 +19442,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "rowing-20",
     "sportId": "rowing",
     "label": "stroke deceleration",
-    "movementFamily": "deceleration and reversal under repeated cyclic load",
     "bodyActions": [
       "force is absorbed as the handle slows at finish and the body reverses into recovery"
     ],
@@ -20558,7 +19477,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "controlled seated cable row",
       "split squat"
     ],
-    "transferRationale": "Eccentric hinge, hamstring, pulling, and unilateral-leg work develops braking capacities relevant to reversal, but rowing-specific timing remains skill-dependent.",
     "exerciseSelectionCautions": "Use controlled tempos and avoid abrupt stops at end range; reduce volume if soreness or technique breakdown accumulates.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -20566,13 +19484,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pubmed.ncbi.nlm.nih.gov/21510717/",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC12223773/"
     ],
-    "sourceSummary": "The records synthesize British Rowing and Concept2 technique guidance with peer-reviewed rowing biomechanics, muscle-activity, injury-risk, and strength-testing literature; evidence is strongest for stroke sequencing and joint-action descriptions, while gym-transfer rationales remain mechanical heuristics rather than proof of causal performance improvement."
   },
   {
     "id": "skiing-1",
     "sportId": "skiing",
     "label": "carving turn",
-    "movementFamily": "edging and turn control",
     "bodyActions": [
       "incline and angulate the body while flexing and extending the lower limbs to maintain edge engagement through the turn"
     ],
@@ -20619,20 +19535,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg squat-to-stick",
       "suitcase carries"
     ],
-    "transferRationale": "These patterns share frontal-plane hip control, flexed-knee force acceptance, and trunk stiffness, but they do not reproduce ski-snow friction or technical steering.",
     "exerciseSelectionCautions": "Progress range and load gradually; do not equate gym symmetry with on-snow bilateral loading, and stop if knee pain or loss of foot control appears.",
     "evidenceConfidence": "high",
     "sources": [
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full",
       "https://journals.humankinetics.com/view/journals/jab/28/6/article-p655.xml"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-2",
     "sportId": "skiing",
     "label": "parallel turn",
-    "movementFamily": "parallel steering",
     "bodyActions": [
       "coordinate both skis through flexion-extension, edging, and rotary steering while keeping the torso relatively stable"
     ],
@@ -20678,20 +19591,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg Romanian deadlifts",
       "Pallof presses"
     ],
-    "transferRationale": "The exercises develop shared lower-limb force and balance qualities, not the perceptual timing or ski geometry of a parallel turn.",
     "exerciseSelectionCautions": "Use technically controlled loads; avoid excessive valgus, lumbar rotation, or fatigue that changes the movement strategy.",
     "evidenceConfidence": "high",
     "sources": [
       "https://link.springer.com/article/10.1007/s40279-013-0132-z",
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-3",
     "sportId": "skiing",
     "label": "edge transition",
-    "movementFamily": "edge release and re-engagement",
     "bodyActions": [
       "release one edge and roll the feet, knees, and hips to establish the opposite edges"
     ],
@@ -20735,20 +19645,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "hip airplanes",
       "single-leg deceleration"
     ],
-    "transferRationale": "Unilateral lateral exercises expose the athlete to comparable center-of-mass transfer and pelvic control demands, without claiming direct technical transfer.",
     "exerciseSelectionCautions": "Begin with supported and planned variations before reactive bounds; protect the ankle and knee during rapid side-to-side work.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://link.springer.com/article/10.1007/s40279-013-0132-z",
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-4",
     "sportId": "skiing",
     "label": "lateral weight shift",
-    "movementFamily": "unilateral load transfer",
     "bodyActions": [
       "shift the center of mass over the supporting ski while maintaining pressure and alignment"
     ],
@@ -20792,20 +19699,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral step-ups",
       "suitcase carries"
     ],
-    "transferRationale": "These exercises train lateral hip and foot control under unilateral loading; they are preparatory strength patterns rather than skiing simulations.",
     "exerciseSelectionCautions": "Use hand support or reduced range when balance is limited; maintain a quiet foot tripod and knee tracking.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-5",
     "sportId": "skiing",
     "label": "hip angulation",
-    "movementFamily": "edge-angle generation",
     "bodyActions": [
       "laterally angle the hips relative to the skis and torso while maintaining balance and edge angle"
     ],
@@ -20851,20 +19755,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg Romanian deadlifts",
       "suitcase carries"
     ],
-    "transferRationale": "The patterns strengthen muscles that control pelvis and trunk position in the frontal plane, but do not establish the exact on-snow edge angle.",
     "exerciseSelectionCautions": "Adductor work should be progressed from short-lever to long-lever positions; avoid forcing hip range or lumbar side-bending.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://link.springer.com/article/10.1007/s40279-013-0132-z",
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-6",
     "sportId": "skiing",
     "label": "knee flexion absorption",
-    "movementFamily": "terrain-force absorption",
     "bodyActions": [
       "flex the knees and hips to shorten the legs and dissipate terrain-induced vertical forces"
     ],
@@ -20908,20 +19809,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "drop landings",
       "isometric squat holds"
     ],
-    "transferRationale": "These patterns share joint flexion and eccentric force absorption; they cannot reproduce snow compliance, speed, or terrain unpredictability.",
     "exerciseSelectionCautions": "Use low landing heights and preserve knee alignment; eccentric soreness and fatigue can impair subsequent technical practice.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6539877/",
       "https://www.sciopen.com/article/10.1007/s42978-020-00096-9"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-7",
     "sportId": "skiing",
     "label": "mogul absorption",
-    "movementFamily": "repeated terrain absorption",
     "bodyActions": [
       "rapidly flex and extend the hips, knees, and ankles over successive bumps while stabilizing the upper body"
     ],
@@ -20965,20 +19863,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "snap-downs",
       "loaded carries"
     ],
-    "transferRationale": "The exercises develop repeatable lower-limb absorption and trunk endurance, not mogul-specific line choice or timing.",
     "exerciseSelectionCautions": "Keep volume below technical-failure levels and progress impact only after consistent landing mechanics.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC3737900/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-8",
     "sportId": "skiing",
     "label": "jump takeoff",
-    "movementFamily": "triple-extension power",
     "bodyActions": [
       "compress then extend the ankles, knees, and hips to generate upward impulse while maintaining ski alignment"
     ],
@@ -21022,20 +19917,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "jump squats",
       "split-stance drives"
     ],
-    "transferRationale": "Jump patterns share impulse production and coordinated extension, but do not replicate ski takeoff speed, terrain, or aerial skill.",
     "exerciseSelectionCautions": "Use progressive landing and takeoff volumes; avoid maximal loading when fatigue degrades foot, knee, or trunk alignment.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6539877/",
       "https://www.sciopen.com/article/10.1007/s42978-020-00096-9"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-9",
     "sportId": "skiing",
     "label": "landing",
-    "movementFamily": "landing and deceleration",
     "bodyActions": [
       "contact the snow with flexed ankles, knees, and hips and absorb vertical and horizontal forces"
     ],
@@ -21081,20 +19973,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "controlled step-downs",
       "split squats"
     ],
-    "transferRationale": "Landing drills target shared force-absorption and alignment strategies; evidence does not establish that any one exercise prevents ski injury or improves performance causally.",
     "exerciseSelectionCautions": "Begin bilaterally and from low height; use qualified coaching for jump-specific or ski-jump preparation.",
     "evidenceConfidence": "high",
     "sources": [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6539877/",
       "https://www.sciopen.com/article/10.1007/s42978-020-00096-9"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-10",
     "sportId": "skiing",
     "label": "rotational aerial control",
-    "movementFamily": "aerial rotation and angular-momentum control",
     "bodyActions": [
       "orient the skis and body in the air using coordinated trunk, hip, and shoulder rotation"
     ],
@@ -21140,20 +20029,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "land-and-stick drills",
       "split-stance rotational strength"
     ],
-    "transferRationale": "These exercises develop trunk rotation and braking qualities but cannot substitute for coached aerial technique or air awareness.",
     "exerciseSelectionCautions": "Use submaximal rotational loads and stable landings; avoid adding complexity faster than landing control develops.",
     "evidenceConfidence": "limited",
     "sources": [
       "https://link.springer.com/article/10.1007/s40279-013-0132-z",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6539877/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-11",
     "sportId": "skiing",
     "label": "pole plant",
-    "movementFamily": "pole-assisted timing and upper-limb coordination",
     "bodyActions": [
       "place the pole with coordinated shoulder flexion, elbow control, and trunk timing"
     ],
@@ -21197,20 +20083,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "landmine presses",
       "one-arm cable rows"
     ],
-    "transferRationale": "Light pressing and anti-rotation work shares trunk and shoulder-control demands; it does not reproduce pole timing or snow contact.",
     "exerciseSelectionCautions": "Keep pole-like pressing light and pain-free; do not overload a planted shoulder or allow scapular winging.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.fis-ski.com/inside-fis/news/2023-24/alpine-skiing-technique-and-tactics",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-12",
     "sportId": "skiing",
     "label": "skating stride",
-    "movementFamily": "lateral push-off and glide",
     "bodyActions": [
       "abduct and extend one leg against the edge while transferring mass to the opposite gliding ski"
     ],
@@ -21255,20 +20138,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "lateral step-ups",
       "single-leg Romanian deadlifts"
     ],
-    "transferRationale": "These patterns overlap in lateral impulse and pelvis control, but ski-edge mechanics and glide speed remain sport-specific.",
     "exerciseSelectionCautions": "Control landing width and knee position; reduce bound distance if the pelvis drops or the foot rolls.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-13",
     "sportId": "skiing",
     "label": "cross-country push-off",
-    "movementFamily": "diagonal and lateral propulsion",
     "bodyActions": [
       "load the ski edge, extend hip and knee, and plantarflex to propel the body while the opposite limb glides"
     ],
@@ -21315,20 +20195,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg calf raises",
       "incline treadmill work"
     ],
-    "transferRationale": "The selected patterns share propulsion and fatigue-resistant postural control, while actual cross-country skiing depends on snow and technique.",
     "exerciseSelectionCautions": "Match volume to endurance phase and protect the Achilles and plantar structures when adding calf work.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.fis-ski.com/cross-country/technique",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-14",
     "sportId": "skiing",
     "label": "double-pole drive",
-    "movementFamily": "bilateral poling and hip-hinge power",
     "bodyActions": [
       "hinge at the hips and trunk, press both poles, and extend to propel the body"
     ],
@@ -21375,20 +20252,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "medicine-ball slams",
       "front-loaded carries"
     ],
-    "transferRationale": "The exercises share hip-hinge force transfer and shoulder extension, but pole leverage and snow friction are not reproduced.",
     "exerciseSelectionCautions": "Maintain neutral spinal position and shoulder tolerance; avoid turning high-repetition poling into lumbar extension or shoulder irritation.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.fis-ski.com/cross-country/technique",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-15",
     "sportId": "skiing",
     "label": "uphill stride",
-    "movementFamily": "uphill locomotion and endurance power",
     "bodyActions": [
       "alternate leg drive and pole assistance against gravity while maintaining forward posture"
     ],
@@ -21436,20 +20310,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "sled pushes",
       "alternating split-stance drives"
     ],
-    "transferRationale": "Incline and step-up patterns share gravity-resisted propulsion and unilateral endurance, but not ski grip or pole timing.",
     "exerciseSelectionCautions": "Use gradual incline and volume progression; monitor calf, Achilles, and low-back fatigue.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.fis-ski.com/cross-country/technique",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-16",
     "sportId": "skiing",
     "label": "downhill stabilization",
-    "movementFamily": "dynamic postural stabilization",
     "bodyActions": [
       "maintain a flexed centered stance while regulating edge pressure and terrain perturbations"
     ],
@@ -21495,20 +20366,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "single-leg balance",
       "suitcase carries"
     ],
-    "transferRationale": "These drills develop posture and perturbation tolerance, but balance devices cannot recreate the speed and consequences of downhill skiing.",
     "exerciseSelectionCautions": "Prefer stable surfaces and controlled perturbations; unstable-surface training should not replace strength or technical skiing.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-17",
     "sportId": "skiing",
     "label": "rapid direction change",
-    "movementFamily": "reactive change of direction",
     "bodyActions": [
       "decelerate, redirect the center of mass, and re-edge or steer the skis"
     ],
@@ -21555,20 +20423,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "deceleration steps",
       "Pallof presses"
     ],
-    "transferRationale": "The exercises share braking, redirection, and trunk-control qualities; they do not establish ski-specific edge timing or visual decision-making.",
     "exerciseSelectionCautions": "Progress from planned to reactive work and from low to high speed; avoid fatigue-induced valgus or uncontrolled stopping.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full",
       "https://link.springer.com/article/10.1007/s40279-013-0132-z"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-18",
     "sportId": "skiing",
     "label": "eccentric braking",
-    "movementFamily": "eccentric deceleration",
     "bodyActions": [
       "increase knee, hip, and ankle flexion while applying edge pressure to reduce forward speed"
     ],
@@ -21615,20 +20480,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "reverse sled drags",
       "drop landings"
     ],
-    "transferRationale": "Eccentric lower-limb exercises share force absorption and posture demands, but snow speed and edge pressure remain unique constraints.",
     "exerciseSelectionCautions": "Manage eccentric volume and recovery; do not use downhill walking or drop landings when pain or poor control is present.",
     "evidenceConfidence": "high",
     "sources": [
       "https://journals.humankinetics.com/view/journals/jab/28/6/article-p655.xml",
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC6539877/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-19",
     "sportId": "skiing",
     "label": "single-leg stabilization",
-    "movementFamily": "unilateral balance and glide control",
     "bodyActions": [
       "balance over one ski with controlled ankle, knee, hip, and trunk alignment"
     ],
@@ -21674,20 +20536,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "hip airplanes",
       "suitcase carries"
     ],
-    "transferRationale": "These exercises train unilateral hip, foot, and trunk control, but a stable gym surface is less demanding than a moving ski-snow interface.",
     "exerciseSelectionCautions": "Use external support before adding load or eyes-closed challenges; prioritize quality over instability complexity.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.00025/full",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "skiing-20",
     "sportId": "skiing",
     "label": "trunk anti-rotation",
-    "movementFamily": "axial stability and force transmission",
     "bodyActions": [
       "resist unwanted torso rotation while the legs steer, edge, or transfer force"
     ],
@@ -21732,20 +20591,17 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "one-arm cable rows",
       "split-stance rotational strength"
     ],
-    "transferRationale": "Anti-rotation exercises share trunk stiffness and force-transfer demands, but they cannot reproduce the dynamic coupling of ski edging and terrain.",
     "exerciseSelectionCautions": "Use loads that permit normal breathing and neutral ribs-over-pelvis posture; avoid treating maximal trunk stiffness as universally beneficial.",
     "evidenceConfidence": "moderate",
     "sources": [
       "https://link.springer.com/article/10.1007/s40279-013-0132-z",
       "https://www.nsca.com/education/articles/kinetic-select/strength-and-conditioning-for-alpine-skiing/"
     ],
-    "sourceSummary": "The records use peer-reviewed alpine-skiing biomechanics and ski-jump landing research, supplemented by FIS technique materials and strength-and-conditioning guidance; evidence supports shared mechanical demands and muscle roles but does not establish direct causal performance gains from the listed gym exercises."
   },
   {
     "id": "olympic-weightlifting-1",
     "sportId": "olympic-weightlifting",
     "label": "first pull",
-    "movementFamily": "pulling/first-pull strength",
     "bodyActions": [
       "floor-to-knee bar lift with controlled knee extension and a steady torso",
       "the bar stays close to the shins"
@@ -21796,7 +20652,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "Romanian deadlift",
       "front squat"
     ],
-    "transferRationale": "The shared deadlift-like start and close-bar pull make these patterns useful for general force and position practice, but they do not reproduce the timing or technical constraints of a competition lift.",
     "exerciseSelectionCautions": "Use loads and ranges that preserve a neutral spine and bar proximity; do not infer that stronger deadlifting guarantees a better first pull.",
     "evidenceConfidence": "high",
     "sources": [
@@ -21804,13 +20659,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-2",
     "sportId": "olympic-weightlifting",
     "label": "second pull",
-    "movementFamily": "explosive extension/high-pull",
     "bodyActions": [
       "bar passes the knees and accelerates through the power position with rapid hip, knee, and ankle extension and shoulder elevation"
     ],
@@ -21861,7 +20714,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "hang clean",
       "jump shrug"
     ],
-    "transferRationale": "Pulling derivatives overlap the extension and bar-acceleration demands and allow load or height to be adjusted, while technical carryover remains indirect.",
     "exerciseSelectionCautions": "Do not turn the movement into an early arm pull; limit load if the bar drifts forward or the athlete loses whole-foot pressure.",
     "evidenceConfidence": "high",
     "sources": [
@@ -21869,13 +20721,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-3",
     "sportId": "olympic-weightlifting",
     "label": "triple extension",
-    "movementFamily": "explosive triple-extension",
     "bodyActions": [
       "synchronized hip, knee, and ankle extension projects the bar and body vertically from the power position"
     ],
@@ -21923,7 +20773,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "jump shrug",
       "push press"
     ],
-    "transferRationale": "These exercises share coordinated lower-limb extension and vertical force direction, but no auxiliary drill alone establishes complete lift timing.",
     "exerciseSelectionCautions": "Avoid cueing a deliberate exaggerated jump or plantarflexion if it disrupts bar path; progress velocity and load separately.",
     "evidenceConfidence": "high",
     "sources": [
@@ -21931,13 +20780,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-4",
     "sportId": "olympic-weightlifting",
     "label": "clean pull",
-    "movementFamily": "pulling/high-pull",
     "bodyActions": [
       "barbell pull from floor or blocks with progressive knee and hip extension, then shoulder elevation"
     ],
@@ -21986,7 +20833,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "hang clean",
       "barbell shrug"
     ],
-    "transferRationale": "The clean pull is itself a competition-lift derivative; deadlifts and hang variations can target adjacent positions, but transfer is mechanical rather than guaranteed.",
     "exerciseSelectionCautions": "Keep the bar close and shoulders over it early; avoid excessive shrugging or lumbar extension to compensate for load.",
     "evidenceConfidence": "high",
     "sources": [
@@ -21994,13 +20840,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-5",
     "sportId": "olympic-weightlifting",
     "label": "snatch pull",
-    "movementFamily": "wide-grip explosive pull",
     "bodyActions": [
       "wide-grip pull from floor through the second pull with vertical acceleration and active shoulder elevation"
     ],
@@ -22050,7 +20894,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "overhead squat",
       "Romanian deadlift"
     ],
-    "transferRationale": "The derivative preserves the wide grip and pull trajectory; overhead squats address receiving positions, not the pull itself.",
     "exerciseSelectionCautions": "Use a grip width and load that do not provoke shoulder or wrist symptoms; avoid early elbow bend and forward bar displacement.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22058,13 +20901,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-6",
     "sportId": "olympic-weightlifting",
     "label": "power clean",
-    "movementFamily": "pull-under/front-rack catch",
     "bodyActions": [
       "explosive pull, rapid turnover, and catch above parallel in a front rack"
     ],
@@ -22114,7 +20955,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "front squat",
       "push press"
     ],
-    "transferRationale": "Hang cleans and clean pulls scale the pull and turnover; front squats develop the receiving strength, without proving direct performance gains.",
     "exerciseSelectionCautions": "Teach the rack and safe bail-out first; do not force wrist extension or catch depth when mobility or load control is inadequate.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22122,13 +20962,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-7",
     "sportId": "olympic-weightlifting",
     "label": "squat clean",
-    "movementFamily": "pull-under/deep squat",
     "bodyActions": [
       "explosive clean pull followed by turnover into a deep front-squat catch and stand"
     ],
@@ -22180,7 +21018,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "clean pull",
       "overhead squat"
     ],
-    "transferRationale": "Front squats and hang cleans target receiving strength and timing components; they remain partial substitutes for the full skill.",
     "exerciseSelectionCautions": "Require stable feet, knees tracking with toes, and a secure rack; reduce depth or load if balance, hip, ankle, or wrist control fails.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22188,13 +21025,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-8",
     "sportId": "olympic-weightlifting",
     "label": "power snatch",
-    "movementFamily": "pull-under/overhead catch",
     "bodyActions": [
       "wide-grip pull, turnover, and overhead catch above parallel with an active shoulder position"
     ],
@@ -22243,7 +21078,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "overhead squat",
       "push press"
     ],
-    "transferRationale": "Hang snatches and snatch pulls preserve parts of the power-snatch trajectory; overhead squats reinforce receiving alignment, not speed or timing.",
     "exerciseSelectionCautions": "Screen shoulder, thoracic, wrist, hip, and ankle mobility; use a manageable height and never chase a catch by leaning or softening the elbows.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22251,13 +21085,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-9",
     "sportId": "olympic-weightlifting",
     "label": "squat snatch",
-    "movementFamily": "pull-under/deep overhead squat",
     "bodyActions": [
       "wide-grip pull, rapid turnover, deep overhead-squat catch, and controlled recovery"
     ],
@@ -22310,7 +21142,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "overhead squat",
       "front squat"
     ],
-    "transferRationale": "These patterns share selected pull, squat, and overhead positions; the full snatch still requires specialized coaching and cannot be replaced by general strength work.",
     "exerciseSelectionCautions": "Use technique loads, stable overhead positions, and a safe miss strategy; stop if the bar is not stacked over the mid-foot or the knees collapse.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22318,13 +21149,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-10",
     "sportId": "olympic-weightlifting",
     "label": "clean catch",
-    "movementFamily": "front-rack catch",
     "bodyActions": [
       "rapid elbow turnover and front-rack reception while hips and knees flex to absorb the bar"
     ],
@@ -22373,7 +21202,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "clean pull",
       "push press"
     ],
-    "transferRationale": "Front squats develop rack-supported catch strength and hang cleans provide turnover practice; neither establishes the complete catch under maximal speed.",
     "exerciseSelectionCautions": "Do not catch on the hands or permit elbows to drop; regress load and depth if wrists, elbows, shoulders, or knees cannot remain controlled.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22381,13 +21209,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-11",
     "sportId": "olympic-weightlifting",
     "label": "snatch catch",
-    "movementFamily": "overhead catch",
     "bodyActions": [
       "rapid turnover into overhead reception with hip and knee flexion and active shoulder fixation"
     ],
@@ -22436,7 +21262,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "snatch pull",
       "push press"
     ],
-    "transferRationale": "Overhead squats and snatch variations share receiving alignment; they do not demonstrate that a stronger overhead hold causes better snatch outcomes.",
     "exerciseSelectionCautions": "Require active elbows and a stacked bar; avoid painful end ranges, unstable feet, or attempts to rescue a forward/backward miss.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22444,13 +21269,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-12",
     "sportId": "olympic-weightlifting",
     "label": "front-squat recovery",
-    "movementFamily": "squat recovery/front-loaded strength",
     "bodyActions": [
       "rise from the clean catch while maintaining an upright torso and front-rack bar position"
     ],
@@ -22496,7 +21319,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "split squat",
       "back squat"
     ],
-    "transferRationale": "Front squats most directly train the recovery pattern; unilateral squats add leg capacity but differ in balance and rack mechanics.",
     "exerciseSelectionCautions": "Maintain knee tracking and a rigid rack; avoid grinding repetitions or depth that causes pelvic collapse and lumbar compensation.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22504,13 +21326,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-13",
     "sportId": "olympic-weightlifting",
     "label": "overhead-squat stabilization",
-    "movementFamily": "overhead squat/positional stability",
     "bodyActions": [
       "hold or move through a squat with the bar stacked over the mid-foot and shoulders actively elevated"
     ],
@@ -22561,7 +21381,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "snatch pull",
       "split squat"
     ],
-    "transferRationale": "The overhead squat directly exposes receiving alignment and control; snatch pulls and split squats address complementary qualities only.",
     "exerciseSelectionCautions": "Use a dowel or light bar until mobility and balance are adequate; do not force depth or lumbar extension to keep the bar overhead.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22569,13 +21388,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-14",
     "sportId": "olympic-weightlifting",
     "label": "split jerk",
-    "movementFamily": "split-stance overhead power",
     "bodyActions": [
       "dip-drive propels the bar, feet split rapidly, and the athlete receives and stabilizes overhead"
     ],
@@ -22627,7 +21444,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "jerk drive",
       "split squat"
     ],
-    "transferRationale": "Push presses and jerk drives train propulsion while split squats train the receiving base; specialized timing and footwork remain lift-specific.",
     "exerciseSelectionCautions": "Practice foot placement and recovery before heavy loading; protect the knees and hips from uncontrolled split depth or valgus.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22635,13 +21451,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-15",
     "sportId": "olympic-weightlifting",
     "label": "power jerk",
-    "movementFamily": "bilateral jerk/overhead power",
     "bodyActions": [
       "vertical dip-drive followed by a two-foot re-bent-knee catch and overhead fixation"
     ],
@@ -22693,7 +21507,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "jerk drive",
       "front squat"
     ],
-    "transferRationale": "Push jerk and jerk-drive work share propulsion and receiving concepts; front squats support the catch but do not replicate the ballistic timing.",
     "exerciseSelectionCautions": "Keep the dip vertical and land balanced; avoid excessive load if the elbows soften or the knees buckle on reception.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22701,13 +21514,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-16",
     "sportId": "olympic-weightlifting",
     "label": "push jerk",
-    "movementFamily": "dip-drive/overhead catch",
     "bodyActions": [
       "shallow dip-drive launches the bar, then knees re-bend to receive it overhead"
     ],
@@ -22759,7 +21570,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "jerk drive",
       "front squat"
     ],
-    "transferRationale": "These exercises overlap the jerk's leg-driven propulsion and catch strength; transfer is a programming rationale, not a causal claim.",
     "exerciseSelectionCautions": "Do not turn the dip into a forward bow; use a stable rack and stop if the landing is asymmetrical or the bar is not centered.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22767,13 +21577,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-17",
     "sportId": "olympic-weightlifting",
     "label": "jerk dip",
-    "movementFamily": "dip-and-drive preparation",
     "bodyActions": [
       "controlled partial knee and hip flexion under a racked bar while the torso remains vertical"
     ],
@@ -22817,7 +21625,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "jerk drive",
       "split squat"
     ],
-    "transferRationale": "Front squats provide loaded leg strength and push presses add the dip-drive sequence, but neither guarantees a consistent jerk dip.",
     "exerciseSelectionCautions": "Use a light-to-moderate load and vertical dip; avoid rebounding through pain or allowing the chest and bar to pitch forward.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22825,13 +21632,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-18",
     "sportId": "olympic-weightlifting",
     "label": "jerk drive",
-    "movementFamily": "dip-drive propulsion",
     "bodyActions": [
       "forceful reversal from the dip into vertical leg extension to elevate the racked bar"
     ],
@@ -22877,7 +21682,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "front squat",
       "push jerk"
     ],
-    "transferRationale": "Jerk drives and push presses share propulsion; the full jerk additionally requires rapid relocation and stable reception.",
     "exerciseSelectionCautions": "Keep the torso vertical and bar supported; reduce load if the athlete jumps forward, loses rack integrity, or hyperextends the lumbar spine.",
     "evidenceConfidence": "high",
     "sources": [
@@ -22885,13 +21689,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-19",
     "sportId": "olympic-weightlifting",
     "label": "split-stance stabilization",
-    "movementFamily": "split-stance balance/overhead stability",
     "bodyActions": [
       "control a staggered lunge-like base under an upright trunk and, when used, an overhead load"
     ],
@@ -22938,7 +21740,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "overhead squat",
       "farmer carry"
     ],
-    "transferRationale": "Split squats and lunges train lower-body base control; overhead squats add overhead alignment, but neither reproduces jerk foot speed.",
     "exerciseSelectionCautions": "Use a short range and unloaded split first; do not allow the front knee to collapse or the rear foot to become unstable under a bar.",
     "evidenceConfidence": "moderate",
     "sources": [
@@ -22946,13 +21747,11 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   },
   {
     "id": "olympic-weightlifting-20",
     "sportId": "olympic-weightlifting",
     "label": "overhead lockout",
-    "movementFamily": "overhead fixation",
     "bodyActions": [
       "full elbow extension with the bar stacked over shoulder, hip, knee, and foot"
     ],
@@ -22999,7 +21798,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "overhead squat",
       "farmer carry"
     ],
-    "transferRationale": "Pressing and overhead-squat patterns train portions of lockout and support; they cannot establish the jerk's bar speed or receiving skill.",
     "exerciseSelectionCautions": "Use a bar path that stays over the mid-foot; avoid painful shoulder elevation, rib flare, or passive hanging on the joint structures.",
     "evidenceConfidence": "high",
     "sources": [
@@ -23007,7 +21805,6 @@ export const enrichedSportMovements: EnrichedSportMovement[] = [
       "https://pmc.ncbi.nlm.nih.gov/articles/PMC9919757/",
       "https://www.iwf.net/technical-and-competition-rules"
     ],
-    "sourceSummary": "The records synthesize peer-reviewed Olympic-lift biomechanics studies, a field-based snatch assessment, and International Weightlifting Federation rules; confidence reflects strong phase-mechanics evidence while gym-transfer rationales remain mechanical hypotheses rather than causal performance claims."
   }
 ] as const;
 

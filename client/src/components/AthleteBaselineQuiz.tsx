@@ -56,8 +56,8 @@ export function AthleteBaselineQuiz({ sports, onComplete }: { sports: SportProfi
   const evidenceNotes = [
     ["PROGRAM EFFECT", "The selected bias changes default repetition, effort, and rest planning language."],
     ["TRANSFER BOUNDARY", "Gym work can develop shared physical qualities; it does not replace technical sport practice."],
-    ["ROLE MODIFIER", "Position, event, stroke, distance, or style adjusts context. It is not a performance label."],
-    ["RECOVERY RULE", "Weekly frequency is a scheduling input. It is not a measured readiness score."],
+    ["ROLE MODIFIER", "Position, event, stroke, distance, or style sharpens the context behind your recommendations."],
+    ["RECOVERY RULE", "Weekly frequency sets how your plan is scheduled."],
     ["ACCESS PROFILE", "Automatic stacks use this availability profile; every category remains editable."],
     ["STACK FILTER", "Only selected equipment enters automatic stacks. The full catalog stays open for manual additions."],
     ["PROFILE CONTROL", "Identity information personalizes the workspace and never changes a training-quality score."],

@@ -1,7 +1,7 @@
 import { getEnrichedMovement } from "@/lib/enrichedSportMovementDatabase";
 
 export type BodyLabRole = "Primary Mover" | "Synergist" | "Stabilizer" | "Supporting";
-export type BodyLabEvidenceConfidence = "Direct evidence" | "Strong indirect evidence" | "Moderate biomechanical inference" | "Low-confidence inference";
+export type BodyLabEvidenceConfidence = "Direct evidence" | "Strong indirect evidence" | "Biomechanical model" | "Movement model";
 
 export type BodyLabRoleDetail = {
   roles: BodyLabRole[];
@@ -43,8 +43,8 @@ const confidenceFor = (value: string | undefined): BodyLabEvidenceConfidence => 
   const confidence = value?.toLowerCase() || "";
   if (confidence.includes("direct")) return "Direct evidence";
   if (confidence.includes("strong") || confidence.includes("high")) return "Strong indirect evidence";
-  if (confidence.includes("moderate")) return "Moderate biomechanical inference";
-  return "Low-confidence inference";
+  if (confidence.includes("moderate")) return "Biomechanical model";
+  return "Movement model";
 };
 
 const keysForName = (name: string) => {
@@ -65,7 +65,7 @@ export function getBodyLabRoleContext(sportId: string, movementId: string, fallb
   const movement = getEnrichedMovement(sportId, movementId);
   if (!movement) {
     const rolesByMuscle: Record<string, BodyLabRoleDetail> = {};
-    const detail = { roleOrder: defaultRoleOrder, confidence: "Low-confidence inference" as const, sourceScope: "Movement-model fallback" as const, sources: [], explanation: "This qualitative role comes from the selected movement model because a movement-specific enriched record is unavailable." };
+    const detail = { roleOrder: defaultRoleOrder, confidence: "Movement model" as const, sourceScope: "Movement-model fallback" as const, sources: [], explanation: "This qualitative role comes from the selected movement model because a movement-specific enriched record is unavailable." };
     fallbackPrimary.forEach((name) => appendRole(rolesByMuscle, name, "Primary Mover", detail));
     fallbackSupporting.forEach((name) => appendRole(rolesByMuscle, name, "Supporting", detail));
     return { primary: Object.keys(rolesByMuscle).filter((key) => rolesByMuscle[key].roles.includes("Primary Mover")), supporting: Object.keys(rolesByMuscle).filter((key) => !rolesByMuscle[key].roles.includes("Primary Mover")), rolesByMuscle, methodology: "Roles are a qualitative fallback from the selected movement model, not measured activation or force." };

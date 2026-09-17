@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { isLaunchExperienceEnabled } from "./launchExperience";
 
 const bootSplashSource = readFileSync(resolve(process.cwd(), "client/src/lib/bootSplash.ts"), "utf8");
+const bootExperienceSource = readFileSync(resolve(process.cwd(), "client/src/lib/bootExperience.ts"), "utf8");
 const bootLifecycleSource = readFileSync(resolve(process.cwd(), "client/src/components/BootSplashLifecycle.tsx"), "utf8");
 const bootDocumentSource = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
 
@@ -13,8 +14,11 @@ describe("launch experience preference", () => {
   });
   it("has no workspace-overlay or seen-once state because the document handles the boot screen before React mounts", () => expect("shouldShowLaunchExperience" in { isLaunchExperienceEnabled }).toBe(false));
   it("uses a staged S, then DNA, then wordmark launch while immediately bypassing it for reduced-motion users", () => {
-    expect(bootSplashSource).toContain("export const minimumBootPresentationMs = 1_720"); expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 300)"); expect(bootLifecycleSource).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches'); expect(bootLifecycleSource).toContain("Math.max(0, minimumBootPresentationMs - elapsedMs)");
-    expect(bootDocumentSource).toContain("boot-mark-form 500ms 80ms"); expect(bootDocumentSource).toContain("boot-dna-lines-in 420ms 560ms"); expect(bootDocumentSource).toContain("boot-wordmark-in 480ms 1.03s"); expect(bootDocumentSource).toContain("transition:opacity 300ms");
+    // The hold now lives in bootExperience, where it varies by first vs returning launch.
+    expect(bootExperienceSource).toContain("export const firstLaunchPresentationMs = 1_720"); // Removal now waits for the fade to actually end rather than racing it.
+    expect(bootSplashSource).toContain('splash.addEventListener("transitionend"'); expect(bootLifecycleSource).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches'); expect(bootLifecycleSource).toContain("Math.max(0, presentationMs - elapsedMs)");
+    expect(bootDocumentSource).toContain("boot-mark-form 500ms 80ms"); expect(bootDocumentSource).toContain("boot-dna-lines-in 420ms 560ms"); expect(bootDocumentSource).toContain("boot-wordmark-in 480ms 1.03s"); // Softened: a 300ms strong ease-out read as a cut rather than a cross-fade.
+    expect(bootDocumentSource).toContain("transition:opacity 420ms cubic-bezier(.4,0,.2,1)");
   });
   it("uses the supplied upright S/DNA layers and a muted short video with a held final frame", () => {
     expect(bootDocumentSource).toContain("sports-genome-upright-s-silhouette-exact_349405db.png"); expect(bootDocumentSource).toContain("sports-genome-upright-dna-detail-exact_8e94e37f.png"); expect(bootDocumentSource).toContain('muted playsinline preload="auto" disablepictureinpicture'); expect(bootDocumentSource).toContain("video.muted=true"); expect(bootDocumentSource).toContain('window.setTimeout(stopVideo,Math.max(0,1_680-(Date.now()-startedAt)))'); expect(bootDocumentSource).toContain("sports-genome-boot-video-held");

@@ -45,7 +45,7 @@ describe("boot screen always lifts", () => {
 
   it("dismisses on a render error so the error message is not covered", () => {
     expect(errorBoundarySource).toContain("componentDidCatch");
-    expect(errorBoundarySource).toContain("dismissBootSplash()");
+    expect(errorBoundarySource).toContain("dismissBootSplash({ immediate: true })");
   });
 
   it("keeps the dismissing component outside the providers it must not depend on", () => {
@@ -59,10 +59,21 @@ describe("boot screen always lifts", () => {
 
   it("dismissBootSplash marks the document ready and clears the node", () => {
     vi.useFakeTimers();
-    dismissBootSplash();
+    // Immediate mode is the error path: no app paint to wait for, and frame
+    // callbacks never run in a background tab.
+    dismissBootSplash({ immediate: true });
     expect(document.documentElement.classList.contains("sports-genome-app-ready")).toBe(true);
-    vi.advanceTimersByTime(400);
+    vi.advanceTimersByTime(600);
     expect(document.getElementById(bootSplashId)).toBeNull();
+  });
+
+  it("waits for the app's first paint before starting the cross-fade", async () => {
+    // Effects run before the browser paints, so fading there put a full-screen
+    // compositor animation against React's heaviest paint.
+    dismissBootSplash();
+    expect(document.documentElement.classList.contains("sports-genome-app-ready")).toBe(false);
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    expect(document.documentElement.classList.contains("sports-genome-app-ready")).toBe(true);
   });
 
   it("is safe to call when the splash is already gone", () => {
@@ -81,7 +92,7 @@ describe("startup failures surface instead of rejecting silently", () => {
 
   it("renders a reload path rather than leaving the boot screen up", () => {
     expect(mainSource).toContain("renderStartupFailure");
-    expect(mainSource).toContain("dismissBootSplash()");
+    expect(mainSource).toContain("dismissBootSplash({ immediate: true })");
     expect(mainSource).toContain('reload.addEventListener("click", () => window.location.reload())');
     expect(mainSource).toContain('setAttribute("role", "alert")');
   });
@@ -102,12 +113,14 @@ describe("the deferred workspace import keeps its guard rails", () => {
   it("still defers the heavy import so the intro cannot stutter", () => {
     // This deferral is deliberate and predates the boot fix; the recovery paths were
     // what was missing, not the timing.
-    expect(mainSource).toContain("const workspaceMountDelayMs = Math.max(0, 1_580 - elapsedBootMs)");
+    // A first launch still defers; a returning one has no video to protect.
+    expect(mainSource).toContain("Math.max(0, 1_580 - elapsedBootMs)");
+    expect(mainSource).toContain("returningLaunch ? 0 :");
     expect(mainSource).toContain("window.setTimeout(() => { void mountWorkspace(); }, workspaceMountDelayMs)");
   });
 
   it("holds the screen for its minimum presentation time", () => {
     const lifecycle = read("client/src/components/BootSplashLifecycle.tsx");
-    expect(lifecycle).toContain("minimumBootPresentationMs");
+    expect(lifecycle).toContain("bootPresentationMs");
   });
 });

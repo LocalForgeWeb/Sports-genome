@@ -4,20 +4,29 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let workspace = "recommended";
-let stateCalls = 0;
+let falseStates = 0;
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
+/**
+ * renderToStaticMarkup runs no effects, so two pieces of Home state have to be
+ * forced or every render returns the onboarding quiz instead of the surface under
+ * test. Both are identified by their initial value rather than by call order:
+ * an earlier version keyed off absolute useState indices, and adding one state to
+ * Home silently turned all of these assertions into quiz renders.
+ */
 vi.mock("react", async () => {
   const actual = await vi.importActual<typeof import("react")>("react");
   return {
     ...actual,
     default: actual,
     useState: <T,>(initial: T) => {
-      const call = stateCalls++;
       const initialValue = typeof initial === "function" ? (initial as unknown as () => T)() : initial;
-      const value = call === 0 ? workspace : call === 6 ? true : initialValue;
-      return [value as T, vi.fn()] as [T, ReturnType<typeof vi.fn>];
+      // workspaceFromLocation falls back to "command", and no other state starts there.
+      if (initialValue === "command") return [workspace as T, vi.fn()] as [T, ReturnType<typeof vi.fn>];
+      // onboardingComplete is the first state Home initialises to false.
+      if (initialValue === false && falseStates++ === 0) return [true as T, vi.fn()] as [T, ReturnType<typeof vi.fn>];
+      return [initialValue, vi.fn()] as [T, ReturnType<typeof vi.fn>];
     },
   };
 });
@@ -35,13 +44,19 @@ vi.mock("@/lib/trpc", () => ({
     sportsGenome: {
       profile: { useQuery: () => ({ data: undefined }) },
     },
+    // Plan sync is disabled in these tests (no auth), but the hook still resolves
+    // the procedures on render.
+    workoutPlan: {
+      get: { useQuery: () => ({ data: null, isLoading: false, isError: false }) },
+      save: { useMutation: () => ({ mutateAsync: vi.fn() }) },
+    },
   },
 }));
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 describe("Home decision-first planning surfaces", () => {
-  beforeEach(() => { stateCalls = 0; });
+  beforeEach(() => { falseStates = 0; });
 
   for (const target of ["recommended", "custom", "day-plan"] as const) {
     it(`keeps equipment and methodology detail off the initial ${target} planning surface`, async () => {

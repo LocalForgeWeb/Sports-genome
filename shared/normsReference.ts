@@ -17,14 +17,28 @@
 
 export type NormsComparisonSex = "male" | "female";
 
-/** One approved cut point, denormalized from app_reference_eligibility + its source norm row. */
+/**
+ * One approved cut point, as it reaches the browser.
+ *
+ * The matching engine runs on the device, so this has to carry everything a match
+ * depends on - and nothing else. `strengthGenome.referenceRows` is a public,
+ * unauthenticated query, so every field here is readable by anyone who loads the
+ * app. The registry's own bookkeeping - primary keys, table names, the internal
+ * taxonomy, and the reviewers' notes to each other - is deliberately not on this
+ * type; it stays server-side on RegistryRow.
+ *
+ * Where an internal value was load-bearing it is replaced by an opaque digest:
+ * grouping needs those values to be *distinct*, never to be readable.
+ */
 export type NormsReferenceRow = {
-  /** app_reference_eligibility.id - stable identity for the gate that approved this row. */
+  /** Opaque, stable identity for one approved cut point. Not a database key. */
   referenceKey: string;
-  /** The underlying strength_norms / performance_norms record. */
-  sourceRecordId: string;
-  sourceTable: string;
-  referenceFamily: string;
+  /**
+   * Opaque discriminator for the published table a cut point belongs to. Two
+   * different tables must never pool into one percentile ladder, which needs this
+   * to differ between them - it does not need to name either.
+   */
+  tableGroup: string;
   exerciseId: string | null;
   exerciseName: string | null;
   /** Approved local-catalog identities for this exercise, from app_exercise_source_mappings. */
@@ -41,7 +55,6 @@ export type NormsReferenceRow = {
   protocol: string | null;
   /** Non-empty when the source population is a competition cohort the athlete must confirm. */
   competitionConditions: string | null;
-  normalizationMethod: string | null;
   populationDefinition: string | null;
   percentile: number;
   value: number;
@@ -50,8 +63,6 @@ export type NormsReferenceRow = {
   sourceStudyId: string | null;
   /** Citation link for the source study, when the registry records one. */
   sourceUrl: string | null;
-  /** The reviewer's recorded boundary on what this reference may not be used for. */
-  boundary: string | null;
 };
 
 /**
@@ -120,7 +131,6 @@ export type NormsMatch = {
   sourceText: string | null;
   sourceStudyId: string | null;
   sourceUrl: string | null;
-  boundary: string | null;
   /** Every cut point in the matched table, for transparent display. */
   cutPoints: readonly { percentile: number; value: number }[];
 };
@@ -257,7 +267,7 @@ export function percentileBandLabel(
  */
 function referenceTableKey(row: NormsReferenceRow): string {
   return [
-    row.sourceTable,
+    row.tableGroup,
     row.exerciseId ?? row.exerciseName ?? "",
     row.measurementType,
     row.unit,
@@ -422,7 +432,6 @@ export function resolveNormsReference(
     sourceText: primary.row.sourceText,
     sourceStudyId: primary.row.sourceStudyId,
     sourceUrl: primary.row.sourceUrl,
-    boundary: primary.row.boundary,
     cutPoints,
   };
 }

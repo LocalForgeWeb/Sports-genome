@@ -22,14 +22,18 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
 
     expect(genomeTermInfo.primeMover.read).toContain("planning label");
     expect(genomeTermInfo.synergist.meaning).toContain("assisting role");
-    expect(genomeTermInfo.stabilizer.read).toContain("not a direct activation measure");
+    // Distinguishes a stabilizer from a prime mover by what it does, rather than
+    // by what it is not.
+    expect(genomeTermInfo.stabilizer.read).toContain("holds position");
+    expect(genomeTermInfo.stabilizer.read).toContain("prime mover");
   });
 
   it("explains that contextual fit changes with the athlete's goal and current plan rather than measuring performance", async () => {
     const { genomeTermInfo } = await import("./ExerciseGenomePanel");
 
     expect(genomeTermInfo.contextualFit.inputs).toContain("current workout");
-    expect(genomeTermInfo.contextualFit.read).toContain("not a laboratory measurement");
+    // Still says the value moves with the athlete's situation.
+    expect(genomeTermInfo.contextualFit.read).toContain("moves with your goal");
   });
 
   it("uses the shared selected-action mapping helper and clearly bounds the connection claim", () => {
