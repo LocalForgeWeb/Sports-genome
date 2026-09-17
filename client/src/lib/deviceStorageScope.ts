@@ -54,3 +54,25 @@ export function migrateLegacyRecord(
     return "nothing-to-move";
   }
 }
+
+/**
+ * Reads an account's record, claiming any pre-namespace copy first.
+ *
+ * Migration has to happen before the read, not alongside it. Running it in a
+ * separate effect meant hydration could read the scoped key before the legacy record
+ * had moved - which showed an existing athlete the onboarding quiz and an empty
+ * plan, as though their data were gone. Doing both here makes that ordering
+ * impossible to get wrong.
+ */
+export function readScopedRecord(
+  base: string,
+  accountId: string | number | null | undefined,
+  storage: Pick<Storage, "getItem" | "setItem" | "removeItem">
+): string | null {
+  migrateLegacyRecord(base, accountId, storage);
+  try {
+    return storage.getItem(scopedKey(base, accountId));
+  } catch {
+    return null;
+  }
+}

@@ -1,5 +1,5 @@
 /** Apex Performance OS: a premium athlete-and-coach workspace with high-contrast intelligence panels, movement-led recommendations, and visible training logic. */
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Activity, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
@@ -16,7 +16,8 @@ import { FeatureTour } from "@/components/FeatureTour";
 import { TrainingWeekPanel } from "@/components/TrainingWeekPanel";
 import { CommandHero } from "@/components/CommandHero";
 import { WorkspaceTabs } from "@/components/WorkspaceTabs";
-import { migrateLegacyRecord, scopedKey } from "@/lib/deviceStorageScope";
+import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
+import { usePlanSync } from "@/lib/usePlanSync";
 import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
 import { WarmupPanel } from "@/components/WarmupPanel";
 import { ImportedPlanContext } from "@/components/ImportedPlanContext";
@@ -262,19 +263,15 @@ export default function Home() {
    * namespaced, a second account on the same device read and overwrote the first
    * one's plan, profile and favourites.
    */
+  /** The exact document written to the device, so sync pushes that and not a re-serialisation. */
+  const [serializedPlan, setSerializedPlan] = useState<string | null>(null);
   /** Which account's plan is currently in memory, so the writer cannot cross accounts. */
   const hydratedPlanKeyRef = useRef<string | null>(null);
   const accountId = user?.id ?? null;
   const athleteProfileKey = scopedKey(athleteProfileKeyBase, accountId);
   const workoutPlanKey = scopedKey(workoutPlanKeyBase, accountId);
   const favoriteExerciseKey = scopedKey(favoriteExerciseKeyBase, accountId);
-  /** Claims any pre-namespace record for the first account that signs in here. */
-  useEffect(() => {
-    if (accountId === null || typeof window === "undefined") return;
-    for (const base of [athleteProfileKeyBase, workoutPlanKeyBase, favoriteExerciseKeyBase]) {
-      migrateLegacyRecord(base, accountId, window.localStorage);
-    }
-  }, [accountId]);
+
   const startLogin = () => toast.error("Please sign in with your Sports Genome email account.");
 
   const [workspace, setWorkspaceState] = useState<Workspace>(() => typeof window === "undefined" ? "command" : workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
@@ -406,7 +403,7 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const stored = window.localStorage.getItem(athleteProfileKey);
+      const stored = readScopedRecord(athleteProfileKeyBase, accountId, window.localStorage);
       if (stored) {
         const profile = JSON.parse(stored) as StoredAthleteProfile;
         if (profile.version === 1 && sportProfiles.some((sport) => sport.id === profile.sportId)) {
@@ -447,7 +444,7 @@ export default function Home() {
     if (loading) return;
     if (hydratedPlanKeyRef.current === workoutPlanKey) return;
     try {
-      const stored = window.localStorage.getItem(workoutPlanKey);
+      const stored = readScopedRecord(workoutPlanKeyBase, accountId, window.localStorage);
       if (stored) {
         const plan = JSON.parse(stored) as StoredWorkoutPlan;
         const legacy: StoredWeekSnapshot = { customWorkoutIds: plan.customWorkoutIds || [], weeklyPlanIds: plan.weeklyPlanIds || {}, customWorkoutEntries: plan.customWorkoutEntries, weeklyPlanEntries: plan.weeklyPlanEntries, prescriptions: plan.prescriptions || {}, exerciseSettings: plan.exerciseSettings || {}, weeklyPrescriptions: plan.weeklyPrescriptions || {}, importedPlanContext: plan.importedPlanContext || {} };
@@ -495,6 +492,30 @@ export default function Home() {
     try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
   }, [profileHydrated, onboardingComplete, sportId, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
 
+  /**
+   * The account's copy of the plan, alongside the device's.
+   *
+   * The device copy stays the source of truth while editing - instant, offline-safe,
+   * and what the builder already reads. This adds the account copy so a week built
+   * on a phone is there on a laptop.
+   */
+  const adoptServerPlan = useCallback((incoming: string) => {
+    try {
+      window.localStorage.setItem(workoutPlanKey, incoming);
+    } catch { /* The plan is still adopted in memory below. */ }
+    // Re-run hydration against the adopted document rather than duplicating the
+    // parsing here: one reader, one set of rules.
+    hydratedPlanKeyRef.current = null;
+    setPlanHydrated(false);
+  }, [workoutPlanKey]);
+
+  const planSync = usePlanSync({
+    enabled: isAuthenticated && onboardingComplete,
+    planJson: serializedPlan,
+    planVersion: 2,
+    onAdoptServerPlan: adoptServerPlan,
+  });
+
   useEffect(() => {
     if (!planHydrated || !onboardingComplete) return;
     // Hydration for this key has to have happened first, or the plan still in memory
@@ -515,7 +536,9 @@ export default function Home() {
       weeks: Object.fromEntries(Object.entries(allWeeks).map(([week, snapshot]) => [week, serializeWeekSnapshot(snapshot)])),
       activeWeek,
     };
-    try { window.localStorage.setItem(workoutPlanKey, JSON.stringify(plan)); } catch { /* Persistence is optional. */ }
+    const serialized = JSON.stringify(plan);
+    setSerializedPlan(serialized);
+    try { window.localStorage.setItem(workoutPlanKey, serialized); } catch { /* Persistence is optional. */ }
   }, [planHydrated, onboardingComplete, workoutPlanKey, customWorkout, weeklyPlan, prescriptions, exerciseSettings, weeklyPrescriptions, importedPlanContext, planWeeks, activeWeek]);
 
   useEffect(() => {

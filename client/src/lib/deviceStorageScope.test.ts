@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { legacyKey, migrateLegacyRecord, scopedKey } from "./deviceStorageScope";
+import { legacyKey, migrateLegacyRecord, readScopedRecord, scopedKey } from "./deviceStorageScope";
 
 function storage(initial: Record<string, string> = {}) {
   const map = new Map(Object.entries(initial));
@@ -123,6 +123,46 @@ describe("Home hydrates and writes against the same account", () => {
   });
 
   it("claims any pre-namespace record on sign-in", () => {
-    expect(home).toContain("migrateLegacyRecord(base, accountId, window.localStorage)");
+    // Migration is part of the read, not a separate effect that could run after it.
+    for (const base of ["athleteProfileKeyBase", "workoutPlanKeyBase"]) {
+      expect(home).toContain(`readScopedRecord(${base}, accountId, window.localStorage)`);
+    }
+  });
+});
+
+/**
+ * The first attempt at this ran migration in its own effect. Hydration read the
+ * scoped key first, found nothing, and showed a returning athlete the onboarding
+ * quiz. Reading and migrating have to be one operation.
+ */
+describe("readScopedRecord", () => {
+  it("returns a pre-namespace record on the first read after sign-in", () => {
+    const store = storage({ [PLAN]: '{"version":2}' });
+    expect(readScopedRecord(PLAN, 1, store)).toBe('{"version":2}');
+  });
+
+  it("returns the account's own record when it already has one", () => {
+    const store = storage({ [PLAN]: "legacy", [scopedKey(PLAN, 1)]: "mine" });
+    expect(readScopedRecord(PLAN, 1, store)).toBe("mine");
+  });
+
+  it("gives a second account nothing the first one already claimed", () => {
+    const store = storage({ [PLAN]: '{"version":2}' });
+    readScopedRecord(PLAN, 1, store);
+    expect(readScopedRecord(PLAN, 2, store)).toBeNull();
+  });
+
+  it("reads the shared key while nobody is signed in", () => {
+    const store = storage({ [PLAN]: "anonymous" });
+    expect(readScopedRecord(PLAN, null, store)).toBe("anonymous");
+  });
+
+  it("survives a browser that refuses storage", () => {
+    const throwing = {
+      getItem: () => { throw new Error("blocked"); },
+      setItem: () => { throw new Error("blocked"); },
+      removeItem: () => { throw new Error("blocked"); },
+    };
+    expect(readScopedRecord(PLAN, 1, throwing)).toBeNull();
   });
 });

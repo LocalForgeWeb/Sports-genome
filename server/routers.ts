@@ -39,6 +39,7 @@ import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
 import { getPublicNormsReference } from "./normsRegistry";
+import { getWorkoutPlan, maxPlanBytes, saveWorkoutPlan } from "./workoutPlanSync";
 import {
   getAthleteStrengthProfile,
   upsertAthleteStrengthProfile,
@@ -345,6 +346,26 @@ export const appRouter = router({
       .query(({ input }) => getSupabaseSportProfile(input.sportId)),
   }),
 
+  /**
+   * The training plan, stored against the account so it survives the device.
+   *
+   * `save` takes the revision the client last saw. A mismatch means another device
+   * has written since, and the write is refused with the current plan attached
+   * rather than silently overwriting work built elsewhere.
+   */
+  workoutPlan: router({
+    get: protectedProcedure.query(({ ctx }) => getWorkoutPlan(ctx.user.id)),
+    save: protectedProcedure
+      .input(
+        z.object({
+          planJson: z.string().max(maxPlanBytes),
+          planVersion: z.number().int().min(1).max(100),
+          /** Null when this device has never seen the server's copy. */
+          baseRevision: z.number().int().min(0).nullable(),
+        })
+      )
+      .mutation(({ ctx, input }) => saveWorkoutPlan(ctx.user.id, input)),
+  }),
   favorites: router({
     list: protectedProcedure.query(({ ctx }) =>
       listFavoriteExerciseIds(ctx.user.id)
