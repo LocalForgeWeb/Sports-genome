@@ -3,9 +3,10 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig } from "vite";
 import { analyticsScriptPlugin } from "./client/vite/analyticsScript";
+import { preloadWorkspaceChunkPlugin } from "./client/vite/preloadWorkspaceChunk";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), analyticsScriptPlugin()],
+  plugins: [react(), tailwindcss(), analyticsScriptPlugin(), preloadWorkspaceChunkPlugin()],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

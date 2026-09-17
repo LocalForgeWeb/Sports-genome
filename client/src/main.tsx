@@ -114,5 +114,12 @@ async function mountWorkspace() {
  */
 const documentBootStartedAt = Number(document.documentElement.dataset.sportsGenomeBootStartedAt);
 const elapsedBootMs = Number.isFinite(documentBootStartedAt) ? Math.max(0, Date.now() - documentBootStartedAt) : 0;
-const workspaceMountDelayMs = Math.max(0, 1_580 - elapsedBootMs);
+/**
+ * The deferral exists so evaluating the workspace chunk cannot stutter the intro
+ * video. A returning launch does not play that video, so there is nothing to protect
+ * and nothing to wait for - the chunk is already preloaded by then, so mounting is
+ * close to immediate.
+ */
+const returningLaunch = document.documentElement.dataset.sportsGenomeBootReturn === "yes";
+const workspaceMountDelayMs = returningLaunch ? 0 : Math.max(0, 1_580 - elapsedBootMs);
 window.setTimeout(() => { void mountWorkspace(); }, workspaceMountDelayMs);

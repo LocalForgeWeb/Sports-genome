@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { isLaunchExperienceEnabled } from "./launchExperience";
 
 const bootSplashSource = readFileSync(resolve(process.cwd(), "client/src/lib/bootSplash.ts"), "utf8");
+const bootExperienceSource = readFileSync(resolve(process.cwd(), "client/src/lib/bootExperience.ts"), "utf8");
 const bootLifecycleSource = readFileSync(resolve(process.cwd(), "client/src/components/BootSplashLifecycle.tsx"), "utf8");
 const bootDocumentSource = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
 
@@ -13,7 +14,8 @@ describe("launch experience preference", () => {
   });
   it("has no workspace-overlay or seen-once state because the document handles the boot screen before React mounts", () => expect("shouldShowLaunchExperience" in { isLaunchExperienceEnabled }).toBe(false));
   it("uses a staged S, then DNA, then wordmark launch while immediately bypassing it for reduced-motion users", () => {
-    expect(bootSplashSource).toContain("export const minimumBootPresentationMs = 1_720"); expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 300)"); expect(bootLifecycleSource).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches'); expect(bootLifecycleSource).toContain("Math.max(0, minimumBootPresentationMs - elapsedMs)");
+    // The hold now lives in bootExperience, where it varies by first vs returning launch.
+    expect(bootExperienceSource).toContain("export const firstLaunchPresentationMs = 1_720"); expect(bootSplashSource).toContain("window.setTimeout(() => splash.remove(), 300)"); expect(bootLifecycleSource).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches'); expect(bootLifecycleSource).toContain("Math.max(0, presentationMs - elapsedMs)");
     expect(bootDocumentSource).toContain("boot-mark-form 500ms 80ms"); expect(bootDocumentSource).toContain("boot-dna-lines-in 420ms 560ms"); expect(bootDocumentSource).toContain("boot-wordmark-in 480ms 1.03s"); expect(bootDocumentSource).toContain("transition:opacity 300ms");
   });
   it("uses the supplied upright S/DNA layers and a muted short video with a held final frame", () => {

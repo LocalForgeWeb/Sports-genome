@@ -1,5 +1,4 @@
 export const bootSplashId = "sports-genome-boot-splash";
-export const minimumBootPresentationMs = 1_720;
 
 /** Removes the document-level boot screen only after React has mounted the app. */
 export function dismissBootSplash() {

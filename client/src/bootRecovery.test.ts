@@ -102,12 +102,14 @@ describe("the deferred workspace import keeps its guard rails", () => {
   it("still defers the heavy import so the intro cannot stutter", () => {
     // This deferral is deliberate and predates the boot fix; the recovery paths were
     // what was missing, not the timing.
-    expect(mainSource).toContain("const workspaceMountDelayMs = Math.max(0, 1_580 - elapsedBootMs)");
+    // A first launch still defers; a returning one has no video to protect.
+    expect(mainSource).toContain("Math.max(0, 1_580 - elapsedBootMs)");
+    expect(mainSource).toContain("returningLaunch ? 0 :");
     expect(mainSource).toContain("window.setTimeout(() => { void mountWorkspace(); }, workspaceMountDelayMs)");
   });
 
   it("holds the screen for its minimum presentation time", () => {
     const lifecycle = read("client/src/components/BootSplashLifecycle.tsx");
-    expect(lifecycle).toContain("minimumBootPresentationMs");
+    expect(lifecycle).toContain("bootPresentationMs");
   });
 });
