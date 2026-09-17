@@ -16,6 +16,7 @@ import { FeatureTour } from "@/components/FeatureTour";
 import { TrainingWeekPanel } from "@/components/TrainingWeekPanel";
 import { CommandHero } from "@/components/CommandHero";
 import { WorkspaceTabs } from "@/components/WorkspaceTabs";
+import { migrateLegacyRecord, scopedKey } from "@/lib/deviceStorageScope";
 import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
 import { WarmupPanel } from "@/components/WarmupPanel";
 import { ImportedPlanContext } from "@/components/ImportedPlanContext";
@@ -93,11 +94,15 @@ export function buildGeneratedWeekSportSeed(sportId: string, goal: TrainingGoal,
   return orderedSeed.map((result) => result.exercise);
 }
 
-const athleteProfileKey = "gym-optimizer-athlete-profile-v1";
-const workoutPlanKey = "gym-optimizer-workout-plan-v1";
+/**
+ * Base names only. Each is namespaced per account at use, because a shared device
+ * otherwise means one athlete reads and overwrites another's plan.
+ */
+const athleteProfileKeyBase = "gym-optimizer-athlete-profile-v1";
+const workoutPlanKeyBase = "gym-optimizer-workout-plan-v1";
 const plannerTabKey = "gym-optimizer-planner-tab-v1";
 const plannerOpenKey = "gym-optimizer-planner-open-v1";
-const favoriteExerciseKey = "gym-optimizer-favorite-exercise-ids-v1";
+const favoriteExerciseKeyBase = "gym-optimizer-favorite-exercise-ids-v1";
 // Temporary product-access switch. The email/password and passkey implementation
 // remains intact below and can be restored by setting this to false.
 const directWorkspaceAccess = true;
@@ -252,6 +257,24 @@ function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; traini
 
 export default function Home() {
   let { user, loading, error, isAuthenticated, logout, refresh } = useAuth();
+  /**
+   * Device records belong to an athlete, not to the browser. Until these were
+   * namespaced, a second account on the same device read and overwrote the first
+   * one's plan, profile and favourites.
+   */
+  /** Which account's plan is currently in memory, so the writer cannot cross accounts. */
+  const hydratedPlanKeyRef = useRef<string | null>(null);
+  const accountId = user?.id ?? null;
+  const athleteProfileKey = scopedKey(athleteProfileKeyBase, accountId);
+  const workoutPlanKey = scopedKey(workoutPlanKeyBase, accountId);
+  const favoriteExerciseKey = scopedKey(favoriteExerciseKeyBase, accountId);
+  /** Claims any pre-namespace record for the first account that signs in here. */
+  useEffect(() => {
+    if (accountId === null || typeof window === "undefined") return;
+    for (const base of [athleteProfileKeyBase, workoutPlanKeyBase, favoriteExerciseKeyBase]) {
+      migrateLegacyRecord(base, accountId, window.localStorage);
+    }
+  }, [accountId]);
   const startLogin = () => toast.error("Please sign in with your Sports Genome email account.");
 
   const [workspace, setWorkspaceState] = useState<Workspace>(() => typeof window === "undefined" ? "command" : workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
@@ -419,6 +442,10 @@ export default function Home() {
   }, [localFavoriteIds]);
 
   useEffect(() => {
+    // Wait for auth to settle: the key is account-scoped, and hydrating from the
+    // wrong one would either show an empty plan or another athlete's.
+    if (loading) return;
+    if (hydratedPlanKeyRef.current === workoutPlanKey) return;
     try {
       const stored = window.localStorage.getItem(workoutPlanKey);
       if (stored) {
@@ -438,7 +465,8 @@ export default function Home() {
       }
     } catch { /* A malformed saved plan should never block the workout builder. */ }
     setPlanHydrated(true);
-  }, []);
+    hydratedPlanKeyRef.current = workoutPlanKey;
+  }, [workoutPlanKey, loading]);
 
   useEffect(() => {
     try {
@@ -469,6 +497,9 @@ export default function Home() {
 
   useEffect(() => {
     if (!planHydrated || !onboardingComplete) return;
+    // Hydration for this key has to have happened first, or the plan still in memory
+    // from the previous account would be written into this one's record.
+    if (hydratedPlanKeyRef.current !== workoutPlanKey) return;
     const currentWeek = createWeekSnapshot();
     const allWeeks = { ...planWeeks, [activeWeek]: currentWeek };
     const plan: StoredWorkoutPlan = {
@@ -485,7 +516,7 @@ export default function Home() {
       activeWeek,
     };
     try { window.localStorage.setItem(workoutPlanKey, JSON.stringify(plan)); } catch { /* Persistence is optional. */ }
-  }, [planHydrated, onboardingComplete, customWorkout, weeklyPlan, prescriptions, exerciseSettings, weeklyPrescriptions, importedPlanContext, planWeeks, activeWeek]);
+  }, [planHydrated, onboardingComplete, workoutPlanKey, customWorkout, weeklyPlan, prescriptions, exerciseSettings, weeklyPrescriptions, importedPlanContext, planWeeks, activeWeek]);
 
   useEffect(() => {
     const nextMuscle = getMovementMuscles(selectedMovement)[0];
