@@ -20,6 +20,9 @@ const markup = renderToStaticMarkup(
     dayLabel: "Active Training Day",
     targetIndex: analyzeSplitStack(workout, exercises, "Push").score,
     suggestions: analyzeSplitStack(workout, exercises, "Push").suggestions,
+    catalog: exercises,
+    sportId: "baseball",
+    prescriptions: Object.fromEntries(workout.map((exercise, index) => [exercise.id, `${index + 3} x 8`])),
     onAddSuggestion: () => undefined,
     onClose: () => undefined,
     onInspectExercise: () => undefined,
@@ -91,5 +94,40 @@ describe("Stack Analysis selected muscle", () => {
     expect(component).toContain('className="stack-analysis-next-picks"');
     expect(component.indexOf('className="stack-analysis-next-picks"')).toBeLessThan(component.indexOf('className="stack-analysis-list"'));
     expect(component).toContain("Best next picks");
+  });
+
+  it("reads the stack against the sport's own demand register", () => {
+    // Catalog `qualities` tags and SportDemandKeys both existed and had never
+    // been joined, so a Push day for baseball could not show a missing demand.
+    expect(markup).toContain("Sport demands");
+    expect(markup).toContain("Trunk bracing");
+    expect(markup).toMatch(/\d+% of push/);
+  });
+
+  it("gives an absent demand the split's own catalog share as context", () => {
+    // A demand this split cannot serve is not the stack's failure.
+    expect(markup).toContain("quality-row-absent");
+    expect(markup).toContain("quality-row-share");
+  });
+
+  it("says whether each muscle is getting too little or too much work", () => {
+    expect(markup).toContain("Session volume");
+    expect(markup).toContain("session-volume-direct");
+    expect(markup).toContain("session-volume-support");
+    expect(markup).toMatch(/Light|Solid|Heavy|Indirect only/);
+  });
+
+  it("separates direct sets from supporting work rather than showing one total", () => {
+    expect(markup).toContain("supporting, at a half set each");
+  });
+
+  it("carries the figure each tip fired on, so it can be checked against the bars", () => {
+    const tips = markup.match(/stack-tip stack-tip-\w+/g) || [];
+    if (tips.length) expect(markup).toMatch(/\d+ points under target|direct sets|supporting set|% of this split/);
+  });
+
+  it("never claims a sport demand the register does not list", () => {
+    // getSportDemandModel scores all 24 keys; most are model-estimated filler.
+    expect(markup).not.toContain("Aerobic capacity");
   });
 });

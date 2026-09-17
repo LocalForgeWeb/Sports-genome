@@ -249,3 +249,158 @@
    with an empty half beside each. Sizing to content removes both. */
 .stack-analysis-summary { grid-template-columns: repeat(2, max-content); }
 .stack-analysis-summary > div:last-child { border-right: 0; }
+
+/* ==========================================================================
+   What stands out / sport demands / session volume
+   ========================================================================== */
+
+.stack-tips { margin: var(--sg-space-3) 0 0; }
+.stack-tips ul { display: grid; gap: .35rem; margin: .45rem 0 0; padding: 0; list-style: none; }
+
+.stack-tip {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: .5rem;
+  border-left: 2px solid var(--sg-info);
+  padding: .4rem 0 .4rem .6rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-xs);
+  line-height: 1.5;
+}
+
+.stack-tip svg { margin-top: .12rem; color: var(--sg-info); }
+.stack-tip-volume { border-left-color: var(--sg-state-caution); }
+.stack-tip-volume svg { color: var(--sg-state-caution); }
+.stack-tip-quality { border-left-color: var(--sg-seq-4); }
+.stack-tip-quality svg { color: var(--sg-seq-4); }
+
+.quality-coverage,
+.session-volume { border-top: 1px solid rgb(164 200 232 / .22); padding: var(--sg-space-4); }
+
+.quality-rows,
+.session-volume-rows { display: grid; gap: .32rem; margin: .5rem 0 0; padding: 0; list-style: none; }
+
+.quality-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.5rem 7rem;
+  align-items: center;
+  gap: .5rem;
+}
+
+.quality-row-name {
+  overflow: hidden;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quality-row-count {
+  display: inline-flex;
+  align-items: center;
+  gap: .28rem;
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.quality-row-count i { font-style: normal; font-weight: 900; }
+.quality-row-covered .quality-row-count { color: #9adfb0; }
+.quality-row-absent .quality-row-count { color: var(--sg-text-faint-on-dark); }
+.quality-row-absent .quality-row-name { color: var(--sg-text-subtle-on-dark); }
+
+/* The split's own catalog share, as context for an absent demand: a quality this
+   split can barely serve is a different situation from one it serves well. */
+.quality-row-share { display: grid; gap: .16rem; }
+.quality-row-share i { display: block; height: 4px; overflow: hidden; background: var(--sg-data-missing); }
+.quality-row-share b { display: block; height: 100%; background: var(--sg-seq-2); }
+.quality-row-share small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-2xs); }
+.quality-row-covered .quality-row-share b { background: var(--sg-seq-4); }
+
+.quality-extra {
+  margin: var(--sg-space-3) 0 0;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+  line-height: 1.5;
+}
+
+.session-volume-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7rem 2rem 6rem;
+  align-items: center;
+  gap: .5rem;
+}
+
+.session-volume-name {
+  overflow: hidden;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Direct and supporting are two different things, so they are two segments of
+   one bar rather than one total that hides the split. */
+.session-volume-track { display: flex; height: 10px; overflow: hidden; background: var(--sg-data-missing); }
+.session-volume-direct { display: block; background: var(--sg-seq-4); }
+.session-volume-support { display: block; background: var(--sg-seq-2); }
+
+.session-volume-sets {
+  color: var(--sg-text-on-dark);
+  font-family: var(--sg-font-display);
+  font-size: var(--sg-text-sm);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.session-volume-reading {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.session-volume-reading i { font-style: normal; font-weight: 900; }
+.session-volume-heavy .session-volume-reading { color: #f6d489; }
+.session-volume-heavy .session-volume-direct { background: var(--sg-state-caution); }
+.session-volume-light .session-volume-reading { color: var(--sg-text-faint-on-dark); }
+.session-volume-solid .session-volume-reading { color: #9adfb0; }
+.session-volume-solid .session-volume-direct { background: var(--sg-state-positive); }
+.session-volume-indirect-only .session-volume-reading { color: #a8d4fa; }
+
+.session-volume-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .3rem;
+  margin: var(--sg-space-3) 0 0;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+}
+
+.session-volume-legend span { display: inline-block; flex: 0 0 auto; width: 14px; height: 8px; }
+.session-volume-key-direct { background: var(--sg-seq-4); }
+.session-volume-key-support { margin-left: .45rem; background: var(--sg-seq-2); }
+
+@media (max-width: 640px) {
+  .quality-row { grid-template-columns: minmax(0, 1fr) 5.5rem; grid-template-areas: "name count" "share share"; gap: .2rem .5rem; }
+  .quality-row-name { grid-area: name; }
+  .quality-row-count { grid-area: count; justify-content: flex-end; }
+  .quality-row-share { grid-area: share; }
+  .quality-rows { gap: .55rem; }
+  .session-volume-row { grid-template-columns: minmax(0, 1fr) 2rem 5.5rem; grid-template-areas: "name sets reading" "track track track"; gap: .2rem .45rem; }
+  .session-volume-name { grid-area: name; }
+  .session-volume-track { grid-area: track; }
+  .session-volume-sets { grid-area: sets; }
+  .session-volume-reading { grid-area: reading; justify-content: flex-end; }
+  .session-volume-rows { gap: .55rem; }
+}

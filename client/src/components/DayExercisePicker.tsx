@@ -10,6 +10,10 @@ type DayExercisePickerProps = {
   exercises: Exercise[];
   activeWorkout: Exercise[];
   split: TrainingSplit;
+  /** The athlete's sport, so the stack can be read against its demand register. */
+  sportId?: string;
+  /** Prescriptions for the active day, so set volume is the real one, not a default. */
+  prescriptions?: Record<number, string>;
   onAdd: (exercise: Exercise) => void;
   onReplace: (outgoing: Exercise, incoming: Exercise) => void;
   onInspect: (exercise: Exercise) => void;
@@ -29,7 +33,7 @@ export function sortDayExerciseResults(results: Exercise[], muscle: string) {
   });
 }
 
-export function DayExercisePicker({ exercises, activeWorkout, split, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
+export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"split" | "all">("split");
   const [equipment, setEquipment] = useState("all");
@@ -52,7 +56,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, onAdd, onRe
   useEffect(() => { setResultLimit(initialResultLimit); }, [equipment, muscle, query, scope, split]);
 
   return <section className="day-exercise-picker">
-    <RateStackPanel workout={activeWorkout} catalog={exercises} split={split} onAdd={onAdd} onReplace={onReplace} />
+    <RateStackPanel workout={activeWorkout} catalog={exercises} split={split} sportId={sportId} prescriptions={prescriptions} onAdd={onAdd} onReplace={onReplace} />
     <details className="day-exercise-disclosure">
       <summary>
         <span><p className="metric-label">Add to this day</p><strong>Find an exercise</strong><small>Search, filter, then add from the catalog</small></span>

@@ -83,7 +83,7 @@ function BandTally({ band, count }: { band: CoverageBand; count: number }) {
   );
 }
 
-export function RateStackPanel({ workout, catalog, split, onAdd, onReplace: _onReplace }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; onAdd: (exercise: Exercise) => void; onReplace: (outgoing: Exercise, incoming: Exercise) => void; }) {
+export function RateStackPanel({ workout, catalog, split, sportId, prescriptions, onAdd, onReplace: _onReplace }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; sportId?: string; prescriptions?: Record<number, string>; onAdd: (exercise: Exercise) => void; onReplace: (outgoing: Exercise, incoming: Exercise) => void; }) {
   const [open, setOpen] = useState(false);
   const analysis = useMemo(() => analyzeSplitStack(workout, catalog, split), [catalog, split, workout]);
   const bars = useMemo(() => buildCoverageBars(analysis.ratings), [analysis.ratings]);
@@ -165,6 +165,9 @@ export function RateStackPanel({ workout, catalog, split, onAdd, onReplace: _onR
           dayLabel="Active Training Day"
           targetIndex={analysis.score}
           suggestions={analysis.suggestions}
+          catalog={catalog}
+          sportId={sportId}
+          prescriptions={prescriptions}
           onAddSuggestion={onAdd}
           onClose={() => setOpen(false)}
           onInspectExercise={() => undefined}
