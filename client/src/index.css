@@ -219,6 +219,18 @@
   }
 }
 
+/* Home's identity band once the athlete has history: the same facts as the full
+   introduction, in one strip, so state/priority/action stay above the fold. */
+.command-identity{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem 1.5rem;border:1px solid var(--sg-control-border-on-dark);border-radius:1rem;background:linear-gradient(135deg,var(--sg-surface-panel),var(--sg-surface-raised));padding:1rem 1.4rem;box-shadow:var(--sg-elevation-1)}
+.command-identity-main{min-width:0}
+.command-identity-main h1{margin-top:.2rem;color:#fff;font-family:var(--font-display,sans-serif);font-size:clamp(1.3rem,4vw,1.9rem);font-weight:800;line-height:1;text-transform:uppercase}
+.command-identity-plan{margin-top:.3rem;color:var(--sg-text-muted-on-dark);font-size:var(--sg-text-xs);line-height:1.45}
+.command-identity-facts{display:flex;flex:none;gap:1.4rem}
+.command-identity-facts>div{display:grid;gap:.2rem}
+.command-identity-facts dt{color:var(--sg-text-subtle-on-dark);font-size:var(--sg-text-2xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
+.command-identity-facts dd{margin:0;color:#fff;font-family:var(--font-display,sans-serif);font-size:1.1rem;font-weight:800;line-height:1}
+@media (max-width:640px){.command-identity{padding:.9rem 1.15rem}.command-identity-facts{width:100%;justify-content:space-between;border-top:1px solid rgb(255 255 255 / .12);padding-top:.75rem}}
+
 /* The dashboard's "what have I actually done" strip. Sits under the action panel:
    what to do next, then what you have done. */
 .training-week-panel{margin-bottom:1.25rem;overflow:hidden;border:1px solid var(--sg-control-border-on-dark);border-radius:1rem;background:var(--sg-surface-raised);box-shadow:var(--sg-elevation-2)}
