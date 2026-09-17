@@ -219,6 +219,27 @@
   }
 }
 
+/* The contextual tab row scrolls and hides its scrollbar, so tabs past the edge were
+   invisible. A fade appears only on the side that actually has more, which is the
+   affordance the hidden scrollbar took away. */
+.workspace-top-switcher-shell{position:relative}
+/* A gradient was the first attempt and it was invisible: it faded to the same
+   colour as the surface behind it, and at rest it sat over empty space rather than
+   over a clipped tab. An arrow says the same thing and cannot disappear. */
+.workspace-top-switcher-shell::before,.workspace-top-switcher-shell::after{position:absolute;top:50%;z-index:30;display:grid;place-items:center;width:1.5rem;height:1.5rem;transform:translateY(-50%);border-radius:999px;background:rgb(255 255 255 / .96);box-shadow:var(--sg-elevation-1);color:var(--sg-info-strong);font-size:.85rem;font-weight:700;line-height:1;opacity:0;pointer-events:none;transition:opacity var(--sg-motion-base) var(--sg-ease)}
+.workspace-top-switcher-shell::before{content:"\2039";left:2px}
+.workspace-top-switcher-shell::after{content:"\203A";right:2px}
+.workspace-top-switcher-shell[data-overflow-start="yes"]::before{opacity:1}
+.workspace-top-switcher-shell[data-overflow-end="yes"]::after{opacity:1}
+/* The shell owns the sticky position now, so the row does not fight it. */
+.workspace-top-switcher-shell{position:sticky;top:72px;z-index:29}
+.workspace-top-switcher-shell .workspace-top-switcher{position:static;top:auto}
+/* Keeping a tab whole when scrolled into view reads better than landing mid-label. */
+.workspace-top-switcher{scroll-snap-type:x proximity;scroll-padding-inline:18px}
+.workspace-top-switcher-shell[data-overflow-end="yes"] .workspace-top-switcher{padding-right:2rem}
+.workspace-top-switcher-shell[data-overflow-start="yes"] .workspace-top-switcher{padding-left:2rem}
+.workspace-top-switcher button{scroll-snap-align:start}
+
 /* Home's identity band once the athlete has history: the same facts as the full
    introduction, in one strip, so state/priority/action stay above the fold. */
 .command-identity{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem 1.5rem;border:1px solid var(--sg-control-border-on-dark);border-radius:1rem;background:linear-gradient(135deg,var(--sg-surface-panel),var(--sg-surface-raised));padding:1rem 1.4rem;box-shadow:var(--sg-elevation-1)}

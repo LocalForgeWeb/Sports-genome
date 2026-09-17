@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation } from "./Home";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
+const tabsComponent = readFileSync(new URL("../components/WorkspaceTabs.tsx", import.meta.url), "utf8");
 const workoutTrackerSource = readFileSync(new URL("../components/WorkoutExecutionPanel.tsx", import.meta.url), "utf8");
 const deviceTrackerSource = readFileSync(new URL("../components/DeviceWorkoutTracker.tsx", import.meta.url), "utf8");
 const stackReviewSource = readFileSync(new URL("../components/WorkoutHealthPanel.tsx", import.meta.url), "utf8");
@@ -25,7 +26,9 @@ describe("workspace side navigation", () => {
     expect(primaryDestinationForWorkspace("day-plan")).toBe("train");
     expect(primaryDestinationForWorkspace("recommended")).toBe("train");
     expect(primaryDestinationForWorkspace("catalog")).toBe("body");
-    expect(primaryDestinationForWorkspace("strength")).toBe("body");
+    // Strength Genome is the athlete's own record, so it lives with Progress rather
+    // than in the reference library.
+    expect(primaryDestinationForWorkspace("strength")).toBe("progress");
     expect(primaryDestinationForWorkspace("profile")).toBe("secondary");
   });
 
@@ -133,7 +136,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('type PrimaryDestination = "home" | "train" | "body" | "progress" | "secondary";');
     expect(source).toContain('contextualWorkspaces');
-    expect(source).toContain('className="workspace-top-switcher"');
+    expect(source).toContain("<WorkspaceTabs");
+    expect(tabsComponent).toContain('className="workspace-top-switcher"');
     expect(source).not.toContain('<details className="plan-context">');
     expect(source).toContain('workspace pages`');
     expect(source).toContain('label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review"');
@@ -143,7 +147,9 @@ describe("workspace side navigation", () => {
     expect(source).toContain('if (tab.id === "stack-review") target?.querySelector<HTMLDetailsElement>("details")?.setAttribute("open", "");');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
-    expect(source).toContain('const active = activeContextTabId === tab.id;');
+    // Active-tab resolution moved into the row component with the markup.
+    expect(source).toContain("activeId={activeContextTabId}");
+    expect(tabsComponent).toContain("const active = tab.id === activeId;");
     expect(css).toContain('.workspace-top-switcher button:not(.workspace-top-switcher-active) { border-bottom-color: transparent !important; }');
     expect(mobileStyles).toContain('.workspace-top-switcher { top: 78px; min-height: 54px;');
     expect(mobileStyles).toContain('overflow-x: auto; overscroll-behavior-x: contain;');
@@ -194,7 +200,7 @@ describe("workspace side navigation", () => {
     ["Training Day", "Tracker", "Matches", "Builder", "Stack Review", "Prep", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
     expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
-    expect(source).toContain('className={active ? "workspace-top-switcher-active" : ""}');
+    expect(tabsComponent).toContain('className={active ? "workspace-top-switcher-active" : ""}');
   });
 
   it("defers isolated Explore presentation workspaces from the initial planning shell", () => {

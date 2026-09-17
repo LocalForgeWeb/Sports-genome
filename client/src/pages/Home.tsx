@@ -15,6 +15,7 @@ import { SplitDraftControls, type LoadoutMode, type SplitDay } from "@/component
 import { FeatureTour } from "@/components/FeatureTour";
 import { TrainingWeekPanel } from "@/components/TrainingWeekPanel";
 import { CommandHero } from "@/components/CommandHero";
+import { WorkspaceTabs } from "@/components/WorkspaceTabs";
 import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
 import { WarmupPanel } from "@/components/WarmupPanel";
 import { ImportedPlanContext } from "@/components/ImportedPlanContext";
@@ -121,7 +122,7 @@ const navItems: { id: Workspace; label: string; icon: typeof Target; detail: str
   { id: "custom", label: "Workout Builder", icon: SlidersHorizontal, detail: "coach-editable session", group: "Train" },
   { id: "movement", label: "Movement Atlas", icon: Move3d, detail: `${sportMovementProfiles.length} researched sport actions`, group: "Sport" },
   { id: "body", label: "Body Lab", icon: Activity, detail: "muscle-to-movement analysis", group: "Explore" },
-  { id: "strength", label: "Strength Genome", icon: BrainCircuit, detail: "your performance profile", group: "Explore" },
+  { id: "strength", label: "Strength Genome", icon: BrainCircuit, detail: "your performance profile", group: "Home" },
   { id: "catalog", label: "Exercise Catalog", icon: BookOpen, detail: `${exercises.length} mapped exercises`, group: "Explore" },
   { id: "genome", label: "Exercise Genome", icon: Dna, detail: "contextual exercise intelligence", group: "Explore" },
 ];
@@ -149,20 +150,32 @@ const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, Con
     { id: "stack-review", label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review" },
     { id: "prep", label: "Prep", workspace: "custom", scrollTarget: "#session-prep" },
   ],
+  // Body Lab is the reference library: look things up, understand them. Everything
+  // here is about exercises and anatomy in general, not about this athlete.
   body: [
     { id: "movement", label: "Movement", workspace: "movement" },
     { id: "body", label: "Body Lab", workspace: "body" },
     { id: "catalog", label: "Catalog", workspace: "catalog" },
     { id: "genome", label: "Genome", workspace: "genome" },
+  ],
+  /**
+   * Progress is the athlete's own record, so logging a lift belongs here.
+   *
+   * Strength Genome sat under Body Lab, which meant the screen where you record a
+   * lift lived behind a tab named after an anatomy viewer, while the screen
+   * reporting on those lifts sat under Progress - showing "No lifts logged yet"
+   * with no route to the thing that fixes it. One record, one destination.
+   */
+  progress: [
+    { id: "progress", label: "Progress", workspace: "progress" },
     { id: "strength", label: "Strength", workspace: "strength" },
   ],
-  progress: [{ id: "progress", label: "Progress", workspace: "progress" }],
 };
 export function primaryDestinationForWorkspace(workspace: Workspace): PrimaryDestination {
   if (workspace === "profile") return "secondary";
   if (contextualWorkspaces.train.some((tab) => tab.workspace === workspace)) return "train";
   if (contextualWorkspaces.body.some((tab) => tab.workspace === workspace)) return "body";
-  if (workspace === "progress") return "progress";
+  if (contextualWorkspaces.progress.some((tab) => tab.workspace === workspace)) return "progress";
   return "home";
 }
 
@@ -932,7 +945,7 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={requestRebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)] md:inline">Rebuild plan</button><UniversalSearch onOpenResult={openSearchResult} /><button type="button" onClick={() => navigateWorkspace("profile")} aria-label="Profile and settings" aria-current={workspace === "profile" ? "page" : undefined} className="topbar-profile-button inline-flex h-9 w-9 items-center justify-center border border-[#cddbef] bg-white text-[#38658f] transition-colors hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)]"><UsersRound className="h-4 w-4" /></button><button onClick={() => navigateWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[var(--sg-surface-raised)] px-3 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[var(--sg-info-strong)]"><Plus className="h-3.5 w-3.5" /> Design day</button></div>
       </header>
-      {contextualWorkspaceTabs.length > 1 && <nav className="workspace-top-switcher" aria-label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}>{contextualWorkspaceTabs.map((tab) => { const active = activeContextTabId === tab.id; return <button type="button" key={tab.id} onClick={() => navigateContextualWorkspace(tab)} aria-current={active ? "page" : undefined} className={active ? "workspace-top-switcher-active" : ""}>{tab.label}</button>; })}</nav>}
+      {contextualWorkspaceTabs.length > 1 && <WorkspaceTabs tabs={contextualWorkspaceTabs} activeId={activeContextTabId} label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`} onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)} />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[var(--sg-text-subtle-on-light)]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? <p className="tracker-live-context">Logging Day {String(activeDayIndex + 1).padStart(2, "0")} · {activeSplitDay}</p> : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseWeeklyDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
