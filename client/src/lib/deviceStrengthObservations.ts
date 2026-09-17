@@ -43,3 +43,15 @@ export function prependDeviceStrengthObservation(existing: DeviceStrengthObserva
 export function setDeviceStrengthObservationBodyMass(existing: DeviceStrengthObservation[], observationId: string, bodyMassKgAtTest: number) {
   return existing.map((item) => item.id === observationId ? { ...item, bodyMassKgAtTest } : item);
 }
+
+/**
+ * Removes one device-held observation.
+ *
+ * The account path has `repair.deleteStrengthObservation`; a direct-access
+ * athlete's records never reach the server, so without this the pre-sign-in
+ * athlete - who is most likely to be experimenting and mistyping - would be the
+ * one person unable to take a number back.
+ */
+export function removeDeviceStrengthObservation(existing: DeviceStrengthObservation[], observationId: string) {
+  return existing.filter((item) => item.id !== observationId);
+}

@@ -2037,3 +2037,14 @@ details:not([open]) > *:not(summary) {
    the local-search scope line uses. */
 .apex-content :is(.atlas-reset-pro, .genome-term-button) { position: relative; }
 .apex-content :is(.atlas-reset-pro, .genome-term-button)::after { content: ""; position: absolute; inset: -14px -8px; }
+
+/* Removing a recorded test from the history list. The control sits beside the
+   review affordance rather than replacing it, and keeps the critical colour so a
+   destructive action never borrows the informational blue used for review. */
+.strength-log-row-actions { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .35rem; }
+.strength-log-remove { display: inline-flex; min-width: 32px; min-height: 32px; align-items: center; justify-content: center; border: 1px solid rgb(226 86 74 / .45); background: transparent; color: #c0392b; transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
+.strength-log-remove:hover:not(:disabled) { border-color: #c0392b; background: rgb(226 86 74 / .1); }
+.strength-log-remove:disabled { opacity: .5; }
+.strength-log-remove:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 1px; }
+.strength-log-remove-error { margin-top: .75rem; border-left: 2px solid #c0392b; padding-left: .55rem; color: #c0392b; font-size: var(--sg-text-xs); line-height: 1.45; }
+@media (max-width: 640px) { .strength-log-remove { min-width: 44px; min-height: 44px; } }

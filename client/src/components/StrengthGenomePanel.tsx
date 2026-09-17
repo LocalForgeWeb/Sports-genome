@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
-import { Activity, ChevronRight, CircleHelp, Dumbbell, Plus, ShieldCheck, X } from "lucide-react";
+import { Activity, ChevronRight, CircleHelp, Dumbbell, Plus, ShieldCheck, Trash2, X } from "lucide-react";
 import type { CSSProperties } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { getStrengthCatalogSelectionContext, strengthRegionDefinitions, type StrengthRegionDefinition } from "../../../shared/strengthGenomeDefinitions";
 import { StrengthGenomeBodyMap } from "@/components/StrengthGenomeBodyMap";
 import { resolveStrengthObservationRoute } from "../../../shared/strengthGenomeDefinitions";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { displayWeightToKilograms, formatDisplayWeight, kilogramsToDisplayWeight, weightUnitLabel, type DisplayWeightUnit } from "@/lib/weightUnits";
-import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
+import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation, removeDeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
 import { getPiper2021PreacherCurlReference, piper2021PreacherCurlReferenceId, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
 import { getVanDenHoek2024PowerliftingReference, vanDenHoek2024ReferenceId, type PowerliftingReferenceDeclaration } from "@/lib/powerliftingReference";
 import type { PowerliftingNormRow } from "@shared/powerliftingNormsReference";
@@ -237,6 +238,25 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     [referenceRows]
   );
   const trackedSets = trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: !directAccess });
+  /**
+   * Removing an observation the athlete got wrong.
+   *
+   * Two stores, so two paths: an account record goes through the
+   * ownership-checked repair endpoint, and a direct-access record only ever
+   * existed on this device. Without the device branch the pre-sign-in athlete -
+   * the one most likely to be experimenting and mistyping - would be the only
+   * person who could not take a number back.
+   */
+  const [pendingObservationRemoval, setPendingObservationRemoval] = useState<ConfirmDialogRequest | null>(null);
+  const [observationRemovalError, setObservationRemovalError] = useState<string | null>(null);
+  const removeObservation = trpc.repair.deleteStrengthObservation.useMutation({
+    onSuccess: async () => {
+      setObservationRemovalError(null);
+      toast.success("Test removed. Your history and comparisons no longer count it.");
+      await Promise.all([utils.strengthGenome.observations.invalidate(), utils.strengthGenome.overview.invalidate()]);
+    },
+    onError: () => setObservationRemovalError("That test was not removed. Check your connection and try again."),
+  });
   const prefilledPiperDeclaration: PiperReferenceDeclaration = { ...emptyPiperDeclaration, sex: mapSexForPiper(sexForReference), ageYears: ageFromBirthYear(birthYear) };
   const prefilledPowerliftingDeclaration: PowerliftingReferenceDeclaration = { ...emptyPowerliftingDeclaration, sex: mapSexForPowerlifting(sexForReference), ageYears: ageFromBirthYear(birthYear) };
   const [exerciseName, setExerciseName] = useState("");
@@ -329,6 +349,24 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const activePriorityIds = new Set(priorities.data?.map(priority => priority.regionId) || overview.data?.athleteConfirmedPriorityRegionIds || []);
   const persistDeviceObservations = (next: DeviceStrengthObservation[]) => { setDeviceObservations(next); saveDeviceStrengthObservations(next); };
   const setDeviceBodyMass = (observationId: string, bodyMassKgAtTest: number) => persistDeviceObservations(setDeviceStrengthObservationBodyMass(deviceObservations, observationId, bodyMassKgAtTest));
+
+  const requestObservationRemoval = (observation: StrengthObservationRecord) =>
+    setPendingObservationRemoval({
+      title: "Remove this test?",
+      body: `The ${observation.exerciseName} test from ${new Date(observation.observedAt).toLocaleDateString()} is deleted. It stops counting in your history, your change tracking, and any comparison drawn from it. This cannot be undone.`,
+      confirmLabel: "Remove test",
+      onConfirm: () => {
+        setPendingObservationRemoval(null);
+        setObservationRemovalError(null);
+        if (directAccess) {
+          persistDeviceObservations(removeDeviceStrengthObservation(deviceObservations, String(observation.id)));
+          emitInteractionFeedback([10, 30, 10]);
+          toast.success("Test removed from this device.");
+          return;
+        }
+        removeObservation.mutate({ observationId: Number(observation.id) });
+      },
+    });
   useEffect(() => { if (baselineBodyWeight != null && bodyMassKg === "") setBodyMassKg(String(baselineBodyWeight)); }, [baselineBodyWeight, bodyMassKg]);
   const openSavedObservation = (observation: StrengthObservationRecord) => {
     const regionId = resolveStrengthObservationRoute(observation.exerciseName)?.regionIds[0];
@@ -404,6 +442,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
 	        <div className="strength-reference-state-visual" aria-hidden="true"><img src={sourceMatchedObservationCount ? strengthReferenceStateVisuals.qualified : strengthReferenceStateVisuals.unavailable} alt="" /></div>
 	      </section>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
+      {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
       {selectedRegion && <div ref={regionDetailRef}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} /></div>}
       {selectedRegion && <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>}
       <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{directAccess ? (activeObservations.length ? "Saved on this device only." : "Log a lift to start your record.") : (overview.data?.nextAction || "Log a lift to start your record.")}</span></div>
@@ -436,7 +475,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--sg-action-fill)] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving" : "Save this lift"}</button>
       </section>
 
-      <aside className="strength-progress-log light-panel p-5"><p className="metric-label">Your history</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[var(--sg-text-on-light)]">Recent lifts</h2>{recentObservations.length ? <div className="mt-4 divide-y divide-[var(--sg-divider-on-light)]">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div><p className="text-sm font-bold text-[#153b61]">{observation.exerciseName}</p><p className="mt-1 text-[11px] text-[var(--sg-text-subtle-on-light)]">{measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div>{directAccess && resolveStrengthObservationRoute(observation.exerciseName) && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} />}</div>)}</div> : <div className="mt-4 rounded-xl border border-dashed border-[#c7d8e6] bg-[var(--sg-surface-light)] p-4"><Activity className="h-5 w-5 text-[var(--sg-info-strong)]" /><p className="mt-3 text-sm font-bold text-[#153b61]">Nothing logged yet</p><p className="mt-1 text-xs leading-5 text-[var(--sg-text-subtle-on-light)]">Log your first lift and your progress starts tracking from there.</p></div>}</aside>
+      <aside className="strength-progress-log light-panel p-5"><p className="metric-label">Your history</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[var(--sg-text-on-light)]">Recent lifts</h2>{recentObservations.length ? <div className="mt-4 divide-y divide-[var(--sg-divider-on-light)]">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div><p className="text-sm font-bold text-[#153b61]">{observation.exerciseName}</p><p className="mt-1 text-[11px] text-[var(--sg-text-subtle-on-light)]">{measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div><div className="strength-log-row-actions">{directAccess && resolveStrengthObservationRoute(observation.exerciseName) && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} />}<button type="button" className="strength-log-remove" disabled={removeObservation.isPending} onClick={() => requestObservationRemoval(observation as StrengthObservationRecord)} aria-label={`Remove the ${observation.exerciseName} test from ${new Date(observation.observedAt).toLocaleDateString()}`} title="Remove this test"><Trash2 className="h-3.5 w-3.5" /></button></div></div>)}</div> : <div className="mt-4 rounded-xl border border-dashed border-[#c7d8e6] bg-[var(--sg-surface-light)] p-4"><Activity className="h-5 w-5 text-[var(--sg-info-strong)]" /><p className="mt-3 text-sm font-bold text-[#153b61]">Nothing logged yet</p><p className="mt-1 text-xs leading-5 text-[var(--sg-text-subtle-on-light)]">Log your first lift and your progress starts tracking from there.</p></div>}{observationRemovalError && <p className="strength-log-remove-error" role="alert">{observationRemovalError}</p>}</aside>
     </div>
   </section>;
 }

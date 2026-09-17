@@ -11,6 +11,8 @@ vi.mock("@/lib/trpc", () => ({
   trpc: {
     useUtils: () => ({ strengthGenome: { overview: { invalidate: mocks.invalidate }, observations: { invalidate: mocks.invalidate }, priorities: { invalidate: mocks.invalidate } } }),
     researchEvidence: { supabaseInventory: { useQuery: () => ({ data: { status: "unavailable" } }) } },
+    // The repair router backs the "remove this test" control in the history list.
+    repair: { deleteStrengthObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) } },
     strengthGenome: {
       overview: { useQuery: () => ({ data: { observationCount: 0, nextAction: "Add a result", regions: [], athleteConfirmedPriorityRegionIds: [] } }) },
       observations: { useQuery: () => ({ data: [] }) },

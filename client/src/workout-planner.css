@@ -298,3 +298,57 @@
    The 44px tap-target floor made that dead zone taller (34x34 -> 34x44), so
    the row reserves the space instead of letting the two overlap. */
 .day-orderable-exercise .custom-row > button { margin-right: 4.75rem; }
+
+/* Removing a logged set.
+
+   The row's generic `button` rules style the save control, and
+   `.session-set-complete button` paints every button in a finished row with the
+   positive state colour - which would render a destructive control as a green
+   confirm. These selectors are deliberately more specific than both so the
+   remove control keeps the critical colour in every row state, and they add the
+   fifth grid column the extra control needs. */
+.session-set-row { grid-template-columns: 52px minmax(86px, 1fr) minmax(65px, .7fr) auto auto; }
+.session-set-row .session-set-clear,
+.session-set-complete .session-set-clear {
+  display: inline-flex;
+  min-width: 34px;
+  min-height: 31px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(226 86 74 / .55);
+  background: transparent;
+  padding: 0 .4rem;
+  color: var(--sg-state-critical);
+  transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease);
+}
+.session-set-row .session-set-clear:hover:not(:disabled) { border-color: var(--sg-state-critical); background: rgb(226 86 74 / .12); }
+.session-set-row .session-set-clear:disabled { opacity: .5; }
+.session-set-row .session-set-clear:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 1px; }
+
+.device-workout-tracker .session-set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto; }
+.device-workout-tracker .session-set-row .session-set-clear,
+.device-workout-tracker .session-set-complete .session-set-clear {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid rgb(226 86 74 / .5);
+  border-radius: 8px;
+  background: rgb(226 86 74 / .1);
+  color: #f4a9a2;
+}
+.device-workout-tracker .session-set-row .session-set-clear:hover:not(:disabled) { background: rgb(226 86 74 / .22); }
+
+.session-set-error {
+  margin-top: .6rem;
+  border-left: 2px solid var(--sg-state-critical);
+  padding-left: .55rem;
+  color: var(--sg-state-critical);
+  font-size: var(--sg-text-xs);
+  line-height: 1.45;
+}
+.device-workout-tracker .session-set-error { margin: 0 .7rem .7rem; color: #f4a9a2; }
+
+@media (max-width: 620px) {
+  /* The generic rule sends every button in the row to full width, which would
+     stack a destructive control under the save control at the same size. */
+  .session-set-row .session-set-clear { grid-column: auto; }
+}
