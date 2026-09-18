@@ -88,6 +88,14 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
   const analysis = useMemo(() => analyzeSplitStack(workout, catalog, split), [catalog, split, workout]);
   const bars = useMemo(() => buildCoverageBars(analysis.ratings), [analysis.ratings]);
   const summary = useMemo(() => summarizeCoverage(bars, label), [bars]);
+  /**
+   * "5 targets under, Pectoralis major 90 points short" is arithmetically true of
+   * an empty day and reads as five failures before the athlete has added
+   * anything. A day with nothing in it gets told that instead.
+   */
+  const headline = workout.length === 0
+    ? `Nothing added yet — all ${bars.length} ${split.toLowerCase()} targets are open.`
+    : summary.headline;
   const primary = bars.filter((bar) => bar.role === "primary");
   const support = bars.filter((bar) => bar.role === "support");
 
@@ -99,13 +107,13 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
           <p className="rate-stack-eyebrow">
             <BarChart3 className="h-3.5 w-3.5" /> {split} coverage
           </p>
-          <p className="rate-stack-headline">{summary.headline}</p>
-          <p className="rate-stack-tallies">
+          <p className="rate-stack-headline">{headline}</p>
+          {workout.length > 0 && <p className="rate-stack-tallies">
             <BandTally band="short" count={summary.short} />
             <BandTally band="near" count={summary.near} />
             <BandTally band="covered" count={summary.covered} />
             <BandTally band="heavy" count={summary.heavy} />
-          </p>
+          </p>}
         </div>
       </header>
 

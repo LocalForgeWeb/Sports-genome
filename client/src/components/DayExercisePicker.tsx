@@ -5,6 +5,9 @@ import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment"
 import { muscleLabels } from "@/components/AnatomyMap";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { RateStackPanel } from "@/components/RateStackPanel";
+import { analyzeSplitStack } from "@/lib/splitStackAnalysis";
+import { buildCoverageBars } from "@/lib/stackCoverageVisual";
+import { pickerGapTargets, rankPickerResults } from "@/lib/pickerRanking";
 
 type DayExercisePickerProps = {
   exercises: Exercise[];
@@ -34,6 +37,13 @@ export function sortDayExerciseResults(results: Exercise[], muscle: string) {
 }
 
 export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
+  /**
+   * Open on an empty day. The disclosure was collapsed unconditionally, so
+   * adding the first exercise to a new day meant scrolling past the analysis and
+   * expanding a panel before anything could be searched. Uncontrolled after the
+   * first render, so toggling it still sticks.
+   */
+  const [pickerOpen, setPickerOpen] = useState(activeWorkout.length === 0);
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"split" | "all">("split");
   const [equipment, setEquipment] = useState("all");
@@ -50,26 +60,38 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     });
     return sortDayExerciseResults(matched, muscle);
   }, [exercises, equipment, muscle, query, scope, split]);
-  const visibleResults = results.slice(0, resultLimit);
+  /**
+   * The same shortfalls the coverage panel above is already showing. Computing
+   * them here is what lets the list answer the panel instead of sitting beside
+   * it sorted alphabetically.
+   */
+  const gaps = useMemo(
+    () => pickerGapTargets(buildCoverageBars(analyzeSplitStack(activeWorkout, exercises, split).ratings)),
+    [activeWorkout, exercises, split]
+  );
+  const ranked = useMemo(() => rankPickerResults(results, gaps), [gaps, results]);
+  const visibleRanked = ranked.slice(0, resultLimit);
+
   const existingCatalogIds = new Set(activeWorkout.map((exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id));
 
   useEffect(() => { setResultLimit(initialResultLimit); }, [equipment, muscle, query, scope, split]);
 
   return <section className="day-exercise-picker">
     <RateStackPanel workout={activeWorkout} catalog={exercises} split={split} sportId={sportId} prescriptions={prescriptions} onAdd={onAdd} onReplace={onReplace} />
-    <details className="day-exercise-disclosure">
+    <details className="day-exercise-disclosure" open={pickerOpen} onToggle={(event) => setPickerOpen((event.currentTarget as HTMLDetailsElement).open)}>
       <summary>
-        <span><p className="metric-label">Add to this day</p><strong>Find an exercise</strong><small>Search, filter, then add from the catalog</small></span>
+        <span><p className="metric-label">Add to this day</p><strong>{activeWorkout.length ? "Find an exercise" : "Start with your first exercise"}</strong><small>{gaps.length ? `Sorted to close ${muscleLabels[gaps[0].muscle] || gaps[0].muscle} first` : "Search, filter, then add from the catalog"}</small></span>
         <span className="day-exercise-disclosure-action">Browse <ChevronDown className="h-4 w-4" /></span>
       </summary>
       <div className="day-exercise-picker-content">
         <div className="day-exercise-picker-head"><div><p className="metric-label">Build this day yourself</p><h3>Add exercises directly</h3><p>Start with split-matched options, then switch to the full catalog when you want a deliberate exception.</p></div><Dumbbell className="h-5 w-5" /></div>
+        {gaps.length > 0 && activeWorkout.length > 0 && <div className="day-picker-gaps"><span className="day-picker-gaps-label">Short in this day</span>{gaps.map((gap) => <button key={gap.muscle} type="button" onClick={() => setMuscle(muscle === gap.muscle ? "all" : gap.muscle)} className={muscle === gap.muscle ? "day-picker-gap day-picker-gap-active" : "day-picker-gap"} aria-pressed={muscle === gap.muscle}>{muscleLabels[gap.muscle] || gap.muscle}<i>{gap.deltaToTarget}</i></button>)}{muscle !== "all" && <button type="button" className="day-picker-gap-clear" onClick={() => setMuscle("all")}>Clear</button>}</div>}
         <div className="day-picker-tools"><label><Search className="h-4 w-4" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${scope === "split" ? split : "all"} exercises`} /></label><select value={muscle} onChange={(event) => setMuscle(event.target.value)} aria-label="Filter day exercises by muscle group"><option value="all">All muscle groups</option>{muscleOptions.map((value) => <option key={value} value={value}>{muscleLabels[value] || value}</option>)}</select><select value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter day exercises by equipment"><option value="all">All equipment</option>{equipmentOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select><div className="day-picker-scope"><button onClick={() => setScope("split")} className={scope === "split" ? "day-picker-scope-active" : ""}><SlidersHorizontal className="h-3.5 w-3.5" /> {split} fit</button><button onClick={() => setScope("all")} className={scope === "all" ? "day-picker-scope-active" : ""}>All catalog</button></div></div>
         <LocalSearchScope scope={`Searching ${scope === "split" ? `${split}-compatible` : "all catalog"} exercises.`} query={query} />
-        <p className="day-picker-result-count" aria-live="polite"><strong>{results.length}</strong> matching options{muscle !== "all" ? ` · direct ${muscleLabels[muscle] || muscle} targets first` : scope === "split" ? ` · ${split}-compatible catalog options` : " · catalog order"}</p>
+        <p className="day-picker-result-count" aria-live="polite"><strong>{results.length}</strong> option{results.length === 1 ? "" : "s"}{gaps.length > 0 ? ` · ${gaps.map((gap) => muscleLabels[gap.muscle] || gap.muscle).slice(0, 2).join(" and ")} first` : muscle !== "all" ? ` · direct ${muscleLabels[muscle] || muscle} targets first` : scope === "split" ? ` · ${split}-compatible` : " · full catalog"}</p>
         {muscle === "serratusAnterior" && <p className="day-picker-serratus-cue">Serratus anterior options are available: <strong>Cable Serratus Punch</strong> and <strong>Scapular Wall Slide</strong>. Both are permitted in the Push Day pool.</p>}
-        <div className="day-picker-results">{visibleResults.map((exercise) => { const added = existingCatalogIds.has(exercise.id); const directTarget = muscle !== "all" && exercise.primaryMuscles.includes(muscle); return <div key={exercise.id} className={directTarget ? "day-picker-result day-picker-result-direct" : "day-picker-result"}><button onClick={() => onInspect(exercise)}><span>{String(exercise.id).padStart(3, "0")}</span><div><strong>{exercise.name}</strong><small>{exercise.movement} · {exercise.equipment}</small><em>{directTarget ? `Direct target · ${muscleLabels[muscle] || muscle}` : exercise.primaryMuscles.map((muscleKey) => muscleLabels[muscleKey] || muscleKey).join(" · ")}</em></div></button><button disabled={added} onClick={() => onAdd(exercise)} aria-label={`Add ${exercise.name} to this day`}>{added ? "Added" : <><Plus className="h-4 w-4" /> Add</>}</button></div>; })}</div>
-        {results.length > visibleResults.length && <button type="button" className="day-picker-more" onClick={() => setResultLimit((current) => current + initialResultLimit)}>Show more options</button>}
+        <div className="day-picker-results">{visibleRanked.map(({ exercise, fillsGap, supportsGap }) => { const added = existingCatalogIds.has(exercise.id); const directTarget = muscle !== "all" && exercise.primaryMuscles.includes(muscle); return <div key={exercise.id} className={`day-picker-result${directTarget ? " day-picker-result-direct" : ""}${fillsGap ? " day-picker-result-fills" : ""}`}><button onClick={() => onInspect(exercise)}><div><strong>{exercise.name}</strong><small>{exercise.movement} · {exercise.equipment}</small><em>{exercise.primaryMuscles.map((muscleKey) => muscleLabels[muscleKey] || muscleKey).join(" · ")}</em>{fillsGap ? <b className="day-picker-fills-tag">Closes {muscleLabels[fillsGap.muscle] || fillsGap.muscle}, {Math.abs(fillsGap.deltaToTarget)} short</b> : supportsGap ? <b className="day-picker-supports-tag">Supports {muscleLabels[supportsGap.muscle] || supportsGap.muscle}</b> : null}</div></button><button disabled={added} onClick={() => onAdd(exercise)} aria-label={added ? `${exercise.name} is already in this day` : `Add ${exercise.name} to this day`}>{added ? "Added" : <><Plus className="h-4 w-4" /> Add</>}</button></div>; })}</div>
+        {ranked.length > visibleRanked.length && <button type="button" className="day-picker-more" onClick={() => setResultLimit((current) => current + initialResultLimit)}>Show more options</button>}
         {!results.length && <p className="day-picker-empty">No exercises match this setup. Clear a filter or search the full catalog.</p>}
       </div>
     </details>
