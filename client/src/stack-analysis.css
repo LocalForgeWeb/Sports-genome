@@ -8,5 +8,399 @@
 .stack-analysis-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid rgb(164 200 232 / .22); }.stack-analysis-summary > div { display: flex; min-height: 3.25rem; align-items: center; gap: .45rem; border-right: 1px solid rgb(164 200 232 / .22); padding: .7rem; color: var(--sg-text-on-dark); font-size: .7rem; }.stack-analysis-summary > div:last-child { border-right: 0; }.stack-analysis-target-index { display: grid !important; gap: .1rem !important; }.stack-analysis-target-index strong { color: #ffe49a; }.stack-analysis-target-index small { color: #b8d4ef; font-size: .6875rem; }
 .stack-analysis-map-disclosure, .stack-analysis-detail-disclosure { margin: 0; }.stack-analysis-map-disclosure summary, .stack-analysis-detail-disclosure summary { display: flex; min-height: 3.5rem; align-items: center; justify-content: space-between; gap: .75rem; padding: 0 1rem; color: var(--sg-text-on-dark); cursor: pointer; font-size: .72rem; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }.stack-analysis-map-disclosure summary span { display: inline-flex; align-items: center; gap: .45rem; }.stack-analysis-map-disclosure summary small, .stack-analysis-detail-disclosure summary small { color: var(--sg-text-muted-on-dark); font-size: .6875rem; }.stack-analysis-map-frame { border-top: 1px solid rgb(164 200 232 / .22); padding: .75rem; }.stack-analysis-map-frame .anatomy-atlas-pro { margin: 0; }
 .stack-analysis-next-picks { margin: .9rem 0 1rem; border-top: 1px solid rgb(164 200 232 / .22); border-bottom: 1px solid rgb(164 200 232 / .22); padding: .8rem 0; }.stack-analysis-next-picks-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }.stack-analysis-next-picks-head .metric-label { color: #ffe49a; }.stack-analysis-next-picks-head p:last-child { margin: .16rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.3; }.stack-analysis-next-picks-head > small { color: var(--sg-text-muted-on-dark); font-size: .6875rem; white-space: nowrap; }.stack-analysis-next-pick-list, .stack-analysis-more-picks > div { display: grid; gap: .45rem; margin-top: .65rem; }.stack-analysis-next-picks article { display: flex; min-height: 3.2rem; align-items: center; justify-content: space-between; gap: .65rem; border: 1px solid rgb(164 200 232 / .22); background: var(--sg-surface-panel); padding: .55rem .6rem; }.stack-analysis-next-picks strong, .stack-analysis-next-picks small, .stack-analysis-next-picks em { display: block; }.stack-analysis-next-picks strong { color: var(--sg-text-on-dark); font-size: .75rem; line-height: 1.25; }.stack-analysis-next-picks small { margin-top: .12rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.25; }.stack-analysis-next-picks em { margin-top: .14rem; color: #ffe49a; font-size: .6875rem; font-style: normal; line-height: 1.25; }.stack-analysis-next-picks button { display: inline-flex; min-width: 3.4rem; min-height: 2.35rem; flex: 0 0 auto; align-items: center; justify-content: center; gap: .25rem; border: 1px solid var(--sg-focus-on-dark); background: rgb(242 193 77 / .08); color: #ffe49a; font-size: .6875rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }.stack-analysis-more-picks { margin-top: .55rem; }.stack-analysis-more-picks summary, .stack-analysis-suggestion-boundary summary { color: var(--sg-text-muted-on-dark); cursor: pointer; font-size: .6875rem; font-weight: 800; }.stack-analysis-suggestion-boundary { margin-top: .6rem; }.stack-analysis-suggestion-boundary p { margin: .45rem 0 0; border-left: 2px solid #d5ad43; padding-left: .5rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.4; }
-.stack-analysis-detail-disclosure { overflow: hidden; }.stack-analysis-detail-disclosure summary { border-bottom: 1px solid rgb(164 200 232 / .22); }.stack-analysis-detail { padding: clamp(1rem, 2.5vw, 1.5rem); }.stack-analysis-detail-head { display: flex; justify-content: space-between; gap: 1rem; }.stack-analysis-detail-head h2 { margin: .25rem 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.9rem; line-height: .9; text-transform: uppercase; }.stack-analysis-detail-head p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: .75rem; line-height: 1.45; }.stack-analysis-detail-head > span { color: #ffe49a; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.8rem; }.stack-analysis-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin-top: 1rem; }.stack-analysis-metric { border: 1px solid rgb(164 200 232 / .22); padding: .65rem; }.stack-analysis-metric > div { display: flex; justify-content: space-between; gap: .5rem; color: var(--sg-text-on-dark); font-size: .6875rem; }.stack-analysis-metric i { display: block; height: .25rem; margin-top: .5rem; overflow: hidden; background: rgb(255 255 255 / .14); }.stack-analysis-metric b { display: block; height: 100%; background: #6ea6dd; }.stack-analysis-contributions { display: grid; gap: .6rem; margin-top: 1rem; }.stack-analysis-contributions article { border-top: 1px solid rgb(164 200 232 / .22); padding-top: .6rem; }.stack-analysis-contributions article > button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .75rem; color: var(--sg-text-on-dark); text-align: left; }.stack-analysis-contributions strong, .stack-analysis-contributions small { display: block; }.stack-analysis-contributions small { margin-top: .15rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; }.stack-analysis-contributions button > span { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.1rem; text-align: right; }.stack-analysis-contributions button > span small { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: .6875rem; }.stack-analysis-contributions article > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4rem; margin-top: .6rem; }.stack-analysis-boundary { margin: 0; border-left: 2px solid #d5ad43; background: var(--sg-surface-panel); padding: .8rem 1rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.45; }.stack-analysis-empty { display: grid; min-height: 60vh; place-items: center; align-content: center; gap: .75rem; padding: 2rem; color: var(--sg-text-muted-on-dark); text-align: center; }.stack-analysis-empty h2 { margin: 0; color: var(--sg-text-on-dark); }
-@media (max-width: 760px) { .stack-analysis-head { padding: .85rem 1rem; }.stack-analysis-head h1 { font-size: 2rem; }.stack-analysis-head p:last-child { margin-top: .3rem; font-size: .7rem; }.stack-analysis-main { display: flex; flex-direction: column; gap: .65rem; padding: .7rem; }.stack-analysis-rank { order: 1; padding: .85rem; }.stack-analysis-body { order: 2; }.stack-analysis-detail-disclosure { order: 3; }.stack-analysis-boundary { order: 4; }.stack-analysis-hint { margin: .45rem 0 .55rem; font-size: .6875rem; }.stack-analysis-next-picks { margin: .65rem 0 .7rem; padding: .65rem 0; }.stack-analysis-next-picks article { min-height: 3.1rem; }.stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }.stack-analysis-summary > div { min-height: 2.9rem; font-size: .6875rem; }.stack-analysis-summary > div:last-child { grid-column: 1 / -1; border-top: 1px solid rgb(164 200 232 / .22); border-right: 0; }.stack-analysis-row { min-height: 4.65rem; grid-template-columns: 1.35rem minmax(0, 1fr) auto 1rem; gap: .5rem; padding: .55rem; }.stack-analysis-row-copy strong { font-size: .84rem; }.stack-analysis-row-copy small { font-size: .6875rem; }.stack-analysis-row-copy i { margin-top: .38rem; }.stack-analysis-row-score { font-size: 1.1rem; }.stack-analysis-supporting { margin-top: .65rem; }.stack-analysis-metrics { grid-template-columns: 1fr; }.stack-analysis-contributions article > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }.stack-analysis-detail-head { align-items: flex-start; }.stack-analysis-detail-head h2 { font-size: 1.65rem; } }
+.stack-analysis-detail-disclosure { overflow: hidden; }.stack-analysis-detail-disclosure summary { border-bottom: 1px solid rgb(164 200 232 / .22); }.stack-analysis-detail { padding: clamp(1rem, 2.5vw, 1.5rem); }.stack-analysis-detail-head { display: flex; justify-content: space-between; gap: 1rem; }.stack-analysis-detail-head h2 { margin: .25rem 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.9rem; line-height: .9; text-transform: uppercase; }.stack-analysis-detail-head p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: .75rem; line-height: 1.45; }.stack-analysis-detail-head > span { color: #ffe49a; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.8rem; }.stack-analysis-contributions { display: grid; gap: .6rem; margin-top: 1rem; }.stack-analysis-contributions article { border-top: 1px solid rgb(164 200 232 / .22); padding-top: .6rem; }.stack-analysis-contributions article > button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .75rem; color: var(--sg-text-on-dark); text-align: left; }.stack-analysis-contributions strong, .stack-analysis-contributions small { display: block; }.stack-analysis-contributions small { margin-top: .15rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; }.stack-analysis-contributions button > span { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.1rem; text-align: right; }.stack-analysis-contributions button > span small { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: .6875rem; }.stack-analysis-boundary { margin: 0; border-left: 2px solid #d5ad43; background: var(--sg-surface-panel); padding: .8rem 1rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.45; }.stack-analysis-empty { display: grid; min-height: 60vh; place-items: center; align-content: center; gap: .75rem; padding: 2rem; color: var(--sg-text-muted-on-dark); text-align: center; }.stack-analysis-empty h2 { margin: 0; color: var(--sg-text-on-dark); }
+@media (max-width: 760px) { .stack-analysis-head { padding: .85rem 1rem; }.stack-analysis-head h1 { font-size: 2rem; }.stack-analysis-head p:last-child { margin-top: .3rem; font-size: .7rem; }.stack-analysis-main { display: flex; flex-direction: column; gap: .65rem; padding: .7rem; }.stack-analysis-rank { order: 1; padding: .85rem; }.stack-analysis-body { order: 2; }.stack-analysis-detail-disclosure { order: 3; }.stack-analysis-boundary { order: 4; }.stack-analysis-hint { margin: .45rem 0 .55rem; font-size: .6875rem; }.stack-analysis-next-picks { margin: .65rem 0 .7rem; padding: .65rem 0; }.stack-analysis-next-picks article { min-height: 3.1rem; }.stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }.stack-analysis-summary > div { min-height: 2.9rem; font-size: .6875rem; }.stack-analysis-summary > div:last-child { grid-column: 1 / -1; border-top: 1px solid rgb(164 200 232 / .22); border-right: 0; }.stack-analysis-row { min-height: 4.65rem; grid-template-columns: 1.35rem minmax(0, 1fr) auto 1rem; gap: .5rem; padding: .55rem; }.stack-analysis-row-copy strong { font-size: .84rem; }.stack-analysis-row-copy small { font-size: .6875rem; }.stack-analysis-row-copy i { margin-top: .38rem; }.stack-analysis-row-score { font-size: 1.1rem; }.stack-analysis-supporting { margin-top: .65rem; }.stack-analysis-detail-head { align-items: flex-start; }.stack-analysis-detail-head h2 { font-size: 1.65rem; } }
+
+/* ==========================================================================
+   Loading profile
+
+   Four demand indices drawn as one shape on one axis, replacing four bordered
+   tiles. The measures only mean something relative to each other - 80 in the
+   stretch against 25 at the top is a different exercise from the reverse - and
+   separate boxes made those read identically.
+
+   One hue for all four bars on purpose: these are four magnitudes of the same
+   kind, so length carries the value and hue carries nothing. Colouring each bar
+   differently would imply a category difference that is not there.
+   ========================================================================== */
+
+.loading-profile { margin: var(--sg-space-4) 0 0; }
+
+.loading-profile-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem var(--sg-space-2);
+  margin-bottom: var(--sg-space-3);
+}
+
+.loading-profile-shape {
+  margin: 0;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-sm);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.loading-profile-shape-stretch { color: #a8d4fa; }
+.loading-profile-shape-shortened { color: #f6d489; }
+
+.loading-profile-plot {
+  position: relative;
+  display: grid;
+  gap: .3rem;
+}
+
+/* One midpoint rule. More would be chart junk behind a mark this thin.
+   Inset to the plot's bar column so it lines up with the tracks, not the labels. */
+.loading-profile-gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 0;
+  width: 1px;
+  margin-left: calc(5.5rem + .5rem);
+  background: rgb(164 200 232 / .16);
+  transform: translateX(-50%);
+}
+
+.loading-profile-row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) 2.2rem;
+  align-items: center;
+  gap: .5rem;
+}
+
+.loading-profile-label {
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+}
+
+.loading-profile-track {
+  position: relative;
+  display: block;
+  height: 10px;
+  background: var(--sg-data-missing);
+}
+
+.loading-profile-track i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: block;
+  background: var(--sg-seq-3);
+  transition: width var(--sg-motion-base) var(--sg-ease);
+}
+
+.loading-profile-value {
+  color: var(--sg-text-on-dark);
+  font-family: var(--sg-font-display);
+  font-size: var(--sg-text-sm);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.loading-profile-axis {
+  display: flex;
+  justify-content: space-between;
+  margin: .4rem 0 0 calc(5.5rem + .5rem);
+  padding-right: calc(2.2rem + .5rem);
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Contribution rows
+
+   Was: three exercises x four bordered mini-bar boxes = twelve widgets carrying
+   twelve numbers. Now one row each, with the same profile at row scale so the
+   shapes can be compared straight down the column.
+   ========================================================================== */
+
+.stack-analysis-contributions article > button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--sg-space-3);
+  padding: .55rem 0;
+}
+
+.contribution-copy { min-width: 0; }
+.contribution-copy strong,
+.contribution-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contribution-copy strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); line-height: 1.25; }
+.contribution-copy small { margin-top: .16rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); }
+
+/* `.stack-analysis-contributions button > span` right-aligns and enlarges every
+   span in the row - it was written for the old score block and still matches the
+   new copy and spark. These reset what this row actually needs. */
+.stack-analysis-contributions article > button { text-align: left; }
+
+.stack-analysis-contributions .contribution-copy {
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+}
+
+.profile-spark {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  gap: 2px;
+  width: 34px;
+  height: 18px;
+}
+
+.profile-spark i {
+  display: block;
+  width: 100%;
+  min-height: 1px;
+  background: var(--sg-seq-4);
+}
+
+.stack-analysis-contribution-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .4rem;
+}
+
+.stack-analysis-contribution-heading span {
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.contribution-score {
+  color: var(--sg-text-on-dark);
+  font-family: var(--sg-font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.contribution-score small {
+  color: var(--sg-text-faint-on-dark);
+  font-family: inherit;
+  font-size: var(--sg-text-2xs);
+  font-weight: 700;
+}
+
+/* The bulky per-row label ("Relative catalog muscle-role contribution") moved to
+   the group heading, said once. */
+
+
+/* -- Coverage rows: the split's target, marked -------------------------- */
+
+.stack-analysis-row-copy i { position: relative; }
+
+.stack-analysis-row-fill {
+  display: block;
+  height: 100%;
+  background: var(--sg-seq-4);
+  transition: width var(--sg-motion-base) var(--sg-ease);
+}
+
+.stack-analysis-row-short .stack-analysis-row-fill { background: var(--sg-state-critical); }
+.stack-analysis-row-near .stack-analysis-row-fill { background: var(--sg-state-caution); }
+.stack-analysis-row-covered .stack-analysis-row-fill { background: var(--sg-state-positive); }
+.stack-analysis-row-heavy .stack-analysis-row-fill { background: var(--sg-seq-4); }
+
+.stack-analysis-row-target {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--sg-text-on-dark);
+  box-shadow: 0 0 0 1px rgb(7 24 46 / .85);
+  text-decoration: none;
+}
+
+.stack-analysis-row-short .stack-analysis-row-score small { color: #f4a9a2; }
+.stack-analysis-row-near .stack-analysis-row-score small { color: #f6d489; }
+.stack-analysis-row-covered .stack-analysis-row-score small { color: #9adfb0; }
+.stack-analysis-row-heavy .stack-analysis-row-score small { color: #a8d4fa; }
+
+@media (max-width: 640px) {
+  .loading-profile-row { grid-template-columns: 4.5rem minmax(0, 1fr) 2.2rem; }
+  .loading-profile-gridline { margin-left: calc(4.5rem + .5rem); }
+  .loading-profile-axis { margin-left: calc(4.5rem + .5rem); }
+  .stack-analysis-contributions article > button { grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--sg-space-2); }
+  .stack-analysis-contributions article > button > svg:last-child { display: none; }
+}
+
+/* The score block stacks a small caps label over a display-size number at
+   line-height .9, which sets them touching. The band word and the delta are two
+   separate facts and need to read as two lines. */
+.stack-analysis-row-score { gap: .2rem; line-height: 1; }
+.stack-analysis-row-score small { letter-spacing: .06em; }
+
+/* The summary strip reserves three equal columns but only ever fills two, so it
+   rendered a dead cell - and at narrow widths the two wrapped onto separate rows
+   with an empty half beside each. Sizing to content removes both. */
+.stack-analysis-summary { grid-template-columns: repeat(2, max-content); }
+.stack-analysis-summary > div:last-child { border-right: 0; }
+
+/* ==========================================================================
+   What stands out / sport demands / session volume
+   ========================================================================== */
+
+.stack-tips { margin: var(--sg-space-3) 0 0; }
+.stack-tips ul { display: grid; gap: .35rem; margin: .45rem 0 0; padding: 0; list-style: none; }
+
+.stack-tip {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: .5rem;
+  border-left: 2px solid var(--sg-info);
+  padding: .4rem 0 .4rem .6rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-xs);
+  line-height: 1.5;
+}
+
+.stack-tip svg { margin-top: .12rem; color: var(--sg-info); }
+.stack-tip-volume { border-left-color: var(--sg-state-caution); }
+.stack-tip-volume svg { color: var(--sg-state-caution); }
+.stack-tip-quality { border-left-color: var(--sg-seq-4); }
+.stack-tip-quality svg { color: var(--sg-seq-4); }
+
+.quality-coverage,
+.session-volume { border-top: 1px solid rgb(164 200 232 / .22); padding: var(--sg-space-4); }
+
+.quality-rows,
+.session-volume-rows { display: grid; gap: .32rem; margin: .5rem 0 0; padding: 0; list-style: none; }
+
+.quality-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.5rem 7rem;
+  align-items: center;
+  gap: .5rem;
+}
+
+.quality-row-name {
+  overflow: hidden;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quality-row-count {
+  display: inline-flex;
+  align-items: center;
+  gap: .28rem;
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.quality-row-count i { font-style: normal; font-weight: 900; }
+.quality-row-covered .quality-row-count { color: #9adfb0; }
+.quality-row-absent .quality-row-count { color: var(--sg-text-faint-on-dark); }
+.quality-row-absent .quality-row-name { color: var(--sg-text-subtle-on-dark); }
+
+/* The split's own catalog share, as context for an absent demand: a quality this
+   split can barely serve is a different situation from one it serves well. */
+.quality-row-share { display: grid; gap: .16rem; }
+.quality-row-share i { display: block; height: 4px; overflow: hidden; background: var(--sg-data-missing); }
+.quality-row-share b { display: block; height: 100%; background: var(--sg-seq-2); }
+.quality-row-share small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-2xs); }
+.quality-row-covered .quality-row-share b { background: var(--sg-seq-4); }
+
+.quality-extra {
+  margin: var(--sg-space-3) 0 0;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+  line-height: 1.5;
+}
+
+.session-volume-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7rem 2rem 6rem;
+  align-items: center;
+  gap: .5rem;
+}
+
+.session-volume-name {
+  overflow: hidden;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Direct and supporting are two different things, so they are two segments of
+   one bar rather than one total that hides the split. */
+.session-volume-track { display: flex; height: 10px; overflow: hidden; background: var(--sg-data-missing); }
+.session-volume-direct { display: block; background: var(--sg-seq-4); }
+.session-volume-support { display: block; background: var(--sg-seq-2); }
+
+.session-volume-sets {
+  color: var(--sg-text-on-dark);
+  font-family: var(--sg-font-display);
+  font-size: var(--sg-text-sm);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.session-volume-reading {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.session-volume-reading i { font-style: normal; font-weight: 900; }
+.session-volume-heavy .session-volume-reading { color: #f6d489; }
+.session-volume-heavy .session-volume-direct { background: var(--sg-state-caution); }
+.session-volume-light .session-volume-reading { color: var(--sg-text-faint-on-dark); }
+.session-volume-solid .session-volume-reading { color: #9adfb0; }
+.session-volume-solid .session-volume-direct { background: var(--sg-state-positive); }
+.session-volume-indirect-only .session-volume-reading { color: #a8d4fa; }
+
+.session-volume-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .3rem;
+  margin: var(--sg-space-3) 0 0;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+}
+
+.session-volume-legend span { display: inline-block; flex: 0 0 auto; width: 14px; height: 8px; }
+.session-volume-key-direct { background: var(--sg-seq-4); }
+.session-volume-key-support { margin-left: .45rem; background: var(--sg-seq-2); }
+
+@media (max-width: 640px) {
+  .quality-row { grid-template-columns: minmax(0, 1fr) 5.5rem; grid-template-areas: "name count" "share share"; gap: .2rem .5rem; }
+  .quality-row-name { grid-area: name; }
+  .quality-row-count { grid-area: count; justify-content: flex-end; }
+  .quality-row-share { grid-area: share; }
+  .quality-rows { gap: .55rem; }
+  .session-volume-row { grid-template-columns: minmax(0, 1fr) 2rem 5.5rem; grid-template-areas: "name sets reading" "track track track"; gap: .2rem .45rem; }
+  .session-volume-name { grid-area: name; }
+  .session-volume-track { grid-area: track; }
+  .session-volume-sets { grid-area: sets; }
+  .session-volume-reading { grid-area: reading; justify-content: flex-end; }
+  .session-volume-rows { gap: .55rem; }
+}

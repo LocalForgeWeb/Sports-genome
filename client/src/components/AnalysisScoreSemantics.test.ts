@@ -11,8 +11,11 @@ describe("analysis score semantics", () => {
     expect(anatomy).toContain("Sporting-action role");
     expect(genome).toContain("Estimated ${entry.contribution}/100 involvement");
     expect(genome).toContain("planning comparison, not a direct performance measurement");
-    expect(stack).toContain("${item.involvement}%");
-    expect(stack).toContain("{contribution.involvement}/100");
+    // The denominator moved from a per-row string into the group heading and a
+    // <small>, but a score is still never shown without the scale it is on.
+    expect(stack).toContain("relative contribution, /100");
+    expect(stack).toContain("<small>/100</small>");
+    expect(stack).toContain("{selected.involvement}%");
     expect(stack).toContain("Target coverage is calculated from this split’s intended muscles only.");
     expect(stack).toContain("Supporting muscles are not included in the {split.toLowerCase()} target grade");
     expect(stack).toContain("does not diagnose, measure electromyography, or guarantee an individual response");

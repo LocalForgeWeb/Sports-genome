@@ -27,7 +27,13 @@ describe("canonical connected exercise catalog", () => {
   });
 
 	  it("keeps only actionable mobile Catalog connection states visible and visually distinct without presenting them as performance ratings", () => {
-    expect(catalogSource).toContain("connection.label}{selectedActionLabel ? ` · ${selectedActionLabel}` : \"\"}");
+    // The connection state itself is per-card; the action it is measured against
+    // is one fact about the whole grid. Repeating the action name on every card
+    // made all 36 chips read "SUPPORTING LINK · PE..." - identical and truncated,
+    // because the suffix never fit - so it is stated once in the header instead.
+    expect(catalogSource).toContain("{connection.label}</b>");
+    expect(catalogSource).not.toContain("${selectedActionLabel}`");
+    expect(catalogSource).toContain("Action links below are measured against");
 	    expect(catalogSource).toContain('connection && connection.label !== "Not mapped"');
     expect(catalogStyles).toContain(".catalog-action-link-direct-support");
     expect(catalogStyles).toContain(".catalog-action-link-supporting-link");

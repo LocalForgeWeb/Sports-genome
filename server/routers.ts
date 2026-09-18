@@ -41,6 +41,12 @@ import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStr
 import { getPublicNormsReference } from "./normsRegistry";
 import { getWorkoutPlan, maxPlanBytes, saveWorkoutPlan } from "./workoutPlanSync";
 import {
+  correctWorkoutSet,
+  deleteStrengthObservation,
+  deleteWorkoutSet,
+  type RepairOutcome,
+} from "./dataIntegrityRepair";
+import {
   getAthleteStrengthProfile,
   upsertAthleteStrengthProfile,
 } from "./athleteStrengthProfile";
@@ -51,6 +57,21 @@ import {
   setStrengthObservationBodyMass,
   setStrengthPriority,
 } from "./strengthGenome";
+
+/**
+ * One answer for "not yours" and "does not exist".
+ *
+ * Reporting them separately would turn every repair endpoint into a way to probe
+ * which record ids exist on other accounts, so the distinction stays inside
+ * `resolveRepair` and never reaches the wire.
+ */
+function answer(outcome: RepairOutcome) {
+  if (outcome.status === "applied") return { status: "applied" as const };
+  if (outcome.status === "unavailable") {
+    throw new TRPCError({ code: "SERVICE_UNAVAILABLE", message: "Records are unavailable right now." });
+  }
+  throw new TRPCError({ code: "NOT_FOUND", message: "That record is not available on this account." });
+}
 
 export const appRouter = router({
   auth: router({
@@ -250,6 +271,47 @@ export const appRouter = router({
           });
         return session;
       }),
+  }),
+
+  /**
+   * Correcting and removing the athlete's own records.
+   *
+   * Before this, `removePasskey` was the only destructive operation in the API,
+   * so a mistyped set was permanent. Every procedure here re-checks ownership in
+   * the database rather than trusting the id in the request.
+   */
+  repair: router({
+    deleteWorkoutSet: protectedProcedure
+      .input(
+        z.object({
+          sessionExerciseId: z.number().int().positive(),
+          setNumber: z.number().int().positive().max(100),
+        })
+      )
+      .mutation(async ({ ctx, input }) => answer(await deleteWorkoutSet(ctx.user.id, input))),
+    correctWorkoutSet: protectedProcedure
+      .input(
+        z.object({
+          sessionExerciseId: z.number().int().positive(),
+          setNumber: z.number().int().positive().max(100),
+          /** Omitted stays as it is; null clears it. */
+          actualWeight: z.number().min(0).max(2000).nullable().optional(),
+          weightUnit: z.enum(["lb", "kg"]).optional(),
+          actualReps: z.number().int().min(0).max(1000).nullable().optional(),
+          actualRpe: z.number().min(0).max(10).nullable().optional(),
+          completed: z.boolean().optional(),
+          setNotes: z.string().trim().max(500).nullable().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { sessionExerciseId, setNumber, ...correction } = input;
+        return answer(await correctWorkoutSet(ctx.user.id, { sessionExerciseId, setNumber, correction }));
+      }),
+    deleteStrengthObservation: protectedProcedure
+      .input(z.object({ observationId: z.number().int().positive() }))
+      .mutation(async ({ ctx, input }) =>
+        answer(await deleteStrengthObservation(ctx.user.id, input.observationId))
+      ),
   }),
 
   strengthGenome: router({

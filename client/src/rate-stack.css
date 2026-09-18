@@ -1,1 +1,397 @@
-.rate-stack-panel { border-top: 1px solid rgb(255 255 255 / .12); background: linear-gradient(135deg, rgb(12 44 78 / .92), rgb(7 31 58 / .92)); }.rate-stack-trigger { display: grid; width: 100%; grid-template-columns: 1fr auto auto; align-items: center; gap: .65rem; padding: .9rem 1rem; color: var(--sg-text-on-dark); text-align: left; }.rate-stack-trigger > span { display: inline-flex; align-items: center; gap: .45rem; font-size: .6875rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }.rate-stack-trigger > span svg { color: #8ec8ff; }.rate-stack-trigger > strong { border: 1px solid rgb(142 200 255 / .42); padding: .23rem .36rem; color: #cfeaff; font-family: var(--font-display, sans-serif); font-size: 1rem; }.rate-stack-trigger > svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }.rate-stack-chevron-open { transform: rotate(180deg); }.rate-stack-scope { border-top: 1px solid rgb(255 255 255 / .1); }.rate-stack-scope summary { display: inline-flex; align-items: center; gap: .35rem; min-height: 36px; cursor: pointer; list-style: none; padding: .42rem 1rem; color: #a9c7e4; font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }.rate-stack-scope summary::-webkit-details-marker { display: none; }.rate-stack-scope summary svg { color: #f2c56a; }.rate-stack-scope summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }.rate-stack-scope > div { padding: 0 1rem .75rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.45; }.rate-stack-scope[open] summary { color: #f2c56a; }.rate-stack-body { border-top: 1px solid rgb(255 255 255 / .1); padding: 1rem; }.rate-stack-summary { display: flex; gap: .5rem; align-items: flex-start; color: #d7eaff; font-size: .7rem; line-height: 1.45; }.rate-stack-summary svg { flex: 0 0 auto; color: #f2c56a; }.rate-stack-muscles { display: grid; gap: .55rem; margin-top: .9rem; }.rate-stack-muscle { display: grid; grid-template-columns: minmax(0, 1fr) 92px; gap: .65rem; align-items: center; }.rate-stack-muscle strong { display: block; color: var(--sg-text-on-dark); font-size: .6875rem; }.rate-stack-muscle small { display: block; margin-top: .16rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; }.rate-stack-muscle span { position: relative; z-index: 0; height: 16px; overflow: hidden; border: 1px solid rgb(255 255 255 / .14); color: #dceeff; font-size: .6875rem; font-weight: 900; line-height: 14px; text-align: center; }.rate-stack-muscle span i { position: absolute; z-index: -1; inset: 0 auto 0 0; display: block; background: var(--sg-info-strong); opacity: .7; }.rate-stack-gap span i { background: var(--sg-action-fill); }.rate-stack-high span i { background: #d5ad43; }.rate-stack-advice { margin-top: 1rem; border-top: 1px solid rgb(255 255 255 / .1); padding-top: .9rem; }.rate-stack-advice article { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .5rem; border: 1px solid rgb(126 177 229 / .22); background: rgb(255 255 255 / .04); padding: .65rem; }.rate-stack-advice strong, .rate-stack-advice small { display: block; }.rate-stack-advice strong { color: #fff; font-size: .6875rem; }.rate-stack-advice small { margin-top: .2rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.4; }.rate-stack-advice button { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .25rem; border: 1px solid #8ec8ff; color: #cfeaff; padding: .42rem .5rem; font-size: .6875rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }.rate-stack-clear { margin-top: .85rem; color: #bbd8bb; font-size: .6875rem; }.rate-stack-boundary { margin-top: .55rem; border-left: 2px solid #d5ad43; padding-left: .55rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.45; }@media (max-width: 640px) { .rate-stack-trigger { grid-template-columns: minmax(0,1fr) auto auto; padding: .78rem .9rem; }.rate-stack-trigger > strong { font-size: .9rem; }.rate-stack-body { padding: .85rem; }.rate-stack-muscle { grid-template-columns: 1fr; gap: .25rem; }.rate-stack-muscle span { width: 100%; }.rate-stack-advice article { align-items: flex-start; flex-direction: column; }.rate-stack-advice button { width: 100%; justify-content: center; } }
+/* Stack coverage rating.
+
+   This surface showed a single number ("Push target score 62/100") and nothing
+   else, while the analysis behind it already knew each muscle's target and how
+   far the stack was from it. The bars below plot coverage against that target so
+   the shortfall is the thing you see, not something you have to open a modal to
+   find out.
+
+   Colour never carries a state on its own here: every band ships a glyph and a
+   word too, per the FIXED non-colour-redundancy rule. */
+
+.rate-stack-panel {
+  border-top: 1px solid var(--sg-divider-on-dark);
+  background: linear-gradient(135deg, rgb(12 44 78 / .92), rgb(7 31 58 / .92));
+}
+
+/* -- Header: gauge, one sentence, band tally ------------------------------- */
+
+.rate-stack-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sg-space-4);
+  padding: var(--sg-space-4);
+}
+
+.rate-stack-dial {
+  position: relative;
+  width: 96px;
+  flex: 0 0 auto;
+}
+
+.rate-stack-dial svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: none;
+}
+
+.rate-stack-dial-track {
+  stroke: var(--sg-data-missing);
+  stroke-width: 9;
+}
+
+.rate-stack-dial-value {
+  stroke: var(--sg-state-neutral);
+  stroke-width: 9;
+  transition: stroke-dashoffset var(--sg-motion-base) var(--sg-ease), stroke var(--sg-motion-fast) var(--sg-ease);
+}
+
+.rate-stack-dial-short .rate-stack-dial-value { stroke: var(--sg-state-critical); }
+.rate-stack-dial-near .rate-stack-dial-value { stroke: var(--sg-state-caution); }
+.rate-stack-dial-covered .rate-stack-dial-value { stroke: var(--sg-state-positive); }
+
+.rate-stack-dial-readout {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: .1rem;
+  margin: 0;
+}
+
+.rate-stack-dial-readout strong {
+  color: var(--sg-text-on-dark);
+  font-family: var(--sg-font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: var(--sg-leading-tight);
+}
+
+.rate-stack-dial-readout small {
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 700;
+}
+
+.rate-stack-head-copy { min-width: 0; }
+
+.rate-stack-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  margin: 0;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 900;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.rate-stack-eyebrow svg { color: var(--sg-info); }
+
+.rate-stack-headline {
+  margin: .3rem 0 0;
+  color: var(--sg-text-on-dark);
+  font-family: var(--sg-font-display);
+  font-size: var(--sg-text-lg);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.rate-stack-tallies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin: .5rem 0 0;
+}
+
+.rate-stack-tally {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  border: 1px solid var(--sg-control-border-on-dark);
+  padding: .14rem .36rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.rate-stack-tally i { font-style: normal; font-weight: 900; }
+.rate-stack-tally-short { border-color: rgb(226 86 74 / .5); color: #f4a9a2; }
+.rate-stack-tally-near { border-color: rgb(242 193 77 / .45); color: #f6d489; }
+.rate-stack-tally-covered { border-color: rgb(91 192 122 / .5); color: #9adfb0; }
+.rate-stack-tally-heavy { border-color: rgb(168 212 250 / .45); color: #a8d4fa; }
+
+/* -- Coverage rows -------------------------------------------------------- */
+
+.rate-stack-groups {
+  border-top: 1px solid rgb(255 255 255 / .1);
+  padding: var(--sg-space-3) var(--sg-space-4) var(--sg-space-4);
+}
+
+.rate-stack-group + .rate-stack-group { margin-top: var(--sg-space-4); }
+
+.rate-stack-group-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .4rem;
+  margin: 0 0 .45rem;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 900;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.rate-stack-group-label small {
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.rate-stack-rows {
+  display: grid;
+  gap: .3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rate-stack-row {
+  display: grid;
+  /* Anatomical names run to ~18 characters ("Quadriceps femoris"), which a
+     narrower column clipped on every single row. */
+  grid-template-columns: 8.25rem minmax(0, 1fr) 2.6rem 5rem;
+  align-items: center;
+  gap: .5rem;
+}
+
+.rate-stack-row-name {
+  overflow: hidden;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rate-stack-row-track {
+  position: relative;
+  display: block;
+  height: 14px;
+  border: 1px solid rgb(255 255 255 / .14);
+  background: var(--sg-data-missing);
+}
+
+.rate-stack-row-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: block;
+  background: var(--sg-seq-3);
+  transition: width var(--sg-motion-base) var(--sg-ease);
+}
+
+/* Short and Close are both under the mark, so they share a hue and separate on
+   lightness - the pair reads as one "not there yet" family rather than two
+   unrelated states, and Heavy stays visually distinct from both. */
+.rate-stack-row-short .rate-stack-row-fill { background: var(--sg-state-critical); }
+.rate-stack-row-near .rate-stack-row-fill { background: var(--sg-state-caution); }
+.rate-stack-row-covered .rate-stack-row-fill { background: var(--sg-state-positive); }
+.rate-stack-row-heavy .rate-stack-row-fill { background: var(--sg-seq-4); }
+
+/* The target mark. Sits above the fill so an over-target bar still shows where
+   target was, which is the whole comparison. */
+.rate-stack-row-target {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--sg-text-on-dark);
+  box-shadow: 0 0 0 1px rgb(7 24 46 / .85);
+}
+
+.rate-stack-row-delta {
+  color: var(--sg-text-muted-on-dark);
+  font-family: var(--sg-font-display);
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rate-stack-row-short .rate-stack-row-delta { color: #f4a9a2; }
+.rate-stack-row-near .rate-stack-row-delta { color: #f6d489; }
+.rate-stack-row-heavy .rate-stack-row-delta { color: #a8d4fa; }
+
+.rate-stack-row-band {
+  display: inline-flex;
+  align-items: center;
+  gap: .22rem;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.rate-stack-row-band i { font-style: normal; font-weight: 900; }
+.rate-stack-row-short .rate-stack-row-band { color: #f4a9a2; }
+.rate-stack-row-near .rate-stack-row-band { color: #f6d489; }
+.rate-stack-row-covered .rate-stack-row-band { color: #9adfb0; }
+.rate-stack-row-heavy .rate-stack-row-band { color: #a8d4fa; }
+
+.rate-stack-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .3rem;
+  margin: var(--sg-space-3) 0 0;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+}
+
+.rate-stack-legend span {
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.rate-stack-legend-fill {
+  width: 20px;
+  height: 8px;
+  background: linear-gradient(90deg, var(--sg-state-critical), var(--sg-state-caution), var(--sg-state-positive));
+}
+
+.rate-stack-legend-target {
+  width: 2px;
+  height: 12px;
+  margin-left: .45rem;
+  background: var(--sg-text-on-dark);
+}
+
+.rate-stack-empty {
+  border-top: 1px solid rgb(255 255 255 / .1);
+  margin: 0;
+  padding: var(--sg-space-4);
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-xs);
+  line-height: var(--sg-leading-body);
+}
+
+/* -- Full-analysis entry point -------------------------------------------- */
+
+.rate-stack-trigger {
+  display: grid;
+  background: transparent;
+  width: 100%;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .5rem;
+  border-top: 1px solid rgb(255 255 255 / .1);
+  padding: .8rem var(--sg-space-4);
+  color: var(--sg-text-on-dark);
+  text-align: left;
+  transition: background var(--sg-motion-fast) var(--sg-ease);
+}
+
+.rate-stack-trigger:hover { background: rgb(255 255 255 / .04); }
+.rate-stack-trigger:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
+
+.rate-stack-trigger > span {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.rate-stack-trigger > span svg { color: var(--sg-link-on-dark); }
+
+.rate-stack-trigger > small {
+  overflow: hidden;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-2xs);
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -- Scope disclosure ----------------------------------------------------- */
+
+.rate-stack-scope { border-top: 1px solid rgb(255 255 255 / .1); }
+
+.rate-stack-scope summary {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  min-height: 36px;
+  cursor: pointer;
+  list-style: none;
+  padding: .42rem var(--sg-space-4);
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.rate-stack-scope summary::-webkit-details-marker { display: none; }
+.rate-stack-scope summary svg { color: var(--sg-selected-on-dark); }
+.rate-stack-scope summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
+.rate-stack-scope[open] summary { color: var(--sg-selected-on-dark); }
+
+.rate-stack-scope > div {
+  padding: 0 var(--sg-space-4) var(--sg-space-3);
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-2xs);
+  line-height: 1.45;
+}
+
+.rate-stack-boundary {
+  margin-top: .55rem;
+  border-left: 2px solid var(--sg-selected-on-dark);
+  padding-left: .55rem;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-2xs);
+  line-height: 1.45;
+}
+
+/* -- Narrow screens ------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .rate-stack-head { gap: var(--sg-space-3); padding: var(--sg-space-3); }
+  .rate-stack-dial { width: 78px; }
+  .rate-stack-dial-readout strong { font-size: 1.4rem; }
+  .rate-stack-headline { font-size: var(--sg-text-base); }
+  .rate-stack-groups { padding: var(--sg-space-3); }
+
+  /* The name and the band label need the full width at this size, so the row
+     becomes two lines rather than four squeezed columns. */
+  .rate-stack-row {
+    grid-template-columns: minmax(0, 1fr) 2.6rem 4.6rem;
+    grid-template-areas:
+      "name  name  band"
+      "track delta band";
+    gap: .22rem .45rem;
+  }
+
+  .rate-stack-row-name { grid-area: name; }
+  .rate-stack-row-track { grid-area: track; }
+  .rate-stack-row-delta { grid-area: delta; }
+  .rate-stack-row-band { grid-area: band; align-self: center; justify-content: flex-end; }
+  .rate-stack-rows { gap: .5rem; }
+  .rate-stack-trigger { padding: .78rem var(--sg-space-3); }
+}

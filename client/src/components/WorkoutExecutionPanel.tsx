@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Check, Dumbbell, Loader2, LogIn, Play, Save, Weight } from "lucide-react";
+import { Check, Dumbbell, Loader2, LogIn, Play, Save, Trash2, Weight } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
 import { trpc } from "@/lib/trpc";
+import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { WorkoutHistoryTimeline } from "@/components/WorkoutHistoryTimeline";
 import { ProgressionReviewPanel } from "@/components/ProgressionReviewPanel";
 import type { ExerciseProgressionRecommendation, MuscleSegmentSignal } from "@/lib/progressiveTraining";
@@ -34,12 +35,20 @@ export function resolvedWeightUnit(weightUnit?: WeightUnit): WeightUnit {
   return weightUnit ?? "lb";
 }
 
-function SetLogger({ setNumber, setLog, unit, onSave, pending }: {
+/** A set counts as recorded once it carries any value the athlete typed. */
+export function hasLoggedValue(setLog?: { actualWeight: string | null; actualReps: number | null; completed: boolean }) {
+  return Boolean(setLog && (setLog.completed || setLog.actualWeight !== null || setLog.actualReps !== null));
+}
+
+function SetLogger({ setNumber, setLog, unit, onSave, onClear, pending, clearing }: {
   setNumber: number;
   setLog?: { actualWeight: string | null; actualReps: number | null; completed: boolean };
   unit: WeightUnit;
   onSave: (value: SetSaveValue) => void;
+  /** Absent until the set has something in it - there is nothing to remove from an empty row. */
+  onClear?: () => void;
   pending: boolean;
+  clearing: boolean;
 }) {
   const [weight, setWeight] = useState(setLog?.actualWeight || "");
   const [reps, setReps] = useState(setLog?.actualReps?.toString() || "");
@@ -57,6 +66,14 @@ function SetLogger({ setNumber, setLog, unit, onSave, pending }: {
       {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : complete ? <Check className="h-3.5 w-3.5" /> : null}
       <span>{complete ? "Saved" : "Save set"}</span>
     </button>
+    {onClear && <button
+      type="button"
+      className="session-set-clear"
+      disabled={clearing}
+      onClick={onClear}
+      aria-label={`Remove set ${setNumber}`}
+      title={`Remove set ${setNumber}`}
+    >{clearing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}</button>}
   </div>;
 }
 
@@ -84,6 +101,29 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
   const startMutation = trpc.workoutLog.start.useMutation({ onSuccess: (session) => { if (session) { setActiveSessionId(session.id); utils.workoutLog.list.invalidate(); } } });
   const logSetMutation = trpc.workoutLog.logSet.useMutation({ onSuccess: (session) => { utils.workoutLog.get.setData({ sessionId: session.id }, session); utils.workoutLog.list.invalidate(); } });
   const completeMutation = trpc.workoutLog.complete.useMutation({ onSuccess: () => { utils.workoutLog.list.invalidate(); if (activeSessionId) utils.workoutLog.get.invalidate({ sessionId: activeSessionId }); } });
+  /**
+   * Removing a set the athlete mistyped. Until this existed, `removePasskey` was
+   * the only destructive operation in the API, so a set logged as 225 instead of
+   * 22.5 stayed in the history and in everything derived from it.
+   */
+  const clearSetMutation = trpc.repair.deleteWorkoutSet.useMutation({
+    onSuccess: () => {
+      if (activeSessionId) utils.workoutLog.get.invalidate({ sessionId: activeSessionId });
+      utils.workoutLog.list.invalidate();
+    },
+  });
+  const [pendingSetRemoval, setPendingSetRemoval] = useState<ConfirmDialogRequest | null>(null);
+
+  const requestSetRemoval = (sessionExerciseId: number, setNumber: number, exerciseName: string) =>
+    setPendingSetRemoval({
+      title: `Remove set ${setNumber}?`,
+      body: `The logged weight and reps for set ${setNumber} of ${exerciseName} are deleted, and stop counting toward progression. This cannot be undone.`,
+      confirmLabel: "Remove set",
+      onConfirm: () => {
+        clearSetMutation.mutate({ sessionExerciseId, setNumber });
+        setPendingSetRemoval(null);
+      },
+    });
   const activeSession = sessionQuery.data;
   const completedSets = activeSession?.exercises.reduce((total, exercise) => total + exercise.setLogs.filter((set) => set.completed).length, 0) || 0;
   const plannedSets = activeSession?.exercises.reduce((total, exercise) => total + plannedSetCount(exercise.plannedPrescription), 0) || 0;
@@ -121,7 +161,9 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
 
   if (activeSession?.status === "active") return <section id="workout-tracker" className="workout-execution-panel">
     <div className="execution-head"><div><p className="metric-label">Live workout / {dayLabel}</p><h3>{completedSets} / {plannedSets || "—"} work sets logged</h3><p>Actual weight, reps, and completion save to your account as you go.</p></div><div className="execution-tools"><label><Weight className="h-3.5 w-3.5" /><select value={unit} onChange={(event) => setUnit(event.target.value as WeightUnit)} aria-label="Weight unit"><option value="lb">lb</option><option value="kg">kg</option></select></label><button onClick={() => completeMutation.mutate({ sessionId: activeSession.id })} disabled={completeMutation.isPending}>{completeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Finish workout</button></div></div>
-    <div className="session-exercise-list">{activeSession.exercises.map((exercise, index) => <article key={exercise.id} className="session-exercise"><div><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{exercise.exerciseName}</strong><small>{exercise.plannedPrescription}{exercise.plannedRest ? ` · ${exercise.plannedRest} rest` : ""}</small></div></div><div className="session-set-list">{Array.from({ length: plannedSetCount(exercise.plannedPrescription) }, (_, setIndex) => <SetLogger key={setIndex} setNumber={setIndex + 1} setLog={exercise.setLogs.find((set) => set.setNumber === setIndex + 1)} unit={unit} pending={logSetMutation.isPending} onSave={(value) => logSetMutation.mutate(buildSetLogPayload(exercise.id, setIndex + 1, unit, value))} />)}</div></article>)}</div>
+    <div className="session-exercise-list">{activeSession.exercises.map((exercise, index) => <article key={exercise.id} className="session-exercise"><div><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{exercise.exerciseName}</strong><small>{exercise.plannedPrescription}{exercise.plannedRest ? ` · ${exercise.plannedRest} rest` : ""}</small></div></div><div className="session-set-list">{Array.from({ length: plannedSetCount(exercise.plannedPrescription) }, (_, setIndex) => <SetLogger key={setIndex} setNumber={setIndex + 1} setLog={exercise.setLogs.find((set) => set.setNumber === setIndex + 1)} unit={unit} pending={logSetMutation.isPending} clearing={clearSetMutation.isPending} onSave={(value) => logSetMutation.mutate(buildSetLogPayload(exercise.id, setIndex + 1, unit, value))} onClear={hasLoggedValue(exercise.setLogs.find((set) => set.setNumber === setIndex + 1)) ? () => requestSetRemoval(exercise.id, setIndex + 1, exercise.exerciseName) : undefined} />)}</div></article>)}</div>
+    {clearSetMutation.isError && <p className="session-set-error" role="alert">That set could not be removed. It may already be gone — reload to see the current record.</p>}
+    {pendingSetRemoval && <ConfirmDialog {...pendingSetRemoval} onCancel={() => setPendingSetRemoval(null)} />}
   </section>;
 
   return <section id="workout-tracker" className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Ready to train.</h3><p>Each logged set records actual weight, reps, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} onApprove={handleProgressionApproval} onApproveSegment={handleSegmentApproval} onAddSuggestion={handleSegmentSuggestion} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
