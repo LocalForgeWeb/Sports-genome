@@ -300,7 +300,18 @@
    near the title's end hit "move earlier" instead of opening the exercise.
    The 44px tap-target floor made that dead zone taller (34x34 -> 34x44), so
    the row reserves the space instead of letting the two overlap. */
-.day-orderable-exercise .custom-row > button { margin-right: 4.75rem; }
+/* The reservation moved to whatever the row's last element is. It used to sit on
+   the title button, because the duplicate/remove pair had no layout at this width
+   and stacked out of the way; now that pair runs along the row and reaches the
+   corner first, so it was the thing printing over the reorder buttons. The phone
+   layout stacks the actions below and handles the title's clearance with its own
+   padding-right, so this applies only where the row is horizontal. */
+@media (min-width: 641px) {
+  .day-orderable-exercise .custom-row-actions { margin-right: 4.4rem; }
+}
+@media (max-width: 640px) {
+  .day-orderable-exercise .custom-row > button { margin-right: 4.75rem; }
+}
 
 /* Removing a logged set.
 

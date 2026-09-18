@@ -2048,3 +2048,116 @@ details:not([open]) > *:not(summary) {
 .strength-log-remove:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 1px; }
 .strength-log-remove-error { margin-top: .75rem; border-left: 2px solid #c0392b; padding-left: .55rem; color: #c0392b; font-size: var(--sg-text-xs); line-height: 1.45; }
 @media (max-width: 640px) { .strength-log-remove { min-width: 44px; min-height: 44px; } }
+
+/* ── UI audit: page titles that rendered near-black on the dark shell ──────────
+ *
+ * `.view-header h1` was given the on-LIGHT ink back when these screens sat on a
+ * pale surface. The shell is a dark blue gradient now, and the rule was never
+ * repointed - it was patched one destination at a time instead (Progress,
+ * Strength Genome, Body Lab), which left the two screens nobody happened to
+ * patch rendering their own title at about 1.7:1 against the backdrop:
+ * Recommendations and Exercise Genome. Both were legible only as a faint
+ * silhouette.
+ *
+ * Every surviving `.view-header` - Recommendations, Exercise Genome, Strength
+ * Genome - sits on that dark gradient, so the default belongs on dark. The
+ * per-destination overrides above become redundant rather than wrong, and any
+ * future screen inherits a readable title instead of an invisible one.
+ */
+.view-header h1 { color: var(--sg-text-on-dark); }
+.view-header > div > p:not(.metric-label) { color: var(--sg-text-muted-on-dark); }
+.view-header .metric-label { color: var(--sg-text-subtle-on-dark); }
+/* The rule ran to a hairline sized for a white page; on the gradient it read as
+   a stray bright line trailing off the heading. */
+.view-header::after { background: var(--sg-divider-on-dark, rgb(255 255 255 / .16)); }
+.view-header-note { border-left-color: var(--sg-action); color: var(--sg-text-muted-on-dark); }
+
+/**
+ * A page title long enough to scroll the phone sideways.
+ *
+ * "RECOMMENDATIONS" is one unbreakable 15-character word. At the clamp's floor
+ * of 2.7rem it measured 448px inside a 366px column, so the whole document
+ * gained 70px of horizontal scroll on a 390px screen - the page slid under the
+ * thumb and every other section came with it. The floor was set for a laptop and
+ * never checked against the longest title in the app.
+ *
+ * The phone floor now scales with the viewport, meeting the desktop clamp
+ * exactly at 640px so nothing jumps at the breakpoint.
+ */
+@media (max-width: 640px) {
+  .view-header h1 { font-size: clamp(1.9rem, 8vw, 2.7rem); }
+}
+
+/**
+ * "Nothing logged yet", which rendered white on white.
+ *
+ * Measured at 1.04:1 - the words were on the page and could not be seen at all.
+ * The Progress destination repaints `.light-panel` dark and forces its h2/p to
+ * `inherit` that white ink; this box had hard-coded itself a white background,
+ * so it opted out of the repaint while its text could not. The result was the
+ * one combination the rule was written to prevent.
+ *
+ * It now takes its surface from the panel it is actually in, the way the sibling
+ * cards on this destination already do, so the two can never drift apart again.
+ */
+.strength-log-empty { margin-top: 1rem; border: 1px dashed var(--sg-control-border-on-dark); border-radius: .75rem; background: rgb(255 255 255 / .07); padding: 1rem; color: var(--sg-text-muted-on-dark); }
+.strength-log-empty > svg { color: var(--sg-focus-on-dark); }
+.strength-log-empty > p:first-of-type { margin-top: .75rem; }
+.strength-log-empty strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 800; }
+.strength-log-empty > p:last-child { margin-top: .25rem; font-size: var(--sg-text-xs); line-height: 1.45; }
+
+/* ── UI audit: eyebrow labels using on-light ink on dark panels ───────────────
+ *
+ * `.metric-label` resolves to `var(--sg-label-color, <on-light ink>)`, and the
+ * fallback is #5d7186 - a colour verified at 5.03:1 on WHITE. Fifteen labels
+ * across seven screens were rendering it on a dark surface instead: 2.10:1 on
+ * the About Me header and the Movement Intelligence head, 2.69:1 on "Your
+ * setup" and the equipment and security blocks, 3.17:1 on "This week", 1.78:1
+ * on "Your history". Every one of them the caption naming the panel under it.
+ *
+ * Two causes, and the second is the one worth naming. `.destination-secondary`
+ * was simply missing from the list of dark destinations above. And several
+ * panels are declared light by default and then REPAINTED dark by their
+ * destination - `.more-workspace`, `.weekly-plan-board`, `.day-design-rail-note`,
+ * and `.light-panel` on Progress. Those repaints moved the background and the
+ * text colour but left `--sg-label-color` behind, so the labels kept ink chosen
+ * for the white version of a panel that is no longer white.
+ *
+ * The fix travels with the repaint: wherever a surface changes material, its
+ * label ink changes with it.
+ */
+.destination-secondary { --sg-label-color: var(--sg-text-subtle-on-dark); --sg-link-color: var(--sg-link-on-dark); }
+
+.destination-secondary .more-workspace,
+.destination-secondary .about-me-security,
+.destination-secondary .about-me-equipment,
+.destination-progress .light-panel,
+.destination-train .day-design-hero,
+.destination-train .tracker-day-selector,
+.destination-train .device-workout-tracker,
+.destination-train .day-design-rail-note,
+.destination-train .three-week-planner,
+.destination-train .weekly-plan-board,
+.movement-intelligence-head,
+.command-identity,
+.training-week-panel,
+.dark-panel { --sg-label-color: var(--sg-text-subtle-on-dark); }
+
+/* A light card nested inside any of the above still resets it, as before. */
+.destination-progress .light-panel .genome-panel,
+.dark-panel .light-panel,
+.dark-panel .insight-cell { --sg-label-color: var(--sg-text-subtle-on-light); }
+
+/**
+ * The top bar is shared chrome and should look the same on every screen.
+ *
+ * It is a frosted, 84%-opaque white bar, so what shows through decides its final
+ * colour. On eleven destinations the shell behind it is the light sunken surface
+ * and the bar composites to rgb(248,252,254) - the eyebrow beside the logo
+ * measures 4.87:1 there. About Me paints the whole shell `--sg-surface-deep`,
+ * which pulled the same bar down to rgb(211,216,222) and the same eyebrow to
+ * 3.52:1: one screen where the app's own chrome is dimmer than everywhere else.
+ *
+ * The bar now composites to that same value regardless of the shell under it.
+ */
+.apex-shell:has(.destination-secondary) .apex-topbar { background: rgb(248 252 254); }
