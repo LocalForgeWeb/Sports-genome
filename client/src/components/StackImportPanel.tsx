@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Check, ClipboardPaste, CornerDownRight, Layers3, SlidersHorizontal, X } from "lucide-react";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
+import { isRoutineDayHeader, routineDayLabel } from "@/lib/routineDayHeader";
 
 /** Kinetic Field Manual: parse once, inspect confidence, then load only user-confirmed exercise identity into the editable plan. */
 export type ImportConfidence = "exact" | "likely" | "confirmed" | "unmatched";
@@ -12,12 +13,8 @@ export type ImportedRoutineDay = { label: string; items: ImportedRoutineItem[]; 
 export type ImportedRoutine = { title?: string; days: ImportedRoutineDay[]; unmatched: string[] };
 
 function normalize(value: string) { return value.toLowerCase().replace(/[–—|,()[\]{}]/g, " ").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim(); }
-function isDayHeader(raw: string) {
-  const value = raw.trim().replace(/[:\-–—]+$/, "");
-  const split = "push|pull|legs|upper|lower|full body|full-body|sport transfer|conditioning|recovery|monday|tuesday|wednesday|thursday|friday|saturday|sunday";
-  return new RegExp(`^(?:day\\s*\\d+(?:\\s*[-–—:]\\s*(?:${split}))?|(?:${split})(?:\\s+day)?)$`, "i").test(value);
-}
-function cleanDayLabel(raw: string) { return raw.trim().replace(/[:\-–—]+$/, "").replace(/^day\s*\d+\s*[-–—:]?\s*/i, "").replace(/\s+day$/i, "").trim() || raw.trim().replace(/[:\-–—]+$/, ""); }
+const isDayHeader = isRoutineDayHeader;
+const cleanDayLabel = routineDayLabel;
 
 function candidateMatches(name: string): ImportCandidate[] {
   const cleaned = name.replace(/\([^)]*\)/g, "");

@@ -23,6 +23,7 @@ import { WarmupPanel } from "@/components/WarmupPanel";
 import { ImportedPlanContext } from "@/components/ImportedPlanContext";
 import { ProgrammingGuidePanel } from "@/components/ProgrammingGuidePanel";
 import { WeeklyPlanBoard } from "@/components/WeeklyPlanBoard";
+import { TrainingDayNav } from "@/components/TrainingDayNav";
 import { ThreeWeekPlanner } from "@/components/ThreeWeekPlanner";
 import { WeeklyMuscleVolumePanel } from "@/components/WeeklyMuscleVolumePanel";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
@@ -53,6 +54,7 @@ import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { buildVariedLoadout } from "@/lib/loadoutTemplates";
 import { cycleSplitIndex, splitDaysForFrequency } from "@/lib/splitCycle";
+import { buildDaySlots, commitDay, dayExerciseCount, emptyDayRecord, emptyDayStore, loadDay, placeImportedDays, remapDaysForFrequency, resolveActiveSlot, sameSplit, slotForKey, visibleDayPlan, type DayRecord, type DaySettings, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { toast } from "sonner";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { EmailAuthScreen } from "@/components/EmailAuthScreen";
@@ -70,9 +72,15 @@ type StackMode = "suggested" | "custom";
 type StoredAthleteProfile = { version: 1; sportId: string; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
 type StoredWorkoutEntry = { entryId: number; catalogExerciseId: number };
 type WorkoutEntry = Exercise & { catalogExerciseId?: number };
-type WeekSnapshot = { customWorkout: Exercise[]; weeklyPlan: Record<string, Exercise[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions: WeeklyPrescriptionStore; importedPlanContext: Record<string, ImportedRoutineContext[]> };
-type StoredWeekSnapshot = { customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; customWorkoutEntries?: StoredWorkoutEntry[]; weeklyPlanEntries?: Record<string, StoredWorkoutEntry[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]> };
-type StoredWorkoutPlan = { version: 1 | 2; customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; customWorkoutEntries?: StoredWorkoutEntry[]; weeklyPlanEntries?: Record<string, StoredWorkoutEntry[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; importedPlanContext?: Record<string, ImportedRoutineContext[]>; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number };
+/**
+ * A week is its saved days plus which one you were on. The day you are editing is not a
+ * second copy of a stack living beside the week - it is read out of, and written back
+ * to, that week's day records, so there is never a version of a day that disagrees with
+ * the week that contains it.
+ */
+type WeekSnapshot = { days: WeeklyDayStore; activeDayIndex: number };
+type StoredWeekSnapshot = { customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; customWorkoutEntries?: StoredWorkoutEntry[]; weeklyPlanEntries?: Record<string, StoredWorkoutEntry[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; weeklySettings?: Record<string, DaySettings>; importedPlanContext?: Record<string, ImportedRoutineContext[]>; activeDayIndex?: number };
+type StoredWorkoutPlan = StoredWeekSnapshot & { version: 1 | 2; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number };
 
 let duplicateEntrySequence = 0;
 const catalogExerciseIdFor = (exercise: WorkoutEntry) => exercise.catalogExerciseId || exercise.id;
@@ -297,9 +305,8 @@ export default function Home() {
   const [customWorkout, setCustomWorkout] = useState<Exercise[]>(() => initialCustomNames.map((name) => exercises.find((exercise) => exercise.name === name)).filter((exercise): exercise is Exercise => Boolean(exercise)));
   const [prescriptions, setPrescriptions] = useState<Record<number, string>>({});
   const [exerciseSettings, setExerciseSettings] = useState<Record<number, ExerciseSettings>>({});
-  const [weeklyPlan, setWeeklyPlan] = useState<Record<string, Exercise[]>>({});
-  const [weeklyPrescriptions, setWeeklyPrescriptions] = useState<WeeklyPrescriptionStore>({});
-  const [importedPlanContext, setImportedPlanContext] = useState<Record<string, ImportedRoutineContext[]>>({});
+  /** The saved week: one record per training day. Nothing else stores a day's work. */
+  const [dayStore, setDayStore] = useState<WeeklyDayStore>(emptyDayStore);
   const [planWeeks, setPlanWeeks] = useState<Record<number, WeekSnapshot>>({});
   const [activeWeek, setActiveWeek] = useState(1);
   const [profileHydrated, setProfileHydrated] = useState(false);
@@ -348,14 +355,88 @@ export default function Home() {
   const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap), [activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
+  const daySlots = useMemo(() => buildDaySlots(splitDays), [splitDays]);
+  /**
+   * The active day, resolved rather than remembered.
+   *
+   * The position and the split label were previously two independent pieces of state,
+   * and every screen keyed off whichever it happened to read. When they disagreed - a
+   * changed frequency, a restored week - the app wrote a day's stack under a slot that
+   * did not exist. One derived slot means they cannot disagree.
+   */
+  const activeSlot = useMemo(() => resolveActiveSlot(splitDays, activeSplitDayIndex, activeSplitDay), [splitDays, activeSplitDayIndex, activeSplitDay]);
+  const activeDayIndex = activeSlot.index;
+  const activeDayKey = activeSlot.key;
+  const activeDayLabel = `Week ${activeWeek} · ${activeSlot.ordinal} · ${activeSlot.day}`;
+  /** The day the working draft belongs to, so an edit can never be filed against another day. */
+  const draftDayKeyRef = useRef(activeSlot.key);
+  const splitDaysRef = useRef(splitDays);
+  const activeDraft = (): DayRecord => ({ workout: customWorkout, prescriptions, settings: exerciseSettings, context: dayStore.context[draftDayKeyRef.current] || [] });
+  const adoptActiveDay = (slot: DaySlot, record: DayRecord) => {
+    draftDayKeyRef.current = slot.key;
+    setActiveSplitDayIndex(slot.index);
+    setActiveSplitDay(slot.day);
+    setCustomWorkout(record.workout);
+    setPrescriptions(record.prescriptions);
+    setExerciseSettings(record.settings);
+  };
+  const visibleWeek = useMemo(() => visibleDayPlan(dayStore, splitDays), [dayStore, splitDays]);
+  const weeklyPlan = visibleWeek.plan;
+  const weeklyPrescriptions: WeeklyPrescriptionStore = visibleWeek.prescriptions;
+  const savedDayCount = (store: WeeklyDayStore) => Object.values(visibleDayPlan(store, splitDays).plan).filter((day) => day.length).length;
+
+  /**
+   * Changing how many days a week you train must not lose the days you already built.
+   *
+   * Saved days are addressed by position and split label, so raising the frequency used
+   * to rename every slot underneath the athlete: the work stayed in storage while the
+   * week read as empty. The records are rehomed with the split, and the day being edited
+   * follows its own record rather than snapping back to Day 01.
+   */
   useEffect(() => {
-    const indexedDay = splitDays[activeSplitDayIndex];
-    if (indexedDay === activeSplitDay) return;
-    const matchingIndex = splitDays.findIndex((day) => day === activeSplitDay);
-    if (matchingIndex >= 0) { setActiveSplitDayIndex(matchingIndex); return; }
-    setActiveSplitDayIndex(0);
-    setActiveSplitDay(splitDays[0]);
-  }, [splitDays, activeSplitDay, activeSplitDayIndex]);
+    const previous = splitDaysRef.current;
+    // Hold still until both halves of the saved plan are in memory, or the reconciliation
+    // would run against a default split and shuffle a week it has not actually read yet.
+    if (!profileHydrated || !planHydrated) { splitDaysRef.current = splitDays; return; }
+    if (sameSplit(previous, splitDays)) return;
+    splitDaysRef.current = splitDays;
+    const committed = commitDay(dayStore, draftDayKeyRef.current, activeDraft());
+    const { store, moved } = remapDaysForFrequency(committed, previous, splitDays);
+    const carried = moved[draftDayKeyRef.current];
+    const slot = (carried && slotForKey(splitDays, carried)) || resolveActiveSlot(splitDays, activeSplitDayIndex, activeSplitDay);
+    setDayStore(store);
+    adoptActiveDay(slot, loadDay(store, slot.key));
+  }, [splitDays, profileHydrated, planHydrated]);
+
+  /**
+   * One route in and out of a training day.
+   *
+   * Whatever moved the marker - the day strip, the weekly rail, the tracker, the planner
+   * dock - the departing day's work is written to the week first and the arriving day is
+   * then read back whole. Nothing is merged, so the day you open shows its own sets and
+   * only its own.
+   */
+  useEffect(() => {
+    const departing = draftDayKeyRef.current;
+    if (departing === activeSlot.key) return;
+    const carried = commitDay(dayStore, departing, activeDraft());
+    setDayStore(carried);
+    adoptActiveDay(activeSlot, loadDay(carried, activeSlot.key));
+  }, [activeSlot.key]);
+
+  /**
+   * Every edit belongs to the day it was made on, the moment it is made.
+   *
+   * Saving used to be a button an athlete had to remember, and anything built between
+   * two presses of it was discarded by the next day switch, week switch or paste. There
+   * is nothing left to forget: the draft is written through to its day on change.
+   */
+  useEffect(() => {
+    if (!planHydrated || !onboardingComplete) return;
+    const key = draftDayKeyRef.current;
+    setDayStore((current) => commitDay(current, key, { workout: customWorkout, prescriptions, settings: exerciseSettings }));
+  }, [planHydrated, onboardingComplete, customWorkout, prescriptions, exerciseSettings]);
+
   useEffect(() => {
     if (!sessionMode) return;
     setSessionMode(false);
@@ -377,28 +458,57 @@ export default function Home() {
   const activePlanStatus = customWorkout.length ? `${customWorkout.length} staged` : "Build a day";
   const activePlanStatusDetail = customWorkout.length ? `${completedExerciseCount} marked complete in the active workspace` : "No exercises are staged in the current Training Day";
   const createWeekSnapshot = (): WeekSnapshot => ({
-    customWorkout: [...customWorkout],
-    weeklyPlan: Object.fromEntries(Object.entries(weeklyPlan).map(([key, workout]) => [key, [...workout]])),
-    prescriptions: { ...prescriptions },
-    exerciseSettings: Object.fromEntries(Object.entries(exerciseSettings).map(([key, settings]) => [key, { ...settings }])),
-    weeklyPrescriptions: Object.fromEntries(Object.entries(weeklyPrescriptions).map(([key, values]) => [key, { ...values }])),
-    importedPlanContext: Object.fromEntries(Object.entries(importedPlanContext).map(([key, items]) => [key, [...items]])),
+    days: commitDay(dayStore, draftDayKeyRef.current, activeDraft()),
+    activeDayIndex: activeSlot.index,
   });
-  const serializeWeekSnapshot = (snapshot: WeekSnapshot): StoredWeekSnapshot => ({
-    customWorkoutIds: snapshot.customWorkout.map((exercise) => exercise.id),
-    weeklyPlanIds: Object.fromEntries(Object.entries(snapshot.weeklyPlan).map(([key, workout]) => [key, workout.map((exercise) => exercise.id)])),
-    customWorkoutEntries: serializeWorkoutEntries(snapshot.customWorkout),
-    weeklyPlanEntries: Object.fromEntries(Object.entries(snapshot.weeklyPlan).map(([key, workout]) => [key, serializeWorkoutEntries(workout)])),
-    prescriptions: snapshot.prescriptions,
-    exerciseSettings: snapshot.exerciseSettings,
-    weeklyPrescriptions: snapshot.weeklyPrescriptions,
-    importedPlanContext: snapshot.importedPlanContext,
-  });
+  /**
+   * The stored document keeps the loose active-stack fields alongside the per-day
+   * records, so a plan written here still opens in a build that predates them.
+   */
+  const serializeWeekSnapshot = (snapshot: WeekSnapshot): StoredWeekSnapshot => {
+    const slot = resolveActiveSlot(splitDays, snapshot.activeDayIndex, splitDays[snapshot.activeDayIndex] || splitDays[0]);
+    const draft = loadDay(snapshot.days, slot.key);
+    return {
+      customWorkoutIds: draft.workout.map((exercise) => exercise.id),
+      weeklyPlanIds: Object.fromEntries(Object.entries(snapshot.days.plan).map(([key, workout]) => [key, workout.map((exercise) => exercise.id)])),
+      customWorkoutEntries: serializeWorkoutEntries(draft.workout),
+      weeklyPlanEntries: Object.fromEntries(Object.entries(snapshot.days.plan).map(([key, workout]) => [key, serializeWorkoutEntries(workout)])),
+      prescriptions: draft.prescriptions,
+      exerciseSettings: draft.settings,
+      weeklyPrescriptions: snapshot.days.prescriptions,
+      weeklySettings: snapshot.days.settings,
+      importedPlanContext: snapshot.days.context,
+      activeDayIndex: snapshot.activeDayIndex,
+    };
+  };
   const restoreWeekSnapshot = (snapshot: StoredWeekSnapshot): WeekSnapshot => {
     const fromIds = (ids: number[]) => ids.map((id) => exercises.find((exercise) => exercise.id === id)).filter((exercise): exercise is Exercise => Boolean(exercise));
     const fromEntries = (entries: StoredWorkoutEntry[] | undefined, fallbackIds: number[] = []) => entries?.map((entry) => { const catalogExercise = exercises.find((exercise) => exercise.id === entry.catalogExerciseId); return catalogExercise ? { ...catalogExercise, id: entry.entryId, ...(entry.entryId === entry.catalogExerciseId ? {} : { catalogExerciseId: entry.catalogExerciseId }) } : null; }).filter((exercise): exercise is Exercise => Boolean(exercise)) || fromIds(fallbackIds);
     const planKeys = new Set([...Object.keys(snapshot.weeklyPlanEntries || {}), ...Object.keys(snapshot.weeklyPlanIds || {})]);
-    return { customWorkout: fromEntries(snapshot.customWorkoutEntries, snapshot.customWorkoutIds || []), weeklyPlan: Object.fromEntries(Array.from(planKeys).map((key) => [key, fromEntries(snapshot.weeklyPlanEntries?.[key], snapshot.weeklyPlanIds?.[key] || [])])), prescriptions: snapshot.prescriptions || {}, exerciseSettings: snapshot.exerciseSettings || {}, weeklyPrescriptions: snapshot.weeklyPrescriptions || {}, importedPlanContext: snapshot.importedPlanContext || {} };
+    const days: WeeklyDayStore = {
+      plan: Object.fromEntries(Array.from(planKeys).map((key) => [key, fromEntries(snapshot.weeklyPlanEntries?.[key], snapshot.weeklyPlanIds?.[key] || [])])),
+      prescriptions: snapshot.weeklyPrescriptions || {},
+      settings: snapshot.weeklySettings || {},
+      context: snapshot.importedPlanContext || {},
+    };
+    const activeDayIndex = Math.max(0, Math.min(splitDays.length - 1, snapshot.activeDayIndex ?? 0));
+    const slot = resolveActiveSlot(splitDays, activeDayIndex, splitDays[activeDayIndex] || splitDays[0]);
+    /**
+     * A plan saved before a day owned its own prescriptions kept the open day's stack,
+     * sets and effort in three loose top-level maps. Fold them into the day they were
+     * built for rather than letting them apply to every day at once, or to none.
+     */
+    const stored = days.plan[slot.key] || [];
+    const workout = stored.length ? stored : fromEntries(snapshot.customWorkoutEntries, snapshot.customWorkoutIds || []);
+    if (!workout.length) return { days, activeDayIndex: slot.index };
+    return {
+      days: commitDay(days, slot.key, {
+        workout,
+        prescriptions: { ...(snapshot.prescriptions || {}), ...(days.prescriptions[slot.key] || {}) },
+        settings: { ...(snapshot.exerciseSettings || {}), ...(days.settings[slot.key] || {}) },
+      }),
+      activeDayIndex: slot.index,
+    };
   };
 
   useEffect(() => {
@@ -442,28 +552,29 @@ export default function Home() {
     // Wait for auth to settle: the key is account-scoped, and hydrating from the
     // wrong one would either show an empty plan or another athlete's.
     if (loading) return;
+    // And wait for the saved profile, because the athlete's training frequency decides
+    // which day slots exist. Reading the week against a default split would resolve the
+    // active day to a slot the athlete does not train.
+    if (!profileHydrated) return;
     if (hydratedPlanKeyRef.current === workoutPlanKey) return;
     try {
       const stored = readScopedRecord(workoutPlanKeyBase, accountId, window.localStorage);
       if (stored) {
         const plan = JSON.parse(stored) as StoredWorkoutPlan;
-        const legacy: StoredWeekSnapshot = { customWorkoutIds: plan.customWorkoutIds || [], weeklyPlanIds: plan.weeklyPlanIds || {}, customWorkoutEntries: plan.customWorkoutEntries, weeklyPlanEntries: plan.weeklyPlanEntries, prescriptions: plan.prescriptions || {}, exerciseSettings: plan.exerciseSettings || {}, weeklyPrescriptions: plan.weeklyPrescriptions || {}, importedPlanContext: plan.importedPlanContext || {} };
+        const legacy: StoredWeekSnapshot = { customWorkoutIds: plan.customWorkoutIds || [], weeklyPlanIds: plan.weeklyPlanIds || {}, customWorkoutEntries: plan.customWorkoutEntries, weeklyPlanEntries: plan.weeklyPlanEntries, prescriptions: plan.prescriptions || {}, exerciseSettings: plan.exerciseSettings || {}, weeklyPrescriptions: plan.weeklyPrescriptions || {}, weeklySettings: plan.weeklySettings, importedPlanContext: plan.importedPlanContext || {}, activeDayIndex: plan.activeDayIndex };
         const restoredWeeks = Object.fromEntries(Object.entries(plan.weeks || { "1": legacy }).map(([week, snapshot]) => [Number(week), restoreWeekSnapshot(snapshot)]));
         const nextActiveWeek = Math.max(1, Math.min(3, plan.activeWeek || 1));
         const activeSnapshot = restoredWeeks[nextActiveWeek] || restoredWeeks[1] || restoreWeekSnapshot(legacy);
+        const slot = resolveActiveSlot(splitDays, activeSnapshot.activeDayIndex, splitDays[activeSnapshot.activeDayIndex] || splitDays[0]);
         setPlanWeeks(restoredWeeks);
         setActiveWeek(nextActiveWeek);
-        setCustomWorkout(activeSnapshot.customWorkout);
-        setWeeklyPlan(activeSnapshot.weeklyPlan);
-        setPrescriptions(activeSnapshot.prescriptions);
-        setExerciseSettings(activeSnapshot.exerciseSettings);
-        setWeeklyPrescriptions(activeSnapshot.weeklyPrescriptions);
-        setImportedPlanContext(activeSnapshot.importedPlanContext);
+        setDayStore(activeSnapshot.days);
+        adoptActiveDay(slot, loadDay(activeSnapshot.days, slot.key));
       }
     } catch { /* A malformed saved plan should never block the workout builder. */ }
     setPlanHydrated(true);
     hydratedPlanKeyRef.current = workoutPlanKey;
-  }, [workoutPlanKey, loading]);
+  }, [workoutPlanKey, loading, profileHydrated]);
 
   useEffect(() => {
     try {
@@ -525,21 +636,14 @@ export default function Home() {
     const allWeeks = { ...planWeeks, [activeWeek]: currentWeek };
     const plan: StoredWorkoutPlan = {
       version: 2,
-      customWorkoutIds: customWorkout.map((exercise) => exercise.id),
-      weeklyPlanIds: Object.fromEntries(Object.entries(weeklyPlan).map(([key, workout]) => [key, workout.map((exercise) => exercise.id)])),
-      customWorkoutEntries: serializeWorkoutEntries(customWorkout),
-      weeklyPlanEntries: Object.fromEntries(Object.entries(weeklyPlan).map(([key, workout]) => [key, serializeWorkoutEntries(workout)])),
-      prescriptions,
-      exerciseSettings,
-      weeklyPrescriptions,
-      importedPlanContext,
+      ...serializeWeekSnapshot(currentWeek),
       weeks: Object.fromEntries(Object.entries(allWeeks).map(([week, snapshot]) => [week, serializeWeekSnapshot(snapshot)])),
       activeWeek,
     };
     const serialized = JSON.stringify(plan);
     setSerializedPlan(serialized);
     try { window.localStorage.setItem(workoutPlanKey, serialized); } catch { /* Persistence is optional. */ }
-  }, [planHydrated, onboardingComplete, workoutPlanKey, customWorkout, weeklyPlan, prescriptions, exerciseSettings, weeklyPrescriptions, importedPlanContext, planWeeks, activeWeek]);
+  }, [planHydrated, onboardingComplete, workoutPlanKey, customWorkout, prescriptions, exerciseSettings, dayStore, planWeeks, activeWeek, splitDays]);
 
   useEffect(() => {
     const nextMuscle = getMovementMuscles(selectedMovement)[0];
@@ -551,8 +655,7 @@ export default function Home() {
     setMovementId("");
     setAthleteBaseline((current) => ({ ...current, sportModifierId: undefined }));
     setOnboardingComplete(false);
-    setWeeklyPlan({});
-    setWeeklyPrescriptions({});
+    setDayStore(emptyDayStore());
     setPlanWeeks({});
     setActiveWeek(1);
     try { window.localStorage.removeItem(athleteProfileKey); } catch { /* Reset remains usable without storage. */ }
@@ -571,20 +674,21 @@ export default function Home() {
     }
     const changed = Boolean(sportId) && sportId !== id;
     if (changed) {
-      const previous = { sportId, movementId, activeMuscle, weeklyPlan, weeklyPrescriptions, planWeeks, activeWeek, catalogQuery, catalogFilters };
+      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, catalogQuery, catalogFilters, activeDayIndex: activeSlot.index };
       const undoSwitch = () => {
         setSportId(previous.sportId);
         setMovementId(previous.movementId);
         setActiveMuscle(previous.activeMuscle);
-        setWeeklyPlan(previous.weeklyPlan);
-        setWeeklyPrescriptions(previous.weeklyPrescriptions);
+        setDayStore(previous.dayStore);
         setPlanWeeks(previous.planWeeks);
         setActiveWeek(previous.activeWeek);
         setCatalogQuery(previous.catalogQuery);
         setCatalogFilters(previous.catalogFilters);
+        const restored = resolveActiveSlot(splitDays, previous.activeDayIndex, splitDays[previous.activeDayIndex] || splitDays[0]);
+        adoptActiveDay(restored, loadDay(previous.dayStore, restored.key));
       };
-      setWeeklyPlan({});
-      setWeeklyPrescriptions({});
+      setDayStore(emptyDayStore());
+      adoptActiveDay(daySlots[0], emptyDayRecord());
       setPlanWeeks({});
       setActiveWeek(1);
       setCatalogQuery("");
@@ -602,7 +706,8 @@ export default function Home() {
     setActiveContextTab(null);
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
-    if (next === "day-plan" && !splitDays.includes(activeSplitDay)) setActiveSplitDay(splitDays[0]);
+    // The active day no longer needs correcting on arrival: it is resolved from the split
+    // on every render, so it cannot be pointing at a day this week does not have.
     setWorkspaceState(next);
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
@@ -667,46 +772,43 @@ export default function Home() {
   const importRoutine = (routine: ImportedRoutine) => {
     const importedDays = routine.days.filter((day) => day.items.length);
     if (!importedDays.length) return;
-    const nextPlan: Record<string, Exercise[]> = {};
-    const nextPrescriptions: Record<number, string> = {};
-    const nextSettings: Record<number, ExerciseSettings> = {};
-    const nextWeeklyPrescriptions: WeeklyPrescriptionStore = {};
-    const nextContext: Record<string, ImportedRoutineContext[]> = {};
-    const assignments = importedDays.map((day, pastedIndex) => {
-      const requested = day.label.toLowerCase();
-      const aliases = requested.includes("lower") ? ["lower", "legs"] : requested.includes("upper") ? ["upper", "push", "pull"] : requested.includes("full") ? ["full body", "push"] : requested.includes("condition") || requested.includes("recovery") ? ["sport transfer", "full body"] : [requested];
-      const matchedIndex = splitDays.findIndex((split) => aliases.some((alias) => split.toLowerCase().includes(alias) || alias.includes(split.toLowerCase())));
-      const index = matchedIndex >= 0 ? matchedIndex : Math.min(pastedIndex, splitDays.length - 1);
-      const splitDay = splitDays[index];
+    // Each pasted day claims its own slot. Two days of the same family used to resolve to
+    // the same one and the second quietly replaced the first.
+    const { placements, unplacedLabels } = placeImportedDays(importedDays.map((day) => day.label), splitDays);
+    // Whatever is open right now is part of the week too, so it is written down before
+    // the paste lands rather than being the one day a paste can destroy.
+    let nextStore = commitDay(dayStore, draftDayKeyRef.current, activeDraft());
+    const overwrittenDayLabels: string[] = [];
+    let landingSlot: DaySlot | null = null;
+    let matchedCount = 0;
+    for (const placement of placements) {
+      const day = importedDays[placement.pastedIndex];
+      const slot = daySlots[placement.slotIndex];
       const unique = day.items.filter((item, itemIndex) => day.items.findIndex((candidate) => candidate.exercise.id === item.exercise.id) === itemIndex);
       const dayExercises = unique.map((item) => item.exercise);
-      const planKey = `${index}-${splitDay}`;
-      nextPlan[planKey] = dayExercises;
-      nextContext[planKey] = day.context;
-      nextWeeklyPrescriptions[planKey] = Object.fromEntries(unique.map((item) => [item.exercise.id, item.prescription]));
-      unique.forEach((item) => {
-        nextPrescriptions[item.exercise.id] = item.prescription;
-        nextSettings[item.exercise.id] = { rpe: item.rpe || "RPE 7", rest: item.rest || "90 sec", notes: item.notes || "", completed: false };
+      if (dayExerciseCount(nextStore, slot.key)) overwrittenDayLabels.push(`${slot.ordinal} · ${slot.day}`);
+      nextStore = commitDay(nextStore, slot.key, {
+        workout: dayExercises,
+        prescriptions: Object.fromEntries(unique.map((item) => [item.exercise.id, item.prescription])),
+        settings: Object.fromEntries(unique.map((item) => [item.exercise.id, { rpe: item.rpe || "RPE 7", rest: item.rest || "90 sec", notes: item.notes || "", completed: false }])),
+        context: day.context,
       });
-      return { splitDay, exercises: dayExercises };
-    });
-    const overwrittenDayLabels = Object.keys(nextPlan).filter((key) => weeklyPlan[key]?.length).map((key) => key.split("-").slice(1).join("-"));
-    const first = assignments[0];
-    setCustomWorkout(first.exercises);
-    setPrescriptions(nextPrescriptions);
-    setExerciseSettings(nextSettings);
-    setWeeklyPlan((current) => ({ ...current, ...nextPlan }));
-    setWeeklyPrescriptions((current) => ({ ...current, ...nextWeeklyPrescriptions }));
-    setImportedPlanContext((current) => ({ ...current, ...nextContext }));
-    setActiveSplitDay(first.splitDay);
-    setActiveSplitDayIndex(Math.max(0, splitDays.findIndex((day) => day === first.splitDay)));
+      matchedCount += dayExercises.length;
+      if (!landingSlot) landingSlot = slot;
+    }
+    setDayStore(nextStore);
+    if (landingSlot) adoptActiveDay(landingSlot, loadDay(nextStore, landingSlot.key));
     navigateWorkspace("day-plan");
     setImportOpen(false);
-    const matchedCount = Object.values(nextPlan).flat().length;
     toast("Routine loaded", {
       description: overwrittenDayLabels.length
-        ? `${importedDays.length}-day routine loaded with ${matchedCount} matched exercise${matchedCount === 1 ? "" : "s"}. Replaced your previously saved ${overwrittenDayLabels.join(", ")}.`
-        : `${importedDays.length}-day routine loaded with ${matchedCount} matched exercise${matchedCount === 1 ? "" : "s"}.`,
+        ? `${placements.length}-day routine loaded with ${matchedCount} matched exercise${matchedCount === 1 ? "" : "s"}. Replaced your previously saved ${overwrittenDayLabels.join(", ")}.`
+        : `${placements.length}-day routine loaded with ${matchedCount} matched exercise${matchedCount === 1 ? "" : "s"}.`,
+    });
+    // A pasted day with nowhere to go is reported rather than dropped onto a day that
+    // already has work in it.
+    if (unplacedLabels.length) toast("Some pasted days did not fit this week", {
+      description: `You train ${splitDays.length} day${splitDays.length === 1 ? "" : "s"} a week, so ${unplacedLabels.join(", ")} ${unplacedLabels.length === 1 ? "was" : "were"} left out. Raise your days per week in About Me, then paste again to keep ${unplacedLabels.length === 1 ? "it" : "them"}.`,
     });
   };
   const removeExercise = (id: number) => {
@@ -754,19 +856,21 @@ export default function Home() {
     [next[from], next[to]] = [next[to], next[from]];
     return next;
   });
-  const loadDraft = () => {
-    setCustomWorkout(draftedLoadout);
-    setPrescriptions({});
+  /**
+   * A draft replaces the open day, and only the open day. Clearing the loose prescription
+   * and settings maps used to clear them for every day at once, because they were shared.
+   */
+  const applyDraftToActiveDay = (stack: Exercise[]) => {
+    setCustomWorkout(stack);
+    setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])));
     setExerciseSettings({});
-    const activeIndex = Math.max(0, splitDays.findIndex((day) => day === activeSplitDay));
-    setWeeklyPlan((current) => ({ ...current, [`${activeIndex}-${activeSplitDay}`]: draftedLoadout }));
-    setWeeklyPrescriptions((current) => ({ ...current, [`${activeIndex}-${activeSplitDay}`]: Object.fromEntries(draftedLoadout.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])) }));
-    toast("Draft loaded", { description: `${activeSplitDay} is now built with the ${activeLoadout} orientation.` });
+  };
+  const loadDraft = () => {
+    applyDraftToActiveDay(draftedLoadout);
+    toast("Draft loaded", { description: `${activeSlot.ordinal} · ${activeSplitDay} is now built with the ${activeLoadout} orientation.` });
   };
   const loadSmartDraft = () => {
-	    setCustomWorkout(draftedLoadout);
-	    setPrescriptions({});
-	    setExerciseSettings({});
+	    applyDraftToActiveDay(draftedLoadout);
 	    toast("Smart draft loaded", { description: `A diversified ${activeSplitDay.toLowerCase()} session is ready for review.` });
   };
   const updateExerciseSettings = (exerciseId: number, patch: Partial<ExerciseSettings>) => setExerciseSettings((current) => ({ ...current, [exerciseId]: { ...getExerciseSettings(current, exerciseId), ...patch } }));
@@ -813,50 +917,35 @@ export default function Home() {
     window.addEventListener(SEGMENT_SUGGESTION_APPROVAL_EVENT, applyApprovedSegmentSuggestion);
     return () => { window.removeEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression); window.removeEventListener(SEGMENT_PRIORITY_APPROVAL_EVENT, applyApprovedSegmentPriority); window.removeEventListener(SEGMENT_SUGGESTION_APPROVAL_EVENT, applyApprovedSegmentSuggestion); };
   }, [customWorkout]);
-  const activeDayIndex = Math.min(activeSplitDayIndex, splitDays.length - 1);
-	  const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || [];
+	  const activeImportedContext = dayStore.context[activeDayKey] || [];
+  /**
+   * Saving is already done by the time this runs. The control stays because "is this
+   * written down?" is a fair question to want answered out loud, not because anything
+   * depends on it being pressed.
+   */
   const saveActiveDay = () => {
-    const key = `${activeDayIndex}-${activeSplitDay}`;
-    setWeeklyPlan((current) => ({ ...current, [key]: customWorkout }));
-    setWeeklyPrescriptions((current) => ({ ...current, [key]: Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal)])) }));
-    toast("Weekly day saved", { description: `${activeSplitDay} now has ${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"} saved.` });
+    setDayStore((current) => commitDay(current, activeDayKey, { workout: customWorkout, prescriptions, settings: exerciseSettings }));
+    toast("Training day saved", { description: `${activeSlot.ordinal} · ${activeSlot.day} holds ${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"}. Every edit to a day is saved to that day as you make it.` });
   };
-	  const chooseWeeklyDay = (index: number) => {
-	    const day = splitDays[index];
-	    const saved = weeklyPlan[`${index}-${day}`];
-	    if (index === activeDayIndex && day === activeSplitDay && !customWorkout.length && saved?.length) {
-	      setCustomWorkout(saved);
-	      setPrescriptions((current) => ({ ...current, ...(weeklyPrescriptions[`${index}-${day}`] || {}) }));
-	      toast("Saved day restored", { description: `${day} was restored from your weekly map.` });
-	      return;
-	    }
-	    if (index === activeDayIndex && day === activeSplitDay) return;
-	    const previousKey = `${activeDayIndex}-${activeSplitDay}`;
-	    setWeeklyPlan((current) => ({ ...current, [previousKey]: customWorkout }));
-	    setWeeklyPrescriptions((current) => ({ ...current, [previousKey]: Object.fromEntries(customWorkout.map((exercise, exerciseIndex) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(exerciseIndex, goal)])) }));
-	    setActiveSplitDay(day);
-	    setActiveSplitDayIndex(index);
-	    if (saved?.length) {
-	      setCustomWorkout(saved);
-	      setPrescriptions((current) => ({ ...current, ...(weeklyPrescriptions[`${index}-${day}`] || {}) }));
-	      navigateWorkspace("day-plan");
-	      toast("Saved day loaded", { description: `${day} was restored from your weekly map.` });
-	      return;
-	    }
-	    setCustomWorkout([]);
-	    setPrescriptions({});
-	    setExerciseSettings({});
+  /**
+   * Opening a day moves the marker and nothing else. Carrying the departing day into the
+   * week and reading the arriving one back happens in one effect, so the rail, the day
+   * strip, the tracker and the planner dock cannot each get it subtly differently.
+   */
+	  const openTrainingDay = (index: number) => {
+	    const slot = daySlots[index];
+	    if (!slot || slot.key === activeSlot.key) return;
+	    setActiveSplitDayIndex(slot.index);
+	    setActiveSplitDay(slot.day);
+	    if (workspace !== "day-plan" && workspace !== "tracker" && workspace !== "custom") navigateWorkspace("day-plan");
 	  };
   const applyWeek = (week: number, snapshot: WeekSnapshot) => {
+    // A week remembers the day it was left on. Forcing every week back to Day 01 while
+    // keeping the stack that was open is what made Week 2's Legs work appear under Push.
+    const slot = resolveActiveSlot(splitDays, snapshot.activeDayIndex, splitDays[snapshot.activeDayIndex] || splitDays[0]);
     setActiveWeek(week);
-    setCustomWorkout(snapshot.customWorkout);
-    setWeeklyPlan(snapshot.weeklyPlan);
-    setPrescriptions(snapshot.prescriptions);
-    setExerciseSettings(snapshot.exerciseSettings);
-    setWeeklyPrescriptions(snapshot.weeklyPrescriptions);
-    setImportedPlanContext(snapshot.importedPlanContext);
-    setActiveSplitDay(splitDays[0]);
-    setActiveSplitDayIndex(0);
+    setDayStore(snapshot.days);
+    adoptActiveDay(slot, loadDay(snapshot.days, slot.key));
     setSessionMode(false);
     navigateWorkspace("day-plan");
   };
@@ -872,15 +961,14 @@ export default function Home() {
     const nextWeek = nextWeekToGenerate(Object.keys(planWeeks).map(Number), activeWeek);
     if (!nextWeek) { toast("Three weeks are already generated", { description: "Switch between Week 1, Week 2, and Week 3 to review each plan." }); return; }
     const sportSeed = buildGeneratedWeekSportSeed(activeSportId, goal, Math.max(10, gymTimeBudget.recommendationLimit + 4), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap);
-    const generatedPlan = Object.fromEntries(splitDays.map((day, dayIndex) => {
-      const source = filterStackForEquipment(getSplitExercisePool(exercises, day, sportSeed), athleteBaseline.equipment);
-      const offset = (nextWeek * 3) + (dayIndex * 2);
+    let generatedDays = emptyDayStore();
+    daySlots.forEach((slot) => {
+      const source = filterStackForEquipment(getSplitExercisePool(exercises, slot.day, sportSeed), athleteBaseline.equipment);
+      const offset = (nextWeek * 3) + (slot.index * 2);
       const rotated = [...source.slice(offset), ...source.slice(0, offset)].filter((exercise, index, values) => values.findIndex((item) => item.id === exercise.id) === index).slice(0, gymTimeBudget.recommendationLimit);
-      return [`${dayIndex}-${day}`, rotated];
-    }));
-    const generatedPrescriptions = Object.fromEntries(Object.entries(generatedPlan).map(([key, workout]) => [key, Object.fromEntries(workout.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)]))]));
-    const firstDay = splitDays[0];
-    const generated: WeekSnapshot = { customWorkout: generatedPlan[`0-${firstDay}`] || [], weeklyPlan: generatedPlan, prescriptions: {}, exerciseSettings: {}, weeklyPrescriptions: generatedPrescriptions, importedPlanContext: {} };
+      generatedDays = commitDay(generatedDays, slot.key, { workout: rotated, prescriptions: Object.fromEntries(rotated.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])), settings: {}, context: [] });
+    });
+    const generated: WeekSnapshot = { days: generatedDays, activeDayIndex: 0 };
     setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot(), [nextWeek]: generated }));
     applyWeek(nextWeek, generated);
     toast(`Week ${nextWeek} generated`, { description: `${splitDays.length} training days were built around your ${goal.toLowerCase()} goal and ${gymTimeBudget.label.toLowerCase()} budget.` });
@@ -946,9 +1034,7 @@ export default function Home() {
     setCustomWorkout([]);
     setPrescriptions({});
     setExerciseSettings({});
-    setWeeklyPlan({});
-    setWeeklyPrescriptions({});
-    setImportedPlanContext({});
+    setDayStore(emptyDayStore());
     setPlanWeeks({});
     setActiveWeek(1);
     setOnboardingComplete(false);
@@ -1002,11 +1088,11 @@ export default function Home() {
       {contextualWorkspaceTabs.length > 1 && <WorkspaceTabs tabs={contextualWorkspaceTabs} activeId={activeContextTabId} label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`} onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)} />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[var(--sg-text-subtle-on-light)]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? <p className="tracker-live-context">Logging Day {String(activeDayIndex + 1).padStart(2, "0")} · {activeSplitDay}</p> : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseWeeklyDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
+        {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? <p className="tracker-live-context">Logging {activeSlot.ordinal} · {activeSplitDay}</p> : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log {activeSlot.ordinal} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => openTrainingDay(slot.index)} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={activeDayLabel} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={setAthleteBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} />}
         {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><SupabaseResearchLibraryPanel /><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div></section>}
-        {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={`Week ${activeWeek} · ${activeSplitDay}`} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
+        {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={activeDayLabel} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && <MovementAtlasPanel sportName={selectedSport.label} sportId={activeSportId} sports={sportProfiles} movements={sportMovements} selectedMovement={selectedMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { chooseSport(id); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => setMovementId(movement.id)} onOpenBody={() => { setActiveMuscle(getMovementMuscles(selectedMovement)[0] || "abs"); navigateWorkspace("body"); }} />}
         {workspace === "command" && <TrainingWeekPanel plannedDays={trainingDays} onOpenTracker={() => navigateWorkspace("tracker")} onOpenProgress={() => navigateWorkspace("progress")} />}
         {workspace === "command" && <section className="space-y-5"><CommandHero heroImage={sportsGenomeAssets.heroLab} sportLabel={selectedSport.label} sportAbbrev={sportAbbrev(selectedSport.label)} trainingDays={trainingDays} topGrade={sessionRecommendations[0]?.grade || "C"} planStatus={activePlanStatus} planStatusDetail={activePlanStatusDetail} stagedExerciseCount={customWorkout.length} onOpenRecommendations={() => navigateWorkspace("recommended")} gradeStamp={<GradeStamp grade={sessionRecommendations[0]?.grade || "C"} compact />} />
@@ -1015,9 +1101,9 @@ export default function Home() {
 
         {workspace === "recommended" && <section className="space-y-5"><div className="view-header"><div><p className="metric-label">02 / recommendation engine</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">Recommendations with<br /><em className="text-[var(--sg-info)]">the reasoning attached.</em></h1></div><div className="view-header-note"><ShieldCheck className="h-5 w-5 text-[var(--sg-info)]" /><p>Movement and muscle fit are visible. {equipmentProfileSummary(athleteBaseline.equipment)}</p></div></div><div className="sport-select-row">{sportProfiles.map((profile) => <button key={profile.id} onClick={() => chooseSport(profile.id)} className={`sport-chip ${sportId === profile.id ? "sport-chip-active" : ""}`}><span>{sportAbbrev(profile.label)}</span><small>{profile.movementFamilies.length} families</small></button>)}</div><div className="border-l-2 border-[var(--sg-action)] bg-[#fff1eb] p-4"><p className="metric-label !text-[#bf4326]">Active sport-program lens</p><p className="mt-1 text-xs leading-5 text-[#5d6762]"><strong>{sportProgrammingContext.modifierLabel}:</strong> {sportProgrammingContext.physiologicalDemands.join(" · ")}. <strong>Adaptations:</strong> {sportProgrammingContext.adaptationTargets.join(" · ")}. <strong>Modality:</strong> {sportProgrammingContext.modalityBoundary} <strong>Exercise role:</strong> {sportProgrammingContext.exerciseRole} <strong>Programming context:</strong> {sportProgrammingContext.programmingBoundary}</p></div><div className="grid gap-5 xl:grid-cols-[.92fr_1.35fr]"><div className="dark-panel overflow-hidden"><div className="border-b border-white/10 p-5"><p className="metric-label !text-[#91a09a]">Movement selector / {selectedSport.label}</p><p className="mt-2 text-sm leading-6 text-[#c5d1c9]">Choose an action to see the body requirements and the exercise matches supporting it.</p></div><div className="max-h-[620px] overflow-y-auto p-3">{sportMovements.map((movement, index) => <button key={movement.id} onClick={() => setMovementId(movement.id)} className={`movement-list-item ${movement.id === selectedMovement.id ? "movement-list-active" : ""}`}><span className="font-display text-lg font-bold">{String(index + 1).padStart(2, "0")}</span><span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold">{movement.label}</span><span className="mt-0.5 block truncate text-[11px] text-[#8d9c95]">{movement.family}</span></span><ChevronRight className="h-4 w-4" /></button>)}</div></div><div className="space-y-5"><div className="light-panel p-5"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="metric-label">Selected sport action</p><h2 className="mt-2 font-display text-4xl font-bold uppercase leading-none text-[#17231f]">{selectedMovement.label}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-[#5f6e65]">{selectedMovement.bodyActions}</p></div><span className="border border-[#cfdbce] bg-[#eff7e7] px-3 py-2 text-[11px] font-bold uppercase tracking-[.12em] text-[#2b442c]">{selectedMovement.family}</span></div><div className="mt-5 grid gap-3 md:grid-cols-3"><div className="insight-cell"><p className="metric-label">Prime movers</p><p>{selectedMovement.primaryMuscles}</p></div><div className="insight-cell"><p className="metric-label">Stabilizers</p><p>{selectedMovement.stabilizers}</p></div><div className="insight-cell"><p className="metric-label">Muscle actions</p><p>{selectedMovement.muscleActions}</p></div></div><div className="mt-4 border-l-2 border-[var(--sg-action)] bg-[#fff1eb] p-4"><p className="metric-label !text-[#bf4326]">Gym transfer cue</p><p className="mt-1 text-xs leading-5 text-[#5d6762]">{selectedMovement.gymTransferCue}</p></div></div><div className="dark-panel overflow-hidden"><div className="flex items-start justify-between border-b border-white/10 p-5"><div><p className="metric-label !text-[#91a09a]">Exercise match set</p><h3 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Build the qualities</h3></div><span className="text-[11px] font-bold uppercase tracking-[.13em] text-[var(--sg-text-subtle-on-dark)]">{movementRecommendations.length} matches</span></div><div className="divide-y divide-white/10">{movementRecommendations.map((result, index) => <RecommendationRow key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div></div><SportEvidencePanel sportId={activeSportId} exercises={exercises} onAdd={addExercise} onInspect={inspectExercise} /></div></div></section>}
 
-        {workspace === "custom" && <section className="space-y-5"><div className="builder-upgrade-head"><div><p className="metric-label">03 / custom workout builder</p><h1>Coach controls.<br /><em>Athlete-ready output.</em></h1><p>Build a session, inspect its trade-offs, then map it across the full training week.</p></div><div className="builder-head-actions"><div className="builder-goal-row">{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <button key={item} onClick={() => setGoal(item)} aria-pressed={goal === item} className={`goal-button ${goal === item ? "goal-button-active" : ""}`}>{item}</button>)}</div><button onClick={loadSmartDraft} className="builder-smart-button">Load smart draft <Sparkles className="h-4 w-4" /></button></div></div><div className="grid gap-5 xl:grid-cols-[.86fr_1.14fr]"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} /><div className="workout-programming-panel"><div className="programming-panel-head"><div><p className="metric-label">Programming detail</p><h3>Make the prescription usable</h3><p>Set effort, rest, notes, and completion without losing the current sport-aware draft.</p></div></div><div className="divide-y divide-white/10">{customWorkout.length ? customWorkout.map((exercise, index) => <ExercisePrescriptionRow key={exercise.id} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} />) : <p className="programming-empty">Load a smart draft or add an exercise to unlock detailed programming controls.</p>}</div><WeeklyPlanBoard days={splitDays} activeIndex={activeDayIndex} plan={weeklyPlan} onChoose={chooseWeeklyDay} onSave={saveActiveDay} /><div className="builder-finder"><div className="flex items-center justify-between gap-3"><p className="metric-label">Add an exercise</p><button onClick={() => setWorkspace("recommended")} className="text-[11px] font-bold uppercase tracking-[.1em] text-[var(--sg-info-strong)]">Browse movement matches <ArrowUpRight className="inline h-3.5 w-3.5" /></button></div><label className="mt-3 flex items-center gap-2 border border-[var(--sg-divider-on-light)] bg-white px-3"><Search className="h-4 w-4 text-[var(--sg-text-subtle-on-light)]" /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder={`Search ${exercises.length} exercises`} /></label><LocalSearchScope scope={`Searching the ${exercises.length} exercises in this catalog.`} query={catalogQuery} /><div className="mt-3 grid gap-2 md:grid-cols-2">{filteredCatalog.slice(0, 8).map((exercise) => <div key={exercise.id} className="builder-finder-row"><button onClick={() => inspectExercise(exercise)} className="min-w-0 flex-1 text-left"><strong>{exercise.name}</strong><small>{exercise.movement}</small></button><button onClick={() => addExercise(exercise)} aria-label={`Add ${exercise.name}`}><Plus className="h-4 w-4" /></button></div>)}</div></div></div></div></section>}
+        {workspace === "custom" && <section className="space-y-5"><div className="builder-upgrade-head"><div><p className="metric-label">03 / custom workout builder</p><h1>Coach controls.<br /><em>Athlete-ready output.</em></h1><p>Build a session, inspect its trade-offs, then map it across the full training week.</p></div><div className="builder-head-actions"><div className="builder-goal-row">{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <button key={item} onClick={() => setGoal(item)} aria-pressed={goal === item} className={`goal-button ${goal === item ? "goal-button-active" : ""}`}>{item}</button>)}</div><button onClick={loadSmartDraft} className="builder-smart-button">Load smart draft <Sparkles className="h-4 w-4" /></button></div></div><div className="grid gap-5 xl:grid-cols-[.86fr_1.14fr]"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} /><div className="workout-programming-panel"><div className="programming-panel-head"><div><p className="metric-label">Programming detail</p><h3>Make the prescription usable</h3><p>Set effort, rest, notes, and completion without losing the current sport-aware draft.</p></div></div><div className="divide-y divide-white/10">{customWorkout.length ? customWorkout.map((exercise, index) => <ExercisePrescriptionRow key={exercise.id} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} />) : <p className="programming-empty">Load a smart draft or add an exercise to unlock detailed programming controls.</p>}</div><WeeklyPlanBoard days={splitDays} activeIndex={activeDayIndex} plan={weeklyPlan} onChoose={openTrainingDay} onSave={saveActiveDay} /><div className="builder-finder"><div className="flex items-center justify-between gap-3"><p className="metric-label">Add an exercise</p><button onClick={() => setWorkspace("recommended")} className="text-[11px] font-bold uppercase tracking-[.1em] text-[var(--sg-info-strong)]">Browse movement matches <ArrowUpRight className="inline h-3.5 w-3.5" /></button></div><label className="mt-3 flex items-center gap-2 border border-[var(--sg-divider-on-light)] bg-white px-3"><Search className="h-4 w-4 text-[var(--sg-text-subtle-on-light)]" /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder={`Search ${exercises.length} exercises`} /></label><LocalSearchScope scope={`Searching the ${exercises.length} exercises in this catalog.`} query={catalogQuery} /><div className="mt-3 grid gap-2 md:grid-cols-2">{filteredCatalog.slice(0, 8).map((exercise) => <div key={exercise.id} className="builder-finder-row"><button onClick={() => inspectExercise(exercise)} className="min-w-0 flex-1 text-left"><strong>{exercise.name}</strong><small>{exercise.movement}</small></button><button onClick={() => addExercise(exercise)} aria-label={`Add ${exercise.name}`}><Plus className="h-4 w-4" /></button></div>)}</div></div></div></div></section>}
 
-        {workspace === "day-plan" && <section className={`day-design-workspace ${sessionMode ? "day-session-mode" : ""}`}><div className="day-design-hero"><div><p className="metric-label">04 / saved training-day plans</p><h1>Design the day.<br /><em>See the week.</em></h1><p>Choose a day, build it directly from the catalog or paste a plan, then save the exact set prescription that informs your weekly muscle-volume estimate.</p></div><button onClick={() => setImportOpen(true)} className="day-design-import"><ClipboardPaste className="h-4 w-4" /> Paste a stack</button></div><ThreeWeekPlanner activeWeek={activeWeek} generatedWeeks={visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek)} dayCounts={Object.fromEntries([1, 2, 3].map((week) => [week, Object.values(week === activeWeek ? weeklyPlan : planWeeks[week]?.weeklyPlan || {}).filter((day) => day.length).length]))} onSelect={selectWeek} onGenerate={generateWeek} /><div className="day-design-grid"><aside className="day-design-rail"><WeeklyPlanBoard days={splitDays} activeIndex={activeDayIndex} plan={weeklyPlan} onChoose={chooseWeeklyDay} onSave={saveActiveDay} /><div className="day-design-rail-note"><p className="metric-label">Plan flow</p><p>Week {activeWeek} is active. Select a day, build its stack directly or import it, then save its set prescription before moving on.</p></div></aside><div className="day-design-main">{sessionMode && <WorkoutExecutionPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} sportId={activeSportId} goal={goal} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} isAuthenticated={isAuthenticated} onSignIn={startLogin} />}<section className="day-active-card"><div><p className="metric-label">Week {activeWeek} / active training day</p><h2>Day {String(activeDayIndex + 1).padStart(2, "0")} <span>/</span> {activeSplitDay}</h2><p>{customWorkout.length ? `${customWorkout.length} exercises currently staged in Week ${activeWeek}. Edit this day without changing any other saved week.` : "No exercises staged. Use the catalog picker below, paste a stack, or load a smart draft to begin."}</p></div><div className="day-active-actions"><button onClick={() => setSessionMode((value) => !value)}>{sessionMode ? "Hide logger" : "Start session"} <Activity className="h-4 w-4" /></button><button onClick={loadSmartDraft}>Load smart draft <Sparkles className="h-4 w-4" /></button><button onClick={() => setImportOpen(true)}><ClipboardPaste className="h-4 w-4" /> Import this plan</button><PrintWorkoutButton disabled={!customWorkout.length} /></div></section><div className="grid gap-5 xl:grid-cols-[.92fr_1.08fr]"><div className="space-y-5"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /><ImportedPlanContext items={activeImportedContext} /></div><div className="day-programming-panel"><div className="day-programming-head"><div><p className="metric-label">Exercise prescription</p><h3>{activeSplitDay} stack</h3><p>Sets, effort, rest, notes, and order remain editable for this training day. Save when the plan is ready.</p></div><button onClick={saveActiveDay}>Save day</button></div><div className="divide-y divide-white/10">{customWorkout.length ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>) : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" /><strong>Build this day from the catalog.</strong><p>Search, filter, and add exercises below. Importing a plan is optional.</p></div>}</div></div></div><DayExercisePicker exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={prescriptions} onAdd={addExercise} onReplace={replaceExercise} onInspect={inspectExercise} /><div className="grid gap-5 xl:grid-cols-[.92fr_1.08fr]"><div className="space-y-5"><WarmupPanel workout={customWorkout} goal={goal} /><ProgrammingGuidePanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /></div><WeeklyMuscleVolumePanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} /></div><PrintableWorkoutSheet workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} sport={selectedSport.label} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></div></div></section>}
+        {workspace === "day-plan" && <section className={`day-design-workspace ${sessionMode ? "day-session-mode" : ""}`}><div className="day-design-hero"><div><p className="metric-label">04 / saved training-day plans</p><h1>Design the day.<br /><em>See the week.</em></h1><p>Pick a week, pick a day, then build it from the catalog or paste one in. Every edit is saved to the day you are on.</p></div><button onClick={() => setImportOpen(true)} className="day-design-import"><ClipboardPaste className="h-4 w-4" /> Paste a stack</button></div><ThreeWeekPlanner activeWeek={activeWeek} generatedWeeks={visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek)} dayCounts={Object.fromEntries([1, 2, 3].map((week) => [week, savedDayCount(week === activeWeek ? dayStore : planWeeks[week]?.days || emptyDayStore())]))} onSelect={selectWeek} onGenerate={generateWeek} /><TrainingDayNav week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onOpen={openTrainingDay} onCycle={(direction) => openTrainingDay(cycleSplitIndex(splitDays, activeDayIndex, direction))} /><div className="day-design-grid"><aside className="day-design-rail"><WeeklyPlanBoard days={splitDays} activeIndex={activeDayIndex} plan={weeklyPlan} onChoose={openTrainingDay} onSave={saveActiveDay} /><div className="day-design-rail-note"><p className="metric-label">Plan flow</p><p>Week {activeWeek} is active. Pick a day above, build its stack directly or import it, and move on when you like — the day you leave keeps what you put in it.</p></div></aside><div className="day-design-main">{sessionMode && <WorkoutExecutionPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} sportId={activeSportId} goal={goal} dayLabel={activeDayLabel} isAuthenticated={isAuthenticated} onSignIn={startLogin} />}<section className="day-active-card"><div><p className="metric-label">{activeSlot.ordinal} · {activeSplitDay} / session tools</p><h2>Build it<span>,</span> run it<span>,</span> print it</h2><p>{customWorkout.length ? `${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"} in this day. Editing it changes only this day, in Week ${activeWeek}.` : "No exercises in this day yet. Use the catalog picker below, paste a stack, or load a smart draft to begin."}</p></div><div className="day-active-actions"><button onClick={() => setSessionMode((value) => !value)}>{sessionMode ? "Hide logger" : "Start session"} <Activity className="h-4 w-4" /></button><button onClick={loadSmartDraft}>Load smart draft <Sparkles className="h-4 w-4" /></button><button onClick={() => setImportOpen(true)}><ClipboardPaste className="h-4 w-4" /> Import this plan</button><PrintWorkoutButton disabled={!customWorkout.length} /></div></section><div className="grid gap-5 xl:grid-cols-[.92fr_1.08fr]"><div className="space-y-5"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /><ImportedPlanContext items={activeImportedContext} /></div><div className="day-programming-panel"><div className="day-programming-head"><div><p className="metric-label">Exercise prescription</p><h3>{activeSlot.ordinal} · {activeSplitDay} stack</h3><p>Sets, effort, rest, notes, and order belong to this training day and are saved to it as you edit.</p></div><button onClick={saveActiveDay}>Save day</button></div><div className="divide-y divide-white/10">{customWorkout.length ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>) : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" /><strong>Build this day from the catalog.</strong><p>Search, filter, and add exercises below. Importing a plan is optional.</p></div>}</div></div></div><DayExercisePicker exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={prescriptions} onAdd={addExercise} onReplace={replaceExercise} onInspect={inspectExercise} /><div className="grid gap-5 xl:grid-cols-[.92fr_1.08fr]"><div className="space-y-5"><WarmupPanel workout={customWorkout} goal={goal} /><ProgrammingGuidePanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /></div><WeeklyMuscleVolumePanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} /></div><PrintableWorkoutSheet workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} sport={selectedSport.label} dayLabel={activeDayLabel} /></div></div></section>}
         {workspace === "body" && <section className="body-lab-v2 space-y-5"><BodyLabNavigator sports={sportProfiles} activeSportId={activeSportId} movements={sportMovements} selectedMovement={selectedMovement} onSport={chooseSport} onMovement={(movement) => { setMovementId(movement.id); setActiveMuscle(getMovementMuscles(movement)[0] || "abs"); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={bodyLabRoleContext.primary} secondary={bodyLabRoleContext.supporting} roleDetails={bodyLabRoleContext.rolesByMuscle} roleMethodology={bodyLabRoleContext.methodology} onSelect={setActiveMuscle} /><div className="body-lab-quick-actions"><div><p className="metric-label">Current sporting action</p><strong>{selectedMovement.label}</strong><span>{selectedMovement.family}</span></div><div><p className="metric-label">Selected muscle</p><strong>{muscleLabels[activeMuscle] || activeMuscle}</strong><span>Selected from the atlas</span></div><button onClick={() => { setCatalogFilters({ ...defaultCatalogFilters, muscle: activeMuscle }); navigateWorkspace("catalog"); }}>Find {muscleLabels[activeMuscle] || activeMuscle} exercises <ArrowUpRight className="h-4 w-4" /></button></div></section>}
         {(workspace === "recommended" || workspace === "custom") && <section className="mt-5"><MovementIntelligencePanel movement={enrichedSelectedMovement} fallback={selectedMovement} workout={customWorkout} onAdd={addExercise} onInspect={inspectExercise} compact={workspace === "custom"} /></section>}
         {workspace === "custom" && <section className="builder-prep-workspace"><div className="builder-prep-head"><div><p className="metric-label">Before the work sets</p><h2>Prepare. Then prescribe.</h2><p>Mobility and programming recommendations update from the active exercise stack and selected training goal.</p></div></div><div className="grid gap-5 xl:grid-cols-[.9fr_1.1fr]"><div className="space-y-5"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /><ImportedPlanContext items={activeImportedContext} /></div><div className="space-y-5"><WarmupPanel workout={customWorkout} goal={goal} /><ProgrammingGuidePanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /></div></div></section>}
@@ -1025,7 +1111,7 @@ export default function Home() {
         {workspace === "progress" && <ProgressOverviewPanel onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}
       </main></Suspense>
-      {workspace === "custom" && <div className={`planner-float planner-float-${plannerSide}`}><button onClick={() => setPlannerOpen((value) => !value)} aria-expanded={plannerOpen} className={`planner-tab ${plannerOpen ? "planner-tab-open" : ""}`}><SlidersHorizontal className="h-4 w-4" /> {plannerOpen ? "Hide planner" : "Training day"}</button>{plannerOpen && <SplitDraftControls days={splitDays} activeDayIndex={activeDayIndex} activeLoadout={activeLoadout} onDay={(day, index) => { setActiveSplitDay(day); setActiveSplitDayIndex(index); }} onCycle={(direction) => { const nextIndex = cycleSplitIndex(splitDays, activeDayIndex, direction); setActiveSplitDayIndex(nextIndex); setActiveSplitDay(splitDays[nextIndex]); }} onLoadout={setActiveLoadout} onDraft={loadDraft} onClose={() => setPlannerOpen(false)} onMove={() => setPlannerSide((side) => side === "right" ? "left" : "right")} />}</div>}
+      {workspace === "custom" && <div className={`planner-float planner-float-${plannerSide}`}><button onClick={() => setPlannerOpen((value) => !value)} aria-expanded={plannerOpen} className={`planner-tab ${plannerOpen ? "planner-tab-open" : ""}`}><SlidersHorizontal className="h-4 w-4" /> {plannerOpen ? "Hide planner" : "Training day"}</button>{plannerOpen && <SplitDraftControls days={splitDays} activeDayIndex={activeDayIndex} activeLoadout={activeLoadout} onDay={(_day, index) => openTrainingDay(index)} onCycle={(direction) => openTrainingDay(cycleSplitIndex(splitDays, activeDayIndex, direction))} onLoadout={setActiveLoadout} onDraft={loadDraft} onClose={() => setPlannerOpen(false)} onMove={() => setPlannerSide((side) => side === "right" ? "left" : "right")} />}</div>}
     </div>
     <div className="mobile-workspace-dock" aria-label="Primary workspace navigation">
       <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">{primaryDestinations.map((item) => { const Icon = item.icon; const active = activePrimaryDestination === item.id; return <button type="button" key={item.id} onPointerUp={(event) => navigateDockDestination(item.defaultWorkspace!, event)} onClick={(event) => navigateDockDestination(item.defaultWorkspace!, event)} aria-current={active ? "page" : undefined} className={active ? "mobile-bottom-nav-active" : ""}><Icon className="h-4 w-4" /><span>{item.label}</span></button>; })}</nav>

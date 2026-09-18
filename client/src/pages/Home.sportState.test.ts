@@ -26,16 +26,23 @@ describe("Home sport state safeguards", () => {
   });
 
   it("routes automatic Smart Draft through the active split-filtered loadout instead of the sport-wide session list", () => {
-	    expect(source).toContain("setCustomWorkout(draftedLoadout);");
+	    expect(source).toContain("applyDraftToActiveDay(draftedLoadout);");
 	    expect(source).not.toContain("setCustomWorkout(buildSmartDraftWorkout(sessionRecommendations))");
 	    expect(source).toContain("${activeSplitDay.toLowerCase()} session is ready for review.");
   });
 
-  it("persists the departing day but clears an empty selected split slot rather than carrying a mixed active stack into Push", () => {
-	    expect(source).toContain('const previousKey = `${activeDayIndex}-${activeSplitDay}`;');
-	    expect(source).toContain("setWeeklyPlan((current) => ({ ...current, [previousKey]: customWorkout }));");
-	    expect(source).toContain("if (saved?.length) {");
-	    expect(source).toContain("setCustomWorkout([]);");
-	    expect(source).toContain("const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || [];");
+  it("replaces only the open day when a draft is loaded, rather than clearing prescriptions and effort for the whole week", () => {
+	    expect(source).toContain("const applyDraftToActiveDay = (stack: Exercise[]) => {");
+	    expect(source).toContain("setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])));");
+  });
+
+  it("carries the departing day into the week and reads the arriving one back whole, through one path", () => {
+	    expect(source).toContain("const departing = draftDayKeyRef.current;");
+	    expect(source).toContain("if (departing === activeSlot.key) return;");
+	    expect(source).toContain("const carried = commitDay(dayStore, departing, activeDraft());");
+	    expect(source).toContain("adoptActiveDay(activeSlot, loadDay(carried, activeSlot.key));");
+	    // Choosing a day only moves the marker; nothing else may swap a draft.
+	    expect(source).toContain("const openTrainingDay = (index: number) => {");
+	    expect(source).toContain("const activeImportedContext = dayStore.context[activeDayKey] || [];");
   });
 });

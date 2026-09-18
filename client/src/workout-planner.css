@@ -51,6 +51,62 @@
   .three-week-tabs button svg { width: .9rem; height: .9rem; }
   .three-week-tabs small { line-height: 1.15; }
 }
+/* The day switcher: which day you are building, and every other day one tap away. It stays
+   on screen because "which day is this?" and "take me to another" are the same question. */
+.training-day-nav { position: sticky; top: .5rem; z-index: 14; overflow: hidden; border: 1px solid #b6d0e8; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 14px 30px rgb(12 40 71 / .18); color: var(--sg-text-on-dark); }
+.training-day-nav-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .85rem; padding: .95rem 1.05rem; border-bottom: 1px solid rgb(255 255 255 / .13); }
+.training-day-nav-current { min-width: 0; }
+.training-day-nav-current .metric-label { color: #9ec4e8; }
+.training-day-nav-current h2 { margin-top: .26rem; color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; line-height: .86; text-transform: uppercase; }
+.training-day-nav-current h2 span { color: var(--sg-action); }
+.training-day-nav-state { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .48rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.45; }
+.training-day-nav-autosave { display: inline-flex; align-items: center; gap: .28rem; border: 1px solid rgb(146 210 168 / .4); background: rgb(96 176 126 / .16); padding: .2rem .4rem; color: #a9e0bd; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.training-day-nav-cycle { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .3rem; border: 1px solid rgb(255 255 255 / .18); background: rgb(255 255 255 / .06); padding: .28rem; }
+.training-day-nav-cycle span { min-width: 92px; color: #cfe4f7; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
+.training-day-nav-cycle button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgb(255 255 255 / .16); color: #cfe4f7; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
+.training-day-nav-cycle button:hover:not(:disabled) { background: rgb(255 255 255 / .1); color: #fff; }
+.training-day-nav-cycle button:disabled { cursor: not-allowed; opacity: .32; }
+.training-day-nav-strip { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+.training-day-nav-strip::-webkit-scrollbar { display: none; }
+.training-day-chip { flex: 1 0 auto; min-width: 118px; border-right: 1px solid rgb(255 255 255 / .11); padding: .68rem .8rem; text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease); }
+.training-day-chip:last-child { border-right: 0; }
+.training-day-chip:hover { background: rgb(255 255 255 / .07); }
+.training-day-chip span { display: block; color: #8fb4d6; font-size: .6875rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.training-day-chip strong { display: block; margin-top: .26rem; color: #e6f1fb; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.32rem; font-weight: 800; line-height: .9; text-transform: uppercase; }
+.training-day-chip small { display: block; margin-top: .28rem; color: #8fb4d6; font-size: .6875rem; }
+.training-day-chip-filled small { color: #a9e0bd; }
+.training-day-chip-active { background: rgb(228 81 46 / .16); box-shadow: inset 0 3px 0 var(--sg-action); }
+.training-day-chip-active span, .training-day-chip-active small { color: #ffc3ae; }
+.training-day-chip-active strong { color: #fff; }
+.training-day-chip:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
+@media (max-width: 640px) {
+  /* On a phone the bar has to earn its height: the day, whether it is safe, and the way to
+     another day, all above the fold. The arrows sit beside the title instead of below it,
+     and the "Day 05 of 05" counter goes - the strip already shows the position. */
+  /* First thing on the screen, because picking the day is the first thing an athlete does
+     here. The hero and the week generator are context and an occasional tool; making them
+     the two blocks you scroll past to reach the control you came for is what made this
+     screen feel hard to move around. */
+  .day-design-workspace > .training-day-nav { order: 1; }
+  .day-design-workspace > .day-design-hero { order: 2; }
+  .day-design-workspace > .three-week-planner { order: 3; }
+  .day-design-workspace > .day-design-grid { order: 4; }
+  .training-day-nav { position: sticky; top: 0; }
+  .training-day-nav-head { flex-wrap: nowrap; align-items: center; gap: .6rem; padding: .7rem .8rem; }
+  .training-day-nav-current h2 { font-size: 1.62rem; }
+  .training-day-nav-state { gap: .4rem; margin-top: .34rem; }
+  .training-day-nav-cycle span { display: none; }
+  .training-day-nav-cycle button { width: 34px; height: 34px; }
+  .training-day-chip { min-width: 104px; padding: .55rem .7rem; }
+  .training-day-chip strong { font-size: 1.15rem; }
+  /* The strip already answers "which day, and take me to another", so the rail's card grid
+     would be a second control saying the same thing on the screen with least room for it. */
+  .day-design-rail .weekly-plan-board { display: none; }
+}
+/* The tracker's day buttons say what is planned in each day, so choosing one is a decision
+   rather than a guess followed by a bounce back. */
+.tracker-day-options button { display: grid; gap: .22rem; text-align: left; }
+.tracker-day-options button small { color: inherit; font-size: .6875rem; font-weight: 700; letter-spacing: 0; opacity: .72; text-transform: none; }
 .session-execution-strip { position: sticky; top: 86px; z-index: 12; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem; border: 1px solid var(--sg-action); background: var(--sg-surface-light); padding: .8rem .9rem; box-shadow: 0 12px 24px rgb(132 59 35 / .12); }.session-execution-strip > div { display: grid; gap: .15rem; }.session-execution-strip strong { color: #8e381f; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.session-execution-strip span { color: #7c6258; font-size: .6875rem; line-height: 1.4; }.session-execution-strip button { background: var(--sg-action-fill); color: #fff; padding: .62rem .72rem; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.day-session-mode .day-programming-panel { border-color: var(--sg-action); box-shadow: 0 18px 32px rgb(228 81 46 / .13); }
 @media (max-width: 640px) { .session-execution-strip { top: 70px; align-items: stretch; }.session-execution-strip button { width: 100%; padding: .78rem; } }
 

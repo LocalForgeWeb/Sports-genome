@@ -103,8 +103,9 @@ describe("Home hydrates and writes against the same account", () => {
     expect(home).toContain("if (loading) return;");
   });
 
-  it("re-hydrates when the account changes", () => {
-    expect(home).toContain("}, [workoutPlanKey, loading]);");
+  it("re-hydrates when the account changes, and not before the saved profile says how many days this athlete trains", () => {
+    expect(home).toContain("}, [workoutPlanKey, loading, profileHydrated]);");
+    expect(home).toContain("if (!profileHydrated) return;");
   });
 
   it("does not re-read the same account's plan on every render", () => {
