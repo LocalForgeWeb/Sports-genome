@@ -36,7 +36,7 @@
 .custom-row-index { color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: 1; }
 .custom-row-identity { display: grid; gap: .22rem; min-width: 0; }
 /* The name wraps rather than truncating: it is the thing being scanned for. */
-.custom-row-identity strong { color: #fff; font-size: .875rem; font-weight: 700; line-height: 1.35; }
+.custom-row-identity strong { color: #fff; font-size: .875rem; font-weight: 700; line-height: 1.45; }
 .custom-row-identity em { color: var(--sg-focus-on-dark); font-size: .75rem; font-style: normal; font-weight: 800; letter-spacing: .03em; line-height: 1.35; }
 .custom-row-identity small { color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.4; }
 .custom-row-state { display: inline-flex; align-items: center; gap: .4rem; color: var(--sg-text-subtle-on-dark); }
