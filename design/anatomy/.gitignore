@@ -1,0 +1,4 @@
+# Build output. `node build.mjs` regenerates the SVGs, `node figma-script.mjs`
+# the Figma payloads, and `node preview.mjs` the review render.
+out/preview.png
+out/figma_*.js
