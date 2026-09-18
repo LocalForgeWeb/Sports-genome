@@ -1,0 +1,92 @@
+/**
+ * Body Lab figure.
+ *
+ * Role colours match the legend beside the figure exactly, because they are the
+ * same three values: neutral, supporting role, primary role. Nothing here
+ * encodes magnitude — the Body Lab contract keeps exercise-target involvement on
+ * a categorical encoding rather than reusing a rank scale.
+ *
+ * Opacity is deliberately not used to separate roles. The contract names "using
+ * opacity simultaneously for confidence, magnitude and focus" an anti-pattern,
+ * so role is hue, selection is weight, and neither borrows the other's channel.
+ */
+
+/* Defaults are for a light surface, because this figure renders on one: the
+   exercise inspector puts it inside `.light-panel`. Body Lab renders the same
+   component on the dark destination ground and flips these in one place, beside
+   the other polarity overrides in anatomy-clean.css. Role hues hold on both. */
+.anatomy-figure {
+  --anatomy-neutral: #a9bacb;
+  --anatomy-supporting: #d5ad43;
+  --anatomy-primary: #db2f24;
+  --anatomy-structural: #bac7d4;
+  --anatomy-silhouette: #ccd7e0;
+  --anatomy-separator: #33465c;
+  --anatomy-selection: #10233a;
+
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.anatomy-silhouette { fill: var(--anatomy-silhouette); }
+.anatomy-structural { fill: var(--anatomy-structural); stroke: var(--anatomy-separator); stroke-width: 1; stroke-linejoin: round; }
+
+.anatomy-contour {
+  fill: none;
+  stroke: var(--anatomy-separator);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.anatomy-muscle > path {
+  stroke: var(--anatomy-separator);
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+  fill: var(--anatomy-neutral);
+  transition: fill 180ms ease-out;
+}
+
+.anatomy-muscle[data-role="supporting"] > path { fill: var(--anatomy-supporting); }
+.anatomy-muscle[data-role="primary"] > path { fill: var(--anatomy-primary); }
+
+/* Hover and keyboard focus read the same way, so a muscle reached by arrow key
+   is as legible as one under a finger. */
+.anatomy-muscle[data-focused="true"] > path { stroke: var(--anatomy-selection); stroke-width: 1.8; }
+
+/* Selection is a weight change, not a colour change: a muscle already painted
+   primary red has no colour left to spend, so the cue has to survive that. */
+.anatomy-selection-ring {
+  fill: none;
+  stroke: var(--anatomy-selection);
+  stroke-width: 3.2;
+  stroke-linejoin: round;
+  paint-order: stroke;
+  pointer-events: none;
+}
+
+.anatomy-hit { cursor: pointer; outline: none; }
+
+/* Interaction geometry, held apart from visible geometry. The halo stroke grows
+   the target outward; the drawn muscle underneath is untouched. Painted in
+   largest-area-first order, so a small muscle's target lands above its larger
+   neighbour's and hit priority is deterministic rather than incidental. */
+.anatomy-hit > path {
+  fill: transparent;
+  stroke: transparent;
+  stroke-linejoin: round;
+  pointer-events: all;
+}
+
+.anatomy-hit:focus-visible > path {
+  stroke: var(--anatomy-selection);
+  stroke-opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anatomy-muscle > path { transition: none; }
+}

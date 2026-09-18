@@ -42,7 +42,7 @@
 /* Body chart container (body-muscles library) */
 .atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:clamp(480px,60vh,700px);margin-top:.3rem;overflow:hidden;background:radial-gradient(circle at 50% 38%,var(--sg-surface-light) 0%,var(--sg-surface-light) 56%,var(--sg-surface-light-sunken) 100%);border:1px solid var(--sg-surface-light-sunken)}
 .atlas-body-chart{width:100%;height:clamp(460px,58vh,680px);display:flex;justify-content:center;align-items:center}
-.atlas-body-chart svg{height:100%!important;width:auto!important;max-width:100%!important;max-height:100%;object-fit:contain}
+.atlas-body-chart svg{height:100%;width:auto;max-width:100%}
 .atlas-hover-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--sg-divider-on-light);box-shadow:0 4px 12px rgb(24 53 70 / .12);padding:.4rem .7rem;font-size:.7rem;font-weight:700;color:var(--sg-text-on-light);pointer-events:none;white-space:nowrap;z-index:5}
 
 
@@ -170,10 +170,22 @@
   --sg-info-strong: var(--sg-info);
 }
 
+/* The figure's own polarity, flipped in the same place and for the same reason.
+   Its light-surface defaults are correct in the exercise inspector, which draws
+   it inside a light panel; here the ground is dark. */
+.destination-body .anatomy-figure {
+  --anatomy-neutral: #c0cdd6;
+  --anatomy-structural: #8496a9;
+  --anatomy-silhouette: #7286a0;
+  --anatomy-separator: #243348;
+  --anatomy-selection: #ffffff;
+}
+
 /* The selection, restated where the athlete just tapped. */
 .atlas-selected-strip{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;margin-top:.75rem;border-left:3px solid var(--sg-action);background:var(--sg-surface-light-sunken);padding:.65rem .8rem}
 .atlas-selected-strip>div{min-width:0}
 .atlas-selected-strip strong{display:block;font-family:var(--font-display,"Barlow Condensed",sans-serif);font-size:1.35rem;font-weight:800;line-height:1.05;text-transform:uppercase}
 .atlas-selected-role{border:1px solid var(--sg-divider-on-light);padding:.22rem .45rem;font-size:.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .atlas-selected-confidence{font-size:.6875rem;line-height:1.35;color:var(--sg-text-subtle-on-light)}
+.atlas-selected-elsewhere{flex-basis:100%;text-align:left;font-size:.6875rem;font-weight:700;line-height:1.35;color:var(--sg-action);text-decoration:underline;text-underline-offset:3px;min-height:44px;display:flex;align-items:center}
 @media (min-width:901px){.atlas-selected-strip{display:none}}

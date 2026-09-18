@@ -6,24 +6,6 @@ import { strengthRegionDefinitions } from "../../../shared/strengthGenomeDefinit
 
 const feedback = vi.hoisted(() => ({ emit: vi.fn() }));
 
-vi.mock("body-muscles", () => ({
-  ViewSide: { FRONT: "front", BACK: "back" },
-  BodyChart: class {
-    constructor(container: HTMLElement, options: { onMuscleClick: (muscleId: string) => void }) {
-      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path.classList.add("body-chart-muscle");
-      path.setAttribute("role", "button");
-      path.setAttribute("tabindex", "0");
-      path.setAttribute("aria-label", "Biceps");
-      path.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") options.onMuscleClick("biceps-left"); });
-      svg.appendChild(path);
-      container.appendChild(svg);
-    }
-    update() {}
-    destroy() {}
-  },
-}));
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: feedback.emit }));
 
 import { StrengthGenomeBodyMap } from "./StrengthGenomeBodyMap";
@@ -52,15 +34,33 @@ describe("Strength Genome map interaction feedback", () => {
     expect(screen.getByRole("button", { name: "Front" })).toBeTruthy();
   });
 
-  it("keeps a rendered muscle path keyboard-addressable and routes its activation through optional feedback", () => {
+  it("keeps a rendered muscle region keyboard-addressable and routes its activation through optional feedback", () => {
     const onSelect = vi.fn();
     render(React.createElement(StrengthGenomeBodyMap, { regions, activePriorityIds: new Set<string>(), selectedRegionId: undefined, onSelect }));
-    const muscle = document.querySelector<SVGPathElement>(".strength-body-chart .body-chart-muscle")!;
+
+    // The selectable unit is the canonical region, not one drawn path: both
+    // sides and every visual subdivision answer to the same object.
+    const muscle = document.querySelector<SVGGElement>('.anatomy-hit[aria-label^="Biceps"]')!;
+    expect(muscle).toBeTruthy();
     expect(muscle.getAttribute("role")).toBe("button");
-    expect(muscle.getAttribute("tabindex")).toBe("0");
-    expect(muscle.getAttribute("aria-label")).toBe("Biceps");
+    // Roving tabindex — the figure is one stop in the page's tab order and
+    // arrow keys move inside it, rather than 18 stops burying the rest of the
+    // page. So exactly one region carries tabindex 0.
+    const tabbable = document.querySelectorAll('.anatomy-hit[tabindex="0"]');
+    expect(tabbable.length).toBe(1);
+    expect(muscle.getAttribute("aria-label")).toBe("Biceps, primary role");
+
     fireEvent.keyDown(muscle, { key: "Enter" });
     expect(feedback.emit).toHaveBeenCalledTimes(1);
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining(biceps));
+  });
+
+  it("puts the athlete's own recorded coverage on the figure, and nothing else", () => {
+    render(React.createElement(StrengthGenomeBodyMap, { regions, activePriorityIds: new Set<string>(), selectedRegionId: undefined, onSelect: vi.fn() }));
+
+    // Biceps has a lift on record; chest does not. Highlighting says where lifts
+    // exist, never how strong the athlete is, so there is no third state.
+    expect(document.querySelector('.anatomy-muscle[data-muscle="biceps"]')?.getAttribute("data-role")).toBe("primary");
+    expect(document.querySelector('.anatomy-muscle[data-muscle="chest"]')?.getAttribute("data-role")).toBe("neutral");
   });
 });
