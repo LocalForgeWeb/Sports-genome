@@ -1730,7 +1730,10 @@ details:not([open]) > *:not(summary) {
 
 /* Movement Atlas header and list meta sit on the Body Lab gradient. */
 .destination-body .atlas-inventory span,
-.destination-body .atlas-list-meta span {
+.destination-body .atlas-list-meta span,
+/* The "Sort" text is a bare node on the label itself, not in a span, so it kept
+   the on-light ink and sat at 3.12:1 beside the value it labels. */
+.destination-body .atlas-list-meta label {
   color: var(--sg-text-muted-on-dark);
 }
 
@@ -2220,3 +2223,32 @@ details:not([open]) > *:not(summary) {
 .destination-body .atlas-list-meta select { color: var(--sg-text-on-dark); }
 .destination-body .atlas-sport-select option,
 .destination-body .atlas-list-meta option { background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
+
+/**
+ * Two more surfaces repainted dark with their text left behind.
+ *
+ * Recent lifts: `.strength-progress-log` and the rule beneath it set on-light
+ * ink, from when the Strength Genome lived under Body Lab on a pale surface. It
+ * moved to Progress, where `.light-panel` is repainted dark, and the ink did not
+ * follow - "Your history" measured 1.94:1 and the empty state's explanation
+ * 1.58:1, both effectively invisible.
+ *
+ * Movement Atlas: the subtitle under "Find the action." is the one line telling
+ * you which sport's actions you are looking at, and it sat at 2.61:1 under a
+ * headline the same panel had already repointed to on-dark ink - so the heading
+ * was legible and the sentence explaining it was not.
+ */
+.destination-progress .strength-progress-log { color: var(--sg-text-on-dark); }
+.destination-progress .strength-progress-log :is(.metric-label, p:not(.font-bold)) { color: var(--sg-text-muted-on-dark); }
+.destination-progress .strength-progress-log h2 { color: var(--sg-text-on-dark); }
+.destination-body .atlas-improved-head > div > p:last-child { color: var(--sg-text-muted-on-dark); }
+
+/**
+ * "Show all 22 actions", the Movement Atlas list's own expand control.
+ *
+ * It used `--sg-info-strong`, the link blue tuned for the light sunken surface
+ * (5.16:1 there), on the Body Lab's dark panel - 2.75:1, and the darkest link in
+ * the app sitting on its darkest surface. The on-dark link token already exists
+ * for exactly this.
+ */
+.destination-body .atlas-show-more { color: var(--sg-link-on-dark); }
