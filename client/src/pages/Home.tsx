@@ -29,6 +29,7 @@ import { PrintableWorkoutSheet, PrintWorkoutButton } from "@/components/Printabl
 import { AthleteBaselineQuiz, type AthleteBaseline, type AthleteQuizSelection } from "@/components/AthleteBaselineQuiz";
 import { AthleteAboutMePanel } from "@/components/AthleteAboutMePanel";
 import { loadBodyWeightLog, recordBodyWeight, saveBodyWeightLog, seedBodyWeightLog } from "@/lib/bodyWeightLog";
+import { useAthleteSync } from "@/lib/useAthleteSync";
 import { ProgressOverviewPanel } from "@/components/ProgressOverviewPanel";
 import { TodayActionPanel } from "@/components/TodayActionPanel";
 import { EquipmentConstraintStrip } from "@/components/EquipmentConstraintStrip";
@@ -762,6 +763,28 @@ export default function Home() {
     if (!changed || !next.bodyWeight || next.bodyWeight <= 0) return;
     saveBodyWeightLog(recordBodyWeight(loadBodyWeightLog(), next.bodyWeight, next.weightUnit));
   };
+  /**
+   * The account chain, entirely in the background: an id on first launch, the
+   * profile kept current, and every finished lift pushed to Supabase. Nothing
+   * here can block logging — a failure just leaves the queue to drain later.
+   */
+  // The norms-pool answer lives beside the profile and defaults to off, matching
+  // the column. It is only written to Supabase when the athlete actually answers.
+  const [benchmarkOptIn, setBenchmarkOptIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try { return window.localStorage.getItem("sports-genome-benchmark-opt-in-v1") === "true"; } catch { return false; }
+  });
+  useEffect(() => {
+    try { window.localStorage.setItem("sports-genome-benchmark-opt-in-v1", String(benchmarkOptIn)); } catch { /* optional. */ }
+  }, [benchmarkOptIn]);
+  const athleteSync = useAthleteSync({
+    sexForReference: athleteBaseline.sexForReference,
+    birthYear: athleteBaseline.birthYear,
+    sportId: activeSportId,
+    weightUnit: athleteBaseline.weightUnit,
+    appSports: sportProfiles,
+    enabled: onboardingComplete,
+  });
   const activeDayIndex = Math.min(activeSplitDayIndex, splitDays.length - 1);
 	  const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || [];
   const saveActiveDay = () => {
@@ -999,7 +1022,7 @@ export default function Home() {
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[var(--sg-text-subtle-on-light)]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? <p className="tracker-live-context">Logging Day {String(activeDayIndex + 1).padStart(2, "0")} · {activeSplitDay}</p> : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseTrackerDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
-        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} />}
+        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} />}
         {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><SupabaseResearchLibraryPanel /><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div></section>}
         {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={`Week ${activeWeek} · ${activeSplitDay}`} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "command" && <section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section>}
