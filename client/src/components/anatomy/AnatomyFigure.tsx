@@ -84,6 +84,12 @@ export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, o
     node?.focus?.();
   };
 
+  const fillFor = (role?: AnatomyRole) => {
+    if (role === "primary") return `url(#${clipId}-primary)`;
+    if (role === "supporting") return `url(#${clipId}-supporting)`;
+    return undefined;
+  };
+
   const describe = (key: string) => {
     const role = roles[key] ?? "neutral";
     const roleWord = role === "primary" ? "primary role" : role === "supporting" ? "supporting role" : "not involved";
@@ -102,6 +108,17 @@ export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, o
         <clipPath id={clipId}>
           <path d={figure.outline} />
         </clipPath>
+        {/* A flat flood over a whole region reads as paint-by-numbers; a
+            gradient gives the muscle a lit side and reads as tissue. Stops come
+            from CSS variables so the dark-surface override reaches them too. */}
+        <linearGradient id={`${clipId}-supporting`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--anatomy-supporting-1)" />
+          <stop offset="100%" stopColor="var(--anatomy-supporting-2)" />
+        </linearGradient>
+        <linearGradient id={`${clipId}-primary`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--anatomy-primary-1)" />
+          <stop offset="100%" stopColor="var(--anatomy-primary-2)" />
+        </linearGradient>
       </defs>
 
       <path className="anatomy-silhouette" d={figure.outline} />
@@ -112,20 +129,37 @@ export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, o
         {figure.structural.map((piece) => (
           <path key={piece.id} className="anatomy-structural" d={piece.d} />
         ))}
-        {figure.muscles.map((muscle) => (
-          <g
-            key={muscle.key}
-            className="anatomy-muscle"
-            data-muscle={muscle.key}
-            data-role={roles[muscle.key] ?? "neutral"}
-            data-selected={isSelected(muscle.key) ? "true" : undefined}
-            data-focused={focusedKey === muscle.key ? "true" : undefined}
-          >
-            {muscle.paths.map((path) => (
-              <path key={path.id} id={path.id} d={path.d} />
-            ))}
-          </g>
-        ))}
+        {/* Fills first, each dilated by a stroke of its own colour so adjacent
+            muscles meet instead of leaving a pale channel between them. Authored
+            independently they read as separate lozenges floating on the body;
+            tiling is what makes the group read as one mass. */}
+        {figure.muscles.map((muscle) => {
+          const paint = fillFor(roles[muscle.key]);
+          return (
+            <g
+              key={muscle.key}
+              className="anatomy-muscle"
+              data-muscle={muscle.key}
+              data-role={roles[muscle.key] ?? "neutral"}
+              data-selected={isSelected(muscle.key) ? "true" : undefined}
+              data-focused={focusedKey === muscle.key ? "true" : undefined}
+            >
+              {muscle.paths.map((path) => (
+                // Inline style, not a `fill` attribute: a presentation attribute
+                // loses to any stylesheet rule, so the neutral fill silently won
+                // and no muscle ever showed its role colour.
+                <path key={path.id} id={path.id} d={path.d} style={paint ? { fill: paint, stroke: paint } : undefined} />
+              ))}
+              {/* Seams belong to their own muscle, not to a layer above every
+                  muscle: drawn globally they trace each shape in full, including
+                  the parts buried under a neighbour, and the arms fill with
+                  loops. Here the next muscle's fill paints over them. */}
+              {muscle.paths.map((path) => (
+                <path key={`seam-${path.id}`} className="anatomy-seam" d={path.d} />
+              ))}
+            </g>
+          );
+        })}
       </g>
 
       <path className="anatomy-contour" d={figure.outline} />

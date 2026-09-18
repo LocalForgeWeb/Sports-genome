@@ -196,7 +196,9 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
 
           {/* Qualitative role legend */}
           <div className="atlas-heat-legend-pro">
-            <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "#d5ad43" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></>
+            {/* Swatches carry the figure's own fills, gradients included, so the
+                legend cannot drift from what the body is actually painted. */}
+            <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#e8ecf4" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#e9be55,#c08f24)" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#ec5f4a,#bb2114)" }} /></>
           </div>
           <details className="atlas-role-methodology">
             <summary>How muscle roles are classified <ChevronDown className="h-4 w-4" /></summary>

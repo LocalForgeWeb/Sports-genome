@@ -1,28 +1,35 @@
 /**
  * Body Lab figure.
  *
- * Role colours match the legend beside the figure exactly, because they are the
- * same three values: neutral, supporting role, primary role. Nothing here
- * encodes magnitude — the Body Lab contract keeps exercise-target involvement on
- * a categorical encoding rather than reusing a rank scale.
+ * The body is one uniform pale tone and separation is carried by thin hairlines
+ * a shade darker than the body itself. The first attempt did the opposite —
+ * pale muscles on a darker silhouette, separated by heavy dark strokes — and it
+ * read as a segmented mannequin with the uninvolved arms as the loudest thing
+ * on screen. A quiet body is what lets scarce colour mean something.
  *
- * Opacity is deliberately not used to separate roles. The contract names "using
- * opacity simultaneously for confidence, magnitude and focus" an anti-pattern,
- * so role is hue, selection is weight, and neither borrows the other's channel.
+ * Role colours match the legend beside the figure, because they are the same
+ * three values. Nothing here encodes magnitude: the Body Lab contract keeps
+ * exercise-target involvement on a categorical encoding rather than reusing a
+ * rank scale, so role is hue and selection is weight, and neither borrows the
+ * other's channel. Opacity is used for neither, which the contract also asks.
  */
 
 /* Defaults are for a light surface, because this figure renders on one: the
-   exercise inspector puts it inside `.light-panel`. Body Lab renders the same
+   exercise inspector draws it inside `.light-panel`. Body Lab renders the same
    component on the dark destination ground and flips these in one place, beside
-   the other polarity overrides in anatomy-clean.css. Role hues hold on both. */
+   the other polarity overrides in anatomy-clean.css. */
 .anatomy-figure {
-  --anatomy-neutral: #a9bacb;
-  --anatomy-supporting: #d5ad43;
-  --anatomy-primary: #db2f24;
-  --anatomy-structural: #bac7d4;
-  --anatomy-silhouette: #ccd7e0;
-  --anatomy-separator: #33465c;
-  --anatomy-selection: #10233a;
+  --anatomy-body: #ccd5e1;
+  --anatomy-body-hi: #dae1ea;
+  --anatomy-structural: #c2ccd9;
+  --anatomy-separator: #9dabbe;
+  --anatomy-contour: #8494a9;
+  --anatomy-selection: #16324f;
+
+  --anatomy-supporting-1: #e9be55;
+  --anatomy-supporting-2: #c08f24;
+  --anatomy-primary-1: #ec5f4a;
+  --anatomy-primary-2: #bb2114;
 
   display: block;
   height: 100%;
@@ -32,38 +39,58 @@
   overflow: visible;
 }
 
-.anatomy-silhouette { fill: var(--anatomy-silhouette); }
-.anatomy-structural { fill: var(--anatomy-structural); stroke: var(--anatomy-separator); stroke-width: 1; stroke-linejoin: round; }
+.anatomy-silhouette { fill: var(--anatomy-body); }
+.anatomy-structural { fill: var(--anatomy-structural); }
+
+.anatomy-structural {
+  stroke: var(--anatomy-separator);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+
+/* The fill is stroked in its own colour, which dilates the shape until it meets
+   its neighbours. Neutral muscles take the body tone, so the torso reads as one
+   surface rather than a field of tiles. */
+.anatomy-muscle > path:not(.anatomy-seam) {
+  fill: var(--anatomy-body-hi);
+  stroke: var(--anatomy-body-hi);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  transition: fill 180ms ease-out, stroke 180ms ease-out;
+}
+
+/* Hairlines, not borders. This is the single biggest difference between a body
+   that reads as tissue and one that reads as armour plating. */
+.anatomy-muscle > .anatomy-seam {
+  fill: none;
+  stroke: var(--anatomy-separator);
+  stroke-width: 0.55;
+  stroke-linejoin: round;
+  opacity: .75;
+  pointer-events: none;
+}
 
 .anatomy-contour {
   fill: none;
-  stroke: var(--anatomy-separator);
-  stroke-width: 1.8;
+  stroke: var(--anatomy-contour);
+  stroke-width: 1.1;
   stroke-linejoin: round;
   pointer-events: none;
 }
 
-.anatomy-muscle > path {
-  stroke: var(--anatomy-separator);
-  stroke-width: 1.1;
-  stroke-linejoin: round;
-  fill: var(--anatomy-neutral);
-  transition: fill 180ms ease-out;
-}
-
-.anatomy-muscle[data-role="supporting"] > path { fill: var(--anatomy-supporting); }
-.anatomy-muscle[data-role="primary"] > path { fill: var(--anatomy-primary); }
-
 /* Hover and keyboard focus read the same way, so a muscle reached by arrow key
    is as legible as one under a finger. */
-.anatomy-muscle[data-focused="true"] > path { stroke: var(--anatomy-selection); stroke-width: 1.8; }
+.anatomy-muscle[data-focused="true"] > .anatomy-seam {
+  stroke: var(--anatomy-selection);
+  stroke-width: 1.4;
+}
 
 /* Selection is a weight change, not a colour change: a muscle already painted
-   primary red has no colour left to spend, so the cue has to survive that. */
+   primary has no colour left to spend, so the cue has to survive that. */
 .anatomy-selection-ring {
   fill: none;
   stroke: var(--anatomy-selection);
-  stroke-width: 3.2;
+  stroke-width: 2.6;
   stroke-linejoin: round;
   paint-order: stroke;
   pointer-events: none;
@@ -84,7 +111,7 @@
 
 .anatomy-hit:focus-visible > path {
   stroke: var(--anatomy-selection);
-  stroke-opacity: 0.55;
+  stroke-opacity: 0.5;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -174,10 +174,11 @@
    Its light-surface defaults are correct in the exercise inspector, which draws
    it inside a light panel; here the ground is dark. */
 .destination-body .anatomy-figure {
-  --anatomy-neutral: #c0cdd6;
-  --anatomy-structural: #8496a9;
-  --anatomy-silhouette: #7286a0;
-  --anatomy-separator: #243348;
+  --anatomy-body: #d9dfea;
+  --anatomy-body-hi: #e8ecf4;
+  --anatomy-structural: #cfd6e3;
+  --anatomy-separator: #a9b5c8;
+  --anatomy-contour: #f2f5fa;
   --anatomy-selection: #ffffff;
 }
 
