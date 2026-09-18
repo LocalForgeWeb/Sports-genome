@@ -55,3 +55,39 @@
 /* A catalog card title that wraps to two lines needs leading it can be read at.
    The title is .catalog-discovery-card-copy strong, which sets its own 1.25 —
    the earlier attempt at .catalog-card strong never applied to it. */
+
+/* ── UI audit: the catalog card was unreadable ────────────────────────────────
+ *
+ * Every card in the 400-exercise grid truncated to about eight characters:
+ * "Barbell B…", "Incline Ba…", "Horizontal p…", "PECTORA…", "SUPPO…". A page of
+ * them was a page of identical cards distinguishable only by their index number,
+ * which is the one thing on the card nobody browses by.
+ *
+ * Two causes. The grade pill spelled out "Catalog tag A" - three words to carry
+ * one letter - and as the third column of an `auto | 1fr | auto` grid it took
+ * roughly 110px of a 285px card, leaving the exercise name about 90px. And the
+ * name was locked to a single nowrap line, so the little width it had left could
+ * not be spent on a second row. The pill now shows the grade alone (the full
+ * phrase moved to its title and aria-label), and the name is allowed two lines.
+ */
+.catalog-discovery-card-copy { gap: .6rem; }
+.catalog-discovery-tier { padding: .22rem .5rem; }
+
+/* The name is what the card is for, so it gets the room to wrap. The supporting
+   lines stay single-line - a wrapped movement or muscle list would push the
+   cards to uneven heights for detail nobody scans the grid for. */
+.catalog-discovery-card-copy strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal; text-overflow: clip; line-height: 1.25; }
+
+/**
+ * Which action the link chips are measured against.
+ *
+ * Each card used to append the selected sport action to its own chip, so all 36
+ * read "SUPPORTING LINK · PE…" - the same value, repeated, and truncated in every
+ * card because the suffix never fit. It is one fact about the whole grid, so it
+ * is stated once here and the chips carry only what differs between cards.
+ */
+/* No flex `gap` here: it spaces every child, which put a space before the
+   sentence's full stop ("penetration step ."). The icon carries its own. */
+.catalog-discovery-action-scope { display: inline-flex; align-items: center; margin-top: .4rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.4; }
+.catalog-discovery-action-scope > svg { margin-right: .3rem; flex: 0 0 auto; }
+.catalog-discovery-action-scope b { color: var(--sg-text-muted-on-dark); font-weight: 800; }

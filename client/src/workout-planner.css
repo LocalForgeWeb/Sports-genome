@@ -29,7 +29,10 @@
 .day-design-workspace { display: grid; gap: 1.25rem; }.day-design-hero { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem; border: 1px solid #24496f; background: linear-gradient(118deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 56%, #174d80 100%); padding: clamp(1.35rem, 3vw, 2.25rem); color: var(--sg-text-on-dark); overflow: hidden; position: relative; }.day-design-hero::after { content: "DAY / STACK / WEEK"; position: absolute; right: -1rem; bottom: -.3rem; color: rgb(191 225 255 / .1); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.7rem, 6vw, 5.5rem); font-weight: 800; line-height: .8; pointer-events: none; }.day-design-hero > * { position: relative; z-index: 1; }.day-design-hero h1 { margin-top: .42rem; color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 800; line-height: .78; text-transform: uppercase; }.day-design-hero h1 em { color: var(--sg-action); font-style: italic; }.day-design-hero p:last-child { max-width: 600px; margin-top: .95rem; color: var(--sg-text-muted-on-dark); font-size: .77rem; line-height: 1.55; }.day-design-import { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .8rem .95rem; color: #fff; font-size: .6875rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; box-shadow: 0 10px 22px rgb(228 81 46 / .2); transition: transform var(--sg-motion-fast) var(--sg-ease), background var(--sg-motion-fast) var(--sg-ease); }.day-design-import:hover { background: #bd4027; transform: translateY(-2px); }.day-design-grid { display: grid; gap: 1.25rem; align-items: start; }.day-design-rail { display: grid; gap: 1rem; }.day-design-rail .weekly-plan-board { margin: 0; }.day-design-rail-note { border-left: 3px solid #d5ad43; background: #fffaf0; padding: .85rem .9rem; }.day-design-rail-note p:last-child { margin-top: .4rem; color: #6c6250; font-size: .6875rem; line-height: 1.5; }.day-design-main { display: grid; gap: 1.25rem; min-width: 0; }.day-active-card { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: 1.1rem 1.15rem; }.day-active-card h2 { margin-top: .3rem; color: #13375e; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 2.3rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.day-active-card h2 span { color: var(--sg-action); }.day-active-card p:last-child { max-width: 500px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.48; }.day-active-actions { display: flex; flex-wrap: wrap; gap: .5rem; }.day-active-actions button { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #b9d1e9; background: #fff; padding: .55rem .65rem; color: #2c6399; font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }.day-active-actions button:first-child { border-color: #d5ad43; color: #86621a; }.day-programming-panel { overflow: hidden; border: 1px solid rgb(132 168 205 / .34); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }.day-programming-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgb(255 255 255 / .12); padding: 1.15rem; }.day-programming-head h3 { margin-top: .22rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 2rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.day-programming-head p:last-child { max-width: 390px; margin-top: .55rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.45; }.day-programming-head > button { border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .55rem .65rem; color: #fff; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.day-plan-empty { display: grid; justify-items: start; gap: .65rem; padding: 2rem 1.15rem; color: #dbe9f8; }.day-plan-empty svg { color: #8bb8e5; }.day-plan-empty strong { font-size: .85rem; }.day-plan-empty p { color: var(--sg-text-subtle-on-dark); font-size: .7rem; line-height: 1.5; }.day-plan-empty button { border: 1px solid var(--sg-action); color: var(--sg-action); padding: .55rem .65rem; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 @media (min-width: 1080px) { .day-design-grid { grid-template-columns: minmax(255px, .55fr) minmax(0, 1.45fr); }.day-design-rail { position: sticky; top: 1rem; } }
 @media (max-width: 640px) { .day-design-hero { padding: 1.15rem; }.day-design-hero h1 { font-size: 3.15rem; }.day-design-import { display: none; }.day-active-card, .day-programming-head { padding: 1rem; }.day-active-actions { width: 100%; }.day-active-actions button { flex: 1; justify-content: center; }.day-active-actions button:nth-child(1), .day-active-actions button:nth-child(2) { display: none; }.day-active-card h2 { font-size: 2rem; } }
-.day-design-rail .weekly-plan-head { align-items: center; padding: .95rem; }.day-design-rail .weekly-plan-head h3 { max-width: 128px; font-size: 1.35rem; white-space: nowrap; }.day-design-rail .weekly-plan-head button { padding: .52rem .46rem; font-size: .6875rem; }
+.day-design-rail .weekly-plan-head { align-items: center; padding: .95rem; }.day-design-rail .weekly-plan-head { flex-wrap: wrap; row-gap: .6rem; }
+.day-design-rail .weekly-plan-head > div { flex: 1 1 auto; min-width: 0; }
+.day-design-rail .weekly-plan-head h3 { font-size: 1.35rem; }
+.day-design-rail .weekly-plan-head button { flex: 0 0 auto; }.day-design-rail .weekly-plan-head button { padding: .52rem .46rem; font-size: .6875rem; }
 .three-week-planner { overflow: hidden; border: 1px solid #c4d8eb; background: linear-gradient(110deg, var(--sg-surface-light-sunken), #fff); box-shadow: 0 12px 28px rgb(28 75 118 / .08); }.three-week-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); }.three-week-head h2 { margin-top: .22rem; color: #12365d; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 2rem; font-weight: 800; line-height: .86; text-transform: uppercase; }.three-week-head p:last-child { max-width: 530px; margin-top: .5rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.45; }.three-week-head > button { display: inline-flex; align-items: center; gap: .42rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .64rem .76rem; color: #fff; font-size: .6875rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }.three-week-head > button:disabled { border-color: #c6d5e2; background: var(--sg-surface-light-sunken); color: var(--sg-text-subtle-on-light); }.three-week-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }.three-week-tabs button { display: flex; min-width: 0; align-items: center; gap: .58rem; min-height: 72px; border-right: 1px solid var(--sg-divider-on-light); padding: .75rem .85rem; color: var(--sg-text-subtle-on-light); text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }.three-week-tabs button:last-child { border-right: 0; }.three-week-tabs button:disabled { cursor: default; opacity: .68; }.three-week-tabs button:not(:disabled):hover { background: var(--sg-surface-light-sunken); }.three-week-tabs button svg { flex: 0 0 auto; }.three-week-tabs button > span { min-width: 0; }.three-week-tabs strong { display: block; color: #173c63; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.25rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.three-week-tabs small { display: block; margin-top: .26rem; color: #6f88a0; font-size: .6875rem; line-height: 1.25; }.three-week-tabs .three-week-ready { color: var(--sg-info-strong); }.three-week-tabs .three-week-active { background: #fff1ec; box-shadow: inset 3px 0 var(--sg-action); color: var(--sg-action); }.three-week-tabs .three-week-active strong { color: #a43a23; }
 @media (max-width: 640px) { .three-week-head { padding: .95rem; }.three-week-head > button { width: 100%; justify-content: center; }.three-week-tabs { grid-template-columns: 1fr; }.three-week-tabs button { min-height: 58px; border-right: 0; border-bottom: 1px solid var(--sg-divider-on-light); }.three-week-tabs button:last-child { border-bottom: 0; } }
 
@@ -353,4 +356,206 @@
    near the title's end hit "move earlier" instead of opening the exercise.
    The 44px tap-target floor made that dead zone taller (34x34 -> 34x44), so
    the row reserves the space instead of letting the two overlap. */
-.day-orderable-exercise .custom-row > button { margin-right: 4.75rem; }
+/* The reservation moved to whatever the row's last element is. It used to sit on
+   the title button, because the duplicate/remove pair had no layout at this width
+   and stacked out of the way; now that pair runs along the row and reaches the
+   corner first, so it was the thing printing over the reorder buttons. The phone
+   layout stacks the actions below and handles the title's clearance with its own
+   padding-right, so this applies only where the row is horizontal. */
+@media (min-width: 641px) {
+  .day-orderable-exercise .custom-row-actions { margin-right: 4.4rem; }
+}
+@media (max-width: 640px) {
+  .day-orderable-exercise .custom-row > button { margin-right: 4.75rem; }
+}
+
+/* Removing a logged set.
+
+   The row's generic `button` rules style the save control, and
+   `.session-set-complete button` paints every button in a finished row with the
+   positive state colour - which would render a destructive control as a green
+   confirm. These selectors are deliberately more specific than both so the
+   remove control keeps the critical colour in every row state, and they add the
+   fifth grid column the extra control needs. */
+.session-set-row { grid-template-columns: 52px minmax(86px, 1fr) minmax(65px, .7fr) auto auto; }
+.session-set-row .session-set-clear,
+.session-set-complete .session-set-clear {
+  display: inline-flex;
+  min-width: 34px;
+  min-height: 31px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(226 86 74 / .55);
+  background: transparent;
+  padding: 0 .4rem;
+  color: var(--sg-state-critical);
+  transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease);
+}
+.session-set-row .session-set-clear:hover:not(:disabled) { border-color: var(--sg-state-critical); background: rgb(226 86 74 / .12); }
+.session-set-row .session-set-clear:disabled { opacity: .5; }
+.session-set-row .session-set-clear:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 1px; }
+
+.device-workout-tracker .session-set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto; }
+.device-workout-tracker .session-set-row .session-set-clear,
+.device-workout-tracker .session-set-complete .session-set-clear {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid rgb(226 86 74 / .5);
+  border-radius: 8px;
+  background: rgb(226 86 74 / .1);
+  color: #f4a9a2;
+}
+.device-workout-tracker .session-set-row .session-set-clear:hover:not(:disabled) { background: rgb(226 86 74 / .22); }
+
+.session-set-error {
+  margin-top: .6rem;
+  border-left: 2px solid var(--sg-state-critical);
+  padding-left: .55rem;
+  color: var(--sg-state-critical);
+  font-size: var(--sg-text-xs);
+  line-height: 1.45;
+}
+.device-workout-tracker .session-set-error { margin: 0 .7rem .7rem; color: #f4a9a2; }
+
+@media (max-width: 620px) {
+  /* The generic rule sends every button in the row to full width, which would
+     stack a destructive control under the save control at the same size. */
+  .session-set-row .session-set-clear { grid-column: auto; }
+}
+
+/* Adding an exercise to a training day.
+
+   The list sat under a panel naming this day's shortfalls and then ordered 84
+   options alphabetically, so acting on the panel meant reading a muscle name off
+   it and setting a filter by hand. These chips are that filter, and the cards
+   now say why each option is where it is. */
+
+.day-picker-gaps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .35rem;
+  margin-top: .9rem;
+}
+
+.day-picker-gaps-label {
+  color: var(--sg-text-subtle-on-light);
+  font-size: var(--sg-text-2xs);
+  font-weight: 900;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.day-picker-gap {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  min-height: 32px;
+  border: 1px solid rgb(226 86 74 / .45);
+  background: rgb(226 86 74 / .06);
+  padding: 0 .55rem;
+  color: #a8342a;
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .03em;
+  transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease);
+}
+
+.day-picker-gap i {
+  font-family: var(--sg-font-display);
+  font-size: var(--sg-text-xs);
+  font-style: normal;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-picker-gap:hover { background: rgb(226 86 74 / .12); }
+.day-picker-gap-active { border-color: #a8342a; background: #a8342a; color: #fff; }
+.day-picker-gap:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 1px; }
+
+.day-picker-gap-clear {
+  min-height: 32px;
+  padding: 0 .5rem;
+  color: var(--sg-info-strong);
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* Why this option is ranked where it is. */
+.day-picker-fills-tag,
+.day-picker-supports-tag {
+  display: block;
+  margin-top: .28rem;
+  overflow: hidden;
+  font-size: var(--sg-text-2xs);
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.day-picker-fills-tag { color: #1f7a45; }
+.day-picker-supports-tag { color: var(--sg-text-subtle-on-light); font-weight: 600; }
+.day-picker-result-fills { border-color: rgb(31 122 69 / .45); }
+.day-picker-result-fills > button:last-child { border-left-color: rgb(31 122 69 / .3); color: #1f7a45; }
+
+/* Two columns, not three: at three the names truncated on most cards
+   ("Cable Front-Foot-Elevated Pr…"), which is the one thing a picker must show. */
+.day-picker-results { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+
+/* The add control was a narrow column with a stacked icon and word. */
+.day-picker-result > button:last-child { min-width: 68px; gap: .3rem; }
+
+@media (max-width: 640px) {
+  .day-picker-gaps { gap: .3rem; }
+  .day-picker-gap { min-height: 36px; }
+}
+
+/**
+ * What the session holds, shown before you start it.
+ *
+ * The idle Tracker was a headline, a paragraph and a Start button, then roughly
+ * seven hundred pixels of empty panel - the emptiest screen in the app, and the
+ * one place where you commit to a session with no way to confirm you have the
+ * right day staged. Everything here comes from data the panel was already
+ * handed; nothing new is fetched or computed.
+ */
+.tracker-session-preview { padding: 1.15rem; }
+.tracker-session-preview-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; }
+.tracker-session-preview-head span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.tracker-session-preview-head small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }
+.tracker-session-preview-list { margin-top: .75rem; display: grid; gap: 1px; background: var(--sg-divider-on-dark); border: 1px solid var(--sg-divider-on-dark); border-radius: .6rem; overflow: hidden; }
+.tracker-session-preview-list li { display: flex; align-items: center; gap: .8rem; background: rgb(255 255 255 / .04); padding: .7rem .85rem; }
+.tracker-session-preview-index { flex: 0 0 auto; color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.15rem; font-weight: 800; line-height: 1; }
+.tracker-session-preview-name { display: grid; min-width: 0; flex: 1; gap: .15rem; }
+.tracker-session-preview-name strong { overflow: hidden; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.tracker-session-preview-name small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); }
+/* The prescription, so "Ready to train" is checkable rather than a promise. */
+.tracker-session-preview-sets { flex: 0 0 auto; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .2rem .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-2xs); font-weight: 800; white-space: nowrap; }
+@media (max-width: 640px) {
+  .tracker-session-preview { padding: 1rem; }
+  .tracker-session-preview-list li { gap: .6rem; padding: .65rem .7rem; }
+}
+
+/**
+ * The Coach Scan header, which had less room than its contents needed.
+ *
+ * On Training Day this panel sits in a middle column about 412px wide, and its
+ * summary put a 1.9rem display heading and a status chip side by side in it.
+ * Both then wrapped inside themselves: "COACH / SCAN" over two lines, "MANAGED
+ * PLANNING / SIGNAL" over two more, with "REVIEW" jammed against the chip's
+ * edge. Four lines of text in a 46px-tall row, in a panel whose whole job is to
+ * be glanceable.
+ *
+ * The two halves wrap as units instead. Where there is room - the Builder's
+ * wider column - nothing moves; where there is not, the heading takes the line
+ * and the signal drops below it intact.
+ */
+.workout-health-disclosure > summary { flex-wrap: wrap; }
+.workout-health-disclosure > summary > div:first-child { flex: 1 1 11rem; min-width: 0; }
+.workout-health-disclosure > summary > div:last-child { flex: 0 1 auto; }
+/* Nowrap is what makes the row wrap: it gives the chip an honest minimum width,
+   so the flex line breaks instead of the words inside it. */
+.health-signal { white-space: nowrap; }

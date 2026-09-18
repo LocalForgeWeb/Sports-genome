@@ -87,8 +87,26 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
     [collectableGate, leadingChange, trackedChanges.length, stagedExerciseCount, observations.data]
   );
 
+  /**
+   * With nothing on record, "where you are now" and "where attention goes" are
+   * the same sentence twice.
+   *
+   * The state slot read "No tracked lifts yet / Log the same lift twice and your
+   * change starts tracking here", and the priority slot directly beneath it read
+   * "Log your first lift / Nothing is recorded yet, so there is no state to
+   * interpret". Home opened with two stacked banners saying nothing is recorded,
+   * and pushed the staged training day - the one thing the athlete could act on
+   * today - down behind them.
+   *
+   * The priority slot already carries this state and carries a way out of it, so
+   * it keeps the slot alone. Every other case leaves the state block in place:
+   * even "N lifts tracked, no confirmed change yet" reports a count the priority
+   * does not.
+   */
+  const stateRestatesPriority = priority.id === "first-lift";
+
   return <section className="today-action-panel">
-    <div className="today-action-state">
+    {!stateRestatesPriority && <div className="today-action-state">
       <p className="metric-label !text-[#adc4dc]">Where you are now</p>
       {leadingChange
         ? <>
@@ -111,7 +129,7 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
               ? "No change yet is large enough to call a real one rather than normal variation."
               : "Log the same lift twice and your change starts tracking here."}</small>
           </>}
-    </div>
+    </div>}
     <div className={`today-action-priority today-action-priority-${priority.posture}`}>
       <div>
         <p className="metric-label !text-[#adc4dc]">Where attention goes · {postureLabel[priority.posture]}</p>

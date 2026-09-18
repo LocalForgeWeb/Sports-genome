@@ -1730,7 +1730,10 @@ details:not([open]) > *:not(summary) {
 
 /* Movement Atlas header and list meta sit on the Body Lab gradient. */
 .destination-body .atlas-inventory span,
-.destination-body .atlas-list-meta span {
+.destination-body .atlas-list-meta span,
+/* The "Sort" text is a bare node on the label itself, not in a span, so it kept
+   the on-light ink and sat at 3.12:1 beside the value it labels. */
+.destination-body .atlas-list-meta label {
   color: var(--sg-text-muted-on-dark);
 }
 
@@ -2037,3 +2040,215 @@ details:not([open]) > *:not(summary) {
    the local-search scope line uses. */
 .apex-content :is(.atlas-reset-pro, .genome-term-button) { position: relative; }
 .apex-content :is(.atlas-reset-pro, .genome-term-button)::after { content: ""; position: absolute; inset: -14px -8px; }
+
+/* Removing a recorded test from the history list. The control sits beside the
+   review affordance rather than replacing it, and keeps the critical colour so a
+   destructive action never borrows the informational blue used for review. */
+.strength-log-row-actions { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .35rem; }
+.strength-log-remove { display: inline-flex; min-width: 32px; min-height: 32px; align-items: center; justify-content: center; border: 1px solid rgb(226 86 74 / .45); background: transparent; color: #c0392b; transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
+.strength-log-remove:hover:not(:disabled) { border-color: #c0392b; background: rgb(226 86 74 / .1); }
+.strength-log-remove:disabled { opacity: .5; }
+.strength-log-remove:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 1px; }
+.strength-log-remove-error { margin-top: .75rem; border-left: 2px solid #c0392b; padding-left: .55rem; color: #c0392b; font-size: var(--sg-text-xs); line-height: 1.45; }
+@media (max-width: 640px) { .strength-log-remove { min-width: 44px; min-height: 44px; } }
+
+/* ── UI audit: page titles that rendered near-black on the dark shell ──────────
+ *
+ * `.view-header h1` was given the on-LIGHT ink back when these screens sat on a
+ * pale surface. The shell is a dark blue gradient now, and the rule was never
+ * repointed - it was patched one destination at a time instead (Progress,
+ * Strength Genome, Body Lab), which left the two screens nobody happened to
+ * patch rendering their own title at about 1.7:1 against the backdrop:
+ * Recommendations and Exercise Genome. Both were legible only as a faint
+ * silhouette.
+ *
+ * Every surviving `.view-header` - Recommendations, Exercise Genome, Strength
+ * Genome - sits on that dark gradient, so the default belongs on dark. The
+ * per-destination overrides above become redundant rather than wrong, and any
+ * future screen inherits a readable title instead of an invisible one.
+ */
+.view-header h1 { color: var(--sg-text-on-dark); }
+.view-header > div > p:not(.metric-label) { color: var(--sg-text-muted-on-dark); }
+.view-header .metric-label { color: var(--sg-text-subtle-on-dark); }
+/* The rule ran to a hairline sized for a white page; on the gradient it read as
+   a stray bright line trailing off the heading. */
+.view-header::after { background: var(--sg-divider-on-dark, rgb(255 255 255 / .16)); }
+.view-header-note { border-left-color: var(--sg-action); color: var(--sg-text-muted-on-dark); }
+
+/**
+ * A page title long enough to scroll the phone sideways.
+ *
+ * "RECOMMENDATIONS" is one unbreakable 15-character word. At the clamp's floor
+ * of 2.7rem it measured 448px inside a 366px column, so the whole document
+ * gained 70px of horizontal scroll on a 390px screen - the page slid under the
+ * thumb and every other section came with it. The floor was set for a laptop and
+ * never checked against the longest title in the app.
+ *
+ * The phone floor now scales with the viewport, meeting the desktop clamp
+ * exactly at 640px so nothing jumps at the breakpoint.
+ */
+@media (max-width: 640px) {
+  .view-header h1 { font-size: clamp(1.9rem, 8vw, 2.7rem); }
+}
+
+/**
+ * "Nothing logged yet", which rendered white on white.
+ *
+ * Measured at 1.04:1 - the words were on the page and could not be seen at all.
+ * The Progress destination repaints `.light-panel` dark and forces its h2/p to
+ * `inherit` that white ink; this box had hard-coded itself a white background,
+ * so it opted out of the repaint while its text could not. The result was the
+ * one combination the rule was written to prevent.
+ *
+ * It now takes its surface from the panel it is actually in, the way the sibling
+ * cards on this destination already do, so the two can never drift apart again.
+ */
+.strength-log-empty { margin-top: 1rem; border: 1px dashed var(--sg-control-border-on-dark); border-radius: .75rem; background: rgb(255 255 255 / .07); padding: 1rem; color: var(--sg-text-muted-on-dark); }
+.strength-log-empty > svg { color: var(--sg-focus-on-dark); }
+.strength-log-empty > p:first-of-type { margin-top: .75rem; }
+.strength-log-empty strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 800; }
+.strength-log-empty > p:last-child { margin-top: .25rem; font-size: var(--sg-text-xs); line-height: 1.45; }
+
+/* ── UI audit: eyebrow labels using on-light ink on dark panels ───────────────
+ *
+ * `.metric-label` resolves to `var(--sg-label-color, <on-light ink>)`, and the
+ * fallback is #5d7186 - a colour verified at 5.03:1 on WHITE. Fifteen labels
+ * across seven screens were rendering it on a dark surface instead: 2.10:1 on
+ * the About Me header and the Movement Intelligence head, 2.69:1 on "Your
+ * setup" and the equipment and security blocks, 3.17:1 on "This week", 1.78:1
+ * on "Your history". Every one of them the caption naming the panel under it.
+ *
+ * Two causes, and the second is the one worth naming. `.destination-secondary`
+ * was simply missing from the list of dark destinations above. And several
+ * panels are declared light by default and then REPAINTED dark by their
+ * destination - `.more-workspace`, `.weekly-plan-board`, `.day-design-rail-note`,
+ * and `.light-panel` on Progress. Those repaints moved the background and the
+ * text colour but left `--sg-label-color` behind, so the labels kept ink chosen
+ * for the white version of a panel that is no longer white.
+ *
+ * The fix travels with the repaint: wherever a surface changes material, its
+ * label ink changes with it.
+ */
+.destination-secondary { --sg-label-color: var(--sg-text-subtle-on-dark); --sg-link-color: var(--sg-link-on-dark); }
+
+.destination-secondary .more-workspace,
+.destination-secondary .about-me-security,
+.destination-secondary .about-me-equipment,
+.destination-progress .light-panel,
+.destination-train .day-design-hero,
+.destination-train .tracker-day-selector,
+.destination-train .device-workout-tracker,
+.destination-train .day-design-rail-note,
+.destination-train .three-week-planner,
+.destination-train .weekly-plan-board,
+.movement-intelligence-head,
+.command-identity,
+.training-week-panel,
+.dark-panel { --sg-label-color: var(--sg-text-subtle-on-dark); }
+
+/* A light card nested inside any of the above still resets it, as before. */
+.destination-progress .light-panel .genome-panel,
+.dark-panel .light-panel,
+.dark-panel .insight-cell { --sg-label-color: var(--sg-text-subtle-on-light); }
+
+/**
+ * The top bar is shared chrome and should look the same on every screen.
+ *
+ * It is a frosted, 84%-opaque white bar, so what shows through decides its final
+ * colour. On eleven destinations the shell behind it is the light sunken surface
+ * and the bar composites to rgb(248,252,254) - the eyebrow beside the logo
+ * measures 4.87:1 there. About Me paints the whole shell `--sg-surface-deep`,
+ * which pulled the same bar down to rgb(211,216,222) and the same eyebrow to
+ * 3.52:1: one screen where the app's own chrome is dimmer than everywhere else.
+ *
+ * The bar now composites to that same value regardless of the shell under it.
+ */
+.apex-shell:has(.destination-secondary) .apex-topbar { background: rgb(248 252 254); }
+
+/**
+ * The record panel, which had no padding and a label wider than its own dial.
+ *
+ * `.strength-profile-status-head` carries this section's padding, but the markup
+ * has no such element - the section holds `-overview` and `-reference-details`
+ * directly - so the rule matched nothing and "Your record" / "Start your record"
+ * began flush against the card's left border, reading as text that had escaped
+ * the panel.
+ *
+ * The coverage dial had the matching problem in miniature: the word "COVERAGE"
+ * measured 70px inside a 57px disc, so it spilled past the ring on both sides
+ * and ran up against the device chip beside it.
+ */
+.strength-profile-status { padding: clamp(1rem, 3vw, 1.5rem); }
+.strength-profile-coverage-ring { width: 5.25rem; }
+@media (max-width: 640px) {
+  .strength-profile-status { padding: 1rem; }
+}
+
+/**
+ * Equipment selection, which used the focus colour as a fill.
+ *
+ * `--sg-focus-on-dark` is the gold reserved for focus - a transient "you are
+ * here" signal. Using it as the selected fill meant the default Commercial gym
+ * profile painted ten solid gold slabs down the About Me page: the loudest thing
+ * on the screen, in a colour that then had nothing left to say when something
+ * actually took focus. The confirming check was vermilion on that gold, which is
+ * the weakest pairing of the two accents the app owns.
+ *
+ * Gold still marks the affirmative, as it does on the coverage dial, but as a
+ * tint behind on-dark text. Selection stays legible three ways - border, fill
+ * and check - so it never rests on colour alone.
+ */
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active {
+  border-color: var(--sg-focus-on-dark);
+  background: rgb(242 193 77 / .16);
+  color: var(--sg-text-on-dark);
+}
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active svg:last-child { color: var(--sg-focus-on-dark); }
+
+/**
+ * Movement Atlas dropdowns that were dark text on a dark control.
+ *
+ * `.atlas-sport-select` and `.atlas-list-meta` are repainted for the Body Lab's
+ * dark surface, but each holds a native `<select>` that sets its own colour -
+ * #153556 and #315a82 - and those were never repointed. The wrapper went dark
+ * and the value inside it stayed near-black, so the sport picker, the profile
+ * picker and the sort control all read as empty pill-shaped holes: measured 1.5
+ * to 2:1 against the panel they sit on.
+ *
+ * The open list is drawn by the platform, so the option text takes the same ink
+ * against an explicit surface rather than inheriting a colour meant for a dark
+ * control onto a white popup.
+ */
+.destination-body .atlas-sport-select select,
+.destination-body .atlas-list-meta select { color: var(--sg-text-on-dark); }
+.destination-body .atlas-sport-select option,
+.destination-body .atlas-list-meta option { background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
+
+/**
+ * Two more surfaces repainted dark with their text left behind.
+ *
+ * Recent lifts: `.strength-progress-log` and the rule beneath it set on-light
+ * ink, from when the Strength Genome lived under Body Lab on a pale surface. It
+ * moved to Progress, where `.light-panel` is repainted dark, and the ink did not
+ * follow - "Your history" measured 1.94:1 and the empty state's explanation
+ * 1.58:1, both effectively invisible.
+ *
+ * Movement Atlas: the subtitle under "Find the action." is the one line telling
+ * you which sport's actions you are looking at, and it sat at 2.61:1 under a
+ * headline the same panel had already repointed to on-dark ink - so the heading
+ * was legible and the sentence explaining it was not.
+ */
+.destination-progress .strength-progress-log { color: var(--sg-text-on-dark); }
+.destination-progress .strength-progress-log :is(.metric-label, p:not(.font-bold)) { color: var(--sg-text-muted-on-dark); }
+.destination-progress .strength-progress-log h2 { color: var(--sg-text-on-dark); }
+.destination-body .atlas-improved-head > div > p:last-child { color: var(--sg-text-muted-on-dark); }
+
+/**
+ * "Show all 22 actions", the Movement Atlas list's own expand control.
+ *
+ * It used `--sg-info-strong`, the link blue tuned for the light sunken surface
+ * (5.16:1 there), on the Body Lab's dark panel - 2.75:1, and the darkest link in
+ * the app sitting on its darkest surface. The on-dark link token already exists
+ * for exactly this.
+ */
+.destination-body .atlas-show-more { color: var(--sg-link-on-dark); }

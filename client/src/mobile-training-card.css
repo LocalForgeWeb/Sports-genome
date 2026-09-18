@@ -1,3 +1,55 @@
+/**
+ * The per-exercise prescription card.
+ *
+ * Everything in this file used to sit inside `@media (max-width: 640px)`, which
+ * meant the set/rep fields, the duplicate control and the action row had no
+ * layout at all above 640px. On a laptop the card rendered as "Sets3" and
+ * "Reps / target8" - unstyled inputs with no field chrome and no gap after their
+ * own labels - while "Duplicate" escaped its button as raw 16px text and printed
+ * over the reorder chevrons beside it. The phone was the only width the card had
+ * ever been drawn for.
+ *
+ * The structural and visual rules now apply at every width; the media query
+ * keeps only what is genuinely phone-specific - stacking, 44px touch targets,
+ * and the floating reorder controls.
+ */
+
+/* Name, then the controls that act on the row. */
+.custom-row-actions { display: flex; flex: 0 0 auto; align-items: center; gap: .4rem; }
+
+.duplicate-prescription {
+  display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
+  border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4));
+  background: var(--sg-surface-raised); padding: .33rem .5rem;
+  color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  white-space: nowrap;
+  transition: border-color var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
+}
+.duplicate-prescription:hover { border-color: var(--sg-action); color: #fff; }
+
+/**
+ * Sets and reps.
+ *
+ * Indented to 3.8rem so the fields line up under the exercise name rather than
+ * under its index number - the same left edge `.custom-detail-row` uses, so the
+ * two rows of controls read as one block.
+ */
+.custom-prescription-inputs { display: flex; flex-wrap: wrap; align-items: end; gap: .65rem; padding: 0 1rem .7rem 3.8rem; }
+.custom-prescription-inputs label {
+  display: grid; gap: .3rem;
+  color: var(--sg-text-muted-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+}
+.custom-prescription-inputs input {
+  min-width: 0; min-height: 2.1rem;
+  border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4));
+  background: var(--sg-surface-raised); padding: 0 .55rem;
+  color: var(--sg-text-on-dark); font-size: .78rem; font-weight: 700; outline: none;
+}
+.custom-prescription-inputs label:first-child input { width: 5.5rem; }
+.custom-prescription-inputs label:nth-child(2) input { width: 9.5rem; }
+.custom-prescription-inputs input:focus-visible,
+.duplicate-prescription:focus-visible { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 3px rgb(242 193 77 / .25); }
+
 @media (max-width: 640px) {
   .day-orderable-exercise { display: flex; flex-direction: column; }
   .day-orderable-exercise .day-order-controls { position: absolute !important; top: .7rem; right: .7rem; z-index: 2; display: flex; align-self: auto; gap: .25rem; padding: 0; }
@@ -7,11 +59,11 @@
   .custom-row > button:nth-child(2) { min-width: 0; padding-right: 4.75rem; }
   .custom-row-actions { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: .65rem; width: 100%; }
   .custom-row-actions select, .custom-row-actions button { min-height: 44px; }
-  .duplicate-prescription { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  /* Full width on a phone, so the two controls are unmistakably separate taps. */
   .custom-prescription-inputs { display: grid; grid-template-columns: .7fr 1.3fr; gap: .65rem; padding: 0 .7rem .65rem; }
-  .custom-prescription-inputs label { display: grid; gap: .3rem; color: #b7d8f4; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-  .custom-prescription-inputs input { min-width: 0; min-height: 44px; border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); padding: 0 .65rem; color: #fff; font-size: .82rem; font-weight: 700; outline: none; }
-  .custom-prescription-inputs input:focus-visible, .duplicate-prescription:focus-visible { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 3px rgb(242 193 77 / .25); }
+  .custom-prescription-inputs input { min-height: 44px; padding: 0 .65rem; font-size: .82rem; color: #fff; }
+  .custom-prescription-inputs label:first-child input,
+  .custom-prescription-inputs label:nth-child(2) input { width: 100%; }
   .custom-detail-row { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; padding: 0 .7rem .85rem; }
   .custom-detail-row > button { grid-column: 1 / -1; min-height: 44px; }
   .custom-detail-row details { grid-column: 1 / -1; }

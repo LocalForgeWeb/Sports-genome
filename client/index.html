@@ -36,8 +36,10 @@
       html.sports-genome-boot-video-ready .sports-genome-boot-name{position:absolute;right:0;bottom:17%;left:0;z-index:1;animation:boot-wordmark-in 480ms 1.03s cubic-bezier(.23,1,.32,1) both}
       html.sports-genome-boot-video-ready .sports-genome-boot-label{position:absolute;right:0;bottom:12.8%;left:0;z-index:1;animation:boot-wordmark-in 400ms 1.2s cubic-bezier(.23,1,.32,1) both}
       @media (min-width:641px){html.sports-genome-boot-video-ready .sports-genome-boot-video{top:50%;right:auto;bottom:auto;left:50%;width:min(100%,620px);height:min(100%,620px);transform:translate(-50%,-50%)}html.sports-genome-boot-video-ready .sports-genome-boot-name{bottom:10%}html.sports-genome-boot-video-ready .sports-genome-boot-label{bottom:5%}}
-      html.sports-genome-boot-video-held .sports-genome-boot-video{opacity:.5;transition:opacity 520ms cubic-bezier(.4,0,.2,1)}
-      html.sports-genome-boot-video-held.sports-genome-boot-video-ready .sports-genome-boot-mark{opacity:1;transition:opacity 520ms cubic-bezier(.4,0,.2,1)}
+      /* The intro settles into the wordmark instead of freezing: one motion carrying
+         into the splash fade rather than a pause competing with it. */
+      html.sports-genome-boot-video-done.sports-genome-boot-video-ready .sports-genome-boot-video{opacity:.72;transform:scale(1.015);transition:opacity 420ms cubic-bezier(.23,1,.32,1),transform 620ms cubic-bezier(.23,1,.32,1)}
+      @media (min-width:641px){html.sports-genome-boot-video-done.sports-genome-boot-video-ready .sports-genome-boot-video{transform:translate(-50%,-50%) scale(1.015)}}
       html[data-sports-genome-boot="off"] #sports-genome-boot-splash,html.sports-genome-app-ready #sports-genome-boot-splash{opacity:0;visibility:hidden;pointer-events:none}
       @keyframes boot-video-in{from{opacity:0}to{opacity:1}}
       @keyframes boot-mark-form{0%{opacity:0;transform:scale(.94) translateZ(0)}62%{opacity:1;transform:scale(1.012) translateZ(0)}100%{opacity:1;transform:scale(1) translateZ(0)}}
@@ -49,8 +51,47 @@
   </head>
   <body>
     <div id="sports-genome-boot-splash" aria-hidden="true"><video id="sports-genome-boot-video" class="sports-genome-boot-video" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4" muted playsinline preload="auto" disablepictureinpicture></video><div class="sports-genome-boot-content"><div class="sports-genome-boot-mark"><img class="sports-genome-boot-logo" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-silhouette-exact_349405db.png" alt="" /><img class="sports-genome-boot-dna-detail" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-dna-detail-exact_8e94e37f.png" alt="" /></div><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div></div>
-    <script>try{window.setTimeout(function(){document.documentElement.classList.add("sports-genome-app-ready")},8000)}catch(e){}</script>
-    <script>try{const video=document.getElementById("sports-genome-boot-video");const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;const startedAt=Number(document.documentElement.dataset.sportsGenomeBootStartedAt||Date.now());const stopVideo=()=>{video?.pause();document.documentElement.classList.add("sports-genome-boot-video-held")};if(video&&!reduced&&document.documentElement.dataset.sportsGenomeBoot!=="off"&&document.documentElement.dataset.sportsGenomeBootReturn!=="yes"){video.muted=true;video.addEventListener("canplay",()=>{if(Date.now()-startedAt>360)return;video.play().then(()=>{document.documentElement.classList.add("sports-genome-boot-video-ready");window.setTimeout(stopVideo,Math.max(0,1_680-(Date.now()-startedAt)))}).catch(()=>{});},{once:true});}}catch(e){}</script>
+    <script>try{window.setTimeout(function(){document.documentElement.classList.add("sports-genome-app-ready")},9000)}catch(e){}</script>
+    <script>try{
+      var root = document.documentElement;
+      var video = document.getElementById("sports-genome-boot-video");
+      var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var startedAt = Number(root.dataset.sportsGenomeBootStartedAt || Date.now());
+      // One signal, sent once, whether the intro ended, stalled or never started.
+      // The app waits on this instead of on a fixed duration, so editing the asset
+      // cannot silently clip it again.
+      var settled = false;
+      var settle = function (state) {
+        if (settled) return;
+        settled = true;
+        root.dataset.sportsGenomeBootVideo = state;
+        root.classList.add("sports-genome-boot-video-done");
+        try { window.dispatchEvent(new Event("sports-genome-boot-video-done")); } catch (e) {}
+      };
+      var wantsVideo = video && !reduced
+        && root.dataset.sportsGenomeBoot !== "off"
+        && root.dataset.sportsGenomeBootReturn !== "yes";
+      if (!wantsVideo) {
+        root.dataset.sportsGenomeBootVideo = "skipped";
+      } else {
+        root.dataset.sportsGenomeBootVideo = "playing";
+        video.muted = true;
+        // Ending is the hand-off. There is deliberately no timer that pauses the
+        // video partway: that freeze, a frame before the splash faded, was the cut.
+        video.addEventListener("ended", function () { settle("done"); }, { once: true });
+        video.addEventListener("error", function () { settle("skipped"); }, { once: true });
+        video.addEventListener("canplay", function () {
+          // Starting three seconds late is more jarring than not starting: by then
+          // the static choreography has already told the story.
+          if (Date.now() - startedAt > 1100) { settle("skipped"); return; }
+          video.play().then(function () {
+            root.classList.add("sports-genome-boot-video-ready");
+          }).catch(function () { settle("skipped"); });
+        }, { once: true });
+        // Only a stalled download reaches this; the normal path ends well before.
+        window.setTimeout(function () { settle("done"); }, 4000);
+      }
+    }catch(e){}</script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>

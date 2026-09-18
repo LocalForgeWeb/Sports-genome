@@ -198,16 +198,38 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
   };
 
   if (!activeSession) {
+    const plannedSets = workout.reduce((total, exercise) => total + plannedSetCount(prescriptions[exercise.id] || "3 × 8–12"), 0);
     return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker">
       <div className="execution-head">
         <div>
-          <p className="metric-label">Workout tracker</p>
+          {/* Named for the session, not the panel: the day selector directly
+              above already says "Workout tracker", and two stacked panels under
+              the same caption read as one thing rendered twice. */}
+          <p className="metric-label">{dayLabel}</p>
           <h3>Ready to train.</h3>
-          <p>Start the selected day, then log actual weight and reps as you go. During temporary direct access, completed sets stay on this device and appear in Progress.</p>
+          <p>Start the day below, then log the weight and reps you actually hit. Completed sets are saved on this device and appear in Progress.</p>
         </div>
         <button onClick={start} disabled={!workout.length}><Play className="h-4 w-4" /> Start workout</button>
       </div>
-      {!workout.length && <p className="tracker-empty-state">Select a saved Training Day before starting a workout.</p>}
+      {workout.length ? <div className="tracker-session-preview">
+        {/* What "Ready to train" was asking you to commit to. The screen used to
+            end here, on a button and roughly seven hundred pixels of nothing,
+            with no way to check you had the right day staged before starting. */}
+        <p className="tracker-session-preview-head">
+          <span>In this session</span>
+          <small>{workout.length} {workout.length === 1 ? "exercise" : "exercises"} · {plannedSets} planned {plannedSets === 1 ? "set" : "sets"}</small>
+        </p>
+        <ol className="tracker-session-preview-list">
+          {workout.map((exercise, index) => <li key={exercise.id}>
+            <span className="tracker-session-preview-index">{String(index + 1).padStart(2, "0")}</span>
+            <span className="tracker-session-preview-name">
+              <strong>{exercise.name}</strong>
+              <small>{exercise.movement}</small>
+            </span>
+            <span className="tracker-session-preview-sets">{prescriptions[exercise.id] || "3 × 8–12"}</span>
+          </li>)}
+        </ol>
+      </div> : <p className="tracker-empty-state">Select a saved Training Day before starting a workout.</p>}
     </section>;
   }
 
