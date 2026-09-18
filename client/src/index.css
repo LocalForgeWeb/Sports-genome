@@ -2161,3 +2161,62 @@ details:not([open]) > *:not(summary) {
  * The bar now composites to that same value regardless of the shell under it.
  */
 .apex-shell:has(.destination-secondary) .apex-topbar { background: rgb(248 252 254); }
+
+/**
+ * The record panel, which had no padding and a label wider than its own dial.
+ *
+ * `.strength-profile-status-head` carries this section's padding, but the markup
+ * has no such element - the section holds `-overview` and `-reference-details`
+ * directly - so the rule matched nothing and "Your record" / "Start your record"
+ * began flush against the card's left border, reading as text that had escaped
+ * the panel.
+ *
+ * The coverage dial had the matching problem in miniature: the word "COVERAGE"
+ * measured 70px inside a 57px disc, so it spilled past the ring on both sides
+ * and ran up against the device chip beside it.
+ */
+.strength-profile-status { padding: clamp(1rem, 3vw, 1.5rem); }
+.strength-profile-coverage-ring { width: 5.25rem; }
+@media (max-width: 640px) {
+  .strength-profile-status { padding: 1rem; }
+}
+
+/**
+ * Equipment selection, which used the focus colour as a fill.
+ *
+ * `--sg-focus-on-dark` is the gold reserved for focus - a transient "you are
+ * here" signal. Using it as the selected fill meant the default Commercial gym
+ * profile painted ten solid gold slabs down the About Me page: the loudest thing
+ * on the screen, in a colour that then had nothing left to say when something
+ * actually took focus. The confirming check was vermilion on that gold, which is
+ * the weakest pairing of the two accents the app owns.
+ *
+ * Gold still marks the affirmative, as it does on the coverage dial, but as a
+ * tint behind on-dark text. Selection stays legible three ways - border, fill
+ * and check - so it never rests on colour alone.
+ */
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active {
+  border-color: var(--sg-focus-on-dark);
+  background: rgb(242 193 77 / .16);
+  color: var(--sg-text-on-dark);
+}
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active svg:last-child { color: var(--sg-focus-on-dark); }
+
+/**
+ * Movement Atlas dropdowns that were dark text on a dark control.
+ *
+ * `.atlas-sport-select` and `.atlas-list-meta` are repainted for the Body Lab's
+ * dark surface, but each holds a native `<select>` that sets its own colour -
+ * #153556 and #315a82 - and those were never repointed. The wrapper went dark
+ * and the value inside it stayed near-black, so the sport picker, the profile
+ * picker and the sort control all read as empty pill-shaped holes: measured 1.5
+ * to 2:1 against the panel they sit on.
+ *
+ * The open list is drawn by the platform, so the option text takes the same ink
+ * against an explicit surface rather than inheriting a colour meant for a dark
+ * control onto a white popup.
+ */
+.destination-body .atlas-sport-select select,
+.destination-body .atlas-list-meta select { color: var(--sg-text-on-dark); }
+.destination-body .atlas-sport-select option,
+.destination-body .atlas-list-meta option { background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }

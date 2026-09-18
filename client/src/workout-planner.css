@@ -456,3 +456,29 @@
   .day-picker-gaps { gap: .3rem; }
   .day-picker-gap { min-height: 36px; }
 }
+
+/**
+ * What the session holds, shown before you start it.
+ *
+ * The idle Tracker was a headline, a paragraph and a Start button, then roughly
+ * seven hundred pixels of empty panel - the emptiest screen in the app, and the
+ * one place where you commit to a session with no way to confirm you have the
+ * right day staged. Everything here comes from data the panel was already
+ * handed; nothing new is fetched or computed.
+ */
+.tracker-session-preview { padding: 1.15rem; }
+.tracker-session-preview-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; }
+.tracker-session-preview-head span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.tracker-session-preview-head small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }
+.tracker-session-preview-list { margin-top: .75rem; display: grid; gap: 1px; background: var(--sg-divider-on-dark); border: 1px solid var(--sg-divider-on-dark); border-radius: .6rem; overflow: hidden; }
+.tracker-session-preview-list li { display: flex; align-items: center; gap: .8rem; background: rgb(255 255 255 / .04); padding: .7rem .85rem; }
+.tracker-session-preview-index { flex: 0 0 auto; color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.15rem; font-weight: 800; line-height: 1; }
+.tracker-session-preview-name { display: grid; min-width: 0; flex: 1; gap: .15rem; }
+.tracker-session-preview-name strong { overflow: hidden; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.tracker-session-preview-name small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); }
+/* The prescription, so "Ready to train" is checkable rather than a promise. */
+.tracker-session-preview-sets { flex: 0 0 auto; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .2rem .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-2xs); font-weight: 800; white-space: nowrap; }
+@media (max-width: 640px) {
+  .tracker-session-preview { padding: 1rem; }
+  .tracker-session-preview-list li { gap: .6rem; padding: .65rem .7rem; }
+}
