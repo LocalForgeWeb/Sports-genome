@@ -33,9 +33,26 @@ describe("Home sport state safeguards", () => {
 
   it("persists the departing day but clears an empty selected split slot rather than carrying a mixed active stack into Push", () => {
 	    expect(source).toContain('const previousKey = `${activeDayIndex}-${activeSplitDay}`;');
-	    expect(source).toContain("setWeeklyPlan((current) => ({ ...current, [previousKey]: customWorkout }));");
+	    expect(source).toContain("setWeeklyPlan((current) => ({ ...current, [key]: customWorkout }));");
 	    expect(source).toContain("if (saved?.length) {");
 	    expect(source).toContain("setCustomWorkout([]);");
 	    expect(source).toContain("const activeImportedContext = importedPlanContext[`${activeDayIndex}-${activeSplitDay}`] || [];");
+  });
+
+  it("never lets switching days overwrite a saved day the athlete did not name", () => {
+	    // The stash used to run unconditionally, so leaving Push with nothing
+	    // staged saved Push as empty, and leaving it while another day's stack was
+	    // staged saved that stack under Push.
+	    expect(source).toContain('if (!customWorkout.length) return "skip" as const;');
+	    expect(source).toContain('return sameStack ? "skip" as const : "ask" as const;');
+	    expect(source).toContain('if (disposition === "ask") {');
+	    expect(source).toContain("title: `Replace your saved ${previousDay}?`");
+	    expect(source).toContain('if (disposition === "stash") stashActiveDay(previousKey);');
+  });
+
+  it("keeps the tracker day chooser read-only: it picks what you are logging, not what is saved", () => {
+	    expect(source).toContain("const chooseTrackerDay = (index: number) => {");
+	    expect(source).toContain("loadWeeklyDay(index, day, { navigate: false });");
+	    expect(source).toContain("onClick={() => chooseTrackerDay(index)}");
   });
 });

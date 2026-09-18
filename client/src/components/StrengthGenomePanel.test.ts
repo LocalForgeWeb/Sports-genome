@@ -35,7 +35,10 @@ describe("Strength Genome panel", () => {
     expect(bodyMapSource).toContain("Tap a muscle group to see");
     expect(bodyMapSource).toContain("Highlighting shows where you have lifts on record, not how strong you are.");
     expect(bodyMapSource).not.toContain("percentile score");
-    expect(source).toContain("resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id)");
+    // Routing now goes through the catalog-aware resolver, so a lift the reviewed
+    // alias list never named — a Hack Squat, say — still reaches the region it
+    // trains instead of falling off the map.
+    expect(source).toContain("strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)");
     expect(source).toContain("Your record");
     expect(source).toContain("not a percentile, universal rank, or regional force score");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
@@ -64,14 +67,13 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('className="strength-profile-reference-summary"');
     expect(source).toContain('className="strength-profile-reference-details"');
     expect(source).toContain('className={`strength-profile-coverage-ring');
-    expect(source).toContain('recorded test coverage; not a strength rank');
+    // The coverage figure states its own boundary on screen rather than only to a
+    // screen reader, and the ring beside it is decoration for a number the
+    // definition list already carries.
+    expect(source).toContain("Covered means you have lifts recorded there. It is not a rank or a score.");
     expect(source).toContain('setSelectedRegion(null); setSelectedObservationId("");');
-    expect(source).toContain('className="strength-reference-state-visual"');
-    expect(source).toContain('sportsGenomeAssets.strengthQualified');
-    expect(source).toContain('sportsGenomeAssets.strengthUnavailable');
     expect(source).not.toContain('/manus-storage/');
-    expect(source).toContain("<span>Comparison</span>");
-    expect(source).toContain("Ready on {sourceMatchedObservationCount} lift");
+    expect(source).toContain("Comparison ready on {sourceMatchedObservationCount} lift");
     expect(source).toContain("line up with a study");
     expect(source).toContain("sourceMatchedObservationCount > 0 &&");
     expect(source).toContain("sourceMatchedObservationCount");

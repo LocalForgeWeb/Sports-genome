@@ -752,6 +752,39 @@ export default function Home() {
     setWeeklyPrescriptions((current) => ({ ...current, [key]: Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal)])) }));
     toast("Weekly day saved", { description: `${activeSplitDay} now has ${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"} saved.` });
   };
+	  /**
+	   * Switching days used to stash whatever was staged into the day you were
+	   * leaving, unconditionally. That quietly rewrote saved days: leaving Push
+	   * with an empty stage saved Push as empty, and leaving it while a different
+	   * day's stack was staged saved that stack under Push. A day the athlete
+	   * built is theirs; nothing writes over it without them saying so.
+	   */
+	  const stashableInto = (key: string) => {
+	    if (!customWorkout.length) return "skip" as const;
+	    const saved = weeklyPlan[key];
+	    if (!saved?.length) return "stash" as const;
+	    const sameStack = saved.length === customWorkout.length && saved.every((exercise, position) => exercise.id === customWorkout[position].id);
+	    return sameStack ? "skip" as const : "ask" as const;
+	  };
+	  const stashActiveDay = (key: string) => {
+	    setWeeklyPlan((current) => ({ ...current, [key]: customWorkout }));
+	    setWeeklyPrescriptions((current) => ({ ...current, [key]: Object.fromEntries(customWorkout.map((exercise, exerciseIndex) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(exerciseIndex, goal)])) }));
+	  };
+	  const loadWeeklyDay = (index: number, day: SplitDay, { navigate }: { navigate: boolean }) => {
+	    const saved = weeklyPlan[`${index}-${day}`];
+	    setActiveSplitDay(day);
+	    setActiveSplitDayIndex(index);
+	    if (saved?.length) {
+	      setCustomWorkout(saved);
+	      setPrescriptions((current) => ({ ...current, ...(weeklyPrescriptions[`${index}-${day}`] || {}) }));
+	      if (navigate) navigateWorkspace("day-plan");
+	      toast("Saved day loaded", { description: `${day} was restored from your weekly map.` });
+	      return;
+	    }
+	    setCustomWorkout([]);
+	    setPrescriptions({});
+	    setExerciseSettings({});
+	  };
 	  const chooseWeeklyDay = (index: number) => {
 	    const day = splitDays[index];
 	    const saved = weeklyPlan[`${index}-${day}`];
@@ -763,20 +796,33 @@ export default function Home() {
 	    }
 	    if (index === activeDayIndex && day === activeSplitDay) return;
 	    const previousKey = `${activeDayIndex}-${activeSplitDay}`;
-	    setWeeklyPlan((current) => ({ ...current, [previousKey]: customWorkout }));
-	    setWeeklyPrescriptions((current) => ({ ...current, [previousKey]: Object.fromEntries(customWorkout.map((exercise, exerciseIndex) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(exerciseIndex, goal)])) }));
-	    setActiveSplitDay(day);
-	    setActiveSplitDayIndex(index);
-	    if (saved?.length) {
-	      setCustomWorkout(saved);
-	      setPrescriptions((current) => ({ ...current, ...(weeklyPrescriptions[`${index}-${day}`] || {}) }));
-	      navigateWorkspace("day-plan");
-	      toast("Saved day loaded", { description: `${day} was restored from your weekly map.` });
+	    const previousDay = activeSplitDay;
+	    const disposition = stashableInto(previousKey);
+	    if (disposition === "ask") {
+	      setPendingDestructiveAction({
+	        title: `Replace your saved ${previousDay}?`,
+	        body: `${previousDay} already has ${weeklyPlan[previousKey].length} saved exercise${weeklyPlan[previousKey].length === 1 ? "" : "s"}, and what is staged right now is different. Either way you move on to ${day}; choose which version of ${previousDay} is kept. Replacing it cannot be undone.`,
+	        confirmLabel: `Replace ${previousDay}`,
+	        cancelLabel: `Keep saved ${previousDay}`,
+	        // Both answers go on to the day you asked for. The only question is
+	        // which version of the day you are leaving survives.
+	        onConfirm: () => { stashActiveDay(previousKey); loadWeeklyDay(index, day, { navigate: true }); },
+	        onCancel: () => loadWeeklyDay(index, day, { navigate: true }),
+	      });
 	      return;
 	    }
-	    setCustomWorkout([]);
-	    setPrescriptions({});
-	    setExerciseSettings({});
+	    if (disposition === "stash") stashActiveDay(previousKey);
+	    loadWeeklyDay(index, day, { navigate: true });
+	  };
+	  /**
+	   * The tracker's day chooser answers "which planned day am I logging". It is
+	   * not an editing surface, so it never writes to the weekly map and never
+	   * navigates away from the workout you came here to record.
+	   */
+	  const chooseTrackerDay = (index: number) => {
+	    const day = splitDays[index];
+	    if (index === activeDayIndex && day === activeSplitDay) return;
+	    loadWeeklyDay(index, day, { navigate: false });
 	  };
   const applyWeek = (week: number, snapshot: WeekSnapshot) => {
     setActiveWeek(week);
@@ -933,7 +979,7 @@ export default function Home() {
       {contextualWorkspaceTabs.length > 1 && <nav className="workspace-top-switcher" aria-label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}>{contextualWorkspaceTabs.map((tab) => { const active = activeContextTabId === tab.id; return <button type="button" key={tab.id} onClick={() => navigateContextualWorkspace(tab)} aria-current={active ? "page" : undefined} className={active ? "workspace-top-switcher-active" : ""}>{tab.label}</button>; })}</nav>}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[var(--sg-text-subtle-on-light)]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? <p className="tracker-live-context">Logging Day {String(activeDayIndex + 1).padStart(2, "0")} · {activeSplitDay}</p> : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseWeeklyDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
+        {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? <p className="tracker-live-context">Logging Day {String(activeDayIndex + 1).padStart(2, "0")} · {activeSplitDay}</p> : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log Day {String(activeDayIndex + 1).padStart(2, "0")} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{splitDays.map((day, index) => <button key={day} type="button" onClick={() => chooseTrackerDay(index)} aria-pressed={index === activeDayIndex}>Day {String(index + 1).padStart(2, "0")} · {day}</button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={`Week ${activeWeek} · ${activeSplitDay}`} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={setAthleteBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} />}
         {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><SupabaseResearchLibraryPanel /><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div></section>}
@@ -966,6 +1012,6 @@ export default function Home() {
     {inspectedExercise && <div className="inspection-action-connection-float"><SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} /></div>}
     {tutorialOpen && <FeatureTour onClose={() => setTutorialOpen(false)} onNavigate={(view) => navigateWorkspace(view as Workspace)} />}
     {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} />}
-    {pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => setPendingDestructiveAction(null)} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}
+    {pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => { pendingDestructiveAction.onCancel?.(); setPendingDestructiveAction(null); }} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}
   </div>;
 }

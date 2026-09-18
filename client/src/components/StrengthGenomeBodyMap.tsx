@@ -58,7 +58,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
     <details className="strength-map-region-selector">
       <summary>Choose a region</summary>
       <div role="list" aria-label="Strength Genome regions">
-        {regions.map((region) => <button key={region.id} type="button" role="listitem" aria-pressed={selectedRegionId === region.id} onClick={() => { emitInteractionFeedback(); onSelect(selectedRegionId === region.id ? undefined : region); }}><span>{region.label}</span><small>{region.state === "OBSERVED_TEST_CONTEXT" ? "Saved test" : "No test yet"}</small></button>)}
+        {regions.map((region) => <button key={region.id} type="button" role="listitem" aria-pressed={selectedRegionId === region.id} onClick={() => { emitInteractionFeedback(); onSelect(selectedRegionId === region.id ? undefined : region); }}><span>{region.label}</span><small>{region.state === "OBSERVED_TEST_CONTEXT" ? "On record" : "Nothing yet"}</small></button>)}
       </div>
     </details>
     <p className="strength-body-map-boundary">Tap any muscle group to see what you have logged there. Highlighting shows where you have lifts on record, not how strong you are.</p>

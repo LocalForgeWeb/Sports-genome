@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { getStrengthCatalogSelectionContext, strengthRegionDefinitions, type StrengthRegionDefinition } from "../../../shared/strengthGenomeDefinitions";
 import { StrengthGenomeBodyMap } from "@/components/StrengthGenomeBodyMap";
-import { resolveStrengthObservationRoute } from "../../../shared/strengthGenomeDefinitions";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { displayWeightToKilograms, formatDisplayWeight, kilogramsToDisplayWeight, weightUnitLabel, type DisplayWeightUnit } from "@/lib/weightUnits";
@@ -17,6 +16,8 @@ import type { PowerliftingNormRow } from "@shared/powerliftingNormsReference";
 import type { SexForReference } from "@/components/AthleteBaselineQuiz";
 import { summarizeWithinAthleteStrengthComparisons, type ChangeState, type ComparableStrengthObservation, type WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
+import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { strengthRegionIdsForExerciseName, workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
 
 const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
   insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
@@ -28,7 +29,6 @@ const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
 function normalizedName(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
-import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 
 type MeasurementType =
   | "MEASURED_1RM"
@@ -42,16 +42,14 @@ type MeasurementType =
 
 type ObservationDataQuality = "SELF_REPORTED" | "STANDARDIZED" | "VERIFIED" | "UNCERTAIN";
 
-type StrengthObservationRecord = { id: string | number; exerciseName: string; observedAt: Date | string; measurementType: string; loadKg?: number | null; repetitions?: number | null; bodyMassKgAtTest?: number | null; equipment?: string | null; romStandard?: string | null; dataQuality?: string | null; referenceContextJson?: string | null };
+type StrengthObservationRecord = { id: string | number; exerciseName: string; observedAt: Date | string; measurementType: string; loadKg?: number | null; repetitions?: number | null; bodyMassKgAtTest?: number | null; equipment?: string | null; romStandard?: string | null; dataQuality?: string | null; referenceContextJson?: string | null;
+  /** Present when the entry was carried across from a finished workout rather than typed into the log form. */
+  source?: "workout"; sessionLabel?: string; setCount?: number };
 
 type PiperReferenceDeclaration = Pick<Piper2021PreacherCurlContext, "sex" | "ageYears" | "collegeStudentConfirmed" | "preTrainingConfirmed" | "exactProtocolConfirmed" | "directlyObservedConfirmed">;
 
 const emptyPiperDeclaration: PiperReferenceDeclaration = { sex: undefined, ageYears: undefined, collegeStudentConfirmed: false, preTrainingConfirmed: false, exactProtocolConfirmed: false, directlyObservedConfirmed: false };
 const emptyPowerliftingDeclaration: PowerliftingReferenceDeclaration = { sex: undefined, ageYears: undefined, drugTestedCompetitionConfirmed: false, unequippedCompetitionConfirmed: false, maximumSuccessfulLiftConfirmed: false };
-const strengthReferenceStateVisuals = {
-  qualified: sportsGenomeAssets.strengthQualified,
-  unavailable: sportsGenomeAssets.strengthUnavailable,
-} as const;
 
 function parsePiperReferenceDeclaration(value?: string | null): PiperReferenceDeclaration | null {
   if (!value) return null;
@@ -121,7 +119,7 @@ export function StrengthObservationReviewButton({ observation, onReview }: { obs
 }
 
 export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [] }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[] }) {
-  const records = useMemo(() => observations.filter((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id)).sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()), [observations, region.id]);
+  const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
   const [bodyMassEntry, setBodyMassEntry] = useState(() => baselineBodyWeight != null ? String(baselineBodyWeight) : "");
@@ -157,7 +155,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
         {powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that competition group</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body mass · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : null}
         {bodyMassRatio == null && <details className="strength-recorded-measurement"><summary>{baselineBodyWeight != null ? "Use saved profile weight" : "Add test body weight"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{baselineBodyWeight != null ? `Saved profile body weight (${weightUnit})` : `Body mass on test day (${weightUnit})`}</span><input aria-label={`${baselineBodyWeight != null ? "Saved profile body weight" : "Body mass on test day"} in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : baselineBodyWeight != null ? "Use saved weight" : "Save test body weight"}</button>{baselineBodyWeight != null && <small>Your saved profile value is ready. Change it first only if your test-day weight differed.</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
         <details className="strength-region-boundary"><summary>{(powerliftingReference?.status === "matched" || piperReference?.status === "matched") ? "About this comparison" : "Why no comparison to other people?"}</summary><p>{(powerliftingReference?.status === "matched" || piperReference?.status === "matched") ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : "A comparison to other people only appears when your exact lift, setup, and body weight match a published study — most gym lifts will not. Your rating above comes from your own logs only: it is not a percentile, universal rank, or regional force score."}</p></details>
-        <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}</span>
+        <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
       </article>
     </> : <div className="strength-region-record-empty"><p>Nothing logged for this muscle group yet.</p><p>Log a lift that trains it and your progress will show up here.</p></div>}
   </section>;
@@ -241,6 +239,17 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     window.addEventListener(deviceStrengthObservationEvent, refresh);
     return () => window.removeEventListener(deviceStrengthObservationEvent, refresh);
   }, [directAccess]);
+  // Finished workouts are part of the record, not a separate app. Re-read them
+  // on the same event the tracker fires so finishing a session updates this
+  // screen without a reload.
+  const [workoutSessions, setWorkoutSessions] = useState<DeviceWorkoutSession[]>(() => loadDeviceWorkoutSessions());
+  useEffect(() => {
+    const refresh = () => setWorkoutSessions(loadDeviceWorkoutSessions());
+    refresh();
+    window.addEventListener(deviceWorkoutHistoryEvent, refresh);
+    return () => window.removeEventListener(deviceWorkoutHistoryEvent, refresh);
+  }, []);
+  const workoutObservations = useMemo(() => workoutStrengthObservations(workoutSessions, weightUnit), [workoutSessions, weightUnit]);
   const addObservation = trpc.strengthGenome.addObservation.useMutation({
     onSuccess: async () => {
       await Promise.all([
@@ -278,10 +287,19 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const piperCaptureAvailable = exerciseName === "Preacher Curl" && measurementType === "MULTI_REP";
   const powerliftingCaptureAvailable = ["Back Squat", "Barbell Bench Press", "Conventional Deadlift"].includes(exerciseName) && measurementType === "MEASURED_1RM";
   const canSave = Boolean(selectedExercise) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0));
-  const activeObservations = directAccess ? deviceObservations : (observations.data || []) as StrengthObservationRecord[];
+  // Lifts typed into the form and lifts carried across from finished workouts are
+  // one record. The device tracker writes to this device in both access modes, so
+  // its sessions are merged in both — they are never mirrored server-side, so
+  // nothing is counted twice.
+  const loggedObservations = directAccess ? deviceObservations : (observations.data || []) as StrengthObservationRecord[];
+  const activeObservations: StrengthObservationRecord[] = useMemo(
+    () => [...loggedObservations as StrengthObservationRecord[], ...workoutObservations]
+      .sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()),
+    [loggedObservations, workoutObservations],
+  );
   // Labeled "Recent lifts", so order by date here instead of trusting how the caller
   // built the array.
-  const recentObservations = [...activeObservations].sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()).slice(0, 4);
+  const recentObservations = activeObservations.slice(0, 6);
   const unifiedStrengthHistory = useMemo(
     () => mergeStrengthHistory(
       activeObservations.map((observation) => ({ ...observation, loadKg: observation.loadKg ?? null, repetitions: observation.repetitions ?? null })),
@@ -293,7 +311,15 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     () => summarizeWithinAthleteStrengthComparisons(unifiedStrengthHistory).comparable,
     [unifiedStrengthHistory]
   );
-  const regionOverview = (regionId: string) => directAccess ? { state: activeObservations.some((observation) => resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(regionId)) ? "OBSERVED_TEST_CONTEXT" : "INSUFFICIENT_DATA" } : overview.data?.regions.find(region => region.id === regionId);
+  // Covered means "you have recorded work here", never a rank or a score. A
+  // locally recorded lift counts in both access modes, so the server overview can
+  // only add regions, never take one away that this device can see.
+  const regionHasLocalRecord = (regionId: string) => activeObservations.some((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(regionId));
+  const regionOverview = (regionId: string) => {
+    if (regionHasLocalRecord(regionId)) return { state: "OBSERVED_TEST_CONTEXT" as const };
+    if (directAccess) return { state: "INSUFFICIENT_DATA" as const };
+    return overview.data?.regions.find((region) => region.id === regionId);
+  };
   const observedRegionCount = strengthRegionDefinitions.filter((region) => regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT").length;
   const sourceMatchedObservationCount = activeObservations.filter((observation) => getPiperReferenceForObservation(observation)?.status === "matched" || getPowerliftingReferenceForObservation(observation, powerliftingNorms)?.status === "matched").length;
   const recordedCoveragePercent = Math.round((observedRegionCount / strengthRegionDefinitions.length) * 100);
@@ -302,7 +328,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const setDeviceBodyMass = (observationId: string, bodyMassKgAtTest: number) => persistDeviceObservations(setDeviceStrengthObservationBodyMass(deviceObservations, observationId, bodyMassKgAtTest));
   useEffect(() => { if (baselineBodyWeight != null && bodyMassKg === "") setBodyMassKg(String(baselineBodyWeight)); }, [baselineBodyWeight, bodyMassKg]);
   const openSavedObservation = (observation: StrengthObservationRecord) => {
-    const regionId = resolveStrengthObservationRoute(observation.exerciseName)?.regionIds[0];
+    const regionId = strengthRegionIdsForExerciseName(observation.exerciseName)[0];
     const region = strengthRegionDefinitions.find((candidate) => candidate.id === regionId);
     if (!region) return;
     setSelectedObservationId(String(observation.id));
@@ -365,23 +391,33 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       <div className="view-header-note"><ShieldCheck className="h-5 w-5 text-[var(--sg-info-strong)]" /><p>Your own progress and any outside comparison stay separate—never blended into one made-up score.</p></div>
     </div>
 
-	      <section className="strength-profile-status">
-	        <div className="strength-profile-status-overview">
-          <div><p className="metric-label">Your record</p><h2>{activeObservations.length ? "Your lifts so far" : "Start your record"}</h2><p>{observedRegionCount} muscle group{observedRegionCount === 1 ? "" : "s"} covered</p></div>
-          <div className="strength-profile-status-tools"><div className={`strength-profile-coverage-ring ${sourceMatchedObservationCount ? "is-source-qualified" : ""}`} style={{ "--coverage-progress": `${recordedCoveragePercent}%` } as CSSProperties} aria-label={`${recordedCoveragePercent}% recorded test coverage; not a strength rank`}><div><strong>{recordedCoveragePercent}</strong><span>%</span><small>coverage</small></div></div><span className="strength-profile-device-boundary"><CircleHelp className="h-3.5 w-3.5" /> {directAccess ? "This device" : "Private record"}</span></div>
-	        </div>
-	        {sourceMatchedObservationCount > 0 && <div className="strength-profile-reference-summary" aria-label="Comparative reference status"><span>Comparison</span><strong>Ready on {sourceMatchedObservationCount} lift{sourceMatchedObservationCount === 1 ? "" : "s"}</strong></div>}
+      <section className="strength-profile-status">
+        <div className="strength-profile-status-overview">
+          <p className="metric-label">Your record</p>
+          <h2>{activeObservations.length ? "Your lifts so far" : "Start your record"}</h2>
+          <div className="strength-profile-figures">
+            <div className={`strength-profile-coverage-ring ${sourceMatchedObservationCount ? "is-source-qualified" : ""}`} style={{ "--coverage-progress": `${recordedCoveragePercent}%` } as CSSProperties} aria-hidden="true"><div><strong>{recordedCoveragePercent}</strong><span>%</span></div></div>
+            <dl className="strength-profile-facts">
+              <div><dt>Muscle groups covered</dt><dd>{observedRegionCount} <span>of {strengthRegionDefinitions.length}</span></dd></div>
+              <div><dt>Lifts on record</dt><dd>{activeObservations.length}{workoutObservations.length ? <span>{workoutObservations.length} from workouts</span> : null}</dd></div>
+            </dl>
+          </div>
+          <p className="strength-profile-coverage-note">Covered means you have lifts recorded there. It is not a rank or a score.</p>
+          <div className="strength-profile-status-footnote">
+            <span className="strength-profile-device-boundary"><CircleHelp className="h-3.5 w-3.5" /> {directAccess ? "This device" : "Private record"}</span>
+            {sourceMatchedObservationCount > 0 && <span className="strength-profile-reference-summary">Comparison ready on {sourceMatchedObservationCount} lift{sourceMatchedObservationCount === 1 ? "" : "s"}</span>}
+          </div>
+        </div>
         <details className="strength-profile-reference-details"><summary>How comparison works</summary><p>Your own progress is always tracked from your logs. A comparison against published numbers only appears when your exact lift, setup, and body weight line up with a study — most everyday gym lifts will not, and that is normal.</p>{supabaseEvidenceInventory.data?.status === "connected" && <p className="mt-2">Research on file: {supabaseEvidenceInventory.data.strengthNorms} strength norms, {supabaseEvidenceInventory.data.performanceNorms} performance norms, and {supabaseEvidenceInventory.data.performanceTests} test protocols. Having them on file does not by itself create a rank for you.</p>}</details>
-	        <div className="strength-reference-state-visual" aria-hidden="true"><img src={sourceMatchedObservationCount ? strengthReferenceStateVisuals.qualified : strengthReferenceStateVisuals.unavailable} alt="" /></div>
-	      </section>
+      </section>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
       {selectedRegion && <div ref={regionDetailRef}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} /></div>}
       {selectedRegion && <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>}
-      <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{directAccess ? (activeObservations.length ? "Saved on this device only." : "Log a lift to start your record.") : (overview.data?.nextAction || "Log a lift to start your record.")}</span></div>
+      <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{activeObservations.length ? `${workoutObservations.length} carried across from finished workouts${directAccess ? ", saved on this device only" : ""}.` : (directAccess ? "Finish a workout in the tracker, or log a lift below, to start your record." : (overview.data?.nextAction || "Log a lift to start your record."))}</span></div>
 
     <div className="strength-progress-grid grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
       <section className="strength-log-entry dark-panel p-5">
-        <div className="flex items-start justify-between gap-4"><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Add to your record</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Log a lift.</h2><p className="mt-3 max-w-xl text-xs leading-5 text-[var(--sg-text-muted-on-dark)]">Enter what you actually lifted. Everything stays private to you.</p></div><Dumbbell className="h-7 w-7 shrink-0 text-[var(--sg-focus-on-dark)]" /></div>
+        <div className="flex items-start justify-between gap-4"><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Add to your record</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Log a lift.</h2><p className="mt-3 max-w-xl text-xs leading-5 text-[var(--sg-text-muted-on-dark)]">Workouts you finish in the tracker land here on their own. Use this for a lift that was not in one — a max you tested, or a session you did not log.</p></div><Dumbbell className="h-7 w-7 shrink-0 text-[var(--sg-focus-on-dark)]" /></div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <div className="grid gap-1.5 sm:col-span-2"><label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Choose exercise</span><input aria-label="Search and choose a catalog exercise" value={exerciseSearch} onChange={(event) => { setExerciseSearch(event.target.value); setSelectedExercise(null); setExerciseName(""); }} placeholder="Search catalog, then select" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label><LocalSearchScope scope="Searching the exercise catalog for a lift to record." query={exerciseSearch} />{exerciseSearch.trim() && !selectedExercise && <div className="strength-exercise-picker" role="listbox" aria-label="Catalog exercise results">{exerciseMatches.length ? exerciseMatches.map((exercise) => <button type="button" role="option" key={exercise.id} onClick={() => { emitInteractionFeedback(); setSelectedExercise(exercise); setExerciseName(exercise.name); setExerciseSearch(exercise.name); }}><strong>{exercise.name}</strong><span>{exercise.primaryMuscles.join(" · ")}</span></button>) : <p>No matching catalog exercise.</p>}</div>}{selectedExerciseContext && <StrengthCatalogSelectionPreview context={selectedExerciseContext} />}</div>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">How you measured it</span><select value={measurementType} onChange={(event) => setMeasurementType(event.target.value as MeasurementType)} className="h-12 rounded-xl border border-white/20 bg-[var(--sg-surface-raised)] px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30">{measurementOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
@@ -404,10 +440,13 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         </div>}
         {piperCaptureAvailable && <details className="strength-piper-capture" open={piperReferenceOpen} onToggle={(event) => setPiperReferenceOpen(event.currentTarget.open)}><summary>Check exact Piper 2021 preacher-curl 10RM conditions</summary><p>This is optional. It is the only route to the source’s narrow adult-male college sample reference; it does not rate generic curls.</p>{piperReferenceOpen && <div className="strength-piper-fields"><label><span>Sex in this source comparison</span><select value={piperDeclaration.sex || ""} onChange={(event) => setPiperDeclaration((current) => ({ ...current, sex: (event.target.value || undefined) as PiperReferenceDeclaration["sex"] }))}><option value="">Choose</option><option value="male">Male</option><option value="female">Female</option><option value="intersex">Intersex</option><option value="self_described">Self-described</option><option value="prefer_not_to_say">Prefer not to say</option></select></label><label><span>Age on test day</span><input aria-label="Age on test day for Piper 2021 reference" inputMode="numeric" value={piperDeclaration.ageYears || ""} onChange={(event) => setPiperDeclaration((current) => ({ ...current, ageYears: Number(event.target.value.replace(/[^0-9]/g, "")) || undefined }))} placeholder="18–25" /></label><label><input type="checkbox" checked={piperDeclaration.collegeStudentConfirmed} onChange={(event) => setPiperDeclaration((current) => ({ ...current, collegeStudentConfirmed: event.target.checked }))} /> I am male, 18–25, and a college student — the same group the study used.</label><label><input type="checkbox" checked={piperDeclaration.preTrainingConfirmed} onChange={(event) => setPiperDeclaration((current) => ({ ...current, preTrainingConfirmed: event.target.checked }))} /> I did this lift before starting a training program for it, as the study group did.</label><label><input type="checkbox" checked={piperDeclaration.directlyObservedConfirmed} onChange={(event) => setPiperDeclaration((current) => ({ ...current, directlyObservedConfirmed: event.target.checked }))} /> This 10RM was directly observed with valid technique and no assistance.</label><label><input type="checkbox" checked={piperDeclaration.exactProtocolConfirmed} onChange={(event) => setPiperDeclaration((current) => ({ ...current, exactProtocolConfirmed: event.target.checked }))} /> I used the source’s Body Masters BE 207 seated 40° pad, 22 lb York EZ-bar, and stated technique protocol.</label></div>}</details>}
         {powerliftingCaptureAvailable && <details className="strength-piper-capture strength-powerlifting-capture" open={powerliftingReferenceOpen} onToggle={(event) => setPowerliftingReferenceOpen(event.currentTarget.open)}><summary>Competitive powerlifting reference</summary><p>Optional. This compares one exact maximum under drug-tested, unequipped competition standards for adults aged 18–35; it does not rate everyday gym lifts.</p>{powerliftingReferenceOpen && <div className="strength-piper-fields strength-powerlifting-fields"><label><span>Which competition category?</span><select value={powerliftingDeclaration.sex || ""} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, sex: (event.target.value || undefined) as PowerliftingReferenceDeclaration["sex"] }))}><option value="">Choose a category</option><option value="female">Women.s competition</option><option value="male">Men.s competition</option></select></label><label><span>Age on test day</span><input aria-label="Age on test day for powerlifting reference" inputMode="numeric" value={powerliftingDeclaration.ageYears || ""} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, ageYears: Number(event.target.value.replace(/[^0-9]/g, "")) || undefined }))} placeholder="18–35" /></label><label><input type="checkbox" checked={powerliftingDeclaration.drugTestedCompetitionConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, drugTestedCompetitionConfirmed: event.target.checked }))} /> This was a drug-tested powerlifting competition lift.</label><label><input type="checkbox" checked={powerliftingDeclaration.unequippedCompetitionConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, unequippedCompetitionConfirmed: event.target.checked }))} /> The lift was unequipped under the competition standard.</label><label><input type="checkbox" checked={powerliftingDeclaration.maximumSuccessfulLiftConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, maximumSuccessfulLiftConfirmed: event.target.checked }))} /> This was the maximum successful competition lift.</label><p>Use the saved profile weight only if it matches your body mass on this test day.</p></div>}</details>}
-        <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--sg-action-fill)] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving" : "Save this lift"}</button>
+        <div className="strength-log-submit">
+          <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--sg-action-fill)] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving" : "Save this lift"}</button>
+          {!canSave && <p className="strength-log-blocked" role="status">{!selectedExercise ? "Choose an exercise from the catalog above to save this." : `Enter the load in ${weightUnitLabel(weightUnit)} to save this.`}</p>}
+        </div>
       </section>
 
-      <aside className="strength-progress-log light-panel p-5"><p className="metric-label">Your history</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[var(--sg-text-on-light)]">Recent lifts</h2>{recentObservations.length ? <div className="mt-4 divide-y divide-[var(--sg-divider-on-light)]">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div><p className="text-sm font-bold text-[#153b61]">{observation.exerciseName}</p><p className="mt-1 text-[11px] text-[var(--sg-text-subtle-on-light)]">{measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div>{directAccess && resolveStrengthObservationRoute(observation.exerciseName) && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} />}</div>)}</div> : <div className="mt-4 rounded-xl border border-dashed border-[#c7d8e6] bg-[var(--sg-surface-light)] p-4"><Activity className="h-5 w-5 text-[var(--sg-info-strong)]" /><p className="mt-3 text-sm font-bold text-[#153b61]">Nothing logged yet</p><p className="mt-1 text-xs leading-5 text-[var(--sg-text-subtle-on-light)]">Log your first lift and your progress starts tracking from there.</p></div>}</aside>
+      <aside className="strength-progress-log light-panel p-5"><p className="metric-label">Your history</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[var(--sg-text-on-light)]">Recent lifts</h2>{recentObservations.length ? <div className="mt-4 divide-y divide-[var(--sg-divider-on-light)]">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div><p className="text-sm font-bold text-[#153b61]">{observation.exerciseName}</p><p className="mt-1 text-[11px] text-[var(--sg-text-subtle-on-light)]">{observation.source === "workout" ? `From ${observation.sessionLabel || "a workout"}` : measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div>{strengthRegionIdsForExerciseName(observation.exerciseName).length > 0 && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} />}</div>)}</div> : <div className="mt-4 rounded-xl border border-dashed border-[#c7d8e6] bg-[var(--sg-surface-light)] p-4"><Activity className="h-5 w-5 text-[var(--sg-info-strong)]" /><p className="mt-3 text-sm font-bold text-[#153b61]">Nothing logged yet</p><p className="mt-1 text-xs leading-5 text-[var(--sg-text-subtle-on-light)]">Log your first lift and your progress starts tracking from there.</p></div>}</aside>
     </div>
   </section>;
 }

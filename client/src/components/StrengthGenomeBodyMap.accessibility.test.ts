@@ -11,7 +11,7 @@ describe("Strength Genome body-map accessible region selection", () => {
     expect(source).toContain('className="strength-map-region-selector"');
     expect(source).toContain('aria-label="Strength Genome regions"');
     expect(source).toContain('aria-pressed={selectedRegionId === region.id}');
-    expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? "Saved test" : "No test yet"');
+    expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? "On record" : "Nothing yet"');
     expect(source).toContain('selectedRegionId === region.id ? undefined : region');
     expect(source).toContain('aria-label="Clear selected strength region"');
     expect(selector).not.toContain("percentile");
