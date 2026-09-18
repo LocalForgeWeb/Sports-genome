@@ -266,6 +266,81 @@ describe("half-typed numeric entry", () => {
   });
 });
 
+describe("skipping an exercise from the live card", () => {
+  it("moves to the next exercise and records nothing for the one passed", () => {
+    startWorkout();
+    const card = () => document.querySelector(".live-set-card")!;
+    expect(card().textContent).toContain(exercises[0].name);
+
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`skip ${exercises[0].name}`, "i") }));
+    expect(card().textContent).toContain(exercises[1].name);
+    expect(card().textContent).toContain("Set 1 of 2");
+    expect(document.querySelector(".execution-head")!.textContent).toContain("0 / 5 sets logged");
+  });
+
+  it("keeps the skip action subordinate to logging the set", () => {
+    startWorkout();
+    // One dominant action stays one dominant action.
+    expect(document.querySelectorAll(".live-set-commit")).toHaveLength(1);
+    const skip = document.querySelector(".live-set-skip")!;
+    expect(document.querySelector(".live-set-entry")!.contains(skip)).toBe(false);
+  });
+
+  it("shows the skip in the full session and puts it back on request", () => {
+    startWorkout();
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`skip ${exercises[0].name}`, "i") }));
+    fireEvent.click(document.querySelector(".live-session-queue > summary")!);
+
+    const skippedRow = document.querySelector(".session-exercise-skipped")!;
+    expect(skippedRow.textContent).toContain("Skipped · nothing recorded");
+
+    fireEvent.click(within(skippedRow as HTMLElement).getByRole("button", { name: /put back/i }));
+    expect(document.querySelector(".live-set-card")!.textContent).toContain(exercises[0].name);
+  });
+
+  it("leaves a logged set logged when the rest of the exercise is skipped", () => {
+    startWorkout();
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`skip ${exercises[0].name}`, "i") }));
+    expect(document.querySelector(".execution-head")!.textContent).toContain("1 / 5 sets logged");
+  });
+});
+
+describe("what the entry boxes record", () => {
+  const boxJump = exercises.find((exercise) => exercise.name === "Box Jump")!;
+  const weightedBoxJump = exercises.find((exercise) => exercise.name === "Weighted Box Jump")!;
+
+  function startWith(list: typeof exercises) {
+    render(createElement(DeviceWorkoutTracker, {
+      workout: list, prescriptions: Object.fromEntries(list.map((e) => [e.id, "3 × 5"])), settings: {}, dayLabel: "Week 1 · Power",
+    }));
+    fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
+  }
+  const labels = () => [...document.querySelectorAll(".live-set-entry label > span")].map((el) => el.textContent);
+
+  it("asks a plain box jump for height and reps, never weight", () => {
+    startWith([boxJump]);
+    expect(labels()).toEqual(["Box height", "Reps"]);
+    expect(document.querySelector(".live-set-entry")!.textContent).not.toContain("Weight");
+  });
+
+  it("asks a weighted box jump for weight, height and reps", () => {
+    startWith([weightedBoxJump]);
+    expect(labels()).toEqual(["Added weight", "Box height", "Reps"]);
+  });
+
+  it("records the height it asked for", () => {
+    startWith([boxJump]);
+    const entry = within(document.querySelector(".live-set-entry") as HTMLElement);
+    fireEvent.change(entry.getByLabelText(/box height/i), { target: { value: "30" } });
+    fireEvent.change(entry.getByLabelText(/reps/i), { target: { value: "5" } });
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+
+    const stored = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!);
+    expect(stored[0].exercises[0].sets[0]).toMatchObject({ height: "30", reps: "5", weight: "", completed: true });
+  });
+});
+
 describe("active workout continuity contract", () => {
   // "Every consequential athlete action ... must checkpoint on-device before
   // the UI treats it as safely saved."
