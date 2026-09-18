@@ -127,12 +127,27 @@ describe("Today action panel state layer", () => {
     ).toBeTruthy();
   });
 
-  it("invites a first comparison rather than showing an empty metric", () => {
+  it("invites a first lift once, in the slot that also offers a way to do it", () => {
     renderPanel();
 
-    expect(screen.getByText("No tracked lifts yet")).toBeTruthy();
-    expect(screen.getByText("Log the same lift twice and your change starts tracking here.")).toBeTruthy();
+    // With nothing recorded, the state slot and the priority slot were saying the
+    // same thing one above the other - "No tracked lifts yet" over "Log your
+    // first lift" - and between them they pushed the staged training day out of
+    // the first viewport. The priority slot keeps it, because it is the one that
+    // carries a way out.
+    expect(screen.getByText("Log your first lift")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Open Strength Genome/i })).toBeTruthy();
+    expect(screen.queryByText("No tracked lifts yet")).toBeNull();
+    expect(screen.queryByText("Where you are now")).toBeNull();
     expect(screen.queryByText(/^Confirmed (gain|decline)$/)).toBeNull();
+  });
+
+  it("keeps the state slot as soon as it has a count of its own to report", () => {
+    // One logged lift is not a tracked change, but "1 lift tracked" is a fact the
+    // priority slot does not carry, so the slot earns its place again.
+    mocks.observations = [observation(1, 100, "2026-01-05T12:00:00.000Z")];
+    renderPanel();
+    expect(screen.getByText("Where you are now")).toBeTruthy();
   });
 
   it("still carries the next action beneath the state layer", () => {

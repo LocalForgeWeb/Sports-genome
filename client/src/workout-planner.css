@@ -482,3 +482,24 @@
   .tracker-session-preview { padding: 1rem; }
   .tracker-session-preview-list li { gap: .6rem; padding: .65rem .7rem; }
 }
+
+/**
+ * The Coach Scan header, which had less room than its contents needed.
+ *
+ * On Training Day this panel sits in a middle column about 412px wide, and its
+ * summary put a 1.9rem display heading and a status chip side by side in it.
+ * Both then wrapped inside themselves: "COACH / SCAN" over two lines, "MANAGED
+ * PLANNING / SIGNAL" over two more, with "REVIEW" jammed against the chip's
+ * edge. Four lines of text in a 46px-tall row, in a panel whose whole job is to
+ * be glanceable.
+ *
+ * The two halves wrap as units instead. Where there is room - the Builder's
+ * wider column - nothing moves; where there is not, the heading takes the line
+ * and the signal drops below it intact.
+ */
+.workout-health-disclosure > summary { flex-wrap: wrap; }
+.workout-health-disclosure > summary > div:first-child { flex: 1 1 11rem; min-width: 0; }
+.workout-health-disclosure > summary > div:last-child { flex: 0 1 auto; }
+/* Nowrap is what makes the row wrap: it gives the chip an honest minimum width,
+   so the flex line breaks instead of the words inside it. */
+.health-signal { white-space: nowrap; }
