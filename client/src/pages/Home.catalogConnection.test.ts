@@ -27,7 +27,10 @@ describe("canonical connected exercise catalog", () => {
   });
 
 	  it("keeps only actionable mobile Catalog connection states visible and visually distinct without presenting them as performance ratings", () => {
-    expect(catalogSource).toContain("connection.label}{selectedActionLabel ? ` · ${selectedActionLabel}` : \"\"}");
+    // The selected action is the same for every row on the page and is named at
+    // the top of it, so appending it to each chip only made the chip long enough
+    // to truncate. It stays in the chip's title, where it explains the mapping.
+    expect(catalogSource).toContain("title={selectedActionLabel ? `${connection.detail} (${selectedActionLabel})` : connection.detail}");
 	    expect(catalogSource).toContain('connection && connection.label !== "Not mapped"');
     expect(catalogStyles).toContain(".catalog-action-link-direct-support");
     expect(catalogStyles).toContain(".catalog-action-link-supporting-link");
@@ -35,7 +38,7 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
     // inline-block plus overflow/text-overflow so the label truncates inside the
     // pill; as inline-flex with only max-width it painted past the rounded border.
-    expect(catalogStyles).toContain(".catalog-action-link { display: inline-block; width: fit-content; max-width: 100%; overflow: hidden; text-overflow: ellipsis;");
+    expect(catalogStyles).toContain(".catalog-action-link { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis;");
   });
 
   it("keeps Movement Atlas labels readable after the Body Lab workspace applies its dark operational surface", () => {

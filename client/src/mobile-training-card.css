@@ -2,12 +2,6 @@
   .day-orderable-exercise { display: flex; flex-direction: column; }
   .day-orderable-exercise .day-order-controls { position: absolute !important; top: .7rem; right: .7rem; z-index: 2; display: flex; align-self: auto; gap: .25rem; padding: 0; }
   .day-orderable-exercise .day-order-controls button { width: 34px; min-width: 34px; height: 34px; min-height: 34px; }
-  .custom-row { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: .65rem; align-items: start; padding: .7rem; }
-  .custom-row > span { padding-top: .25rem; }
-  .custom-row > button:nth-child(2) { min-width: 0; padding-right: 4.75rem; }
-  .custom-row-actions { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: .65rem; width: 100%; }
-  .custom-row-actions select, .custom-row-actions button { min-height: 44px; }
-  .duplicate-prescription { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
   .custom-prescription-inputs { display: grid; grid-template-columns: .7fr 1.3fr; gap: .65rem; padding: 0 .7rem .65rem; }
   .custom-prescription-inputs label { display: grid; gap: .3rem; color: #b7d8f4; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
   .custom-prescription-inputs input { min-width: 0; min-height: 44px; border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); padding: 0 .65rem; color: #fff; font-size: .82rem; font-weight: 700; outline: none; }
@@ -19,3 +13,53 @@
   .custom-detail-row select { width: 100%; min-height: 44px; }
   .day-picker-serratus-cue { margin-top: .75rem; border-left: 3px solid #d5ad43; background: #fffaf0; padding: .65rem .72rem; color: #735d2b; font-size: .6875rem; line-height: 1.5; }
 }
+
+/* The collapsed prescription row: name, prescription, target. Everything the
+   athlete edits lives inside the disclosure, so a five-exercise day reads as
+   five lines instead of fifty controls. These are not inside the mobile media
+   query above because the same collapse is right on a desktop rail too. */
+.custom-prescription > summary.custom-row {
+  display: grid;
+  grid-template-columns: 2.1rem minmax(0, 1fr) auto;
+  gap: .2rem .7rem;
+  align-items: center;
+  /* The reorder arrows are absolutely positioned over this row's top-right by
+     workout-planner.css, so the summary reserves the width they occupy. Without
+     it the chevron renders underneath them and the row looks like it does not
+     open at all. */
+  padding: .8rem 5.6rem .8rem .9rem;
+  cursor: pointer;
+  list-style: none;
+}
+.custom-prescription > summary.custom-row::-webkit-details-marker { display: none; }
+.custom-prescription > summary.custom-row:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -2px; }
+.custom-row-index { color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: 1; }
+.custom-row-identity { display: grid; gap: .22rem; min-width: 0; }
+/* The name wraps rather than truncating: it is the thing being scanned for. */
+.custom-row-identity strong { color: #fff; font-size: .875rem; font-weight: 700; line-height: 1.35; }
+.custom-row-identity em { color: var(--sg-focus-on-dark); font-size: .75rem; font-style: normal; font-weight: 800; letter-spacing: .03em; line-height: 1.35; }
+.custom-row-identity small { color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.4; }
+.custom-row-state { display: inline-flex; align-items: center; gap: .4rem; color: var(--sg-text-subtle-on-dark); }
+.custom-row-done { display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 999px; background: rgb(91 192 122 / .2); color: #5bc07a; }
+.custom-row-chevron { transition: transform 160ms var(--ease-out, ease); }
+.custom-prescription[open] > summary .custom-row-chevron { transform: rotate(180deg); }
+
+/* Row actions move to the foot of the open disclosure, where a destructive
+   control cannot be hit while scanning the list. */
+.custom-prescription .custom-row-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2.75rem;
+  gap: .5rem;
+  border-top: 1px solid rgb(126 171 210 / .22);
+  margin: 0 .9rem;
+  padding: .75rem 0 .9rem;
+}
+.custom-prescription .custom-row-actions button { min-height: 2.75rem; }
+.inspect-prescription, .duplicate-prescription, .remove-prescription {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); color: #d6e8fa;
+  font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+}
+.remove-prescription { color: #f2a08f; }
+.remove-prescription:hover { border-color: var(--sg-action); color: var(--sg-action); }
+.inspect-prescription:focus-visible, .duplicate-prescription:focus-visible, .remove-prescription:focus-visible { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 3px rgb(242 193 77 / .25); }

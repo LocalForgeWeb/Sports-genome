@@ -29,15 +29,26 @@
 .catalog-discovery-list { display: grid; gap: .55rem; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
 .catalog-discovery-card { display: flex; min-width: 0; align-items: stretch; border: 1px solid rgb(137 181 224 / .26); border-radius: 14px; background: linear-gradient(105deg, rgb(15 50 84 / .95), rgb(9 38 69 / .95)); transition: border-color .16s var(--ease-out), transform .16s var(--ease-out), box-shadow .16s var(--ease-out); }
 .catalog-discovery-card:hover { border-color: #77b3e5; box-shadow: 0 9px 20px rgb(0 0 0 / .2); transform: translateY(-1px); }
-.catalog-discovery-card-copy { display: grid; min-width: 0; flex: 1; grid-template-columns: auto minmax(0, 1fr) auto; gap: .72rem; padding: .82rem; text-align: left; }
+/* The card was a three-column grid -- index, text, and a "Catalog tag A" pill --
+   which on a 390px phone left the text column so narrow that the exercise name
+   wrapped to three lines and the muscle line truncated mid-word ("PECTORALI...").
+   The tag is catalog metadata, not a headline, so it moves down with the other
+   marks and the name gets the width. */
+.catalog-discovery-card-copy { display: grid; min-width: 0; flex: 1; grid-template-columns: auto minmax(0, 1fr); gap: .72rem; padding: .82rem; text-align: left; }
 .catalog-discovery-index { color: #84b9e6; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: .9; }
-.catalog-discovery-card-copy > span:nth-child(2) { min-width: 0; }
-.catalog-discovery-card-copy strong, .catalog-discovery-card-copy small, .catalog-discovery-card-copy em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catalog-discovery-identity { min-width: 0; }
+.catalog-discovery-card-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Movement and muscles are both classification, so they share one line, and it
+   wraps: a clipped "PECTORALI..." tells the athlete nothing. */
+.catalog-discovery-card-copy small { display: block; }
 .catalog-discovery-card-copy strong { color: #fbf6ed; font-size: .8rem; }
-.catalog-discovery-card-copy small { margin-top: .22rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; }
-.catalog-discovery-card-copy em { margin-top: .32rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-style: normal; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-.catalog-discovery-tier { align-self: start; border: 1px solid rgb(135 184 230 / .5); border-radius: 999px; background: rgb(28 71 111 / .8); padding: .22rem .38rem; color: #d5eaff; font-size: .6875rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
-.catalog-discovery-actions { display: grid; grid-template-columns: 1fr; border-left: 1px solid rgb(137 181 224 / .25); }
+.catalog-discovery-card-copy small { margin: .25rem 0 .45rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.45; }
+.catalog-discovery-marks { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+/* One pill per row, not two. The catalog tag stays -- it is the only place the
+   catalog grade is surfaced -- but as quiet text beside the connection chip
+   rather than a second competing badge on all 400 rows. */
+.catalog-discovery-tier { color: var(--sg-text-faint-on-dark); font-size: .6875rem; font-weight: 700; letter-spacing: .05em; line-height: 1.3; text-transform: uppercase; white-space: nowrap; }
+.catalog-discovery-actions { display: grid; grid-template-columns: 1fr; grid-auto-rows: 1fr; align-content: stretch; border-left: 1px solid rgb(137 181 224 / .25); }
 .catalog-discovery-actions button { display: grid; width: 44px; min-height: 44px; place-items: center; color: var(--sg-text-muted-on-dark); transition: background-color .16s var(--ease-out), color .16s var(--ease-out), transform .16s var(--ease-out); }
 .catalog-discovery-actions button + button { border-top: 1px solid rgb(137 181 224 / .25); }
 .catalog-discovery-actions button:hover { background: rgb(45 108 205 / .2); color: var(--sg-focus-on-dark); }.catalog-discovery-actions button:active { transform: scale(.97); }
@@ -46,7 +57,7 @@
 .catalog-discovery-actions .catalog-favorite-on { background: rgb(228 81 46 / .16); color: #ffb29f; }
 .catalog-discovery-empty { display: grid; justify-items: start; gap: .45rem; border: 1px dashed rgb(151 194 234 / .52); border-radius: 14px; background: rgb(9 38 69 / .75); padding: 1.35rem; color: var(--sg-text-muted-on-dark); }.catalog-discovery-empty strong { color: #f7f2e8; font-size: .78rem; }.catalog-discovery-empty p { max-width: 440px; font-size: .6875rem; line-height: 1.5; }.catalog-discovery-empty button, .catalog-load-more { border: 1px solid #77b3e5; border-radius: 8px; padding: .55rem .7rem; color: #d7edff; font-size: .6875rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }.catalog-load-more { justify-self: center; background: var(--sg-surface-panel); }
 
-.catalog-action-link { display: inline-block; width: fit-content; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; margin-top: .48rem; border: 1px solid rgb(151 194 234 / .45); border-radius: 999px; padding: .2rem .42rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; font-weight: 900; letter-spacing: .045em; line-height: 1.2; text-transform: uppercase; white-space: nowrap; }.catalog-action-link-direct-support { border-color: #e56e4a; background: rgb(228 81 46 / .17); color: #ffc8b8; }.catalog-action-link-supporting-link { border-color: #d4ad4d; background: rgb(242 193 77 / .12); color: #f9dd90; }
+.catalog-action-link { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; border: 1px solid rgb(151 194 234 / .45); border-radius: 999px; padding: .2rem .42rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; font-weight: 900; letter-spacing: .045em; line-height: 1.2; text-transform: uppercase; white-space: nowrap; }.catalog-action-link-direct-support { border-color: #e56e4a; background: rgb(228 81 46 / .17); color: #ffc8b8; }.catalog-action-link-supporting-link { border-color: #d4ad4d; background: rgb(242 193 77 / .12); color: #f9dd90; }
 
 @media (max-width: 640px) { .catalog-discovery { gap: .7rem; border-radius: 18px; padding: .72rem; }.catalog-discovery-heading h1 { font-size: 1.55rem; }.catalog-discovery-search { top: 94px; gap: .45rem; }.catalog-discovery-search span { display: none; }.catalog-discovery-filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }.catalog-discovery-controls label, .catalog-discovery-controls select, .catalog-favorites-filter, .catalog-serratus-filter, .catalog-filter-reset { min-width: 0; width: 100%; }.catalog-discovery-controls select { max-width: none; }.catalog-discovery-list { grid-template-columns: 1fr; }.catalog-discovery-card-copy { min-height: 88px; }.catalog-discovery-card-copy strong { overflow: visible; text-overflow: clip; white-space: normal; line-height: 1.35; }.catalog-discovery-card-copy small, .catalog-discovery-card-copy em { max-width: 100%; }.catalog-discovery-actions button { width: 44px; }.catalog-discovery-tier { font-size: .6875rem; } }
 
