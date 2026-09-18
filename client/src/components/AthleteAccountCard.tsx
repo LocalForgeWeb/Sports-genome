@@ -29,7 +29,7 @@ export function AthleteAccountCard({ identity, pending, optedIn, onOptIn }: {
       ? "Saved to an account on this device. Add an email to reach it from another one."
       : "Saved to your account and reachable from any device you sign in on."
     : identity.reason === "anonymous_sign_ins_disabled"
-      ? "Account sync is turned off for this build. Everything you log is still saved on this device."
+      ? "This project does not allow accounts to be created automatically yet, so your record is saved on this device only. Turning on anonymous sign-ins in Supabase starts the sync; nothing logged before then is lost."
       : identity.reason === "not_configured"
         ? "This build has no account service configured. Everything you log is saved on this device."
         : "Could not reach the account service. Everything you log is saved on this device and will sync when it is back.";
