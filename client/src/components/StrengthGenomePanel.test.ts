@@ -48,7 +48,12 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("match a published study");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
-    expect(source).toContain("Use saved weight");
+    // The body-mass field offers the weight in effect on the lift's own day, from
+    // the dated log — not today's profile value, which was the old prefill and
+    // needed a warning telling the athlete to check it themselves.
+    expect(source).toContain("bodyWeightKgAt(bodyWeightHistory, latestRecord.observedAt)");
+    expect(source).toContain("Filled in from what you weighed that week.");
+    expect(source).toContain("Save this body weight");
     expect(source).toContain("weightUnitLabel(weightUnit)");
     expect(source).toContain("displayWeightToKilograms(parsedLoad, weightUnit)");
     expect(source).toContain("displayWeightToKilograms(parsedBodyMass, weightUnit)");

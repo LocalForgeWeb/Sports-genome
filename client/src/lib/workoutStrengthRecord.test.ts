@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { strengthRegionIdsForExerciseName, workoutStrengthObservations } from "./workoutStrengthRecord";
 import { strengthRegionIdsForCatalogMuscles } from "../../../shared/strengthGenomeDefinitions";
 import type { DeviceWorkoutSession } from "./deviceWorkoutLog";
+import { recordBodyWeight } from "./bodyWeightLog";
 
 const set = (weight: string, reps: string, extra: Partial<{ completed: boolean; skipped: boolean; height: string }> = {}) =>
   ({ weight, reps, height: "", completed: true, skipped: false, ...extra });
@@ -102,5 +103,21 @@ describe("routing a logged exercise to the muscle groups it trains", () => {
   it("maps every muscle the catalog actually uses except the ones with no region of their own", () => {
     expect(strengthRegionIdsForCatalogMuscles(["quads", "glutes"])).toEqual(["glutes", "quadriceps"]);
     expect(strengthRegionIdsForCatalogMuscles(["feet"])).toEqual([]);
+  });
+});
+
+describe("stamping a session with the weight in effect that day", () => {
+  it("uses the weight from the session's own date, not the athlete's current weight", () => {
+    let log = recordBodyWeight([], 200, "lb", "2026-09-01T12:00:00.000Z");
+    log = recordBodyWeight(log, 180, "lb", "2026-09-20T12:00:00.000Z");
+    // The session is on the 15th, between the two weigh-ins.
+    const [observation] = workoutStrengthObservations([session()], "lb", log);
+    expect(observation.bodyMassKgAtTest).toBeCloseTo(90.72, 1);
+  });
+
+  it("leaves body mass unset for a session that predates any weigh-in", () => {
+    const log = recordBodyWeight([], 180, "lb", "2026-12-01T12:00:00.000Z");
+    expect(workoutStrengthObservations([session()], "lb", log)[0].bodyMassKgAtTest).toBeUndefined();
+    expect(workoutStrengthObservations([session()], "lb", [])[0].bodyMassKgAtTest).toBeUndefined();
   });
 });

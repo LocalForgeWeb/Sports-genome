@@ -9,8 +9,12 @@ describe("Strength Genome rank-first presentation", () => {
   it("passes saved baseline weight into Strength Genome and uses it as the initial test context", () => {
     expect(home).toContain("baselineBodyWeight={athleteBaseline.bodyWeight}");
     expect(panel).toContain("baselineBodyWeight?: number");
-    expect(panel).toContain("useState(() => baselineBodyWeight != null ? String(baselineBodyWeight) : \"\")");
-    expect(panel).toContain("Use saved weight");
+    // The profile weight is now a fallback, not the prefill. The body-mass field
+    // offers what the athlete weighed on the lift's own day, read from the dated
+    // weight log, and falls back to the profile only when the log cannot answer.
+    expect(panel).toContain("bodyWeightKgAt(bodyWeightHistory, latestRecord.observedAt)");
+    expect(panel).toContain("weightOnRecordDay ?? (baselineBodyWeight != null ? displayWeightToKilograms(baselineBodyWeight, weightUnit) : undefined)");
+    expect(panel).toContain("Save this body weight");
   });
 
   it("places an exact source-sample rank ahead of the optional manual body-weight entry, and a within-athlete rating ahead of both", () => {

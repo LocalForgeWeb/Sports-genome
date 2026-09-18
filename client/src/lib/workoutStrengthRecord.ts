@@ -1,4 +1,5 @@
 import { displayWeightToKilograms, type DisplayWeightUnit } from "@/lib/weightUnits";
+import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { resolveStrengthObservationRoute, strengthRegionIdsForCatalogMuscles } from "../../../shared/strengthGenomeDefinitions";
@@ -30,6 +31,11 @@ export type WorkoutStrengthObservation = {
   sessionId: string;
   /** How many sets of this exercise the session recorded, of which this is the heaviest. */
   setCount: number;
+  /**
+   * The athlete's body mass on the day of this session, stamped here so a later
+   * weight change cannot rewrite what this lift was measured against.
+   */
+  bodyMassKgAtTest?: number;
   source: "workout";
 };
 
@@ -67,10 +73,13 @@ function numeric(value: string | undefined) {
 export function workoutStrengthObservations(
   sessions: readonly DeviceWorkoutSession[],
   weightUnit: DisplayWeightUnit = "lb",
+  bodyWeightLog: readonly BodyWeightEntry[] = [],
 ): WorkoutStrengthObservation[] {
   const observations: WorkoutStrengthObservation[] = [];
   sessions.filter((session) => session.status === "completed").forEach((session) => {
     const observedAt = session.completedAt || session.startedAt;
+    // Read once per session, at the session's own date — not at today's.
+    const bodyMassKgAtTest = bodyWeightKgAt(bodyWeightLog, observedAt);
     session.exercises.forEach((exercise) => {
       const logged = exercise.sets
         .filter((set) => set.completed && !set.skipped)
@@ -93,6 +102,7 @@ export function workoutStrengthObservations(
         sessionLabel: session.dayLabel || session.title,
         sessionId: session.id,
         setCount: logged.length,
+        bodyMassKgAtTest,
         source: "workout",
       });
     });
