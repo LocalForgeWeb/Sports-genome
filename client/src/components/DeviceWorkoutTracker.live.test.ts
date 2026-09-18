@@ -153,6 +153,119 @@ describe("carried-forward entry", () => {
   });
 });
 
+describe("clearing a carried-forward entry", () => {
+  const entry = () => within(document.querySelector(".live-set-entry") as HTMLElement);
+  const weight = () => entry().getByLabelText(/weight/i) as HTMLInputElement;
+
+  function logFirstSetAt(load: string, reps: string) {
+    startWorkout();
+    fireEvent.change(weight(), { target: { value: load } });
+    fireEvent.change(entry().getByLabelText(/reps/i), { target: { value: reps } });
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+  }
+
+  // Reported from the gym: "it's not letting me delete the pounds so I can
+  // enter the weight of the new exercise, it keeps going back to 135".
+  // The carry was applied as `stored || carried`, so clearing the box wrote ""
+  // to the set, "" is falsy, and the carry fell straight back in. There was no
+  // state in which the field could be empty while a carry existed.
+  it("stays empty when the athlete clears it", () => {
+    logFirstSetAt("135", "15");
+    expect(weight().value).toBe("135");
+
+    fireEvent.change(weight(), { target: { value: "" } });
+    expect(weight().value).toBe("");
+  });
+
+  it("accepts a new value typed after clearing", () => {
+    logFirstSetAt("135", "15");
+    fireEvent.change(weight(), { target: { value: "" } });
+    fireEvent.change(weight(), { target: { value: "95" } });
+    expect(weight().value).toBe("95");
+  });
+
+  it("survives deleting one digit at a time down to nothing", () => {
+    logFirstSetAt("135", "15");
+    ["13", "1", ""].forEach((step) => {
+      fireEvent.change(weight(), { target: { value: step } });
+      expect(weight().value, `clearing through "${step}"`).toBe(step);
+    });
+  });
+
+  it("logs the emptied field as empty, not as the carried value", () => {
+    logFirstSetAt("135", "15");
+    fireEvent.change(weight(), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: /log set 2/i }));
+
+    const stored = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!);
+    expect(stored[0].exercises[0].sets[1]).toMatchObject({ weight: "", reps: "15", completed: true });
+  });
+
+  it("still logs the carry when the athlete never touches the field", () => {
+    logFirstSetAt("135", "15");
+    fireEvent.click(screen.getByRole("button", { name: /log set 2/i }));
+
+    const stored = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!);
+    expect(stored[0].exercises[0].sets[1]).toMatchObject({ weight: "135", reps: "15", completed: true });
+  });
+
+  it("does not leave the next set stuck on the cleared state", () => {
+    // The touched marker is per field per set, so set 3 starts untouched and
+    // takes the carry from set 2 rather than inheriting set 2's edited state.
+    logFirstSetAt("135", "15");
+    fireEvent.change(weight(), { target: { value: "" } });
+    fireEvent.change(weight(), { target: { value: "95" } });
+    fireEvent.click(screen.getByRole("button", { name: /log set 2/i }));
+    expect(weight().value).toBe("95");
+  });
+
+  it("carries an emptied weight forward, because that is what was confirmed", () => {
+    // Logging set 2 with no weight means the set was done unloaded, so set 3
+    // offers no weight. The carry follows the last confirmed set, not the last
+    // non-empty number someone typed.
+    logFirstSetAt("135", "15");
+    fireEvent.change(weight(), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: /log set 2/i }));
+    expect(weight().value).toBe("");
+    expect((entry().getByLabelText(/reps/i) as HTMLInputElement).value).toBe("15");
+  });
+});
+
+describe("half-typed numeric entry", () => {
+  const entry = () => within(document.querySelector(".live-set-entry") as HTMLElement);
+  const weight = () => entry().getByLabelText(/weight/i) as HTMLInputElement;
+
+  // A controlled type="number" reports value="" for anything not yet a valid
+  // number, so "2." — on the way to 2.5 — came back empty and the next render
+  // wiped the keystroke. These are text inputs with a decimal keypad instead.
+  it("keeps a trailing decimal point while the number is still being typed", () => {
+    startWorkout();
+    fireEvent.change(weight(), { target: { value: "2" } });
+    fireEvent.change(weight(), { target: { value: "2." } });
+    expect(weight().value).toBe("2.");
+    fireEvent.change(weight(), { target: { value: "2.5" } });
+    expect(weight().value).toBe("2.5");
+  });
+
+  it("filters anything that is not a number out of the field", () => {
+    startWorkout();
+    fireEvent.change(weight(), { target: { value: "abc12x.3.9def" } });
+    expect(weight().value).toBe("12.39");
+  });
+
+  it("keeps reps whole", () => {
+    startWorkout();
+    fireEvent.change(entry().getByLabelText(/reps/i), { target: { value: "1o.5" } });
+    expect((entry().getByLabelText(/reps/i) as HTMLInputElement).value).toBe("15");
+  });
+
+  it("uses a decimal keypad without the number spinner", () => {
+    startWorkout();
+    expect(weight().getAttribute("type")).toBe("text");
+    expect(weight().getAttribute("inputMode")).toBe("decimal");
+  });
+});
+
 describe("active workout continuity contract", () => {
   // "Every consequential athlete action ... must checkpoint on-device before
   // the UI treats it as safely saved."

@@ -59,6 +59,20 @@ function makeSession(workout: Exercise[], prescriptions: Record<number, string>,
   };
 }
 
+/**
+ * These are text inputs, not type="number", so the athlete keeps what they
+ * typed. A controlled type="number" reports value="" for anything not yet a
+ * valid number — "2." while reaching for 2.5 — which wipes the keystroke on the
+ * next render. Filtering the characters ourselves keeps the decimal keypad and
+ * the half-typed value.
+ */
+function sanitiseEntry(field: "weight" | "reps", value: string) {
+  if (field === "reps") return value.replace(/[^0-9]/g, "").slice(0, 4);
+  const digitsAndDot = value.replace(/[^0-9.]/g, "");
+  const [whole, ...rest] = digitsAndDot.split(".");
+  return (rest.length ? `${whole}.${rest.join("").slice(0, 2)}` : whole).slice(0, 7);
+}
+
 function clockFor(seconds: number) {
   const safe = Math.max(0, Math.round(seconds));
   return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, "0")}`;
@@ -70,6 +84,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
   const [resumed, setResumed] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const [history, setHistory] = useState<DeviceWorkoutSession[]>([]);
+  /**
+   * Which entry fields the athlete has typed in. A carried-forward value is an
+   * input default, so it may only fill a field the athlete has not touched:
+   * without this, clearing the box wrote "" to the set, "" is falsy, and the
+   * carry fell straight back in — the field could never be emptied at all.
+   */
+  const [touchedEntries, setTouchedEntries] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const stored = loadDeviceWorkoutSessions();
@@ -89,6 +110,28 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
     () => (activeSession && position ? carriedEntryFor(activeSession.exercises[position.exerciseIndex], position.setIndex, history) : null),
     [activeSession, position, history],
   );
+
+  /**
+   * What the entry fields actually show — and therefore exactly what gets
+   * recorded when the set is logged. An untouched field offers the carry; a
+   * touched one is the athlete's, empty included.
+   */
+  const entryKey = (field: "weight" | "reps") =>
+    activeSession && position ? `${activeSession.exercises[position.exerciseIndex].id}:${position.setIndex}:${field}` : "";
+  const shownEntry = (field: "weight" | "reps") => {
+    if (!activeSession || !position) return "";
+    const set = activeSession.exercises[position.exerciseIndex].sets[position.setIndex];
+    if (touchedEntries[entryKey(field)]) return set[field];
+    return set[field] || carried?.[field] || "";
+  };
+  const shownWeight = shownEntry("weight");
+  const shownReps = shownEntry("reps");
+
+  const editEntry = (field: "weight" | "reps", value: string) => {
+    if (!activeSession || !position) return;
+    setTouchedEntries((current) => ({ ...current, [entryKey(field)]: true }));
+    updateSet(activeSession.exercises[position.exerciseIndex].id, position.setIndex, { [field]: sanitiseEntry(field, value) });
+  };
 
   const restEndsAt = activeSession?.restEndsAt ? Date.parse(activeSession.restEndsAt) : null;
   const restRemaining = restEndsAt ? Math.max(0, Math.round((restEndsAt - now) / 1000)) : 0;
@@ -157,8 +200,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
       exercises: activeSession.exercises.map((item, exerciseIndex) => exerciseIndex !== position.exerciseIndex
         ? item
         : { ...item, sets: item.sets.map((set, setIndex) => setIndex !== position.setIndex ? set : {
-            weight: set.weight || carried?.weight || "",
-            reps: set.reps || carried?.reps || "",
+            // What you see in the box is what gets logged, including a field
+            // the athlete deliberately emptied.
+            weight: shownWeight,
+            reps: shownReps,
             completed: true,
           }) }),
     });
@@ -241,14 +286,14 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
       <div className="live-set-entry">
         <label>
           <span>Weight</span>
-          <input value={activeSet.weight || carried?.weight || ""} inputMode="decimal" type="number" min="0" step="0.5"
-            onChange={(event) => updateSet(activeExercise.id, position.setIndex, { weight: event.target.value })} placeholder="—" />
+          <input value={shownWeight} inputMode="decimal" type="text" autoComplete="off" enterKeyHint="done"
+            onChange={(event) => editEntry("weight", event.target.value)} placeholder="—" />
           <em>lb</em>
         </label>
         <label>
           <span>Reps</span>
-          <input value={activeSet.reps || carried?.reps || ""} inputMode="numeric" type="number" min="0" step="1"
-            onChange={(event) => updateSet(activeExercise.id, position.setIndex, { reps: event.target.value })} placeholder="—" />
+          <input value={shownReps} inputMode="numeric" type="text" autoComplete="off" enterKeyHint="done"
+            onChange={(event) => editEntry("reps", event.target.value)} placeholder="—" />
         </label>
       </div>
       <button type="button" className="live-set-commit" onClick={completeActiveSet}>
@@ -290,12 +335,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
           <strong>Set {setIndex + 1}{isDraftSet(set) ? " · typed, not logged" : ""}</strong>
           <label>
             <span>Weight</span>
-            <input value={set.weight} inputMode="decimal" type="number" min="0" step="0.5" onChange={(event) => updateSet(exercise.id, setIndex, { weight: event.target.value })} placeholder="—" />
+            <input value={set.weight} inputMode="decimal" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { weight: sanitiseEntry("weight", event.target.value) })} placeholder="—" />
             <em>lb</em>
           </label>
           <label>
             <span>Reps</span>
-            <input value={set.reps} inputMode="numeric" type="number" min="0" step="1" onChange={(event) => updateSet(exercise.id, setIndex, { reps: event.target.value })} placeholder="—" />
+            <input value={set.reps} inputMode="numeric" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { reps: sanitiseEntry("reps", event.target.value) })} placeholder="—" />
           </label>
           <button onClick={() => updateSet(exercise.id, setIndex, { completed: !set.completed })} aria-pressed={set.completed}>
             {set.completed ? <Undo2 className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
