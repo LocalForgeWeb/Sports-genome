@@ -21,6 +21,14 @@ describe("the session draft is part of the page, not a layer over it", () => {
     expect(styles).not.toContain(".apex-shell:has(.planner-float)");
   });
 
+  it("ships no styles for the dock it removed", () => {
+    // Rules for markup nothing renders are dead weight in every athlete's download, and
+    // they read as if the feature is still there.
+    for (const dead of ["planner-float", "planner-tab", "planner-panel-head", "planner-icon-button", "planner-collapse-link", "split-draft-dock", "split-draft-controls", "split-chip", "loadout-chip", "split-cycle-label"]) {
+      expect(styles, `${dead} should not survive the dock`).not.toContain(dead);
+    }
+  });
+
   it("draws the draft panel in normal flow, so nothing can sit on top of anything", () => {
     expect(draftStyles).toContain(".session-draft-panel { display: grid;");
     expect(draftStyles).not.toMatch(/\.session-draft-panel \{[^}]*position: (fixed|absolute)/);
