@@ -1,0 +1,41 @@
+/**
+ * The browsing banner.
+ *
+ * Informational, not a warning: reading another sport is a normal thing to do,
+ * so this uses the info blue rather than the caution or critical colours. It
+ * carries the state in words as well as colour, per the app's rule that a
+ * consequential state never rests on hue alone.
+ */
+.sport-browse-notice {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem;
+  border: 1px solid var(--sg-control-border-on-dark);
+  border-left: 3px solid var(--sg-link-on-dark);
+  border-radius: .75rem;
+  background: rgb(127 180 246 / .1);
+  padding: .7rem .9rem;
+}
+.sport-browse-notice-state { display: flex; align-items: center; gap: .6rem; min-width: 0; margin: 0; }
+.sport-browse-notice-state > svg { flex: 0 0 auto; color: var(--sg-link-on-dark); }
+.sport-browse-notice-state > span { display: grid; gap: .12rem; min-width: 0; }
+.sport-browse-notice-state strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 800; }
+.sport-browse-notice-state small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.4; }
+.sport-browse-notice-actions { display: flex; flex-wrap: wrap; gap: .45rem; }
+.sport-browse-notice-actions button {
+  display: inline-flex; align-items: center; gap: .3rem;
+  border: 1px solid var(--sg-control-border-on-dark); border-radius: .5rem;
+  padding: .42rem .6rem;
+  font-size: var(--sg-text-2xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
+  white-space: nowrap;
+  transition: border-color var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
+}
+.sport-browse-notice-return { background: transparent; color: var(--sg-text-muted-on-dark); }
+.sport-browse-notice-return:hover { border-color: var(--sg-link-on-dark); color: var(--sg-text-on-dark); }
+/* Adopting clears saved days, so it is the deliberate one: it never looks like
+   the easier tap of the two. */
+.sport-browse-notice-adopt { background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
+.sport-browse-notice-adopt:hover { border-color: var(--sg-focus-on-dark); }
+.sport-browse-notice :is(button):focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .sport-browse-notice { align-items: stretch; flex-direction: column; }
+  .sport-browse-notice-actions button { flex: 1; justify-content: center; min-height: 44px; }
+}
