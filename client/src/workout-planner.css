@@ -18,7 +18,10 @@
 @media (max-width: 640px) { .custom-detail-row { padding-left: 1rem; }.custom-detail-row details { margin-left: 0; flex-basis: 100%; } }
 
 .movement-summary-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin: 1rem 0; }.movement-summary-strip > div { min-width: 0; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: .7rem; }.movement-summary-strip span { display: block; color: var(--sg-text-subtle-on-light); font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.movement-summary-strip strong { display: block; margin-top: .3rem; overflow-wrap: anywhere; color: #173452; font-size: .78rem; line-height: 1.42; }.movement-disclosure { margin-top: .75rem; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); }.movement-disclosure summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; padding: .85rem .95rem; color: #244a70; font-size: .76rem; font-weight: 800; line-height: 1.35; }.movement-disclosure summary::-webkit-details-marker { display: none; }.movement-disclosure[open] summary { border-bottom: 1px solid var(--sg-divider-on-light); }.movement-disclosure[open] summary svg { flex: 0 0 auto; transform: rotate(180deg); }.movement-disclosure .movement-joint-grid, .movement-disclosure .movement-role-grid, .movement-disclosure .redundancy-panel, .movement-disclosure .movement-caution, .movement-disclosure .movement-sources { margin: .9rem; }.movement-show-more { display: flex; align-items: center; justify-content: center; gap: .4rem; width: 100%; margin-top: .5rem; padding: .7rem; color: var(--sg-info-strong); font-size: .7rem; font-weight: 800; }.movement-show-more:hover { background: var(--sg-surface-light-sunken); }.movement-show-more svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
-@media (max-width: 640px) { .movement-summary-strip { grid-template-columns: 1fr; }.movement-summary-strip > div { display: flex; gap: .55rem; align-items: baseline; }.movement-summary-strip span { flex: 0 0 92px; }.movement-summary-strip strong { margin: 0; white-space: normal; } }
+/* Stacked, not a 92px label column: "Best-supported qualities" does not fit in
+   92px and broke across three lines beside a one-line value, so every row in
+   the strip came out a different height and none of them lined up. */
+@media (max-width: 640px) { .movement-summary-strip { grid-template-columns: 1fr; }.movement-summary-strip > div { display: grid; gap: .2rem; }.movement-summary-strip span { flex: none; }.movement-summary-strip strong { margin: 0; white-space: normal; } }
 
 /* Weekly volume and import-confidence review: direct work stays distinct from supporting exposure. */
 .weekly-volume-panel { overflow: hidden; border: 1px solid #c7dcec; background: var(--sg-surface-light); color: #14395f; box-shadow: 0 14px 30px rgb(29 72 118 / .06); }.weekly-volume-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); background: linear-gradient(115deg, var(--sg-surface-light-sunken), var(--sg-surface-light)); }.weekly-volume-head h3 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.75rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.weekly-volume-head p:last-child { max-width: 450px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.45; }.weekly-volume-head > div:last-child { display: grid; grid-template-columns: auto auto; gap: .1rem .35rem; align-items: center; max-width: 124px; color: var(--sg-info-strong); }.weekly-volume-head > div:last-child svg { grid-row: span 2; }.weekly-volume-head > div:last-child strong { font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; line-height: .9; }.weekly-volume-head > div:last-child small { color: var(--sg-text-subtle-on-light); font-size: .6875rem; font-weight: 800; letter-spacing: .06em; line-height: 1.15; text-transform: uppercase; }.weekly-volume-legend { display: flex; flex-wrap: wrap; gap: .7rem; padding: .65rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); color: var(--sg-text-subtle-on-light); font-size: .6875rem; font-weight: 700; }.weekly-volume-legend span { display: inline-flex; gap: .3rem; align-items: center; }.weekly-volume-legend i { width: 8px; height: 8px; }.weekly-volume-direct { background: var(--sg-action-fill); }.weekly-volume-support { background: #7caee0; }.weekly-volume-list { display: grid; gap: .8rem; padding: 1rem 1.15rem; }.weekly-volume-list article { min-width: 0; }.weekly-volume-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: .55rem; align-items: center; }.weekly-volume-row strong { display: block; color: #173a60; font-size: .74rem; }.weekly-volume-row small { display: block; margin-top: .14rem; color: #718aa1; font-size: .6875rem; }.weekly-volume-row > b { color: #14395f; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.25rem; }.weekly-volume-status { border: 1px solid; padding: .17rem .28rem; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }.weekly-volume-status-empty { color: #7b8792; border-color: var(--sg-divider-on-light); }.weekly-volume-status-building { color: #2c6ea7; border-color: #a8c8e5; background: var(--sg-surface-light-sunken); }.weekly-volume-status-established { color: #8a6514; border-color: #e2c673; background: #fff9e7; }.weekly-volume-status-high { color: #bf4a31; border-color: #edaa97; background: #fff1ed; }.weekly-volume-track { position: relative; height: 6px; margin-top: .42rem; overflow: hidden; background: var(--sg-surface-light-sunken); }.weekly-volume-track i { position: absolute; inset: 0 auto 0 0; display: block; }.weekly-volume-bar-support { background: #8fc0ec; }.weekly-volume-bar-direct { z-index: 1; background: var(--sg-action-fill); }.weekly-volume-days { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }.weekly-volume-days span { border-left: 1px solid #c9d9e8; padding-left: .35rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; }.weekly-volume-days b { color: var(--sg-info-strong); }.weekly-volume-empty { display: flex; gap: .5rem; align-items: center; padding: 1.25rem; color: var(--sg-text-subtle-on-light); font-size: .7rem; }.weekly-volume-details { border-top: 1px solid var(--sg-divider-on-light); }.weekly-volume-details summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; padding: .8rem 1.15rem; color: #2b67a0; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }.weekly-volume-details summary::-webkit-details-marker { display: none; }.weekly-volume-details[open] summary svg { transform: rotate(180deg); }.weekly-volume-details p { border-top: 1px solid var(--sg-divider-on-light); padding: .8rem 1.15rem 1rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.5; }
@@ -137,7 +140,7 @@
   .day-programming-head { align-items: center; padding: .85rem .9rem; }
   .day-programming-head h3 { font-size: 1.6rem; }
   .day-programming-head p:last-child { display: none; }
-  .day-programming-head > button { min-height: 40px; padding: .5rem .6rem; }
+  .day-programming-head > button { min-height: 40px; }
   .workout-health-disclosure > summary { min-height: 56px; padding: .75rem .9rem; }
   .workout-health-disclosure h3 { font-size: 1.35rem; }
   .workout-health-disclosure > summary .metric-label { display: none; }
@@ -559,3 +562,26 @@
 /* Nowrap is what makes the row wrap: it gives the chip an honest minimum width,
    so the flex line breaks instead of the words inside it. */
 .health-signal { white-space: nowrap; }
+
+/**
+ * Two more control labels that were wrapping inside their own button.
+ *
+ * "Save day" in the Builder's weekly map sat in an 80px button and broke across
+ * two lines; the Training Day copy of the same control had the same problem and
+ * is fixed above. "How it works" on Progress broke across two lines in a 75px
+ * slot beside a heading. In both cases the heading next to the control is the
+ * thing that should give up width - it already wraps by design.
+ */
+@media (max-width: 640px) {
+  .weekly-plan-head > button { flex: 0 0 auto; padding: .5rem .7rem; white-space: nowrap; }
+  .weekly-plan-head > div:first-child { min-width: 0; }
+}
+
+
+/* A button label wraps at no width.
+ *
+ * "Save day" was breaking across two lines inside its own button - at 390px and
+ * again at 1440px, where the panel sits in a narrow grid column. The heading
+ * beside it is what gives up the space; it already wraps by design. */
+.day-programming-head > button { flex: 0 0 auto; padding: .5rem .7rem; white-space: nowrap; }
+.day-programming-head > div:first-child { min-width: 0; }

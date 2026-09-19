@@ -56,3 +56,14 @@
 
 @media (min-width: 760px) { .movement-joint-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }.movement-role-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }.movement-coverage-conclusion { grid-template-columns: 1.12fr 1fr 1fr; align-items: start; } }
 @media (max-width: 720px) { .movement-intelligence-head { padding: 1rem; }.confidence-badge { font-size: .6875rem; }.movement-joint-grid, .movement-coverage-head, .movement-role-grid, .movement-coverage-conclusion { padding-left: 1rem; padding-right: 1rem; }.movement-intelligence-compact .movement-role-grid { grid-template-columns: 1fr; }.redundancy-panel, .movement-caution { margin-left: 1rem; margin-right: 1rem; }.movement-assistance-list { padding-left: 1rem; padding-right: 1rem; }.movement-section-heading, .movement-sources { padding-left: 1rem; padding-right: 1rem; }.movement-assistance-row { grid-template-columns: 26px minmax(0, 1fr) 44px; gap: .55rem; padding: .7rem; }.movement-assistance-index { width: 26px; height: 26px; }.movement-assistance-add { width: 44px; height: 44px; } }
+
+/**
+ * The confidence badge, which was capped at 7.5rem and so always wrapped.
+ *
+ * "Moderate confidence" needs about 150px; the cap gave it 120, so the badge
+ * rendered as two lines of text in a box sized for one. Its header already
+ * wraps, so the badge takes the width it needs and moves to its own line when
+ * there isn't room, rather than breaking its own label.
+ */
+.confidence-badge { max-width: none; white-space: nowrap; }
+.movement-intelligence-head { flex-wrap: wrap; }
