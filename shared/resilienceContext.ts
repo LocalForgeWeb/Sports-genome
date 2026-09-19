@@ -133,3 +133,86 @@ export function selectPlanAction(input: CoverageInput): PlanActionKind {
 export function constraintFromFocusArea(): never {
   throw new Error("CONSTRAINT_MUST_BE_REPORTED_NOT_INFERRED");
 }
+
+/* ------------------------------------------------------------------------ *
+ * Selectable targets and the athlete's own selections.
+ * ------------------------------------------------------------------------ */
+
+export type ResilienceTargetType = "body_region" | "functional_task" | "movement_pattern" | "tissue_system";
+
+export type ResilienceTargetCatalogEntry = {
+  targetId: string;
+  targetKey: string;
+  name: string;
+  region: string;
+  targetType: ResilienceTargetType;
+  lateralitySupported: boolean;
+  /** Empty means no reviewed route covers this target yet, which is the insufficiency signal. */
+  supportedRoutes: EvidenceRoute[];
+};
+
+export type ResilienceTargetCatalog = {
+  status: "connected" | "unavailable";
+  targets: ResilienceTargetCatalogEntry[];
+  boundary: string;
+};
+
+export type AthleteFocusSelection = {
+  targetKey: string;
+  intent: FocusIntent;
+  laterality: Laterality;
+};
+
+export type AthleteConstraintSelection = {
+  targetKey: string;
+  constraintType: ConstraintType;
+  laterality: Laterality;
+  /** What the athlete says a clinician told them. Stored as their report, never as our finding. */
+  clinicianRestriction?: string;
+};
+
+/** Reported states that stop automated progression. Not a diagnosis, and not a severity score. */
+export type HighConsequenceSignal =
+  | "severe_or_worsening"
+  | "neurological_or_systemic"
+  | "postoperative"
+  | "clinician_restricted";
+
+export const highConsequenceSignals: { value: HighConsequenceSignal; label: string }[] = [
+  { value: "severe_or_worsening", label: "It is severe, or getting worse quickly" },
+  { value: "neurological_or_systemic", label: "There is numbness, weakness, or I feel unwell with it" },
+  { value: "postoperative", label: "I have had surgery there recently" },
+  { value: "clinician_restricted", label: "A clinician has told me to limit something" },
+];
+
+/**
+ * Screening stays proportional: a proactive target with nothing reported asks nothing further,
+ * and only a reported high-consequence signal withholds. A constraint on its own qualifies the
+ * plan; it does not escalate. Nothing here infers a condition from the answers.
+ */
+export function resolveConstraintPosture(
+  constraintType: ConstraintType,
+  reportedSignals: HighConsequenceSignal[] = []
+): ActionPosture {
+  if (reportedSignals.length > 0) return "withhold";
+  if (constraintType === "clinician_restricted") return "withhold";
+  if (constraintType === "proactive_none") return "ordinary_action";
+  return "qualified_action";
+}
+
+/** A target the athlete can act on only once a reviewed route exists for it. */
+export function targetHasReviewedRoute(entry: ResilienceTargetCatalogEntry): boolean {
+  return entry.supportedRoutes.length > 0;
+}
+
+/**
+ * Which routes this athlete could actually use. A sport_specific route is unusable outside
+ * sport mode, so a target whose only route is sport-specific reads as uncovered for a
+ * general-mode athlete rather than appearing available and then failing.
+ */
+export function applicableRoutesForContext(
+  entry: ResilienceTargetCatalogEntry,
+  context: SportContext
+): EvidenceRoute[] {
+  return entry.supportedRoutes.filter(route => route !== "sport_specific" || context.mode === "sport");
+}

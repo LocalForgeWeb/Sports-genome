@@ -214,3 +214,34 @@ weak-point action choice (training target vs measurement vs edit vs watchful wai
 dimension ranking when importance, gap, confidence and trainability disagree; Body Lab selection vs
 confidence cue ownership; redundant-cue combinations in dense anatomy; real-user CVD validation; and
 stable region identity across anatomical granularities.
+
+---
+
+## 14. Implementation trace — sport-optional onboarding
+
+Checklist item `build_sport_optional_onboarding`. Where each contract rule now lives.
+
+| Contract rule | Implementation |
+| --- | --- |
+| Three real modes (§2) | `contextModes` in `AthleteBaselineQuiz.tsx`; `SportContextMode` shared type |
+| Sport asked only in sport mode | `quizStepIds()` omits the `sport` and `sport-modifier` steps outside sport mode |
+| Completion never blocked on a sport | The mode step continues on any of the three answers; `sportId` submits as `""` |
+| No synthetic sport | Leaving sport mode clears `sportId`; no sport record is ever added |
+| Two-stage capture (§3) | `focus` step, then `focus-state` — the second appears only once a target is chosen |
+| Constraint never inferred | `constraint` is submitted only alongside a chosen focus area; default `proactive_none` |
+| Proportional screening (§7) | High-consequence signals are asked only when the state is not `proactive_none` |
+| Withhold posture | `resolveConstraintPosture` → the escalation notice, which names no condition |
+| Insufficiency state (§5.1) | A target with `supportedRoutes: []` is selectable and says what is missing |
+| Error / unavailable state | An unavailable catalog renders its boundary; onboarding continues unaffected |
+| Sport-derived output gated | `hasSportContext` in `Home.tsx`; `SportContextGate` replaces the Atlas and sport recommendations |
+| Edit later | `chooseSport` anywhere sets sport mode; About Me and the topbar selector still change it |
+
+**What this removed.** `Home.tsx` previously resolved `sportProfiles.find(...) || sportProfiles[0]`
+and presented that first sport as the athlete's own — in the topbar chips, the hero headline, and
+as the seed for every smart draft. The fallback expression remains as the machinery's default, but
+nothing presents or derives from it while `hasSportContext` is false.
+
+**Still to come**, under `implement_vertical_slice` and `integrate_stack_and_program_builder`:
+focus areas and constraints are captured and carried through onboarding, but are not yet persisted
+to `athlete_focus_areas` / `athlete_training_constraints`, and Body Lab, Progress and the day
+planner have not yet been walked for sport claims.

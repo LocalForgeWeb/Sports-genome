@@ -36,6 +36,7 @@ import {
   getSupabaseResearchLibrary,
 } from "./supabaseEvidence";
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
+import { getResilienceTargetCatalog } from "./supabaseResilience";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
 import { getPublicNormsReference } from "./normsRegistry";
@@ -406,6 +407,15 @@ export const appRouter = router({
     profile: publicProcedure
       .input(z.object({ sportId: z.string().trim().min(1).max(80) }))
       .query(({ input }) => getSupabaseSportProfile(input.sportId)),
+  }),
+
+  /**
+   * Selectable capacity/function targets. Read-only and sport-independent: a general-mode
+   * athlete gets the same catalog, and a target's `supportedRoutes` says what evidence
+   * actually covers it rather than implying every target is actionable.
+   */
+  resilience: router({
+    targetCatalog: publicProcedure.query(() => getResilienceTargetCatalog()),
   }),
 
   /**

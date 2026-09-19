@@ -173,7 +173,10 @@ describe("workspace side navigation", () => {
   it("uses compact, individually truncatable sport, goal, and weekly-plan context chips in the workspace header", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('className="topbar-context-chips"');
-    expect(source).toContain('Current planning context: ${selectedSport.label}, ${goal}, ${trainingDays} training days');
+    // The chip reads the resolved context label, so a general or undecided athlete is not
+    // told they have a sport they never chose.
+    expect(source).toContain('Current planning context: ${sportDisplayLabel}, ${goal}, ${trainingDays} training days');
+    expect(source).not.toContain('Current planning context: ${selectedSport.label}');
     expect(source).not.toContain('selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal}');
     expect(css).toContain('.topbar-context-chips span { max-width: 12rem; overflow: hidden;');
     // The strip is bounded by its own column, not by the viewport: a
@@ -245,7 +248,9 @@ describe("workspace side navigation", () => {
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('workspace === "profile" && <AthleteAboutMePanel');
     expect(aboutMeSource).toContain("Available equipment");
-    expect(source).toContain('workspace === "movement" && <MovementAtlasPanel');
+    // The Atlas renders only with a sport; without one the gate takes its place.
+    expect(source).toContain('workspace === "movement" && hasSportContext && <MovementAtlasPanel');
+    expect(source).toContain('workspace === "movement" && !hasSportContext && <SportContextGate');
     expect(source).toContain('workspace === "body" && <section className="body-lab-v2');
     expect(source).toContain('<CatalogExerciseEvidenceCard exercise={inspectedExercise} />');
     expect(anatomySource).toContain("View methodology");
