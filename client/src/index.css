@@ -2428,3 +2428,14 @@ details:not([open]) > *:not(summary) {
 @media (min-width: 1024px) {
   .view-header > div:first-child { max-width: 820px; }
 }
+
+/**
+ * Which build this device is running.
+ *
+ * Quiet by design - nobody needs it until an update appears not to have landed,
+ * and then it is the only thing that answers the question. Every past Vercel
+ * deployment keeps its own permanent URL, so a home-screen icon saved from one
+ * is pinned to that build for good; this is how that becomes visible instead of
+ * looking like a deploy that never happened.
+ */
+.more-workspace-build { margin-top: 1.25rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-variant-numeric: tabular-nums; letter-spacing: .04em; }

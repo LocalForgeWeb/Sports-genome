@@ -4,6 +4,14 @@ import path from "node:path";
 import { defineConfig } from "vite";
 import { analyticsScriptPlugin } from "./client/vite/analyticsScript";
 import { preloadWorkspaceChunkPlugin } from "./client/vite/preloadWorkspaceChunk";
+import { execSync } from "node:child_process";
+
+/** The commit this bundle was built from, and when. */
+function buildStamp() {
+  const sha = process.env.VERCEL_GIT_COMMIT_SHA
+    || (() => { try { return execSync("git rev-parse HEAD", { encoding: "utf8" }).trim(); } catch { return "unknown"; } })();
+  return { commit: sha.slice(0, 7), builtAt: new Date().toISOString() };
+}
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), analyticsScriptPlugin(), preloadWorkspaceChunkPlugin()],
@@ -13,6 +21,22 @@ export default defineConfig({
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
+  },
+  /**
+   * Stamp the build into the bundle.
+   *
+   * "I am not seeing my changes" has no answer from the outside: the deployment
+   * is current, the bundle is byte-identical to the build, and the only place
+   * the question can actually be settled is the device in front of you. Vercel
+   * keeps every past deployment at its own permanent URL, so a bookmark or a
+   * home-screen icon saved from one of those never updates however many times
+   * the alias moves - and nothing on screen says which build you are looking at.
+   *
+   * VERCEL_GIT_COMMIT_SHA is set during a Vercel build; a local build falls back
+   * to the working tree's own commit.
+   */
+  define: {
+    __SG_BUILD__: JSON.stringify(buildStamp()),
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
