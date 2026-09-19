@@ -2454,6 +2454,17 @@ details:not([open]) > *:not(summary) {
 /* Asks for the one field that would produce a rank. */
 .strength-rank-needs { margin-top: .75rem; border-left: 2px solid var(--sg-link-on-dark); padding-left: .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.5; }
 
+/* Body Lab's one next step. The footer used to be three cells — the action
+   (which the bar above already names), the "selected" muscle (which the map
+   already shows, and which was claimed even when nothing had been tapped), and
+   the button. Now it is the sentence and the button. */
+.body-lab-next-step { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem 1rem; border: 1px solid var(--sg-divider-on-light); background: #fff; padding: .8rem 1rem; color: var(--sg-text-on-light); }
+.body-lab-next-step > span { min-width: 0; flex: 1 1 14rem; font-size: .8125rem; font-weight: 600; line-height: 1.4; }
+.body-lab-next-step > button { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .45rem; background: var(--sg-surface-raised); padding: 0 .9rem; color: #fff; font-size: .6875rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.body-lab-next-step > button:hover { background: var(--sg-action-fill); }
+.destination-body .body-lab-next-step { border-color: var(--sg-control-border-on-dark); background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); }
+.destination-body .body-lab-next-step > button { border: 1px solid var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); }
+@media (max-width: 560px) { .body-lab-next-step > button { flex: 1 0 100%; justify-content: center; } }
 /* Tapping a muscle used to scroll the page roughly 700px to reach a record that
    renders after the figure - so the muscle the athlete had just tapped was
    pushed off the top of the screen, and the page settled on a stranded sliver of

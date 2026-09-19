@@ -1,14 +1,13 @@
-import { useMemo, useState, useCallback } from "react";
-import { LocalSearchScope } from "@/components/LocalSearchScope";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
 import { roleMapForLists, sourceValuesForRegion, viewsForRegion, regionPartName, regionParts, partFromPathId, type AnatomyRole } from "@/lib/anatomyRegions";
 import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
-import { ChevronDown, ChevronRight, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
 
-type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; showInspector?: boolean };
+type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; /** A selection made elsewhere in the app, which the figure should show. */ selectedKey?: string | null; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; showInspector?: boolean };
 type Role = "Primary" | "Synergist" | "Stabilizer";
 
 // Categorical role states, never a magnitude. The Body Lab contract keeps
@@ -34,8 +33,8 @@ const labels: Record<string, string> = {
 
 const viewLabel = (view: "front" | "back") => (view === "front" ? "anterior" : "posterior");
 
-export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
-  const [selectedKey, setSelectedKey] = useState("");
+export function AnatomyMap({ primary, secondary, onSelect, selectedKey: externalKey, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
+  const [selectedKey, setSelectedKey] = useState(externalKey ?? "");
   /**
    * The exact drawn region under the finger. The figure draws the pectoralis in
    * two heads and the quadriceps in three; collapsing straight to the parent key
@@ -46,8 +45,23 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   /** The named head of the selection, when the artwork draws the muscle in several. */
   const [selectedPart, setSelectedPart] = useState("");
   const [hoveredName, setHoveredName] = useState("");
-  const [query, setQuery] = useState("");
   const [showAllRanked, setShowAllRanked] = useState(false);
+
+  // Follow the app's selection when it changes; a whole-muscle selection from
+  // outside carries no head, so the ring covers the muscle. A tap on the figure
+  // also reaches here — chooseRegion reports the key up, the app hands it back
+  // — so a key that matches what is already selected is an echo, not a change,
+  // and must not clear the head the athlete just pointed at.
+  const selectedKeyRef = useRef(selectedKey);
+  selectedKeyRef.current = selectedKey;
+  useEffect(() => {
+    if (externalKey === undefined) return;
+    const next = externalKey ?? "";
+    if (next === selectedKeyRef.current) return;
+    setSelectedKey(next);
+    setSelectedId("");
+    setSelectedPart("");
+  }, [externalKey]);
 
   /* Which regions are involved, and in what categorical role. */
   const roles = useMemo<Record<string, AnatomyRole>>(() => roleMapForLists(primary, secondary), [primary, secondary]);
@@ -104,9 +118,8 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [roles]);
 
-  const matches = (label: string) => !query || label.toLowerCase().includes(query.toLowerCase());
-  const filteredRanked = ranked.filter(region => matches(region.label));
-  const filteredUninvolved = uninvolved.filter(region => matches(region.label));
+  const filteredRanked = ranked;
+  const filteredUninvolved = uninvolved;
   const visibleRanked = showAllRanked ? filteredRanked : filteredRanked.slice(0, 5);
   const hiddenRankedCount = Math.max(0, filteredRanked.length - visibleRanked.length) + (showAllRanked ? 0 : filteredUninvolved.length);
   const roleSections: { role: Role; label: string; items: typeof visibleRanked }[] = [
@@ -135,7 +148,6 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   const selectedPartName = selectedParts.find((entry) => entry.part === selectedPart)?.label
     ?? regionPartName(selectedId);
 
-  const reset = () => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); setQuery(""); };
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
   const hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false;
   /**
@@ -161,24 +173,12 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
 
   return (
     <section className="anatomy-atlas-pro">
-      <div className="atlas-pro-head">
-        <div>
-          <p className="metric-label">Body Lab / qualitative role map</p>
-          <h2>Selected action <em>role map.</em></h2>
-        </div>
-        <p>Color shows qualitative action roles, not activation or strength. Select a muscle to inspect.</p>
-      </div>
-
+      {/* No heading above the body. There were two — "Body Lab / qualitative
+          role map" and "Selected action role map." — plus a search over eight
+          muscle names and a Reset for a view that no longer flips. Measured on
+          a phone they put the first pixel of body at 968px. The navigator
+          already names the action; the legend already says what colour means. */}
       <div className="atlas-pro-grid">
-        <aside className="atlas-pro-controls">
-          <label className="atlas-pro-search">
-            <Search className="h-4 w-4" />
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search muscle" />
-          </label>
-          <LocalSearchScope scope="Searching muscle names on this map." query={query} />
-          <button className="atlas-reset-pro" onClick={reset}><RotateCcw className="h-3.5 w-3.5" /> Reset view</button>
-        </aside>
-
         <div className="atlas-pro-canvas">
           {/* Both bodies at once. The flip control, the Anterior/Posterior pills
               and the "shown on the other view" note were three affordances for
@@ -231,7 +231,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
           <div className="atlas-heat-legend-pro">
             {/* Swatches carry the figure's own fills, gradients included, so the
                 legend cannot drift from what the body is actually painted. */}
-            <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#e8ecf4" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#e9be55,#c08f24)" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#ec5f4a,#bb2114)" }} /></>
+            <><i className="atlas-swatch" style={{ background: "#e8ecf4" }} /><span>Neutral</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#e9be55,#c08f24)" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#ec5f4a,#bb2114)" }} /><span>Primary role</span></>
           </div>
           <details className="atlas-role-methodology">
             <summary>How muscle roles are classified <ChevronDown className="h-4 w-4" /></summary>
@@ -259,7 +259,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
                 * So: the differing facts first and scannable, prose only where
                 * prose is the content, and the boundary stated once at the end.
                 */}
-              <div className="atlas-inspector-title">
+              <div className="atlas-inspector-title atlas-desktop-only">
                 <div>
                   <p className="metric-label">Selected muscle</p>
                   <h3>{selectedLabel}</h3>
@@ -268,7 +268,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
                 <button onClick={() => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); }} aria-label="Clear muscle selection">×</button>
               </div>
 
-              {selectedParts.length > 1 && <div className="atlas-part-picker" role="group" aria-label={`${selectedLabel} heads`}>
+              {selectedParts.length > 1 && <div className="atlas-part-picker atlas-desktop-only" role="group" aria-label={`${selectedLabel} heads`}>
                 <button type="button" aria-pressed={!selectedPart} onClick={() => { setSelectedPart(""); setSelectedId(""); }}>Whole muscle</button>
                 {selectedParts.map((entry) => <button key={entry.part} type="button" aria-pressed={selectedPart === entry.part} onClick={() => setSelectedPart(entry.part)}>{entry.label}</button>)}
               </div>}
@@ -300,16 +300,12 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
             </>
           ) : (
-            <div className="atlas-inspector-empty-pro">
-              <Target className="h-5 w-5" />
-              <strong>Explore through the body</strong>
-              <p>Select a muscle on either body to inspect its qualitative role, or pick one from the list of muscle roles.</p>
-            </div>
+            <p className="atlas-inspector-empty-pro">Tap a muscle on either body, or pick one from the list below, to see its role in this action.</p>
           )}
         </aside>}
         <section className="atlas-ranking" aria-label="Key muscle roles">
-          <div className="atlas-ranking-head"><p className="metric-label">Key muscle roles</p><strong>{ranked.length} muscles involved</strong><span>{roleCounts.primary} primary · {roleCounts.stabilizer} stabilizer · {roleCounts.supporting} supporting</span></div>
-          {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); setSelectedPart(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span><em>{region.roles?.[0] || `${region.role} role`}</em><ChevronRight className="h-4 w-4" /></button>)}</div>)}
+          <div className="atlas-ranking-head"><p className="metric-label">Key muscle roles</p><strong>{ranked.length} muscles involved</strong><span>{([["primary", roleCounts.primary], ["stabilizer", roleCounts.stabilizer], ["supporting", roleCounts.supporting]] as const).filter(([, n]) => n > 0).map(([word, n]) => `${n} ${word}`).join(" · ")}</span></div>
+          {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); setSelectedPart(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span>{(() => { const detail = region.roles?.[0]; const sectionWord = section.label.replace(/s$/, "").toLowerCase(); const note = detail && !detail.toLowerCase().startsWith(sectionWord) ? detail : ""; return note ? <em>{note}</em> : <em aria-hidden="true" />; })()}<ChevronRight className="h-4 w-4" /></button>)}</div>)}
           {/* The rest of the body, named rather than only drawn. These carry no
               role in this action, which is a fact worth stating — not a reason
               to make them unreachable except by hitting a 12px shape. */}

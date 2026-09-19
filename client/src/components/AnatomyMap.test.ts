@@ -63,13 +63,15 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).not.toMatch(/intensity/i);
     expect(source).not.toContain("heatSolid");
     expect(source).not.toContain("muscleScoreIntensity");
-    expect(source).toContain("qualitative role map");
     expect(source).not.toContain("involvement heat map");
   });
 
   it("keeps the default anatomy canvas concise while preserving its qualitative-role boundary", () => {
-    expect(source).toContain("Selected action <em>role map.</em>");
-    expect(source).toContain("Color shows qualitative action roles, not activation or strength.");
+    // The heading that said the map was a map is gone; the boundary it carried
+    // lives in the legend disclosure and, once, at the foot of the inspector.
+    expect(source).not.toContain("Selected action <em>role map.</em>");
+    expect(source).toContain("How muscle roles are classified");
+    expect(source).toContain("not measured activation, force, or anything about your own capacity");
     expect(source).not.toContain("Precise anatomical SVG with 70+ muscle regions");
     expect(source).not.toContain("See the work. <em>Then inspect the why.</em>");
   });
