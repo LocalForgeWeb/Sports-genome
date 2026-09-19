@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
+import { defaultAnatomySide, oppositeSide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
 import { roleMapForLists, sourceValuesForRegion, viewsForRegion, regionPartName, regionParts, partFromPathId, type AnatomyRole } from "@/lib/anatomyRegions";
 import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, RotateCw } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
@@ -45,6 +46,10 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
   /** The named head of the selection, when the artwork draws the muscle in several. */
   const [selectedPart, setSelectedPart] = useState("");
   const [hoveredName, setHoveredName] = useState("");
+  // One body at a time, front first. A selection can arrive from the ranked list
+  // or from elsewhere in the app, so the figure turns to face whatever was
+  // picked rather than leaving it on the side pointing away.
+  const [side, setSide] = useState<AnatomySide>(defaultAnatomySide);
   const [showAllRanked, setShowAllRanked] = useState(false);
 
   // Follow the app's selection when it changes; a whole-muscle selection from
@@ -145,6 +150,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
    * explicit choice rather than a precise tap.
    */
   const selectedParts = useMemo(() => (selectedKey ? regionParts(selectedKey) : []), [selectedKey]);
+  useEffect(() => { setSide((current) => sideForSelection(current, selectedKey ? [selectedKey] : [])); }, [selectedKey]);
   const selectedPartName = selectedParts.find((entry) => entry.part === selectedPart)?.label
     ?? regionPartName(selectedId);
 
@@ -180,14 +186,10 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
           already names the action; the legend already says what colour means. */}
       <div className="atlas-pro-grid">
         <div className="atlas-pro-canvas">
-          {/* Both bodies at once. The flip control, the Anterior/Posterior pills
-              and the "shown on the other view" note were three affordances for
-              one problem — half the body being hidden — and the problem is the
-              thing worth removing, not the affordances. */}
           <div className="atlas-body-chart-wrap">
             <div className="atlas-body-chart">
               <AnatomyFigure
-                view="both"
+                view={side}
                 roles={roles}
                 selectedKeys={selectedKey ? [selectedKey] : []}
                 selectedPart={selectedPart || null}
@@ -196,7 +198,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                 onHover={(key) => setHoveredName(key ? (labels[key] || key) : "")}
               />
             </div>
-            <p className="atlas-view-captions" aria-hidden="true"><span>Anterior</span><span>Posterior</span></p>
+            <div className="atlas-view-captions"><span aria-hidden="true">{side === "front" ? "Anterior" : "Posterior"}</span><button type="button" className="atlas-side-toggle" aria-label={`${turnToSideLabel(side)} of the body`} onClick={() => setSide(oppositeSide(side))}><RotateCw className="h-3.5 w-3.5" aria-hidden="true" /> {turnToSideLabel(side)}</button></div>
             {hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}
           </div>
 
@@ -300,7 +302,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
             </>
           ) : (
-            <p className="atlas-inspector-empty-pro">Tap a muscle on either body, or pick one from the list below, to see its role in this action.</p>
+            <p className="atlas-inspector-empty-pro">Tap a muscle, or pick one from the list below, to see its role in this action. The body turns around on its own if what you pick is on the other side.</p>
           )}
         </aside>}
         <section className="atlas-ranking" aria-label="Key muscle roles">

@@ -21,8 +21,17 @@ afterEach(cleanup);
 const draw = (props: Partial<Parameters<typeof AnatomyMap>[0]> = {}) =>
   render(createElement(AnatomyMap, { primary: ["hamstrings"], secondary: [], onSelect: vi.fn(), ...props }));
 
-const select = (container: HTMLElement, label: string) =>
-  fireEvent.click(container.querySelector(`.anatomy-hit[aria-label^="${label}"]`)!);
+/**
+ * One body is on screen at a time, so a muscle drawn on the side facing away has
+ * no hit target until the figure turns around. Turning it here keeps these tests
+ * about the inspector rather than about which way the body is facing; the tests
+ * that are about that are at the bottom of this file.
+ */
+const select = (container: HTMLElement, label: string) => {
+  const hit = () => container.querySelector(`.anatomy-hit[aria-label^="${label}"]`);
+  if (!hit()) fireEvent.click(container.querySelector(".atlas-side-toggle")!);
+  fireEvent.click(hit()!);
+};
 
 describe("selecting a muscle in the Body Lab", () => {
   it("renders its architecture, leverage, source and model boundary context", () => {
@@ -35,10 +44,10 @@ describe("selecting a muscle in the Body Lab", () => {
     expect(markup).toContain("force or injury risk");
   });
 
-  it("says which body the selection is drawn on, now that both are on screen", () => {
-    // This replaces the flip prompt. The selection can no longer be hiding on a
-    // view the athlete is not looking at, so the card points rather than offers
-    // to rotate — but it still has to answer "where am I looking?".
+  it("says which body the selection is drawn on", () => {
+    // The card still has to answer "where am I looking?", and it names the view
+    // rather than offering to rotate: the figure has already turned to show the
+    // selection by the time this is read.
     const { container } = draw();
     select(container, "Hamstrings");
     expect(container.querySelector(".atlas-selected-where")?.textContent).toBe("On the posterior view");
@@ -107,10 +116,31 @@ describe("selecting a muscle in the Body Lab", () => {
     expect(container.querySelector(".atlas-inspector-part")).toBeNull();
   });
 
-  it("offers no flip control, because there is no hidden view left to flip to", () => {
+  it("opens on the front and offers a control to turn the figure around", () => {
     const { container } = draw();
-    expect(container.querySelector(".atlas-flip-btn")).toBeNull();
-    expect(container.textContent).not.toContain("Flip to");
-    expect(container.querySelector('.anatomy-figure[data-view="both"]')).toBeTruthy();
+    expect(container.querySelector('.anatomy-figure[data-view="front"]')).toBeTruthy();
+    expect(container.querySelector('.anatomy-figure[data-view="both"]')).toBeNull();
+    const toggle = container.querySelector(".atlas-side-toggle")!;
+    expect(toggle.textContent).toContain("Show back");
+    fireEvent.click(toggle);
+    expect(container.querySelector('.anatomy-figure[data-view="back"]')).toBeTruthy();
+    expect(container.querySelector(".atlas-side-toggle")!.textContent).toContain("Show front");
+  });
+
+  it("turns to face a selection handed to it by the app", () => {
+    // The reason both bodies were on screen at once: a selection made elsewhere
+    // could name a muscle drawn only on the side facing away, and the athlete was
+    // left reading a card about something not on screen. Turning the figure
+    // removes that without halving it.
+    const { container } = draw({ primary: ["glutes"], selectedKey: "glutes" });
+    expect(container.querySelector('.anatomy-figure[data-view="back"]')).toBeTruthy();
+    expect(container.querySelector('.anatomy-muscle[data-muscle="glutes"]')?.getAttribute("data-selected")).toBe("true");
+  });
+
+  it("stays put for a selection the side already draws", () => {
+    // Trapezius is drawn on both bodies, so there is no reason to move the
+    // figure under the athlete.
+    const { container } = draw({ primary: ["traps"], selectedKey: "traps" });
+    expect(container.querySelector('.anatomy-figure[data-view="front"]')).toBeTruthy();
   });
 });

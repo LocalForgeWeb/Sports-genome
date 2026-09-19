@@ -1217,7 +1217,7 @@ select {
    column a single flipping figure needed. */
 .strength-body-chart { margin-top: 1rem; border: 1px solid rgb(164 200 232 / .25); background: radial-gradient(circle at center, rgb(45 108 223 / .14), transparent 68%); padding: .75rem .5rem .25rem; }.strength-body-chart .body-chart { width: 100%; height: 100%; max-width: 100%; }
 /* Which body is which, said once under the figure rather than as labels on it. */
-.strength-body-chart-views { display: flex; justify-content: space-around; margin: .1rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+.strength-body-chart-views { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .55rem .9rem; margin: .1rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
 .strength-map-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin-top: .7rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; font-weight: 700; }
 .strength-map-legend span { display: inline-flex; align-items: center; gap: .4rem; }
 .strength-map-legend i { width: .6rem; height: .6rem; border-radius: 999px; }
@@ -2512,3 +2512,11 @@ details:not([open]) > *:not(summary) {
   from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* Turns the figure around, beside the word naming the body on screen. In the
+   section head it scrolled under the sticky header exactly when the body
+   filled the screen, which is when an athlete reaches for it. */
+.strength-body-side-toggle { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; border: 1px solid rgb(164 200 232 / .45); background: rgb(255 255 255 / .06); padding: 0 .75rem; color: var(--sg-text-on-dark); font-size: .6875rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; transition: transform var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
+.strength-body-side-toggle:hover { border-color: var(--sg-focus-on-dark); }
+.strength-body-side-toggle:active { transform: scale(.97); }
+.strength-body-side-toggle:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
