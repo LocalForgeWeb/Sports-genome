@@ -63,10 +63,32 @@
 
 .anatomy-muscle[data-focused="true"] > path { fill: var(--anatomy-shell); }
 
-.anatomy-selection-ring {
+/**
+ * Selection, in two strokes.
+ *
+ * It was one 6px non-scaling white outline, which on a 314px figure is roughly
+ * a fiftieth of the body's width laid over the edge of the thing it marks: the
+ * quadriceps read as a sticker with a white border rather than a muscle that
+ * had been picked. Width is the wrong axis to spend here.
+ *
+ * A wide, faint halo carries the "this one" at a glance and a hairline holds
+ * the actual edge. Both are non-scaling, so the cue stays the same weight
+ * whether the figure is drawn at 150px or 600px.
+ */
+.anatomy-selection-halo {
   fill: none;
   stroke: var(--anatomy-selection);
   stroke-width: 6;
+  stroke-opacity: .22;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.anatomy-selection-ring {
+  fill: none;
+  stroke: var(--anatomy-selection);
+  stroke-width: 1.75;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
   pointer-events: none;

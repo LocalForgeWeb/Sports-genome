@@ -68,13 +68,19 @@ export type AnatomyFigureProps = {
   roles: Record<string, AnatomyRole>;
   /** Region keys shown as selected. A Strength Genome region spans several. */
   selectedKeys: readonly string[];
+  /**
+   * One named subdivision to ring instead of the whole region — the head the
+   * athlete actually pointed at. Both sides of it are ringed, since the app
+   * carries no per-side state.
+   */
+  selectedPart?: string | null;
   /** `pathId` names the exact drawn sub-region that was hit. */
   onSelect: (regionKey: string, pathId?: string) => void;
   labelFor: (regionKey: string) => string;
   onHover?: (regionKey: string | null) => void;
 };
 
-export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, onHover }: AnatomyFigureProps) {
+export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover }: AnatomyFigureProps) {
   const uid = useId();
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
@@ -224,22 +230,30 @@ export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, o
 
       {/* Selection redrawn on top: a muscle already carrying a role colour has
           no colour left to spend, so the cue is weight, not hue. A region drawn
-          on both bodies is ringed on both — it is one muscle seen twice. */}
+          on both bodies is ringed on both — it is one muscle seen twice.
+          Two strokes rather than one thick one: a soft wide halo under a crisp
+          hairline. A single 6px white outline read as a sticker slapped over
+          the anatomy, and at that width it swallowed the shape it was marking. */}
       {selectedKeys.length > 0 &&
         composed
           .filter((muscle) => isSelected(muscle.key))
-          .flatMap((muscle) => muscle.parts.map((part) => (
-            <g key={`sel-${muscle.key}-${part.dx}`} transform={part.dx ? `translate(${part.dx},0)` : undefined}>
-              {part.muscle.paths.map((path) => (
-                <path
-                  key={`sel-${path.id}`}
-                  className="anatomy-selection-ring"
-                  d={path.d}
-                  clipPath={clipFor(path.clipHalf)}
-                />
-              ))}
-            </g>
-          )))}
+          .flatMap((muscle) => muscle.parts.map((part) => {
+            // Ring the named head when one is picked; the whole muscle otherwise.
+            const ringed = selectedPart
+              ? part.muscle.paths.filter((path) => path.part === selectedPart)
+              : part.muscle.paths;
+            if (!ringed.length) return null;
+            return (
+              <g key={`sel-${muscle.key}-${part.dx}`} transform={part.dx ? `translate(${part.dx},0)` : undefined}>
+                {ringed.map((path) => (
+                  <path key={`halo-${path.id}`} className="anatomy-selection-halo" d={path.d} clipPath={clipFor(path.clipHalf)} />
+                ))}
+                {ringed.map((path) => (
+                  <path key={`sel-${path.id}`} className="anatomy-selection-ring" d={path.d} clipPath={clipFor(path.clipHalf)} />
+                ))}
+              </g>
+            );
+          }))}
 
       <g className="anatomy-hit-layer">
         {composed.map((muscle) => (

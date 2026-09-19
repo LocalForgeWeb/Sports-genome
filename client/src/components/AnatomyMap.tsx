@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
-import { roleMapForLists, sourceValuesForRegion, viewsForRegion, regionPartName, type AnatomyRole } from "@/lib/anatomyRegions";
+import { roleMapForLists, sourceValuesForRegion, viewsForRegion, regionPartName, regionParts, partFromPathId, type AnatomyRole } from "@/lib/anatomyRegions";
 import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
 import { ChevronDown, ChevronRight, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
@@ -43,6 +43,8 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
    * drawing carried no meaning once selected.
    */
   const [selectedId, setSelectedId] = useState("");
+  /** The named head of the selection, when the artwork draws the muscle in several. */
+  const [selectedPart, setSelectedPart] = useState("");
   const [hoveredName, setHoveredName] = useState("");
   const [query, setQuery] = useState("");
   const [showAllRanked, setShowAllRanked] = useState(false);
@@ -117,10 +119,23 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   const chooseRegion = useCallback((key: string, pathId?: string) => {
     setSelectedKey(key);
     setSelectedId(pathId ?? "");
+    setSelectedPart(partFromPathId(pathId) ?? "");
     onSelect(key);
   }, [onSelect]);
 
-  const reset = () => { setSelectedKey(""); setSelectedId(""); setQuery(""); };
+  /**
+   * The heads this muscle is drawn in.
+   *
+   * A pointer can already single one out by landing on it, but that made the
+   * subdivision a thing you could only discover by accident and never reach
+   * from a keyboard. These name them, so picking the vastus medialis is an
+   * explicit choice rather than a precise tap.
+   */
+  const selectedParts = useMemo(() => (selectedKey ? regionParts(selectedKey) : []), [selectedKey]);
+  const selectedPartName = selectedParts.find((entry) => entry.part === selectedPart)?.label
+    ?? regionPartName(selectedId);
+
+  const reset = () => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); setQuery(""); };
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
   const hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false;
   /**
@@ -175,6 +190,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
                 view="both"
                 roles={roles}
                 selectedKeys={selectedKey ? [selectedKey] : []}
+                selectedPart={selectedPart || null}
                 onSelect={chooseRegion}
                 labelFor={(key) => labels[key] || key}
                 onHover={(key) => setHoveredName(key ? (labels[key] || key) : "")}
@@ -195,13 +211,20 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             <div>
               <p className="metric-label">Selected muscle</p>
               <strong>{selectedLabel}</strong>
-              {regionPartName(selectedId) && <em className="atlas-selected-part">{regionPartName(selectedId)}</em>}
+              {selectedPartName && <em className="atlas-selected-part">{selectedPartName}</em>}
             </div>
             <span className="atlas-selected-role">{selectedRoleDetail?.roles.join(" · ") || selectedRole || "No role in this action"}</span>
             {selectedRole && <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Movement model"}</span>}
             {selectedViews.length > 0 && <span className="atlas-selected-where">
               {selectedViews.length === 2 ? "On both views" : `On the ${viewLabel(selectedViews[0])} view`}
             </span>}
+            {/* The strip is the whole inspector on a phone — the panel beside
+                the body is hidden under 901px — so the heads have to be here
+                too or they are pointer-only on the device that has no pointer. */}
+            {selectedParts.length > 1 && <div className="atlas-part-picker" role="group" aria-label={`${selectedLabel} heads`}>
+              <button type="button" aria-pressed={!selectedPart} onClick={() => { setSelectedPart(""); setSelectedId(""); }}>Whole muscle</button>
+              {selectedParts.map((entry) => <button key={entry.part} type="button" aria-pressed={selectedPart === entry.part} onClick={() => setSelectedPart(entry.part)}>{entry.label}</button>)}
+            </div>}
           </div>}
 
           {/* Qualitative role legend */}
@@ -224,28 +247,56 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
         {showInspector && <aside className={`atlas-pro-inspector ${selectedKey ? "is-open" : ""}`}>
           {selectedKey ? (
             <>
+              {/**
+                * Four stacked blocks, each a heading over a paragraph over a
+                * caveat, and the caveats said the same thing three times over:
+                * "not measured activation or force", "not a timing or force
+                * measurement", "not a personal force estimate". Two of the four
+                * headings were the word "context". What actually differs between
+                * one muscle and the next — its role, the phase it works in, how
+                * well evidenced that is — was the smallest part of the panel.
+                *
+                * So: the differing facts first and scannable, prose only where
+                * prose is the content, and the boundary stated once at the end.
+                */}
               <div className="atlas-inspector-title">
-                <div><p className="metric-label">Selected muscle</p><h3>{selectedLabel}</h3></div>
-                <button onClick={() => setSelectedKey("")} aria-label="Clear muscle selection">×</button>
+                <div>
+                  <p className="metric-label">Selected muscle</p>
+                  <h3>{selectedLabel}</h3>
+                  {selectedPartName && <p className="atlas-inspector-part">{selectedPartName}</p>}
+                </div>
+                <button onClick={() => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); }} aria-label="Clear muscle selection">×</button>
               </div>
-              <div className="atlas-inspector-badges">
-                <span>{selectedRoleDetail?.roles.join(" · ") || selectedRole || "No role in this action"}</span>
-                {selectedRole && <i>{selectedRoleDetail?.confidence || "Movement model"}</i>}
-                <b>{hasLinkedExerciseOrStackContext ? "Exercise / stack context" : "Sporting-action role"}</b>
-              </div>
-              <div className="atlas-why-pro">
-                <p className="metric-label">Role</p>
-                <p>{selectedRoleDetail?.explanation || (selectedRole === "Primary" ? "This muscle is a primary mover in the selected sporting action." : selectedRole === "Synergist" ? "This muscle supports the selected sporting action as a synergist or stabilizer." : "The selected sporting action’s record does not list this muscle in any role. That is an absence of evidence here, not a finding that the muscle is uninvolved.")}</p>
-                {hasLinkedExerciseOrStackContext ? <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">A selected exercise or active stack provides additional context. The role shown remains qualitative; it is not an activation, force, or individual capacity measurement.</p> : <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">No exercise or active stack is loaded here. Color reflects qualitative role context, not measured activation or force.</p>}
-              </div>
-              {selectedRoleDetail?.phaseContext && <div className="atlas-why-pro"><p className="metric-label">Action phase context</p><p>{selectedRoleDetail.phaseContext}</p><p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">This is the movement record’s qualitative contraction-phase description, not a timing or force measurement.</p></div>}
-              {selectedRoleDetail && <div className="atlas-why-pro"><p className="metric-label">Evidence context</p><p>{selectedRoleDetail.sourceScope} · {selectedRoleDetail.confidence}</p>{selectedRoleDetail.sources.length > 0 && <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Sources:</strong> {selectedRoleDetail.sources.map((source, index) => <a key={source} href={source} target="_blank" rel="noreferrer" className="underline underline-offset-2">{index === 0 ? "Primary source" : "Supporting source"}{index < selectedRoleDetail.sources.length - 1 ? " · " : ""}</a>)}</p>}</div>}
-              {selectedMechanics && <div className="atlas-why-pro">
-                <p className="metric-label">Architecture + leverage context</p>
-                <p>{selectedMechanics.scope}</p>
-                <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Sources:</strong> {selectedMechanics.sources.join(" · ")}</p>
-                <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]"><strong>Worth knowing:</strong> {selectedMechanics.boundary}</p>
+
+              {selectedParts.length > 1 && <div className="atlas-part-picker" role="group" aria-label={`${selectedLabel} heads`}>
+                <button type="button" aria-pressed={!selectedPart} onClick={() => { setSelectedPart(""); setSelectedId(""); }}>Whole muscle</button>
+                {selectedParts.map((entry) => <button key={entry.part} type="button" aria-pressed={selectedPart === entry.part} onClick={() => setSelectedPart(entry.part)}>{entry.label}</button>)}
               </div>}
+
+              <dl className="atlas-inspector-facts">
+                <div><dt>Role</dt><dd>{selectedRoleDetail?.roles.join(" · ") || selectedRole || "None in this action"}</dd></div>
+                {selectedRoleDetail?.phaseContext && <div><dt>Works through</dt><dd>{selectedRoleDetail.phaseContext}</dd></div>}
+                <div><dt>Evidence</dt><dd>{selectedRoleDetail ? `${selectedRoleDetail.sourceScope} · ${selectedRoleDetail.confidence}` : hasLinkedExerciseOrStackContext ? "Exercise and stack context" : "Movement model"}</dd></div>
+              </dl>
+
+              <p className="atlas-inspector-why">{selectedRoleDetail?.explanation || (selectedRole === "Primary" ? "This muscle is a primary mover in the selected sporting action." : selectedRole === "Synergist" ? "This muscle supports the selected sporting action as a synergist or stabilizer." : "The selected sporting action’s record does not list this muscle in any role. That is an absence of evidence here, not a finding that the muscle is uninvolved.")}</p>
+
+              {selectedMechanics && <div className="atlas-why-pro">
+                <p className="metric-label">Architecture and leverage</p>
+                <p>{selectedMechanics.scope}</p>
+                <p className="atlas-inspector-boundary">{selectedMechanics.boundary}</p>
+              </div>}
+
+              {(selectedRoleDetail?.sources.length || selectedMechanics) && <p className="atlas-inspector-sources">
+                <strong>Sources:</strong>{" "}
+                {selectedRoleDetail?.sources.map((source, index) => <a key={source} href={source} target="_blank" rel="noreferrer">{index === 0 ? "Primary source" : "Supporting source"}{index < selectedRoleDetail.sources.length - 1 ? " · " : ""}</a>)}
+                {selectedRoleDetail?.sources.length && selectedMechanics ? " · " : ""}
+                {selectedMechanics?.sources.join(" · ")}
+              </p>}
+
+              {/* Said once, rather than after every block. */}
+              <p className="atlas-inspector-boundary atlas-inspector-boundary-final">Colour shows a qualitative role in this action, not measured activation, force, or anything about your own capacity.</p>
+
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
             </>
           ) : (
@@ -258,11 +309,11 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
         </aside>}
         <section className="atlas-ranking" aria-label="Key muscle roles">
           <div className="atlas-ranking-head"><p className="metric-label">Key muscle roles</p><strong>{ranked.length} muscles involved</strong><span>{roleCounts.primary} primary · {roleCounts.stabilizer} stabilizer · {roleCounts.supporting} supporting</span></div>
-          {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span><em>{region.roles?.[0] || `${region.role} role`}</em><ChevronRight className="h-4 w-4" /></button>)}</div>)}
+          {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); setSelectedPart(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span><em>{region.roles?.[0] || `${region.role} role`}</em><ChevronRight className="h-4 w-4" /></button>)}</div>)}
           {/* The rest of the body, named rather than only drawn. These carry no
               role in this action, which is a fact worth stating — not a reason
               to make them unreachable except by hitting a 12px shape. */}
-          {showAllRanked && filteredUninvolved.length > 0 && <div className="atlas-role-section atlas-role-section-inactive"><p>No role in this action <b>{filteredUninvolved.length}</b></p>{filteredUninvolved.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span>{region.label}</span><em>Not used here</em><ChevronRight className="h-4 w-4" /></button>)}</div>}
+          {showAllRanked && filteredUninvolved.length > 0 && <div className="atlas-role-section atlas-role-section-inactive"><p>No role in this action <b>{filteredUninvolved.length}</b></p>{filteredUninvolved.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); setSelectedPart(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span>{region.label}</span><em>Not used here</em><ChevronRight className="h-4 w-4" /></button>)}</div>}
           {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `Show all ${filteredRanked.length + filteredUninvolved.length} muscles`}</button>}
         </section>
       </div>
