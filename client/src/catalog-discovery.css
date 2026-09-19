@@ -86,8 +86,10 @@
  * card because the suffix never fit. It is one fact about the whole grid, so it
  * is stated once here and the chips carry only what differs between cards.
  */
-/* No flex `gap` here: it spaces every child, which put a space before the
-   sentence's full stop ("penetration step ."). The icon carries its own. */
-.catalog-discovery-action-scope { display: inline-flex; align-items: center; margin-top: .4rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.4; }
-.catalog-discovery-action-scope > svg { margin-right: .3rem; flex: 0 0 auto; }
+/* A plain block, not a flex line: `inline-flex` makes every child a flex item
+   and discards the whitespace between them, which first put a space before the
+   full stop and then, once the gap was removed, swallowed the space before the
+   action name entirely ("measured against**penetration step**"). */
+.catalog-discovery-action-scope { display: block; margin-top: .4rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.4; }
+.catalog-discovery-action-scope > svg { display: inline-block; margin-right: .3rem; vertical-align: -.15em; }
 .catalog-discovery-action-scope b { color: var(--sg-text-muted-on-dark); font-weight: 800; }
