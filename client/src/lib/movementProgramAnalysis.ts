@@ -142,6 +142,23 @@ export type ExerciseActionConnection = {
   detail: string;
 };
 
+/**
+ * The same connection, stated once for a whole list instead of on every row.
+ *
+ * The genome selector printed this label on all 24 visible rows, and measured
+ * across the default view and three searches it held ONE value in three of
+ * those four states - twenty-four identical badges in the accent colour, each
+ * repeating what the one above it said. A label earns its place on a row by
+ * differing from its neighbours; when it does not, the fact is still true, just
+ * true of the list, so it belongs in the list's own header.
+ */
+export function sharedConnectionSummary(label: ExerciseActionConnection["label"], count: number): string {
+  const subject = count === 1 ? "This one" : `All ${count}`;
+  if (label === "Direct support") return `${subject} ${count === 1 ? "is" : "are"} named in its movement record.`;
+  if (label === "Supporting link") return `${subject} share${count === 1 ? "s" : ""} a muscle demand with it.`;
+  return `${count === 1 ? "It has" : `None of the ${count} has`} a mapped link to it.`;
+}
+
 export function getExerciseActionConnection(exercise: Exercise, movement?: EnrichedSportMovement): ExerciseActionConnection {
   if (!movement) return { label: "Not mapped", detail: "No enriched record is available for the selected action." };
   if (movement.recommendedExercises.some((name) => nameMatches(exercise, name))) {

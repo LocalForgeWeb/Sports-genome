@@ -15,4 +15,18 @@ describe("Exercise Genome selected-action selector", () => {
     expect(source).toContain("trpc.researchEvidence.supabaseInventory.useQuery");
     expect(source).toContain("supabaseEvidence={connectedEvidence.data}");
   });
+
+  it("drops the connection badge when every visible row carries the same one, and states it once instead", () => {
+    // Measured on the shipped build at 390px: the default view and the "row" and
+    // "press" searches each held ONE label across all 24 rows - twenty-four
+    // identical pills in the accent colour - while the "squat" search split
+    // 21/3. A badge earns its place on a row by differing from its neighbours.
+    expect(source).toContain("const connectionVaries = new Set(rowConnections.map((connection) => connection.label)).size > 1");
+    expect(source).toContain("{connectionVaries && <span className={`genome-selector-connection");
+    expect(source).toContain("sharedConnectionSummary(rowConnections[0].label, rowConnections.length)");
+    // The fact is not dropped, only moved to the line that already scopes the list.
+    expect(source).toContain("Links below are measured against <b>{selectedMovement.label}</b>.{sharedConnection");
+    // Rows read the connection computed once above, rather than recomputing it.
+    expect(source).toContain("const connection = rowConnections[index]");
+  });
 });
