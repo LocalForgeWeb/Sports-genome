@@ -1,3 +1,5 @@
+import { replayIntroStorageKey } from "@/lib/bootExperience";
+
 export const bootSplashId = "sports-genome-boot-splash";
 
 /** Matches the CSS cross-fade; the fallback below only runs if transitionend never fires. */
@@ -63,8 +65,19 @@ export function dismissBootSplash(options: { immediate?: boolean } = {}) {
   window.setTimeout(startOnce, paintWaitFallbackMs);
 }
 
-/** A replay deliberately reloads the document so the boot screen occurs before the workspace opens. */
+/**
+ * A replay deliberately reloads the document so the boot screen occurs before the
+ * workspace opens - and asks, on the way out, for the intro to actually play.
+ *
+ * Without the flag the reload lands as a returning visit, which is the one state that
+ * skips the video: the preview button reliably previewed nothing.
+ */
 export function replayBootSplash() {
   if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(replayIntroStorageKey, "yes");
+  } catch {
+    // Without storage the reload still replays the static choreography.
+  }
   window.location.reload();
 }
