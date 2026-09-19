@@ -169,7 +169,7 @@ create table if not exists public.athlete_training_constraints (
 );
 
 comment on table public.athlete_training_constraints is
-  'What the plan must work around. Always user- or clinician-reported, never inferred from a selected focus area. system inference is stored elsewhere and displayed separately.';
+  'What the plan must work around. Always user- or clinician-reported, never inferred from a selected focus area.';
 
 create index if not exists athlete_training_constraints_user_active_idx
   on public.athlete_training_constraints (user_id, status) where status = 'active';
@@ -283,18 +283,18 @@ select
       select 1 from public.resilience_recommendations_general g
        where g.target_id = t.id and g.review_status = 'approved'
          and g.presentation_type_id is null
-    ) then 'general' end,
+    ) then 'general'::text end,
     case when exists (
       select 1 from public.resilience_recommendations_general g
        where g.target_id = t.id and g.review_status = 'approved'
          and g.presentation_type_id is not null
-    ) then 'presentation_matched' end,
+    ) then 'presentation_matched'::text end,
     case when exists (
       select 1 from public.resilience_target_aliases a
         join public.injury_resilience_recommendations r
           on r.injury_region = a.alias
        where a.target_id = t.id and a.review_status = 'mapped'
-    ) then 'sport_specific' end
+    ) then 'sport_specific'::text end
   ], null) as supported_routes
 from public.resilience_targets t
 where t.status = 'active';
@@ -308,7 +308,7 @@ create or replace view public.app_resilience_recommendations_v2
 with (security_invoker = true) as
 select
   g.id as recommendation_id,
-  case when g.presentation_type_id is null then 'general' else 'presentation_matched' end as route_type,
+  case when g.presentation_type_id is null then 'general'::text else 'presentation_matched'::text end as route_type,
   null::uuid as sport_id,
   g.target_id,
   p.presentation_key as presentation_type,
