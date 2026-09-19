@@ -456,18 +456,41 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     setSelectedObservationId(String(observation.id));
     setSelectedRegion(region);
   };
+  // Below the dock's breakpoint the record is pinned above the bottom bar, so it
+  // is already on screen the instant a muscle is tapped. Scrolling there would
+  // throw the figure the athlete just tapped off the top of the screen to reach
+  // a panel that had not moved. Only the wide layout, where the record really
+  // does sit further down the page, scrolls to it.
   useEffect(() => {
     const detail = regionDetailRef.current;
     if (!selectedRegion || !detail || typeof window === "undefined") return;
     const frame = window.requestAnimationFrame(() => {
-      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      const stickyOffset = window.matchMedia?.("(max-width: 640px)").matches ? 172 : 28;
-      const targetTop = Math.max(0, window.scrollY + detail.getBoundingClientRect().top - stickyOffset);
-      window.scrollTo({ top: targetTop, behavior: reduceMotion ? "auto" : "smooth" });
+      if (!window.matchMedia?.("(max-width: 1023px)").matches) {
+        const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        // The old 28px offset was measured against the top of the window, not the
+        // bottom of the pinned chrome, so the scroll parked the record's own
+        // heading behind the top bar. `--sg-pinned-chrome` is that height.
+        const pinnedChrome = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sg-pinned-chrome")) || 0;
+        const targetTop = Math.max(0, window.scrollY + detail.getBoundingClientRect().top - pinnedChrome - 16);
+        window.scrollTo({ top: targetTop, behavior: reduceMotion ? "auto" : "smooth" });
+      }
       detail.querySelector<HTMLElement>("[data-strength-region-heading]")?.focus({ preventScroll: true });
     });
     return () => window.cancelAnimationFrame(frame);
   }, [selectedRegion?.id, selectedObservationId]);
+  // Escape closes the pinned record, the way it closes any other layer that sits
+  // over the page. The figure stays tappable while it is open, so this is the
+  // only dismissal a keyboard needs beyond the close button.
+  useEffect(() => {
+    if (!selectedRegion || typeof window === "undefined") return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setSelectedRegion(null);
+      setSelectedObservationId("");
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedRegion]);
   const setPriority = trpc.strengthGenome.setPriority.useMutation({
     onSuccess: async () => {
       await Promise.all([utils.strengthGenome.overview.invalidate(), utils.strengthGenome.priorities.invalidate()]);
@@ -534,8 +557,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       </section>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
       {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
-      {selectedRegion && <div ref={regionDetailRef}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} /></div>}
-      {selectedRegion && <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>}
+      {selectedRegion && <div ref={regionDetailRef} className="strength-region-sheet" role="group" aria-label={`${selectedRegion.label} record`}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} />
+        <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>
+      </div>}
       <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{activeObservations.length ? `${workoutObservations.length} carried across from finished workouts${directAccess ? ", saved on this device only" : ""}.` : (directAccess ? "Finish a workout in the tracker, or log a lift below, to start your record." : (overview.data?.nextAction || "Log a lift to start your record."))}</span></div>
 
     <div className="strength-progress-grid grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
