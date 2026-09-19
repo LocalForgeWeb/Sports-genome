@@ -46,4 +46,15 @@ describe("recommendation explanation depth", () => {
     expect(recommendations).toContain("Strengths");
     expect(recommendations).toContain("Limits");
   });
+
+  it("gives the disclosure something to show it is one", () => {
+    // Measured on the shipped build: the summary had zero child elements and no
+    // icon, `display: flex` suppresses the disclosure marker in Chrome, and the
+    // stylesheet also hides the webkit one - so six working controls down the
+    // page rendered as bare headings. The stylesheet already laid the summary
+    // out `space-between` for a right-hand element the markup never supplied.
+    expect(recommendations).toContain('<summary>Why this match?<ChevronDown');
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(css).toContain(".recommendation-why[open] summary svg { transform: rotate(180deg); }");
+  });
 });
