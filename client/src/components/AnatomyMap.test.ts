@@ -93,8 +93,8 @@ describe("Body Lab architecture mechanics disclosure", () => {
 
   it("uses qualitative role context without rendering numeric role indices when exercise or stack context is supplied", () => {
     expect(source).toContain('hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false');
-    expect(source).toContain("Exercise / stack context");
-    expect(source).toContain("The role shown remains qualitative");
+    expect(source).toContain('hasLinkedExerciseOrStackContext ? "Exercise and stack context" : "Movement model"');
+    expect(source).toContain("not measured activation, force, or anything about your own capacity");
     expect(source).not.toContain("Relative model index");
     expect(source).not.toContain("Tier</i>");
     expect(source).not.toContain('selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0');
@@ -119,8 +119,11 @@ describe("Body Lab architecture mechanics disclosure", () => {
   });
 
   it("uses source-recorded action phase context instead of fabricating timing or force values", () => {
-    expect(source).toContain("Action phase context");
-    expect(source).toContain("qualitative contraction-phase description");
+    // Rendered only when the movement record carries one, and printed verbatim:
+    // there is no branch that composes a phase description out of anything else.
+    expect(source).toContain("<dt>Works through</dt><dd>{selectedRoleDetail.phaseContext}</dd>");
+    expect(source).toContain("selectedRoleDetail?.phaseContext &&");
+    expect(source).not.toMatch(/phaseContext\s*\|\|/);
   });
 
   it("orders rendered Key Muscle Roles from source-recorded qualitative role order rather than a numeric heat score", () => {

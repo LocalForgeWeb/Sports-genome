@@ -254,6 +254,6 @@ describe("workspace side navigation", () => {
     expect(source).toContain('workspace === "body" && <section className="body-lab-v2');
     expect(source).toContain('<CatalogExerciseEvidenceCard exercise={inspectedExercise} />');
     expect(anatomySource).toContain("View methodology");
-    expect(anatomySource).toContain("Evidence context");
+    expect(anatomySource).toContain("<dt>Evidence</dt>");
   });
 });

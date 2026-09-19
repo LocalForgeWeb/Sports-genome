@@ -208,3 +208,43 @@
    plainly a different kind of row from the ones that are involved. */
 .atlas-role-section-inactive{opacity:.82}
 .atlas-role-section-inactive>p{color:var(--sg-text-subtle-on-light)}
+
+/* The head picker. The artwork draws the quadriceps in three and the triceps in
+   three; these name them so choosing one is a decision rather than a precise tap,
+   and so a keyboard can reach them at all. */
+.atlas-part-picker{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.75rem}
+.atlas-part-picker button{display:inline-flex;align-items:center;min-height:2.25rem;border:1px solid var(--sg-divider-on-light);background:#fff;padding:.3rem .5rem;color:var(--sg-text-muted-on-light);font-size:.6875rem;font-weight:800;letter-spacing:.02em;line-height:1.25;text-align:left;transition:border-color var(--sg-motion-fast) var(--sg-ease),background-color var(--sg-motion-fast) var(--sg-ease)}
+.atlas-part-picker button[aria-pressed="true"]{border-color:var(--sg-action);background:#fff0ea;color:var(--sg-action-strong)}
+.atlas-part-picker button:focus-visible{outline:2px solid var(--sg-focus-ring);outline-offset:1px}
+.atlas-selected-strip .atlas-part-picker{flex-basis:100%;margin-top:.15rem}
+
+/* The facts that differ between one muscle and the next, as rows rather than as
+   four headed paragraphs. */
+.atlas-inspector-part{margin-top:.3rem;color:var(--sg-action);font-size:.75rem;font-weight:800;letter-spacing:.03em}
+.atlas-inspector-facts{display:grid;gap:.5rem;margin-top:1rem;border-top:1px solid var(--sg-divider-on-light);padding-top:.85rem}
+/* Stacked, not two columns: the inspector rail is ~268px, so a 7.5rem label
+   column left the value about ten characters before it wrapped. */
+.atlas-inspector-facts>div{display:grid;gap:.1rem}
+.atlas-inspector-facts dt{color:var(--sg-text-subtle-on-light);font-size:.6875rem;font-weight:850;letter-spacing:.07em;line-height:1.5;text-transform:uppercase}
+.atlas-inspector-facts dd{margin:0;color:var(--sg-text-on-light);font-size:.8125rem;font-weight:600;line-height:1.5}
+.atlas-inspector-why{margin-top:.9rem;color:var(--sg-text-muted-on-light);font-size:.8125rem;line-height:1.6}
+.atlas-inspector-sources{margin-top:.9rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.55}
+.atlas-inspector-sources a{color:var(--sg-info-strong);text-decoration:underline;text-underline-offset:2px}
+/* Stated once, at the end, instead of after every block. */
+.atlas-inspector-boundary{margin-top:.5rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.5}
+.atlas-inspector-boundary-final{margin-top:1rem;border-top:1px solid var(--sg-divider-on-light);padding-top:.7rem}
+
+/* Body Lab draws all of this on the dark destination ground, so the new rows
+   and chips are repointed here beside the figure's own polarity flip rather
+   than inheriting light-surface ink onto navy. */
+.destination-body .atlas-part-picker button{border-color:var(--sg-control-border-on-dark);background:rgb(255 255 255 / .05);color:var(--sg-text-muted-on-dark)}
+.destination-body .atlas-part-picker button[aria-pressed="true"]{border-color:var(--sg-focus-on-dark);background:rgb(242 193 77 / .14);color:#fff4ca}
+.destination-body .atlas-part-picker button:focus-visible{outline-color:var(--sg-focus-on-dark)}
+.destination-body .atlas-inspector-part{color:var(--sg-focus-on-dark)}
+.destination-body .atlas-inspector-facts{border-top-color:var(--sg-divider-on-dark)}
+.destination-body .atlas-inspector-facts dt{color:var(--sg-text-subtle-on-dark)}
+.destination-body .atlas-inspector-facts dd{color:var(--sg-text-on-dark)}
+.destination-body .atlas-inspector-why{color:var(--sg-text-muted-on-dark)}
+.destination-body .atlas-inspector-sources,.destination-body .atlas-inspector-boundary{color:var(--sg-text-subtle-on-dark)}
+.destination-body .atlas-inspector-sources a{color:var(--sg-link-on-dark)}
+.destination-body .atlas-inspector-boundary-final{border-top-color:var(--sg-divider-on-dark)}

@@ -173,11 +173,43 @@ const partNames: Record<string, string> = {
   "upperBack__interscapular": "Interscapular (rhomboids and mid trapezius)",
 };
 
-/** The name of the exact region a path id refers to, or nothing. */
-export function regionPartName(pathId: string | undefined): string | undefined {
+/** The part token a path id refers to, or nothing. */
+export function partFromPathId(pathId: string | undefined): string | undefined {
   if (!pathId) return undefined;
   const parts = pathId.split("__");
   // muscle__<key>__<part>__<side> — anything shorter carries no subdivision.
   if (parts.length < 4) return undefined;
-  return partNames[`${parts[1]}__${parts.slice(2, -1).join("__")}`];
+  return parts.slice(2, -1).join("__");
+}
+
+/** The name of the exact region a path id refers to, or nothing. */
+export function regionPartName(pathId: string | undefined): string | undefined {
+  if (!pathId) return undefined;
+  const part = partFromPathId(pathId);
+  return part ? partNames[`${pathId.split("__")[1]}__${part}`] : undefined;
+}
+
+/**
+ * The named subdivisions a region is drawn in.
+ *
+ * The artwork splits the quadriceps into three heads and the triceps into
+ * three, and until now tapping any of them selected the whole muscle — the
+ * distinction the drawing was making could be seen and not acted on. Roles and
+ * evidence stay catalogued per muscle, because that is the grain the data has;
+ * this only lets the athlete point at the head they mean.
+ *
+ * Parts with no written name are left out rather than shown as raw tokens.
+ */
+export function regionParts(regionKey: string): { part: string; label: string }[] {
+  const named = new Map<string, string>();
+  (["front", "back"] as const).forEach((view) => {
+    anatomyViews[view].muscles
+      .filter((muscle) => muscle.key === regionKey)
+      .forEach((muscle) => muscle.paths.forEach((path) => {
+        if (!path.part || named.has(path.part)) return;
+        const label = partNames[`${regionKey}__${path.part}`];
+        if (label) named.set(path.part, label);
+      }));
+  });
+  return Array.from(named, ([part, label]) => ({ part, label }));
 }
