@@ -245,7 +245,10 @@ describe("workspace side navigation", () => {
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('workspace === "profile" && <AthleteAboutMePanel');
     expect(aboutMeSource).toContain("Available equipment");
-    expect(source).toContain('workspace === "movement" && <MovementAtlasPanel');
+    // The Atlas now renders behind the browsing notice, so the workspace opens a
+    // fragment rather than the panel directly; what matters is that it is still
+    // the Movement Atlas the athlete reaches.
+    expect(source).toMatch(/workspace === "movement" && <>.*<MovementAtlasPanel/);
     expect(source).toContain('workspace === "body" && <section className="body-lab-v2');
     expect(source).toContain('<CatalogExerciseEvidenceCard exercise={inspectedExercise} />');
     expect(anatomySource).toContain("View methodology");
