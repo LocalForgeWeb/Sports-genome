@@ -79,11 +79,21 @@ describe("Strength Genome definitions", () => {
     });
   });
 
-  it("does not promote reviewed reliability or reference literature into unqualified athlete percentiles or tiers", async () => {
+  /**
+   * The rule was "show no percentile", which in practice meant showing none at
+   * all: a gym bench press can never match a competition study's population, so
+   * the screen explained the protocol instead of placing a lift the reference
+   * could place. The rule is now the narrower, true one - a percentile always
+   * arrives with the group it ranks against - and the rank itself is allowed.
+   */
+  it("never shows a percentile without naming the population it ranks against", async () => {
     const { readFileSync } = await import("node:fs");
     const panelSource = readFileSync(new URL("../components/StrengthGenomePanel.tsx", import.meta.url), "utf8");
-    expect(panelSource).toContain("not a percentile, universal rank, or regional force score");
+    expect(panelSource).toContain("powerliftingRank.percentileBandLabel");
+    // The population travels in the same card as the number, not a footnote.
+    expect(panelSource).toContain("{powerliftingRank.population}");
     expect(panelSource).toContain("Log your first lift and your progress starts tracking from there.");
+    // Still no invented ladder of the app's own devising.
     expect(panelSource).not.toContain("Your percentile");
     expect(panelSource).not.toContain("SS+");
   });

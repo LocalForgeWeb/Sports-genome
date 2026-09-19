@@ -40,12 +40,13 @@ describe("Strength Genome panel", () => {
     // trains instead of falling off the map.
     expect(source).toContain("strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)");
     expect(source).toContain("Your record");
-    expect(source).toContain("not a percentile, universal rank, or regional force score");
+    // Replaced by the rank itself; the population still travels with the number.
+    expect(source).toContain("{powerliftingRank.population}");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("Why no comparison to other people?");
+    expect(source).toContain("No ranking for this lift yet");
     expect(source).toContain("Compared to that competition group");
-    expect(source).toContain("match a published study");
+    expect(source).toContain("Where this ranks");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
     // The body-mass field offers the weight in effect on the lift's own day, from
@@ -142,7 +143,7 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('getPiperReferenceForObservation');
     expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
-    expect(source).toContain("Why no comparison to other people?");
+    expect(source).toContain("No ranking for this lift yet");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("Compared to that competition group");
     expect(source).toContain("Nothing logged for this muscle group yet.");
