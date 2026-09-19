@@ -24,7 +24,7 @@ describe("Strength Genome rank-first presentation", () => {
     expect(ratingPosition).toBeGreaterThan(-1);
     expect(rankPosition).toBeGreaterThan(ratingPosition);
     expect(measurementPosition).toBeGreaterThan(rankPosition);
-    expect(panel).toContain("Why no comparison to other people?");
+    expect(panel).toContain("No ranking for this lift yet");
     expect(panel).toContain("for your own context, not a rank.");
   });
 

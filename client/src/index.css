@@ -2438,3 +2438,18 @@ details:not([open]) > *:not(summary) {
  * looking like a deploy that never happened.
  */
 .more-workspace-build { margin-top: 1.25rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+
+/**
+ * Where a lift ranks.
+ *
+ * The rank is what the athlete opened the screen for, so it carries the same
+ * weight as the matched-study card it sits in place of, with the affirmative
+ * accent rather than the informational blue - the number is the finding, not a
+ * footnote about it. The population line underneath is deliberately part of the
+ * card: a percentile shown without the group it ranks against is the misleading
+ * version, and separating them invites reading only the first line.
+ */
+.strength-rank-card { border-left: 3px solid var(--sg-focus-on-dark); }
+.strength-rank-card strong { color: var(--sg-focus-on-dark); }
+/* Asks for the one field that would produce a rank. */
+.strength-rank-needs { margin-top: .75rem; border-left: 2px solid var(--sg-link-on-dark); padding-left: .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.5; }
