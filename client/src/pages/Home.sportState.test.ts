@@ -45,4 +45,23 @@ describe("Home sport state safeguards", () => {
 	    expect(source).toContain("const openTrainingDay = (index: number) => {");
 	    expect(source).toContain("const activeImportedContext = dayStore.context[activeDayKey] || [];");
   });
+
+  it("writes a day back under its own key, so no switch can land one day's stack on another", () => {
+    // Switching used to stash the staged stack into whatever day you were
+    // leaving, unconditionally: leaving Push with an empty stage saved Push as
+    // empty, and leaving it while another day's stack was staged saved that
+    // stack under Push. The draft now carries the key it was read from, so the
+    // commit can only ever write back where it came from.
+    expect(source).toContain("const draftDayKeyRef = useRef(activeSlot.key);");
+    expect(source).toContain("const carried = commitDay(dayStore, departing, activeDraft());");
+    expect(source).not.toContain("const stashActiveDay =");
+  });
+
+  it("keeps the tracker day chooser read-only: it picks what you are logging, not what is saved", () => {
+    // It moves the marker and nothing else; the commit-and-read effect above is
+    // the only thing that touches a saved day.
+    expect(source).toContain("const openTrainingDay = (index: number) => {");
+    expect(source).toContain("onClick={() => openTrainingDay(slot.index)}");
+    expect(source).not.toContain("const chooseTrackerDay =");
+  });
 });

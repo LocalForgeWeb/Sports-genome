@@ -29,10 +29,18 @@
 .catalog-discovery-list { display: grid; gap: .55rem; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
 .catalog-discovery-card { display: flex; min-width: 0; align-items: stretch; border: 1px solid rgb(137 181 224 / .26); border-radius: 14px; background: linear-gradient(105deg, rgb(15 50 84 / .95), rgb(9 38 69 / .95)); transition: border-color var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease), box-shadow var(--sg-motion-fast) var(--sg-ease); }
 .catalog-discovery-card:hover { border-color: #77b3e5; box-shadow: 0 9px 20px rgb(0 0 0 / .2); transform: translateY(-1px); }
-.catalog-discovery-card-copy { display: grid; min-width: 0; flex: 1; grid-template-columns: auto minmax(0, 1fr) auto; gap: .72rem; padding: .82rem; text-align: left; }
+/* The card was a three-column grid -- index, text, and a "Catalog tag A" pill --
+   which on a 390px phone left the text column so narrow that the exercise name
+   wrapped to three lines and the muscle line truncated mid-word ("PECTORALI...").
+   The tag is catalog metadata, not a headline, so it moves down with the other
+   marks and the name gets the width. */
+.catalog-discovery-card-copy { display: grid; min-width: 0; flex: 1; grid-template-columns: auto minmax(0, 1fr); gap: .72rem; padding: .82rem; text-align: left; }
 .catalog-discovery-index { color: #84b9e6; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: .9; }
-.catalog-discovery-card-copy > span:nth-child(2) { min-width: 0; }
-.catalog-discovery-card-copy strong, .catalog-discovery-card-copy small, .catalog-discovery-card-copy em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catalog-discovery-identity { min-width: 0; }
+.catalog-discovery-card-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Movement and muscles are both classification, so they share one line, and it
+   wraps: a clipped "PECTORALI..." tells the athlete nothing. */
+.catalog-discovery-card-copy small { display: block; }
 .catalog-discovery-card-copy strong { color: #fbf6ed; font-size: .8rem; }
 .catalog-discovery-card-copy small { margin-top: .22rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; }
 .catalog-discovery-card-copy em { margin-top: .32rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-style: normal; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }

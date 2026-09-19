@@ -559,3 +559,52 @@
 /* Nowrap is what makes the row wrap: it gives the chip an honest minimum width,
    so the flex line breaks instead of the words inside it. */
 .health-signal { white-space: nowrap; }
+
+/* The entry row adapts to what the exercise actually records: a box jump has a
+   box height and no weight, a weighted box jump has both. Three boxes still fit
+   a 390px screen without any of them dropping below a usable tap target. */
+.live-set-entry { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
+.live-set-entry[data-fields="3"] input { font-size: 1rem; padding: 0 .5rem; }
+
+/* Skipping is the escape hatch for a rack that was taken, so it sits below the
+   commit action and is never styled to compete with it. */
+.live-set-skip {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  margin-top: .5rem;
+  border: 1px solid rgb(176 214 247 / .3);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sg-text-muted-on-dark);
+  font-size: .6875rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.live-set-skip:hover { border-color: var(--sg-info); color: var(--sg-text-on-dark); }
+
+.session-exercise-skip {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: .3rem;
+  margin-left: auto;
+  border: 1px solid rgb(176 214 247 / .28);
+  border-radius: 8px;
+  padding: 0 .6rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: .6875rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.session-exercise-skip:hover { border-color: var(--sg-info); color: var(--sg-text-on-dark); }
+
+/* A skipped exercise reads as deliberately passed, not as unfinished work. */
+.device-workout-tracker .session-exercise-skipped { opacity: .62; }
+.device-workout-tracker .session-exercise-skipped .session-set-list { display: none; }
+.device-workout-tracker .session-set-skipped > strong { color: var(--sg-text-subtle-on-dark); }

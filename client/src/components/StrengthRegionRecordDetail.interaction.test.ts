@@ -60,8 +60,8 @@ describe("Strength region body-mass completion", () => {
 
   it("submits an account-backed missing body mass and keeps the ratio as supporting detail after refreshed data returns", async () => {
     const { rerender } = renderDetail();
-    fireEvent.change(screen.getByLabelText("Body mass on test day in pounds"), { target: { value: "180" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save test body weight" }));
+    fireEvent.change(screen.getByLabelText("Body weight on the day of this lift, in pounds"), { target: { value: "180" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
     expect(mocks.bodyMassMutation.mutate).toHaveBeenCalledWith({ observationId: 101, bodyMassKgAtTest: 81.6466266 });
     await act(async () => { await mocks.mutationOptions?.onSuccess(); });
     rerender(React.createElement(StrengthRegionRecordDetail, { region: biceps, observations: [{ ...missingBodyMassObservation[0], bodyMassKgAtTest: 81.6466266 }], onClose: noOp, weightUnit: "lb", directAccess: false, onSetDeviceBodyMass: noOp }));
@@ -70,9 +70,9 @@ describe("Strength region body-mass completion", () => {
 
   it("shows pending status before preserving a failed account-backed entry for inline retry", () => {
     const { rerender, container } = renderDetail();
-    const input = screen.getByLabelText("Body mass on test day in pounds") as HTMLInputElement;
+    const input = screen.getByLabelText("Body weight on the day of this lift, in pounds") as HTMLInputElement;
     fireEvent.change(input, { target: { value: "180" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save test body weight" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
     mocks.bodyMassMutation.isPending = true;
     rerender(detailElement());
     openMeasurementDetail(container);
@@ -84,7 +84,7 @@ describe("Strength region body-mass completion", () => {
     act(() => { mocks.mutationOptions?.onError(); });
     expect(screen.getByRole("alert").textContent).toContain("Your entry is still here");
     expect(input.value).toBe("180");
-    fireEvent.click(screen.getByRole("button", { name: "Save test body weight" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
     expect(mocks.bodyMassMutation.mutate).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole("alert")).toBeNull();
   });
@@ -92,8 +92,8 @@ describe("Strength region body-mass completion", () => {
   it("keeps direct-access completion local and bypasses the account mutation", () => {
     const setDeviceBodyMass = vi.fn();
     renderDetail({ directAccess: true, onSetDeviceBodyMass: setDeviceBodyMass });
-    fireEvent.change(screen.getByLabelText("Body mass on test day in pounds"), { target: { value: "180" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save test body weight" }));
+    fireEvent.change(screen.getByLabelText("Body weight on the day of this lift, in pounds"), { target: { value: "180" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
     expect(setDeviceBodyMass).toHaveBeenCalledWith("101", 81.6466266);
     expect(mocks.bodyMassMutation.mutate).not.toHaveBeenCalled();
     expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
@@ -104,8 +104,8 @@ describe("Strength region body-mass completion", () => {
     const alternate = { ...missingBodyMassObservation[0], id: 102, exerciseName: "Machine Preacher Curl", loadKg: 40, bodyMassKgAtTest: 81.6466266 };
     renderDetail({ directAccess: true, onSetDeviceBodyMass: vi.fn(), onClose, observations: [missingBodyMassObservation[0], alternate] });
 
-    fireEvent.change(screen.getByLabelText("Body mass on test day in pounds"), { target: { value: "180" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save test body weight" }));
+    fireEvent.change(screen.getByLabelText("Body weight on the day of this lift, in pounds"), { target: { value: "180" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
     expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
 
     expect(screen.queryByText(/Recorded history/)).toBeNull();
