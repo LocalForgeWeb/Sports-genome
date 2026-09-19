@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  bootDocumentBackstopMs,
+  bootDocumentBackstopRecheckMs,
   bootVideoCeilingMs,
   bootVideoDoneEvent,
   bootVideoStartCutoffMs,
   canStartBootVideo,
+  introSettleReason,
   readBootVideoState,
   whenBootVideoSettles,
 } from "@/lib/bootVideoHandoff";
@@ -136,14 +139,83 @@ describe("whenBootVideoSettles", () => {
     expect(settled).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps the ceiling generous enough that the normal path never reaches it", () => {
-    expect(bootVideoCeilingMs).toBeGreaterThan(3_000);
+  it("keeps the ceiling generous enough that a real intro never reaches it", () => {
+    // It was 4_000, which cut a six-second intro at 4.41s. The ceiling must be long
+    // enough that no plausible brand intro can be the thing it ends.
+    expect(bootVideoCeilingMs).toBeGreaterThanOrEqual(12_000);
   });
 
-  it("leaves room for the cross-fade before the document's last-resort backstop", () => {
-    // hold + ceiling + fade must land well under the 9s backstop, or the screen
-    // gets slammed off with no fade and the whole hand-off reads as a cut.
-    const worstCase = firstLaunchPresentationMs + bootVideoCeilingMs + bootFadeMs;
-    expect(worstCase).toBeLessThan(9_000 - 1_000);
+  it("keeps the document backstop short for a startup failure, and defers it only while the intro runs", () => {
+    // Stretching the backstop past the intro's ceiling would make every genuine
+    // failure a longer blank stare, so it stays where it was and re-checks instead.
+    expect(firstLaunchPresentationMs + bootFadeMs).toBeLessThan(bootDocumentBackstopMs);
+    expect(bootDocumentBackstopMs).toBeLessThan(bootVideoCeilingMs);
+    expect(bootDocumentBackstopRecheckMs).toBeLessThan(bootDocumentBackstopMs);
+  });
+});
+
+/**
+ * The policy that replaced the flat cap. One 4-second number was answering two
+ * unrelated questions - "did it ever start?" and "is it still going?" - and the
+ * answer that was right for the first was what cut the second short.
+ */
+describe("introSettleReason", () => {
+  const playing = { ended: false, playing: true, msSinceProgress: 0, msSinceStart: 0, durationMs: 6_000 };
+
+  it("ends on the video's own end, whenever that is", () => {
+    expect(introSettleReason({ ...playing, ended: true, msSinceStart: 6_050 })).toBe("ended");
+    expect(introSettleReason({ ...playing, ended: true, msSinceStart: 900 })).toBe("ended");
+  });
+
+  /** The reported bug, as a test: six seconds of intro, four seconds in, still playing. */
+  it("keeps waiting on a six-second intro at the moment the old cap cut it", () => {
+    expect(introSettleReason({ ...playing, msSinceStart: 4_000, msSinceProgress: 30 })).toBeNull();
+    expect(introSettleReason({ ...playing, msSinceStart: 4_410, msSinceProgress: 30 })).toBeNull();
+    expect(introSettleReason({ ...playing, msSinceStart: 5_900, msSinceProgress: 30 })).toBeNull();
+  });
+
+  it("waits out a long intro as long as its clock is still advancing", () => {
+    expect(introSettleReason({ ended: false, playing: true, msSinceProgress: 40, msSinceStart: 11_000, durationMs: 12_000 })).toBeNull();
+  });
+
+  it("gives up on a download that stops progressing", () => {
+    expect(introSettleReason({ ...playing, msSinceStart: 2_000, msSinceProgress: 1_600 })).toBe("stalled");
+    // A brief decode hiccup is not a stall.
+    expect(introSettleReason({ ...playing, msSinceStart: 2_000, msSinceProgress: 400 })).toBeNull();
+  });
+
+  it("stops a little past a known duration, for the gap before `ended` arrives", () => {
+    expect(introSettleReason({ ...playing, msSinceStart: 8_100, msSinceProgress: 10 })).toBe("overran");
+    expect(introSettleReason({ ...playing, msSinceStart: 7_000, msSinceProgress: 10 })).toBeNull();
+  });
+
+  it("has an absolute ceiling for a video that declares no duration at all", () => {
+    expect(introSettleReason({ ended: false, playing: true, msSinceProgress: 10, msSinceStart: 15_100, durationMs: null })).toBe("overran");
+    expect(introSettleReason({ ended: false, playing: true, msSinceProgress: 10, msSinceStart: 9_000, durationMs: null })).toBeNull();
+  });
+
+  it("abandons an intro that never begins, on the ceiling the flat cap was right for", () => {
+    const idle = { ended: false, playing: false, msSinceProgress: 0, durationMs: null };
+    expect(introSettleReason({ ...idle, msSinceStart: 3_900 })).toBeNull();
+    expect(introSettleReason({ ...idle, msSinceStart: 4_100 })).toBe("never-started");
+  });
+
+  it("waits longer for a replay to start, because watching it is the point", () => {
+    const idle = { ended: false, playing: false, msSinceProgress: 0, durationMs: null, replay: true };
+    expect(introSettleReason({ ...idle, msSinceStart: 6_000 })).toBeNull();
+    expect(introSettleReason({ ...idle, msSinceStart: 8_100 })).toBe("never-started");
+  });
+
+  it("never lets the start ceiling apply to a video that is already playing", () => {
+    // This inversion is the entire bug: the guard for "it never started" was ending
+    // an intro that had started and was running fine.
+    expect(introSettleReason({ ...playing, msSinceStart: 4_500, msSinceProgress: 20 })).toBeNull();
+  });
+});
+
+describe("canStartBootVideo", () => {
+  it("lets a replay start however late it became playable", () => {
+    expect(canStartBootVideo(5_000)).toBe(false);
+    expect(canStartBootVideo(5_000, { replay: true })).toBe(true);
   });
 });

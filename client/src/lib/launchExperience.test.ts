@@ -52,10 +52,46 @@ describe("launch experience preference", () => {
     expect(bootDocumentSource).toContain('video.addEventListener("error"');
   });
 
-  it("keeps a ceiling so a stalled download cannot hold the screen", () => {
-    expect(bootDocumentSource).toContain("window.setTimeout(function () { settle(\"done\"); }, 4000)");
-    // The document's last-resort backstop must not beat the designed cross-fade.
-    expect(bootDocumentSource).toContain('add("sports-genome-app-ready")},9000)');
+  /**
+   * The previous ceiling asked "has it been long enough?" and answered with one flat
+   * number for two unrelated failures. A six-second intro that was playing perfectly
+   * was cut at 4.41s by the guard meant for a download that never started.
+   */
+  it("abandons an intro that never starts, and never cuts one that is playing", () => {
+    // The guard for "it never started" keeps the old four seconds - that is the case
+    // it was right for - and applies only while nothing is playing.
+    expect(bootDocumentSource).toContain("if (!playing) {");
+    expect(bootDocumentSource).toContain('if (sinceStart > (replay ? 8000 : 4000)) { window.clearInterval(watch); settle("skipped"); }');
+    // Once it is playing, only a stalled clock or its own declared length ends it.
+    expect(bootDocumentSource).toContain("var stalled = now - lastProgressAt > 1500;");
+    expect(bootDocumentSource).toContain("var overran = (durationMs && sinceStart > durationMs + 2000) || sinceStart > 15000;");
+    expect(bootDocumentSource).toContain('video.addEventListener("playing"');
+    // No flat timer may settle the intro on elapsed time alone.
+    expect(bootDocumentSource).not.toContain('window.setTimeout(function () { settle("done"); }, 4000)');
+  });
+
+  it("keeps the document's last-resort backstop clear of a playing intro without slowing a real failure", () => {
+    // At a flat 9s it could beat a video that was still running, and it reveals the app
+    // with no cross-fade - so it would undo the waiting entirely. Extending it instead
+    // would make every genuine startup failure a longer blank stare, so it re-checks.
+    expect(bootDocumentSource).toContain('dataset.sportsGenomeBootVideo==="playing"');
+    expect(bootDocumentSource).toContain("window.setTimeout(check,1000)");
+    expect(bootDocumentSource).toContain("window.setTimeout(check,9000)");
+  });
+
+  /**
+   * "Preview intro video" reloaded the page, and a reload of a browser that has
+   * launched before is exactly the state in which the intro is skipped. The button
+   * reliably previewed nothing.
+   */
+  it("lets an explicit replay through the returning-visit skip", () => {
+    expect(bootSplashSource).toContain('window.localStorage.setItem(replayIntroStorageKey, "yes")');
+    expect(bootDocumentSource).toContain('localStorage.getItem("sports-genome-replay-intro-v1")==="yes"');
+    expect(bootDocumentSource).toContain('localStorage.removeItem("sports-genome-replay-intro-v1")');
+    expect(bootDocumentSource).toContain('r.dataset.sportsGenomeBootReturn=(!replay&&localStorage.getItem("sports-genome-launched-before-v1")==="yes")?"yes":"no"');
+    // And a replay is not held to the "you asked too late to start" gate.
+    expect(bootDocumentSource).toContain("if (!replay && Date.now() - startedAt > 1100)");
+    expect(bootLifecycleSource).toContain("bootPresentationMs(hasLaunchedBefore() && !isIntroReplay())");
   });
 
   it("makes the hold a floor rather than a deadline", () => {
