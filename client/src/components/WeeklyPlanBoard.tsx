@@ -1,6 +1,6 @@
 /** Modern Kinetic Field Manual: a compact weekly rail that makes the active draft and saved day plans visible. */
 import type { Exercise } from "@/lib/exerciseCatalog";
-import type { SplitDay } from "@/components/SplitDraftControls";
+import type { SplitDay } from "@/lib/splitCycle";
 
 type WeeklyPlan = Record<string, Exercise[]>;
 

@@ -640,3 +640,65 @@
  * beside it is what gives up the space; it already wraps by design. */
 .day-programming-head > button { flex: 0 0 auto; padding: .5rem .7rem; white-space: nowrap; }
 .day-programming-head > div:first-child { min-width: 0; }
+
+/* The session draft, inline in the page.
+   It replaced a fixed-position "Session Planner" dock whose own open/close tab sat on
+   top of whatever was behind it. Nothing here is positioned out of flow, so it cannot
+   cover anything - and the time control the draft actually depends on is in it. */
+.session-draft-panel { display: grid; gap: 1rem; border: 1px solid rgb(132 168 205 / .34); background: var(--sg-surface-raised); padding: 1.15rem; color: var(--sg-text-on-dark); }
+.session-draft-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.session-draft-head h3 { margin-top: .22rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.9rem; font-weight: 800; line-height: .92; text-transform: uppercase; }
+.session-draft-spark { flex: 0 0 auto; color: var(--sg-focus-on-dark); }
+.session-draft-field { display: grid; gap: .55rem; }
+.session-draft-field .metric-label { color: #9ec4e8; }
+.session-draft-chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.session-draft-chip { display: inline-flex; min-height: 44px; align-items: baseline; gap: .28rem; border: 1px solid rgb(255 255 255 / .2); background: rgb(255 255 255 / .05); padding: .5rem .72rem; color: #dbe9f8; font-size: .95rem; font-weight: 800; line-height: 1; transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
+.session-draft-chip small { font-size: .6875rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .68; }
+.session-draft-chip-wide { font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
+.session-draft-chip:hover { border-color: rgb(255 255 255 / .38); background: rgb(255 255 255 / .1); }
+.session-draft-chip-active { border-color: var(--sg-action); background: rgb(228 81 46 / .18); color: #fff; }
+.session-draft-chip:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.session-draft-note { color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.5; }
+.session-draft-outcome { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .85rem; border-top: 1px solid rgb(255 255 255 / .12); padding-top: .9rem; }
+.session-draft-outcome > div { min-width: 0; }
+.session-draft-outcome .metric-label { color: #9ec4e8; }
+.session-draft-outcome strong { display: inline-flex; align-items: center; gap: .4rem; margin-top: .3rem; color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: 1; text-transform: uppercase; }
+.session-draft-outcome small { display: block; max-width: 34rem; margin-top: .38rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.5; }
+.session-draft-button { flex: 0 0 auto; min-height: 44px; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .7rem .95rem; color: #fff; font-size: .6875rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; transition: background var(--sg-motion-fast) var(--sg-ease); }
+.session-draft-button:hover { background: #bd4027; }
+/* Five short time options fit one row at any width worth supporting; left to wrap they
+   broke 4 + 1, which reads as a mistake rather than a set of equals. */
+.session-draft-chips-time { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .4rem; }
+.session-draft-chips-time .session-draft-chip { justify-content: center; }
+.session-draft-chips-focus { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .4rem; }
+.session-draft-chips-focus .session-draft-chip { justify-content: center; text-align: center; }
+@media (max-width: 640px) {
+  .session-draft-panel { padding: .95rem; }
+  .session-draft-head h3 { font-size: 1.55rem; }
+  .session-draft-chips-time { gap: .3rem; }
+  .session-draft-chips-time .session-draft-chip { flex-direction: column; gap: .1rem; padding: .45rem .3rem; font-size: .88rem; }
+  .session-draft-chips-focus { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .session-draft-chips-focus .session-draft-chip { font-size: .6875rem; }
+  .session-draft-outcome { align-items: stretch; }
+  .session-draft-outcome strong { font-size: 1.15rem; }
+  .session-draft-button { width: 100%; }
+}
+
+/* Anything the app scrolls you to has to arrive below whatever is pinned above it.
+   Without this, tapping "Stack Review" or "Prep" scrolled the target to y=0 - behind the
+   topbar and tab row, and on Training Day behind a 219px sticky day bar as well - so the
+   tab appeared to do nothing at all. */
+#stack-review,
+#session-prep,
+.session-draft-panel,
+.day-exercise-picker { scroll-margin-top: 9.5rem; }
+.day-design-workspace #stack-review,
+.day-design-workspace #session-prep,
+.day-design-workspace .session-draft-panel,
+.day-design-workspace .day-exercise-picker { scroll-margin-top: 23rem; }
+@media (min-width: 1080px) {
+  .day-design-workspace #stack-review,
+  .day-design-workspace #session-prep,
+  .day-design-workspace .session-draft-panel,
+  .day-design-workspace .day-exercise-picker { scroll-margin-top: 22.5rem; }
+}
