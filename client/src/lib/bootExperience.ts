@@ -16,6 +16,23 @@
 
 export const returningVisitStorageKey = "sports-genome-launched-before-v1";
 
+/**
+ * A one-shot request to watch the intro again.
+ *
+ * "Preview intro video" reloaded the page and nothing played, because a reload of a
+ * browser that has launched before is by definition a returning visit - the one state
+ * in which the intro is deliberately skipped. The button existed to replay something
+ * it had just guaranteed would not run. This flag is set before the reload and cleared
+ * by the document script that reads it, so the replay happens exactly once.
+ */
+export const replayIntroStorageKey = "sports-genome-replay-intro-v1";
+
+/** Set by the document script when this load is an explicit replay. */
+export function isIntroReplay(root?: Pick<HTMLElement, "dataset">): boolean {
+  const element = root ?? (typeof document === "undefined" ? null : document.documentElement);
+  return element?.dataset.sportsGenomeBootReplay === "yes";
+}
+
 /** Full choreography: mark forms, DNA lines settle, wordmark arrives. */
 export const firstLaunchPresentationMs = 1_720;
 
