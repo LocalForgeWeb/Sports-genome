@@ -135,9 +135,18 @@ describe("the chart selection carries the exact region", () => {
     expect(map).toContain("setSelectedKey(key)");
   });
 
-  it("clears the region id on reset, so a stale band cannot stay lit", () => {
-    const reset = map.slice(map.indexOf("const reset ="), map.indexOf("const reset =") + 160);
-    expect(reset).toContain('setSelectedId("")');
+  it("clears the region id on every route that changes the selection, so a stale band cannot stay lit", () => {
+    // There is no longer a Reset control — it reset a view that no longer
+    // flips — so the guarantee lives in the selection paths themselves. Tapping
+    // the figure writes the tapped id (or nothing); picking from the list and
+    // clearing both write nothing. No path leaves the previous id behind.
+    const choose = map.slice(map.indexOf("const chooseRegion = useCallback"), map.indexOf("const chooseRegion = useCallback") + 260);
+    expect(choose).toContain('setSelectedId(pathId ?? "")');
+    expect(map).not.toContain("const reset =");
+    // Every list-driven selection and the clear button drop the id.
+    const listWrites = (map.match(/setSelectedKey\(region\.key\); setSelectedId\(""\)/g) || []).length;
+    expect(listWrites).toBeGreaterThanOrEqual(2);
+    expect(map).toContain('setSelectedKey(""); setSelectedId(""); setSelectedPart("")');
   });
 
   it("shows the part under the muscle name", () => {

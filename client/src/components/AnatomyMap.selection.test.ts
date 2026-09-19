@@ -84,6 +84,29 @@ describe("selecting a muscle in the Body Lab", () => {
     expect(css).not.toMatch(/\.anatomy-selection-ring\s*\{[^}]*stroke-width:\s*6/);
   });
 
+  it("shows a selection the app hands it, and keeps a tapped head when the app echoes the key back", () => {
+    // Home carries the muscle the athlete reached by search, by an exercise, or
+    // by "open the body at this muscle". The map used to ignore it and start
+    // blank, so a card named a muscle the figure showed nothing for — the very
+    // first thing reported in this work.
+    const { container, rerender } = render(createElement(AnatomyMap, { primary: ["glutes", "quads"], secondary: [], onSelect: vi.fn(), selectedKey: "glutes" }));
+    expect(container.querySelector('.anatomy-muscle[data-muscle="glutes"]')?.getAttribute("data-selected")).toBe("true");
+
+    // Tapping a head reports the parent key up; the app sets its state to that
+    // key and hands it straight back. That is an echo, not a new selection, so
+    // the head the athlete pointed at must survive it.
+    select(container, "Quadriceps femoris");
+    fireEvent.click(container.querySelectorAll(".atlas-part-picker button")[2]);
+    expect(container.querySelector(".atlas-inspector-part")?.textContent).toBe("Rectus femoris");
+    rerender(createElement(AnatomyMap, { primary: ["glutes", "quads"], secondary: [], onSelect: vi.fn(), selectedKey: "quads" }));
+    expect(container.querySelector(".atlas-inspector-part")?.textContent).toBe("Rectus femoris");
+
+    // A genuinely different key from outside moves the selection and drops the head.
+    rerender(createElement(AnatomyMap, { primary: ["glutes", "quads"], secondary: [], onSelect: vi.fn(), selectedKey: "glutes" }));
+    expect(container.querySelector('.anatomy-muscle[data-muscle="glutes"]')?.getAttribute("data-selected")).toBe("true");
+    expect(container.querySelector(".atlas-inspector-part")).toBeNull();
+  });
+
   it("offers no flip control, because there is no hidden view left to flip to", () => {
     const { container } = draw();
     expect(container.querySelector(".atlas-flip-btn")).toBeNull();
