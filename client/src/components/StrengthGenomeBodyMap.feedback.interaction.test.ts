@@ -32,15 +32,28 @@ describe("Strength Genome map interaction feedback", () => {
     expect(feedback.emit).toHaveBeenCalledTimes(1);
   });
 
-  it("puts both bodies on one canvas, so there is no view to switch to", () => {
+  it("draws one body, front first, and turns around on the control", () => {
     render(React.createElement(StrengthGenomeBodyMap, { regions, activePriorityIds: new Set<string>(), selectedRegionId: undefined, onSelect: vi.fn() }));
-    expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Front" })).toBeNull();
-    expect(document.querySelector('.anatomy-figure[data-view="both"]')).toBeTruthy();
-    // One canvas carrying both bodies: an anterior-only region and a
-    // posterior-only one are drawn together, with no flip between them.
+    expect(document.querySelector('.anatomy-figure[data-view="front"]')).toBeTruthy();
+    expect(document.querySelector('.anatomy-figure[data-view="both"]')).toBeNull();
+    // Front only: an anterior region is drawn, a posterior-only one is not.
     expect(document.querySelector('.anatomy-muscle[data-muscle="chest"]')).toBeTruthy();
+    expect(document.querySelector('.anatomy-muscle[data-muscle="glutes"]')).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Show back of the body" }));
+    expect(document.querySelector('.anatomy-figure[data-view="back"]')).toBeTruthy();
     expect(document.querySelector('.anatomy-muscle[data-muscle="glutes"]')).toBeTruthy();
+    expect(document.querySelector('.anatomy-muscle[data-muscle="chest"]')).toBeNull();
+  });
+
+  it("turns to face a region selected from the list rather than the figure", () => {
+    // The reason both bodies used to be drawn at once: choosing a posterior
+    // region while looking at the front left the card naming a muscle that was
+    // not on screen.
+    const lats = { ...strengthRegionDefinitions.find((region) => region.id === "lats")!, state: "INSUFFICIENT_DATA" as const };
+    expect(lats.id).toBe("lats");
+    render(React.createElement(StrengthGenomeBodyMap, { regions: [...regions, lats], activePriorityIds: new Set<string>(), selectedRegionId: lats.id, onSelect: vi.fn() }));
+    expect(document.querySelector('.anatomy-figure[data-view="back"]')).toBeTruthy();
   });
 
   it("keeps a rendered muscle region keyboard-addressable and routes its activation through optional feedback", () => {

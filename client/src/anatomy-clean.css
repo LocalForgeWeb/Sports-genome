@@ -16,13 +16,21 @@
 /* Body chart container (body-muscles library) */
 .atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;margin-top:.3rem;overflow:hidden;padding:.7rem .5rem .4rem;background:radial-gradient(circle at 50% 38%,var(--sg-surface-light) 0%,var(--sg-surface-light) 56%,var(--sg-surface-light-sunken) 100%);border:1px solid var(--sg-surface-light-sunken)}
 .atlas-body-chart{width:100%;display:flex;justify-content:center;align-items:center}
-/* Sized by width, because both bodies side by side is a landscape drawing.
-   The forced override here existed to beat the old third-party chart's inline
-   height; that library is gone, and the override only got in the way. */
+/* Sized by width. One body at a time is a portrait drawing, so this is what
+   makes it fill the panel instead of sitting small in the middle of it - which
+   is also what gives every muscle a tap target worth aiming at. */
 .atlas-body-chart svg{width:100%;height:auto;max-width:100%}
-/* Which body is which, said under the drawing. The reference apps run leader
-   lines to thirty labels; two words do the same job and survive a phone. */
-.atlas-view-captions{display:flex;justify-content:space-around;width:100%;margin:.15rem 0 0;color:var(--sg-text-subtle-on-light);font-size:.6875rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+/* Turns the figure around. It sits in the caption row under the drawing, beside
+   the word naming the body on screen: pinned to the panel's top edge it scrolled
+   under the header on a phone exactly when the body filled the screen, which is
+   when you want it. */
+.atlas-side-toggle{display:inline-flex;min-height:2.25rem;align-items:center;gap:.35rem;border:1px solid var(--sg-divider-on-light);border-radius:8px;background:var(--sg-surface-light);padding:0 .6rem;color:#3a6187;font-size:.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;transition:border-color var(--sg-motion-fast) var(--sg-ease),color var(--sg-motion-fast) var(--sg-ease),transform var(--sg-motion-fast) var(--sg-ease)}
+.atlas-side-toggle:hover{border-color:var(--sg-info-strong);color:#1d5cae}
+.atlas-side-toggle:active{transform:scale(.97)}
+.atlas-side-toggle:focus-visible{outline:2px solid var(--sg-info-strong);outline-offset:2px}
+/* Which body is on screen, said under the drawing. The reference apps run
+   leader lines to thirty labels; one word does the same job on a phone. */
+.atlas-view-captions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.6rem .9rem;width:100%;margin:.15rem 0 0;color:var(--sg-text-subtle-on-light);font-size:.6875rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
 /* The hover chip names the exact region under the finger.
    It hardcoded a white background while taking its text colour from
    --sg-text-on-light. On the dark destination that token is remapped to the

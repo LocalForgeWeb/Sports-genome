@@ -30,10 +30,15 @@ describe("Strength Genome body-map accessible region selection", () => {
     expect(styles).toContain(".strength-map-legend-off i");
   });
 
-  it("shows both bodies at once rather than a view the athlete has to flip", () => {
-    expect(source).toContain('view="both"');
-    expect(source).not.toMatch(/setView|RotateCw/);
-    // Which body is which, said under the figure rather than written across it.
+  it("shows one body at a time, opening on the front, with a control to turn it around", () => {
+    expect(source).toContain('view={side}');
+    expect(source).not.toContain('view="both"');
+    expect(source).toContain("useState<AnatomySide>(defaultAnatomySide)");
+    expect(source).toContain("strength-body-side-toggle");
+    // The figure turns itself to face a region chosen from the list, so a
+    // selection can never name a muscle that is not on screen.
+    expect(source).toContain("setSide((current) => sideForSelection(current, selectedMuscleKeys))");
+    // Which body is on screen, said under the figure rather than written across it.
     expect(source).toContain('className="strength-body-chart-views"');
   });
 
