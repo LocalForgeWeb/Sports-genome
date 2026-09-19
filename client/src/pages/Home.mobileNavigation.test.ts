@@ -168,7 +168,6 @@ describe("workspace side navigation", () => {
     expect(css).toContain('min-height: 4.25rem;');
     expect(css).toContain('touch-action: manipulation;');
     expect(css).toContain('font-size: .6875rem;');
-    expect(css).toContain('.planner-float { bottom: calc(5.6rem');
     expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');
   });

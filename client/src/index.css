@@ -899,7 +899,6 @@ select {
   .plan-context summary { min-height: 52px; padding: .65rem .85rem; }
   .plan-context summary > span { font-size: .76rem; }
   .plan-context summary small { font-size: .6875rem; }
-  .planner-float { bottom: calc(5.6rem + env(safe-area-inset-bottom, 0px)); }
   .feature-guide-button { bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
 }
 
@@ -1765,12 +1764,6 @@ details:not([open]) > *:not(summary) {
    clearance it permanently covers the bottom of the page: on the Builder it hid
    the tail of "…without losing the current sport-aware draft." Reserve room for
    it the same way the dock's own padding does. */
-/* The float is rendered at shell level, not inside .apex-content, so the :has()
-   has to hang off the shell. */
-.apex-shell:has(.planner-float) .apex-content {
-  padding-bottom: calc(13.5rem + env(safe-area-inset-bottom, 0px));
-}
-
 @media (max-width: 720px) {
   /* A primary action floating alone at the right edge is both an awkward tap
      target and visually unbalanced at phone width. */
