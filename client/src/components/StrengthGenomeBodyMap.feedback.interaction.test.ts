@@ -20,18 +20,27 @@ const regions = [
 describe("Strength Genome map interaction feedback", () => {
   afterEach(() => { feedback.emit.mockReset(); document.body.innerHTML = ""; });
 
-  it("gives an optional feedback signal for the accessible recorded-region selection and view switch", () => {
+  it("gives an optional feedback signal for the written region route, which needs no disclosure to open", () => {
     const onSelect = vi.fn();
     render(React.createElement(StrengthGenomeBodyMap, { regions, activePriorityIds: new Set<string>(), selectedRegionId: undefined, onSelect }));
 
-    fireEvent.click(screen.getByText("Choose a region"));
-    fireEvent.click(screen.getByText("Biceps"));
+    // No "Choose a region" summary to open first: the list is the primary route
+    // now that both bodies share the canvas, so it is on screen already.
+    expect(screen.queryByText("Choose a region")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Biceps, On record" }));
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining(biceps));
     expect(feedback.emit).toHaveBeenCalledTimes(1);
+  });
 
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
-    expect(feedback.emit).toHaveBeenCalledTimes(2);
-    expect(screen.getByRole("button", { name: "Front" })).toBeTruthy();
+  it("puts both bodies on one canvas, so there is no view to switch to", () => {
+    render(React.createElement(StrengthGenomeBodyMap, { regions, activePriorityIds: new Set<string>(), selectedRegionId: undefined, onSelect: vi.fn() }));
+    expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Front" })).toBeNull();
+    expect(document.querySelector('.anatomy-figure[data-view="both"]')).toBeTruthy();
+    // One canvas carrying both bodies: an anterior-only region and a
+    // posterior-only one are drawn together, with no flip between them.
+    expect(document.querySelector('.anatomy-muscle[data-muscle="chest"]')).toBeTruthy();
+    expect(document.querySelector('.anatomy-muscle[data-muscle="glutes"]')).toBeTruthy();
   });
 
   it("keeps a rendered muscle region keyboard-addressable and routes its activation through optional feedback", () => {

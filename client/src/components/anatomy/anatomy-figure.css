@@ -34,6 +34,11 @@
   overflow: visible;
 }
 
+/* Two bodies is a landscape canvas, so it is width that is scarce, not height.
+   Sized by height it would overflow the card sideways exactly as the single
+   figure once overflowed it downwards. */
+.anatomy-figure[data-view="both"] { width: 100%; height: auto; max-height: 100%; }
+
 /* The filled body under everything. Joints the muscle layer does not cover —
    knees, shins — are body here rather than holes showing the page through. */
 .anatomy-shell { fill: var(--anatomy-shell); }
@@ -73,14 +78,18 @@
    the target outward; the drawn muscle underneath is untouched. Painted in
    largest-area-first order, so a small muscle's target lands above its larger
    neighbour's and hit priority is deterministic rather than incidental. */
-.anatomy-hit > path {
+/* Descendant, not direct child: in `both` view each region's targets are
+   wrapped in a per-body transform group. As a child selector this silently
+   stopped matching, the paths fell back to SVG's default black fill, and the
+   invisible hit layer painted over every muscle on the figure. */
+.anatomy-hit path {
   fill: transparent;
   stroke: transparent;
   stroke-linejoin: round;
   pointer-events: all;
 }
 
-.anatomy-hit:focus-visible > path {
+.anatomy-hit:focus-visible path {
   stroke: var(--anatomy-selection);
   stroke-opacity: 0.45;
 }

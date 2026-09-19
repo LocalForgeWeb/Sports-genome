@@ -1,9 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import React from "react";
-import { RotateCw } from "lucide-react";
 import type { StrengthRegionDefinition } from "../../../shared/strengthGenomeDefinitions";
 import { catalogMuscleRegionIds } from "../../../shared/strengthGenomeDefinitions";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
+import { AnatomyRegionGrid, type AnatomyRegionRow } from "@/components/anatomy/AnatomyRegionGrid";
 import { buildStrengthRegionMap, type AnatomyRole } from "@/lib/anatomyRegions";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 
@@ -19,7 +19,6 @@ type RegionState = "OBSERVED_TEST_CONTEXT" | "INSUFFICIENT_DATA";
 const regionToMuscles = buildStrengthRegionMap(catalogMuscleRegionIds);
 
 export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePriorityIds, selectedRegionId, onSelect }: { regions: (StrengthRegionDefinition & { state: RegionState })[]; activePriorityIds: Set<string>; selectedRegionId?: string; onSelect: (region?: StrengthRegionDefinition) => void }) {
-  const [view, setView] = useState<"front" | "back">("front");
   const regionByMuscle = useMemo(() => new Map(Object.entries(regionToMuscles).flatMap(([regionId, keys]) => keys.map((key) => [key, regionId] as const))), []);
   const regionById = useMemo(() => new Map(regions.map((region) => [region.id, region])), [regions]);
   const labelByMuscle = useMemo(() => new Map(Object.entries(regionToMuscles).flatMap(([regionId, keys]) => keys.map((key) => [key, regionById.get(regionId)?.label ?? regionId] as const))), [regionById]);
@@ -47,23 +46,49 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
     onSelect(selectedRegionId === region.id ? undefined : region);
   }, [onSelect, regionById, regionByMuscle, selectedRegionId]);
 
+  const chooseRegion = useCallback((regionId: string) => {
+    const region = regionById.get(regionId);
+    if (!region) return;
+    emitInteractionFeedback();
+    onSelect(selectedRegionId === region.id ? undefined : region);
+  }, [onSelect, regionById, selectedRegionId]);
+
+  const rows = useMemo<AnatomyRegionRow[]>(() => regions.map((region) => ({
+    id: region.id,
+    label: region.label,
+    muscleKeys: regionToMuscles[region.id] ?? [],
+    state: region.state === "OBSERVED_TEST_CONTEXT" ? "On record" : "Nothing yet",
+    active: region.state === "OBSERVED_TEST_CONTEXT",
+  })), [regions]);
+
+  const recordedCount = rows.filter((row) => row.active).length;
+
   return <section className="strength-body-map" aria-label="Interactive strength context body map">
-    <div className="strength-body-map-head"><div><p className="metric-label">Your body</p><h2>Tap a muscle group to see <em>your lifts.</em></h2></div><div className="strength-body-map-actions"><button type="button" onClick={() => { emitInteractionFeedback(); setView((current) => current === "front" ? "back" : "front"); }}><RotateCw className="h-4 w-4" /> {view === "front" ? "Back" : "Front"}</button>{selectedRegionId && <button type="button" aria-label="Clear selected strength region" onClick={() => { emitInteractionFeedback(); onSelect(undefined); }}>Clear</button>}</div></div>
+    <div className="strength-body-map-head"><div><p className="metric-label">Your body</p><h2>Tap a muscle group to see <em>your lifts.</em></h2></div><div className="strength-body-map-actions">{selectedRegionId && <button type="button" aria-label="Clear selected strength region" onClick={() => { emitInteractionFeedback(); onSelect(undefined); }}>Clear</button>}</div></div>
+    {/* Front and back together. The flip this replaces was a mode with no
+        upside: half your body was always hidden, and a region selected on the
+        other side left the card naming a muscle you could not see. */}
     <div className="strength-body-chart">
       <AnatomyFigure
-        view={view}
+        view="both"
         roles={roles}
         selectedKeys={selectedMuscleKeys}
         onSelect={chooseMuscle}
         labelFor={(key) => labelByMuscle.get(key) ?? key}
       />
+      <p className="strength-body-chart-views" aria-hidden="true"><span>Front</span><span>Back</span></p>
     </div>
-    <details className="strength-map-region-selector">
-      <summary>Choose a region</summary>
-      <div role="list" aria-label="Strength Genome regions">
-        {regions.map((region) => <button key={region.id} type="button" role="listitem" aria-pressed={selectedRegionId === region.id} onClick={() => { emitInteractionFeedback(); onSelect(selectedRegionId === region.id ? undefined : region); }}><span>{region.label}</span><small>{region.state === "OBSERVED_TEST_CONTEXT" ? "On record" : "Nothing yet"}</small></button>)}
-      </div>
-    </details>
+    <div className="strength-map-legend">
+      <span className="strength-map-legend-on"><i />On record</span>
+      <span className="strength-map-legend-off"><i />Nothing logged yet</span>
+      <small>{recordedCount} of {rows.length} regions</small>
+    </div>
+    <AnatomyRegionGrid
+      rows={rows}
+      selectedId={selectedRegionId}
+      onSelect={chooseRegion}
+      label="Strength Genome regions"
+    />
     <p className="strength-body-map-boundary">Tap any muscle group to see what you have logged there. Highlighting shows where you have lifts on record, not how strong you are.</p>
   </section>;
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { useId, useMemo, useRef, useState } from "react";
-import { anatomyViewBox, anatomyViews } from "./figureGeometry";
+import { anatomyViewBox, anatomyViews, type AnatomyMuscle, type AnatomyView } from "./figureGeometry";
 import type { AnatomyRole } from "@/lib/anatomyRegions";
 import "./anatomy-figure.css";
 
@@ -41,8 +41,29 @@ import "./anatomy-figure.css";
  */
 const HIT_HALO = 16;
 
+/**
+ * Space between the two bodies in `both` view, in viewBox units. Wide enough
+ * that the anterior figure's arm and the posterior figure's arm read as two
+ * bodies rather than one crowded one.
+ */
+const PANEL_GAP = 72;
+
+export type AnatomyView3 = "front" | "back" | "both";
+
+/**
+ * One body in the drawing. `both` places the anterior and posterior figures
+ * side by side on one canvas, which removes the flip entirely: every region is
+ * visible at once, so a selection can never be hiding on the side you are not
+ * looking at. Both source figures were authored in one viewBox, so the two
+ * panels align structurally rather than by eye.
+ */
+type Panel = { view: "front" | "back"; dx: number; figure: AnatomyView };
+
+/** A muscle gathered across every panel that draws it, so one key is one object. */
+type ComposedMuscle = { key: string; area: number; parts: { dx: number; muscle: AnatomyMuscle }[] };
+
 export type AnatomyFigureProps = {
-  view: "front" | "back";
+  view: AnatomyView3;
   /** Region key → role. Absent keys render neutral. */
   roles: Record<string, AnatomyRole>;
   /** Region keys shown as selected. A Strength Genome region spans several. */
@@ -55,10 +76,34 @@ export type AnatomyFigureProps = {
 
 export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, onHover }: AnatomyFigureProps) {
   const uid = useId();
-  const figure = anatomyViews[view];
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
   const isSelected = (key: string) => selectedKeys.includes(key);
+
+  const panels = useMemo<Panel[]>(() => (
+    view === "both"
+      ? [
+        { view: "front", dx: 0, figure: anatomyViews.front },
+        { view: "back", dx: anatomyViewBox.width + PANEL_GAP, figure: anatomyViews.back },
+      ]
+      : [{ view, dx: 0, figure: anatomyViews[view] }]
+  ), [view]);
+
+  /**
+   * Selection and hit testing work on the merged key, not per panel. `traps`
+   * is drawn on both bodies and is still one muscle: tapping either lights
+   * both, and the figure stays one tab stop rather than two.
+   */
+  const composed = useMemo<ComposedMuscle[]>(() => {
+    const byKey = new Map<string, ComposedMuscle>();
+    panels.forEach((panel) => panel.figure.muscles.forEach((muscle) => {
+      const existing = byKey.get(muscle.key);
+      if (existing) { existing.area += muscle.area; existing.parts.push({ dx: panel.dx, muscle }); return; }
+      byKey.set(muscle.key, { key: muscle.key, area: muscle.area, parts: [{ dx: panel.dx, muscle }] });
+    }));
+    // Largest first, so a small muscle's target lands above its big neighbour's.
+    return Array.from(byKey.values()).sort((a, b) => b.area - a.area);
+  }, [panels]);
 
   const setHover = (key: string) => {
     if (hoverRef.current === key) return;
@@ -69,15 +114,14 @@ export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, o
   // Roving tabindex: the figure is one stop in the page's tab order, and arrow
   // keys move within it. A tab stop per muscle would bury the rest of the page.
   const tabbableKey = useMemo(() => {
-    const onFigure = selectedKeys.find((key) => figure.muscles.some((muscle) => muscle.key === key));
-    return onFigure ?? figure.muscles[0]?.key ?? "";
-  }, [selectedKeys, figure]);
+    const onFigure = selectedKeys.find((key) => composed.some((muscle) => muscle.key === key));
+    return onFigure ?? composed[0]?.key ?? "";
+  }, [selectedKeys, composed]);
 
   const moveFocus = (fromKey: string, step: number) => {
-    const order = figure.muscles;
-    const index = order.findIndex((muscle) => muscle.key === fromKey);
+    const index = composed.findIndex((muscle) => muscle.key === fromKey);
     if (index < 0) return;
-    const next = order[(index + step + order.length) % order.length];
+    const next = composed[(index + step + composed.length) % composed.length];
     setFocusedKey(next.key);
     document.getElementById(`${uid}-hit-${next.key}`)?.focus?.();
   };
@@ -97,22 +141,28 @@ export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, o
   };
 
   const { width, height } = anatomyViewBox;
+  const canvasWidth = view === "both" ? width * 2 + PANEL_GAP : width;
+  const viewName = view === "both" ? "Anterior and posterior" : view === "front" ? "Anterior" : "Posterior";
+  // One mid serves both panels: the two source figures share a viewBox, and the
+  // clip rects ride each panel's own transform into place.
+  const mid = panels[0].figure.mid;
 
   return (
     <svg
       className="anatomy-figure"
-      viewBox={`0 0 ${width} ${height}`}
+      data-view={view}
+      viewBox={`0 0 ${canvasWidth} ${height}`}
       role="group"
-      aria-label={`${view === "front" ? "Anterior" : "Posterior"} muscle map. ${figure.muscles.length} selectable regions.`}
+      aria-label={`${viewName} muscle map. ${composed.length} selectable regions.`}
       onPointerLeave={() => setHover("")}
     >
       <defs>
         {/* Halves for the paired muscles the source drew as one shape. */}
         <clipPath id={`${uid}-viewerLeft`}>
-          <rect x="0" y="0" width={figure.mid} height={height} />
+          <rect x="0" y="0" width={mid} height={height} />
         </clipPath>
         <clipPath id={`${uid}-viewerRight`}>
-          <rect x={figure.mid} y="0" width={width - figure.mid} height={height} />
+          <rect x={mid} y="0" width={width - mid} height={height} />
         </clipPath>
         {/* A flat flood over a whole region reads as paint-by-numbers; a
             gradient gives the muscle a lit side. Stops come from CSS variables
@@ -127,67 +177,72 @@ export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, o
         </linearGradient>
       </defs>
 
-      <g aria-hidden="true">
-        {figure.shell.map((d, i) => (
-          <path key={`shell-${i}`} className="anatomy-shell" d={d} />
-        ))}
-        {figure.structural.map((piece) => (
-          <path key={piece.id} className="anatomy-structural" d={piece.d} />
-        ))}
-        {figure.muscles.map((muscle) => {
-          const paint = fillFor(roles[muscle.key]);
-          return (
-            <g
-              key={muscle.key}
-              className="anatomy-muscle"
-              data-muscle={muscle.key}
-              data-role={roles[muscle.key] ?? "neutral"}
-              data-selected={isSelected(muscle.key) ? "true" : undefined}
-              data-focused={focusedKey === muscle.key ? "true" : undefined}
-            >
-              {muscle.paths.map((path) => (
-                // Inline style, not a `fill` attribute: a presentation attribute
-                // loses to any stylesheet rule, so the neutral fill silently won
-                // and no muscle ever showed its role colour.
+      {panels.map((panel) => (
+        <g key={`art-${panel.view}`} aria-hidden="true" transform={panel.dx ? `translate(${panel.dx},0)` : undefined}>
+          {panel.figure.shell.map((d, i) => (
+            <path key={`shell-${i}`} className="anatomy-shell" d={d} />
+          ))}
+          {panel.figure.structural.map((piece) => (
+            <path key={piece.id} className="anatomy-structural" d={piece.d} />
+          ))}
+          {panel.figure.muscles.map((muscle) => {
+            const paint = fillFor(roles[muscle.key]);
+            return (
+              <g
+                key={muscle.key}
+                className="anatomy-muscle"
+                data-muscle={muscle.key}
+                data-role={roles[muscle.key] ?? "neutral"}
+                data-selected={isSelected(muscle.key) ? "true" : undefined}
+                data-focused={focusedKey === muscle.key ? "true" : undefined}
+              >
+                {muscle.paths.map((path) => (
+                  // Inline style, not a `fill` attribute: a presentation attribute
+                  // loses to any stylesheet rule, so the neutral fill silently won
+                  // and no muscle ever showed its role colour.
+                  <path
+                    key={path.id}
+                    id={panel.dx ? undefined : path.id}
+                    data-muscle-id={path.id}
+                    d={path.d}
+                    clipPath={clipFor(path.clipHalf)}
+                    style={paint ? { fill: paint } : undefined}
+                  />
+                ))}
+              </g>
+            );
+          })}
+          {/* The source's own anatomical detail, above every fill. Without it the
+              body loses its seams the moment two neighbours share a colour. */}
+          <g className="anatomy-linework">
+            {panel.figure.linework.map((d, i) => (
+              <path key={`line-${i}`} d={d} />
+            ))}
+          </g>
+        </g>
+      ))}
+
+      {/* Selection redrawn on top: a muscle already carrying a role colour has
+          no colour left to spend, so the cue is weight, not hue. A region drawn
+          on both bodies is ringed on both — it is one muscle seen twice. */}
+      {selectedKeys.length > 0 &&
+        composed
+          .filter((muscle) => isSelected(muscle.key))
+          .flatMap((muscle) => muscle.parts.map((part) => (
+            <g key={`sel-${muscle.key}-${part.dx}`} transform={part.dx ? `translate(${part.dx},0)` : undefined}>
+              {part.muscle.paths.map((path) => (
                 <path
-                  key={path.id}
-                  id={path.id}
-                  data-muscle-id={path.id}
+                  key={`sel-${path.id}`}
+                  className="anatomy-selection-ring"
                   d={path.d}
                   clipPath={clipFor(path.clipHalf)}
-                  style={paint ? { fill: paint } : undefined}
                 />
               ))}
             </g>
-          );
-        })}
-        {/* The source's own anatomical detail, above every fill. Without it the
-            body loses its seams the moment two neighbours share a colour. */}
-        <g className="anatomy-linework">
-          {figure.linework.map((d, i) => (
-            <path key={`line-${i}`} d={d} />
-          ))}
-        </g>
-      </g>
-
-      {/* Selection redrawn on top: a muscle already carrying a role colour has
-          no colour left to spend, so the cue is weight, not hue. */}
-      {selectedKeys.length > 0 &&
-        figure.muscles
-          .filter((muscle) => isSelected(muscle.key))
-          .map((muscle) =>
-            muscle.paths.map((path) => (
-              <path
-                key={`sel-${path.id}`}
-                className="anatomy-selection-ring"
-                d={path.d}
-                clipPath={clipFor(path.clipHalf)}
-              />
-            )),
-          )}
+          )))}
 
       <g className="anatomy-hit-layer">
-        {figure.muscles.map((muscle) => (
+        {composed.map((muscle) => (
           <g
             key={muscle.key}
             id={`${uid}-hit-${muscle.key}`}
@@ -217,16 +272,20 @@ export function AnatomyFigure({ view, roles, selectedKeys, onSelect, labelFor, o
               }
             }}
           >
-            {muscle.paths.map((path) => (
-              // Transparent fill plus a transparent halo stroke: the target
-              // grows outward without the drawn muscle changing shape.
-              <path
-                key={`hit-${path.id}`}
-                d={path.d}
-                data-path-id={path.id}
-                clipPath={clipFor(path.clipHalf)}
-                strokeWidth={HIT_HALO}
-              />
+            {muscle.parts.map((part) => (
+              <g key={`hit-${muscle.key}-${part.dx}`} transform={part.dx ? `translate(${part.dx},0)` : undefined}>
+                {part.muscle.paths.map((path) => (
+                  // Transparent fill plus a transparent halo stroke: the target
+                  // grows outward without the drawn muscle changing shape.
+                  <path
+                    key={`hit-${path.id}`}
+                    d={path.d}
+                    data-path-id={path.id}
+                    clipPath={clipFor(path.clipHalf)}
+                    strokeWidth={HIT_HALO}
+                  />
+                ))}
+              </g>
             ))}
           </g>
         ))}

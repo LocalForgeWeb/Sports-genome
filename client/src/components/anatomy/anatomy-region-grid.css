@@ -1,0 +1,99 @@
+/**
+ * The region grid under the body map.
+ *
+ * Two columns on a phone, because one column of eighteen rows is a scroll and
+ * three is a row of truncated names. Every card is a full 44px target with its
+ * name in words, so nothing on this surface depends on hitting a small shape or
+ * on reading a colour.
+ *
+ * Tone follows the figure: a region the figure is highlighting is warm here too,
+ * and one it is not stays neutral. There are two states, matching the two the
+ * data actually supports — never a scale.
+ */
+
+.region-grid-block { display: grid; gap: .6rem; margin-top: .9rem; }
+
+/* Holds only <defs>; it must occupy no space but stay renderable, so the
+   thumbnails' <use> references resolve. `display: none` would break them. */
+.region-thumb-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.region-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: .5rem;
+}
+
+/* Every cell is placed explicitly. Left to auto-placement the thumbnail and
+   chevron — which both span two rows — pushed the name into the third column
+   and it rendered right-aligned, past the chevron. */
+.region-grid-card {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr) .9rem;
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-items: center;
+  gap: .05rem .5rem;
+  min-height: 3.5rem;
+  border: 1px solid var(--sg-control-border-on-dark);
+  background: rgb(255 255 255 / .03);
+  padding: .5rem .5rem .5rem .55rem;
+  text-align: left;
+  transition: border-color var(--sg-motion-fast) var(--sg-ease), background-color var(--sg-motion-fast) var(--sg-ease);
+}
+
+.region-grid-card:hover { border-color: var(--sg-info); background: rgb(255 255 255 / .06); }
+.region-grid-card:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.region-grid-card[aria-pressed="true"] { border-color: var(--sg-focus-on-dark); background: rgb(242 193 77 / .12); }
+
+.region-thumb { grid-column: 1; grid-row: 1 / 3; width: 100%; height: auto; }
+.region-thumb-shell { fill: rgb(196 214 232 / .26); }
+.region-thumb-muscle { fill: rgb(196 214 232 / .5); }
+.region-thumb[data-active="true"] .region-thumb-muscle { fill: #ec5f4a; }
+
+.region-grid-name {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  min-width: 0;
+  color: var(--sg-text-on-dark);
+  font-size: .8125rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.region-grid-state {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.region-grid-card[data-active="true"] .region-grid-state { color: #f6b8a6; }
+
+.region-grid-chevron { grid-column: 3; grid-row: 1 / 3; justify-self: end; color: var(--sg-text-faint-on-dark); }
+
+.region-grid-toggle {
+  justify-self: start;
+  min-height: 2.75rem;
+  color: var(--sg-link-on-dark);
+  font-size: .6875rem;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+/* On a light surface the same two states, repointed rather than re-invented. */
+.light-panel .region-grid-card,
+.atlas-pro-canvas .region-grid-card { border-color: var(--sg-divider-on-light); background: #fff; }
+.light-panel .region-grid-name,
+.atlas-pro-canvas .region-grid-name { color: var(--sg-text-on-light); }
+.light-panel .region-grid-state,
+.atlas-pro-canvas .region-grid-state { color: var(--sg-text-subtle-on-light); }
+.light-panel .region-thumb-shell,
+.atlas-pro-canvas .region-thumb-shell { fill: #d6dfea; }
+.light-panel .region-thumb-muscle,
+.atlas-pro-canvas .region-thumb-muscle { fill: #b9c6d6; }

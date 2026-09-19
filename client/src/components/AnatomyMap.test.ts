@@ -91,28 +91,6 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).toContain("absence of evidence here");
   });
 
-  it("says where a selection lives when it is drawn on the view the athlete is not looking at", () => {
-    // Selection survives a flip, which the contract asks for. What it must not
-    // do is leave the card naming a muscle with no visible referent.
-    expect(source).toContain("selectionOffView");
-    expect(source).toContain("atlas-selected-elsewhere");
-    expect(source).toContain("flip to see it");
-  });
-
-  it("renders selected-muscle architecture, leverage, source, and model boundary context", async () => {
-    const { AnatomyMap } = await import("./AnatomyMap");
-    const markup = renderToStaticMarkup(createElement(AnatomyMap, {
-      primary: ["hamstrings"],
-      secondary: [],
-      onSelect: vi.fn(),
-    }));
-
-    expect(markup).toContain("Architecture + leverage context");
-    expect(markup).toContain("not mechanically interchangeable");
-    expect(markup).toContain("PMID 30117053");
-    expect(markup).toContain("force or injury risk");
-  });
-
   it("uses qualitative role context without rendering numeric role indices when exercise or stack context is supplied", () => {
     expect(source).toContain('hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false');
     expect(source).toContain("Exercise / stack context");
@@ -133,7 +111,8 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("Key muscle roles");
     expect(markup).toContain("muscles involved");
     expect(markup).toContain("Primary movers");
-    expect(markup).toContain("+ 3 supporting muscles");
+    expect(markup).toContain("Show all ");
+    expect(markup).toContain(" muscles");
     expect(markup).toContain("How muscle roles are classified");
     expect(markup).toContain("Supporting role");
     expect(markup).toContain("Primary role");
@@ -169,11 +148,13 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).not.toContain("Stabilizer · Strong indirect evidence");
   });
 
-  it("lets the figure fill the mobile canvas height without clipping", () => {
-    // The figure is sized by height so the whole athlete fits one screen, and
-    // is never allowed to overflow the canvas it sits in.
-    expect(styles).toMatch(/\.atlas-body-chart svg\{height:100%!?important?;?width:auto/);
-    expect(styles).toContain(".atlas-body-chart-wrap{min-height:clamp(440px,138vw,560px);border-radius:12px}");
-    expect(styles).toContain(".atlas-body-chart{height:clamp(440px,138vw,560px)}");
+  it("sizes the figure by width, because two bodies is a landscape drawing", () => {
+    // It used to be sized by height, with `!important` to beat the third-party
+    // chart's inline `max-height`. That library is gone, and with both bodies on
+    // one canvas height is no longer the scarce axis — width is, so a fixed
+    // height would letterbox the drawing inside its own card.
+    expect(styles).toContain(".atlas-body-chart svg{width:100%;height:auto;max-width:100%}");
+    expect(styles).not.toMatch(/\.atlas-body-chart\{[^}]*height:clamp/);
+    expect(styles).not.toContain("!important");
   });
 });

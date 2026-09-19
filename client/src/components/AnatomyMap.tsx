@@ -35,7 +35,6 @@ const labels: Record<string, string> = {
 const viewLabel = (view: "front" | "back") => (view === "front" ? "anterior" : "posterior");
 
 export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
-  const [view, setView] = useState<"front" | "back">("front");
   const [selectedKey, setSelectedKey] = useState("");
   /**
    * The exact drawn region under the finger. The figure draws the pectoralis in
@@ -86,9 +85,28 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
     };
     return entries.sort((a, b) => orderFor(a) - orderFor(b)).slice(0, 8);
   }, [roles, detailFor]);
-  const filteredRanked = ranked.filter(region => !query || region.label.toLowerCase().includes(query.toLowerCase()));
+  /**
+   * Every region the figure draws, in words.
+   *
+   * The ranking list only ever held the muscles this action uses, so the rest of
+   * the body was reachable by tapping its shape and nothing else. That was a
+   * fair ask at the old size; with both bodies sharing the canvas the smallest
+   * shapes are around 12px, so the written route has to cover everything the
+   * figure does — including the muscles this action has no role for.
+   */
+  const uninvolved = useMemo(() => {
+    const drawn = Array.from(new Set([...drawnMuscleKeys.front, ...drawnMuscleKeys.back]));
+    return drawn
+      .filter((key) => !roles[key])
+      .map((key) => ({ key, label: labels[key] || key, role: "Synergist" as Role, roles: undefined, confidence: undefined }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [roles]);
+
+  const matches = (label: string) => !query || label.toLowerCase().includes(query.toLowerCase());
+  const filteredRanked = ranked.filter(region => matches(region.label));
+  const filteredUninvolved = uninvolved.filter(region => matches(region.label));
   const visibleRanked = showAllRanked ? filteredRanked : filteredRanked.slice(0, 5);
-  const hiddenRankedCount = Math.max(0, filteredRanked.length - visibleRanked.length);
+  const hiddenRankedCount = Math.max(0, filteredRanked.length - visibleRanked.length) + (showAllRanked ? 0 : filteredUninvolved.length);
   const roleSections: { role: Role; label: string; items: typeof visibleRanked }[] = [
     { role: "Primary", label: "Primary movers", items: visibleRanked.filter((region) => region.role === "Primary") },
     { role: "Stabilizer", label: "Stabilizers", items: visibleRanked.filter((region) => region.role === "Stabilizer") },
@@ -102,11 +120,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
     onSelect(key);
   }, [onSelect]);
 
-  const flipView = useCallback(() => {
-    setView(v => v === "front" ? "back" : "front");
-  }, []);
-
-  const reset = () => { setView("front"); setSelectedKey(""); setSelectedId(""); setQuery(""); };
+  const reset = () => { setSelectedKey(""); setSelectedId(""); setQuery(""); };
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
   const hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false;
   /**
@@ -124,14 +138,11 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   const selectedRoleDetail = selectedKey ? detailFor(selectedKey) : undefined;
   const selectedMechanics = selectedKey ? getAnatomyMechanicsEvidence(selectedKey) : null;
   /**
-   * Selection survives a flip, which the Body Lab contract asks for — "a
-   * selected region remains the same object across modes". What it must not do
-   * is leave the card naming a muscle with no visible referent, so when the
-   * selection lives on the other view the strip says so and offers the flip.
+   * Which body the selection is drawn on. With both views on one canvas this is
+   * a pointer — "look at the back one" — rather than the flip prompt it used to
+   * be: there is no longer a view the selection can be hiding behind.
    */
   const selectedViews = selectedKey ? viewsForRegion(selectedKey) : [];
-  const selectionOffView = Boolean(selectedKey) && selectedViews.length > 0 && !selectedViews.includes(view);
-  const selectedHomeView = selectedViews[0];
 
   return (
     <section className="anatomy-atlas-pro">
@@ -145,13 +156,6 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
 
       <div className="atlas-pro-grid">
         <aside className="atlas-pro-controls">
-          <div className="atlas-control-group">
-            <span>View</span>
-            <div className="atlas-pill-row">
-              <button className={view === "front" ? "is-active" : ""} onClick={() => setView("front")} aria-pressed={view === "front"}>Anterior</button>
-              <button className={view === "back" ? "is-active" : ""} onClick={() => setView("back")} aria-pressed={view === "back"}>Posterior</button>
-            </div>
-          </div>
           <label className="atlas-pro-search">
             <Search className="h-4 w-4" />
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search muscle" />
@@ -161,18 +165,14 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
         </aside>
 
         <div className="atlas-pro-canvas">
-          <div className="atlas-canvas-header">
-            <span className="atlas-view-label">{view === "front" ? "Anterior view" : "Posterior view"}</span>
-            <button className="atlas-flip-btn" onClick={flipView} aria-label="Switch between front and back view">
-              <RotateCw className="h-4 w-4" />
-              <span>{view === "front" ? "Flip to Back" : "Flip to Front"}</span>
-            </button>
-          </div>
-
+          {/* Both bodies at once. The flip control, the Anterior/Posterior pills
+              and the "shown on the other view" note were three affordances for
+              one problem — half the body being hidden — and the problem is the
+              thing worth removing, not the affordances. */}
           <div className="atlas-body-chart-wrap">
             <div className="atlas-body-chart">
               <AnatomyFigure
-                view={view}
+                view="both"
                 roles={roles}
                 selectedKeys={selectedKey ? [selectedKey] : []}
                 onSelect={chooseRegion}
@@ -180,6 +180,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
                 onHover={(key) => setHoveredName(key ? (labels[key] || key) : "")}
               />
             </div>
+            <p className="atlas-view-captions" aria-hidden="true"><span>Anterior</span><span>Posterior</span></p>
             {hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}
           </div>
 
@@ -198,9 +199,9 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             </div>
             <span className="atlas-selected-role">{selectedRoleDetail?.roles.join(" · ") || selectedRole || "No role in this action"}</span>
             {selectedRole && <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Movement model"}</span>}
-            {selectionOffView && selectedHomeView && <button type="button" className="atlas-selected-elsewhere" onClick={flipView}>
-              Shown on the {viewLabel(selectedHomeView)} view — flip to see it
-            </button>}
+            {selectedViews.length > 0 && <span className="atlas-selected-where">
+              {selectedViews.length === 2 ? "On both views" : `On the ${viewLabel(selectedViews[0])} view`}
+            </span>}
           </div>}
 
           {/* Qualitative role legend */}
@@ -251,14 +252,18 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
             <div className="atlas-inspector-empty-pro">
               <Target className="h-5 w-5" />
               <strong>Explore through the body</strong>
-              <p>Select a colored muscle to inspect its qualitative role. Switch views to see the opposite side.</p>
+              <p>Select a muscle on either body to inspect its qualitative role, or pick one from the list of muscle roles.</p>
             </div>
           )}
         </aside>}
         <section className="atlas-ranking" aria-label="Key muscle roles">
           <div className="atlas-ranking-head"><p className="metric-label">Key muscle roles</p><strong>{ranked.length} muscles involved</strong><span>{roleCounts.primary} primary · {roleCounts.stabilizer} stabilizer · {roleCounts.supporting} supporting</span></div>
           {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span><em>{region.roles?.[0] || `${region.role} role`}</em><ChevronRight className="h-4 w-4" /></button>)}</div>)}
-          {hiddenRankedCount > 0 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `+ ${hiddenRankedCount} supporting muscle${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
+          {/* The rest of the body, named rather than only drawn. These carry no
+              role in this action, which is a fact worth stating — not a reason
+              to make them unreachable except by hitting a 12px shape. */}
+          {showAllRanked && filteredUninvolved.length > 0 && <div className="atlas-role-section atlas-role-section-inactive"><p>No role in this action <b>{filteredUninvolved.length}</b></p>{filteredUninvolved.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span>{region.label}</span><em>Not used here</em><ChevronRight className="h-4 w-4" /></button>)}</div>}
+          {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `Show all ${filteredRanked.length + filteredUninvolved.length} muscles`}</button>}
         </section>
       </div>
     </section>

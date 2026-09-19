@@ -30,19 +30,17 @@
 
 /* Canvas */
 .atlas-pro-canvas{min-width:0}
-.atlas-canvas-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.4rem}
-.atlas-view-label{color:#234761;font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
-.atlas-flip-btn{display:inline-flex;align-items:center;gap:.4rem;border:1.5px solid var(--sg-info-strong);background:var(--sg-surface-light-sunken);color:var(--sg-info-strong);padding:.45rem .75rem;font-size:.6875rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition: all var(--sg-motion-fast) var(--sg-ease)}
-.atlas-flip-btn:hover{background:var(--sg-info-strong);color:#fff;transform:scale(1.02)}
-.atlas-flip-btn:active{transform:scale(.97)}
-.atlas-flip-btn svg{transition: transform var(--sg-motion-slow) var(--sg-ease)}
-.atlas-flip-btn:hover svg{transform:rotate(180deg)}
-
 /* Illustration wrapper */
 /* Body chart container (body-muscles library) */
-.atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:clamp(480px,60vh,700px);margin-top:.3rem;overflow:hidden;background:radial-gradient(circle at 50% 38%,var(--sg-surface-light) 0%,var(--sg-surface-light) 56%,var(--sg-surface-light-sunken) 100%);border:1px solid var(--sg-surface-light-sunken)}
-.atlas-body-chart{width:100%;height:clamp(460px,58vh,680px);display:flex;justify-content:center;align-items:center}
-.atlas-body-chart svg{height:100%!important;width:auto!important;max-width:100%!important;max-height:100%;object-fit:contain}
+.atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;margin-top:.3rem;overflow:hidden;padding:.7rem .5rem .4rem;background:radial-gradient(circle at 50% 38%,var(--sg-surface-light) 0%,var(--sg-surface-light) 56%,var(--sg-surface-light-sunken) 100%);border:1px solid var(--sg-surface-light-sunken)}
+.atlas-body-chart{width:100%;display:flex;justify-content:center;align-items:center}
+/* Sized by width, because both bodies side by side is a landscape drawing.
+   The forced override here existed to beat the old third-party chart's inline
+   height; that library is gone, and the override only got in the way. */
+.atlas-body-chart svg{width:100%;height:auto;max-width:100%}
+/* Which body is which, said under the drawing. The reference apps run leader
+   lines to thirty labels; two words do the same job and survive a phone. */
+.atlas-view-captions{display:flex;justify-content:space-around;width:100%;margin:.15rem 0 0;color:var(--sg-text-subtle-on-light);font-size:.6875rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
 /* The hover chip names the exact region under the finger.
    It hardcoded a white background while taking its text colour from
    --sg-text-on-light. On the dark destination that token is remapped to the
@@ -137,10 +135,7 @@
   .atlas-pro-head h2{font-size:2.15rem}
   .atlas-pro-controls{grid-template-columns:1fr 1fr}
   .atlas-pro-search,.atlas-advanced,.atlas-reset-pro{grid-column:span 2}
-  .atlas-body-chart-wrap{min-height:clamp(440px,138vw,560px);border-radius:12px}
-  .atlas-body-chart{height:clamp(440px,138vw,560px)}
-  .atlas-canvas-header{margin-bottom:.15rem}
-  .atlas-flip-btn{min-height:44px;padding:.45rem .6rem}
+  .atlas-body-chart-wrap{border-radius:12px}
   .atlas-ranking{gap:.25rem;margin-top:.65rem;padding-top:.6rem}
   .atlas-ranking button{min-height:44px;padding:.42rem .55rem}
   .atlas-pro-inspector{margin-top:.2rem}
@@ -208,3 +203,8 @@
 .atlas-selected-confidence{font-size:.6875rem;line-height:1.35;color:var(--sg-text-subtle-on-light)}
 .atlas-selected-elsewhere{flex-basis:100%;text-align:left;font-size:.6875rem;font-weight:700;line-height:1.35;color:var(--sg-action);text-decoration:underline;text-underline-offset:3px;min-height:44px;display:flex;align-items:center}
 @media (min-width:901px){.atlas-selected-strip{display:none}}
+
+/* Muscles with no role in the selected action. Reachable and named, but
+   plainly a different kind of row from the ones that are involved. */
+.atlas-role-section-inactive{opacity:.82}
+.atlas-role-section-inactive>p{color:var(--sg-text-subtle-on-light)}

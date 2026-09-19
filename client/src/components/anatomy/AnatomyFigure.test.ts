@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import React, { createElement } from "react";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -104,6 +106,18 @@ describe("selecting a muscle", () => {
     const { container } = draw({ roles: { chest: "primary" }, selectedKeys: ["chest"] });
     expect(container.querySelectorAll(".anatomy-selection-ring").length).toBeGreaterThan(0);
     expect(container.querySelector('.anatomy-muscle[data-muscle="chest"]')?.getAttribute("data-selected")).toBe("true");
+  });
+
+  it("styles every hit path, however deeply the view nests it", () => {
+    // The hit layer is invisible only because CSS paints it transparent. As a
+    // child selector that rule stopped matching the moment `both` view wrapped
+    // each region's targets in a per-body transform group: the paths fell back
+    // to SVG's default black fill and the interaction layer painted over the
+    // entire figure. Nothing in the DOM says a selector missed, so it is pinned.
+    const css = readFileSync(resolve(process.cwd(), "client/src/components/anatomy/anatomy-figure.css"), "utf8");
+    expect(css).toContain(".anatomy-hit path {");
+    expect(css).not.toContain(".anatomy-hit > path");
+    expect(css).not.toContain(".anatomy-hit:focus-visible > path");
   });
 
   it("carries interaction geometry separately from the drawn muscle", () => {
