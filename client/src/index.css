@@ -38,6 +38,12 @@
 
   /* -- Text ladder on dark ------------------------------------------------ */
   --sg-text-on-dark: #f7fbff;
+  /* How far down the page the pinned chrome reaches: the bottom edge of the top
+     bar plus the workspace tabs, measured at 135px on a phone and 133px on a
+     laptop. Anything that sticks below them follows this one number instead of
+     picking its own - the three hand-chosen offsets already in this codebase
+     (72px, 82px, 86px) are how the day nav ended up stuck underneath them. */
+  --sg-pinned-chrome: 135px;
   --sg-text-muted-on-dark: #c3d7ea;
   --sg-text-subtle-on-dark: #9eb3cb;
   --sg-text-faint-on-dark: #829ab3;
@@ -2315,3 +2321,110 @@ details:not([open]) > *:not(summary) {
   cursor: pointer;
 }
 .matches-lens-method > div > p { margin-top: .5rem; font-size: var(--sg-text-xs); line-height: 1.55; color: var(--sg-text-subtle-on-light); }
+
+/* ── Phone display scale ──────────────────────────────────────────────────────
+ *
+ * Every hero headline was sized on a 1440px canvas and its clamp floor was never
+ * checked against a phone. At 390px the floor always wins - 5vw is 19px, so
+ * `clamp(2.8rem, 5vw, 4.8rem)` resolves to 2.8rem - and the result was eight
+ * headings wrapping into three- and four-line blocks:
+ *
+ *   COACH CONTROLS. ATHLETE-READY OUTPUT.   45px, 4 lines, "ATHLETE-" broken
+ *   DESIGN THE DAY. SEE THE WEEK.           42px, 4 lines
+ *   RECOMMENDATIONS WITH THE REASONING …    31px, 4 lines
+ *   PROGRESS FROM REAL WORK.                48px, 3 lines
+ *
+ * Four lines of 45px display type is roughly a fifth of the viewport spent on a
+ * slogan, above the controls the screen exists for.
+ *
+ * The sizes below are measured rather than chosen: each is the largest at which
+ * the longest headline in its tier lands in two lines at 390px. One size per
+ * tier, so two sibling screens cannot disagree about how big a hero is.
+ */
+@media (max-width: 640px) {
+  /* Heroes. The binding case is "Recommendations with the reasoning attached.",
+     which needs 25.2px; 6.2vw is 24.2px at 390 and grows with the viewport. */
+  .day-design-hero h1,
+  .builder-upgrade-head h1,
+  .progress-review-head h1,
+  .view-header h1 { font-size: clamp(1.5rem, 6.2vw, 2.7rem); line-height: .95; }
+
+  /* Section headings. The binding case is "Your completed sessions." at 28.6px. */
+  /* The destination scopes its own heading size, so these match its specificity
+     rather than losing to it silently. */
+  .destination-progress .progress-section-head h2,
+  .destination-train .programming-panel-head h3,
+  .programming-panel-head h3,
+  .destination-progress .strength-body-map-head h2,
+  .strength-body-map-head h2 { font-size: 1.45rem; line-height: 1.05; }
+}
+
+/**
+ * Which action the Genome list's link chips are measured against.
+ *
+ * Each row appended the selected sport action to its own chip, so all 24 read
+ * "SUPPORTING LINK · PENETRATION STEP" - one value, repeated down the whole
+ * list, and on a phone it pushed the chip to the full row width. It is one fact
+ * about the list, so it is stated once above it, as the Catalog already does.
+ */
+.genome-selector-scope { display: block; margin-top: .45rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); line-height: 1.4; }
+.genome-selector-scope > svg { display: inline-block; margin-right: .3rem; vertical-align: -.15em; }
+.genome-selector-scope b { color: var(--sg-text-muted-on-dark); font-weight: 800; }
+
+/**
+ * The weekly session track.
+ *
+ * Four 6px segments at 12% white on a dark panel, which on a phone read as four
+ * specks of dust rather than a four-part progress track - and since a fresh week
+ * has none done, the faint state is the one most athletes see most of the time.
+ * The empty segments now have enough contrast to be legible as segments; the
+ * completed state is unchanged, so done still clearly outranks not-done.
+ */
+.training-week-track { gap: .35rem; }
+.training-week-track i { height: .45rem; background: rgb(255 255 255 / .22); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); }
+.training-week-track i.is-done { box-shadow: none; }
+
+/* Paired with the rule above: the Progress section heading wraps, its disclosure
+   does not. */
+.destination-progress .progress-disclosure { flex: 0 0 auto; white-space: nowrap; }
+.destination-progress .progress-section-head > div:first-child { min-width: 0; }
+
+/**
+ * Count labels beside a heading ("6 matches", "0 total").
+ *
+ * Both sat in a ~50px slot next to a display heading and wrapped onto two
+ * lines. The heading is the element that should yield: it wraps by design.
+ */
+.destination-train .dark-panel > div > span:last-child,
+.destination-progress .progress-section-head > span:last-child { flex: 0 0 auto; white-space: nowrap; }
+
+/* The finder's caption and its cross-link shared one flex row, so on a phone the
+   caption broke across two lines to make room for the link. The row wraps
+   instead, which keeps both labels intact. */
+@media (max-width: 640px) {
+  .builder-finder > div:first-child { flex-wrap: wrap; row-gap: .4rem; }
+  .builder-finder > div:first-child .metric-label { white-space: nowrap; }
+}
+
+/* On a phone the section head wraps as a whole rather than squeezing both its
+   parts: pinning the disclosure to one line took width from the heading, which
+   then needed three. Dropping the disclosure to its own row gives the heading
+   the full column and keeps the control's label intact. */
+@media (max-width: 640px) {
+  .destination-progress .progress-section-head { flex-wrap: wrap; row-gap: .45rem; }
+  .destination-progress .progress-section-head > div:first-child { flex: 1 1 100%; }
+}
+
+/**
+ * Let the hero hold the two lines it is written as.
+ *
+ * These headings are authored with an explicit break - "Recommendations with /
+ * the reasoning attached." - but the column was capped at 650px while the first
+ * line alone measures 650px at its desktop size, so both authored lines wrapped
+ * again and the hero came out as four ragged lines instead of two. 820px is the
+ * measured width at which the longest of them holds. The note beside it is
+ * hidden on these screens, so nothing is displaced.
+ */
+@media (min-width: 1024px) {
+  .view-header > div:first-child { max-width: 820px; }
+}
