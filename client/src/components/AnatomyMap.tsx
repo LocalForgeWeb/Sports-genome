@@ -1,51 +1,20 @@
-import { useRef, useEffect, useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
-import { BodyChart, ViewSide, FRONT_MUSCLES, BACK_MUSCLES, MUSCLE_MAP } from "body-muscles";
+import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
+import { roleMapForLists, sourceValuesForRegion, viewsForRegion, regionPartName, type AnatomyRole } from "@/lib/anatomyRegions";
+import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
 import { ChevronDown, ChevronRight, Focus, RotateCcw, RotateCw, Search, SlidersHorizontal, Target } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
-import { approximateRegionNotes, describeSubregion, regionDisplayName } from "@/lib/anatomyRegions";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
 
 type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; showInspector?: boolean };
 type Role = "Primary" | "Synergist" | "Stabilizer";
 
-// Renderer-only categorical tokens required by the third-party anatomy SVG API.
-// They select colors; they are never rendered as role scores or physiological values.
-const anatomyRoleRenderState = { neutral: 0, supporting: 6, primary: 9 } as const;
-
-/* Map our exercise catalog muscle keys to body-muscles library IDs */
-const keyToIds: Record<string, string[]> = {
-  chest: ["chest-upper-left", "chest-upper-right", "chest-lower-left", "chest-lower-right"],
-  frontDelts: ["shoulder-front-left", "shoulder-front-right"],
-  sideDelts: ["shoulder-side-left", "shoulder-side-right"],
-  rearDelts: ["deltoid-rear-left", "deltoid-rear-right"],
-  shoulders: ["shoulder-front-left", "shoulder-front-right", "shoulder-side-left", "shoulder-side-right", "deltoid-rear-left", "deltoid-rear-right"],
-  biceps: ["biceps-left", "biceps-right"],
-  brachialis: ["biceps-left", "biceps-right"],
-  brachioradialis: ["forearm-left", "forearm-right"],
-  triceps: ["triceps-long-left", "triceps-lateral-left", "triceps-long-right", "triceps-lateral-right"],
-  forearms: ["forearm-left", "forearm-right", "forearm-flexors-left", "forearm-flexors-right", "forearm-extensors-left", "forearm-extensors-right"],
-  abs: ["abs-upper-left", "abs-upper-right", "abs-lower-left", "abs-lower-right"],
-  obliques: ["obliques-left", "obliques-right"],
-  serratusAnterior: ["serratus-anterior-left", "serratus-anterior-right"],
-  hipFlexors: ["hip-flexor-left", "hip-flexor-right"],
-  tfl: ["hip-flexor-left", "hip-flexor-right"],
-  quads: ["quads-left", "quads-right"],
-  adductors: ["adductors-left", "adductors-right"],
-  abductors: ["gluteus-medius-left", "gluteus-medius-right"],
-  glutes: ["gluteus-maximus-left", "gluteus-maximus-right"],
-  hamstrings: ["hamstrings-medial-left", "hamstrings-lateral-left", "hamstrings-medial-right", "hamstrings-lateral-right"],
-  calves: ["calves-gastroc-medial-left", "calves-gastroc-lateral-left", "calves-gastroc-medial-right", "calves-gastroc-lateral-right"],
-  soleus: ["calves-soleus-left", "calves-soleus-right"],
-  tibialis: ["tibialis-anterior-left", "tibialis-anterior-right"],
-  peroneals: ["calves-gastroc-lateral-left", "calves-gastroc-lateral-right"],
-  lats: ["lats-upper-left", "lats-mid-left", "lats-lower-left", "lats-upper-right", "lats-mid-right", "lats-lower-right"],
-  traps: ["traps-upper-left", "traps-mid-left", "traps-lower-left", "traps-upper-right", "traps-mid-right", "traps-lower-right"],
-  rhomboids: ["traps-mid-left", "traps-mid-right"],
-  lowerBack: ["lower-back-erectors-left", "lower-back-erectors-right", "lower-back-ql-left", "lower-back-ql-right"],
-  rotatorCuff: ["deltoid-rear-left", "deltoid-rear-right"],
-};
+// Categorical role states, never a magnitude. The Body Lab contract keeps
+// exercise-target involvement on a dedicated categorical encoding rather than
+// reusing a rank scale, so these three select colour and nothing else.
+const anatomyRoleRenderState = { neutral: "neutral", supporting: "supporting", primary: "primary" } as const;
 
 const labels: Record<string, string> = {
   // Rows render `muscleLabels[key] || key`, so any catalog key missing here
@@ -63,107 +32,60 @@ const labels: Record<string, string> = {
   rotatorCuff: "Rotator cuff muscles"
 };
 
-const aliases: Record<string, string[]> = {
-  chest: ["chest", "pectoral", "pectoralis", "pec"],
-  frontDelts: ["frontdelts", "anteriordelt", "shoulders"],
-  sideDelts: ["sidedelts", "lateraldelt", "shoulders"],
-  rearDelts: ["reardelts", "posteriordelt", "shoulders"],
-  biceps: ["biceps"], brachialis: ["brachialis"], brachioradialis: ["brachioradialis"],
-  triceps: ["triceps"], forearms: ["forearms", "grip", "wristflexors", "wristextensors"],
-  abs: ["abs", "rectusabdominis"], obliques: ["obliques", "core", "externaloblique"],
-  serratusAnterior: ["serratus", "serratusanterior"],
-  hipFlexors: ["hipflexors", "iliopsoas"], tfl: ["tfl", "tensorfasciaelatae"],
-  quads: ["quads", "quadriceps"], adductors: ["adductors"],
-  abductors: ["abductors", "glutemedius"], glutes: ["glutes", "gluteusmaximus"],
-  hamstrings: ["hamstrings"], calves: ["calves", "gastrocnemius"], soleus: ["soleus"],
-  tibialis: ["tibialis"], peroneals: ["peroneals", "peroneus", "fibularis"],
-  lats: ["lats", "latissimus"], traps: ["traps", "trapezius"], rhomboids: ["rhomboids"],
-  lowerBack: ["lowerback", "erectors", "erectorspinae"],
-  rotatorCuff: ["rotatorcuff", "infraspinatus"]
-};
-
-const clean = (v: string) => v.toLowerCase().replace(/[^a-z]/g, "");
-const matches = (key: string, values: string[]) => values.some(v => (aliases[key] || [key]).some(a => clean(v).includes(a)));
-
-export function VectorAnatomyFallback({ view, ranked, onSelect, onRetry }: { view: "FRONT" | "BACK"; ranked: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[]; onSelect: (key: string) => void; onRetry: () => void }) {
-  return <div className="grid min-h-[380px] place-items-center gap-4 border border-dashed border-[#9fb5c8] bg-[var(--sg-surface-light)] px-4 py-6 text-center"><svg viewBox="0 0 180 300" role="img" aria-label={`Simplified ${view.toLowerCase()} anatomy fallback`} className="h-[270px] w-auto max-w-full"><circle cx="90" cy="28" r="19" fill="#d9e4eb" stroke="#8aa4b7" strokeWidth="2" /><path d="M61 56 Q90 45 119 56 L130 143 Q119 167 110 207 L104 276 L91 276 L90 212 L89 276 L76 276 L70 207 Q61 167 50 143 Z" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M62 62 L35 119 L42 126 L70 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M118 62 L145 119 L138 126 L110 88" fill="#e4edf2" stroke="#8aa4b7" strokeWidth="2" /><path d="M70 62 Q90 52 110 62 L114 119 Q90 130 66 119 Z" fill="#d9e4eb" opacity=".8" /><path d="M75 127 Q90 139 105 127 L108 183 Q90 193 72 183 Z" fill="#d9e4eb" opacity=".8" /><line x1="90" y1="58" x2="90" y2="185" stroke="#93aabd" strokeWidth="1" strokeDasharray="3 3" /></svg><div><p className="metric-label">Vector anatomy fallback</p><p className="mx-auto mt-1 max-w-[25rem] text-xs leading-5 text-[#49667f]">The detailed anatomy chart was unavailable. This simplified in-app reference keeps your relevant-muscle roles and selection controls available.</p><div className="mt-3 flex flex-wrap justify-center gap-2">{ranked.slice(0, 5).map((region) => <button key={region.key} onClick={() => onSelect(region.key)} className="border border-[#b8cad8] bg-white px-2 py-1 text-[11px] font-bold text-[#173d69] transition-colors hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)]">{region.label} · {region.roles?.join(" / ") || `${region.role || "Relevant"} role`} · {region.confidence || "Movement model"}</button>)}</div><button onClick={onRetry} className="mt-4 text-[11px] font-bold uppercase tracking-[.08em] text-[var(--sg-info-strong)] underline underline-offset-4">Retry detailed anatomy chart</button></div></div>;
-}
+const viewLabel = (view: "front" | "back") => (view === "front" ? "anterior" : "posterior");
 
 export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<BodyChart | null>(null);
-  const [view, setView] = useState<"FRONT" | "BACK">("FRONT");
+  const [view, setView] = useState<"front" | "back">("front");
   const [selectedKey, setSelectedKey] = useState("");
   /**
-   * The exact region under the finger. The chart draws the lats in three bands and
-   * the traps in three parts; collapsing straight to the parent key made every one of
-   * them read identically and left the selected band indistinguishable from its
-   * neighbours.
+   * The exact drawn region under the finger. The figure draws the pectoralis in
+   * two heads and the quadriceps in three; collapsing straight to the parent key
+   * made every one of them read identically, so the subdivision the artwork is
+   * drawing carried no meaning once selected.
    */
   const [selectedId, setSelectedId] = useState("");
   const [hoveredName, setHoveredName] = useState("");
   const [query, setQuery] = useState("");
   const [showAllRanked, setShowAllRanked] = useState(false);
-  const [chartFailed, setChartFailed] = useState(false);
 
-  /* Compute which muscles are involved and their intensity */
-  const bodyState = useMemo(() => {
-    const state: Record<string, { intensity: number; selected: boolean }> = {};
+  /* Which regions are involved, and in what categorical role. */
+  const roles = useMemo<Record<string, AnatomyRole>>(() => roleMapForLists(primary, secondary), [primary, secondary]);
 
-    const applyKey = (key: string, intensity: number) => {
-      const ids = keyToIds[key];
-      if (!ids) return;
-      ids.forEach(id => {
-        const existing = state[id];
-        if (!existing || existing.intensity < intensity) {
-          // Only the band actually tapped reads as selected. Marking every id of the
-          // parent key lit all three lat bands at once, which is what made them
-          // impossible to tell apart.
-          state[id] = { intensity, selected: selectedId === id };
-        }
-      });
-    };
-
-    // Categorical role color is intentionally separate from any relative exercise/stack index.
-    Object.keys(keyToIds).forEach(key => {
-      if (matches(key, primary)) {
-        applyKey(key, anatomyRoleRenderState.primary);
-      }
-    });
-    Object.keys(keyToIds).forEach(key => {
-      if (!matches(key, primary) && matches(key, secondary)) {
-        applyKey(key, anatomyRoleRenderState.supporting);
-      }
-    });
-
-    return state;
-  }, [primary, secondary, selectedId]);
+  /**
+   * A region's role record, found under the region's own key or under whichever
+   * incoming value resolved onto it. Movement records file the interscapular
+   * region under `rhomboids` and the catalog files it under `upperBack`; the
+   * athlete tapped one region either way.
+   */
+  const detailFor = useCallback((key: string): BodyLabRoleDetail | undefined => {
+    if (roleDetails?.[key]) return roleDetails[key];
+    const sources = sourceValuesForRegion(key, [...primary, ...secondary]);
+    const match = sources.find((value) => roleDetails?.[value]);
+    return match ? roleDetails?.[match] : undefined;
+  }, [roleDetails, primary, secondary]);
 
   /* Ranked muscles for the strip */
   const ranked = useMemo(() => {
     const entries: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[] = [];
     const displayRole = (key: string): Role => {
-      if (matches(key, primary)) return "Primary";
-      const roles = roleDetails?.[key]?.roles || [];
-      if (roles.includes("Primary Mover")) return "Primary";
-      if (roles.includes("Stabilizer")) return "Stabilizer";
+      if (roles[key] === "primary") return "Primary";
+      const detailRoles = detailFor(key)?.roles || [];
+      if (detailRoles.includes("Primary Mover")) return "Primary";
+      if (detailRoles.includes("Stabilizer")) return "Stabilizer";
       return "Synergist";
     };
-    Object.keys(keyToIds).forEach(key => {
-      if (matches(key, primary)) {
-        entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: roleDetails?.[key]?.roles, confidence: roleDetails?.[key]?.confidence || "Movement model" });
-      } else if (matches(key, secondary)) {
-        entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: roleDetails?.[key]?.roles, confidence: roleDetails?.[key]?.confidence || "Movement model" });
-      }
+    Object.keys(roles).forEach(key => {
+      const detail = detailFor(key);
+      entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: detail?.roles, confidence: detail?.confidence || "Movement model" });
     });
     const fallbackOrder: Record<Role, number> = { Primary: 0, Stabilizer: 1, Synergist: 2 };
     const orderFor = (entry: typeof entries[number]) => {
-      const detail = roleDetails?.[entry.key];
+      const detail = detailFor(entry.key);
       const firstRole = detail?.roles[0];
       return firstRole ? (detail?.roleOrder.indexOf(firstRole) ?? fallbackOrder[entry.role]) : fallbackOrder[entry.role];
     };
     return entries.sort((a, b) => orderFor(a) - orderFor(b)).slice(0, 8);
-  }, [primary, secondary, roleDetails]);
+  }, [roles, detailFor]);
   const filteredRanked = ranked.filter(region => !query || region.label.toLowerCase().includes(query.toLowerCase()));
   const visibleRanked = showAllRanked ? filteredRanked : filteredRanked.slice(0, 5);
   const hiddenRankedCount = Math.max(0, filteredRanked.length - visibleRanked.length);
@@ -174,63 +96,42 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
   ];
   const roleCounts = { primary: ranked.filter((region) => region.role === "Primary").length, stabilizer: ranked.filter((region) => region.role === "Stabilizer").length, supporting: ranked.filter((region) => region.role === "Synergist").length };
 
-  /* Initialize and update the body-muscles chart */
-  useEffect(() => {
-    if (chartFailed) return;
-    if (!containerRef.current) return;
-    if (chartRef.current) {
-      chartRef.current.destroy();
-    }
-    try {
-      chartRef.current = new BodyChart(containerRef.current, {
-        view: view === "FRONT" ? ViewSide.FRONT : ViewSide.BACK,
-        bodyState,
-        onMuscleClick: (id: string) => {
-          const matchedKey = Object.entries(keyToIds).find(([, ids]) => ids.includes(id))?.[0];
-          if (matchedKey) {
-            setSelectedId(id);
-            setSelectedKey(matchedKey);
-            onSelect(matchedKey);
-          }
-        },
-        onMuscleHover: (id: string | null) => {
-          if (id) {
-            const muscle = MUSCLE_MAP.find((m: { id: string; name: string }) => m.id === id);
-            setHoveredName(regionDisplayName(id, muscle?.name || id));
-          } else {
-            setHoveredName("");
-          }
-        },
-        enableTransitions: true,
-      });
-    } catch {
-      chartRef.current?.destroy();
-      chartRef.current = null;
-      setChartFailed(true);
-    }
-    return () => { chartRef.current?.destroy(); chartRef.current = null; };
-  }, [view, chartFailed]);
-
-  /* Update body state when muscles change */
-  useEffect(() => {
-    chartRef.current?.update({ bodyState });
-  }, [bodyState]);
+  const chooseRegion = useCallback((key: string, pathId?: string) => {
+    setSelectedKey(key);
+    setSelectedId(pathId ?? "");
+    onSelect(key);
+  }, [onSelect]);
 
   const flipView = useCallback(() => {
-    setView(v => v === "FRONT" ? "BACK" : "FRONT");
+    setView(v => v === "front" ? "back" : "front");
   }, []);
 
-  const reset = () => { setView("FRONT"); setSelectedKey(""); setSelectedId(""); setQuery(""); };
+  const reset = () => { setView("front"); setSelectedKey(""); setSelectedId(""); setQuery(""); };
   const selectedLabel = selectedKey ? (labels[selectedKey] || selectedKey) : "";
-  /** The exact band, when the selection came from tapping the chart. */
-  const selectedAnatomy = selectedId ? describeSubregion(selectedId) : null;
-  const selectedPreciseName = selectedId ? regionDisplayName(selectedId, selectedLabel) : selectedLabel;
-  /** Set when the chart has no path for this muscle and borrows a neighbouring one. */
-  const selectedApproximation = selectedKey ? approximateRegionNotes[selectedKey] : undefined;
   const hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false;
-  const selectedRole: Role | null = selectedKey ? (matches(selectedKey, primary) ? "Primary" : "Synergist") : null;
-  const selectedRoleDetail = selectedKey ? roleDetails?.[selectedKey] : undefined;
+  /**
+   * The role of the selection, or nothing.
+   *
+   * This used to be a two-way branch on the primary list: anything not primary
+   * was labelled a synergist, including muscles the selected action does not use
+   * at all. Tapping the biceps during a wrestling action reported "SYNERGIST"
+   * for a muscle with no record behind it. A muscle with no role in this action
+   * has no role to show.
+   */
+  const selectedRole: Role | null = selectedKey
+    ? (roles[selectedKey] === "primary" ? "Primary" : roles[selectedKey] === "supporting" ? "Synergist" : null)
+    : null;
+  const selectedRoleDetail = selectedKey ? detailFor(selectedKey) : undefined;
   const selectedMechanics = selectedKey ? getAnatomyMechanicsEvidence(selectedKey) : null;
+  /**
+   * Selection survives a flip, which the Body Lab contract asks for — "a
+   * selected region remains the same object across modes". What it must not do
+   * is leave the card naming a muscle with no visible referent, so when the
+   * selection lives on the other view the strip says so and offers the flip.
+   */
+  const selectedViews = selectedKey ? viewsForRegion(selectedKey) : [];
+  const selectionOffView = Boolean(selectedKey) && selectedViews.length > 0 && !selectedViews.includes(view);
+  const selectedHomeView = selectedViews[0];
 
   return (
     <section className="anatomy-atlas-pro">
@@ -247,8 +148,8 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
           <div className="atlas-control-group">
             <span>View</span>
             <div className="atlas-pill-row">
-              <button className={view === "FRONT" ? "is-active" : ""} onClick={() => setView("FRONT")}>Anterior</button>
-              <button className={view === "BACK" ? "is-active" : ""} onClick={() => setView("BACK")}>Posterior</button>
+              <button className={view === "front" ? "is-active" : ""} onClick={() => setView("front")} aria-pressed={view === "front"}>Anterior</button>
+              <button className={view === "back" ? "is-active" : ""} onClick={() => setView("back")} aria-pressed={view === "back"}>Posterior</button>
             </div>
           </div>
           <label className="atlas-pro-search">
@@ -261,16 +162,25 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
 
         <div className="atlas-pro-canvas">
           <div className="atlas-canvas-header">
-            <span className="atlas-view-label">{view === "FRONT" ? "Anterior view" : "Posterior view"}</span>
+            <span className="atlas-view-label">{view === "front" ? "Anterior view" : "Posterior view"}</span>
             <button className="atlas-flip-btn" onClick={flipView} aria-label="Switch between front and back view">
               <RotateCw className="h-4 w-4" />
-              <span>{view === "FRONT" ? "Flip to Back" : "Flip to Front"}</span>
+              <span>{view === "front" ? "Flip to Back" : "Flip to Front"}</span>
             </button>
           </div>
 
-          {/* body-muscles chart container */}
           <div className="atlas-body-chart-wrap">
-            {chartFailed ? <VectorAnatomyFallback view={view} ranked={ranked} onSelect={(key) => { setSelectedKey(key); onSelect(key); }} onRetry={() => setChartFailed(false)} /> : <><div ref={containerRef} className="atlas-body-chart" />{hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}</>}
+            <div className="atlas-body-chart">
+              <AnatomyFigure
+                view={view}
+                roles={roles}
+                selectedKeys={selectedKey ? [selectedKey] : []}
+                onSelect={chooseRegion}
+                labelFor={(key) => labels[key] || key}
+                onHover={(key) => setHoveredName(key ? (labels[key] || key) : "")}
+              />
+            </div>
+            {hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}
           </div>
 
           {/* Scan layer for the selection. The full inspector sits further down
@@ -283,24 +193,21 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
           {showInspector && selectedKey && <div className="atlas-selected-strip">
             <div>
               <p className="metric-label">Selected muscle</p>
-              <strong>{selectedAnatomy?.muscle || selectedLabel}</strong>
-              {/* The part, spelled out. Without this the three lat bands and the three
-                  trapezius parts all read as one name, and the subdivision the chart
-                  draws carries no meaning. */}
-              {selectedAnatomy?.part && <em className="atlas-selected-part">{selectedAnatomy.part}{selectedAnatomy.side ? ` · ${selectedAnatomy.side}` : ""}</em>}
-              {selectedAnatomy?.distinction && <small className="atlas-selected-distinction">{selectedAnatomy.distinction}</small>}
+              <strong>{selectedLabel}</strong>
+              {regionPartName(selectedId) && <em className="atlas-selected-part">{regionPartName(selectedId)}</em>}
             </div>
-            <span className="atlas-selected-role">{selectedRoleDetail?.roles.join(" · ") || selectedRole}</span>
-            <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Movement model"}</span>
-            {/* Where the chart has no path for this muscle it borrows a neighbour's.
-                Saying so beats letting a highlighted posterior deltoid be read as the
-                rotator cuff, which is a different muscle at a different depth. */}
-            {selectedApproximation && <p className="atlas-selected-approximation"><Target className="h-3 w-3" /><span>Approximate position. {selectedApproximation}</span></p>}
+            <span className="atlas-selected-role">{selectedRoleDetail?.roles.join(" · ") || selectedRole || "No role in this action"}</span>
+            {selectedRole && <span className="atlas-selected-confidence">{selectedRoleDetail?.confidence || "Movement model"}</span>}
+            {selectionOffView && selectedHomeView && <button type="button" className="atlas-selected-elsewhere" onClick={flipView}>
+              Shown on the {viewLabel(selectedHomeView)} view — flip to see it
+            </button>}
           </div>}
 
           {/* Qualitative role legend */}
           <div className="atlas-heat-legend-pro">
-            <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#c0cdd6" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "#d5ad43" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "#db2f24" }} /></>
+            {/* Swatches carry the figure's own fills, gradients included, so the
+                legend cannot drift from what the body is actually painted. */}
+            <><span>Neutral</span><i className="atlas-swatch" style={{ background: "#e8ecf4" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#e9be55,#c08f24)" }} /><span>Primary role</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#ec5f4a,#bb2114)" }} /></>
           </div>
           <details className="atlas-role-methodology">
             <summary>How muscle roles are classified <ChevronDown className="h-4 w-4" /></summary>
@@ -321,13 +228,13 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
                 <button onClick={() => setSelectedKey("")} aria-label="Clear muscle selection">×</button>
               </div>
               <div className="atlas-inspector-badges">
-                <span>{selectedRoleDetail?.roles.join(" · ") || selectedRole}</span>
-                <i>{selectedRoleDetail?.confidence || "Movement model"}</i>
+                <span>{selectedRoleDetail?.roles.join(" · ") || selectedRole || "No role in this action"}</span>
+                {selectedRole && <i>{selectedRoleDetail?.confidence || "Movement model"}</i>}
                 <b>{hasLinkedExerciseOrStackContext ? "Exercise / stack context" : "Sporting-action role"}</b>
               </div>
               <div className="atlas-why-pro">
                 <p className="metric-label">Role</p>
-                <p>{selectedRoleDetail?.explanation || (selectedRole === "Primary" ? "This muscle is a primary mover in the selected sporting action." : "This muscle supports the selected sporting action as a synergist or stabilizer.")}</p>
+                <p>{selectedRoleDetail?.explanation || (selectedRole === "Primary" ? "This muscle is a primary mover in the selected sporting action." : selectedRole === "Synergist" ? "This muscle supports the selected sporting action as a synergist or stabilizer." : "The selected sporting action’s record does not list this muscle in any role. That is an absence of evidence here, not a finding that the muscle is uninvolved.")}</p>
                 {hasLinkedExerciseOrStackContext ? <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">A selected exercise or active stack provides additional context. The role shown remains qualitative; it is not an activation, force, or individual capacity measurement.</p> : <p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">No exercise or active stack is loaded here. Color reflects qualitative role context, not measured activation or force.</p>}
               </div>
               {selectedRoleDetail?.phaseContext && <div className="atlas-why-pro"><p className="metric-label">Action phase context</p><p>{selectedRoleDetail.phaseContext}</p><p className="mt-2 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">This is the movement record’s qualitative contraction-phase description, not a timing or force measurement.</p></div>}
@@ -350,7 +257,7 @@ export function AnatomyMap({ primary, secondary, onSelect, muscleScores, roleDet
         </aside>}
         <section className="atlas-ranking" aria-label="Key muscle roles">
           <div className="atlas-ranking-head"><p className="metric-label">Key muscle roles</p><strong>{ranked.length} muscles involved</strong><span>{roleCounts.primary} primary · {roleCounts.stabilizer} stabilizer · {roleCounts.supporting} supporting</span></div>
-          {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span><em>{region.roles?.[0] || `${region.role} role`}</em><ChevronRight className="h-4 w-4" /></button>)}</div>)}
+          {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span><em>{region.roles?.[0] || `${region.role} role`}</em><ChevronRight className="h-4 w-4" /></button>)}</div>)}
           {hiddenRankedCount > 0 && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `+ ${hiddenRankedCount} supporting muscle${hiddenRankedCount === 1 ? "" : "s"}`}</button>}
         </section>
       </div>

@@ -33,7 +33,6 @@ vi.mock("@/lib/trpc", () => ({
     workoutLog: { progressionHistory: { useQuery: () => ({ data: [] }) } },
   },
 }));
-vi.mock("body-muscles", () => ({ ViewSide: { FRONT: "front", BACK: "back" }, BodyChart: class { update() {} destroy() {} } }));
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: vi.fn() }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 

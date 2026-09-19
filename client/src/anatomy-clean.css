@@ -189,10 +189,22 @@
   --sg-atlas-tooltip-border: var(--sg-control-border-on-dark);
 }
 
+/* The figure's own polarity, flipped in the same place and for the same reason.
+   Its light-surface defaults are correct in the exercise inspector, which draws
+   it inside a light panel; here the ground is dark. */
+.destination-body .anatomy-figure {
+  --anatomy-shell: #4c5a6e;
+  --anatomy-muscle: #6f7d90;
+  --anatomy-structural: #5b6a7e;
+  --anatomy-line: #a9b6c8;
+  --anatomy-selection: #ffffff;
+}
+
 /* The selection, restated where the athlete just tapped. */
 .atlas-selected-strip{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;margin-top:.75rem;border-left:3px solid var(--sg-action);background:var(--sg-surface-light-sunken);padding:.65rem .8rem}
 .atlas-selected-strip>div{min-width:0}
 .atlas-selected-strip strong{display:block;font-family:var(--font-display,"Barlow Condensed",sans-serif);font-size:1.35rem;font-weight:800;line-height:1.05;text-transform:uppercase}
 .atlas-selected-role{border:1px solid var(--sg-divider-on-light);padding:.22rem .45rem;font-size:.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .atlas-selected-confidence{font-size:.6875rem;line-height:1.35;color:var(--sg-text-subtle-on-light)}
+.atlas-selected-elsewhere{flex-basis:100%;text-align:left;font-size:.6875rem;font-weight:700;line-height:1.35;color:var(--sg-action);text-decoration:underline;text-underline-offset:3px;min-height:44px;display:flex;align-items:center}
 @media (min-width:901px){.atlas-selected-strip{display:none}}

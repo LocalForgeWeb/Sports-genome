@@ -56,8 +56,11 @@ describe("Body Lab selection proximity", () => {
 describe("Body Lab architecture mechanics disclosure", () => {
   it("uses categorical role states instead of a numeric heat scale", () => {
     expect(source).toContain("anatomyRoleRenderState");
-    expect(source).toContain("anatomyRoleRenderState.primary");
-    expect(source).toContain("anatomyRoleRenderState.supporting");
+    expect(source).toContain('primary: "primary"');
+    expect(source).toContain('supporting: "supporting"');
+    // The third-party renderer took a 0-10 intensity, so a categorical role had
+    // to be encoded as a number on the way in. Nothing translates now.
+    expect(source).not.toMatch(/intensity/i);
     expect(source).not.toContain("heatSolid");
     expect(source).not.toContain("muscleScoreIntensity");
     expect(source).toContain("qualitative role map");
@@ -71,32 +74,29 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).not.toContain("See the work. <em>Then inspect the why.</em>");
   });
 
-  it("renders a visible, selectable in-app vector fallback when the detailed anatomy chart is unavailable", async () => {
-    const { VectorAnatomyFallback } = await import("./AnatomyMap");
-    const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {
-      view: "FRONT",
-      ranked: [{ key: "chest", label: "Pectoralis major", role: "Primary" }],
-      onSelect: vi.fn(),
-      onRetry: vi.fn(),
-    }));
-
-    expect(markup).toContain("Vector anatomy fallback");
-    // The ladder now names the basis for a role instead of grading its weakness.
-    expect(markup).toContain("Pectoralis major · Primary role · Movement model");
-    expect(markup).toContain("Retry detailed anatomy chart");
+  it("draws its own anatomy instead of a third-party chart, so there is no load-failure path to fall back from", () => {
+    expect(source).not.toContain("body-muscles");
+    expect(source).not.toContain("BodyChart");
+    expect(source).not.toContain("chartFailed");
+    expect(source).not.toContain("VectorAnatomyFallback");
+    expect(source).toContain('import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure"');
   });
 
-  it("renders role-only fallback context without fabricating an involvement percentage", async () => {
-    const { VectorAnatomyFallback } = await import("./AnatomyMap");
-    const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {
-      view: "BACK",
-      ranked: [{ key: "lats", label: "Latissimus dorsi", role: "Primary" }],
-      onSelect: vi.fn(),
-      onRetry: vi.fn(),
-    }));
+  it("names a muscle with no role in the action instead of calling it a synergist", () => {
+    // `matches(selectedKey, primary) ? "Primary" : "Synergist"` gave every
+    // non-primary muscle a synergist role, including ones the action does not
+    // use at all — a fabricated role with no record behind it.
+    expect(source).not.toContain('matches(selectedKey, primary) ? "Primary" : "Synergist"');
+    expect(source).toContain('"No role in this action"');
+    expect(source).toContain("absence of evidence here");
+  });
 
-    expect(markup).toContain("Latissimus dorsi · Primary role");
-    expect(markup).not.toContain("Latissimus dorsi · 90%");
+  it("says where a selection lives when it is drawn on the view the athlete is not looking at", () => {
+    // Selection survives a flip, which the contract asks for. What it must not
+    // do is leave the card naming a muscle with no visible referent.
+    expect(source).toContain("selectionOffView");
+    expect(source).toContain("atlas-selected-elsewhere");
+    expect(source).toContain("flip to see it");
   });
 
   it("renders selected-muscle architecture, leverage, source, and model boundary context", async () => {
@@ -160,14 +160,19 @@ describe("Body Lab architecture mechanics disclosure", () => {
     };
     const markup = renderToStaticMarkup(createElement(AnatomyMap, { primary: ["glutes"], secondary: ["obliques", "hamstrings"], roleDetails, onSelect: vi.fn() }));
 
-    expect(markup.indexOf("Gluteal complex")).toBeLessThan(markup.indexOf("External oblique"));
-    expect(markup.indexOf("External oblique")).toBeLessThan(markup.indexOf("Hamstrings"));
+    // Scoped to the ranked list: the figure's own hit layer also names every
+    // muscle, and is ordered by area so small regions win hit priority.
+    const ranking = markup.slice(markup.indexOf('class="atlas-ranking"'));
+    expect(ranking.indexOf("Gluteal complex")).toBeLessThan(ranking.indexOf("External oblique"));
+    expect(ranking.indexOf("External oblique")).toBeLessThan(ranking.indexOf("Hamstrings"));
     expect(markup).toContain("Stabilizers");
     expect(markup).not.toContain("Stabilizer · Strong indirect evidence");
   });
 
-  it("forces the third-party portrait SVG to fit the full mobile canvas height without clipping", () => {
-    expect(styles).toContain(".atlas-body-chart svg{height:100%!important;width:auto!important;max-width:100%!important;max-height:100%;object-fit:contain}");
+  it("lets the figure fill the mobile canvas height without clipping", () => {
+    // The figure is sized by height so the whole athlete fits one screen, and
+    // is never allowed to overflow the canvas it sits in.
+    expect(styles).toMatch(/\.atlas-body-chart svg\{height:100%!?important?;?width:auto/);
     expect(styles).toContain(".atlas-body-chart-wrap{min-height:clamp(440px,138vw,560px);border-radius:12px}");
     expect(styles).toContain(".atlas-body-chart{height:clamp(440px,138vw,560px)}");
   });

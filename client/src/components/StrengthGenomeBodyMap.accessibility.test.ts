@@ -11,7 +11,7 @@ describe("Strength Genome body-map accessible region selection", () => {
     expect(source).toContain('className="strength-map-region-selector"');
     expect(source).toContain('aria-label="Strength Genome regions"');
     expect(source).toContain('aria-pressed={selectedRegionId === region.id}');
-    expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? "Saved test" : "No test yet"');
+    expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? "On record" : "Nothing yet"');
     expect(source).toContain('selectedRegionId === region.id ? undefined : region');
     expect(source).toContain('aria-label="Clear selected strength region"');
     expect(selector).not.toContain("percentile");
@@ -19,8 +19,12 @@ describe("Strength Genome body-map accessible region selection", () => {
   });
 
   it("uses the map to distinguish saved-test coverage from an untested region without a strength score", () => {
-    expect(source).toContain('region.state === "OBSERVED_TEST_CONTEXT" ? 4 : 0');
-    expect(source).toContain('selectedRegionId === region.id ? 9');
+    // Coverage is one categorical state, not a 0-10 magnitude. The figure had
+    // been fed intensity 4 for "on record" and 9 for "selected", which read as a
+    // scale the data does not support; selection is now the figure's outline.
+    expect(source).toContain('if (region.state !== "OBSERVED_TEST_CONTEXT") return;');
+    expect(source).toContain('map[key] = "primary";');
+    expect(source).not.toMatch(/intensity/i);
     expect(source).not.toContain("Top 1%");
   });
 

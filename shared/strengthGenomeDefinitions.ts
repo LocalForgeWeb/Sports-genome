@@ -138,3 +138,53 @@ export function getStrengthCatalogSelectionContext(exercise: StrengthCatalogSele
     boundary: route?.boundary ?? "No broad Strength Genome test context is mapped for this catalog exercise yet.",
   };
 }
+
+/**
+ * The exercise catalog names muscles in its own vocabulary. This maps that
+ * vocabulary onto the athlete-facing regions above so a lift logged in the
+ * workout tracker can say where it belongs without anyone hand-writing an
+ * alias for all 400 catalog exercises.
+ *
+ * This is the same kind of statement the routes above make — a movement
+ * classification, not a measurement. It says "you have recorded work here",
+ * never how strong that region is, and it carries no coefficient, tier, or
+ * percentile. `feet` has no region of its own and is deliberately absent
+ * rather than folded into a neighbour.
+ */
+export const catalogMuscleRegionIds: Record<string, string> = {
+  frontDelts: "shoulders",
+  sideDelts: "shoulders",
+  rearDelts: "shoulders",
+  shoulders: "shoulders",
+  rotatorCuff: "shoulders",
+  chest: "chest",
+  serratusAnterior: "chest",
+  upperBack: "upper_back",
+  traps: "upper_back",
+  lats: "lats",
+  biceps: "biceps",
+  brachialis: "biceps",
+  triceps: "triceps",
+  forearms: "forearms_grip",
+  abs: "abdominals",
+  obliques: "obliques",
+  lowerBack: "spinal_erectors",
+  glutes: "glutes",
+  hipFlexors: "hip_flexors",
+  adductors: "hip_adductors",
+  abductors: "hip_abductors",
+  quads: "quadriceps",
+  hamstrings: "hamstrings",
+  calves: "calves",
+  tibialis: "tibialis_anterior",
+};
+
+/**
+ * Regions a set of catalog muscles belongs to, in the order the regions are
+ * defined so the result is stable. Unmapped muscles are dropped rather than
+ * guessed at.
+ */
+export function strengthRegionIdsForCatalogMuscles(muscles: readonly string[]): string[] {
+  const mapped = new Set(muscles.map((muscle) => catalogMuscleRegionIds[muscle]).filter(Boolean));
+  return strengthRegionDefinitions.map((region) => region.id).filter((id) => mapped.has(id));
+}
