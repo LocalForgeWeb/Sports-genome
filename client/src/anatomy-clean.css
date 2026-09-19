@@ -15,17 +15,28 @@
 /* Illustration wrapper */
 /* Body chart container (body-muscles library) */
 .atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;margin-top:.3rem;overflow:hidden;padding:.7rem .5rem .4rem;background:radial-gradient(circle at 50% 38%,var(--sg-surface-light) 0%,var(--sg-surface-light) 56%,var(--sg-surface-light-sunken) 100%);border:1px solid var(--sg-surface-light-sunken)}
-.atlas-body-chart{width:100%;display:flex;justify-content:center;align-items:center}
-/* Sized by width. One body at a time is a portrait drawing, so this is what
-   makes it fill the panel instead of sitting small in the middle of it - which
-   is also what gives every muscle a tap target worth aiming at. */
-.atlas-body-chart svg{width:100%;height:auto;max-width:100%}
+/* Height is the scarce axis, not width.
+   Sized by width the figure came out 559px tall, and with its caption row and
+   padding the chart measured 625px against a 624px band between the sticky
+   header (151px) and the bottom bar (69px) on a 390x844 phone. The athlete's
+   feet sat under the nav unless the page was scrolled to exactly one position.
+   So the chart takes a height the viewport can actually show and the drawing
+   fits itself into that: 20rem reserves the chrome plus the caption row, and
+   34rem stops a wide desktop column rendering an enormous body. */
+.atlas-body-chart{width:100%;display:flex;justify-content:center;align-items:center;height:var(--sg-body-figure-height)}
+.atlas-body-chart svg{width:auto;height:100%;max-width:100%}
 /* Turns the figure around. It sits in the caption row under the drawing, beside
    the word naming the body on screen: pinned to the panel's top edge it scrolled
    under the header on a phone exactly when the body filled the screen, which is
    when you want it. */
-.atlas-side-toggle{display:inline-flex;min-height:2.25rem;align-items:center;gap:.35rem;border:1px solid var(--sg-divider-on-light);border-radius:8px;background:var(--sg-surface-light);padding:0 .6rem;color:#3a6187;font-size:.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;transition:border-color var(--sg-motion-fast) var(--sg-ease),color var(--sg-motion-fast) var(--sg-ease),transform var(--sg-motion-fast) var(--sg-ease)}
-.atlas-side-toggle:hover{border-color:var(--sg-info-strong);color:#1d5cae}
+/* Filled, not a ghost outline. It was a hairline border in the divider colour
+   over the panel's own background, which on the dark Body Lab ground left it
+   reading as a caption rather than the control that reveals the half of the
+   body you cannot see. It is the only way to that half, so it looks like a
+   button. Info blue, not the action orange, so it does not compete with the
+   page's primary. */
+.atlas-side-toggle{display:inline-flex;min-height:2.5rem;align-items:center;gap:.4rem;border:1px solid var(--sg-info-strong);border-radius:8px;background:var(--sg-info-strong);padding:0 .75rem;color:#fff;font-size:.6875rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase;transition:background-color var(--sg-motion-fast) var(--sg-ease),border-color var(--sg-motion-fast) var(--sg-ease),transform var(--sg-motion-fast) var(--sg-ease)}
+.atlas-side-toggle:hover{border-color:#1d5cae;background:#1d5cae;color:#fff}
 .atlas-side-toggle:active{transform:scale(.97)}
 .atlas-side-toggle:focus-visible{outline:2px solid var(--sg-info-strong);outline-offset:2px}
 /* Which body is on screen, said under the drawing. The reference apps run
@@ -232,3 +243,9 @@
 .destination-body .atlas-inspector-sources,.destination-body .atlas-inspector-boundary{color:var(--sg-text-subtle-on-dark)}
 .destination-body .atlas-inspector-sources a{color:var(--sg-link-on-dark)}
 .destination-body .atlas-inspector-boundary-final{border-top-color:var(--sg-divider-on-dark)}
+
+/* On the Body Lab's dark ground the same chip, one step brighter, so white
+   type on it clears AA and the control reads as raised rather than inset. */
+.destination-body .atlas-side-toggle{border-color:var(--sg-info);background:var(--sg-info);color:#06203c}
+.destination-body .atlas-side-toggle:hover{border-color:#8fc8ff;background:#8fc8ff;color:#06203c}
+.destination-body .atlas-side-toggle:focus-visible{outline-color:var(--sg-focus-on-dark)}

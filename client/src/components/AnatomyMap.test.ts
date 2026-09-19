@@ -153,13 +153,33 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).not.toContain("Stabilizer · Strong indirect evidence");
   });
 
-  it("sizes the figure by width, because two bodies is a landscape drawing", () => {
-    // It used to be sized by height, with `!important` to beat the third-party
-    // chart's inline `max-height`. That library is gone, and with both bodies on
-    // one canvas height is no longer the scarce axis — width is, so a fixed
-    // height would letterbox the drawing inside its own card.
-    expect(styles).toContain(".atlas-body-chart svg{width:100%;height:auto;max-width:100%}");
-    expect(styles).not.toMatch(/\.atlas-body-chart\{[^}]*height:clamp/);
+  it("sizes the figure so a whole body fits the screen it is shown on", () => {
+    // One body at a time is a portrait drawing, so height is the scarce axis
+    // again. Sized by width it came out 559px tall and the chart measured 625px
+    // against the 624px band between the sticky header and the bottom bar on a
+    // 390x844 phone — the athlete's feet sat under the nav. The chart takes a
+    // height the viewport can show and the drawing fits itself into that.
+    expect(styles).toMatch(/\.atlas-body-chart\{[^}]*height:var\(--sg-body-figure-height\)/);
+    expect(styles).toContain(".atlas-body-chart svg{width:auto;height:100%;max-width:100%}");
     expect(styles).not.toContain("!important");
+
+    // One height for both body maps. They draw the same athlete and live in
+    // different stylesheets, so the value is a token rather than two literals
+    // that agree today. A vh fallback is declared first for engines without dvh.
+    const root = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(root).toContain("--sg-body-figure-height: clamp(18rem, calc(100vh - 20rem), 34rem)");
+    expect(root).toMatch(/@supports \(height: 1dvh\)[^}]*\{[^}]*--sg-body-figure-height: clamp\(18rem, calc\(100dvh - 20rem\), 34rem\)/);
+    expect(root).toContain(".strength-body-chart .anatomy-figure { height: var(--sg-body-figure-height)");
+  });
+
+  it("makes the control that turns the body around look like a control", () => {
+    // It was a hairline border in the divider colour over the panel's own
+    // background. On the dark Body Lab ground that read as a caption, not as
+    // the only route to the half of the body you cannot see.
+    const rule = styles.match(/\.atlas-side-toggle\{[^}]*\}/)![0];
+    expect(rule).toContain("background:var(--sg-info-strong)");
+    expect(rule).toContain("color:#fff");
+    expect(rule).toMatch(/min-height:2\.5rem/);
+    expect(styles).toContain(".destination-body .atlas-side-toggle{");
   });
 });

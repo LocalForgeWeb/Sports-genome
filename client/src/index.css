@@ -161,6 +161,16 @@
 
      Anything longer than `slow` is a set piece (the launch sequence), not part of
      the grammar, and is written out where it lives. */
+  /* How tall a body figure may be.
+     Both body maps draw the same 676x1203 athlete, so height is the scarce axis
+     on a phone: sized by width the drawing came out ~560px tall and, with its
+     caption row, overflowed the ~624px band between the sticky header and the
+     bottom bar — the athlete's feet sat under the nav. 20rem reserves that
+     chrome plus the caption row; 34rem stops a wide desktop column rendering an
+     enormous body. Stated once here because the Body Lab and the Strength
+     Genome must agree, and they live in different stylesheets. */
+  --sg-body-figure-height: clamp(18rem, calc(100vh - 20rem), 34rem);
+
   --sg-motion-fast: 150ms;
   --sg-motion-base: 200ms;
   --sg-motion-slow: 320ms;
@@ -1215,6 +1225,14 @@ select {
 .strength-body-map-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }.strength-body-map-head h2 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; line-height: .9; text-transform: uppercase; }.strength-body-map-head h2 em { color: var(--sg-focus-on-dark); }.strength-body-map-head button { display: inline-flex; min-height: 44px; align-items: center; gap: .45rem; border: 1px solid rgb(164 200 232 / .45); background: rgb(255 255 255 / .06); padding: 0 .75rem; color: var(--sg-text-on-dark); font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 /* Both bodies on one canvas: a landscape block, sized by width, not the tall
    column a single flipping figure needed. */
+@supports (height: 1dvh) {
+  :root { --sg-body-figure-height: clamp(18rem, calc(100dvh - 20rem), 34rem); }
+}
+
+/* The figure takes the shared height and fits itself into it, rather than
+   filling the panel's width and running past the bottom of the screen. */
+.strength-body-chart .anatomy-figure { height: var(--sg-body-figure-height); width: auto; max-width: 100%; }
+
 .strength-body-chart { margin-top: 1rem; border: 1px solid rgb(164 200 232 / .25); background: radial-gradient(circle at center, rgb(45 108 223 / .14), transparent 68%); padding: .75rem .5rem .25rem; }.strength-body-chart .body-chart { width: 100%; height: 100%; max-width: 100%; }
 /* Which body is which, said once under the figure rather than as labels on it. */
 .strength-body-chart-views { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .55rem .9rem; margin: .1rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
@@ -2516,7 +2534,7 @@ details:not([open]) > *:not(summary) {
 /* Turns the figure around, beside the word naming the body on screen. In the
    section head it scrolled under the sticky header exactly when the body
    filled the screen, which is when an athlete reaches for it. */
-.strength-body-side-toggle { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; border: 1px solid rgb(164 200 232 / .45); background: rgb(255 255 255 / .06); padding: 0 .75rem; color: var(--sg-text-on-dark); font-size: .6875rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; transition: transform var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
-.strength-body-side-toggle:hover { border-color: var(--sg-focus-on-dark); }
+.strength-body-side-toggle { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; border: 1px solid var(--sg-info); background: var(--sg-info); padding: 0 .75rem; color: #06203c; font-size: .6875rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; transition: transform var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
+.strength-body-side-toggle:hover { border-color: #8fc8ff; background: #8fc8ff; }
 .strength-body-side-toggle:active { transform: scale(.97); }
 .strength-body-side-toggle:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
