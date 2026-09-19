@@ -150,12 +150,29 @@ describe("Strength Genome panel", () => {
     expect(source).not.toContain("regional percentile");
   });
 
-  it("moves a newly selected region into view with reduced-motion-safe behavior and focuses its heading", () => {
+  it("leaves the page where it is on a pinned layout and only scrolls the wide one, focusing the heading either way", () => {
     expect(source).toContain("const regionDetailRef = useRef<HTMLDivElement | null>(null)");
+    // The record is pinned above the bottom bar below this width, so it is
+    // already on screen. Scrolling would throw the figure the athlete just
+    // tapped off the top of the screen to reach a panel that had not moved.
+    expect(source).toContain('if (!window.matchMedia?.("(max-width: 1023px)").matches) {');
+    expect(source).not.toContain('(max-width: 640px)").matches ? 172 : 28');
     expect(source).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
-    expect(source).toContain('const stickyOffset = window.matchMedia?.("(max-width: 640px)").matches ? 172 : 28');
     expect(source).toContain('window.scrollTo({ top: targetTop, behavior: reduceMotion ? "auto" : "smooth" })');
+    // Offset from the bottom of the pinned chrome, not the top of the window,
+    // or the scroll parks the record's own heading behind the top bar.
+    expect(source).toContain('getPropertyValue("--sg-pinned-chrome")');
+    expect(source).toContain('detail.getBoundingClientRect().top - pinnedChrome - 16');
     expect(source).toContain('data-strength-region-heading');
     expect(source).toContain('focus({ preventScroll: true })');
+  });
+
+  it("pins the record and its two optional actions together, and lets Escape dismiss it", () => {
+    // One pinned block: a record that scrolls with an action bar that cannot be
+    // cut in half by a tall record.
+    expect(source).toContain('className="strength-region-sheet"');
+    const sheet = source.slice(source.indexOf('className="strength-region-sheet"'));
+    expect(sheet.indexOf('strength-region-focus-row')).toBeLessThan(sheet.indexOf('\n      <div className="strength-observation-summary"'));
+    expect(source).toContain('if (event.key !== "Escape") return;');
   });
 });
