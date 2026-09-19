@@ -56,7 +56,7 @@
 }
 /* The day switcher: which day you are building, and every other day one tap away. It stays
    on screen because "which day is this?" and "take me to another" are the same question. */
-.training-day-nav { position: sticky; top: .5rem; z-index: 14; overflow: hidden; border: 1px solid #b6d0e8; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 14px 30px rgb(12 40 71 / .18); color: var(--sg-text-on-dark); }
+.training-day-nav { position: sticky; top: calc(var(--sg-pinned-chrome) + .5rem); z-index: 14; overflow: hidden; border: 1px solid #b6d0e8; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 14px 30px rgb(12 40 71 / .18); color: var(--sg-text-on-dark); }
 .training-day-nav-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .85rem; padding: .95rem 1.05rem; border-bottom: 1px solid rgb(255 255 255 / .13); }
 .training-day-nav-current { min-width: 0; }
 .training-day-nav-current .metric-label { color: #9ec4e8; }
@@ -94,7 +94,14 @@
   .day-design-workspace > .day-design-hero { order: 2; }
   .day-design-workspace > .three-week-planner { order: 3; }
   .day-design-workspace > .day-design-grid { order: 4; }
-  .training-day-nav { position: sticky; top: 0; }
+  /* Pinned below the chrome that is already pinned, not underneath it.
+   *
+   * The top bar sticks at 0-88px and the workspace tabs at 72-135px, so a day
+   * nav stuck at `top: 0` spent its first 135px behind them: the "Day 01",
+   * "Day 02" labels were permanently hidden and the strip read as a row of
+   * headless cards. The offset comes from `--sg-pinned-chrome` in the base rule
+   * above, so there is one number rather than a per-breakpoint guess. */
+  .training-day-nav { top: var(--sg-pinned-chrome); }
   .training-day-nav-head { flex-wrap: nowrap; align-items: center; gap: .6rem; padding: .7rem .8rem; }
   .training-day-nav-current h2 { font-size: 1.62rem; }
   .training-day-nav-state { gap: .4rem; margin-top: .34rem; }

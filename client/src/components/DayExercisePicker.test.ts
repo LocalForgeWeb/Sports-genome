@@ -60,8 +60,33 @@ describe("Training Day exercise finder disclosure", () => {
    * off it and setting a filter by hand.
    */
   it("orders the options by the shortfalls this day actually has", () => {
-    expect(built).toContain("day-picker-result-fills");
-    expect(built).toMatch(/Closes [^<]+, \d+ short/);
+    expect(built).toMatch(/options · [^<]+ first/);
+    expect(source).toContain("rankPickerResults(results, gaps)");
+  });
+
+  /**
+   * The row tag and its green outline say "this closes a gap". On an empty day
+   * that is true of every option, so all 24 rows carried the same sentence and
+   * the same border - and the number in it, the day's shortfall, is identical
+   * whichever row you read because it belongs to the day, not the exercise.
+   */
+  it("drops the gap tag on a list where every row would carry the same one", () => {
+    expect(empty).not.toMatch(/Closes [^<]+</);
+    expect(empty).not.toContain("day-picker-result-fills");
+    // The day-level number never returns to a row; the gap chip above owns it.
+    expect(source).not.toContain("Math.abs(fillsGap.deltaToTarget)");
+  });
+
+  it("keeps the tag where rows differ, which is the only time it decides anything", () => {
+    expect(source).toContain("gapTagIsInformative(visibleRanked)");
+    expect(source).toContain('showGapTag && fillsGap ? " day-picker-result-fills"');
+  });
+
+  it("names only the muscles the list header has not already named", () => {
+    // Every Push-fit result leads with Pectoralis major, so printing it on each
+    // row repeats the header rather than telling two options apart.
+    expect(source).toContain("distinguishingMuscles(exercise, sortedBy)");
+    expect(empty).not.toMatch(/<em>PECTORALIS MAJOR<\/em>/i);
   });
 
   it("offers each shortfall as a one-tap filter", () => {
