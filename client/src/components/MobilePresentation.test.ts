@@ -43,7 +43,10 @@ describe("mobile athlete presentation", () => {
   });
 
   it("keeps recommendation cards decision-first on phones while retaining full reasoning behind one disclosure", () => {
-    expect(home).toContain('<summary>Why this match?</summary>');
+    // One disclosure per card, and it now carries the marker that says so: the
+    // stylesheet hides the webkit one and `display: flex` suppresses Chrome's.
+    expect(home).toContain('<details className="recommendation-why"><summary>Why this match?');
+    expect(home).toContain('<summary>Why this match?<ChevronDown');
     expect(home).toContain('aria-label={`Inspect ${result.exercise.name}`}');
     expect(home).toContain('relative match for ${result.exercise.name}');
     expect(appStyles).toContain('.recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 36px auto 44px;');
