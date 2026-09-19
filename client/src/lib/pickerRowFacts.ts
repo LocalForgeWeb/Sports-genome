@@ -45,9 +45,25 @@ export function rowRelation(row: Pick<PickerRowFact, "fillsGap" | "supportsGap">
  * down the page. It earns its place only where rows actually differ.
  */
 export function gapTagIsInformative(rows: readonly Pick<PickerRowFact, "fillsGap" | "supportsGap">[]): boolean {
-  if (rows.length < 2) return false;
-  const first = rowRelation(rows[0]);
-  return rows.some((row) => rowRelation(row) !== first);
+  return labelTellsRowsApart(rows.map(rowRelation));
+}
+
+/**
+ * The same rule, for any per-row label: does printing it distinguish the rows?
+ *
+ * Measured on the shipped build at 390px, two other lists were failing it. The
+ * Genome selector's connection badge held ONE value across all 24 rows in the
+ * default view and in the "row" and "press" searches, and the catalog's held one
+ * across all 36 cards in the default view - a column of identical pills in the
+ * accent colour, each repeating the one above it. Both split under other
+ * searches, which is exactly when the badge earns its place.
+ *
+ * A uniform label is not false, so it is not dropped: it stops being a property
+ * of the row and becomes one of the list, and moves to the list's own header.
+ */
+export function labelTellsRowsApart(labels: readonly string[]): boolean {
+  if (labels.length < 2) return false;
+  return new Set(labels).size > 1;
 }
 
 /**

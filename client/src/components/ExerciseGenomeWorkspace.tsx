@@ -4,6 +4,7 @@ import { exercises as exerciseCatalog, type Exercise } from "@/lib/exerciseCatal
 import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
 import type { EnrichedSportMovement } from "@/lib/enrichedSportMovementDatabase";
 import { getExerciseActionConnection, sharedConnectionSummary } from "@/lib/movementProgramAnalysis";
+import { labelTellsRowsApart } from "@/lib/pickerRowFacts";
 import { ExerciseGenomePanel } from "@/components/ExerciseGenomePanel";
 import { trpc } from "@/lib/trpc";
 
@@ -46,7 +47,7 @@ export function ExerciseGenomeWorkspace({
   // it. Uniform, it is the list's fact, not the row's, so it is stated once in
   // the header below instead of repeated down the page in the accent colour.
   const rowConnections = exercises.map((exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement));
-  const connectionVaries = new Set(rowConnections.map((connection) => connection.label)).size > 1;
+  const connectionVaries = labelTellsRowsApart(rowConnections.map((connection) => connection.label));
   const sharedConnection = connectionVaries || !rowConnections.length
     ? null
     : sharedConnectionSummary(rowConnections[0].label, rowConnections.length);

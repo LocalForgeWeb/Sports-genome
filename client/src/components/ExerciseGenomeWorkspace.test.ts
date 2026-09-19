@@ -21,7 +21,8 @@ describe("Exercise Genome selected-action selector", () => {
     // "press" searches each held ONE label across all 24 rows - twenty-four
     // identical pills in the accent colour - while the "squat" search split
     // 21/3. A badge earns its place on a row by differing from its neighbours.
-    expect(source).toContain("const connectionVaries = new Set(rowConnections.map((connection) => connection.label)).size > 1");
+    // One rule, shared with the catalog's card badge and the day picker's gap tag.
+    expect(source).toContain("const connectionVaries = labelTellsRowsApart(rowConnections.map((connection) => connection.label))");
     expect(source).toContain("{connectionVaries && <span className={`genome-selector-connection");
     expect(source).toContain("sharedConnectionSummary(rowConnections[0].label, rowConnections.length)");
     // The fact is not dropped, only moved to the line that already scopes the list.

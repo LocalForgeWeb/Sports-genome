@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   distinguishingMuscles,
   gapTagIsInformative,
+  labelTellsRowsApart,
   muscleLineIsInformative,
   rowRelation,
 } from "@/lib/pickerRowFacts";
@@ -85,5 +86,27 @@ describe("muscleLineIsInformative", () => {
 
   it("is true when some rows carry extra work and others do not", () => {
     expect(muscleLineIsInformative([exercise(["chest"]), exercise(["chest", "triceps"])], ["chest"])).toBe(true);
+  });
+});
+
+describe("a label earns its place by telling rows apart", () => {
+  it("is silent on a uniform column and speaks on a mixed one", () => {
+    expect(labelTellsRowsApart(["Supporting link", "Supporting link", "Supporting link"])).toBe(false);
+    expect(labelTellsRowsApart(["Supporting link", "Direct support", "Supporting link"])).toBe(true);
+    // "Not mapped" is a value like any other: a column split between mapped and
+    // unmapped still tells the reader which is which.
+    expect(labelTellsRowsApart(["Not mapped", "Supporting link"])).toBe(true);
+  });
+
+  it("does not print a badge to distinguish a row from nothing", () => {
+    expect(labelTellsRowsApart([])).toBe(false);
+    expect(labelTellsRowsApart(["Supporting link"])).toBe(false);
+  });
+
+  it("keeps the gap tag on the same rule it always had", () => {
+    const fills = { fillsGap: "chest" as const, supportsGap: null };
+    const other = { fillsGap: null, supportsGap: null };
+    expect(gapTagIsInformative([fills, fills, fills])).toBe(false);
+    expect(gapTagIsInformative([fills, other])).toBe(true);
   });
 });
