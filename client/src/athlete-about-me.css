@@ -20,3 +20,19 @@
    enrolment status sit above the watermark rather than under its outline. */
 .about-me-security > div, .about-me-security > p, .about-me-security > button { position: relative; z-index: 1; }
 @media (max-width: 720px) { .about-me-security-icon { right: -1.75rem; width: 80px; height: 80px; } }
+/* Account, email linking and the norms-pool consent. The consent toggle is a
+   switch rather than a checkbox because it is a standing permission, not a form
+   field, and it reads its own state in words so nothing depends on colour. */
+.about-me-account { display: grid; gap: 12px; }
+.about-me-account-status { margin: 0; color: var(--sg-text-muted-on-dark); font-size: .78rem; line-height: 1.5; }
+.about-me-account-pending { margin: 0; border-left: 3px solid var(--sg-focus-on-dark); padding-left: .6rem; color: var(--sg-text-muted-on-dark); font-size: .72rem; line-height: 1.45; }
+.about-me-account-email { display: grid; gap: 6px; }
+.about-me-account-email > span { color: #aac7e2; font-size: .6875rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.about-me-account-email small { color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.45; }
+.about-me-account-email button { min-height: 44px; border: 1px solid var(--sg-control-border-on-dark); padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+.about-me-account-email button:disabled { cursor: not-allowed; opacity: .45; }
+.about-me-account-consent { display: grid; gap: 10px; border-top: 1px solid var(--sg-control-border-on-dark); padding-top: 12px; }
+.about-me-account-consent p:not(.metric-label) { margin: .35rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; line-height: 1.5; }
+.about-me-consent-toggle { justify-self: start; min-height: 44px; border: 1px solid var(--sg-control-border-on-dark); padding: 0 1rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+.about-me-consent-toggle.is-on { border-color: var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); color: var(--sg-text-on-dark); }
+.about-me-consent-toggle:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }

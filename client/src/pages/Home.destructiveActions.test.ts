@@ -11,7 +11,7 @@ describe("Reversible-action and destructive-confirmation contract", () => {
     expect(source).not.toContain("onClick={rebuildPlan}");
     expect(source).toContain("onClick={requestRebuildPlan}");
     expect(source).toContain("setPendingDestructiveAction({\n        title: \"Reset sport selection?\"");
-    expect(source).toContain("{pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => setPendingDestructiveAction(null)} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}");
+    expect(source).toContain("{pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => { pendingDestructiveAction.onCancel?.(); setPendingDestructiveAction(null); }} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}");
   });
 
   it("gives the Tier B sport-switch an Undo affordance that restores the full prior plan, not just the sport", () => {

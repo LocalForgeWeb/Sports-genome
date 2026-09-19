@@ -6,8 +6,12 @@ const log = readFileSync(new URL("../lib/deviceWorkoutLog.ts", import.meta.url),
 const styles = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
 
 describe("Device Workout Tracker execution focus", () => {
-  it("keeps device-local set logging limited to weight, reps, and completion", () => {
-    expect(log).toContain('export type DeviceSetLog = { weight: string; reps: string; completed: boolean }');
+  it("keeps device-local set logging to what the athlete actually records", () => {
+    // Height joined weight and reps because a box jump has a box height and no
+    // weight; skipped joined completed because passing on an exercise is a
+    // resolved state, not an unfinished one. Still no perceived-effort field.
+    ["weight: string;", "reps: string;", "height?: string;", "completed: boolean;", "skipped?: boolean;"]
+      .forEach((field) => expect(log).toContain(field));
     expect(source).not.toContain('<span>RPE</span>');
     expect(source).not.toContain('rpe: ""');
   });

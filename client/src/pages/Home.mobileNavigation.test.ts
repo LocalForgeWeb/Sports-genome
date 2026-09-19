@@ -97,11 +97,14 @@ describe("workspace side navigation", () => {
   });
 
   it("uses the supplied circular badge in the active eleven-step onboarding header at a natural readable scale", () => {
-    expect(athleteQuizSource).toContain('src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge"');
-    expect(athleteQuizSource).toContain('<span>Sports Genome</span></div><div className="athlete-quiz-progress"');
-    expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 54px; height: 54px; flex: 0 0 54px; border-radius: 999px;');
-    expect(athleteQuizStyles).toContain('@media (max-width: 720px) { .athlete-quiz-header { min-height: 82px;');
-    expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 48px; height: 48px; flex: 0 0 48px; }');
+    // The mark is decorative here: the brand name sits beside it as real text,
+    // so an alt would make a screen reader announce the name twice.
+    expect(athleteQuizSource).toContain('src={sportsGenomeAssets.circularBadge} alt=""');
+    expect(athleteQuizSource).toContain('<span>Sports Genome</span>');
+    expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 999px;');
+    // Progress is one segment per step now, so the header only carries the count.
+    expect(athleteQuizSource).toContain('className="athlete-quiz-count"');
+    expect(athleteQuizSource).toContain('className="athlete-quiz-segments"');
   });
 
   it("blocks the retired coach-set readiness placeholder from rendering", () => {

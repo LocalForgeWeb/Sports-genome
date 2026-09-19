@@ -1168,7 +1168,12 @@ select {
 .destination-secondary .about-me-card input, .destination-secondary .about-me-card select { border-color: rgb(164 200 232 / .4); background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
 .destination-secondary .about-me-security button { background: var(--sg-action-fill); color: var(--sg-action-on); }
 .destination-secondary .about-me-equipment { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); }
-.destination-secondary .about-me-equipment-grid .about-me-equipment-active { background: var(--sg-focus-on-dark); color: #07182e; }
+/* Selected equipment used to take a solid amber fill. With everything selected —
+   which is the normal case — the panel became ten saturated blocks, and a colour
+   that marks every item marks nothing. A selected row now reads as selected:
+   amber border, amber tick, a tint rather than a flood. */
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active { border-color: var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); color: var(--sg-text-on-dark); }
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active svg:last-child { color: var(--sg-focus-on-dark); }
 
 /* More stays intentionally light on content, but shares the app’s dark utility surface. */
 .destination-secondary .more-workspace { border-color: rgb(164 200 232 / .3); background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); box-shadow: 0 18px 42px rgb(1 12 28 / .24); }
@@ -1563,34 +1568,47 @@ select {
 .destination-body .strength-genome-workspace .view-header .metric-label { color: var(--sg-text-subtle-on-dark); }
 .destination-body .strength-genome-workspace .view-header-note { border-color: var(--sg-divider-on-dark); background: var(--sg-control-on-dark); color: var(--sg-text-muted-on-dark); }
 
-/* Decorative visual context reinforces, but never replaces, the text-based evidence gate. */
-.strength-profile-status { position: relative; overflow: hidden; isolation: isolate; }
+/* Your record card.
+   The coverage figure used to put the word "coverage" inside a 4rem ring, where
+   it measured wider than the ring and spilled out of an unpadded card; and a
+   decorative body image bled off the top-right corner, which read as a broken
+   render rather than as texture. The number now sits in the ring and its labels
+   sit beside it in a definition list, which is also what a screen reader needs. */
+.strength-profile-status { position: relative; overflow: hidden; isolation: isolate; padding: clamp(1rem, 3.4vw, 1.5rem); }
 .strength-profile-status-head, .strength-profile-status-rail { position: relative; z-index: 1; }
-.strength-reference-state-visual { position: absolute; z-index: 0; right: -1.25rem; top: -.75rem; width: clamp(7rem, 14vw, 12rem); opacity: .16; pointer-events: none; }
-.strength-reference-state-visual img { display: block; width: 100%; height: auto; mix-blend-mode: screen; }
-@media (max-width: 639px) {
-  .strength-reference-state-visual { right: -2.5rem; top: -.35rem; width: 8rem; opacity: .13; }
-}
 
 /* Recorded coverage only · not a rank. */
-.strength-profile-status-overview { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1rem; }
-.strength-profile-status-overview > div:first-child { position: relative; z-index: 1; }
-.strength-profile-status-overview > div:first-child h2 { margin: .18rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 5vw, 3rem); font-weight: 850; line-height: .88; text-transform: uppercase; }
-.strength-profile-status-overview > div:first-child > p:last-child { margin: .38rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
-.strength-profile-status-tools { display: flex; align-items: center; gap: .65rem; }
-.strength-profile-coverage-ring { display: grid; width: 4rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#6ea6dd 0 var(--coverage-progress), rgb(215 233 248 / .16) var(--coverage-progress) 100%); box-shadow: 0 0 0 1px rgb(215 233 248 / .18), inset 0 0 0 1px rgb(215 233 248 / .14); }
-.strength-profile-coverage-ring > div { display: grid; width: calc(100% - .42rem); aspect-ratio: 1; place-items: center; align-content: center; border-radius: 50%; background: var(--sg-surface-raised); line-height: .8; }
-.strength-profile-coverage-ring strong { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; letter-spacing: -.03em; }
-.strength-profile-coverage-ring span { margin-top: -.2rem; color: #aac7e2; font-size: .6875rem; font-weight: 850; }
-.strength-profile-coverage-ring small { margin-top: .12rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.strength-profile-status-overview { position: relative; z-index: 1; display: grid; gap: .1rem; }
+.strength-profile-status-overview > h2 { margin: .18rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.9rem, 7vw, 3rem); font-weight: 850; line-height: .9; text-transform: uppercase; }
+.strength-profile-figures { display: flex; align-items: center; gap: clamp(.9rem, 4vw, 1.4rem); margin-top: .9rem; }
+.strength-profile-facts { display: grid; gap: .55rem; margin: 0; min-width: 0; }
+.strength-profile-facts > div { display: grid; gap: .3rem; }
+.strength-profile-facts dt { color: #aac7e2; font-size: .6875rem; font-weight: 850; letter-spacing: .09em; line-height: 1.35; text-transform: uppercase; }
+.strength-profile-facts dd { display: flex; align-items: baseline; gap: .4rem; margin: 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; font-weight: 850; line-height: 1; }
+.strength-profile-facts dd span { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: .6875rem; font-weight: 750; letter-spacing: .04em; line-height: 1.3; }
+.strength-profile-coverage-note { margin: .85rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; line-height: 1.45; }
+.strength-profile-status-footnote { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .85rem; }
+.strength-profile-coverage-ring { display: grid; flex: 0 0 auto; width: 4.5rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#6ea6dd 0 var(--coverage-progress), rgb(215 233 248 / .16) var(--coverage-progress) 100%); box-shadow: 0 0 0 1px rgb(215 233 248 / .18), inset 0 0 0 1px rgb(215 233 248 / .14); }
+.strength-profile-coverage-ring > div { display: flex; width: calc(100% - .46rem); aspect-ratio: 1; align-items: baseline; justify-content: center; border-radius: 50%; background: var(--sg-surface-raised); line-height: 1; padding-top: 1.35rem; }
+.strength-profile-coverage-ring strong { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; letter-spacing: -.03em; }
+.strength-profile-coverage-ring span { color: #aac7e2; font-size: .75rem; font-weight: 850; }
 .strength-profile-coverage-ring.is-source-qualified { background: conic-gradient(var(--sg-focus-on-dark) 0 var(--coverage-progress), rgb(242 193 77 / .18) var(--coverage-progress) 100%); box-shadow: 0 0 0 1px rgb(242 193 77 / .38), 0 0 20px rgb(242 193 77 / .16); }
-.strength-profile-coverage-boundary { margin: .5rem clamp(1rem, 3vw, 1.5rem) 0; color: #aac7e2; font-size: .6875rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
-.strength-profile-reference-summary { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1rem; border-top: 1px solid rgb(199 219 238 / .22); padding-top: .8rem; }
-.strength-profile-reference-summary span { color: #aac7e2; font-size: .6875rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
-.strength-profile-reference-summary strong { color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.05rem; line-height: .95; text-align: right; text-transform: uppercase; }
-.strength-profile-reference-details { position: relative; z-index: 1; margin-top: .7rem; }
+.strength-profile-coverage-boundary { margin: .5rem 0 0; color: #aac7e2; font-size: .6875rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
+.strength-profile-reference-summary { display: inline-flex; min-height: 2.25rem; align-items: center; border: 1px solid rgb(242 193 77 / .4); background: rgb(242 193 77 / .12); padding: 0 .65rem; color: var(--sg-focus-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+.strength-profile-reference-details { position: relative; z-index: 1; margin-top: .9rem; border-top: 1px solid rgb(199 219 238 / .22); padding-top: .85rem; }
 .strength-profile-reference-details summary { cursor: pointer; color: #dcecff; font-size: .7rem; font-weight: 800; letter-spacing: .05em; }
 .strength-profile-reference-details p { max-width: 42rem; margin: .55rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .76rem; line-height: 1.45; }
+
+/* A disabled primary action has to say what is missing; otherwise the only
+   feedback is a dimmed button the athlete cannot argue with. */
+.strength-log-submit { display: grid; gap: .5rem; margin-top: 1.25rem; }
+.strength-log-blocked { margin: 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; line-height: 1.45; }
+
+/* "Review" had no rule of its own, so it inherited the panel's body size and
+   read as loud as the exercise name beside it. It is a secondary affordance on
+   a row whose subject is the lift. */
+.strength-observation-review { flex: 0 0 auto; min-height: 2.75rem; border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 0 .85rem; color: var(--sg-info-strong); font-size: .6875rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.strength-observation-review:hover { background: var(--sg-surface-light); }
 /* The library being offline is a different fact from a lift not qualifying, so it reads as a notice rather than as body copy. */
 .strength-profile-reference-details p.strength-profile-reference-offline { margin-top: .55rem; padding: .5rem .65rem; border-left: 3px solid var(--sg-accent, #e4512e); border-radius: 0 6px 6px 0; background: rgba(228, 81, 46, .1); color: #f2dcd4; font-weight: 600; }
 .strength-body-map-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
@@ -2022,10 +2040,6 @@ details:not([open]) > *:not(summary) {
 .genome-selector-row-v2 span > span + span { margin-top: .22rem; }
 .warmup-time strong + span, .warmup-time span + span { margin-top: .2rem; }
 .weekly-volume-head strong + small { margin-top: .3rem; }
-/* The coverage ring stacks a number, its unit and its label inside a circle;
-   the unit and label were touching at 1.9px. */
-.strength-profile-coverage-ring span + small { margin-top: .25rem; }
-
 /* Running copy needs leading it can be scanned at; display headings keep their
    tight editorial setting. */
 .genome-selector-row-v2 strong { line-height: 1.3; }
@@ -2258,6 +2272,55 @@ details:not([open]) > *:not(summary) {
  * for exactly this.
  */
 .destination-body .atlas-show-more { color: var(--sg-link-on-dark); }
+/* ── Matches: why a match ranked, without the schema ─────────────────────────
+   The row carried a "Hierarchy trace" paragraph with seven bolded field names.
+   Three of them (Demand, Physical quality, Adaptation) were the same priority
+   list restated in three grammatical forms, and the other three (Modality,
+   Exercise role, Programming) are hardcoded constants — identical on every row
+   of every sport. The "Insight explanation depth contract" is explicit: "Do not
+   expose raw model attribution as if it were a user explanation", and
+   methodology "lives one level deeper". */
+.recommendation-trace {
+  margin-top: .9rem;
+  border-top: 1px solid var(--sg-divider-on-dark);
+  padding-top: .7rem;
+  font-size: var(--sg-text-sm);
+  line-height: 1.5;
+  color: var(--sg-text-subtle-on-dark);
+}
+.recommendation-trace strong { color: var(--sg-text-on-dark); font-weight: 700; }
+
+/* The sport lens states the priorities once, as chips, with the method rules
+   behind a disclosure rather than in front of every athlete on every visit. */
+.matches-lens {
+  border-left: 3px solid var(--sg-action);
+  background: var(--sg-surface-light);
+  padding: .85rem 1rem;
+  color: var(--sg-text-on-light);
+  --sg-label-color: var(--sg-text-subtle-on-light);
+}
+.matches-lens-priorities { display: flex; flex-wrap: wrap; gap: .4rem; }
+.matches-lens-priorities > span {
+  border: 1px solid var(--sg-divider-on-light);
+  background: var(--sg-surface-light-sunken);
+  padding: .25rem .5rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+}
+.matches-lens-note { margin-top: .5rem; font-size: var(--sg-text-xs); color: var(--sg-text-subtle-on-light); }
+.matches-lens-method { margin-top: .35rem; border-top: 1px solid var(--sg-divider-on-light); }
+.matches-lens-method > summary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sg-info-strong);
+  cursor: pointer;
+}
+.matches-lens-method > div > p { margin-top: .5rem; font-size: var(--sg-text-xs); line-height: 1.55; color: var(--sg-text-subtle-on-light); }
 
 /* ── Phone display scale ──────────────────────────────────────────────────────
  *

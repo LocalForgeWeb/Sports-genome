@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession,
-  isDraftSet, lastCompletedSetFor, type DeviceWorkoutSession,
+  activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, countSkippedSets,
+  finalizeSession, isDraftSet, isExerciseSkipped, lastCompletedSetFor, skipExercise, unskipExercise,
+  type DeviceWorkoutSession,
 } from "./deviceWorkoutLog";
 
 const session = (overrides: Partial<DeviceWorkoutSession> = {}): DeviceWorkoutSession => ({
@@ -133,7 +134,7 @@ describe("carried-forward entry", () => {
   it("offers the last confirmed set of this exercise before reaching for history", () => {
     const finished = session({ id: "old", status: "completed", completedAt: "2026-08-01T10:00:00.000Z" });
     const carried = carriedEntryFor(session().exercises[0], 2, [finished]);
-    expect(carried).toEqual({ weight: "145", reps: "7", source: "session" });
+    expect(carried).toEqual({ weight: "145", reps: "7", height: "", source: "session" });
   });
 
   it("falls back to the last finished session when this exercise has no confirmed set yet", () => {
@@ -142,7 +143,7 @@ describe("carried-forward entry", () => {
       exercises: [{ id: "e2", exerciseName: "Lat Pulldown", plannedPrescription: "3 × 10", sets: [{ weight: "120", reps: "10", completed: true }] }],
     });
     const carried = carriedEntryFor(session().exercises[1], 0, [finished]);
-    expect(carried).toEqual({ weight: "120", reps: "10", source: "history" });
+    expect(carried).toEqual({ weight: "120", reps: "10", height: "", source: "history" });
   });
 
   it("offers nothing when there is nothing confirmed to carry", () => {
@@ -153,7 +154,55 @@ describe("carried-forward entry", () => {
     // The default is an input value, not stored state. A set the athlete never
     // touched stays empty, so finishing does not report it as typed-and-dropped.
     const bench = session().exercises[0];
-    expect(carriedEntryFor(bench, 3, [])).toEqual({ weight: "145", reps: "7", source: "session" });
+    expect(carriedEntryFor(bench, 3, [])).toEqual({ weight: "145", reps: "7", height: "", source: "session" });
     expect(isDraftSet(bench.sets[3])).toBe(false);
+  });
+});
+
+describe("skipping an exercise", () => {
+  // Reported: "I didn't get to do the smith bar hip thrust, I should be able to
+  // skip it and go to the next exercise."
+  it("resolves the pending sets and moves execution to the next exercise", () => {
+    const active = session();
+    expect(activePosition(active)).toEqual({ exerciseIndex: 0, setIndex: 2 });
+
+    const skipped = skipExercise(active, 0);
+    expect(activePosition(skipped)).toEqual({ exerciseIndex: 1, setIndex: 0 });
+    expect(countSkippedSets(skipped)).toBe(2);
+  });
+
+  it("leaves already-logged sets alone, because a skip is about what remains", () => {
+    const skipped = skipExercise(session(), 0);
+    const bench = skipped.exercises[0].sets;
+    expect(bench.filter((set) => set.completed)).toHaveLength(2);
+    expect(bench.filter((set) => set.completed && set.skipped)).toHaveLength(0);
+  });
+
+  it("stops a skipped set counting as a draft", () => {
+    // Set 3 was typed into and never logged. Skipping resolves it, so it is no
+    // longer unfinished business.
+    expect(countDraftSets(session())).toBe(1);
+    expect(countDraftSets(skipExercise(session(), 0))).toBe(0);
+  });
+
+  it("records nothing about a skipped exercise at finish", () => {
+    const { session: finished, skippedSets, completedSets } = finalizeSession(skipExercise(session(), 1));
+    expect(skippedSets).toBe(3);
+    expect(completedSets).toBe(2);
+    expect(finished.exercises.map((exercise) => exercise.exerciseName)).toEqual(["Barbell Bench Press"]);
+  });
+
+  it("is reversible", () => {
+    const skipped = skipExercise(session(), 1);
+    expect(isExerciseSkipped(skipped.exercises[1])).toBe(true);
+    const restored = unskipExercise(skipped, 1);
+    expect(isExerciseSkipped(restored.exercises[1])).toBe(false);
+    expect(activePosition(restored)).toEqual({ exerciseIndex: 0, setIndex: 2 });
+  });
+
+  it("reads an exercise as skipped only when nothing is left pending", () => {
+    const partly = { ...session().exercises[0], sets: session().exercises[0].sets.map((set, index) => index === 3 ? { ...set, skipped: true } : set) };
+    expect(isExerciseSkipped(partly)).toBe(false);
+    expect(isExerciseSkipped(skipExercise(session(), 1).exercises[1])).toBe(true);
   });
 });
