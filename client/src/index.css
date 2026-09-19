@@ -38,6 +38,12 @@
 
   /* -- Text ladder on dark ------------------------------------------------ */
   --sg-text-on-dark: #f7fbff;
+  /* How far down the page the pinned chrome reaches: the bottom edge of the top
+     bar plus the workspace tabs, measured at 135px on a phone and 133px on a
+     laptop. Anything that sticks below them follows this one number instead of
+     picking its own - the three hand-chosen offsets already in this codebase
+     (72px, 82px, 86px) are how the day nav ended up stuck underneath them. */
+  --sg-pinned-chrome: 135px;
   --sg-text-muted-on-dark: #c3d7ea;
   --sg-text-subtle-on-dark: #9eb3cb;
   --sg-text-faint-on-dark: #829ab3;
