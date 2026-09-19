@@ -3,7 +3,7 @@ import React, { createElement } from "react";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AnatomyFigure } from "./AnatomyFigure";
-import { anatomyViews, drawnMuscleKeys } from "./figureGeometry";
+import { anatomyViews, drawnMuscleKeys, unresolvedMuscleKeys } from "./figureGeometry";
 import { regionKeysForValue, roleMapForLists, viewsForRegion } from "@/lib/anatomyRegions";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -20,27 +20,35 @@ describe("the drawn figure", () => {
     // Every posterior muscle in the `body-muscles` package was an L-only
     // polygon of four to eight points — `deltoid-rear-left` was a triangle — so
     // the back read as armour panels. A path with no cubic segment is the
-    // defect this replaced, and would be one again.
+    // defect this replaced, and would be one again. Relative `c` counts; the
+    // source anatomy is authored with relative commands throughout.
     for (const view of ["front", "back"] as const) {
       for (const muscle of anatomyViews[view].muscles) {
         for (const path of muscle.paths) {
-          expect(path.d, `${path.id} should be curved`).toContain("C");
+          expect(path.d, `${path.id} should be curved`).toMatch(/[CcSsQqTtAa]/);
         }
       }
     }
   });
 
-  it("mirrors every region, so bilateral symmetry cannot drift", () => {
+  it("draws both sides of every region, with sides taken from geometry", () => {
+    // The source alternates path order between groups, so a side assigned by
+    // document order would silently mirror half the body.
     for (const view of ["front", "back"] as const) {
       for (const muscle of anatomyViews[view].muscles) {
-        const sides = new Set(muscle.paths.map((path) => path.side));
-        expect([...sides].sort(), `${view}/${muscle.key}`).toEqual(["left", "right"]);
+        const sides = muscle.paths.map((path) => path.side);
+        expect(new Set(sides), `${view}/${muscle.key}`).toEqual(new Set(["left", "right"]));
+        expect(sides.filter((s) => s === "left").length, `${view}/${muscle.key} balance`)
+          .toBe(sides.filter((s) => s === "right").length);
       }
     }
   });
 
   it("keeps front and back on one canvas, so a flip does not resize the athlete", () => {
-    expect(anatomyViews.front.outline).toBe(anatomyViews.back.outline);
+    // Both source figures are authored in one viewBox, so alignment is
+    // structural rather than eyeballed.
+    expect(anatomyViews.front.mid).toBeCloseTo(anatomyViews.back.mid, 0);
+    expect(anatomyViews.front.shell.length).toBe(anatomyViews.back.shell.length);
   });
 
   it("gives each region exactly one canonical key, which is what makes a tap unambiguous", () => {
@@ -100,8 +108,8 @@ describe("selecting a muscle", () => {
 
   it("carries interaction geometry separately from the drawn muscle", () => {
     const { container } = draw();
-    const drawn = container.querySelector('.anatomy-muscle[data-muscle="peroneals"] path')!;
-    const hit = container.querySelector('.anatomy-hit[aria-label^="peroneals"] path')!;
+    const drawn = container.querySelector('.anatomy-muscle[data-muscle="tibialis"] path')!;
+    const hit = container.querySelector('.anatomy-hit[aria-label^="tibialis"] path')!;
     // Same outline, so no muscle is enlarged to be tappable...
     expect(hit.getAttribute("d")).toBe(drawn.getAttribute("d"));
     // ...and the target grows through a transparent halo stroke instead.
@@ -117,13 +125,18 @@ describe("canonical key coverage", () => {
     expect(viewsForRegion("upperBack")).toEqual(["back"]);
   });
 
-  it("frees the keys that could never be selected before", () => {
-    // These six were shadowed by first-match-wins resolution over a map where
-    // several keys claimed one third-party path id.
-    for (const key of ["brachialis", "tfl", "peroneals", "rotatorCuff"]) {
-      expect(viewsForRegion(key).length, key).toBeGreaterThan(0);
+  it("accounts for every canonical key as either drawn or declared unresolved", () => {
+    // A key with no geometry colours nothing. That is acceptable, but it has to
+    // be a stated fact in the codebase rather than a mystery on screen, so the
+    // artwork declares what it does not draw and this holds the two in step.
+    const drawn = new Set([...drawnMuscleKeys.front, ...drawnMuscleKeys.back]);
+    for (const key of unresolvedMuscleKeys) {
+      expect(drawn.has(key), `${key} is declared unresolved but is drawn`).toBe(false);
+      expect(viewsForRegion(key), key).toEqual([]);
     }
-    // These two resolve onto regions drawn under another key, by explicit rule.
+  });
+
+  it("resolves umbrella keys onto regions drawn under another key", () => {
     expect(regionKeysForValue("shoulders")).toEqual(["frontDelts", "sideDelts", "rearDelts"]);
     expect(regionKeysForValue("rhomboids")).toEqual(["upperBack"]);
   });
@@ -147,5 +160,6 @@ describe("canonical key coverage", () => {
     for (const view of ["front", "back"] as const) {
       for (const key of drawnMuscleKeys[view]) expect(catalog.has(key), `${key} is not a catalog key`).toBe(true);
     }
+    for (const key of unresolvedMuscleKeys) expect(catalog.has(key), `${key} is not a catalog key`).toBe(true);
   });
 });
