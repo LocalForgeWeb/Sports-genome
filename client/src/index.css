@@ -2465,3 +2465,50 @@ details:not([open]) > *:not(summary) {
 .destination-body .body-lab-next-step { border-color: var(--sg-control-border-on-dark); background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); }
 .destination-body .body-lab-next-step > button { border: 1px solid var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); }
 @media (max-width: 560px) { .body-lab-next-step > button { flex: 1 0 100%; justify-content: center; } }
+/* Tapping a muscle used to scroll the page roughly 700px to reach a record that
+   renders after the figure - so the muscle the athlete had just tapped was
+   pushed off the top of the screen, and the page settled on a stranded sliver of
+   the map's own background under the header. Below the dock's breakpoint the
+   record is pinned above the bottom bar instead and the page never moves: the
+   figure stays exactly where it was, still tappable, so choosing another muscle
+   swaps the record in place. */
+@media (max-width: 1023px) {
+  .strength-region-sheet {
+    position: fixed;
+    z-index: 45;
+    right: 0;
+    /* Flush to the top edge of the bottom bar (its four 4.1rem targets plus its
+       border), so the two read as one stacked assembly rather than leaving a
+       strip of the page showing between them. */
+    bottom: calc(4.375rem + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    /* The panel's own stack spacing would otherwise offset the pinned box from
+       the bar by its bottom margin. */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: min(62vh, 30rem);
+    overflow: hidden;
+    border-top: 1px solid rgb(164 200 232 / .45);
+    background: var(--sg-surface-deep);
+    box-shadow: 0 -16px 38px rgb(4 20 40 / .45);
+    animation: sg-region-sheet-rise var(--sg-motion-base) var(--sg-ease-entrance) both;
+  }
+  /* The record scrolls; the two optional actions stay pinned as the sheet's own
+     bottom bar, so a tall record can never cut a button in half. */
+  .strength-region-sheet .strength-region-record-detail {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-top: 0;
+  }
+  .strength-region-sheet .strength-region-focus-row { flex: 0 0 auto; }
+  /* The record no longer occupies page flow here, so the flow needs no room for it. */
+  .apex-content.destination-body:has(.strength-region-record-detail) { padding-bottom: calc(5.8rem + env(safe-area-inset-bottom, 0px)); }
+}
+
+@keyframes sg-region-sheet-rise {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
