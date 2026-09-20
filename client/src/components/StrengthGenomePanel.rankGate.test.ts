@@ -95,6 +95,32 @@ describe("the last step to a rank is taken where the rank would be", () => {
     expect(screen.getByText(/1\.21× body weight/)).toBeTruthy();
   });
 
+  it("reads the lift against the weight from the questionnaire, without asking for it again", () => {
+    // The observation carries no body mass of its own, and the dated weight log
+    // only looks backwards - a weight entered today matches no lift logged
+    // before today. That is every lift an athlete records first, and all of
+    // them landed on a form with a Save button between them and their ratio,
+    // for a number they had already given during onboarding.
+    localStorage.setItem(deviceStrengthObservationKey, JSON.stringify([{ ...benchPress[0], bodyMassKgAtTest: null }]));
+    openChest({ baselineBodyWeight: 145, sexForReference: "male", birthYear: 1998, onRankProfile: vi.fn() });
+
+    expect(screen.getByText("Where this ranks")).toBeTruthy();
+    expect(screen.getByText("10th–20th percentile")).toBeTruthy();
+    // Borrowed, and it says so rather than passing it off as measured that day.
+    expect(screen.getByText(/1\.21× body weight \(from your profile weight\)/)).toBeTruthy();
+    // The field is still there to correct it - as a correction, not a gate.
+    expect(screen.getByText("Not your weight that day?")).toBeTruthy();
+    expect(screen.queryByText("Add the body weight for this lift")).toBeNull();
+  });
+
+  it("still asks outright when there is no weight anywhere to read the lift against", () => {
+    localStorage.setItem(deviceStrengthObservationKey, JSON.stringify([{ ...benchPress[0], bodyMassKgAtTest: null }]));
+    openChest({ sexForReference: "male", birthYear: 1998, onRankProfile: vi.fn() });
+
+    expect(screen.getByText("Add test body weight")).toBeTruthy();
+    expect(screen.getByText(/Add your body weight on that day/)).toBeTruthy();
+  });
+
   it("does not ask again for an answer it already has", () => {
     // Intersex and Prefer not to say are both offered in About Me, and both
     // used to arrive here as an empty field.

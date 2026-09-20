@@ -135,7 +135,6 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   }, [records]);
   const setObservationBodyMass = trpc.strengthGenome.setObservationBodyMass.useMutation({ onSuccess: async () => { emitInteractionFeedback([10, 30, 10]); setBodyMassSaveError(null); setBodyMassEntry(""); toast.success("Test body mass saved. Your recorded ratio is ready."); await Promise.all([utils.strengthGenome.observations.invalidate(), utils.strengthGenome.overview.invalidate()]); }, onError: () => { setBodyMassSaveError("Body mass was not saved. Your entry is still here—check your connection and try again."); toast.error("Could not save test body mass. Check your connection and try again."); } });
   const latestRecord = selectStrengthRegionRecord(records, selectedRecordId);
-  const bodyMassRatio = latestRecord?.loadKg != null && latestRecord.bodyMassKgAtTest != null && latestRecord.bodyMassKgAtTest > 0 ? latestRecord.loadKg / latestRecord.bodyMassKgAtTest : null;
   /**
    * Offering today's weight for a lift from three months ago is offering the
    * wrong number, which is why this used to carry a warning telling the athlete
@@ -145,6 +144,32 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const weightOnRecordDay = latestRecord ? bodyWeightKgAt(bodyWeightHistory, latestRecord.observedAt) : undefined;
   const offeredBodyMass = weightOnRecordDay ?? (baselineBodyWeight != null ? displayWeightToKilograms(baselineBodyWeight, weightUnit) : undefined);
   const offeredIsDated = weightOnRecordDay !== undefined;
+  /**
+   * The body weight this lift is read against, and where it came from.
+   *
+   * The athlete gave a weight in the questionnaire, so asking for it again
+   * before anything would show was asking twice. Worse, the weight log only
+   * looks backwards - a weight entered today applies to no lift logged before
+   * today - so the dated route misses on exactly the lifts an athlete records
+   * first, and every one of them landed on an empty-feeling form with a Save
+   * button between them and their ratio.
+   *
+   * So the best weight available is used, and the line says which one it is.
+   * A borrowed weight is a real caveat, and it is answered by naming it and
+   * leaving the correction one tap away - not by showing nothing until the
+   * athlete retypes a number the app already has.
+   */
+  const bodyMassSource: "recorded" | "dated" | "profile" | null = latestRecord?.loadKg == null ? null
+    : latestRecord.bodyMassKgAtTest != null && latestRecord.bodyMassKgAtTest > 0 ? "recorded"
+    : weightOnRecordDay !== undefined ? "dated"
+    : offeredBodyMass !== undefined ? "profile"
+    : null;
+  const effectiveBodyMassKg = bodyMassSource === "recorded" ? Number(latestRecord!.bodyMassKgAtTest)
+    : bodyMassSource === null ? undefined
+    : offeredBodyMass;
+  const bodyMassRatio = latestRecord?.loadKg != null && effectiveBodyMassKg != null && effectiveBodyMassKg > 0
+    ? latestRecord.loadKg / effectiveBodyMassKg
+    : null;
   useEffect(() => {
     setBodyMassEntry(offeredBodyMass === undefined ? "" : String(Number(kilogramsToDisplayWeight(offeredBodyMass, weightUnit).toFixed(1))));
   }, [offeredBodyMass, weightUnit, latestRecord?.id]);
@@ -164,7 +189,11 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     measurementType: latestRecord.measurementType,
     loadKg: latestRecord.loadKg == null ? null : Number(latestRecord.loadKg),
     repetitions: latestRecord.repetitions,
-    bodyMassKgAtTest: latestRecord.bodyMassKgAtTest == null ? null : Number(latestRecord.bodyMassKgAtTest),
+    // The same weight the ratio above is read against, borrowed provenance
+    // included: ranking off a weight the athlete has already given beats
+    // withholding the rank until they type it a second time. Where it is
+    // borrowed, the card says so.
+    bodyMassKgAtTest: effectiveBodyMassKg ?? null,
     // The athlete's own answer, unmapped: narrowing it to male/female here made
     // "Intersex" and "Prefer not to say" arrive as an empty field, and the
     // screen answered them by asking for the field again.
@@ -211,12 +240,12 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
           <span className="strength-rating-state" style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{changeStateCopy[strengthTrend.changeState].label}</span>
           <p>Change in your estimated one-rep max across {strengthTrend.observationCount} logs since {strengthTrend.firstPoint.observedAt.toLocaleDateString()}.</p>
         </article> : <p className="strength-rating-empty">Log this lift once more and your progress rating shows up here.</p>}
-        {bodyMassRatio != null && !showRank && <p className="strength-region-ratio-inline">{bodyMassRatio.toFixed(2)}× your body weight on that day — for your own context, not a rank.</p>}
+        {bodyMassRatio != null && !showRank && <p className="strength-region-ratio-inline">{bodyMassRatio.toFixed(2)}× {bodyMassWeightPhrase[bodyMassSource!]} — for your own context, not a rank.</p>}
         {registryMatch ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that study group</p><strong>{registryMatch.percentileBandLabel}</strong><p>{registryMatch.unit === "x_bodyweight" ? `${registryMatch.observedValue.toFixed(2)}× body mass` : `${registryMatch.observedValue.toFixed(1)} ${registryMatch.unit}`}{studyGroupLabel(registryMatch.populationDefinition) ? ` · ${studyGroupLabel(registryMatch.populationDefinition)}` : ""}{registryMatch.sampleSize ? ` · ${registryMatch.sampleSize.toLocaleString()} people` : ""}. This exact test only.</p>{registryMatch.sourceUrl && <a href={registryMatch.sourceUrl} target="_blank" rel="noreferrer">View the source study</a>}</article> : powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that competition group</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body mass · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : null}
-        {showRank && powerliftingRank?.status === "ranked" && <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary strength-rank-card"><p className="metric-label">Where this ranks</p><strong>{powerliftingRank.percentileBandLabel}</strong><p>{powerliftingRank.relativeStrength.toFixed(2)}× body weight{powerliftingRank.basis === "estimated" ? ", from an estimated one-rep max" : ""} · {powerliftingRank.population}.</p><a href={powerliftingRank.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article>}
+        {showRank && powerliftingRank?.status === "ranked" && <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary strength-rank-card"><p className="metric-label">Where this ranks</p><strong>{powerliftingRank.percentileBandLabel}</strong><p>{powerliftingRank.relativeStrength.toFixed(2)}× body weight{bodyMassSource !== "recorded" ? ` (${bodyMassSourceNote[bodyMassSource!]})` : ""}{powerliftingRank.basis === "estimated" ? ", from an estimated one-rep max" : ""} · {powerliftingRank.population}.</p><a href={powerliftingRank.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article>}
         {!hasOutsideComparison && powerliftingRank?.status === "needs" && <RankGate missing={powerliftingRank.missing} birthYear={athleteProfile?.birthYear ?? undefined} onProfile={onRankProfile} />}
         {!hasOutsideComparison && powerliftingRank?.status === "no_matching_population" && <p className="strength-rank-needs">{powerliftingRankNoPopulationCopy}</p>}
-        {bodyMassRatio == null && <details className="strength-recorded-measurement"><summary>{offeredBodyMass !== undefined ? "Add the body weight for this lift" : "Add test body weight"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "Filled in from what you weighed that week. Change it only if you know it was different that day." : "Filled in from your current profile weight — check it against the day of this lift before saving."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
+        {bodyMassSource !== "recorded" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
         <details className="strength-region-boundary"><summary>{hasOutsideComparison || showRank ? "About this comparison" : "No ranking for this lift yet"}</summary>{registryGateExplanation && <p className="strength-region-gate-reason">{registryGateExplanation}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showRank ? "Ranked against the published group named above, not against everyone. It places your lift on that study's own reported cut points." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
       </article>
@@ -259,6 +288,25 @@ function mapSexForPowerlifting(sexForReference?: SexForReference): PowerliftingR
 function ageFromBirthYear(birthYear?: number): number | undefined {
   return birthYear ? new Date().getFullYear() - birthYear : undefined;
 }
+
+/**
+ * Which body weight the ratio is read against, in the sentence it appears in.
+ *
+ * Only the recorded one can honestly say "on that day". The other two are the
+ * app filling in for the athlete, and say which number it used.
+ */
+const bodyMassWeightPhrase: Record<"recorded" | "dated" | "profile", string> = {
+  recorded: "your body weight on that day",
+  dated: "what you weighed that week",
+  profile: "your profile weight",
+};
+
+/** The same provenance, as a short aside inside the rank card's own sentence. */
+const bodyMassSourceNote: Record<"recorded" | "dated" | "profile", string> = {
+  recorded: "recorded with this lift",
+  dated: "from what you weighed that week",
+  profile: "from your profile weight",
+};
 
 /** What the rank still needs, asked where the rank would have been. */
 export type RankProfilePatch = { sexForReference?: SexForReference; birthYear?: number };

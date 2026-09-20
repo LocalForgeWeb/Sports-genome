@@ -50,11 +50,17 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Where this ranks");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
-    // The body-mass field offers the weight in effect on the lift's own day, from
-    // the dated log — not today's profile value, which was the old prefill and
-    // needed a warning telling the athlete to check it themselves.
+    // The body-mass field prefers the weight in effect on the lift's own day,
+    // from the dated log, over today's profile value.
     expect(source).toContain("bodyWeightKgAt(bodyWeightHistory, latestRecord.observedAt)");
-    expect(source).toContain("Filled in from what you weighed that week.");
+    // And the form is a correction, not a gate: the athlete gave a weight in
+    // the questionnaire, so the ratio is read against it rather than withheld
+    // until they retype it. The dated log only looks backwards, so a weight
+    // entered today matches no lift logged before today - which is every lift
+    // an athlete records first, and every one of them used to land here.
+    expect(source).toContain("This lift is already read against what you weighed that week.");
+    expect(source).toContain("This lift is already read against your profile weight.");
+    expect(source).toContain('bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"');
     expect(source).toContain("Save this body weight");
     expect(source).toContain("weightUnitLabel(weightUnit)");
     expect(source).toContain("displayWeightToKilograms(parsedLoad, weightUnit)");
