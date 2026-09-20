@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   powerliftingRankMissingCopy,
+  powerliftingRankNoPopulationCopy,
   rankAgainstPowerliftingNorms,
   rankableOneRepMaxKg,
 } from "@/lib/powerliftingReference";
@@ -86,6 +87,30 @@ describe("rankAgainstPowerliftingNorms", () => {
     expect(rankAgainstPowerliftingNorms({ ...reported, sex: undefined })).toEqual({ status: "needs", missing: "sex" });
     expect(rankAgainstPowerliftingNorms({ ...reported, ageYears: undefined })).toEqual({ status: "needs", missing: "age" });
     for (const copy of Object.values(powerliftingRankMissingCopy)) expect(copy).toMatch(/^Add /);
+    // And it asks for the thing, not for a trip to another screen. "In About
+    // Me" named a field four taps away, behind the bottom bar, in Profile,
+    // with nothing to bring the athlete back to the lift they were reading.
+    for (const copy of Object.values(powerliftingRankMissingCopy)) expect(copy).not.toMatch(/About Me/);
+  });
+
+  it("stops asking for an answer it has already been given", () => {
+    // The About Me field offers Intersex and Prefer not to say, and both were
+    // narrowed to undefined on the way in - so they arrived indistinguishable
+    // from an empty field and were answered with "Add the sex to compare
+    // against in About Me", forever. The limit is in the published research,
+    // and that is what gets said.
+    for (const sex of ["intersex", "unspecified"] as const) {
+      expect(rankAgainstPowerliftingNorms({ ...reported, sex })).toEqual({ status: "no_matching_population" });
+    }
+    expect(powerliftingRankNoPopulationCopy).not.toMatch(/^Add |About Me/);
+    expect(powerliftingRankNoPopulationCopy).toContain("male and female competitor groups only");
+    // The athlete's own progress does not depend on any of this, and the
+    // sentence says so rather than leaving a dead end.
+    expect(powerliftingRankNoPopulationCopy).toContain("measured from your logs");
+  });
+
+  it("still asks for the group when nothing has been answered yet", () => {
+    expect(rankAgainstPowerliftingNorms({ ...reported, sex: undefined })).toEqual({ status: "needs", missing: "sex" });
   });
 
   it("still ranks outside 18-35, against the published table, and says which band that is", () => {

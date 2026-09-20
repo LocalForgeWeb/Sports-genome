@@ -12,7 +12,7 @@ import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { displayWeightToKilograms, formatDisplayWeight, kilogramsToDisplayWeight, weightUnitLabel, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation, removeDeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
 import { getPiper2021PreacherCurlReference, piper2021PreacherCurlReferenceId, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
-import { powerliftingRankMissingCopy, rankAgainstPowerliftingNorms, getVanDenHoek2024PowerliftingReference, vanDenHoek2024ReferenceId, type PowerliftingReferenceDeclaration } from "@/lib/powerliftingReference";
+import { powerliftingRankMissingCopy, powerliftingRankNoPopulationCopy, rankAgainstPowerliftingNorms, getVanDenHoek2024PowerliftingReference, vanDenHoek2024ReferenceId, type PowerliftingRankMissing, type PowerliftingReferenceDeclaration } from "@/lib/powerliftingReference";
 import type { PowerliftingNormRow } from "@shared/powerliftingNormsReference";
 import type { NormsReferenceRow } from "@shared/normsReference";
 import { studyGroupLabel } from "@/lib/studyGroupLabel";
@@ -123,7 +123,7 @@ export function StrengthObservationReviewButton({ observation, onReview }: { obs
   return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review">Review</button>;
 }
 
-export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [] }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[] }) {
+export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
   const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
@@ -165,7 +165,10 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     loadKg: latestRecord.loadKg == null ? null : Number(latestRecord.loadKg),
     repetitions: latestRecord.repetitions,
     bodyMassKgAtTest: latestRecord.bodyMassKgAtTest == null ? null : Number(latestRecord.bodyMassKgAtTest),
-    sex: mapSexForPowerlifting(athleteProfile?.sexForReference as SexForReference | undefined),
+    // The athlete's own answer, unmapped: narrowing it to male/female here made
+    // "Intersex" and "Prefer not to say" arrive as an empty field, and the
+    // screen answered them by asking for the field again.
+    sex: (athleteProfile?.sexForReference as SexForReference | undefined) || undefined,
     ageYears: ageFromBirthYear(athleteProfile?.birthYear ?? undefined),
   }, powerliftingNorms) : null;
   // The registry resolves every approved source, so it leads. The two hand-written
@@ -211,7 +214,8 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
         {bodyMassRatio != null && !showRank && <p className="strength-region-ratio-inline">{bodyMassRatio.toFixed(2)}× your body weight on that day — for your own context, not a rank.</p>}
         {registryMatch ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that study group</p><strong>{registryMatch.percentileBandLabel}</strong><p>{registryMatch.unit === "x_bodyweight" ? `${registryMatch.observedValue.toFixed(2)}× body mass` : `${registryMatch.observedValue.toFixed(1)} ${registryMatch.unit}`}{studyGroupLabel(registryMatch.populationDefinition) ? ` · ${studyGroupLabel(registryMatch.populationDefinition)}` : ""}{registryMatch.sampleSize ? ` · ${registryMatch.sampleSize.toLocaleString()} people` : ""}. This exact test only.</p>{registryMatch.sourceUrl && <a href={registryMatch.sourceUrl} target="_blank" rel="noreferrer">View the source study</a>}</article> : powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that competition group</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body mass · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : null}
         {showRank && powerliftingRank?.status === "ranked" && <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary strength-rank-card"><p className="metric-label">Where this ranks</p><strong>{powerliftingRank.percentileBandLabel}</strong><p>{powerliftingRank.relativeStrength.toFixed(2)}× body weight{powerliftingRank.basis === "estimated" ? ", from an estimated one-rep max" : ""} · {powerliftingRank.population}.</p><a href={powerliftingRank.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article>}
-        {!hasOutsideComparison && powerliftingRank?.status === "needs" && <p className="strength-rank-needs">{powerliftingRankMissingCopy[powerliftingRank.missing]}</p>}
+        {!hasOutsideComparison && powerliftingRank?.status === "needs" && <RankGate missing={powerliftingRank.missing} birthYear={athleteProfile?.birthYear ?? undefined} onProfile={onRankProfile} />}
+        {!hasOutsideComparison && powerliftingRank?.status === "no_matching_population" && <p className="strength-rank-needs">{powerliftingRankNoPopulationCopy}</p>}
         {bodyMassRatio == null && <details className="strength-recorded-measurement"><summary>{offeredBodyMass !== undefined ? "Add the body weight for this lift" : "Add test body weight"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "Filled in from what you weighed that week. Change it only if you know it was different that day." : "Filled in from your current profile weight — check it against the day of this lift before saving."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
         <details className="strength-region-boundary"><summary>{hasOutsideComparison || showRank ? "About this comparison" : "No ranking for this lift yet"}</summary>{registryGateExplanation && <p className="strength-region-gate-reason">{registryGateExplanation}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showRank ? "Ranked against the published group named above, not against everyone. It places your lift on that study's own reported cut points." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
@@ -256,7 +260,95 @@ function ageFromBirthYear(birthYear?: number): number | undefined {
   return birthYear ? new Date().getFullYear() - birthYear : undefined;
 }
 
-export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "lb", baselineBodyWeight, sexForReference, birthYear, defaultTestingDetailOpen = false, directAccess = false }: { onOpenTraining?: () => void; weightUnit?: DisplayWeightUnit; baselineBodyWeight?: number; sexForReference?: SexForReference; birthYear?: number; defaultTestingDetailOpen?: boolean; directAccess?: boolean }) {
+/** What the rank still needs, asked where the rank would have been. */
+export type RankProfilePatch = { sexForReference?: SexForReference; birthYear?: number };
+
+/**
+ * Keeps the record sheet on screen long enough to leave on its own terms.
+ *
+ * Closing it used to unmount it on the same tap, so a panel occupying the lower
+ * third of a phone disappeared between two frames - nothing to follow, and no
+ * sense of where it went. This holds the last region after the selection
+ * clears, marked as leaving, and drops it when the exit animation is over.
+ *
+ * Swapping straight to another region is not a close: the incoming region wins
+ * immediately and nothing lingers behind it.
+ *
+ * The timer is the cleanup, not the animation's own `animationend`: that event
+ * never arrives if the element is hidden, the tab is backgrounded, or the
+ * animation is suppressed, and a sheet that never unmounted would swallow the
+ * taps underneath it. Reduced motion collapses the CSS duration to 1ms, so it
+ * collapses here too and the sheet just goes.
+ */
+/**
+ * The CSS exit is --sg-motion-slow (320ms), and this waits a little past it.
+ * Unmounting on the exact frame the animation ends risks clipping its last
+ * frame; waiting 40ms longer costs nothing, because the sheet is already
+ * invisible and untappable by then.
+ */
+const sheetExitMs = 360;
+function useSheetPresence<T>(selected: T | null, exitMs = sheetExitMs) {
+  const [leaving, setLeaving] = useState<T | null>(null);
+  const previous = useRef<T | null>(selected);
+  useEffect(() => {
+    const departing = previous.current;
+    previous.current = selected;
+    if (selected || !departing) { setLeaving(null); return; }
+    setLeaving(departing);
+    const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(() => setLeaving(null), reduced ? 0 : exitMs);
+    return () => window.clearTimeout(timer);
+  }, [selected, exitMs]);
+  return { shown: selected ?? leaving, isLeaving: !selected && leaving != null };
+}
+
+/**
+ * The last step to a rank, taken here.
+ *
+ * "Add the sex to compare against in About Me to see where this ranks" is a
+ * true sentence and a dead end: the athlete is inside a record sheet on the
+ * Progress tab, and the field is behind the bottom bar, in Profile, under
+ * About Me, four taps away - after which nothing returns them to the lift they
+ * were looking at. The same gate answered in place turns the rank on while the
+ * card is still on screen.
+ *
+ * Only the two profile fields are offered. Load and test body weight belong to
+ * the observation, not to the athlete, and the card already carries its own
+ * form for the body weight directly underneath.
+ */
+function RankGate({ missing, birthYear, onProfile }: { missing: PowerliftingRankMissing; birthYear?: number; onProfile?: (patch: RankProfilePatch) => void }) {
+  const [year, setYear] = useState(birthYear ? String(birthYear) : "");
+  if (!onProfile || (missing !== "sex" && missing !== "age")) {
+    return <p className="strength-rank-needs">{powerliftingRankMissingCopy[missing]}</p>;
+  }
+  if (missing === "sex") {
+    return <div className="strength-rank-gate">
+      <p>{powerliftingRankMissingCopy.sex}</p>
+      <label><span>Compare against</span><select
+        value=""
+        aria-label="Group to compare this lift against"
+        onChange={(event) => { if (!event.target.value) return; emitInteractionFeedback(); onProfile({ sexForReference: event.target.value as SexForReference }); }}
+      >
+        <option value="">Choose a group</option>
+        <option value="female">Female competitors</option>
+        <option value="male">Male competitors</option>
+        <option value="unspecified">Prefer not to say</option>
+      </select></label>
+      <small>Used only to pick which published group this lift is read against. It is saved to About Me.</small>
+    </div>;
+  }
+  const parsed = Number(year);
+  const currentYear = new Date().getFullYear();
+  const valid = Number.isFinite(parsed) && parsed > currentYear - 100 && parsed <= currentYear;
+  return <form className="strength-rank-gate" onSubmit={(event) => { event.preventDefault(); if (!valid) return; emitInteractionFeedback(); onProfile({ birthYear: parsed }); }}>
+    <p>{powerliftingRankMissingCopy.age}</p>
+    <label><span>Birth year</span><input inputMode="numeric" value={year} placeholder="e.g. 1998" aria-label="Birth year" onChange={(event) => setYear(event.target.value.replace(/[^0-9]/g, "").slice(0, 4))} /></label>
+    <button type="submit" disabled={!valid}>Save</button>
+    <small>Used only to pick the age band. It is saved to About Me.</small>
+  </form>;
+}
+
+export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "lb", baselineBodyWeight, sexForReference, birthYear, defaultTestingDetailOpen = false, directAccess = false, onRankProfile }: { onOpenTraining?: () => void; weightUnit?: DisplayWeightUnit; baselineBodyWeight?: number; sexForReference?: SexForReference; birthYear?: number; defaultTestingDetailOpen?: boolean; directAccess?: boolean; onRankProfile?: (patch: RankProfilePatch) => void }) {
   const utils = trpc.useUtils();
   const overview = trpc.strengthGenome.overview.useQuery(undefined, { enabled: !directAccess });
   const observations = trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess });
@@ -321,6 +413,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const [powerliftingDeclaration, setPowerliftingDeclaration] = useState<PowerliftingReferenceDeclaration>(prefilledPowerliftingDeclaration);
   const [advancedOpen, setAdvancedOpen] = useState(defaultTestingDetailOpen);
   const [selectedRegion, setSelectedRegion] = useState<StrengthRegionDefinition | null>(null);
+  // The sheet outlives the selection by the length of its exit animation.
+  const { shown: sheetRegion, isLeaving: sheetLeaving } = useSheetPresence(selectedRegion);
   const [selectedObservationId, setSelectedObservationId] = useState("");
   const regionDetailRef = useRef<HTMLDivElement | null>(null);
   const [deviceObservations, setDeviceObservations] = useState<DeviceStrengthObservation[]>(() => loadDeviceStrengthObservations());
@@ -557,8 +651,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       </section>
       <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
       {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
-      {selectedRegion && <div ref={regionDetailRef} className="strength-region-sheet" role="group" aria-label={`${selectedRegion.label} record`}><StrengthRegionRecordDetail key={`${selectedRegion.id}-${selectedObservationId}`} region={selectedRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} />
-        <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: selectedRegion.id, active: !activePriorityIds.has(selectedRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(selectedRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(selectedRegion.id) ? "Focused" : "Set focus"}</button></div></div>
+      {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} />
+        <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: sheetRegion.id, active: !activePriorityIds.has(sheetRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(sheetRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(sheetRegion.id) ? "Focused" : "Set focus"}</button></div></div>
       </div>}
       <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{activeObservations.length ? `${workoutObservations.length} carried across from finished workouts${directAccess ? ", saved on this device only" : ""}.` : (directAccess ? "Finish a workout in the tracker, or log a lift below, to start your record." : (overview.data?.nextAction || "Log a lift to start your record."))}</span></div>
 

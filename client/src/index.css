@@ -2498,6 +2498,18 @@ details:not([open]) > *:not(summary) {
 .strength-rank-card strong { color: var(--sg-focus-on-dark); }
 /* Asks for the one field that would produce a rank. */
 .strength-rank-needs { margin-top: .75rem; border-left: 2px solid var(--sg-link-on-dark); padding-left: .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.5; }
+/* The ask and the control that answers it, in the place the rank would be.
+   The sentence alone sent the athlete to a field four taps away in Profile,
+   with nothing to bring them back to the lift they were looking at. */
+.strength-rank-gate { display: grid; gap: .5rem; margin-top: .75rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .04); padding: .75rem; }
+.strength-rank-gate p { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 700; line-height: 1.45; }
+.strength-rank-gate label { display: grid; gap: .28rem; }
+.strength-rank-gate label span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.strength-rank-gate select, .strength-rank-gate input { min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); background: var(--sg-surface-raised); padding: 0 .6rem; color: var(--sg-text-on-dark); font-size: .8125rem; }
+.strength-rank-gate select:focus-visible, .strength-rank-gate input:focus-visible { border-color: var(--sg-info); outline: 2px solid var(--sg-info); outline-offset: -2px; }
+.strength-rank-gate button { min-height: 2.75rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); font-size: var(--sg-text-2xs); font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.strength-rank-gate button:disabled { border-color: var(--sg-control-border-on-dark); background: transparent; color: var(--sg-text-faint-on-dark); }
+.strength-rank-gate small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-2xs); line-height: 1.45; }
 
 /* Body Lab's one next step. The footer used to be three cells — the action
    (which the bar above already names), the "selected" muscle (which the map
@@ -2537,7 +2549,18 @@ details:not([open]) > *:not(summary) {
     border-top: 1px solid rgb(164 200 232 / .45);
     background: var(--sg-surface-deep);
     box-shadow: 0 -16px 38px rgb(4 20 40 / .45);
-    animation: sg-region-sheet-rise var(--sg-motion-base) var(--sg-ease-entrance) both;
+    /* A real slide from the bottom edge, not a 12px nudge: the sheet covers the
+       lower third of the screen, and arriving 12px away from where it settles
+       read as a flicker rather than as something coming up from the bar. */
+    animation: sg-region-sheet-rise var(--sg-motion-slow) var(--sg-ease-entrance) both;
+  }
+  /* And it leaves the same way it arrived. The sheet used to be unmounted on
+     the tap that closed it, so a panel that slid up over half the screen
+     vanished between two frames. It stays mounted for the length of this
+     animation and is not tappable while it goes. */
+  .strength-region-sheet.is-leaving {
+    animation: sg-region-sheet-fall var(--sg-motion-slow) var(--sg-ease) both;
+    pointer-events: none;
   }
   /* The record scrolls; the two optional actions stay pinned as the sheet's own
      bottom bar, so a tall record can never cut a button in half. */
@@ -2554,8 +2577,27 @@ details:not([open]) > *:not(summary) {
 }
 
 @keyframes sg-region-sheet-rise {
-  from { transform: translateY(12px); opacity: 0; }
+  from { transform: translateY(100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes sg-region-sheet-fall {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(100%); opacity: 0; }
+}
+
+/* Above the sheet's breakpoint the record sits in the page flow, where sliding
+   it down the screen would drag it over the content below. It fades instead,
+   for the same reason: so the close is something the eye can follow. Scoped to
+   min-width rather than left unscoped, because this rule sits after the
+   max-width block and a media query adds no specificity to outrank it with. */
+@media (min-width: 1024px) {
+  .strength-region-sheet.is-leaving { animation: sg-region-sheet-dismiss var(--sg-motion-base) var(--sg-ease) both; pointer-events: none; }
+}
+
+@keyframes sg-region-sheet-dismiss {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* Turns the figure around, beside the word naming the body on screen. In the
