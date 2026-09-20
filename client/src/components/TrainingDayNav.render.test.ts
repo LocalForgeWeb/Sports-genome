@@ -3,6 +3,8 @@ import React from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TrainingDayNav } from "./TrainingDayNav";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { buildDaySlots } from "@/lib/trainingDayPlan";
 import { splitDaysForFrequency } from "@/lib/splitCycle";
 
@@ -83,5 +85,37 @@ describe("Training day navigation", () => {
   it("does not offer to cycle a one-day week", () => {
     renderNav({ slots: buildDaySlots(splitDaysForFrequency(1)), activeIndex: 0 });
     expect(screen.getByLabelText("Next training day").hasAttribute("disabled")).toBe(true);
+  });
+});
+
+/**
+ * As one sticky block this bar was 219px tall, and it joined a topbar and a tab row
+ * already pinned above it: 354px of an 852px phone screen never moved, and the page
+ * showed through a 428px slot. Only the strip follows you now.
+ */
+describe("only the day strip follows the scroll", () => {
+  const styles = readFileSync(join(process.cwd(), "client/src/workout-planner.css"), "utf8");
+  /** Every declaration block for a selector, since it is styled in a base rule and
+      again inside media queries and scoped overrides. */
+  const rule = (selector: string) => (styles.match(new RegExp(`\\${selector} \\{[^}]*\\}`, "g")) ?? []).join("\n");
+
+  it("lets the title, the count and the saved-state note scroll away", () => {
+    expect(rule(".training-day-nav")).not.toContain("position: sticky");
+  });
+
+  it("keeps the strip pinned, below the chrome already pinned above it", () => {
+    const strip = rule(".training-day-nav-strip");
+    expect(strip).toContain("position: sticky");
+    expect(strip).toContain("var(--sg-pinned-chrome)");
+  });
+
+  it("renders the two as siblings, because a sticky child cannot outlive its container", () => {
+    // Nested in the header, the strip would unstick the moment the header scrolled past.
+    renderNav();
+    const strip = document.querySelector(".training-day-nav-strip");
+    const head = document.querySelector(".training-day-nav");
+    expect(strip).toBeTruthy();
+    expect(head).toBeTruthy();
+    expect(head!.contains(strip!)).toBe(false);
   });
 });
