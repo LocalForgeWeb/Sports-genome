@@ -1085,7 +1085,7 @@ select {
 .destination-train .day-active-actions button { border-color: rgb(164 200 232 / .48); background: rgb(255 255 255 / .08); color: var(--sg-text-on-dark); }
 .destination-train .day-active-actions button:first-child { border-color: var(--sg-focus-on-dark); color: #ffe9a2; }
 .destination-train .day-programming-panel .metric-label, .destination-train .day-programming-panel strong, .destination-train .day-programming-panel label, .destination-train .day-programming-panel summary { color: var(--sg-text-on-dark); }
-.destination-train .day-programming-panel small, .destination-train .day-programming-panel p, .destination-train .day-programming-panel .custom-detail-row label { color: var(--sg-text-muted-on-dark); }
+.destination-train .day-programming-panel small, .destination-train .day-programming-panel p { color: var(--sg-text-muted-on-dark); }
 .destination-train .day-programming-panel select, .destination-train .day-programming-panel textarea { border-color: rgb(164 200 232 / .42); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
 .destination-train .three-week-planner, .destination-train .weekly-plan-board { border: 1px solid rgb(164 200 232 / .26); background: linear-gradient(140deg, rgb(16 52 88 / .94), rgb(7 25 47 / .98)); box-shadow: 0 16px 36px rgb(1 12 28 / .22); color: var(--sg-text-on-dark); }
 .destination-train .three-week-head, .destination-train .weekly-plan-head { border-bottom-color: rgb(164 200 232 / .2); }
@@ -1439,8 +1439,6 @@ select {
 
 .health-stat-grid strong,
 .completion-toggle,
-.custom-detail-row select,
-.custom-detail-row textarea,
 .destination-train .programming-guide-head h3,
 .destination-train .programming-guide-stats strong {
   color: var(--sg-text-on-dark);
@@ -1448,7 +1446,6 @@ select {
 
 .health-stat-grid span,
 .health-boundary,
-.custom-detail-row label,
 .destination-train .programming-guide-head p:last-child,
 .destination-train .programming-guide-stats small,
 .destination-train .programming-guide-boundary,
@@ -1456,8 +1453,6 @@ select {
   color: var(--sg-text-muted-on-dark);
 }
 
-.custom-detail-row select,
-.custom-detail-row textarea,
 .completion-toggle {
   border-color: var(--sg-control-border-on-dark);
   background: var(--sg-surface-raised);
@@ -1607,12 +1602,9 @@ select {
   .apex-topbar, .workspace-top-switcher { background: var(--sg-surface-light); box-shadow: 0 1px 0 rgb(153 180 207 / .62); }
 }
 .destination-train :is(.day-design-hero, .day-programming-panel, .workout-health-panel) .metric-label,
-.destination-train .workout-health-disclosure > summary .metric-label,
-.destination-train .custom-prescription-inputs label,
-.destination-train .custom-detail-row label { color: var(--sg-text-muted-on-dark) !important; }
+.destination-train .workout-health-disclosure > summary .metric-label { color: var(--sg-text-muted-on-dark) !important; }
 .destination-train .day-order-controls button,
-.destination-train .duplicate-prescription,
-.destination-train .custom-prescription-inputs input { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
+.destination-train .duplicate-prescription { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
 
 /* Readability guard: each destination declares a semantic foreground role before local accents. */
 .destination-progress .progress-review { color: var(--sg-text-on-dark); }

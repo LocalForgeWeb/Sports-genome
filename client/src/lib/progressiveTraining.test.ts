@@ -17,6 +17,21 @@ describe("progressive training model", () => {
     expect(parseTargetRepRange("5 x 5")).toEqual({ min: 5, max: 5 });
   });
 
+  /**
+   * A prescription can ask for a different target per set. The band the exercise
+   * is worked in spans all of them: reading only the first would call a top set
+   * of 10 with back-offs of 6 a straight 10, and push the load up every week the
+   * back-offs did their job.
+   */
+  it("spans every set's target when the sets differ", () => {
+    expect(parseTargetRepRange("4 × 10/8/6/6")).toEqual({ min: 6, max: 10 });
+    expect(parseTargetRepRange("3 × 5/8–12/8–12")).toEqual({ min: 5, max: 12 });
+  });
+
+  it("still reads a prescription with no numeric target at all as having none", () => {
+    expect(parseTargetRepRange("as many as possible")).toBeUndefined();
+  });
+
   it("recommends the next available load increment only after repeated comparable work reaches the target ceiling", () => {
     const recommendation = getExerciseProgressionRecommendation(lateralRaise, records);
     expect(recommendation.action).toBe("increase_load");

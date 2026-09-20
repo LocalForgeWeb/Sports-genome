@@ -1,3 +1,5 @@
+import { parsePrescription } from "@/lib/setPrescription";
+
 export type LoggedPerformanceSet = {
   sessionId: number;
   completedAt: Date | string;
@@ -64,6 +66,21 @@ export type WeeklyProgressReview = {
 type ProgressionEntry = { exercise: ProgressionExercise; recommendation: ExerciseProgressionRecommendation };
 
 export function parseTargetRepRange(prescription: string) {
+  /**
+   * A prescription can now ask for a different target per set ("4 × 10/8/6/6"),
+   * and the band the exercise is actually worked in spans all of them. Reading
+   * only the first would call a top-set-and-back-offs scheme a straight 10 and
+   * push the athlete up a weight every time the back-offs did their job.
+   */
+  const targets = parsePrescription(prescription).sets.flatMap((set) => {
+    const band = set.reps.match(/^\s*(\d+)\s*(?:–|—|-|to)\s*(\d+)/i);
+    if (band) return [Number(band[1]), Number(band[2])];
+    const single = set.reps.match(/^\s*(\d+)/);
+    return single ? [Number(single[1])] : [];
+  });
+  if (targets.length) return { min: Math.min(...targets), max: Math.max(...targets) };
+
+  // Anything the set reader could not make sense of still gets the old reading.
   const range = prescription.match(/(?:×|x)\s*(\d+)\s*(?:–|-|to)\s*(\d+)/i);
   if (range) return { min: Number(range[1]), max: Number(range[2]) };
   const single = prescription.match(/(?:×|x)\s*(\d+)/i);

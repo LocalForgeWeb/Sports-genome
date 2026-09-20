@@ -33,8 +33,28 @@ describe("live workout glance contract", () => {
     expect(card).toBeTruthy();
     expect(within(card as HTMLElement).getByRole("heading").textContent).toBe(exercises[0].name);
     expect(card.textContent).toContain("Set 1 of 3");
-    expect(card.textContent).toContain("3 × 8");
+    expect(card.textContent).toContain("8");
     expect(document.querySelector(".live-rest-row")).toBeTruthy();
+  });
+
+  /**
+   * The planner can now ask for a different target per set. Restating the whole
+   * "3 × 10/8/6" on every set would make the athlete count through it mid-lift,
+   * so the card states what this set is for.
+   */
+  it("states this set's own target when the sets differ", () => {
+    render(createElement(DeviceWorkoutTracker, {
+      workout: [exercises[0]],
+      prescriptions: { [exercises[0].id]: "3 × 10/8/6" },
+      settings: {}, dayLabel: "Week 1 · Push",
+    }));
+    fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
+    const line = () => document.querySelector(".live-set-prescription")!.textContent;
+    expect(line()).toContain("Set 1 of 3 · 10");
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+    expect(line()).toContain("Set 2 of 3 · 8");
+    fireEvent.click(screen.getByRole("button", { name: /log set 2/i }));
+    expect(line()).toContain("Set 3 of 3 · 6");
   });
 
   it("offers exactly one dominant next action, not one per planned set", () => {
