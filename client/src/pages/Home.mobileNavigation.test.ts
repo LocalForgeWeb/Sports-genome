@@ -223,7 +223,12 @@ describe("workspace side navigation", () => {
 
   it("removes duplicate mobile Training Day shortcuts while keeping dedicated Tracker and Builder destinations reachable", () => {
     expect(trainingDayStyles).toContain('.day-design-import { display: none; }');
-    expect(trainingDayStyles).toContain('.day-active-actions button:nth-child(1), .day-active-actions button:nth-child(2) { display: none; }');
+    // The same two shortcuts, hidden by name rather than by position: both have their own
+    // panel further down, and a positional rule hid whichever button came first — which is
+    // now the one for adding exercises.
+    expect(trainingDayStyles).toContain('.day-active-actions .day-action-session, .day-active-actions .day-action-draft { display: none; }');
+    expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
+    expect(source).toContain('className="day-action-add"');
     expect(source).toContain('label: "Tracker", workspace: "tracker"');
     expect(source).toContain('label: "Builder", workspace: "custom"');
     expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
