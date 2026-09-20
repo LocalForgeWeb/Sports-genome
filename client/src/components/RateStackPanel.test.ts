@@ -76,10 +76,16 @@ describe("RateStackPanel coverage visuals", () => {
     expect(markup).toMatch(/↓|✓|↑/);
   });
 
-  it("explains the two bar parts in a legend", () => {
+  it("names the one mark nothing else labels, and nothing the bars do not draw", () => {
+    // The bar carries its own number, its own word and its own aria-label. The
+    // target tick is the only thing on the chart with no name of its own, so it
+    // is the only thing the legend has to explain. The swatch that used to sit
+    // beside it showed a three-stop gradient describing a continuous scale the
+    // bars never used — a key to a chart that does not exist.
     const markup = render();
     expect(markup).toContain("rate-stack-legend-target");
     expect(markup).toContain("reached");
+    expect(markup).not.toContain("rate-stack-legend-fill");
   });
 
   it("gives each row an accessible description of coverage against target", () => {

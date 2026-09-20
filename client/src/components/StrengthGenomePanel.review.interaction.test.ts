@@ -28,7 +28,6 @@ vi.mock("@/lib/trpc", () => ({
     },
   },
 }));
-vi.mock("body-muscles", () => ({ ViewSide: { FRONT: "front", BACK: "back" }, BodyChart: class { update() {} destroy() {} } }));
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: mocks.feedback }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
@@ -52,6 +51,8 @@ describe("Strength Genome direct Review workflow", () => {
     expect(mocks.feedback).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("region", { name: "Biceps recorded strength context" })).toBeTruthy();
     expect(screen.getByText(/0\.44× your body weight on that day — for your own context, not a rank\./)).toBeTruthy();
-    expect(screen.getByText("Why no comparison to other people?")).toBeTruthy();
+    // A preacher curl is not one of the three lifts the published reference
+    // covers, so this says so plainly rather than explaining a study protocol.
+    expect(screen.getByText("No ranking for this lift yet")).toBeTruthy();
   });
 });

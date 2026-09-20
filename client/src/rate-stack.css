@@ -252,31 +252,28 @@
 .rate-stack-row-covered .rate-stack-row-band { color: #9adfb0; }
 .rate-stack-row-heavy .rate-stack-row-band { color: #a8d4fa; }
 
+/* A sentence with the mark set into it. As a flex row the legend was a strip of
+   chips, which is what let a gradient swatch sit there describing a continuous
+   scale the bars never used. */
 .rate-stack-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .3rem;
+  display: block;
   margin: var(--sg-space-3) 0 0;
   color: var(--sg-text-faint-on-dark);
   font-size: var(--sg-text-2xs);
+  line-height: 1.5;
 }
 
+/* The legend is a sentence with one mark set into it, not a row of chips. */
 .rate-stack-legend span {
   display: inline-block;
   flex: 0 0 auto;
 }
 
-.rate-stack-legend-fill {
-  width: 20px;
-  height: 8px;
-  background: linear-gradient(90deg, var(--sg-state-critical), var(--sg-state-caution), var(--sg-state-positive));
-}
-
 .rate-stack-legend-target {
   width: 2px;
   height: 12px;
-  margin-left: .45rem;
+  margin-right: .4rem;
+  vertical-align: -2px;
   background: var(--sg-text-on-dark);
 }
 
@@ -380,10 +377,13 @@
 
   /* The name and the band label need the full width at this size, so the row
      becomes two lines rather than four squeezed columns. */
+  /* The bar, its number and its word are one measurement, so they share one
+     line. The band used to span both rows and centre across them, which left it
+     floating between the muscle's name and its bar, aligned with neither. */
   .rate-stack-row {
     grid-template-columns: minmax(0, 1fr) 2.6rem 4.6rem;
     grid-template-areas:
-      "name  name  band"
+      "name  name  name"
       "track delta band";
     gap: .22rem .45rem;
   }

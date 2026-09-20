@@ -97,11 +97,14 @@ describe("workspace side navigation", () => {
   });
 
   it("uses the supplied circular badge in the active eleven-step onboarding header at a natural readable scale", () => {
-    expect(athleteQuizSource).toContain('src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge"');
-    expect(athleteQuizSource).toContain('<span>Sports Genome</span></div><div className="athlete-quiz-progress"');
-    expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 54px; height: 54px; flex: 0 0 54px; border-radius: 999px;');
-    expect(athleteQuizStyles).toContain('@media (max-width: 720px) { .athlete-quiz-header { min-height: 82px;');
-    expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 48px; height: 48px; flex: 0 0 48px; }');
+    // The mark is decorative here: the brand name sits beside it as real text,
+    // so an alt would make a screen reader announce the name twice.
+    expect(athleteQuizSource).toContain('src={sportsGenomeAssets.circularBadge} alt=""');
+    expect(athleteQuizSource).toContain('<span>Sports Genome</span>');
+    expect(athleteQuizStyles).toContain('.athlete-quiz-brand img { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 999px;');
+    // Progress is one segment per step now, so the header only carries the count.
+    expect(athleteQuizSource).toContain('className="athlete-quiz-count"');
+    expect(athleteQuizSource).toContain('className="athlete-quiz-segments"');
   });
 
   it("blocks the retired coach-set readiness placeholder from rendering", () => {
@@ -165,7 +168,6 @@ describe("workspace side navigation", () => {
     expect(css).toContain('min-height: 4.25rem;');
     expect(css).toContain('touch-action: manipulation;');
     expect(css).toContain('font-size: .6875rem;');
-    expect(css).toContain('.planner-float { bottom: calc(5.6rem');
     expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');
   });
@@ -182,14 +184,18 @@ describe("workspace side navigation", () => {
     // The strip is bounded by its own column, not by the viewport: a
     // viewport-derived width cannot know how wide the topbar's right-hand
     // cluster is, and `overflow: visible` let the chips run underneath it
-    // (measured: "5 days" 57px behind the search trigger at 390px).
-    expect(css).toContain('.topbar-context-chips { flex-wrap: nowrap; max-width: 100%; overflow-x: auto;');
+    // (measured: "5 days" 57px behind the search trigger at 390px). Within that
+    // column they wrap rather than scroll - as a hidden-scrollbar strip the
+    // same chip was cut mid-word at 272px, with nothing on screen saying there
+    // was anything to scroll to, which reads as a clipped layout.
+    expect(css).toContain('.topbar-context-chips { flex-wrap: wrap; max-width: 100%; overflow-x: visible;');
     expect(css).toContain('.topbar-context-chips span { max-width: none; flex: 0 0 auto; }');
     expect(mobileStyles).toContain('max-width: calc(100vw - 5.5rem);');
     expect(mobileStyles).toContain('flex: 0 0 auto;');
-    expect(mobileStyles).toContain('overflow-x: auto; overscroll-behavior-x: contain;');
-    expect(mobileStyles).toContain('.topbar-context-chips::-webkit-scrollbar { display: none; }');
-    expect(mobileStyles).toContain('scroll-snap-align: start;');
+    // Both files style this strip and only source order decides which wins, so
+    // neither may quietly put the scroller back.
+    expect(mobileStyles).toContain('.topbar-context-chips { flex-wrap: wrap;');
+    expect(mobileStyles).not.toMatch(/\.topbar-context-chips \{[^}]*overflow-x: auto/);
     expect(mobileStyles).toContain('.apex-topbar button:last-child { display: none; }');
     // The acid-lime accent is retired: it was the calm_precision anti-pattern
     // ("competing highlights") and had accumulated four conflicting !important
@@ -248,12 +254,14 @@ describe("workspace side navigation", () => {
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('workspace === "profile" && <AthleteAboutMePanel');
     expect(aboutMeSource).toContain("Available equipment");
-    // The Atlas renders only with a sport; without one the gate takes its place.
-    expect(source).toContain('workspace === "movement" && hasSportContext && <MovementAtlasPanel');
+    // The Atlas now renders behind the browsing notice, so the workspace opens a
+    // fragment rather than the panel directly — and only once a sport is chosen. Without
+    // one, the gate takes its place rather than the Atlas defaulting to someone else's sport.
+    expect(source).toMatch(/workspace === "movement" && hasSportContext && <>.*<MovementAtlasPanel/);
     expect(source).toContain('workspace === "movement" && !hasSportContext && <SportContextGate');
     expect(source).toContain('workspace === "body" && <section className="body-lab-v2');
     expect(source).toContain('<CatalogExerciseEvidenceCard exercise={inspectedExercise} />');
     expect(anatomySource).toContain("View methodology");
-    expect(anatomySource).toContain("Evidence context");
+    expect(anatomySource).toContain("<dt>Evidence</dt>");
   });
 });

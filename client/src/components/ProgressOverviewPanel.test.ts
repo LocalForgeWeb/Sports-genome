@@ -8,7 +8,13 @@ describe("Progress overview", () => {
     expect(source).toContain("trpc.workoutLog.list.useQuery()");
     expect(source).toContain("trpc.strengthGenome.observations.useQuery()");
     expect(source).toContain("trpc.workoutLog.progressionHistory.useQuery()");
-    expect(source).toContain("mergeStrengthHistory(observations.data || [], trackedSets.data || [])");
+    // Account observations, lifts saved on this device, and finished tracker
+    // workouts are one record here — counting only the server's rows showed a
+    // device athlete zero lifts under a list of completed sessions.
+    expect(source).toContain("mergeStrengthHistory(loggedObservations.map(");
+    expect(source).toContain("workoutStrengthObservations(deviceSessions)");
+    expect(source).toContain("loadDeviceStrengthObservations()");
+    expect(source).toContain("{loggedObservations.length}");
     expect(source).toContain("loadDeviceWorkoutSessions()");
     expect(source).toContain("deviceWorkoutHistoryEvent");
     expect(source).toContain('status === "completed"');

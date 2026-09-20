@@ -8,7 +8,9 @@ const stack = readFileSync(new URL("./StackAnalysisPage.tsx", import.meta.url), 
 describe("analysis score semantics", () => {
   it("keeps general Body Lab qualitative while preserving labeled relative exercise and stack analysis", () => {
     expect(anatomy).not.toContain("Relative model index");
-    expect(anatomy).toContain("Sporting-action role");
+    // The three repeated per-block caveats collapsed into one line at the end
+    // of the panel. What has to survive is the claim, not where it sat.
+    expect(anatomy).toContain("a qualitative role in this action, not measured activation, force");
     expect(genome).toContain("Estimated ${entry.contribution}/100 involvement");
     expect(genome).toContain("planning comparison, not a direct performance measurement");
     // The denominator moved from a per-row string into the group heading and a

@@ -1,51 +1,45 @@
-/* The Body Lab selection header: the current sport action and the control that
-   changes it, as one card. Before this, a title card and an unlabelled pair of
-   selects sat in two separate boxes with nothing tying them together — and the
-   selects' own heading was hidden entirely below 640px. */
+/* The Body Lab selection bar: the current sport action and the control that
+   changes it, as one compact row. It was a 386px card that pushed the body a
+   full screen below the fold on a phone; now it is what the athlete needs to
+   read the map and change it, and nothing that restates either. */
 .body-lab-navigator {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 1rem 1.4rem;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .75rem 1.25rem;
+  align-items: center;
   border: 1px solid #c7dce9;
   background: linear-gradient(135deg, var(--sg-surface-light), var(--sg-surface-light-sunken));
-  padding: 1rem 1.1rem;
+  padding: .8rem 1rem;
 }
 
+.body-lab-selection-head { min-width: 0; }
 .body-lab-selection-head h1 {
-  margin: .2rem 0 0;
+  margin: .15rem 0 0;
   font-family: "Barlow Condensed", sans-serif;
-  font-size: clamp(1.9rem, 7.5vw, 2.9rem);
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
   font-weight: 800;
   line-height: .92;
   text-transform: uppercase;
 }
 .body-lab-selection-context {
-  margin-top: .35rem;
-  font-size: .8rem;
+  margin-top: .2rem;
+  font-size: .75rem;
   font-weight: 700;
 }
-.body-lab-selection-explainer {
-  max-width: 34rem;
-  margin-top: .5rem;
-  font-size: .74rem;
-  line-height: 1.5;
-}
 
-/* The control block is visibly part of the same card, and keeps its heading at
-   every width. */
+/* Pickers and stepping in one row. Labels stay visible: a bare select with no
+   caption is the thing the previous version was fixing. */
 .body-lab-selection-controls {
   display: grid;
-  gap: .55rem;
-  align-content: start;
+  grid-template-columns: minmax(7rem, 1fr) minmax(9rem, 1.3fr) auto;
+  gap: .5rem;
+  align-items: end;
 }
-.body-lab-selection-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
 
 .body-lab-navigator label {
   display: grid;
-  gap: .28rem;
+  gap: .25rem;
   min-width: 0;
-  /* Was .54rem — 8.6px of uppercase tracking is not a readable field label. */
   font-size: .6875rem;
   font-weight: 800;
   letter-spacing: .05em;
@@ -64,33 +58,29 @@
 }
 .body-lab-navigator select:focus-visible { border-color: var(--sg-focus-ring); box-shadow: 0 0 0 2px rgb(59 134 219 / .3); }
 
-.body-lab-navigator-actions { display: grid; grid-template-columns: 1fr 1fr auto; gap: .4rem; }
+.body-lab-navigator-actions { display: flex; gap: .4rem; }
 .body-lab-navigator-actions button {
   display: inline-flex;
   min-height: 2.75rem;
-  min-width: 0;
+  min-width: 2.75rem;
   align-items: center;
   justify-content: center;
-  gap: .25rem;
+  gap: .3rem;
   border: 1px solid #bfd5e6;
   border-radius: 8px;
   background: var(--sg-surface-light);
-  padding: 0 .5rem;
+  padding: 0 .55rem;
   font-size: .6875rem;
   font-weight: 900;
   letter-spacing: .04em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .body-lab-navigator-actions button:last-child { border-color: #0b2240; background: var(--sg-surface-raised); color: #fff; }
 
-.body-lab-selection-position {
-  font-size: .6875rem;
-  font-weight: 700;
-}
-
 @media (max-width: 860px) {
-  .body-lab-navigator { grid-template-columns: 1fr; gap: .9rem; padding: .9rem; }
-  .body-lab-selection-explainer { max-width: none; }
-  .body-lab-navigator-actions { grid-template-columns: 1fr 1fr; }
-  .body-lab-navigator-actions button:last-child { grid-column: 1 / -1; }
+  .body-lab-navigator { grid-template-columns: 1fr; gap: .65rem; padding: .8rem .9rem; }
+  .body-lab-selection-controls { grid-template-columns: 1fr 1fr; }
+  .body-lab-navigator-actions { grid-column: 1 / -1; }
+  .body-lab-navigator-actions button:last-child { flex: 1; }
 }

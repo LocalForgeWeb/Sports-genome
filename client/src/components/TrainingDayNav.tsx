@@ -8,8 +8,18 @@ import type { DaySlot } from "@/lib/trainingDayPlan";
  * Training Day used to state the active day in a heading halfway down the page while
  * the only way to change it was a card grid in a side rail that collapses below the
  * fold on a phone - so on the screen most athletes use, the day you were editing and
- * the way to change it were never visible at the same time. This is a single sticky
- * bar: the day you are on, what it holds, and every other day one tap away.
+ * the way to change it were never visible at the same time.
+ *
+ * This renders as two siblings, not one block, and only the second one follows you.
+ * As one sticky unit it was 219px tall, which on a phone joined a topbar and a tab row
+ * already pinned above it: 354px of the 852px screen was chrome that never moved, and
+ * the page showed through a 428px slot. The title, the count and the saved-state note
+ * are worth reading once and are not worth a quarter of the screen thereafter, so they
+ * scroll away. The day strip stays, because it is the part you reach for - and it still
+ * answers "which day am I on" by which chip is lit.
+ *
+ * They are siblings because a sticky child can only travel inside its own container: a
+ * strip nested in the header would unstick the moment the header scrolled past.
  */
 export function TrainingDayNav({ week, slots, activeIndex, exerciseCountFor, onOpen, onCycle }: {
   week: number;
@@ -32,7 +42,8 @@ export function TrainingDayNav({ week, slots, activeIndex, exerciseCountFor, onO
 
   if (!active) return null;
 
-  return <section className="training-day-nav" aria-label="Training day selection">
+  return <>
+    <section className="training-day-nav" aria-label="Training day selection">
     <div className="training-day-nav-head">
       <div className="training-day-nav-current">
         <p className="metric-label">Week {week} · building</p>
@@ -45,6 +56,7 @@ export function TrainingDayNav({ week, slots, activeIndex, exerciseCountFor, onO
         <button type="button" onClick={() => onCycle(1)} aria-label="Next training day" disabled={slots.length < 2}><ChevronRight className="h-4 w-4" /></button>
       </div>
     </div>
+    </section>
     <div className="training-day-nav-strip" ref={stripRef} role="tablist" aria-label={`Week ${week} training days`}>
       {slots.map((slot) => {
         const count = exerciseCountFor(slot);
@@ -64,5 +76,5 @@ export function TrainingDayNav({ week, slots, activeIndex, exerciseCountFor, onO
         </button>;
       })}
     </div>
-  </section>;
+  </>;
 }

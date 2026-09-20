@@ -38,6 +38,12 @@
 
   /* -- Text ladder on dark ------------------------------------------------ */
   --sg-text-on-dark: #f7fbff;
+  /* How far down the page the pinned chrome reaches: the bottom edge of the top
+     bar plus the workspace tabs, measured at 135px on a phone and 133px on a
+     laptop. Anything that sticks below them follows this one number instead of
+     picking its own - the three hand-chosen offsets already in this codebase
+     (72px, 82px, 86px) are how the day nav ended up stuck underneath them. */
+  --sg-pinned-chrome: 135px;
   --sg-text-muted-on-dark: #c3d7ea;
   --sg-text-subtle-on-dark: #9eb3cb;
   --sg-text-faint-on-dark: #829ab3;
@@ -155,6 +161,16 @@
 
      Anything longer than `slow` is a set piece (the launch sequence), not part of
      the grammar, and is written out where it lives. */
+  /* How tall a body figure may be.
+     Both body maps draw the same 676x1203 athlete, so height is the scarce axis
+     on a phone: sized by width the drawing came out ~560px tall and, with its
+     caption row, overflowed the ~624px band between the sticky header and the
+     bottom bar — the athlete's feet sat under the nav. 20rem reserves that
+     chrome plus the caption row; 34rem stops a wide desktop column rendering an
+     enormous body. Stated once here because the Body Lab and the Strength
+     Genome must agree, and they live in different stylesheets. */
+  --sg-body-figure-height: clamp(18rem, calc(100vh - 20rem), 34rem);
+
   --sg-motion-fast: 150ms;
   --sg-motion-base: 200ms;
   --sg-motion-slow: 320ms;
@@ -406,7 +422,7 @@
   .insight-cell { border: 1px solid #dbe2d9; background: #fff; padding: 12px; } .insight-cell p:last-child { margin-top: 6px; font-size: 11px; line-height: 1.45; color: #526158; }
   .recommendation-row { min-width: 0; padding: 14px 16px; transition: background-color var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease); } .recommendation-row:hover { background: rgb(255 255 255 / .035); }.recommendation-row-main { display: grid; grid-template-columns: 30px minmax(0, 1fr) minmax(130px, .5fr) auto auto 32px; min-width: 0; align-items: center; gap: 12px; }
   .recommendation-index { font-family: "Barlow Condensed", sans-serif; font-size: 25px; font-weight: 700; color: #718078; }
-  .recommendation-copy { min-width: 0; text-align: left; }.recommendation-copy p { color: #fff; font-size: .86rem; font-weight: 800; line-height: 1.25; }.recommendation-copy small { display: block; margin-top: .28rem; color: #b6c7d8; font-size: .69rem; line-height: 1.4; overflow-wrap: anywhere; }.recommendation-demand { min-width: 0; }.recommendation-demand p { color: var(--sg-text-faint-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }.recommendation-demand small { display: block; margin-top: .3rem; color: #d2dfeb; font-size: .6875rem; line-height: 1.35; overflow-wrap: anywhere; }.recommendation-score { display: grid; min-width: 35px; text-align: center; color: #fff; }.recommendation-score strong { font-family: "Barlow Condensed", sans-serif; font-size: 1.35rem; line-height: .8; }.recommendation-score small { margin-top: .22rem; color: #91b1d3; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.recommendation-add { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid rgb(255 255 255 / .15); color: #d9e2dc; transition: background-color var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease); }.recommendation-add:hover { border-color: #73b8d9; background: #73b8d9; color: #081a33; }.recommendation-add:active { transform: scale(.96); }.recommendation-why { margin: .7rem 0 0 42px; border-top: 1px solid rgb(255 255 255 / .1); padding-top: .6rem; }.recommendation-why summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; color: #b8d7f5; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }.recommendation-why summary span { color: var(--sg-text-faint-on-dark); font-size: .6875rem; }.recommendation-why summary::-webkit-details-marker { display: none; }.recommendation-why-grid { display: grid; gap: .8rem; padding: .75rem 0 .1rem; }.recommendation-score-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }.recommendation-score-grid > div { border: 1px solid rgb(255 255 255 / .1); padding: .42rem; }.recommendation-score-grid small { display: block; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }.recommendation-score-grid strong { display: block; margin-top: .18rem; color: #fff; font-family: "Barlow Condensed", sans-serif; font-size: 1.1rem; }.recommendation-evidence { display: grid; gap: .65rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }.recommendation-evidence p { color: #f1c36d; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.recommendation-evidence span { display: block; margin-top: .18rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.35; }
+  .recommendation-copy { min-width: 0; text-align: left; }.recommendation-copy p { color: #fff; font-size: .86rem; font-weight: 800; line-height: 1.25; }.recommendation-copy small { display: block; margin-top: .28rem; color: #b6c7d8; font-size: .69rem; line-height: 1.4; overflow-wrap: anywhere; }.recommendation-demand { min-width: 0; }.recommendation-demand p { color: var(--sg-text-faint-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }.recommendation-demand small { display: block; margin-top: .3rem; color: #d2dfeb; font-size: .6875rem; line-height: 1.35; overflow-wrap: anywhere; }.recommendation-score { display: grid; min-width: 35px; text-align: center; color: #fff; }.recommendation-score strong { font-family: "Barlow Condensed", sans-serif; font-size: 1.35rem; line-height: .8; }.recommendation-score small { margin-top: .22rem; color: #91b1d3; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.recommendation-add { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid rgb(255 255 255 / .15); color: #d9e2dc; transition: background-color var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease); }.recommendation-add:hover { border-color: #73b8d9; background: #73b8d9; color: #081a33; }.recommendation-add:active { transform: scale(.96); }.recommendation-why { margin: .7rem 0 0 42px; border-top: 1px solid rgb(255 255 255 / .1); padding-top: .6rem; }.recommendation-why summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; color: #b8d7f5; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }.recommendation-why summary span { color: var(--sg-text-faint-on-dark); font-size: .6875rem; }.recommendation-why summary::-webkit-details-marker { display: none; }/* The summary is laid out `space-between` for a right-hand element the markup never rendered, and `display: flex` suppresses the disclosure marker, so six of these read as bare headings rather than controls. This is the affordance. */.recommendation-why summary svg { flex: 0 0 auto; transition: transform var(--sg-motion-fast) var(--sg-ease); }.recommendation-why[open] summary svg { transform: rotate(180deg); }.recommendation-why-grid { display: grid; gap: .8rem; padding: .75rem 0 .1rem; }.recommendation-score-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }.recommendation-score-grid > div { border: 1px solid rgb(255 255 255 / .1); padding: .42rem; }.recommendation-score-grid small { display: block; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }.recommendation-score-grid strong { display: block; margin-top: .18rem; color: #fff; font-family: "Barlow Condensed", sans-serif; font-size: 1.1rem; }.recommendation-evidence { display: grid; gap: .65rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }.recommendation-evidence p { color: #f1c36d; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.recommendation-evidence span { display: block; margin-top: .18rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.35; }
   .goal-button { border: 1px solid #d7ded5; background: var(--sg-surface-light); padding: 9px 11px; font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #57655c; } .goal-button-active { border-color: #17271f; background: #17271f; color: var(--sg-focus-on-dark); }
 .custom-row { display: flex; min-width: 0; align-items: center; gap: 11px; padding: 14px 16px; } .custom-row:hover { background: rgb(255 255 255 / .025); }
 .apex-content > section:has(.view-header .goal-button) { display: none; }
@@ -709,7 +725,7 @@ select {
 .genome-grid { display: grid; gap: 18px; padding: 18px; } .genome-fingerprint { max-width: 260px; margin: 0 auto; } .genome-fingerprint svg { width: 100%; max-width: 220px; display: block; margin: 0 auto; }
 .genome-fingerprint-bars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; align-content: center; }
 .genome-meter { min-width: 0; } .genome-meter > div { color: var(--sg-text-subtle-on-light); font-size: .6875rem; font-weight: 700; letter-spacing: .1em; } .genome-meter strong { color: #183555; font-size: 11px; }
-.genome-term-button { display: inline-flex; align-items: center; gap: 5px; color: #315b85; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-align: left; text-decoration: underline dotted #8eb2da; text-underline-offset: 3px; }.genome-term-button:hover { color: var(--sg-action); }.genome-radar-label { fill: #3b6289; font-size: .6875rem; font-weight: 800; letter-spacing: .03em; }.genome-fingerprint-legend { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }.genome-fingerprint-legend button { border: 1px solid var(--sg-divider-on-light); border-radius: 6px; background: var(--sg-surface-light); padding: 5px 6px; color: #3a6187; font-size: .6875rem; font-weight: 800; }.genome-fingerprint-legend button:hover { border-color: var(--sg-info-strong); color: #1d5cae; }.genome-fingerprint-legend span { margin-left: 4px; color: var(--sg-action); font-size: .6875rem; text-transform: uppercase; }.genome-learn-overlay { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; background: rgb(8 26 52 / .62); padding: 18px; backdrop-filter: blur(8px); }.genome-learn-card { position: relative; width: min(560px, 100%); border: 1px solid #c7dced; border-radius: 18px; background: var(--sg-surface-light); box-shadow: 0 28px 80px rgb(3 21 45 / .35); padding: 24px; }.genome-learn-card h4 { margin-top: 7px; color: var(--sg-text-on-light); font-family: "Barlow Condensed", sans-serif; font-size: 34px; font-weight: 800; line-height: .95; text-transform: uppercase; }.genome-learn-card > p { margin-top: 15px; color: #486680; font-size: 13px; line-height: 1.65; }.genome-learn-card > p strong { color: #173d66; }.genome-learn-close { position: absolute; top: 13px; right: 13px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #c9dbea; border-radius: 50%; color: #3e648b; font-size: 20px; }.genome-learn-close:hover { border-color: var(--sg-action); color: var(--sg-action); }.genome-learn-boundary { margin-top: 17px; border-left: 3px solid var(--sg-action); background: var(--sg-surface-light); padding: 11px; color: #8c4d3e; font-size: 11px; line-height: 1.5; }
+.genome-term-button { display: inline-flex; align-items: center; gap: 5px; color: #315b85; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-align: left; text-decoration: underline dotted #8eb2da; text-underline-offset: 3px; }.genome-term-button:hover { color: var(--sg-action); }.genome-radar-label { fill: #3b6289; font-size: .6875rem; font-weight: 800; letter-spacing: .03em; }.genome-learn-overlay { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; background: rgb(8 26 52 / .62); padding: 18px; backdrop-filter: blur(8px); }.genome-learn-card { position: relative; width: min(560px, 100%); border: 1px solid #c7dced; border-radius: 18px; background: var(--sg-surface-light); box-shadow: 0 28px 80px rgb(3 21 45 / .35); padding: 24px; }.genome-learn-card h4 { margin-top: 7px; color: var(--sg-text-on-light); font-family: "Barlow Condensed", sans-serif; font-size: 34px; font-weight: 800; line-height: .95; text-transform: uppercase; }.genome-learn-card > p { margin-top: 15px; color: #486680; font-size: 13px; line-height: 1.65; }.genome-learn-card > p strong { color: #173d66; }.genome-learn-close { position: absolute; top: 13px; right: 13px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #c9dbea; border-radius: 50%; color: #3e648b; font-size: 20px; }.genome-learn-close:hover { border-color: var(--sg-action); color: var(--sg-action); }.genome-learn-boundary { margin-top: 17px; border-left: 3px solid var(--sg-action); background: var(--sg-surface-light); padding: 11px; color: #8c4d3e; font-size: 11px; line-height: 1.5; }
 .genome-meter-track { display: block; height: 5px; margin-top: 6px; overflow: hidden; background: #dce6f1; } .genome-meter-track i { display: block; height: 100%; background: var(--sg-info-strong); } .genome-meter-warm i { background: #d9793e; } .genome-meter-ink i { background: var(--sg-surface-raised); }
 .genome-quicknote { display: flex; gap: 10px; border-left: 3px solid var(--sg-info-strong); background: var(--sg-surface-light-sunken); padding: 13px; }
 .genome-muscle-stack { display: grid; gap: 1px; background: #d8e3ef; } .genome-muscle-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 14px; background: #fff; padding: 15px 18px; }
@@ -730,7 +746,7 @@ select {
 /* Detailed Anatomy Atlas: blue foundation, gold selection state, and high-legibility muscle inspection. */
 .anatomy-atlas { border: 1px solid #c9dced; border-radius: 18px; background: linear-gradient(145deg, var(--sg-surface-light), var(--sg-surface-light-sunken)); padding: 16px; }.atlas-toolbar { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 12px; }.atlas-view-switch { display: flex; border: 1px solid #b9d2eb; border-radius: 10px; padding: 3px; background: white; }.atlas-view-switch button { border-radius: 7px; padding: 7px 12px; color: #527293; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.atlas-view-switch .atlas-view-active { background: #1f73dc; color: white; box-shadow: 0 4px 10px rgb(25 106 213 / .23); }.atlas-layout { display: grid; gap: 14px; margin-top: 14px; }.atlas-figure { border: 1px solid var(--sg-divider-on-light); border-radius: 15px; background: radial-gradient(circle at 50% 20%, #fff, var(--sg-surface-light-sunken)); padding: 12px; }.atlas-region { cursor: pointer; transition: opacity var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease), filter var(--sg-motion-fast) var(--sg-ease); transform-box: fill-box; transform-origin: center; }.atlas-region:hover { filter: brightness(.97) saturate(1.25); }.atlas-region-deep { stroke-dasharray: 3 2; opacity: .84; }.atlas-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 5px; color: #4c6c8b; font-size: .6875rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }.atlas-legend span { display: inline-flex; align-items: center; gap: 5px; }.atlas-legend i { width: 9px; height: 9px; border-radius: 99px; }.atlas-deep-dot { border: 1px dashed #7894b2; background: #dce9f7; }.atlas-inspector { border-left: 3px solid #d5ad43; border-radius: 0 14px 14px 0; background: white; padding: 16px; }.atlas-inspector h4 { margin-top: 7px; color: #14365f; font-family: "Barlow Condensed", sans-serif; font-size: 27px; font-weight: 800; line-height: .95; text-transform: uppercase; }.atlas-link { margin-top: 16px; color: #946f12; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }@media (min-width: 860px) { .atlas-layout { grid-template-columns: minmax(300px, .95fr) minmax(250px, .72fr); align-items: center; } }.genome-meter > div { font-size: .6875rem; letter-spacing: .04em; }.genome-fingerprint-bars { grid-template-columns: 1fr; }
 .stack-import-modal { width: min(860px, 100%); border-radius: 24px; background: var(--sg-surface-light); padding: 24px; box-shadow: 0 30px 90px rgb(0 10 30 / .4); }.stack-import-modal h3 { margin-top: 5px; color: var(--sg-text-on-light); font-family: "Barlow Condensed", sans-serif; font-size: 38px; font-weight: 800; line-height: .9; text-transform: uppercase; }.stack-import-input { display: grid; gap: 8px; color: #2f5a88; font-size: .6875rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }.stack-import-input textarea { min-height: 280px; resize: vertical; border: 1px solid #c4d7eb; border-radius: 14px; background: white; padding: 13px; color: #173858; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.7; outline: none; }.stack-import-input textarea:focus { border-color: #3182f5; box-shadow: 0 0 0 3px rgb(49 130 245 / .12); }.stack-import-preview { border: 1px solid var(--sg-divider-on-light); border-radius: 14px; background: var(--sg-surface-light-sunken); padding: 14px; }.stack-import-row { display: flex; gap: 8px; border-left: 3px solid; border-radius: 7px; background: white; padding: 9px; }.stack-import-match { border-left-color: #d5ad43; }.stack-import-miss { border-left-color: var(--sg-action); }.stack-import-row > span { display: grid; width: 18px; height: 18px; place-items: center; border-radius: 99px; background: #e5f0ff; color: #1f73dc; font-size: 11px; font-weight: 900; }.stack-import-miss > span { background: #fff0ed; color: var(--sg-action-strong); }.stack-import-row strong { display: block; color: #173858; font-size: 11px; }.stack-import-row small { display: block; margin-top: 2px; color: var(--sg-text-subtle-on-light); font-size: .6875rem; }.stack-import-confirm { display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; background: #1f73dc; padding: 12px 14px; color: white; font-size: .6875rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }.stack-import-confirm:disabled { opacity: .45; }
-.split-draft-dock { position: fixed; z-index: 35; right: 20px; bottom: 18px; width: min(640px, calc(100vw - 40px)); border: 1px solid rgb(181 210 242 / .9); border-radius: 18px; background: rgb(248 252 255 / .96); box-shadow: 0 20px 50px rgb(10 53 101 / .22); backdrop-filter: blur(18px); }.split-draft-controls { padding: 14px; }.split-row + .split-row { margin-top: 10px; border-top: 1px solid var(--sg-divider-on-light); padding-top: 10px; }.split-chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }.split-chip, .loadout-chip { border: 1px solid #cadced; border-radius: 9px; background: white; color: #365c85; padding: 7px 9px; font-size: .6875rem; font-weight: 800; letter-spacing: .035em; transition: transform var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease), background-color var(--sg-motion-fast) var(--sg-ease); }.split-chip:hover, .loadout-chip:hover { transform: translateY(-1px); border-color: var(--sg-info); }.split-chip span { margin-right: 5px; color: #d4a83d; font-family: "Barlow Condensed", sans-serif; font-size: 15px; }.split-chip-active { border-color: var(--sg-action); background: #fff3ef; color: #b54328; }.loadout-chip-active { border-color: #2d7add; background: var(--sg-surface-light-sunken); color: #1c63bb; }.split-helper { color: var(--sg-text-subtle-on-light); font-size: .6875rem; }.split-draft-button { border-radius: 8px; background: var(--sg-action-fill); padding: 8px 10px; color: white; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; box-shadow: 0 5px 12px rgb(228 81 46 / .2); }.anatomy-atlas .atlas-region:not(.atlas-region-deep) { opacity: .9; }.anatomy-atlas .atlas-region-deep { opacity: .45; }.anatomy-atlas .atlas-figure { padding: 8px; }@media (max-width: 720px) { .split-draft-dock { right: 10px; bottom: 10px; width: calc(100vw - 20px); }.split-draft-controls { padding: 11px; }.loadout-chip { font-size: .6875rem; } }
+.anatomy-atlas .atlas-region:not(.atlas-region-deep) { opacity: .9; }.anatomy-atlas .atlas-region-deep { opacity: .45; }.anatomy-atlas .atlas-figure { padding: 8px; }
 .dual-atlas { overflow: hidden; border: 1px solid var(--sg-divider-on-light); border-radius: 18px; background: #fff; }.dual-atlas-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--sg-divider-on-light); padding: 15px 18px; background: linear-gradient(90deg, var(--sg-surface-light), #fff); }.dual-atlas-key { display: flex; flex-wrap: wrap; gap: 10px; color: var(--sg-text-subtle-on-light); font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }.dual-atlas-key span { display: flex; align-items: center; gap: 4px; }.dual-atlas-key i { width: 8px; height: 8px; border-radius: 50%; }.dual-atlas-board { display: grid; grid-template-columns: 1fr 1fr; }.dual-atlas-side { min-width: 0; border-right: 1px solid var(--sg-divider-on-light); padding: 13px; }.dual-atlas-side:last-child { border-right: 0; }.dual-atlas-title { display: flex; justify-content: space-between; color: #264d79; font-size: .6875rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }.dual-atlas-title button { color: #6284aa; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.dual-atlas-grid { display: grid; grid-template-columns: minmax(88px, .9fr) minmax(120px, 1fr) minmax(88px, .9fr); align-items: center; gap: 5px; margin-top: 10px; }.dual-atlas-figure svg { width: 100%; max-height: 335px; }.dual-atlas-region { cursor: pointer; stroke-width: 1.1; transition: filter var(--sg-motion-fast) var(--sg-ease), opacity var(--sg-motion-fast) var(--sg-ease); }.dual-atlas-region:hover { filter: brightness(.95) saturate(1.22); }.dual-atlas-deep { opacity: .62; stroke-dasharray: 3 2; }.atlas-callouts { display: grid; gap: 6px; align-content: center; }.atlas-callout { position: relative; border: 1px solid var(--sg-divider-on-light); border-radius: 7px; background: var(--sg-surface-light); padding: 7px; text-align: left; box-shadow: 0 2px 7px rgb(41 78 117 / .04); transition: border-color var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease); }.atlas-callouts-left .atlas-callout::after { content: ""; position: absolute; top: 50%; right: -13px; width: 12px; border-top: 1px solid #b4c7db; }.atlas-callouts-right .atlas-callout::before { content: ""; position: absolute; top: 50%; left: -13px; width: 12px; border-top: 1px solid #b4c7db; }.atlas-callout:hover { transform: translateY(-1px); border-color: var(--sg-info); }.atlas-callout-active { border-color: var(--sg-action); background: var(--sg-surface-light); box-shadow: inset 2px 0 var(--sg-action); }.atlas-callout strong { display: block; color: #193b61; font-size: .6875rem; font-weight: 800; line-height: 1.15; }.atlas-callout small { display: block; margin-top: 4px; color: var(--sg-text-subtle-on-light); font-size: .6875rem; }.atlas-level { display: block; margin-top: 3px; font-size: .6875rem; font-style: normal; font-weight: 800; }.atlas-level-very-high { color: #d4472e; }.atlas-level-moderate { color: #7e55ab; }.atlas-level-low { color: #4386c8; }.dual-atlas-inspector { border-top: 1px solid var(--sg-divider-on-light); border-left: 3px solid var(--sg-action); background: var(--sg-surface-light-sunken); padding: 14px 18px; }.dual-atlas-inspector h4 { margin-top: 4px; color: #16395e; font-family: "Barlow Condensed", sans-serif; font-size: 25px; font-weight: 800; text-transform: uppercase; }.dual-atlas-inspector p { margin-top: 5px; color: #496987; font-size: 11px; line-height: 1.5; }.dual-atlas-inspector span { display: block; margin-top: 7px; color: var(--sg-text-subtle-on-light); font-size: .6875rem; }.dual-atlas .atlas-toolbar, .dual-atlas .atlas-layout { display: none; }@media (max-width: 900px) { .dual-atlas-board { grid-template-columns: 1fr; }.dual-atlas-side { border-right: 0; border-bottom: 1px solid var(--sg-divider-on-light); }.dual-atlas-side:last-child { border-bottom: 0; } }@media (max-width: 580px) { .dual-atlas-grid { grid-template-columns: 1fr; }.dual-atlas-figure { grid-row: 1; max-width: 230px; margin: auto; }.atlas-callouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }.atlas-callouts-left .atlas-callout::after, .atlas-callouts-right .atlas-callout::before { display: none; }.dual-atlas-head { align-items: start; } }
 @media (min-width: 1280px) { .light-panel:has(.dual-atlas) { grid-column: 1 / -1; }.dual-atlas-grid { grid-template-columns: minmax(138px, .84fr) minmax(220px, 1.1fr) minmax(138px, .84fr); gap: 11px; }.dual-atlas-figure svg { max-height: 430px; }.atlas-callout { min-height: 52px; padding: 8px; }.atlas-callout strong { font-size: .6875rem; }.atlas-callout small, .atlas-level { font-size: .6875rem; }.atlas-callouts-left .atlas-callout::after { right: -22px; width: 21px; border-top-color: #9fb5cb; }.atlas-callouts-left .atlas-callout::before { content: ""; position: absolute; top: calc(50% - 2px); right: -24px; width: 4px; height: 4px; border-radius: 50%; background: #9fb5cb; }.atlas-callouts-right .atlas-callout::before { left: -22px; width: 21px; border-top-color: #9fb5cb; }.atlas-callouts-right .atlas-callout::after { content: ""; position: absolute; top: calc(50% - 2px); left: -24px; width: 4px; height: 4px; border-radius: 50%; background: #9fb5cb; } }
 
@@ -780,7 +796,7 @@ select {
 @media (max-width: 640px) { .pulse-header .pulse-brand-badge { width: 50px; height: 50px; flex-basis: 50px; } }
 
 /* Planner tab and post-quiz guide: guidance stays available without occupying the working canvas. */
-.split-draft-dock{display:none}.planner-float{position:fixed;z-index:45;bottom:4.75rem;max-width:min(460px,calc(100vw - 2rem))}.planner-float-right{right:1.25rem}.planner-float-left{left:1.25rem}.planner-tab{display:inline-flex;align-items:center;gap:.55rem;border:1px solid #5a7898;background:var(--sg-surface-raised);box-shadow:0 14px 36px rgb(10 33 64 / .28);color:#fff;padding:.72rem .9rem;font-size:.6875rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;transition: transform var(--sg-motion-fast) var(--sg-ease),background var(--sg-motion-fast) var(--sg-ease)}.planner-tab:hover{background:var(--sg-info-strong);transform:translateY(-2px)}.planner-tab-open{border-color:var(--sg-action);background:var(--sg-action-fill)}.planner-float .split-draft-controls{margin-top:.6rem;border:1px solid #24496f;background:var(--sg-surface-raised);box-shadow:0 18px 48px rgb(8 25 47 / .35);padding:1rem}.planner-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;border-bottom:1px solid rgb(255 255 255 / .1);padding-bottom:.8rem;margin-bottom:.8rem}.planner-icon-button{display:grid;place-items:center;width:2rem;height:2rem;border:1px solid rgb(255 255 255 / .16);color:#d6e3ef}.planner-icon-button:hover{border-color:var(--sg-action);color:#fff}.planner-collapse-link{display:flex;align-items:center;gap:.3rem;margin-top:.8rem;color:var(--sg-text-subtle-on-dark);font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.feature-guide-button{position:fixed;z-index:44;right:1.25rem;bottom:1.25rem;display:inline-flex;align-items:center;gap:.45rem;border:1px solid #c8d9ec;background:#fff;box-shadow:0 8px 24px rgb(18 51 82 / .16);color:#173d69;padding:.65rem .8rem;font-size:.6875rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.feature-tour-layer{position:fixed;z-index:80;inset:0;display:grid;place-items:center;padding:1rem;background:rgb(4 20 40 / .72);backdrop-filter:blur(8px)}.feature-tour-card{position:relative;width:min(500px,100%);border:1px solid var(--sg-divider-on-light);background:var(--sg-surface-light);box-shadow:0 30px 80px rgb(4 18 36 / .42);padding:2rem}.feature-tour-close{position:absolute;top:1rem;right:1rem;display:grid;place-items:center;width:2rem;height:2rem;border:1px solid var(--sg-divider-on-light);color:#4c6b88}.feature-tour-icon{display:grid;place-items:center;width:3.25rem;height:3.25rem;margin-bottom:1.25rem;border:1px solid var(--sg-action);background:#fff0ea;color:var(--sg-action)}.feature-tour-card h2{margin-top:.55rem;color:var(--sg-text-on-light);font-family:var(--font-display,sans-serif);font-size:clamp(2rem,6vw,3rem);font-weight:800;line-height:.88;text-transform:uppercase}.feature-tour-card>p:not(.metric-label){max-width:33rem;margin-top:1rem;color:#526b82;font-size:.92rem;line-height:1.65}.feature-tour-progress{display:flex;gap:.35rem;margin-top:1.6rem}.feature-tour-progress span{height:.3rem;flex:1;background:#dce7f1}.feature-tour-progress-active{background:var(--sg-action-fill)!important}.feature-tour-progress-done{background:var(--sg-info-strong)!important}.feature-tour-actions{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.6rem}.feature-tour-skip,.feature-tour-back{color:var(--sg-text-subtle-on-light);font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.feature-tour-back,.feature-tour-next{display:inline-flex;align-items:center;gap:.4rem}.feature-tour-next{background:var(--sg-action-fill);color:#fff;padding:.7rem .9rem;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}@media(max-width:700px){.planner-float{bottom:4.45rem;max-width:calc(100vw - 1.6rem)}.planner-float-right{right:.8rem}.planner-float-left{left:.8rem}.planner-float .split-draft-controls{max-height:min(66vh,520px);overflow-y:auto}.feature-guide-button{right:.8rem;bottom:.8rem}.feature-tour-card{padding:1.5rem}.feature-tour-actions{align-items:flex-end}.feature-tour-card h2{font-size:2.35rem}}
+.feature-guide-button{position:fixed;z-index:44;right:1.25rem;bottom:1.25rem;display:inline-flex;align-items:center;gap:.45rem;border:1px solid #c8d9ec;background:#fff;box-shadow:0 8px 24px rgb(18 51 82 / .16);color:#173d69;padding:.65rem .8rem;font-size:.6875rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.feature-tour-layer{position:fixed;z-index:80;inset:0;display:grid;place-items:center;padding:1rem;background:rgb(4 20 40 / .72);backdrop-filter:blur(8px)}.feature-tour-card{position:relative;width:min(500px,100%);border:1px solid var(--sg-divider-on-light);background:var(--sg-surface-light);box-shadow:0 30px 80px rgb(4 18 36 / .42);padding:2rem}.feature-tour-close{position:absolute;top:1rem;right:1rem;display:grid;place-items:center;width:2rem;height:2rem;border:1px solid var(--sg-divider-on-light);color:#4c6b88}.feature-tour-icon{display:grid;place-items:center;width:3.25rem;height:3.25rem;margin-bottom:1.25rem;border:1px solid var(--sg-action);background:#fff0ea;color:var(--sg-action)}.feature-tour-card h2{margin-top:.55rem;color:var(--sg-text-on-light);font-family:var(--font-display,sans-serif);font-size:clamp(2rem,6vw,3rem);font-weight:800;line-height:.88;text-transform:uppercase}.feature-tour-card>p:not(.metric-label){max-width:33rem;margin-top:1rem;color:#526b82;font-size:.92rem;line-height:1.65}.feature-tour-progress{display:flex;gap:.35rem;margin-top:1.6rem}.feature-tour-progress span{height:.3rem;flex:1;background:#dce7f1}.feature-tour-progress-active{background:var(--sg-action-fill)!important}.feature-tour-progress-done{background:var(--sg-info-strong)!important}.feature-tour-actions{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.6rem}.feature-tour-skip,.feature-tour-back{color:var(--sg-text-subtle-on-light);font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.feature-tour-back,.feature-tour-next{display:inline-flex;align-items:center;gap:.4rem}.feature-tour-next{background:var(--sg-action-fill);color:#fff;padding:.7rem .9rem;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}@media(max-width:700px){.feature-guide-button{right:.8rem;bottom:.8rem}.feature-tour-card{padding:1.5rem}.feature-tour-actions{align-items:flex-end}.feature-tour-card h2{font-size:2.35rem}}
 
 /* Tier C destructive confirmation (Reversible-action and destructive-confirmation contract):
    visually distinct from the brand orange used for routine actions, via a dedicated danger red. */
@@ -799,7 +815,6 @@ select {
 
 /* Pulse card selection lane: the selected check has its own protected center-right position. */
 .pulse-option{padding-right:4.5rem!important}.pulse-option>span:nth-child(2){display:block;padding-right:.5rem}.pulse-check{position:absolute!important;top:50%!important;right:1.05rem!important;bottom:auto!important;display:grid!important;place-items:center!important;width:1.85rem!important;height:1.85rem!important;transform:translateY(-50%)!important;border:1px solid var(--sg-divider-on-light)!important;border-radius:999px!important;background:var(--sg-surface-light-sunken)!important;color:var(--sg-info-strong)!important;font-size:1rem!important;font-weight:900!important;line-height:1!important}.pulse-option-selected .pulse-check{border-color:var(--sg-action)!important;background:var(--sg-action-fill)!important;box-shadow:0 5px 14px rgb(228 81 46 / .24)!important;color:#fff!important}.pulse-option::before{right:1rem!important;max-width:calc(100% - 2rem)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.feature-tour-deep{width:min(650px,100%)!important;max-height:min(90vh,760px);overflow-y:auto}.feature-tour-copy{max-width:39rem!important}.feature-tour-location{display:flex;gap:.65rem;align-items:flex-start;margin-top:1.25rem;border:1px solid var(--sg-divider-on-light);background:var(--sg-surface-light-sunken);padding:.75rem;color:#4e6983;font-size:.78rem;line-height:1.45}.feature-tour-location svg{flex:none;color:var(--sg-action)}.feature-tour-location span{display:grid;gap:2px}.feature-tour-location b{color:#1e3e60;font-size:.6875rem;letter-spacing:.08em;text-transform:uppercase}.feature-tour-tasks{display:grid;gap:.45rem;margin-top:1.25rem}.feature-tour-tasks>div{display:grid;grid-template-columns:25px 1fr;gap:.65rem;align-items:start;border-bottom:1px solid var(--sg-divider-on-light);padding:.55rem 0;color:#526b82;font-size:.78rem;line-height:1.45}.feature-tour-tasks>div span{color:var(--sg-action);font-family:var(--font-display,sans-serif);font-size:1rem;font-weight:800}.feature-tour-open{display:inline-flex;min-height:2.9rem;width:100%;align-items:center;justify-content:center;gap:.5rem;margin-top:1.2rem;border:0;border-radius:.6rem;background:var(--sg-action-fill);color:#fff;padding:.65rem .8rem;font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.feature-tour-open:hover{background:var(--sg-action)}.feature-tour-open:hover{background:var(--sg-info-strong);color:#fff}@media(max-width:700px){.pulse-option{padding-right:3.75rem!important}.pulse-check{right:.75rem!important;width:1.6rem!important;height:1.6rem!important}.feature-tour-location,.feature-tour-tasks>div{font-size:.72rem}}
-
 
 @media (max-width: 640px) {
   .genome-selector-row {
@@ -893,7 +908,6 @@ select {
   .plan-context summary { min-height: 52px; padding: .65rem .85rem; }
   .plan-context summary > span { font-size: .76rem; }
   .plan-context summary small { font-size: .6875rem; }
-  .planner-float { bottom: calc(5.6rem + env(safe-area-inset-bottom, 0px)); }
   .feature-guide-button { bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); }
 }
 
@@ -1025,7 +1039,12 @@ select {
 .topbar-context-chips { display: flex; min-width: 0; flex-wrap: wrap; gap: .35rem; margin-top: .32rem; }
 .topbar-context-chips span { max-width: 12rem; overflow: hidden; border: 1px solid var(--sg-divider-on-light); border-radius: 999px; background: #fff; padding: .24rem .58rem; color: #315a82; font-size: .7rem; font-weight: 750; letter-spacing: .02em; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-context-chips span:last-child { border-color: #ecd795; background: #fff9e8; color: #806012; }
-@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .6875rem; letter-spacing: .1em; } .topbar-brand-logo { width: 60px; height: 60px; } .topbar-context-chips { flex-wrap: nowrap; max-width: 100%; overflow-x: auto; scrollbar-width: none; } .topbar-context-chips span { max-width: none; flex: 0 0 auto; } .topbar-context-chips span:last-child { max-width: none; } }
+@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .6875rem; letter-spacing: .1em; } .topbar-brand-logo { width: 60px; height: 60px; } /* Three fixed facts about the athlete, not a list to browse. As a strip with a
+   hidden scrollbar the third one - the training-day count - was cut mid-word at
+   272px with nothing on screen saying there was more to scroll to, so it read
+   as a clipped layout rather than as content out of view. They wrap instead:
+   all three are legible at once and nothing has to be discovered. */
+.topbar-context-chips { flex-wrap: wrap; max-width: 100%; overflow-x: visible; } .topbar-context-chips span { max-width: none; flex: 0 0 auto; } .topbar-context-chips span:last-child { max-width: none; } }
 
 /* Retire legacy neon accents from the authenticated command and inspection surfaces. */
 .command-hero .metric-label, .command-hero h1 em, .command-signal-card .metric-label, .command-signal-card button { color: var(--sg-focus-on-dark) !important; }
@@ -1113,7 +1132,6 @@ select {
 .apex-content.destination-progress { background: radial-gradient(circle at 88% 0, #315b8f 0, var(--sg-surface-panel) 36%, var(--sg-surface-deep) 100%); color: var(--sg-text-on-dark); }
 .destination-progress .view-header h1, .destination-progress .view-header p, .destination-progress .metric-label { color: var(--sg-text-on-dark); }
 
-
 .destination-progress .light-panel { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-raised)); color: var(--sg-text-on-dark); box-shadow: 0 14px 30px rgb(0 11 25 / .22); }
 .destination-progress .light-panel h2, .destination-progress .light-panel p { color: inherit; }
 .destination-progress .light-panel article { border-color: rgb(164 200 232 / .28); background: rgb(255 255 255 / .07); }
@@ -1162,7 +1180,12 @@ select {
 .destination-secondary .about-me-card input, .destination-secondary .about-me-card select { border-color: rgb(164 200 232 / .4); background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
 .destination-secondary .about-me-security button { background: var(--sg-action-fill); color: var(--sg-action-on); }
 .destination-secondary .about-me-equipment { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); }
-.destination-secondary .about-me-equipment-grid .about-me-equipment-active { background: var(--sg-focus-on-dark); color: #07182e; }
+/* Selected equipment used to take a solid amber fill. With everything selected —
+   which is the normal case — the panel became ten saturated blocks, and a colour
+   that marks every item marks nothing. A selected row now reads as selected:
+   amber border, amber tick, a tint rather than a flood. */
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active { border-color: var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); color: var(--sg-text-on-dark); }
+.destination-secondary .about-me-equipment-grid .about-me-equipment-active svg:last-child { color: var(--sg-focus-on-dark); }
 
 /* More stays intentionally light on content, but shares the app’s dark utility surface. */
 .destination-secondary .more-workspace { border-color: rgb(164 200 232 / .3); background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); box-shadow: 0 18px 42px rgb(1 12 28 / .24); }
@@ -1194,6 +1217,38 @@ select {
 /* Home is the command environment: dark decision cards with gold action signals. */
 .apex-content.destination-command { background: radial-gradient(circle at 82% 8%, #1d4c84 0, var(--sg-surface-raised) 38%, var(--sg-surface-deep) 78%); color: var(--sg-text-on-dark); }
 .destination-command .command-hero .metric-label, .destination-command .command-hero em, .destination-command .command-signal-card .metric-label, .destination-command .command-signal-card button, .destination-command .dark-panel > div > div > button { color: var(--sg-focus-on-dark) !important; }
+/* Train's own repaint. Progress, Home and Profile each repoint their light
+   cards for the dark destination they sit in; Train was the one that never did,
+   so the weekly volume map and the recovery spacing card rendered as white
+   boxes halfway down an otherwise navy page. */
+.destination-train .weekly-volume-panel,
+.destination-train .recovery-spacing-panel { border-color: var(--sg-control-border-on-dark); background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); }
+.destination-train .weekly-volume-panel h3,
+.destination-train .weekly-volume-panel strong,
+.destination-train .recovery-spacing-panel strong { color: var(--sg-text-on-dark); }
+.destination-train .weekly-volume-panel small,
+.destination-train .weekly-volume-panel p,
+.destination-train .recovery-spacing-panel p,
+.destination-train .recovery-spacing-panel small { color: var(--sg-text-muted-on-dark); }
+.destination-train .weekly-volume-head,
+.destination-train .weekly-volume-legend,
+.destination-train .weekly-volume-details,
+.destination-train .weekly-volume-list > article { border-color: var(--sg-control-border-on-dark); }
+.destination-train .weekly-volume-head { background: rgb(255 255 255 / .04); }
+.destination-train .weekly-volume-track { background: rgb(255 255 255 / .1); }
+.destination-train .weekly-volume-details summary { color: var(--sg-link-on-dark); }
+.destination-train .weekly-volume-days span { color: var(--sg-text-muted-on-dark); }
+/* The row's headline number, and the per-day figures beside it.
+ *
+ * The panel's own colours are written for the light surface it renders on
+ * everywhere else. Repainting it for this destination caught the headings, the
+ * labels and the track, but not these two, which kept #14395f and the info blue
+ * - dark ink left on a dark panel. Sampled from the rendered pixels at 390x844,
+ * the number was rgb(20,57,95) on rgb(13,40,72): a contrast ratio of 1.24, so
+ * the one figure each row exists to report was the least readable thing on it. */
+.destination-train .weekly-volume-row > b { color: var(--sg-text-on-dark); }
+.destination-train .weekly-volume-days b { color: var(--sg-focus-on-dark); }
+
 .destination-command .light-panel { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, var(--sg-surface-overlay), var(--sg-surface-raised)); color: var(--sg-text-on-dark); box-shadow: 0 18px 40px rgb(1 12 28 / .2); }
 .destination-command .light-panel .metric-label, .destination-command .light-panel h2, .destination-command .light-panel strong { color: var(--sg-text-on-dark); }
 .destination-command .light-panel button { border-color: rgb(164 200 232 / .3); background: rgb(255 255 255 / .06); color: var(--sg-text-on-dark); }
@@ -1205,7 +1260,25 @@ select {
 
 .strength-body-map { padding: clamp(1rem, 3vw, 1.5rem); background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); }
 .strength-body-map-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }.strength-body-map-head h2 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; line-height: .9; text-transform: uppercase; }.strength-body-map-head h2 em { color: var(--sg-focus-on-dark); }.strength-body-map-head button { display: inline-flex; min-height: 44px; align-items: center; gap: .45rem; border: 1px solid rgb(164 200 232 / .45); background: rgb(255 255 255 / .06); padding: 0 .75rem; color: var(--sg-text-on-dark); font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-.strength-body-chart { min-height: clamp(26rem, 76vw, 34rem); margin-top: 1rem; border: 1px solid rgb(164 200 232 / .25); background: radial-gradient(circle at center, rgb(45 108 223 / .14), transparent 68%); }.strength-body-chart .body-chart { width: 100%; height: 100%; max-width: 100%; }.strength-body-map-legend { display: flex; flex-wrap: wrap; gap: .75rem 1rem; margin-top: 1rem; color: var(--sg-text-muted-on-dark); font-size: .72rem; }.strength-body-map-legend span { display: inline-flex; align-items: center; gap: .42rem; }.strength-body-map-legend i { width: .7rem; height: .7rem; border-radius: 999px; }.strength-map-observed { background: #db2f24; }.strength-map-focus { background: #d5ad43; }.strength-map-empty { border: 1px solid #8eaac4; background: #c0cdd6; }.strength-body-map-boundary, .strength-body-map-fallback { margin: .8rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; line-height: 1.5; }
+/* Both bodies on one canvas: a landscape block, sized by width, not the tall
+   column a single flipping figure needed. */
+@supports (height: 1dvh) {
+  :root { --sg-body-figure-height: clamp(18rem, calc(100dvh - 20rem), 34rem); }
+}
+
+/* The figure takes the shared height and fits itself into it, rather than
+   filling the panel's width and running past the bottom of the screen. */
+.strength-body-chart .anatomy-figure { height: var(--sg-body-figure-height); width: auto; max-width: 100%; }
+
+.strength-body-chart { margin-top: 1rem; border: 1px solid rgb(164 200 232 / .25); background: radial-gradient(circle at center, rgb(45 108 223 / .14), transparent 68%); padding: .75rem .5rem .25rem; }.strength-body-chart .body-chart { width: 100%; height: 100%; max-width: 100%; }
+/* Which body is which, said once under the figure rather than as labels on it. */
+.strength-body-chart-views { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .55rem .9rem; margin: .1rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+.strength-map-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin-top: .7rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; font-weight: 700; }
+.strength-map-legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.strength-map-legend i { width: .6rem; height: .6rem; border-radius: 999px; }
+.strength-map-legend-on i { background: #ec5f4a; }
+.strength-map-legend-off i { border: 1px solid rgb(196 214 232 / .5); background: rgb(196 214 232 / .25); }
+.strength-map-legend small { margin-left: auto; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; }.strength-body-map-legend { display: flex; flex-wrap: wrap; gap: .75rem 1rem; margin-top: 1rem; color: var(--sg-text-muted-on-dark); font-size: .72rem; }.strength-body-map-legend span { display: inline-flex; align-items: center; gap: .42rem; }.strength-body-map-legend i { width: .7rem; height: .7rem; border-radius: 999px; }.strength-map-observed { background: #db2f24; }.strength-map-focus { background: #d5ad43; }.strength-map-empty { border: 1px solid #8eaac4; background: #c0cdd6; }.strength-body-map-boundary, .strength-body-map-fallback { margin: .8rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; line-height: 1.5; }
 .strength-map-region-selector { margin-top: .85rem; border: 1px solid rgb(164 200 232 / .24); background: rgb(0 0 0 / .14); }.strength-map-region-selector summary { min-height: 44px; display: flex; align-items: center; padding: 0 .8rem; color: var(--sg-text-on-dark); cursor: pointer; font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }.strength-map-region-selector[open] summary { border-bottom: 1px solid rgb(164 200 232 / .18); }.strength-map-region-selector > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(124px, 1fr)); gap: .45rem; padding: .65rem; }.strength-map-region-selector button { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: .45rem; border: 1px solid rgb(164 200 232 / .22); background: rgb(255 255 255 / .045); padding: .45rem .6rem; color: #dcecf9; text-align: left; }.strength-map-region-selector button[aria-pressed="true"] { border-color: var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); color: #fff4cc; }.strength-map-region-selector button span { font-size: .72rem; font-weight: 800; line-height: 1.1; }.strength-map-region-selector button small { color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 800; text-transform: uppercase; }.strength-map-region-selector button[aria-pressed="true"] small { color: #f5d981; }
 
 .strength-region-record-detail { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(135deg, var(--sg-surface-overlay), var(--sg-surface-deep)); padding: clamp(1rem, 3vw, 1.5rem); color: var(--sg-text-on-dark); }.strength-region-record-detail h2 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.55rem, 4vw, 2.25rem); font-weight: 800; line-height: .9; text-transform: uppercase; }.strength-region-record-detail h2 em { color: var(--sg-focus-on-dark); }.strength-region-record-list { display: grid; gap: .5rem; margin-top: 1rem; }.strength-region-record-list article { display: grid; gap: .2rem; border-left: 2px solid var(--sg-focus-on-dark); background: rgb(255 255 255 / .06); padding: .7rem .8rem; }.strength-region-record-list strong { color: #fff; font-size: .85rem; }.strength-region-record-list span, .strength-region-record-empty { color: var(--sg-text-muted-on-dark); font-size: .74rem; line-height: 1.45; }.strength-region-record-empty { margin-top: .85rem; }.strength-region-reference-boundary { margin-top: 1rem; border-left: 2px solid var(--sg-action); padding-left: .75rem; color: var(--sg-text-muted-on-dark); font-size: .74rem; line-height: 1.45; }.strength-region-reference-boundary strong { color: #ffd2c4; }
@@ -1281,8 +1354,8 @@ select {
 .strength-piper-fields select, .strength-piper-fields input[inputmode] { min-height: 2.6rem; border: 1px solid rgb(255 255 255 / .2); border-radius: .5rem; background: rgb(255 255 255 / .05); color: #fff; padding: 0 .7rem; }
 .strength-piper-fields input[type="checkbox"] { width: 1rem; height: 1rem; margin-top: .05rem; accent-color: var(--sg-focus-on-dark); }
 .strength-body-chart .body-chart-muscle { cursor: pointer; transform-box: fill-box; transform-origin: center; transition: transform var(--sg-motion-fast) var(--sg-ease), filter var(--sg-motion-fast) var(--sg-ease), stroke var(--sg-motion-fast) var(--sg-ease); }
-.strength-body-chart .body-chart-muscle:active { transform: scale(.98); filter: brightness(1.22); stroke: var(--sg-focus-on-dark); stroke-width: 3px; }
-.strength-body-chart .body-chart-muscle:focus-visible { outline: none; stroke: var(--sg-focus-on-dark); stroke-width: 3px; filter: brightness(1.18); }
+.strength-body-chart .anatomy-hit:active { transform: scale(.98); filter: brightness(1.22); stroke: var(--sg-focus-on-dark); stroke-width: 3px; }
+.strength-body-chart .anatomy-hit:focus-visible { outline: none; stroke: var(--sg-focus-on-dark); stroke-width: 3px; filter: brightness(1.18); }
 .strength-reference-matched { scroll-margin-bottom: calc(11rem + env(safe-area-inset-bottom)); }
 .strength-body-map-head button, .strength-map-region-selector button, .strength-region-close, .strength-region-history button, .strength-ratio-entry button, .strength-observation-review, .strength-reference-matched a { transition: transform var(--sg-motion-fast) var(--sg-ease), filter var(--sg-motion-fast) var(--sg-ease), background-color var(--sg-motion-fast) var(--sg-ease); }
 .strength-body-map-head button:active, .strength-map-region-selector button:active, .strength-region-close:active, .strength-region-history button:active, .strength-ratio-entry button:active, .strength-observation-review:active, .strength-reference-matched a:active { transform: scale(.97); filter: brightness(1.12); }
@@ -1557,34 +1630,47 @@ select {
 .destination-body .strength-genome-workspace .view-header .metric-label { color: var(--sg-text-subtle-on-dark); }
 .destination-body .strength-genome-workspace .view-header-note { border-color: var(--sg-divider-on-dark); background: var(--sg-control-on-dark); color: var(--sg-text-muted-on-dark); }
 
-/* Decorative visual context reinforces, but never replaces, the text-based evidence gate. */
-.strength-profile-status { position: relative; overflow: hidden; isolation: isolate; }
+/* Your record card.
+   The coverage figure used to put the word "coverage" inside a 4rem ring, where
+   it measured wider than the ring and spilled out of an unpadded card; and a
+   decorative body image bled off the top-right corner, which read as a broken
+   render rather than as texture. The number now sits in the ring and its labels
+   sit beside it in a definition list, which is also what a screen reader needs. */
+.strength-profile-status { position: relative; overflow: hidden; isolation: isolate; padding: clamp(1rem, 3.4vw, 1.5rem); }
 .strength-profile-status-head, .strength-profile-status-rail { position: relative; z-index: 1; }
-.strength-reference-state-visual { position: absolute; z-index: 0; right: -1.25rem; top: -.75rem; width: clamp(7rem, 14vw, 12rem); opacity: .16; pointer-events: none; }
-.strength-reference-state-visual img { display: block; width: 100%; height: auto; mix-blend-mode: screen; }
-@media (max-width: 639px) {
-  .strength-reference-state-visual { right: -2.5rem; top: -.35rem; width: 8rem; opacity: .13; }
-}
 
 /* Recorded coverage only · not a rank. */
-.strength-profile-status-overview { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1rem; }
-.strength-profile-status-overview > div:first-child { position: relative; z-index: 1; }
-.strength-profile-status-overview > div:first-child h2 { margin: .18rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 5vw, 3rem); font-weight: 850; line-height: .88; text-transform: uppercase; }
-.strength-profile-status-overview > div:first-child > p:last-child { margin: .38rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
-.strength-profile-status-tools { display: flex; align-items: center; gap: .65rem; }
-.strength-profile-coverage-ring { display: grid; width: 4rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#6ea6dd 0 var(--coverage-progress), rgb(215 233 248 / .16) var(--coverage-progress) 100%); box-shadow: 0 0 0 1px rgb(215 233 248 / .18), inset 0 0 0 1px rgb(215 233 248 / .14); }
-.strength-profile-coverage-ring > div { display: grid; width: calc(100% - .42rem); aspect-ratio: 1; place-items: center; align-content: center; border-radius: 50%; background: var(--sg-surface-raised); line-height: .8; }
-.strength-profile-coverage-ring strong { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; letter-spacing: -.03em; }
-.strength-profile-coverage-ring span { margin-top: -.2rem; color: #aac7e2; font-size: .6875rem; font-weight: 850; }
-.strength-profile-coverage-ring small { margin-top: .12rem; color: var(--sg-text-muted-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.strength-profile-status-overview { position: relative; z-index: 1; display: grid; gap: .1rem; }
+.strength-profile-status-overview > h2 { margin: .18rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.9rem, 7vw, 3rem); font-weight: 850; line-height: .9; text-transform: uppercase; }
+.strength-profile-figures { display: flex; align-items: center; gap: clamp(.9rem, 4vw, 1.4rem); margin-top: .9rem; }
+.strength-profile-facts { display: grid; gap: .55rem; margin: 0; min-width: 0; }
+.strength-profile-facts > div { display: grid; gap: .3rem; }
+.strength-profile-facts dt { color: #aac7e2; font-size: .6875rem; font-weight: 850; letter-spacing: .09em; line-height: 1.35; text-transform: uppercase; }
+.strength-profile-facts dd { display: flex; align-items: baseline; gap: .4rem; margin: 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; font-weight: 850; line-height: 1; }
+.strength-profile-facts dd span { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: .6875rem; font-weight: 750; letter-spacing: .04em; line-height: 1.3; }
+.strength-profile-coverage-note { margin: .85rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; line-height: 1.45; }
+.strength-profile-status-footnote { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .85rem; }
+.strength-profile-coverage-ring { display: grid; flex: 0 0 auto; width: 4.5rem; aspect-ratio: 1; place-items: center; border-radius: 50%; background: conic-gradient(#6ea6dd 0 var(--coverage-progress), rgb(215 233 248 / .16) var(--coverage-progress) 100%); box-shadow: 0 0 0 1px rgb(215 233 248 / .18), inset 0 0 0 1px rgb(215 233 248 / .14); }
+.strength-profile-coverage-ring > div { display: flex; width: calc(100% - .46rem); aspect-ratio: 1; align-items: baseline; justify-content: center; border-radius: 50%; background: var(--sg-surface-raised); line-height: 1; padding-top: 1.35rem; }
+.strength-profile-coverage-ring strong { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; letter-spacing: -.03em; }
+.strength-profile-coverage-ring span { color: #aac7e2; font-size: .75rem; font-weight: 850; }
 .strength-profile-coverage-ring.is-source-qualified { background: conic-gradient(var(--sg-focus-on-dark) 0 var(--coverage-progress), rgb(242 193 77 / .18) var(--coverage-progress) 100%); box-shadow: 0 0 0 1px rgb(242 193 77 / .38), 0 0 20px rgb(242 193 77 / .16); }
-.strength-profile-coverage-boundary { margin: .5rem clamp(1rem, 3vw, 1.5rem) 0; color: #aac7e2; font-size: .6875rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
-.strength-profile-reference-summary { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1rem; border-top: 1px solid rgb(199 219 238 / .22); padding-top: .8rem; }
-.strength-profile-reference-summary span { color: #aac7e2; font-size: .6875rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
-.strength-profile-reference-summary strong { color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.05rem; line-height: .95; text-align: right; text-transform: uppercase; }
-.strength-profile-reference-details { position: relative; z-index: 1; margin-top: .7rem; }
+.strength-profile-coverage-boundary { margin: .5rem 0 0; color: #aac7e2; font-size: .6875rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
+.strength-profile-reference-summary { display: inline-flex; min-height: 2.25rem; align-items: center; border: 1px solid rgb(242 193 77 / .4); background: rgb(242 193 77 / .12); padding: 0 .65rem; color: var(--sg-focus-on-dark); font-size: .6875rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+.strength-profile-reference-details { position: relative; z-index: 1; margin-top: .9rem; border-top: 1px solid rgb(199 219 238 / .22); padding-top: .85rem; }
 .strength-profile-reference-details summary { cursor: pointer; color: #dcecff; font-size: .7rem; font-weight: 800; letter-spacing: .05em; }
 .strength-profile-reference-details p { max-width: 42rem; margin: .55rem 0 0; color: var(--sg-text-muted-on-dark); font-size: .76rem; line-height: 1.45; }
+
+/* A disabled primary action has to say what is missing; otherwise the only
+   feedback is a dimmed button the athlete cannot argue with. */
+.strength-log-submit { display: grid; gap: .5rem; margin-top: 1.25rem; }
+.strength-log-blocked { margin: 0; color: var(--sg-text-muted-on-dark); font-size: .72rem; line-height: 1.45; }
+
+/* "Review" had no rule of its own, so it inherited the panel's body size and
+   read as loud as the exercise name beside it. It is a secondary affordance on
+   a row whose subject is the lift. */
+.strength-observation-review { flex: 0 0 auto; min-height: 2.75rem; border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 0 .85rem; color: var(--sg-info-strong); font-size: .6875rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.strength-observation-review:hover { background: var(--sg-surface-light); }
 /* The library being offline is a different fact from a lift not qualifying, so it reads as a notice rather than as body copy. */
 .strength-profile-reference-details p.strength-profile-reference-offline { margin-top: .55rem; padding: .5rem .65rem; border-left: 3px solid var(--sg-accent, #e4512e); border-radius: 0 6px 6px 0; background: rgba(228, 81, 46, .1); color: #f2dcd4; font-weight: 600; }
 .strength-body-map-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
@@ -1715,7 +1801,6 @@ details:not([open]) > *:not(summary) {
   color: var(--sg-text-muted-on-dark);
 }
 
-
 /* Remaining dark-on-dark text on the two gradient destinations, each targeted at
    the selector the audit reported rather than by a blanket override. */
 
@@ -1741,12 +1826,6 @@ details:not([open]) > *:not(summary) {
    clearance it permanently covers the bottom of the page: on the Builder it hid
    the tail of "…without losing the current sport-aware draft." Reserve room for
    it the same way the dock's own padding does. */
-/* The float is rendered at shell level, not inside .apex-content, so the :has()
-   has to hang off the shell. */
-.apex-shell:has(.planner-float) .apex-content {
-  padding-bottom: calc(13.5rem + env(safe-area-inset-bottom, 0px));
-}
-
 @media (max-width: 720px) {
   /* A primary action floating alone at the right edge is both an awkward tap
      target and visually unbalanced at phone width. */
@@ -1771,7 +1850,6 @@ details:not([open]) > *:not(summary) {
     gap: .75rem;
   }
 }
-
 
 /* ── Universal search ────────────────────────────────────────────────────────
    The philosophy's "Universal search and retrieval contract" (FIXED) asks for
@@ -2016,10 +2094,6 @@ details:not([open]) > *:not(summary) {
 .genome-selector-row-v2 span > span + span { margin-top: .22rem; }
 .warmup-time strong + span, .warmup-time span + span { margin-top: .2rem; }
 .weekly-volume-head strong + small { margin-top: .3rem; }
-/* The coverage ring stacks a number, its unit and its label inside a circle;
-   the unit and label were touching at 1.9px. */
-.strength-profile-coverage-ring span + small { margin-top: .25rem; }
-
 /* Running copy needs leading it can be scanned at; display headings keep their
    tight editorial setting. */
 .genome-selector-row-v2 strong { line-height: 1.3; }
@@ -2252,6 +2326,255 @@ details:not([open]) > *:not(summary) {
  * for exactly this.
  */
 .destination-body .atlas-show-more { color: var(--sg-link-on-dark); }
+/* ── Matches: why a match ranked, without the schema ─────────────────────────
+   The row carried a "Hierarchy trace" paragraph with seven bolded field names.
+   Three of them (Demand, Physical quality, Adaptation) were the same priority
+   list restated in three grammatical forms, and the other three (Modality,
+   Exercise role, Programming) are hardcoded constants — identical on every row
+   of every sport. The "Insight explanation depth contract" is explicit: "Do not
+   expose raw model attribution as if it were a user explanation", and
+   methodology "lives one level deeper". */
+.recommendation-trace {
+  margin-top: .9rem;
+  border-top: 1px solid var(--sg-divider-on-dark);
+  padding-top: .7rem;
+  font-size: var(--sg-text-sm);
+  line-height: 1.5;
+  color: var(--sg-text-subtle-on-dark);
+}
+.recommendation-trace strong { color: var(--sg-text-on-dark); font-weight: 700; }
+
+/* The sport lens states the priorities once, as chips, with the method rules
+   behind a disclosure rather than in front of every athlete on every visit. */
+.matches-lens {
+  border-left: 3px solid var(--sg-action);
+  background: var(--sg-surface-light);
+  padding: .85rem 1rem;
+  color: var(--sg-text-on-light);
+  --sg-label-color: var(--sg-text-subtle-on-light);
+}
+.matches-lens-priorities { display: flex; flex-wrap: wrap; gap: .4rem; }
+.matches-lens-priorities > span {
+  border: 1px solid var(--sg-divider-on-light);
+  background: var(--sg-surface-light-sunken);
+  padding: .25rem .5rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+}
+.matches-lens-note { margin-top: .5rem; font-size: var(--sg-text-xs); color: var(--sg-text-subtle-on-light); }
+.matches-lens-method { margin-top: .35rem; border-top: 1px solid var(--sg-divider-on-light); }
+.matches-lens-method > summary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sg-info-strong);
+  cursor: pointer;
+}
+.matches-lens-method > div > p { margin-top: .5rem; font-size: var(--sg-text-xs); line-height: 1.55; color: var(--sg-text-subtle-on-light); }
+
+/* ── Phone display scale ──────────────────────────────────────────────────────
+ *
+ * Every hero headline was sized on a 1440px canvas and its clamp floor was never
+ * checked against a phone. At 390px the floor always wins - 5vw is 19px, so
+ * `clamp(2.8rem, 5vw, 4.8rem)` resolves to 2.8rem - and the result was eight
+ * headings wrapping into three- and four-line blocks:
+ *
+ *   COACH CONTROLS. ATHLETE-READY OUTPUT.   45px, 4 lines, "ATHLETE-" broken
+ *   DESIGN THE DAY. SEE THE WEEK.           42px, 4 lines
+ *   RECOMMENDATIONS WITH THE REASONING …    31px, 4 lines
+ *   PROGRESS FROM REAL WORK.                48px, 3 lines
+ *
+ * Four lines of 45px display type is roughly a fifth of the viewport spent on a
+ * slogan, above the controls the screen exists for.
+ *
+ * The sizes below are measured rather than chosen: each is the largest at which
+ * the longest headline in its tier lands in two lines at 390px. One size per
+ * tier, so two sibling screens cannot disagree about how big a hero is.
+ */
+@media (max-width: 640px) {
+  /* Heroes. The binding case is "Recommendations with the reasoning attached.",
+     which needs 25.2px; 6.2vw is 24.2px at 390 and grows with the viewport. */
+  .day-design-hero h1,
+  .builder-upgrade-head h1,
+  .progress-review-head h1,
+  .view-header h1 { font-size: clamp(1.5rem, 6.2vw, 2.7rem); line-height: .95; }
+
+  /* Section headings. The binding case is "Your completed sessions." at 28.6px. */
+  /* The destination scopes its own heading size, so these match its specificity
+     rather than losing to it silently. */
+  .destination-progress .progress-section-head h2,
+  .destination-train .programming-panel-head h3,
+  .programming-panel-head h3,
+  .destination-progress .strength-body-map-head h2,
+  .strength-body-map-head h2 { font-size: 1.45rem; line-height: 1.05; }
+}
+
+/**
+ * Which action the Genome list's link chips are measured against.
+ *
+ * Each row appended the selected sport action to its own chip, so all 24 read
+ * "SUPPORTING LINK · PENETRATION STEP" - one value, repeated down the whole
+ * list, and on a phone it pushed the chip to the full row width. It is one fact
+ * about the list, so it is stated once above it, as the Catalog already does.
+ */
+.genome-selector-scope { display: block; margin-top: .45rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); line-height: 1.4; }
+.genome-selector-scope > svg { display: inline-block; margin-right: .3rem; vertical-align: -.15em; }
+.genome-selector-scope b { color: var(--sg-text-muted-on-dark); font-weight: 800; }
+
+/**
+ * The weekly session track.
+ *
+ * Four 6px segments at 12% white on a dark panel, which on a phone read as four
+ * specks of dust rather than a four-part progress track - and since a fresh week
+ * has none done, the faint state is the one most athletes see most of the time.
+ * The empty segments now have enough contrast to be legible as segments; the
+ * completed state is unchanged, so done still clearly outranks not-done.
+ */
+.training-week-track { gap: .35rem; }
+.training-week-track i { height: .45rem; background: rgb(255 255 255 / .22); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); }
+.training-week-track i.is-done { box-shadow: none; }
+
+/* Paired with the rule above: the Progress section heading wraps, its disclosure
+   does not. */
+.destination-progress .progress-disclosure { flex: 0 0 auto; white-space: nowrap; }
+.destination-progress .progress-section-head > div:first-child { min-width: 0; }
+
+/**
+ * Count labels beside a heading ("6 matches", "0 total").
+ *
+ * Both sat in a ~50px slot next to a display heading and wrapped onto two
+ * lines. The heading is the element that should yield: it wraps by design.
+ */
+.destination-train .dark-panel > div > span:last-child,
+.destination-progress .progress-section-head > span:last-child { flex: 0 0 auto; white-space: nowrap; }
+
+/* The finder's caption and its cross-link shared one flex row, so on a phone the
+   caption broke across two lines to make room for the link. The row wraps
+   instead, which keeps both labels intact. */
+@media (max-width: 640px) {
+  .builder-finder > div:first-child { flex-wrap: wrap; row-gap: .4rem; }
+  .builder-finder > div:first-child .metric-label { white-space: nowrap; }
+}
+
+/* On a phone the section head wraps as a whole rather than squeezing both its
+   parts: pinning the disclosure to one line took width from the heading, which
+   then needed three. Dropping the disclosure to its own row gives the heading
+   the full column and keeps the control's label intact. */
+@media (max-width: 640px) {
+  .destination-progress .progress-section-head { flex-wrap: wrap; row-gap: .45rem; }
+  .destination-progress .progress-section-head > div:first-child { flex: 1 1 100%; }
+}
+
+/**
+ * Let the hero hold the two lines it is written as.
+ *
+ * These headings are authored with an explicit break - "Recommendations with /
+ * the reasoning attached." - but the column was capped at 650px while the first
+ * line alone measures 650px at its desktop size, so both authored lines wrapped
+ * again and the hero came out as four ragged lines instead of two. 820px is the
+ * measured width at which the longest of them holds. The note beside it is
+ * hidden on these screens, so nothing is displaced.
+ */
+@media (min-width: 1024px) {
+  .view-header > div:first-child { max-width: 820px; }
+}
+
+/**
+ * Which build this device is running.
+ *
+ * Quiet by design - nobody needs it until an update appears not to have landed,
+ * and then it is the only thing that answers the question. Every past Vercel
+ * deployment keeps its own permanent URL, so a home-screen icon saved from one
+ * is pinned to that build for good; this is how that becomes visible instead of
+ * looking like a deploy that never happened.
+ */
+.more-workspace-build { margin-top: 1.25rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+
+/**
+ * Where a lift ranks.
+ *
+ * The rank is what the athlete opened the screen for, so it carries the same
+ * weight as the matched-study card it sits in place of, with the affirmative
+ * accent rather than the informational blue - the number is the finding, not a
+ * footnote about it. The population line underneath is deliberately part of the
+ * card: a percentile shown without the group it ranks against is the misleading
+ * version, and separating them invites reading only the first line.
+ */
+.strength-rank-card { border-left: 3px solid var(--sg-focus-on-dark); }
+.strength-rank-card strong { color: var(--sg-focus-on-dark); }
+/* Asks for the one field that would produce a rank. */
+.strength-rank-needs { margin-top: .75rem; border-left: 2px solid var(--sg-link-on-dark); padding-left: .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.5; }
+
+/* Body Lab's one next step. The footer used to be three cells — the action
+   (which the bar above already names), the "selected" muscle (which the map
+   already shows, and which was claimed even when nothing had been tapped), and
+   the button. Now it is the sentence and the button. */
+.body-lab-next-step { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem 1rem; border: 1px solid var(--sg-divider-on-light); background: #fff; padding: .8rem 1rem; color: var(--sg-text-on-light); }
+.body-lab-next-step > span { min-width: 0; flex: 1 1 14rem; font-size: .8125rem; font-weight: 600; line-height: 1.4; }
+.body-lab-next-step > button { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .45rem; background: var(--sg-surface-raised); padding: 0 .9rem; color: #fff; font-size: .6875rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.body-lab-next-step > button:hover { background: var(--sg-action-fill); }
+.destination-body .body-lab-next-step { border-color: var(--sg-control-border-on-dark); background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); }
+.destination-body .body-lab-next-step > button { border: 1px solid var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); }
+@media (max-width: 560px) { .body-lab-next-step > button { flex: 1 0 100%; justify-content: center; } }
+/* Tapping a muscle used to scroll the page roughly 700px to reach a record that
+   renders after the figure - so the muscle the athlete had just tapped was
+   pushed off the top of the screen, and the page settled on a stranded sliver of
+   the map's own background under the header. Below the dock's breakpoint the
+   record is pinned above the bottom bar instead and the page never moves: the
+   figure stays exactly where it was, still tappable, so choosing another muscle
+   swaps the record in place. */
+@media (max-width: 1023px) {
+  .strength-region-sheet {
+    position: fixed;
+    z-index: 45;
+    right: 0;
+    /* Flush to the top edge of the bottom bar (its four 4.1rem targets plus its
+       border), so the two read as one stacked assembly rather than leaving a
+       strip of the page showing between them. */
+    bottom: calc(4.375rem + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    /* The panel's own stack spacing would otherwise offset the pinned box from
+       the bar by its bottom margin. */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: min(62vh, 30rem);
+    overflow: hidden;
+    border-top: 1px solid rgb(164 200 232 / .45);
+    background: var(--sg-surface-deep);
+    box-shadow: 0 -16px 38px rgb(4 20 40 / .45);
+    animation: sg-region-sheet-rise var(--sg-motion-base) var(--sg-ease-entrance) both;
+  }
+  /* The record scrolls; the two optional actions stay pinned as the sheet's own
+     bottom bar, so a tall record can never cut a button in half. */
+  .strength-region-sheet .strength-region-record-detail {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-top: 0;
+  }
+  .strength-region-sheet .strength-region-focus-row { flex: 0 0 auto; }
+  /* The record no longer occupies page flow here, so the flow needs no room for it. */
+  .apex-content.destination-body:has(.strength-region-record-detail) { padding-bottom: calc(5.8rem + env(safe-area-inset-bottom, 0px)); }
+}
+
+@keyframes sg-region-sheet-rise {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Turns the figure around, beside the word naming the body on screen. In the
+   section head it scrolled under the sticky header exactly when the body
+   filled the screen, which is when an athlete reaches for it. */
+.strength-body-side-toggle { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; border: 1px solid var(--sg-info); background: var(--sg-info); padding: 0 .75rem; color: #06203c; font-size: .6875rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; transition: transform var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
+.strength-body-side-toggle:hover { border-color: #8fc8ff; background: #8fc8ff; }
+.strength-body-side-toggle:active { transform: scale(.97); }
+.strength-body-side-toggle:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
 /* Sport-derived workspaces when no sport is chosen. The state is explained in text, not by an
    empty panel: "no sport" is a valid answer, not a missing input to be nagged about. */

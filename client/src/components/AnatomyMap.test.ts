@@ -56,67 +56,47 @@ describe("Body Lab selection proximity", () => {
 describe("Body Lab architecture mechanics disclosure", () => {
   it("uses categorical role states instead of a numeric heat scale", () => {
     expect(source).toContain("anatomyRoleRenderState");
-    expect(source).toContain("anatomyRoleRenderState.primary");
-    expect(source).toContain("anatomyRoleRenderState.supporting");
+    expect(source).toContain('primary: "primary"');
+    expect(source).toContain('supporting: "supporting"');
+    // The third-party renderer took a 0-10 intensity, so a categorical role had
+    // to be encoded as a number on the way in. Nothing translates now.
+    expect(source).not.toMatch(/intensity/i);
     expect(source).not.toContain("heatSolid");
     expect(source).not.toContain("muscleScoreIntensity");
-    expect(source).toContain("qualitative role map");
     expect(source).not.toContain("involvement heat map");
   });
 
   it("keeps the default anatomy canvas concise while preserving its qualitative-role boundary", () => {
-    expect(source).toContain("Selected action <em>role map.</em>");
-    expect(source).toContain("Color shows qualitative action roles, not activation or strength.");
+    // The heading that said the map was a map is gone; the boundary it carried
+    // lives in the legend disclosure and, once, at the foot of the inspector.
+    expect(source).not.toContain("Selected action <em>role map.</em>");
+    expect(source).toContain("How muscle roles are classified");
+    expect(source).toContain("not measured activation, force, or anything about your own capacity");
     expect(source).not.toContain("Precise anatomical SVG with 70+ muscle regions");
     expect(source).not.toContain("See the work. <em>Then inspect the why.</em>");
   });
 
-  it("renders a visible, selectable in-app vector fallback when the detailed anatomy chart is unavailable", async () => {
-    const { VectorAnatomyFallback } = await import("./AnatomyMap");
-    const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {
-      view: "FRONT",
-      ranked: [{ key: "chest", label: "Pectoralis major", role: "Primary" }],
-      onSelect: vi.fn(),
-      onRetry: vi.fn(),
-    }));
-
-    expect(markup).toContain("Vector anatomy fallback");
-    // The ladder now names the basis for a role instead of grading its weakness.
-    expect(markup).toContain("Pectoralis major · Primary role · Movement model");
-    expect(markup).toContain("Retry detailed anatomy chart");
+  it("draws its own anatomy instead of a third-party chart, so there is no load-failure path to fall back from", () => {
+    expect(source).not.toContain("body-muscles");
+    expect(source).not.toContain("BodyChart");
+    expect(source).not.toContain("chartFailed");
+    expect(source).not.toContain("VectorAnatomyFallback");
+    expect(source).toContain('import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure"');
   });
 
-  it("renders role-only fallback context without fabricating an involvement percentage", async () => {
-    const { VectorAnatomyFallback } = await import("./AnatomyMap");
-    const markup = renderToStaticMarkup(createElement(VectorAnatomyFallback, {
-      view: "BACK",
-      ranked: [{ key: "lats", label: "Latissimus dorsi", role: "Primary" }],
-      onSelect: vi.fn(),
-      onRetry: vi.fn(),
-    }));
-
-    expect(markup).toContain("Latissimus dorsi · Primary role");
-    expect(markup).not.toContain("Latissimus dorsi · 90%");
-  });
-
-  it("renders selected-muscle architecture, leverage, source, and model boundary context", async () => {
-    const { AnatomyMap } = await import("./AnatomyMap");
-    const markup = renderToStaticMarkup(createElement(AnatomyMap, {
-      primary: ["hamstrings"],
-      secondary: [],
-      onSelect: vi.fn(),
-    }));
-
-    expect(markup).toContain("Architecture + leverage context");
-    expect(markup).toContain("not mechanically interchangeable");
-    expect(markup).toContain("PMID 30117053");
-    expect(markup).toContain("force or injury risk");
+  it("names a muscle with no role in the action instead of calling it a synergist", () => {
+    // `matches(selectedKey, primary) ? "Primary" : "Synergist"` gave every
+    // non-primary muscle a synergist role, including ones the action does not
+    // use at all — a fabricated role with no record behind it.
+    expect(source).not.toContain('matches(selectedKey, primary) ? "Primary" : "Synergist"');
+    expect(source).toContain('"No role in this action"');
+    expect(source).toContain("absence of evidence here");
   });
 
   it("uses qualitative role context without rendering numeric role indices when exercise or stack context is supplied", () => {
     expect(source).toContain('hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false');
-    expect(source).toContain("Exercise / stack context");
-    expect(source).toContain("The role shown remains qualitative");
+    expect(source).toContain('hasLinkedExerciseOrStackContext ? "Exercise and stack context" : "Movement model"');
+    expect(source).toContain("not measured activation, force, or anything about your own capacity");
     expect(source).not.toContain("Relative model index");
     expect(source).not.toContain("Tier</i>");
     expect(source).not.toContain('selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0');
@@ -133,15 +113,19 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("Key muscle roles");
     expect(markup).toContain("muscles involved");
     expect(markup).toContain("Primary movers");
-    expect(markup).toContain("+ 3 supporting muscles");
+    expect(markup).toContain("Show all ");
+    expect(markup).toContain(" muscles");
     expect(markup).toContain("How muscle roles are classified");
     expect(markup).toContain("Supporting role");
     expect(markup).toContain("Primary role");
   });
 
   it("uses source-recorded action phase context instead of fabricating timing or force values", () => {
-    expect(source).toContain("Action phase context");
-    expect(source).toContain("qualitative contraction-phase description");
+    // Rendered only when the movement record carries one, and printed verbatim:
+    // there is no branch that composes a phase description out of anything else.
+    expect(source).toContain("<dt>Works through</dt><dd>{selectedRoleDetail.phaseContext}</dd>");
+    expect(source).toContain("selectedRoleDetail?.phaseContext &&");
+    expect(source).not.toMatch(/phaseContext\s*\|\|/);
   });
 
   it("orders rendered Key Muscle Roles from source-recorded qualitative role order rather than a numeric heat score", () => {
@@ -160,15 +144,42 @@ describe("Body Lab architecture mechanics disclosure", () => {
     };
     const markup = renderToStaticMarkup(createElement(AnatomyMap, { primary: ["glutes"], secondary: ["obliques", "hamstrings"], roleDetails, onSelect: vi.fn() }));
 
-    expect(markup.indexOf("Gluteal complex")).toBeLessThan(markup.indexOf("External oblique"));
-    expect(markup.indexOf("External oblique")).toBeLessThan(markup.indexOf("Hamstrings"));
+    // Scoped to the ranked list: the figure's own hit layer also names every
+    // muscle, and is ordered by area so small regions win hit priority.
+    const ranking = markup.slice(markup.indexOf('class="atlas-ranking"'));
+    expect(ranking.indexOf("Gluteal complex")).toBeLessThan(ranking.indexOf("External oblique"));
+    expect(ranking.indexOf("External oblique")).toBeLessThan(ranking.indexOf("Hamstrings"));
     expect(markup).toContain("Stabilizers");
     expect(markup).not.toContain("Stabilizer · Strong indirect evidence");
   });
 
-  it("forces the third-party portrait SVG to fit the full mobile canvas height without clipping", () => {
-    expect(styles).toContain(".atlas-body-chart svg{height:100%!important;width:auto!important;max-width:100%!important;max-height:100%;object-fit:contain}");
-    expect(styles).toContain(".atlas-body-chart-wrap{min-height:clamp(440px,138vw,560px);border-radius:12px}");
-    expect(styles).toContain(".atlas-body-chart{height:clamp(440px,138vw,560px)}");
+  it("sizes the figure so a whole body fits the screen it is shown on", () => {
+    // One body at a time is a portrait drawing, so height is the scarce axis
+    // again. Sized by width it came out 559px tall and the chart measured 625px
+    // against the 624px band between the sticky header and the bottom bar on a
+    // 390x844 phone — the athlete's feet sat under the nav. The chart takes a
+    // height the viewport can show and the drawing fits itself into that.
+    expect(styles).toMatch(/\.atlas-body-chart\{[^}]*height:var\(--sg-body-figure-height\)/);
+    expect(styles).toContain(".atlas-body-chart svg{width:auto;height:100%;max-width:100%}");
+    expect(styles).not.toContain("!important");
+
+    // One height for both body maps. They draw the same athlete and live in
+    // different stylesheets, so the value is a token rather than two literals
+    // that agree today. A vh fallback is declared first for engines without dvh.
+    const root = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(root).toContain("--sg-body-figure-height: clamp(18rem, calc(100vh - 20rem), 34rem)");
+    expect(root).toMatch(/@supports \(height: 1dvh\)[^}]*\{[^}]*--sg-body-figure-height: clamp\(18rem, calc\(100dvh - 20rem\), 34rem\)/);
+    expect(root).toContain(".strength-body-chart .anatomy-figure { height: var(--sg-body-figure-height)");
+  });
+
+  it("makes the control that turns the body around look like a control", () => {
+    // It was a hairline border in the divider colour over the panel's own
+    // background. On the dark Body Lab ground that read as a caption, not as
+    // the only route to the half of the body you cannot see.
+    const rule = styles.match(/\.atlas-side-toggle\{[^}]*\}/)![0];
+    expect(rule).toContain("background:var(--sg-info-strong)");
+    expect(rule).toContain("color:#fff");
+    expect(rule).toMatch(/min-height:2\.5rem/);
+    expect(styles).toContain(".destination-body .atlas-side-toggle{");
   });
 });

@@ -18,7 +18,10 @@
 @media (max-width: 640px) { .custom-detail-row { padding-left: 1rem; }.custom-detail-row details { margin-left: 0; flex-basis: 100%; } }
 
 .movement-summary-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin: 1rem 0; }.movement-summary-strip > div { min-width: 0; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: .7rem; }.movement-summary-strip span { display: block; color: var(--sg-text-subtle-on-light); font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.movement-summary-strip strong { display: block; margin-top: .3rem; overflow-wrap: anywhere; color: #173452; font-size: .78rem; line-height: 1.42; }.movement-disclosure { margin-top: .75rem; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); }.movement-disclosure summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; padding: .85rem .95rem; color: #244a70; font-size: .76rem; font-weight: 800; line-height: 1.35; }.movement-disclosure summary::-webkit-details-marker { display: none; }.movement-disclosure[open] summary { border-bottom: 1px solid var(--sg-divider-on-light); }.movement-disclosure[open] summary svg { flex: 0 0 auto; transform: rotate(180deg); }.movement-disclosure .movement-joint-grid, .movement-disclosure .movement-role-grid, .movement-disclosure .redundancy-panel, .movement-disclosure .movement-caution, .movement-disclosure .movement-sources { margin: .9rem; }.movement-show-more { display: flex; align-items: center; justify-content: center; gap: .4rem; width: 100%; margin-top: .5rem; padding: .7rem; color: var(--sg-info-strong); font-size: .7rem; font-weight: 800; }.movement-show-more:hover { background: var(--sg-surface-light-sunken); }.movement-show-more svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
-@media (max-width: 640px) { .movement-summary-strip { grid-template-columns: 1fr; }.movement-summary-strip > div { display: flex; gap: .55rem; align-items: baseline; }.movement-summary-strip span { flex: 0 0 92px; }.movement-summary-strip strong { margin: 0; white-space: normal; } }
+/* Stacked, not a 92px label column: "Best-supported qualities" does not fit in
+   92px and broke across three lines beside a one-line value, so every row in
+   the strip came out a different height and none of them lined up. */
+@media (max-width: 640px) { .movement-summary-strip { grid-template-columns: 1fr; }.movement-summary-strip > div { display: grid; gap: .2rem; }.movement-summary-strip span { flex: none; }.movement-summary-strip strong { margin: 0; white-space: normal; } }
 
 /* Weekly volume and import-confidence review: direct work stays distinct from supporting exposure. */
 .weekly-volume-panel { overflow: hidden; border: 1px solid #c7dcec; background: var(--sg-surface-light); color: #14395f; box-shadow: 0 14px 30px rgb(29 72 118 / .06); }.weekly-volume-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); background: linear-gradient(115deg, var(--sg-surface-light-sunken), var(--sg-surface-light)); }.weekly-volume-head h3 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.75rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.weekly-volume-head p:last-child { max-width: 450px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.45; }.weekly-volume-head > div:last-child { display: grid; grid-template-columns: auto auto; gap: .1rem .35rem; align-items: center; max-width: 124px; color: var(--sg-info-strong); }.weekly-volume-head > div:last-child svg { grid-row: span 2; }.weekly-volume-head > div:last-child strong { font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; line-height: .9; }.weekly-volume-head > div:last-child small { color: var(--sg-text-subtle-on-light); font-size: .6875rem; font-weight: 800; letter-spacing: .06em; line-height: 1.15; text-transform: uppercase; }.weekly-volume-legend { display: flex; flex-wrap: wrap; gap: .7rem; padding: .65rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); color: var(--sg-text-subtle-on-light); font-size: .6875rem; font-weight: 700; }.weekly-volume-legend span { display: inline-flex; gap: .3rem; align-items: center; }.weekly-volume-legend i { width: 8px; height: 8px; }.weekly-volume-direct { background: var(--sg-action-fill); }.weekly-volume-support { background: #7caee0; }.weekly-volume-list { display: grid; gap: .8rem; padding: 1rem 1.15rem; }.weekly-volume-list article { min-width: 0; }.weekly-volume-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: .55rem; align-items: center; }.weekly-volume-row strong { display: block; color: #173a60; font-size: .74rem; }.weekly-volume-row small { display: block; margin-top: .14rem; color: #718aa1; font-size: .6875rem; }.weekly-volume-row > b { color: #14395f; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.25rem; }.weekly-volume-status { border: 1px solid; padding: .17rem .28rem; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }.weekly-volume-status-empty { color: #7b8792; border-color: var(--sg-divider-on-light); }.weekly-volume-status-building { color: #2c6ea7; border-color: #a8c8e5; background: var(--sg-surface-light-sunken); }.weekly-volume-status-established { color: #8a6514; border-color: #e2c673; background: #fff9e7; }.weekly-volume-status-high { color: #bf4a31; border-color: #edaa97; background: #fff1ed; }.weekly-volume-track { position: relative; height: 6px; margin-top: .42rem; overflow: hidden; background: var(--sg-surface-light-sunken); }.weekly-volume-track i { position: absolute; inset: 0 auto 0 0; display: block; }.weekly-volume-bar-support { background: #8fc0ec; }.weekly-volume-bar-direct { z-index: 1; background: var(--sg-action-fill); }.weekly-volume-days { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }.weekly-volume-days span { border-left: 1px solid #c9d9e8; padding-left: .35rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; }.weekly-volume-days b { color: var(--sg-info-strong); }.weekly-volume-empty { display: flex; gap: .5rem; align-items: center; padding: 1.25rem; color: var(--sg-text-subtle-on-light); font-size: .7rem; }.weekly-volume-details { border-top: 1px solid var(--sg-divider-on-light); }.weekly-volume-details summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; padding: .8rem 1.15rem; color: #2b67a0; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }.weekly-volume-details summary::-webkit-details-marker { display: none; }.weekly-volume-details[open] summary svg { transform: rotate(180deg); }.weekly-volume-details p { border-top: 1px solid var(--sg-divider-on-light); padding: .8rem 1.15rem 1rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.5; }
@@ -26,8 +29,12 @@
 @media (max-width: 640px) { .weekly-volume-head, .weekly-volume-legend, .weekly-volume-list, .weekly-volume-details summary, .weekly-volume-details p { padding-left: .9rem; padding-right: .9rem; }.weekly-volume-row { grid-template-columns: minmax(0, 1fr) auto; }.weekly-volume-row > b { grid-column: 2; grid-row: 1; }.weekly-volume-status { grid-column: 1; justify-self: start; }.stack-import-row { flex-wrap: wrap; }.import-match-select { width: 100%; flex-basis: 100%; } }
 
 /* Dedicated training-day design: a clear page for plan selection, import, prescription, and weekly context. */
-.day-design-workspace { display: grid; gap: 1.25rem; }.day-design-hero { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem; border: 1px solid #24496f; background: linear-gradient(118deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 56%, #174d80 100%); padding: clamp(1.35rem, 3vw, 2.25rem); color: var(--sg-text-on-dark); overflow: hidden; position: relative; }.day-design-hero::after { content: "DAY / STACK / WEEK"; position: absolute; right: -1rem; bottom: -.3rem; color: rgb(191 225 255 / .1); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.7rem, 6vw, 5.5rem); font-weight: 800; line-height: .8; pointer-events: none; }.day-design-hero > * { position: relative; z-index: 1; }.day-design-hero h1 { margin-top: .42rem; color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 800; line-height: .78; text-transform: uppercase; }.day-design-hero h1 em { color: var(--sg-action); font-style: italic; }.day-design-hero p:last-child { max-width: 600px; margin-top: .95rem; color: var(--sg-text-muted-on-dark); font-size: .77rem; line-height: 1.55; }.day-design-import { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .8rem .95rem; color: #fff; font-size: .6875rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; box-shadow: 0 10px 22px rgb(228 81 46 / .2); transition: transform var(--sg-motion-fast) var(--sg-ease), background var(--sg-motion-fast) var(--sg-ease); }.day-design-import:hover { background: #bd4027; transform: translateY(-2px); }.day-design-grid { display: grid; gap: 1.25rem; align-items: start; }.day-design-rail { display: grid; gap: 1rem; }.day-design-rail .weekly-plan-board { margin: 0; }.day-design-rail-note { border-left: 3px solid #d5ad43; background: #fffaf0; padding: .85rem .9rem; }.day-design-rail-note p:last-child { margin-top: .4rem; color: #6c6250; font-size: .6875rem; line-height: 1.5; }.day-design-main { display: grid; gap: 1.25rem; min-width: 0; }.day-active-card { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: 1.1rem 1.15rem; }.day-active-card h2 { margin-top: .3rem; color: #13375e; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 2.3rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.day-active-card h2 span { color: var(--sg-action); }.day-active-card p:last-child { max-width: 500px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.48; }.day-active-actions { display: flex; flex-wrap: wrap; gap: .5rem; }.day-active-actions button { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #b9d1e9; background: #fff; padding: .55rem .65rem; color: #2c6399; font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }.day-active-actions button:first-child { border-color: #d5ad43; color: #86621a; }.day-programming-panel { overflow: hidden; border: 1px solid rgb(132 168 205 / .34); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }.day-programming-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgb(255 255 255 / .12); padding: 1.15rem; }.day-programming-head h3 { margin-top: .22rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 2rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.day-programming-head p:last-child { max-width: 390px; margin-top: .55rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.45; }.day-programming-head > button { border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .55rem .65rem; color: #fff; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.day-plan-empty { display: grid; justify-items: start; gap: .65rem; padding: 2rem 1.15rem; color: #dbe9f8; }.day-plan-empty svg { color: #8bb8e5; }.day-plan-empty strong { font-size: .85rem; }.day-plan-empty p { color: var(--sg-text-subtle-on-dark); font-size: .7rem; line-height: 1.5; }.day-plan-empty button { border: 1px solid var(--sg-action); color: var(--sg-action); padding: .55rem .65rem; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-@media (min-width: 1080px) { .day-design-grid { grid-template-columns: minmax(255px, .55fr) minmax(0, 1.45fr); }.day-design-rail { position: sticky; top: 1rem; } }
+.day-design-workspace { --sg-day-gap: 1.25rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sg-day-gap); }.day-design-hero { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem; border: 1px solid #24496f; background: linear-gradient(118deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 56%, #174d80 100%); padding: clamp(1.35rem, 3vw, 2.25rem); color: var(--sg-text-on-dark); overflow: hidden; position: relative; }.day-design-hero::after { content: "DAY / STACK / WEEK"; position: absolute; right: -1rem; bottom: -.3rem; color: rgb(191 225 255 / .1); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.7rem, 6vw, 5.5rem); font-weight: 800; line-height: .8; pointer-events: none; }.day-design-hero > * { position: relative; z-index: 1; }.day-design-hero h1 { margin-top: .42rem; color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 800; line-height: .78; text-transform: uppercase; }.day-design-hero h1 em { color: var(--sg-action); font-style: italic; }.day-design-hero p:last-child { max-width: 600px; margin-top: .95rem; color: var(--sg-text-muted-on-dark); font-size: .77rem; line-height: 1.55; }.day-design-import { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .8rem .95rem; color: #fff; font-size: .6875rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; box-shadow: 0 10px 22px rgb(228 81 46 / .2); transition: transform var(--sg-motion-fast) var(--sg-ease), background var(--sg-motion-fast) var(--sg-ease); }.day-design-import:hover { background: #bd4027; transform: translateY(-2px); }.day-design-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; align-items: start; }.day-design-rail { display: grid; gap: 1rem; }.day-design-rail .weekly-plan-board { margin: 0; }.day-design-rail-note { border-left: 3px solid #d5ad43; background: #fffaf0; padding: .85rem .9rem; }.day-design-rail-note p:last-child { margin-top: .4rem; color: #6c6250; font-size: .6875rem; line-height: 1.5; }.day-design-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; min-width: 0; }.day-active-card { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: 1.1rem 1.15rem; }.day-active-card h2 { margin-top: .3rem; color: #13375e; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 2.3rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.day-active-card h2 span { color: var(--sg-action); }.day-active-card p:last-child { max-width: 500px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: .6875rem; line-height: 1.48; }.day-active-actions { display: flex; flex-wrap: wrap; gap: .5rem; }.day-active-actions button { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #b9d1e9; background: #fff; padding: .55rem .65rem; color: #2c6399; font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }.day-active-actions button:first-child { border-color: #d5ad43; color: #86621a; }.day-programming-panel { overflow: hidden; border: 1px solid rgb(132 168 205 / .34); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }.day-programming-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgb(255 255 255 / .12); padding: 1.15rem; }.day-programming-head h3 { margin-top: .22rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 2rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.day-programming-head p:last-child { max-width: 390px; margin-top: .55rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.45; }.day-programming-head > button { border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .55rem .65rem; color: #fff; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }.day-plan-empty { display: grid; justify-items: start; gap: .65rem; padding: 2rem 1.15rem; color: #dbe9f8; }.day-plan-empty svg { color: #8bb8e5; }.day-plan-empty strong { font-size: .85rem; }.day-plan-empty p { color: var(--sg-text-subtle-on-dark); font-size: .7rem; line-height: 1.5; }.day-plan-empty button { border: 1px solid var(--sg-action); color: var(--sg-action); padding: .55rem .65rem; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+@media (min-width: 1080px) { .day-design-grid { grid-template-columns: minmax(255px, .55fr) minmax(0, 1.45fr); }
+  /* The rail parks below everything already parked above it. At `top: 1rem` it was
+     sticking higher than the pinned topbar, tab row and day strip, so on a desktop
+     scroll its weekly board slid out from underneath them in pieces. */
+  .day-design-rail { position: sticky; top: calc(var(--sg-pinned-chrome) + 6.25rem); } }
 @media (max-width: 640px) { .day-design-hero { padding: 1.15rem; }.day-design-hero h1 { font-size: 3.15rem; }.day-design-import { display: none; }.day-active-card, .day-programming-head { padding: 1rem; }.day-active-actions { width: 100%; }.day-active-actions button { flex: 1; justify-content: center; }.day-active-actions button:nth-child(1), .day-active-actions button:nth-child(2) { display: none; }.day-active-card h2 { font-size: 2rem; } }
 .day-design-rail .weekly-plan-head { align-items: center; padding: .95rem; }.day-design-rail .weekly-plan-head { flex-wrap: wrap; row-gap: .6rem; }
 .day-design-rail .weekly-plan-head > div { flex: 1 1 auto; min-width: 0; }
@@ -53,7 +60,7 @@
 }
 /* The day switcher: which day you are building, and every other day one tap away. It stays
    on screen because "which day is this?" and "take me to another" are the same question. */
-.training-day-nav { position: sticky; top: .5rem; z-index: 14; overflow: hidden; border: 1px solid #b6d0e8; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 14px 30px rgb(12 40 71 / .18); color: var(--sg-text-on-dark); }
+.training-day-nav { border: 1px solid #b6d0e8; border-bottom: 0; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 14px 30px rgb(12 40 71 / .18); color: var(--sg-text-on-dark); }
 .training-day-nav-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .85rem; padding: .95rem 1.05rem; border-bottom: 1px solid rgb(255 255 255 / .13); }
 .training-day-nav-current { min-width: 0; }
 .training-day-nav-current .metric-label { color: #9ec4e8; }
@@ -66,7 +73,8 @@
 .training-day-nav-cycle button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgb(255 255 255 / .16); color: #cfe4f7; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
 .training-day-nav-cycle button:hover:not(:disabled) { background: rgb(255 255 255 / .1); color: #fff; }
 .training-day-nav-cycle button:disabled { cursor: not-allowed; opacity: .32; }
-.training-day-nav-strip { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+.day-design-workspace > .training-day-nav-strip { margin-top: calc(var(--sg-day-gap) * -1); }
+.training-day-nav-strip { position: sticky; top: calc(var(--sg-pinned-chrome) + .5rem); z-index: 14; display: flex; gap: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; border: 1px solid #b6d0e8; border-top: 0; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 10px 24px rgb(12 40 71 / .22); }
 .training-day-nav-strip::-webkit-scrollbar { display: none; }
 .training-day-chip { flex: 1 0 auto; min-width: 118px; border-right: 1px solid rgb(255 255 255 / .11); padding: .68rem .8rem; text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease); }
 .training-day-chip:last-child { border-right: 0; }
@@ -88,10 +96,18 @@
      the two blocks you scroll past to reach the control you came for is what made this
      screen feel hard to move around. */
   .day-design-workspace > .training-day-nav { order: 1; }
+  .day-design-workspace > .training-day-nav-strip { order: 1; }
   .day-design-workspace > .day-design-hero { order: 2; }
   .day-design-workspace > .three-week-planner { order: 3; }
   .day-design-workspace > .day-design-grid { order: 4; }
-  .training-day-nav { position: sticky; top: 0; }
+  /* Pinned below the chrome that is already pinned, not underneath it.
+   *
+   * The top bar sticks at 0-88px and the workspace tabs at 72-135px, so a day
+   * nav stuck at `top: 0` spent its first 135px behind them: the "Day 01",
+   * "Day 02" labels were permanently hidden and the strip read as a row of
+   * headless cards. The offset comes from `--sg-pinned-chrome` in the base rule
+   * above, so there is one number rather than a per-breakpoint guess. */
+  .training-day-nav-strip { top: var(--sg-pinned-chrome); }
   .training-day-nav-head { flex-wrap: nowrap; align-items: center; gap: .6rem; padding: .7rem .8rem; }
   .training-day-nav-current h2 { font-size: 1.62rem; }
   .training-day-nav-state { gap: .4rem; margin-top: .34rem; }
@@ -137,7 +153,7 @@
   .day-programming-head { align-items: center; padding: .85rem .9rem; }
   .day-programming-head h3 { font-size: 1.6rem; }
   .day-programming-head p:last-child { display: none; }
-  .day-programming-head > button { min-height: 40px; padding: .5rem .6rem; }
+  .day-programming-head > button { min-height: 40px; }
   .workout-health-disclosure > summary { min-height: 56px; padding: .75rem .9rem; }
   .workout-health-disclosure h3 { font-size: 1.35rem; }
   .workout-health-disclosure > summary .metric-label { display: none; }
@@ -149,7 +165,7 @@
 }
 
 /* Shared high-contrast controls for the navy prescription surface. */
-.day-order-controls button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-muted-on-dark); }.day-picker-result-count { margin: .8rem 0 0; color: #4c6c89; font-size: .6875rem; line-height: 1.45; }.day-picker-result-count strong { color: #173f66; font-family: var(--font-display, sans-serif); font-size: 1.1rem; font-weight: 800; }.day-picker-result-direct { border-left: 3px solid var(--sg-action); background: var(--sg-surface-light); }.day-picker-result-direct em { color: #a5422b; }.day-picker-more { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; margin-top: .7rem; border: 1px solid #9ec0e2; background: var(--sg-surface-light-sunken); color: #245f99; font-size: .6875rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }.day-picker-more:hover { border-color: var(--sg-info-strong); background: var(--sg-surface-light-sunken); }
+.day-order-controls button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-muted-on-dark); }.day-picker-result-count { margin: .8rem 0 0; color: #4c6c89; font-size: .6875rem; line-height: 1.45; }.day-picker-result-count strong { color: #173f66; font-family: var(--font-display, sans-serif); font-size: 1.1rem; font-weight: 800; }.day-picker-result-shared { display: block; margin-top: .2rem; color: var(--sg-text-subtle-on-light); }.day-picker-result-direct { border-left: 3px solid var(--sg-action); background: var(--sg-surface-light); }.day-picker-result-direct em { color: #a5422b; }.day-picker-more { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; margin-top: .7rem; border: 1px solid #9ec0e2; background: var(--sg-surface-light-sunken); color: #245f99; font-size: .6875rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }.day-picker-more:hover { border-color: var(--sg-info-strong); background: var(--sg-surface-light-sunken); }
 
 /* ── Live workout execution surface ──────────────────────────────────────────
    "Live workout glance contract" (FIXED): the first view leads with the active
@@ -559,3 +575,135 @@
 /* Nowrap is what makes the row wrap: it gives the chip an honest minimum width,
    so the flex line breaks instead of the words inside it. */
 .health-signal { white-space: nowrap; }
+
+/* The entry row adapts to what the exercise actually records: a box jump has a
+   box height and no weight, a weighted box jump has both. Three boxes still fit
+   a 390px screen without any of them dropping below a usable tap target. */
+.live-set-entry { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
+.live-set-entry[data-fields="3"] input { font-size: 1rem; padding: 0 .5rem; }
+
+/* Skipping is the escape hatch for a rack that was taken, so it sits below the
+   commit action and is never styled to compete with it. */
+.live-set-skip {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  margin-top: .5rem;
+  border: 1px solid rgb(176 214 247 / .3);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sg-text-muted-on-dark);
+  font-size: .6875rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.live-set-skip:hover { border-color: var(--sg-info); color: var(--sg-text-on-dark); }
+
+.session-exercise-skip {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: .3rem;
+  margin-left: auto;
+  border: 1px solid rgb(176 214 247 / .28);
+  border-radius: 8px;
+  padding: 0 .6rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: .6875rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.session-exercise-skip:hover { border-color: var(--sg-info); color: var(--sg-text-on-dark); }
+
+/* A skipped exercise reads as deliberately passed, not as unfinished work. */
+.device-workout-tracker .session-exercise-skipped { opacity: .62; }
+.device-workout-tracker .session-exercise-skipped .session-set-list { display: none; }
+.device-workout-tracker .session-set-skipped > strong { color: var(--sg-text-subtle-on-dark); }
+/**
+ * Two more control labels that were wrapping inside their own button.
+ *
+ * "Save day" in the Builder's weekly map sat in an 80px button and broke across
+ * two lines; the Training Day copy of the same control had the same problem and
+ * is fixed above. "How it works" on Progress broke across two lines in a 75px
+ * slot beside a heading. In both cases the heading next to the control is the
+ * thing that should give up width - it already wraps by design.
+ */
+@media (max-width: 640px) {
+  .weekly-plan-head > button { flex: 0 0 auto; padding: .5rem .7rem; white-space: nowrap; }
+  .weekly-plan-head > div:first-child { min-width: 0; }
+}
+
+
+/* A button label wraps at no width.
+ *
+ * "Save day" was breaking across two lines inside its own button - at 390px and
+ * again at 1440px, where the panel sits in a narrow grid column. The heading
+ * beside it is what gives up the space; it already wraps by design. */
+.day-programming-head > button { flex: 0 0 auto; padding: .5rem .7rem; white-space: nowrap; }
+.day-programming-head > div:first-child { min-width: 0; }
+
+/* The session draft, inline in the page.
+   It replaced a fixed-position "Session Planner" dock whose own open/close tab sat on
+   top of whatever was behind it. Nothing here is positioned out of flow, so it cannot
+   cover anything - and the time control the draft actually depends on is in it. */
+.session-draft-panel { display: grid; gap: 1rem; border: 1px solid rgb(132 168 205 / .34); background: var(--sg-surface-raised); padding: 1.15rem; color: var(--sg-text-on-dark); }
+.session-draft-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.session-draft-head h3 { margin-top: .22rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.9rem; font-weight: 800; line-height: .92; text-transform: uppercase; }
+.session-draft-spark { flex: 0 0 auto; color: var(--sg-focus-on-dark); }
+.session-draft-field { display: grid; gap: .55rem; }
+.session-draft-field .metric-label { color: #9ec4e8; }
+.session-draft-chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.session-draft-chip { display: inline-flex; min-height: 44px; align-items: baseline; gap: .28rem; border: 1px solid rgb(255 255 255 / .2); background: rgb(255 255 255 / .05); padding: .5rem .72rem; color: #dbe9f8; font-size: .95rem; font-weight: 800; line-height: 1; transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
+.session-draft-chip-wide { font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
+.session-draft-chip:hover { border-color: rgb(255 255 255 / .38); background: rgb(255 255 255 / .1); }
+.session-draft-chip-active { border-color: var(--sg-action); background: rgb(228 81 46 / .18); color: #fff; }
+.session-draft-chip:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.session-draft-note { color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.5; }
+.session-draft-outcome { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .85rem; border-top: 1px solid rgb(255 255 255 / .12); padding-top: .9rem; }
+.session-draft-outcome > div { min-width: 0; }
+.session-draft-outcome .metric-label { color: #9ec4e8; }
+.session-draft-outcome strong { display: inline-flex; align-items: center; gap: .4rem; margin-top: .3rem; color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: 1; text-transform: uppercase; }
+.session-draft-outcome small { display: block; max-width: 34rem; margin-top: .38rem; color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.5; }
+.session-draft-button { flex: 0 0 auto; min-height: 44px; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: .7rem .95rem; color: #fff; font-size: .6875rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; transition: background var(--sg-motion-fast) var(--sg-ease); }
+.session-draft-button:hover { background: #bd4027; }
+/* Five short time options fit one row at any width worth supporting; left to wrap they
+   broke 4 + 1, which reads as a mistake rather than a set of equals. */
+.session-draft-chips-time { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .4rem; }
+.session-draft-chips-time .session-draft-chip { justify-content: center; }
+.session-draft-chips-focus { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .4rem; }
+.session-draft-chips-focus .session-draft-chip { justify-content: center; text-align: center; }
+@media (max-width: 640px) {
+  .session-draft-panel { padding: .95rem; }
+  .session-draft-head h3 { font-size: 1.55rem; }
+  .session-draft-chips-time { gap: .3rem; }
+  .session-draft-chips-time .session-draft-chip { padding: .45rem .3rem; font-size: 1rem; }
+  .session-draft-chips-focus { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .session-draft-chips-focus .session-draft-chip { font-size: .6875rem; }
+  .session-draft-outcome { align-items: stretch; }
+  .session-draft-outcome strong { font-size: 1.15rem; }
+  .session-draft-button { width: 100%; }
+}
+
+/* Anything the app scrolls you to has to arrive below whatever is pinned above it.
+   Without this, tapping "Stack Review" or "Prep" scrolled the target to y=0 - behind the
+   topbar and tab row, and on Training Day behind a 219px sticky day bar as well - so the
+   tab appeared to do nothing at all. */
+#stack-review,
+#session-prep,
+.session-draft-panel,
+.day-exercise-picker { scroll-margin-top: 9.5rem; }
+.day-design-workspace #stack-review,
+.day-design-workspace #session-prep,
+.day-design-workspace .session-draft-panel,
+.day-design-workspace .day-exercise-picker { scroll-margin-top: 23rem; }
+@media (min-width: 1080px) {
+  .day-design-workspace #stack-review,
+  .day-design-workspace #session-prep,
+  .day-design-workspace .session-draft-panel,
+  .day-design-workspace .day-exercise-picker { scroll-margin-top: 22.5rem; }
+}

@@ -1,4 +1,17 @@
-export type DeviceSetLog = { weight: string; reps: string; completed: boolean };
+export type DeviceSetLog = {
+  weight: string;
+  reps: string;
+  /** Box height, for the jumps and step-ups where that is the real variable. */
+  height?: string;
+  completed: boolean;
+  /**
+   * The athlete decided not to do this one — the rack was taken, the machine
+   * was busy, they ran out of time. A skip is a resolved set, not a pending
+   * one, so execution moves past it; but it is not an observation either, so
+   * nothing about it reaches Progress.
+   */
+  skipped?: boolean;
+};
 export type DeviceWorkoutExercise = {
   id: string;
   exerciseName: string;
@@ -33,7 +46,7 @@ export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
       ...session,
       exercises: Array.isArray(session.exercises) ? session.exercises.map((exercise: DeviceWorkoutExercise) => ({
         ...exercise,
-        sets: Array.isArray(exercise.sets) ? exercise.sets.map((set: DeviceSetLog) => ({ weight: String(set.weight || ""), reps: String(set.reps || ""), completed: Boolean(set.completed) })) : [],
+        sets: Array.isArray(exercise.sets) ? exercise.sets.map((set: DeviceSetLog) => ({ weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) })) : [],
       })) : [],
     })) as DeviceWorkoutSession[] : [];
   } catch {
@@ -51,7 +64,7 @@ export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
  */
 export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[]): boolean {
   if (typeof window === "undefined") return false;
-  const normalized = sessions.map((session) => ({ ...session, exercises: session.exercises.map((exercise) => ({ ...exercise, sets: exercise.sets.map((set) => ({ weight: set.weight, reps: set.reps, completed: set.completed })) })) }));
+  const normalized = sessions.map((session) => ({ ...session, exercises: session.exercises.map((exercise) => ({ ...exercise, sets: exercise.sets.map((set) => ({ weight: set.weight, reps: set.reps, height: set.height || "", completed: set.completed, skipped: Boolean(set.skipped) })) })) }));
   try {
     window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify(normalized));
   } catch {
@@ -86,7 +99,7 @@ export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[]): boo
 
 /** A set the athlete typed into but never completed. Never an observation. */
 export function isDraftSet(set: DeviceSetLog): boolean {
-  return !set.completed && Boolean(set.weight.trim() || set.reps.trim());
+  return !set.completed && !set.skipped && Boolean(set.weight.trim() || set.reps.trim() || (set.height || "").trim());
 }
 
 export function countDraftSets(session: DeviceWorkoutSession): number {
@@ -111,7 +124,7 @@ export function activePosition(session: DeviceWorkoutSession): ActivePosition | 
   for (let exerciseIndex = 0; exerciseIndex < session.exercises.length; exerciseIndex++) {
     const sets = session.exercises[exerciseIndex].sets;
     for (let setIndex = 0; setIndex < sets.length; setIndex++) {
-      if (!sets[setIndex].completed) return { exerciseIndex, setIndex };
+      if (!sets[setIndex].completed && !sets[setIndex].skipped) return { exerciseIndex, setIndex };
     }
   }
   return null;
@@ -121,6 +134,15 @@ export function activePosition(session: DeviceWorkoutSession): ActivePosition | 
  * Finalization drops drafts rather than promoting them, and reports what it
  * dropped so the exclusion is never silent.
  */
+export function countSkippedSets(session: DeviceWorkoutSession): number {
+  return session.exercises.reduce((total, exercise) => total + exercise.sets.filter((set) => set.skipped).length, 0);
+}
+
+/** Every planned set of this exercise is either done or deliberately passed. */
+export function isExerciseSkipped(exercise: DeviceWorkoutExercise): boolean {
+  return exercise.sets.length > 0 && exercise.sets.every((set) => set.skipped);
+}
+
 export function finalizeSession(session: DeviceWorkoutSession, completedAt = new Date().toISOString()) {
   const excludedDrafts = countDraftSets(session);
   const finalized: DeviceWorkoutSession = {
@@ -131,7 +153,7 @@ export function finalizeSession(session: DeviceWorkoutSession, completedAt = new
       .map((exercise) => ({ ...exercise, sets: exercise.sets.filter((set) => set.completed) }))
       .filter((exercise) => exercise.sets.length > 0),
   };
-  return { session: finalized, excludedDrafts, completedSets: countCompletedSets(finalized) };
+  return { session: finalized, excludedDrafts, skippedSets: countSkippedSets(session), completedSets: countCompletedSets(finalized) };
 }
 
 /**
@@ -145,7 +167,7 @@ export function lastCompletedSetFor(exerciseName: string, sessions: DeviceWorkou
     .sort((a, b) => String(b.completedAt || b.startedAt).localeCompare(String(a.completedAt || a.startedAt)));
   for (const session of finished) {
     const exercise = session.exercises.find((item) => item.exerciseName === exerciseName);
-    const last = exercise?.sets.filter((set) => set.completed && set.weight.trim() && set.reps.trim()).pop();
+    const last = exercise?.sets.filter((set) => set.completed && (set.weight.trim() || (set.height || "").trim()) && set.reps.trim()).pop();
     if (last) return last;
   }
   return null;
@@ -169,13 +191,38 @@ export function carriedEntryFor(
   exercise: DeviceWorkoutExercise,
   setIndex: number,
   history: DeviceWorkoutSession[],
-): { weight: string; reps: string; source: "session" | "history" } | null {
+): { weight: string; reps: string; height: string; source: "session" | "history" } | null {
   for (let index = setIndex - 1; index >= 0; index--) {
     const set = exercise.sets[index];
-    if (set.completed && (set.weight.trim() || set.reps.trim())) {
-      return { weight: set.weight, reps: set.reps, source: "session" };
+    if (set.completed && (set.weight.trim() || set.reps.trim() || (set.height || "").trim())) {
+      return { weight: set.weight, reps: set.reps, height: set.height || "", source: "session" };
     }
   }
   const previous = lastCompletedSetFor(exercise.exerciseName, history);
-  return previous ? { weight: previous.weight, reps: previous.reps, source: "history" } : null;
+  return previous ? { weight: previous.weight, reps: previous.reps, height: previous.height || "", source: "history" } : null;
+}
+
+
+/**
+ * Skipping an exercise resolves only the sets that are still pending: anything
+ * already logged stays logged, because a skip is about what remains.
+ */
+export function skipExercise(session: DeviceWorkoutSession, exerciseIndex: number): DeviceWorkoutSession {
+  return {
+    ...session,
+    exercises: session.exercises.map((exercise, index) => index !== exerciseIndex ? exercise : {
+      ...exercise,
+      sets: exercise.sets.map((set) => set.completed ? set : { ...set, skipped: true }),
+    }),
+  };
+}
+
+export function unskipExercise(session: DeviceWorkoutSession, exerciseIndex: number): DeviceWorkoutSession {
+  return {
+    ...session,
+    exercises: session.exercises.map((exercise, index) => index !== exerciseIndex ? exercise : {
+      ...exercise,
+      sets: exercise.sets.map((set) => set.skipped ? { ...set, skipped: false } : set),
+    }),
+  };
 }

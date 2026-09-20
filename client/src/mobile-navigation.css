@@ -25,9 +25,10 @@
   .apex-topbar > div { align-items: center; }
   .apex-topbar .metric-label { font-size: .7rem; letter-spacing: .1em; }
   .topbar-brand-logo { width: 56px; height: 56px; }
-  .topbar-context-chips { flex-wrap: nowrap; gap: .3rem; max-width: calc(100vw - 5.5rem); margin-top: .22rem; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; scroll-snap-type: x proximity; }
-  .topbar-context-chips::-webkit-scrollbar { display: none; }
-  .topbar-context-chips span { flex: 0 0 auto; min-height: 1.6rem; max-width: none; padding: .26rem .52rem; font-size: .6875rem; white-space: nowrap; scroll-snap-align: start; }
+  /* Wrapped, not scrolled - see the note in index.css. Both files styled this
+     strip and only source order decided which won, so they say the same thing. */
+  .topbar-context-chips { flex-wrap: wrap; gap: .3rem; max-width: calc(100vw - 5.5rem); margin-top: .22rem; }
+  .topbar-context-chips span { flex: 0 0 auto; min-height: 1.6rem; max-width: none; padding: .26rem .52rem; font-size: .6875rem; white-space: nowrap; }
   .apex-topbar p.text-sm { max-width: 176px; overflow: hidden; font-size: .86rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
   .apex-topbar button:last-child { display: none; }
   .workspace-top-switcher { top: 78px; min-height: 54px; gap: .42rem; overflow-x: auto; overscroll-behavior-x: contain; padding: .35rem .75rem; scroll-padding-inline: .75rem; scroll-snap-type: x proximity; scrollbar-width: none; }

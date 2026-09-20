@@ -32,10 +32,24 @@ describe("boot screen always lifts", () => {
     // The failsafe must live in index.html: a chunk that never loads, a blocked
     // script, or a crash before hydration all leave no React to rely on.
     expect(indexHtml).toContain('classList.add("sports-genome-app-ready")');
-    const failsafe = indexHtml.match(/setTimeout\(function\(\)\{document\.documentElement\.classList\.add\("sports-genome-app-ready"\)\},(\d+)\)/);
+    const failsafe = indexHtml.match(/window\.setTimeout\(check,(\d+)\)\}\)\(\)/);
     expect(failsafe, "a document-level timeout reveals the app").toBeTruthy();
     expect(Number(failsafe![1])).toBeGreaterThan(2000);
     expect(Number(failsafe![1])).toBeLessThanOrEqual(10000);
+  });
+
+  /**
+   * The failsafe may not fire over a running intro - it reveals the app with no
+   * cross-fade, which is the cut it exists to prevent elsewhere. It defers instead of
+   * being pushed out, so a genuine startup failure still surfaces on the same clock.
+   */
+  it("defers the failsafe only while the intro's clock is advancing, and always terminates", () => {
+    expect(indexHtml).toContain('dataset.sportsGenomeBootVideo==="playing"');
+    expect(indexHtml).toContain("!v.paused&&!v.ended&&v.currentTime>0");
+    // The deferral re-checks rather than waiting an open-ended amount...
+    expect(indexHtml).toMatch(/window\.setTimeout\(check,\d{3,4}\);return/);
+    // ...and the intro's own watchdog guarantees "playing" ends, so this cannot loop forever.
+    expect(indexHtml).toContain("sinceStart > 15000");
   });
 
   it("hides the splash through a rule the failsafe class alone satisfies", () => {

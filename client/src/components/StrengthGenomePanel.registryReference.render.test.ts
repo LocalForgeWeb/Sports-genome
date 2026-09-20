@@ -14,7 +14,6 @@ vi.mock("@/lib/trpc", () => ({
     },
   },
 }));
-vi.mock("body-muscles", () => ({ ViewSide: { FRONT: "front", BACK: "back" }, BodyChart: class { update() {} destroy() {} } }));
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: vi.fn() }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
@@ -113,7 +112,14 @@ describe("Strength Genome registry comparison", () => {
     );
   });
 
-  it("shows no comparison when the athlete never confirmed the study's population", () => {
+  /**
+   * The registry's own gate is unchanged: without a confirmed population, the
+   * exactly-matched "Compared to that study group" card stays away. What changed
+   * is what happens next - a 200kg squat at 80kg body mass is 2.5x, which the
+   * published reference can place, so the athlete gets the rank instead of a
+   * paragraph about why a comparison is impossible.
+   */
+  it("ranks the lift even when the athlete never confirmed the study's population", () => {
     renderDetail({
       referenceRows: squatLadder,
       athleteProfile: { sexForReference: "male", birthYear: 1999 },
@@ -121,14 +127,17 @@ describe("Strength Genome registry comparison", () => {
     });
 
     expect(screen.queryByText("Compared to that study group")).toBeNull();
-    expect(screen.getByText("Why no comparison to other people?")).toBeTruthy();
+    expect(screen.getByText("Where this ranks")).toBeTruthy();
+    expect(screen.getByText(/powerlifting competitors/)).toBeTruthy();
   });
 
-  it("shows no comparison when the athlete's age falls outside the reported band", () => {
+  it("still ranks the lift when the athlete's age falls outside the reported band", () => {
+    // Withholding a number from a 66-year-old, when the closest published
+    // reference is right there and can be named, was the behaviour replaced.
     renderDetail({ referenceRows: squatLadder, athleteProfile: { sexForReference: "male", birthYear: 1960 } });
 
     expect(screen.queryByText("Compared to that study group")).toBeNull();
-    expect(screen.getByText("Why no comparison to other people?")).toBeTruthy();
+    expect(screen.getByText("Where this ranks")).toBeTruthy();
   });
 
   it("names the gate that closed the comparison rather than only the general rule", () => {

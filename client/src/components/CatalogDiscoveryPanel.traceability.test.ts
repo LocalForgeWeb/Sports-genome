@@ -67,3 +67,23 @@ describe("Catalog Discovery traceability presentation", () => {
     expect(styles).toContain('transform: scale(.97);');
   });
 });
+
+describe("catalog action-link badge", () => {
+  const panel = component;
+
+  it("draws the badge only while it tells the visible cards apart", () => {
+    // Measured on the shipped build at 390px: the default view carried the same
+    // label on all 36 cards - a column of identical pills in the accent colour.
+    // The "squat", "curl" and "jump" searches each split it, and there it earns
+    // its place. Same rule as the Genome selector, same helper.
+    expect(panel).toContain("labelTellsRowsApart");
+    expect(panel).toContain("{connectionTellsCardsApart && connection && connection.label !== \"Not mapped\"");
+    // Judged against the cards actually on screen, not the whole result set.
+    expect(panel).toContain("visibleResults.map((exercise) => visibleConnections.get(exercise.id)?.label ?? \"Not mapped\")");
+  });
+
+  it("states the shared link once instead of dropping it", () => {
+    expect(panel).toContain("sharedConnectionSummary(label, visibleResults.length)");
+    expect(panel).toContain("Action links below are measured against <b>{selectedActionLabel}</b>.{sharedConnection");
+  });
+});

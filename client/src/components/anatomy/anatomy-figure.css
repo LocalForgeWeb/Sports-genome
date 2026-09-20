@@ -1,0 +1,121 @@
+/**
+ * Body Lab figure.
+ *
+ * The body sits at one flat tone and its anatomy is carried by the source's own
+ * linework, not by outlining every muscle. Colour is scarce by design: at rest
+ * every region is the same grey, and the figure has to read as a body anyway.
+ *
+ * Role is hue, selection is weight, and neither borrows the other's channel.
+ * Opacity encodes nothing — the Body Lab contract names "using opacity
+ * simultaneously for confidence, magnitude and focus" an anti-pattern.
+ */
+
+/* Defaults suit a light surface, because this figure renders on one: the
+   exercise inspector draws it inside `.light-panel`. Body Lab renders the same
+   component on the dark destination ground and flips these in one place, beside
+   the other polarity overrides in anatomy-clean.css. */
+.anatomy-figure {
+  --anatomy-shell: #b9c4d2;
+  --anatomy-muscle: #cbd4e0;
+  --anatomy-structural: #c2ccd9;
+  --anatomy-line: #8b99ad;
+  --anatomy-selection: #16324f;
+
+  --anatomy-supporting-1: #e9be55;
+  --anatomy-supporting-2: #c08f24;
+  --anatomy-primary-1: #ec5f4a;
+  --anatomy-primary-2: #bb2114;
+
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+/* Two bodies is a landscape canvas, so it is width that is scarce, not height.
+   Sized by height it would overflow the card sideways exactly as the single
+   figure once overflowed it downwards. */
+.anatomy-figure[data-view="both"] { width: 100%; height: auto; max-height: 100%; }
+
+/* The filled body under everything. Joints the muscle layer does not cover —
+   knees, shins — are body here rather than holes showing the page through. */
+.anatomy-shell { fill: var(--anatomy-shell); }
+.anatomy-structural { fill: var(--anatomy-structural); }
+
+.anatomy-muscle > path {
+  fill: var(--anatomy-muscle);
+  transition: fill 180ms ease-out;
+}
+
+/* The source's own anatomical detail, above every fill. This is what separates
+   adjacent muscles, so no muscle needs an outline of its own. */
+.anatomy-linework > path {
+  fill: none;
+  stroke: var(--anatomy-line);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.anatomy-muscle[data-focused="true"] > path { fill: var(--anatomy-shell); }
+
+/**
+ * Selection, in two strokes.
+ *
+ * It was one 6px non-scaling white outline, which on a 314px figure is roughly
+ * a fiftieth of the body's width laid over the edge of the thing it marks: the
+ * quadriceps read as a sticker with a white border rather than a muscle that
+ * had been picked. Width is the wrong axis to spend here.
+ *
+ * A wide, faint halo carries the "this one" at a glance and a hairline holds
+ * the actual edge. Both are non-scaling, so the cue stays the same weight
+ * whether the figure is drawn at 150px or 600px.
+ */
+.anatomy-selection-halo {
+  fill: none;
+  stroke: var(--anatomy-selection);
+  stroke-width: 6;
+  stroke-opacity: .22;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.anatomy-selection-ring {
+  fill: none;
+  stroke: var(--anatomy-selection);
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.anatomy-hit { cursor: pointer; outline: none; }
+
+/* Interaction geometry, held apart from visible geometry. The halo stroke grows
+   the target outward; the drawn muscle underneath is untouched. Painted in
+   largest-area-first order, so a small muscle's target lands above its larger
+   neighbour's and hit priority is deterministic rather than incidental. */
+/* Descendant, not direct child: in `both` view each region's targets are
+   wrapped in a per-body transform group. As a child selector this silently
+   stopped matching, the paths fell back to SVG's default black fill, and the
+   invisible hit layer painted over every muscle on the figure. */
+.anatomy-hit path {
+  fill: transparent;
+  stroke: transparent;
+  stroke-linejoin: round;
+  pointer-events: all;
+}
+
+.anatomy-hit:focus-visible path {
+  stroke: var(--anatomy-selection);
+  stroke-opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anatomy-muscle > path { transition: none; }
+}

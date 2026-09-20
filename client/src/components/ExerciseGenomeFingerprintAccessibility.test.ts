@@ -18,3 +18,18 @@ describe("Exercise Genome fingerprint term learning", () => {
     expect(markup).toContain("Select a chart label or full label to learn what influences it.");
   });
 });
+
+describe("Exercise Genome fingerprint labelling", () => {
+  it("names each dimension once, not beside its bar and again in a legend below", () => {
+    // The panel rendered a legend of learn-more buttons underneath the bars with
+    // the same label and the same action as the button on each bar, so all eight
+    // dimension names were printed twice in consecutive blocks.
+    const exercise = exercises.find((item) => item.name === "Seated Leg Curl") || exercises[0];
+    const markup = renderToStaticMarkup(createElement(ExerciseGenomePanel, { exercise, context: { goal: "Muscle growth", currentWorkout: [exercise] } }));
+    const occurrences = (needle: string) => markup.split(needle).length - 1;
+    for (const label of ["Hypertrophy potential", "Strength expression", "Power expression", "Stability demand", "Mobility demand", "Stimulus-to-fatigue ratio", "Technical skill demand", "Practicality"]) {
+      expect(occurrences(`>${label}<`), `${label} should be printed once`).toBe(1);
+    }
+    expect(markup).not.toContain("genome-fingerprint-legend");
+  });
+});

@@ -7,6 +7,13 @@ export type ConfirmDialogRequest = {
   confirmLabel: string;
   cancelLabel?: string;
   onConfirm: () => void;
+  /**
+   * What cancelling does, where "not the destructive option" is a real second
+   * choice rather than simply abandoning the action. Switching training days
+   * with unsaved edits is the case: both answers continue to the next day, and
+   * the question is only which version of the day you leave behind.
+   */
+  onCancel?: () => void;
 };
 
 /**
@@ -14,7 +21,7 @@ export type ConfirmDialogRequest = {
  * contract: names the affected object and consequence, and is visually distinguished (red,
  * not the brand orange used for routine actions) from ordinary feedback.
  */
-export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel", onConfirm, onCancel }: ConfirmDialogRequest & { onCancel: () => void }) {
+export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel", onConfirm, onCancel }: Omit<ConfirmDialogRequest, "onCancel"> & { onCancel: () => void }) {
   return <div className="confirm-dialog-layer" role="alertdialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-body">
     <section className="confirm-dialog-card">
       <button type="button" onClick={onCancel} className="confirm-dialog-close" aria-label="Cancel">

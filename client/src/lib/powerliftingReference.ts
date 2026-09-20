@@ -1,4 +1,5 @@
 import type { PowerliftingNormRow } from "@shared/powerliftingNormsReference";
+import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
 
 export const vanDenHoek2024ReferenceId = "van_den_hoek_2024_powerlifting_relative_strength" as const;
 
@@ -123,3 +124,118 @@ export function getVanDenHoek2024PowerliftingReference(
     sourceUrl: "https://www.sciencedirect.com/science/article/pii/S1440244024002469",
   };
 }
+
+/* ── Ranking an ordinary gym lift ─────────────────────────────────────────────
+ *
+ * The function above answers a narrow question: does this log match van den Hoek
+ * et al.'s population exactly? It requires a measured 1RM, and a confirmation
+ * that the lift happened in drug-tested, unequipped competition. Almost no gym
+ * log can satisfy that, so the screen showed a paragraph explaining why there
+ * was no number - on a lift whose number was sitting right there in the table.
+ *
+ * A 175 lb bench at 1.21x body weight lands between the 10th and 20th percentile
+ * of that reference. Refusing to say so is not caution; it withholds the one
+ * thing the athlete came to the screen for.
+ *
+ * So the strict route stays exactly as it is, for the audited declaration path,
+ * and this one ranks what the athlete actually has. The difference is carried in
+ * the result rather than used to suppress it: a rank from an estimated 1RM says
+ * it is estimated, and every rank names the population it is against. A
+ * percentile without its population is the misleading thing - not the percentile.
+ */
+
+/** What produced the one-rep max being ranked. */
+export type PowerliftingRankBasis = "measured" | "estimated";
+
+/** Something the athlete can supply that would produce a rank. */
+export type PowerliftingRankMissing = "load" | "body_mass" | "sex" | "age";
+
+export type PowerliftingRank =
+  | { status: "ranked"; lift: PowerliftingLift; relativeStrength: number; percentileBandLabel: string; basis: PowerliftingRankBasis; population: string; sourceUrl: string }
+  | { status: "needs"; missing: PowerliftingRankMissing }
+  | { status: "unsupported" };
+
+type RankContext = {
+  exerciseName: string;
+  measurementType: string;
+  loadKg?: number | null;
+  repetitions?: number | null;
+  bodyMassKgAtTest?: number | null;
+  sex?: PowerliftingComparisonSex;
+  ageYears?: number;
+};
+
+const vanDenHoekSourceUrl = "https://www.sciencedirect.com/science/article/pii/S1440244024002469";
+
+/**
+ * The one-rep max to rank, and how it was arrived at.
+ *
+ * A single measured max is used as-is. A multi-rep set is converted with the
+ * app's own Epley estimator, which refuses past twelve reps rather than
+ * extrapolating - so a high-rep set produces no rank instead of a wrong one.
+ */
+export function rankableOneRepMaxKg(context: RankContext): { kg: number; basis: PowerliftingRankBasis } | null {
+  const load = Number(context.loadKg);
+  if (!Number.isFinite(load) || load <= 0) return null;
+  if (context.measurementType === "MEASURED_1RM") return { kg: load, basis: "measured" };
+  const reps = Number(context.repetitions);
+  if (!Number.isFinite(reps) || reps < 1) return null;
+  const estimated = estimateOneRepMaxKg(load, reps);
+  return estimated == null ? null : { kg: estimated, basis: reps === 1 ? "measured" : "estimated" };
+}
+
+/**
+ * Where this lift sits in the reference, or the one thing still missing.
+ *
+ * The order of the checks is the order in which the athlete can act: a lift that
+ * is not in the table can never be ranked, and after that each answer names a
+ * single field to fill rather than a list of conditions to satisfy.
+ */
+export function rankAgainstPowerliftingNorms(
+  context: RankContext,
+  registryNorms: readonly PowerliftingNormRow[] = []
+): PowerliftingRank {
+  const lift = liftForExerciseName[context.exerciseName];
+  if (!lift) return { status: "unsupported" };
+
+  const oneRepMax = rankableOneRepMaxKg(context);
+  if (!oneRepMax) return { status: "needs", missing: "load" };
+
+  const bodyMass = Number(context.bodyMassKgAtTest);
+  if (!Number.isFinite(bodyMass) || bodyMass <= 0) return { status: "needs", missing: "body_mass" };
+  if (!context.sex) return { status: "needs", missing: "sex" };
+  if (!context.ageYears || !Number.isFinite(context.ageYears)) return { status: "needs", missing: "age" };
+
+  const matchedBand = registryNorms
+    .filter((row) => row.exerciseName === context.exerciseName && row.sex === context.sex && context.ageYears! >= row.ageMin && context.ageYears! <= row.ageMax)
+    .sort((a, b) => a.percentile - b.percentile);
+  const usingRegistryBand = matchedBand.length >= 3;
+  /**
+   * Outside 18-35 the registry's own age band is used when it reaches us. When it
+   * does not, the published 18-35 table is still the closest reference there is,
+   * and the population label says so rather than the rank being withheld.
+   */
+  const deciles: readonly [number, number][] = usingRegistryBand
+    ? matchedBand.map((row) => [row.percentile, row.relativeStrength])
+    : decilesBySexAndLift[context.sex][lift];
+
+  const relativeStrength = Number((oneRepMax.kg / bodyMass).toFixed(2));
+  const ageLabel = usingRegistryBand ? ageBandLabel(matchedBand[0].ageMin, matchedBand[0].ageMax) : "18–35";
+  return {
+    status: "ranked",
+    lift,
+    relativeStrength,
+    percentileBandLabel: decileBandLabel(relativeStrength, deciles),
+    basis: oneRepMax.basis,
+    population: `${context.sex === "male" ? "Male" : "Female"} drug-tested, unequipped powerlifting competitors aged ${ageLabel}`,
+    sourceUrl: vanDenHoekSourceUrl,
+  };
+}
+
+/** What to ask for, in the athlete's words. */
+export const powerliftingRankMissingCopy: Record<PowerliftingRankMissing, string> = {
+  load: "Add the weight you lifted to see where this ranks.",
+  body_mass: "Add your body weight on that day to see where this ranks.",
+  sex: "Add the sex to compare against in About Me to see where this ranks.",
+  age: "Add your birth year in About Me to see where this ranks.",
+};

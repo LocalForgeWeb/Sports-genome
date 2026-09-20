@@ -35,17 +35,26 @@ describe("Strength Genome panel", () => {
     expect(bodyMapSource).toContain("Tap a muscle group to see");
     expect(bodyMapSource).toContain("Highlighting shows where you have lifts on record, not how strong you are.");
     expect(bodyMapSource).not.toContain("percentile score");
-    expect(source).toContain("resolveStrengthObservationRoute(observation.exerciseName)?.regionIds.includes(region.id)");
+    // Routing now goes through the catalog-aware resolver, so a lift the reviewed
+    // alias list never named — a Hack Squat, say — still reaches the region it
+    // trains instead of falling off the map.
+    expect(source).toContain("strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)");
     expect(source).toContain("Your record");
-    expect(source).toContain("not a percentile, universal rank, or regional force score");
+    // Replaced by the rank itself; the population still travels with the number.
+    expect(source).toContain("{powerliftingRank.population}");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("Why no comparison to other people?");
+    expect(source).toContain("No ranking for this lift yet");
     expect(source).toContain("Compared to that competition group");
-    expect(source).toContain("match a published study");
+    expect(source).toContain("Where this ranks");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
-    expect(source).toContain("Use saved weight");
+    // The body-mass field offers the weight in effect on the lift's own day, from
+    // the dated log — not today's profile value, which was the old prefill and
+    // needed a warning telling the athlete to check it themselves.
+    expect(source).toContain("bodyWeightKgAt(bodyWeightHistory, latestRecord.observedAt)");
+    expect(source).toContain("Filled in from what you weighed that week.");
+    expect(source).toContain("Save this body weight");
     expect(source).toContain("weightUnitLabel(weightUnit)");
     expect(source).toContain("displayWeightToKilograms(parsedLoad, weightUnit)");
     expect(source).toContain("displayWeightToKilograms(parsedBodyMass, weightUnit)");
@@ -64,14 +73,13 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('className="strength-profile-reference-summary"');
     expect(source).toContain('className="strength-profile-reference-details"');
     expect(source).toContain('className={`strength-profile-coverage-ring');
-    expect(source).toContain('recorded test coverage; not a strength rank');
+    // The coverage figure states its own boundary on screen rather than only to a
+    // screen reader, and the ring beside it is decoration for a number the
+    // definition list already carries.
+    expect(source).toContain("Covered means you have lifts recorded there. It is not a rank or a score.");
     expect(source).toContain('setSelectedRegion(null); setSelectedObservationId("");');
-    expect(source).toContain('className="strength-reference-state-visual"');
-    expect(source).toContain('sportsGenomeAssets.strengthQualified');
-    expect(source).toContain('sportsGenomeAssets.strengthUnavailable');
     expect(source).not.toContain('/manus-storage/');
-    expect(source).toContain("<span>Comparison</span>");
-    expect(source).toContain("Ready on {sourceMatchedObservationCount} lift");
+    expect(source).toContain("Comparison ready on {sourceMatchedObservationCount} lift");
     expect(source).toContain("line up with a study");
     expect(source).toContain("sourceMatchedObservationCount > 0 &&");
     expect(source).toContain("sourceMatchedObservationCount");
@@ -135,19 +143,36 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('getPiperReferenceForObservation');
     expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
-    expect(source).toContain("Why no comparison to other people?");
+    expect(source).toContain("No ranking for this lift yet");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("Compared to that competition group");
     expect(source).toContain("Nothing logged for this muscle group yet.");
     expect(source).not.toContain("regional percentile");
   });
 
-  it("moves a newly selected region into view with reduced-motion-safe behavior and focuses its heading", () => {
+  it("leaves the page where it is on a pinned layout and only scrolls the wide one, focusing the heading either way", () => {
     expect(source).toContain("const regionDetailRef = useRef<HTMLDivElement | null>(null)");
+    // The record is pinned above the bottom bar below this width, so it is
+    // already on screen. Scrolling would throw the figure the athlete just
+    // tapped off the top of the screen to reach a panel that had not moved.
+    expect(source).toContain('if (!window.matchMedia?.("(max-width: 1023px)").matches) {');
+    expect(source).not.toContain('(max-width: 640px)").matches ? 172 : 28');
     expect(source).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
-    expect(source).toContain('const stickyOffset = window.matchMedia?.("(max-width: 640px)").matches ? 172 : 28');
     expect(source).toContain('window.scrollTo({ top: targetTop, behavior: reduceMotion ? "auto" : "smooth" })');
+    // Offset from the bottom of the pinned chrome, not the top of the window,
+    // or the scroll parks the record's own heading behind the top bar.
+    expect(source).toContain('getPropertyValue("--sg-pinned-chrome")');
+    expect(source).toContain('detail.getBoundingClientRect().top - pinnedChrome - 16');
     expect(source).toContain('data-strength-region-heading');
     expect(source).toContain('focus({ preventScroll: true })');
+  });
+
+  it("pins the record and its two optional actions together, and lets Escape dismiss it", () => {
+    // One pinned block: a record that scrolls with an action bar that cannot be
+    // cut in half by a tall record.
+    expect(source).toContain('className="strength-region-sheet"');
+    const sheet = source.slice(source.indexOf('className="strength-region-sheet"'));
+    expect(sheet.indexOf('strength-region-focus-row')).toBeLessThan(sheet.indexOf('\n      <div className="strength-observation-summary"'));
+    expect(source).toContain('if (event.key !== "Escape") return;');
   });
 });
