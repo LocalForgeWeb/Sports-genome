@@ -92,6 +92,17 @@ describe("Sport-optional onboarding", () => {
     expect(styles).toContain(".athlete-quiz-escalation {");
   });
 
+  it("numbers every module from its real position, so a variable step list stays consistent", () => {
+    expect(source).toContain('const moduleNumber = String(step + 1).padStart(2, "0");');
+    // No step keeps a fixed number: with sport and focus steps appearing conditionally, a
+    // hardcoded "04" is wrong on most paths.
+    expect(source).not.toMatch(/athlete-quiz-kicker">\d\d /);
+    expect(source).not.toMatch(/athlete-quiz-kicker">\{contextMode/);
+    const primaryKickers = [...source.matchAll(/athlete-quiz-kicker">([^<]*\/[^<]*)</g)].map(match => match[1]);
+    expect(primaryKickers.length).toBe(quizStepIds("sport", true).length);
+    for (const kicker of primaryKickers) expect(kicker).toContain("{moduleNumber} /");
+  });
+
   it("states the insufficiency case rather than implying every target is covered", () => {
     expect(source).toContain("No reviewed exercise routine covers");
     expect(source).toContain("the plan will say what is missing instead of guessing");
