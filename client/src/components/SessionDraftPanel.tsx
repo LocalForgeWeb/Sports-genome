@@ -46,7 +46,7 @@ export function SessionDraftPanel({ dayLabel, minutes, budget, loadout, exercise
     </div>
 
     <div className="session-draft-field">
-      <label className="metric-label" id="session-draft-time">How long have you got today?</label>
+      <label className="metric-label" id="session-draft-time">How many minutes have you got today?</label>
       <div className="session-draft-chips session-draft-chips-time" role="group" aria-labelledby="session-draft-time">
         {gymTimeOptions.map((option) => <button
           key={option}
@@ -54,7 +54,10 @@ export function SessionDraftPanel({ dayLabel, minutes, budget, loadout, exercise
           onClick={() => onMinutes(option)}
           aria-pressed={option === minutes}
           className={`session-draft-chip ${option === minutes ? "session-draft-chip-active" : ""}`}
-        >{option === 90 ? "90+" : option}<small>min</small></button>)}
+          /* The unit is in the question above, so the row does not repeat it five
+             times - but a button read on its own still has to carry it. */
+          aria-label={option === 90 ? "90 or more minutes" : `${option} minutes`}
+        >{option === 90 ? "90+" : option}</button>)}
       </div>
       <p className="session-draft-note">{budget.scopeCue}</p>
     </div>
