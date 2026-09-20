@@ -181,14 +181,18 @@ describe("workspace side navigation", () => {
     // The strip is bounded by its own column, not by the viewport: a
     // viewport-derived width cannot know how wide the topbar's right-hand
     // cluster is, and `overflow: visible` let the chips run underneath it
-    // (measured: "5 days" 57px behind the search trigger at 390px).
-    expect(css).toContain('.topbar-context-chips { flex-wrap: nowrap; max-width: 100%; overflow-x: auto;');
+    // (measured: "5 days" 57px behind the search trigger at 390px). Within that
+    // column they wrap rather than scroll - as a hidden-scrollbar strip the
+    // same chip was cut mid-word at 272px, with nothing on screen saying there
+    // was anything to scroll to, which reads as a clipped layout.
+    expect(css).toContain('.topbar-context-chips { flex-wrap: wrap; max-width: 100%; overflow-x: visible;');
     expect(css).toContain('.topbar-context-chips span { max-width: none; flex: 0 0 auto; }');
     expect(mobileStyles).toContain('max-width: calc(100vw - 5.5rem);');
     expect(mobileStyles).toContain('flex: 0 0 auto;');
-    expect(mobileStyles).toContain('overflow-x: auto; overscroll-behavior-x: contain;');
-    expect(mobileStyles).toContain('.topbar-context-chips::-webkit-scrollbar { display: none; }');
-    expect(mobileStyles).toContain('scroll-snap-align: start;');
+    // Both files style this strip and only source order decides which wins, so
+    // neither may quietly put the scroller back.
+    expect(mobileStyles).toContain('.topbar-context-chips { flex-wrap: wrap;');
+    expect(mobileStyles).not.toMatch(/\.topbar-context-chips \{[^}]*overflow-x: auto/);
     expect(mobileStyles).toContain('.apex-topbar button:last-child { display: none; }');
     // The acid-lime accent is retired: it was the calm_precision anti-pattern
     // ("competing highlights") and had accumulated four conflicting !important

@@ -73,9 +73,66 @@ export function labelTellsRowsApart(labels: readonly string[]): boolean {
  * says only "this list is what you asked for". What varies - and what decides
  * between two bench presses - is everything else the exercise brings.
  */
-export function distinguishingMuscles(exercise: Exercise, sortedBy: readonly string[]): string[] {
+export function distinguishingMuscles(exercise: Exercise, named: readonly string[]): string[] {
+  return remainingMuscles(exercise, new Set(named)).slice(0, namedMusclePerRow);
+}
+
+/** Everything the exercise brings that the reader has not already been told. */
+function remainingMuscles(exercise: Exercise, named: Set<string>): string[] {
+  return exercise.primaryMuscles.filter((muscle) => !named.has(muscle));
+}
+
+/**
+ * The row is one line in a card that shares its width with an Add button, and
+ * the line is set in uppercase with letter-spacing. A third muscle ran it past
+ * the card and the ellipsis ate the end of the second - so the line that exists
+ * to tell two squat variants apart was cut off exactly where they differed.
+ * Two is what fits whole, and the exercise's own primary order puts the two
+ * that matter first.
+ */
+const namedMusclePerRow = 2;
+
+/** The muscles the list shares, and whether it is every row or merely most. */
+export type SharedRowMuscles = { muscles: string[]; everyRow: boolean };
+
+/**
+ * The muscles most of these rows would each be repeating at the reader.
+ *
+ * `muscleLineIsInformative` is list-wide and binary, so it passes any list whose
+ * rows are not all identical - and the measured Legs day is exactly that. Filter
+ * to Quadriceps femoris and all twenty-four options also work the glutes:
+ *
+ *   Also Gluteal complex                     <- 9 rows
+ *   Also Gluteal complex · Gastrocn…         <- 12 rows, ellipsised
+ *   Also Gluteal complex · Hip adductors     <- 2 rows
+ *   Also Gluteal complex · Hip abductors     <- 1 row
+ *
+ * The set has four members, so the line prints, and "Gluteal complex" is read
+ * twenty-four times while the part that actually tells a back squat from a leg
+ * press is what the ellipsis cuts off. The repetition is per MUSCLE, not per
+ * line, so that is what has to be counted: a muscle most of the list shares is a
+ * property of the list, and moves to the list's header. Each row is left with
+ * its remainder - nothing at all for nine of them, one short word for the rest -
+ * and the rows that differ become the only ones speaking, which is the whole
+ * point of the line.
+ *
+ * A strict majority, so a list that genuinely splits down the middle keeps the
+ * muscle on the rows that have it: there it is telling half the list from the
+ * other half rather than captioning all of it.
+ */
+export function sharedRowMuscles(exercises: readonly Exercise[], sortedBy: readonly string[]): SharedRowMuscles {
+  if (exercises.length < 2) return { muscles: [], everyRow: false };
   const known = new Set(sortedBy);
-  return exercise.primaryMuscles.filter((muscle) => !known.has(muscle));
+  const counts = new Map<string, number>();
+  const order: string[] = [];
+  exercises.forEach((exercise) => {
+    new Set(remainingMuscles(exercise, known)).forEach((muscle) => {
+      if (!counts.has(muscle)) order.push(muscle);
+      counts.set(muscle, (counts.get(muscle) ?? 0) + 1);
+    });
+  });
+  const muscles = order.filter((muscle) => (counts.get(muscle) ?? 0) * 2 > exercises.length);
+  return { muscles, everyRow: muscles.length > 0 && muscles.every((muscle) => counts.get(muscle) === exercises.length) };
 }
 
 /**

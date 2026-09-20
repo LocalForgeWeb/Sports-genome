@@ -82,11 +82,34 @@ describe("Training Day exercise finder disclosure", () => {
     expect(source).toContain('showGapTag && fillsGap ? " day-picker-result-fills"');
   });
 
-  it("names only the muscles the list header has not already named", () => {
+  it("names only the muscles the reader has not already been told about", () => {
     // Every Push-fit result leads with Pectoralis major, so printing it on each
-    // row repeats the header rather than telling two options apart.
-    expect(source).toContain("distinguishingMuscles(exercise, sortedBy)");
+    // row repeats the header rather than telling two options apart. The same
+    // goes for a muscle most of the list happens to share - on the measured
+    // Legs day all 24 rows also worked the glutes - which the line above the
+    // list states once so the rows keep only what differs.
+    expect(source).toContain("const alreadyNamed = [...sortedBy, ...shared.muscles]");
+    expect(source).toContain("distinguishingMuscles(exercise, alreadyNamed)");
+    expect(source).toContain("muscleLineIsInformative(visibleExercises, alreadyNamed)");
     expect(empty).not.toMatch(/<em>PECTORALIS MAJOR<\/em>/i);
+  });
+
+  it("strips every muscle the header names, not whichever one the header happened to lose to", () => {
+    // The header leads with the day's shortfalls and falls back to the muscle
+    // filter; this stripped only the filter. A Legs day filtered to quadriceps
+    // printed "Gluteal complex and Rectus abdominis first" and then repeated
+    // "Also Gluteal complex" on all twenty-four rows beneath it.
+    expect(source).toContain('...(muscle !== "all" ? [muscle] : []),');
+    expect(source).toContain("...gaps.slice(0, 2).map((gap) => gap.muscle),");
+    expect(source).not.toContain('const sortedBy = muscle !== "all" ? [muscle] : gaps.slice(0, 2)');
+  });
+
+  it("states a muscle the whole list shares once, above it, instead of on every row", () => {
+    expect(source).toContain("sharedRowMuscles(visibleExercises, sortedBy)");
+    expect(source).toContain("day-picker-result-shared");
+    // Counted, not assumed: a list where only most rows carry it does not get
+    // to claim all of them do.
+    expect(source).toContain('shared.everyRow ? "All of these also work" : "Most of these also work"');
   });
 
   it("offers each shortfall as a one-tap filter", () => {

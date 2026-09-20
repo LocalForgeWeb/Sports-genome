@@ -1039,7 +1039,12 @@ select {
 .topbar-context-chips { display: flex; min-width: 0; flex-wrap: wrap; gap: .35rem; margin-top: .32rem; }
 .topbar-context-chips span { max-width: 12rem; overflow: hidden; border: 1px solid var(--sg-divider-on-light); border-radius: 999px; background: #fff; padding: .24rem .58rem; color: #315a82; font-size: .7rem; font-weight: 750; letter-spacing: .02em; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-context-chips span:last-child { border-color: #ecd795; background: #fff9e8; color: #806012; }
-@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .6875rem; letter-spacing: .1em; } .topbar-brand-logo { width: 60px; height: 60px; } .topbar-context-chips { flex-wrap: nowrap; max-width: 100%; overflow-x: auto; scrollbar-width: none; } .topbar-context-chips span { max-width: none; flex: 0 0 auto; } .topbar-context-chips span:last-child { max-width: none; } }
+@media (max-width: 640px) { .apex-topbar { min-height: 5.5rem; padding: .55rem .85rem; } .apex-topbar .metric-label { font-size: .6875rem; letter-spacing: .1em; } .topbar-brand-logo { width: 60px; height: 60px; } /* Three fixed facts about the athlete, not a list to browse. As a strip with a
+   hidden scrollbar the third one - the training-day count - was cut mid-word at
+   272px with nothing on screen saying there was more to scroll to, so it read
+   as a clipped layout rather than as content out of view. They wrap instead:
+   all three are legible at once and nothing has to be discovered. */
+.topbar-context-chips { flex-wrap: wrap; max-width: 100%; overflow-x: visible; } .topbar-context-chips span { max-width: none; flex: 0 0 auto; } .topbar-context-chips span:last-child { max-width: none; } }
 
 /* Retire legacy neon accents from the authenticated command and inspection surfaces. */
 .command-hero .metric-label, .command-hero h1 em, .command-signal-card .metric-label, .command-signal-card button { color: var(--sg-focus-on-dark) !important; }
@@ -1212,6 +1217,28 @@ select {
 /* Home is the command environment: dark decision cards with gold action signals. */
 .apex-content.destination-command { background: radial-gradient(circle at 82% 8%, #1d4c84 0, var(--sg-surface-raised) 38%, var(--sg-surface-deep) 78%); color: var(--sg-text-on-dark); }
 .destination-command .command-hero .metric-label, .destination-command .command-hero em, .destination-command .command-signal-card .metric-label, .destination-command .command-signal-card button, .destination-command .dark-panel > div > div > button { color: var(--sg-focus-on-dark) !important; }
+/* Train's own repaint. Progress, Home and Profile each repoint their light
+   cards for the dark destination they sit in; Train was the one that never did,
+   so the weekly volume map and the recovery spacing card rendered as white
+   boxes halfway down an otherwise navy page. */
+.destination-train .weekly-volume-panel,
+.destination-train .recovery-spacing-panel { border-color: var(--sg-control-border-on-dark); background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); }
+.destination-train .weekly-volume-panel h3,
+.destination-train .weekly-volume-panel strong,
+.destination-train .recovery-spacing-panel strong { color: var(--sg-text-on-dark); }
+.destination-train .weekly-volume-panel small,
+.destination-train .weekly-volume-panel p,
+.destination-train .recovery-spacing-panel p,
+.destination-train .recovery-spacing-panel small { color: var(--sg-text-muted-on-dark); }
+.destination-train .weekly-volume-head,
+.destination-train .weekly-volume-legend,
+.destination-train .weekly-volume-details,
+.destination-train .weekly-volume-list > article { border-color: var(--sg-control-border-on-dark); }
+.destination-train .weekly-volume-head { background: rgb(255 255 255 / .04); }
+.destination-train .weekly-volume-track { background: rgb(255 255 255 / .1); }
+.destination-train .weekly-volume-details summary { color: var(--sg-link-on-dark); }
+.destination-train .weekly-volume-days span { color: var(--sg-text-muted-on-dark); }
+
 .destination-command .light-panel { border-color: rgb(164 200 232 / .3); background: linear-gradient(145deg, var(--sg-surface-overlay), var(--sg-surface-raised)); color: var(--sg-text-on-dark); box-shadow: 0 18px 40px rgb(1 12 28 / .2); }
 .destination-command .light-panel .metric-label, .destination-command .light-panel h2, .destination-command .light-panel strong { color: var(--sg-text-on-dark); }
 .destination-command .light-panel button { border-color: rgb(164 200 232 / .3); background: rgb(255 255 255 / .06); color: var(--sg-text-on-dark); }

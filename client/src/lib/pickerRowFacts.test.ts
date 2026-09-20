@@ -5,6 +5,7 @@ import {
   labelTellsRowsApart,
   muscleLineIsInformative,
   rowRelation,
+  sharedRowMuscles,
 } from "@/lib/pickerRowFacts";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { GapTarget } from "@/lib/pickerRanking";
@@ -63,6 +64,72 @@ describe("distinguishingMuscles", () => {
 
   it("keeps everything when the list is not sorted by a muscle", () => {
     expect(distinguishingMuscles(exercise(["chest", "triceps"]), [])).toEqual(["chest", "triceps"]);
+  });
+
+  it("names at most the two that fit on the line", () => {
+    // The row renders one nowrap line inside a card it shares with an Add
+    // button. A third label pushed past the card and the ellipsis cut the
+    // second one in half - "Also Gluteal complex · Gastrocn" - losing the part
+    // that told this squat from the next.
+    expect(distinguishingMuscles(exercise(["quads", "glutes", "calves", "hamstrings"]), ["quads"]))
+      .toEqual(["glutes", "calves"]);
+  });
+});
+
+describe("sharedRowMuscles", () => {
+  /** The list measured on the shipped build: Legs day, filtered to quadriceps. */
+  const measuredLegsDay = [
+    ...Array.from({ length: 9 }, () => exercise(["quads", "glutes"])),
+    ...Array.from({ length: 12 }, () => exercise(["quads", "glutes", "calves"])),
+    ...Array.from({ length: 2 }, () => exercise(["quads", "glutes", "adductors"])),
+    exercise(["quads", "glutes", "abductors"]),
+  ];
+
+  it("counts muscles, not whole lines, so a shared prefix still gets caught", () => {
+    // All 24 rows read "Also Gluteal complex ...", but four distinct lines, so
+    // the list-wide check passed them all and the glutes were read 24 times.
+    expect(muscleLineIsInformative(measuredLegsDay, ["quads"])).toBe(true);
+    expect(sharedRowMuscles(measuredLegsDay, ["quads"])).toEqual({ muscles: ["glutes"], everyRow: true });
+  });
+
+  it("leaves each row exactly what its neighbours do not already say", () => {
+    const { muscles } = sharedRowMuscles(measuredLegsDay, ["quads"]);
+    const named = ["quads", ...muscles];
+    expect(distinguishingMuscles(measuredLegsDay[0], named)).toEqual([]);
+    expect(distinguishingMuscles(measuredLegsDay[9], named)).toEqual(["calves"]);
+    expect(distinguishingMuscles(measuredLegsDay[23], named)).toEqual(["abductors"]);
+  });
+
+  it("keeps a muscle that splits the list down the middle, where it still decides something", () => {
+    // Twelve of twenty-four rows work the calves. That is not a caption on the
+    // list, it is the difference between one half of it and the other.
+    expect(sharedRowMuscles(measuredLegsDay, ["quads"]).muscles).not.toContain("calves");
+  });
+
+  it("says most, not all, when a minority of rows do not carry it", () => {
+    const rows = [
+      ...Array.from({ length: 3 }, () => exercise(["chest", "triceps"])),
+      exercise(["chest", "frontDelts"]),
+    ];
+    expect(sharedRowMuscles(rows, ["chest"])).toEqual({ muscles: ["triceps"], everyRow: false });
+  });
+
+  it("never lets rows with nothing extra to say carry the vote", () => {
+    // Two rows share triceps, but three of the five say nothing at all, so
+    // there is no caption being repeated down the page.
+    const rows = [
+      exercise(["chest", "triceps"]),
+      exercise(["chest", "triceps"]),
+      exercise(["chest"]),
+      exercise(["chest"]),
+      exercise(["chest"]),
+    ];
+    expect(sharedRowMuscles(rows, ["chest"]).muscles).toEqual([]);
+  });
+
+  it("says nothing about a single row, which repeats nothing", () => {
+    expect(sharedRowMuscles([exercise(["chest", "triceps"])], ["chest"]).muscles).toEqual([]);
+    expect(sharedRowMuscles([], ["chest"]).muscles).toEqual([]);
   });
 });
 

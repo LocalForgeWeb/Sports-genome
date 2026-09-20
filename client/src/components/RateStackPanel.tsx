@@ -142,8 +142,7 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
             </div>
           )}
           <p className="rate-stack-legend">
-            <span className="rate-stack-legend-fill" aria-hidden="true" /> coverage reached
-            <span className="rate-stack-legend-target" aria-hidden="true" /> {split.toLowerCase()} target
+            <span className="rate-stack-legend-target" aria-hidden="true" /> marks the {split.toLowerCase()} target each bar is measured against; the bar itself is what this day reached.
           </p>
         </div>
       )}

@@ -78,14 +78,18 @@ describe("layout integrity", () => {
     expect(contrast(token("--sg-text-subtle-on-light"), "#ffffff")).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("keeps the topbar context chips inside their own column", () => {
+  it("keeps the topbar context chips inside their own column, with every one of them readable", () => {
     // A viewport-derived max-width cannot account for the topbar's right-hand
-    // cluster, so the chip strip ran underneath it: "5 days" was 57px behind the
-    // search trigger at 390px. The strip is bounded by its column and scrolls.
-    const rule = css.match(/\.topbar-context-chips \{ flex-wrap: nowrap;[^}]*\}/g)?.join("\n") || "";
+    // cluster, so the chip strip ran underneath it: "5 days" was 57px behind
+    // the search trigger at 390px. Bounding it by its own column fixed that but
+    // left it a hidden-scrollbar strip, and the same chip was then cut mid-word
+    // at 272px with nothing on screen saying it could be scrolled to. Three
+    // fixed facts about the athlete are not a list to browse, so they wrap.
+    const rule = css.match(/\.topbar-context-chips \{ flex-wrap: wrap;[^}]*\}/g)?.join("\n") || "";
     expect(rule, "the phone-width chip rule is present").toBeTruthy();
     expect(rule).not.toMatch(/max-width: calc\(100vw/);
-    expect(rule).toMatch(/overflow-x: auto/);
+    expect(rule).toMatch(/max-width: 100%/);
+    expect(rule).not.toMatch(/overflow-x: auto/);
   });
 
   it("gives every control in the workspace a 44px tap target", () => {
