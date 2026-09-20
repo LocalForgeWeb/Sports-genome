@@ -659,7 +659,6 @@
 .session-draft-field .metric-label { color: #9ec4e8; }
 .session-draft-chips { display: flex; flex-wrap: wrap; gap: .45rem; }
 .session-draft-chip { display: inline-flex; min-height: 44px; align-items: baseline; gap: .28rem; border: 1px solid rgb(255 255 255 / .2); background: rgb(255 255 255 / .05); padding: .5rem .72rem; color: #dbe9f8; font-size: .95rem; font-weight: 800; line-height: 1; transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
-.session-draft-chip small { font-size: .6875rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .68; }
 .session-draft-chip-wide { font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
 .session-draft-chip:hover { border-color: rgb(255 255 255 / .38); background: rgb(255 255 255 / .1); }
 .session-draft-chip-active { border-color: var(--sg-action); background: rgb(228 81 46 / .18); color: #fff; }
@@ -682,7 +681,7 @@
   .session-draft-panel { padding: .95rem; }
   .session-draft-head h3 { font-size: 1.55rem; }
   .session-draft-chips-time { gap: .3rem; }
-  .session-draft-chips-time .session-draft-chip { flex-direction: column; gap: .1rem; padding: .45rem .3rem; font-size: .88rem; }
+  .session-draft-chips-time .session-draft-chip { padding: .45rem .3rem; font-size: 1rem; }
   .session-draft-chips-focus { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .session-draft-chips-focus .session-draft-chip { font-size: .6875rem; }
   .session-draft-outcome { align-items: stretch; }
