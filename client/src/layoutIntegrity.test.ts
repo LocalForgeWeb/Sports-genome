@@ -137,3 +137,39 @@ describe("athlete-facing labels", () => {
     expect(missing, `unlabelled muscle keys would render raw: ${missing.join(", ")}`).toEqual([]);
   });
 });
+
+/**
+ * Dark mode arrived with the chrome themed one element short, and one control
+ * left holding a colour written for a surface it no longer sits on.
+ */
+describe("the dark theme covers the chrome it sits in", () => {
+  it("themes the block holding search and Profile, not just the tab row beside it", () => {
+    // `.workspace-top-actions` is a sibling of the tab row, not a child, and it
+    // carries its own --sg-surface-light fill at phone width. Themed without
+    // it, the row went dark and that block stayed a white rectangle in the
+    // top-right corner with two near-invisible icons on it.
+    const themed = css.match(/\[data-theme="dark"\][^{]*\.workspace-top-actions[^{]*\{[^}]*\}/g) ?? [];
+    expect(themed.length, "the actions block has a dark rule").toBeGreaterThan(0);
+    // And whatever gave it the light fill is named in the same breath as the row.
+    const light = css.match(/\.workspace-top-switcher, \.workspace-top-actions \{[^}]*\}/);
+    expect(light, "the light rule pairs them").toBeTruthy();
+    expect(themed.join("\n"), "so does the dark one").toContain(".workspace-top-actions");
+  });
+
+  it("leaves no control wearing a colour meant for a different surface", () => {
+    // The empty-day button is an orange action fill with a white label, styled
+    // where it lives. A palette guard here repainted it gold on both counts and,
+    // because index.css imports that file at the top, won on source order -
+    // gold on the action orange, 2.71:1, on the one control the panel offers.
+    expect(css).not.toContain(".day-plan-empty button { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }");
+    const planner = readFileSync(join(SRC, "workout-planner.css"), "utf8");
+    expect(planner, "the button keeps its own white label").toMatch(/\.day-plan-empty button \{[^}]*background: var\(--sg-action-fill\); color: #fff;/);
+  });
+
+  it("keeps the Add controls legible once their rows go dark", () => {
+    // Both kept the light-mode link blue: the row's Add measured 2.79:1 and the
+    // disclosure's "Add exercises" 2.71:1 against the surfaces the theme gave them.
+    expect(css).toContain('[data-theme="dark"] .day-picker-result > button:last-child,');
+    expect(css).toContain('[data-theme="dark"] .day-exercise-disclosure-action { color: var(--sg-link-on-dark); }');
+  });
+});

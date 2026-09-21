@@ -1466,7 +1466,12 @@ select {
 
 /* Palette guard: legacy utility classes resolve to the Sports Genome gold/navy action system. */
 .hover\:text-\[\#142019\]:hover { color: var(--sg-text-on-light) !important; }
-.day-plan-empty button { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }
+/* The empty-day button is styled where it lives, in workout-planner.css: an
+   orange action fill with a white label. A palette guard here repainted it gold
+   on both counts, and index.css imports that file at the top, so this line came
+   later and won - gold on the action orange, measured 2.71:1 on the one control
+   the panel exists to offer. The guard was for legacy utility classes; this
+   button has none, so it has nothing to guard. */
 
 /* Body Lab inherits Explore’s discovery palette while the anatomy canvas stays neutral for clear muscle inspection. */
 .destination-body .body-lab-navigator { border-color: rgb(164 200 232 / .34); background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-deep)); color: var(--sg-text-on-dark); }
@@ -3053,12 +3058,20 @@ details:not([open]) > *:not(summary) {
 [data-theme="dark"] .sport-chip-active { background: linear-gradient(115deg, rgb(228 81 46 / .32), rgb(45 108 223 / .30)); box-shadow: inset 0 -3px var(--sg-action); color: #fff; }
 [data-theme="dark"] .sport-chip-active small { color: var(--sg-text-on-dark); }
 
+/* `.workspace-top-actions` belongs in here with the other two.
+   It is a sibling of the tab row, not a child, and it carries its own
+   `--sg-surface-light` fill at phone width - so themed without it, the row went
+   dark and the block holding search and Profile stayed a white rectangle in the
+   top-right corner with two near-invisible icons on it. */
 [data-theme="dark"] .workspace-top-switcher-shell,
-[data-theme="dark"] .workspace-top-switcher {
+[data-theme="dark"] .workspace-top-switcher,
+[data-theme="dark"] .workspace-top-actions {
   border-bottom-color: var(--sg-control-border-on-dark);
   background: linear-gradient(180deg, var(--sg-surface-raised), var(--sg-surface-deep));
   color: var(--sg-text-on-dark);
 }
+[data-theme="dark"] .workspace-top-actions { border-left-color: var(--sg-control-border-on-dark); box-shadow: none; }
+[data-theme="dark"] .workspace-top-switcher { box-shadow: none; }
 [data-theme="dark"] .workspace-top-switcher button { color: var(--sg-text-subtle-on-dark); }
 [data-theme="dark"] .workspace-top-switcher button:hover { color: var(--sg-text-on-dark); }
 [data-theme="dark"] .workspace-top-switcher-active { color: var(--sg-text-on-dark); }
@@ -3167,6 +3180,13 @@ details:not([open]) > *:not(summary) {
   background: rgb(255 255 255 / .07);
   color: var(--sg-link-on-dark);
 }
+/* The Add control keeps its light-mode link blue, which on the row's new dark
+   surface measured 2.79:1 - and "Add exercises" on the disclosure above it
+   2.71:1. Both are the reason an athlete opens this panel. */
+[data-theme="dark"] .day-picker-result > button:last-child,
+[data-theme="dark"] .day-exercise-disclosure-action { color: var(--sg-link-on-dark); }
+[data-theme="dark"] .day-picker-result > button:last-child { border-left-color: var(--sg-control-border-on-dark); }
+[data-theme="dark"] .day-picker-result > button:last-child:disabled { background: rgb(255 255 255 / .04); color: var(--sg-text-faint-on-dark); }
 [data-theme="dark"] .day-picker-result :is(strong, h3, h4, .metric-label) { color: var(--sg-text-on-dark); }
 [data-theme="dark"] .day-picker-result :is(p, small, span, em, li) { color: var(--sg-text-muted-on-dark); }
 
