@@ -173,3 +173,45 @@ describe("the launch sequence waits for something to show", () => {
     expect(bootExperienceSource).toMatch(/return Number\.isFinite\(started\) && started > 0 \? started : null;/);
   });
 });
+
+/**
+ * "I tried clicking the preview video 2 times and the whole app glitched and
+ * you can see the top thing vanished."
+ */
+describe("replaying the intro", () => {
+  it("asks for one reload however many times the control is pressed", () => {
+    // The reload takes a moment to commit and the button stays under the
+    // finger for all of it, so the second tap called reload() again on a
+    // document that was already unloading - two navigations racing over one
+    // page. The document this runs in is going away either way, so the flag
+    // never needs clearing.
+    expect(bootSplashSource).toContain("if (replayRequested) return;");
+    expect(bootSplashSource).toContain("replayRequested = true;");
+    expect(bootSplashSource).toContain("export function bootSplashReplayRequested");
+  });
+
+  it("takes the control out of reach once it has been pressed", () => {
+    const home = readFileSync(resolve(process.cwd(), "client/src/pages/Home.tsx"), "utf8");
+    expect(home).toContain("if (replayPending || bootSplashReplayRequested()) return;");
+    expect(home).toContain("disabled={!launchExperienceEnabled || replayPending}");
+    // And it says why it is unavailable rather than just going dead.
+    expect(home).toContain('replayPending ? "Starting the intro…" : "Preview intro video"');
+  });
+
+  it("leaves no composited blur on the bar the splash is lifted off", () => {
+    // The header is sticky and sits directly under the boot splash - a
+    // full-screen top-most layer with `will-change: opacity`, `isolation:
+    // isolate` and `contain: layout paint style` that is removed from the
+    // document when the sequence ends. Reported after a replay: the bar's
+    // background was still drawn and everything inside it was not, which is
+    // what a stale composited layer looks like. Under an 84%-opaque fill the
+    // blur was not visible anyway.
+    const css = readFileSync(resolve(process.cwd(), "client/src/index.css"), "utf8");
+    for (const rule of css.matchAll(/\.apex-topbar \{[^}]*\}/g)) {
+      expect(rule[0], "the header declares no backdrop-filter").not.toContain("backdrop-filter");
+      const background = rule[0].match(/background:([^;]*);/);
+      // Opaque, so nothing behind it can show through a half-painted layer.
+      if (background) expect(background[1], `${background[1]} is opaque`).not.toMatch(/\/\s*\.\d/);
+    }
+  });
+});

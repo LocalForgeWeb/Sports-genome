@@ -449,7 +449,7 @@
   .rail-bottom { margin-top: auto; padding: 14px; }
   .rail-data-card { border: 1px solid rgb(184 255 91 / .28); background: linear-gradient(135deg, rgb(184 255 91 / .08), transparent 70%); padding: 14px; }
   .apex-main { min-width: 0; min-height: 100vh; }
-  .apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: 72px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .9); padding: 12px 18px; backdrop-filter: blur(14px); }
+  .apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: 72px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243); padding: 12px 18px; }
   .topbar-brand-logo { width: 56px; height: 56px; border-radius: 999px; background: var(--sg-surface-deep); box-shadow: 0 0 0 1px rgb(11 34 64 / .18), 0 7px 16px rgb(10 29 54 / .15); object-fit: cover; }
   .workspace-top-switcher { position: sticky; top: 72px; z-index: 29; display: flex; gap: 12px; overflow-x: auto; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .96); padding: 7px 18px; scrollbar-width: none; }
   .workspace-top-switcher::-webkit-scrollbar { display: none; }
@@ -518,7 +518,7 @@
   .rail-nav-active { background: var(--sg-gold) !important; color: var(--sg-navy-deep) !important; }
   .rail-nav-active .text-\[\#7d8c85\] { color: #35495d !important; }
   .rail-data-card { border-color: rgb(213 173 67 / .45); background: linear-gradient(135deg, rgb(213 173 67 / .13), transparent 72%); }
-  .apex-topbar { border-bottom-color: var(--sg-line); background: rgb(255 253 248 / .92); }
+  .apex-topbar { border-bottom-color: var(--sg-line); background: rgb(255 253 248); }
   .dark-panel, .command-hero { background: var(--sg-navy-deep); }
   .light-panel { background: var(--sg-paper); border-color: var(--sg-line); box-shadow: 0 14px 34px rgb(11 34 64 / .07); }
   .metric-label { color: var(--sg-muted); }
@@ -556,7 +556,7 @@
 :root { --background: var(--sg-surface-light-sunken); --foreground: #0b2240; --card: #fbfdff; --card-foreground: #0b2240; --primary: #2d6cdf; --border: var(--sg-divider-on-light); --ring: #2d6cdf; }
 .apex-shell { background: var(--sg-surface-light-sunken); }
 .apex-rail, .dark-panel, .command-hero { background: var(--sg-surface-deep); }
-.apex-topbar { border-color: var(--sg-divider-on-light); background: rgb(251 253 255 / .92); }
+.apex-topbar { border-color: var(--sg-divider-on-light); background: rgb(251 253 255); }
 .light-panel { border-color: var(--sg-divider-on-light); background: var(--sg-surface-light); box-shadow: var(--sg-elevation-2); }
 .rail-nav-active { background: var(--sg-info-strong) !important; box-shadow: inset 4px 0 #9fc5ff; }
 .rail-athlete > div:first-child { background: var(--sg-info-strong) !important; }
@@ -758,7 +758,16 @@ select {
 .apex-shell { background: radial-gradient(circle at 85% 0%, rgb(116 188 255 / .18), transparent 26%), var(--sg-surface-light-sunken); }
 .apex-rail { width: 280px; border-right: 1px solid rgb(142 188 249 / .16); background: linear-gradient(180deg, var(--sg-surface-raised), var(--sg-surface-panel) 68%, var(--sg-surface-raised)); box-shadow: 14px 0 48px rgb(9 31 61 / .17); }.apex-main { min-width: 0; }.rail-brand { padding: 25px 22px; }.rail-nav { padding: 12px; }.rail-nav-item { border-radius: 12px; margin: 3px 0; transition: transform var(--sg-motion-fast) var(--sg-ease), background-color var(--sg-motion-fast) var(--sg-ease); }.rail-nav-item:hover { transform: translateX(3px); background: rgb(255 255 255 / .08); }.rail-nav-active { background: linear-gradient(135deg, #3d94ff, #2470dc) !important; box-shadow: 0 8px 18px rgb(12 91 206 / .28) !important; }
 .rail-athlete { margin: 16px 12px 7px; border: 1px solid rgb(255 255 255 / .1); border-radius: 14px; background: rgb(255 255 255 / .06); }.rail-data-card { border-radius: 15px; background: linear-gradient(145deg, rgb(78 155 255 / .2), rgb(255 255 255 / .04)); }
-.apex-topbar { min-height: 74px; border-bottom-color: var(--sg-divider-on-light); background: rgb(250 253 255 / .84); backdrop-filter: blur(18px); }.apex-content { max-width: 1600px; }.dark-panel { border-radius: 20px; background: linear-gradient(145deg, var(--sg-surface-raised), var(--sg-surface-deep)); box-shadow: 0 16px 36px rgb(18 72 129 / .15); }.light-panel { border: 1px solid rgb(202 221 241 / .88); border-radius: 20px; background: rgb(255 255 255 / .88); box-shadow: 0 16px 38px rgb(34 91 152 / .08); }.view-header { align-items: end; }.view-header h1 { color: var(--sg-text-on-light); }/* The display italic sits on the dark destination gradient, so it takes the
+/* Opaque, and not a composited blur.
+   The bar is sticky, and it sits directly beneath the boot splash - a
+   full-screen top-most layer carrying `will-change: opacity`, `isolation:
+   isolate` and `contain: layout paint style`, which is removed from the
+   document the moment the launch sequence ends. Reported after replaying the
+   intro: the bar's background was still there and everything inside it had
+   stopped painting, which is what a stale composited layer looks like. A
+   backdrop blur under an 84%-opaque fill is close to invisible anyway, so the
+   effect costs nothing to drop and takes the fragile path with it. */
+.apex-topbar { min-height: 74px; border-bottom-color: var(--sg-divider-on-light); background: rgb(250 253 255); }.apex-content { max-width: 1600px; }.dark-panel { border-radius: 20px; background: linear-gradient(145deg, var(--sg-surface-raised), var(--sg-surface-deep)); box-shadow: 0 16px 36px rgb(18 72 129 / .15); }.light-panel { border: 1px solid rgb(202 221 241 / .88); border-radius: 20px; background: rgb(255 255 255 / .88); box-shadow: 0 16px 38px rgb(34 91 152 / .08); }.view-header { align-items: end; }.view-header h1 { color: var(--sg-text-on-light); }/* The display italic sits on the dark destination gradient, so it takes the
    on-dark info accent. This carried !important, which is why repointing the
    component's own class had no effect. */
 .view-header h1 em { color: var(--sg-info) !important; }.view-header::after { background: #c9dced; }
@@ -1140,14 +1149,26 @@ select {
    Hide the repeated header summary from the initial decision canvas. */
 .apex-content > section.space-y-5 .view-header-note { display: none; }
 .day-design-workspace .workout-execution-panel { display: none; }
-.tracker-workspace { display: grid; gap: 1rem; }.tracker-day-selector { display: grid; gap: 1rem; border: 1px solid #c9d9e8; background: linear-gradient(135deg, var(--sg-surface-light), var(--sg-surface-light-sunken)); padding: 1.1rem; }.tracker-day-selector h1 { margin-top: .25rem; color: var(--sg-text-on-light); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 6vw, 3.1rem); font-weight: 800; line-height: .88; text-transform: uppercase; }.tracker-day-selector p:last-child { max-width: 46rem; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }.tracker-day-options { display: flex; flex-wrap: wrap; gap: .55rem; }.tracker-day-options button { min-height: 2.75rem; border: 1px solid #b6cce2; background: #fff; padding: .55rem .75rem; color: var(--sg-text-muted-on-light); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.tracker-day-options button[aria-pressed="true"] { border-color: var(--sg-action); background: var(--sg-surface-raised); color: #fff; box-shadow: inset 0 -3px 0 var(--sg-focus-on-dark); }
+.tracker-workspace { display: grid; gap: 1rem; }/* The tracker's day chooser: one line that opens into the grid. It was a panel with a display headline naming the day, a sentence asking you to pick one, and the grid - stacked above a second panel whose first line named the same day again. */
+.tracker-day-switch { border: 1px solid #c9d9e8; border-radius: var(--sg-radius-md); background: linear-gradient(135deg, var(--sg-surface-light), var(--sg-surface-light-sunken)); }
+.tracker-day-switch > summary { display: flex; min-height: 3.25rem; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; padding: .7rem 1rem; cursor: pointer; list-style: none; }
+.tracker-day-switch > summary::-webkit-details-marker { display: none; }
+.tracker-day-switch > summary .metric-label { flex: 0 0 100%; }
+.tracker-day-switch > summary strong { color: var(--sg-text-on-light); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: 1; text-transform: uppercase; }
+.tracker-day-switch > summary small { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-sm); font-weight: 700; }
+.tracker-day-switch > summary em { margin-left: auto; color: var(--sg-info-strong); font-size: var(--sg-text-xs); font-style: normal; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.tracker-day-switch > summary > svg { color: var(--sg-info-strong); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.tracker-day-switch[open] > summary > svg { transform: rotate(180deg); }
+.tracker-day-switch > .tracker-day-options { padding: 0 1rem 1rem; }
+.tracker-day-options { display: flex; flex-wrap: wrap; gap: .55rem; }.tracker-day-options button { min-height: 2.75rem; border: 1px solid #b6cce2; background: #fff; padding: .55rem .75rem; color: var(--sg-text-muted-on-light); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.tracker-day-options button[aria-pressed="true"] { border-color: var(--sg-action); background: var(--sg-surface-raised); color: #fff; box-shadow: inset 0 -3px 0 var(--sg-focus-on-dark); }
 
 /* Destination systems: shared Sports Genome colors, distinct task environments. */
 .apex-content.destination-train { background: radial-gradient(circle at 82% 4%, #1d4c84 0, var(--sg-surface-raised) 34%, var(--sg-surface-deep) 76%); color: var(--sg-text-on-dark); }
 .destination-train .day-design-workspace, .destination-train .tracker-workspace { color: var(--sg-text-on-dark); }
-.destination-train .day-design-hero, .destination-train .tracker-day-selector, .destination-train .device-workout-tracker, .destination-train .day-design-rail-note { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, rgb(18 54 92 / .96), rgb(8 29 54 / .98)); box-shadow: 0 18px 38px rgb(1 12 28 / .22); }
-.destination-train .day-design-hero h1, .destination-train .tracker-day-selector h1, .destination-train .device-workout-tracker h3, .destination-train .day-design-rail-note p { color: var(--sg-text-on-dark); }
-.destination-train .day-design-hero p, .destination-train .tracker-day-selector p:last-child, .destination-train .device-workout-tracker p { color: var(--sg-text-muted-on-dark); }
+.destination-train .day-design-hero, .destination-train .tracker-day-switch, .destination-train .device-workout-tracker, .destination-train .day-design-rail-note { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, rgb(18 54 92 / .96), rgb(8 29 54 / .98)); box-shadow: 0 18px 38px rgb(1 12 28 / .22); }
+.destination-train .day-design-hero h1, .destination-train .tracker-day-switch > summary strong, .destination-train .device-workout-tracker h3, .destination-train .day-design-rail-note p { color: var(--sg-text-on-dark); }
+.destination-train .day-design-hero p, .destination-train .tracker-day-switch > summary small, .destination-train .device-workout-tracker p { color: var(--sg-text-muted-on-dark); }
+.destination-train .tracker-day-switch > summary em, .destination-train .tracker-day-switch > summary > svg { color: var(--sg-focus-on-dark); }
 .destination-train .tracker-day-options button { border-color: rgb(164 200 232 / .5); background: rgb(255 255 255 / .08); color: #e8f3ff; }
 .destination-train .day-active-card, .destination-train .day-programming-panel, .destination-train .day-design-rail { border-color: rgb(164 200 232 / .22); background: rgb(8 27 50 / .74); }
 .destination-train .day-active-card h2, .destination-train .day-active-card .metric-label, .destination-train .day-active-card p:last-child { color: var(--sg-text-on-dark); }
@@ -2272,7 +2293,7 @@ details:not([open]) > *:not(summary) {
 .destination-secondary .about-me-equipment,
 .destination-progress .light-panel,
 .destination-train .day-design-hero,
-.destination-train .tracker-day-selector,
+.destination-train .tracker-day-switch,
 .destination-train .device-workout-tracker,
 .destination-train .day-design-rail-note,
 .destination-train .three-week-planner,
