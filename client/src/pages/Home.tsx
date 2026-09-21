@@ -986,7 +986,13 @@ export default function Home() {
    */
   const saveActiveDay = () => {
     setDayStore((current) => commitDay(current, activeDayKey, { workout: customWorkout, prescriptions, settings: exerciseSettings }));
-    toast("Training day saved", { description: `${activeSlot.ordinal} · ${activeSlot.day} holds ${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"}. Every edit to a day is saved to that day as you make it.` });
+    // Names the day it landed on, and stops. The description under this said
+    // the day "holds 5 exercises" and that "every edit to a day is saved to
+    // that day as you make it" - both of which the day's own header is already
+    // showing, permanently, two inches above: "5 exercises in this day" and
+    // "Saved to this day as you edit". Repeating them turned a confirmation
+    // into a three-line slab across the bottom of the screen.
+    toast(`${activeSlot.ordinal} · ${activeSlot.day} saved`);
   };
   /**
    * Opening a day moves the marker and nothing else. Carrying the departing day into the

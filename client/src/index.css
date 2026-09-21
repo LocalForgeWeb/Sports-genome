@@ -2785,3 +2785,20 @@ details:not([open]) > *:not(summary) {
     box-shadow: var(--sg-sheen), var(--sg-elevation-1);
   }
 }
+
+/* The toast, given the same surface as everything else it covers.
+   Its background, text and border come from the three `--normal-*` variables
+   the Toaster sets, which is sonner's own mechanism for exactly this and the
+   part that was pointed at undefined variables. The rest is sonner's dark
+   treatment, which the Toaster now selects explicitly instead of following
+   the athlete's phone.
+
+   The two rules below are the exceptions, and both carry `[data-styled=true]`
+   on top of the toaster's own class: sonner injects its stylesheet at runtime,
+   so it lands after this file and takes any tie at equal specificity. A bare
+   `[data-sonner-toast]` rule here silently painted nothing. */
+.toaster [data-sonner-toast][data-styled="true"] { box-shadow: 0 16px 38px rgb(4 20 40 / .45); }
+/* Sonner's dark description is #e8e8e8, near-white and the same weight as the
+   title beside it. The app already has a token for supporting text on a dark
+   panel, and using it keeps the two lines in a hierarchy. */
+.toaster [data-sonner-toast][data-styled="true"] [data-description] { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.45; }
