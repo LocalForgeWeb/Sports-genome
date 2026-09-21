@@ -783,7 +783,13 @@ select {
 .pulse-shell::before { content: ""; position: fixed; inset: 86px 0 0; pointer-events: none; background-image: linear-gradient(rgb(154 190 230 / .045) 1px, transparent 1px), linear-gradient(90deg, rgb(154 190 230 / .04) 1px, transparent 1px); background-size: 52px 52px; mask-image: linear-gradient(90deg, transparent 0%, black 58%, transparent 100%); }.pulse-header img { filter: sepia(1) saturate(2) hue-rotate(350deg) brightness(1.17) drop-shadow(0 0 12px rgb(213 173 67 / .22)); transform: scale(1.08); }.pulse-option { border-radius: 14px; }.pulse-option strong { color: var(--sg-text-on-dark); }.pulse-option-selected strong { color: #fff; text-shadow: 0 1px 12px rgb(228 81 46 / .18); }.pulse-option-selected .pulse-option-index { color: #ffb49e; }.pulse-progress i.pulse-progress-on { background: var(--sg-info); box-shadow: none; }.pulse-next { background: var(--sg-action-fill); }.pulse-next:hover { background: var(--sg-action-strong); }
 .pulse-option:nth-child(1) > span:nth-child(2)::before { content: "COACH READ / FORCE-VELOCITY"; }.pulse-option:nth-child(2) > span:nth-child(2)::before { content: "COACH READ / TISSUE VOLUME"; }.pulse-option:nth-child(3) > span:nth-child(2)::before { content: "COACH READ / FORCE EXPRESSION"; }.pulse-option:nth-child(4) > span:nth-child(2)::before { content: "COACH READ / REPEATABILITY"; }.pulse-stage::before { content: "CALIBRATION 01  /  MOVEMENT BIAS\A SPORT TRANSFER  /  LOAD TOLERANCE\A PRIORITY SIGNAL  /  SESSION INTENT"; white-space: pre; position: absolute; right: -128px; top: 142px; width: 190px; border-left: 2px solid var(--sg-action); padding: 8px 0 8px 10px; color: #8eaaca; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-loose); }@media (max-width: 1120px) { .pulse-stage::before { display: none; } }
 
-.builder-prep-workspace { margin-top: 1.25rem; }.builder-prep-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }.builder-prep-head h2 { margin-top: .35rem; color: var(--sg-text-on-light); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: .88; text-transform: uppercase; }.builder-prep-head p:last-child { max-width: 560px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+/* One line on Plan saying where the analysis went, so moving it off that page is a
+   move rather than a disappearance. */
+.day-review-pointer { margin: .25rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.day-review-pointer button { min-height: 2.75rem; color: var(--sg-link-on-dark); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.day-programming-solo { display: grid; gap: 1.25rem; }
+.day-review-workspace > * + * { margin-top: 1.25rem; }
+.day-review-workspace { margin-top: 1.25rem; }.day-review-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }.day-review-head h1 { margin-top: .35rem; color: var(--sg-text-on-light); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: .88; text-transform: uppercase; }.day-review-head p:last-child { max-width: 560px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
 .more-workspace { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem; border: 1px solid #cddbef; background: #fff; padding: clamp(1.25rem, 4vw, 2.5rem); }.more-workspace h1 { margin-top: .35rem; color: var(--sg-text-on-light); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; line-height: .84; text-transform: uppercase; }.more-workspace p:last-child { max-width: 33rem; margin-top: .8rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-md); line-height: var(--sg-leading-body); }.more-workspace-actions { display: flex; flex-wrap: wrap; gap: .6rem; }.more-workspace-actions button { display: inline-flex; min-height: 44px; align-items: center; gap: .5rem; border: 1px solid var(--sg-info-strong); padding: 0 .9rem; color: #173d69; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.more-workspace-actions button:first-child { background: var(--sg-surface-raised); color: #fff; }
 
 /* Workspace readability polish: functional field-manual detailing without changing product content. */
@@ -1852,12 +1858,6 @@ details:not([open]) > *:not(summary) {
   color: var(--sg-label-color, var(--sg-text-subtle-on-light));
 }
 
-.destination-train .builder-upgrade-head h1,
-.destination-train .builder-upgrade-head p,
-.destination-train .weekly-day-card span,
-.destination-train .weekly-day-card small {
-  color: var(--sg-text-on-dark);
-}
 
 /* workout-planner.css sets `.builder-upgrade-head > div > p:last-child`, which
    out-specifies a plain descendant selector, so match its shape. */
@@ -1870,11 +1870,11 @@ details:not([open]) > *:not(summary) {
    the selector the audit reported rather than by a blanket override. */
 
 /* "Prepare. Then prescribe." and its subtitle kept the light-surface pair. */
-.destination-train .builder-prep-head h2 {
+.destination-train .day-review-head h1 {
   color: var(--sg-text-on-dark);
 }
 
-.destination-train .builder-prep-head p:last-child {
+.destination-train .day-review-head p:last-child {
   color: var(--sg-text-muted-on-dark);
 }
 
@@ -2463,7 +2463,6 @@ details:not([open]) > *:not(summary) {
   /* Heroes. The binding case is "Recommendations with the reasoning attached.",
      which needs 25.2px; 6.2vw is 24.2px at 390 and grows with the viewport. */
   .day-design-hero h1,
-  .builder-upgrade-head h1,
   .progress-review-head h1,
   .view-header h1 { font-size: clamp(1.5rem, 6.2vw, 2.7rem); line-height: .95; }
 

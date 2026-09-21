@@ -29,7 +29,7 @@ const steps = [
     title: "Build and run a session",
     copy: "Train is where a workout gets designed from your sport and equipment, then logged set by set while you do it.",
     task: "Stage a session, then start it when you are ready to lift.",
-    view: "custom",
+    view: "day-plan",
   },
   {
     icon: Activity,

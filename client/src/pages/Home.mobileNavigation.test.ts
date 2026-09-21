@@ -118,12 +118,9 @@ describe("workspace side navigation", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('className="mobile-workspace-dock"');
     expect(source).toContain('aria-label="Primary workspace navigation"');
-    expect(source).toContain('label: "Tracker", workspace: "tracker"');
-    expect(source).toContain('label: "Stack Review", workspace: "day-plan"');
-    expect(source).toContain('label: "Prep", workspace: "custom"');
+    expect(source).toContain('label: "Session", workspace: "tracker"');
+    expect(source).toContain('label: "Review", workspace: "review"');
     expect(source).toContain('navigateWorkspace("tracker")');
-    expect(source).toContain('const target = document.querySelector(scrollTarget);');
-    expect(source).toContain('target?.scrollIntoView({ behavior: "smooth", block: "start" });');
     expect(source).toContain('<DeviceWorkoutTracker');
     expect(workoutTrackerSource).toContain('id="workout-tracker"');
     expect(deviceTrackerSource).toContain('id="workout-tracker"');
@@ -140,13 +137,19 @@ describe("workspace side navigation", () => {
     expect(tabsComponent).toContain('className="workspace-top-switcher"');
     expect(source).not.toContain('<details className="plan-context">');
     expect(source).toContain('workspace pages`');
-    expect(source).toContain('label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review"');
-    expect(source).toContain('label: "Prep", workspace: "custom", scrollTarget: "#session-prep"');
+    /**
+     * A tab is a place. "Stack Review" and "Prep" were tabs that scrolled the page you
+     * were already on and force-opened a `<details>`, which the navigation principle
+     * lists first among its anti-patterns: "tabs that execute actions". The scroll
+     * mechanism went with them, so it cannot come back by adding one more entry.
+     */
+    expect(source).not.toContain("scrollTarget");
+    expect(source).not.toContain('label: "Stack Review"');
+    expect(source).not.toContain('label: "Prep"');
+    expect(source).not.toContain("scrollIntoView({ behavior: \"smooth\", block: \"start\" })");
     expect(source).toContain('const navigateContextualWorkspace = (tab: ContextualWorkspaceTab)');
-    expect(source).toContain('if (scrollTarget) window.requestAnimationFrame(() => window.requestAnimationFrame(() => {');
-    expect(source).toContain('if (tab.id === "stack-review") target?.querySelector<HTMLDetailsElement>("details")?.setAttribute("open", "");');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
-    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     // Active-tab resolution moved into the row component with the markup.
     expect(source).toContain("activeId={activeContextTabId}");
     expect(tabsComponent).toContain("const active = tab.id === activeId;");
@@ -218,8 +221,9 @@ describe("workspace side navigation", () => {
   });
 
   it("retains one explicit active contextual route for every Train and Body Lab tab", () => {
-    ["Training Day", "Tracker", "Matches", "Builder", "Stack Review", "Prep", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
-    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    // Train is four places in the order the work happens, each its own page.
+    ["Plan", "Review", "Session", "Matches", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
+    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(tabsComponent).toContain('className={active ? "workspace-top-switcher-active" : ""}');
   });
@@ -233,7 +237,7 @@ describe("workspace side navigation", () => {
     expect(source).toContain('Preparing this workspace…');
   });
 
-  it("removes duplicate mobile Training Day shortcuts while keeping dedicated Tracker and Builder destinations reachable", () => {
+  it("removes duplicate mobile Training Day shortcuts while keeping the Session destination reachable", () => {
     expect(trainingDayStyles).toContain('.day-design-import { display: none; }');
     // The same two shortcuts, hidden by name rather than by position: both have their own
     // panel further down, and a positional rule hid whichever button came first — which is
@@ -241,8 +245,7 @@ describe("workspace side navigation", () => {
     expect(trainingDayStyles).toContain('.day-active-actions .day-action-session, .day-active-actions .day-action-draft { display: none; }');
     expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
     expect(source).toContain('className="day-action-add"');
-    expect(source).toContain('label: "Tracker", workspace: "tracker"');
-    expect(source).toContain('label: "Builder", workspace: "custom"');
+    expect(source).toContain('label: "Session", workspace: "tracker"');
     expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
     expect(source).toContain('Import this plan');
   });

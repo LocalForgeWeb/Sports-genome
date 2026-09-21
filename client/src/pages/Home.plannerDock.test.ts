@@ -34,10 +34,10 @@ describe("the session draft is part of the page, not a layer over it", () => {
     expect(draftStyles).not.toMatch(/\.session-draft-panel \{[^}]*position: (fixed|absolute)/);
   });
 
-  it("puts the draft where the day is built, in both places an athlete builds one", () => {
-    // Training Day and Builder edit the same day; the draft has to be reachable from
-    // either without hunting for a floating tab.
-    expect(source.match(/<SessionDraftPanel dayLabel=/g)?.length).toBe(2);
+  it("puts the draft in the one place a day is built", () => {
+    // It used to render twice, because Training Day and Builder were two pages editing
+    // the same day. Builder is gone; Plan owns building, so the draft belongs there once.
+    expect(source.match(/<SessionDraftPanel dayLabel=/g)?.length).toBe(1);
     expect(source).toContain("onDraft={loadDraft}");
   });
 
