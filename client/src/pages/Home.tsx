@@ -212,7 +212,6 @@ const goalDetail: Record<Goal, string> = {
   Capacity: "Repeatable output, work tolerance, and positional control.",
 };
 
-const initialCustomNames = ["Landmine Rotation", "Bulgarian Split Squat", "Medicine-Ball Rotational Wall Throw", "Farmer’s Walk"];
 const splitKeywords: Record<SplitDay, string[]> = { Push: ["push", "press", "fly", "dip"], Pull: ["pull", "row", "curl"], Legs: ["squat", "hinge", "lunge", "calf"], Upper: ["push", "press", "pull", "row"], Lower: ["squat", "hinge", "lunge", "deadlift", "calf"], "Full Body": ["squat", "hinge", "push", "pull", "carry"], "Sport Transfer": [] };
 
 function sportAbbrev(label: string) {
@@ -307,7 +306,15 @@ export default function Home() {
   const [localFavoriteIds, setLocalFavoriteIds] = useState<number[]>([]);
   const [atlasQuery, setAtlasQuery] = useState("");
   const [atlasFamily, setAtlasFamily] = useState("All");
-  const [customWorkout, setCustomWorkout] = useState<Exercise[]>(() => initialCustomNames.map((name) => exercises.find((exercise) => exercise.name === name)).filter((exercise): exercise is Exercise => Boolean(exercise)));
+  /**
+   * Empty until the athlete puts something in it. This used to start as four
+   * hard-coded exercises, and the write-through below saved them as Day 01 the
+   * moment onboarding finished - so every new account opened on a training day
+   * it had never built, with "4 planned" on a day the athlete had not planned.
+   * A stack appears when it is drafted, pasted, added to, or asked for in the
+   * quiz; never on its own.
+   */
+  const [customWorkout, setCustomWorkout] = useState<Exercise[]>([]);
   const [prescriptions, setPrescriptions] = useState<Record<number, string>>({});
   const [exerciseSettings, setExerciseSettings] = useState<Record<number, ExerciseSettings>>({});
   /** The saved week: one record per training day. Nothing else stores a day's work. */
@@ -327,6 +334,13 @@ export default function Home() {
   const [activeContextTab, setActiveContextTab] = useState<string | null>(null);
   const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string } | null>(null);
   const [trackerSessionLive, setTrackerSessionLive] = useState(false);
+  /**
+   * The tracker's day chooser is a disclosure. It opens itself when the day
+   * on screen has nothing to start - the choice is the only thing to do - and
+   * otherwise stays as one line, because an athlete who has staged a day is
+   * here to run it, not to be re-asked which one.
+   */
+  const [trackerDayPickerOpen, setTrackerDayPickerOpen] = useState(false);
   const [launchExperienceEnabled, setLaunchExperienceEnabled] = useState(true);
   const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
   // Selectable capacity targets. Sport-independent, and safe to fail: the quiz renders an
@@ -798,6 +812,15 @@ export default function Home() {
     return () => window.removeEventListener(deviceWorkoutHistoryEvent, syncTrackerSession);
   }, []);
 
+  // Arriving at the tracker on a day with nothing in it: the only thing to do is
+  // pick another, so the chooser is already open. A staged day keeps it shut.
+  // It follows the day, not just the arrival: the plan hydrates after first
+  // paint, so a day that reads as empty for one render and then fills must
+  // close the chooser it had just opened. Toggling by hand is left alone.
+  useEffect(() => {
+    if (workspace === "tracker") setTrackerDayPickerOpen(!customWorkout.length);
+  }, [workspace, customWorkout.length]);
+
   useEffect(() => {
     const restoreWorkspace = () => {
       // Browser Back is its own return path, so the search return bar goes with it.
@@ -1196,7 +1219,13 @@ export default function Home() {
       {contextualWorkspaceTabs.length > 1 && <WorkspaceTabs tabs={contextualWorkspaceTabs} activeId={activeContextTabId} label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`} onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)} />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[var(--sg-text-subtle-on-light)]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? null : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log {activeSlot.ordinal} / {activeSplitDay}</h1><p>Pick the day you are completing.</p></div><div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => openTrainingDay(slot.index)} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={activeDayLabel} /></section>}
+        {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? null : <details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+          {/* One line, not a panel. The chooser was a heading, a sentence and a
+              grid above a second heading naming the same day; the day is now
+              stated once, here, and the grid is a tap away. */}
+          <summary><span className="metric-label">Workout tracker</span><strong>{activeSlot.ordinal} · {activeSplitDay}</strong><small>{customWorkout.length ? `${customWorkout.length} planned` : "Empty"}</small><em>{trackerDayPickerOpen ? "Close" : "Change day"}</em><ChevronDown className="h-4 w-4" aria-hidden /></summary>
+          <div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => { openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div>
+        </details>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={activeDayLabel} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} capacityFocus={capacityFocus} targetCatalog={resilienceCatalogQuery.data} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} />}
         {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><SupabaseResearchLibraryPanel /><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div><p className="more-workspace-build" title="The build this device is running. If it does not change after an update, this device is pinned to an old address.">{buildStampLabel()}</p></section>}

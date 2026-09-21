@@ -130,6 +130,44 @@ describe("live workout glance contract", () => {
   });
 });
 
+describe("progressive disclosure on the live surface", () => {
+  const head = () => document.querySelector(".execution-head")!;
+  const completedSessions = () =>
+    (JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey) || "[]") as { status: string }[]).filter((s) => s.status === "completed");
+
+  it("puts no button in the head while sets remain", () => {
+    startWorkout();
+    expect(head().querySelector("button")).toBeNull();
+    expect(document.querySelectorAll(".live-set-commit")).toHaveLength(1);
+  });
+
+  it("keeps the early finish below the full-session queue, and says what it keeps", () => {
+    startWorkout();
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+    const early = document.querySelector(".live-session-finish")!;
+    const queue = document.querySelector(".live-session-queue")!;
+    expect(queue.compareDocumentPosition(early) & Node.DOCUMENT_POSITION_FOLLOWING, "finish comes after the queue").toBeTruthy();
+    expect(early.textContent).toContain("keeps the 1 logged set");
+    fireEvent.click(early as HTMLElement);
+    expect(completedSessions()).toHaveLength(1);
+  });
+
+  it("makes finishing the dominant action once every set is logged", () => {
+    startWorkout();
+    for (let i = 0; i < 5; i++) fireEvent.click(document.querySelector(".live-set-commit")!);
+    expect(head().querySelector("button")).toBeNull();
+    // One finish control now, on the completion card, not a second one below.
+    const finishes = document.querySelectorAll(".live-session-finish");
+    expect(finishes).toHaveLength(1);
+    expect(document.querySelector(".live-set-card-done")!.contains(finishes[0])).toBe(true);
+    expect(finishes[0].textContent).toContain("add 5 sets to Progress");
+    // No next set to rest for, so no rest row counting down beside the finish.
+    expect(document.querySelector(".live-rest-row")).toBeNull();
+    fireEvent.click(finishes[0] as HTMLElement);
+    expect(completedSessions()).toHaveLength(1);
+  });
+});
+
 describe("live-set commitment semantics contract", () => {
   it("marks a typed-but-unlogged set as a draft rather than counting it", () => {
     startWorkout();

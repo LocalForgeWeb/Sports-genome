@@ -1140,14 +1140,26 @@ select {
    Hide the repeated header summary from the initial decision canvas. */
 .apex-content > section.space-y-5 .view-header-note { display: none; }
 .day-design-workspace .workout-execution-panel { display: none; }
-.tracker-workspace { display: grid; gap: 1rem; }.tracker-day-selector { display: grid; gap: 1rem; border: 1px solid #c9d9e8; background: linear-gradient(135deg, var(--sg-surface-light), var(--sg-surface-light-sunken)); padding: 1.1rem; }.tracker-day-selector h1 { margin-top: .25rem; color: var(--sg-text-on-light); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 6vw, 3.1rem); font-weight: 800; line-height: .88; text-transform: uppercase; }.tracker-day-selector p:last-child { max-width: 46rem; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }.tracker-day-options { display: flex; flex-wrap: wrap; gap: .55rem; }.tracker-day-options button { min-height: 2.75rem; border: 1px solid #b6cce2; background: #fff; padding: .55rem .75rem; color: var(--sg-text-muted-on-light); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.tracker-day-options button[aria-pressed="true"] { border-color: var(--sg-action); background: var(--sg-surface-raised); color: #fff; box-shadow: inset 0 -3px 0 var(--sg-focus-on-dark); }
+.tracker-workspace { display: grid; gap: 1rem; }/* The tracker's day chooser: one line that opens into the grid. It was a panel with a display headline naming the day, a sentence asking you to pick one, and the grid - stacked above a second panel whose first line named the same day again. */
+.tracker-day-switch { border: 1px solid #c9d9e8; border-radius: var(--sg-radius-md); background: linear-gradient(135deg, var(--sg-surface-light), var(--sg-surface-light-sunken)); }
+.tracker-day-switch > summary { display: flex; min-height: 3.25rem; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; padding: .7rem 1rem; cursor: pointer; list-style: none; }
+.tracker-day-switch > summary::-webkit-details-marker { display: none; }
+.tracker-day-switch > summary .metric-label { flex: 0 0 100%; }
+.tracker-day-switch > summary strong { color: var(--sg-text-on-light); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: 1; text-transform: uppercase; }
+.tracker-day-switch > summary small { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-sm); font-weight: 700; }
+.tracker-day-switch > summary em { margin-left: auto; color: var(--sg-info-strong); font-size: var(--sg-text-xs); font-style: normal; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.tracker-day-switch > summary > svg { color: var(--sg-info-strong); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.tracker-day-switch[open] > summary > svg { transform: rotate(180deg); }
+.tracker-day-switch > .tracker-day-options { padding: 0 1rem 1rem; }
+.tracker-day-options { display: flex; flex-wrap: wrap; gap: .55rem; }.tracker-day-options button { min-height: 2.75rem; border: 1px solid #b6cce2; background: #fff; padding: .55rem .75rem; color: var(--sg-text-muted-on-light); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.tracker-day-options button[aria-pressed="true"] { border-color: var(--sg-action); background: var(--sg-surface-raised); color: #fff; box-shadow: inset 0 -3px 0 var(--sg-focus-on-dark); }
 
 /* Destination systems: shared Sports Genome colors, distinct task environments. */
 .apex-content.destination-train { background: radial-gradient(circle at 82% 4%, #1d4c84 0, var(--sg-surface-raised) 34%, var(--sg-surface-deep) 76%); color: var(--sg-text-on-dark); }
 .destination-train .day-design-workspace, .destination-train .tracker-workspace { color: var(--sg-text-on-dark); }
-.destination-train .day-design-hero, .destination-train .tracker-day-selector, .destination-train .device-workout-tracker, .destination-train .day-design-rail-note { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, rgb(18 54 92 / .96), rgb(8 29 54 / .98)); box-shadow: 0 18px 38px rgb(1 12 28 / .22); }
-.destination-train .day-design-hero h1, .destination-train .tracker-day-selector h1, .destination-train .device-workout-tracker h3, .destination-train .day-design-rail-note p { color: var(--sg-text-on-dark); }
-.destination-train .day-design-hero p, .destination-train .tracker-day-selector p:last-child, .destination-train .device-workout-tracker p { color: var(--sg-text-muted-on-dark); }
+.destination-train .day-design-hero, .destination-train .tracker-day-switch, .destination-train .device-workout-tracker, .destination-train .day-design-rail-note { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, rgb(18 54 92 / .96), rgb(8 29 54 / .98)); box-shadow: 0 18px 38px rgb(1 12 28 / .22); }
+.destination-train .day-design-hero h1, .destination-train .tracker-day-switch > summary strong, .destination-train .device-workout-tracker h3, .destination-train .day-design-rail-note p { color: var(--sg-text-on-dark); }
+.destination-train .day-design-hero p, .destination-train .tracker-day-switch > summary small, .destination-train .device-workout-tracker p { color: var(--sg-text-muted-on-dark); }
+.destination-train .tracker-day-switch > summary em, .destination-train .tracker-day-switch > summary > svg { color: var(--sg-focus-on-dark); }
 .destination-train .tracker-day-options button { border-color: rgb(164 200 232 / .5); background: rgb(255 255 255 / .08); color: #e8f3ff; }
 .destination-train .day-active-card, .destination-train .day-programming-panel, .destination-train .day-design-rail { border-color: rgb(164 200 232 / .22); background: rgb(8 27 50 / .74); }
 .destination-train .day-active-card h2, .destination-train .day-active-card .metric-label, .destination-train .day-active-card p:last-child { color: var(--sg-text-on-dark); }
@@ -2272,7 +2284,7 @@ details:not([open]) > *:not(summary) {
 .destination-secondary .about-me-equipment,
 .destination-progress .light-panel,
 .destination-train .day-design-hero,
-.destination-train .tracker-day-selector,
+.destination-train .tracker-day-switch,
 .destination-train .device-workout-tracker,
 .destination-train .day-design-rail-note,
 .destination-train .three-week-planner,

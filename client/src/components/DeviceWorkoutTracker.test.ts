@@ -50,11 +50,20 @@ describe("Device Workout Tracker execution focus", () => {
     expect(styles).toContain(".device-workout-tracker .live-set-card h4 { font-size: clamp(1.75rem, 8vw, 2.4rem); }");
   });
 
-  it("steps the finish action down while a session is running", () => {
-    // Two full-width vermilion buttons would be two dominant actions; the
-    // contract allows one.
-    expect(source).toContain('className="execution-secondary-action"');
-    expect(styles).toContain(".device-workout-tracker .execution-head > button.execution-secondary-action");
+  /**
+   * The first view of a running session held three full-width buttons: Finish
+   * at the top, Log set, and Skip directly under it. The contract allows one
+   * dominant action. Finish is gone from the head - it becomes the dominant
+   * action on the completion card, where it is the next thing to do, and a
+   * quiet line below the queue for a session cut short. Skip is a line of text.
+   */
+  it("takes finishing and skipping off the first view's button stack", () => {
+    expect(source).not.toContain('className="execution-secondary-action"');
+    expect(styles).not.toContain("execution-secondary-action");
+    expect(source).toContain('className="live-session-finish live-session-finish-primary" onClick={finish}');
+    expect(source).toContain('{activeExercise && activeSet && <button type="button" className="live-session-finish" onClick={finish}>');
+    expect(styles).toContain(".live-set-skip {\n  display: inline-flex;");
+    expect(styles).not.toContain(".live-set-skip {\n  display: flex;\n  width: 100%;");
   });
 
   it("collapses the tracker day chooser once a session is live", () => {
