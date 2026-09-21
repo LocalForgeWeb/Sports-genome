@@ -2997,10 +2997,15 @@ details:not([open]) > *:not(summary) {
   background: radial-gradient(circle at 85% 0%, rgb(45 108 223 / .16), transparent 30%), var(--sg-surface-deep);
 }
 
+/* Opaque, and no backdrop-filter. The header is sticky directly under the boot
+ * splash - a top-most layer carrying `will-change: opacity` and `contain:
+ * layout paint style` - and a translucent fill there is what let a stale
+ * composited layer show as a bar drawn with nothing inside it. The contract is
+ * asserted in launchExperience.test.ts; this theme has to keep it. */
 [data-theme="dark"] .apex-topbar,
 [data-theme="dark"] .apex-shell:has(.destination-secondary) .apex-topbar {
   border-bottom-color: var(--sg-control-border-on-dark);
-  background: rgb(8 27 50 / .92);
+  background: rgb(8 27 50);
   color: var(--sg-text-on-dark);
 }
 [data-theme="dark"] .apex-topbar .metric-label,
@@ -3021,7 +3026,7 @@ details:not([open]) > *:not(summary) {
 [data-theme="dark"] .workspace-top-switcher-shell,
 [data-theme="dark"] .workspace-top-switcher {
   border-bottom-color: var(--sg-control-border-on-dark);
-  background: rgb(8 27 50 / .94);
+  background: rgb(8 27 50);
   color: var(--sg-text-on-dark);
 }
 [data-theme="dark"] .workspace-top-switcher button { color: var(--sg-text-subtle-on-dark); }
@@ -3064,7 +3069,7 @@ details:not([open]) > *:not(summary) {
 /* The scroll affordances on the tab row are white pills by default. */
 [data-theme="dark"] .workspace-top-switcher-shell::before,
 [data-theme="dark"] .workspace-top-switcher-shell::after {
-  background: rgb(8 27 50 / .94);
+  background: rgb(8 27 50);
   color: var(--sg-text-on-dark);
 }
 
@@ -3118,3 +3123,26 @@ details:not([open]) > *:not(summary) {
 }
 [data-theme="dark"] .movement-summary-strip > div :is(p, small, span) { color: var(--sg-text-muted-on-dark); }
 [data-theme="dark"] .genome-reading-key > span strong { color: var(--sg-text-on-dark); }
+
+/* The day picker, which arrived after this theme was written. Its rows, scope
+ * bar and "show more" carry their own white surface. */
+[data-theme="dark"] .day-picker-result,
+[data-theme="dark"] .day-picker-scope {
+  border-color: var(--sg-control-border-on-dark);
+  background: rgb(255 255 255 / .05);
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .day-picker-more {
+  border-color: var(--sg-control-border-on-dark);
+  background: rgb(255 255 255 / .07);
+  color: var(--sg-link-on-dark);
+}
+[data-theme="dark"] .day-picker-result :is(strong, h3, h4, .metric-label) { color: var(--sg-text-on-dark); }
+[data-theme="dark"] .day-picker-result :is(p, small, span, em, li) { color: var(--sg-text-muted-on-dark); }
+
+/* Ink inside the surfaces above that is written for a light ground. Measured
+ * from rendered pixels: the search-scope link went 6.62:1 to 2.24:1 and the
+ * assistance row's label 5.08:1 to 3.31:1 when their surface went dark. */
+[data-theme="dark"] .local-search-scope { color: var(--sg-text-muted-on-dark); }
+[data-theme="dark"] .local-search-scope button { color: var(--sg-link-on-dark); }
+[data-theme="dark"] .movement-assistance-content em { color: var(--sg-focus-on-dark); }
