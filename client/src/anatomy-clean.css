@@ -5,7 +5,7 @@
 
 /* Controls */
 .atlas-advanced{border-top:1px solid var(--sg-divider-on-light);padding-top:.75rem}
-.atlas-advanced summary{display:flex;align-items:center;justify-content:space-between;gap:.4rem;color:#426174;cursor:pointer;font-size:.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.atlas-advanced summary{display:flex;align-items:center;justify-content:space-between;gap:.4rem;color:#426174;cursor:pointer;font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
 .atlas-advanced>div{display:grid;gap:.85rem;padding-top:.85rem}
 .atlas-threshold-pro{display:grid;gap:.5rem}
 .atlas-threshold-pro b{float:right;color:var(--sg-action)}
@@ -35,88 +35,88 @@
    body you cannot see. It is the only way to that half, so it looks like a
    button. Info blue, not the action orange, so it does not compete with the
    page's primary. */
-.atlas-side-toggle{display:inline-flex;min-height:2.5rem;align-items:center;gap:.4rem;border:1px solid var(--sg-info-strong);border-radius:8px;background:var(--sg-info-strong);padding:0 .75rem;color:#fff;font-size:.6875rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase;transition:background-color var(--sg-motion-fast) var(--sg-ease),border-color var(--sg-motion-fast) var(--sg-ease),transform var(--sg-motion-fast) var(--sg-ease)}
+.atlas-side-toggle{display:inline-flex;min-height:2.5rem;align-items:center;gap:.4rem;border:1px solid var(--sg-info-strong);border-radius:8px;background:var(--sg-info-strong);padding:0 .75rem;color:#fff;font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase;transition:background-color var(--sg-motion-fast) var(--sg-ease),border-color var(--sg-motion-fast) var(--sg-ease),transform var(--sg-motion-fast) var(--sg-ease)}
 .atlas-side-toggle:hover{border-color:#1d5cae;background:#1d5cae;color:#fff}
 .atlas-side-toggle:active{transform:scale(.97)}
 .atlas-side-toggle:focus-visible{outline:2px solid var(--sg-info-strong);outline-offset:2px}
 /* Which body is on screen, said under the drawing. The reference apps run
    leader lines to thirty labels; one word does the same job on a phone. */
-.atlas-view-captions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.6rem .9rem;width:100%;margin:.15rem 0 0;color:var(--sg-text-subtle-on-light);font-size:.6875rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+.atlas-view-captions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.6rem .9rem;width:100%;margin:.15rem 0 0;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
 /* The hover chip names the exact region under the finger.
    It hardcoded a white background while taking its text colour from
    --sg-text-on-light. On the dark destination that token is remapped to the
    light-text value, so the chip rendered white-on-white and the muscle name
    under the finger was unreadable. Both ends of the pair are now tokens, so the
    chip flips polarity with the panel it sits in. */
-.atlas-hover-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);max-width:calc(100% - 1.5rem);background:var(--sg-atlas-tooltip-surface,#fff);border:1px solid var(--sg-atlas-tooltip-border,var(--sg-divider-on-light));border-radius:999px;box-shadow:var(--sg-elevation-2);padding:.4rem .85rem;font-size:.7rem;font-weight:700;color:var(--sg-atlas-tooltip-text,#102947);pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:5}
+.atlas-hover-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);max-width:calc(100% - 1.5rem);background:var(--sg-atlas-tooltip-surface,#fff);border:1px solid var(--sg-atlas-tooltip-border,var(--sg-divider-on-light));border-radius:999px;box-shadow:var(--sg-elevation-2);padding:.4rem .85rem;font-size:var(--sg-text-xs);font-weight:700;color:var(--sg-atlas-tooltip-text,#102947);pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:5}
 @media (prefers-reduced-motion: no-preference){.atlas-hover-label{animation:atlas-hover-label-in var(--sg-motion-fast) var(--sg-ease-entrance) both}}
 @keyframes atlas-hover-label-in{from{opacity:0;transform:translate(-50%,-.25rem)}to{opacity:1;transform:translateX(-50%)}}
 
 /* The selected region, spelled out rather than collapsed to its parent muscle. */
-.atlas-selected-part{display:block;margin-top:.15rem;color:var(--sg-action);font-size:.7rem;font-style:normal;font-weight:800;letter-spacing:.04em;text-transform:none}
-.atlas-selected-distinction{display:block;margin-top:.3rem;max-width:34rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.45}
-.atlas-selected-approximation{display:flex;flex-basis:100%;gap:.4rem;align-items:flex-start;margin-top:.5rem;border-left:2px solid var(--sg-state-caution);padding:.35rem .5rem;background:rgb(242 193 77 / .1);color:var(--sg-text-muted-on-light);font-size:.6875rem;line-height:1.45}
+.atlas-selected-part{display:block;margin-top:.15rem;color:var(--sg-action);font-size:var(--sg-text-xs);font-style:normal;font-weight:800;letter-spacing:var(--sg-tracking-open);text-transform:none}
+.atlas-selected-distinction{display:block;margin-top:.3rem;max-width:34rem;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);line-height:var(--sg-leading-body)}
+.atlas-selected-approximation{display:flex;flex-basis:100%;gap:.4rem;align-items:flex-start;margin-top:.5rem;border-left:2px solid var(--sg-state-caution);padding:.35rem .5rem;background:rgb(242 193 77 / .1);color:var(--sg-text-muted-on-light);font-size:var(--sg-text-xs);line-height:var(--sg-leading-body)}
 .atlas-selected-approximation svg{flex:none;margin-top:.15rem;color:var(--sg-state-caution)}
 
 
 /* Tooltip */
 .atlas-pro-tooltip{position:absolute;z-index:10;display:grid;gap:.2rem;max-width:200px;border:1px solid var(--sg-divider-on-light);background:#fff;box-shadow:0 12px 28px rgb(24 53 70 / .18);padding:.7rem;pointer-events:none}
-.atlas-pro-tooltip strong{color:var(--sg-text-on-light);font-size:.72rem}
-.atlas-pro-tooltip span{color:var(--sg-action);font-size:.6875rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
-.atlas-pro-tooltip b{color:var(--sg-text-muted-on-light);font-size:.6875rem}
-.atlas-pro-tooltip p{color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.35}
+.atlas-pro-tooltip strong{color:var(--sg-text-on-light);font-size:var(--sg-text-sm)}
+.atlas-pro-tooltip span{color:var(--sg-action);font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
+.atlas-pro-tooltip b{color:var(--sg-text-muted-on-light);font-size:var(--sg-text-xs)}
+.atlas-pro-tooltip p{color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);line-height:var(--sg-leading-snug)}
 
 /* Heat legend */
-.atlas-heat-legend-pro{display:flex;align-items:center;justify-content:center;gap:.4rem;margin:.65rem auto 0;color:var(--sg-text-subtle-on-light);font-size:.6875rem;font-weight:800}
+.atlas-heat-legend-pro{display:flex;align-items:center;justify-content:center;gap:.4rem;margin:.65rem auto 0;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);font-weight:800}
 .atlas-swatch{display:inline-block;width:1.3rem;height:.5rem;border-radius:2px}
 .atlas-role-methodology{max-width:42rem;margin:.55rem auto 0;border:1px solid var(--sg-divider-on-light);background:var(--sg-surface-light);color:#3f5e73}
-.atlas-role-methodology summary{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:42px;padding:.55rem .7rem;cursor:pointer;color:#245b98;font-size:.6875rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+.atlas-role-methodology summary{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:42px;padding:.55rem .7rem;cursor:pointer;color:#245b98;font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
 .atlas-role-methodology>div{border-top:1px solid var(--sg-divider-on-light);padding:.6rem .7rem}
-.atlas-role-methodology p{font-size:.6875rem;line-height:1.5}
+.atlas-role-methodology p{font-size:var(--sg-text-xs);line-height:var(--sg-leading-body)}
 .atlas-role-methodology p+p{margin-top:.45rem}
 
 /* Ranking strip — new style with color dots and bars */
 .atlas-ranking{display:grid;gap:.55rem;border-top:1px solid var(--sg-divider-on-light);margin-top:1rem;padding-top:.8rem}
 .atlas-pro-grid>.atlas-ranking{grid-column:1}
 .atlas-ranking>div{padding:.1rem 0}
-.atlas-ranking>div>span{display:block;margin-top:.18rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.25}
+.atlas-ranking>div>span{display:block;margin-top:.18rem;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);line-height:var(--sg-leading-snug)}
 .atlas-ranking button{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:.15rem .5rem;align-items:center;border:0;border-bottom:1px solid var(--sg-divider-on-light);background:transparent;padding:.5rem .35rem;text-align:left;transition: background-color var(--sg-motion-fast) var(--sg-ease),box-shadow var(--sg-motion-fast) var(--sg-ease),transform var(--sg-motion-fast) var(--sg-ease)}
 .atlas-ranking button:hover{border-color:var(--sg-info-strong)}
 .atlas-ranking button.is-selected{background:var(--sg-surface-light-sunken);box-shadow:inset 3px 0 var(--sg-action)}
-.atlas-ranking .atlas-ranking-toggle{display:inline-flex;grid-template-columns:none;align-items:center;justify-content:flex-start;justify-self:start;border:0;background:transparent;color:var(--sg-info-strong);padding:.35rem;font-size:.6875rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase}
+.atlas-ranking .atlas-ranking-toggle{display:inline-flex;grid-template-columns:none;align-items:center;justify-content:flex-start;justify-self:start;border:0;background:transparent;color:var(--sg-info-strong);padding:.35rem;font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
 .atlas-ranking .atlas-ranking-toggle:hover{border-color:var(--sg-info-strong);background:var(--sg-surface-light-sunken)}
 .atlas-rank-dot{display:block;width:.55rem;height:.55rem;border-radius:50%}
-.atlas-ranking button span{overflow:hidden;color:var(--sg-text-muted-on-light);font-size:.6875rem;font-weight:700;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
-.atlas-ranking button em{color:var(--sg-text-muted-on-light);font-size:.6875rem;font-style:normal;font-weight:800;text-align:right;text-transform:uppercase}.atlas-ranking button svg{color:var(--sg-text-subtle-on-light)}.atlas-ranking button:active{transform:scale(.98)}.atlas-role-section{display:grid;gap:0}.atlas-role-section>p{display:flex;justify-content:space-between;padding:.35rem 0 .15rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.atlas-role-section>p b{color:var(--sg-text-subtle-on-light)}.atlas-ranking-head strong{display:block;margin-top:.18rem;color:var(--sg-text-on-light);font-size:.72rem}.atlas-ranking-head span{display:block;margin-top:.18rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem}
+.atlas-ranking button span{overflow:hidden;color:var(--sg-text-muted-on-light);font-size:var(--sg-text-xs);font-weight:700;line-height:var(--sg-leading-snug);text-overflow:ellipsis;white-space:nowrap}
+.atlas-ranking button em{color:var(--sg-text-muted-on-light);font-size:var(--sg-text-xs);font-style:normal;font-weight:800;text-align:right;text-transform:uppercase}.atlas-ranking button svg{color:var(--sg-text-subtle-on-light)}.atlas-ranking button:active{transform:scale(.98)}.atlas-role-section{display:grid;gap:0}.atlas-role-section>p{display:flex;justify-content:space-between;padding:.35rem 0 .15rem;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}.atlas-role-section>p b{color:var(--sg-text-subtle-on-light)}.atlas-ranking-head strong{display:block;margin-top:.18rem;color:var(--sg-text-on-light);font-size:var(--sg-text-sm)}.atlas-ranking-head span{display:block;margin-top:.18rem;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs)}
 .atlas-rank-bar{display:block;grid-column:span 4;height:.25rem;overflow:hidden;background:var(--sg-surface-light-sunken);border-radius:2px;margin-top:.15rem}
 .atlas-rank-bar i{display:block;height:100%;border-radius:2px;transition: width var(--sg-motion-slow) var(--sg-ease)}
 
 /* Inspector */
 .atlas-pro-inspector{border-left:1px solid var(--sg-divider-on-light);padding:0 0 0 1rem}
 @media(min-width:941px){.atlas-pro-inspector{min-height:400px}}
-.atlas-inspector-empty-pro{margin:0;color:var(--sg-text-subtle-on-light);font-size:.75rem;line-height:1.5}
+.atlas-inspector-empty-pro{margin:0;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-sm);line-height:var(--sg-leading-body)}
 .atlas-inspector-title{display:flex;align-items:start;justify-content:space-between;gap:.6rem}
 .atlas-inspector-title h3{margin-top:.35rem;color:var(--sg-text-on-light);font-family:var(--font-display,sans-serif);font-size:clamp(1.5rem,2.3vw,2.2rem);line-height:.88;text-transform:uppercase}
 .atlas-inspector-title button{display:grid;place-items:center;width:1.8rem;height:1.8rem;border:1px solid var(--sg-divider-on-light);color:var(--sg-text-muted-on-light);transition: color var(--sg-motion-fast)}
 .atlas-inspector-title button:hover{color:var(--sg-action);border-color:var(--sg-action)}
 .atlas-inspector-badges{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.9rem}
-.atlas-inspector-badges>*{border:1px solid var(--sg-divider-on-light);padding:.28rem .4rem;color:var(--sg-text-muted-on-light);font-size:.6875rem;font-style:normal;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.atlas-inspector-badges>*{border:1px solid var(--sg-divider-on-light);padding:.28rem .4rem;color:var(--sg-text-muted-on-light);font-size:var(--sg-text-xs);font-style:normal;font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
 .atlas-inspector-badges span{border-color:var(--sg-action);background:#fff0ea;color:var(--sg-action-strong)}
 .atlas-core-metrics{display:grid;gap:.65rem;margin-top:1.2rem}
 .atlas-core-metrics>div,.atlas-full-analysis>div>div{display:grid;grid-template-columns:1fr auto;gap:.18rem .5rem}
-.atlas-core-metrics span,.atlas-full-analysis span{color:var(--sg-text-muted-on-light);font-size:.6875rem}
-.atlas-core-metrics b,.atlas-full-analysis b{color:#1f4257;font-size:.6875rem}
+.atlas-core-metrics span,.atlas-full-analysis span{color:var(--sg-text-muted-on-light);font-size:var(--sg-text-xs)}
+.atlas-core-metrics b,.atlas-full-analysis b{color:#1f4257;font-size:var(--sg-text-xs)}
 .atlas-core-metrics i,.atlas-full-analysis i{grid-column:span 2;display:block;height:.3rem;overflow:hidden;background:var(--sg-surface-light-sunken)}
 .atlas-core-metrics em,.atlas-full-analysis em{display:block;height:100%;background:var(--sg-info-strong);transition: width var(--sg-motion-slow) var(--sg-ease)}
 .atlas-why-pro{border-left:3px solid var(--sg-action);margin-top:1.2rem;padding:.1rem 0 .1rem .75rem}
-.atlas-why-pro p:not(.metric-label){margin-top:.3rem;color:var(--sg-text-muted-on-light);font-size:.72rem;line-height:1.55}
-.atlas-why-pro span{display:block;margin-top:.45rem;color:var(--sg-text-on-light);font-size:.6875rem;font-weight:800}
-.atlas-focus-button{display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;border:1px solid var(--sg-info-strong);color:var(--sg-info-strong);padding:.55rem .65rem;font-size:.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;transition: background var(--sg-motion-fast),color var(--sg-motion-fast)}
+.atlas-why-pro p:not(.metric-label){margin-top:.3rem;color:var(--sg-text-muted-on-light);font-size:var(--sg-text-sm);line-height:var(--sg-leading-body)}
+.atlas-why-pro span{display:block;margin-top:.45rem;color:var(--sg-text-on-light);font-size:var(--sg-text-xs);font-weight:800}
+.atlas-focus-button{display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;border:1px solid var(--sg-info-strong);color:var(--sg-info-strong);padding:.55rem .65rem;font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase;transition: background var(--sg-motion-fast),color var(--sg-motion-fast)}
 .atlas-focus-button:hover{background:var(--sg-info-strong);color:#fff}
 .atlas-full-analysis{border-top:1px solid var(--sg-divider-on-light);margin-top:1rem;padding-top:.8rem}
-.atlas-full-analysis summary{display:flex;align-items:center;justify-content:space-between;color:var(--sg-text-on-light);cursor:pointer;font-size:.6875rem;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+.atlas-full-analysis summary{display:flex;align-items:center;justify-content:space-between;color:var(--sg-text-on-light);cursor:pointer;font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
 .atlas-full-analysis>div{display:grid;gap:.65rem;margin-top:.85rem}
-.atlas-full-analysis>div>p{border-top:1px solid var(--sg-divider-on-light);margin-top:.25rem;padding-top:.65rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.5}
+.atlas-full-analysis>div>p{border-top:1px solid var(--sg-divider-on-light);margin-top:.25rem;padding-top:.65rem;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);line-height:var(--sg-leading-body)}
 
 /* Responsive */
 @media(max-width:940px){
@@ -138,21 +138,21 @@
   .atlas-pro-inspector.is-open{border-top:2px solid var(--sg-action);padding-top:.8rem}
   .atlas-inspector-title h3{font-size:1.95rem}
   .atlas-inspector-badges{gap:.3rem;margin-top:.65rem}
-  .atlas-inspector-badges>*{padding:.28rem .36rem;font-size:.6875rem}
+  .atlas-inspector-badges>*{padding:.28rem .36rem;font-size:var(--sg-text-xs)}
   .atlas-why-pro{margin-top:.8rem;padding-left:.65rem}
-  .atlas-why-pro p:not(.metric-label){font-size:.75rem;line-height:1.5}
+  .atlas-why-pro p:not(.metric-label){font-size:var(--sg-text-sm);line-height:var(--sg-leading-body)}
   .atlas-core-metrics{grid-template-columns:1fr}
-  .atlas-heat-legend-pro{gap:.25rem;font-size:.6875rem;flex-wrap:wrap;justify-content:center}
+  .atlas-heat-legend-pro{gap:.25rem;font-size:var(--sg-text-xs);flex-wrap:wrap;justify-content:center}
   .atlas-swatch{width:.9rem;height:.4rem}
-  .atlas-role-methodology summary{min-height:44px;padding:.55rem .6rem;font-size:.6875rem}
+  .atlas-role-methodology summary{min-height:44px;padding:.55rem .6rem;font-size:var(--sg-text-xs)}
   .atlas-role-methodology>div{padding:.6rem}
-  .atlas-role-methodology p{font-size:.6875rem}
+  .atlas-role-methodology p{font-size:var(--sg-text-xs)}
   .atlas-ranking{display:grid;overflow:visible;padding-bottom:0;scroll-snap-type:none}
   .atlas-ranking>div,.atlas-ranking button,.atlas-ranking .atlas-ranking-toggle{width:100%;min-width:0}
   .atlas-ranking>div{padding:.25rem .15rem}
   .atlas-ranking button{grid-template-columns:auto minmax(0,1fr) auto auto;min-height:44px;scroll-snap-align:none}
   .atlas-ranking button span{white-space:normal;overflow:visible;text-overflow:clip}
-  .atlas-ranking button em{font-size:.6875rem}
+  .atlas-ranking button em{font-size:var(--sg-text-xs)}
   .atlas-ranking .atlas-ranking-toggle{justify-self:stretch;min-height:44px}
 }
 
@@ -189,10 +189,10 @@
 /* The selection, restated where the athlete just tapped. */
 .atlas-selected-strip{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;margin-top:.75rem;border-left:3px solid var(--sg-action);background:var(--sg-surface-light-sunken);padding:.65rem .8rem}
 .atlas-selected-strip>div{min-width:0}
-.atlas-selected-strip strong{display:block;font-family:var(--font-display,"Barlow Condensed",sans-serif);font-size:1.35rem;font-weight:800;line-height:1.05;text-transform:uppercase}
-.atlas-selected-role{border:1px solid var(--sg-divider-on-light);padding:.22rem .45rem;font-size:.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-.atlas-selected-confidence{font-size:.6875rem;line-height:1.35;color:var(--sg-text-subtle-on-light)}
-.atlas-selected-elsewhere{flex-basis:100%;text-align:left;font-size:.6875rem;font-weight:700;line-height:1.35;color:var(--sg-action);text-decoration:underline;text-underline-offset:3px;min-height:44px;display:flex;align-items:center}
+.atlas-selected-strip strong{display:block;font-family:var(--font-display,"Barlow Condensed",sans-serif);font-size:1.35rem;font-weight:800;line-height:var(--sg-leading-tight);text-transform:uppercase}
+.atlas-selected-role{border:1px solid var(--sg-divider-on-light);padding:.22rem .45rem;font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
+.atlas-selected-confidence{font-size:var(--sg-text-xs);line-height:var(--sg-leading-snug);color:var(--sg-text-subtle-on-light)}
+.atlas-selected-elsewhere{flex-basis:100%;text-align:left;font-size:var(--sg-text-xs);font-weight:700;line-height:var(--sg-leading-snug);color:var(--sg-action);text-decoration:underline;text-underline-offset:3px;min-height:44px;display:flex;align-items:center}
 @media (min-width:901px){.atlas-selected-strip{display:none}}
 /* Descendant selector on purpose: .atlas-part-picker sets display:flex later in
    this file at the same specificity, so a bare .atlas-desktop-only lost to it
@@ -208,25 +208,25 @@
    three; these name them so choosing one is a decision rather than a precise tap,
    and so a keyboard can reach them at all. */
 .atlas-part-picker{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.75rem}
-.atlas-part-picker button{display:inline-flex;align-items:center;min-height:2.25rem;border:1px solid var(--sg-divider-on-light);background:#fff;padding:.3rem .5rem;color:var(--sg-text-muted-on-light);font-size:.6875rem;font-weight:800;letter-spacing:.02em;line-height:1.25;text-align:left;transition:border-color var(--sg-motion-fast) var(--sg-ease),background-color var(--sg-motion-fast) var(--sg-ease)}
+.atlas-part-picker button{display:inline-flex;align-items:center;min-height:2.25rem;border:1px solid var(--sg-divider-on-light);background:#fff;padding:.3rem .5rem;color:var(--sg-text-muted-on-light);font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-open);line-height:var(--sg-leading-snug);text-align:left;transition:border-color var(--sg-motion-fast) var(--sg-ease),background-color var(--sg-motion-fast) var(--sg-ease)}
 .atlas-part-picker button[aria-pressed="true"]{border-color:var(--sg-action);background:#fff0ea;color:var(--sg-action-strong)}
 .atlas-part-picker button:focus-visible{outline:2px solid var(--sg-focus-ring);outline-offset:1px}
 .atlas-selected-strip .atlas-part-picker{flex-basis:100%;margin-top:.15rem}
 
 /* The facts that differ between one muscle and the next, as rows rather than as
    four headed paragraphs. */
-.atlas-inspector-part{margin-top:.3rem;color:var(--sg-action);font-size:.75rem;font-weight:800;letter-spacing:.03em}
+.atlas-inspector-part{margin-top:.3rem;color:var(--sg-action);font-size:var(--sg-text-sm);font-weight:800;letter-spacing:var(--sg-tracking-open)}
 .atlas-inspector-facts{display:grid;gap:.5rem;margin-top:1rem;border-top:1px solid var(--sg-divider-on-light);padding-top:.85rem}
 /* Stacked, not two columns: the inspector rail is ~268px, so a 7.5rem label
    column left the value about ten characters before it wrapped. */
 .atlas-inspector-facts>div{display:grid;gap:.1rem}
-.atlas-inspector-facts dt{color:var(--sg-text-subtle-on-light);font-size:.6875rem;font-weight:850;letter-spacing:.07em;line-height:1.5;text-transform:uppercase}
-.atlas-inspector-facts dd{margin:0;color:var(--sg-text-on-light);font-size:.8125rem;font-weight:600;line-height:1.5}
-.atlas-inspector-why{margin-top:.9rem;color:var(--sg-text-muted-on-light);font-size:.8125rem;line-height:1.6}
-.atlas-inspector-sources{margin-top:.9rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.55}
+.atlas-inspector-facts dt{color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);line-height:var(--sg-leading-body);text-transform:uppercase}
+.atlas-inspector-facts dd{margin:0;color:var(--sg-text-on-light);font-size:var(--sg-text-md);font-weight:600;line-height:var(--sg-leading-body)}
+.atlas-inspector-why{margin-top:.9rem;color:var(--sg-text-muted-on-light);font-size:var(--sg-text-md);line-height:var(--sg-leading-loose)}
+.atlas-inspector-sources{margin-top:.9rem;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);line-height:var(--sg-leading-body)}
 .atlas-inspector-sources a{color:var(--sg-info-strong);text-decoration:underline;text-underline-offset:2px}
 /* Stated once, at the end, instead of after every block. */
-.atlas-inspector-boundary{margin-top:.5rem;color:var(--sg-text-subtle-on-light);font-size:.6875rem;line-height:1.5}
+.atlas-inspector-boundary{margin-top:.5rem;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);line-height:var(--sg-leading-body)}
 .atlas-inspector-boundary-final{margin-top:1rem;border-top:1px solid var(--sg-divider-on-light);padding-top:.7rem}
 
 /* Body Lab draws all of this on the dark destination ground, so the new rows

@@ -24,6 +24,18 @@ describe("Device Workout Tracker execution focus", () => {
     expect(source).not.toContain('optional effort');
   });
 
+  /**
+   * With an empty day selected the panel said "Ready to train." above a disabled
+   * Start button, told you to log the reps you hit, and then — lower down, in a
+   * different voice — told you to select a Training Day you had already
+   * selected. Three sentences, none of them describing the screen.
+   */
+  it("says what the staged day actually is rather than assuming one is ready", () => {
+    expect(source).toContain('{workout.length ? "Ready to train." : "This day is empty."}');
+    expect(source).not.toContain("Select a saved Training Day before starting a workout.");
+    expect(source).not.toContain("Start the day below");
+  });
+
   it("uses the dedicated elevated mobile tracker surface and a two-field set layout rather than three dense input columns", () => {
     expect(styles).toContain(".device-workout-tracker .session-set-row");
     expect(styles).toContain("grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto");

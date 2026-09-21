@@ -23,7 +23,7 @@
 }
 .body-lab-selection-context {
   margin-top: .2rem;
-  font-size: .75rem;
+  font-size: var(--sg-text-sm);
   font-weight: 700;
 }
 
@@ -40,9 +40,9 @@
   display: grid;
   gap: .25rem;
   min-width: 0;
-  font-size: .6875rem;
+  font-size: var(--sg-text-xs);
   font-weight: 800;
-  letter-spacing: .05em;
+  letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
 .body-lab-navigator select {
@@ -52,7 +52,7 @@
   border-radius: 8px;
   background: var(--sg-surface-light);
   padding: 0 .5rem;
-  font-size: .8rem;
+  font-size: var(--sg-text-md);
   font-weight: 700;
   outline: none;
 }
@@ -70,9 +70,9 @@
   border-radius: 8px;
   background: var(--sg-surface-light);
   padding: 0 .55rem;
-  font-size: .6875rem;
-  font-weight: 900;
-  letter-spacing: .04em;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
   white-space: nowrap;
 }
