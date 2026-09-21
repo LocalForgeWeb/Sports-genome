@@ -85,6 +85,11 @@ function sanitiseEntry(field: EntryField, value: string) {
   return (rest.length ? `${whole}.${rest.join("").slice(0, 2)}` : whole).slice(0, 7);
 }
 
+/** True when a target is a bare count or range, so the word "reps" belongs after it. */
+function bareCount(target: string) {
+  return /^\s*\d+(\s*[–—-]\s*\d+)?\s*$/.test(target);
+}
+
 function clockFor(seconds: number) {
   const safe = Math.max(0, Math.round(seconds));
   return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, "0")}`;
@@ -338,10 +343,25 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
 
   return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker">
     <div className="execution-head">
+      {/*
+        * Measured at 393x852 mid-workout: the first 400px of this screen - half
+        * of it, above the fold - was the day label, the day label again, and a
+        * set tally set in the largest type on the page. The thing an athlete
+        * actually reads between sets (which lift, which set, what target) began
+        * below all of it.
+        *
+        * A tally is orientation, not instruction. It is a bar and a count now,
+        * and the sentence explaining that sets save on this device is gone - it
+        * described a mechanism you learn by doing it once.
+        */}
       <div>
-        <p className="metric-label">Live workout / {activeSession.dayLabel}</p>
-        <h3>{completed} / {planned} sets logged</h3>
-        <p>Each logged set is saved on this device. Finish the session when the workout is done to add it to Progress.</p>
+        <p className="metric-label">{activeSession.dayLabel}</p>
+        <div className="session-progress">
+          <span className="session-progress-track" aria-hidden="true">
+            <i style={{ width: `${planned ? Math.round((completed / planned) * 100) : 0}%` }} />
+          </span>
+          <strong>{completed}<span>/{planned} sets</span></strong>
+        </div>
       </div>
       <button onClick={finish} className="execution-secondary-action"><Save className="h-4 w-4" /> Finish workout</button>
     </div>
@@ -358,9 +378,16 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
     {activeExercise && activeSet && position ? <div className="live-set-card">
       <p className="metric-label">Now · exercise {position.exerciseIndex + 1} of {activeSession.exercises.length}</p>
       <h4>{activeExercise.exerciseName}</h4>
-      {/* The target for *this* set, not the whole prescription: on set 2 of
-          "3 × 10/8/6" the athlete needs "8", not a string to count through. */}
-      <p className="live-set-prescription">Set {position.setIndex + 1} of {activeExercise.sets.length} · {repsForSet(activeExercise.plannedPrescription, position.setIndex)}</p>
+      {/* The instruction, at the size of an instruction. "Set 2 of 4 · 3–5" was
+          the smallest line in the card, under an exercise name twice its size
+          and a tally three times it - so the one thing you read between sets
+          was the quietest thing on the screen. The target is for *this* set,
+          not the whole prescription: on set 2 of "3 × 10/8/6" the athlete needs
+          "8", not a string to count through. */}
+      <p className="live-set-prescription">
+        <span>Set {position.setIndex + 1} of {activeExercise.sets.length}</span>
+        <strong>{repsForSet(activeExercise.plannedPrescription, position.setIndex)}{bareCount(repsForSet(activeExercise.plannedPrescription, position.setIndex)) ? <em> reps</em> : null}</strong>
+      </p>
       {carried && <p className="live-set-last">
         {carried.source === "session" ? "Last set" : "Last logged"}: {activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}
       </p>}
@@ -409,7 +436,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
     <details className="live-session-queue">
       <summary>
         <span>Full session</span>
-        <small>{completed} of {planned} sets logged{drafts ? ` · ${drafts} typed, not logged` : ""}</small>
+        <small>every exercise and set{drafts ? ` · ${drafts} typed, not logged` : ""}</small>
         <ChevronRight className="h-4 w-4" aria-hidden />
       </summary>
       <div className="session-exercise-list">{activeSession.exercises.map((exercise, exerciseIndex) => { const queueFields = entryFieldsFor(exercise.exerciseName); const exerciseSkipped = isExerciseSkipped(exercise); return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""}`}>
