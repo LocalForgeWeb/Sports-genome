@@ -36,6 +36,8 @@ import {
   getSupabaseResearchLibrary,
 } from "./supabaseEvidence";
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
+import { getResilienceTargetCatalog } from "./supabaseResilience";
+import { getStrengthPercentile } from "./supabaseStrengthCurves";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
 import { getPublicNormsReference } from "./normsRegistry";
@@ -414,6 +416,44 @@ export const appRouter = router({
     profile: publicProcedure
       .input(z.object({ sportId: z.string().trim().min(1).max(80) }))
       .query(({ input }) => getSupabaseSportProfile(input.sportId)),
+  }),
+
+  /**
+   * Selectable capacity/function targets. Read-only and sport-independent: a general-mode
+   * athlete gets the same catalog, and a target's `supportedRoutes` says what evidence
+   * actually covers it rather than implying every target is actionable.
+   */
+  resilience: router({
+    targetCatalog: publicProcedure.query(() => getResilienceTargetCatalog()),
+  }),
+
+  /**
+   * Where a lift sits against sex- and bodyweight-matched community curves.
+   *
+   * This is the beta route (`strength_beta_v1`), kept separate from the research-grade
+   * reference path in normsResolution: that one reports a band between published cut points
+   * from a directly measured lift, this one interpolates a community curve from an estimated
+   * 1RM. Every result names its route, so the two can never be read as the same number.
+   */
+  strengthPercentile: router({
+    forLift: publicProcedure
+      .input(
+        z.object({
+          // Any of the three identifies the lift. The catalog id is exact, because the research
+          // side wrote it into each curve's canonical name; the name is the fallback for the
+          // handful of curves that carry no id.
+          exerciseId: z.string().trim().min(1).max(80).nullish(),
+          catalogExerciseId: z.number().int().positive().nullish(),
+          exerciseName: z.string().trim().min(1).max(255).nullish(),
+          sex: z.enum(["male", "female"]).nullable(),
+          bodyMassKg: z.number().positive().max(500).nullable().optional(),
+          measuredOneRmKg: z.number().positive().max(1000).nullable().optional(),
+          loadKg: z.number().positive().max(1000).nullable().optional(),
+          repetitions: z.number().int().min(1).max(100).nullable().optional(),
+          repsInReserve: z.number().int().min(0).max(10).nullable().optional(),
+        })
+      )
+      .query(({ input }) => getStrengthPercentile(input)),
   }),
 
   /**

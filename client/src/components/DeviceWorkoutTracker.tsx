@@ -7,6 +7,7 @@ import {
   isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
   unskipExercise, type DeviceWorkoutSession,
 } from "@/lib/deviceWorkoutLog";
+import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setEntryFieldsFor, type SetEntryMeasure } from "@/lib/setEntryFields";
 import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
@@ -284,7 +285,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
 
   const finish = () => {
     if (!activeSession) return;
-    const { session, excludedDrafts, skippedSets, completedSets } = finalizeSession(activeSession);
+    // Read now, stored with the session: what the athlete weighs today is what this workout was
+    // done at, and no later weight change gets to rewrite it.
+    const { session, excludedDrafts, skippedSets, completedSets } = finalizeSession(
+      activeSession,
+      undefined,
+      currentBodyWeightKg(loadBodyWeightLog()),
+    );
     const prior = loadDeviceWorkoutSessions().filter((item) => item.id !== session.id);
     const written = saveDeviceWorkoutSessions([session, ...prior]);
     setDurable(written);

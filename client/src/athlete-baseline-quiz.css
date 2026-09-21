@@ -278,3 +278,24 @@
   .athlete-quiz-final-actions .athlete-quiz-skip { margin-top: 0; margin-left: auto; }
   .athlete-quiz-final-actions .athlete-quiz-next { flex: 1 0 100%; justify-content: center; }
 }
+
+/* Targeted-capacity states. The insufficiency line and the escalation notice both say what is
+   happening and why; neither relies on colour alone to carry that meaning. */
+.athlete-quiz-insufficiency {
+  border-left: 3px solid var(--sg-info-strong, #2d6cdf);
+  padding-left: 12px;
+  font-size: var(--sg-text-md);
+}
+.athlete-quiz-escalation {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border: 1px solid #c2410c;
+  border-left-width: 3px;
+  background: rgba(194, 65, 12, .08);
+  padding: 14px 16px;
+  margin-top: 16px;
+}
+.athlete-quiz-escalation strong { display: block; font-size: var(--sg-text-base); }
+.athlete-quiz-escalation p { margin: 6px 0 0; font-size: var(--sg-text-md); line-height: var(--sg-leading-body); }
+.athlete-quiz-escalation svg { flex: none; margin-top: 2px; }
