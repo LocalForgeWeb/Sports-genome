@@ -74,10 +74,24 @@ export function dismissBootSplash(options: { immediate?: boolean } = {}) {
  */
 export function replayBootSplash() {
   if (typeof window === "undefined") return;
+  // A reload takes a moment to commit, and the button stays under the finger
+  // for all of it. The second tap called reload() again on a document that was
+  // already unloading - two navigations racing over one page, which is not a
+  // state worth reasoning about. One request per page: the document this ran
+  // in is going away regardless, so the flag never needs clearing.
+  if (replayRequested) return;
+  replayRequested = true;
   try {
     window.localStorage.setItem(replayIntroStorageKey, "yes");
   } catch {
     // Without storage the reload still replays the static choreography.
   }
   window.location.reload();
+}
+
+let replayRequested = false;
+
+/** Whether a replay is already on its way, so the control can stand down. */
+export function bootSplashReplayRequested(): boolean {
+  return replayRequested;
 }

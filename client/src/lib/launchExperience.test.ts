@@ -62,9 +62,13 @@ describe("launch experience preference", () => {
     // it was right for - and applies only while nothing is playing.
     expect(bootDocumentSource).toContain("if (!playing) {");
     expect(bootDocumentSource).toContain('if (sinceStart > (replay ? 8000 : 4000)) { window.clearInterval(watch); settle("skipped"); }');
-    // Once it is playing, only a stalled clock or its own declared length ends it.
+    // Once it is playing, only a stalled clock or its own declared length ends
+    // it - and that length is measured against playback, not against the
+    // document. The video starts when enough of it has downloaded, not when the
+    // page did, and charging it for that wait cut a six-second intro at 5.41s.
     expect(bootDocumentSource).toContain("var stalled = now - lastProgressAt > 1500;");
-    expect(bootDocumentSource).toContain("var overran = (durationMs && sinceStart > durationMs + 2000) || sinceStart > 15000;");
+    expect(bootDocumentSource).toContain("var playedMs = playbackStartedAt ? now - playbackStartedAt : sinceStart;");
+    expect(bootDocumentSource).toContain("var overran = (durationMs && playedMs > durationMs + 2000) || playedMs > 15000;");
     expect(bootDocumentSource).toContain('video.addEventListener("playing"');
     // No flat timer may settle the intro on elapsed time alone.
     expect(bootDocumentSource).not.toContain('window.setTimeout(function () { settle("done"); }, 4000)');
@@ -167,5 +171,47 @@ describe("the launch sequence waits for something to show", () => {
     // first: every path still produces a hold rather than an immediate wipe.
     expect(bootExperienceSource).toContain("dataset.sportsGenomeBootStartedAt");
     expect(bootExperienceSource).toMatch(/return Number\.isFinite\(started\) && started > 0 \? started : null;/);
+  });
+});
+
+/**
+ * "I tried clicking the preview video 2 times and the whole app glitched and
+ * you can see the top thing vanished."
+ */
+describe("replaying the intro", () => {
+  it("asks for one reload however many times the control is pressed", () => {
+    // The reload takes a moment to commit and the button stays under the
+    // finger for all of it, so the second tap called reload() again on a
+    // document that was already unloading - two navigations racing over one
+    // page. The document this runs in is going away either way, so the flag
+    // never needs clearing.
+    expect(bootSplashSource).toContain("if (replayRequested) return;");
+    expect(bootSplashSource).toContain("replayRequested = true;");
+    expect(bootSplashSource).toContain("export function bootSplashReplayRequested");
+  });
+
+  it("takes the control out of reach once it has been pressed", () => {
+    const home = readFileSync(resolve(process.cwd(), "client/src/pages/Home.tsx"), "utf8");
+    expect(home).toContain("if (replayPending || bootSplashReplayRequested()) return;");
+    expect(home).toContain("disabled={!launchExperienceEnabled || replayPending}");
+    // And it says why it is unavailable rather than just going dead.
+    expect(home).toContain('replayPending ? "Starting the intro…" : "Preview intro video"');
+  });
+
+  it("leaves no composited blur on the bar the splash is lifted off", () => {
+    // The header is sticky and sits directly under the boot splash - a
+    // full-screen top-most layer with `will-change: opacity`, `isolation:
+    // isolate` and `contain: layout paint style` that is removed from the
+    // document when the sequence ends. Reported after a replay: the bar's
+    // background was still drawn and everything inside it was not, which is
+    // what a stale composited layer looks like. Under an 84%-opaque fill the
+    // blur was not visible anyway.
+    const css = readFileSync(resolve(process.cwd(), "client/src/index.css"), "utf8");
+    for (const rule of css.matchAll(/\.apex-topbar \{[^}]*\}/g)) {
+      expect(rule[0], "the header declares no backdrop-filter").not.toContain("backdrop-filter");
+      const background = rule[0].match(/background:([^;]*);/);
+      // Opaque, so nothing behind it can show through a half-painted layer.
+      if (background) expect(background[1], `${background[1]} is opaque`).not.toMatch(/\/\s*\.\d/);
+    }
   });
 });

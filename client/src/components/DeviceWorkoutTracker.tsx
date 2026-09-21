@@ -378,7 +378,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
           <strong>{completed}<span>/{planned} sets</span></strong>
         </div>
       </div>
-      <button onClick={finish} className="execution-secondary-action"><Save className="h-4 w-4" /> Finish workout</button>
+      {/* No finish button here. It was a full-width control at the top of every
+          view of a session that is, by definition, not finished; the first view
+          held three full-width buttons and the contract allows one dominant
+          action. Finishing lives where it becomes the next thing to do - the
+          completion card - and, for a session cut short, below the queue. */}
     </div>
 
     {!durable && <p className="tracker-storage-warning" role="alert">
@@ -430,13 +434,20 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
     </div> : <div className="live-set-card live-set-card-done">
       <p className="metric-label">Session complete</p>
       <h4>Every planned set is logged.</h4>
-      <p className="live-set-prescription">Finish the workout to add {completed} {completed === 1 ? "set" : "sets"} to Progress.</p>
+      {/* Now the dominant action: nothing is left to log, so finishing is the
+          one thing this card is for, and the button is here rather than a scroll
+          away at the top. */}
+      <button type="button" className="live-session-finish live-session-finish-primary" onClick={finish}>
+        <Save className="h-4 w-4" /> Finish workout · add {completed} {completed === 1 ? "set" : "sets"} to Progress
+      </button>
     </div>}
 
     {/* Persistent and adjustable, but its own row below the logging zone: the
         glance contract forbids a timer control sitting beside reps, load, or
-        completion as a competing tap target. */}
-    <div className={`live-rest-row ${restComplete ? "live-rest-row-done" : ""}`}>
+        completion as a competing tap target. Persistent while there is a next
+        set to rest for - once every set is logged it counted down to nothing,
+        beside a finish button, so it goes with the last set. */}
+    {activeExercise && activeSet && <div className={`live-rest-row ${restComplete ? "live-rest-row-done" : ""}`}>
       <span className="live-rest-clock"><Timer className="h-4 w-4" aria-hidden />{resting ? clockFor(restRemaining) : clockFor(activeSession.restSeconds || DEFAULT_REST_SECONDS)}</span>
       <span className="live-rest-state" aria-live="polite">{resting ? "Resting" : restComplete ? "Rest complete" : "Rest length"}</span>
       <span className="live-rest-controls">
@@ -444,7 +455,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
         <button type="button" onClick={() => adjustRest(REST_STEP_SECONDS)} aria-label={`Lengthen rest by ${REST_STEP_SECONDS} seconds`}>+{REST_STEP_SECONDS}s</button>
         {(resting || restComplete) && <button type="button" onClick={endRest} aria-label={restComplete ? "Clear the finished rest" : "End rest now"}>{restComplete ? "Clear" : "Skip"}</button>}
       </span>
-    </div>
+    </div>}
 
     {/* Explicit drill-down. Opening it does not move the active set, so the
         athlete keeps their place while checking or correcting earlier work. */}
@@ -481,5 +492,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
         </div>)}</div>
       </article>; })}</div>
     </details>
+
+    {/* Cutting a session short. Below the queue and set quietly, because it is
+        the rare exit, not the next step; it says what it will keep so the tap
+        is a decision rather than a guess. */}
+    {activeExercise && activeSet && <button type="button" className="live-session-finish" onClick={finish}>
+      Finish workout early<small>{completed ? ` · keeps the ${completed} logged ${completed === 1 ? "set" : "sets"}` : " · nothing logged yet"}</small>
+    </button>}
   </section>;
 }
