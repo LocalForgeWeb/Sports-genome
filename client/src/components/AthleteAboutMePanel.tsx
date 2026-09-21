@@ -11,13 +11,15 @@ import { getSportModifiers } from "@/lib/hierarchicalSportModel";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { AthleteAccountCard } from "@/components/AthleteAccountCard";
+import { CapacityFocusCard, type CapacityFocusState } from "@/components/CapacityFocusCard";
+import type { ResilienceTargetCatalog } from "@shared/resilienceContext";
 import type { IdentityState } from "@/lib/athleteIdentity";
 import "@/athlete-about-me.css";
 
 const experiences: AthleteExperience[] = ["Beginner", "Intermediate", "Advanced"];
 const goals: TrainingGoal[] = ["Athleticism", "Muscle growth", "Max strength", "Capacity"];
 
-export function AthleteAboutMePanel({ baseline, goal, trainingDays, sportId, sports, onBaseline, onGoal, onDays, onSport , identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {} }: {
+export function AthleteAboutMePanel({ baseline, goal, trainingDays, sportId, sports, onBaseline, onGoal, onDays, onSport, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {} }: {
   baseline: AthleteBaseline;
   goal: TrainingGoal;
   trainingDays: number;
@@ -27,6 +29,10 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, sportId, spo
   onGoal: (goal: TrainingGoal) => void;
   onDays: (days: number) => void;
   onSport: (sportId: string) => void;
+  /** What the athlete wants to build up, and what the plan must work around. */
+  capacityFocus?: CapacityFocusState;
+  targetCatalog?: ResilienceTargetCatalog;
+  onCapacityFocus?: (next: CapacityFocusState) => void;
   identity?: IdentityState;
   syncPending?: number;
   benchmarkOptIn?: boolean;
@@ -73,6 +79,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, sportId, spo
     </div>
     {identity && <AthleteAccountCard identity={identity} pending={syncPending} optedIn={benchmarkOptIn} onOptIn={onBenchmarkOptIn} />}
     <section className="about-me-security"><div><p className="metric-label">Account security</p><h2>Face ID / passkey</h2><p>Use this device’s Face ID, Touch ID, or secure screen lock to sign in without typing your password. Your biometric data stays on your device.</p></div><button onClick={enrollPasskey} disabled={!passkeySupported || passkeyOptions.isPending || passkeyVerify.isPending}><Fingerprint className="h-4 w-4" /> {passkeySupported ? "Enable Face ID / passkey" : "Passkey unavailable"}</button>{accountPasskeys.data?.length ? <div className="about-me-passkey-list" aria-label="Enrolled passkeys">{accountPasskeys.data.map((passkey, index) => <div key={passkey.id} className="about-me-passkey-row"><span>Device passkey {index + 1}{passkey.lastUsedAt ? " · used before" : " · not used yet"}</span><button type="button" aria-label={`Remove device passkey ${index + 1}`} onClick={() => requestRemovePasskey(passkey.id, `Device passkey ${index + 1}`)} disabled={removePasskey.isPending}><Trash2 className="h-3.5 w-3.5" /> Remove</button></div>)}</div> : <p className="about-me-passkey-empty">No device passkeys enrolled yet.</p>}<ShieldCheck className="about-me-security-icon" /></section>
+    <CapacityFocusCard catalog={targetCatalog} value={capacityFocus} onChange={onCapacityFocus} />
     <section className="about-me-equipment"><div className="about-me-equipment-head"><div><p className="metric-label">Automatic stack constraint</p><h2>Available equipment</h2><p>Recommended stacks use the selected equipment below. The catalog remains complete, so you can inspect or manually add any exercise.</p></div><Dumbbell className="h-6 w-6 text-[var(--sg-text-subtle-on-dark)]" /></div><div className="about-me-access-row">{(Object.keys(gymAccessProfiles) as GymAccess[]).map((access) => <button key={access} onClick={() => setGymAccess(access)} className={equipment.gymAccess === access ? "about-me-access-active" : ""}>{access}</button>)}</div><div className="about-me-equipment-grid">{catalogEquipment.map((item) => <button key={item} onClick={() => toggleEquipment(item)} className={equipment.availableEquipment.includes(item) ? "about-me-equipment-active" : ""}><Scale className="h-4 w-4" /><span>{item}</span>{equipment.availableEquipment.includes(item) && <Check className="ml-auto h-4 w-4" />}</button>)}</div></section>
     {pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => setPendingDestructiveAction(null)} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}
   </section>;

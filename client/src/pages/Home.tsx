@@ -37,6 +37,7 @@ import { PrintableWorkoutSheet, PrintWorkoutButton } from "@/components/Printabl
 import { AthleteBaselineQuiz, type AthleteBaseline, type AthleteQuizSelection } from "@/components/AthleteBaselineQuiz";
 import { SportContextGate } from "@/components/SportContextGate";
 import type { SportContextMode } from "@shared/resilienceContext";
+import type { CapacityFocusState } from "@/components/CapacityFocusCard";
 import { AthleteAboutMePanel } from "@/components/AthleteAboutMePanel";
 import { loadBodyWeightLog, recordBodyWeight, saveBodyWeightLog, seedBodyWeightLog } from "@/lib/bodyWeightLog";
 import { useAthleteSync } from "@/lib/useAthleteSync";
@@ -78,7 +79,7 @@ import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 type Workspace = "command" | "profile" | "progress" | "recommended" | "custom" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "genome" | "strength";
 type Goal = TrainingGoal;
 type StackMode = "suggested" | "custom";
-type StoredAthleteProfile = { version: 1 | 2; sportId: string; sportContextMode?: SportContextMode; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
+type StoredAthleteProfile = { version: 1 | 2 | 3; sportId: string; sportContextMode?: SportContextMode; capacityFocus?: CapacityFocusState; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
 type StoredWorkoutEntry = { entryId: number; catalogExerciseId: number };
 type WorkoutEntry = Exercise & { catalogExerciseId?: number };
 /**
@@ -289,6 +290,7 @@ export default function Home() {
   const [sportId, setSportId] = useState("");
   const [goal, setGoal] = useState<Goal>("Athleticism");
   const [trainingDays, setTrainingDays] = useState(3);
+  const [capacityFocus, setCapacityFocus] = useState<CapacityFocusState>({ reportedSignals: [] });
   const [athleteBaseline, setAthleteBaseline] = useState<AthleteBaseline>({ experience: "Intermediate", weightUnit: "lb", equipment: defaultEquipmentProfile });
   const [gymMinutes, setGymMinutes] = useState(60);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
@@ -568,8 +570,10 @@ export default function Home() {
       if (stored) {
         const profile = JSON.parse(stored) as StoredAthleteProfile;
         const storedMode: SportContextMode = profile.version === 1 ? "sport" : profile.sportContextMode || "undecided";
+        // Absent before v3, so an older profile simply has nothing selected yet.
+        if (profile.capacityFocus) setCapacityFocus({ ...profile.capacityFocus, reportedSignals: profile.capacityFocus.reportedSignals || [] });
         const sportResolves = sportProfiles.some((sport) => sport.id === profile.sportId);
-        if ((profile.version === 1 || profile.version === 2) && (storedMode === "sport" ? sportResolves : true)) {
+        if ((profile.version === 1 || profile.version === 2 || profile.version === 3) && (storedMode === "sport" ? sportResolves : true)) {
           setSportContextMode(storedMode);
           setSportId(storedMode === "sport" ? profile.sportId : "");
           setGoal(profile.goal);
@@ -641,9 +645,9 @@ export default function Home() {
     // Only sport mode needs a sport id. Requiring one here is what used to drop a general
     // athlete's profile on every reload.
     if (sportContextMode === "sport" && !sportId) return;
-    const profile: StoredAthleteProfile = { version: 2, sportId, sportContextMode, goal, trainingDays, gymMinutes, movementId: selectedMovement.id, baseline: athleteBaseline };
+    const profile: StoredAthleteProfile = { version: 3, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId: selectedMovement.id, baseline: athleteBaseline };
     try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
-  }, [profileHydrated, onboardingComplete, sportId, sportContextMode, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
+  }, [profileHydrated, onboardingComplete, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
 
   /**
    * The account's copy of the plan, alongside the device's.
@@ -1111,11 +1115,12 @@ export default function Home() {
     // Nothing to return to when the result opens the screen already on display.
     if (target !== origin) setSearchReturn({ workspace: origin, label: navItems.find((item) => item.id === origin)?.label || "where you were" });
   };
-  const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, sportContextMode: selectedMode, stackMode, baseline }: AthleteQuizSelection) => {
+  const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, sportContextMode: selectedMode, focus, constraint, reportedSignals, stackMode, baseline }: AthleteQuizSelection) => {
     setGoal(selectedGoal);
     setTrainingDays(selectedDays);
     setAthleteBaseline(baseline);
     setSportContextMode(selectedMode);
+    setCapacityFocus({ focus, constraint, reportedSignals });
     if (selectedMode === "sport") chooseSport(selectedSportId); else setSportId("");
     // The suggested stack is generated from sport demands, so it is withheld rather than
     // produced from an arbitrary sport. The builder opens instead, with everything editable.
@@ -1193,7 +1198,7 @@ export default function Home() {
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[var(--sg-text-subtle-on-light)]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? <p className="tracker-live-context">Logging {activeSlot.ordinal} · {activeSplitDay}</p> : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log {activeSlot.ordinal} / {activeSplitDay}</h1><p>Choose the planned day you are completing, then record actual work. Training Day stays focused on building and rating the plan.</p></div><div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => openTrainingDay(slot.index)} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={activeDayLabel} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
-        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} />}
+        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} capacityFocus={capacityFocus} targetCatalog={resilienceCatalogQuery.data} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} />}
         {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><SupabaseResearchLibraryPanel /><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled}>Preview intro video</button></div><p className="more-workspace-build" title="The build this device is running. If it does not change after an update, this device is pinned to an old address.">{buildStampLabel()}</p></section>}
         {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={activeDayLabel} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
