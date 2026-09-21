@@ -20,10 +20,9 @@ function Router() {
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
+// The theme is the athlete's choice, stored and resolved in ThemeProvider, and
+// applied to <html> by the inline script in index.html before the first frame so
+// the chrome does not flash. See client/src/lib/theme.ts.
 
 function App() {
   return (
@@ -32,10 +31,7 @@ function App() {
           them rendering successfully, or a provider that throws leaves the app
           unreachable behind it. */}
       <BootSplashLifecycle />
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider>
         <TooltipProvider>
           <Toaster />
           <Router />
