@@ -696,3 +696,13 @@
   .day-design-workspace .session-draft-panel,
   .day-design-workspace .day-exercise-picker { scroll-margin-top: 22.5rem; }
 }
+
+/* The day selector is one object drawn as two elements - a head that scrolls away
+   and a strip that pins - so the radius is split across the pair rather than given
+   to each. The strip keeps `overflow-x: auto` for its own scrolling, so its chips
+   are clipped by its radius without a wrapper. */
+.training-day-nav { border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; }
+.training-day-nav-strip { border-radius: 0 0 var(--sg-radius-md) var(--sg-radius-md); }
+/* Pinned, it is no longer the bottom of anything: square it off against the head
+   that has scrolled underneath it so the two do not read as separate cards. */
+.training-day-nav-strip.is-pinned { border-radius: var(--sg-radius-md); }

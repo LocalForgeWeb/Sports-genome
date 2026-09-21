@@ -119,12 +119,28 @@
   transition: border-color var(--sg-motion-fast) var(--sg-ease), background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
 }
 .prescription-vary:hover:not(:disabled) { border-color: var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); color: var(--sg-focus-on-dark); }
-.prescription-vary:disabled { cursor: not-allowed; opacity: .35; }
+.prescription-vary:disabled,
+/* Spent rather than disabled: the control keeps its place in the tab order, so a
+   keyboard user who reaches a limit does not get dropped back to the top of the
+   page by the button vanishing from under them. */
+.prescription-vary.is-spent,
+.set-stepper button.is-spent { cursor: not-allowed; opacity: .35; }
+
+.prescription-mode { display: inline-flex; align-items: center; gap: .4rem; }
+
+/* Flattening a per-set plan throws away every target but the first, on the button
+   the finger is already on. The way back has to be right there. */
+.prescription-undo {
+  display: inline-flex; align-items: center; gap: .3rem; min-height: 32px;
+  border: 1px solid var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); padding: 0 .55rem;
+  color: var(--sg-focus-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+}
+.prescription-undo:hover { background: rgb(242 193 77 / .24); }
 
 /* Two across: twelve stacked rows would push everything else off the screen. */
 .prescription-set-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: .45rem; margin: 0; padding: 0; list-style: none; }
 .prescription-set-list li { display: grid; gap: .2rem; min-width: 0; }
-.prescription-set-list span { color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.prescription-set-list label { color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
 .prescription-set-list input { width: 100%; text-align: center; }
 
 .prescription-field-pair { grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: .6rem; }

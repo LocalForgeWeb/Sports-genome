@@ -1,16 +1,20 @@
 /** Modern Kinetic Field Manual: compact per-exercise controls for a coach-editable training prescription. */
 import React from "react";
-import { Check, ChevronDown, Copy, Info, Minus, Plus, X } from "lucide-react";
+import { Check, ChevronDown, Copy, Info, Minus, Plus, Undo2, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { muscleLabels } from "@/components/AnatomyMap";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
 import {
+  displayPrescription,
   formatPrescription,
+  maxEditableSets,
   parsePrescription,
   uniformReps,
   withSetCount,
   withSetReps,
   withUniformReps,
+  withVaried,
+  type SetPrescription,
 } from "@/lib/setPrescription";
 import "../mobile-training-card.css";
 
@@ -31,28 +35,67 @@ import "../mobile-training-card.css";
  * Open, it asks for the two things in order: how many sets, then what they ask
  * for. One reps field covers the ordinary case where every set is the same. A
  * top set followed by back-offs is just as ordinary, and used to be impossible
- * to write - so "Vary by set" turns the single field into one field per set, and
- * "Same every set" turns it back. The simple case stays one field; the harder
- * case is one tap away rather than unavailable.
+ * to write - so "Vary by set" turns the single field into one field per set.
  */
 export function ExercisePrescriptionRow({ exercise, index, prescription, settings, onPrescription, onSettings, onInspect, onRemove }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void }) {
-  const plan = parsePrescription(prescription);
-  const shared = uniformReps(plan);
-  const write = (next: ReturnType<typeof parsePrescription>) => onPrescription(formatPrescription(next.sets));
-
   /**
-   * Asking for a field per set is a decision about the editor, not about the
-   * numbers: "3 × 8" and "3 × 8/8/8" say the same thing, so per-set mode cannot
-   * be read back out of the prescription. It is held here, against the exercise
-   * it was opened for, so a row that is later reused for a different exercise
-   * starts from that exercise's own shape rather than the last one's.
+   * The editor's model is the list of sets, not the string.
+   *
+   * Deriving the field values from the string the field had just written made
+   * every keystroke a round trip, and the round trip is lossy for exactly the
+   * values a person types on the way to a valid one. Typing the "-" of "12-15"
+   * produced a target no parser would accept as a rep count, so the whole
+   * prescription collapsed to a single shared field holding "10/12-/6" - and
+   * the next keystroke re-joined that with slashes again, doubling it. The
+   * buffer below is what the athlete typed; the string is where it is saved.
    */
-  const [varyingFor, setVaryingFor] = React.useState<number | null>(null);
-  const perSet = plan.varied || varyingFor === exercise.id;
+  const [draft, setDraft] = React.useState<SetPrescription | null>(null);
+  /** The last value this row wrote, so its own echo is not mistaken for an outside edit. */
+  const echo = React.useRef<string>("");
+  /** The list as it stood before "Same every set" flattened it. */
+  const [flattened, setFlattened] = React.useState<SetPrescription | null>(null);
+
+  React.useEffect(() => {
+    // A day swap, an import, or a duplicate replaces the prescription from
+    // outside. That always wins over whatever is half-typed in here.
+    if (prescription !== echo.current) {
+      setDraft(null);
+      setFlattened(null);
+    }
+  }, [prescription]);
+
+  const plan = draft ?? parsePrescription(prescription);
+  const shared = uniformReps(plan);
+  const perSet = plan.varied;
+
+  const commit = (next: SetPrescription, keepUndo = false) => {
+    setDraft(next);
+    if (!keepUndo) setFlattened(null);
+    const value = formatPrescription(next.sets, next.varied);
+    echo.current = value;
+    onPrescription(value);
+  };
+
+  const setCountNow = plan.sets.length;
   const rpes = Array.from(new Set([settings.rpe, "RPE 6", "RPE 7", "RPE 8", "RPE 9"]));
   const rests = Array.from(new Set([settings.rest, "60 sec", "90 sec", "120 sec", "180 sec"]));
-  const summaryLine = [formatPrescription(plan.sets), settings.rpe, settings.rest].filter(Boolean).join(" · ");
+  const summaryLine = [displayPrescription(prescription), settings.rpe, settings.rest].filter(Boolean).join(" · ");
   const muscles = exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ");
+  const setsLabelId = `sets-label-${exercise.id}`;
+  const listLabelId = `sets-list-${exercise.id}`;
+
+  /*
+   * The stepper stays focusable at its limits and clamps in the handler. Disabling
+   * the button the moment it is pressed drops focus to <body>, so a keyboard user
+   * who steps down to one set loses their place in the row entirely.
+   */
+  const atMin = setCountNow <= 1;
+  const atMax = setCountNow >= maxEditableSets;
+  const step = (delta: number) => {
+    const next = setCountNow + delta;
+    if (next < 1 || next > maxEditableSets) return;
+    commit(withSetCount(plan, next));
+  };
 
   return <details className={`custom-prescription ${settings.completed ? "custom-prescription-complete" : ""}`}>
     <summary className="custom-row">
@@ -74,19 +117,22 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
           fields said the same thing in twice the height and half the sense. */}
       <div className="prescription-primary">
         <div className="prescription-primary-head">
-          <span className="metric-label" id={`sets-${exercise.id}`}>Sets &amp; reps</span>
-          {perSet
-            /* Undoing it takes the first set's target across the rest, which is
-               the one answer that is never a surprise. */
-            ? <button type="button" className="prescription-vary" onClick={() => { setVaryingFor(null); write(withUniformReps(plan, plan.sets[0]?.reps ?? "8–12")); }}>Same every set</button>
-            : <button type="button" className="prescription-vary" onClick={() => setVaryingFor(exercise.id)} disabled={plan.sets.length < 2}>Vary by set</button>}
+          <span className="metric-label" id={setsLabelId}>Sets &amp; reps</span>
+          <div className="prescription-mode">
+            {flattened && <button type="button" className="prescription-undo" onClick={() => { commit(flattened); setFlattened(null); }}>
+              <Undo2 className="h-3 w-3" /> Undo
+            </button>}
+            {perSet
+              ? <button type="button" className="prescription-vary" onClick={() => { setFlattened(plan); commit(withUniformReps(plan, plan.sets[0]?.reps ?? "8–12"), true); }}>Same every set</button>
+              : <button type="button" onClick={() => { if (!atMin) commit(withVaried(plan, true)); }} aria-disabled={atMin} title={atMin ? "Add a second set first" : undefined} className={`prescription-vary ${atMin ? "is-spent" : ""}`}>Vary by set</button>}
+          </div>
         </div>
 
         <div className="prescription-sets-row">
-          <div className="set-stepper" role="group" aria-labelledby={`sets-${exercise.id}`}>
-            <button type="button" onClick={() => write(withSetCount(plan, plan.sets.length - 1))} disabled={plan.sets.length <= 1} aria-label={`One fewer set of ${exercise.name}`}><Minus className="h-4 w-4" /></button>
-            <output aria-live="polite">{plan.sets.length}</output>
-            <button type="button" onClick={() => write(withSetCount(plan, plan.sets.length + 1))} disabled={plan.sets.length >= 12} aria-label={`One more set of ${exercise.name}`}><Plus className="h-4 w-4" /></button>
+          <div className="set-stepper" role="group" aria-labelledby={setsLabelId}>
+            <button type="button" onClick={() => step(-1)} aria-disabled={atMin} aria-label={`One fewer set of ${exercise.name}`} className={atMin ? "is-spent" : ""}><Minus className="h-4 w-4" /></button>
+            <output aria-live="polite" aria-label={`${setCountNow} ${setCountNow === 1 ? "set" : "sets"}`}>{setCountNow}</output>
+            <button type="button" onClick={() => step(1)} aria-disabled={atMax} aria-label={`One more set of ${exercise.name}`} className={atMax ? "is-spent" : ""}><Plus className="h-4 w-4" /></button>
           </div>
           {!perSet && <>
             <span className="prescription-times" aria-hidden="true">×</span>
@@ -94,7 +140,9 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
               className="prescription-reps"
               id={`reps-${exercise.id}`}
               value={shared ?? ""}
-              onChange={(event) => write(withUniformReps(plan, event.target.value))}
+              /* `/` is the per-set delimiter, so typing "8 / side" here would read
+                 back as two sets. Vary by set is the way to write a slash list. */
+              onChange={(event) => commit(withUniformReps(plan, event.target.value.replace(/\//g, " ")))}
               inputMode="text"
               placeholder="8–12"
               aria-label={`${exercise.name} repetitions or target, every set`}
@@ -102,12 +150,14 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
           </>}
         </div>
 
-        {perSet && <ol className="prescription-set-list">
+        {perSet && <ol className="prescription-set-list" aria-labelledby={listLabelId}>
+          <li className="sr-only" id={listLabelId} aria-hidden="true">Repetitions per set</li>
           {plan.sets.map((set, position) => <li key={position}>
-            <span>Set {position + 1}</span>
+            <label htmlFor={`set-${exercise.id}-${position}`}>Set {position + 1}</label>
             <input
+              id={`set-${exercise.id}-${position}`}
               value={set.reps}
-              onChange={(event) => write(withSetReps(plan, position, event.target.value))}
+              onChange={(event) => commit(withSetReps(plan, position, event.target.value.replace(/\//g, " ")))}
               inputMode="text"
               aria-label={`${exercise.name} set ${position + 1} repetitions`}
             />

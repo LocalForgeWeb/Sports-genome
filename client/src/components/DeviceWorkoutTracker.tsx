@@ -9,7 +9,7 @@ import {
 } from "@/lib/deviceWorkoutLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setEntryFieldsFor, type SetEntryMeasure } from "@/lib/setEntryFields";
-import { repsForSet, setCount } from "@/lib/setPrescription";
+import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 import { toast } from "sonner";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 
@@ -46,7 +46,7 @@ const REST_STEP_SECONDS = 15;
  * that were actually written down.
  */
 function plannedSetCount(prescription: string) {
-  return setCount(prescription);
+  return renderableSetCount(prescription);
 }
 
 function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string): DeviceWorkoutSession {

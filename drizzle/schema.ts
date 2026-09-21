@@ -76,8 +76,14 @@ export const workoutSessionExercises = mysqlTable(
     exerciseName: varchar("exerciseName", { length: 255 }).notNull(),
     movement: varchar("movement", { length: 255 }),
     primaryMuscles: text("primaryMuscles"),
+    /*
+     * 255, not 100. A prescription may now state a target per set - "12 ×
+     * 30–40 sec/20–30 sec/..." - and twelve timed rounds run past 100
+     * characters, at which point the start-workout mutation was rejected by
+     * zod and the screen simply stayed on "Ready to train."
+     */
     plannedPrescription: varchar("plannedPrescription", {
-      length: 100,
+      length: 255,
     }).notNull(),
     plannedRpe: varchar("plannedRpe", { length: 40 }),
     plannedRest: varchar("plannedRest", { length: 40 }),
