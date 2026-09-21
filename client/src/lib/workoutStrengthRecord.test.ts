@@ -120,4 +120,20 @@ describe("stamping a session with the weight in effect that day", () => {
     expect(workoutStrengthObservations([session()], "lb", log)[0].bodyMassKgAtTest).toBeUndefined();
     expect(workoutStrengthObservations([session()], "lb", [])[0].bodyMassKgAtTest).toBeUndefined();
   });
+
+  /**
+   * The weight stamped when the session was finished covers the days the log does not reach.
+   * Without it the panel fell through to whatever the profile said *now*, so a weight edited
+   * months later quietly rewrote what an old workout had been measured against.
+   */
+  it("falls back to the weight stamped when the session was finished", () => {
+    const stamped = { ...session(), bodyMassKgAtCompletion: 84 };
+    expect(workoutStrengthObservations([stamped], "lb", [])[0].bodyMassKgAtTest).toBe(84);
+  });
+
+  it("prefers the dated weigh-in over the completion stamp when the log covers that day", () => {
+    const log = recordBodyWeight([], 200, "lb", "2026-09-01T12:00:00.000Z");
+    const stamped = { ...session(), bodyMassKgAtCompletion: 60 };
+    expect(workoutStrengthObservations([stamped], "lb", log)[0].bodyMassKgAtTest).toBeCloseTo(90.72, 1);
+  });
 });

@@ -44,6 +44,11 @@ vi.mock("@/lib/trpc", () => ({
     sportsGenome: {
       profile: { useQuery: () => ({ data: undefined }) },
     },
+    // The target catalog is optional context: undefined is the unavailable state the quiz
+    // renders, so this mock also covers the failure path.
+    resilience: {
+      targetCatalog: { useQuery: () => ({ data: undefined }) },
+    },
     // Plan sync is disabled in these tests (no auth), but the hook still resolves
     // the procedures on render.
     workoutPlan: {

@@ -9,6 +9,9 @@ const mocks = vi.hoisted(() => ({ mutate: vi.fn(), invalidate: vi.fn().mockResol
 vi.mock("@/lib/trpc", () => ({
   trpc: {
     useUtils: () => ({ strengthGenome: { overview: { invalidate: mocks.invalidate }, observations: { invalidate: mocks.invalidate }, priorities: { invalidate: mocks.invalidate } } }),
+    // The beta community-curve route. Off by default here: these cases are about the
+    // research-grade routes, and a percentile arriving would displace the card under test.
+    strengthPercentile: { forLift: { useQuery: () => ({ data: undefined }) } },
     strengthGenome: {
       setObservationBodyMass: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
     },

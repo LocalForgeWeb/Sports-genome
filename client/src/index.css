@@ -2898,3 +2898,54 @@ details:not([open]) > *:not(summary) {
   height: 6px; border-radius: var(--sg-radius-pill);
   background: linear-gradient(90deg, var(--sg-seq-1), var(--sg-seq-2), var(--sg-seq-3), var(--sg-seq-4), var(--sg-seq-5));
 }
+
+/* Sport-derived workspaces when no sport is chosen. The state is explained in text, not by an
+   empty panel: "no sport" is a valid answer, not a missing input to be nagged about. */
+.sport-context-gate {
+  border: 1px solid var(--sg-divider-on-light);
+  background: var(--sg-surface-light-sunken);
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+.sport-context-gate-head { display: flex; gap: 14px; align-items: flex-start; }
+.sport-context-gate-head svg { flex: none; margin-top: 4px; color: var(--sg-info-strong); }
+.sport-context-gate-head h2 {
+  font-family: var(--sg-display, inherit);
+  font-size: 26px;
+  line-height: 1.05;
+  text-transform: uppercase;
+  margin: 6px 0 8px;
+  color: var(--sg-text-on-light);
+}
+.sport-context-gate-head p { font-size: var(--sg-text-base); line-height: var(--sg-leading-body); color: var(--sg-text-muted-on-light); max-width: 68ch; }
+.sport-context-gate-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+.sport-context-gate-actions label { display: grid; gap: 6px; min-width: 240px; }
+.sport-context-gate-actions select {
+  min-height: 44px;
+  border: 1px solid var(--sg-divider-on-light);
+  background: #fff;
+  padding: 0 12px;
+  font-size: var(--sg-text-base);
+  color: var(--sg-text-on-light);
+}
+.sport-context-gate-actions button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 1px solid var(--sg-divider-on-light);
+  background: #fff;
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+  color: var(--sg-info-strong);
+}
+.sport-context-gate-note { font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); color: var(--sg-text-subtle-on-light); }
+@media (max-width: 640px) {
+  .sport-context-gate { padding: 18px; }
+  .sport-context-gate-actions label { min-width: 100%; }
+  .sport-context-gate-actions button { width: 100%; justify-content: center; }
+}

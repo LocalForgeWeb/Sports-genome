@@ -23,6 +23,7 @@ import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { strengthRegionIdsForExerciseName, workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
 import { bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
+import { catalogExerciseIdForName, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
 
 const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
   insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
@@ -222,6 +223,41 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const registryGateExplanation = !hasOutsideComparison && registryReference?.status === "unavailable"
     ? registryUnavailableExplanation[registryReference.reason] ?? null
     : null;
+  /**
+   * Where this lift sits against sex-matched community curves.
+   *
+   * Published research covers three barbell lifts, so every other exercise in the catalog ended
+   * at "no ranking for this lift yet" - true, and useless to someone who just logged a row. The
+   * community curves cover a hundred more, and this is the route that reads them. It stays the
+   * last route asked: anything exactly matched to a study is a stricter answer and keeps its
+   * place above.
+   */
+  const percentileSex: "male" | "female" | null =
+    athleteProfile?.sexForReference === "male" || athleteProfile?.sexForReference === "female"
+      ? athleteProfile.sexForReference
+      : null;
+  const measuredOneRm = latestRecord?.measurementType === "MEASURED_1RM";
+  const betaPercentile = trpc.strengthPercentile.forLift.useQuery(
+    {
+      catalogExerciseId: latestRecord ? catalogExerciseIdForName(latestRecord.exerciseName) ?? null : null,
+      exerciseName: latestRecord?.exerciseName ?? null,
+      sex: percentileSex,
+      bodyMassKg: effectiveBodyMassKg ?? null,
+      measuredOneRmKg: measuredOneRm && latestRecord?.loadKg != null ? Number(latestRecord.loadKg) : null,
+      loadKg: !measuredOneRm && latestRecord?.loadKg != null ? Number(latestRecord.loadKg) : null,
+      repetitions: !measuredOneRm && latestRecord?.repetitions ? Number(latestRecord.repetitions) : null,
+    },
+    // Nothing to place without a load, and the route would only answer `load_required`.
+    { enabled: Boolean(latestRecord?.loadKg), staleTime: 5 * 60 * 1000, retry: false }
+  );
+  const percentileCard = betaPercentile.data && percentileSex
+    ? strengthPercentileCard(betaPercentile.data, { sex: percentileSex, bodyMassKg: effectiveBodyMassKg })
+    : null;
+  const percentileGap = betaPercentile.data?.status === "unavailable"
+    ? strengthPercentileGapCopy[betaPercentile.data.reason] ?? null
+    : null;
+  // The stricter routes lead. This one fills the space they leave rather than sitting beside them.
+  const showPercentile = !hasOutsideComparison && !showRank && percentileCard != null;
   const strengthTrend = latestRecord ? strengthChanges.find((change) => normalizedName(change.exerciseName) === normalizedName(latestRecord.exerciseName)) : undefined;
   useEffect(() => {
     if ((!registryMatch && piperReference?.status !== "matched") || !matchedReferenceRef.current) return;
@@ -240,14 +276,16 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
           <span className="strength-rating-state" style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{changeStateCopy[strengthTrend.changeState].label}</span>
           <p>Change in your estimated one-rep max across {strengthTrend.observationCount} logs since {strengthTrend.firstPoint.observedAt.toLocaleDateString()}.</p>
         </article> : <p className="strength-rating-empty">Log this lift once more and your progress rating shows up here.</p>}
-        {bodyMassRatio != null && !showRank && <p className="strength-region-ratio-inline">{bodyMassRatio.toFixed(2)}× {bodyMassWeightPhrase[bodyMassSource!]} — for your own context, not a rank.</p>}
+        {bodyMassRatio != null && !showRank && !showPercentile && <p className="strength-region-ratio-inline">{bodyMassRatio.toFixed(2)}× {bodyMassWeightPhrase[bodyMassSource!]} — for your own context, not a rank.</p>}
         {registryMatch ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that study group</p><strong>{registryMatch.percentileBandLabel}</strong><p>{registryMatch.unit === "x_bodyweight" ? `${registryMatch.observedValue.toFixed(2)}× body mass` : `${registryMatch.observedValue.toFixed(1)} ${registryMatch.unit}`}{studyGroupLabel(registryMatch.populationDefinition) ? ` · ${studyGroupLabel(registryMatch.populationDefinition)}` : ""}{registryMatch.sampleSize ? ` · ${registryMatch.sampleSize.toLocaleString()} people` : ""}. This exact test only.</p>{registryMatch.sourceUrl && <a href={registryMatch.sourceUrl} target="_blank" rel="noreferrer">View the source study</a>}</article> : powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that competition group</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body mass · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : null}
         {showRank && powerliftingRank?.status === "ranked" && <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary strength-rank-card"><p className="metric-label">Where this ranks</p><strong>{powerliftingRank.percentileBandLabel}</strong><p>{powerliftingRank.relativeStrength.toFixed(2)}× body weight{bodyMassSource !== "recorded" ? ` (${bodyMassSourceNote[bodyMassSource!]})` : ""}{powerliftingRank.basis === "estimated" ? ", from an estimated one-rep max" : ""} · {powerliftingRank.population}.</p><a href={powerliftingRank.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article>}
-        {!hasOutsideComparison && powerliftingRank?.status === "needs" && <RankGate missing={powerliftingRank.missing} birthYear={athleteProfile?.birthYear ?? undefined} onProfile={onRankProfile} />}
-        {!hasOutsideComparison && powerliftingRank?.status === "no_matching_population" && <p className="strength-rank-needs">{powerliftingRankNoPopulationCopy}</p>}
+        {showPercentile && percentileCard && <article className="strength-reference-matched strength-reference-primary strength-rank-card"><p className="metric-label">Where this sits</p><strong>{percentileCard.headline}</strong><p>{percentileCard.detail}{bodyMassSource !== null && bodyMassSource !== "recorded" ? ` Read against ${bodyMassWeightPhrase[bodyMassSource]}.` : ""}</p></article>}
+        {!hasOutsideComparison && !showRank && !showPercentile && percentileGap && <p className="strength-rank-needs">{percentileGap}</p>}
+        {!hasOutsideComparison && !showPercentile && powerliftingRank?.status === "needs" && <RankGate missing={powerliftingRank.missing} birthYear={athleteProfile?.birthYear ?? undefined} onProfile={onRankProfile} />}
+        {!hasOutsideComparison && !showPercentile && powerliftingRank?.status === "no_matching_population" && <p className="strength-rank-needs">{powerliftingRankNoPopulationCopy}</p>}
         {bodyMassSource !== "recorded" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
-        <details className="strength-region-boundary"><summary>{hasOutsideComparison || showRank ? "About this comparison" : "No ranking for this lift yet"}</summary>{registryGateExplanation && <p className="strength-region-gate-reason">{registryGateExplanation}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showRank ? "Ranked against the published group named above, not against everyone. It places your lift on that study's own reported cut points." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
-        <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
+        <details className="strength-region-boundary"><summary>{hasOutsideComparison || showRank || showPercentile ? "About this comparison" : "No ranking for this lift yet"}</summary>{registryGateExplanation && <p className="strength-region-gate-reason">{registryGateExplanation}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showRank ? "Ranked against the published group named above, not against everyone. It places your lift on that study's own reported cut points." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
+        <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${latestRecord.repetitions} reps` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{/* The weight this lift was read against, said out loud: it was saved with the lift and does not move when the profile weight changes. */}{effectiveBodyMassKg != null ? ` · at ${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}` : ""}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
       </article>
     </> : <div className="strength-region-record-empty"><p>Nothing logged for this muscle group yet.</p><p>Log a lift that trains it and your progress will show up here.</p></div>}
   </section>;

@@ -175,7 +175,10 @@ describe("workspace side navigation", () => {
   it("uses compact, individually truncatable sport, goal, and weekly-plan context chips in the workspace header", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('className="topbar-context-chips"');
-    expect(source).toContain('Current planning context: ${selectedSport.label}, ${goal}, ${trainingDays} training days');
+    // The chip reads the resolved context label, so a general or undecided athlete is not
+    // told they have a sport they never chose.
+    expect(source).toContain('Current planning context: ${sportDisplayLabel}, ${goal}, ${trainingDays} training days');
+    expect(source).not.toContain('Current planning context: ${selectedSport.label}');
     expect(source).not.toContain('selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal}');
     expect(css).toContain('.topbar-context-chips span { max-width: 12rem; overflow: hidden;');
     // The strip is bounded by its own column, not by the viewport: a
@@ -220,7 +223,12 @@ describe("workspace side navigation", () => {
 
   it("removes duplicate mobile Training Day shortcuts while keeping dedicated Tracker and Builder destinations reachable", () => {
     expect(trainingDayStyles).toContain('.day-design-import { display: none; }');
-    expect(trainingDayStyles).toContain('.day-active-actions button:nth-child(1), .day-active-actions button:nth-child(2) { display: none; }');
+    // The same two shortcuts, hidden by name rather than by position: both have their own
+    // panel further down, and a positional rule hid whichever button came first — which is
+    // now the one for adding exercises.
+    expect(trainingDayStyles).toContain('.day-active-actions .day-action-session, .day-active-actions .day-action-draft { display: none; }');
+    expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
+    expect(source).toContain('className="day-action-add"');
     expect(source).toContain('label: "Tracker", workspace: "tracker"');
     expect(source).toContain('label: "Builder", workspace: "custom"');
     expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
@@ -252,9 +260,10 @@ describe("workspace side navigation", () => {
     expect(source).toContain('workspace === "profile" && <AthleteAboutMePanel');
     expect(aboutMeSource).toContain("Available equipment");
     // The Atlas now renders behind the browsing notice, so the workspace opens a
-    // fragment rather than the panel directly; what matters is that it is still
-    // the Movement Atlas the athlete reaches.
-    expect(source).toMatch(/workspace === "movement" && <>.*<MovementAtlasPanel/);
+    // fragment rather than the panel directly — and only once a sport is chosen. Without
+    // one, the gate takes its place rather than the Atlas defaulting to someone else's sport.
+    expect(source).toMatch(/workspace === "movement" && hasSportContext && <>.*<MovementAtlasPanel/);
+    expect(source).toContain('workspace === "movement" && !hasSportContext && <SportContextGate');
     expect(source).toContain('workspace === "body" && <section className="body-lab-v2');
     expect(source).toContain('<CatalogExerciseEvidenceCard exercise={inspectedExercise} />');
     expect(anatomySource).toContain("View methodology");
