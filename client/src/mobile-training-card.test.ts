@@ -60,7 +60,7 @@ describe("Training Day prescription card layout above the phone breakpoint", () 
 describe("mobile Training Day card action layout", () => {
   it("keeps ordering controls compactly within the card header and clear of the disclosure chevron", () => {
     expect(stylesheet).toContain(".day-orderable-exercise .day-order-controls { position: absolute !important; top: .7rem; right: .7rem;");
-    expect(stylesheet).toContain("width: 34px; min-width: 34px; height: 34px; min-height: 34px");
+    expect(stylesheet).toContain("width: 34px; min-width: 34px; height: 44px");
     // The reorder arrows are absolutely positioned over the row, so the summary
     // reserves their width. Measured at 390px and 1366px: without it the chevron
     // renders underneath them and the row looks like it does not open.
@@ -84,7 +84,7 @@ describe("mobile Training Day card action layout", () => {
     const actions = declarations(stylesheet, ".prescription-actions {");
     expect(actions).toContain("flex-wrap: wrap");
     expect(actions).toContain("border-top:");
-    expect(declarations(stylesheet, ".prescription-actions .remove-prescription {")).toContain("width: 40px");
+    expect(declarations(stylesheet, ".prescription-actions .remove-prescription {")).toContain("width: 44px");
   });
 });
 
@@ -94,14 +94,41 @@ describe("mobile Training Day card action layout", () => {
  * and the actions off the screen entirely.
  */
 describe("per-set rep targets", () => {
+  /**
+   * Eight uppercase micro-labels in four treatments, five of which were verbs.
+   * A command set in the idiom used for naming a field reads as a heading, and a
+   * row where everything is a heading is a row that shouts.
+   */
+  it("says commands in a different voice from labels", () => {
+    const commands = declarations(stylesheet, ".prescription-editor :is(.prescription-vary, .prescription-undo),");
+    expect(commands).toContain("text-transform: none");
+    const labels = declarations(stylesheet, ".prescription-editor :is(.metric-label, .prescription-set-list label)");
+    expect(labels).toContain("text-transform: uppercase");
+    expect(labels).toContain("letter-spacing: .1em");
+  });
+
   it("lays the set fields out across the row rather than one per line", () => {
     expect(declarations(everyWidth, ".prescription-set-list {")).toContain("grid-template-columns: repeat(auto-fill");
   });
 
   it("makes the way in and out of per-set editing a real control, not an underlined word", () => {
     const vary = declarations(everyWidth, ".prescription-vary {");
-    expect(vary).toContain("min-height: 32px");
     expect(vary).toContain("padding:");
+    expect(vary).toContain("border-radius:");
+  });
+
+  /**
+   * `.apex-content :is(button, summary)` sets a 44px tap floor that outranks
+   * anything this file says, so a smaller height here is not a smaller control -
+   * it is a line describing a row nobody has ever seen. The row carried four of
+   * them (32px twice, 40px twice) and one `min-height: 40px` on the selects that
+   * DID win, which is why Effort and Rest sat 4px short of every other control.
+   */
+  it("declares no control height the app's tap floor would overrule", () => {
+    const heights = [...stylesheet.matchAll(/min-height:\s*(\d+(?:\.\d+)?)(px|rem)/g)]
+      .map((match) => (match[2] === "rem" ? Number(match[1]) * 16 : Number(match[1])))
+      .filter((px) => px < 44);
+    expect(heights, `these heights are below the 44px floor and cannot render: ${heights.join(", ")}`).toEqual([]);
   });
 
   it("ships no styles for the editor it replaced", () => {
