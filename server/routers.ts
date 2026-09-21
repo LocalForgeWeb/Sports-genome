@@ -200,7 +200,7 @@ export const appRouter = router({
                   .array(z.string().trim().max(100))
                   .max(24)
                   .optional(),
-                plannedPrescription: z.string().trim().min(1).max(100),
+                plannedPrescription: z.string().trim().min(1).max(255),
                 plannedRpe: z.string().trim().max(40).optional(),
                 plannedRest: z.string().trim().max(40).optional(),
               })

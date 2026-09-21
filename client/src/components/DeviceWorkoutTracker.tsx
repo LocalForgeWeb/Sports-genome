@@ -9,6 +9,7 @@ import {
 } from "@/lib/deviceWorkoutLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setEntryFieldsFor, type SetEntryMeasure } from "@/lib/setEntryFields";
+import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 import { toast } from "sonner";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 
@@ -38,8 +39,14 @@ import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 const DEFAULT_REST_SECONDS = 90;
 const REST_STEP_SECONDS = 15;
 
+/**
+ * The planner can write a target per set ("4 × 10/8/6/6"), so the count comes
+ * from the same reader the editor writes with rather than the leading number:
+ * a hand edit that leaves the two disagreeing should give the athlete the sets
+ * that were actually written down.
+ */
 function plannedSetCount(prescription: string) {
-  return Math.max(1, Math.min(12, Number(prescription.match(/(\d+)\s*(?:x|×)/i)?.[1] || 3)));
+  return renderableSetCount(prescription);
 }
 
 function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string): DeviceWorkoutSession {
@@ -351,7 +358,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
     {activeExercise && activeSet && position ? <div className="live-set-card">
       <p className="metric-label">Now · exercise {position.exerciseIndex + 1} of {activeSession.exercises.length}</p>
       <h4>{activeExercise.exerciseName}</h4>
-      <p className="live-set-prescription">Set {position.setIndex + 1} of {activeExercise.sets.length} · {activeExercise.plannedPrescription}</p>
+      {/* The target for *this* set, not the whole prescription: on set 2 of
+          "3 × 10/8/6" the athlete needs "8", not a string to count through. */}
+      <p className="live-set-prescription">Set {position.setIndex + 1} of {activeExercise.sets.length} · {repsForSet(activeExercise.plannedPrescription, position.setIndex)}</p>
       {carried && <p className="live-set-last">
         {carried.source === "session" ? "Last set" : "Last logged"}: {activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}
       </p>}

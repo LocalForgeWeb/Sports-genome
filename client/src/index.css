@@ -185,6 +185,35 @@
      meant two thirds of this app's controls gave none. Small enough to read as the
      control yielding rather than as an animation. */
   --sg-press-scale: .97;
+
+  /* -- Corner radius ------------------------------------------------------
+     The corpus had drifted to fifteen hand-picked radii - 2, 7, 8, 9, 10, 12,
+     14, 15, 16, 18, 20, 22px, .75rem, 1rem, 999px - while the busiest surface
+     in the app had none at all: Training Day rendered 48 panels and every one
+     of them was a hard rectangle. That is what reads as blocky. A radius is not
+     decoration on a stacked layout, it is what says where one object ends and
+     the next begins, so it gets a ladder tied to the size of the thing it is
+     cutting. The legacy `--sg-radius: 14px` below already named the card value;
+     these give it the rest of its family. */
+  --sg-radius-xs: 6px;      /* chips, tags, inline state pills */
+  --sg-radius-sm: 10px;     /* inputs, selects, buttons */
+  --sg-radius-md: 14px;     /* the default panel or card */
+  --sg-radius-lg: 20px;     /* destination-level surfaces and heroes */
+  --sg-radius-pill: 999px;
+
+  /* -- Depth --------------------------------------------------------------
+     The elevation ladder above was defined and then barely used: ten
+     references against 107 hand-rolled shadows, so panels sat flat on the
+     background behind a 1px hairline and the whole app read as one plane.
+
+     A lit edge is what separates a surface that is *on* something from a
+     rectangle drawn *in* it. One inset hairline along the top, the width of a
+     physical bevel, costs nothing and does most of the work. */
+  --sg-sheen: inset 0 1px 0 rgb(255 255 255 / .06);
+  --sg-sheen-strong: inset 0 1px 0 rgb(255 255 255 / .1);
+  /* How far an interactive surface rises to acknowledge a pointer. Small
+     enough to read as the card noticing, not as an animation. */
+  --sg-lift: -2px;
 }
 
 /* Reduced motion: instant state changes, all information preserved. The
@@ -1085,7 +1114,7 @@ select {
 .destination-train .day-active-actions button { border-color: rgb(164 200 232 / .48); background: rgb(255 255 255 / .08); color: var(--sg-text-on-dark); }
 .destination-train .day-active-actions button:first-child { border-color: var(--sg-focus-on-dark); color: #ffe9a2; }
 .destination-train .day-programming-panel .metric-label, .destination-train .day-programming-panel strong, .destination-train .day-programming-panel label, .destination-train .day-programming-panel summary { color: var(--sg-text-on-dark); }
-.destination-train .day-programming-panel small, .destination-train .day-programming-panel p, .destination-train .day-programming-panel .custom-detail-row label { color: var(--sg-text-muted-on-dark); }
+.destination-train .day-programming-panel small, .destination-train .day-programming-panel p { color: var(--sg-text-muted-on-dark); }
 .destination-train .day-programming-panel select, .destination-train .day-programming-panel textarea { border-color: rgb(164 200 232 / .42); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
 .destination-train .three-week-planner, .destination-train .weekly-plan-board { border: 1px solid rgb(164 200 232 / .26); background: linear-gradient(140deg, rgb(16 52 88 / .94), rgb(7 25 47 / .98)); box-shadow: 0 16px 36px rgb(1 12 28 / .22); color: var(--sg-text-on-dark); }
 .destination-train .three-week-head, .destination-train .weekly-plan-head { border-bottom-color: rgb(164 200 232 / .2); }
@@ -1439,8 +1468,6 @@ select {
 
 .health-stat-grid strong,
 .completion-toggle,
-.custom-detail-row select,
-.custom-detail-row textarea,
 .destination-train .programming-guide-head h3,
 .destination-train .programming-guide-stats strong {
   color: var(--sg-text-on-dark);
@@ -1448,7 +1475,6 @@ select {
 
 .health-stat-grid span,
 .health-boundary,
-.custom-detail-row label,
 .destination-train .programming-guide-head p:last-child,
 .destination-train .programming-guide-stats small,
 .destination-train .programming-guide-boundary,
@@ -1456,8 +1482,6 @@ select {
   color: var(--sg-text-muted-on-dark);
 }
 
-.custom-detail-row select,
-.custom-detail-row textarea,
 .completion-toggle {
   border-color: var(--sg-control-border-on-dark);
   background: var(--sg-surface-raised);
@@ -1607,12 +1631,9 @@ select {
   .apex-topbar, .workspace-top-switcher { background: var(--sg-surface-light); box-shadow: 0 1px 0 rgb(153 180 207 / .62); }
 }
 .destination-train :is(.day-design-hero, .day-programming-panel, .workout-health-panel) .metric-label,
-.destination-train .workout-health-disclosure > summary .metric-label,
-.destination-train .custom-prescription-inputs label,
-.destination-train .custom-detail-row label { color: var(--sg-text-muted-on-dark) !important; }
+.destination-train .workout-health-disclosure > summary .metric-label { color: var(--sg-text-muted-on-dark) !important; }
 .destination-train .day-order-controls button,
-.destination-train .duplicate-prescription,
-.destination-train .custom-prescription-inputs input { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
+.destination-train .duplicate-prescription { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
 
 /* Readability guard: each destination declares a semantic foreground role before local accents. */
 .destination-progress .progress-review { color: var(--sg-text-on-dark); }
@@ -2617,6 +2638,153 @@ details:not([open]) > *:not(summary) {
 .strength-body-side-toggle:hover { border-color: #8fc8ff; background: #8fc8ff; }
 .strength-body-side-toggle:active { transform: scale(.97); }
 .strength-body-side-toggle:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE SURFACE SYSTEM
+   ─────────────────────────────────────────────────────────────────────────
+   Audited across eight destinations at 393x852. What the numbers said:
+
+     surface     panels  sharp corners  no depth   radii in play
+     day-plan        48          100%       85%    0px
+     genome          14           71%       71%    0px, 999px, 20px
+     strength        20           60%       90%    0px, 12px, 50%, 20px
+     command         16           56%       75%    0px, 16px, 11.2px, 12px, 22px, 15px
+     body            14           50%       93%    0px, 8px, 12px
+     catalog        113           32%       66%    14px, 999px, 0px, 18px, 8px
+
+   Two separate faults. Training Day - the surface an athlete spends the most
+   time on - drew forty-eight panels and rounded none of them, so the screen
+   read as a stack of bricks. Everywhere else the radius was invented locally:
+   six values on Home, five in the catalog, no two surfaces agreeing.
+
+   And of ninety-one transitions in the corpus, exactly one animated a shadow
+   and three animated opacity. Everything else was a border or background
+   colour swapping instantly. Nothing in the app ever lifted, arrived, or
+   settled - which is the whole of "static".
+
+   This section is the system, applied once, centrally. It is deliberately
+   written against the naming convention the components already follow
+   (`*-panel`, `*-card`, `*-hero`, `*-board`) rather than as forty one-off
+   rules, so a panel added next week inherits it without being told.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Radius ──────────────────────────────────────────────────────────────
+   A surface gets the radius of the job it is doing, not of the file it lives
+   in. Anything already carrying a considered radius - a pill, a circle, an
+   avatar - names it more specifically and keeps it.
+
+   The suffix list is not a guess. `-panel`/`-card`/`-board` covered about half
+   the corpus; the rest of these are the names the audit found still drawing
+   square corners afterwards, which is how this app happens to spell "a surface
+   with its own ground": a planner, a rail, an inspector, a ranking, a
+   methodology note, a facts strip. */
+:where(
+  [class*="-panel"], [class*="-card"], [class*="-board"], [class*="-workspace"],
+  [class*="-planner"], [class*="-navigator"], [class*="-rail"], [class*="-inspector"],
+  [class*="-ranking"], [class*="-methodology"], [class*="-facts"], [class*="-rhythm"],
+  [class*="-outcome"], [class*="-signal"], [class*="-quicknote"], [class*="-next-step"],
+  [class*="-disclosure"], [class*="-empty"], [class*="-notice"], [class*="-summary"]
+) {
+  border-radius: var(--sg-radius-md);
+}
+:where([class*="-hero"]) { border-radius: var(--sg-radius-lg); }
+
+/* Fields and buttons take a tighter cut, because they are discrete objects with
+   their own edge. Rounded fields sitting next to square buttons is the thing
+   that reads as unfinished, so they move together.
+
+   The exclusions are the controls that are not objects: a tab, a dock item and
+   a segmented switcher are cut *out of* a strip, and rounding them detached the
+   workspace tab row's active underline into a floating lozenge. No blanket pill
+   rule either - the things that should be pills already say so locally (37 of
+   them in the catalog alone), and applying it by name turned the full-width
+   training-day tiles into lozenges. */
+:where(.apex-content, .apex-shell) :where(input, select, textarea, button):not(
+  :where(
+    [class*="-tab"], [class*="tab-"], [role="tab"],
+    [class*="workspace-top-switcher"] *, .mobile-workspace-dock *,
+    [class*="-nav"] > *, [class*="-strip"] > *, [class*="-dock"] *
+  )
+) {
+  border-radius: var(--sg-radius-sm);
+}
+
+/* ── 2. Depth ───────────────────────────────────────────────────────────────
+   A panel should read as sitting *on* the destination rather than being cut
+   into it. The elevation ladder already existed and was used ten times against
+   107 hand-rolled shadows; this puts the panels on it. The inset hairline is
+   the lit top edge of a physical object and does most of the work for a
+   single declaration. */
+:where(.destination-train, .destination-home, .destination-progress, .destination-body, .destination-command)
+  :where(
+    [class*="-panel"], [class*="-card"], [class*="-board"],
+    [class*="-planner"], [class*="-navigator"], [class*="-inspector"], [class*="-ranking"]
+  ) {
+  box-shadow: var(--sg-sheen), var(--sg-elevation-2);
+}
+
+/* A rounded container whose children run to its edge has to clip them, or the
+   child's square corner pokes through the parent's curve. */
+:where([class*="-panel"], [class*="-card"], [class*="-hero"], [class*="-board"]) { overflow: hidden; }
+/* ...except where the surface deliberately overflows: sticky children, popovers,
+   and the body figures that bleed past their frame. */
+:where(.day-design-workspace, .day-design-grid, .day-design-rail, .catalog-discovery-panel) { overflow: visible; }
+
+/* ── 3. Surfaces that are not flat fills ────────────────────────────────────
+   A single solid navy across a 900px panel is the flattest thing a screen can
+   show. A gradient of barely two steps gives it a direction and a top. */
+:where(.destination-train, .destination-home, .destination-progress)
+  :where([class*="-panel"], [class*="-board"]) {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / .035), transparent 42%);
+}
+
+/* ── 4. Arrival ─────────────────────────────────────────────────────────────
+   Content appearing instantly is the other half of "static". Entrance motion
+   already existed for exactly three classes; this gives it to the surfaces an
+   athlete actually opens. Durations and curves come from the grammar tokens,
+   so a reduced-motion reader collapses them to 1ms and still sees the end
+   state - `both` keeps the fill. */
+@media (prefers-reduced-motion: no-preference) {
+  .apex-content :where([class*="-panel"], [class*="-card"], [class*="-board"], [class*="-hero"]) {
+    animation: sg-surface-rise var(--sg-motion-slow) var(--sg-ease-entrance) both;
+  }
+
+  /* A stack that arrives all at once is one event; a stack that arrives in
+     sequence reads as the page assembling itself. Four steps is enough to be
+     felt and short enough that nobody waits for the last one. Written as
+     `animation-delay` rather than in the shorthand, because the shorthand is
+     where the grammar tokens live. */
+  .apex-content :where([class*="-panel"], [class*="-card"], [class*="-board"]):nth-child(2) { animation-delay: 40ms; }
+  .apex-content :where([class*="-panel"], [class*="-card"], [class*="-board"]):nth-child(3) { animation-delay: 80ms; }
+  .apex-content :where([class*="-panel"], [class*="-card"], [class*="-board"]):nth-child(4) { animation-delay: 120ms; }
+  .apex-content :where([class*="-panel"], [class*="-card"], [class*="-board"]):nth-child(n+5) { animation-delay: 160ms; }
+}
+
+@keyframes sg-surface-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 5. Surfaces that answer a pointer ──────────────────────────────────────
+   Only things that actually do something on click. A card that lifts under the
+   cursor but does nothing when clicked is a lie about the interface. */
+@media (prefers-reduced-motion: no-preference) {
+  :where(a, button, [role="button"], summary):where([class*="-card"], [class*="-panel"], [class*="-chip"]) {
+    transition:
+      transform var(--sg-motion-fast) var(--sg-ease),
+      box-shadow var(--sg-motion-fast) var(--sg-ease),
+      border-color var(--sg-motion-fast) var(--sg-ease);
+  }
+  :where(a, button, [role="button"], summary):where([class*="-card"], [class*="-panel"]):hover {
+    transform: translateY(var(--sg-lift));
+    box-shadow: var(--sg-sheen-strong), var(--sg-elevation-3);
+  }
+  /* The press cancels the lift: the object goes back down under the finger. */
+  :where(a, button, [role="button"], summary):where([class*="-card"], [class*="-panel"]):active {
+    transform: translateY(0);
+    box-shadow: var(--sg-sheen), var(--sg-elevation-1);
+  }
+}
 
 /* The toast, given the same surface as everything else it covers.
    Its background, text and border come from the three `--normal-*` variables
