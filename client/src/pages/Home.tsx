@@ -1206,6 +1206,17 @@ export default function Home() {
   const contextualWorkspaceTabs = activePrimaryDestination === "secondary" ? [] : contextualWorkspaces[activePrimaryDestination];
   const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;
   /**
+   * The header names the place only when the tab row underneath it does not.
+   *
+   * On Home the two are the same word, one above the other - which is the
+   * duplication that got the header deleted in the first place. On Train the
+   * header says "Training Days" and the tabs say Plan / Review / Session, so
+   * the destination's name is worth stating and this keeps it.
+   */
+  const activeContextTabLabel = contextualWorkspaceTabs.find((tab) => tab.id === activeContextTabId)?.label ?? "";
+  const workspaceLabel = navItems.find((item) => item.id === workspace)?.label ?? "";
+  const topbarLabel = workspaceLabel.toLowerCase() === activeContextTabLabel.toLowerCase() ? "" : workspaceLabel;
+  /**
    * A tab goes to its page. That is the whole behaviour.
    *
    * It used to also scroll and force-open a `<details>` for the two tabs that pointed
@@ -1223,6 +1234,22 @@ export default function Home() {
 
   return <div className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
     <div className="apex-main">
+      {/*
+        * Who you are and what you are looking at, back above the tab row.
+        *
+        * It was removed for the height it spent on a phone, and the screen it left
+        * behind was reported as worse: the mark, the sport, the goal and the training
+        * frequency all went with it, and a bare tab row over a card is not a product.
+        * The two controls that lead somewhere - search and Profile - stay in the tab
+        * row where they moved to, so nothing is duplicated and this carries only what
+        * it says.
+        */}
+      <header className="apex-topbar">
+        <div className="flex min-w-0 items-center gap-3">
+          <img src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="topbar-brand-logo shrink-0 object-cover" />
+          <div className="min-w-0">{topbarLabel && <p className="metric-label">{topbarLabel}</p>}<div className="topbar-context-chips" aria-label={`Current planning context: ${sportDisplayLabel}, ${goal}, ${trainingDays} training days`}><span title={sportDisplayLabel}>{sportDisplayLabel}</span><span title={goal}>{goal}</span><span>{trainingDays} days</span></div></div>
+        </div>
+      </header>
       {/*
         * The app's only top chrome, and always present.
         *

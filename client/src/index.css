@@ -43,7 +43,7 @@
      that sticks below it follows this one number instead of picking its own - the
      three hand-chosen offsets this codebase used to carry (72px, 82px, 86px) are
      how the day nav ended up stuck underneath the chrome in the first place. */
-  --sg-pinned-chrome: 58px;
+  --sg-pinned-chrome: 136px;
   --sg-text-muted-on-dark: #c3d7ea;
   --sg-text-subtle-on-dark: #9eb3cb;
   --sg-text-faint-on-dark: #829ab3;
@@ -2963,4 +2963,35 @@ details:not([open]) > *:not(summary) {
   .sport-context-gate { padding: 18px; }
   .sport-context-gate-actions label { min-width: 100%; }
   .sport-context-gate-actions button { width: 100%; justify-content: center; }
+}
+
+/* The header, back above the tab row.
+   ----------------------------------------------------------------------------
+   It was removed for the height it spends on a phone, and the screen it left
+   behind was reported as worse: the mark, the sport, the goal and the training
+   frequency all went with it, and a bare tab row over a card is not a product.
+   The two controls that lead somewhere - search and Profile - stay in the tab
+   row where they moved to, so this carries only what it says and nothing is
+   rendered twice.
+
+   One block at the end of the file rather than ten rules spliced back into the
+   places they were removed from: it is the whole change in one place, it wins
+   the cascade without specificity games, and it can be lifted out whole. */
+:root { --sg-topbar-height: 72px; }
+.apex-topbar { position: sticky; top: 0; z-index: 30; display: flex; min-height: var(--sg-topbar-height); align-items: center; gap: 16px; border-bottom: 1px solid var(--sg-divider-on-light); background: rgb(250 253 255); padding: 12px 18px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+.topbar-brand-logo { width: 56px; height: 56px; border-radius: 999px; background: var(--sg-surface-deep); box-shadow: 0 0 0 1px rgb(11 34 64 / .18), 0 7px 16px rgb(10 29 54 / .15); object-fit: cover; }
+/* Three fixed facts about the athlete, not a list to browse: they wrap rather
+   than scroll behind a hidden scrollbar, which is what cut "5 days" mid-word. */
+.topbar-context-chips { display: flex; min-width: 0; flex-wrap: wrap; gap: .35rem; margin-top: .32rem; }
+.topbar-context-chips span { max-width: none; flex: 0 0 auto; overflow: hidden; border: 1px solid var(--sg-divider-on-light); border-radius: 999px; background: #fff; padding: .24rem .58rem; color: #315a82; font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-tight); line-height: var(--sg-leading-snug); white-space: nowrap; }
+.topbar-context-chips span:last-child { border-color: #ecd795; background: #fff9e8; color: #806012; }
+/* The tab row pins under the header again instead of at the top of the page,
+   and the safe-area inset belongs to whatever is topmost - which is the header. */
+.workspace-top-switcher-shell { top: var(--sg-topbar-height); padding-top: 0; }
+.workspace-top-switcher { top: 0; }
+@media (max-width: 640px) {
+  :root { --sg-topbar-height: 82px; }
+  .apex-topbar { padding: 9px 12px; padding-top: calc(9px + env(safe-area-inset-top, 0px)); }
+  .topbar-context-chips { gap: .3rem; }
+  .topbar-context-chips span { min-height: 1.6rem; padding: .26rem .52rem; }
 }

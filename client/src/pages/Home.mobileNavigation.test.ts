@@ -172,24 +172,35 @@ describe("workspace side navigation", () => {
   });
 
   /**
-   * There is no header any more.
+   * The header carries the mark and the athlete; the tab row carries the routes.
    *
-   * It spent 82px of a phone screen on a logo, a workspace label the tab row below it
-   * already states, and three profile facts - most of the space above the fold, before
-   * any content. Its two controls that actually lead somewhere moved into that row.
+   * The header was deleted for the 82px it spends on a phone, and the screen that
+   * left behind was reported as worse: the mark, the sport, the goal and the
+   * training frequency went with it. It is back, carrying only what it states -
+   * the two controls that lead somewhere stayed in the tab row, so neither is
+   * rendered twice.
    *
-   * Profile is the one that matters: it is deliberately absent from the bottom nav, so
-   * the tab row's button is now the only route to About Me, and the row therefore has
-   * to render on every destination, including the ones with a single page.
+   * Profile is the one that matters: it is deliberately absent from the bottom
+   * nav, so the tab row's button is the only route to About Me, and the row
+   * therefore has to render on every destination, including single-page ones.
    */
-  it("carries search and Profile in the tab row, because no header is left to hold them", () => {
+  it("puts the mark and the athlete's context in the header, and the routes in the tab row", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(source).not.toContain('className="apex-topbar"');
-    expect(source).not.toContain('className="topbar-context-chips"');
-    expect(source).not.toContain('className="topbar-brand-logo shrink-0 object-cover"');
-    expect(css).not.toContain('.apex-topbar');
-    expect(css).not.toContain('.topbar-context-chips');
-    expect(mobileStyles).not.toContain('.apex-topbar');
+    expect(source).toContain('className="apex-topbar"');
+    expect(source).toContain('className="topbar-context-chips"');
+    expect(source).toContain('className="topbar-brand-logo shrink-0 object-cover"');
+    expect(css).toContain('.apex-topbar {');
+    expect(css).toContain('.topbar-context-chips {');
+    // It pins under the header rather than at the top of the page, and the
+    // safe-area inset belongs to whichever of the two is topmost.
+    expect(css).toContain('.workspace-top-switcher-shell { top: var(--sg-topbar-height); padding-top: 0; }');
+    expect(css).toContain('.apex-topbar { position: sticky; top: 0;');
+
+    // The header names the place only where the tab row does not: on Home the two
+    // are the same word, one above the other, which is the duplication that got
+    // the header deleted in the first place.
+    expect(source).toContain("const topbarLabel = workspaceLabel.toLowerCase() === activeContextTabLabel.toLowerCase() ? \"\" : workspaceLabel;");
+    expect(source).toContain("{topbarLabel && <p className=\"metric-label\">{topbarLabel}</p>}");
 
     // Rendered unconditionally: gated on `length > 1` it would skip Home, which has one
     // page, and stranded Profile behind no route at all.
