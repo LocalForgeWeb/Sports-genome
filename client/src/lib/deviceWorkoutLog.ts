@@ -33,6 +33,16 @@ export type DeviceWorkoutSession = {
    */
   restSeconds?: number;
   restEndsAt?: string;
+  /**
+   * The athlete's body weight when this session was finished, stamped once and never re-read.
+   *
+   * The weight log answers "what did they weigh that day" for any day it covers, and that answer
+   * cannot move afterwards. This is the fallback for the days it does not cover — a first
+   * session logged before any weight was entered. Without it those sessions fell through to
+   * whatever the profile says *now*, so editing a weight months later silently rewrote what
+   * every one of them had been measured against.
+   */
+  bodyMassKgAtCompletion?: number;
 };
 
 export const deviceWorkoutHistoryKey = "sports-genome-device-workout-history-v1";
@@ -143,12 +153,19 @@ export function isExerciseSkipped(exercise: DeviceWorkoutExercise): boolean {
   return exercise.sets.length > 0 && exercise.sets.every((set) => set.skipped);
 }
 
-export function finalizeSession(session: DeviceWorkoutSession, completedAt = new Date().toISOString()) {
+export function finalizeSession(
+  session: DeviceWorkoutSession,
+  completedAt = new Date().toISOString(),
+  bodyMassKgAtCompletion?: number,
+) {
   const excludedDrafts = countDraftSets(session);
   const finalized: DeviceWorkoutSession = {
     ...session,
     status: "completed",
     completedAt,
+    bodyMassKgAtCompletion: bodyMassKgAtCompletion && bodyMassKgAtCompletion > 0
+      ? bodyMassKgAtCompletion
+      : session.bodyMassKgAtCompletion,
     exercises: session.exercises
       .map((exercise) => ({ ...exercise, sets: exercise.sets.filter((set) => set.completed) }))
       .filter((exercise) => exercise.sets.length > 0),

@@ -19,9 +19,22 @@ export type StrengthSourceRole = "beta_fallback" | "validation_only" | "excluded
 
 export type StrengthNormMethod =
   | "direct_community_relative_1rm_percentile"
-  | "direct_community_absolute_1rm_percentile"
+  | "direct_community_1rm_percentile"
+  | "absolute_1RM"
   | "direct_community_rep_percentile"
   | "bodyweight_repetition_max";
+
+/**
+ * What the numbers on a curve actually are.
+ *
+ * This is not decoration. The stored community curves are a mix: bodyweight multiples for most
+ * exercises, pounds for the rest, and rep counts for a few. Placing an estimated one-rep max in
+ * kilograms onto a pound ladder reads every lift as roughly half of what it was, so the unit
+ * travels with the curve and the engine converts to it rather than assuming.
+ */
+export type StrengthCurveUnit = "x_bodyweight" | "kg" | "lb" | "lb_1rm" | "reps";
+
+export const kilogramsPerPound = 0.45359237;
 
 /** One stored point on a curve. Values between anchors are interpolated; beyond them are not. */
 export type CurveAnchor = { percentile: number; value: number };
@@ -32,6 +45,8 @@ export type StrengthCurve = {
   aliasOfExerciseId?: string | null;
   sex: "male" | "female";
   normalizationMethod: StrengthNormMethod;
+  /** The unit the anchor values are in, which decides what gets placed on them. */
+  unit: StrengthCurveUnit;
   sourceRole: StrengthSourceRole;
   /** The policy's ceiling on confidence for this source, e.g. 0.82 for community curves. */
   confidenceCap: number | null;
@@ -56,7 +71,8 @@ export type StrengthPercentileUnavailableReason =
   | "repetitions_out_of_range"
   | "insufficient_anchors"
   | "below_lowest_anchor"
-  | "above_highest_anchor";
+  | "above_highest_anchor"
+  | "curve_is_not_one_rep_max";
 
 export type StrengthPercentileResult =
   | {
@@ -69,6 +85,8 @@ export type StrengthPercentileResult =
       scoringVersion: typeof strengthScoringVersion;
       route: "beta_community_curve";
       normalizationMethod: StrengthNormMethod;
+      /** The unit `observedValue` is in, so a caller never has to guess its scale. */
+      unit: StrengthCurveUnit;
       sourceRole: StrengthSourceRole;
       exerciseId: string;
       aliasOfExerciseId: string | null;
@@ -183,8 +201,23 @@ export type PercentileContext = {
   bodyMassKg?: number | null;
 };
 
-function relativeCurve(method: StrengthNormMethod): boolean {
-  return method === "direct_community_relative_1rm_percentile";
+/**
+ * How a one-rep max in kilograms has to be expressed to sit on this curve.
+ *
+ * A rep ladder is not a one-rep-max ladder. `direct_community_rep_percentile` and
+ * `bodyweight_repetition_max` rank how many reps people get, so no load belongs on them at all
+ * and they are refused by name rather than quietly placed and reported as a percentile.
+ */
+export type CurvePlacement = "relative" | "kilograms" | "pounds" | "not_one_rep_max";
+
+export function curvePlacement(curve: Pick<StrengthCurve, "unit">): CurvePlacement {
+  switch (curve.unit) {
+    case "x_bodyweight": return "relative";
+    case "lb":
+    case "lb_1rm": return "pounds";
+    case "reps": return "not_one_rep_max";
+    default: return "kilograms";
+  }
 }
 
 /**
@@ -206,20 +239,25 @@ export function resolveStrengthPercentile(
   if (!context.sex) return { status: "unavailable", reason: "sex_required" };
   if (curve.sex !== context.sex) return { status: "unavailable", reason: "no_curve_for_exercise" };
 
+  const placement = curvePlacement(curve);
+  if (placement === "not_one_rep_max") return { status: "unavailable", reason: "curve_is_not_one_rep_max" };
+
   const estimate = estimateOneRepMax(input);
   if ("reason" in estimate) return { status: "unavailable", reason: estimate.reason };
 
   const bodyMassKg = numberOrNull(context.bodyMassKg);
-  if (relativeCurve(curve.normalizationMethod) && (bodyMassKg === null || bodyMassKg <= 0)) {
+  if (placement === "relative" && (bodyMassKg === null || bodyMassKg <= 0)) {
     return { status: "unavailable", reason: "body_mass_required" };
   }
 
-  const observedValue = relativeCurve(curve.normalizationMethod) && bodyMassKg
+  const observedValue = placement === "relative" && bodyMassKg
     ? Number((estimate.valueKg / bodyMassKg).toFixed(4))
-    : estimate.valueKg;
+    : placement === "pounds"
+      ? Number((estimate.valueKg / kilogramsPerPound).toFixed(2))
+      : estimate.valueKg;
 
-  const placement = placeOnCurve(curve.anchors, observedValue);
-  if ("reason" in placement) return { status: "unavailable", reason: placement.reason, censoredAt: placement.censoredAt };
+  const placed = placeOnCurve(curve.anchors, observedValue);
+  if ("reason" in placed) return { status: "unavailable", reason: placed.reason, censoredAt: placed.censoredAt };
 
   // Confidence is the estimate's own, held under the source's ceiling. It never changes the
   // percentile: how sure we are and how strong the lift is are separate answers.
@@ -227,13 +265,14 @@ export function resolveStrengthPercentile(
 
   return {
     status: "resolved",
-    percentile: placement.percentile,
+    percentile: placed.percentile,
     observedValue,
     estimate,
     confidence: Number(capped.toFixed(4)),
     scoringVersion: strengthScoringVersion,
     route: "beta_community_curve",
     normalizationMethod: curve.normalizationMethod,
+    unit: curve.unit,
     sourceRole: curve.sourceRole,
     exerciseId: curve.exerciseId,
     aliasOfExerciseId: curve.aliasOfExerciseId ?? null,

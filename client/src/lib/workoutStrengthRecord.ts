@@ -78,8 +78,10 @@ export function workoutStrengthObservations(
   const observations: WorkoutStrengthObservation[] = [];
   sessions.filter((session) => session.status === "completed").forEach((session) => {
     const observedAt = session.completedAt || session.startedAt;
-    // Read once per session, at the session's own date — not at today's.
-    const bodyMassKgAtTest = bodyWeightKgAt(bodyWeightLog, observedAt);
+    // Read once per session, at the session's own date — not at today's. Where the log does not
+    // reach back that far, the weight stamped on the session when it was finished stands in;
+    // both are frozen values, so a later weight change cannot reach a lift already recorded.
+    const bodyMassKgAtTest = bodyWeightKgAt(bodyWeightLog, observedAt) ?? session.bodyMassKgAtCompletion;
     session.exercises.forEach((exercise) => {
       const logged = exercise.sets
         .filter((set) => set.completed && !set.skipped)

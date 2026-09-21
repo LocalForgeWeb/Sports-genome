@@ -439,7 +439,12 @@ export const appRouter = router({
     forLift: publicProcedure
       .input(
         z.object({
-          exerciseId: z.string().trim().min(1).max(80),
+          // Any of the three identifies the lift. The catalog id is exact, because the research
+          // side wrote it into each curve's canonical name; the name is the fallback for the
+          // handful of curves that carry no id.
+          exerciseId: z.string().trim().min(1).max(80).nullish(),
+          catalogExerciseId: z.number().int().positive().nullish(),
+          exerciseName: z.string().trim().min(1).max(255).nullish(),
           sex: z.enum(["male", "female"]).nullable(),
           bodyMassKg: z.number().positive().max(500).nullable().optional(),
           measuredOneRmKg: z.number().positive().max(1000).nullable().optional(),

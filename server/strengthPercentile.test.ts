@@ -15,6 +15,7 @@ const curve: StrengthCurve = {
   exerciseId: "bench-press",
   sex: "male",
   normalizationMethod: "direct_community_relative_1rm_percentile",
+  unit: "x_bodyweight",
   sourceRole: "beta_fallback",
   confidenceCap: 0.82,
   anchors: [
@@ -144,11 +145,45 @@ describe("the beta percentile route end to end", () => {
   it("uses absolute load when the curve is not bodyweight-relative", () => {
     const absolute: StrengthCurve = {
       ...curve,
-      normalizationMethod: "direct_community_absolute_1rm_percentile",
+      normalizationMethod: "direct_community_1rm_percentile",
+      unit: "kg",
       anchors: [{ percentile: 25, value: 60 }, { percentile: 50, value: 100 }, { percentile: 75, value: 140 }],
     };
     const result = resolveStrengthPercentile(absolute, { measuredOneRmKg: 100 }, { sex: "male", bodyMassKg: null });
     expect(result).toMatchObject({ status: "resolved", percentile: 50, observedValue: 100 });
+  });
+
+  /**
+   * The stored absolute curves are in pounds, and the athlete's lift is in kilograms. Placing
+   * one on the other unconverted reads a 100kg bench as a 100lb bench and lands it near the
+   * bottom of the curve - a wrong answer that looks exactly like a right one.
+   */
+  it("converts into the curve's own unit before placing a lift on it", () => {
+    const pounds: StrengthCurve = {
+      ...curve,
+      normalizationMethod: "direct_community_1rm_percentile",
+      unit: "lb_1rm",
+      anchors: [{ percentile: 25, value: 135 }, { percentile: 50, value: 220.462 }, { percentile: 75, value: 315 }],
+    };
+    const result = resolveStrengthPercentile(pounds, { measuredOneRmKg: 100 }, { sex: "male", bodyMassKg: 80 });
+    expect(result).toMatchObject({ status: "resolved", percentile: 50 });
+    if (result.status !== "resolved") return;
+    expect(result.observedValue).toBeCloseTo(220.46, 1);
+  });
+
+  /**
+   * A rep curve ranks how many reps people get, not how much they lift. Placing an estimated
+   * one-rep max on it would compare kilograms against repetitions and return a number.
+   */
+  it("refuses a curve that does not rank one-rep maxima at all", () => {
+    const reps: StrengthCurve = {
+      ...curve,
+      normalizationMethod: "direct_community_rep_percentile",
+      unit: "reps",
+      anchors: [{ percentile: 25, value: 8 }, { percentile: 50, value: 20 }, { percentile: 75, value: 32 }],
+    };
+    expect(resolveStrengthPercentile(reps, { measuredOneRmKg: 100 }, context))
+      .toEqual({ status: "unavailable", reason: "curve_is_not_one_rep_max" });
   });
 
   it("says which end of the curve a lift fell off", () => {
@@ -172,6 +207,7 @@ describe("Against the real barbell bench press curve", () => {
     exerciseId: "barbell_bench_press__catalog_1",
     sex: "male",
     normalizationMethod: "direct_community_relative_1rm_percentile",
+    unit: "x_bodyweight",
     sourceRole: "beta_fallback",
     confidenceCap: 0.82,
     anchors: [

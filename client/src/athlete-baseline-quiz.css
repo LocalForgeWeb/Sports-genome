@@ -284,7 +284,7 @@
 .athlete-quiz-insufficiency {
   border-left: 3px solid var(--sg-info-strong, #2d6cdf);
   padding-left: 12px;
-  font-size: 13px;
+  font-size: var(--sg-text-md);
 }
 .athlete-quiz-escalation {
   display: flex;
@@ -296,6 +296,6 @@
   padding: 14px 16px;
   margin-top: 16px;
 }
-.athlete-quiz-escalation strong { display: block; font-size: 14px; }
-.athlete-quiz-escalation p { margin: 6px 0 0; font-size: 13px; line-height: 1.55; }
+.athlete-quiz-escalation strong { display: block; font-size: var(--sg-text-base); }
+.athlete-quiz-escalation p { margin: 6px 0 0; font-size: var(--sg-text-md); line-height: var(--sg-leading-body); }
 .athlete-quiz-escalation svg { flex: none; margin-top: 2px; }
