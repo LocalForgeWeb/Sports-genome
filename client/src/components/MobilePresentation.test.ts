@@ -30,7 +30,10 @@ describe("mobile athlete presentation", () => {
     expect(mobileStyles).toContain("env(safe-area-inset-bottom)");
     expect(mobileStyles).toContain(".feature-guide-button span { display: none; }");
     expect(mobileStyles).toContain(".genome-methodology");
-    expect(mobileStyles).toContain(".apex-topbar { min-height: 82px");
+    // No header to make safe-area-aware any more; the tab row it left behind is the
+    // top of the page, and pads for the notch itself.
+    expect(mobileStyles).not.toContain(".apex-topbar");
+    expect(mobileStyles).toContain(".workspace-top-switcher { top: 0;");
   });
 
   it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {
@@ -69,7 +72,7 @@ describe("mobile athlete presentation", () => {
   });
 
   it("keeps mobile navigation opaque and Training Day dark-surface controls legible against navy panels", () => {
-    expect(appStyles).toContain(".apex-topbar, .workspace-top-switcher { background: var(--sg-surface-light);");
+    expect(appStyles).toContain(".workspace-top-switcher, .workspace-top-actions { background: var(--sg-surface-light);");
     expect(plannerStyles).toContain(".day-order-controls button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-muted-on-dark); }");
   });
 

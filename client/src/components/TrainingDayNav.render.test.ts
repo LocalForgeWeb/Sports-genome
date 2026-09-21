@@ -93,7 +93,7 @@ describe("Training day navigation", () => {
  * already pinned above it: 354px of an 852px phone screen never moved, and the page
  * showed through a 428px slot. Only the strip follows you now.
  */
-describe("only the day strip follows the scroll", () => {
+describe("the day selector scrolls with the page", () => {
   const styles = readFileSync(join(process.cwd(), "client/src/workout-planner.css"), "utf8");
   /** Every declaration block for a selector, since it is styled in a base rule and
       again inside media queries and scoped overrides. */
@@ -103,14 +103,20 @@ describe("only the day strip follows the scroll", () => {
     expect(rule(".training-day-nav")).not.toContain("position: sticky");
   });
 
-  it("keeps the strip pinned, below the chrome already pinned above it", () => {
+  /**
+   * The strip used to pin. It sat on top of whatever you scrolled to - the week cards
+   * below it arrived half-covered by a row of day chips - and picking a day is a
+   * decision made once at the top of the screen, not a control needed at every
+   * scroll position.
+   */
+  it("lets the day chips scroll away too, rather than covering what is under them", () => {
     const strip = rule(".training-day-nav-strip");
-    expect(strip).toContain("position: sticky");
-    expect(strip).toContain("var(--sg-pinned-chrome)");
+    expect(strip).not.toContain("position: sticky");
+    expect(strip).toContain("position: static");
+    expect(strip).not.toContain("var(--sg-pinned-chrome)");
   });
 
-  it("renders the two as siblings, because a sticky child cannot outlive its container", () => {
-    // Nested in the header, the strip would unstick the moment the header scrolled past.
+  it("renders the two as siblings, so the strip's own horizontal scroll is its own", () => {
     renderNav();
     const strip = document.querySelector(".training-day-nav-strip");
     const head = document.querySelector(".training-day-nav");

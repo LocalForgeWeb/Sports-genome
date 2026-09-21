@@ -44,7 +44,11 @@ describe("workspace side navigation", () => {
     expect(source).toContain('window.addEventListener("popstate", restoreWorkspace)');
     expect(source).not.toContain('className="apex-rail');
     expect(source).not.toContain('className="rail-scrim"');
-    expect(source).toContain('onClick={() => navigateWorkspace("day-plan")}');
+    // The header's "Design day" shortcut went with the header. The destination keeps
+    // three routes: the Train tab in the bottom nav, and the two panels that hand off
+    // to it — so nothing became unreachable.
+    expect(source).toContain('onOpenTraining={() => navigateWorkspace("day-plan")}');
+    expect(source).toContain('{ id: "train", label: "Train", icon: Layers3, defaultWorkspace: "day-plan" }');
     expect(source).toContain('onOpenAtlas={() => navigateWorkspace("movement")}');
     expect(source).toContain('navigateWorkspace("catalog")');
     expect(source).toContain('navigateWorkspace("recommended")');
@@ -60,12 +64,10 @@ describe("workspace side navigation", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).not.toContain('setRailOpen');
     expect(source).toContain('<div className="mobile-workspace-dock" aria-label="Primary workspace navigation">');
-    expect(source).toContain('className="topbar-brand-logo shrink-0 object-cover"');
-    expect(css).toContain('.topbar-brand-logo { width: 56px; height: 56px; border-radius: 999px;');
     expect(css).toContain('@media (min-width: 1024px) {\n  .apex-content { padding-bottom: 6.25rem; }');
   });
 
-  it("uses the official Sports Genome header identity and a non-neon active state", () => {
+  it("colours the shell by destination and keeps a non-neon active state", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('shell-${activePrimaryDestination}');
     expect(source).toContain('destination-${activePrimaryDestination}');
@@ -73,11 +75,6 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content.destination-body');
     expect(css).toContain('.apex-content.destination-progress');
     expect(css).toContain('.apex-content.destination-secondary');
-    expect(source).toContain('sportsGenomeAssets.circularBadge');
-    expect(source).toContain('alt="Sports Genome circular badge"');
-    expect(source).toContain('className="topbar-brand-logo shrink-0 object-cover"');
-    expect(source).toContain('className="topbar-context-chips"');
-    expect(css).not.toContain('topbar-brand-logo { width: 50px; height: 50px; clip-path');
     expect(source).toContain('workspace === "profile" && <section className="more-workspace"');
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
@@ -121,12 +118,9 @@ describe("workspace side navigation", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('className="mobile-workspace-dock"');
     expect(source).toContain('aria-label="Primary workspace navigation"');
-    expect(source).toContain('label: "Tracker", workspace: "tracker"');
-    expect(source).toContain('label: "Stack Review", workspace: "day-plan"');
-    expect(source).toContain('label: "Prep", workspace: "custom"');
+    expect(source).toContain('label: "Session", workspace: "tracker"');
+    expect(source).toContain('label: "Review", workspace: "review"');
     expect(source).toContain('navigateWorkspace("tracker")');
-    expect(source).toContain('const target = document.querySelector(scrollTarget);');
-    expect(source).toContain('target?.scrollIntoView({ behavior: "smooth", block: "start" });');
     expect(source).toContain('<DeviceWorkoutTracker');
     expect(workoutTrackerSource).toContain('id="workout-tracker"');
     expect(deviceTrackerSource).toContain('id="workout-tracker"');
@@ -143,21 +137,26 @@ describe("workspace side navigation", () => {
     expect(tabsComponent).toContain('className="workspace-top-switcher"');
     expect(source).not.toContain('<details className="plan-context">');
     expect(source).toContain('workspace pages`');
-    expect(source).toContain('label: "Stack Review", workspace: "day-plan", scrollTarget: "#stack-review"');
-    expect(source).toContain('label: "Prep", workspace: "custom", scrollTarget: "#session-prep"');
+    /**
+     * A tab is a place. "Stack Review" and "Prep" were tabs that scrolled the page you
+     * were already on and force-opened a `<details>`, which the navigation principle
+     * lists first among its anti-patterns: "tabs that execute actions". The scroll
+     * mechanism went with them, so it cannot come back by adding one more entry.
+     */
+    expect(source).not.toContain("scrollTarget");
+    expect(source).not.toContain('label: "Stack Review"');
+    expect(source).not.toContain('label: "Prep"');
+    expect(source).not.toContain("scrollIntoView({ behavior: \"smooth\", block: \"start\" })");
     expect(source).toContain('const navigateContextualWorkspace = (tab: ContextualWorkspaceTab)');
-    expect(source).toContain('if (scrollTarget) window.requestAnimationFrame(() => window.requestAnimationFrame(() => {');
-    expect(source).toContain('if (tab.id === "stack-review") target?.querySelector<HTMLDetailsElement>("details")?.setAttribute("open", "");');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
-    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     // Active-tab resolution moved into the row component with the markup.
     expect(source).toContain("activeId={activeContextTabId}");
     expect(tabsComponent).toContain("const active = tab.id === activeId;");
     expect(css).toContain('.workspace-top-switcher button:not(.workspace-top-switcher-active) { border-bottom-color: transparent !important; }');
-    expect(mobileStyles).toContain('.workspace-top-switcher { top: 78px; min-height: 54px;');
+    expect(mobileStyles).toContain('.workspace-top-switcher { top: 0; min-height: 54px;');
     expect(mobileStyles).toContain('overflow-x: auto; overscroll-behavior-x: contain;');
     expect(mobileStyles).toContain('.workspace-top-switcher button { min-width: max-content; min-height: 46px;');
-    expect(mobileStyles).toContain('.topbar-brand-logo { width: 56px; height: 56px; }');
     expect(css).toContain('.mobile-bottom-nav { display: none; }');
     expect(css).not.toContain('main > section:has(.custom-row) { display: none; }');
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
@@ -172,31 +171,47 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');
   });
 
-  it("uses compact, individually truncatable sport, goal, and weekly-plan context chips in the workspace header", () => {
+  /**
+   * There is no header any more.
+   *
+   * It spent 82px of a phone screen on a logo, a workspace label the tab row below it
+   * already states, and three profile facts - most of the space above the fold, before
+   * any content. Its two controls that actually lead somewhere moved into that row.
+   *
+   * Profile is the one that matters: it is deliberately absent from the bottom nav, so
+   * the tab row's button is now the only route to About Me, and the row therefore has
+   * to render on every destination, including the ones with a single page.
+   */
+  it("carries search and Profile in the tab row, because no header is left to hold them", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(source).toContain('className="topbar-context-chips"');
-    // The chip reads the resolved context label, so a general or undecided athlete is not
-    // told they have a sport they never chose.
-    expect(source).toContain('Current planning context: ${sportDisplayLabel}, ${goal}, ${trainingDays} training days');
-    expect(source).not.toContain('Current planning context: ${selectedSport.label}');
-    expect(source).not.toContain('selectedSport.label} <span className="mx-1.5 text-[#a2aca4]">/</span> {goal}');
-    expect(css).toContain('.topbar-context-chips span { max-width: 12rem; overflow: hidden;');
-    // The strip is bounded by its own column, not by the viewport: a
-    // viewport-derived width cannot know how wide the topbar's right-hand
-    // cluster is, and `overflow: visible` let the chips run underneath it
-    // (measured: "5 days" 57px behind the search trigger at 390px). Within that
-    // column they wrap rather than scroll - as a hidden-scrollbar strip the
-    // same chip was cut mid-word at 272px, with nothing on screen saying there
-    // was anything to scroll to, which reads as a clipped layout.
-    expect(css).toContain('.topbar-context-chips { flex-wrap: wrap; max-width: 100%; overflow-x: visible;');
-    expect(css).toContain('.topbar-context-chips span { max-width: none; flex: 0 0 auto; }');
-    expect(mobileStyles).toContain('max-width: calc(100vw - 5.5rem);');
-    expect(mobileStyles).toContain('flex: 0 0 auto;');
-    // Both files style this strip and only source order decides which wins, so
-    // neither may quietly put the scroller back.
-    expect(mobileStyles).toContain('.topbar-context-chips { flex-wrap: wrap;');
-    expect(mobileStyles).not.toMatch(/\.topbar-context-chips \{[^}]*overflow-x: auto/);
-    expect(mobileStyles).toContain('.apex-topbar button:last-child { display: none; }');
+    expect(source).not.toContain('className="apex-topbar"');
+    expect(source).not.toContain('className="topbar-context-chips"');
+    expect(source).not.toContain('className="topbar-brand-logo shrink-0 object-cover"');
+    expect(css).not.toContain('.apex-topbar');
+    expect(css).not.toContain('.topbar-context-chips');
+    expect(mobileStyles).not.toContain('.apex-topbar');
+
+    // Rendered unconditionally: gated on `length > 1` it would skip Home, which has one
+    // page, and stranded Profile behind no route at all.
+    expect(source).not.toContain('contextualWorkspaceTabs.length > 1 && <WorkspaceTabs');
+    expect(source).toContain('<WorkspaceTabs');
+    expect(source).toContain('aria-label="Profile and settings"');
+    expect(source).toContain('className="topbar-profile-button"');
+    expect(source).toContain('<UniversalSearch onOpenResult={openSearchResult} />');
+    expect(tabsComponent).toContain('{actions && <div className="workspace-top-actions">{actions}</div>}');
+
+    // Outside the scrolling nav, so scrolling the tabs cannot carry them off the edge.
+    expect(tabsComponent).not.toMatch(/<nav className="workspace-top-switcher"[\s\S]*workspace-top-actions[\s\S]*<\/nav>/);
+    expect(css).toContain('.workspace-top-switcher-shell{--sg-top-actions:7rem;display:flex;');
+    // The overflow arrow is positioned from the same number, or it lands on the search button.
+    expect(css).toContain('.workspace-top-switcher-shell::after{right:calc(var(--sg-top-actions) + .25rem)}');
+    // The row is the top of the page now, on both stylesheets that set it.
+    expect(css).toContain('.workspace-top-switcher-shell{position:sticky;top:0;z-index:29}');
+    expect(mobileStyles).toContain('.workspace-top-switcher { top: 0;');
+  });
+
+  it("keeps the retired accents retired", () => {
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     // The acid-lime accent is retired: it was the calm_precision anti-pattern
     // ("competing highlights") and had accumulated four conflicting !important
     // override mappings. Guard that it stays gone rather than re-suppressed.
@@ -206,8 +221,9 @@ describe("workspace side navigation", () => {
   });
 
   it("retains one explicit active contextual route for every Train and Body Lab tab", () => {
-    ["Training Day", "Tracker", "Matches", "Builder", "Stack Review", "Prep", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
-    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace && !tab.scrollTarget)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    // Train is four places in the order the work happens, each its own page.
+    ["Plan", "Review", "Session", "Matches", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
+    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(tabsComponent).toContain('className={active ? "workspace-top-switcher-active" : ""}');
   });
@@ -221,7 +237,7 @@ describe("workspace side navigation", () => {
     expect(source).toContain('Preparing this workspace…');
   });
 
-  it("removes duplicate mobile Training Day shortcuts while keeping dedicated Tracker and Builder destinations reachable", () => {
+  it("removes duplicate mobile Training Day shortcuts while keeping the Session destination reachable", () => {
     expect(trainingDayStyles).toContain('.day-design-import { display: none; }');
     // The same two shortcuts, hidden by name rather than by position: both have their own
     // panel further down, and a positional rule hid whichever button came first — which is
@@ -229,8 +245,7 @@ describe("workspace side navigation", () => {
     expect(trainingDayStyles).toContain('.day-active-actions .day-action-session, .day-active-actions .day-action-draft { display: none; }');
     expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
     expect(source).toContain('className="day-action-add"');
-    expect(source).toContain('label: "Tracker", workspace: "tracker"');
-    expect(source).toContain('label: "Builder", workspace: "custom"');
+    expect(source).toContain('label: "Session", workspace: "tracker"');
     expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
     expect(source).toContain('Import this plan');
   });

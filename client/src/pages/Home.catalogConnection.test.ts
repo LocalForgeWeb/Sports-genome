@@ -55,10 +55,14 @@ describe("canonical connected exercise catalog", () => {
     expect(homeSource).not.toContain('className="mt-5 grid gap-2 md:grid-cols-2 xl:grid-cols-3">{filteredCatalog.map');
   });
 
-  it("renders one canonical Custom Builder instead of competing legacy panels", () => {
+  it("builds a day in one place, with no competing legacy panels", () => {
     expect(homeSource).not.toContain('className="custom-row"');
     expect(homeSource).not.toContain('className="finder-row"');
     expect(homeSource).not.toContain('<p className="metric-label">Exercise finder</p>');
-    expect(homeSource).toContain('className="builder-upgrade-head"');
+    // The Builder page was a second copy of Training Day - seven panels rendered in
+    // both - so it is gone rather than deduplicated panel by panel.
+    expect(homeSource).not.toContain('className="builder-upgrade-head"');
+    expect(homeSource).not.toContain('workspace === "custom"');
+    expect(homeSource).toContain('{workspace === "day-plan" && <section className={`day-design-workspace');
   });
 });
