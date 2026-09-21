@@ -1,3 +1,5 @@
+import { parsePrescription } from "@/lib/setPrescription";
+
 export type LoggedPerformanceSet = {
   sessionId: number;
   completedAt: Date | string;
@@ -64,11 +66,44 @@ export type WeeklyProgressReview = {
 type ProgressionEntry = { exercise: ProgressionExercise; recommendation: ExerciseProgressionRecommendation };
 
 export function parseTargetRepRange(prescription: string) {
+  /**
+   * A prescription can ask for a different target per set ("4 × 10/8/6/6"), and the
+   * band has to be aggregated the same way the comparison aggregates what was
+   * actually done - which is the session MEAN (see `sessionPerformance`).
+   *
+   * Spanning min-to-max across the sets looks right and is not: it gives that
+   * prescription a band of 6-10, while an athlete who hits 10, 8, 6, 6 - the plan,
+   * exactly - averages 7.5. 7.5 never reaches the 10 ceiling, so `increase_load`
+   * becomes unreachable and the advice is stuck on "add repetitions" forever.
+   * Reading only the first target, as this did before per-set existed, is worse
+   * still: a band of 10-10 tells an athlete executing the plan perfectly to take
+   * weight off.
+   *
+   * Mean against mean: 10/8/6/6 gives 7.5, the athlete's 7.5 reads as the ceiling,
+   * and a uniform "4 × 8–12" is 8-12 exactly as it always was.
+   */
+  const perSet = parsePrescription(prescription).sets.map((set) => {
+    const band = set.reps.match(/^\s*(\d+)\s*(?:–|—|-|to)\s*(\d+)/i);
+    if (band) return { min: Number(band[1]), max: Number(band[2]) };
+    const single = set.reps.match(/^\s*(\d+)/);
+    return single ? { min: Number(single[1]), max: Number(single[1]) } : null;
+  }).filter((entry): entry is { min: number; max: number } => entry !== null);
+
+  if (perSet.length) {
+    const mean = (pick: (entry: { min: number; max: number }) => number) =>
+      perSet.reduce((total, entry) => total + pick(entry), 0) / perSet.length;
+    return { min: mean((entry) => entry.min), max: mean((entry) => entry.max) };
+  }
+
+  // Anything the set reader could not make sense of still gets the old reading.
   const range = prescription.match(/(?:×|x)\s*(\d+)\s*(?:–|-|to)\s*(\d+)/i);
   if (range) return { min: Number(range[1]), max: Number(range[2]) };
   const single = prescription.match(/(?:×|x)\s*(\d+)/i);
   return single ? { min: Number(single[1]), max: Number(single[1]) } : undefined;
 }
+
+/** A rep target for prose. A mean across varied sets is often fractional. */
+const reps = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(1));
 
 function canonicalLoad(weight: number | string | null | undefined, unit: "lb" | "kg") {
   const numeric = Number(weight);
@@ -158,16 +193,16 @@ export function getExerciseProgressionRecommendation(exercise: ProgressionExerci
 
   const recentPerformanceChange = previous ? (latest.estimatedPerformance - previous.estimatedPerformance) / previous.estimatedPerformance : undefined;
   const relativePerformance = exercise.bodyWeightKg && exercise.bodyWeightKg > 0 ? latest.estimatedPerformance / exercise.bodyWeightKg : undefined;
-  if (comparableSessions < 2) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "insufficient_data", confidence, targetRange, latestAverageReps: latest.averageReps, relativePerformance, comparableSessions, rationale: `One comparable session is logged. Repeat ${targetRange.min}–${targetRange.max} reps to establish a trend before changing load.`, boundary };
+  if (comparableSessions < 2) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "insufficient_data", confidence, targetRange, latestAverageReps: latest.averageReps, relativePerformance, comparableSessions, rationale: `One comparable session is logged. Repeat ${reps(targetRange.min)}–${reps(targetRange.max)} reps to establish a trend before changing load.`, boundary };
 
   const materialDrop = recentPerformanceChange !== undefined && recentPerformanceChange <= logicCalibration.progression.substantialDownwardChange;
   if (latest.averageRpe !== undefined && latest.averageRpe >= logicCalibration.progression.holdEffortRpe) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "hold", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recorded effort averaged RPE ${latest.averageRpe.toFixed(1)}. Hold the current load or review recovery and technique before progressing.`, boundary };
   const highEffort = latest.averageRpe !== undefined && latest.averageRpe >= logicCalibration.progression.highEffortRpe;
   const moderateEffort = latest.averageRpe !== undefined && latest.averageRpe > logicCalibration.progression.moderateEffortRpe;
-  if (latest.averageReps < targetRange.min && (materialDrop || comparableSessions >= logicCalibration.progression.highConfidenceSessions || highEffort)) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "reduce_load", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work averaged below the ${targetRange.min}-rep floor${highEffort ? ` at RPE ${latest.averageRpe?.toFixed(1)}` : materialDrop ? " with a meaningful exercise-context performance drop" : " across multiple comparable sessions"}. Consider a lighter next available increment or confirm recovery and setup first.`, boundary };
-  if (latest.averageReps >= targetRange.max && !moderateEffort && (recentPerformanceChange === undefined || recentPerformanceChange >= logicCalibration.progression.maintainPerformanceTolerance)) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "increase_load", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work reached the ${targetRange.max}-rep ceiling${latest.averageRpe !== undefined ? ` at RPE ${latest.averageRpe.toFixed(1)}` : ""}. Consider the next available load increment, then return to the lower end of the range.`, boundary };
-  if (latest.averageReps >= targetRange.min && !moderateEffort) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "add_repetitions", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work is inside the ${targetRange.min}–${targetRange.max} range${latest.averageRpe !== undefined ? ` at RPE ${latest.averageRpe.toFixed(1)}` : ""}. Keep load steady and add repetitions before increasing load.`, boundary };
-  return { exerciseId: exercise.id, exerciseName: exercise.name, action: "repeat", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Repeat the current load${moderateEffort ? ` because recorded effort reached RPE ${latest.averageRpe?.toFixed(1)}` : ""} and aim for the ${targetRange.min}-rep floor before progressing.`, boundary };
+  if (latest.averageReps < targetRange.min && (materialDrop || comparableSessions >= logicCalibration.progression.highConfidenceSessions || highEffort)) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "reduce_load", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work averaged below the ${reps(targetRange.min)}-rep floor${highEffort ? ` at RPE ${latest.averageRpe?.toFixed(1)}` : materialDrop ? " with a meaningful exercise-context performance drop" : " across multiple comparable sessions"}. Consider a lighter next available increment or confirm recovery and setup first.`, boundary };
+  if (latest.averageReps >= targetRange.max && !moderateEffort && (recentPerformanceChange === undefined || recentPerformanceChange >= logicCalibration.progression.maintainPerformanceTolerance)) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "increase_load", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work reached the ${reps(targetRange.max)}-rep ceiling${latest.averageRpe !== undefined ? ` at RPE ${latest.averageRpe.toFixed(1)}` : ""}. Consider the next available load increment, then return to the lower end of the range.`, boundary };
+  if (latest.averageReps >= targetRange.min && !moderateEffort) return { exerciseId: exercise.id, exerciseName: exercise.name, action: "add_repetitions", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Recent completed work is inside the ${reps(targetRange.min)}–${reps(targetRange.max)} range${latest.averageRpe !== undefined ? ` at RPE ${latest.averageRpe.toFixed(1)}` : ""}. Keep load steady and add repetitions before increasing load.`, boundary };
+  return { exerciseId: exercise.id, exerciseName: exercise.name, action: "repeat", confidence, targetRange, latestAverageReps: latest.averageReps, recentPerformanceChange, relativePerformance, comparableSessions, rationale: `Repeat the current load${moderateEffort ? ` because recorded effort reached RPE ${latest.averageRpe?.toFixed(1)}` : ""} and aim for the ${reps(targetRange.min)}-rep floor before progressing.`, boundary };
 }
 
 function muscleFamily(muscle: string) {

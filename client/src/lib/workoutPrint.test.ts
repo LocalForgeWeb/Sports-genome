@@ -12,4 +12,35 @@ describe("printable workout rows", () => {
   it("uses timed round labels for timed prescriptions", () => {
     expect(getPrintableTrackingLines("4 × 30 sec")).toEqual(["Round 1: time / quality __________________", "Round 2: time / quality __________________", "Round 3: time / quality __________________", "Round 4: time / quality __________________"]);
   });
+
+  /**
+   * The sheet is carried to the gym with no screen beside it, so when the sets
+   * ask for different things each line has to say which one it is for. When they
+   * all ask for the same thing the row's own prescription already covers it, and
+   * repeating it four times would just be noise.
+   */
+  it("names each set's own target when the sets differ", () => {
+    expect(getPrintableTrackingLines("3 × 10/8/6")).toEqual([
+      "Set 1 (10): load / reps __________________",
+      "Set 2 (8): load / reps __________________",
+      "Set 3 (6): load / reps __________________",
+    ]);
+    expect(getPrintableTrackingLines("2 × 30 sec/20 sec")).toEqual([
+      "Round 1 (30 sec): time / quality __________________",
+      "Round 2 (20 sec): time / quality __________________",
+    ]);
+  });
+
+  /** A varied plan can mix a timed hold with rep sets; the sheet has to too. */
+  it("gives a mixed varied plan the right line for each set", () => {
+    expect(getPrintableTrackingLines("3 × 30 sec/10/10")).toEqual([
+      "Round 1 (30 sec): time / quality __________________",
+      "Set 2 (10): load / reps __________________",
+      "Set 3 (10): load / reps __________________",
+    ]);
+  });
+
+  it("leaves a uniform prescription's lines unqualified", () => {
+    expect(getPrintableTrackingLines("2 × 8–12")).toEqual(["Set 1: load / reps __________________", "Set 2: load / reps __________________"]);
+  });
 });

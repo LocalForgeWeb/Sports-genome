@@ -99,7 +99,7 @@ export function selectHomePriority(input: HomePriorityInput): HomePriority {
       id: "first-lift",
       posture: "measure",
       headline: "Log your first lift",
-      detail: "Nothing is recorded yet, so there is no state to interpret and no comparison to make.",
+      detail: "Nothing recorded yet.",
       ctaLabel: "Open Strength Genome",
       target: "strength",
     };

@@ -153,6 +153,8 @@ export type PowerliftingRankMissing = "load" | "body_mass" | "sex" | "age";
 export type PowerliftingRank =
   | { status: "ranked"; lift: PowerliftingLift; relativeStrength: number; percentileBandLabel: string; basis: PowerliftingRankBasis; population: string; sourceUrl: string }
   | { status: "needs"; missing: PowerliftingRankMissing }
+  /** Answered, and the published tables report no group that matches it. */
+  | { status: "no_matching_population" }
   | { status: "unsupported" };
 
 type RankContext = {
@@ -161,9 +163,26 @@ type RankContext = {
   loadKg?: number | null;
   repetitions?: number | null;
   bodyMassKgAtTest?: number | null;
-  sex?: PowerliftingComparisonSex;
+  /**
+   * The athlete's own answer, not a mapped one.
+   *
+   * The caller used to narrow this to male/female before handing it over, which
+   * meant "Intersex" and "Prefer not to say" arrived indistinguishable from an
+   * empty field - so the screen answered them with "Add the sex to compare
+   * against in About Me", an instruction they had already followed and that
+   * nothing they could do would satisfy. What the tables report is this
+   * module's knowledge, so the whole answer comes here and this decides.
+   */
+  sex?: DeclaredSex;
   ageYears?: number;
 };
+
+/**
+ * Every answer the About Me field can hold, including the two no published
+ * table reports a group for. Declared here rather than imported from the quiz
+ * so this module stays free of component imports; it is the same union.
+ */
+export type DeclaredSex = PowerliftingComparisonSex | "intersex" | "unspecified";
 
 const vanDenHoekSourceUrl = "https://www.sciencedirect.com/science/article/pii/S1440244024002469";
 
@@ -204,10 +223,15 @@ export function rankAgainstPowerliftingNorms(
   const bodyMass = Number(context.bodyMassKgAtTest);
   if (!Number.isFinite(bodyMass) || bodyMass <= 0) return { status: "needs", missing: "body_mass" };
   if (!context.sex) return { status: "needs", missing: "sex" };
+  // Answered, but van den Hoek reports male and female groups only. Asking
+  // again would be asking for something the athlete has already given and
+  // cannot change into an answer the tables carry.
+  if (context.sex !== "male" && context.sex !== "female") return { status: "no_matching_population" };
+  const sex: PowerliftingComparisonSex = context.sex;
   if (!context.ageYears || !Number.isFinite(context.ageYears)) return { status: "needs", missing: "age" };
 
   const matchedBand = registryNorms
-    .filter((row) => row.exerciseName === context.exerciseName && row.sex === context.sex && context.ageYears! >= row.ageMin && context.ageYears! <= row.ageMax)
+    .filter((row) => row.exerciseName === context.exerciseName && row.sex === sex && context.ageYears! >= row.ageMin && context.ageYears! <= row.ageMax)
     .sort((a, b) => a.percentile - b.percentile);
   const usingRegistryBand = matchedBand.length >= 3;
   /**
@@ -217,7 +241,7 @@ export function rankAgainstPowerliftingNorms(
    */
   const deciles: readonly [number, number][] = usingRegistryBand
     ? matchedBand.map((row) => [row.percentile, row.relativeStrength])
-    : decilesBySexAndLift[context.sex][lift];
+    : decilesBySexAndLift[sex][lift];
 
   const relativeStrength = Number((oneRepMax.kg / bodyMass).toFixed(2));
   const ageLabel = usingRegistryBand ? ageBandLabel(matchedBand[0].ageMin, matchedBand[0].ageMax) : "18–35";
@@ -227,7 +251,7 @@ export function rankAgainstPowerliftingNorms(
     relativeStrength,
     percentileBandLabel: decileBandLabel(relativeStrength, deciles),
     basis: oneRepMax.basis,
-    population: `${context.sex === "male" ? "Male" : "Female"} drug-tested, unequipped powerlifting competitors aged ${ageLabel}`,
+    population: `${sex === "male" ? "Male" : "Female"} drug-tested, unequipped powerlifting competitors aged ${ageLabel}`,
     sourceUrl: vanDenHoekSourceUrl,
   };
 }
@@ -236,6 +260,16 @@ export function rankAgainstPowerliftingNorms(
 export const powerliftingRankMissingCopy: Record<PowerliftingRankMissing, string> = {
   load: "Add the weight you lifted to see where this ranks.",
   body_mass: "Add your body weight on that day to see where this ranks.",
-  sex: "Add the sex to compare against in About Me to see where this ranks.",
-  age: "Add your birth year in About Me to see where this ranks.",
+  sex: "Add the group to compare against and this lift gets a rank.",
+  age: "Add your birth year and this lift gets a rank.",
 };
+
+/**
+ * What to say when the answer is in and no table reports a group for it.
+ *
+ * Not an ask. The athlete answered the question; the limit is in the published
+ * research, so the sentence names that rather than sending them back to a field
+ * they have already filled.
+ */
+export const powerliftingRankNoPopulationCopy =
+  "The published research reports male and female competitor groups only, so there is no group to rank this lift against. Your own progress above is measured from your logs and is unaffected.";

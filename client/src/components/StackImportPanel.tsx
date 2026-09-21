@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Check, ClipboardPaste, CornerDownRight, Layers3, SlidersHorizontal, X } from "lucide-react";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { isRoutineDayHeader, routineDayLabel } from "@/lib/routineDayHeader";
+import { formatPrescription, parsePrescription } from "@/lib/setPrescription";
 
 /** Kinetic Field Manual: parse once, inspect confidence, then load only user-confirmed exercise identity into the editable plan. */
 export type ImportConfidence = "exact" | "likely" | "confirmed" | "unmatched";
@@ -47,13 +48,15 @@ function classifyContextLine(raw: string): ImportedRoutineContext["kind"] | unde
 
 function parseExerciseLine(raw: string) {
   const compact = raw.replace(/^[-•*\d.)\s]+/, "").trim();
-  const standard = compact.match(/(\d+)\s*(?:x|×)\s*(\d+(?:\s*[-–]\s*\d+)?(?:\s*(?:sec|seconds|min|minutes))?)/i);
-  const setsOf = compact.match(/(\d+)\s*sets?\s*(?:of\s*)?(\d+(?:\s*[-–]\s*\d+)?(?:\s*(?:sec|seconds|min|minutes))?)/i);
+  const standard = compact.match(/(\d+)\s*(?:x|×)\s*(\d+(?:\s*[-–]\s*\d+)?(?:\s*(?:sec|seconds|min|minutes))?(?:\s*\/\s*\d+(?:\s*[-–]\s*\d+)?(?:\s*(?:sec|seconds|min|minutes))?)*)/i);
+  const setsOf = compact.match(/(\d+)\s*sets?\s*(?:of\s*)?(\d+(?:\s*[-–]\s*\d+)?(?:\s*(?:sec|seconds|min|minutes))?(?:\s*\/\s*\d+(?:\s*[-–]\s*\d+)?(?:\s*(?:sec|seconds|min|minutes))?)*)/i);
   const match = standard || setsOf;
   const rpeMatch = compact.match(/(?:rpe\s*@?\s*|@\s*)(\d+(?:\.5)?)/i);
   const restMatch = compact.match(/(?:rest\s*[:@]?\s*)(\d+\s*(?:sec|seconds|s|min|minutes|m))/i);
   const name = normalize(match ? compact.slice(0, match.index) : compact).replace(/[-:]+$/, "").trim();
-  const prescription = match ? `${match[1]} × ${match[2]}` : "3 × 8–12";
+  // Normalised through the shared reader so an imported slash list is stored in
+  // exactly the form the editor writes, spacing and all.
+  const prescription = match ? formatPrescription(parsePrescription(`${match[1]} × ${match[2]}`).sets, /\//.test(match[2])) : "3 × 8–12";
   const notes = compact.match(/\(([^)]+)\)/)?.[1] || compact.split(/\s+[·|]\s+/).slice(1).join(" · ") || "";
   return { raw, name, prescription, rpe: rpeMatch ? `RPE ${rpeMatch[1]}` : undefined, rest: restMatch ? restMatch[1].replace(/^\d+\s*s$/i, (value) => `${value.slice(0, -1)} sec`) : undefined, notes: notes && !/^(rpe|rest)/i.test(notes) ? notes : undefined };
 }

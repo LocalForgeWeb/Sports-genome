@@ -53,14 +53,14 @@ export function TrainingWeekPanel({ plannedDays, onOpenTracker, onOpenProgress }
       <div>
         <CalendarCheck className="h-4 w-4" />
         <p>
-          <strong>{setsThisWeek} sets logged</strong>
-          <span>this week</span>
+          <b className="stat-figure">{setsThisWeek}</b>
+          <strong>sets this week</strong>
         </p>
       </div>
       <div>
         <p>
           <strong>{lastCompleted ? lastCompleted.title : "No session yet"}</strong>
-          <span>{lastCompleted ? `last session · ${relativeDayLabel(daysSinceLastSession)}` : "your first one starts the record"}</span>
+          <span>{lastCompleted ? `last session · ${relativeDayLabel(daysSinceLastSession)}` : "no sessions yet"}</span>
         </p>
       </div>
     </div>

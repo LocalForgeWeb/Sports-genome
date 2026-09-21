@@ -5,6 +5,7 @@ import { selectStrengthRegionRecord } from "./StrengthGenomePanel";
 
 const source = readFileSync(new URL("./StrengthGenomePanel.tsx", import.meta.url), "utf8");
 const bodyMapSource = readFileSync(new URL("./StrengthGenomeBodyMap.tsx", import.meta.url), "utf8");
+const styles = readFileSync(new URL("../index.css", import.meta.url), "utf8");
 
 describe("Strength Genome panel", () => {
   it("captures dated performance context but withholds an uncalibrated tier", () => {
@@ -16,7 +17,7 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }}');
     expect(source).toContain("Your record");
     expect(source).toContain("Want to prioritize this?");
-    expect(source).toContain('active: !activePriorityIds.has(selectedRegion.id)');
+    expect(source).toContain('active: !activePriorityIds.has(sheetRegion.id)');
     expect(source).toContain("Range of motion");
     expect(source).toContain("Variation");
     expect(source).toContain("Assistance used");
@@ -49,11 +50,17 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Where this ranks");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
-    // The body-mass field offers the weight in effect on the lift's own day, from
-    // the dated log — not today's profile value, which was the old prefill and
-    // needed a warning telling the athlete to check it themselves.
+    // The body-mass field prefers the weight in effect on the lift's own day,
+    // from the dated log, over today's profile value.
     expect(source).toContain("bodyWeightKgAt(bodyWeightHistory, latestRecord.observedAt)");
-    expect(source).toContain("Filled in from what you weighed that week.");
+    // And the form is a correction, not a gate: the athlete gave a weight in
+    // the questionnaire, so the ratio is read against it rather than withheld
+    // until they retype it. The dated log only looks backwards, so a weight
+    // entered today matches no lift logged before today - which is every lift
+    // an athlete records first, and every one of them used to land here.
+    expect(source).toContain("This lift is already read against what you weighed that week.");
+    expect(source).toContain("This lift is already read against your profile weight.");
+    expect(source).toContain('bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"');
     expect(source).toContain("Save this body weight");
     expect(source).toContain("weightUnitLabel(weightUnit)");
     expect(source).toContain("displayWeightToKilograms(parsedLoad, weightUnit)");
@@ -170,9 +177,36 @@ describe("Strength Genome panel", () => {
   it("pins the record and its two optional actions together, and lets Escape dismiss it", () => {
     // One pinned block: a record that scrolls with an action bar that cannot be
     // cut in half by a tall record.
-    expect(source).toContain('className="strength-region-sheet"');
-    const sheet = source.slice(source.indexOf('className="strength-region-sheet"'));
+    expect(source).toContain('`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`');
+    const sheet = source.slice(source.indexOf("`strength-region-sheet${"));
     expect(sheet.indexOf('strength-region-focus-row')).toBeLessThan(sheet.indexOf('\n      <div className="strength-observation-summary"'));
     expect(source).toContain('if (event.key !== "Escape") return;');
+  });
+
+  it("lets the sheet leave the screen instead of being unmounted mid-tap", () => {
+    // It covers the lower third of a phone and used to disappear between two
+    // frames, because the tap that cleared the selection also unmounted it.
+    // The region outlives the selection for the length of the exit animation.
+    expect(source).toContain("function useSheetPresence");
+    expect(source).toContain("const { shown: sheetRegion, isLeaving: sheetLeaving } = useSheetPresence(selectedRegion);");
+    // Swapping regions is not a close: the incoming one wins with nothing left
+    // trailing behind it.
+    expect(source).toContain("if (selected || !departing) { setLeaving(null); return; }");
+    // A timer, not `animationend`: that event never arrives for a hidden or
+    // backgrounded element, and a sheet that never unmounted would keep
+    // swallowing the taps underneath it.
+    expect(source).toContain("window.setTimeout(() => setLeaving(null)");
+    expect(source).toContain('window.matchMedia?.("(prefers-reduced-motion: reduce)").matches');
+    // Not tappable on its way out, and it takes as long to go as it took to
+    // arrive - the exit used to be half the entrance, which on a 380px slide
+    // still read as a snap.
+    expect(styles).toContain(".strength-region-sheet.is-leaving {");
+    expect(styles).toMatch(/\.strength-region-sheet\.is-leaving \{\s*animation: sg-region-sheet-fall var\(--sg-motion-slow\)/);
+    expect(styles).toMatch(/animation: sg-region-sheet-rise var\(--sg-motion-slow\)/);
+    // The unmount waits past the animation rather than racing it.
+    expect(source).toContain("const sheetExitMs = 360;");
+    // It leaves the way it arrived: off the bottom edge, not by a 12px nudge.
+    expect(styles).toMatch(/@keyframes sg-region-sheet-rise \{\s*from \{ transform: translateY\(100%\)/);
+    expect(styles).toMatch(/@keyframes sg-region-sheet-fall \{\s*from \{ transform: translateY\(0\); opacity: 1; \}\s*to \{ transform: translateY\(100%\); opacity: 0; \}/);
   });
 });

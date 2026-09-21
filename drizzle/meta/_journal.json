@@ -71,6 +71,13 @@
       "when": 1789624758801,
       "tag": "0009_sturdy_plan_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1789711158801,
+      "tag": "0010_widen_planned_prescription",
+      "breakpoints": true
     }
   ]
 }

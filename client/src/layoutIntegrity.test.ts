@@ -109,13 +109,14 @@ describe("layout integrity", () => {
 
   it("keeps a row's own action clear of the controls floating over it", () => {
     // The Training Day reorder controls are absolutely positioned at the
-    // top-right of each row, and the row's title button ran underneath them:
-    // tapping near the end of the title hit "move earlier" instead of opening
-    // the exercise. The 44px tap floor made the dead zone taller, 34x34 -> 34x44.
-    const planner = readFileSync(join(SRC, "workout-planner.css"), "utf8");
-    // A margin, not padding: padding leaves the border box — and so the measured
-    // overlap — exactly where it was.
-    expect(planner).toMatch(/\.day-orderable-exercise \.custom-row > button \{ margin-right:/);
+    // top-right of each row, and whatever reached that corner ran underneath
+    // them: tapping near the end of the title hit "move earlier" instead of
+    // opening the exercise. The 44px tap floor made the dead zone taller,
+    // 34x34 -> 34x44. The row is now a single summary, so it reserves the
+    // width in its own padding rather than by pushing a child out of the way.
+    const card = readFileSync(join(SRC, "mobile-training-card.css"), "utf8");
+    const summary = card.slice(card.indexOf(".custom-prescription > summary.custom-row {"));
+    expect(summary.slice(0, summary.indexOf("}"))).toMatch(/padding: [^;]*5\.6rem/);
   });
 
   it("retires the acid-lime accent across every stylesheet", () => {

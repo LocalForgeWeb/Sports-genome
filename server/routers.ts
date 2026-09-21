@@ -202,6 +202,14 @@ export const appRouter = router({
                   .array(z.string().trim().max(100))
                   .max(24)
                   .optional(),
+                /*
+                 * Tracks the `plannedPrescription` column that is actually
+                 * deployed. Migration 0010 widens it to 255 for long per-set
+                 * targets, but nothing in this repo runs migrations on deploy,
+                 * so this stays at 100 until `pnpm db:migrate` has been run
+                 * against the environment. Accepting more than the column can
+                 * hold moves a clean rejection into a write failure.
+                 */
                 plannedPrescription: z.string().trim().min(1).max(100),
                 plannedRpe: z.string().trim().max(40).optional(),
                 plannedRest: z.string().trim().max(40).optional(),

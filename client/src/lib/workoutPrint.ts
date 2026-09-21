@@ -1,12 +1,33 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
+import { parsePrescription } from "@/lib/setPrescription";
 
 export type PrintableWorkoutRow = { order: number; name: string; prescription: string; rpe: string; rest: string; notes: string; muscleSummary: string; trackingLines: string[] };
 
+/** Whether one set's target is a duration rather than a count of repetitions. */
+const isTimedTarget = (target: string) => /\b(?:s|sec|secs|second|seconds|min|mins|minute|minutes)\b/i.test(target);
+
 export function getPrintableTrackingLines(prescription: string) {
-  const setCount = Math.max(1, Math.min(12, Number(prescription.match(/(\d+)\s*(?:x|×)/i)?.[1] || 1)));
-  const isTimed = /\b(?:sec|second|minute|min)\b/i.test(prescription);
-  return Array.from({ length: setCount }, (_, index) => isTimed ? `Round ${index + 1}: time / quality __________________` : `Set ${index + 1}: load / reps __________________`);
+  const { sets, varied } = parsePrescription(prescription, "1 × 1");
+  /*
+   * Decided per set, not once for the whole prescription. A varied plan can mix
+   * them - "3 × 30 sec/10/10" is a timed hold followed by two rep sets - and
+   * testing the whole string printed "time / quality" lines for the rep sets,
+   * with nowhere on the sheet to write the load.
+   */
+  const anyTimed = isTimedTarget(prescription);
+  return sets.map((set, index) => {
+    // A sheet carried to the gym has to say what each set asks for. It only
+    // needs saying per line when the sets differ; otherwise the row's own
+    // prescription already covers all of them.
+    const target = varied ? ` (${set.reps})` : "";
+    // A set that names its own unit decides for itself; one that names none
+    // follows the prescription, which is how "3 × 30/20/10 sec" stays timed.
+    const timed = isTimedTarget(set.reps) || (!/\d/.test(set.reps) ? anyTimed : anyTimed && !varied);
+    return timed
+      ? `Round ${index + 1}${target}: time / quality __________________`
+      : `Set ${index + 1}${target}: load / reps __________________`;
+  });
 }
 
 export function getPrintableWorkoutRows(workout: Exercise[], prescriptions: Record<number, string>, settings: Record<number, ExerciseSettings>) {

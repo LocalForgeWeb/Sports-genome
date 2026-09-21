@@ -95,6 +95,6 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
       onSelect={chooseRegion}
       label="Strength Genome regions"
     />
-    <p className="strength-body-map-boundary">Tap any muscle group to see what you have logged there. Highlighting shows where you have lifts on record, not how strong you are.</p>
+    <p className="strength-body-map-boundary">Highlighting shows where you have lifts on record, not how strong you are.</p>
   </section>;
 }

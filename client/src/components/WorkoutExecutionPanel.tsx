@@ -8,6 +8,7 @@ import { WorkoutHistoryTimeline } from "@/components/WorkoutHistoryTimeline";
 import { ProgressionReviewPanel } from "@/components/ProgressionReviewPanel";
 import type { ExerciseProgressionRecommendation, MuscleSegmentSignal } from "@/lib/progressiveTraining";
 import type { SegmentPrioritySuggestion } from "@/lib/segmentPrioritySuggestions";
+import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 
 type WeightUnit = "lb" | "kg";
 type SetSaveValue = { weight?: number; reps?: number; completed: boolean };
@@ -15,9 +16,14 @@ export const PROGRESSION_APPROVAL_EVENT = "gym-optimizer:approve-progression";
 export const SEGMENT_PRIORITY_APPROVAL_EVENT = "gym-optimizer:approve-segment-priority";
 export const SEGMENT_SUGGESTION_APPROVAL_EVENT = "gym-optimizer:approve-segment-suggestion";
 
+/**
+ * The planner can write a target per set ("4 × 10/8/6/6"), so the count comes from
+ * the same reader the editor writes with rather than the leading number. Reading the
+ * leading number here while the device tracker and the print sheet read the list
+ * meant the same workout offered a different number of set rows on each surface.
+ */
 export function plannedSetCount(prescription: string) {
-  const match = prescription.match(/(\d+)\s*(?:x|×)/i);
-  return Math.max(1, Math.min(12, Number(match?.[1] || 3)));
+  return renderableSetCount(prescription);
 }
 
 export function buildSetLogPayload(sessionExerciseId: number, setNumber: number, unit: WeightUnit, value: SetSaveValue) {
@@ -40,8 +46,10 @@ export function hasLoggedValue(setLog?: { actualWeight: string | null; actualRep
   return Boolean(setLog && (setLog.completed || setLog.actualWeight !== null || setLog.actualReps !== null));
 }
 
-function SetLogger({ setNumber, setLog, unit, onSave, onClear, pending, clearing }: {
+function SetLogger({ setNumber, target, setLog, unit, onSave, onClear, pending, clearing }: {
   setNumber: number;
+  /** What this particular set asks for, which a varied plan states per set. */
+  target?: string;
   setLog?: { actualWeight: string | null; actualReps: number | null; completed: boolean };
   unit: WeightUnit;
   onSave: (value: SetSaveValue) => void;
@@ -59,7 +67,7 @@ function SetLogger({ setNumber, setLog, unit, onSave, onClear, pending, clearing
   const complete = setLog?.completed || false;
 
   return <div className={`session-set-row ${complete ? "session-set-complete" : ""}`}>
-    <strong>Set {setNumber}</strong>
+    <strong>Set {setNumber}{target ? <em> {target}</em> : null}</strong>
     <label><span>Weight</span><input value={weight} inputMode="decimal" type="number" min="0" step="0.5" onChange={(event) => setWeight(event.target.value)} placeholder="—" /><em>{unit}</em></label>
     <label><span>Reps</span><input value={reps} inputMode="numeric" type="number" min="0" step="1" onChange={(event) => setReps(event.target.value)} placeholder="—" /></label>
     <button disabled={pending} onClick={() => onSave({ weight: weight ? Number(weight) : undefined, reps: reps ? Number(reps) : undefined, completed: !complete })} aria-pressed={complete}>
@@ -161,10 +169,10 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
 
   if (activeSession?.status === "active") return <section id="workout-tracker" className="workout-execution-panel">
     <div className="execution-head"><div><p className="metric-label">Live workout / {dayLabel}</p><h3>{completedSets} / {plannedSets || "—"} work sets logged</h3><p>Actual weight, reps, and completion save to your account as you go.</p></div><div className="execution-tools"><label><Weight className="h-3.5 w-3.5" /><select value={unit} onChange={(event) => setUnit(event.target.value as WeightUnit)} aria-label="Weight unit"><option value="lb">lb</option><option value="kg">kg</option></select></label><button onClick={() => completeMutation.mutate({ sessionId: activeSession.id })} disabled={completeMutation.isPending}>{completeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Finish workout</button></div></div>
-    <div className="session-exercise-list">{activeSession.exercises.map((exercise, index) => <article key={exercise.id} className="session-exercise"><div><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{exercise.exerciseName}</strong><small>{exercise.plannedPrescription}{exercise.plannedRest ? ` · ${exercise.plannedRest} rest` : ""}</small></div></div><div className="session-set-list">{Array.from({ length: plannedSetCount(exercise.plannedPrescription) }, (_, setIndex) => <SetLogger key={setIndex} setNumber={setIndex + 1} setLog={exercise.setLogs.find((set) => set.setNumber === setIndex + 1)} unit={unit} pending={logSetMutation.isPending} clearing={clearSetMutation.isPending} onSave={(value) => logSetMutation.mutate(buildSetLogPayload(exercise.id, setIndex + 1, unit, value))} onClear={hasLoggedValue(exercise.setLogs.find((set) => set.setNumber === setIndex + 1)) ? () => requestSetRemoval(exercise.id, setIndex + 1, exercise.exerciseName) : undefined} />)}</div></article>)}</div>
+    <div className="session-exercise-list">{activeSession.exercises.map((exercise, index) => <article key={exercise.id} className="session-exercise"><div><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{exercise.exerciseName}</strong><small>{exercise.plannedPrescription}{exercise.plannedRest ? ` · ${exercise.plannedRest} rest` : ""}</small></div></div><div className="session-set-list">{Array.from({ length: plannedSetCount(exercise.plannedPrescription) }, (_, setIndex) => <SetLogger key={setIndex} setNumber={setIndex + 1} target={repsForSet(exercise.plannedPrescription, setIndex)} setLog={exercise.setLogs.find((set) => set.setNumber === setIndex + 1)} unit={unit} pending={logSetMutation.isPending} clearing={clearSetMutation.isPending} onSave={(value) => logSetMutation.mutate(buildSetLogPayload(exercise.id, setIndex + 1, unit, value))} onClear={hasLoggedValue(exercise.setLogs.find((set) => set.setNumber === setIndex + 1)) ? () => requestSetRemoval(exercise.id, setIndex + 1, exercise.exerciseName) : undefined} />)}</div></article>)}</div>
     {clearSetMutation.isError && <p className="session-set-error" role="alert">That set could not be removed. It may already be gone — reload to see the current record.</p>}
     {pendingSetRemoval && <ConfirmDialog {...pendingSetRemoval} onCancel={() => setPendingSetRemoval(null)} />}
   </section>;
 
-  return <section id="workout-tracker" className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Ready to train.</h3><p>Each logged set records actual weight, reps, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} onApprove={handleProgressionApproval} onApproveSegment={handleSegmentApproval} onAddSuggestion={handleSegmentSuggestion} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
+  return <section id="workout-tracker" className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Ready to train.</h3><p>Each logged set records actual weight, reps, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{startMutation.isError && <p className="session-set-error" role="alert">That workout could not be started. A very long per-set target can exceed what the session record holds — shorten it, or split the exercise.</p>}{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} onApprove={handleProgressionApproval} onApproveSegment={handleSegmentApproval} onAddSuggestion={handleSegmentSuggestion} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
 }

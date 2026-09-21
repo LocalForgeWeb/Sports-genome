@@ -36,7 +36,8 @@ describe("Adding an exercise is findable on the Training Day", () => {
 
   it("gives the empty day a control instead of telling the reader to look below", () => {
     expect(home).toContain("Nothing in this day yet.");
-    expect(home).toContain("Add exercises from the catalog, or paste a plan you already have.");
+    expect(home).toContain("Add exercises from the catalog, or paste a stack.");
+    expect(home).not.toContain("Search, filter, and add below.");
     expect(home).not.toContain("Search, filter, and add exercises below.");
     const empty = order('className="day-plan-empty"');
     expect(home.indexOf("setPickerOpenSignal", empty)).toBeLessThan(home.indexOf("</div>", empty) + 400);
