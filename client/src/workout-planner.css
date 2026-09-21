@@ -72,51 +72,31 @@
 .training-day-nav-cycle button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgb(255 255 255 / .16); color: #cfe4f7; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
 .training-day-nav-cycle button:hover:not(:disabled) { background: rgb(255 255 255 / .1); color: #fff; }
 .training-day-nav-cycle button:disabled { cursor: not-allowed; opacity: .32; }
-.day-design-workspace > .training-day-nav-strip { margin-top: calc(var(--sg-day-gap) * -1); }
-.training-day-nav-strip { position: sticky; top: calc(var(--sg-pinned-chrome) + .5rem); z-index: 14; display: flex; gap: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; border: 1px solid #b6d0e8; border-top: 0; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 10px 24px rgb(12 40 71 / .22); }
-.training-day-nav-strip::-webkit-scrollbar { display: none; }
-.training-day-chip { flex: 1 0 auto; min-width: 118px; border-right: 1px solid rgb(255 255 255 / .11); padding: .68rem .8rem; text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease); }
-.training-day-chip:last-child { border-right: 0; }
-.training-day-chip:hover { background: rgb(255 255 255 / .07); }
-.training-day-chip span { display: block; color: #8fb4d6; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.training-day-chip strong { display: block; margin-top: .26rem; color: #e6f1fb; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.32rem; font-weight: 800; line-height: .9; text-transform: uppercase; }
-.training-day-chip small { display: block; margin-top: .28rem; color: #8fb4d6; font-size: var(--sg-text-xs); }
-.training-day-chip-filled small { color: #a9e0bd; }
-.training-day-chip-active { background: rgb(228 81 46 / .16); box-shadow: inset 0 3px 0 var(--sg-action); }
-.training-day-chip-active span, .training-day-chip-active small { color: #ffc3ae; }
-.training-day-chip-active strong { color: #fff; }
-.training-day-chip:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
 @media (max-width: 640px) {
-  /* On a phone the bar has to earn its height: the day, whether it is safe, and the way to
-     another day, all above the fold. The arrows sit beside the title instead of below it,
-     and the "Day 05 of 05" counter goes - the strip already shows the position. */
+  /* The arrows go back under the title, and the "Day 05 of 05" counter comes back
+     with them. Both were squeezed onto one line to save height for the pinned day
+     strip; with the strip gone there is height to spend, and beside a title that
+     wraps to three lines the counter was forcing the wrap. The counter matters
+     more now than it did - a four-day week is Upper / Lower / Upper / Lower, so
+     position is the only thing that tells Day 03 from Day 01. */
   /* First thing on the screen, because picking the day is the first thing an athlete does
      here. The hero and the week generator are context and an occasional tool; making them
      the two blocks you scroll past to reach the control you came for is what made this
      screen feel hard to move around. */
   .day-design-workspace > .training-day-nav { order: 1; }
-  .day-design-workspace > .training-day-nav-strip { order: 1; }
   .day-design-workspace > .day-design-hero { order: 2; }
   .day-design-workspace > .three-week-planner { order: 3; }
   .day-design-workspace > .day-design-grid { order: 4; }
-  /* Pinned below the chrome that is already pinned, not underneath it.
-   *
-   * The top bar sticks at 0-88px and the workspace tabs at 72-135px, so a day
-   * nav stuck at `top: 0` spent its first 135px behind them: the "Day 01",
-   * "Day 02" labels were permanently hidden and the strip read as a row of
-   * headless cards. The offset comes from `--sg-pinned-chrome` in the base rule
-   * above, so there is one number rather than a per-breakpoint guess. */
-  .training-day-nav-strip { top: var(--sg-pinned-chrome); }
-  .training-day-nav-head { flex-wrap: nowrap; align-items: center; gap: .6rem; padding: .7rem .8rem; }
+  .training-day-nav-head { flex-wrap: wrap; align-items: flex-start; gap: .6rem; padding: .7rem .8rem; }
+  .training-day-nav-current { flex: 1 1 100%; }
   .training-day-nav-current h2 { font-size: 1.62rem; }
   .training-day-nav-state { gap: .4rem; margin-top: .34rem; }
-  .training-day-nav-cycle span { display: none; }
+  .training-day-nav-cycle span { min-width: 0; }
   .training-day-nav-cycle button { width: 34px; height: 34px; }
-  .training-day-chip { min-width: 104px; padding: .55rem .7rem; }
-  .training-day-chip strong { font-size: 1.15rem; }
-  /* The strip already answers "which day, and take me to another", so the rail's card grid
-     would be a second control saying the same thing on the screen with least room for it. */
-  .day-design-rail .weekly-plan-board { display: none; }
+  /* The board is back on a phone. It was hidden because the pinned day strip
+     said the same thing in less room; with the strip gone this is the only
+     place that shows the other days and what is in them, and the header above
+     only says which one you are on. */
 }
 /* The tracker's day buttons say what is planned in each day, so choosing one is a decision
    rather than a guess followed by a bounce back. */
@@ -721,11 +701,8 @@
    and a strip that pins - so the radius is split across the pair rather than given
    to each. The strip keeps `overflow-x: auto` for its own scrolling, so its chips
    are clipped by its radius without a wrapper. */
-.training-day-nav { border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; }
-.training-day-nav-strip { border-radius: 0 0 var(--sg-radius-md) var(--sg-radius-md); }
-/* Pinned, it is no longer the bottom of anything: square it off against the head
-   that has scrolled underneath it so the two do not read as separate cards. */
-.training-day-nav-strip.is-pinned { border-radius: var(--sg-radius-md); }
+/* A card again, rather than the top half of one. */
+.training-day-nav { border-radius: var(--sg-radius-md); }
 
 /**
  * The live session's own measurements, at 393x852, mid-workout.

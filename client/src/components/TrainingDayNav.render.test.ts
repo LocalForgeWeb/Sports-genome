@@ -12,18 +12,16 @@ const slots = buildDaySlots(splitDaysForFrequency(4));
 const counts: Record<string, number> = { "0-Upper": 5, "2-Upper": 3 };
 
 function renderNav(overrides: Partial<React.ComponentProps<typeof TrainingDayNav>> = {}) {
-  const onOpen = vi.fn();
   const onCycle = vi.fn();
   render(React.createElement(TrainingDayNav, {
     week: 2,
     slots,
     activeIndex: 2,
     exerciseCountFor: (slot) => counts[slot.key] || 0,
-    onOpen,
     onCycle,
     ...overrides,
   }));
-  return { onOpen, onCycle };
+  return { onCycle };
 }
 
 afterEach(() => { document.body.innerHTML = ""; });
@@ -37,30 +35,25 @@ describe("Training day navigation", () => {
     expect(screen.getByText("Week 2 · building")).toBeTruthy();
   });
 
-  it("shows every day of the week at once, with what each one holds", () => {
-    renderNav();
-    const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(4);
-    expect(within(tabs[0]).getByText("5 exercises")).toBeTruthy();
-    expect(within(tabs[1]).getByText("Empty")).toBeTruthy();
-    expect(within(tabs[2]).getByText("3 exercises")).toBeTruthy();
-  });
-
   /**
-   * A four-day week is Upper / Lower / Upper / Lower, so the label alone cannot say which
-   * day is selected. Marking the position is what keeps Day 03 distinguishable from Day 01.
+   * A four-day week is Upper / Lower / Upper / Lower, so the label alone cannot
+   * say which day is selected. The position does, and with the strip of day
+   * chips gone it is the only thing that does - which is why the counter beside
+   * the arrows is no longer dropped on a phone.
    */
   it("marks the selected day by position, not by its repeated split label", () => {
     renderNav();
-    const tabs = screen.getAllByRole("tab");
-    expect(tabs[2].getAttribute("aria-selected")).toBe("true");
-    expect(tabs[0].getAttribute("aria-selected")).toBe("false");
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toContain("Day 03");
+    expect(screen.getByText("Day 03 of 04")).toBeTruthy();
   });
 
-  it("opens the day that was tapped", () => {
-    const { onOpen } = renderNav();
-    fireEvent.click(screen.getAllByRole("tab")[3]);
-    expect(onOpen).toHaveBeenCalledWith(3);
+  it("carries no strip of day chips: the header is the whole control", () => {
+    // Asked for directly. It was a third pinned band under the topbar and the
+    // tab row, and the week cards scrolled behind it half-covered.
+    renderNav();
+    expect(screen.queryAllByRole("tab")).toHaveLength(0);
+    expect(document.querySelector(".training-day-nav-strip")).toBeNull();
+    expect(document.querySelector(".training-day-chip")).toBeNull();
   });
 
   it("steps to the next and previous day without leaving the screen", () => {
@@ -89,11 +82,15 @@ describe("Training day navigation", () => {
 });
 
 /**
- * As one sticky block this bar was 219px tall, and it joined a topbar and a tab row
- * already pinned above it: 354px of an 852px phone screen never moved, and the page
- * showed through a 428px slot. Only the strip follows you now.
+ * Nothing on this screen follows the scroll any more.
+ *
+ * The bar was once one sticky block 219px tall, which joined a topbar and a tab
+ * row already pinned above it: 354px of an 852px phone never moved. Splitting it
+ * so only the day strip stayed pinned got that down, but it was still a third
+ * pinned band, and content passed behind it into a gap too small to read. The
+ * strip is gone, so the header scrolls like everything else.
  */
-describe("only the day strip follows the scroll", () => {
+describe("the day header does not follow the scroll", () => {
   const styles = readFileSync(join(process.cwd(), "client/src/workout-planner.css"), "utf8");
   /** Every declaration block for a selector, since it is styled in a base rule and
       again inside media queries and scoped overrides. */
@@ -103,19 +100,13 @@ describe("only the day strip follows the scroll", () => {
     expect(rule(".training-day-nav")).not.toContain("position: sticky");
   });
 
-  it("keeps the strip pinned, below the chrome already pinned above it", () => {
-    const strip = rule(".training-day-nav-strip");
-    expect(strip).toContain("position: sticky");
-    expect(strip).toContain("var(--sg-pinned-chrome)");
+  it("leaves no styles behind for the strip it used to pin", () => {
+    expect(styles).not.toContain("training-day-nav-strip");
+    expect(styles).not.toContain("training-day-chip");
   });
 
-  it("renders the two as siblings, because a sticky child cannot outlive its container", () => {
-    // Nested in the header, the strip would unstick the moment the header scrolled past.
-    renderNav();
-    const strip = document.querySelector(".training-day-nav-strip");
-    const head = document.querySelector(".training-day-nav");
-    expect(strip).toBeTruthy();
-    expect(head).toBeTruthy();
-    expect(head!.contains(strip!)).toBe(false);
+  it("brings the weekly board back on a phone, now that nothing else lists the days", () => {
+    // It was hidden there because the strip said the same thing in less room.
+    expect(styles).not.toContain(".day-design-rail .weekly-plan-board { display: none; }");
   });
 });
