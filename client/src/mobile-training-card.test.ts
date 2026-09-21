@@ -104,7 +104,7 @@ describe("per-set rep targets", () => {
     expect(commands).toContain("text-transform: none");
     const labels = declarations(stylesheet, ".prescription-editor :is(.metric-label, .prescription-set-list label)");
     expect(labels).toContain("text-transform: uppercase");
-    expect(labels).toContain("letter-spacing: .1em");
+    expect(labels).toContain("letter-spacing: var(--sg-tracking-label)");
   });
 
   it("lays the set fields out across the row rather than one per line", () => {

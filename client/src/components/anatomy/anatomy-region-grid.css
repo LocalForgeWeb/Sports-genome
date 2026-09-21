@@ -56,9 +56,9 @@
   align-self: end;
   min-width: 0;
   color: var(--sg-text-on-dark);
-  font-size: .8125rem;
+  font-size: var(--sg-text-md);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: var(--sg-leading-snug);
 }
 
 .region-grid-state {
@@ -66,10 +66,10 @@
   grid-row: 2;
   align-self: start;
   color: var(--sg-text-subtle-on-dark);
-  font-size: .6875rem;
+  font-size: var(--sg-text-xs);
   font-weight: 700;
-  letter-spacing: .04em;
-  line-height: 1.3;
+  letter-spacing: var(--sg-tracking-open);
+  line-height: var(--sg-leading-snug);
   white-space: nowrap;
 }
 .region-grid-card[data-active="true"] .region-grid-state { color: #f6b8a6; }
@@ -80,9 +80,9 @@
   justify-self: start;
   min-height: 2.75rem;
   color: var(--sg-link-on-dark);
-  font-size: .6875rem;
-  font-weight: 850;
-  letter-spacing: .07em;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
 

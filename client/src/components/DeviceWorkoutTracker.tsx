@@ -311,8 +311,16 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
               above already says "Workout tracker", and two stacked panels under
               the same caption read as one thing rendered twice. */}
           <p className="metric-label">{dayLabel}</p>
-          <h3>Ready to train.</h3>
-          <p>Start the day below, then log the weight and reps you actually hit. Completed sets are saved on this device and appear in Progress.</p>
+          {/* The panel used to say "Ready to train" over a disabled button and,
+              lower down, "Select a saved Training Day" — while a day was
+              selected. It was empty. Three claims, none of them the state. */}
+          <h3>{workout.length ? "Ready to train." : "This day is empty."}</h3>
+          {workout.length
+            ? <p>Log the weight and reps you actually hit. Completed sets save on this device and appear in Progress.</p>
+            /* The phone hides this slot, because the sentence above it teaches
+               something you learn by finishing one session. This one is not
+               teaching: with nothing staged it is the only way out. */
+            : <p className="execution-head-instruction">Add exercises to it on Training Day, or pick another day above.</p>}
         </div>
         <button onClick={start} disabled={!workout.length}><Play className="h-4 w-4" /> Start workout</button>
       </div>
@@ -334,7 +342,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
             <span className="tracker-session-preview-sets">{prescriptions[exercise.id] || "3 × 8–12"}</span>
           </li>)}
         </ol>
-      </div> : <p className="tracker-empty-state">Select a saved Training Day before starting a workout.</p>}
+      </div> : null}
     </section>;
   }
 

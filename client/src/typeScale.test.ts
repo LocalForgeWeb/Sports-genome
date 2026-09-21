@@ -61,6 +61,60 @@ describe("type scale floor", () => {
     }
   });
 
+  /**
+   * The floor was only half the problem. Below 16px the stylesheets named 23
+   * distinct sizes — nine of them between 11px and 12.5px — against a scale of
+   * four tokens that 90 declarations used and 619 ignored. At that spacing the
+   * steps are not a hierarchy a reader can perceive; they are drift.
+   *
+   * Above 16px is the display tier, where the differences are visible and tuned
+   * per surface, so literals are allowed there.
+   */
+  it("writes no literal size in the reading tier", () => {
+    const offenders: string[] = [];
+    for (const path of walk(SRC, (name) => name.endsWith(".css"))) {
+      const css = readFileSync(path, "utf8");
+      for (const match of css.matchAll(/font-size:\s*([^;}\n]+)/g)) {
+        const value = match[1].trim();
+        if (value.startsWith("var(")) continue;
+        const px = /^[0-9.]+(?:px|rem)/.test(value) ? toPx(value) : Number.POSITIVE_INFINITY;
+        if (px <= 16) offenders.push(`${path.replace(SRC, "")}: ${value}`);
+      }
+    }
+    expect(offenders, "at or below 16px the scale is the only vocabulary").toEqual([]);
+  });
+
+  /**
+   * DM Sans is now fetched as a variable axis, so 750, 800, 850 and 900 draw
+   * four different weights. They used to draw one — the 700 face — which is why
+   * 97 declarations had drifted across four values nobody could see.
+   */
+  it("draws from a four-step weight ladder", () => {
+    const allowed = new Set([400, 600, 700, 800]);
+    const offenders: string[] = [];
+    for (const path of walk(SRC, (name) => name.endsWith(".css"))) {
+      const css = readFileSync(path, "utf8");
+      for (const match of css.matchAll(/font-weight:\s*(\d{3})/g)) {
+        if (!allowed.has(Number(match[1]))) offenders.push(`${path.replace(SRC, "")}: ${match[1]}`);
+      }
+    }
+    expect(offenders, "400 body, 600 medium, 700 emphasis, 800 label").toEqual([]);
+  });
+
+  /**
+   * The boot splash is styled inline in index.html so it paints before any
+   * stylesheet loads. That put it outside every guard here, and its wordmark
+   * was the first thing an athlete saw — at 10px.
+   */
+  it("holds the floor in the boot splash, which no stylesheet covers", () => {
+    const html = readFileSync(join(SRC, "../index.html"), "utf8");
+    const offenders: string[] = [];
+    for (const match of html.matchAll(/font(?:-size)?:\s*(?:\d{3}\s+)?([0-9.]+px)/g)) {
+      if (toPx(match[1]) < FLOOR_PX) offenders.push(match[0]);
+    }
+    expect(offenders, `these fall below ${FLOOR_PX}px before the app has rendered`).toEqual([]);
+  });
+
   it("renders no inline Tailwind text below the readable floor", () => {
     const offenders: string[] = [];
     for (const path of walk(SRC, (name) => name.endsWith(".tsx") && !name.includes(".test."))) {
@@ -82,8 +136,30 @@ describe("type scale floor", () => {
   it("keeps the eyebrow's tracking readable at the floor size", () => {
     // .16em of tracking on an 11px uppercase label reads as strain.
     const css = readFileSync(join(SRC, "index.css"), "utf8");
-    const rules = [...css.matchAll(/\.metric-label\s*\{[^}]*letter-spacing:\s*([0-9.]+em)/g)].map((m) => parseFloat(m[1]));
+    const label = /--sg-tracking-label:\s*([0-9.]+)em/.exec(css);
+    expect(label, "the label tracking is a token").toBeTruthy();
+    expect(parseFloat(label![1])).toBeLessThanOrEqual(0.12);
+    const rules = [...css.matchAll(/\.metric-label\s*\{[^}]*letter-spacing:\s*([^;}]+)/g)].map((m) => m[1].trim());
     expect(rules.length, "the eyebrow declares its tracking").toBeGreaterThan(0);
-    rules.forEach((tracking) => expect(tracking).toBeLessThanOrEqual(0.12));
+    rules.forEach((tracking) => expect(tracking).toBe("var(--sg-tracking-label)"));
+  });
+
+  /**
+   * Tracking had drifted the same way sizes had: 30 distinct values over 288
+   * declarations, 20 of them on uppercase micro-labels alone. There are three
+   * intents here — caps, sentence case, display — and one optical exception.
+   */
+  it("tracks from three intents", () => {
+    const allowed = new Set(["var(--sg-tracking-label)", "var(--sg-tracking-open)", "var(--sg-tracking-tight)", "0", "-.3em"]);
+    const offenders: string[] = [];
+    for (const path of walk(SRC, (name) => name.endsWith(".css"))) {
+      const css = readFileSync(path, "utf8");
+      for (const match of css.matchAll(/letter-spacing:\s*([^;}\n]+)/g)) {
+        const value = match[1].trim();
+        if (!allowed.has(value)) offenders.push(`${path.replace(SRC, "")}: ${value}`);
+      }
+    }
+    // -.3em is the "GO" monogram: two letters tucked into a badge, not text.
+    expect(offenders, "caps, sentence case, display — and the monogram").toEqual([]);
   });
 });
