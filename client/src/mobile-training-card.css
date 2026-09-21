@@ -81,10 +81,27 @@
 
 /* The prescription itself is the point of opening the row, so it gets a panel of
    its own; effort, rest and the note sit outside it as the supporting detail. */
+/**
+ * A group has to be a step UP, not a step down.
+ *
+ * This promised "a panel of its own" and delivered neither half of one. The fill
+ * `rgb(9 28 50 / .55)` composited over the card behind it came to 1.04:1 -
+ * imperceptible - and the border at .18 alpha came to 1.49:1, which is fainter
+ * than the borders of the controls sitting inside it (.35 alpha, 2.31:1). The
+ * container read weaker than its contents, so the only thing a viewer actually
+ * saw was the 2px gold rule on the left, and a gold left rule in this app is
+ * usually a footnote.
+ *
+ * This is the raised-group treatment `.command-identity` already uses for the
+ * same job: a real step up the surface ladder, a token border, and elevation.
+ */
 .prescription-primary {
   display: grid; gap: .6rem;
-  border: 1px solid rgb(164 200 232 / .18); border-left: 2px solid var(--sg-focus-on-dark, #f2c14d);
-  background: rgb(9 28 50 / .55); padding: .75rem .85rem;
+  border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .35));
+  border-radius: var(--sg-radius-md, 14px);
+  background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-raised));
+  box-shadow: var(--sg-sheen), var(--sg-elevation-1);
+  padding: .8rem .85rem .85rem;
 }
 .prescription-primary-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; }
 .prescription-primary .metric-label { color: #9ec4e8; }
@@ -93,7 +110,7 @@
 .prescription-times { flex: none; color: var(--sg-text-subtle-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.15rem; font-weight: 700; }
 
 /* A stepper, because "how many sets" is a small number you nudge, not a number you type. */
-.set-stepper { display: inline-flex; flex: none; align-items: center; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); background: var(--sg-surface-raised); }
+.set-stepper { display: inline-flex; flex: none; align-items: center; overflow: hidden; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); border-radius: var(--sg-radius-sm, 10px); background: var(--sg-surface-raised); }
 .set-stepper button { display: grid; width: 42px; height: 44px; place-items: center; color: #cfe4f7; transition: background var(--sg-motion-fast) var(--sg-ease); }
 .set-stepper button:hover:not(:disabled) { background: rgb(255 255 255 / .09); color: #fff; }
 .set-stepper button:disabled { cursor: not-allowed; opacity: .3; }
@@ -104,6 +121,7 @@
   min-width: 0; min-height: 44px;
   border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4));
   background: var(--sg-surface-raised); padding: 0 .7rem;
+  border-radius: var(--sg-radius-sm, 10px);
   color: var(--sg-text-on-dark); font-size: .95rem; font-weight: 700; outline: none;
 }
 .prescription-reps { flex: 1 1 auto; }
@@ -113,7 +131,7 @@
 /* The way in and out of per-set reps. A real target rather than an underlined
    word, but quiet, because most sets do ask for the same thing. */
 .prescription-vary {
-  display: inline-flex; align-items: center; min-height: 32px;
+  display: inline-flex; align-items: center; min-height: 32px; border-radius: var(--sg-radius-xs, 6px);
   border: 1px solid transparent; background: rgb(164 200 232 / .12); padding: 0 .65rem;
   color: #9ec4e8; font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
   transition: border-color var(--sg-motion-fast) var(--sg-ease), background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
@@ -131,7 +149,7 @@
 /* Flattening a per-set plan throws away every target but the first, on the button
    the finger is already on. The way back has to be right there. */
 .prescription-undo {
-  display: inline-flex; align-items: center; gap: .3rem; min-height: 32px;
+  display: inline-flex; align-items: center; gap: .3rem; min-height: 32px; border-radius: var(--sg-radius-xs, 6px);
   border: 1px solid var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); padding: 0 .55rem;
   color: var(--sg-focus-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
 }

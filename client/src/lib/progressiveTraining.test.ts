@@ -18,14 +18,43 @@ describe("progressive training model", () => {
   });
 
   /**
-   * A prescription can ask for a different target per set. The band the exercise
-   * is worked in spans all of them: reading only the first would call a top set
-   * of 10 with back-offs of 6 a straight 10, and push the load up every week the
-   * back-offs did their job.
+   * A prescription can ask for a different target per set, and the band has to be
+   * aggregated the way the comparison aggregates what was actually done - by the
+   * session mean. Spanning min-to-max looks right and makes the ceiling
+   * unreachable; reading only the first target makes the floor unreachable.
    */
-  it("spans every set's target when the sets differ", () => {
-    expect(parseTargetRepRange("4 × 10/8/6/6")).toEqual({ min: 6, max: 10 });
-    expect(parseTargetRepRange("3 × 5/8–12/8–12")).toEqual({ min: 5, max: 12 });
+  it("aggregates a per-set target the way the comparison aggregates the work", () => {
+    expect(parseTargetRepRange("4 × 10/8/6/6")).toEqual({ min: 7.5, max: 7.5 });
+    expect(parseTargetRepRange("2 × 6/10")).toEqual({ min: 8, max: 8 });
+    // A uniform prescription is untouched, whether it is a range or a single number.
+    expect(parseTargetRepRange("4 × 8–12")).toEqual({ min: 8, max: 12 });
+    expect(parseTargetRepRange("3 × 5/8–12/8–12")).toEqual({ min: 7, max: 29 / 3 });
+  });
+
+  /**
+   * The test that matters, and the one that was missing: an athlete who hits the
+   * prescription exactly has to be able to progress off it. With the band spanning
+   * 6-10, a perfect 10/8/6/6 averages 7.5, never reaches the 10 ceiling, and the
+   * advice sticks on "add repetitions" forever.
+   */
+  it("lets an athlete who executes a varied plan exactly progress off it", () => {
+    const exercise: ProgressionExercise = { id: 1, name: "Bench", targetPrescription: "4 × 10/8/6/6", primaryMuscles: ["chest"] };
+    const exact: LoggedPerformanceSet[] = [1, 2].flatMap((sessionId) =>
+      [10, 8, 6, 6].map((actualReps) => ({
+        sessionId, completedAt: `2026-08-${10 + sessionId}`, catalogExerciseId: 1, exerciseName: "Bench",
+        actualWeight: 185, weightUnit: "lb" as const, actualReps, completed: true,
+      })));
+    expect(getExerciseProgressionRecommendation(exercise, exact).action).toBe("increase_load");
+  });
+
+  it("still tells an athlete who falls short of a varied plan to hold or reduce", () => {
+    const exercise: ProgressionExercise = { id: 1, name: "Bench", targetPrescription: "4 × 10/8/6/6", primaryMuscles: ["chest"] };
+    const short: LoggedPerformanceSet[] = [1, 2].flatMap((sessionId) =>
+      [6, 5, 4, 4].map((actualReps) => ({
+        sessionId, completedAt: `2026-08-${10 + sessionId}`, catalogExerciseId: 1, exerciseName: "Bench",
+        actualWeight: 185, weightUnit: "lb" as const, actualReps, completed: true,
+      })));
+    expect(getExerciseProgressionRecommendation(exercise, short).action).not.toBe("increase_load");
   });
 
   it("still reads a prescription with no numeric target at all as having none", () => {
