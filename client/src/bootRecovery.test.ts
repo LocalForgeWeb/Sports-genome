@@ -48,8 +48,11 @@ describe("boot screen always lifts", () => {
     expect(indexHtml).toContain("!v.paused&&!v.ended&&v.currentTime>0");
     // The deferral re-checks rather than waiting an open-ended amount...
     expect(indexHtml).toMatch(/window\.setTimeout\(check,\d{3,4}\);return/);
-    // ...and the intro's own watchdog guarantees "playing" ends, so this cannot loop forever.
-    expect(indexHtml).toContain("sinceStart > 15000");
+    // ...and the intro's own watchdog guarantees "playing" ends, so this cannot
+    // loop forever. The ceiling counts playback rather than document time, so a
+    // video that starts late is not cut short - but it still terminates,
+    // because a playing video's clock is by definition advancing.
+    expect(indexHtml).toContain("playedMs > 15000");
   });
 
   it("hides the splash through a rule the failsafe class alone satisfies", () => {

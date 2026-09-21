@@ -173,19 +173,26 @@
         var playing = false;
         var lastTime = -1;
         var lastProgressAt = Date.now();
-        video.addEventListener("playing", function () { playing = true; lastProgressAt = Date.now(); });
+        // When the first frame actually played. The download begins at document
+        // start; the video does not. Charging the intro for the wait between
+        // them is what cut it short - a six-second intro that began at 2.6s was
+        // ended by the overrun guard at 8s, 600ms before its last frame.
+        var playbackStartedAt = 0;
+        video.addEventListener("playing", function () { playing = true; if (!playbackStartedAt) playbackStartedAt = Date.now(); lastProgressAt = Date.now(); });
         var watch = window.setInterval(function () {
           if (settled) { window.clearInterval(watch); return; }
           var now = Date.now();
           var sinceStart = now - startedAt;
           if (video.currentTime > lastTime) { lastTime = video.currentTime; lastProgressAt = now; }
           if (!playing) {
+            // This one is about the download, so the document's clock is right.
             if (sinceStart > (replay ? 8000 : 4000)) { window.clearInterval(watch); settle("skipped"); }
             return;
           }
+          var playedMs = playbackStartedAt ? now - playbackStartedAt : sinceStart;
           var durationMs = (video.duration && isFinite(video.duration)) ? video.duration * 1000 : 0;
           var stalled = now - lastProgressAt > 1500;
-          var overran = (durationMs && sinceStart > durationMs + 2000) || sinceStart > 15000;
+          var overran = (durationMs && playedMs > durationMs + 2000) || playedMs > 15000;
           if (stalled || overran) { window.clearInterval(watch); settle("done"); }
         }, 250);
       }

@@ -110,7 +110,21 @@ export function introSettleReason(state: {
   ended: boolean;
   playing: boolean;
   msSinceProgress: number;
+  /** Since the document started. Answers "has the download begun?" and nothing else. */
   msSinceStart: number;
+  /**
+   * Since the first frame actually played. Every "how long has it been going?"
+   * question is answered from here.
+   *
+   * These used to be the same number, and it cut the intro short. The video does
+   * not begin at document start - it begins when enough of it has downloaded to
+   * play, which is a second or more later on a phone. Measuring its length
+   * against the document's clock charged it for that wait: a six-second intro
+   * starting at 2.6s was cut by the overrun guard at 8s, 600ms before its last
+   * frame. Falls back to `msSinceStart` when playback has not begun, where the
+   * two genuinely are interchangeable because neither has advanced.
+   */
+  msSincePlaybackStart?: number;
   durationMs: number | null;
   replay?: boolean;
 }): IntroSettleReason | null {
@@ -120,8 +134,9 @@ export function introSettleReason(state: {
     return state.msSinceStart > ceiling ? "never-started" : null;
   }
   if (state.msSinceProgress > bootVideoStallMs) return "stalled";
-  if (state.durationMs !== null && state.msSinceStart > state.durationMs + bootVideoOverrunMarginMs) return "overran";
-  if (state.msSinceStart > bootVideoHardCeilingMs) return "overran";
+  const playedMs = state.msSincePlaybackStart ?? state.msSinceStart;
+  if (state.durationMs !== null && playedMs > state.durationMs + bootVideoOverrunMarginMs) return "overran";
+  if (playedMs > bootVideoHardCeilingMs) return "overran";
   return null;
 }
 

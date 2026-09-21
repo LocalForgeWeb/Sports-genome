@@ -62,9 +62,13 @@ describe("launch experience preference", () => {
     // it was right for - and applies only while nothing is playing.
     expect(bootDocumentSource).toContain("if (!playing) {");
     expect(bootDocumentSource).toContain('if (sinceStart > (replay ? 8000 : 4000)) { window.clearInterval(watch); settle("skipped"); }');
-    // Once it is playing, only a stalled clock or its own declared length ends it.
+    // Once it is playing, only a stalled clock or its own declared length ends
+    // it - and that length is measured against playback, not against the
+    // document. The video starts when enough of it has downloaded, not when the
+    // page did, and charging it for that wait cut a six-second intro at 5.41s.
     expect(bootDocumentSource).toContain("var stalled = now - lastProgressAt > 1500;");
-    expect(bootDocumentSource).toContain("var overran = (durationMs && sinceStart > durationMs + 2000) || sinceStart > 15000;");
+    expect(bootDocumentSource).toContain("var playedMs = playbackStartedAt ? now - playbackStartedAt : sinceStart;");
+    expect(bootDocumentSource).toContain("var overran = (durationMs && playedMs > durationMs + 2000) || playedMs > 15000;");
     expect(bootDocumentSource).toContain('video.addEventListener("playing"');
     // No flat timer may settle the intro on elapsed time alone.
     expect(bootDocumentSource).not.toContain('window.setTimeout(function () { settle("done"); }, 4000)');

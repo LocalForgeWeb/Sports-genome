@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import {
   bootDocumentBackstopMs,
@@ -217,5 +219,64 @@ describe("canStartBootVideo", () => {
   it("lets a replay start however late it became playable", () => {
     expect(canStartBootVideo(5_000)).toBe(false);
     expect(canStartBootVideo(5_000, { replay: true })).toBe(true);
+  });
+});
+
+/**
+ * The same mistake one level down: the right question asked against the wrong clock.
+ *
+ * "Has this been playing longer than its own length?" was answered with time
+ * since the DOCUMENT started, and the video does not start there - it starts
+ * when enough of it has downloaded to play. Everything in between was charged
+ * to the intro.
+ *
+ * Measured on the built app at 390x844, driving the shipped document script with
+ * a video whose clock the harness controls: splash artwork at 2000ms, the video
+ * playable at 2600ms, a six-second intro. Before, it settled `done` at 8293ms
+ * with playback at 5.41s of 6s - the last 590ms never played. After, 6s of 6s.
+ * A ten-second intro in the same conditions went from being cut at 8s to
+ * finishing.
+ */
+describe("the intro is measured against its own playback, not the document's clock", () => {
+  const sixSeconds = { ended: false, playing: true, msSinceProgress: 20, durationMs: 6_000 };
+
+  it("does not charge the intro for the time before it could start", () => {
+    // Playable at 2.6s, so at 8.1s of document time it is 5.5s into six seconds
+    // of video and has 500ms left to play. The old reading ended it here.
+    const late = { ...sixSeconds, msSinceStart: 8_100, msSincePlaybackStart: 5_500 };
+    expect(introSettleReason(late)).toBeNull();
+    // And it still stops once the video's own length really has elapsed.
+    expect(introSettleReason({ ...late, msSinceStart: 10_700, msSincePlaybackStart: 8_100 })).toBe("overran");
+  });
+
+  it("applies the absolute ceiling to playback too", () => {
+    const noDuration = { ended: false, playing: true, msSinceProgress: 10, durationMs: null };
+    expect(introSettleReason({ ...noDuration, msSinceStart: 17_000, msSincePlaybackStart: 14_000 })).toBeNull();
+    expect(introSettleReason({ ...noDuration, msSinceStart: 18_100, msSincePlaybackStart: 15_100 })).toBe("overran");
+  });
+
+  it("still uses the document's clock for the one question that is about the download", () => {
+    // "Has it begun at all?" is about the fetch, which does start with the
+    // document, so that ceiling is unchanged and needs no playback clock.
+    const idle = { ended: false, playing: false, msSinceProgress: 0, durationMs: null };
+    expect(introSettleReason({ ...idle, msSinceStart: 4_100 })).toBe("never-started");
+    expect(introSettleReason({ ...idle, msSinceStart: 3_900 })).toBeNull();
+  });
+
+  it("falls back to the document's clock when playback has not begun", () => {
+    // Nothing has advanced, so the two are interchangeable and an omitted
+    // playback clock must not read as zero elapsed.
+    expect(introSettleReason({ ...sixSeconds, msSinceStart: 8_100 })).toBe("overran");
+  });
+
+  it("keeps the two clocks apart in the script that actually runs", () => {
+    const boot = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
+    expect(boot).toContain("var playbackStartedAt = 0;");
+    expect(boot).toContain("if (!playbackStartedAt) playbackStartedAt = Date.now();");
+    expect(boot).toContain("var playedMs = playbackStartedAt ? now - playbackStartedAt : sinceStart;");
+    expect(boot).toContain("var overran = (durationMs && playedMs > durationMs + 2000) || playedMs > 15000;");
+    // The download ceiling is the one that keeps the document's clock.
+    expect(boot).toContain('if (sinceStart > (replay ? 8000 : 4000)) { window.clearInterval(watch); settle("skipped"); }');
+    expect(boot).not.toContain("sinceStart > durationMs + 2000");
   });
 });
