@@ -84,6 +84,12 @@ export const bootDocumentBackstopRecheckMs = 1_000;
  * already told the story and starting over would be the jarring thing. The old
  * gate was 360ms, which on a mid-range connection skipped the intro far more
  * often than it was meant to.
+ *
+ * `elapsedMs` is measured from when that choreography began - the moment its
+ * artwork could be drawn - not from when the document started. Those differ by
+ * however long the assets took, which is precisely the slow connection this
+ * gate was punishing twice: once by delaying the art, and again by counting
+ * that delay against the video.
  */
 export const bootVideoStartCutoffMs = 1_100;
 

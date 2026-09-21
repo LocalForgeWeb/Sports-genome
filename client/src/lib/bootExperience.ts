@@ -37,6 +37,85 @@ export function isIntroReplay(root?: Pick<HTMLElement, "dataset">): boolean {
 export const firstLaunchPresentationMs = 1_720;
 
 /**
+ * When the choreography began - which is when its artwork could first be drawn,
+ * not when the document started.
+ *
+ * Those are the same instant only on a warm cache. Measured against a 1.2s asset
+ * delay, the mark's 500ms entrance had run to completion before the PNG existed,
+ * and the image then appeared at full opacity with no animation left to play; at
+ * 2.5s the splash lifted at 2466ms having never shown the mark at all. The
+ * document script starts the sequence when both images have decoded and stamps
+ * the moment here, so the hold below covers the animation that actually ran.
+ *
+ * Falling back to the document's own start keeps every path working if the stamp
+ * is missing - a browser with no `decode`, or the ceiling firing first.
+ */
+/** Announced by the document script the moment the sequence may begin. */
+export const bootArtReadyEvent = "sports-genome-boot-art-ready";
+
+/**
+ * How long the document script waits on a stalled asset before starting anyway.
+ * Mirrored here so the React side cannot outlive it if that script never ran.
+ */
+export const bootArtCeilingMs = 2_500;
+
+/**
+ * Runs `onReady` when the choreography may begin, or at once if it already has.
+ *
+ * Sampling `bootChoreographyStartedAt` once at mount was not enough. React can
+ * mount well before the artwork arrives - measured with a 2.5s asset delay, the
+ * effect ran at around 800ms, read no stamp, fell back to the document's own
+ * start and lifted the splash at 2466ms, before the mark had ever been drawn.
+ * The hold has to start when the sequence does, so it waits for the signal.
+ *
+ * Returns a cancel function, so an unmount leaves no listener or timer behind.
+ */
+export function whenBootArtReady(
+  onReady: () => void,
+  {
+    root = typeof document === "undefined" ? null : document.documentElement,
+    target = typeof window === "undefined" ? null : window,
+    ceilingMs = bootArtCeilingMs,
+  }: {
+    root?: Pick<HTMLElement, "dataset"> | null;
+    target?: Pick<Window, "addEventListener" | "removeEventListener" | "setTimeout" | "clearTimeout"> | null;
+    ceilingMs?: number;
+  } = {}
+): () => void {
+  if (!root || !target || root.dataset.sportsGenomeBootArtAt) {
+    onReady();
+    return () => undefined;
+  }
+
+  let done = false;
+  const settle = () => {
+    if (done) return;
+    done = true;
+    target.removeEventListener(bootArtReadyEvent, settle);
+    target.clearTimeout(timer);
+    onReady();
+  };
+  target.addEventListener(bootArtReadyEvent, settle);
+  // Its own backstop, for a document script that threw before it could listen.
+  const timer = target.setTimeout(settle, ceilingMs);
+  return () => {
+    if (done) return;
+    done = true;
+    target.removeEventListener(bootArtReadyEvent, settle);
+    target.clearTimeout(timer);
+  };
+}
+
+export function bootChoreographyStartedAt(root?: Pick<HTMLElement, "dataset">): number | null {
+  const element = root ?? (typeof document === "undefined" ? null : document.documentElement);
+  if (!element) return null;
+  const art = Number(element.dataset.sportsGenomeBootArtAt);
+  if (Number.isFinite(art) && art > 0) return art;
+  const started = Number(element.dataset.sportsGenomeBootStartedAt);
+  return Number.isFinite(started) && started > 0 ? started : null;
+}
+
+/**
  * Long enough for the cross-fade to read as deliberate rather than as a flash, short
  * enough that nobody waits on it. Below roughly 400ms a fade reads as a glitch.
  */

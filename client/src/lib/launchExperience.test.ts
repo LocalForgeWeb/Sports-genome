@@ -89,8 +89,13 @@ describe("launch experience preference", () => {
     expect(bootDocumentSource).toContain('localStorage.getItem("sports-genome-replay-intro-v1")==="yes"');
     expect(bootDocumentSource).toContain('localStorage.removeItem("sports-genome-replay-intro-v1")');
     expect(bootDocumentSource).toContain('r.dataset.sportsGenomeBootReturn=(!replay&&localStorage.getItem("sports-genome-launched-before-v1")==="yes")?"yes":"no"');
-    // And a replay is not held to the "you asked too late to start" gate.
-    expect(bootDocumentSource).toContain("if (!replay && Date.now() - startedAt > 1100)");
+    // And a replay is not held to the "you asked too late to start" gate. That
+    // gate now counts from when the static choreography began rather than from
+    // when the document did: the two differ by however long the artwork took,
+    // and counting that delay against the video punished a slow connection
+    // twice. No stamp means the sequence has not begun, so nothing is late.
+    expect(bootDocumentSource).toContain("if (!replay && storyStartedAt && Date.now() - storyStartedAt > 1100)");
+    expect(bootDocumentSource).toContain("var artAt = Number(root.dataset.sportsGenomeBootArtAt);");
     expect(bootLifecycleSource).toContain("bootPresentationMs(hasLaunchedBefore() && !isIntroReplay())");
   });
 
@@ -105,5 +110,62 @@ describe("launch experience preference", () => {
   });
   it("keeps launch motion composited and excludes retired mark, orbit, and costly blur treatments", () => {
     expect(bootDocumentSource).toContain("contain:layout paint style"); expect(bootDocumentSource).toContain("will-change:transform,opacity"); expect(bootDocumentSource).not.toContain("filter:blur(64px)"); expect(bootDocumentSource).not.toContain("drop-shadow(0 10px 18px"); expect(bootDocumentSource).not.toContain("boot-mark-orbit"); expect(bootDocumentSource).not.toContain("sports-genome-boot-strand");
+  });
+});
+
+/**
+ * The sequence used to run on a clock that had nothing to do with whether there
+ * was anything to show.
+ *
+ * Measured on the built app at 390x844, with the splash artwork held back to
+ * simulate a connection that is not a warm cache:
+ *
+ *   asset delay   mark's entrance          splash lifted
+ *   0ms           424ms, art present       2275ms
+ *   1200ms        424ms, art ABSENT        3388ms   (art landed at 1220ms, at
+ *                                                    full opacity, no animation)
+ *   2500ms        never ran                2466ms   (mark never appeared)
+ *
+ * The 500ms entrance animating an empty box, and then the PNG snapping in after
+ * it had finished, is the "not fully completing". The fix is the same idea in
+ * three places: the animations start when the artwork can be drawn, the hold is
+ * measured from that same moment, and the video's own "too late" gate counts
+ * from it too.
+ */
+describe("the launch sequence waits for something to show", () => {
+  it("starts the choreography when the artwork can be drawn, not when the document paints", () => {
+    // Every one of the four animations moved behind the gate together: leaving
+    // the wordmark on the old clock would have split the sequence in half.
+    for (const step of ["boot-mark-form 500ms 80ms", "boot-dna-lines-in 420ms 560ms", "boot-wordmark-in 480ms 1.03s", "boot-wordmark-in 400ms 1.2s"]) {
+      expect(bootDocumentSource, `${step} is gated`).toContain(`html.sports-genome-boot-art-ready .sports-genome-boot-${step.startsWith("boot-mark") ? "logo" : step.startsWith("boot-dna") ? "dna-detail" : step.includes("1.03s") ? "name" : "label"}{animation:${step}`);
+    }
+    // `decode`, not `load`: load resolves before the bitmap is paintable, and
+    // the first frame of a scale-up is exactly where that gap shows.
+    expect(bootDocumentSource).toContain('typeof img.decode === "function"');
+    // A dead asset must not hold the screen, so the gate opens regardless.
+    expect(bootDocumentSource).toContain("window.setTimeout(begin, 2500);");
+    expect(bootExperienceSource).toContain("export const bootArtCeilingMs = 2_500");
+  });
+
+  it("measures the hold from when the sequence began, and waits to find out when that was", () => {
+    // Sampling the stamp once at mount was not enough: React can mount well
+    // before the artwork arrives, read nothing, fall back to the document's own
+    // start and lift the splash before the mark was ever drawn.
+    expect(bootExperienceSource).toContain("export function bootChoreographyStartedAt");
+    expect(bootExperienceSource).toContain("export function whenBootArtReady");
+    expect(bootDocumentSource).toContain('window.dispatchEvent(new Event("sports-genome-boot-art-ready"))');
+    expect(bootLifecycleSource).toContain("const cancelArtWait = whenBootArtReady(() => {");
+    expect(bootLifecycleSource).toContain("const choreographyStartedAt = bootChoreographyStartedAt();");
+    // And it still measures a hold rather than firing a deadline.
+    expect(bootLifecycleSource).toContain("Math.max(0, presentationMs - elapsedMs)");
+    // The wait is detached on unmount, like the video wait beside it.
+    expect(bootLifecycleSource).toContain("cancelArtWait();");
+  });
+
+  it("falls back to the document's own start when no stamp was ever written", () => {
+    // A browser without `decode`, a script that threw, the ceiling firing
+    // first: every path still produces a hold rather than an immediate wipe.
+    expect(bootExperienceSource).toContain("dataset.sportsGenomeBootStartedAt");
+    expect(bootExperienceSource).toMatch(/return Number\.isFinite\(started\) && started > 0 \? started : null;/);
   });
 });

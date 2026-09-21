@@ -34,10 +34,23 @@
       .sports-genome-boot-content{position:relative;display:grid;justify-items:center;gap:10px;padding:28px;text-align:center}
       .sports-genome-boot-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#07182e;opacity:0;pointer-events:none;transform:translateZ(0);backface-visibility:hidden;will-change:opacity}
       .sports-genome-boot-mark{position:relative;width:min(208px,54vw);aspect-ratio:1;display:grid;place-items:center}
-      .sports-genome-boot-logo{display:block;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(.94) translateZ(0);backface-visibility:hidden;will-change:transform,opacity;animation:boot-mark-form 500ms 80ms cubic-bezier(.23,1,.32,1) both}
-      .sports-genome-boot-dna-detail{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:0;transform:scale(.96) translateZ(0);backface-visibility:hidden;will-change:transform,opacity;animation:boot-dna-lines-in 420ms 560ms cubic-bezier(.23,1,.32,1) both}
-      .sports-genome-boot-name{margin:0;font:800 clamp(22px,6vw,32px)/.92 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;opacity:0;transform:scale(.98);animation:boot-wordmark-in 480ms 1.03s cubic-bezier(.23,1,.32,1) both}
-      .sports-genome-boot-label{margin:0;color:#c4d4e4;font:700 11px/1 "DM Sans",sans-serif;letter-spacing:.24em;text-transform:uppercase;opacity:0;transform:scale(.98);animation:boot-wordmark-in 400ms 1.2s cubic-bezier(.23,1,.32,1) both}
+      .sports-genome-boot-logo{display:block;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(.94) translateZ(0);backface-visibility:hidden;will-change:transform,opacity}
+      .sports-genome-boot-dna-detail{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:0;transform:scale(.96) translateZ(0);backface-visibility:hidden;will-change:transform,opacity}
+      .sports-genome-boot-name{margin:0;font:800 clamp(22px,6vw,32px)/.92 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;opacity:0;transform:scale(.98)}
+      .sports-genome-boot-label{margin:0;color:#c4d4e4;font:700 11px/1 "DM Sans",sans-serif;letter-spacing:.24em;text-transform:uppercase;opacity:0;transform:scale(.98)}
+      /* The choreography starts when there is something to choreograph.
+         These four animations used to run on a fixed clock from first paint,
+         which has nothing to do with whether the mark had arrived. Measured at
+         a 1.2s asset delay: the logo animated 424ms -> 707ms to full opacity
+         against an empty box, and the PNG then snapped in at 1220ms having
+         missed its own entrance. At 2.5s the splash lifted at 2466ms without
+         ever having shown the mark. They now begin together, once both images
+         have decoded - and the hold that keeps the screen up is measured from
+         the same moment, so the sequence is never cut halfway. */
+      html.sports-genome-boot-art-ready .sports-genome-boot-logo{animation:boot-mark-form 500ms 80ms cubic-bezier(.23,1,.32,1) both}
+      html.sports-genome-boot-art-ready .sports-genome-boot-dna-detail{animation:boot-dna-lines-in 420ms 560ms cubic-bezier(.23,1,.32,1) both}
+      html.sports-genome-boot-art-ready .sports-genome-boot-name{animation:boot-wordmark-in 480ms 1.03s cubic-bezier(.23,1,.32,1) both}
+      html.sports-genome-boot-art-ready .sports-genome-boot-label{animation:boot-wordmark-in 400ms 1.2s cubic-bezier(.23,1,.32,1) both}
       html.sports-genome-boot-video-ready .sports-genome-boot-video{animation:boot-video-in 320ms cubic-bezier(.23,1,.32,1) both}
       html.sports-genome-boot-video-ready .sports-genome-boot-content{position:absolute;inset:0;display:block;padding:0}
       html.sports-genome-boot-video-ready .sports-genome-boot-mark{opacity:0}
@@ -60,6 +73,43 @@
   </head>
   <body>
     <div id="sports-genome-boot-splash" aria-hidden="true"><video id="sports-genome-boot-video" class="sports-genome-boot-video" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4" muted playsinline preload="auto" disablepictureinpicture></video><div class="sports-genome-boot-content"><div class="sports-genome-boot-mark"><img class="sports-genome-boot-logo" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-silhouette-exact_349405db.png" alt="" /><img class="sports-genome-boot-dna-detail" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-dna-detail-exact_8e94e37f.png" alt="" /></div><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div></div>
+    <!-- When the choreography may begin: the moment its artwork can actually be drawn.
+         `decode()` rather than `load`, because load fires before the bitmap is
+         paintable and the first frame of a 500ms scale-up is exactly where that
+         gap shows. The ceiling exists so a dead asset cannot hold the screen -
+         past it the sequence runs anyway, which is the old behaviour and still
+         better than a frozen dark rectangle. -->
+    <script>try{(function(){
+      var root = document.documentElement;
+      var marked = false;
+      var begin = function () {
+        if (marked) return;
+        marked = true;
+        root.dataset.sportsGenomeBootArtAt = String(Date.now());
+        root.classList.add("sports-genome-boot-art-ready");
+        // React holds the screen for the length of the sequence, so it has to
+        // be told when the sequence starts. Sampling the stamp once at mount
+        // was not enough: a mount at 800ms and art at 2500ms read no stamp,
+        // fell back to the document's start, and lifted the splash at 1720ms -
+        // before the mark had loaded at all.
+        try { window.dispatchEvent(new Event("sports-genome-boot-art-ready")); } catch (e) {}
+      };
+      var art = [].slice.call(document.querySelectorAll("#sports-genome-boot-splash img"));
+      var pending = art.length;
+      if (!pending) { begin(); return; }
+      var settleOne = function () { if (--pending <= 0) begin(); };
+      art.forEach(function (img) {
+        var ready = function () {
+          if (typeof img.decode === "function") { img.decode().then(settleOne, settleOne); return; }
+          settleOne();
+        };
+        if (img.complete) { ready(); return; }
+        img.addEventListener("load", ready, { once: true });
+        // A broken asset must not hold the other one hostage.
+        img.addEventListener("error", settleOne, { once: true });
+      });
+      window.setTimeout(begin, 2500);
+    })()}catch(e){var r=document.documentElement;r.dataset.sportsGenomeBootArtAt=String(Date.now());r.classList.add("sports-genome-boot-art-ready");try{window.dispatchEvent(new Event("sports-genome-boot-art-ready"))}catch(e2){}}</script>
     <!-- Last resort for a React that never arrives. It reveals the app with no cross-fade,
          so it must not fire while the intro is still running - but a flat extension would
          also punish a genuine failure with a longer blank stare. So it keeps its 9 seconds
@@ -96,10 +146,17 @@
         video.addEventListener("ended", function () { settle("done"); }, { once: true });
         video.addEventListener("error", function () { settle("skipped"); }, { once: true });
         video.addEventListener("canplay", function () {
-          // Starting three seconds late is more jarring than not starting: by then
-          // the static choreography has already told the story. A replay is exempt,
-          // because watching it is the whole reason the athlete asked.
-          if (!replay && Date.now() - startedAt > 1100) { settle("skipped"); return; }
+          // Starting late is more jarring than not starting: by then the static
+          // choreography has already told the story. Measured from when that
+          // choreography began, which is when its artwork could be drawn - not
+          // from when the document started, because the gap between the two is
+          // exactly the slow connection this gate kept punishing. No stamp yet
+          // means the sequence has not begun, so nothing has been told and the
+          // intro is not late. A replay is exempt: watching it is the reason
+          // the athlete asked.
+          var artAt = Number(root.dataset.sportsGenomeBootArtAt);
+          var storyStartedAt = (artAt > 0) ? artAt : 0;
+          if (!replay && storyStartedAt && Date.now() - storyStartedAt > 1100) { settle("skipped"); return; }
           video.play().then(function () {
             root.classList.add("sports-genome-boot-video-ready");
           }).catch(function () { settle("skipped"); });
