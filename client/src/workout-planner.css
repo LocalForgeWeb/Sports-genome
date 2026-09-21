@@ -435,7 +435,7 @@
 
 .day-picker-gaps-label {
   color: var(--sg-text-subtle-on-light);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 900;
   letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
@@ -450,7 +450,7 @@
   background: rgb(226 86 74 / .06);
   padding: 0 .55rem;
   color: #a8342a;
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
   letter-spacing: .03em;
   transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease);
@@ -472,7 +472,7 @@
   min-height: 32px;
   padding: 0 .5rem;
   color: var(--sg-info-strong);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
   letter-spacing: .05em;
   text-transform: uppercase;
@@ -484,7 +484,7 @@
   display: block;
   margin-top: .28rem;
   overflow: hidden;
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
   letter-spacing: .02em;
   text-overflow: ellipsis;
@@ -519,16 +519,16 @@
  */
 .tracker-session-preview { padding: 1.15rem; }
 .tracker-session-preview-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; }
-.tracker-session-preview-head span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.tracker-session-preview-head span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .tracker-session-preview-head small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }
 .tracker-session-preview-list { margin-top: .75rem; display: grid; gap: 1px; background: var(--sg-divider-on-dark); border: 1px solid var(--sg-divider-on-dark); border-radius: .6rem; overflow: hidden; }
 .tracker-session-preview-list li { display: flex; align-items: center; gap: .8rem; background: rgb(255 255 255 / .04); padding: .7rem .85rem; }
 .tracker-session-preview-index { flex: 0 0 auto; color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.15rem; font-weight: 800; line-height: 1; }
 .tracker-session-preview-name { display: grid; min-width: 0; flex: 1; gap: .15rem; }
 .tracker-session-preview-name strong { overflow: hidden; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.tracker-session-preview-name small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); }
+.tracker-session-preview-name small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
 /* The prescription, so "Ready to train" is checkable rather than a promise. */
-.tracker-session-preview-sets { flex: 0 0 auto; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .2rem .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-2xs); font-weight: 800; white-space: nowrap; }
+.tracker-session-preview-sets { flex: 0 0 auto; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .2rem .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; white-space: nowrap; }
 @media (max-width: 640px) {
   .tracker-session-preview { padding: 1rem; }
   .tracker-session-preview-list li { gap: .6rem; padding: .65rem .7rem; }
@@ -641,7 +641,7 @@
 .session-draft-chip:hover { border-color: rgb(255 255 255 / .38); background: rgb(255 255 255 / .1); }
 .session-draft-chip-active { border-color: var(--sg-action); background: rgb(228 81 46 / .18); color: #fff; }
 .session-draft-chip:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
-.session-draft-note { color: var(--sg-text-subtle-on-dark); font-size: .6875rem; line-height: 1.5; }
+.session-draft-note { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); line-height: 1.5; }
 .session-draft-outcome { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .85rem; border-top: 1px solid rgb(255 255 255 / .12); padding-top: .9rem; }
 .session-draft-outcome > div { min-width: 0; }
 .session-draft-outcome .metric-label { color: #9ec4e8; }

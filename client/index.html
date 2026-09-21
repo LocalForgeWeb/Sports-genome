@@ -14,7 +14,16 @@
     <meta name="apple-mobile-web-app-title" content="Sports Genome" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+    <!--
+      DM Sans is requested as a weight RANGE, not four pinned instances. The
+      stylesheets declare 750, 800, 850 and 900 on body text 368 times, and the
+      previous request stopped at 700 - so CSS font matching resolved every one
+      of them to the 700 face and those distinctions were not type at all. It is
+      a variable font with a 100-1000 axis, so asking for the range makes them
+      real. Barlow Condensed is not variable and tops out at 800; nothing may
+      ask it for 900.
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family=DM+Sans:opsz,wght@9..40,400..900&display=swap" rel="stylesheet" />
     <link rel="preload" as="image" href="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-silhouette-exact_349405db.png" fetchpriority="high" />
     <link rel="preload" as="image" href="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-dna-detail-exact_8e94e37f.png" fetchpriority="high" />
     

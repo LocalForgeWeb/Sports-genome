@@ -37,6 +37,30 @@ describe("type scale floor", () => {
     expect(offenders, `these declarations fall below ${FLOOR_PX}px`).toEqual([]);
   });
 
+  /**
+   * A literal below the floor was caught; a *token* holding one was not, because
+   * `font-size: var(--sg-text-2xs)` is not a literal. That token was .625rem -
+   * 10px - and 37 declarations used it, so the smallest type in the app was a
+   * size this very test forbids, in 37 places, invisibly.
+   */
+  it("defines no size token below the readable floor", () => {
+    const root = readFileSync(join(SRC, "index.css"), "utf8");
+    const offenders: string[] = [];
+    for (const match of root.matchAll(/(--sg-(?:text|display)-[\w-]+):\s*([0-9.]+(?:px|rem))\s*;/g)) {
+      if (toPx(match[2]) < FLOOR_PX) offenders.push(`${match[1]}: ${match[2]}`);
+    }
+    expect(offenders, `these tokens are below ${FLOOR_PX}px, and every use of them inherits it`).toEqual([]);
+  });
+
+  it("references no size token it has not defined", () => {
+    const root = readFileSync(join(SRC, "index.css"), "utf8");
+    const all = walk(SRC, (name) => name.endsWith(".css") || (name.endsWith(".tsx") && !name.includes(".test.")))
+      .map((path) => readFileSync(path, "utf8")).join("\n");
+    for (const match of all.matchAll(/var\((--sg-(?:text|display)-[\w-]+)/g)) {
+      expect(root, `${match[1]} is referenced, so it must be defined`).toMatch(new RegExp(`${match[1]}\\s*:`));
+    }
+  });
+
   it("renders no inline Tailwind text below the readable floor", () => {
     const offenders: string[] = [];
     for (const path of walk(SRC, (name) => name.endsWith(".tsx") && !name.includes(".test."))) {

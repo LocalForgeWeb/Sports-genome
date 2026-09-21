@@ -75,7 +75,7 @@
 
 .rate-stack-dial-readout small {
   color: var(--sg-text-faint-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 700;
 }
 
@@ -87,7 +87,7 @@
   gap: .35rem;
   margin: 0;
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 900;
   letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
@@ -118,7 +118,7 @@
   border: 1px solid var(--sg-control-border-on-dark);
   padding: .14rem .36rem;
   color: var(--sg-text-muted-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -146,7 +146,7 @@
   gap: .4rem;
   margin: 0 0 .45rem;
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 900;
   letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
@@ -154,7 +154,7 @@
 
 .rate-stack-group-label small {
   color: var(--sg-text-faint-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -240,7 +240,7 @@
   align-items: center;
   gap: .22rem;
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -259,7 +259,7 @@
   display: block;
   margin: var(--sg-space-3) 0 0;
   color: var(--sg-text-faint-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   line-height: 1.5;
 }
 
@@ -320,7 +320,7 @@
 .rate-stack-trigger > small {
   overflow: hidden;
   color: var(--sg-text-faint-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -339,7 +339,7 @@
   list-style: none;
   padding: .42rem var(--sg-space-4);
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
   letter-spacing: .05em;
   text-transform: uppercase;
@@ -353,7 +353,7 @@
 .rate-stack-scope > div {
   padding: 0 var(--sg-space-4) var(--sg-space-3);
   color: var(--sg-text-muted-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   line-height: 1.45;
 }
 
@@ -362,7 +362,7 @@
   border-left: 2px solid var(--sg-selected-on-dark);
   padding-left: .55rem;
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   line-height: 1.45;
 }
 

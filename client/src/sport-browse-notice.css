@@ -24,7 +24,7 @@
   display: inline-flex; align-items: center; gap: .3rem;
   border: 1px solid var(--sg-control-border-on-dark); border-radius: .5rem;
   padding: .42rem .6rem;
-  font-size: var(--sg-text-2xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
+  font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
   white-space: nowrap;
   transition: border-color var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
 }
