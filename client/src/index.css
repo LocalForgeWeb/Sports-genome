@@ -2964,3 +2964,184 @@ details:not([open]) > *:not(summary) {
   .sport-context-gate-actions label { min-width: 100%; }
   .sport-context-gate-actions button { width: 100%; justify-content: center; }
 }
+
+/* ---------------------------------------------------------------------------
+ * Dark theme: the chrome, finished.
+ *
+ * Measured from the rendered pixels at 390x844, every destination was already
+ * 75-86% dark. What stayed light was the chrome - the top bar, the workspace
+ * tabs and the sport chips, about 151px at the top of every screen - and a few
+ * panels that kept a light surface on a dark ground. This is those surfaces,
+ * and only those: the workspaces are not touched, because they were already
+ * dark and repainting them would be a second palette to keep in step.
+ *
+ * Applied by [data-theme="dark"] on <html>, which the inline script in
+ * index.html sets before the first frame.
+ * ------------------------------------------------------------------------ */
+
+/* Tells the engine to paint what it owns - native select popups, form controls,
+ * scrollbars, the space behind an overscroll - in the matching polarity. Without
+ * it the sport picker opens a white list out of a dark bar. */
+[data-theme="dark"] { color-scheme: dark; }
+[data-theme="light"] { color-scheme: light; }
+
+[data-theme="dark"] .apex-shell,
+[data-theme="dark"] .apex-shell:has(.destination-secondary),
+[data-theme="dark"] .apex-main:has(.destination-secondary) {
+  background: radial-gradient(circle at 86% 0%, #1d4c84 0, var(--sg-surface-raised) 32%, var(--sg-surface-deep) 78%);
+}
+
+/* Opaque, and no backdrop-filter. The header is sticky directly under the boot
+ * splash - a top-most layer carrying `will-change: opacity` and `contain:
+ * layout paint style` - and a translucent fill there is what let a stale
+ * composited layer show as a bar drawn with nothing inside it. The contract is
+ * asserted in launchExperience.test.ts; this theme has to keep it. */
+[data-theme="dark"] .apex-topbar,
+[data-theme="dark"] .apex-shell:has(.destination-secondary) .apex-topbar {
+  border-bottom-color: var(--sg-control-border-on-dark);
+  /* The same vocabulary the app's own dark panels use - a 145deg raised-to-deep
+     gradient over a blue glow - rather than a flat fill that reads as a
+     different material bolted onto the top of the page. Every stop is opaque,
+     which the boot-splash contract requires. */
+  background: linear-gradient(112deg, var(--sg-surface-panel) 0%, var(--sg-surface-raised) 56%, var(--sg-surface-deep) 100%);
+  box-shadow: 0 10px 26px rgb(3 14 30 / .45);
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .apex-topbar .metric-label,
+[data-theme="dark"] .apex-topbar p,
+[data-theme="dark"] .apex-topbar strong { color: var(--sg-text-on-dark); }
+[data-theme="dark"] .apex-topbar button:not(.sport-chip) { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
+
+[data-theme="dark"] .sport-chip {
+  border-color: var(--sg-control-border-on-dark);
+  background: linear-gradient(145deg, rgb(255 255 255 / .08), rgb(255 255 255 / .02));
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .sport-chip small { color: var(--sg-text-muted-on-dark); }
+[data-theme="dark"] .sport-chip:hover { border-color: var(--sg-focus-on-dark); }
+[data-theme="dark"] .sport-chip-active { background: linear-gradient(115deg, rgb(228 81 46 / .32), rgb(45 108 223 / .30)); box-shadow: inset 0 -3px var(--sg-action); color: #fff; }
+[data-theme="dark"] .sport-chip-active small { color: var(--sg-text-on-dark); }
+
+[data-theme="dark"] .workspace-top-switcher-shell,
+[data-theme="dark"] .workspace-top-switcher {
+  border-bottom-color: var(--sg-control-border-on-dark);
+  background: linear-gradient(180deg, var(--sg-surface-raised), var(--sg-surface-deep));
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .workspace-top-switcher button { color: var(--sg-text-subtle-on-dark); }
+[data-theme="dark"] .workspace-top-switcher button:hover { color: var(--sg-text-on-dark); }
+[data-theme="dark"] .workspace-top-switcher-active { color: var(--sg-text-on-dark); }
+
+/* The panels that kept a light surface on a dark ground. Their own ink is
+ * written for that light surface, so it moves with them. */
+[data-theme="dark"] .light-panel,
+[data-theme="dark"] .insight-cell,
+[data-theme="dark"] .matches-lens,
+[data-theme="dark"] .genome-methodology,
+[data-theme="dark"] .movement-disclosure,
+[data-theme="dark"] .movement-assistance-row,
+[data-theme="dark"] .home-input-disclosure {
+  border-color: var(--sg-control-border-on-dark);
+  background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] :is(.light-panel, .insight-cell, .matches-lens, .genome-methodology, .movement-disclosure, .movement-assistance-row, .home-input-disclosure) :is(h1, h2, h3, h4, strong, dt, .metric-label) { color: var(--sg-text-on-dark); }
+[data-theme="dark"] :is(.light-panel, .insight-cell, .matches-lens, .genome-methodology, .movement-disclosure, .movement-assistance-row, .home-input-disclosure) :is(p, small, span, dd, li, summary) { color: var(--sg-text-muted-on-dark); }
+
+/* The chrome's own controls, and the panels a sweep found still holding a light
+ * surface on the dark ground. Each named rather than caught by a blanket rule:
+ * some light surfaces here are deliberate - the volume status chips and the
+ * meter tracks are light marks whose dark ink belongs to them - and a blanket
+ * rule would take those with it. */
+[data-theme="dark"] .universal-search-trigger,
+[data-theme="dark"] .topbar-profile-button,
+[data-theme="dark"] .movement-assistance-add,
+[data-theme="dark"] .recovery-spacing-clear {
+  border-color: var(--sg-control-border-on-dark);
+  background: rgb(255 255 255 / .06);
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .universal-search-trigger:hover,
+[data-theme="dark"] .topbar-profile-button:hover { border-color: var(--sg-focus-on-dark); color: #fff; }
+[data-theme="dark"] .topbar-profile-button[aria-current="page"] { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }
+
+/* The scroll affordances on the tab row are white pills by default. */
+[data-theme="dark"] .workspace-top-switcher-shell::before,
+[data-theme="dark"] .workspace-top-switcher-shell::after {
+  background: var(--sg-surface-deep);
+  color: var(--sg-text-on-dark);
+}
+
+/* The selected tab sets its colour with `!important` from inside
+ * `@layer components`. Cascade layers reverse for important declarations: a
+ * layered `!important` beats an unlayered one, whatever the specificity, so the
+ * same rule appended out here lost silently. Re-opening the layer puts this in
+ * the same context, where the extra attribute selector decides it. */
+@layer components {
+  [data-theme="dark"] .workspace-top-switcher-active { color: var(--sg-text-on-dark) !important; }
+}
+
+[data-theme="dark"] .movement-intelligence-panel,
+[data-theme="dark"] .day-exercise-disclosure,
+[data-theme="dark"] .genome-panel {
+  border-color: var(--sg-control-border-on-dark);
+  background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] :is(.movement-intelligence-panel, .day-exercise-disclosure, .genome-panel) :is(h1, h2, h3, h4, strong, dt, .metric-label) { color: var(--sg-text-on-dark); }
+[data-theme="dark"] :is(.movement-intelligence-panel, .day-exercise-disclosure, .genome-panel) :is(p, small, span, dd, li, summary) { color: var(--sg-text-muted-on-dark); }
+
+/* The last few a sweep turned up, one screen each. */
+[data-theme="dark"] .genome-tabbar,
+[data-theme="dark"] .genome-quicknote,
+[data-theme="dark"] .about-me-capacity {
+  border-color: var(--sg-control-border-on-dark);
+  background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .genome-tab { background: rgb(255 255 255 / .06); color: var(--sg-text-muted-on-dark); }
+[data-theme="dark"] .genome-tab[aria-selected="true"] { background: rgb(45 108 223 / .26); color: var(--sg-text-on-dark); }
+[data-theme="dark"] :is(.genome-quicknote, .about-me-capacity) :is(p, small, span, li) { color: var(--sg-text-muted-on-dark); }
+[data-theme="dark"] :is(.genome-quicknote, .about-me-capacity) :is(strong, h3, .metric-label) { color: var(--sg-text-on-dark); }
+[data-theme="dark"] .about-me-capacity-unavailable { color: var(--sg-text-muted-on-dark); }
+
+/* Chips and strips that carry their own light surface, so the container going
+ * dark left them behind. The topbar's context chips are on every screen, which
+ * is why the dark top bar still read as a light one at a glance. */
+[data-theme="dark"] .topbar-context-chips > span,
+[data-theme="dark"] .matches-lens-priorities > span,
+[data-theme="dark"] .genome-reading-key > span {
+  border-color: var(--sg-control-border-on-dark);
+  background: rgb(255 255 255 / .08);
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .movement-summary-strip > div {
+  border-color: var(--sg-control-border-on-dark);
+  background: rgb(255 255 255 / .05);
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .movement-summary-strip > div :is(p, small, span) { color: var(--sg-text-muted-on-dark); }
+[data-theme="dark"] .genome-reading-key > span strong { color: var(--sg-text-on-dark); }
+
+/* The day picker, which arrived after this theme was written. Its rows, scope
+ * bar and "show more" carry their own white surface. */
+[data-theme="dark"] .day-picker-result,
+[data-theme="dark"] .day-picker-scope {
+  border-color: var(--sg-control-border-on-dark);
+  background: rgb(255 255 255 / .05);
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .day-picker-more {
+  border-color: var(--sg-control-border-on-dark);
+  background: rgb(255 255 255 / .07);
+  color: var(--sg-link-on-dark);
+}
+[data-theme="dark"] .day-picker-result :is(strong, h3, h4, .metric-label) { color: var(--sg-text-on-dark); }
+[data-theme="dark"] .day-picker-result :is(p, small, span, em, li) { color: var(--sg-text-muted-on-dark); }
+
+/* Ink inside the surfaces above that is written for a light ground. Measured
+ * from rendered pixels: the search-scope link went 6.62:1 to 2.24:1 and the
+ * assistance row's label 5.08:1 to 3.31:1 when their surface went dark. */
+[data-theme="dark"] .local-search-scope { color: var(--sg-text-muted-on-dark); }
+[data-theme="dark"] .local-search-scope button { color: var(--sg-link-on-dark); }
+[data-theme="dark"] .movement-assistance-content em { color: var(--sg-focus-on-dark); }

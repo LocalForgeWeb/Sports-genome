@@ -16,20 +16,21 @@ vi.mock("@/lib/trpc", () => ({
 }));
 
 import { AthleteAboutMePanel } from "./AthleteAboutMePanel";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 const source = readFileSync(resolve(process.cwd(), "client/src/components/AthleteAboutMePanel.tsx"), "utf8");
 
 describe("AthleteAboutMePanel passkey management", () => {
   it("shows an enrolled passkey with a distinct scoped removal control", () => {
-    const markup = renderToStaticMarkup(createElement(AthleteAboutMePanel, {
+    const markup = renderToStaticMarkup(createElement(ThemeProvider, null, createElement(AthleteAboutMePanel, {
       baseline: { experience: "Intermediate", weightUnit: "lb", equipment: { gymAccess: "Commercial gym", availableEquipment: ["Bodyweight"] } },
       goal: "Athleticism",
       trainingDays: 3,
       sportId: "soccer",
       sports: [{ id: "soccer", label: "Soccer" }],
       onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(),
-    }));
+    })));
 
     expect(markup).toContain("Enrolled passkeys");
     expect(markup).toContain("Device passkey 1");

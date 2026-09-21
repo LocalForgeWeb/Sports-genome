@@ -97,3 +97,7 @@
   .about-me-capacity { padding: 1rem; }
   .about-me-capacity-fields { grid-template-columns: 1fr; }
 }
+
+/* The one line of explanation the Appearance card needs: what the choice does,
+   and - when it follows the device - what the device is currently asking for. */
+.about-me-theme-note { margin-top: .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.5; }
