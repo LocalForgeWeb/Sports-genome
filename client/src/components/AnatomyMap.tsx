@@ -302,7 +302,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
             </>
           ) : (
-            <p className="atlas-inspector-empty-pro">Tap a muscle, or pick one from the list below, to see its role in this action. The body turns around on its own if what you pick is on the other side.</p>
+            <p className="atlas-inspector-empty-pro">Tap a muscle to see its role here.</p>
           )}
         </aside>}
         <section className="atlas-ranking" aria-label="Key muscle roles">
