@@ -31,6 +31,15 @@ describe("printable workout rows", () => {
     ]);
   });
 
+  /** A varied plan can mix a timed hold with rep sets; the sheet has to too. */
+  it("gives a mixed varied plan the right line for each set", () => {
+    expect(getPrintableTrackingLines("3 × 30 sec/10/10")).toEqual([
+      "Round 1 (30 sec): time / quality __________________",
+      "Set 2 (10): load / reps __________________",
+      "Set 3 (10): load / reps __________________",
+    ]);
+  });
+
   it("leaves a uniform prescription's lines unqualified", () => {
     expect(getPrintableTrackingLines("2 × 8–12")).toEqual(["Set 1: load / reps __________________", "Set 2: load / reps __________________"]);
   });

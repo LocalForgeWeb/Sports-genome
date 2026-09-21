@@ -80,9 +80,19 @@ export function parsePrescription(value: string | undefined, fallback = defaultP
     return { reps: trailingUnit && !unitOf(reps) ? `${reps} ${trailingUnit}` : reps };
   });
 
-  // A count and a list that disagree can arrive from a hand edit; the list is the more
-  // specific statement, so the count follows it rather than truncating what was written.
-  return { sets, varied: true };
+  /*
+   * A count and a list that disagree can only arrive from outside this module - a
+   * paste, an import, a hand edit - because `formatPrescription` writes one target
+   * per set and strips the delimiter out of the targets themselves.
+   *
+   * Letting the list win silently changed how many sets a saved plan had: "3 × 10/8"
+   * became two sets in the editor and the tracker while the weekly volume map, which
+   * reads the leading number, still counted three. So the stated count is kept and
+   * the written targets are kept: pad from the last one, or trim the tail. Nothing
+   * the athlete wrote down is dropped, and nothing they did not write is invented.
+   */
+  while (sets.length < count) sets.push({ reps: sets[sets.length - 1]?.reps ?? "8–12" });
+  return { sets: sets.slice(0, count), varied: true };
 }
 
 function isUniform(sets: PlannedSet[]) {

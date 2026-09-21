@@ -11,6 +11,7 @@ import {
   withUniformReps,
 } from "@/lib/setPrescription";
 import { getWorkoutDiagnostics } from "@/lib/workoutPlanner";
+import { parseSetCount as sessionSetCount } from "@/lib/sessionVolume";
 import type { Exercise } from "@/lib/exerciseCatalog";
 
 const reps = (prescription: ReturnType<typeof parsePrescription>) => prescription.sets.map((set) => set.reps);
@@ -50,9 +51,14 @@ describe("reading a prescription", () => {
     expect(reps(parsePrescription("2 × 30 sec/20 sec"))).toEqual(["30 sec", "20 sec"]);
   });
 
-  it("lets the written list win when the count disagrees with it", () => {
-    // A hand edit can leave "3 × 10/8" behind; the list is the more specific statement.
-    expect(reps(parsePrescription("3 × 10/8"))).toEqual(["10", "8"]);
+  /**
+   * Only a paste, an import or a hand edit can produce a disagreement, and resolving
+   * it by dropping a set changed how many sets a *saved* plan had - two in the editor
+   * and the tracker, three in the weekly volume map, which reads the leading number.
+   */
+  it("keeps the stated set count when a written list disagrees with it", () => {
+    expect(reps(parsePrescription("3 × 10/8"))).toEqual(["10", "8", "8"]);
+    expect(reps(parsePrescription("2 × 10/8/6/5"))).toEqual(["10", "8"]);
   });
 
   it("falls back rather than producing an empty plan", () => {
@@ -150,9 +156,17 @@ describe("what the rest of the app reads", () => {
    * Everything downstream reads the count before the `×`. If a varied prescription
    * broke that, the weekly volume map and the session estimate would quietly go wrong.
    */
-  it("keeps the set count readable by the leading-number parsers", () => {
-    expect("4 × 10/8/6/6".match(/^\s*(\d+)/)?.[1]).toBe("4");
-    expect("4 × 10/8/6/6".match(/(\d+)\s*(?:x|×)/i)?.[1]).toBe("4");
+  /**
+   * This used to assert two regex literals written inside the test itself, which
+   * is a test of the test. The thing that matters is that the readers the app
+   * actually uses agree with each other about how many sets there are.
+   */
+  it("gives every reader in the app the same set count", () => {
+    for (const value of ["4 × 10/8/6/6", "3 × 8–12", "3 × 10/8", "2 × 30 sec/20 sec", "5 x 5"]) {
+      const leading = Number(value.match(/^\s*(\d+)/)?.[1]);
+      expect(setCount(value), `${value}: the leading-number readers and the parser disagree`).toBe(leading);
+      expect(sessionSetCount(value), `${value}: the weekly volume map disagrees`).toBe(leading);
+    }
   });
 
   it("gives the session estimate the same set count as a uniform plan", () => {
