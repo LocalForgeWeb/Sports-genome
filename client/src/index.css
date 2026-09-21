@@ -2724,11 +2724,18 @@ details:not([open]) > *:not(summary) {
 }
 
 /* A rounded container whose children run to its edge has to clip them, or the
-   child's square corner pokes through the parent's curve. */
-:where([class*="-panel"], [class*="-card"], [class*="-hero"], [class*="-board"]) { overflow: hidden; }
-/* ...except where the surface deliberately overflows: sticky children, popovers,
-   and the body figures that bleed past their frame. */
-:where(.day-design-workspace, .day-design-grid, .day-design-rail, .catalog-discovery-panel) { overflow: visible; }
+   child's square corner pokes through the parent's curve.
+
+   Named surfaces rather than every panel, because `overflow: hidden` silently
+   kills `position: sticky` in every descendant: applied broadly it stopped the
+   catalog's search bar sticking, with nothing on screen to say why. A padded
+   panel has no child touching its corner and does not need clipping at all, so
+   this is only the ones whose contents genuinely run to the edge. */
+:where(
+  .day-programming-panel, .three-week-planner, .today-action-panel,
+  .training-week-panel, .weekly-plan-board, .weekly-volume-panel,
+  .session-history-timeline, .progress-session-card
+) { overflow: hidden; }
 
 /* ── 3. Surfaces that are not flat fills ────────────────────────────────────
    A single solid navy across a 900px panel is the flattest thing a screen can
