@@ -340,16 +340,6 @@
 
 /* While a session runs, the day chooser collapses to a context line so the
    active exercise and set are legible on the first view. */
-.tracker-live-context {
-  margin-bottom: .75rem;
-  border-left: 3px solid var(--sg-action);
-  padding: .3rem 0 .3rem .7rem;
-  color: var(--sg-text-muted-on-dark);
-  font-size: .72rem;
-  font-weight: 800;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
 
 /* Rest finished: the state change is the cue, because haptics are best-effort. */
 .live-rest-row-done { border-top-color: rgb(91 192 122 / .5); }
@@ -627,7 +617,6 @@
   .weekly-plan-head > div:first-child { min-width: 0; }
 }
 
-
 /* A button label wraps at no width.
  *
  * "Save day" was breaking across two lines inside its own button - at 390px and
@@ -706,3 +695,54 @@
 /* Pinned, it is no longer the bottom of anything: square it off against the head
    that has scrolled underneath it so the two do not read as separate cards. */
 .training-day-nav-strip.is-pinned { border-radius: var(--sg-radius-md); }
+
+/**
+ * The live session's own measurements, at 393x852, mid-workout.
+ *
+ * The head ran to ~160px before the live card started: a day label, the same
+ * day label again from the workspace above it, and the set tally set as an h3 -
+ * the largest type on a screen whose job is "do this set now". The instruction
+ * an athlete actually reads between sets began 406px down, half the screen.
+ *
+ * A tally is orientation. It reads as a bar with its count beside it.
+ */
+.session-progress { display: flex; align-items: center; gap: .6rem; margin-top: .45rem; }
+.session-progress-track {
+  position: relative; flex: 1 1 auto; height: 6px; overflow: hidden;
+  border-radius: var(--sg-radius-pill); background: rgb(255 255 255 / .14);
+}
+.session-progress-track i {
+  display: block; height: 100%; border-radius: var(--sg-radius-pill);
+  background: linear-gradient(90deg, var(--sg-info), var(--sg-focus-on-dark));
+  transition: width var(--sg-motion-base) var(--sg-ease);
+}
+.session-progress > strong {
+  flex: none; color: var(--sg-text-on-dark);
+  font-family: var(--sg-font-display); font-size: 1.4rem; font-weight: 800; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.session-progress > strong > span { color: var(--sg-text-subtle-on-dark); font-size: .8125rem; font-weight: 700; }
+
+/* The instruction, given the weight of an instruction. */
+.live-set-prescription { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .6rem; margin-top: .35rem; }
+.live-set-prescription > span {
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+}
+.live-set-prescription > strong {
+  color: var(--sg-focus-on-dark);
+  font-family: var(--sg-font-display); font-size: 1.75rem; font-weight: 800; line-height: 1;
+}
+.live-set-prescription > strong em { font-size: .9rem; font-style: normal; font-weight: 700; letter-spacing: .04em; }
+
+/* Skipping is the escape hatch, not the sibling of the dominant action. */
+.live-set-skip { opacity: .72; font-size: var(--sg-text-xs); }
+.live-set-skip:hover { opacity: 1; }
+
+/**
+ * Measured: with the session running, the rest controls sat at 753-797 and the
+ * bottom dock starts at 782, so the -15s/+15s pair was partly behind the nav
+ * until the athlete scrolled. The contract asks for the timer to stay
+ * "persistent and easy to adjust"; it has to clear the dock to be either.
+ */
+.device-workout-tracker { padding-bottom: calc(var(--sg-space-6) + 3.5rem); }

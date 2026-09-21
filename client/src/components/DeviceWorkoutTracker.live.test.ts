@@ -23,6 +23,25 @@ function startWorkout() {
 beforeEach(() => { window.localStorage.clear(); });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
+/**
+ * The head states progress as a bar with its count beside it, and the live card
+ * states the set position and the target as two elements. Asserting the exact
+ * rendered string pinned the punctuation between them, so these check the facts
+ * a reader has to be able to get, and leave the typography free to change.
+ */
+function expectSet(line: string | null, set: number, of: number, target: string) {
+  expect(line).toContain(`Set ${set} of ${of}`);
+  expect(line).toContain(target);
+}
+
+function expectTally(done: number, planned: number) {
+  const head = document.querySelector(".execution-head")!;
+  expect(head.textContent).toContain(`${done}/${planned} sets`);
+  const fill = head.querySelector(".session-progress-track i") as HTMLElement | null;
+  expect(fill, "the count is paired with a bar").toBeTruthy();
+  expect(fill!.style.width).toBe(`${planned ? Math.round((done / planned) * 100) : 0}%`);
+}
+
 describe("live workout glance contract", () => {
   // "The first view must make active exercise/set, prescribed or entered
   // progression variable, completion/rest state, and one dominant next action
@@ -50,11 +69,11 @@ describe("live workout glance contract", () => {
     }));
     fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
     const line = () => document.querySelector(".live-set-prescription")!.textContent;
-    expect(line()).toContain("Set 1 of 3 · 10");
+    expectSet(line(), 1, 3, "10");
     fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
-    expect(line()).toContain("Set 2 of 3 · 8");
+    expectSet(line(), 2, 3, "8");
     fireEvent.click(screen.getByRole("button", { name: /log set 2/i }));
-    expect(line()).toContain("Set 3 of 3 · 6");
+    expectSet(line(), 3, 3, "6");
   });
 
   it("offers exactly one dominant next action, not one per planned set", () => {
@@ -115,7 +134,7 @@ describe("live-set commitment semantics contract", () => {
   it("marks a typed-but-unlogged set as a draft rather than counting it", () => {
     startWorkout();
     fireEvent.change(within(document.querySelector(".live-set-entry") as HTMLElement).getByLabelText(/weight/i), { target: { value: "135" } });
-    expect(document.querySelector(".execution-head")!.textContent).toContain("0 / 5 sets logged");
+    expectTally(0, 5);
     fireEvent.click(document.querySelector(".live-session-queue > summary")!);
     expect(document.querySelector(".session-set-draft")!.textContent).toContain("typed, not logged");
   });
@@ -140,7 +159,7 @@ describe("live-set commitment semantics contract", () => {
     fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
     fireEvent.click(document.querySelector(".live-session-queue > summary")!);
     fireEvent.click(screen.getAllByRole("button", { name: /undo/i })[0]);
-    expect(document.querySelector(".execution-head")!.textContent).toContain("0 / 5 sets logged");
+    expectTally(0, 5);
   });
 });
 
@@ -295,7 +314,7 @@ describe("skipping an exercise from the live card", () => {
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`skip ${exercises[0].name}`, "i") }));
     expect(card().textContent).toContain(exercises[1].name);
     expect(card().textContent).toContain("Set 1 of 2");
-    expect(document.querySelector(".execution-head")!.textContent).toContain("0 / 5 sets logged");
+    expectTally(0, 5);
   });
 
   it("keeps the skip action subordinate to logging the set", () => {
@@ -322,7 +341,7 @@ describe("skipping an exercise from the live card", () => {
     startWorkout();
     fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`skip ${exercises[0].name}`, "i") }));
-    expect(document.querySelector(".execution-head")!.textContent).toContain("1 / 5 sets logged");
+    expectTally(1, 5);
   });
 });
 
