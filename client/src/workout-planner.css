@@ -697,11 +697,7 @@
   .day-design-workspace .day-exercise-picker { scroll-margin-top: 22.5rem; }
 }
 
-/* The day selector is one object drawn as two elements - a head that scrolls away
-   and a strip that pins - so the radius is split across the pair rather than given
-   to each. The strip keeps `overflow-x: auto` for its own scrolling, so its chips
-   are clipped by its radius without a wrapper. */
-/* A card again, rather than the top half of one. */
+/* One element now, so it takes the whole radius rather than the top half of it. */
 .training-day-nav { border-radius: var(--sg-radius-md); }
 
 /**

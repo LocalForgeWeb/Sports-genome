@@ -83,7 +83,16 @@ describe("Home decision-first planning surfaces", () => {
     const { default: Home } = await import("./Home");
     const markup = renderToStaticMarkup(createElement(Home));
 
-    expect(markup).toContain("Exercise Genome");
+    /**
+     * The workspace itself is lazy, so static markup carries the Suspense fallback
+     * rather than its content. This used to pass on the header echoing the workspace's
+     * `navItems` label - "Exercise Genome" - which said nothing about the workspace
+     * being reached. With the header gone, assert what the markup can actually prove:
+     * Body Lab is the destination and its Genome tab is the current page.
+     */
+    expect(markup).toContain('class="apex-shell shell-body');
+    expect(markup).toContain("Genome");
+    expect(markup).toMatch(/aria-current="page"[^>]*>Genome</);
     expect(readFileSync(new URL("./Home.tsx", import.meta.url), "utf8")).toContain("<ExerciseGenomeWorkspace");
     expect(readFileSync(new URL("../components/ExerciseGenomeWorkspace.tsx", import.meta.url), "utf8")).toContain("Open leading muscle in Body Lab");
   });

@@ -202,7 +202,10 @@ function metricCandidates(): Candidate[] {
 const DESTINATIONS: Candidate[] = [
   { type: "destination", id: "day-plan", label: "Training day", context: "Train", terms: ["training day", "today", "workout"] },
   { type: "destination", id: "tracker", label: "Workout tracker", context: "Train", terms: ["workout tracker", "tracker", "log sets"] },
-  { type: "destination", id: "custom", label: "Workout builder", context: "Train", terms: ["workout builder", "builder", "build a workout"] },
+  // "Builder" was a second copy of Training Day and is gone; the words people search
+  // for are kept here so the old name still finds the page that now owns the job.
+  { type: "destination", id: "day-plan", label: "Build a workout", context: "Train", terms: ["workout builder", "builder", "build a workout", "plan"] },
+  { type: "destination", id: "review", label: "Review this day", context: "Train", terms: ["review", "stack review", "prep", "warm up", "warmup", "programming", "volume"] },
   { type: "destination", id: "progress", label: "Progress", context: "Progress", terms: ["progress", "history"] },
   { type: "destination", id: "strength", label: "Strength Genome", context: "Body Lab", terms: ["strength genome", "strength", "lifts"] },
   { type: "destination", id: "catalog", label: "Exercise catalog", context: "Body Lab", terms: ["exercise catalog", "catalog", "exercises"] },
