@@ -119,7 +119,11 @@
 
   /* -- Typography rhythm (perceptual signature, DNA layer 2) -------------- */
   --sg-font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
-  --sg-text-2xs: .625rem;
+  /* No --sg-text-2xs. It was .625rem - 10px - which is below the 11px floor
+     this app holds itself to, and 37 declarations used it, so the smallest
+     type on screen was a size the type-scale guard forbids. The guard could
+     not see it: it matched literal `font-size: Npx` and a token reference is
+     not one. It resolves tokens now. */
   --sg-text-xs: .6875rem;
   --sg-text-sm: .8125rem;
   --sg-text-base: .875rem;
@@ -293,7 +297,7 @@
 .command-identity-plan{margin-top:.3rem;color:var(--sg-text-muted-on-dark);font-size:var(--sg-text-xs);line-height:1.45}
 .command-identity-facts{display:flex;flex:none;gap:1.4rem}
 .command-identity-facts>div{display:grid;gap:.2rem}
-.command-identity-facts dt{color:var(--sg-text-subtle-on-dark);font-size:var(--sg-text-2xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
+.command-identity-facts dt{color:var(--sg-text-subtle-on-dark);font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
 .command-identity-facts dd{margin:0;color:#fff;font-family:var(--font-display,sans-serif);font-size:1.1rem;font-weight:800;line-height:1}
 @media (max-width:640px){.command-identity{padding:.9rem 1.15rem}.command-identity-facts{width:100%;justify-content:space-between;border-top:1px solid rgb(255 255 255 / .12);padding-top:.75rem}}
 
@@ -792,7 +796,7 @@ select {
 .pulse-shell .pulse-option-selected { border-color: var(--sg-action) !important; background: linear-gradient(90deg, var(--sg-action) 0 5px, transparent 5px), repeating-linear-gradient(0deg, rgb(228 81 46 / .06) 0 1px, transparent 1px 28px), var(--sg-surface-light) !important; box-shadow: inset 0 -3px var(--sg-action), 0 16px 30px rgb(228 81 46 / .18) !important; }.pulse-shell .pulse-option-selected strong { color: #7c2819 !important; text-shadow: none !important; }.pulse-shell .pulse-option-selected small { color: #804b41 !important; }.pulse-shell .pulse-option-selected::after, .pulse-shell .pulse-option-selected > span:nth-child(2)::before { color: #b13d27 !important; }.pulse-shell .pulse-option-selected .pulse-option-index { color: var(--sg-action) !important; }.pulse-shell .pulse-option-selected .pulse-check { border-color: var(--sg-action) !important; background: var(--sg-action-fill) !important; color: #fff !important; box-shadow: 0 0 0 4px rgb(228 81 46 / .14) !important; }
 
 /* Assessment-card differentiation and ownable GO glyph: vermilion remains commitment-only. */
-.pulse-header > div:first-child::before, .rail-brand::before { content: "GO"; display: inline-grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgb(213 173 67 / .78); color: #f5d26f; font-family: "Barlow Condensed", sans-serif; font-size: 20px; font-style: italic; font-weight: 900; letter-spacing: -.3em; line-height: 1; text-indent: -.13em; transform: skewX(-12deg); box-shadow: inset -5px 0 rgb(213 173 67 / .16), 0 0 0 3px rgb(213 173 67 / .06); }.pulse-header img, .rail-brand img { display: none; }.pulse-header > div:first-child, .rail-brand { position: relative; }.pulse-header > div:first-child::after, .rail-brand::after { content: ""; position: absolute; left: 26px; top: 29px; width: 17px; border-top: 2px solid #f5d26f; transform: rotate(-34deg); transform-origin: left; }.rail-brand::after { top: 38px; left: 47px; }
+.pulse-header > div:first-child::before, .rail-brand::before { content: "GO"; display: inline-grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgb(213 173 67 / .78); color: #f5d26f; /* Barlow Condensed is not variable and ships no 900; this asked for one and got the 800 face. */ font-family: "Barlow Condensed", sans-serif; font-size: 20px; font-style: italic; font-weight: 800; letter-spacing: -.3em; line-height: 1; text-indent: -.13em; transform: skewX(-12deg); box-shadow: inset -5px 0 rgb(213 173 67 / .16), 0 0 0 3px rgb(213 173 67 / .06); }.pulse-header img, .rail-brand img { display: none; }.pulse-header > div:first-child, .rail-brand { position: relative; }.pulse-header > div:first-child::after, .rail-brand::after { content: ""; position: absolute; left: 26px; top: 29px; width: 17px; border-top: 2px solid #f5d26f; transform: rotate(-34deg); transform-origin: left; }.rail-brand::after { top: 38px; left: 47px; }
 .pulse-option:nth-child(n) { box-shadow: inset 3px 0 var(--sg-divider-on-light) !important; }.pulse-option-selected { box-shadow: inset 5px 0 var(--sg-action), inset 0 -3px var(--sg-action), 0 16px 30px rgb(228 81 46 / .18) !important; }.pulse-option::before { display: none; }.pulse-option::after { right: 14px; bottom: 10px; top: auto; color: #507491 !important; font-size: .6875rem; letter-spacing: .11em; }.pulse-option:nth-child(1)::after { content: "↑ FORCE · SPEED"; }.pulse-option:nth-child(2)::after { content: "▤ TISSUE · VOLUME"; }.pulse-option:nth-child(3)::after { content: "↗ OUTPUT · BRACE"; }.pulse-option:nth-child(4)::after { content: "⟳ REPEAT · TOLERANCE"; }.pulse-option:nth-child(1) { background-image: linear-gradient(90deg, rgb(45 108 223 / .08), transparent 40%), repeating-linear-gradient(90deg, rgb(62 109 156 / .12) 0 1px, transparent 1px 13px) !important; }.pulse-option:nth-child(2) { background-image: radial-gradient(circle at 91% 76%, rgb(45 108 223 / .1) 0 1px, transparent 2px 8px, rgb(45 108 223 / .07) 9px 10px, transparent 11px) !important; }.pulse-option:nth-child(3) { background-image: linear-gradient(135deg, transparent 0 70%, rgb(45 108 223 / .12) 70% 71%, transparent 71%), linear-gradient(45deg, transparent 0 82%, rgb(45 108 223 / .12) 82% 83%, transparent 83%) !important; }.pulse-option:nth-child(4) { background-image: repeating-linear-gradient(0deg, rgb(45 108 223 / .09) 0 1px, transparent 1px 10px) !important; }.pulse-option-selected::after { color: #b13d27 !important; }
 
 /* Calm reading rhythm: navigation and technical metadata support the decision rather than competing with it. */
@@ -1887,7 +1891,7 @@ details:not([open]) > *:not(summary) {
   border: 1px solid var(--sg-divider-on-light);
   background: var(--sg-surface-light);
   padding: 0 .75rem;
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: var(--sg-tracking-label);
@@ -1993,7 +1997,7 @@ details:not([open]) > *:not(summary) {
   flex: 0 0 auto;
   border: 1px solid var(--sg-divider-on-light);
   padding: .2rem .4rem;
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: var(--sg-tracking-label);
@@ -2022,7 +2026,7 @@ details:not([open]) > *:not(summary) {
 .universal-search-footer {
   border-top: 1px solid var(--sg-divider-on-light);
   padding: .5rem .85rem;
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   text-transform: uppercase;
   letter-spacing: var(--sg-tracking-label);
   color: var(--sg-text-subtle-on-light);
@@ -2442,7 +2446,7 @@ details:not([open]) > *:not(summary) {
  * list, and on a phone it pushed the chip to the full row width. It is one fact
  * about the list, so it is stated once above it, as the Catalog already does.
  */
-.genome-selector-scope { display: block; margin-top: .45rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); line-height: 1.4; }
+.genome-selector-scope { display: block; margin-top: .45rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); line-height: 1.4; }
 .genome-selector-scope > svg { display: inline-block; margin-right: .3rem; vertical-align: -.15em; }
 .genome-selector-scope b { color: var(--sg-text-muted-on-dark); font-weight: 800; }
 
@@ -2513,7 +2517,7 @@ details:not([open]) > *:not(summary) {
  * is pinned to that build for good; this is how that becomes visible instead of
  * looking like a deploy that never happened.
  */
-.more-workspace-build { margin-top: 1.25rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+.more-workspace-build { margin-top: 1.25rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
 
 /**
  * Where a lift ranks.
@@ -2535,12 +2539,12 @@ details:not([open]) > *:not(summary) {
 .strength-rank-gate { display: grid; gap: .5rem; margin-top: .75rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .04); padding: .75rem; }
 .strength-rank-gate p { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 700; line-height: 1.45; }
 .strength-rank-gate label { display: grid; gap: .28rem; }
-.strength-rank-gate label span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-2xs); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.strength-rank-gate label span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .strength-rank-gate select, .strength-rank-gate input { min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); background: var(--sg-surface-raised); padding: 0 .6rem; color: var(--sg-text-on-dark); font-size: .8125rem; }
 .strength-rank-gate select:focus-visible, .strength-rank-gate input:focus-visible { border-color: var(--sg-info); outline: 2px solid var(--sg-info); outline-offset: -2px; }
-.strength-rank-gate button { min-height: 2.75rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); font-size: var(--sg-text-2xs); font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.strength-rank-gate button { min-height: 2.75rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); font-size: var(--sg-text-xs); font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
 .strength-rank-gate button:disabled { border-color: var(--sg-control-border-on-dark); background: transparent; color: var(--sg-text-faint-on-dark); }
-.strength-rank-gate small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-2xs); line-height: 1.45; }
+.strength-rank-gate small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); line-height: 1.45; }
 
 /* Body Lab's one next step. The footer used to be three cells — the action
    (which the bar above already names), the "selected" muscle (which the map
