@@ -19,6 +19,7 @@ vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: vi.fn() }
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 import { AthleteAboutMePanel } from "./AthleteAboutMePanel";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { defaultEquipmentProfile } from "@/lib/equipmentProfile";
 
 const baseline = { experience: "Intermediate" as const, weightUnit: "lb" as const, equipment: defaultEquipmentProfile };
@@ -27,10 +28,10 @@ describe("AthleteAboutMePanel passkey removal (Reversible-action contract, Tier 
   afterEach(() => { document.body.innerHTML = ""; mocks.removePasskeyMutate.mockReset(); });
 
   it("requires a named confirmation before removing a device passkey, rather than mutating on the first click", () => {
-    render(React.createElement(AthleteAboutMePanel, {
+    render(React.createElement(ThemeProvider, null, React.createElement(AthleteAboutMePanel, {
       baseline, goal: "Athleticism", trainingDays: 3, sportId: "", sports: [],
       onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(),
-    }));
+    })));
     fireEvent.click(screen.getByRole("button", { name: "Remove device passkey 1" }));
     expect(mocks.removePasskeyMutate).not.toHaveBeenCalled();
     const dialog = screen.getByRole("alertdialog");
@@ -43,10 +44,10 @@ describe("AthleteAboutMePanel passkey removal (Reversible-action contract, Tier 
   });
 
   it("does not remove the passkey when the confirmation is cancelled", () => {
-    render(React.createElement(AthleteAboutMePanel, {
+    render(React.createElement(ThemeProvider, null, React.createElement(AthleteAboutMePanel, {
       baseline, goal: "Athleticism", trainingDays: 3, sportId: "", sports: [],
       onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(),
-    }));
+    })));
     fireEvent.click(screen.getByRole("button", { name: "Remove device passkey 1" }));
     fireEvent.click(screen.getByText("Cancel"));
     expect(mocks.removePasskeyMutate).not.toHaveBeenCalled();
