@@ -18,9 +18,10 @@ describe("a fresh account starts empty", () => {
 
   it("only builds a stack at onboarding when the athlete chose a suggested one", () => {
     // The quiz's two finishing buttons carry stackMode; "custom" leaves the day
-    // empty and opens the builder.
+    // empty and opens the page where a day is built - Plan, since the Builder page
+    // it used to open was a second copy of it and has been removed.
     expect(source).toContain('if (stackMode === "suggested" && selectedMode === "sport") {');
-    expect(source).toContain("      setCustomWorkout([]);\n      navigateWorkspace(\"custom\");");
+    expect(source).toContain("      setCustomWorkout([]);\n      navigateWorkspace(\"day-plan\");");
   });
 });
 
