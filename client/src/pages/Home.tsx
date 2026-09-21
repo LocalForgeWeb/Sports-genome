@@ -1186,14 +1186,31 @@ export default function Home() {
 
   return <div className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
     <div className="apex-main">
-      <header className="apex-topbar">
-        <div className="flex min-w-0 items-center gap-3">
-          <img src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="topbar-brand-logo shrink-0 object-cover" />
-          <div className="min-w-0"><p className="metric-label">{navItems.find((item) => item.id === workspace)?.label}</p><div className="topbar-context-chips" aria-label={`Current planning context: ${sportDisplayLabel}, ${goal}, ${trainingDays} training days`}><span title={sportDisplayLabel}>{sportDisplayLabel}</span><span title={goal}>{goal}</span><span>{trainingDays} days</span></div></div>
-        </div>
-        <div className="flex items-center gap-2"><label className="hidden items-center gap-2 border border-[#cddbef] bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-[.1em] text-[#38658f] lg:flex">Sport<select value={sportId} onChange={(event) => chooseSport(event.target.value)} className="max-w-[150px] bg-transparent text-[#173d69] outline-none"><option value="" disabled>Choose sport</option>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><button onClick={requestRebuildPlan} className="hidden border border-[#cddbef] bg-white px-3 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-[#38658f] hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)] md:inline">Rebuild plan</button><UniversalSearch onOpenResult={openSearchResult} /><button type="button" onClick={() => navigateWorkspace("profile")} aria-label="Profile and settings" aria-current={workspace === "profile" ? "page" : undefined} className="topbar-profile-button inline-flex h-9 w-9 items-center justify-center border border-[#cddbef] bg-white text-[#38658f] transition-colors hover:border-[var(--sg-info-strong)] hover:text-[var(--sg-info-strong)]"><UsersRound className="h-4 w-4" /></button><button onClick={() => navigateWorkspace("day-plan")} className="inline-flex items-center gap-2 bg-[var(--sg-surface-raised)] px-3 py-2 text-[11px] font-bold uppercase tracking-[.13em] text-white transition-colors hover:bg-[var(--sg-info-strong)]"><Plus className="h-3.5 w-3.5" /> Design day</button></div>
-      </header>
-      {contextualWorkspaceTabs.length > 1 && <WorkspaceTabs tabs={contextualWorkspaceTabs} activeId={activeContextTabId} label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`} onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)} />}
+      {/*
+        * The app's only top chrome, and always present.
+        *
+        * It used to render only where a destination had more than one page, which was
+        * fine while a header carried search and Profile. With the header gone this row
+        * carries them, so a single-page destination that skipped it would stranded both -
+        * Profile especially, which is deliberately kept out of the bottom nav and has no
+        * other route.
+        */}
+      <WorkspaceTabs
+        tabs={contextualWorkspaceTabs}
+        activeId={activeContextTabId}
+        label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}
+        onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)}
+        actions={<>
+          <UniversalSearch onOpenResult={openSearchResult} />
+          <button
+            type="button"
+            onClick={() => navigateWorkspace("profile")}
+            aria-label="Profile and settings"
+            aria-current={workspace === "profile" ? "page" : undefined}
+            className="topbar-profile-button"
+          ><UsersRound className="h-4 w-4" /></button>
+        </>}
+      />
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[var(--sg-text-subtle-on-light)]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace">{trackerSessionLive ? null : <div className="tracker-day-selector"><div><p className="metric-label">Workout tracker</p><h1>Log {activeSlot.ordinal} / {activeSplitDay}</h1><p>Pick the day you are completing.</p></div><div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => openTrainingDay(slot.index)} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div></div>}<DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} dayLabel={activeDayLabel} /></section>}

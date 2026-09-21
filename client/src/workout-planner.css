@@ -73,7 +73,13 @@
 .training-day-nav-cycle button:hover:not(:disabled) { background: rgb(255 255 255 / .1); color: #fff; }
 .training-day-nav-cycle button:disabled { cursor: not-allowed; opacity: .32; }
 .day-design-workspace > .training-day-nav-strip { margin-top: calc(var(--sg-day-gap) * -1); }
-.training-day-nav-strip { position: sticky; top: calc(var(--sg-pinned-chrome) + .5rem); z-index: 14; display: flex; gap: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; border: 1px solid #b6d0e8; border-top: 0; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 10px 24px rgb(12 40 71 / .22); }
+/* Scrolls with the page, like everything else on it.
+ *
+ * Pinned, it sat on top of whatever you scrolled to - the week cards underneath it
+ * were half-covered by a row of day chips that had no reason to still be there once
+ * you had picked the day. Picking a day is a decision you make once at the top of
+ * the screen, not a control you need at every scroll position. */
+.training-day-nav-strip { position: static; display: flex; gap: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; border: 1px solid #b6d0e8; border-top: 0; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 10px 24px rgb(12 40 71 / .22); }
 .training-day-nav-strip::-webkit-scrollbar { display: none; }
 .training-day-chip { flex: 1 0 auto; min-width: 118px; border-right: 1px solid rgb(255 255 255 / .11); padding: .68rem .8rem; text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease); }
 .training-day-chip:last-child { border-right: 0; }
@@ -99,14 +105,6 @@
   .day-design-workspace > .day-design-hero { order: 2; }
   .day-design-workspace > .three-week-planner { order: 3; }
   .day-design-workspace > .day-design-grid { order: 4; }
-  /* Pinned below the chrome that is already pinned, not underneath it.
-   *
-   * The top bar sticks at 0-88px and the workspace tabs at 72-135px, so a day
-   * nav stuck at `top: 0` spent its first 135px behind them: the "Day 01",
-   * "Day 02" labels were permanently hidden and the strip read as a row of
-   * headless cards. The offset comes from `--sg-pinned-chrome` in the base rule
-   * above, so there is one number rather than a per-breakpoint guess. */
-  .training-day-nav-strip { top: var(--sg-pinned-chrome); }
   .training-day-nav-head { flex-wrap: nowrap; align-items: center; gap: .6rem; padding: .7rem .8rem; }
   .training-day-nav-current h2 { font-size: 1.62rem; }
   .training-day-nav-state { gap: .4rem; margin-top: .34rem; }
@@ -689,15 +687,12 @@
   .day-design-workspace .day-exercise-picker { scroll-margin-top: 22.5rem; }
 }
 
-/* The day selector is one object drawn as two elements - a head that scrolls away
-   and a strip that pins - so the radius is split across the pair rather than given
-   to each. The strip keeps `overflow-x: auto` for its own scrolling, so its chips
-   are clipped by its radius without a wrapper. */
+/* The day selector is one object drawn as two elements - a head and the strip of
+   days below it - so the radius is split across the pair rather than given to each.
+   The strip keeps `overflow-x: auto` for its own scrolling, so its chips are clipped
+   by its radius without a wrapper. */
 .training-day-nav { border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; }
 .training-day-nav-strip { border-radius: 0 0 var(--sg-radius-md) var(--sg-radius-md); }
-/* Pinned, it is no longer the bottom of anything: square it off against the head
-   that has scrolled underneath it so the two do not read as separate cards. */
-.training-day-nav-strip.is-pinned { border-radius: var(--sg-radius-md); }
 
 /**
  * The live session's own measurements, at 393x852, mid-workout.

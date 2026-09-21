@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 export type WorkspaceTab = { id: string; label: string };
 
@@ -14,12 +14,20 @@ export type WorkspaceTab = { id: string; label: string };
  * an edge fade appears on whichever side has more tabs, and the active tab is
  * scrolled into view, so arriving at an off-screen tab does not look like arriving
  * nowhere.
+ *
+ * `actions` is the app's only remaining top chrome. The header above this row was
+ * removed: on a phone it spent 88px on a logo, a label the tab row already states,
+ * and three profile facts, which is most of the space above the fold before any
+ * content. Its two controls that lead somewhere - search, and the way into Profile -
+ * live here instead, because Profile is deliberately absent from the bottom nav and
+ * this is now the only route to it.
  */
-export function WorkspaceTabs({ tabs, activeId, label, onSelect }: {
+export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions }: {
   tabs: readonly WorkspaceTab[];
   activeId: string;
   label: string;
   onSelect: (tab: WorkspaceTab) => void;
+  actions?: ReactNode;
 }) {
   const listRef = useRef<HTMLElement | null>(null);
   const [edges, setEdges] = useState({ start: false, end: false });
@@ -72,6 +80,9 @@ export function WorkspaceTabs({ tabs, activeId, label, onSelect }: {
           >{tab.label}</button>;
         })}
       </nav>
+      {/* Outside the scrolling nav, so scrolling the tabs never carries the two
+          controls off the edge with them. */}
+      {actions && <div className="workspace-top-actions">{actions}</div>}
     </div>
   );
 }
