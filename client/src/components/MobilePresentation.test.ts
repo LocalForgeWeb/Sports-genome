@@ -63,7 +63,9 @@ describe("mobile athlete presentation", () => {
     expect(plannerStyles).toContain(".day-design-main > .grid > .day-programming-panel { order: 1; }");
     expect(plannerStyles).toContain(".day-programming-head p:last-child { display: none; }");
     expect(trainingCardStyles).toContain("position: absolute !important; top: .7rem; right: .7rem");
-    expect(trainingCardStyles).toContain("width: 34px; min-width: 34px; height: 34px; min-height: 34px");
+    // 44 square, not 34. The app's tap floor overrules a height but not a width,
+    // so the old pair declared 34x34 and rendered 34 wide by 44 tall.
+    expect(trainingCardStyles).toContain("width: 34px; min-width: 34px; height: 44px");
   });
 
   it("keeps mobile navigation opaque and Training Day dark-surface controls legible against navy panels", () => {

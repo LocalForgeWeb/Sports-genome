@@ -35,10 +35,12 @@
   grid-template-columns: 2.1rem minmax(0, 1fr) auto;
   gap: .2rem .7rem;
   align-items: center;
-  /* The reorder arrows are absolutely positioned over this row's top-right by
-     workout-planner.css, so the summary reserves the width they occupy. Without
-     it the chevron renders underneath them and the row looks like it does not
-     open at all. */
+  /* The reorder arrows are absolutely positioned over this row's top-right, so
+     the summary reserves the width they occupy. Without it the chevron renders
+     underneath them and the row looks like it does not open at all - which is
+     what happened when the arrows went from 34px to a square 44px and this was
+     still sized for the old pair. Two 44px buttons, their .25rem gap and the
+     .7rem right offset come to 103px; 7rem clears it. */
   padding: .8rem 5.6rem .8rem .9rem;
   cursor: pointer;
   list-style: none;
@@ -131,7 +133,7 @@
 /* The way in and out of per-set reps. A real target rather than an underlined
    word, but quiet, because most sets do ask for the same thing. */
 .prescription-vary {
-  display: inline-flex; align-items: center; min-height: 32px; border-radius: var(--sg-radius-xs, 6px);
+  display: inline-flex; align-items: center; border-radius: var(--sg-radius-xs, 6px);
   border: 1px solid transparent; background: rgb(164 200 232 / .12); padding: 0 .65rem;
   color: #9ec4e8; font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
   transition: border-color var(--sg-motion-fast) var(--sg-ease), background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
@@ -149,7 +151,7 @@
 /* Flattening a per-set plan throws away every target but the first, on the button
    the finger is already on. The way back has to be right there. */
 .prescription-undo {
-  display: inline-flex; align-items: center; gap: .3rem; min-height: 32px; border-radius: var(--sg-radius-xs, 6px);
+  display: inline-flex; align-items: center; gap: .3rem; border-radius: var(--sg-radius-xs, 6px);
   border: 1px solid var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); padding: 0 .55rem;
   color: var(--sg-focus-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
 }
@@ -163,7 +165,10 @@
 
 .prescription-field-pair { grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: .6rem; }
 .prescription-field-pair label { display: grid; gap: .3rem; min-width: 0; }
-.prescription-field-pair select { min-height: 40px; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); background: var(--sg-surface-raised); padding: 0 .5rem; color: var(--sg-text-on-dark); font-size: .8rem; font-weight: 700; }
+/* An explicit height, not just a floor: `min-height` lets a select's own font
+   metrics push it past the floor, and these two sat 2px apart from each other
+   on the same line. */
+.prescription-field-pair select { height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); background: var(--sg-surface-raised); padding: 0 .5rem; color: var(--sg-text-on-dark); font-size: .8rem; font-weight: 700; }
 
 .prescription-note > summary { display: inline-flex; align-items: center; gap: .3rem; cursor: pointer; list-style: none; color: #9ec4e8; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .prescription-note > summary::-webkit-details-marker { display: none; }
@@ -173,14 +178,14 @@
    to be clipped by the right edge of a phone. */
 .prescription-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; border-top: 1px solid rgb(255 255 255 / .1); padding-top: .8rem; }
 .prescription-action-icons { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
-.prescription-actions .completion-toggle { display: inline-flex; align-items: center; gap: .4rem; min-height: 40px; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); padding: 0 .7rem; color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.prescription-actions .completion-toggle { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); padding: 0 .7rem; color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .prescription-actions .completion-toggle-on { border-color: var(--sg-state-positive, #6fbf8b); background: rgb(96 176 126 / .16); color: #a9e0bd; }
 .completion-box { display: block; width: 14px; height: 14px; border: 1px solid currentColor; }
-.prescription-actions .remove-prescription { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid rgb(228 81 46 / .5); color: #ffb29d; }
+.prescription-actions .remove-prescription { display: grid; width: 44px; place-items: center; border: 1px solid rgb(228 81 46 / .5); color: #ffb29d; }
 .prescription-actions .remove-prescription:hover { border-color: var(--sg-action); background: rgb(228 81 46 / .16); color: #fff; }
-.prescription-actions .inspect-prescription { display: inline-flex; align-items: center; gap: .35rem; min-height: 40px; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); padding: 0 .6rem; color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.prescription-actions .inspect-prescription { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); padding: 0 .6rem; color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .prescription-actions .inspect-prescription:hover { border-color: var(--sg-focus-on-dark); color: #fff; }
-.prescription-actions .duplicate-prescription { min-height: 40px; padding: 0 .6rem; }
+.prescription-actions .duplicate-prescription { padding: 0 .6rem; }
 
 /* Everything above is the card's layout at every width. Only what is genuinely
    phone-specific belongs below: the reorder controls that float over the row,
@@ -188,7 +193,13 @@
 @media (max-width: 640px) {
   .day-orderable-exercise { display: flex; flex-direction: column; }
   .day-orderable-exercise .day-order-controls { position: absolute !important; top: .7rem; right: .7rem; z-index: 2; display: flex; align-self: auto; gap: .25rem; padding: 0; }
-  .day-orderable-exercise .day-order-controls button { width: 34px; min-width: 34px; height: 34px; min-height: 34px; }
+  /* 34 wide, 44 tall, and now saying so. These declared 34x34 and rendered
+     34x44, because the app's tap floor overrules a height but not a width - the
+     CSS described a control nobody had seen. Squaring them at 44 was the other
+     way out and cost more than it bought: the summary has to reserve their
+     width, and at 44 each the reserve squeezed the title column until the
+     prescription line wrapped. Stacked vertically, tall is the useful axis. */
+  .day-orderable-exercise .day-order-controls button { width: 34px; min-width: 34px; height: 44px; }
   .day-picker-serratus-cue { margin-top: .75rem; border-left: 3px solid #d5ad43; background: #fffaf0; padding: .65rem .72rem; color: #735d2b; font-size: .6875rem; line-height: 1.5; }
   /* The index column is worth its width in the collapsed summary and is dead space
      under it, so the editor uses the full card. */
@@ -199,4 +210,36 @@
   .prescription-action-icons { flex: 1 1 100%; }
   .prescription-action-icons .inspect-prescription,
   .prescription-action-icons .duplicate-prescription { flex: 1 1 0; justify-content: center; }
+}
+
+/**
+ * Labels name a thing. Commands do a thing. The open row said both in the same
+ * voice.
+ *
+ * Measured at 393x852: eight uppercase micro-labels in four different treatments
+ * - all 11px, but letter-spacing at .05em, .06em, .07em and .1em across weights
+ * 700 and 800. Five of the eight were not labels at all. "Vary by set", "Coach
+ * note", "Mark complete", "Details" and "Duplicate" are verbs, set in the type
+ * idiom this app reserves for naming a field, which is most of why the row
+ * shouts: everything in it is pitched as a heading.
+ *
+ * So the labels keep the label voice and converge on one treatment, and the
+ * commands read as what they are - sentence case, at a size meant for reading.
+ * The accessible names are unchanged; only the rendering was ever shouting.
+ */
+.prescription-editor :is(.prescription-vary, .prescription-undo),
+.prescription-actions :is(.completion-toggle, .inspect-prescription, .duplicate-prescription),
+.prescription-note > summary {
+  font-size: .8125rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* One voice for the things that genuinely are labels. */
+.prescription-editor :is(.metric-label, .prescription-set-list label) {
+  font-size: .6875rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
 }
