@@ -61,7 +61,8 @@ describe("Home sport state safeguards", () => {
     // It moves the marker and nothing else; the commit-and-read effect above is
     // the only thing that touches a saved day.
     expect(source).toContain("const openTrainingDay = (index: number) => {");
-    expect(source).toContain("onClick={() => openTrainingDay(slot.index)}");
+    // Closing the chooser after a pick is disclosure state, not a save.
+    expect(source).toContain("onClick={() => { openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }}");
     expect(source).not.toContain("const chooseTrackerDay =");
   });
 });

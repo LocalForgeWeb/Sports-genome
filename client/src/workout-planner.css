@@ -197,6 +197,7 @@
 }
 
 .live-set-card {
+  display: grid;
   margin: .85rem;
   border: 1px solid rgb(176 214 247 / .22);
   border-radius: 16px;
@@ -327,19 +328,47 @@
 .device-workout-tracker .session-set-draft { border-color: rgb(242 193 77 / .45); }
 .device-workout-tracker .session-set-draft > strong { color: var(--sg-state-caution); }
 
-/* While a session is running the dominant action is logging the next set, so
-   finishing steps down to a secondary treatment. The glance contract allows
-   exactly one dominant next action on the first view. */
-.device-workout-tracker .execution-head > button.execution-secondary-action {
-  border: 1px solid rgb(176 214 247 / .4);
-  background: transparent;
-  box-shadow: none;
-  color: var(--sg-text-on-dark);
+/* Finishing has two homes and two weights. Below the queue, while sets remain,
+   it is a quiet line: the rare exit, never a competitor to logging the set.
+   On the completion card, with nothing left to log, it is the dominant action. */
+.live-session-finish {
+  display: flex;
+  width: max-content;
+  max-width: calc(100% - 1.7rem);
+  min-height: 2.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .2rem .35rem;
+  margin: 0 auto .85rem;
+  padding: 0 .5rem;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-sm);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgb(176 214 247 / .35);
+  text-underline-offset: 3px;
 }
-.device-workout-tracker .execution-head > button.execution-secondary-action:hover {
-  border-color: var(--sg-info);
-  background: rgb(91 156 241 / .12);
+.live-session-finish small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); font-weight: 400; text-decoration: none; }
+.live-session-finish:hover { color: var(--sg-text-on-dark); text-decoration-color: currentColor; }
+.live-set-card-done .live-session-finish-primary {
+  width: 100%;
+  max-width: none;
+  min-height: 3.25rem;
+  margin: .85rem 0 0;
+  text-decoration: none;
+  border: 0;
+  border-radius: 12px;
+  background: var(--sg-action-fill);
+  padding: 0 .9rem;
+  color: var(--sg-action-on);
+  font-size: var(--sg-text-md);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
 }
+.live-set-card-done .live-session-finish-primary:hover { background: var(--sg-action-strong); color: var(--sg-action-on); }
+.live-set-card-done .live-session-finish-primary:active { transform: scale(.985); }
 
 /* While a session runs, the day chooser collapses to a context line so the
    active exercise and set are legible on the first view. */
@@ -564,26 +593,25 @@
 .live-set-entry { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
 .live-set-entry[data-fields="3"] input { font-size: var(--sg-text-lg); padding: 0 .5rem; }
 
-/* Skipping is the escape hatch for a rack that was taken, so it sits below the
-   commit action and is never styled to compete with it. */
+/* Skipping is the escape hatch for a rack that was taken. It used to be a
+   second full-width bordered button directly under the first, which made the
+   card read as two equal choices. It is a line of text now: present, findable,
+   and visibly not the thing you came here to press. Still 44px tall to tap. */
 .live-set-skip {
-  display: flex;
-  width: 100%;
+  display: inline-flex;
   min-height: 2.75rem;
   align-items: center;
-  justify-content: center;
-  gap: .4rem;
-  margin-top: .5rem;
-  border: 1px solid rgb(176 214 247 / .3);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--sg-text-muted-on-dark);
+  gap: .35rem;
+  margin: .15rem auto 0;
+  padding: 0 .5rem;
+  color: var(--sg-text-subtle-on-dark);
   font-size: var(--sg-text-xs);
-  font-weight: 800;
-  letter-spacing: var(--sg-tracking-label);
-  text-transform: uppercase;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgb(176 214 247 / .35);
+  text-underline-offset: 3px;
 }
-.live-set-skip:hover { border-color: var(--sg-info); color: var(--sg-text-on-dark); }
+.live-set-skip:hover { color: var(--sg-text-on-dark); text-decoration-color: currentColor; }
 
 .session-exercise-skip {
   display: inline-flex;
@@ -739,8 +767,6 @@
 .live-set-prescription > strong em { font-size: var(--sg-text-base); font-style: normal; font-weight: 700; letter-spacing: var(--sg-tracking-open); }
 
 /* Skipping is the escape hatch, not the sibling of the dominant action. */
-.live-set-skip { opacity: .72; font-size: var(--sg-text-xs); }
-.live-set-skip:hover { opacity: 1; }
 
 /**
  * Measured: with the session running, the rest controls sat at 753-797 and the
