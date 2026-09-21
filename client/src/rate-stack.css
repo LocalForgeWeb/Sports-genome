@@ -75,7 +75,7 @@
 
 .rate-stack-dial-readout small {
   color: var(--sg-text-faint-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 700;
 }
 
@@ -87,8 +87,8 @@
   gap: .35rem;
   margin: 0;
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
-  font-weight: 900;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
   letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
@@ -101,7 +101,7 @@
   font-family: var(--sg-font-display);
   font-size: var(--sg-text-lg);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: var(--sg-leading-snug);
 }
 
 .rate-stack-tallies {
@@ -118,13 +118,13 @@
   border: 1px solid var(--sg-control-border-on-dark);
   padding: .14rem .36rem;
   color: var(--sg-text-muted-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
-  letter-spacing: .04em;
+  letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
 
-.rate-stack-tally i { font-style: normal; font-weight: 900; }
+.rate-stack-tally i { font-style: normal; font-weight: 800; }
 .rate-stack-tally-short { border-color: rgb(226 86 74 / .5); color: #f4a9a2; }
 .rate-stack-tally-near { border-color: rgb(242 193 77 / .45); color: #f6d489; }
 .rate-stack-tally-covered { border-color: rgb(91 192 122 / .5); color: #9adfb0; }
@@ -146,15 +146,15 @@
   gap: .4rem;
   margin: 0 0 .45rem;
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
-  font-weight: 900;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
   letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
 
 .rate-stack-group-label small {
   color: var(--sg-text-faint-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -240,13 +240,13 @@
   align-items: center;
   gap: .22rem;
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
-  letter-spacing: .04em;
+  letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
 
-.rate-stack-row-band i { font-style: normal; font-weight: 900; }
+.rate-stack-row-band i { font-style: normal; font-weight: 800; }
 .rate-stack-row-short .rate-stack-row-band { color: #f4a9a2; }
 .rate-stack-row-near .rate-stack-row-band { color: #f6d489; }
 .rate-stack-row-covered .rate-stack-row-band { color: #9adfb0; }
@@ -259,8 +259,8 @@
   display: block;
   margin: var(--sg-space-3) 0 0;
   color: var(--sg-text-faint-on-dark);
-  font-size: var(--sg-text-2xs);
-  line-height: 1.5;
+  font-size: var(--sg-text-xs);
+  line-height: var(--sg-leading-body);
 }
 
 /* The legend is a sentence with one mark set into it, not a row of chips. */
@@ -310,8 +310,8 @@
   align-items: center;
   gap: .45rem;
   font-size: var(--sg-text-xs);
-  font-weight: 900;
-  letter-spacing: .09em;
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
 
@@ -320,7 +320,7 @@
 .rate-stack-trigger > small {
   overflow: hidden;
   color: var(--sg-text-faint-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -339,9 +339,9 @@
   list-style: none;
   padding: .42rem var(--sg-space-4);
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
+  font-size: var(--sg-text-xs);
   font-weight: 800;
-  letter-spacing: .05em;
+  letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
 
@@ -353,8 +353,8 @@
 .rate-stack-scope > div {
   padding: 0 var(--sg-space-4) var(--sg-space-3);
   color: var(--sg-text-muted-on-dark);
-  font-size: var(--sg-text-2xs);
-  line-height: 1.45;
+  font-size: var(--sg-text-xs);
+  line-height: var(--sg-leading-body);
 }
 
 .rate-stack-boundary {
@@ -362,8 +362,8 @@
   border-left: 2px solid var(--sg-selected-on-dark);
   padding-left: .55rem;
   color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-2xs);
-  line-height: 1.45;
+  font-size: var(--sg-text-xs);
+  line-height: var(--sg-leading-body);
 }
 
 /* -- Narrow screens ------------------------------------------------------- */

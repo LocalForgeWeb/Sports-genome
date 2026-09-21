@@ -167,7 +167,7 @@ describe("workspace side navigation", () => {
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));');
     expect(css).toContain('min-height: 4.25rem;');
     expect(css).toContain('touch-action: manipulation;');
-    expect(css).toContain('font-size: .6875rem;');
+    expect(css).toContain('font-size: var(--sg-text-xs);');
     expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');
   });

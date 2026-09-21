@@ -18,7 +18,7 @@
   display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
   border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4));
   background: var(--sg-surface-raised); padding: .33rem .5rem;
-  color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  color: #d6e8fa; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
   white-space: nowrap;
   transition: border-color var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
 }
@@ -50,9 +50,9 @@
 .custom-row-index { color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; font-weight: 800; line-height: 1; }
 .custom-row-identity { display: grid; gap: .22rem; min-width: 0; }
 /* The name wraps rather than truncating: it is the thing being scanned for. */
-.custom-row-identity strong { color: #fff; font-size: .875rem; font-weight: 700; line-height: 1.45; }
-.custom-row-identity em { color: var(--sg-focus-on-dark); font-size: .75rem; font-style: normal; font-weight: 800; letter-spacing: .03em; line-height: 1.35; }
-.custom-row-identity small { color: var(--sg-text-muted-on-dark); font-size: .6875rem; line-height: 1.4; }
+.custom-row-identity strong { color: #fff; font-size: var(--sg-text-base); font-weight: 700; line-height: var(--sg-leading-body); }
+.custom-row-identity em { color: var(--sg-focus-on-dark); font-size: var(--sg-text-sm); font-style: normal; font-weight: 800; letter-spacing: var(--sg-tracking-open); line-height: var(--sg-leading-snug); }
+.custom-row-identity small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
 .custom-row-state { display: inline-flex; align-items: center; gap: .4rem; color: var(--sg-text-subtle-on-dark); }
 .custom-row-done { display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 999px; background: rgb(91 192 122 / .2); color: #5bc07a; }
 .custom-row-chevron { transition: transform var(--sg-motion-fast) var(--sg-ease); }
@@ -63,7 +63,7 @@
 .inspect-prescription, .duplicate-prescription, .remove-prescription {
   display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
   border: 1px solid rgb(126 171 210 / .4); background: var(--sg-surface-raised); color: #d6e8fa;
-  font-size: .6875rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
 }
 .remove-prescription { color: #f2a08f; }
 .remove-prescription:hover { border-color: var(--sg-action); color: var(--sg-action); }
@@ -124,7 +124,7 @@
   border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4));
   background: var(--sg-surface-raised); padding: 0 .7rem;
   border-radius: var(--sg-radius-sm, 10px);
-  color: var(--sg-text-on-dark); font-size: .95rem; font-weight: 700; outline: none;
+  color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; outline: none;
 }
 .prescription-reps { flex: 1 1 auto; }
 .prescription-reps:focus-visible,
@@ -135,7 +135,7 @@
 .prescription-vary {
   display: inline-flex; align-items: center; border-radius: var(--sg-radius-xs, 6px);
   border: 1px solid transparent; background: rgb(164 200 232 / .12); padding: 0 .65rem;
-  color: #9ec4e8; font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  color: #9ec4e8; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
   transition: border-color var(--sg-motion-fast) var(--sg-ease), background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease);
 }
 .prescription-vary:hover:not(:disabled) { border-color: var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); color: var(--sg-focus-on-dark); }
@@ -153,14 +153,14 @@
 .prescription-undo {
   display: inline-flex; align-items: center; gap: .3rem; border-radius: var(--sg-radius-xs, 6px);
   border: 1px solid var(--sg-focus-on-dark); background: rgb(242 193 77 / .14); padding: 0 .55rem;
-  color: var(--sg-focus-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--sg-focus-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
 }
 .prescription-undo:hover { background: rgb(242 193 77 / .24); }
 
 /* Two across: twelve stacked rows would push everything else off the screen. */
 .prescription-set-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: .45rem; margin: 0; padding: 0; list-style: none; }
 .prescription-set-list li { display: grid; gap: .2rem; min-width: 0; }
-.prescription-set-list label { color: var(--sg-text-subtle-on-dark); font-size: .6875rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.prescription-set-list label { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .prescription-set-list input { width: 100%; text-align: center; }
 
 .prescription-field-pair { grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: .6rem; }
@@ -168,22 +168,22 @@
 /* An explicit height, not just a floor: `min-height` lets a select's own font
    metrics push it past the floor, and these two sat 2px apart from each other
    on the same line. */
-.prescription-field-pair select { height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); background: var(--sg-surface-raised); padding: 0 .5rem; color: var(--sg-text-on-dark); font-size: .8rem; font-weight: 700; }
+.prescription-field-pair select { height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); background: var(--sg-surface-raised); padding: 0 .5rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 700; }
 
-.prescription-note > summary { display: inline-flex; align-items: center; gap: .3rem; cursor: pointer; list-style: none; color: #9ec4e8; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.prescription-note > summary { display: inline-flex; align-items: center; gap: .3rem; cursor: pointer; list-style: none; color: #9ec4e8; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .prescription-note > summary::-webkit-details-marker { display: none; }
-.prescription-note textarea { width: 100%; min-height: 4.5rem; margin-top: .45rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); background: var(--sg-surface-raised); padding: .5rem .6rem; color: var(--sg-text-on-dark); font-size: .8rem; outline: none; resize: vertical; }
+.prescription-note textarea { width: 100%; min-height: 4.5rem; margin-top: .45rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); background: var(--sg-surface-raised); padding: .5rem .6rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-md); outline: none; resize: vertical; }
 
 /* Actions last, and wrapping rather than running off the edge - the remove button used
    to be clipped by the right edge of a phone. */
 .prescription-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; border-top: 1px solid rgb(255 255 255 / .1); padding-top: .8rem; }
 .prescription-action-icons { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
-.prescription-actions .completion-toggle { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); padding: 0 .7rem; color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.prescription-actions .completion-toggle { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); padding: 0 .7rem; color: #d6e8fa; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .prescription-actions .completion-toggle-on { border-color: var(--sg-state-positive, #6fbf8b); background: rgb(96 176 126 / .16); color: #a9e0bd; }
 .completion-box { display: block; width: 14px; height: 14px; border: 1px solid currentColor; }
 .prescription-actions .remove-prescription { display: grid; width: 44px; place-items: center; border: 1px solid rgb(228 81 46 / .5); color: #ffb29d; }
 .prescription-actions .remove-prescription:hover { border-color: var(--sg-action); background: rgb(228 81 46 / .16); color: #fff; }
-.prescription-actions .inspect-prescription { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); padding: 0 .6rem; color: #d6e8fa; font-size: .6875rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.prescription-actions .inspect-prescription { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid var(--sg-control-border-on-dark, rgb(164 200 232 / .4)); padding: 0 .6rem; color: #d6e8fa; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .prescription-actions .inspect-prescription:hover { border-color: var(--sg-focus-on-dark); color: #fff; }
 .prescription-actions .duplicate-prescription { padding: 0 .6rem; }
 
@@ -200,7 +200,7 @@
      width, and at 44 each the reserve squeezed the title column until the
      prescription line wrapped. Stacked vertically, tall is the useful axis. */
   .day-orderable-exercise .day-order-controls button { width: 34px; min-width: 34px; height: 44px; }
-  .day-picker-serratus-cue { margin-top: .75rem; border-left: 3px solid #d5ad43; background: #fffaf0; padding: .65rem .72rem; color: #735d2b; font-size: .6875rem; line-height: 1.5; }
+  .day-picker-serratus-cue { margin-top: .75rem; border-left: 3px solid #d5ad43; background: #fffaf0; padding: .65rem .72rem; color: #735d2b; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
   /* The index column is worth its width in the collapsed summary and is dead space
      under it, so the editor uses the full card. */
   .prescription-editor { padding: 0 .8rem .9rem; gap: .75rem; }
@@ -230,16 +230,16 @@
 .prescription-editor :is(.prescription-vary, .prescription-undo),
 .prescription-actions :is(.completion-toggle, .inspect-prescription, .duplicate-prescription),
 .prescription-note > summary {
-  font-size: .8125rem;
-  font-weight: 650;
+  font-size: var(--sg-text-md);
+  font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
 }
 
 /* One voice for the things that genuinely are labels. */
 .prescription-editor :is(.metric-label, .prescription-set-list label) {
-  font-size: .6875rem;
+  font-size: var(--sg-text-xs);
   font-weight: 800;
-  letter-spacing: .1em;
+  letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }

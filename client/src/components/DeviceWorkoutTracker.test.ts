@@ -18,8 +18,22 @@ describe("Device Workout Tracker execution focus", () => {
 
   it("gives each set a clear save action and communicates Progress handoff without a perceived-effort field", () => {
     expect(source).toContain('aria-pressed={set.completed}');
-    expect(source).toContain('Finish the session when the workout is done to add it to Progress.');
+    // The handoff is the button, not a sentence explaining it: the head carried
+    // twenty words describing a mechanism an athlete learns by finishing once.
+    expect(source).toContain('Finish workout');
     expect(source).not.toContain('optional effort');
+  });
+
+  /**
+   * With an empty day selected the panel said "Ready to train." above a disabled
+   * Start button, told you to log the reps you hit, and then — lower down, in a
+   * different voice — told you to select a Training Day you had already
+   * selected. Three sentences, none of them describing the screen.
+   */
+  it("says what the staged day actually is rather than assuming one is ready", () => {
+    expect(source).toContain('{workout.length ? "Ready to train." : "This day is empty."}');
+    expect(source).not.toContain("Select a saved Training Day before starting a workout.");
+    expect(source).not.toContain("Start the day below");
   });
 
   it("uses the dedicated elevated mobile tracker surface and a two-field set layout rather than three dense input columns", () => {
@@ -47,7 +61,10 @@ describe("Device Workout Tracker execution focus", () => {
     // Pre-session setup above an execution surface pushed the active set below
     // the fold: the live card started at y=650 on a 390x844 viewport.
     const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8");
-    expect(home).toContain("trackerSessionLive ? <p className=\"tracker-live-context\">");
+    // It collapses to nothing now. The banner that replaced the chooser repeated
+    // the day the live card's own header already names, directly above it.
+    expect(home).toContain("trackerSessionLive ? null :");
+    expect(home).not.toContain("tracker-live-context");
     expect(home).toContain("window.addEventListener(deviceWorkoutHistoryEvent, syncTrackerSession)");
   });
 
