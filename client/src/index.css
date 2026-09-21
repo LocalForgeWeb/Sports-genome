@@ -2809,3 +2809,51 @@ details:not([open]) > *:not(summary) {
    title beside it. The app already has a token for supporting text on a dark
    panel, and using it keeps the two lines in a hierarchy. */
 .toaster [data-sonner-toast][data-styled="true"] [data-description] { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.45; }
+
+/**
+ * A figure is a fact, not a word.
+ *
+ * Home stated its quantities as sentences - "5 planned days" with the numeral
+ * the same size and weight as the noun beside it, and a subtitle underneath
+ * restating the label ("your weekly rhythm" under "planned days"). Progress
+ * already had the right treatment for the same numbers: label, then the count
+ * in the display face at a size you read from across the room.
+ *
+ * This is that treatment at the size a three-up row on a phone can carry, so
+ * the two surfaces state the same fact the same way.
+ */
+.stat-figure {
+  display: block;
+  color: var(--sg-text-on-dark);
+  font-family: var(--sg-font-display);
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: .95;
+  font-variant-numeric: tabular-nums;
+}
+:where(.today-action-facts, .training-week-facts) p { display: grid; gap: .15rem; min-width: 0; }
+:where(.today-action-facts, .training-week-facts) .stat-figure + strong {
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+/* The icon sat centred against a one-line fact; against a figure it belongs at
+   the top, beside the number rather than floating between the two lines. */
+:where(.today-action-facts, .training-week-facts) > :where(div, button) { align-items: flex-start; }
+:where(.today-action-facts, .training-week-facts) > :where(div, button) > svg { margin-top: .15rem; }
+
+/* The fingerprint chart's scale, drawn rather than described. */
+.genome-scale-key {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .5rem;
+  margin-top: .55rem;
+  color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.genome-scale-key em { font-style: normal; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .8; }
+.genome-scale-key > span:last-child { text-align: right; }
+.genome-scale-key i {
+  height: 6px; border-radius: var(--sg-radius-pill);
+  background: linear-gradient(90deg, var(--sg-seq-1), var(--sg-seq-2), var(--sg-seq-3), var(--sg-seq-4), var(--sg-seq-5));
+}

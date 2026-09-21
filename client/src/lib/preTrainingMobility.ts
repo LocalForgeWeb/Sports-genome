@@ -196,5 +196,5 @@ export function getStackWarmup(workout: Exercise[], goal: WarmupGoal): WarmupRec
   const drills = selected.length ? selected : preTrainingMobilityLibrary.slice(0, logicCalibration.mobility.fallbackDrillCount);
   const estimatedMinutes = drills.reduce((total, drill) => total + drill.minutes, 0);
   const emphasis = focusTags.slice(0, 3).map(mobilityTagLabel).join(", ") || "whole-body preparation";
-  return { drills, focusTags, estimatedMinutes, rationale: `Matched to ${emphasis} demands in the active stack. Begin easy, use a comfortable range, then rehearse the first loaded pattern with light sets.` };
+  return { drills, focusTags, estimatedMinutes, rationale: `Matched to ${emphasis} demands in the active stack.` };
 }

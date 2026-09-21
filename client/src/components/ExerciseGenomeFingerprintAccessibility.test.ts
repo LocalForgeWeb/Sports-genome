@@ -15,7 +15,24 @@ describe("Exercise Genome fingerprint term learning", () => {
     expect(markup).toContain("Stimulus-to-fatigue ratio");
     expect(markup).toContain('aria-label="Learn about Hypertrophy potential"');
     expect(markup).toContain('aria-label="Learn about Stimulus-to-fatigue ratio"');
-    expect(markup).toContain("Select a chart label or full label to learn what influences it.");
+    // The labels are focusable controls with their own names, so an instruction
+    // telling the reader to select one was a caption describing the markup.
+    expect(markup).toContain('class="genome-radar-label-control"');
+    expect(markup).toContain('tabindex="0"');
+  });
+
+  /**
+   * The chart's axis used to be explained in twenty-six words underneath it -
+   * two sentences defining 0 and 100. A scale is a thing to draw, but drawing it
+   * has to keep the meaning reachable without sight, so the ramp carries the
+   * whole sentence as its accessible name.
+   */
+  it("draws the scale, and still says what its ends mean", () => {
+    const exercise = exercises.find((item) => item.name === "Seated Leg Curl") || exercises[0];
+    const markup = renderToStaticMarkup(createElement(ExerciseGenomePanel, { exercise, context: { goal: "Muscle growth", currentWorkout: [exercise] } }));
+    expect(markup).toContain('class="genome-scale-key"');
+    expect(markup).toContain('aria-label="Scale from 0, little relative demand, to 100, high relative demand"');
+    expect(markup).not.toContain("Select a chart label or full label to learn what influences it.");
   });
 });
 

@@ -245,7 +245,15 @@ export function analyzeExerciseContext(exercise: Exercise, context: GenomeContex
   const goalLabel = goalKey === "sfr" ? "repeatable training value" : goalKey;
   const strengths = [`${signals.goalAlignment}/100 ${goalLabel} alignment`, `${signals.sportActionMatch}/100 mechanical match for the selected sport action`, `${signals.stackDistinctness}/100 stack distinctness`, `${signals.recoveryManageability}/100 recovery manageability`];
   const limits = [redundancy > logicCalibration.exerciseGenome.highRedundancyReview ? "Overlaps meaningfully with the current stack; its added value is reduced." : "Adds a relatively distinct exposure to the current stack.", genome.fatigue.systemic > logicCalibration.exerciseGenome.highFatigueReview ? "Higher systemic and technical cost may limit placement or volume." : "Fatigue profile is comparatively manageable for its intended adaptation."];
-  const explanation = redundancy > logicCalibration.exerciseGenome.highRedundancyReview ? `This exercise has solid intrinsic ${goalLabel} value, but the current stack already overlaps with its muscle and movement profile. It is most useful if it replaces a similar exercise or if its resistance profile solves a specific gap.` : `This exercise is a useful addition because its ${goalLabel} profile and sport-action match add value without duplicating the current stack heavily.`;
+  /*
+   * The verdict, not a re-reading of the panel. This was 40-odd words saying what
+   * `strengths` already states as four scored lines and `limits` states again
+   * underneath - the redundancy branch and the first limit were near-identical.
+   * What the numbers cannot say is what to do about them, so that is what is left.
+   */
+  const explanation = redundancy > logicCalibration.exerciseGenome.highRedundancyReview
+    ? `Best as a replacement for something similar, or to solve a specific gap.`
+    : `Adds ${goalLabel} value without repeating the stack.`;
   return { contextualScore, grade: gradeFor(contextualScore), marginalValue, redundancy, sportTransfer, signals, explanation, strengths, limits };
 }
 
