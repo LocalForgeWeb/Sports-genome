@@ -57,11 +57,19 @@ describe("surfaces speak one grammar", () => {
     expect(depth.slice(0, 900)).toContain("var(--sg-sheen), var(--sg-elevation-2)");
   });
 
-  it("clips a rounded container's children so no square corner pokes through", () => {
+  /**
+   * `overflow: hidden` kills `position: sticky` in every descendant. Applied to
+   * every panel by name it stopped the catalog's search bar sticking, with
+   * nothing on screen to say why - so it is named surfaces only, and only the
+   * ones whose contents genuinely run to the edge.
+   */
+  it("clips only the surfaces whose children reach the edge, never by pattern", () => {
     const system = index.slice(index.indexOf("THE SURFACE SYSTEM"));
-    expect(system).toContain("overflow: hidden");
-    // ...except where a surface deliberately overflows, or the sticky day rail breaks.
-    expect(system).toContain("overflow: visible");
+    const clip = system.slice(system.indexOf("has to clip them"), system.indexOf("has to clip them") + 900);
+    expect(clip).toContain("overflow: hidden");
+    expect(clip).toContain(".day-programming-panel");
+    // A pattern here is the bug: it reaches panels that hold sticky children.
+    expect(clip).not.toMatch(/\[class\*=[^\]]*\][^{]*\{\s*overflow: hidden/);
   });
 });
 
