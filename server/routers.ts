@@ -37,7 +37,7 @@ import {
 } from "./supabaseEvidence";
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getResilienceTargetCatalog } from "./supabaseResilience";
-import { getStrengthPercentile } from "./supabaseStrengthCurves";
+import { getStrengthPercentile, getStrengthPercentiles } from "./supabaseStrengthCurves";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
 import { getPublicNormsReference } from "./normsRegistry";
@@ -74,6 +74,23 @@ function answer(outcome: RepairOutcome) {
   }
   throw new TRPCError({ code: "NOT_FOUND", message: "That record is not available on this account." });
 }
+
+/**
+ * One lift, as the beta percentile route reads it. Any of the three identifiers names the
+ * lift: the catalog id is exact, because the research side wrote it into each curve's
+ * canonical name; the name is the fallback for the handful of curves that carry no id.
+ */
+const strengthPercentileLiftInput = z.object({
+  exerciseId: z.string().trim().min(1).max(80).nullish(),
+  catalogExerciseId: z.number().int().positive().nullish(),
+  exerciseName: z.string().trim().min(1).max(255).nullish(),
+  sex: z.enum(["male", "female"]).nullable(),
+  bodyMassKg: z.number().positive().max(500).nullable().optional(),
+  measuredOneRmKg: z.number().positive().max(1000).nullable().optional(),
+  loadKg: z.number().positive().max(1000).nullable().optional(),
+  repetitions: z.number().int().min(1).max(100).nullable().optional(),
+  repsInReserve: z.number().int().min(0).max(10).nullable().optional(),
+});
 
 export const appRouter = router({
   auth: router({
@@ -434,26 +451,20 @@ export const appRouter = router({
    * reference path in normsResolution: that one reports a band between published cut points
    * from a directly measured lift, this one interpolates a community curve from an estimated
    * 1RM. Every result names its route, so the two can never be read as the same number.
+   *
+   * One lift is described the same way whether it arrives alone or in a list.
    */
   strengthPercentile: router({
     forLift: publicProcedure
-      .input(
-        z.object({
-          // Any of the three identifies the lift. The catalog id is exact, because the research
-          // side wrote it into each curve's canonical name; the name is the fallback for the
-          // handful of curves that carry no id.
-          exerciseId: z.string().trim().min(1).max(80).nullish(),
-          catalogExerciseId: z.number().int().positive().nullish(),
-          exerciseName: z.string().trim().min(1).max(255).nullish(),
-          sex: z.enum(["male", "female"]).nullable(),
-          bodyMassKg: z.number().positive().max(500).nullable().optional(),
-          measuredOneRmKg: z.number().positive().max(1000).nullable().optional(),
-          loadKg: z.number().positive().max(1000).nullable().optional(),
-          repetitions: z.number().int().min(1).max(100).nullable().optional(),
-          repsInReserve: z.number().int().min(0).max(10).nullable().optional(),
-        })
-      )
+      .input(strengthPercentileLiftInput)
       .query(({ input }) => getStrengthPercentile(input)),
+    /**
+     * Several lifts in one request, answered in order. The Progress section places every
+     * lift it shows a trend for; asking one at a time was a request per card.
+     */
+    forLifts: publicProcedure
+      .input(z.object({ lifts: z.array(strengthPercentileLiftInput).max(24) }))
+      .query(({ input }) => getStrengthPercentiles(input.lifts)),
   }),
 
   /**
