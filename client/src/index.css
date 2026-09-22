@@ -3214,3 +3214,9 @@ details:not([open]) > *:not(summary) {
 [data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-trigger-chevron { color: var(--sg-text-muted-on-dark); }
 [data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-option.is-active { background: rgb(255 255 255 / .08); }
 [data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-option.is-selected strong { color: var(--sg-action); }
+
+/* Where a lift sits, on its Progress trend card: the same placement the Strength
+   Genome's record sheet shows for that lift, read here without the Review tap. */
+.destination-progress .progress-session-card em.progress-percentile { display: block; margin-top: .45rem; border-top: 1px solid rgb(164 200 232 / .18); padding-top: .45rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-style: normal; line-height: var(--sg-leading-body); }
+.destination-progress .progress-session-card em.progress-percentile b { color: var(--sg-focus-on-dark); font-weight: 800; }
+.destination-progress .progress-percentile-gap { margin-top: .85rem; border-left: 3px solid var(--sg-focus-on-dark); padding: .45rem .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
