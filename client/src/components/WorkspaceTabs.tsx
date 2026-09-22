@@ -22,13 +22,27 @@ export type WorkspaceTab = { id: string; label: string };
  * live here instead, because Profile is deliberately absent from the bottom nav and
  * this is now the only route to it.
  */
-export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions }: {
+export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions, caption }: {
   tabs: readonly WorkspaceTab[];
   activeId: string;
   label: string;
   onSelect: (tab: WorkspaceTab) => void;
   actions?: ReactNode;
+  /** Shown under the name on a destination that has no pages to switch between. */
+  caption?: ReactNode;
 }) {
+  /**
+   * A destination with one page has nothing to switch between, and the row said so
+   * by drawing a tab that navigates to the page you are already on.
+   *
+   * Measured at 390px: the tab strip gets 278px of the 390px row once the search
+   * and Profile controls take their fixed 112px. Body Lab's four tabs need 368px
+   * and scroll; Train's need 316px. Home's one tab used 66px, leaving 212px blank -
+   * 76% of the strip, 54% of the whole row - above a screen that is otherwise
+   * full. So on Home the row stops pretending to be a switcher and becomes what
+   * it actually is there: the name of the place, and the two controls.
+   */
+  const single = tabs.length <= 1;
   const listRef = useRef<HTMLElement | null>(null);
   const [edges, setEdges] = useState({ start: false, end: false });
 
@@ -68,6 +82,12 @@ export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions }: {
       data-overflow-start={edges.start ? "yes" : "no"}
       data-overflow-end={edges.end ? "yes" : "no"}
     >
+      {single ? (
+        <div className="workspace-top-title">
+          <strong>{tabs[0]?.label ?? label}</strong>
+          {caption && <span>{caption}</span>}
+        </div>
+      ) : (
       <nav className="workspace-top-switcher" aria-label={label} ref={listRef as React.RefObject<HTMLElement>}>
         {tabs.map(tab => {
           const active = tab.id === activeId;
@@ -80,6 +100,7 @@ export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions }: {
           >{tab.label}</button>;
         })}
       </nav>
+      )}
       {/* Outside the scrolling nav, so scrolling the tabs never carries the two
           controls off the edge with them. */}
       {actions && <div className="workspace-top-actions">{actions}</div>}

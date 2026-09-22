@@ -320,7 +320,12 @@
    `--sg-top-actions` is the width they reserve, and the one number the row's
    right-hand overflow arrow is positioned from - otherwise the arrow announcing a
    clipped tab lands on top of the search button. */
-.workspace-top-switcher-shell{--sg-top-actions:7rem;display:flex;align-items:stretch;gap:0;padding-top:env(safe-area-inset-top, 0px)}
+/* The row has two shapes - a tab strip, and a title block on a destination with
+   nothing to switch between - and they have to be the same height and start their
+   text at the same x, or switching destinations nudges the chrome. These are the
+   numbers both read: the tappable height, the strip's vertical padding, and the
+   distance from the row edge to the first glyph (strip padding + button padding). */
+.workspace-top-switcher-shell{--sg-top-actions:7rem;--sg-top-row-item:46px;--sg-top-row-pad:7px;--sg-top-row-inset:30px;display:flex;align-items:stretch;gap:0;padding-top:env(safe-area-inset-top, 0px)}
 .workspace-top-switcher-shell .workspace-top-switcher{min-width:0;flex:1 1 auto}
 .workspace-top-actions{position:relative;z-index:2;display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;gap:.4rem;width:var(--sg-top-actions);border-bottom:1px solid var(--sg-divider-on-light);border-left:1px solid var(--sg-divider-on-light);background:var(--sg-surface-light);padding-right:.85rem;padding-left:.5rem}
 .workspace-top-switcher-shell::after{right:calc(var(--sg-top-actions) + .25rem)}
@@ -465,10 +470,17 @@
   .rail-bottom { margin-top: auto; padding: 14px; }
   .rail-data-card { border: 1px solid rgb(184 255 91 / .28); background: linear-gradient(135deg, rgb(184 255 91 / .08), transparent 70%); padding: 14px; }
   .apex-main { min-width: 0; min-height: 100vh; }
-  .workspace-top-switcher { position: sticky; top: 0; z-index: 29; display: flex; gap: 12px; overflow-x: auto; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .96); padding: 7px 18px; scrollbar-width: none; }
+  .workspace-top-switcher { position: sticky; top: 0; z-index: 29; display: flex; gap: 12px; overflow-x: auto; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .96); padding: var(--sg-top-row-pad, 7px) 18px; scrollbar-width: none; }
   .workspace-top-switcher::-webkit-scrollbar { display: none; }
-  .workspace-top-switcher button { min-height: 46px; flex: 0 0 auto; border-bottom: 3px solid transparent; padding: 0 12px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; transition: color var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
+  .workspace-top-switcher button { min-height: var(--sg-top-row-item, 46px); flex: 0 0 auto; border-bottom: 3px solid transparent; padding: 0 12px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; transition: color var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease); }
   .workspace-top-switcher button:not(.workspace-top-switcher-active) { border-bottom-color: transparent !important; }
+  /* The same row, on a destination with nothing to switch between. It keeps the
+     strip's surface, padding and type so the chrome does not change shape between
+     destinations - it just stops drawing a tab that leads where you already are,
+     and gives the 212px that tab left blank at 390px something to hold. */
+  .workspace-top-title { min-height: calc(var(--sg-top-row-item, 46px) + 2 * var(--sg-top-row-pad, 7px) + 1px); display: flex; min-width: 0; flex: 1 1 auto; flex-direction: column; justify-content: center; gap: 3px; border-bottom: 1px solid #d8dfd7; background: rgb(247 248 243 / .96); padding: var(--sg-top-row-pad, 7px) var(--sg-top-row-inset, 30px); }
+  .workspace-top-title strong { align-self: flex-start; border-bottom: 3px solid var(--sg-action); padding-bottom: 4px; color: var(--sg-text-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: 1; text-transform: uppercase; }
+  .workspace-top-title span { overflow: hidden; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); text-overflow: ellipsis; white-space: nowrap; }
   .workspace-top-switcher-active { border-bottom-color: var(--sg-action) !important; color: var(--sg-text-on-light) !important; }
   .plan-context { margin-bottom: 1rem; border: 1px solid #cddbef; border-radius: 14px; background: rgb(255 255 255 / .82); overflow: hidden; }
   .plan-context summary { display: flex; min-height: 48px; align-items: center; gap: .6rem; cursor: pointer; list-style: none; padding: .65rem .85rem; color: #14375e; }
@@ -991,8 +1003,9 @@ select {
   .mobile-bottom-nav button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
   .mobile-bottom-nav button:hover, .mobile-bottom-nav-active { background: linear-gradient(180deg, rgb(45 108 223 / .3), rgb(25 78 150 / .4)); color: #fff; }
   .mobile-bottom-nav-active svg { color: var(--sg-focus-on-dark); }
-  .workspace-top-switcher { top: 0; min-height: 58px; gap: .75rem; padding: 5px .85rem; }
-  .workspace-top-switcher button { min-height: 52px; padding: 0 .9rem; font-size: var(--sg-text-sm); }
+  .workspace-top-switcher-shell { --sg-top-row-item: 52px; --sg-top-row-pad: 5px; --sg-top-row-inset: 1.75rem; }
+  .workspace-top-switcher { top: 0; min-height: 58px; gap: .75rem; padding: var(--sg-top-row-pad) .85rem; }
+  .workspace-top-switcher button { min-height: var(--sg-top-row-item); padding: 0 .9rem; font-size: var(--sg-text-sm); }
   .plan-context { margin: .8rem 0; border-radius: 12px; }
   .plan-context summary { min-height: 52px; padding: .65rem .85rem; }
   .plan-context summary > span { font-size: var(--sg-text-sm); }
@@ -3065,6 +3078,7 @@ details:not([open]) > *:not(summary) {
    top-right corner with two near-invisible icons on it. */
 [data-theme="dark"] .workspace-top-switcher-shell,
 [data-theme="dark"] .workspace-top-switcher,
+[data-theme="dark"] .workspace-top-title,
 [data-theme="dark"] .workspace-top-actions {
   border-bottom-color: var(--sg-control-border-on-dark);
   background: linear-gradient(180deg, var(--sg-surface-raised), var(--sg-surface-deep));
@@ -3075,6 +3089,9 @@ details:not([open]) > *:not(summary) {
 [data-theme="dark"] .workspace-top-switcher button { color: var(--sg-text-subtle-on-dark); }
 [data-theme="dark"] .workspace-top-switcher button:hover { color: var(--sg-text-on-dark); }
 [data-theme="dark"] .workspace-top-switcher-active { color: var(--sg-text-on-dark); }
+[data-theme="dark"] .workspace-top-title { border-bottom-color: var(--sg-control-border-on-dark); box-shadow: none; }
+[data-theme="dark"] .workspace-top-title strong { color: var(--sg-text-on-dark); }
+[data-theme="dark"] .workspace-top-title span { color: var(--sg-text-muted-on-dark); }
 
 /* The panels that kept a light surface on a dark ground. Their own ink is
  * written for that light surface, so it moves with them. */

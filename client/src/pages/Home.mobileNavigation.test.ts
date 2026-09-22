@@ -213,7 +213,8 @@ describe("workspace side navigation", () => {
 
     // Outside the scrolling nav, so scrolling the tabs cannot carry them off the edge.
     expect(tabsComponent).not.toMatch(/<nav className="workspace-top-switcher"[\s\S]*workspace-top-actions[\s\S]*<\/nav>/);
-    expect(css).toContain('.workspace-top-switcher-shell{--sg-top-actions:7rem;display:flex;');
+    expect(css).toContain('.workspace-top-switcher-shell{--sg-top-actions:7rem;');
+    expect(css).toMatch(/\.workspace-top-switcher-shell\{--sg-top-actions:7rem;[^}]*display:flex;/);
     // The overflow arrow is positioned from the same number, or it lands on the search button.
     expect(css).toContain('.workspace-top-switcher-shell::after{right:calc(var(--sg-top-actions) + .25rem)}');
     // The row is the top of the page now, on both stylesheets that set it.

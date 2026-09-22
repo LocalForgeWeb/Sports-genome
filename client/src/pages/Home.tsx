@@ -1262,6 +1262,16 @@ export default function Home() {
       <WorkspaceTabs
         tabs={contextualWorkspaceTabs}
         activeId={activeContextTabId}
+        /**
+         * Home is the app's only single-page destination, so it is the only place
+         * the row has room for this. The date rather than the plan position: the
+         * card below already prints "Week 1 - Day 02 - Pull", and repeating it in
+         * the chrome would fill the space with something the athlete is already
+         * reading. Today is the one thing that screen does not say anywhere.
+         */
+        caption={activePrimaryDestination === "home"
+          ? new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })
+          : undefined}
         label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}
         onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)}
         actions={<>
