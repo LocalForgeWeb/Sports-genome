@@ -166,10 +166,12 @@ describe("the dark theme covers the chrome it sits in", () => {
     expect(planner, "the button keeps its own white label").toMatch(/\.day-plan-empty button \{[^}]*background: var\(--sg-action-fill\); color: #fff;/);
   });
 
-  it("keeps the Add controls legible once their rows go dark", () => {
-    // Both kept the light-mode link blue: the row's Add measured 2.79:1 and the
-    // disclosure's "Add exercises" 2.71:1 against the surfaces the theme gave them.
-    expect(css).toContain('[data-theme="dark"] .day-picker-result > button:last-child,');
+  it("keeps the Add controls legible on the surfaces the theme actually gives them", () => {
+    // The disclosure's "Add exercises" sits on the dark day page and kept the
+    // light-mode link blue there: 2.71:1. The picker's rows do not go dark at
+    // all any more - they render only in the sheet, which stays a light surface,
+    // and theming them for a dark ground put #f7fbff names on white at 1.04:1.
     expect(css).toContain('[data-theme="dark"] .day-exercise-disclosure-action { color: var(--sg-link-on-dark); }');
+    expect(css).not.toMatch(/\[data-theme="dark"\] \.day-picker-result\b/);
   });
 });

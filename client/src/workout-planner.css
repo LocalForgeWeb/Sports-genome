@@ -908,3 +908,14 @@
 .day-capacity-note-qualified > svg { color: var(--sg-state-caution); }
 .day-capacity-note-withhold { border-left-color: var(--sg-state-critical); background: rgb(226 86 74 / .08); }
 .day-capacity-note-withhold > svg { color: var(--sg-state-critical); }
+
+/* Ink on the sheet's white ground, in both themes. The search-scope line is a
+   shared component written for the dark panels it usually sits on, and on this
+   sheet it measured 2.15:1 - "Searching Pull-compatible exercises." was the
+   faintest line on a screen whose job is reading. The row's movement line
+   (3.69:1) and the inactive scope button (3.86:1) take the same subtle-on-light
+   token the sheet's other secondary lines already use, which measures 5.03:1. */
+.day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }
+.day-picker-sheet .local-search-scope button { color: var(--sg-info-strong); }
+.day-picker-sheet .day-picker-result > button:first-child small { color: var(--sg-text-subtle-on-light); }
+.day-picker-sheet .day-picker-scope button:not(.day-picker-scope-active) { color: var(--sg-text-subtle-on-light); }
