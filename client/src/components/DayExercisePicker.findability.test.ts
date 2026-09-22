@@ -40,20 +40,43 @@ describe("Adding an exercise is findable on the Training Day", () => {
     expect(home).not.toContain("Search, filter, and add below.");
     expect(home).not.toContain("Search, filter, and add exercises below.");
     const empty = order('className="day-plan-empty"');
-    expect(home.indexOf("setPickerOpenSignal", empty)).toBeLessThan(home.indexOf("</div>", empty) + 400);
+    expect(home.indexOf("setPickerSheetOpen(true)", empty)).toBeLessThan(home.indexOf("</div>", empty) + 400);
   });
 
-  it("arrives expanded, in view, and ready to type", () => {
-    expect(picker).toContain("openSignal?: number;");
-    expect(picker).toContain("setPickerOpen(true);");
-    expect(picker).toContain('sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })');
+  /**
+   * Pressing it used to scroll the page down to the panel, which is not opening: the page
+   * moved under the athlete and left them to work out that the thing they asked for was
+   * now somewhere below.
+   */
+  it("opens a sheet over the day rather than scrolling the page to a panel", () => {
+    expect(picker).toContain("sheetOpen?: boolean;");
+    expect(picker).toContain('<div className="day-picker-sheet-scrim"');
+    expect(picker).toContain('role="dialog" aria-modal="true"');
+    expect(picker).not.toContain("scrollIntoView");
+    expect(home).toContain("setPickerSheetOpen(true)");
+  });
+
+  it("puts the cursor in the search field, because searching is what it is for", () => {
     expect(picker).toContain("searchRef.current?.focus()");
+    expect(picker).toContain("}, [sheetOpen]);");
   });
 
-  it("re-opens on a second ask rather than latching once", () => {
-    // A boolean would stay true after the athlete closed the picker, so the next ask would
-    // do nothing. The counter makes every ask a fresh one.
-    expect(home).toContain("setPickerOpenSignal((value) => value + 1)");
-    expect(picker).toContain("}, [openSignal]);");
+  it("closes the way every other layer over this page closes", () => {
+    expect(picker).toContain('if (event.key === "Escape") onCloseSheet();');
+    expect(picker).toContain('aria-label="Close add exercises"');
+    // Clicking the scrim itself, not a click that bubbled up from inside the sheet.
+    expect(picker).toContain("if (event.target === event.currentTarget) onCloseSheet?.()");
+    expect(home).toContain("onCloseSheet={() => setPickerSheetOpen(false)}");
+  });
+
+  it("renders the picker body once, so the search field keeps one ref", () => {
+    // Inline in the disclosure or inside the sheet - never both.
+    expect(picker).toContain("{!sheetOpen && pickerBody}");
+    expect(picker.match(/\{pickerBody\}/g)?.length).toBe(1);
+  });
+
+  it("scrolls its results, not the sheet, so the way out stays on screen", () => {
+    expect(styles).toContain(".day-picker-sheet .day-exercise-picker-content { min-height: 0; flex: 1 1 auto; overflow-y: auto;");
+    expect(styles).toContain(".day-picker-sheet-foot");
   });
 });
