@@ -1,6 +1,7 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment";
 import { logicCalibration } from "@/lib/evidenceTraceability";
+import { trainsMuscle } from "@/lib/muscleVocabulary";
 
 export type SplitMuscleRequirement = { muscle: string; role: "primary" | "support"; target: number };
 export type StackMuscleScore = SplitMuscleRequirement & { score: number; state: "gap" | "ready" | "high" };
@@ -19,7 +20,18 @@ const requirements: Record<TrainingSplit, SplitMuscleRequirement[]> = {
   "Sport Transfer": [{ muscle: "glutes", role: "primary", target: 50 }, { muscle: "abs", role: "primary", target: 45 }, { muscle: "obliques", role: "primary", target: 45 }, { muscle: "traps", role: "support", target: 35 }, { muscle: "rotatorCuff", role: "support", target: 30 }],
 };
 
-const involvement = (exercise: Exercise, muscle: string) => exercise.primaryMuscles.includes(muscle) ? logicCalibration.exposure.splitPrimaryTagWeight : exercise.secondaryMuscles.includes(muscle) ? logicCalibration.exposure.splitSupportTagWeight : 0;
+/**
+ * Through whichever catalog key carries the muscle, not the muscle's own name.
+ *
+ * The register asks a Pull day for "rhomboids" and the catalog has no such tag -
+ * the forty-five rows and rear-delt pulls that train them are tagged
+ * `upperBack` - so this returned nothing for every exercise ever added, and that
+ * shortfall could not be closed by any amount of the right work.
+ */
+const involvement = (exercise: Exercise, muscle: string) => {
+  const role = trainsMuscle(exercise, muscle);
+  return role === "primary" ? logicCalibration.exposure.splitPrimaryTagWeight : role === "secondary" ? logicCalibration.exposure.splitSupportTagWeight : 0;
+};
 
 export function getSplitRequirements(split: TrainingSplit) { return requirements[split]; }
 

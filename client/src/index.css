@@ -3196,3 +3196,21 @@ details:not([open]) > *:not(summary) {
 [data-theme="dark"] .local-search-scope { color: var(--sg-text-muted-on-dark); }
 [data-theme="dark"] .local-search-scope button { color: var(--sg-link-on-dark); }
 [data-theme="dark"] .movement-assistance-content em { color: var(--sg-focus-on-dark); }
+
+/* The muscle filter's dark treatment. Its light surfaces are restated in
+   workout-planner.css for the white toolbar it sits in, so the theme has to
+   take them back rather than rely on the component's own dark defaults. */
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-trigger,
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-panel {
+  border-color: var(--sg-control-border-on-dark);
+  background: var(--sg-surface-panel);
+  color: var(--sg-text-on-dark);
+}
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-trigger strong,
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-option strong,
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-search input { color: var(--sg-text-on-dark); }
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-option small,
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-empty,
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-trigger-chevron { color: var(--sg-text-muted-on-dark); }
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-option.is-active { background: rgb(255 255 255 / .08); }
+[data-theme="dark"] .day-picker-tools .muscle-select .athlete-sport-option.is-selected strong { color: var(--sg-action); }

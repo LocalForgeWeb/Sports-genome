@@ -1,6 +1,7 @@
 import React, { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { DayExercisePicker } from "./DayExercisePicker";
 import { exercises } from "@/lib/exerciseCatalog";
@@ -38,7 +39,12 @@ describe("Training Day exercise finder disclosure", () => {
   });
 
   it("retains split scope, muscle, equipment, inspection, and add behavior inside the disclosure", () => {
-    expect(source).toContain('aria-label="Filter day exercises by muscle group"');
+    // The muscle filter is a searchable listbox now rather than a native
+    // select, so its label travels with the component that renders it.
+    expect(source).toContain("<MuscleSelect muscles={muscleOptions}");
+    const muscleSelect = readFileSync(resolve(process.cwd(), "client/src/components/MuscleSelect.tsx"), "utf8");
+    expect(muscleSelect).toContain('aria-label="Filter day exercises by muscle group"');
+    expect(muscleSelect).toContain('aria-label="Search muscles"');
     expect(source).toContain('aria-label="Filter day exercises by equipment"');
     expect(source).toContain('setScope("all")');
     expect(source).toContain("onInspect(exercise)");

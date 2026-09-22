@@ -23,7 +23,13 @@ describe("universal search and retrieval contract / local search", () => {
     const searches = tsxFiles(SRC).filter((path) => {
       if (exempt.some((name) => path.endsWith(name))) return false;
       const source = readFileSync(path, "utf8");
-      return /placeholder=(?:"Search|\{`Search)/.test(source);
+      if (!/placeholder=(?:"Search|\{`Search)/.test(source)) return false;
+      // A field that filters the listbox it sits inside states its scope by
+      // being inside it: the options are on screen, narrowing as you type, and
+      // there is nothing to broaden to that closing the popup does not already
+      // do. The rule is for a search over a collection rendered elsewhere on
+      // the page, where what was searched has to be said in words.
+      return !/role="listbox"[\s\S]*aria-controls=\{listId\}|aria-controls=\{listId\}[\s\S]*role="listbox"/.test(source);
     });
     expect(searches.length, "local search inputs were found").toBeGreaterThan(4);
 

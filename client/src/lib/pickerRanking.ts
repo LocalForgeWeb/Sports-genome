@@ -15,6 +15,7 @@
 
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { CoverageBar } from "@/lib/stackCoverageVisual";
+import { trainsMuscle } from "@/lib/muscleVocabulary";
 
 export type GapTarget = {
   muscle: string;
@@ -54,8 +55,11 @@ export function rankPickerResults(results: readonly Exercise[], gaps: readonly G
     let fillsGap: GapTarget | null = null;
     let supportsGap: GapTarget | null = null;
     for (const gap of gaps) {
-      if (!fillsGap && exercise.primaryMuscles.includes(gap.muscle)) fillsGap = gap;
-      if (!supportsGap && exercise.secondaryMuscles.includes(gap.muscle)) supportsGap = gap;
+      // Through the catalog key that carries the muscle: a gap the register
+      // names "rhomboids" is closed by exercises the catalog tags `upperBack`.
+      const role = trainsMuscle(exercise, gap.muscle);
+      if (!fillsGap && role === "primary") fillsGap = gap;
+      if (!supportsGap && role === "secondary") supportsGap = gap;
     }
     // Direct work on a gap outranks supporting work on a worse one: the point is
     // to close a target, and a primary tag is what moves it.
