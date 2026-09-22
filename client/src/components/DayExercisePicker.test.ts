@@ -196,3 +196,37 @@ describe("Training Day finder search tolerance", () => {
     expect(styles).toContain(".day-picker-empty button {");
   });
 });
+
+/**
+ * On a phone in dark mode the sheet's exercise names were #f7fbff on a white
+ * card - 1.04:1 - because the rows were still themed for the dark Training Day
+ * page they used to sit on inline. The sheet is a light surface in both themes
+ * and is the only place the rows render, so the dark theme has nothing to say
+ * about them.
+ */
+describe("the picker sheet stays readable in dark mode", () => {
+  const theme = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+
+  it("never paints the rows, scope bar or show-more for a dark ground", () => {
+    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-result\b/);
+    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-scope\b/);
+    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-more\b/);
+  });
+
+  it("keeps the search-scope line in light ink inside the sheet, where its ground is light in both themes", () => {
+    // The shared component's default ink is for dark panels: 2.15:1 on the sheet, in light mode too.
+    expect(styles).toContain(".day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }");
+    expect(styles).toContain(".day-picker-sheet .local-search-scope button { color: var(--sg-info-strong); }");
+    expect(theme).toContain('[data-theme="dark"] .day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }');
+  });
+
+  it("lifts the row's movement line and the inactive scope button above 4.5:1", () => {
+    expect(styles).toContain(".day-picker-sheet .day-picker-result > button:first-child small { color: var(--sg-text-subtle-on-light); }");
+    expect(styles).toContain(".day-picker-sheet .day-picker-scope button:not(.day-picker-scope-active) { color: var(--sg-text-subtle-on-light); }");
+  });
+
+  it("keeps the sheet itself a light surface, so the ink above is the right ink", () => {
+    expect(styles).toMatch(/\.day-picker-sheet \{[^}]*background: var\(--sg-surface-light\)/);
+    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-sheet \{/);
+  });
+});

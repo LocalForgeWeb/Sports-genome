@@ -3195,34 +3195,24 @@ details:not([open]) > *:not(summary) {
 [data-theme="dark"] .movement-summary-strip > div :is(p, small, span) { color: var(--sg-text-muted-on-dark); }
 [data-theme="dark"] .genome-reading-key > span strong { color: var(--sg-text-on-dark); }
 
-/* The day picker, which arrived after this theme was written. Its rows, scope
- * bar and "show more" carry their own white surface. */
-[data-theme="dark"] .day-picker-result,
-[data-theme="dark"] .day-picker-scope {
-  border-color: var(--sg-control-border-on-dark);
-  background: rgb(255 255 255 / .05);
-  color: var(--sg-text-on-dark);
-}
-[data-theme="dark"] .day-picker-more {
-  border-color: var(--sg-control-border-on-dark);
-  background: rgb(255 255 255 / .07);
-  color: var(--sg-link-on-dark);
-}
-/* The Add control keeps its light-mode link blue, which on the row's new dark
-   surface measured 2.79:1 - and "Add exercises" on the disclosure above it
-   2.71:1. Both are the reason an athlete opens this panel. */
-[data-theme="dark"] .day-picker-result > button:last-child,
+/* The day picker's rows, scope bar and "show more" used to be themed here for the
+ * dark Training Day page they sat on inline. They live in the picker sheet now,
+ * and only there - and the sheet is a light surface in both themes. The rules
+ * kept firing inside it: measured on a phone in dark mode, an exercise name was
+ * #f7fbff on white, 1.04:1, and the movement line 1.48:1. Unreadable, on the
+ * one screen whose whole job is reading names. The sheet's own light ink is
+ * correct for the sheet, so nothing here overrides it. */
 [data-theme="dark"] .day-exercise-disclosure-action { color: var(--sg-link-on-dark); }
-[data-theme="dark"] .day-picker-result > button:last-child { border-left-color: var(--sg-control-border-on-dark); }
-[data-theme="dark"] .day-picker-result > button:last-child:disabled { background: rgb(255 255 255 / .04); color: var(--sg-text-faint-on-dark); }
-[data-theme="dark"] .day-picker-result :is(strong, h3, h4, .metric-label) { color: var(--sg-text-on-dark); }
-[data-theme="dark"] .day-picker-result :is(p, small, span, em, li) { color: var(--sg-text-muted-on-dark); }
 
 /* Ink inside the surfaces above that is written for a light ground. Measured
  * from rendered pixels: the search-scope link went 6.62:1 to 2.24:1 and the
  * assistance row's label 5.08:1 to 3.31:1 when their surface went dark. */
 [data-theme="dark"] .local-search-scope { color: var(--sg-text-muted-on-dark); }
 [data-theme="dark"] .local-search-scope button { color: var(--sg-link-on-dark); }
+/* Not inside the picker sheet, whose ground stays light in both themes: the
+   sheet restates that line's ink itself, in workout-planner.css. */
+[data-theme="dark"] .day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }
+[data-theme="dark"] .day-picker-sheet .local-search-scope button { color: var(--sg-info-strong); }
 [data-theme="dark"] .movement-assistance-content em { color: var(--sg-focus-on-dark); }
 
 /* The muscle filter's dark treatment. Its light surfaces are restated in
