@@ -101,3 +101,25 @@
 /* The one line of explanation the Appearance card needs: what the choice does,
    and - when it follows the device - what the device is currently asking for. */
 .about-me-theme-note { margin-top: .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.5; }
+
+/* Whether a sport applies at all — three answers, not a dropdown with a trapdoor.
+   It reads as a question because it is one, and because the two answers that are not
+   "a sport" need room to say they cost nothing. */
+.about-me-context-mode { display: grid; gap: .5rem; margin-top: 1rem; border: 0; padding: 0; }
+.about-me-context-mode legend { padding: 0; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.about-me-context-mode label { display: flex; align-items: flex-start; gap: .6rem; min-height: 44px; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: .6rem .7rem; cursor: pointer; }
+.about-me-context-mode input { margin-top: .2rem; flex: 0 0 auto; accent-color: var(--sg-action); }
+/* The card's labels are uppercase micro-labels; these are a question and three answers,
+   so they read as sentences rather than inheriting that. */
+.about-me-context-mode strong { display: block; color: var(--sg-text-on-light); font-size: var(--sg-text-md); font-weight: 800; letter-spacing: 0; text-transform: none; }
+.about-me-context-mode small { display: block; margin-top: .2rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 400; letter-spacing: 0; line-height: var(--sg-leading-body); text-transform: none; }
+.about-me-context-mode .about-me-context-active { border-color: var(--sg-action); box-shadow: inset 3px 0 var(--sg-action); }
+.about-me-context-note { margin-top: .1rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+
+/* On the dark Profile surface these sit inside a dark panel, so they take the panel's
+   own on-dark treatment rather than staying light boxes cut into it. */
+.destination-secondary .about-me-context-mode label { border-color: rgb(164 200 232 / .4); background: var(--sg-surface-deep); }
+.destination-secondary .about-me-context-mode strong { color: var(--sg-text-on-dark); }
+.destination-secondary .about-me-context-mode small,
+.destination-secondary .about-me-context-note { color: var(--sg-text-muted-on-dark); }
+.destination-secondary .about-me-context-mode .about-me-context-active { border-color: var(--sg-action); background: var(--sg-surface-raised); }
