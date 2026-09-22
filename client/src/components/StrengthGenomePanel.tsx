@@ -9,6 +9,7 @@ import { getStrengthCatalogSelectionContext, strengthRegionDefinitions, type Str
 import { StrengthGenomeBodyMap } from "@/components/StrengthGenomeBodyMap";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
+import { searchExercises } from "@/lib/exerciseSearch";
 import { displayWeightToKilograms, formatDisplayWeight, kilogramsToDisplayWeight, weightUnitLabel, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation, removeDeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
 import { getPiper2021PreacherCurlReference, piper2021PreacherCurlReferenceId, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
@@ -566,7 +567,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const parsedRepetitions = useMemo(() => Number(repetitions), [repetitions]);
   const parsedBodyMass = useMemo(() => Number(bodyMassKg), [bodyMassKg]);
   const needsLoad = ["MEASURED_1RM", "MULTI_REP"].includes(measurementType);
-  const exerciseMatches = useMemo(() => exercises.filter((exercise) => exercise.name.toLowerCase().includes(exerciseSearch.trim().toLowerCase())).slice(0, 8), [exerciseSearch]);
+  // Tolerant of spacing, abbreviations and a letter out of place, like every other
+  // place a lift is typed: a "romanain deadlift" logged here is the same lift.
+  const exerciseMatches = useMemo(() => searchExercises(exercises, exerciseSearch).slice(0, 8), [exerciseSearch]);
   const selectedExerciseContext = useMemo(() => selectedExercise ? getStrengthCatalogSelectionContext(selectedExercise) : null, [selectedExercise]);
   const piperCaptureAvailable = exerciseName === "Preacher Curl" && measurementType === "MULTI_REP";
   const powerliftingCaptureAvailable = ["Back Squat", "Barbell Bench Press", "Conventional Deadlift"].includes(exerciseName) && measurementType === "MEASURED_1RM";

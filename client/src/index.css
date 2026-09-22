@@ -2189,7 +2189,7 @@ details:not([open]) > *:not(summary) {
    that 44pt is the design target rather than WCAG's 24px minimum.
 
    Block controls and disclosures grow to the floor. */
-.apex-content :is(button, summary):not(.local-search-scope > button):not(.atlas-reset-pro):not(.genome-term-button):not([class*="chip"]) {
+.apex-content :is(button, summary):not(.local-search-scope > button):not(.atlas-reset-pro):not(.genome-term-button):not([class*="chip"]):not(.day-picker-empty button) {
   min-height: 2.75rem;
 }
 

@@ -67,7 +67,7 @@ describe("Training Day exercise finder disclosure", () => {
    */
   it("orders the options by the shortfalls this day actually has", () => {
     expect(built).toMatch(/options · [^<]+ first/);
-    expect(source).toContain("rankPickerResults(results, gaps)");
+    expect(source).toContain("rankPickerResults(results.map((match) => match.exercise), gaps, relevance)");
   });
 
   /**
@@ -145,5 +145,29 @@ describe("Training Day exercise finder disclosure", () => {
 
   it("drops the catalog id from the card, which led every row", () => {
     expect(source).not.toContain('String(exercise.id).padStart(3, "0")');
+  });
+});
+
+/**
+ * "reardelt fly", "trap bar" and "romanain" all returned "No exercises match".
+ * The box asked for an exact substring of the catalog's spelling; it now uses
+ * the shared matcher, ranks by how well a row answers the query before how well
+ * it fills a gap, labels a list of spelling guesses as guesses, and offers the
+ * nearest names instead of a dead end.
+ */
+describe("Training Day finder search tolerance", () => {
+  it("matches the way an athlete types and ranks relevance ahead of gaps", () => {
+    expect(source).toContain('import { matchesAreGuesses, rankExerciseMatches, suggestExerciseNames } from "@/lib/exerciseSearch";');
+    expect(source).toContain("rankPickerResults(results.map((match) => match.exercise), gaps, relevance)");
+  });
+
+  it("says when the results are the closest spellings rather than the thing typed", () => {
+    expect(source).toContain('{guessed && <span className="day-picker-result-guess">Nothing is spelled “{query.trim()}” — these are the closest.</span>}');
+  });
+
+  it("offers the nearest names when nothing matched, as taps that run the search", () => {
+    expect(source).toContain("suggestExerciseNames(candidates, query)");
+    expect(source).toContain('<button type="button" onClick={() => setQuery(name)}>{name}</button>');
+    expect(styles).toContain(".day-picker-empty button {");
   });
 });
