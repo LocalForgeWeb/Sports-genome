@@ -60,3 +60,42 @@ describe("Not training for a sport stays sayable after onboarding", () => {
     expect(home).toContain('{!sportId && <option value="" disabled>{sportContextMode === "general" ? "No sport — general training" : "No sport chosen yet"}</option>}');
   });
 });
+
+describe("The context question is drawn like the question it is", () => {
+  const panelStyles = readFileSync(new URL("../athlete-about-me.css", import.meta.url), "utf8");
+
+  /**
+   * The quiz asks this exact question with an icon, the answer and a check on the one that
+   * is chosen. Three bordered rectangles with native radio dots read as a form control for
+   * something incidental; this is one of the four things the whole plan is built from.
+   */
+  it("uses the same card the introduction uses for the same question", () => {
+    for (const icon of ["icon: Target", "icon: Dumbbell", "icon: Sparkles"]) {
+      expect(panel, `${icon} is on the profile's answers`).toContain(icon);
+    }
+    expect(panel).toContain('<Icon className="h-5 w-5" aria-hidden="true" />');
+    expect(panel).toContain('{chosen && <Check className="h-5 w-5" aria-hidden="true" />}');
+  });
+
+  /**
+   * `.about-me-card label` is (0,1,1) and set a stacked grid, so a single-class rule lost
+   * to it and the icon, answer and check stacked down the card instead of sitting in a row.
+   */
+  it("outranks the card's own label layout", () => {
+    expect(panelStyles).toContain(".about-me-context-mode .about-me-context-choice {");
+    expect(panelStyles).not.toMatch(/^\.about-me-context-choice \{/m);
+  });
+
+  it("keeps the radio for the keyboard while the card carries the selected state", () => {
+    // Visually hidden, not display:none - removing it from the tree takes it off the
+    // keyboard and out of the accessibility tree with it.
+    expect(panelStyles).toContain(".about-me-context-mode .about-me-context-choice input { position: absolute;");
+    expect(panelStyles).not.toMatch(/\.about-me-context-choice input \{[^}]*display: none/);
+    expect(panelStyles).toContain(".about-me-context-mode .about-me-context-choice:focus-within { outline:");
+    expect(panel).toContain('<input type="radio" name="about-me-context-mode"');
+  });
+
+  it("does not animate for an athlete who asked it not to", () => {
+    expect(panelStyles).toContain("@media (prefers-reduced-motion: reduce)");
+  });
+});
