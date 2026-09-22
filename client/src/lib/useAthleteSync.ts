@@ -7,6 +7,7 @@ import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions } from "@/lib/devi
 import { bodyWeightLogEvent, currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { capacitySignature, loadCapacityContext, saveCapacityContext, type CapacityContextSnapshot } from "@/lib/capacityContext";
+import { fetchTargetCatalogAsAthlete } from "@/lib/resilienceCatalogClient";
 import type { CapacityFocusState } from "@/components/CapacityFocusCard";
 import type { ResilienceTargetCatalog } from "@shared/resilienceContext";
 import type { AthleteSnapshot } from "@/lib/athleteStrengthEntry";
@@ -28,6 +29,12 @@ export type AthleteSyncStatus = {
   identity: IdentityState;
   pending: number;
   lastSyncedAt?: string;
+  /**
+   * The catalog actually in force: the server's when it is connected, otherwise
+   * the athlete's own read of the same view. Callers should prefer this over the
+   * server query they passed in, which is only one of the two ways in.
+   */
+  targetCatalog?: ResilienceTargetCatalog;
 };
 
 export function useAthleteSync(options: {
@@ -80,6 +87,28 @@ export function useAthleteSync(options: {
   }, [enabled, identity.userId, sexForReference, birthYear, sportId, sportContextMode, referenceMap]);
 
   /**
+   * The catalog, from the athlete's own session when the server route cannot
+   * serve it. The service-role key is a deployment setting; the view's own
+   * row-level security already says a signed-in athlete may read this list, so a
+   * missing key turns off a picker the database was willing to fill.
+   *
+   * Tried only while the server answer is not connected, and never re-tried once
+   * it has succeeded.
+   */
+  const [ownCatalog, setOwnCatalog] = useState<ResilienceTargetCatalog | null>(null);
+  useEffect(() => {
+    if (!enabled || !identity.userId || ownCatalog) return;
+    if (targetCatalog?.status === "connected") return;
+    let cancelled = false;
+    fetchTargetCatalogAsAthlete(identity.userId).then((catalog) => { if (!cancelled && catalog) setOwnCatalog(catalog); });
+    return () => { cancelled = true; };
+  }, [enabled, identity.userId, targetCatalog?.status, ownCatalog]);
+
+  // The server wins when it has an answer; this is a fallback, not a second
+  // source, and both parse rows through the same shared parser.
+  const effectiveCatalog = targetCatalog?.status === "connected" ? targetCatalog : ownCatalog ?? targetCatalog;
+
+  /**
    * The capacity answers, restored once and then written through.
    *
    * Restored only when this device has none of its own: the device is what the
@@ -90,28 +119,28 @@ export function useAthleteSync(options: {
   const restoredCapacity = useRef(false);
   useEffect(() => {
     if (!enabled || !identity.userId || restoredCapacity.current) return;
-    if (targetCatalog?.status !== "connected") return;
+    if (effectiveCatalog?.status !== "connected") return;
     if (capacityFocus?.focus) { restoredCapacity.current = true; return; }
     let cancelled = false;
-    loadCapacityContext(identity.userId, targetCatalog).then((snapshot) => {
+    loadCapacityContext(identity.userId, effectiveCatalog).then((snapshot) => {
       if (cancelled || !snapshot) return;
       restoredCapacity.current = true;
       onCapacityRestored?.(snapshot);
     });
     return () => { cancelled = true; };
-  }, [enabled, identity.userId, targetCatalog, capacityFocus?.focus, onCapacityRestored]);
+  }, [enabled, identity.userId, effectiveCatalog, capacityFocus?.focus, onCapacityRestored]);
 
   // Written on a real change only. The signature leaves out anything the tables
   // have no column for, so a re-render never lays down a duplicate row.
   const lastCapacity = useRef<string | null>(null);
   useEffect(() => {
     if (!enabled || !identity.userId || !capacityFocus) return;
-    if (targetCatalog?.status !== "connected") return;
+    if (effectiveCatalog?.status !== "connected") return;
     const signature = capacitySignature(capacityFocus);
     if (signature === "none" || signature === lastCapacity.current) return;
     lastCapacity.current = signature;
-    saveCapacityContext(identity.userId, capacityFocus, targetCatalog);
-  }, [enabled, identity.userId, capacityFocus, targetCatalog]);
+    saveCapacityContext(identity.userId, capacityFocus, effectiveCatalog);
+  }, [enabled, identity.userId, capacityFocus, effectiveCatalog]);
 
   const athleteSnapshot = useCallback((): AthleteSnapshot => ({
     sexForReference,
@@ -177,5 +206,5 @@ export function useAthleteSync(options: {
     };
   }, [enabled, syncNow]);
 
-  return { identity, pending, lastSyncedAt, syncNow };
+  return { identity, pending, lastSyncedAt, targetCatalog: effectiveCatalog, syncNow };
 }

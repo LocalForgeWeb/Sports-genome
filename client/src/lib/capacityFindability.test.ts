@@ -143,7 +143,22 @@ describe("a region in Body Lab offers the nearest target", () => {
 
   it("offers nothing when the catalog cannot list the target", () => {
     expect(capacityProposalFor("hamstrings", [])).toBeNull();
-    expect(home).toContain('resilienceCatalogQuery.data?.status === "connected" ? resilienceCatalogQuery.data.targets : []');
+    expect(home).toContain('resilienceCatalog?.status === "connected" ? resilienceCatalog.targets : []');
+  });
+
+  /**
+   * The catalog reaches the app two ways: the server route behind the
+   * service-role key, and the athlete's own read of the same view under its
+   * row-level security. Every surface has to read whichever one is in force, or a
+   * missing deployment setting turns the feature off on the surfaces that forgot.
+   */
+  it("reads the catalog in force rather than the server query alone", () => {
+    expect(home).toContain("const resilienceCatalog = athleteSync.targetCatalog;");
+    const uses = home.match(/resilienceCatalogQuery\.data/g) ?? [];
+    // Exactly two are legitimate: the query fed into the sync hook, and
+    // onboarding, which runs before there is a session to read the view with.
+    expect(uses.length, "a surface is still reading only the server answer").toBe(2);
+    expect(home).toContain("targetCatalog: resilienceCatalogQuery.data,");
   });
 
   /**

@@ -42,16 +42,18 @@ const focusOn = (constraintType: CapacityFocusState["constraint"] extends undefi
  * onboarding and by the profile card, and read by nothing at all - an athlete who
  * named a shoulder never saw it mentioned again on any training screen.
  *
- * The second is a deployment setting, not code: the selectable target catalog is a
- * server-only Supabase read, and `SUPABASE_SERVICE_ROLE_KEY` is unset on the
- * production project, so the catalog answers "unavailable" and both the quiz step
- * and the profile card collapse to a boundary sentence. The last case here is the
- * part of that this repository can own: what the athlete sees when it happens.
+ * The second was a deployment setting: the catalog was read only behind
+ * `SUPABASE_SERVICE_ROLE_KEY`, which is unset on the production project, so it
+ * answered "unavailable" and every surface collapsed to a boundary sentence. The
+ * athlete's own session can read the same view under its row-level security, and
+ * now does when the server route cannot — but onboarding still runs before there
+ * is a session, and the catalog can still be genuinely offline. The last case
+ * here is what the athlete sees when that happens.
  */
 describe("what you told us you are working on reaches the day you build", () => {
   it("is read on the Training Day, not only written by the profile", () => {
     expect(home).toContain("<DayCapacityNote capacity={capacityFocus}");
-    expect(home).toContain("catalog={resilienceCatalogQuery.data}");
+    expect(home).toContain("catalog={resilienceCatalog}");
     // Inside the day being built, above the panels that read it.
     const day = home.indexOf('{workspace === "day-plan"');
     expect(home.indexOf("<DayCapacityNote", day)).toBeLessThan(home.indexOf("<DayExercisePicker", day));
