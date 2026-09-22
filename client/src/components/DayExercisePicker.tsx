@@ -142,6 +142,39 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [sheetOpen, onCloseSheet]);
 
+  /**
+   * The page underneath holds still while the sheet is up.
+   *
+   * It did not: the sheet is a fixed layer, and the day page behind it stayed
+   * scrollable. On iOS, focusing the search box makes Safari scroll the document
+   * to reveal the field, and every keystroke re-checked it - so the site behind
+   * the sheet moved up and down as the athlete typed. `overflow: hidden` on the
+   * body is not enough there; pinning the body in place at its current offset
+   * is, and the offset is put back when the sheet closes so nobody loses their
+   * place on the day.
+   */
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const body = document.body;
+    const scrollY = window.scrollY;
+    const previous = { position: body.style.position, top: body.style.top, left: body.style.left, right: body.style.right, width: body.style.width, overflow: body.style.overflow };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.left = previous.left;
+      body.style.right = previous.right;
+      body.style.width = previous.width;
+      body.style.overflow = previous.overflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [sheetOpen]);
+
   const pickerBody = <>
   <div className="day-exercise-picker-content">
         <div className="day-exercise-picker-head"><div><p className="metric-label">Build this day yourself</p><h3>Add exercises directly</h3><p>Start with split-matched options, then switch to the full catalog when you want a deliberate exception.</p></div><Dumbbell className="h-5 w-5" /></div>
