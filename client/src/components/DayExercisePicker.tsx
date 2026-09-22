@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, Dumbbell, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, Dumbbell, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment";
 import { muscleLabels } from "@/components/AnatomyMap";
@@ -24,11 +24,15 @@ type DayExercisePickerProps = {
   onReplace: (outgoing: Exercise, incoming: Exercise) => void;
   onInspect: (exercise: Exercise) => void;
   /**
-   * Bumped when something elsewhere on the day asks to add an exercise. A counter rather
-   * than a boolean, so a second ask scrolls again, and closing the picker afterwards is
-   * not immediately undone by the same value still being true.
+   * True while "Add exercises" is open as a sheet over the day.
+   *
+   * It used to be a counter that scrolled the page down to this panel. Scrolling is not
+   * opening: the athlete pressed a button and the page moved under them, leaving them to
+   * work out that the thing they asked for was now somewhere below. A sheet arrives where
+   * they are looking and closes back to where they were.
    */
-  openSignal?: number;
+  sheetOpen?: boolean;
+  onCloseSheet?: () => void;
 };
 
 const initialResultLimit = 24;
@@ -45,7 +49,7 @@ export function sortDayExerciseResults(results: Exercise[], muscle: string) {
   });
 }
 
-export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, openSignal = 0, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
+export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, sheetOpen = false, onCloseSheet, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
   /**
@@ -118,24 +122,23 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
 
   useEffect(() => { setResultLimit(initialResultLimit); }, [equipment, muscle, query, scope, split]);
 
-  // Opening from elsewhere has to arrive somewhere useful: the panel in view, expanded,
-  // with the cursor already in the search field.
+  // The cursor starts in the search field, because searching is what the sheet is for.
   useEffect(() => {
-    if (!openSignal) return;
-    setPickerOpen(true);
-    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    const focusTimer = window.setTimeout(() => searchRef.current?.focus(), 320);
+    if (!sheetOpen) return;
+    const focusTimer = window.setTimeout(() => searchRef.current?.focus(), 60);
     return () => window.clearTimeout(focusTimer);
-  }, [openSignal]);
+  }, [sheetOpen]);
 
-  return <section className="day-exercise-picker" ref={sectionRef} id="day-exercise-picker">
-    <RateStackPanel workout={activeWorkout} catalog={exercises} split={split} sportId={sportId} prescriptions={prescriptions} onAdd={onAdd} onReplace={onReplace} />
-    <details className="day-exercise-disclosure" open={pickerOpen} onToggle={(event) => setPickerOpen((event.currentTarget as HTMLDetailsElement).open)}>
-      <summary>
-        <span><p className="metric-label">Add to this day</p><strong>{activeWorkout.length ? "Find an exercise" : "Start with your first exercise"}</strong><small>{gaps.length ? `Sorted to close ${muscleLabels[gaps[0].muscle] || gaps[0].muscle} first` : "Search, filter, then add from the catalog"}</small></span>
-        <span className="day-exercise-disclosure-action">Browse <ChevronDown className="h-4 w-4" /></span>
-      </summary>
-      <div className="day-exercise-picker-content">
+  // Escape closes it, the way every other layer over this page closes.
+  useEffect(() => {
+    if (!sheetOpen || !onCloseSheet) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onCloseSheet(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [sheetOpen, onCloseSheet]);
+
+  const pickerBody = <>
+  <div className="day-exercise-picker-content">
         <div className="day-exercise-picker-head"><div><p className="metric-label">Build this day yourself</p><h3>Add exercises directly</h3><p>Start with split-matched options, then switch to the full catalog when you want a deliberate exception.</p></div><Dumbbell className="h-5 w-5" /></div>
         {gaps.length > 0 && activeWorkout.length > 0 && <div className="day-picker-gaps"><span className="day-picker-gaps-label">Short in this day</span>{gaps.map((gap) => <button key={gap.muscle} type="button" onClick={() => setMuscle(muscle === muscleFilterKey(gap.muscle) ? "all" : muscleFilterKey(gap.muscle))} className={muscle === muscleFilterKey(gap.muscle) ? "day-picker-gap day-picker-gap-active" : "day-picker-gap"} aria-pressed={muscle === muscleFilterKey(gap.muscle)}>{muscleLabels[gap.muscle] || gap.muscle}<i>{gap.deltaToTarget}</i></button>)}{muscle !== "all" && <button type="button" className="day-picker-gap-clear" onClick={() => setMuscle("all")}>Clear</button>}</div>}
         <div className="day-picker-tools"><label><Search className="h-4 w-4" /><input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${scope === "split" ? split : "all"} exercises`} /></label><MuscleSelect muscles={muscleOptions} value={muscle} labelFor={(key) => muscleLabels[key] || key} onChange={setMuscle} /><select value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter day exercises by equipment"><option value="all">All equipment</option>{equipmentOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select><div className="day-picker-scope"><button onClick={() => setScope("split")} className={scope === "split" ? "day-picker-scope-active" : ""}><SlidersHorizontal className="h-3.5 w-3.5" /> {split} fit</button><button onClick={() => setScope("all")} className={scope === "all" ? "day-picker-scope-active" : ""}>All catalog</button></div></div>
@@ -146,6 +149,33 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
         {ranked.length > visibleRanked.length && <button type="button" className="day-picker-more" onClick={() => setResultLimit((current) => current + initialResultLimit)}>Show more options</button>}
         {!results.length && <p className="day-picker-empty">No exercises match this setup. Clear a filter or search the full catalog.</p>}
       </div>
-    </details>
-  </section>;
+  </>;
+
+  return <>
+    <section className="day-exercise-picker" ref={sectionRef} id="day-exercise-picker">
+      <RateStackPanel workout={activeWorkout} catalog={exercises} split={split} sportId={sportId} prescriptions={prescriptions} onAdd={onAdd} onReplace={onReplace} />
+      <details className="day-exercise-disclosure" open={pickerOpen && !sheetOpen} onToggle={(event) => setPickerOpen((event.currentTarget as HTMLDetailsElement).open)}>
+        <summary>
+          <span><p className="metric-label">Add to this day</p><strong>{activeWorkout.length ? "Find an exercise" : "Start with your first exercise"}</strong><small>{gaps.length ? `Sorted to close ${muscleLabels[gaps[0].muscle] || gaps[0].muscle} first` : "Search, filter, then add from the catalog"}</small></span>
+          <span className="day-exercise-disclosure-action">Browse <ChevronDown className="h-4 w-4" /></span>
+        </summary>
+        {!sheetOpen && pickerBody}
+      </details>
+    </section>
+
+    {/* Opened by "Add exercises". The same surface, over the day rather than below it. */}
+    {sheetOpen && <div className="day-picker-sheet-scrim" onClick={(event) => { if (event.target === event.currentTarget) onCloseSheet?.(); }}>
+      <section className="day-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="day-picker-sheet-title">
+        <header className="day-picker-sheet-head">
+          <div><p className="metric-label">Add to {split}</p><h2 id="day-picker-sheet-title">Add exercises</h2></div>
+          <button type="button" onClick={() => onCloseSheet?.()} aria-label="Close add exercises"><X className="h-4 w-4" /></button>
+        </header>
+        {pickerBody}
+        <footer className="day-picker-sheet-foot">
+          <span>{activeWorkout.length} in this day</span>
+          <button type="button" onClick={() => onCloseSheet?.()}>Done</button>
+        </footer>
+      </section>
+    </div>}
+  </>;
 }
