@@ -11,7 +11,20 @@ export const splitStackModelBoundary = `Coverage values are catalog-planning ind
 
 const requirements: Record<TrainingSplit, SplitMuscleRequirement[]> = {
   Push: [{ muscle: "chest", role: "primary", target: 90 }, { muscle: "frontDelts", role: "primary", target: 75 }, { muscle: "triceps", role: "primary", target: 70 }, { muscle: "sideDelts", role: "support", target: 45 }, { muscle: "serratusAnterior", role: "support", target: 35 }],
-  Pull: [{ muscle: "lats", role: "primary", target: 85 }, { muscle: "rhomboids", role: "primary", target: 65 }, { muscle: "traps", role: "primary", target: 60 }, { muscle: "rearDelts", role: "support", target: 45 }, { muscle: "biceps", role: "support", target: 55 }, { muscle: "forearms", role: "support", target: 40 }],
+  // `upperBack`, not `rhomboids`. The catalog tags the interscapular region
+  // `upperBack` on all 400 exercises and never once uses `rhomboids`, so this
+  // row could not be satisfied by any exercise in the app: it read 0 coverage
+  // whatever you put in the day, offered no suggestion (the candidate filter
+  // needs involvement > 0), and held a fully-covered Pull day to 83/100. The
+  // interscapular work an athlete did add was filed under "Upper back" and
+  // demoted into "Supporting involvement", which the page then says is "not
+  // included in the pull target grade".
+  //
+  // The two names are the same region - anatomyRegions.ts states that, and
+  // anatomySubregions.ts notes the rhomboids lie under the mid trapezius and
+  // are not drawn separately - so this takes the name the data actually has
+  // rather than claiming a target the catalog cannot grade.
+  Pull: [{ muscle: "lats", role: "primary", target: 85 }, { muscle: "upperBack", role: "primary", target: 65 }, { muscle: "traps", role: "primary", target: 60 }, { muscle: "rearDelts", role: "support", target: 45 }, { muscle: "biceps", role: "support", target: 55 }, { muscle: "forearms", role: "support", target: 40 }],
   Legs: [{ muscle: "quads", role: "primary", target: 80 }, { muscle: "hamstrings", role: "primary", target: 75 }, { muscle: "glutes", role: "primary", target: 70 }, { muscle: "calves", role: "support", target: 40 }, { muscle: "adductors", role: "support", target: 35 }],
   Upper: [{ muscle: "chest", role: "primary", target: 60 }, { muscle: "lats", role: "primary", target: 60 }, { muscle: "frontDelts", role: "support", target: 45 }, { muscle: "rearDelts", role: "support", target: 45 }, { muscle: "triceps", role: "support", target: 45 }, { muscle: "biceps", role: "support", target: 45 }],
   Lower: [{ muscle: "quads", role: "primary", target: 75 }, { muscle: "hamstrings", role: "primary", target: 75 }, { muscle: "glutes", role: "primary", target: 70 }, { muscle: "calves", role: "support", target: 40 }, { muscle: "tibialis", role: "support", target: 25 }],
@@ -22,6 +35,12 @@ const requirements: Record<TrainingSplit, SplitMuscleRequirement[]> = {
 const involvement = (exercise: Exercise, muscle: string) => exercise.primaryMuscles.includes(muscle) ? logicCalibration.exposure.splitPrimaryTagWeight : exercise.secondaryMuscles.includes(muscle) ? logicCalibration.exposure.splitSupportTagWeight : 0;
 
 export function getSplitRequirements(split: TrainingSplit) { return requirements[split]; }
+
+/**
+ * Every split that carries a requirement list. Derived from the map rather than
+ * written out again, so a check that sweeps all splits cannot fall behind it.
+ */
+export const splitsWithRequirements = Object.keys(requirements) as TrainingSplit[];
 
 export function analyzeSplitStack(workout: Exercise[], catalog: Exercise[], split: TrainingSplit) {
   const ratings: StackMuscleScore[] = requirements[split].map((requirement) => {
