@@ -69,10 +69,26 @@ describe("Adding an exercise is findable on the Training Day", () => {
     expect(home).toContain("onCloseSheet={() => setPickerSheetOpen(false)}");
   });
 
-  it("renders the picker body once, so the search field keeps one ref", () => {
-    // Inline in the disclosure or inside the sheet - never both.
-    expect(picker).toContain("{!sheetOpen && pickerBody}");
+  /**
+   * It rendered in both places at once. The inline disclosure was 3,300px of the
+   * Training Day's 6,400 - the largest block on a page whose job is to show the
+   * day you are building, and a second copy of a surface that already had a door.
+   */
+  it("renders the catalog in the sheet and nowhere else", () => {
     expect(picker.match(/\{pickerBody\}/g)?.length).toBe(1);
+    expect(picker).not.toContain("{!sheetOpen && pickerBody}");
+    expect(picker).not.toContain('<details className="day-exercise-disclosure"');
+    // What is left on the page is the door, and it opens the same sheet.
+    expect(picker).toContain('className="day-exercise-open-catalog"');
+    expect(home).toContain("onOpenSheet={() => setPickerSheetOpen(true)}");
+  });
+
+  /**
+   * The coverage read-out named a muscle as the day's worst shortfall and then
+   * offered nothing to do about it but open a modal that named it again.
+   */
+  it("makes a named shortfall open the catalog already filtered to it", () => {
+    expect(picker).toContain("onFixMuscle={(target) => { setMuscle(muscleFilterKey(target)); setQuery(\"\"); onOpenSheet?.(); }}");
   });
 
   it("scrolls its results, not the sheet, so the way out stays on screen", () => {

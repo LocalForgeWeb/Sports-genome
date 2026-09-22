@@ -1326,10 +1326,14 @@ select {
 .destination-train .weekly-volume-head,
 .destination-train .weekly-volume-legend,
 .destination-train .weekly-volume-details,
+.destination-train .weekly-volume-more,
+.destination-train .weekly-volume-more[open] > summary,
 .destination-train .weekly-volume-list > article { border-color: var(--sg-control-border-on-dark); }
 .destination-train .weekly-volume-head { background: rgb(255 255 255 / .04); }
 .destination-train .weekly-volume-track { background: rgb(255 255 255 / .1); }
-.destination-train .weekly-volume-details summary { color: var(--sg-link-on-dark); }
+.destination-train .weekly-volume-details summary,
+.destination-train .weekly-volume-more > summary { color: var(--sg-link-on-dark); }
+.destination-train .weekly-volume-more > summary small { color: var(--sg-text-muted-on-dark); }
 .destination-train .weekly-volume-days span { color: var(--sg-text-muted-on-dark); }
 /* The row's headline number, and the per-day figures beside it.
  *
@@ -1851,7 +1855,7 @@ details:not([open]) > *:not(summary) {
 .atlas-action-list, .movement-intelligence-panel, .movement-role-row,
 .movement-assistance-row, .redundancy-panel, .weekly-plan-board, .builder-finder-row,
 .day-design-rail-note, .day-active-card, .session-execution-strip, .session-exercise,
-.session-set-row, .day-exercise-disclosure, .day-picker-scope, .day-picker-result, .body-lab-quick-actions, .recovery-spacing-panel,
+.session-set-row, .day-exercise-open-catalog, .day-picker-scope, .day-picker-result, .body-lab-quick-actions, .recovery-spacing-panel,
 .weekly-volume-panel, .builder-finder, .universal-search-sheet {
   color: var(--sg-text-on-light);
   /* Labels travel with the surface: a light card nested inside a dark
@@ -3126,14 +3130,14 @@ details:not([open]) > *:not(summary) {
 }
 
 [data-theme="dark"] .movement-intelligence-panel,
-[data-theme="dark"] .day-exercise-disclosure,
+[data-theme="dark"] .day-exercise-open-catalog,
 [data-theme="dark"] .genome-panel {
   border-color: var(--sg-control-border-on-dark);
   background: linear-gradient(145deg, var(--sg-surface-panel), var(--sg-surface-deep));
   color: var(--sg-text-on-dark);
 }
-[data-theme="dark"] :is(.movement-intelligence-panel, .day-exercise-disclosure, .genome-panel) :is(h1, h2, h3, h4, strong, dt, .metric-label) { color: var(--sg-text-on-dark); }
-[data-theme="dark"] :is(.movement-intelligence-panel, .day-exercise-disclosure, .genome-panel) :is(p, small, span, dd, li, summary) { color: var(--sg-text-muted-on-dark); }
+[data-theme="dark"] :is(.movement-intelligence-panel, .day-exercise-open-catalog, .genome-panel) :is(h1, h2, h3, h4, strong, dt, .metric-label) { color: var(--sg-text-on-dark); }
+[data-theme="dark"] :is(.movement-intelligence-panel, .day-exercise-open-catalog, .genome-panel) :is(p, small, span, dd, li, summary) { color: var(--sg-text-muted-on-dark); }
 
 /* The last few a sweep turned up, one screen each. */
 [data-theme="dark"] .genome-tabbar,

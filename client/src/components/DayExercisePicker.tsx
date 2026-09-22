@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, Dumbbell, Plus, Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronRight, Dumbbell, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment";
 import { muscleLabels } from "@/components/AnatomyMap";
@@ -33,6 +33,8 @@ type DayExercisePickerProps = {
    * they are looking and closes back to where they were.
    */
   sheetOpen?: boolean;
+  /** Opens that sheet from inside the panel - the coverage read-out's shortfalls do. */
+  onOpenSheet?: () => void;
   onCloseSheet?: () => void;
 };
 
@@ -50,16 +52,8 @@ export function sortDayExerciseResults(results: Exercise[], muscle: string) {
   });
 }
 
-export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, sheetOpen = false, onCloseSheet, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
-  const sectionRef = useRef<HTMLElement | null>(null);
+export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, sheetOpen = false, onOpenSheet, onCloseSheet, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
   const searchRef = useRef<HTMLInputElement | null>(null);
-  /**
-   * Open on an empty day. The disclosure was collapsed unconditionally, so
-   * adding the first exercise to a new day meant scrolling past the analysis and
-   * expanding a panel before anything could be searched. Uncontrolled after the
-   * first render, so toggling it still sticks.
-   */
-  const [pickerOpen, setPickerOpen] = useState(activeWorkout.length === 0);
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"split" | "all">("split");
   const [equipment, setEquipment] = useState("all");
@@ -170,16 +164,30 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
       </div>
   </>;
 
+  /**
+   * The catalog used to render twice on the Training Day: inline in a disclosure
+   * below the day, and again in the sheet "Add exercises" opens. The inline copy
+   * was 3,300px of the page's 6,400 - the largest thing on a screen whose job is
+   * to show the day you are building, and a second copy of a surface that already
+   * had a way in. It is gone; the sheet is the only catalog, and this section is
+   * now only the day's read-out.
+   */
   return <>
-    <section className="day-exercise-picker" ref={sectionRef} id="day-exercise-picker">
-      <RateStackPanel workout={activeWorkout} catalog={exercises} split={split} sportId={sportId} prescriptions={prescriptions} onAdd={onAdd} onReplace={onReplace} />
-      <details className="day-exercise-disclosure" open={pickerOpen && !sheetOpen} onToggle={(event) => setPickerOpen((event.currentTarget as HTMLDetailsElement).open)}>
-        <summary>
-          <span><p className="metric-label">Add to this day</p><strong>{activeWorkout.length ? "Find an exercise" : "Start with your first exercise"}</strong><small>{gaps.length ? `Sorted to close ${muscleLabels[gaps[0].muscle] || gaps[0].muscle} first` : "Search, filter, then add from the catalog"}</small></span>
-          <span className="day-exercise-disclosure-action">Browse <ChevronDown className="h-4 w-4" /></span>
-        </summary>
-        {!sheetOpen && pickerBody}
-      </details>
+    <section className="day-exercise-picker" id="day-exercise-picker">
+      <RateStackPanel
+        workout={activeWorkout}
+        catalog={exercises}
+        split={split}
+        sportId={sportId}
+        prescriptions={prescriptions}
+        onAdd={onAdd}
+        onReplace={onReplace}
+        onFixMuscle={(target) => { setMuscle(muscleFilterKey(target)); setQuery(""); onOpenSheet?.(); }}
+      />
+      <button type="button" className="day-exercise-open-catalog" onClick={() => onOpenSheet?.()}>
+        <span><p className="metric-label">Add to this day</p><strong>{activeWorkout.length ? "Find an exercise" : "Start with your first exercise"}</strong><small>{gaps.length ? `Sorted to close ${muscleLabels[gaps[0].muscle] || gaps[0].muscle} first` : "Search, filter, then add from the catalog"}</small></span>
+        <span className="day-exercise-disclosure-action">Browse <ChevronRight className="h-4 w-4" /></span>
+      </button>
     </section>
 
     {/* Opened by "Add exercises". The same surface, over the day rather than below it. */}

@@ -15,27 +15,47 @@ const stack = ["Barbell Bench Press", "Seated Barbell Overhead Press"]
   .map((name) => exercises.find((exercise) => exercise.name === name))
   .filter((exercise): exercise is (typeof exercises)[number] => Boolean(exercise));
 
-const render = (activeWorkout: typeof stack) =>
+const render = (activeWorkout: typeof stack, sheetOpen = false) =>
   renderToStaticMarkup(
     createElement(DayExercisePicker, {
       exercises,
       activeWorkout,
       split: "Push" as const,
+      sheetOpen,
+      onOpenSheet: () => undefined,
+      onCloseSheet: () => undefined,
       onAdd: () => undefined,
       onReplace: () => undefined,
       onInspect: () => undefined,
     })
   );
 
-const built = render(stack);
-const empty = render([]);
+/**
+ * The catalog lives in the sheet now, and only there. It used to render inline in
+ * a disclosure as well - 3,300px of the Training Day's 6,400 - so these two
+ * renders are the day as you read it, and the catalog as you open it.
+ */
+const day = render(stack);
+const built = render(stack, true);
+const empty = render([], true);
 
 describe("Training Day exercise finder disclosure", () => {
-  it("keeps Stack Analysis separately reachable while hiding the full catalog toolset behind one clear finder control", () => {
+  it("keeps Stack Analysis on the day and the catalog behind one clear control", () => {
     expect(source).toContain("<RateStackPanel");
-    expect(source).toContain('<details className="day-exercise-disclosure"');
-    expect(built).toContain("Find an exercise");
+    expect(source).toContain('className="day-exercise-open-catalog"');
+    expect(day).toContain("Find an exercise");
     expect(source).toContain("Search, filter, then add from the catalog");
+  });
+
+  /**
+   * Both surfaces were on the page at once: the sheet "Add exercises" opens, and
+   * the same tools, filters and 110 rows expanded inline underneath the day.
+   */
+  it("does not also render the catalog underneath the day", () => {
+    expect(day).not.toContain("day-picker-tools");
+    expect(day).not.toContain("day-picker-results");
+    expect(day).not.toContain("Add exercises directly");
+    expect(source).not.toContain('<details className="day-exercise-disclosure"');
   });
 
   it("retains split scope, muscle, equipment, inspection, and add behavior inside the disclosure", () => {
@@ -127,15 +147,20 @@ describe("Training Day exercise finder disclosure", () => {
     expect(built).toMatch(/options · [^<]+ first/);
   });
 
-  it("opens itself on an empty day, where adding is the only thing to do", () => {
-    // It was collapsed unconditionally, so the first exercise of a new day cost
-    // a scroll past the analysis and an expand before anything could be typed.
-    expect(empty).toContain("<details class=\"day-exercise-disclosure\" open");
-    expect(empty).toContain("Start with your first exercise");
+  /**
+   * This used to be a disclosure that opened itself on an empty day, because the
+   * first exercise of a new day otherwise cost a scroll past the analysis and an
+   * expand. The sheet replaces that: nothing is expanded on the page at all, and
+   * the empty day's own control opens it.
+   */
+  it("names the first exercise as the thing to do on an empty day", () => {
+    expect(render([])).toContain("Start with your first exercise");
+    expect(render([])).not.toContain("day-picker-results");
   });
 
-  it("stays closed once the day has exercises in it", () => {
-    expect(built).not.toContain("day-exercise-disclosure\" open");
+  it("puts the cursor in the search field when the sheet is what opened", () => {
+    expect(source).toContain("searchRef.current?.focus()");
+    expect(empty).toContain("day-picker-results");
   });
 
   it("does not enumerate every target as a gap on an empty day", () => {

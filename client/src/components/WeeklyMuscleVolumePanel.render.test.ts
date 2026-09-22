@@ -39,4 +39,30 @@ describe("weekly muscle volume rows", () => {
     draw({});
     expect(screen.getByText("Save a training day to begin the weekly volume map.")).toBeTruthy();
   });
+
+  /**
+   * "Where does the week's volume land" was answered with eight full rows - name,
+   * split, status chip, number and a two-tone bar each - measured at 1,288px on a
+   * 390px-wide screen. The answer is the muscles carrying most of it; the rest are
+   * evidence for it, and now sit behind one tap in the same order.
+   */
+  it("leads with the muscles carrying the most, and keeps the rest one tap down", () => {
+    draw({ "1-Push": pick(10), "2-Pull": exercises.slice(20, 32), "3-Legs": exercises.slice(40, 52) });
+    // The first list is what the page opens with; the second is behind the tap.
+    expect(document.querySelectorAll(".weekly-volume-panel > .weekly-volume-list > article").length).toBe(4);
+    const more = document.querySelector(".weekly-volume-more");
+    expect(more, "the remaining muscles are still reachable").toBeTruthy();
+    expect((more as HTMLDetailsElement).open, "and are not opened by default").toBe(false);
+    // Named in the summary, so what is behind the tap is not a mystery.
+    expect(more!.querySelector("summary small")?.textContent?.length).toBeGreaterThan(0);
+    expect(document.querySelectorAll(".weekly-volume-more article").length).toBeGreaterThan(0);
+  });
+
+  it("does not offer a tap that opens nothing", () => {
+    // A three-muscle week has no remainder, and a disclosure over an empty list
+    // is a control that lies about having something behind it.
+    draw({ "1-Push": exercises.slice(0, 1) });
+    const rows = document.querySelectorAll(".weekly-volume-list > article").length;
+    if (rows < 4) expect(document.querySelector(".weekly-volume-more")).toBeNull();
+  });
 });

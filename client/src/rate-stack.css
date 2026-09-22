@@ -104,11 +104,76 @@
   line-height: var(--sg-leading-snug);
 }
 
+/* -- Stage one: what is short, as the search that closes it ---------------- */
+
+.rate-stack-fix {
+  border-top: 1px solid rgb(255 255 255 / .1);
+  padding: var(--sg-space-3) var(--sg-space-4);
+}
+
+.rate-stack-fix-label {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  margin: 0 0 .45rem;
+  color: var(--sg-text-subtle-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.rate-stack-fix-label svg { color: var(--sg-state-caution); }
+
+.rate-stack-fix-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rate-stack-fix-list button,
+.rate-stack-fix-static {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 34px;
+  border: 1px solid rgb(226 86 74 / .5);
+  background: rgb(226 86 74 / .12);
+  padding: .2rem .5rem;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+  transition: background var(--sg-motion-fast) var(--sg-ease);
+}
+
+.rate-stack-fix-list button:hover { background: rgb(226 86 74 / .22); }
+.rate-stack-fix-list button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+
+.rate-stack-fix-list i {
+  color: #f4a9a2;
+  font-size: var(--sg-text-xs);
+  font-style: normal;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.rate-stack-fix-more {
+  align-self: center;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+}
+
 .rate-stack-tallies {
   display: flex;
   flex-wrap: wrap;
   gap: .3rem;
-  margin: .5rem 0 0;
+  margin: 0 0 var(--sg-space-3);
 }
 
 .rate-stack-tally {
@@ -129,6 +194,50 @@
 .rate-stack-tally-near { border-color: rgb(242 193 77 / .45); color: #f6d489; }
 .rate-stack-tally-covered { border-color: rgb(91 192 122 / .5); color: #9adfb0; }
 .rate-stack-tally-heavy { border-color: rgb(168 212 250 / .45); color: #a8d4fa; }
+
+/* -- Stage two: every bar, behind the question it answers ------------------ */
+
+.rate-stack-detail { border-top: 1px solid rgb(255 255 255 / .1); }
+
+.rate-stack-detail > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  padding: .5rem var(--sg-space-4);
+  color: var(--sg-text-on-dark);
+}
+
+.rate-stack-detail > summary::-webkit-details-marker { display: none; }
+.rate-stack-detail > summary:hover { background: rgb(255 255 255 / .04); }
+.rate-stack-detail > summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
+.rate-stack-detail > summary svg { flex: 0 0 auto; color: var(--sg-link-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.rate-stack-detail[open] > summary svg { transform: rotate(180deg); }
+
+.rate-stack-detail > summary > span {
+  display: grid;
+  gap: .12rem;
+  min-width: 0;
+}
+
+.rate-stack-detail > summary strong {
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.rate-stack-detail > summary small {
+  overflow: hidden;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* -- Coverage rows -------------------------------------------------------- */
 
@@ -178,12 +287,25 @@
 }
 
 .rate-stack-row-name {
+  display: grid;
   overflow: hidden;
   color: var(--sg-text-on-dark);
   font-size: var(--sg-text-xs);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* The split's own intent for this muscle. It was a group heading, which sorted
+   the whole list by it; here it travels with the row it describes. */
+.rate-stack-row-name small {
+  overflow: hidden;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--sg-tracking-label);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
 }
 
 .rate-stack-row-track {
@@ -286,6 +408,9 @@
   line-height: var(--sg-leading-body);
 }
 
+.rate-stack-empty p { margin: 0; }
+.rate-stack-empty .rate-stack-scope-note { margin-top: var(--sg-space-3); }
+
 /* -- Full-analysis entry point -------------------------------------------- */
 
 .rate-stack-trigger {
@@ -326,32 +451,10 @@
   white-space: nowrap;
 }
 
-/* -- Scope disclosure ----------------------------------------------------- */
+/* -- Scope, stated with the bars it scopes -------------------------------- */
 
-.rate-stack-scope { border-top: 1px solid rgb(255 255 255 / .1); }
-
-.rate-stack-scope summary {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  min-height: 36px;
-  cursor: pointer;
-  list-style: none;
-  padding: .42rem var(--sg-space-4);
-  color: var(--sg-text-subtle-on-dark);
-  font-size: var(--sg-text-xs);
-  font-weight: 800;
-  letter-spacing: var(--sg-tracking-label);
-  text-transform: uppercase;
-}
-
-.rate-stack-scope summary::-webkit-details-marker { display: none; }
-.rate-stack-scope summary svg { color: var(--sg-selected-on-dark); }
-.rate-stack-scope summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
-.rate-stack-scope[open] summary { color: var(--sg-selected-on-dark); }
-
-.rate-stack-scope > div {
-  padding: 0 var(--sg-space-4) var(--sg-space-3);
+.rate-stack-scope-note {
+  margin: var(--sg-space-3) 0 0;
   color: var(--sg-text-muted-on-dark);
   font-size: var(--sg-text-xs);
   line-height: var(--sg-leading-body);
@@ -388,7 +491,7 @@
     gap: .22rem .45rem;
   }
 
-  .rate-stack-row-name { grid-area: name; }
+  .rate-stack-row-name { grid-area: name; grid-auto-flow: column; justify-content: start; gap: .4rem; align-items: baseline; }
   .rate-stack-row-track { grid-area: track; }
   .rate-stack-row-delta { grid-area: delta; }
   .rate-stack-row-band { grid-area: band; align-self: center; justify-content: flex-end; }

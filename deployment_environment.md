@@ -13,7 +13,7 @@ in the repository holds their values, and nothing should.
 | Setting | What stops working without it | Value |
 | --- | --- | --- |
 | `VITE_SUPABASE_URL` | Every research-backed surface: the approved norms registry, the evidence library, the sport profile. The API answers, but with empty results. | `https://qiccnqkypbhlwpmjcsri.supabase.co` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Same as above — the registry reads behind the service role, because `app_reference_eligibility` and the norms tables are not browser-readable and should not be. | Supabase → project `qiccnqkypbhlwpmjcsri` → Settings → API → `service_role` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Same as above — the registry reads behind the service role, because `app_reference_eligibility` and the norms tables are not browser-readable and should not be. It also turns off **targeted capacity**: `resilience.targetCatalog` answers `unavailable`, so the "something you want stronger / anything going on there right now" step in onboarding and the same card in the profile collapse to a boundary sentence with nothing selectable. The 26 rows in `app_resilience_target_catalog_v1` are there and correct; nothing can read them. | Supabase → project `qiccnqkypbhlwpmjcsri` → Settings → API → `service_role` |
 | `DATABASE_URL` | Accounts and anything saved to one: workout sessions, saved tests, favourites, priorities. Device-local records still work. | The MySQL connection string |
 | `OWNER_OPEN_ID` | Owner-only routes. | The owner's open id |
 
@@ -51,6 +51,19 @@ credential quoted by a transport error is redacted before it is returned.
 An empty registry is never an error state for an athlete: every observation resolves to
 an explicit "no comparison available", and the workspace says the library is offline
 rather than implying the lift failed a gate.
+
+Targeted capacity has no status route of its own; read its catalog directly. A healthy
+answer is `"status":"connected"` with a non-empty `targets` array.
+
+```
+GET /api/trpc/resilience.targetCatalog
+{"result":{"data":{"json":{"status":"unavailable","targets":[],"boundary":"…"}}}}
+```
+
+`unavailable` here means the same thing as `unconfigured` above and has the same single
+cause in practice: the service-role key is not set on the deployment. It is not a
+failure of the Supabase data — check `select count(*) from app_resilience_target_catalog_v1`
+before looking anywhere else.
 
 ## Why the API had to be bundled
 
