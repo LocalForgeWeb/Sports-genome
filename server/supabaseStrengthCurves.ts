@@ -306,6 +306,17 @@ export async function getStrengthPercentile(request: StrengthPercentileRequest):
   return resolveStrengthPercentile(curve, request, { sex: request.sex, bodyMassKg: request.bodyMassKg ?? null });
 }
 
+/**
+ * The same route for a list of lifts, answered in the order asked.
+ *
+ * The Progress section reads every lift the athlete has a trend for, and one round trip per
+ * lift was N requests for one screen. The exercise index and each curve are cached, so the
+ * only cost per extra lift is the resolution itself.
+ */
+export async function getStrengthPercentiles(requests: readonly StrengthPercentileRequest[]): Promise<StrengthPercentileResult[]> {
+  return Promise.all(requests.map(request => getStrengthPercentile(request)));
+}
+
 /** Test seam: the module-level caches would otherwise leak between cases. */
 export function resetStrengthCurveCache() {
   curveCache.clear();
