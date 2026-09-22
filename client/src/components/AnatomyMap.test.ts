@@ -71,7 +71,7 @@ describe("Body Lab architecture mechanics disclosure", () => {
     // lives in the legend disclosure and, once, at the foot of the inspector.
     expect(source).not.toContain("Selected action <em>role map.</em>");
     expect(source).toContain("How muscle roles are classified");
-    expect(source).toContain("not measured activation, force, or anything about your own capacity");
+    expect(source).toContain("not measured activation, force, or your own capacity");
     expect(source).not.toContain("Precise anatomical SVG with 70+ muscle regions");
     expect(source).not.toContain("See the work. <em>Then inspect the why.</em>");
   });
@@ -96,7 +96,7 @@ describe("Body Lab architecture mechanics disclosure", () => {
   it("uses qualitative role context without rendering numeric role indices when exercise or stack context is supplied", () => {
     expect(source).toContain('hasLinkedExerciseOrStackContext = selectedKey ? muscleScores?.[selectedKey] != null : false');
     expect(source).toContain('hasLinkedExerciseOrStackContext ? "Exercise and stack context" : "Movement model"');
-    expect(source).toContain("not measured activation, force, or anything about your own capacity");
+    expect(source).toContain("not measured activation, force, or your own capacity");
     expect(source).not.toContain("Relative model index");
     expect(source).not.toContain("Tier</i>");
     expect(source).not.toContain('selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0');
@@ -123,7 +123,7 @@ describe("Body Lab architecture mechanics disclosure", () => {
   it("uses source-recorded action phase context instead of fabricating timing or force values", () => {
     // Rendered only when the movement record carries one, and printed verbatim:
     // there is no branch that composes a phase description out of anything else.
-    expect(source).toContain("<dt>Works through</dt><dd>{selectedRoleDetail.phaseContext}</dd>");
+    expect(source).toContain("<dt>Action phases</dt><dd>{selectedRoleDetail.phaseContext}</dd>");
     expect(source).toContain("selectedRoleDetail?.phaseContext &&");
     expect(source).not.toMatch(/phaseContext\s*\|\|/);
   });
@@ -138,9 +138,9 @@ describe("Body Lab architecture mechanics disclosure", () => {
     const { AnatomyMap } = await import("./AnatomyMap");
     const roleOrder = ["Primary Mover", "Stabilizer", "Synergist", "Supporting"] as const;
     const roleDetails = {
-      glutes: { roles: ["Primary Mover"], roleOrder: [...roleOrder], confidence: "Direct evidence", sourceScope: "Movement-specific evidence" as const, sources: [], explanation: "Propulsion context." },
-      obliques: { roles: ["Stabilizer"], roleOrder: [...roleOrder], confidence: "Strong indirect evidence", sourceScope: "Movement-specific evidence" as const, sources: [], explanation: "Bracing context." },
-      hamstrings: { roles: ["Synergist"], roleOrder: [...roleOrder], confidence: "Moderate biomechanical inference", sourceScope: "Movement-specific evidence" as const, sources: [], explanation: "Assisting context." },
+      glutes: { roles: ["Primary Mover"], roleOrder: [...roleOrder], confidence: "Direct evidence", sourceScope: "Movement-specific evidence" as const, sources: [] },
+      obliques: { roles: ["Stabilizer"], roleOrder: [...roleOrder], confidence: "Strong indirect evidence", sourceScope: "Movement-specific evidence" as const, sources: [] },
+      hamstrings: { roles: ["Synergist"], roleOrder: [...roleOrder], confidence: "Moderate biomechanical inference", sourceScope: "Movement-specific evidence" as const, sources: [] },
     };
     const markup = renderToStaticMarkup(createElement(AnatomyMap, { primary: ["glutes"], secondary: ["obliques", "hamstrings"], roleDetails, onSelect: vi.fn() }));
 

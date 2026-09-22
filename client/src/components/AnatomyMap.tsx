@@ -277,27 +277,43 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
 
               <dl className="atlas-inspector-facts">
                 <div><dt>Role</dt><dd>{selectedRoleDetail?.roles.join(" · ") || selectedRole || "None in this action"}</dd></div>
-                {selectedRoleDetail?.phaseContext && <div><dt>Works through</dt><dd>{selectedRoleDetail.phaseContext}</dd></div>}
-                <div><dt>Evidence</dt><dd>{selectedRoleDetail ? `${selectedRoleDetail.sourceScope} · ${selectedRoleDetail.confidence}` : hasLinkedExerciseOrStackContext ? "Exercise and stack context" : "Movement model"}</dd></div>
+                {/* The action’s phases, not this muscle’s: every muscle the
+                    action names gets the same string, so the label has to say
+                    whose they are. "Works through", under a muscle heading,
+                    read as a claim about that muscle. */}
+                {selectedRoleDetail?.phaseContext && <div><dt>Action phases</dt><dd>{selectedRoleDetail.phaseContext}</dd></div>}
+                {/* The scope was dropped, not the grade. It read "Movement-specific
+                    evidence · Biomechanical model" on all twelve muscles of an
+                    action — two labels, one of them constant. The fallback path
+                    is still legible here because it grades itself "Movement model". */}
+                <div><dt>Evidence</dt><dd>{selectedRoleDetail ? selectedRoleDetail.confidence : hasLinkedExerciseOrStackContext ? "Exercise and stack context" : "Movement model"}</dd></div>
               </dl>
 
-              <p className="atlas-inspector-why">{selectedRoleDetail?.explanation || (selectedRole === "Primary" ? "This muscle is a primary mover in the selected sporting action." : selectedRole === "Synergist" ? "This muscle supports the selected sporting action as a synergist or stabilizer." : "The selected sporting action’s record does not list this muscle in any role. That is an absence of evidence here, not a finding that the muscle is uninvolved.")}</p>
+              {/* Only when there is something the rows above have not said. With a
+                  record this paragraph restated the Role row as a sentence, or
+                  described the method — 17 words, identical for every muscle in
+                  the action. Without one, the absence IS the finding, and saying
+                  so is the only thing that stops a blank card reading as "no". */}
+              {!selectedRoleDetail && !selectedRole && <p className="atlas-inspector-why">The selected sporting action’s record does not list this muscle in any role. That is an absence of evidence here, not a finding that the muscle is uninvolved.</p>}
 
-              {selectedMechanics && <div className="atlas-why-pro">
-                <p className="metric-label">Architecture and leverage</p>
-                <p>{selectedMechanics.scope}</p>
-                <p className="atlas-inspector-boundary">{selectedMechanics.boundary}</p>
-              </div>}
-
-              {(selectedRoleDetail?.sources.length || selectedMechanics) && <p className="atlas-inspector-sources">
+              {selectedRoleDetail?.sources.length ? <p className="atlas-inspector-sources">
                 <strong>Sources:</strong>{" "}
-                {selectedRoleDetail?.sources.map((source, index) => <a key={source} href={source} target="_blank" rel="noreferrer">{index === 0 ? "Primary source" : "Supporting source"}{index < selectedRoleDetail.sources.length - 1 ? " · " : ""}</a>)}
-                {selectedRoleDetail?.sources.length && selectedMechanics ? " · " : ""}
-                {selectedMechanics?.sources.join(" · ")}
-              </p>}
+                {selectedRoleDetail.sources.map((source, index) => <a key={source} href={source} target="_blank" rel="noreferrer">{index === 0 ? "Primary source" : "Supporting source"}{index < selectedRoleDetail.sources.length - 1 ? " · " : ""}</a>)}
+              </p> : null}
 
               {/* Said once, rather than after every block. */}
-              <p className="atlas-inspector-boundary atlas-inspector-boundary-final">Colour shows a qualitative role in this action, not measured activation, force, or anything about your own capacity.</p>
+              <p className="atlas-inspector-boundary atlas-inspector-boundary-final">Colour shows a qualitative role in this action, not measured activation, force, or your own capacity.</p>
+
+              {/* Background on the muscle rather than on this action: the same
+                  text whichever action is selected, and the same for every muscle
+                  the action names. Above the fold it read as the answer to "what
+                  does this muscle do here?", which it is not, so it sits behind a
+                  disclosure with its own caveat and sources. */}
+              {selectedMechanics && <details className="atlas-full-analysis"><summary>About {selectedLabel.toLowerCase()} <ChevronDown className="h-4 w-4" /></summary><div>
+                <p>{selectedMechanics.scope}</p>
+                <p>{selectedMechanics.boundary}</p>
+                <p><strong>Sources:</strong> {selectedMechanics.sources.join(" · ")}</p>
+              </div></details>}
 
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
             </>

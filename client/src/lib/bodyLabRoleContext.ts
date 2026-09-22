@@ -9,7 +9,6 @@ export type BodyLabRoleDetail = {
   confidence: BodyLabEvidenceConfidence;
   sourceScope: "Movement-specific evidence" | "General biomechanics" | "Movement-model fallback";
   sources: string[];
-  explanation: string;
   phaseContext?: string;
 };
 
@@ -65,7 +64,7 @@ export function getBodyLabRoleContext(sportId: string, movementId: string, fallb
   const movement = getEnrichedMovement(sportId, movementId);
   if (!movement) {
     const rolesByMuscle: Record<string, BodyLabRoleDetail> = {};
-    const detail = { roleOrder: defaultRoleOrder, confidence: "Movement model" as const, sourceScope: "Movement-model fallback" as const, sources: [], explanation: "This qualitative role comes from the selected movement model because a movement-specific enriched record is unavailable." };
+    const detail = { roleOrder: defaultRoleOrder, confidence: "Movement model" as const, sourceScope: "Movement-model fallback" as const, sources: [] };
     fallbackPrimary.forEach((name) => appendRole(rolesByMuscle, name, "Primary Mover", detail));
     fallbackSupporting.forEach((name) => appendRole(rolesByMuscle, name, "Supporting", detail));
     return { primary: Object.keys(rolesByMuscle).filter((key) => rolesByMuscle[key].roles.includes("Primary Mover")), supporting: Object.keys(rolesByMuscle).filter((key) => !rolesByMuscle[key].roles.includes("Primary Mover")), rolesByMuscle, methodology: "Roles are a qualitative fallback from the selected movement model, not measured activation or force." };
@@ -73,7 +72,7 @@ export function getBodyLabRoleContext(sportId: string, movementId: string, fallb
 
   const rolesByMuscle: Record<string, BodyLabRoleDetail> = {};
   const phaseContext = movement.contractionRoles.filter(Boolean).slice(0, 2).join(" · ");
-  const detail = { roleOrder: getBodyLabRoleOrder(movement.contractionRoles, movement.jointActions), confidence: confidenceFor(movement.evidenceConfidence), sourceScope: "Movement-specific evidence" as const, sources: movement.sources.slice(0, 2), explanation: `${movement.label} is interpreted through its stated joint actions, force/skill demand, contraction roles, and movement-specific muscle-role record.`, ...(phaseContext ? { phaseContext } : {}) };
+  const detail = { roleOrder: getBodyLabRoleOrder(movement.contractionRoles, movement.jointActions), confidence: confidenceFor(movement.evidenceConfidence), sourceScope: "Movement-specific evidence" as const, sources: movement.sources.slice(0, 2), ...(phaseContext ? { phaseContext } : {}) };
   movement.primeMovers.forEach((name) => appendRole(rolesByMuscle, name, "Primary Mover", detail));
   movement.assistingMuscles.forEach((name) => appendRole(rolesByMuscle, name, "Synergist", detail));
   movement.stabilizers.forEach((name) => appendRole(rolesByMuscle, name, "Stabilizer", detail));
