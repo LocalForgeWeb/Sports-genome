@@ -1051,8 +1051,24 @@ export default function Home() {
     sexForReference: athleteBaseline.sexForReference,
     birthYear: athleteBaseline.birthYear,
     sportId: activeSportId,
+    sportContextMode,
     weightUnit: athleteBaseline.weightUnit,
     appSports: sportProfiles,
+    capacityFocus,
+    targetCatalog: resilienceCatalogQuery.data,
+    /**
+     * Rows found on the account when this device had none. The reported signals
+     * are not restored because they are not stored: no column on
+     * `athlete_training_constraints` means "the athlete ticked neurological or
+     * systemic symptoms", and putting the ticks in one that means something else
+     * would be worse than losing them. A withhold posture is re-established by
+     * the athlete answering again, not by the app guessing it back.
+     */
+    onCapacityRestored: (snapshot) => setCapacityFocus({
+      focus: snapshot.focus ? { targetKey: snapshot.focus.targetKey, intent: "build_capacity", laterality: snapshot.focus.laterality } : undefined,
+      constraint: snapshot.constraint,
+      reportedSignals: [],
+    }),
     enabled: onboardingComplete,
   });
   /**

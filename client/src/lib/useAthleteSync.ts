@@ -6,6 +6,9 @@ import { workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
 import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
 import { bodyWeightLogEvent, currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
+import { capacitySignature, loadCapacityContext, saveCapacityContext, type CapacityContextSnapshot } from "@/lib/capacityContext";
+import type { CapacityFocusState } from "@/components/CapacityFocusCard";
+import type { ResilienceTargetCatalog } from "@shared/resilienceContext";
 import type { AthleteSnapshot } from "@/lib/athleteStrengthEntry";
 import type { SexForReference } from "@/components/AthleteBaselineQuiz";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
@@ -31,11 +34,17 @@ export function useAthleteSync(options: {
   sexForReference?: SexForReference;
   birthYear?: number;
   sportId?: string;
+  sportContextMode?: "sport" | "general" | "undecided";
   weightUnit: DisplayWeightUnit;
   appSports: readonly { id: string; label: string }[];
+  /** What the athlete wants built up, and whether anything is going on there. */
+  capacityFocus?: CapacityFocusState;
+  targetCatalog?: ResilienceTargetCatalog;
+  /** Called with rows found on the account when this device has none of its own. */
+  onCapacityRestored?: (snapshot: CapacityContextSnapshot) => void;
   enabled?: boolean;
 }): AthleteSyncStatus & { syncNow: () => void } {
-  const { sexForReference, birthYear, sportId, weightUnit, appSports, enabled = true } = options;
+  const { sexForReference, birthYear, sportId, sportContextMode, weightUnit, appSports, capacityFocus, targetCatalog, onCapacityRestored, enabled = true } = options;
   const [identity, setIdentity] = useState<IdentityState>({ userId: null, anonymous: true });
   const [referenceMap, setReferenceMap] = useState<ReferenceMap | null>(() => loadCachedReferenceMap());
   const [pending, setPending] = useState(() => loadSyncQueue().length);
@@ -65,9 +74,44 @@ export function useAthleteSync(options: {
       sexForReference,
       birthYear,
       primarySportId: sportId ? referenceMap?.sportUuidBySlug[sportId] : undefined,
+      sportContextMode,
       defaultBodyWeightKg: currentBodyWeightKg(loadBodyWeightLog()),
     });
-  }, [enabled, identity.userId, sexForReference, birthYear, sportId, referenceMap]);
+  }, [enabled, identity.userId, sexForReference, birthYear, sportId, sportContextMode, referenceMap]);
+
+  /**
+   * The capacity answers, restored once and then written through.
+   *
+   * Restored only when this device has none of its own: the device is what the
+   * athlete is looking at, and overwriting an answer they just gave with an
+   * older one from the account would be the sync clobbering the edit. It is the
+   * reinstall and the second device that this is for.
+   */
+  const restoredCapacity = useRef(false);
+  useEffect(() => {
+    if (!enabled || !identity.userId || restoredCapacity.current) return;
+    if (targetCatalog?.status !== "connected") return;
+    if (capacityFocus?.focus) { restoredCapacity.current = true; return; }
+    let cancelled = false;
+    loadCapacityContext(identity.userId, targetCatalog).then((snapshot) => {
+      if (cancelled || !snapshot) return;
+      restoredCapacity.current = true;
+      onCapacityRestored?.(snapshot);
+    });
+    return () => { cancelled = true; };
+  }, [enabled, identity.userId, targetCatalog, capacityFocus?.focus, onCapacityRestored]);
+
+  // Written on a real change only. The signature leaves out anything the tables
+  // have no column for, so a re-render never lays down a duplicate row.
+  const lastCapacity = useRef<string | null>(null);
+  useEffect(() => {
+    if (!enabled || !identity.userId || !capacityFocus) return;
+    if (targetCatalog?.status !== "connected") return;
+    const signature = capacitySignature(capacityFocus);
+    if (signature === "none" || signature === lastCapacity.current) return;
+    lastCapacity.current = signature;
+    saveCapacityContext(identity.userId, capacityFocus, targetCatalog);
+  }, [enabled, identity.userId, capacityFocus, targetCatalog]);
 
   const athleteSnapshot = useCallback((): AthleteSnapshot => ({
     sexForReference,
