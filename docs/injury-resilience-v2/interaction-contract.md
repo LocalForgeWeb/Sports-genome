@@ -245,3 +245,29 @@ nothing presents or derives from it while `hasSportContext` is false.
 focus areas and constraints are captured and carried through onboarding, but are not yet persisted
 to `athlete_focus_areas` / `athlete_training_constraints`, and Body Lab, Progress and the day
 planner have not yet been walked for sport claims.
+
+---
+
+## 15. Implementation trace — reaching the feature at all
+
+Onboarding asked the two questions and the profile card kept them editable, and that was the whole
+of it: the answer was written to local storage and read by nothing, and the card itself could only
+be reached by scrolling the profile to it. Neither §12's surface assignments nor §11's named path
+were satisfied, which is the same thing an athlete means by "it isn't showing up".
+
+| Contract rule | Implementation |
+| --- | --- |
+| Workout Builder consumes it (§12, blocking) | `DayCapacityNote` on the Training Day states the declared target and its posture; it reports and never scores — synthesis stays on the server contract per §12's FIXED single-contract rule |
+| Body Lab exposes regional targets without implying diagnosis (§12, primary) | `.body-lab-capacity-step` on a selected region, from `capacityProposalFor` in `lib/capacityTargets.ts` |
+| Targets are not constraints (§3) | The region tap sets a focus area only; `adoptCapacityTarget` writes `proactive_none` and the card asks the second question separately. A constraint already reported elsewhere is never overwritten by a body-map tap |
+| Named/search/list path with the same authority as a spatial tap (§11) | The `profile#targeted-capacity` destination in `lib/universalSearch.ts`, found by the words athletes type — which live in `capacityTargetSearchTerms`, not in any label |
+| No trait language (§9, `trainable-gaps-not-athlete-identities`) | "weak point", "injury" and "sore" are search **terms**; the result's label is "Something you want stronger". `capacityFindability.test.ts` holds the split |
+| Focus returns near the triggering object (§11) | `revealWorkspaceAnchor` focuses `#targeted-capacity`; `navigateWorkspace(next, { keepScroll: true })` stops the workspace's own scroll-to-top from landing on top of it |
+| No new tab (§6, FIXED) | Nothing above adds a `Workspace`. Every path lands on a screen that already existed |
+| Insufficiency is a first-class result (§5.1) | Unchanged, and reached from these paths: adopting `groin_adductors` opens the card already saying no reviewed route covers it yet |
+
+**What still blocks it in production**, and is a deployment setting rather than code:
+`SUPABASE_SERVICE_ROLE_KEY` is unset on the Vercel project, so `resilience.targetCatalog` answers
+`unavailable` and there is nothing selectable to find. The Body Lab offer is suppressed in that
+state by design — an offer that opens an empty picker is worse than no offer — so the paths above
+light up when the key is set. See `deployment_environment.md`.

@@ -3,6 +3,7 @@ import { sportProfiles, sportMovementProfiles } from "./sportMovementDatabase";
 import { muscleLabels } from "@/components/AnatomyMap";
 import { strengthRegionDefinitions } from "../../../shared/strengthGenomeDefinitions";
 import { EXERCISE_ALIASES, normalizeSearchText, withinEditDistance } from "./exerciseSearch";
+import { capacityTargetSearchTerms } from "./capacityTargets";
 
 /**
  * Universal search, per the philosophy's "Universal search and retrieval
@@ -105,10 +106,24 @@ function scoreCandidate(candidate: Candidate, query: string): { score: number; m
   });
 
   if (!found.length && query.length >= 4) {
-    // Tolerant spelling, last resort so it can never outrank a real match.
-    const words = canonical.split(" ");
-    if (withinEditDistance(canonical, query, query.length >= 8 ? 2 : 1)) consider(200, "fuzzy");
-    else if (words.some((word) => word.length >= 4 && withinEditDistance(word, query, 1))) consider(150, "fuzzy");
+    /**
+     * Tolerant spelling, last resort so it can never outrank a real match.
+     *
+     * Over every term, not only the canonical one. The contract asks for
+     * "canonical names, curated aliases/abbreviations and tolerant spelling"
+     * without making the third apply to the first alone, and for a candidate
+     * whose whole value is its aliases - the targeted-capacity entry is found by
+     * "injury" and "rehab", never by its own name - canonical-only tolerance
+     * meant a typo in the only word that would have matched found nothing.
+     * Aliases score below the canonical form, as they do at every other match
+     * kind here.
+     */
+    candidate.terms.forEach((term, index) => {
+      const isCanonical = index === 0;
+      const words = term.split(" ");
+      if (withinEditDistance(term, query, query.length >= 8 ? 2 : 1)) consider(isCanonical ? 200 : 180, "fuzzy");
+      else if (words.some((word: string) => word.length >= 4 && withinEditDistance(word, query, 1))) consider(isCanonical ? 150 : 130, "fuzzy");
+    });
   }
 
   if (!found.length) return null;
@@ -183,6 +198,25 @@ const DESTINATIONS: Candidate[] = [
   { type: "destination", id: "body", label: "Body Lab", context: "Body Lab", terms: ["body lab", "body map", "anatomy"] },
   { type: "destination", id: "movement", label: "Movement atlas", context: "Body Lab", terms: ["movement atlas", "movements", "actions"] },
   { type: "destination", id: "profile", label: "About me", context: "Profile", terms: ["about me", "profile", "settings", "account"] },
+  /**
+   * The contract's §11 "named/search/list path with the same authority as any
+   * spatial tap" for targeted capacity, which otherwise had no way in but
+   * scrolling the profile.
+   *
+   * The label is what we say and the terms are what people type, and those are
+   * held to different rules. `trainable-gaps-not-athlete-identities` forbids
+   * trait language in the label - no "weak points", no "injuries" - while a
+   * search that only matched our own wording would only work for people who
+   * already knew where this was. The terms live with the feature, in
+   * lib/capacityTargets, next to the rule that separates them.
+   */
+  {
+    type: "destination",
+    id: "profile#targeted-capacity",
+    label: "Something you want stronger",
+    context: "Profile · set a target, and say if anything is going on there",
+    terms: capacityTargetSearchTerms,
+  },
 ];
 
 let cachedCandidates: Candidate[] | null = null;

@@ -40,6 +40,8 @@ import { SportContextGate } from "@/components/SportContextGate";
 import type { SportContextMode } from "@shared/resilienceContext";
 import type { CapacityFocusState } from "@/components/CapacityFocusCard";
 import { DayCapacityNote } from "@/components/DayCapacityNote";
+import { capacityProposalFor } from "@/lib/capacityTargets";
+import { revealWorkspaceAnchor } from "@/lib/workspaceAnchor";
 import { AthleteAboutMePanel } from "@/components/AthleteAboutMePanel";
 import { loadBodyWeightLog, recordBodyWeight, saveBodyWeightLog, seedBodyWeightLog } from "@/lib/bodyWeightLog";
 import { useAthleteSync } from "@/lib/useAthleteSync";
@@ -778,7 +780,14 @@ export default function Home() {
       setActiveMuscle(null);
     }
   };
-  const navigateWorkspace = (next: Workspace) => {
+  /**
+   * `keepScroll` is for a navigation that is going to reveal something inside
+   * the workspace it opens. Without it the two scrolls race: this one is issued
+   * on the next frame and smooth, so it lands on top of the anchor's, and an
+   * athlete who searched "shoulder pain" arrives focused on the right card
+   * looking at the top of the page.
+   */
+  const navigateWorkspace = (next: Workspace, { keepScroll = false }: { keepScroll?: boolean } = {}) => {
     setActiveContextTab(null);
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
@@ -801,7 +810,7 @@ export default function Home() {
       url.searchParams.set("workspace", next);
       window.history.pushState({ workspace: next }, "", url);
     }
-    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+    if (!keepScroll) window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
   const navigateDockDestination = (next: Workspace, event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => {
     if (event.type === "pointerup" && "pointerType" in event && event.pointerType !== "mouse") {
@@ -1115,10 +1124,47 @@ export default function Home() {
    * context." Each type resolves to the screen that IS that object rather than
    * to a filtered list, and the screen the athlete left stays one tap away.
    */
+  /**
+   * Body Lab is a primary surface for targeted capacity ("expose regional
+   * targets without implying diagnosis"), and had nothing on it. A selected
+   * region offers the nearest catalog target - and only when the catalog can
+   * actually list it, because an offer that opens an empty picker is worse than
+   * no offer.
+   */
+  const capacityOfferForSelection = useMemo(
+    () => capacityProposalFor(activeMuscle, resilienceCatalogQuery.data?.status === "connected" ? resilienceCatalogQuery.data.targets : []),
+    [activeMuscle, resilienceCatalogQuery.data]
+  );
+  /**
+   * Taking a target from a region tap. It sets the target and nothing else:
+   * `separate-capacity-targets-from-constraints` forbids "interpreting any
+   * selected region as injured", so the second question stays the card's to ask.
+   *
+   * A constraint the athlete already reported somewhere else is never discarded
+   * by a tap on a body map. In that case the target is left alone and the card
+   * opens on what they said, for them to change deliberately.
+   */
+  const adoptCapacityTarget = (targetKey: string) => {
+    const reported = capacityFocus.constraint?.constraintType;
+    const holdsAReport = Boolean(capacityFocus.focus) && reported !== undefined && reported !== "proactive_none";
+    if (holdsAReport && capacityFocus.focus?.targetKey !== targetKey) return;
+    const laterality = capacityFocus.focus?.laterality || "bilateral";
+    setCapacityFocus({
+      focus: { targetKey, intent: "build_capacity", laterality },
+      constraint: { targetKey, constraintType: reported || "proactive_none", laterality },
+      reportedSignals: capacityFocus.focus?.targetKey === targetKey ? capacityFocus.reportedSignals : [],
+    });
+  };
   const openSearchResult = (result: SearchResult) => {
     let target: Workspace | null = null;
+    // A destination may name a place inside a workspace as `workspace#anchor`.
+    // Landing an athlete who searched "shoulder pain" at the top of a long
+    // profile and leaving them to scroll is the same as not having found it.
+    let anchor = "";
     if (result.type === "destination") {
-      target = result.id as Workspace;
+      const [workspaceId, anchorId = ""] = result.id.split("#");
+      target = workspaceId as Workspace;
+      anchor = anchorId;
     } else if (result.type === "muscle") {
       setActiveMuscle(result.id);
       target = "body";
@@ -1148,7 +1194,11 @@ export default function Home() {
     }
     if (!target) return;
     const origin = workspace;
-    navigateWorkspace(target);
+    navigateWorkspace(target, { keepScroll: Boolean(anchor) });
+    // Focus, not just scroll: §11 requires focus to land near the object the
+    // athlete came for, and a scrolled page leaves a keyboard or screen-reader
+    // user still at the top of it.
+    if (anchor) revealWorkspaceAnchor(anchor);
     // Nothing to return to when the result opens the screen already on display.
     if (target !== origin) setSearchReturn({ workspace: origin, label: navItems.find((item) => item.id === origin)?.label || "where you were" });
   };
@@ -1305,7 +1355,7 @@ export default function Home() {
 
 
         {workspace === "day-plan" && <section className={`day-design-workspace ${sessionMode ? "day-session-mode" : ""}`}><div className="day-design-hero"><div><p className="metric-label">04 / saved training-day plans</p><h1>Design the day.<br /><em>See the week.</em></h1><p>Pick a week, pick a day, then build it from the catalog or paste one in. Every edit is saved to the day you are on.</p></div><button onClick={() => setImportOpen(true)} className="day-design-import"><ClipboardPaste className="h-4 w-4" /> Paste a stack</button></div><ThreeWeekPlanner activeWeek={activeWeek} generatedWeeks={visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek)} dayCounts={Object.fromEntries([1, 2, 3].map((week) => [week, savedDayCount(week === activeWeek ? dayStore : planWeeks[week]?.days || emptyDayStore())]))} onSelect={selectWeek} onGenerate={generateWeek} /><TrainingDayNav week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onCycle={(direction) => openTrainingDay(cycleSplitIndex(splitDays, activeDayIndex, direction))} /><div className="day-design-grid"><aside className="day-design-rail"><WeeklyPlanBoard days={splitDays} activeIndex={activeDayIndex} plan={weeklyPlan} onChoose={openTrainingDay} onSave={saveActiveDay} /><div className="day-design-rail-note"><p className="metric-label">Plan flow</p><p>Pick a day above. Each one keeps what you put in it.</p></div></aside><div className="day-design-main"><DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalogQuery.data} onOpenProfile={() => navigateWorkspace("profile")} />{sessionMode && <WorkoutExecutionPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} sportId={activeSportId} goal={goal} dayLabel={activeDayLabel} isAuthenticated={isAuthenticated} onSignIn={startLogin} />}<section className="day-active-card"><div><p className="metric-label">{activeSlot.ordinal} · {activeSplitDay} / session tools</p><h2>Build it<span>,</span> run it<span>,</span> print it</h2><p>{customWorkout.length ? `${customWorkout.length} exercise${customWorkout.length === 1 ? "" : "s"} in this day. Editing it changes only this day, in Week ${activeWeek}.` : "Empty. Draft one below, or paste a stack."}</p></div><div className="day-active-actions"><button className="day-action-add" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button><button className="day-action-session" onClick={() => setSessionMode((value) => !value)}>{sessionMode ? "Hide logger" : "Start session"} <Activity className="h-4 w-4" /></button><button className="day-action-draft" onClick={loadSmartDraft}>Load smart draft <Sparkles className="h-4 w-4" /></button><button onClick={() => setImportOpen(true)}><ClipboardPaste className="h-4 w-4" /> Import this plan</button><PrintWorkoutButton disabled={!customWorkout.length} /></div></section><div className="day-programming-solo"><div className="day-programming-panel"><div className="day-programming-head"><div><p className="metric-label">Exercise prescription</p><h3>{activeSlot.ordinal} · {activeSplitDay} stack</h3><p>Sets, effort, rest, notes, and order belong to this training day and are saved to it as you edit.</p></div><button onClick={saveActiveDay}>Save day</button></div><div className="divide-y divide-white/10">{customWorkout.length ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>) : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" /><strong>Nothing in this day yet.</strong><p>Add exercises from the catalog, or paste a stack.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button></div>}</div></div></div><DayExercisePicker sheetOpen={pickerSheetOpen} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={prescriptions} onAdd={addExercise} onReplace={replaceExercise} onInspect={inspectExercise} /><SessionDraftPanel dayLabel={`${activeSlot.ordinal} · ${activeSplitDay}`} minutes={gymMinutes} budget={gymTimeBudget} loadout={activeLoadout} exerciseCount={draftedLoadout.length} estimatedMinutes={draftedLoadoutMinutes} replacingCount={customWorkout.length} onMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} onLoadout={setActiveLoadout} onDraft={loadDraft} /><p className="day-review-pointer">Warm-up, programming detail, stack coverage and the week's volume are on <button type="button" onClick={() => navigateContextualWorkspace({ id: "review", label: "Review", workspace: "review" })}>Review</button>.</p><PrintableWorkoutSheet workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} sport={selectedSport.label} dayLabel={activeDayLabel} /></div></div></section>}
-        {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} />{(() => { const target = activeMuscle || getMovementMuscles(referenceMovement)[0] || ""; const name = muscleLabels[target] || target; return <div className="body-lab-next-step"><span>{activeMuscle ? `Train the ${name.toLowerCase()} this action uses` : `Train what ${referenceMovement.label.toLowerCase()} uses most`}</span><button type="button" onClick={() => { setCatalogFilters({ ...defaultCatalogFilters, muscle: target }); navigateWorkspace("catalog"); }}>Find {name} exercises <ArrowUpRight className="h-4 w-4" /></button></div>; })()}</section>}
+        {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} />{(() => { const target = activeMuscle || getMovementMuscles(referenceMovement)[0] || ""; const name = muscleLabels[target] || target; return <div className="body-lab-next-step"><span>{activeMuscle ? `Train the ${name.toLowerCase()} this action uses` : `Train what ${referenceMovement.label.toLowerCase()} uses most`}</span><button type="button" onClick={() => { setCatalogFilters({ ...defaultCatalogFilters, muscle: target }); navigateWorkspace("catalog"); }}>Find {name} exercises <ArrowUpRight className="h-4 w-4" /></button></div>; })()}{capacityOfferForSelection && <div className="body-lab-capacity-step"><Target className="h-4 w-4" aria-hidden="true" /><div><p>Want {capacityOfferForSelection.name.toLowerCase()} to hold up better, or is something going on there?</p>{capacityOfferForSelection.relation === "region" && <small>{capacityOfferForSelection.name} is the area {(muscleLabels[activeMuscle!] || activeMuscle!).toLowerCase()} sits in — the closest target Sports Genome has for it.</small>}</div><button type="button" onClick={() => { adoptCapacityTarget(capacityOfferForSelection.targetKey); navigateWorkspace("profile", { keepScroll: true }); revealWorkspaceAnchor("targeted-capacity"); }}>Set it as a target <ArrowUpRight className="h-4 w-4" /></button></div>}</section>}
         {/* Sport movement intelligence is about a sport action, not about the day you built,
             so it belongs with Matches and nowhere else. */}
         {workspace === "recommended" && <section className="mt-5"><MovementIntelligencePanel movement={enrichedSelectedMovement} fallback={selectedMovement} workout={customWorkout} onAdd={addExercise} onInspect={inspectExercise} /></section>}
