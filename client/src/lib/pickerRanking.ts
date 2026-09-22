@@ -45,10 +45,15 @@ export type RankedResult = {
  * Direct work on the worst gap first, then supporting work on it, then the rest.
  *
  * Within each tier the previous ordering is preserved, so an explicit muscle
- * filter or search still decides the order among equals and this only breaks
- * ties the old list broke alphabetically.
+ * filter still decides the order among equals and this only breaks ties the
+ * old list broke alphabetically.
+ *
+ * A typed name comes before all of that. `relevance` is how well each row
+ * answers the search box; an athlete who typed "romanian" wants the Romanian
+ * deadlifts at the top whatever the day is short of, and the gap order then
+ * settles which of them leads.
  */
-export function rankPickerResults(results: readonly Exercise[], gaps: readonly GapTarget[]): RankedResult[] {
+export function rankPickerResults(results: readonly Exercise[], gaps: readonly GapTarget[], relevance?: ReadonlyMap<number, number>): RankedResult[] {
   const rank = new Map(gaps.map((gap, index) => [gap.muscle, index]));
 
   const decorated = results.map((exercise, index) => {
@@ -65,10 +70,10 @@ export function rankPickerResults(results: readonly Exercise[], gaps: readonly G
     // to close a target, and a primary tag is what moves it.
     const tier = fillsGap ? 0 : supportsGap ? 1 : 2;
     const within = fillsGap ? rank.get(fillsGap.muscle) ?? 0 : supportsGap ? rank.get(supportsGap.muscle) ?? 0 : 0;
-    return { exercise, fillsGap, supportsGap, tier, within, index };
+    return { exercise, fillsGap, supportsGap, tier, within, index, score: relevance?.get(exercise.id) ?? 0 };
   });
 
   return decorated
-    .sort((left, right) => left.tier - right.tier || left.within - right.within || left.index - right.index)
+    .sort((left, right) => right.score - left.score || left.tier - right.tier || left.within - right.within || left.index - right.index)
     .map(({ exercise, fillsGap, supportsGap }) => ({ exercise, fillsGap, supportsGap }));
 }
