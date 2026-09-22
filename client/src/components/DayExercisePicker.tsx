@@ -8,6 +8,7 @@ import { RateStackPanel } from "@/components/RateStackPanel";
 import { analyzeSplitStack } from "@/lib/splitStackAnalysis";
 import { buildCoverageBars } from "@/lib/stackCoverageVisual";
 import { pickerGapTargets, rankPickerResults } from "@/lib/pickerRanking";
+import { matchesAreGuesses, rankExerciseMatches, suggestExerciseNames } from "@/lib/exerciseSearch";
 import { distinguishingMuscles, gapTagIsInformative, muscleLineIsInformative, sharedRowMuscles } from "@/lib/pickerRowFacts";
 import { MuscleSelect } from "@/components/MuscleSelect";
 import { muscleFilterKey, selectableMuscles, trainsMuscle } from "@/lib/muscleVocabulary";
@@ -66,15 +67,25 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
   const [resultLimit, setResultLimit] = useState(initialResultLimit);
   const equipmentOptions = useMemo(() => Array.from(new Set(exercises.map((exercise) => exercise.equipment))).sort(), [exercises]);
   const muscleOptions = useMemo(() => selectableMuscles(exercises, (key) => muscleLabels[key] || key), [exercises]);
-  const results = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    const matched = exercises.filter((exercise) => {
-      const matchesQuery = !normalizedQuery || `${exercise.name} ${exercise.movement} ${[...exercise.primaryMuscles, ...exercise.secondaryMuscles].flatMap((muscleKey) => [muscleKey, muscleLabels[muscleKey] || muscleKey]).join(" ")}`.toLowerCase().includes(normalizedQuery);
-      const matchesMuscle = muscle === "all" || trainsMuscle(exercise, muscle) !== null;
-      return matchesQuery && matchesMuscle && (scope === "all" || matchesTrainingSplit(exercise, split)) && (equipment === "all" || exercise.equipment === equipment);
-    });
-    return sortDayExerciseResults(matched, muscle);
-  }, [exercises, equipment, muscle, query, scope, split]);
+  /**
+   * The filters narrow the pool; the search box then finds a name in it the
+   * way an athlete types one - "reardelt fly", "trap bar", "romanain" - rather
+   * than as an exact substring of the catalog's spelling. Without a query the
+   * list keeps the muscle-aware order it has always had.
+   */
+  const candidates = useMemo(() => exercises.filter((exercise) => {
+    const matchesMuscle = muscle === "all" || trainsMuscle(exercise, muscle) !== null;
+    return matchesMuscle && (scope === "all" || matchesTrainingSplit(exercise, split)) && (equipment === "all" || exercise.equipment === equipment);
+  }), [exercises, equipment, muscle, scope, split]);
+  const searching = query.trim().length > 0;
+  const results = useMemo(
+    () => (searching ? rankExerciseMatches(candidates, query) : rankExerciseMatches(sortDayExerciseResults(candidates, muscle), "")),
+    [candidates, muscle, query, searching],
+  );
+  const relevance = useMemo(() => new Map(results.map((match) => [match.exercise.id, match.score])), [results]);
+  // Nothing is called this; these are the nearest spellings the pool has.
+  const guessed = searching && matchesAreGuesses(results);
+  const suggestions = useMemo(() => (searching && !results.length ? suggestExerciseNames(candidates, query) : []), [candidates, query, results.length, searching]);
   /**
    * The same shortfalls the coverage panel above is already showing. Computing
    * them here is what lets the list answer the panel instead of sitting beside
@@ -84,7 +95,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     () => pickerGapTargets(buildCoverageBars(analyzeSplitStack(activeWorkout, exercises, split).ratings)),
     [activeWorkout, exercises, split]
   );
-  const ranked = useMemo(() => rankPickerResults(results, gaps), [gaps, results]);
+  const ranked = useMemo(() => rankPickerResults(results.map((match) => match.exercise), gaps, relevance), [gaps, relevance, results]);
   const visibleRanked = ranked.slice(0, resultLimit);
   /**
    * What the rows on screen actually have to say for themselves.
@@ -143,11 +154,19 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
         {gaps.length > 0 && activeWorkout.length > 0 && <div className="day-picker-gaps"><span className="day-picker-gaps-label">Short in this day</span>{gaps.map((gap) => <button key={gap.muscle} type="button" onClick={() => setMuscle(muscle === muscleFilterKey(gap.muscle) ? "all" : muscleFilterKey(gap.muscle))} className={muscle === muscleFilterKey(gap.muscle) ? "day-picker-gap day-picker-gap-active" : "day-picker-gap"} aria-pressed={muscle === muscleFilterKey(gap.muscle)}>{muscleLabels[gap.muscle] || gap.muscle}<i>{gap.deltaToTarget}</i></button>)}{muscle !== "all" && <button type="button" className="day-picker-gap-clear" onClick={() => setMuscle("all")}>Clear</button>}</div>}
         <div className="day-picker-tools"><label><Search className="h-4 w-4" /><input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${scope === "split" ? split : "all"} exercises`} /></label><MuscleSelect muscles={muscleOptions} value={muscle} labelFor={(key) => muscleLabels[key] || key} onChange={setMuscle} /><select value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter day exercises by equipment"><option value="all">All equipment</option>{equipmentOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select><div className="day-picker-scope"><button onClick={() => setScope("split")} className={scope === "split" ? "day-picker-scope-active" : ""}><SlidersHorizontal className="h-3.5 w-3.5" /> {split} fit</button><button onClick={() => setScope("all")} className={scope === "all" ? "day-picker-scope-active" : ""}>All catalog</button></div></div>
         <LocalSearchScope scope={`Searching ${scope === "split" ? `${split}-compatible` : "all catalog"} exercises.`} query={query} />
-        <p className="day-picker-result-count" aria-live="polite"><strong>{results.length}</strong> option{results.length === 1 ? "" : "s"}{gaps.length > 0 ? ` · ${gaps.map((gap) => muscleLabels[gap.muscle] || gap.muscle).slice(0, 2).join(" and ")} first` : muscle !== "all" ? ` · direct ${muscleLabels[muscle] || muscle} targets first` : scope === "split" ? ` · ${split}-compatible` : " · full catalog"}{shared.muscles.length > 0 && <span className="day-picker-result-shared">{shared.everyRow ? "All of these also work" : "Most of these also work"} {shared.muscles.map((muscleKey) => (muscleLabels[muscleKey] || muscleKey).toLowerCase()).join(" and ")}.</span>}</p>
+        <p className="day-picker-result-count" aria-live="polite"><strong>{results.length}</strong> option{results.length === 1 ? "" : "s"}{gaps.length > 0 ? ` · ${gaps.map((gap) => muscleLabels[gap.muscle] || gap.muscle).slice(0, 2).join(" and ")} first` : muscle !== "all" ? ` · direct ${muscleLabels[muscle] || muscle} targets first` : scope === "split" ? ` · ${split}-compatible` : " · full catalog"}{guessed && <span className="day-picker-result-guess">Nothing is spelled “{query.trim()}” — these are the closest.</span>}{shared.muscles.length > 0 &&<span className="day-picker-result-shared">{shared.everyRow ? "All of these also work" : "Most of these also work"} {shared.muscles.map((muscleKey) => (muscleLabels[muscleKey] || muscleKey).toLowerCase()).join(" and ")}.</span>}</p>
         {muscle === "serratusAnterior" && <p className="day-picker-serratus-cue">Serratus anterior options are available: <strong>Cable Serratus Punch</strong> and <strong>Scapular Wall Slide</strong>. Both are permitted in the Push Day pool.</p>}
         <div className="day-picker-results">{visibleRanked.map(({ exercise, fillsGap, supportsGap }) => { const added = existingCatalogIds.has(exercise.id); const directTarget = muscle !== "all" && exercise.primaryMuscles.includes(muscle); const extraMuscles = distinguishingMuscles(exercise, alreadyNamed); return <div key={exercise.id} className={`day-picker-result${directTarget ? " day-picker-result-direct" : ""}${showGapTag && fillsGap ? " day-picker-result-fills" : ""}`}><button onClick={() => onInspect(exercise)}><div><strong>{exercise.name}</strong><small>{exercise.movement} · {exercise.equipment}</small>{showMuscleLine && extraMuscles.length > 0 && <em>Also {extraMuscles.map((muscleKey) => muscleLabels[muscleKey] || muscleKey).join(" · ")}</em>}{showGapTag ? (fillsGap ? <b className="day-picker-fills-tag">Closes {muscleLabels[fillsGap.muscle] || fillsGap.muscle}</b> : supportsGap ? <b className="day-picker-supports-tag">Supports {muscleLabels[supportsGap.muscle] || supportsGap.muscle}</b> : null) : null}</div></button><button disabled={added} onClick={() => onAdd(exercise)} aria-label={added ? `${exercise.name} is already in this day` : `Add ${exercise.name} to this day`}>{added ? "Added" : <><Plus className="h-4 w-4" /> Add</>}</button></div>; })}</div>
         {ranked.length > visibleRanked.length && <button type="button" className="day-picker-more" onClick={() => setResultLimit((current) => current + initialResultLimit)}>Show more options</button>}
-        {!results.length && <p className="day-picker-empty">No exercises match this setup. Clear a filter or search the full catalog.</p>}
+        {!results.length && <p className="day-picker-empty">
+          {searching
+            ? <>Nothing here is called “{query.trim()}”.
+              {suggestions.length > 0
+                ? <> Did you mean {suggestions.map((name, index) => <span key={name}>{index > 0 ? (index === suggestions.length - 1 ? " or " : ", ") : " "}<button type="button" onClick={() => setQuery(name)}>{name}</button></span>)}?</>
+                : scope === "split" ? <> <button type="button" onClick={() => setScope("all")}>Search the full catalog</button> or try a shorter word.</> : " Try a shorter word, or a different one."}
+            </>
+            : "No exercises match this setup. Clear a filter or search the full catalog."}
+        </p>}
       </div>
   </>;
 

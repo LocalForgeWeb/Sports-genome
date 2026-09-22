@@ -1,5 +1,6 @@
 import type { Exercise } from "./exerciseCatalog";
 import type { ExerciseActionConnection } from "./movementProgramAnalysis";
+import { searchExercises } from "./exerciseSearch";
 
 export type CatalogFilters = {
   query: string;
@@ -21,8 +22,6 @@ export const defaultCatalogFilters: CatalogFilters = {
   favoritesOnly: false,
 };
 
-const humanizeMuscleKey = (muscle: string) => muscle.replace(/([a-z])([A-Z])/g, "$1 $2");
-
 export function filterCatalogByActionLink(
   exerciseList: Exercise[],
   actionLink: CatalogFilters["actionLink"],
@@ -33,25 +32,19 @@ export function filterCatalogByActionLink(
   return exerciseList.filter((exercise) => connectionForExercise(exercise).label === requiredLabel);
 }
 
+/**
+ * The structural filters narrow the pool; the query then finds names in it the
+ * way an athlete types them (see exerciseSearch), best match first. With no
+ * query the catalog keeps its own order.
+ */
 export function filterCatalogExercises(exerciseList: Exercise[], filters: CatalogFilters, favoriteIds: Set<number>) {
-  const query = filters.query.trim().toLowerCase();
-  return exerciseList.filter((exercise) => {
-    const searchable = [
-      exercise.name,
-      exercise.category,
-      exercise.movement,
-      exercise.equipment,
-      ...exercise.primaryMuscles.flatMap((muscle) => [muscle, humanizeMuscleKey(muscle)]),
-      ...exercise.secondaryMuscles.flatMap((muscle) => [muscle, humanizeMuscleKey(muscle)]),
-      ...exercise.qualities,
-    ].join(" ").toLowerCase();
-    return (!query || searchable.includes(query))
-      && (filters.category === "all" || exercise.category === filters.category)
+  const pool = exerciseList.filter((exercise) =>
+    (filters.category === "all" || exercise.category === filters.category)
       && (filters.movement === "all" || exercise.movement === filters.movement)
       && (filters.equipment === "all" || exercise.equipment === filters.equipment)
       && (filters.muscle === "all" || exercise.primaryMuscles.includes(filters.muscle) || exercise.secondaryMuscles.includes(filters.muscle))
-      && (!filters.favoritesOnly || favoriteIds.has(exercise.id));
-  });
+      && (!filters.favoritesOnly || favoriteIds.has(exercise.id)));
+  return searchExercises(pool, filters.query);
 }
 
 export function catalogFilterOptions(exerciseList: Exercise[]) {

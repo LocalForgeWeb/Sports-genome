@@ -2,6 +2,7 @@ import { exercises, type Exercise } from "./exerciseCatalog";
 import { sportProfiles, sportMovementProfiles } from "./sportMovementDatabase";
 import { muscleLabels } from "@/components/AnatomyMap";
 import { strengthRegionDefinitions } from "../../../shared/strengthGenomeDefinitions";
+import { EXERCISE_ALIASES, normalizeSearchText, withinEditDistance } from "./exerciseSearch";
 
 /**
  * Universal search, per the philosophy's "Universal search and retrieval
@@ -70,40 +71,10 @@ const ALIASES: Record<string, string[]> = {
   rotatorCuff: ["rotator cuff", "cuff"],
 };
 
-const EXERCISE_ALIASES: Record<string, string[]> = {
-  "Barbell Bench Press": ["bench", "bench press", "flat bench", "bp"],
-  "Barbell Overhead Press": ["ohp", "overhead press", "military press", "press"],
-  "Back Squat": ["squat", "back squat"],
-  "Barbell Back Squat": ["squat", "back squat"],
-  "Conventional Deadlift": ["deadlift", "dl", "conventional"],
-  "Romanian Deadlift": ["rdl", "romanian"],
-  "Barbell Hip Thrust": ["hip thrust", "thrust"],
-  "Lat Pulldown": ["pulldown", "lat pull"],
-  "Pull-Up": ["pullup", "pull up", "chin up"],
-  "Barbell Curl": ["curl", "bicep curl"],
-};
-
-function normalize(value: string): string {
-  return value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
-}
-
-/** Damerau-style bounded edit distance: enough for the contract's "tolerant spelling". */
-function withinEditDistance(a: string, b: string, max: number): boolean {
-  if (Math.abs(a.length - b.length) > max) return false;
-  let previous = Array.from({ length: b.length + 1 }, (_, i) => i);
-  for (let i = 1; i <= a.length; i++) {
-    const current = [i];
-    let best = i;
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost);
-      best = Math.min(best, current[j]);
-    }
-    if (best > max) return false;
-    previous = current;
-  }
-  return previous[b.length] <= max;
-}
+// The exercise aliases, the normaliser and the edit-distance live with the
+// exercise matcher now, so the picker, the finder, the lift log and this search
+// all understand a typed name the same way.
+function normalize(value: string): string { return normalizeSearchText(value); }
 
 type Candidate = {
   type: SearchResultType;

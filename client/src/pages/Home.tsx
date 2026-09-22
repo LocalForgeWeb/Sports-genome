@@ -8,6 +8,7 @@ import { UniversalSearch } from "@/components/UniversalSearch";
 import { deviceWorkoutHistoryEvent, hasActiveDeviceSession } from "@/lib/deviceWorkoutLog";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import type { SearchResult } from "@/lib/universalSearch";
+import { searchExercises } from "@/lib/exerciseSearch";
 import { GradeStamp } from "@/components/GradeStamp";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
 import { StackImportPanel, type ImportedRoutine, type ImportedRoutineContext } from "@/components/StackImportPanel";
@@ -529,7 +530,9 @@ export default function Home() {
   const referenceRoleContext = browsingOtherSport
     ? getBodyLabRoleContext(browseSportId, referenceMovement.id, referenceMuscles, referenceSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"])
     : bodyLabRoleContext;
-  const filteredCatalog = useMemo(() => exercises.filter((exercise) => `${exercise.name} ${exercise.movement} ${exercise.primaryMuscles.join(" ")}`.toLowerCase().includes(catalogQuery.toLowerCase())).slice(0, 24), [catalogQuery]);
+  // The same tolerant matcher the day picker uses, so a name typed here finds
+  // what a name typed there finds.
+  const filteredCatalog = useMemo(() => searchExercises(exercises, catalogQuery).slice(0, 24), [catalogQuery]);
   const genomeExercise = exercises.find((exercise) => exercise.id === genomeExerciseId) || exercises[0];
   const completedExerciseCount = customWorkout.filter((exercise) => exerciseSettings[exercise.id]?.completed).length;
   const activePlanStatus = customWorkout.length ? `${customWorkout.length} staged` : "Build a day";

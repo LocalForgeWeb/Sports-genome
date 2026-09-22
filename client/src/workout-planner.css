@@ -797,3 +797,21 @@
 .day-picker-sheet-foot span { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .day-picker-sheet-foot button { min-height: 2.75rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: 0 1.1rem; color: #fff; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 @media (min-width: 720px) { .day-picker-sheet-scrim { align-items: center; padding: 1.5rem; } .day-picker-sheet { border-radius: var(--sg-radius-md); } }
+
+/* The picker's search understands a typed name the way an athlete types it.
+   When every result is a spelling guess it says so above the list, and when
+   nothing matched at all the nearest names are offered as taps, not a dead end. */
+.day-picker-result-guess { display: block; margin-top: .25rem; color: var(--sg-text-subtle-on-light); font-weight: 400; letter-spacing: 0; text-transform: none; }
+/* Inline text in a sentence, so the 44px tap-target floor in index.css excludes
+   it by name, the way it excludes the other in-sentence links: at 44px each
+   suggestion opened a blank line mid-sentence. */
+.day-picker-empty button {
+  display: inline;
+  padding: 0;
+  color: var(--sg-info-strong);
+  font: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.day-picker-empty button:hover { color: var(--sg-text-on-light); }
