@@ -73,8 +73,26 @@ describe("The context question is drawn like the question it is", () => {
     for (const icon of ["icon: Target", "icon: Dumbbell", "icon: Sparkles"]) {
       expect(panel, `${icon} is on the profile's answers`).toContain(icon);
     }
-    expect(panel).toContain('<Icon className="h-5 w-5" aria-hidden="true" />');
-    expect(panel).toContain('{chosen && <Check className="h-5 w-5" aria-hidden="true" />}');
+    expect(panel).toContain('<i className="about-me-context-medallion" aria-hidden="true"><Icon className="h-5 w-5" /></i>');
+    expect(panel).toContain('<i className="about-me-context-check" aria-hidden="true">{chosen && <Check className="h-5 w-5" />}</i>');
+  });
+
+  /**
+   * Choosing is the one moment this control has, so it answers back: the card lifts, the
+   * medallion takes the action colour, the accent runs down the leading edge, and the
+   * check arrives under its own motion instead of appearing fully formed.
+   */
+  it("answers back when an answer is chosen", () => {
+    expect(panelStyles).toContain("@keyframes about-me-context-check-in");
+    expect(panelStyles).toContain(".about-me-context-mode .about-me-context-active::before");
+    expect(panelStyles).toContain(".about-me-context-mode .about-me-context-active .about-me-context-medallion");
+    expect(panelStyles).toMatch(/\.about-me-context-active \{[^}]*linear-gradient/);
+    expect(panelStyles).toContain(".about-me-context-mode .about-me-context-choice:hover { transform: translateY(-1px)");
+  });
+
+  it("assembles rather than appearing, and briefly", () => {
+    expect(panelStyles).toContain("@keyframes about-me-context-in");
+    expect(panelStyles).toContain(".about-me-context-mode .about-me-context-choice:nth-of-type(3) { animation-delay: 140ms; }");
   });
 
   /**
@@ -95,7 +113,15 @@ describe("The context question is drawn like the question it is", () => {
     expect(panel).toContain('<input type="radio" name="about-me-context-mode"');
   });
 
-  it("does not animate for an athlete who asked it not to", () => {
-    expect(panelStyles).toContain("@media (prefers-reduced-motion: reduce)");
+  /**
+   * All of it is decoration over a state the card already states, so the entrance goes
+   * too - otherwise it is the one piece of motion a reduced-motion athlete cannot avoid.
+   */
+  it("holds still for an athlete who asked it to", () => {
+    const guard = panelStyles.slice(panelStyles.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(guard).toContain("animation: none; transition: none;");
+    expect(guard).toContain(".about-me-context-check svg");
+    expect(guard).toContain(".about-me-context-mode .about-me-context-choice:hover,");
+    expect(guard).toContain("transform: none;");
   });
 });
