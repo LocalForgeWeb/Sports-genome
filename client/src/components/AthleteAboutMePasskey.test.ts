@@ -39,9 +39,12 @@ describe("AthleteAboutMePanel passkey management", () => {
 
   it("uses nonblocking optional feedback for deliberate athlete-context and equipment changes", () => {
     expect(source).toContain('import { emitInteractionFeedback } from "@/lib/interactionFeedback";');
-    expect(source).toContain('emitInteractionFeedback(); onGoal(event.target.value as TrainingGoal);');
+    // Goal and the day count are cards and chips now, not selects, so the call reads
+    // differently - the contract is that a deliberate change still answers back.
+    expect(source).toContain('emitInteractionFeedback(); onGoal(item.value);');
     expect(source).toContain('emitInteractionFeedback(); onSport(event.target.value);');
-    expect(source).toContain('emitInteractionFeedback(); onDays(Number(event.target.value));');
+    expect(source).toContain('emitInteractionFeedback(); onDays(days);');
+    expect(source).toContain('emitInteractionFeedback(); onSportContextMode(mode.value);');
     expect(source).toContain('emitInteractionFeedback(); onBaseline({ ...baseline, sportModifierId: event.target.value || undefined });');
     expect(source).toContain('emitInteractionFeedback(); onBaseline({ ...baseline, equipment: { gymAccess, availableEquipment: gymAccessProfiles[gymAccess] } });');
     expect(source).not.toContain('Your current workout was retained for review');
