@@ -125,3 +125,47 @@ describe("The context question is drawn like the question it is", () => {
     expect(guard).toContain("transform: none;");
   });
 });
+
+describe("The rest of Training context speaks the same way", () => {
+  const panelStyles = readFileSync(new URL("../athlete-about-me.css", import.meta.url), "utf8");
+
+  /**
+   * Goal is the same kind of question as the sport one, asked in the same card. As a bare
+   * dropdown above three cards it read as two different kinds of question - and it listed
+   * enum values with no explanation, while the introduction described each one.
+   */
+  it("asks the goal with the introduction's own definition, not a second copy", () => {
+    expect(quiz).toContain("export const trainingGoalChoices");
+    expect(panel).toContain('import { trainingGoalChoices,');
+    expect(panel).not.toContain('const goals: TrainingGoal[] =');
+    expect(panel).toContain('className="about-me-goal-grid"');
+    expect(panel).toContain('title={item.detail}');
+  });
+
+  /** Seven numbers, every one a tap away, and the range visible without opening anything. */
+  it("makes the day count a row rather than a dropdown", () => {
+    expect(panel).toContain('className="about-me-days-row"');
+    expect(panel).not.toContain("<span>Training days / week</span><select");
+    expect(panelStyles).toContain(".about-me-days-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));");
+    // Changing it is not destructive, and the note says so rather than leaving it to be found out.
+    expect(panel).toContain("Your saved days are kept if you change this.");
+  });
+
+  it("keeps both keyboard-reachable with the card carrying the state", () => {
+    for (const rule of [".about-me-card .about-me-goal-choice input { position: absolute;", ".about-me-card .about-me-day-chip input { position: absolute;"]) {
+      expect(panelStyles, rule).toContain(rule);
+    }
+    expect(panelStyles).toContain(".about-me-card .about-me-goal-choice:focus-within { outline:");
+    expect(panelStyles).toContain(".about-me-card .about-me-day-chip:focus-within { outline:");
+  });
+
+  /**
+   * The capacity card is a light panel inside a dark destination. Its heading set no colour,
+   * so it inherited the on-dark token onto white and was very nearly unreadable - caught on
+   * a screenshot pass and carried as a known defect until now.
+   */
+  it("states the capacity heading's colour rather than inheriting the wrong one", () => {
+    expect(panelStyles).toMatch(/\.about-me-capacity-head h2 \{[^}]*color: var\(--sg-text-on-light\)/);
+    expect(panelStyles).toContain(".destination-secondary .about-me-capacity-head h2 { color: var(--sg-text-on-dark); }");
+  });
+});
