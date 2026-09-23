@@ -22,7 +22,7 @@ import type { SexForReference } from "@/components/AthleteBaselineQuiz";
 import { summarizeWithinAthleteStrengthComparisons, type ChangeState, type ComparableStrengthObservation, type WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
-import { strengthRegionIdsForExerciseName, workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
+import { strengthRegionIdsForExerciseName, workoutStrengthObservations, compareRegionRecordRelevance } from "@/lib/workoutStrengthRecord";
 import { bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { catalogExerciseIdForName, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
 
@@ -126,7 +126,7 @@ export function StrengthObservationReviewButton({ observation, onReview }: { obs
 }
 
 export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
-  const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()), [observations, region.id]);
+  const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => compareRegionRecordRelevance(region.id, a, b)), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
   const [bodyMassEntry, setBodyMassEntry] = useState("");

@@ -58,6 +58,49 @@ export function strengthRegionIdsForExerciseName(exerciseName: string): string[]
   return exercise ? strengthRegionIdsForCatalogMuscles(exercise.primaryMuscles) : [];
 }
 
+/**
+ * How centrally a logged exercise measures one region.
+ *
+ * A route's `regionIds` is written primary-first and always has been: a squat reads
+ * `["quadriceps", "glutes", "hamstrings"]`, a bench `["chest", "triceps", "shoulders"]`,
+ * a lat pulldown `["lats", "upper_back", "biceps"]`. So the position already says whether
+ * this region is what the test is about or something the test happens to involve, and the
+ * count says how thinly the lift is spread across regions. The catalog fallback lists
+ * primary muscles, which carries the same meaning.
+ *
+ * Lower is more direct, so these sort ascending. A lift that does not reach the region at
+ * all sorts last rather than first, which is what an unfound index would otherwise do.
+ */
+export type RegionRelevance = { position: number; breadth: number };
+
+export function regionRelevanceForExerciseName(exerciseName: string, regionId: string): RegionRelevance {
+  const regionIds = strengthRegionIdsForExerciseName(exerciseName);
+  const position = regionIds.indexOf(regionId);
+  return { position: position < 0 ? Number.MAX_SAFE_INTEGER : position, breadth: regionIds.length };
+}
+
+/**
+ * Which of an athlete's logged lifts speaks for a region, most direct first and most recent
+ * among equals.
+ *
+ * Recency alone put whatever was logged last in front of the region, so a lat pulldown -
+ * whose own boundary says it "does not directly measure lat, upper-back, or biceps force" -
+ * took the biceps record from a preacher curl, a targeted elbow-flexion test with a reviewed
+ * reference behind it. The athlete reads a number about their biceps that came from a back
+ * exercise, and the curl that should have answered is pushed down the list.
+ */
+export function compareRegionRecordRelevance(
+  regionId: string,
+  left: { exerciseName: string; observedAt: string | Date },
+  right: { exerciseName: string; observedAt: string | Date },
+): number {
+  const a = regionRelevanceForExerciseName(left.exerciseName, regionId);
+  const b = regionRelevanceForExerciseName(right.exerciseName, regionId);
+  if (a.position !== b.position) return a.position - b.position;
+  if (a.breadth !== b.breadth) return a.breadth - b.breadth;
+  return new Date(right.observedAt).getTime() - new Date(left.observedAt).getTime();
+}
+
 function numeric(value: string | undefined) {
   const parsed = Number(String(value || "").trim());
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
