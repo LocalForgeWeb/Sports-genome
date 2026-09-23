@@ -1,3 +1,4 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import {
   catalogEntryFromRow,
   connectedCatalogBoundary,
@@ -52,11 +53,7 @@ export function createSupabaseResilienceClient({
       );
       requestUrl.searchParams.set("order", "region.asc,name.asc");
       const response = await fetchImplementation(requestUrl, {
-        headers: {
-          Accept: "application/json",
-          apikey: serviceRoleKey,
-          Authorization: `Bearer ${serviceRoleKey}`,
-        },
+        headers: supabaseServiceHeaders(serviceRoleKey),
       });
       if (!response.ok) {
         throw new Error(`Supabase resilience catalog request failed (${response.status})`);

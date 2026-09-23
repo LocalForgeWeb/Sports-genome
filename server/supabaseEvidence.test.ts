@@ -1,6 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import { createSupabaseEvidenceClient } from "./supabaseEvidence";
 
+/**
+ * Shaped like a legacy `service_role` key, because the shape now decides the headers: a JWT
+ * travels in `Authorization: Bearer` as well as `apikey`, an opaque `sb_secret_...` key only in
+ * `apikey`. A stand-in that was neither would assert a header combination no real key produces.
+ */
+const legacyServiceRoleKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.c2ln";
+
 function jsonResponse(body: unknown, count: number) {
   return new Response(JSON.stringify(body), {
     status: 200,
@@ -52,7 +59,7 @@ describe("Supabase evidence adapter", () => {
       );
     const client = createSupabaseEvidenceClient({
       url: "https://sports.example.supabase.co",
-      serviceRoleKey: "server-only-test-key",
+      serviceRoleKey: legacyServiceRoleKey,
       fetchImplementation,
     });
 
@@ -85,8 +92,8 @@ describe("Supabase evidence adapter", () => {
     );
     expect(fetchImplementation.mock.calls[0]?.[1]).toMatchObject({
       headers: expect.objectContaining({
-        apikey: "server-only-test-key",
-        Authorization: "Bearer server-only-test-key",
+        apikey: legacyServiceRoleKey,
+        Authorization: `Bearer ${legacyServiceRoleKey}`,
       }),
     });
     expect(new URL(String(fetchImplementation.mock.calls[2]?.[0])).pathname).toBe(
@@ -100,7 +107,7 @@ describe("Supabase evidence adapter", () => {
       .mockResolvedValueOnce(jsonResponse([], 0));
     const client = createSupabaseEvidenceClient({
       url: "https://sports.example.supabase.co",
-      serviceRoleKey: "server-only-test-key",
+      serviceRoleKey: legacyServiceRoleKey,
       fetchImplementation,
     });
 
@@ -133,7 +140,7 @@ describe("Supabase evidence adapter", () => {
     );
     const client = createSupabaseEvidenceClient({
       url: "https://sports.example.supabase.co",
-      serviceRoleKey: "server-only-test-key",
+      serviceRoleKey: legacyServiceRoleKey,
       fetchImplementation,
     });
 

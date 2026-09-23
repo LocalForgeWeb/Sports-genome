@@ -1,3 +1,4 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import type {
   SupabaseEvidenceCoverageLevel,
   SupabaseEvidenceInventory,
@@ -239,12 +240,7 @@ export function createSupabaseEvidenceClient({
       requestUrl.searchParams.set(key, value);
     }
     const response = await fetchImplementation(requestUrl, {
-      headers: {
-        Accept: "application/json",
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-        Prefer: "count=exact",
-      },
+      headers: supabaseServiceHeaders(serviceRoleKey, { Prefer: "count=exact" }),
     });
     if (!response.ok) {
       throw new Error(`Supabase ${table} request failed (${response.status})`);
