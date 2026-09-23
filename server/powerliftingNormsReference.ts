@@ -1,3 +1,4 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import type { PowerliftingNormLift, PowerliftingNormRow } from "../shared/powerliftingNormsReference";
 
 type FetchImplementation = typeof fetch;
@@ -51,11 +52,7 @@ export function createPowerliftingNormsClient({
       requestUrl.searchParams.set("select", "sex,age_min,age_max,percentile,value,exercises(name)");
       requestUrl.searchParams.set("limit", "500");
       const response = await fetchImplementation(requestUrl, {
-        headers: {
-          Accept: "application/json",
-          apikey: serviceRoleKey,
-          Authorization: `Bearer ${serviceRoleKey}`,
-        },
+        headers: supabaseServiceHeaders(serviceRoleKey),
       });
       if (!response.ok) {
         throw new Error(`Supabase strength_norms request failed (${response.status})`);

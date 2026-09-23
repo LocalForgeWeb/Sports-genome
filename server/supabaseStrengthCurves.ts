@@ -1,3 +1,4 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import {
   curvePlacement,
   resolveStrengthPercentile,
@@ -186,11 +187,7 @@ export function createSupabaseStrengthCurveClient({
   fetchImplementation = fetch,
 }: SupabaseStrengthCurveClientConfig) {
   const baseUrl = url.replace(/\/+$/, "");
-  const headers = {
-    Accept: "application/json",
-    apikey: serviceRoleKey,
-    Authorization: `Bearer ${serviceRoleKey}`,
-  };
+  const headers = supabaseServiceHeaders(serviceRoleKey);
 
   return {
     async getCurve(exerciseId: string, sex: "male" | "female"): Promise<StrengthCurve | null> {

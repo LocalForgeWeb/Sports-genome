@@ -1,3 +1,4 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import type {
   SupabaseSportExerciseRecommendation,
   SupabaseSportMovementDemand,
@@ -118,11 +119,7 @@ export function createSupabaseSportProfileClient({
       requestUrl.searchParams.set(key, value);
     }
     const response = await fetchImplementation(requestUrl, {
-      headers: {
-        Accept: "application/json",
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-      },
+      headers: supabaseServiceHeaders(serviceRoleKey),
     });
     if (!response.ok) {
       throw new Error(`Supabase ${table} request failed (${response.status})`);
