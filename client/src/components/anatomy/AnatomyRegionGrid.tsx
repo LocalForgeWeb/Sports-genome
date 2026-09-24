@@ -2,6 +2,8 @@ import React from "react";
 import { useId, useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { anatomyViewBox, anatomyViews } from "./figureGeometry";
+import { rankMapFillToken, type RankId } from "@shared/capabilityRank";
+import { RankEmblem } from "@/components/RankEmblem";
 import "./anatomy-region-grid.css";
 
 /**
@@ -27,6 +29,10 @@ export type AnatomyRegionRow = {
   state: string;
   /** Whether the figure is highlighting this region. Drives tone, never rank. */
   active: boolean;
+  /** Strength/Rank mode: the region's rank, shown as an emblem and as the thumbnail's fill. */
+  rankId?: RankId;
+  /** Picked out by a legend band, so "which of mine are Varsity" has an answer in the list. */
+  highlighted?: boolean;
 };
 
 /**
@@ -39,7 +45,7 @@ function thumbView(muscleKeys: readonly string[]): "front" | "back" {
   return count("back") > count("front") ? "back" : "front";
 }
 
-function RegionThumb({ muscleKeys, active, shellId }: { muscleKeys: readonly string[]; active: boolean; shellId: string }) {
+function RegionThumb({ muscleKeys, active, shellId, rankId }: { muscleKeys: readonly string[]; active: boolean; shellId: string; rankId?: RankId }) {
   const view = thumbView(muscleKeys);
   const paths = useMemo(
     () => anatomyViews[view].muscles.filter((muscle) => muscleKeys.includes(muscle.key)).flatMap((muscle) => muscle.paths),
@@ -54,7 +60,7 @@ function RegionThumb({ muscleKeys, active, shellId }: { muscleKeys: readonly str
       focusable="false"
     >
       <use href={`#${shellId}-${view}`} />
-      {paths.map((path) => <path key={path.id} className="region-thumb-muscle" d={path.d} />)}
+      {paths.map((path) => <path key={path.id} className="region-thumb-muscle" d={path.d} style={rankId ? { fill: `var(${rankMapFillToken(rankId)})` } : undefined} />)}
     </svg>
   );
 }
@@ -121,13 +127,21 @@ export function AnatomyRegionGrid({
             type="button"
             className="region-grid-card"
             data-active={row.active ? "true" : undefined}
+            data-highlighted={row.highlighted ? "true" : undefined}
             aria-label={`${row.label}, ${row.state}`}
             aria-pressed={selectedId === row.id}
             onClick={() => onSelect(row.id)}
           >
-            <RegionThumb muscleKeys={row.muscleKeys} active={row.active} shellId={shellId} />
+            <RegionThumb muscleKeys={row.muscleKeys} active={row.active} shellId={shellId} rankId={row.rankId} />
             <span className="region-grid-name">{row.label}</span>
-            <span className="region-grid-state">{row.state}</span>
+            {row.rankId ? (
+              // Two lines by design: rank with its emblem, then the percentile. On one line it
+              // measured ~106px against a ~90px column on a phone and ran under the chevron.
+              <span className="region-grid-state region-grid-state-ranked">
+                <span className="region-grid-rank"><RankEmblem rankId={row.rankId} size={16} className="region-grid-emblem" />{row.state.split(" · ")[0]}</span>
+                {row.state.includes(" · ") && <span className="region-grid-percentile">{row.state.split(" · ").slice(1).join(" · ")}</span>}
+              </span>
+            ) : <span className="region-grid-state">{row.state}</span>}
             <ChevronRight className="region-grid-chevron h-4 w-4" aria-hidden="true" />
           </button>
         ))}

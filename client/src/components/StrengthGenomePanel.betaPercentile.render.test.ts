@@ -23,6 +23,8 @@ vi.mock("@/lib/trpc", () => ({
         },
       },
     },
+    // The muscle-rank route: no answer here keeps the map in the coverage view these tests describe.
+    strengthProfile: { muscleRanks: { useQuery: () => ({ data: undefined }) } },
     researchEvidence: { supabaseInventory: { useQuery: () => ({ data: { status: "unavailable" } }) } },
     repair: { deleteStrengthObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) } },
     strengthGenome: {

@@ -25,6 +25,9 @@ import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions, type DeviceWorkou
 import { strengthRegionIdsForExerciseName, workoutStrengthObservations, compareRegionRecordRelevance } from "@/lib/workoutStrengthRecord";
 import { bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { catalogExerciseIdForName, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
+import { regionRanksFromMuscles, type RegionRank } from "@shared/capabilityRank";
+import { RankCard, UnscoredRankCard } from "@/components/CapabilityRank";
+import { muscleRankLifts } from "@/lib/muscleRankLifts";
 
 const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
   insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
@@ -125,7 +128,7 @@ export function StrengthObservationReviewButton({ observation, onReview }: { obs
   return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review">Review</button>;
 }
 
-export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile }: { region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
+export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false }: { regionRank?: RegionRank | null; rankMode?: boolean;  region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
   const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => compareRegionRecordRelevance(region.id, a, b)), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
@@ -268,6 +271,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const parsedBodyMassEntry = Number(bodyMassEntry);
   return <section className="strength-region-record-detail" aria-label={`${region.label} recorded strength context`}>
     <div className="strength-region-record-heading"><div><p className="metric-label">Your record</p><h2 tabIndex={-1} data-strength-region-heading>{region.label}</h2></div><button type="button" onClick={() => { emitInteractionFeedback(); onClose(); }} className="strength-region-close" aria-label={`Close ${region.label} detail`}><X className="h-4 w-4" /></button></div>
+    {rankMode && (regionRank ? <RankCard regionRank={regionRank} /> : <UnscoredRankCard hasRecords={records.length > 0} />)}
     {latestRecord ? <>
       <article className="strength-region-record-card">
         {records.length > 1 ? <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Choose recorded test" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label> : <span className="strength-region-test-name">{latestRecord.exerciseName}</span>}
@@ -435,6 +439,16 @@ function RankGate({ missing, birthYear, onProfile }: { missing: PowerliftingRank
   </form>;
 }
 
+/** Why a lift is not behind any rank, in the athlete's words. Unknown reasons fall back to a plain "could not be scored". */
+const unrankedReasonCopy: Record<string, string> = {
+  exercise_not_recognised: "not in the comparison library yet",
+  body_mass_required: "needs your body weight that day",
+  estimated_only: "no comparison group for this lift yet",
+  missing_percentile: "no comparison group for this lift yet",
+  invalid_input: "could not be read",
+  invalid_observation: "could not be read",
+};
+
 export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "lb", baselineBodyWeight, sexForReference, birthYear, defaultTestingDetailOpen = false, directAccess = false, onRankProfile }: { onOpenTraining?: () => void; weightUnit?: DisplayWeightUnit; baselineBodyWeight?: number; sexForReference?: SexForReference; birthYear?: number; defaultTestingDetailOpen?: boolean; directAccess?: boolean; onRankProfile?: (patch: RankProfilePatch) => void }) {
   const utils = trpc.useUtils();
   const overview = trpc.strengthGenome.overview.useQuery(undefined, { enabled: !directAccess });
@@ -598,6 +612,40 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     () => summarizeWithinAthleteStrengthComparisons(unifiedStrengthHistory).comparable,
     [unifiedStrengthHistory]
   );
+
+  /**
+   * Strength/Rank mode. The athlete's lifts, each at the body weight saved with it, scored and
+   * aggregated per muscle by the database; the map draws each region from the muscle best
+   * supported by evidence. Without a sex to compare against, or with no reachable service, the
+   * map stays in its coverage view rather than drawing ranks it cannot justify.
+   */
+  const rankSex: "male" | "female" | null = sexForReference === "male" || sexForReference === "female" ? sexForReference : null;
+  const rankLifts = useMemo(
+    () => muscleRankLifts(activeObservations, bodyWeightHistory, baselineBodyWeight != null ? displayWeightToKilograms(baselineBodyWeight, weightUnit) : null),
+    [activeObservations, bodyWeightHistory, baselineBodyWeight, weightUnit]
+  );
+  const muscleRanks = trpc.strengthProfile.muscleRanks.useQuery(
+    { sex: rankSex, lifts: rankLifts },
+    { enabled: rankSex !== null && rankLifts.length > 0, staleTime: 5 * 60 * 1000, retry: false }
+  );
+  const rankProfile = muscleRanks.data && muscleRanks.data.status !== "unavailable" ? muscleRanks.data : null;
+  const regionRanks = useMemo(() => (rankProfile ? regionRanksFromMuscles(rankProfile.muscles) : null), [rankProfile]);
+  const unrankedLifts = useMemo(() => {
+    const counts = new Map<string, { exerciseName: string; reason: string; count: number }>();
+    (rankProfile?.unranked ?? []).forEach((item) => {
+      const key = `${item.exerciseName}|${item.reason}`;
+      counts.set(key, { ...item, count: (counts.get(key)?.count ?? 0) + 1 });
+    });
+    return Array.from(counts.values());
+  }, [rankProfile]);
+  const rankNotice = rankSex === null && rankLifts.length > 0
+    ? <p className="rank-profile-partial">Ranks on this map need the sex to compare against — set it in About Me.</p>
+    : unrankedLifts.length > 0
+      ? <details className="rank-profile-partial">
+          <summary>{rankProfile!.unranked.length} {rankProfile!.unranked.length === 1 ? "lift is" : "lifts are"} not in these ranks</summary>
+          <ul>{unrankedLifts.map((item) => <li key={`${item.exerciseName}-${item.reason}`}>{item.exerciseName}{item.count > 1 ? ` ×${item.count}` : ""} — {unrankedReasonCopy[item.reason] ?? "could not be scored"}</li>)}</ul>
+        </details>
+      : null;
   // Covered means "you have recorded work here", never a rank or a score. A
   // locally recorded lift counts in both access modes, so the server overview can
   // only add regions, never take one away that this device can see.
@@ -738,9 +786,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         </div>
         <details className="strength-profile-reference-details"><summary>How comparison works</summary>{registryOfflineNotice && <p className="strength-profile-reference-offline" role="status">{registryOfflineNotice}</p>}<p>Your own progress is always tracked from your logs. A comparison against published numbers only appears when your exact lift, setup, and body weight line up with a study — most everyday gym lifts will not, and that is normal.</p>{supabaseEvidenceInventory.data?.status === "connected" && <p className="mt-2">Research on file: {supabaseEvidenceInventory.data.strengthNorms} strength norms, {supabaseEvidenceInventory.data.performanceNorms} performance norms, and {supabaseEvidenceInventory.data.performanceTests} test protocols. Having them on file does not by itself create a rank for you.</p>}{approvedReferenceExercises.length > 0 && <p className="mt-2">Reviewed and approved for comparison so far: {approvedReferenceExercises.join(", ")}. Every other study on file stays under review until its exact population and protocol are checked.</p>}</details>
       </section>
-      <StrengthGenomeBodyMap regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
+      <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankNotice} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
       {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
-      {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} />
+      {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} regionRank={regionRanks?.get(sheetRegion.id) ?? null} rankMode={regionRanks !== null} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} />
         <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: sheetRegion.id, active: !activePriorityIds.has(sheetRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(sheetRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(sheetRegion.id) ? "Focused" : "Set focus"}</button></div></div>
       </div>}
       <div className="strength-observation-summary"><strong>{activeObservations.length} saved</strong><span>{activeObservations.length ? `${workoutObservations.length} carried across from finished workouts${directAccess ? ", saved on this device only" : ""}.` : (directAccess ? "Finish a workout in the tracker, or log a lift below, to start your record." : (overview.data?.nextAction || "Log a lift to start your record."))}</span></div>

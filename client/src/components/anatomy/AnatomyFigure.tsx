@@ -2,6 +2,7 @@ import React from "react";
 import { useId, useMemo, useRef, useState } from "react";
 import { anatomyViewBox, anatomyViews, type AnatomyMuscle, type AnatomyView } from "./figureGeometry";
 import type { AnatomyRole } from "@/lib/anatomyRegions";
+import { rankMapFillToken, type RankId } from "@shared/capabilityRank";
 import "./anatomy-figure.css";
 
 /**
@@ -78,9 +79,19 @@ export type AnatomyFigureProps = {
   onSelect: (regionKey: string, pathId?: string) => void;
   labelFor: (regionKey: string) => string;
   onHover?: (regionKey: string | null) => void;
+  /**
+   * Strength/Rank encoding. When given, the figure is drawn by capability rank instead of
+   * exercise role: a ranked key takes its rank's flat fill, and a key marked "unscored" is drawn
+   * recessive and hatched, outside the ordered scale. A key absent from the map is not part of
+   * any rankable region - the feet, say - and stays neutral anatomy: hatching it would claim a
+   * measurement the model does not even attempt. Roles are ignored.
+   */
+  rankFor?: Readonly<Record<string, RankId | "unscored">>;
+  /** Replaces the role wording in each region's accessible name. */
+  describeFor?: (regionKey: string) => string | undefined;
 };
 
-export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover }: AnatomyFigureProps) {
+export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor }: AnatomyFigureProps) {
   const uid = useId();
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
@@ -132,7 +143,15 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     document.getElementById(`${uid}-hit-${next.key}`)?.focus?.();
   };
 
-  const fillFor = (role?: AnatomyRole) => {
+  const rankEncoding = rankFor !== undefined;
+
+  const fillFor = (key: string) => {
+    if (rankEncoding) {
+      const rankId = rankFor[key];
+      if (rankId === "unscored") return `url(#${uid}-unscored)`;
+      return rankId ? `var(${rankMapFillToken(rankId)})` : undefined;
+    }
+    const role = roles[key];
     if (role === "primary") return `url(#${uid}-primary)`;
     if (role === "supporting") return `url(#${uid}-supporting)`;
     return undefined;
@@ -141,6 +160,8 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
   const clipFor = (half: string | null) => (half ? `url(#${uid}-${half})` : undefined);
 
   const describe = (key: string) => {
+    const described = describeFor?.(key);
+    if (described) return `${described}${isSelected(key) ? ", selected" : ""}`;
     const role = roles[key] ?? "neutral";
     const roleWord = role === "primary" ? "primary role" : role === "supporting" ? "supporting role" : "not involved";
     return `${labelFor(key)}, ${roleWord}${isSelected(key) ? ", selected" : ""}`;
@@ -157,6 +178,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     <svg
       className="anatomy-figure"
       data-view={view}
+      data-encoding={rankEncoding ? "rank" : undefined}
       viewBox={`0 0 ${canvasWidth} ${height}`}
       role="group"
       aria-label={`${viewName} muscle map. ${composed.length} selectable regions.`}
@@ -181,6 +203,15 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
           <stop offset="0%" stopColor="var(--anatomy-primary-1)" />
           <stop offset="100%" stopColor="var(--anatomy-primary-2)" />
         </linearGradient>
+        {/* Not scored: hatched, about 7px apart at the figure's usual size, so the cue that
+            says "nothing measured here" is texture rather than a lightness that could be
+            mistaken for a step on the rank scale. */}
+        {rankEncoding && (
+          <pattern id={`${uid}-unscored`} patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(45)">
+            <rect width="16" height="16" fill="var(--sg-rank-unavailable-fill)" />
+            <rect width="4" height="16" fill="var(--sg-rank-unavailable-hatch)" />
+          </pattern>
+        )}
       </defs>
 
       {panels.map((panel) => (
@@ -192,13 +223,15 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
             <path key={piece.id} className="anatomy-structural" d={piece.d} />
           ))}
           {panel.figure.muscles.map((muscle) => {
-            const paint = fillFor(roles[muscle.key]);
+            const paint = fillFor(muscle.key);
             return (
               <g
                 key={muscle.key}
                 className="anatomy-muscle"
                 data-muscle={muscle.key}
-                data-role={roles[muscle.key] ?? "neutral"}
+                data-role={rankEncoding ? undefined : roles[muscle.key] ?? "neutral"}
+                data-rank={rankEncoding && rankFor[muscle.key] && rankFor[muscle.key] !== "unscored" ? rankFor[muscle.key] : undefined}
+                data-unscored={rankEncoding && rankFor[muscle.key] === "unscored" ? "true" : undefined}
                 data-selected={isSelected(muscle.key) ? "true" : undefined}
                 data-focused={focusedKey === muscle.key ? "true" : undefined}
               >
