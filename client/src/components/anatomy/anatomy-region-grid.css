@@ -97,3 +97,16 @@
 .atlas-pro-canvas .region-thumb-shell { fill: #d6dfea; }
 .light-panel .region-thumb-muscle,
 .atlas-pro-canvas .region-thumb-muscle { fill: #b9c6d6; }
+
+/* Strength/Rank mode. The emblem sits in the state line so it reads with the rank name it
+   repeats, and is hidden from assistive tech because that name is already in the label. */
+.region-grid-state-ranked { display: grid; min-width: 0; white-space: normal; }
+.region-grid-rank { display: inline-flex; align-items: center; gap: .3rem; min-width: 0; }
+.region-grid-percentile { padding-left: calc(16px + .3rem); font-variant-numeric: tabular-nums; }
+.region-grid-emblem { flex: 0 0 auto; }
+.region-grid-card[data-highlighted="true"] { box-shadow: inset 0 0 0 2px var(--sg-rank-selection-over, #fff), inset 0 0 0 4px var(--sg-rank-selection-under, #07182e); }
+/* Neutral text in rank mode. The coverage view's warm "on record" tone matched its red role
+   fill; beside teal and green rank emblems it read as a warning. Rank is carried by the emblem
+   and the thumbnail, so the words stay plain. */
+.region-grid-card[data-active="true"] .region-grid-state-ranked { color: var(--sg-text-on-dark); }
+.region-grid-card[data-active="true"] .region-grid-state-ranked .region-grid-percentile { color: var(--sg-text-muted-on-dark); }
