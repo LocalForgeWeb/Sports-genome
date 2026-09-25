@@ -1,6 +1,6 @@
 import "@/capability-rank.css";
 import { RANKS, confidenceLabel, rankForPercentile, rankColorToken, rankRangeLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
-import { RankEmblem } from "@/components/RankEmblem";
+import { RankIcon } from "@/components/RankIcon";
 import { ordinal } from "@/lib/strengthPercentileCard";
 
 /**
@@ -34,11 +34,14 @@ export function referenceGroupText(regionRank: RegionRank): string | null {
 /* -------------------------------------------------------------------------------------------- */
 
 /**
- * Seven labelled swatches and the unscored sample.
+ * Seven labelled swatches and the unscored sample, each band under its badge.
  *
  * Categorical on purpose: equal-width swatches name bands, they do not measure the distance
- * between lifts. Each band is a toggle that answers "which of mine are here" in text, which
- * is the legend's equivalent for anyone not reading colour.
+ * between lifts. The badge is the same artwork the rank card shows, so the legend is also
+ * where the seven are seen side by side; the swatch beneath it is the flat colour the map
+ * paints with, which the badge's own highlights and shadows do not have to match. Each band
+ * is a toggle that answers "which of mine are here" in text, which is the legend's
+ * equivalent for anyone not reading colour.
  */
 export function RankLegend({ activeBand, onBand, regionLabelsByRank }: { activeBand: RankId | null; onBand: (band: RankId | null) => void; regionLabelsByRank: ReadonlyMap<RankId, string[]> }) {
   const active = activeBand ? RANKS.find((rank) => rank.id === activeBand) : null;
@@ -55,6 +58,7 @@ export function RankLegend({ activeBand, onBand, regionLabelsByRank }: { activeB
               aria-label={`${rank.fullName}, percentiles ${rankRangeLabel(rank)}. ${(regionLabelsByRank.get(rank.id) ?? []).length} of your muscle groups.`}
               onClick={() => onBand(activeBand === rank.id ? null : rank.id)}
             >
+              <RankIcon rankId={rank.id} size={32} className="rank-legend-icon" />
               <span className="rank-legend-swatch" data-rank={rank.id} style={{ background: `var(${rankColorToken(rank.id)})` }} aria-hidden="true" />
               <span className="rank-legend-name" aria-hidden="true">{rank.shortName}</span>
               <span className="rank-legend-range" aria-hidden="true">{rankRangeLabel(rank)}</span>
@@ -90,7 +94,7 @@ export function RankCard({ regionRank }: { regionRank: RegionRank }) {
   const others = muscles.filter((muscle) => muscle.muscleId !== representative.muscleId);
   return (
     <section className="rank-card" aria-label={`${rank.fullName} rank`}>
-      <span className="rank-emblem-slot"><RankEmblem rankId={rank.id} size={48} /></span>
+      <span className="rank-emblem-slot"><RankIcon rankId={rank.id} size={64} /></span>
       <div className="rank-head">
         <p className="rank-name">{rank.fullName}</p>
         <p className="rank-percentile">{rankPercentileText(regionRank)}</p>
@@ -125,7 +129,7 @@ export function RankCard({ regionRank }: { regionRank: RegionRank }) {
                   return (
                     <li key={muscle.muscleId}>
                       <span>{muscle.name}</span>
-                      <span>{own && <RankEmblem rankId={own.id} size={18} />}{own?.shortName} · {ordinal(displayPercentile(muscle.percentile))}</span>
+                      <span>{own && <RankIcon rankId={own.id} size={32} />}{own?.shortName} · {ordinal(displayPercentile(muscle.percentile))}</span>
                     </li>
                   );
                 })}

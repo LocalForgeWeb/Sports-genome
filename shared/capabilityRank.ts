@@ -53,16 +53,28 @@ export type RankDefinition = {
   mapOutline: "keyline" | "silver";
   /** Badge finish: the gem's gradient, the rim's metal, and the colour of the mark on the gem. */
   badge: { plateTop: string; plateBottom: string; rim: BadgeMetal; glyph: string };
+  /**
+   * The approved badge artwork, as the app serves it: the 384 px runtime file under
+   * client/public, with a 128 px sibling at `<name>-128.webp` for compact rows. Both are cut
+   * from the untouched master in design/rank-icons/source by design/rank-icons/build.py.
+   *
+   * Null while a rank's approved artwork has not been supplied. The app then draws the emblem
+   * from rankEmblems.ts for that rank rather than reusing an older design in its place, and
+   * the two are told apart by a test so the gap cannot close silently.
+   */
+  iconSrc: string | null;
   sortOrder: number;
 };
 
 export const RANKS: readonly RankDefinition[] = [
   { id: "prospect", minInclusive: 0, maxExclusive: 20, shortName: "Prospect", fullName: "Prospect",
     color: "#8290A3", specifiedColor: "#8290A3", mapOutline: "keyline",
-    badge: { plateTop: "#A7B2C1", plateBottom: "#5F6B7C", rim: "silver", glyph: "#E9EEF4" }, sortOrder: 0 },
+    badge: { plateTop: "#A7B2C1", plateBottom: "#5F6B7C", rim: "silver", glyph: "#E9EEF4" },
+    iconSrc: "/rank-icons/prospect.webp", sortOrder: 0 },
   { id: "jv", minInclusive: 20, maxExclusive: 40, shortName: "JV", fullName: "Junior Varsity",
     color: "#38B879", specifiedColor: "#38B879", mapOutline: "keyline",
-    badge: { plateTop: "#4BC88B", plateBottom: "#2A895A", rim: "silver", glyph: "#06301B" }, sortOrder: 1 },
+    badge: { plateTop: "#4BC88B", plateBottom: "#2A895A", rim: "silver", glyph: "#06301B" },
+    iconSrc: "/rank-icons/jv.webp", sortOrder: 1 },
   /*
    * Varsity and Regional are neighbours, and at the brief's hexes (#4285E8, #A36CE0) they had
    * the same luminance to three places: indistinguishable in grayscale (dL 0.1) and nearly so
@@ -71,19 +83,29 @@ export const RANKS: readonly RankDefinition[] = [
    */
   { id: "varsity", minInclusive: 40, maxExclusive: 60, shortName: "Varsity", fullName: "Varsity",
     color: "#397FE7", specifiedColor: "#4285E8", mapOutline: "keyline",
-    badge: { plateTop: "#508EEA", plateBottom: "#175CC1", rim: "silver", glyph: "#FFFFFF" }, sortOrder: 2 },
+    badge: { plateTop: "#508EEA", plateBottom: "#175CC1", rim: "silver", glyph: "#FFFFFF" },
+    iconSrc: "/rank-icons/varsity.webp", sortOrder: 2 },
   { id: "regional", minInclusive: 60, maxExclusive: 80, shortName: "Regional", fullName: "Regional Circuit",
     color: "#B385E5", specifiedColor: "#A36CE0", mapOutline: "keyline",
-    badge: { plateTop: "#C5A2EB", plateBottom: "#8E4AD8", rim: "silver", glyph: "#26104A" }, sortOrder: 3 },
+    badge: { plateTop: "#C5A2EB", plateBottom: "#8E4AD8", rim: "silver", glyph: "#26104A" },
+    iconSrc: "/rank-icons/regional.webp", sortOrder: 3 },
   { id: "state", minInclusive: 80, maxExclusive: 95, shortName: "State", fullName: "State Circuit",
     color: "#DCAF3C", specifiedColor: "#DCAF3C", mapOutline: "keyline",
-    badge: { plateTop: "#E1BB5A", plateBottom: "#B18820", rim: "silver", glyph: "#3A2803" }, sortOrder: 4 },
+    badge: { plateTop: "#E1BB5A", plateBottom: "#B18820", rim: "silver", glyph: "#3A2803" },
+    iconSrc: "/rank-icons/state.webp", sortOrder: 4 },
+  /*
+   * National and World Stage: the approved crimson and obsidian badges were not in the batch
+   * that supplied the five above (design/rank-icons/README.md names what each must be). Until
+   * they arrive these two draw the emblem, not an older badge.
+   */
   { id: "national", minInclusive: 95, maxExclusive: 99, shortName: "National", fullName: "National Circuit",
     color: "#C93650", specifiedColor: "#C93650", mapOutline: "keyline",
-    badge: { plateTop: "#D86E81", plateBottom: "#91273A", rim: "gold", glyph: "#FFFFFF" }, sortOrder: 5 },
+    badge: { plateTop: "#D86E81", plateBottom: "#91273A", rim: "gold", glyph: "#FFFFFF" },
+    iconSrc: null, sortOrder: 5 },
   { id: "world_stage", minInclusive: 99, maxExclusive: null, shortName: "World Stage", fullName: "World Stage",
     color: "#171B24", specifiedColor: "#171B24", mapOutline: "silver",
-    badge: { plateTop: "#333C50", plateBottom: "#08090D", rim: "silver", glyph: "#E8C35E" }, sortOrder: 6 },
+    badge: { plateTop: "#333C50", plateBottom: "#08090D", rim: "silver", glyph: "#E8C35E" },
+    iconSrc: null, sortOrder: 6 },
 ];
 
 /** The metals a badge rim is drawn in, light to dark; also the World Stage map outline's source. */
