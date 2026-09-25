@@ -14,20 +14,21 @@ Assigned by what the artwork is, never by the order it was supplied in.
 | `varsity`     | Varsity     | 40 ≤ p < 60 | `#397FE7`  | `source/varsity.png`      | One uninterrupted faceted blue gem, silver border, layered side accents; no internal chevron bars    |
 | `regional`    | Regional    | 60 ≤ p < 80 | `#B385E5`  | `source/regional.png`     | Elongated purple gem, silver V frame, one shorter wing per side                                      |
 | `state`       | State       | 80 ≤ p < 95 | `#DCAF3C`  | `source/state.png`        | Gold central summit, three-point crown, two upward-sweeping wing layers per side                     |
-| `national`    | National    | 95 ≤ p < 99 | `#C93650`  | **not yet supplied**      | Tall crimson central summit, dark metal/silver frame, multiple swept wing layers                     |
-| `world_stage` | World Stage | 99 ≤ p ≤ 100| `#171B24`  | **not yet supplied**      | Black central gem and wings, silver edges, gold accents and orbital gate                             |
+| `national`    | National    | 95 ≤ p < 99 | `#C93650`  | `source/national.png`     | Tall crimson central summit, dark metal/silver frame, multiple swept wing layers                     |
+| `world_stage` | World Stage | 99 ≤ p ≤ 100| `#171B24`  | `source/world-stage.png`  | Black central gem and wings, silver edges, gold accents and orbital gate                             |
 
-The first five were supplied on 25 September 2026 as 1254 × 1254 RGBA PNGs with genuine
-transparency (corner alpha 0; visible pixels at alpha 250–255). The green and blue badges are
-the final versions with no stacked chevron bars across the centre; purple is the one-pair-wing
-revision and gold the stronger crowned revision.
+All seven were supplied on 25 September 2026 (five in a first batch, crimson and obsidian in a
+second) as 1254 × 1254 RGBA PNGs with genuine transparency (corner alpha 0; visible pixels at
+alpha 250–255). The green and blue badges are the final versions with no stacked chevron bars
+across the centre; purple is the one-pair-wing revision and gold the stronger crowned revision.
+World Stage's black gem and wings are artwork, not background, and the build never strips
+black: transparency comes from the alpha channel alone.
 
-National and World Stage were not in that batch. Their `iconSrc` in the rank table is `null`,
-and the app draws the emblem from `client/src/lib/rankEmblems.ts` for them until the approved
-crimson and obsidian badges arrive. To add one: save the master as `source/national.png` or
-`source/world-stage.png`, run the build, and set `iconSrc` for that rank to
-`/rank-icons/national.webp` or `/rank-icons/world-stage.webp`. The test in
-`client/src/lib/rankIcons.test.ts` checks that the files exist and carry alpha.
+A rank whose `iconSrc` in the rank table is `null` draws the emblem from
+`client/src/lib/rankEmblems.ts` instead. To supply or replace a badge: save the master as
+`source/<rank>.png` (rank id with `_` written as `-`), run the build, and point that rank's
+`iconSrc` at `/rank-icons/<rank>.webp`. The test in `client/src/lib/rankIcons.test.ts` checks
+that every path names files that exist and carry alpha.
 
 ## Masters
 

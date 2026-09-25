@@ -27,20 +27,13 @@ describe("A rank's approved badge", () => {
     expect(draw("state", 32, true)).toContain('alt="State Circuit rank"');
   });
 
-  /**
-   * The crimson and obsidian badges were not supplied. Those ranks draw the emblem, and never
-   * one of the five badges or an older design, so the gap is visible rather than papered over.
-   */
-  it("falls back to the drawn emblem, not another rank's badge, where artwork is missing", () => {
-    for (const id of ["national", "world_stage"] as const) {
-      const html = draw(id, 48);
-      expect(html).not.toContain("<img");
-      expect(html).toContain(`data-rank-emblem="${id}"`);
+  /** All seven, as artwork; the emblem fallback is covered in RankIcon.fallback.test.ts. */
+  it("renders every rank as its own artwork", () => {
+    for (const rank of RANKS) {
+      const html = draw(rank.id, 32);
+      expect(html, rank.id).toContain(`src="${rank.iconSrc}"`);
+      expect(html, rank.id).not.toContain("data-rank-emblem");
     }
-  });
-
-  it("renders every supplied rank as artwork and nothing else", () => {
-    for (const rank of RANKS.filter((r) => r.iconSrc)) expect(draw(rank.id, 32)).toContain("<img");
   });
 });
 
