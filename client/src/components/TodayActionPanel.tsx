@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { ArrowUpRight, ClipboardCheck, Dumbbell, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import type { LiveSession } from "@/lib/liveSession";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
 import { confirmedChangeEmphasis, leadingConfirmedChange, selectHomePriority } from "@/lib/homeStateSummary";
@@ -31,7 +32,7 @@ const collectableGateReasons = {
 /** The posture names the philosophy uses for the action mode uncertainty selects. */
 const postureLabel = { act: "Act", inspect: "Inspect", measure: "Measure" } as const;
 
-export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayLabel, onOpenTraining, onOpenStrength, sexForReference, birthYear }: { stagedExerciseCount: number; trainingDays: number; activeDayLabel: string; onOpenTraining: () => void; onOpenStrength: () => void; sexForReference?: string; birthYear?: number }) {
+export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayLabel, live, onOpenTraining, onOpenTracker, onOpenStrength, sexForReference, birthYear }: { stagedExerciseCount: number; trainingDays: number; activeDayLabel: string; live?: LiveSession | null; onOpenTraining: () => void; onOpenTracker?: () => void; onOpenStrength: () => void; sexForReference?: string; birthYear?: number }) {
   const overview = trpc.strengthGenome.overview.useQuery();
   const sessions = trpc.workoutLog.list.useQuery();
   const observations = trpc.strengthGenome.observations.useQuery();
@@ -138,7 +139,12 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
       </div>
       <button type="button" onClick={priority.target === "strength" ? onOpenStrength : onOpenTraining} className="today-action-priority-cta">{priority.ctaLabel} <ArrowUpRight className="h-4 w-4" /></button>
     </div>
-    <div className="today-action-primary"><div><p className="metric-label !text-[#adc4dc]">Today / next action</p><h2>{hasStagedWorkout ? "Your training day is staged." : "Choose the next useful move."}</h2><p>{hasStagedWorkout ? `${stagedExerciseCount} exercises are staged for ${activeDayLabel}. Review the prescription, then start when you are ready.` : "No workout is staged yet. Design one from your available equipment and current sport context."}</p></div><button type="button" onClick={onOpenTraining} className="today-action-cta">{hasStagedWorkout ? "Open training day" : "Design training day"} <ArrowUpRight className="h-4 w-4" /></button></div>
+    {/* A workout that is happening outranks anything this panel would suggest.
+        It used to read "start when you are ready" to an athlete who was three
+        sets in, because nothing here could see the session. */}
+    {live
+      ? <div className="today-action-primary today-action-live"><div><p className="metric-label !text-[#adc4dc]">Today / in progress</p><h2>You are training right now.</h2><p>{live.dayLabel} · {live.completedSets} of {live.plannedSets} sets logged{live.exerciseName && live.setNumber ? `. Next up: ${live.exerciseName}, set ${live.setNumber}.` : ". Every set is logged — finish when you are ready."}</p></div><button type="button" onClick={() => (onOpenTracker || onOpenTraining)()} className="today-action-cta">Back to the workout <ArrowUpRight className="h-4 w-4" /></button></div>
+      : <div className="today-action-primary"><div><p className="metric-label !text-[#adc4dc]">Today / next action</p><h2>{hasStagedWorkout ? "Your training day is staged." : "Choose the next useful move."}</h2><p>{hasStagedWorkout ? `${stagedExerciseCount} exercises are staged for ${activeDayLabel}. Review the prescription, then start when you are ready.` : "No workout is staged yet. Design one from your available equipment and current sport context."}</p></div><button type="button" onClick={onOpenTraining} className="today-action-cta">{hasStagedWorkout ? "Open training day" : "Design training day"} <ArrowUpRight className="h-4 w-4" /></button></div>}
     <div className="today-action-rhythm" aria-label={`${trainingDays} training days you chose for this weekly plan`}><span>Weekly plan rhythm</span><div>{weekdayLabels.map((label, index) => <i key={`${label}-${index}`} className={index < trainingDays ? "today-rhythm-planned" : ""} aria-hidden="true">{label}</i>)}</div><small>{trainingDays} days you chose · not a completion or readiness score</small></div>
     {/* The figure is the fact. These read "5 planned days" in body type, with the
         number the same size as the words around it and a subtitle underneath

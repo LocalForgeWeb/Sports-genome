@@ -3248,3 +3248,149 @@ details:not([open]) > *:not(summary) {
 .destination-progress .progress-session-card em.progress-percentile { display: block; margin-top: .45rem; border-top: 1px solid rgb(164 200 232 / .18); padding-top: .45rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-style: normal; line-height: var(--sg-leading-body); }
 .destination-progress .progress-session-card em.progress-percentile b { color: var(--sg-focus-on-dark); font-weight: 800; }
 .destination-progress .progress-percentile-gap { margin-top: .85rem; border-left: 3px solid var(--sg-focus-on-dark); padding: .45rem .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+
+/* -- The workout you are in the middle of, on every screen that is not it ---- *
+
+   Measured before this: a session running with a set logged, and Plan still read
+   "start when you are ready", the week board still read "6 exercises" for the day
+   being trained, and Home still read "0 of 5 sessions done". Leaving the tracker
+   lost the workout from view entirely.
+
+   It rides above the dock so it survives scrolling and navigation, which is the
+   whole point, and it never covers the dock itself. */
+
+.session-resume-bar {
+  position: fixed;
+  z-index: 45;
+  right: 0;
+  bottom: var(--sg-dock-height, 4.375rem);
+  left: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  border-top: 1px solid rgb(226 113 62 / .5);
+  padding: .6rem 1rem calc(.6rem + env(safe-area-inset-bottom, 0px) * 0);
+  background: linear-gradient(135deg, rgb(24 60 99 / .98), rgb(12 38 70 / .98));
+  box-shadow: 0 -10px 26px rgb(4 20 40 / .3);
+  backdrop-filter: blur(16px);
+  color: var(--sg-text-on-dark);
+  text-align: left;
+}
+
+.session-resume-bar:hover { background: linear-gradient(135deg, rgb(29 70 113 / .98), rgb(15 44 79 / .98)); }
+.session-resume-bar:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
+
+/* The progress of the session, as the bar's own top edge. */
+.session-resume-dial {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: rgb(255 255 255 / .14);
+}
+
+.session-resume-dial i {
+  display: block;
+  height: 100%;
+  background: var(--sg-action-fill);
+  transition: width var(--sg-motion-base) var(--sg-ease);
+}
+
+.session-resume-copy { display: grid; gap: .1rem; min-width: 0; }
+
+.session-resume-copy strong {
+  display: inline-flex;
+  align-items: center;
+  gap: .2rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.session-resume-copy strong svg { color: var(--sg-action-fill); }
+
+.session-resume-copy em {
+  margin-left: .35rem;
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-xs);
+  font-style: normal;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.session-resume-copy small {
+  overflow: hidden;
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-resume-action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: .2rem;
+  min-height: 2.25rem;
+  border: 1px solid var(--sg-action);
+  background: var(--sg-action-fill);
+  padding: 0 .7rem;
+  color: var(--sg-action-on);
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+/* The dock floats with a margin on wide screens and sits flush on a phone, so
+   the bar has to clear a different amount in each case. */
+.session-resume-bar { --sg-dock-height: 4.375rem; }
+@media (min-width: 961px) { .session-resume-bar { bottom: calc(4.375rem + 1.25rem); } }
+
+/* -- The same state, on the row it belongs to ------------------------------- */
+
+.custom-row-live {
+  display: inline-flex;
+  align-items: center;
+  margin-left: .4rem;
+  border: 1px solid currentColor;
+  padding: .04rem .3rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.custom-row-live-current { color: var(--sg-action); }
+.custom-row-live-done { color: var(--sg-state-positive); }
+.custom-row-live-todo { color: var(--sg-text-subtle-on-light); }
+.custom-row-live-skipped { color: var(--sg-text-subtle-on-light); }
+
+.custom-prescription-live-current { border-left: 3px solid var(--sg-action); }
+.custom-prescription-live-done { border-left: 3px solid var(--sg-state-positive); }
+
+.destination-train .custom-row-live-todo,
+.destination-train .custom-row-live-skipped { color: var(--sg-text-muted-on-dark); }
+
+/* A day that has been trained, on the week board. */
+.weekly-day-state {
+  display: inline-flex;
+  align-items: center;
+  margin-left: .35rem;
+  border: 1px solid currentColor;
+  padding: .02rem .26rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.weekly-day-live .weekly-day-state { color: var(--sg-action); }
+.weekly-day-trained .weekly-day-state { color: var(--sg-state-positive); }
+.weekly-day-live { border-left: 3px solid var(--sg-action); }
+.weekly-day-trained { border-left: 3px solid var(--sg-state-positive); }

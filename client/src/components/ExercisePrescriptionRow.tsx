@@ -4,6 +4,7 @@ import { Check, ChevronDown, Copy, Info, Minus, Plus, Undo2, X } from "lucide-re
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { muscleLabels } from "@/components/AnatomyMap";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
+import type { ExerciseProgress } from "@/lib/liveSession";
 import {
   displayPrescription,
   formatPrescription,
@@ -37,7 +38,7 @@ import "../mobile-training-card.css";
  * top set followed by back-offs is just as ordinary, and used to be impossible
  * to write - so "Vary by set" turns the single field into one field per set.
  */
-export function ExercisePrescriptionRow({ exercise, index, prescription, settings, onPrescription, onSettings, onInspect, onRemove }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void }) {
+export function ExercisePrescriptionRow({ exercise, index, prescription, settings, progress, onPrescription, onSettings, onInspect, onRemove }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; progress?: ExerciseProgress | null; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void }) {
   /**
    * The editor's model is the list of sets, not the string.
    *
@@ -97,11 +98,31 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
     commit(withSetCount(plan, next));
   };
 
-  return <details className={`custom-prescription ${settings.completed ? "custom-prescription-complete" : ""}`}>
+  /**
+   * What the live session has done to this exercise, when one is running.
+   *
+   * The plan and the workout were two pictures of the same day that never
+   * referred to each other: you could log four sets of Box Jump and come back to
+   * a row that still read exactly as it had before you started. The row is the
+   * thing an athlete scans to answer "where am I", so it answers.
+   */
+  const live = progress
+    ? progress.state === "skipped"
+      ? { tone: "skipped", text: "Skipped" }
+      : progress.state === "done"
+        ? { tone: "done", text: `Done ${progress.completed}/${progress.planned}` }
+        : progress.state === "current"
+          ? { tone: "current", text: progress.completed > 0 ? `Now · ${progress.completed}/${progress.planned}` : "Now" }
+          : progress.completed > 0
+            ? { tone: "todo", text: `${progress.completed}/${progress.planned}` }
+            : null
+    : null;
+
+  return <details className={`custom-prescription ${settings.completed ? "custom-prescription-complete" : ""}${live ? ` custom-prescription-live-${live.tone}` : ""}`}>
     <summary className="custom-row">
       <span className="custom-row-index">{String(index + 1).padStart(2, "0")}</span>
       <span className="custom-row-identity">
-        <strong>{exercise.name}</strong>
+        <strong>{exercise.name}{live && <b className={`custom-row-live custom-row-live-${live.tone}`}>{live.text}</b>}</strong>
         <em>{summaryLine}</em>
         <small>{exercise.movement} · {muscles}</small>
       </span>
