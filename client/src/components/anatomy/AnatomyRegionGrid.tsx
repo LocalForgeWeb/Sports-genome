@@ -2,7 +2,7 @@ import React from "react";
 import { useId, useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { anatomyViewBox, anatomyViews } from "./figureGeometry";
-import { rankMapFillToken, type RankId } from "@shared/capabilityRank";
+import { rankColorToken, type RankId } from "@shared/capabilityRank";
 import { RankEmblem } from "@/components/RankEmblem";
 import "./anatomy-region-grid.css";
 
@@ -60,7 +60,7 @@ function RegionThumb({ muscleKeys, active, shellId, rankId }: { muscleKeys: read
       focusable="false"
     >
       <use href={`#${shellId}-${view}`} />
-      {paths.map((path) => <path key={path.id} className="region-thumb-muscle" d={path.d} style={rankId ? { fill: `var(${rankMapFillToken(rankId)})` } : undefined} />)}
+      {paths.map((path) => <path key={path.id} className="region-thumb-muscle" d={path.d} style={rankId ? { fill: `var(${rankColorToken(rankId)})` } : undefined} data-rank={rankId} />)}
     </svg>
   );
 }

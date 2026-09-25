@@ -2,7 +2,7 @@ import React from "react";
 import { useId, useMemo, useRef, useState } from "react";
 import { anatomyViewBox, anatomyViews, type AnatomyMuscle, type AnatomyView } from "./figureGeometry";
 import type { AnatomyRole } from "@/lib/anatomyRegions";
-import { rankMapFillToken, type RankId } from "@shared/capabilityRank";
+import { rankColorToken, type RankId } from "@shared/capabilityRank";
 import "./anatomy-figure.css";
 
 /**
@@ -149,7 +149,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     if (rankEncoding) {
       const rankId = rankFor[key];
       if (rankId === "unscored") return `url(#${uid}-unscored)`;
-      return rankId ? `var(${rankMapFillToken(rankId)})` : undefined;
+      return rankId ? `var(${rankColorToken(rankId)})` : undefined;
     }
     const role = roles[key];
     if (role === "primary") return `url(#${uid}-primary)`;

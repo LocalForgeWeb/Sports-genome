@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   MUSCLE_CONFIDENCE_THRESHOLDS,
   RANKS,
+  RANK_PALETTE_VERSION,
   RANK_SCHEME_VERSION,
   muscleCanonicalNameToRegionId,
   muscleConfidenceLevel,
@@ -32,17 +33,20 @@ describe("The rank table", () => {
     expect(RANKS.map(rankRangeLabel)).toEqual(["0–19", "20–39", "40–59", "60–79", "80–94", "95–98", "99–100"]);
   });
 
-  /** Lightness must rise across the ranks in both themes - the ordering is the whole point. */
-  it("gets lighter with every rank in both themes", () => {
-    const luminance = (hex: string) => {
-      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
-        .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
-      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    };
-    for (const theme of ["dark", "light"] as const) {
-      const ramp = RANKS.map((rank) => luminance(rank.mapFill[theme]));
-      for (let i = 1; i < ramp.length; i += 1) expect(ramp[i], `${theme} ${RANKS[i].id}`).toBeGreaterThan(ramp[i - 1]);
-    }
+  /**
+   * Palette v2, exactly: the brief's colours in the brief's order, with the two measured
+   * adjustments recorded against the hex it specified. Lightness no longer has to rise - hue
+   * carries the rank now - so what is pinned is identity and order.
+   */
+  it("uses the competitive-progression palette, in order", () => {
+    expect(RANKS.map((rank) => rank.color)).toEqual(["#8290A3", "#38B879", "#397FE7", "#B385E5", "#DCAF3C", "#C93650", "#171B24"]);
+    expect(RANKS.map((rank) => rank.specifiedColor)).toEqual(["#8290A3", "#38B879", "#4285E8", "#A36CE0", "#DCAF3C", "#C93650", "#171B24"]);
+    expect(RANK_PALETTE_VERSION).toBe("sg_rank_palette_v2");
+  });
+
+  /** Only World Stage's obsidian needs a light edge to be seen on navy. */
+  it("outlines World Stage in silver and every other rank with the keyline", () => {
+    expect(RANKS.filter((rank) => rank.mapOutline === "silver").map((rank) => rank.id)).toEqual(["world_stage"]);
   });
 });
 

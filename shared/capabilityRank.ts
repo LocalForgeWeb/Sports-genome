@@ -18,6 +18,19 @@ export const RANK_SCHEME_VERSION = "sg_capability_rank_v1" as const;
 
 export type RankId = "prospect" | "jv" | "varsity" | "regional" | "state" | "national" | "world_stage";
 
+/**
+ * The palette, versioned apart from the scheme. Recolouring is cosmetic - bands, ids and every
+ * stored percentile are untouched - so it must not read as a new rank scheme, and a stored rank
+ * from before it is the same rank in a new colour.
+ *
+ * v2 is the competitive-progression palette: slate, green, blue, purple, gold, crimson, and
+ * obsidian at the top. It replaced v1's blue-to-yellow ramp, and with it the rule that each
+ * rank be lighter than the last; identity now comes from hue, with name and emblem alongside.
+ */
+export const RANK_PALETTE_VERSION = "sg_rank_palette_v2" as const;
+
+export type BadgeMetal = "silver" | "gold";
+
 export type RankDefinition = {
   id: RankId;
   /** Raw percentile, inclusive. */
@@ -27,30 +40,57 @@ export type RankDefinition = {
   shortName: string;
   fullName: string;
   /**
-   * Candidate map fills from the brief, tuned separately per theme rather than inverted.
-   * Components never read these directly: they use the CSS tokens `rankMapFillToken` names,
-   * and a test holds the stylesheet to this table.
+   * The rank's one colour: map fill, legend swatch, badge gem and any other rank display. Read
+   * through `rankColorToken`, never as a literal, and held to this table by a test.
    */
-  mapFill: { dark: string; light: string };
+  color: string;
+  /** The hex the palette brief specified. Differs from `color` only where a measurement moved it. */
+  specifiedColor: string;
   /**
-   * The emblem's colour on a badge, tuned against the badge surface rather than reused from
-   * the map: at the brief's map values Prospect measured 2.30:1 and JV 2.94:1 on the detail
-   * panel, below the 3:1 a graphical object needs. Same hue family, lightness solved to clear
-   * 3:1 on both dark panels (#0b2240, #102f53) and on white, and still ordered.
+   * The edge a scored region is drawn with. Every rank takes the dark keyline except World
+   * Stage: obsidian measures 1.03:1 against the navy ground and needs a light edge to be seen.
    */
-  badgeAccent: { dark: string; light: string };
+  mapOutline: "keyline" | "silver";
+  /** Badge finish: the gem's gradient, the rim's metal, and the colour of the mark on the gem. */
+  badge: { plateTop: string; plateBottom: string; rim: BadgeMetal; glyph: string };
   sortOrder: number;
 };
 
 export const RANKS: readonly RankDefinition[] = [
-  { id: "prospect", minInclusive: 0, maxExclusive: 20, shortName: "Prospect", fullName: "Prospect", mapFill: { dark: "#306A8E", light: "#414487" }, badgeAccent: { dark: "#3D87B4", light: "#3A3D78" }, sortOrder: 0 },
-  { id: "jv", minInclusive: 20, maxExclusive: 40, shortName: "JV", fullName: "Junior Varsity", mapFill: { dark: "#27808E", light: "#355F8D" }, badgeAccent: { dark: "#2E97A7", light: "#2C5076" }, sortOrder: 1 },
-  { id: "varsity", minInclusive: 40, maxExclusive: 60, shortName: "Varsity", fullName: "Varsity", mapFill: { dark: "#1F958B", light: "#2A788E" }, badgeAccent: { dark: "#23A79B", light: "#226172" }, sortOrder: 2 },
-  { id: "regional", minInclusive: 60, maxExclusive: 80, shortName: "Regional", fullName: "Regional Circuit", mapFill: { dark: "#25AB82", light: "#21918C" }, badgeAccent: { dark: "#27B589", light: "#1A716D" }, sortOrder: 3 },
-  { id: "state", minInclusive: 80, maxExclusive: 95, shortName: "State", fullName: "State Circuit", mapFill: { dark: "#44BF70", light: "#22A884" }, badgeAccent: { dark: "#4EC378", light: "#1A8064" }, sortOrder: 4 },
-  { id: "national", minInclusive: 95, maxExclusive: 99, shortName: "National", fullName: "National Circuit", mapFill: { dark: "#81D34D", light: "#4EC36B" }, badgeAccent: { dark: "#85D553", light: "#319048" }, sortOrder: 5 },
-  { id: "world_stage", minInclusive: 99, maxExclusive: null, shortName: "World Stage", fullName: "World Stage", mapFill: { dark: "#ECE51B", light: "#B0DD2F" }, badgeAccent: { dark: "#ECE61F", light: "#7B9E1A" }, sortOrder: 6 },
+  { id: "prospect", minInclusive: 0, maxExclusive: 20, shortName: "Prospect", fullName: "Prospect",
+    color: "#8290A3", specifiedColor: "#8290A3", mapOutline: "keyline",
+    badge: { plateTop: "#A7B2C1", plateBottom: "#5F6B7C", rim: "silver", glyph: "#E9EEF4" }, sortOrder: 0 },
+  { id: "jv", minInclusive: 20, maxExclusive: 40, shortName: "JV", fullName: "Junior Varsity",
+    color: "#38B879", specifiedColor: "#38B879", mapOutline: "keyline",
+    badge: { plateTop: "#4BC88B", plateBottom: "#2A895A", rim: "silver", glyph: "#06301B" }, sortOrder: 1 },
+  /*
+   * Varsity and Regional are neighbours, and at the brief's hexes (#4285E8, #A36CE0) they had
+   * the same luminance to three places: indistinguishable in grayscale (dL 0.1) and nearly so
+   * under protanopia (dE 3.7). The smallest move that separates them - blue a shade darker,
+   * purple a shade lighter - takes that to dL 9.5 and protan dE 12.0; both stay blue and purple.
+   */
+  { id: "varsity", minInclusive: 40, maxExclusive: 60, shortName: "Varsity", fullName: "Varsity",
+    color: "#397FE7", specifiedColor: "#4285E8", mapOutline: "keyline",
+    badge: { plateTop: "#508EEA", plateBottom: "#175CC1", rim: "silver", glyph: "#FFFFFF" }, sortOrder: 2 },
+  { id: "regional", minInclusive: 60, maxExclusive: 80, shortName: "Regional", fullName: "Regional Circuit",
+    color: "#B385E5", specifiedColor: "#A36CE0", mapOutline: "keyline",
+    badge: { plateTop: "#C5A2EB", plateBottom: "#8E4AD8", rim: "silver", glyph: "#26104A" }, sortOrder: 3 },
+  { id: "state", minInclusive: 80, maxExclusive: 95, shortName: "State", fullName: "State Circuit",
+    color: "#DCAF3C", specifiedColor: "#DCAF3C", mapOutline: "keyline",
+    badge: { plateTop: "#E1BB5A", plateBottom: "#B18820", rim: "silver", glyph: "#3A2803" }, sortOrder: 4 },
+  { id: "national", minInclusive: 95, maxExclusive: 99, shortName: "National", fullName: "National Circuit",
+    color: "#C93650", specifiedColor: "#C93650", mapOutline: "keyline",
+    badge: { plateTop: "#D86E81", plateBottom: "#91273A", rim: "gold", glyph: "#FFFFFF" }, sortOrder: 5 },
+  { id: "world_stage", minInclusive: 99, maxExclusive: null, shortName: "World Stage", fullName: "World Stage",
+    color: "#171B24", specifiedColor: "#171B24", mapOutline: "silver",
+    badge: { plateTop: "#333C50", plateBottom: "#08090D", rim: "silver", glyph: "#E8C35E" }, sortOrder: 6 },
 ];
+
+/** The metals a badge rim is drawn in, light to dark; also the World Stage map outline's source. */
+export const BADGE_METALS: Record<BadgeMetal, readonly [string, string, string]> = {
+  silver: ["#F3F6FA", "#AEB7C4", "#6B7586"],
+  gold: ["#FBE7A6", "#D6AA42", "#8A6414"],
+};
 
 export const rankById: ReadonlyMap<RankId, RankDefinition> = new Map(RANKS.map((rank) => [rank.id, rank]));
 
@@ -68,9 +108,8 @@ export function rankForPercentile(value: unknown): RankDefinition | null {
   return RANKS.find((rank) => value >= rank.minInclusive && (rank.maxExclusive === null || value < rank.maxExclusive)) ?? null;
 }
 
-/** CSS custom properties, one name per rank and purpose, so components never carry a hex. */
-export const rankMapFillToken = (id: RankId) => `--sg-rank-${id.replace("_", "-")}-map-fill`;
-export const rankBadgeAccentToken = (id: RankId) => `--sg-rank-${id.replace("_", "-")}-badge-accent`;
+/** The CSS custom property holding a rank's colour, so components never carry a hex. */
+export const rankColorToken = (id: RankId) => `--sg-rank-${id.replace("_", "-")}-color`;
 
 /** "0-19", "95-98", "99-100": the legend's labelled ranges, read off the same table. */
 export function rankRangeLabel(rank: RankDefinition): string {
