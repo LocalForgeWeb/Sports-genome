@@ -11,6 +11,8 @@ vi.mock("@/lib/trpc", () => ({
     // The beta community-curve route. Off by default here: these cases are about the
     // research-grade routes, and a percentile arriving would displace the card under test.
     strengthPercentile: { forLift: { useQuery: () => ({ data: undefined }) } },
+    // The muscle-rank route: no answer here keeps the map in the coverage view these tests describe.
+    strengthProfile: { muscleRanks: { useQuery: () => ({ data: undefined }) } },
     researchEvidence: { supabaseInventory: { useQuery: () => ({ data: { status: "unavailable" } }) } },
     repair: { deleteStrengthObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) } },
     strengthGenome: {

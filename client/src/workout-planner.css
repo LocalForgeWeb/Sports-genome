@@ -787,7 +787,13 @@
  * and closes back to exactly where they were, so adding an exercise never costs them
  * their place on the day. */
 .day-picker-sheet-scrim { position: fixed; inset: 0; z-index: 70; display: grid; align-items: end; justify-items: center; overflow-y: auto; overscroll-behavior: contain; background: rgb(6 23 45 / .72); padding: 0; -webkit-overflow-scrolling: touch; }
-.day-picker-sheet { display: flex; width: min(860px, 100%); max-height: min(92dvh, 900px); flex-direction: column; overflow: hidden; border: 1px solid var(--sg-divider-on-light); border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; background: var(--sg-surface-light); box-shadow: 0 -18px 50px rgb(3 21 45 / .38); }
+/* A fixed height, not a maximum. The sheet is anchored to the bottom, so with a
+   maximum it grew and shrank with the results: typing "prea" took the list from
+   24 rows to 2, and the sheet's top edge - with the search box in it - slid
+   247px down the screen, then back up on the next letter. On a phone with the
+   keyboard up that read as the whole screen lurching under the thumb. The height
+   is the same however many rows there are; the list scrolls inside it. */
+.day-picker-sheet { display: flex; width: min(860px, 100%); height: min(92dvh, 900px); flex-direction: column; overflow: hidden; border: 1px solid var(--sg-divider-on-light); border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; background: var(--sg-surface-light); box-shadow: 0 -18px 50px rgb(3 21 45 / .38); }
 .day-picker-sheet-head { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--sg-divider-on-light); padding: 1rem 1.15rem; }
 .day-picker-sheet-head h2 { margin-top: .22rem; color: #183b61; font-family: var(--font-display, sans-serif); font-size: 1.85rem; font-weight: 800; line-height: .9; text-transform: uppercase; }
 .day-picker-sheet-head button { display: grid; width: 2.75rem; height: 2.75rem; flex: 0 0 auto; place-items: center; border: 1px solid var(--sg-divider-on-light); border-radius: 999px; color: #2a527f; }
@@ -908,3 +914,14 @@
 .day-capacity-note-qualified > svg { color: var(--sg-state-caution); }
 .day-capacity-note-withhold { border-left-color: var(--sg-state-critical); background: rgb(226 86 74 / .08); }
 .day-capacity-note-withhold > svg { color: var(--sg-state-critical); }
+
+/* Ink on the sheet's white ground, in both themes. The search-scope line is a
+   shared component written for the dark panels it usually sits on, and on this
+   sheet it measured 2.15:1 - "Searching Pull-compatible exercises." was the
+   faintest line on a screen whose job is reading. The row's movement line
+   (3.69:1) and the inactive scope button (3.86:1) take the same subtle-on-light
+   token the sheet's other secondary lines already use, which measures 5.03:1. */
+.day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }
+.day-picker-sheet .local-search-scope button { color: var(--sg-info-strong); }
+.day-picker-sheet .day-picker-result > button:first-child small { color: var(--sg-text-subtle-on-light); }
+.day-picker-sheet .day-picker-scope button:not(.day-picker-scope-active) { color: var(--sg-text-subtle-on-light); }

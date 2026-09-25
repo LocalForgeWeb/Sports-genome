@@ -97,3 +97,21 @@
 .atlas-pro-canvas .region-thumb-shell { fill: #d6dfea; }
 .light-panel .region-thumb-muscle,
 .atlas-pro-canvas .region-thumb-muscle { fill: #b9c6d6; }
+
+/* Strength/Rank mode. The badge sits beside the rank name it repeats, spanning that line and
+   the percentile under it, and is decorative to assistive tech because the name is already in
+   the card's label. */
+.region-grid-state-ranked { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: .35rem; align-items: center; min-width: 0; white-space: normal; }
+.region-grid-emblem { grid-column: 1; grid-row: 1 / 3; width: 1.75rem; height: 1.75rem; }
+.region-grid-rank { grid-column: 2; align-self: end; min-width: 0; }
+.region-grid-percentile { grid-column: 2; align-self: start; font-variant-numeric: tabular-nums; }
+.region-grid-card[data-highlighted="true"] { box-shadow: inset 0 0 0 2px var(--sg-rank-selection-over, #fff), inset 0 0 0 4px var(--sg-rank-selection-under, #07182e); }
+/* Neutral text in rank mode. The coverage view's warm "on record" tone matched its red role
+   fill; beside the rank emblems it read as a warning. Rank is carried by the emblem
+   and the thumbnail, so the words stay plain. */
+.region-grid-card[data-active="true"] .region-grid-state-ranked { color: var(--sg-text-on-dark); }
+.region-grid-card[data-active="true"] .region-grid-state-ranked .region-grid-percentile { color: var(--sg-text-muted-on-dark); }
+
+/* Obsidian thumbnails need the same silver edge the map gives World Stage, or they vanish into
+   the dark silhouette. */
+.region-thumb-muscle[data-rank="world_stage"] { stroke: var(--sg-rank-world-stage-outline, #AEB7C4); stroke-width: 1; vector-effect: non-scaling-stroke; }

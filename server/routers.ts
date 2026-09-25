@@ -38,6 +38,7 @@ import {
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getResilienceTargetCatalog } from "./supabaseResilience";
 import { getStrengthPercentile, getStrengthPercentiles } from "./supabaseStrengthCurves";
+import { getMuscleProfile } from "./supabaseStrengthProfile";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
 import { getPublicNormsReference } from "./normsRegistry";
@@ -454,6 +455,27 @@ export const appRouter = router({
    *
    * One lift is described the same way whether it arrives alone or in a list.
    */
+  /**
+   * Per-muscle percentiles for Body Lab's Strength/Rank mode, scored and aggregated by the
+   * database. Each lift carries the body weight saved with it; the server groups by that
+   * weight so a later weight change never re-reads an old lift.
+   */
+  strengthProfile: router({
+    muscleRanks: publicProcedure
+      .input(z.object({
+        sex: z.enum(["male", "female"]).nullable(),
+        lifts: z.array(z.object({
+          catalogExerciseId: z.number().int().positive().nullish(),
+          exerciseName: z.string().trim().min(1).max(255),
+          loadKg: z.number().positive().max(1000),
+          repetitions: z.number().int().min(1).max(100),
+          bodyMassKg: z.number().positive().max(500).nullable(),
+        // Each distinct saved weight is one database call, and this route is public: 30 bounds a
+        // request to 31 calls. The client sends at most 30, newest first, duplicates removed.
+        })).max(30),
+      }))
+      .query(({ input }) => getMuscleProfile(input)),
+  }),
   strengthPercentile: router({
     forLift: publicProcedure
       .input(strengthPercentileLiftInput)
