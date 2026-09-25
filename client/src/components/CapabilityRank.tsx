@@ -1,5 +1,5 @@
 import "@/capability-rank.css";
-import { RANKS, confidenceLabel, rankForPercentile, rankMapFillToken, rankRangeLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
+import { RANKS, confidenceLabel, rankForPercentile, rankColorToken, rankRangeLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
 import { RankEmblem } from "@/components/RankEmblem";
 import { ordinal } from "@/lib/strengthPercentileCard";
 
@@ -55,7 +55,7 @@ export function RankLegend({ activeBand, onBand, regionLabelsByRank }: { activeB
               aria-label={`${rank.fullName}, percentiles ${rankRangeLabel(rank)}. ${(regionLabelsByRank.get(rank.id) ?? []).length} of your muscle groups.`}
               onClick={() => onBand(activeBand === rank.id ? null : rank.id)}
             >
-              <span className="rank-legend-swatch" style={{ background: `var(${rankMapFillToken(rank.id)})` }} aria-hidden="true" />
+              <span className="rank-legend-swatch" data-rank={rank.id} style={{ background: `var(${rankColorToken(rank.id)})` }} aria-hidden="true" />
               <span className="rank-legend-name" aria-hidden="true">{rank.shortName}</span>
               <span className="rank-legend-range" aria-hidden="true">{rankRangeLabel(rank)}</span>
             </button>

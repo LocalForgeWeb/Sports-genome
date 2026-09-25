@@ -1,106 +1,78 @@
 /**
- * Capability rank tokens - sg_capability_rank_v1.
+ * Capability rank tokens - sg_capability_rank_v1, palette sg_rank_palette_v2.
  *
- * Generated values, not hand-picked ones: every hex here is held to `RANKS` in
- * shared/capabilityRank.ts by capabilityRankTokens.test.ts, so the map, the legend and the
- * badges cannot drift from the table that decides the bands.
+ * One colour per rank, used by the map, the legend, the badges and the detail alike. Every hex
+ * here is held to `RANKS` in shared/capabilityRank.ts by capabilityRankTokens.test.ts.
  *
- * The working tokens (`--sg-rank-<id>-map-fill`, `--sg-rank-<id>-badge-accent`) default to
- * the dark set because Body Lab's ground is dark in both app themes - the light theme only
- * repaints the chrome. A light surface opts in with `.sg-surface-light`.
+ * Body Lab's ground is navy in both app themes - the light theme repaints only the chrome - so
+ * there is one set, not a dark and a light one.
  */
 :root {
-  --sg-rank-prospect-map-fill-dark: #306A8E;    --sg-rank-prospect-map-fill-light: #414487;
-  --sg-rank-jv-map-fill-dark: #27808E;          --sg-rank-jv-map-fill-light: #355F8D;
-  --sg-rank-varsity-map-fill-dark: #1F958B;     --sg-rank-varsity-map-fill-light: #2A788E;
-  --sg-rank-regional-map-fill-dark: #25AB82;    --sg-rank-regional-map-fill-light: #21918C;
-  --sg-rank-state-map-fill-dark: #44BF70;       --sg-rank-state-map-fill-light: #22A884;
-  --sg-rank-national-map-fill-dark: #81D34D;    --sg-rank-national-map-fill-light: #4EC36B;
-  --sg-rank-world-stage-map-fill-dark: #ECE51B; --sg-rank-world-stage-map-fill-light: #B0DD2F;
-
-  --sg-rank-prospect-badge-accent-dark: #3D87B4;    --sg-rank-prospect-badge-accent-light: #3A3D78;
-  --sg-rank-jv-badge-accent-dark: #2E97A7;          --sg-rank-jv-badge-accent-light: #2C5076;
-  --sg-rank-varsity-badge-accent-dark: #23A79B;     --sg-rank-varsity-badge-accent-light: #226172;
-  --sg-rank-regional-badge-accent-dark: #27B589;    --sg-rank-regional-badge-accent-light: #1A716D;
-  --sg-rank-state-badge-accent-dark: #4EC378;       --sg-rank-state-badge-accent-light: #1A8064;
-  --sg-rank-national-badge-accent-dark: #85D553;    --sg-rank-national-badge-accent-light: #319048;
-  --sg-rank-world-stage-badge-accent-dark: #ECE61F; --sg-rank-world-stage-badge-accent-light: #7B9E1A;
-
-  --sg-rank-prospect-map-fill: var(--sg-rank-prospect-map-fill-dark);
-  --sg-rank-jv-map-fill: var(--sg-rank-jv-map-fill-dark);
-  --sg-rank-varsity-map-fill: var(--sg-rank-varsity-map-fill-dark);
-  --sg-rank-regional-map-fill: var(--sg-rank-regional-map-fill-dark);
-  --sg-rank-state-map-fill: var(--sg-rank-state-map-fill-dark);
-  --sg-rank-national-map-fill: var(--sg-rank-national-map-fill-dark);
-  --sg-rank-world-stage-map-fill: var(--sg-rank-world-stage-map-fill-dark);
-
-  --sg-rank-prospect-badge-accent: var(--sg-rank-prospect-badge-accent-dark);
-  --sg-rank-jv-badge-accent: var(--sg-rank-jv-badge-accent-dark);
-  --sg-rank-varsity-badge-accent: var(--sg-rank-varsity-badge-accent-dark);
-  --sg-rank-regional-badge-accent: var(--sg-rank-regional-badge-accent-dark);
-  --sg-rank-state-badge-accent: var(--sg-rank-state-badge-accent-dark);
-  --sg-rank-national-badge-accent: var(--sg-rank-national-badge-accent-dark);
-  --sg-rank-world-stage-badge-accent: var(--sg-rank-world-stage-badge-accent-dark);
+  --sg-rank-prospect-color: #8290A3;
+  --sg-rank-jv-color: #38B879;
+  --sg-rank-varsity-color: #397FE7;
+  --sg-rank-regional-color: #B385E5;
+  --sg-rank-state-color: #DCAF3C;
+  --sg-rank-national-color: #C93650;
+  --sg-rank-world-stage-color: #171B24;
 
   /*
-   * Not scored. Measured, the figure's resting grey (#6f7d90, luminance 0.201) sits between
-   * JV and Varsity - 1.10:1 from JV - so in grayscale an unmeasured muscle read as a middle
-   * rank. It is taken below the whole ramp and given texture: a hatch is the cue that survives
-   * grayscale and colour-vision differences, and it cannot be mistaken for a step on a scale
-   * whose every step is a flat fill.
+   * World Stage's edge. Obsidian is 1.03:1 against the navy ground; this silver is 8.5:1 against
+   * obsidian and 6.7:1 against navy. It is the same metal as the badge rim, so the map and the
+   * badge say the same thing.
+   */
+  --sg-rank-world-stage-outline: #AEB7C4;
+
+  /*
+   * Not scored. Hatched, so it is told apart by texture: its dark base sits between Prospect's
+   * slate and World Stage's obsidian in lightness, and no flat colour could be kept clear of both.
    */
   --sg-rank-unavailable-fill: #2e3a49;
   --sg-rank-unavailable-hatch: #6f7d90;
 
-  /* A keyline on scored anatomy: 3.03:1 on Prospect up to 13.4:1 on World Stage. */
+  /* A keyline on scored anatomy: 3.5:1 on crimson, the darkest rank that uses it, up to 8.7:1 on gold. */
   --sg-rank-keyline: #07182e;
 
   /*
-   * Selection, paired: a dark stroke under a white one. White alone fell to 1.85:1 on National
-   * and 1.33:1 on World Stage. Paired, the better of the two is at least 4.6:1 on every rank,
-   * and the cue is the same weight whatever it sits on.
+   * Selection. Silver is only 2.0:1 from white, so a light ring alone would read as World
+   * Stage's permanent edge. Selection is therefore a different kind of mark: a wide dark band
+   * under a dashed white line. Nothing about a rank is dashed, so it cannot be mistaken for one,
+   * and the better of the two strokes is at least 4.5:1 on every rank (Varsity, 4.55:1).
    */
   --sg-rank-selection-under: #07182e;
   --sg-rank-selection-over: #ffffff;
 }
 
 .sg-surface-light {
-  --sg-rank-prospect-map-fill: var(--sg-rank-prospect-map-fill-light);
-  --sg-rank-jv-map-fill: var(--sg-rank-jv-map-fill-light);
-  --sg-rank-varsity-map-fill: var(--sg-rank-varsity-map-fill-light);
-  --sg-rank-regional-map-fill: var(--sg-rank-regional-map-fill-light);
-  --sg-rank-state-map-fill: var(--sg-rank-state-map-fill-light);
-  --sg-rank-national-map-fill: var(--sg-rank-national-map-fill-light);
-  --sg-rank-world-stage-map-fill: var(--sg-rank-world-stage-map-fill-light);
-  --sg-rank-prospect-badge-accent: var(--sg-rank-prospect-badge-accent-light);
-  --sg-rank-jv-badge-accent: var(--sg-rank-jv-badge-accent-light);
-  --sg-rank-varsity-badge-accent: var(--sg-rank-varsity-badge-accent-light);
-  --sg-rank-regional-badge-accent: var(--sg-rank-regional-badge-accent-light);
-  --sg-rank-state-badge-accent: var(--sg-rank-state-badge-accent-light);
-  --sg-rank-national-badge-accent: var(--sg-rank-national-badge-accent-light);
-  --sg-rank-world-stage-badge-accent: var(--sg-rank-world-stage-badge-accent-light);
   --sg-rank-keyline: #16324f;
   --sg-rank-selection-under: #16324f;
 }
 
 /* ---- The figure, in Strength/Rank encoding -------------------------------------------- */
 
-/* Flat fills: a vertical gradient inside one rank would be a second lightness ramp the eye
-   reads as quantitative. The keyline holds each scored region's edge. */
+/* Flat, discrete fills: no gradient, glow or sheen on the body - finish is for badges. The
+   keyline holds each scored region's edge. */
 .anatomy-figure[data-encoding="rank"] .anatomy-muscle[data-rank] > path {
   stroke: var(--sg-rank-keyline);
   stroke-width: 1.25;
   vector-effect: non-scaling-stroke;
 }
+/* Obsidian takes a restrained silver edge instead, on every World Stage region. */
+.anatomy-figure[data-encoding="rank"] .anatomy-muscle[data-rank="world_stage"] > path {
+  stroke: var(--sg-rank-world-stage-outline);
+  stroke-width: 1.5;
+}
 
 .anatomy-figure[data-encoding="rank"] .anatomy-selection-halo {
   stroke: var(--sg-rank-selection-under);
   stroke-opacity: 1;
-  stroke-width: 4.5;
+  stroke-width: 6;
 }
 .anatomy-figure[data-encoding="rank"] .anatomy-selection-ring {
   stroke: var(--sg-rank-selection-over);
-  stroke-width: 2;
+  stroke-width: 2.5;
+  stroke-dasharray: 6 4;
+  stroke-linecap: butt;
 }
 
 /* ---- Legend ------------------------------------------------------------------------------ */
@@ -115,7 +87,8 @@
 .rank-legend-button { display: grid; gap: .2rem; width: 100%; min-height: 2.75rem; border: 0; background: none; padding: 0; color: inherit; text-align: left; cursor: pointer; }
 .rank-legend-button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .rank-legend-swatch { display: block; height: .7rem; border: 1px solid var(--sg-rank-keyline); }
-.rank-legend-button[aria-pressed="true"] .rank-legend-swatch { box-shadow: 0 0 0 2px var(--sg-rank-selection-over), 0 0 0 4px var(--sg-rank-selection-under); }
+.rank-legend-swatch[data-rank="world_stage"] { border-color: var(--sg-rank-world-stage-outline); }
+.rank-legend-button[aria-pressed="true"] .rank-legend-swatch { outline: 2px dashed var(--sg-rank-selection-over); outline-offset: 3px; }
 .rank-legend-name { color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-open); line-height: 1.15; }
 .rank-legend-range { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-variant-numeric: tabular-nums; }
 .rank-legend-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .9rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-snug); }

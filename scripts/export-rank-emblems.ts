@@ -1,5 +1,6 @@
 /**
- * Writes client/public/rank-emblems/<rank>.svg from client/src/lib/rankEmblems.ts.
+ * Writes client/public/rank-emblems/<rank>.svg (the monochrome master) and <rank>-badge.svg (the
+ * finished badge) from client/src/lib/rankEmblems.ts.
  *
  *   npx tsx scripts/export-rank-emblems.ts
  *
@@ -9,10 +10,12 @@
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { RANKS } from "../shared/capabilityRank";
-import { emblemSvgMarkup } from "../client/src/lib/rankEmblems";
+import { badgeSvgMarkup, emblemSvgMarkup } from "../client/src/lib/rankEmblems";
 
 for (const rank of RANKS) {
   const path = resolve(import.meta.dirname, "../client/public/rank-emblems", `${rank.id}.svg`);
   writeFileSync(path, emblemSvgMarkup(rank.id, `${rank.fullName} rank emblem`));
-  console.log(`wrote ${path}`);
+  const badge = resolve(import.meta.dirname, "../client/public/rank-emblems", `${rank.id}-badge.svg`);
+  writeFileSync(badge, badgeSvgMarkup(rank.id, `${rank.fullName} rank badge`));
+  console.log(`wrote ${path} and ${badge}`);
 }
