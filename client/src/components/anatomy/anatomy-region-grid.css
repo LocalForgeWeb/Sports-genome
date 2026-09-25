@@ -98,12 +98,13 @@
 .light-panel .region-thumb-muscle,
 .atlas-pro-canvas .region-thumb-muscle { fill: #b9c6d6; }
 
-/* Strength/Rank mode. The emblem sits in the state line so it reads with the rank name it
-   repeats, and is hidden from assistive tech because that name is already in the label. */
-.region-grid-state-ranked { display: grid; min-width: 0; white-space: normal; }
-.region-grid-rank { display: inline-flex; align-items: center; gap: .3rem; min-width: 0; }
-.region-grid-percentile { padding-left: calc(16px + .3rem); font-variant-numeric: tabular-nums; }
-.region-grid-emblem { flex: 0 0 auto; }
+/* Strength/Rank mode. The badge sits beside the rank name it repeats, spanning that line and
+   the percentile under it, and is decorative to assistive tech because the name is already in
+   the card's label. */
+.region-grid-state-ranked { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: .35rem; align-items: center; min-width: 0; white-space: normal; }
+.region-grid-emblem { grid-column: 1; grid-row: 1 / 3; width: 1.75rem; height: 1.75rem; }
+.region-grid-rank { grid-column: 2; align-self: end; min-width: 0; }
+.region-grid-percentile { grid-column: 2; align-self: start; font-variant-numeric: tabular-nums; }
 .region-grid-card[data-highlighted="true"] { box-shadow: inset 0 0 0 2px var(--sg-rank-selection-over, #fff), inset 0 0 0 4px var(--sg-rank-selection-under, #07182e); }
 /* Neutral text in rank mode. The coverage view's warm "on record" tone matched its red role
    fill; beside the rank emblems it read as a warning. Rank is carried by the emblem

@@ -3,7 +3,7 @@ import { useId, useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { anatomyViewBox, anatomyViews } from "./figureGeometry";
 import { rankColorToken, type RankId } from "@shared/capabilityRank";
-import { RankEmblem } from "@/components/RankEmblem";
+import { RankIcon } from "@/components/RankIcon";
 import "./anatomy-region-grid.css";
 
 /**
@@ -135,10 +135,13 @@ export function AnatomyRegionGrid({
             <RegionThumb muscleKeys={row.muscleKeys} active={row.active} shellId={shellId} rankId={row.rankId} />
             <span className="region-grid-name">{row.label}</span>
             {row.rankId ? (
-              // Two lines by design: rank with its emblem, then the percentile. On one line it
-              // measured ~106px against a ~90px column on a phone and ran under the chevron.
+              // The badge spans two short lines - rank name over percentile - so it can be
+              // 28px, a size the approved artwork still reads at, without making the card any
+              // taller than its two lines already are. On one line the pair measured ~106px
+              // against a ~90px column on a phone and ran under the chevron.
               <span className="region-grid-state region-grid-state-ranked">
-                <span className="region-grid-rank"><RankEmblem rankId={row.rankId} size={16} className="region-grid-emblem" />{row.state.split(" · ")[0]}</span>
+                <RankIcon rankId={row.rankId} size={28} className="region-grid-emblem" />
+                <span className="region-grid-rank">{row.state.split(" · ")[0]}</span>
                 {row.state.includes(" · ") && <span className="region-grid-percentile">{row.state.split(" · ").slice(1).join(" · ")}</span>}
               </span>
             ) : <span className="region-grid-state">{row.state}</span>}
