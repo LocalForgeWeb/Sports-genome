@@ -58,9 +58,9 @@ export type RankDefinition = {
    * client/public, with a 128 px sibling at `<name>-128.webp` for compact rows. Both are cut
    * from the untouched master in design/rank-icons/source by design/rank-icons/build.py.
    *
-   * Null while a rank's approved artwork has not been supplied. The app then draws the emblem
-   * from rankEmblems.ts for that rank rather than reusing an older design in its place, and
-   * the two are told apart by a test so the gap cannot close silently.
+   * Null for a rank whose approved artwork has not been supplied. The app then draws the emblem
+   * from rankEmblems.ts for that rank rather than reusing an older design in its place, and a
+   * test pins which ranks have artwork so a gap cannot open or close silently.
    */
   iconSrc: string | null;
   sortOrder: number;
@@ -93,19 +93,14 @@ export const RANKS: readonly RankDefinition[] = [
     color: "#DCAF3C", specifiedColor: "#DCAF3C", mapOutline: "keyline",
     badge: { plateTop: "#E1BB5A", plateBottom: "#B18820", rim: "silver", glyph: "#3A2803" },
     iconSrc: "/rank-icons/state.webp", sortOrder: 4 },
-  /*
-   * National and World Stage: the approved crimson and obsidian badges were not in the batch
-   * that supplied the five above (design/rank-icons/README.md names what each must be). Until
-   * they arrive these two draw the emblem, not an older badge.
-   */
   { id: "national", minInclusive: 95, maxExclusive: 99, shortName: "National", fullName: "National Circuit",
     color: "#C93650", specifiedColor: "#C93650", mapOutline: "keyline",
     badge: { plateTop: "#D86E81", plateBottom: "#91273A", rim: "gold", glyph: "#FFFFFF" },
-    iconSrc: null, sortOrder: 5 },
+    iconSrc: "/rank-icons/national.webp", sortOrder: 5 },
   { id: "world_stage", minInclusive: 99, maxExclusive: null, shortName: "World Stage", fullName: "World Stage",
     color: "#171B24", specifiedColor: "#171B24", mapOutline: "silver",
     badge: { plateTop: "#333C50", plateBottom: "#08090D", rim: "silver", glyph: "#E8C35E" },
-    iconSrc: null, sortOrder: 6 },
+    iconSrc: "/rank-icons/world-stage.webp", sortOrder: 6 },
 ];
 
 /** The metals a badge rim is drawn in, light to dark; also the World Stage map outline's source. */

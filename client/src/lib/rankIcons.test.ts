@@ -33,19 +33,18 @@ function pngColorType(path: string): number {
 
 /**
  * The approved badges, one per rank, assigned by what each is rather than by upload order.
- * The two that were not in the supplied batch are null, and stay null until their approved
- * artwork arrives - a test that pins them is how the gap stays visible.
+ * Pinned in full so a rank losing or gaining artwork is a visible change, never a silent one.
  */
 describe("The rank table names the approved artwork", () => {
-  it("assigns the five supplied badges and leaves the two missing ones empty", () => {
+  it("assigns all seven supplied badges", () => {
     expect(RANKS.map((rank) => [rank.id, rank.iconSrc])).toEqual([
       ["prospect", "/rank-icons/prospect.webp"],
       ["jv", "/rank-icons/jv.webp"],
       ["varsity", "/rank-icons/varsity.webp"],
       ["regional", "/rank-icons/regional.webp"],
       ["state", "/rank-icons/state.webp"],
-      ["national", null],
-      ["world_stage", null],
+      ["national", "/rank-icons/national.webp"],
+      ["world_stage", "/rank-icons/world-stage.webp"],
     ]);
   });
 
