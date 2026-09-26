@@ -3489,8 +3489,15 @@ details:not([open]) > *:not(summary) {
 .home-priority-copy strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.2; }
 .home-priority-copy small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
 .home-priority-row > svg { flex: 0 0 auto; color: var(--sg-text-subtle-on-dark); }
-.home-entries { display: grid; grid-template-columns: 1fr 1fr; padding: .35rem 0 0; }
-.home-entries > button { display: inline-flex; min-height: 52px; align-items: center; gap: .55rem; padding: .5rem .25rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; text-align: left; }
+/* Two entries side by side where they fit; one under the other on the narrowest
+   phones and under enlarged text, where "Training preferences" beside its icons
+   would otherwise run past the edge. */
+.home-entries { display: grid; grid-template-columns: minmax(0, 1fr); padding: .35rem 0 0; }
+@media (min-width: 380px) { .home-entries { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.home-entries > button { display: inline-flex; min-width: 0; min-height: 52px; align-items: center; gap: .55rem; padding: .5rem .25rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; text-align: left; overflow-wrap: anywhere; }
+.home-entries > button > svg { flex: 0 0 auto; }
+.home-entries > button > svg:last-child { margin-left: auto; }
+@media (max-width: 379px) { .home-entries > button + button { border-left: 0; border-top: 1px solid var(--sg-divider-on-dark); padding-left: .25rem; } }
 .home-entries > button + button { border-left: 1px solid var(--sg-divider-on-dark); padding-left: 1rem; }
 .home-entries > button > svg:first-child { color: #9cc4ea; }
 .home-entries > button > svg:last-child { color: var(--sg-link-on-dark); }

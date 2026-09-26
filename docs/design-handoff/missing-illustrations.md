@@ -21,6 +21,13 @@ Supabase storage the app reads, so every row below is currently empty.
 | 07 Review | Session preparation rows | Drill thumbnails (scapular pull-up, band pull-apart, thoracic rotation in the reference) | ~96 × 72pt per row | Drill rows are text |
 | 04 Catalog | Left of each exercise card | Exercise thumbnail | ~120 × 100pt | Card is text with grade and actions |
 | 05 Exercise Intelligence | Hero | Exercise hero with primary/supporting muscles painted | full width, ~260pt tall | Existing `AnatomyMap` figure stands in — vector, not a bitmap |
+| 01 Home | Right of the next-session hero | Stacked-plates visual for the session | ~150 × 150pt, right-aligned | Hero runs full width; the day name, position, count and the two actions carry it |
+| 02 Movement Atlas | Between the sport selects and the selected action | Sport-action figure for the selected action (a sprint start in the reference) | full width, ~200pt tall | The selected action's name, family and stepper sit directly under the selects |
+| 06 Plan | Left of each prescription row | Exercise thumbnail | ~96 × 72pt per row | Row is index · name/prescription · order controls |
+| 10 Progress | — | The handoff supplies no `10-Progress.png`; the screen is built from §10's text alone | — | No illustration slot is defined; facts, records and the trend are typographic |
+| 11 Strength Genome | Anatomy figure, ranked | Front and back figure painted per region by rank, unscored regions hatched | full width, ~400pt tall | Drawn from `AnatomyFigure` in rank encoding — vector, not a bitmap |
+| 11 Strength Genome | Left of each region row | Region thumbnail with the region painted in its rank colour | ~52 × 52pt per row | Drawn by `RegionThumb` from the same geometry — vector, not a bitmap |
+| 12 Profile | Beside the name | Anatomical portrait | ~88 × 88pt circle | The handoff calls the portrait a placeholder treatment, so the existing neutral identity icon sits in the circle |
 
 When an asset set arrives, the slots are: `session-prestart-hero` (a second
 grid column), `session-prestart-row` (a leading figure), and the row layouts
