@@ -13,7 +13,8 @@ describe("Home sport state safeguards", () => {
   it("connects workspace sport controls to the shared switch handler and recalculates the active movement collection", () => {
     expect(source).toContain('sportMovementProfiles.filter((profile) => profile.sportId === activeSportId)');
     expect(source).toContain('onSport={chooseSport}');
-    expect(source).toContain('onClick={() => chooseSport(profile.id)}');
+    // Matches picks the athlete's sport with a select, on the same handler.
+    expect(source).toContain('onChange={(event) => chooseSport(event.target.value)}');
   });
 
   it("resets weekly sport-specific drafts without rendering an obstructive sport-change toast", () => {

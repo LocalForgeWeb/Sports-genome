@@ -66,7 +66,7 @@ describe("Training Day duplicate prescriptions", () => {
    * and why an empty active snapshot needed a recovery path. There is one copy now.
    */
   it("does nothing when an athlete reselects the day they are already on", () => {
-    expect(source).toContain("if (!slot || slot.key === activeSlot.key) return;");
+    expect(source).toContain("if (!slot || slot.key === activeSlot.key) return false;");
   });
 
   it("stores a day's exercises, prescriptions and effort under that day, so no day can be read off another", () => {

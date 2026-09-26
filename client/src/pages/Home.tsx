@@ -2,7 +2,8 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Activity, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
+import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
+import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { UniversalSearch } from "@/components/UniversalSearch";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
@@ -144,7 +145,7 @@ const navItems: { id: Workspace; label: string; icon: typeof Target; detail: str
   { id: "progress", label: "Progress", icon: BarChart3, detail: "training & observation record", group: "Home" },
   { id: "day-plan", label: "Training Days", icon: Layers3, detail: "design each saved day", group: "Train" },
   { id: "tracker", label: "Session", icon: Activity, detail: "start the day's workout and record its sets", group: "Train" },
-  { id: "recommended", label: "Recommendations", icon: Sparkles, detail: "sport-fit session plans", group: "Train" },
+  { id: "recommended", label: "Matches", icon: Sparkles, detail: "exercises ranked for a sport action", group: "Train" },
   { id: "review", label: "Review", icon: SlidersHorizontal, detail: "is this day any good", group: "Train" },
   { id: "movement", label: "Movement Atlas", icon: Move3d, detail: `${sportMovementProfiles.length} researched sport actions`, group: "Sport" },
   { id: "body", label: "Body Lab", icon: Activity, detail: "muscle-to-movement analysis", group: "Explore" },
@@ -254,7 +255,14 @@ function RecommendationRow({ result, index, onAdd, onInspect }: { result: Moveme
     ["Stability", result.breakdown.stabilityMatch],
     ["Velocity", result.breakdown.velocityMatch],
   ];
-  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index">{String(index + 1).padStart(2, "0")}</span><button onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="ml-2 inline-flex items-center border border-[#2d6cdf]/40 bg-[#2d6cdf]/10 px-1.5 py-0.5 align-middle text-[11px] font-bold uppercase tracking-[.08em] text-[var(--sg-info-strong)]" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button onClick={onInspect} className="recommendation-score" aria-label={`Inspect the ${result.breakdown.overall} relative match for ${result.exercise.name}`}><strong>{result.breakdown.overall}</strong><small>match</small></button><GradeStamp grade={result.grade} score={result.breakdown.overall} compact /><button onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to custom workout`}><Plus className="h-4 w-4" /></button></div><details className="recommendation-why"><summary>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><p className="recommendation-trace"><span>Matched to</span> <strong>{result.hierarchy.movement}</strong> <span>to build</span> <strong>{result.hierarchy.physicalQualities.slice(0, 2).join(" and ").toLowerCase()}</strong></p></details></article>;
+  const score = result.breakdown.overall;
+  /**
+   * Two numbers side by side read as one unless each says what it is. The
+   * score is the modelled match for the selected action; the stamp is the
+   * catalog's planning tier, which it names itself. Neither is a strength rank,
+   * and the stamp is not handed the score, so the two labels stay distinct.
+   */
+  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match score ${score} for ${result.exercise.name}: open details`}><strong>{score}</strong><small>match</small></button><GradeStamp grade={result.grade} compact /><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to the training day`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><p className="recommendation-trace"><span>Matched to</span> <strong>{result.hierarchy.movement}</strong> <span>to build</span> <strong>{result.hierarchy.physicalQualities.slice(0, 2).join(" and ").toLowerCase()}</strong></p></details></article>;
 }
 
 function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => void }) {
@@ -857,7 +865,9 @@ export default function Home() {
       toast("Already in this workout", { description: `${exercise.name} is already part of the active session.` });
       return current;
     }
-    toast("Exercise added", { description: `${exercise.name} was added to the active session.` });
+    // Names the day, since every plus in the app adds to the active one and the
+    // athlete may be on Matches, the catalog or Body Lab when they press it.
+    toast(`Added to Week ${activeWeek} · ${activeSlot.day}`, { description: `${exercise.name} is in that day now.` });
     return [...current, exercise];
   });
   const toggleFavorite = (exercise: Exercise) => {
@@ -1090,11 +1100,20 @@ export default function Home() {
    * week and reading the arriving one back happens in one effect, so the rail, the day
    * strip, the tracker and the planner dock cannot each get it subtly differently.
    */
-	  const openTrainingDay = (index: number) => {
+	  /**
+	   * Moving the marker and opening the day are two acts. The strip under Matches
+	   * changes which day a plus adds to without leaving Matches; a day tab opens
+	   * the day it names.
+	   */
+	  const selectTrainingDay = (index: number) => {
 	    const slot = daySlots[index];
-	    if (!slot || slot.key === activeSlot.key) return;
+	    if (!slot || slot.key === activeSlot.key) return false;
 	    setActiveSplitDayIndex(slot.index);
 	    setActiveSplitDay(slot.day);
+	    return true;
+	  };
+	  const openTrainingDay = (index: number) => {
+	    if (!selectTrainingDay(index)) return;
 	    if (workspace !== "day-plan" && workspace !== "tracker" && workspace !== "review") navigateWorkspace("day-plan");
 	  };
   const applyWeek = (week: number, snapshot: WeekSnapshot) => {
@@ -1382,7 +1401,62 @@ export default function Home() {
         {workspace === "command" && <details className="home-input-disclosure"><summary>Adjust plan inputs — sport, goal, days, and time available</summary><div className="home-input-disclosure-body"><section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{!sportId && <option value="" disabled>{sportContextMode === "general" ? "No sport — general training" : "No sport chosen yet"}</option>}{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section><section className="gym-time-budget-card"><div><p className="metric-label">Gym-time budget</p><h2>How long do you have today?</h2><p>{gymTimeBudget.scopeCue} Recommended stacks now cap at {gymTimeBudget.recommendationLimit} exercises, while the builder keeps the session-time estimate visible.</p></div><label><span>Available time</span><select value={gymMinutes} onChange={(event) => setGymMinutes(Number(event.target.value))}>{gymTimeOptions.map((minutes) => <option key={minutes} value={minutes}>{minutes === 90 ? "90+ minutes" : `${minutes} minutes`}</option>)}</select><small>{gymTimeBudget.restGuidance}</small></label></section></div></details>}
 
         {workspace === "recommended" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="Sport recommendations" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
-        {workspace === "recommended" && hasSportContext && <section className="space-y-5"><div className="view-header"><div><p className="metric-label">02 / recommendation engine</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-[#17231f]">Recommendations with<br /><em className="text-[var(--sg-info)]">the reasoning attached.</em></h1></div><div className="view-header-note"><ShieldCheck className="h-5 w-5 text-[var(--sg-info)]" /><p>Movement and muscle fit are visible. {equipmentProfileSummary(athleteBaseline.equipment)}</p></div></div><div className="sport-select-row">{sportProfiles.map((profile) => <button key={profile.id} onClick={() => chooseSport(profile.id)} className={`sport-chip ${sportId === profile.id ? "sport-chip-active" : ""}`}><span>{sportAbbrev(profile.label)}</span><small>{profile.movementFamilies.length} families</small></button>)}</div><div className="matches-lens"><p className="metric-label">Ranking these matches on</p><div className="matches-lens-priorities">{sportProgrammingContext.priorities.map((priority) => <span key={priority}>{priority}</span>)}</div><p className="matches-lens-note">Drawn from {selectedSport.label} — {sportProgrammingContext.modifierLabel.toLowerCase()}.</p><details className="matches-lens-method"><summary>How matching works</summary><div><p>{sportProgrammingContext.modalityBoundary}</p><p>{sportProgrammingContext.exerciseRole}</p><p>{sportProgrammingContext.programmingBoundary}</p></div></details></div><div className="grid gap-5 xl:grid-cols-[.92fr_1.35fr]"><div className="dark-panel overflow-hidden"><div className="border-b border-white/10 p-5"><p className="metric-label !text-[#91a09a]">Movement selector / {selectedSport.label}</p><p className="mt-2 text-sm leading-6 text-[#c5d1c9]">Choose an action to see the body requirements and the exercise matches supporting it.</p></div><div className="max-h-[620px] overflow-y-auto p-3">{sportMovements.map((movement, index) => <button key={movement.id} onClick={() => setMovementId(movement.id)} className={`movement-list-item ${movement.id === selectedMovement.id ? "movement-list-active" : ""}`}><span className="font-display text-lg font-bold">{String(index + 1).padStart(2, "0")}</span><span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold">{movement.label}</span><span className="mt-0.5 block truncate text-[11px] text-[#8d9c95]">{movement.family}</span></span><ChevronRight className="h-4 w-4" /></button>)}</div></div><div className="space-y-5"><div className="light-panel p-5"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="metric-label">Selected sport action</p><h2 className="mt-2 font-display text-4xl font-bold uppercase leading-none text-[#17231f]">{selectedMovement.label}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-[#5f6e65]">{selectedMovement.bodyActions}</p></div><span className="border border-[#cfdbce] bg-[#eff7e7] px-3 py-2 text-[11px] font-bold uppercase tracking-[.12em] text-[#2b442c]">{selectedMovement.family}</span></div><div className="mt-5 grid gap-3 md:grid-cols-3"><div className="insight-cell"><p className="metric-label">Prime movers</p><p>{selectedMovement.primaryMuscles}</p></div><div className="insight-cell"><p className="metric-label">Stabilizers</p><p>{selectedMovement.stabilizers}</p></div><div className="insight-cell"><p className="metric-label">Muscle actions</p><p>{selectedMovement.muscleActions}</p></div></div><div className="mt-4 border-l-2 border-[var(--sg-action)] bg-[#fff1eb] p-4"><p className="metric-label !text-[#bf4326]">Gym transfer cue</p><p className="mt-1 text-xs leading-5 text-[#5d6762]">{selectedMovement.gymTransferCue}</p></div></div><div className="dark-panel overflow-hidden"><div className="flex items-start justify-between border-b border-white/10 p-5"><div><p className="metric-label !text-[#91a09a]">Exercise match set</p><h3 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Build the qualities</h3></div><span className="text-[11px] font-bold uppercase tracking-[.13em] text-[var(--sg-text-subtle-on-dark)]">{movementRecommendations.length} matches</span></div><div className="divide-y divide-white/10">{movementRecommendations.map((result, index) => <RecommendationRow key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div></div><SportEvidencePanel sportId={activeSportId} exercises={exercises} onAdd={addExercise} onInspect={inspectExercise} /></div></div></section>}
+        {/* Matches, one column: the sport and the action as controls, the
+            ranking qualities behind one line, the matches as divided rows, and
+            the day a plus adds to named at the bottom. The two-panel layout - a
+            list of twenty actions beside a boxed "match set", with the action's
+            anatomy repeated between them - is gone: the anatomy is the Movement
+            Atlas, one tap away, and an action is something to choose, not to
+            scroll past. */}
+        {workspace === "recommended" && hasSportContext && <section className="matches-page" aria-label="Exercise matches">
+          <div className="matches-head">
+            <h1>Exercise matches</h1>
+            {/* The athlete's own sport, not a browse: these rank for the sport
+                the plan is built on, so changing it here changes the plan's. */}
+            <label className="matches-sport"><span className="sr-only">Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select><ChevronDown className="h-4 w-4" aria-hidden="true" /></label>
+          </div>
+          {/* The reference draws a sport-action silhouette beside this block;
+              no such asset exists (docs/design-handoff/missing-illustrations.md),
+              so the block runs full width. */}
+          <div className="matches-context">
+            <p className="metric-label">Movement context</p>
+            <label className="matches-action"><span className="sr-only">Sport action</span><select value={selectedMovement.id} onChange={(event) => setMovementId(event.target.value)}>{sportMovements.map((movement) => <option key={movement.id} value={movement.id}>{movement.label}</option>)}</select><ChevronDown className="h-5 w-5" aria-hidden="true" /></label>
+            <button type="button" className="matches-link" onClick={() => navigateWorkspace("movement")}>Explore movement <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+          </div>
+          <div className="matches-lens">
+            <details className="matches-lens-method">
+              <summary>
+                <span className="matches-lens-label">Ranking qualities</span>
+                <span className="matches-lens-priorities">{sportProgrammingContext.priorities.length ? sportProgrammingContext.priorities.map((priority) => <span key={priority}>{priority}</span>) : <span>No priority qualities identified for this profile</span>}</span>
+                <ChevronDown className="h-5 w-5" aria-hidden="true" />
+              </summary>
+              <div>
+                <p className="matches-lens-note">{sportProgrammingContext.priorities.length ? `Ranking these matches on ${sportProgrammingContext.priorities.join(", ")}` : "Ranking these matches on movement and muscle fit alone"} — drawn from {selectedSport.label}, {sportProgrammingContext.modifierLabel.toLowerCase()}.</p>
+                <p className="matches-lens-heading">How matching works</p>
+                <p>{sportProgrammingContext.modalityBoundary}</p><p>{sportProgrammingContext.exerciseRole}</p><p>{sportProgrammingContext.programmingBoundary}</p>
+              </div>
+            </details>
+          </div>
+          <div className="matches-count">
+            <h2>{movementRecommendations.length} {movementRecommendations.length === 1 ? "match" : "matches"}</h2>
+            <p>Exercises supporting {selectedMovement.label.toLowerCase()}, {sportProgrammingContext.priorities.length ? "ranked on the qualities above" : `ranked for ${selectedSport.label}`}.</p>
+          </div>
+          {movementRecommendations.length
+            ? <div className="matches-list">{movementRecommendations.map((result, index) => <RecommendationRow key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div>
+            : <p className="matches-empty">Nothing in the catalog matches {selectedMovement.label.toLowerCase()} closely enough to rank. Explore the movement to see what it asks of the body, or choose another action.</p>}
+          <details className="matches-disclosure">
+            <summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Research context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary>
+            <div><SportEvidencePanel sportId={activeSportId} exercises={exercises} onAdd={addExercise} onInspect={inspectExercise} /></div>
+          </details>
+          {/* About a sport action, not about the day you built, so it lives with
+              Matches - and behind its own line, since it reads the whole day
+              against the action and runs to several screens. */}
+          <details className="matches-disclosure">
+            <summary><Layers3 className="h-5 w-5" aria-hidden="true" /><span>Movement intelligence<small>How your day covers {selectedMovement.label.toLowerCase()}</small></span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary>
+            <div><MovementIntelligencePanel movement={enrichedSelectedMovement} fallback={selectedMovement} workout={customWorkout} onAdd={addExercise} onInspect={inspectExercise} /></div>
+          </details>
+          <AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} />
+        </section>}
 
 
         {workspace === "day-plan" && <section className="day-design-workspace">
@@ -1427,9 +1501,6 @@ export default function Home() {
           </div>
         </section>}
         {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} />{(() => { const target = activeMuscle || getMovementMuscles(referenceMovement)[0] || ""; const name = muscleLabels[target] || target; return <div className="body-lab-next-step"><span>{activeMuscle ? `Train the ${name.toLowerCase()} this action uses` : `Train what ${referenceMovement.label.toLowerCase()} uses most`}</span><button type="button" onClick={() => { setCatalogFilters({ ...defaultCatalogFilters, muscle: target }); navigateWorkspace("catalog"); }}>Find {name} exercises <ArrowUpRight className="h-4 w-4" /></button></div>; })()}{capacityOfferForSelection && <div className="body-lab-capacity-step"><Target className="h-4 w-4" aria-hidden="true" /><div><p>Want {capacityOfferForSelection.name.toLowerCase()} to hold up better, or is something going on there?</p>{capacityOfferForSelection.relation === "region" && <small>{capacityOfferForSelection.name} is the area {(muscleLabels[activeMuscle!] || activeMuscle!).toLowerCase()} sits in — the closest target Sports Genome has for it.</small>}</div><button type="button" onClick={() => { adoptCapacityTarget(capacityOfferForSelection.targetKey); navigateWorkspace("profile", { keepScroll: true }); revealWorkspaceAnchor("targeted-capacity"); }}>Set it as a target <ArrowUpRight className="h-4 w-4" /></button></div>}</section>}
-        {/* Sport movement intelligence is about a sport action, not about the day you built,
-            so it belongs with Matches and nowhere else. */}
-        {workspace === "recommended" && <section className="mt-5"><MovementIntelligencePanel movement={enrichedSelectedMovement} fallback={selectedMovement} workout={customWorkout} onAdd={addExercise} onInspect={inspectExercise} /></section>}
         {workspace === "review" && <section className="day-review-workspace">
           <div className="day-review-head">
             <div>

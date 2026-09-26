@@ -51,7 +51,8 @@ describe("mobile athlete presentation", () => {
     expect(home).toContain('<details className="recommendation-why"><summary>Why this match?');
     expect(home).toContain('<summary>Why this match?<ChevronDown');
     expect(home).toContain('aria-label={`Inspect ${result.exercise.name}`}');
-    expect(home).toContain('relative match for ${result.exercise.name}');
+    // The score names itself, so it and the tier stamp beside it read as two facts.
+    expect(home).toContain('aria-label={`Match score ${score} for ${result.exercise.name}: open details`}');
     expect(appStyles).toContain('.recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 36px auto 44px;');
     expect(appStyles).toContain('.recommendation-score { display: grid; }');
     expect(appStyles).toContain('.recommendation-add { width: 44px; height: 44px; }');
