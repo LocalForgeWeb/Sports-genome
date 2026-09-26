@@ -3761,3 +3761,70 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 /* The phone ordering that once put history above the form no longer applies:
    the primary action sits where the reference puts it, before the disclosures. */
 .strength-genome-workspace .strength-log-entry, .strength-genome-workspace .strength-progress-log { order: 0; }
+
+/* ── 12 Profile ─────────────────────────────────────────────────────────────
+   One calm utility page: About me, who this is, the four visible preferences,
+   then the grouped settings as divided rows that open. The cards the profile
+   used to be made of are flattened; every control inside them stays. */
+.destination-secondary .about-me-panel { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.1rem; }
+.destination-secondary .about-me-panel .about-me-head { border: 0; padding: 0; }
+.destination-secondary .about-me-panel .about-me-head h1 { margin: 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.2rem, 9vw, 3rem); font-weight: 800; letter-spacing: 0; line-height: .9; text-transform: uppercase; }
+.destination-secondary .about-me-panel .about-me-head p { margin: .3rem 0 0; max-width: none; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
+.about-me-identity { display: flex; align-items: center; gap: 1rem; }
+.about-me-avatar { display: grid; flex: 0 0 auto; width: 4.5rem; height: 4.5rem; place-items: center; border: 1px solid var(--sg-control-border-on-dark); border-radius: 50%; background: rgb(164 200 232 / .1); color: #9cc4ea; }
+.about-me-identity > div { display: grid; gap: .1rem; min-width: 0; }
+.about-me-identity h2 { margin: 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.9rem; font-weight: 800; line-height: 1; text-transform: uppercase; }
+.about-me-identity p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
+.about-me-edit { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; justify-self: start; color: #ff8a66; font-size: var(--sg-text-lg); font-weight: 600; }
+.about-me-edit:hover { text-decoration: underline; }
+.destination-secondary .about-me-panel .about-me-card { border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0; }
+.destination-secondary .about-me-panel .about-me-card label { margin-top: .75rem; }
+.about-me-boundary { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.about-me-identity-fields { border-bottom: 1px solid var(--sg-divider-on-dark); padding-bottom: 1rem; }
+
+/* The visible preferences. */
+.about-me-preferences { display: grid; gap: 0; }
+.about-me-preferences > h2 { margin: 0 0 .25rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; font-weight: 800; line-height: 1; text-transform: uppercase; }
+.about-me-pref-row { border-top: 1px solid var(--sg-divider-on-dark); }
+.about-me-pref-row > summary { display: grid; min-height: 3.5rem; cursor: pointer; list-style: none; grid-template-columns: 1.5rem auto minmax(0, 1fr) 1.25rem; align-items: center; gap: .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); }
+.about-me-pref-row > summary::-webkit-details-marker { display: none; }
+.about-me-pref-row > summary > svg:first-child { color: #9cc4ea; }
+.about-me-pref-row > summary > b { min-width: 0; overflow: hidden; color: var(--sg-text-on-dark); font-weight: 600; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.about-me-pref-chevron { color: var(--sg-text-muted-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.about-me-pref-row[open] > .about-me-pref-chevron, .about-me-pref-row[open] > summary .about-me-pref-chevron { transform: rotate(180deg); }
+.destination-secondary .about-me-panel .about-me-pref-body { padding: 0 0 1rem; }
+.destination-secondary .about-me-panel .about-me-pref-body > label:first-child { margin-top: 0; }
+.destination-secondary .about-me-panel .about-me-pref-chips { display: grid; gap: .25rem; border-top: 1px solid var(--sg-divider-on-dark); padding: .75rem 0 0; }
+.destination-secondary .about-me-panel .about-me-pref-chips legend { display: flex; align-items: center; gap: .6rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 400; letter-spacing: 0; text-transform: none; }
+.destination-secondary .about-me-panel .about-me-pref-chips legend svg { color: #9cc4ea; }
+.about-me-saved { margin: .35rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); }
+
+/* The grouped settings. */
+.about-me-groups { display: grid; border-top: 1px solid var(--sg-divider-on-dark); }
+.about-me-group { border-bottom: 1px solid var(--sg-divider-on-dark); }
+.about-me-group > summary { display: grid; min-height: 4.25rem; cursor: pointer; list-style: none; grid-template-columns: 2rem minmax(0, 1fr) 1.25rem; align-items: center; gap: 1rem; padding: .5rem 0; }
+.about-me-group > summary::-webkit-details-marker { display: none; }
+.about-me-group > summary > svg:first-child { color: #9cc4ea; }
+.about-me-group > summary > span { display: grid; min-width: 0; gap: .1rem; }
+.about-me-group > summary strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.2; }
+.about-me-group > summary small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.about-me-group-chevron { color: var(--sg-text-muted-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.about-me-group[open] > summary .about-me-group-chevron { transform: rotate(90deg); }
+.about-me-group > :not(summary) { margin-bottom: 1rem; }
+.about-me-group-note { margin: 0 0 1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+.destination-secondary .about-me-panel .about-me-equipment, .destination-secondary .about-me-panel .about-me-security, .destination-secondary .about-me-panel .about-me-capacity { margin-top: 0; border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0; }
+.destination-secondary .about-me-panel .about-me-equipment p:not(.metric-label), .destination-secondary .about-me-panel .about-me-security p:not(.metric-label) { margin-top: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+.destination-secondary .about-me-panel .about-me-security { display: grid; gap: .75rem; overflow: visible; }
+.destination-secondary .about-me-panel .about-me-security h3 { margin: .2rem 0 .35rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.destination-secondary .about-me-panel .about-me-security button { width: auto; justify-self: start; border-radius: 10px; padding: 0 1rem; }
+.destination-secondary .about-me-panel .about-me-access-row { margin-top: .75rem; }
+.destination-secondary .about-me-panel .about-me-equipment-grid { margin-top: .75rem; }
+.about-me-guides { display: grid; gap: .75rem; }
+.about-me-guides > p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.about-me-guides .more-workspace-actions button { display: inline-flex; min-height: 44px; align-items: center; gap: .5rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.about-me-guides .more-workspace-actions button:first-child { border-color: var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); }
+.destination-secondary .about-me-panel .launch-setting { margin-top: 0; border-top: 0; padding-top: 0; }
+.destination-secondary .about-me-panel .launch-setting button { letter-spacing: 0; text-transform: none; font-size: var(--sg-text-base); }
+.destination-secondary .about-me-panel .more-workspace-build { margin-top: 0; }
+/* The header's own profile control is the one lit item while this page is open. */
+.topbar-profile-button[aria-current="page"], [data-theme="dark"] .topbar-profile-button[aria-current="page"] { border-color: var(--sg-action); color: var(--sg-action); }

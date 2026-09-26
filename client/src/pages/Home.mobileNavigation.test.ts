@@ -75,7 +75,7 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content.destination-body');
     expect(css).toContain('.apex-content.destination-progress');
     expect(css).toContain('.apex-content.destination-secondary');
-    expect(source).toContain('workspace === "profile" && <section className="more-workspace"');
+    expect(source).toContain("guides={<div className=\"about-me-guides\">");
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
     expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
@@ -294,7 +294,7 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('<details className="plan-context">');
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('workspace === "profile" && <AthleteAboutMePanel');
-    expect(aboutMeSource).toContain("Available equipment");
+    expect(aboutMeSource).toContain("<strong>Equipment</strong>");
     // The Atlas now renders behind the browsing notice, so the workspace opens a
     // fragment rather than the panel directly — and only once a sport is chosen. Without
     // one, the gate takes its place rather than the Atlas defaulting to someone else's sport.
