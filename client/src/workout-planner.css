@@ -1038,3 +1038,81 @@
 .day-review-stack .warmup-head > div:first-child > p:last-child,
 .day-review-stack .weekly-volume-head p:last-child,
 .day-review-stack .recovery-spacing-head p:last-child { margin-top: .3rem; font-size: var(--sg-text-xs); }
+
+/* -- Review, flattened ----------------------------------------------------- *
+
+   Six bordered cards stacked on one column read as six pages, each with its own
+   frame, its own gradient and its own shadow, and the eye spent as much on the
+   boxes as on what was in them. On Review nothing is a card: a section is a
+   label, a line saying what it answers, the content, and a rule. The panels keep
+   every bit of their logic and lose only their frame. */
+
+.day-review-stack > * { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
+.day-review-stack > * + * { border-top: 1px solid var(--sg-divider-on-dark) !important; padding-top: var(--sg-space-4); }
+
+/* Each panel's head becomes the section label: small, flat, and with whatever it
+   already carried on the right (the drill estimate, the week's total) sitting
+   where the mockup puts the detail link. */
+.day-review-stack .warmup-head,
+.day-review-stack .weekly-volume-head,
+.day-review-stack .recovery-spacing-head { align-items: flex-start; border-bottom: 0; background: transparent; padding: 0 0 .7rem; }
+
+.day-review-stack .warmup-head h3,
+.day-review-stack .weekly-volume-head h3,
+.day-review-stack .recovery-spacing-head h3 { color: var(--sg-text-on-dark); font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-snug); text-transform: uppercase; }
+
+.day-review-stack .warmup-head .metric-label,
+.day-review-stack .weekly-volume-head .metric-label,
+.day-review-stack .recovery-spacing-head .metric-label { display: none; }
+
+.day-review-stack .warmup-head > div:first-child > p:last-child,
+.day-review-stack .weekly-volume-head p:last-child,
+.day-review-stack .recovery-spacing-head > div > p:last-child { margin-top: .25rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+
+.day-review-stack .warmup-focus,
+.day-review-stack .weekly-volume-legend,
+.day-review-stack .weekly-volume-list,
+.day-review-stack .warmup-drills,
+.day-review-stack .warmup-footer,
+.day-review-stack .recovery-spacing-list { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
+
+.day-review-stack .weekly-volume-legend { border-bottom: 0; padding-top: 0; }
+.day-review-stack .weekly-volume-list { padding-top: 0; }
+
+/* The volume rows: name, bar, number. The status chip moves under the name so
+   the bar and its figure line up down the column, which is the comparison the
+   section exists to make. */
+.day-review-stack .weekly-volume-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: .2rem; }
+.day-review-stack .weekly-volume-status { grid-row: 2; justify-self: start; }
+.day-review-stack .weekly-volume-row > b { grid-row: 1 / span 2; align-self: center; }
+
+.day-review-stack .warmup-drills-detail,
+.day-review-stack .warmup-library,
+.day-review-stack .weekly-volume-more,
+.day-review-stack .weekly-volume-details,
+.day-review-stack .recovery-spacing-details { border-top: 1px solid var(--sg-divider-on-dark); }
+.day-review-stack .warmup-drills-detail > summary,
+.day-review-stack .warmup-library summary,
+.day-review-stack .weekly-volume-more > summary,
+.day-review-stack .weekly-volume-details summary,
+.day-review-stack .recovery-spacing-details summary { padding-left: 0; padding-right: 0; }
+
+/* The two reference sections keep only their disclosure row, which is what the
+   mockup's "Programming guide" and "Full volume breakdown" footer rows are. */
+.day-review-stack .programming-guide-panel,
+.day-review-stack .workout-health-panel { padding-top: 0; }
+.day-review-stack .programming-guide-disclosure > summary,
+.day-review-stack .workout-health-disclosure > summary { padding-left: 0; padding-right: 0; }
+
+
+/* The last two boxes on Review. The spacing check kept its own card padding and
+   the programming guide kept a light gradient summary, so with everything else
+   flattened they read as the only two things still in frames. */
+.day-review-stack .recovery-spacing-panel { padding-top: var(--sg-space-4); padding-bottom: 0; }
+.day-review-stack .programming-guide-disclosure > summary { min-height: 3.25rem; background: transparent; }
+.day-review-stack .programming-guide-disclosure > summary h3 { color: var(--sg-text-on-dark); font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); }
+.day-review-stack .programming-guide-disclosure > summary p,
+.day-review-stack .programming-guide-disclosure > summary span,
+.day-review-stack .programming-guide-disclosure > summary strong { color: var(--sg-text-muted-on-dark); }
+.day-review-stack .workout-health-disclosure > summary { background: transparent; }
+.day-review-stack .workout-health-disclosure > summary h3 { font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); }

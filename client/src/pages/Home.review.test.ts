@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 const home = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const chrome = readFileSync(new URL("../index.css", import.meta.url), "utf8");
 const volume = readFileSync(new URL("../components/WeeklyMuscleVolumePanel.tsx", import.meta.url), "utf8");
+const planner = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
 
 /**
  * Review was a two-column grid of five panels, each with its own display heading
@@ -58,5 +59,30 @@ describe("Review reads as one page", () => {
   it("repaints the clear-state card rather than only the words on it", () => {
     expect(chrome).toContain(".destination-train .recovery-spacing-clear { border-color:");
     expect(chrome).not.toContain(".destination-train .recovery-spacing-panel span {");
+  });
+
+  /**
+   * The handoff's visual rule: "No outer border around an ordinary page section"
+   * and "No bordered container around each exercise, workout record, or
+   * setting." Six bordered cards on one column read as six pages, each with its
+   * own frame, gradient and shadow.
+   */
+  it("gives the sections hairlines instead of frames", () => {
+    expect(planner).toContain(".day-review-stack > * { border: 0 !important;");
+    expect(planner).toContain(".day-review-stack > * + * { border-top: 1px solid var(--sg-divider-on-dark) !important;");
+    // The two that kept a frame after the first pass: the spacing check's own
+    // card padding and the programming guide's light gradient summary.
+    expect(planner).toContain(".day-review-stack .programming-guide-disclosure > summary { min-height: 3.25rem; background: transparent; }");
+  });
+
+  /**
+   * `overflow: hidden` was doing real containment work on these panels. Forcing
+   * it visible while flattening let children that had always been a few pixels
+   * too wide stick past the page gutter - measured at 396px on a 390px viewport.
+   * The handoff requires 320/360/390/430 to hold.
+   */
+  it("does not force away the containment the panels relied on", () => {
+    expect(planner).not.toContain(".day-review-stack > * { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; overflow: visible !important; }");
+    expect(planner).toContain("padding-left: 0 !important; padding-right: 0 !important; }");
   });
 });
