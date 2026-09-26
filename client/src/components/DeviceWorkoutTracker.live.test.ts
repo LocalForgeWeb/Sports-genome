@@ -12,7 +12,7 @@ const workout = [exercises[0], exercises[1]];
 const prescriptions = { [exercises[0].id]: "3 × 8", [exercises[1].id]: "2 × 10" };
 
 function mount() {
-  return render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, dayLabel: "Week 1 · Push" }));
+  return render(createElement(DeviceWorkoutTracker, { workout, prescriptions, settings: {}, goal: "Athleticism", dayLabel: "Week 1 · Push" }));
 }
 
 function startWorkout() {
@@ -65,7 +65,7 @@ describe("live workout glance contract", () => {
     render(createElement(DeviceWorkoutTracker, {
       workout: [exercises[0]],
       prescriptions: { [exercises[0].id]: "3 × 10/8/6" },
-      settings: {}, dayLabel: "Week 1 · Push",
+      settings: {}, goal: "Athleticism", dayLabel: "Week 1 · Push",
     }));
     fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
     const line = () => document.querySelector(".live-set-prescription")!.textContent;

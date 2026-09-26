@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronRight, Play, Save, SkipForward, Timer, Undo2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ArrowRight, Check, ChevronRight, Play, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2 } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import type { ExerciseSettings } from "@/lib/workoutPlanner";
+import type { ExerciseSettings, TrainingGoal } from "@/lib/workoutPlanner";
+import { WarmupPanel } from "@/components/WarmupPanel";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession,
   isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
@@ -50,14 +51,44 @@ function plannedSetCount(prescription: string) {
   return renderableSetCount(prescription);
 }
 
-function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string): DeviceWorkoutSession {
+/**
+ * "90 sec", "2 min", "120s": a rest setting from the plan, in seconds. Null when
+ * the setting does not say.
+ */
+function restSecondsOf(rest: string | undefined): number | null {
+  const match = rest?.match(/(\d+(?:\.\d+)?)\s*(min|m|sec|s)?/i);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (!value) return null;
+  return Math.round(/^m/i.test(match[2] || "") ? value * 60 : value);
+}
+
+/**
+ * The rest the plan asks for most often across the day. The Plan writes a rest
+ * per exercise and the session keeps one rest for the whole workout, so the
+ * session starts on the plan's usual answer rather than on a constant the plan
+ * never saw.
+ */
+function plannedRestSeconds(workout: Exercise[], settings: Record<number, ExerciseSettings>): number | null {
+  const tally = new Map<number, number>();
+  workout.forEach((exercise) => {
+    const seconds = restSecondsOf(settings[exercise.id]?.rest);
+    if (seconds) tally.set(seconds, (tally.get(seconds) || 0) + 1);
+  });
+  let best: number | null = null;
+  let count = 0;
+  tally.forEach((occurrences, seconds) => { if (occurrences > count) { best = seconds; count = occurrences; } });
+  return best;
+}
+
+function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string, restSeconds: number): DeviceWorkoutSession {
   return {
     id: `device-${Date.now()}`,
     title: `${dayLabel} workout`,
     dayLabel,
     startedAt: new Date().toISOString(),
     status: "active",
-    restSeconds: DEFAULT_REST_SECONDS,
+    restSeconds,
     exercises: workout.map((exercise, index) => {
       const plannedPrescription = prescriptions[exercise.id] || "3 × 8–12";
       return {
@@ -96,10 +127,36 @@ function clockFor(seconds: number) {
   return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, "0")}`;
 }
 
-export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; dayLabel: string }) {
+export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, onEditInPlan, onInspect, daySwitch }: {
+  workout: Exercise[];
+  prescriptions: Record<number, string>;
+  settings: Record<number, ExerciseSettings>;
+  goal: TrainingGoal;
+  dayLabel: string;
+  /** Session shows the prescription; changing it is Plan's job, one tap away. */
+  onEditInPlan?: () => void;
+  /** A row opens the exercise's own detail, as anywhere else in the app. */
+  onInspect?: (exercise: Exercise) => void;
+  /** The owner's day chooser, rendered under the day it names - only before a session starts. */
+  daySwitch?: ReactNode;
+}) {
   const [activeSession, setActiveSession] = useState<DeviceWorkoutSession | null>(null);
   const [durable, setDurable] = useState(true);
   const [resumed, setResumed] = useState(false);
+  /**
+   * The rest length the next session starts with. The plan's usual rest is the
+   * default; an athlete who changes it here is setting it for the session
+   * about to start, so a change survives the plan re-rendering under it but
+   * is not written back to the plan.
+   */
+  const [restOverride, setRestOverride] = useState<number | null>(null);
+  const plannedRest = plannedRestSeconds(workout, settings);
+  const startRestSeconds = restOverride ?? plannedRest ?? DEFAULT_REST_SECONDS;
+  /**
+   * Start is a real write. A second tap while the first is being persisted -
+   * two thumbs, a double-tap - must not open two sessions for the same day.
+   */
+  const starting = useRef(false);
   const [now, setNow] = useState(() => Date.now());
   const [history, setHistory] = useState<DeviceWorkoutSession[]>([]);
   /**
@@ -204,9 +261,14 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
   };
 
   const start = () => {
-    if (!workout.length) return;
-    setResumed(false);
-    persist(makeSession(workout, prescriptions, dayLabel));
+    if (!workout.length || starting.current) return;
+    starting.current = true;
+    try {
+      setResumed(false);
+      persist(makeSession(workout, prescriptions, dayLabel, startRestSeconds));
+    } finally {
+      starting.current = false;
+    }
   };
 
   const updateSet = (exerciseId: string, setIndex: number, patch: Partial<DeviceWorkoutSession["exercises"][number]["sets"][number]>, session = activeSession) => {
@@ -311,45 +373,84 @@ export function DeviceWorkoutTracker({ workout, prescriptions, dayLabel }: { wor
 
   if (!activeSession) {
     const plannedSets = workout.reduce((total, exercise) => total + plannedSetCount(prescriptions[exercise.id] || "3 × 8–12"), 0);
-    return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker">
-      <div className="execution-head">
-        <div>
-          {/* Named for the session, not the panel: the day selector directly
-              above already says "Workout tracker", and two stacked panels under
-              the same caption read as one thing rendered twice. */}
-          <p className="metric-label">{dayLabel}</p>
-          {/* The panel used to say "Ready to train" over a disabled button and,
-              lower down, "Select a saved Training Day" — while a day was
-              selected. It was empty. Three claims, none of them the state. */}
-          <h3>{workout.length ? "Ready to train." : "This day is empty."}</h3>
-          {workout.length
-            ? <p>Log the weight and reps you actually hit. Completed sets save on this device and appear in Progress.</p>
-            /* The phone hides this slot, because the sentence above it teaches
-               something you learn by finishing one session. This one is not
-               teaching: with nothing staged it is the only way out. */
-            : <p className="execution-head-instruction">Add exercises to it on Training Day, or pick another day above.</p>}
+    /**
+     * "Week 2 · Day 02 · Pull": the day's name is the title of this screen and
+     * its position in the plan is the line under it. The label is kept whole on
+     * the session itself, which is what Plan, Home and Progress match on.
+     */
+    const labelParts = dayLabel.split(" · ").map((part) => part.trim()).filter(Boolean);
+    const dayName = labelParts[labelParts.length - 1] || dayLabel;
+    const dayPosition = labelParts.slice(0, -1).join(" · ");
+    const planned = workout.length > 0;
+    /**
+     * Prestart, and nothing else. What the athlete is about to do, stated once:
+     * the day, where it sits in the plan, how much it is, and one action. The
+     * prescription follows as rows to read - not the Plan editor, so no reorder
+     * handles, no set fields, no completion marks before a set has happened.
+     * Preparation and the session's own options wait behind their own lines.
+     *
+     * The reference draws an equipment illustration beside the hero. No such
+     * asset exists in this build (docs/design-handoff/missing-illustrations.md
+     * records the slot), so the hero runs full width rather than carrying a
+     * placeholder.
+     */
+    return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker session-prestart">
+      <div className="session-prestart-hero">
+        <p className="metric-label">Workout session</p>
+        <h1 className="session-prestart-day">{dayName}</h1>
+        {dayPosition && <p className="session-prestart-position">{dayPosition}</p>}
+        <p className="session-prestart-counts">{planned
+          ? `${workout.length} ${workout.length === 1 ? "exercise" : "exercises"} · ${plannedSets} ${plannedSets === 1 ? "set" : "sets"}`
+          : "Nothing planned for this day yet"}</p>
+        <div className="session-prestart-actions">
+          <button type="button" className="session-prestart-start" onClick={start} disabled={!planned}><Play className="h-4 w-4" aria-hidden /> Start workout <ArrowRight className="h-4 w-4" aria-hidden /></button>
+          {onEditInPlan && <button type="button" className="session-prestart-edit" onClick={onEditInPlan}>{planned ? "Edit in Plan" : "Build it in Plan"} <ArrowRight className="h-4 w-4" aria-hidden /></button>}
         </div>
-        <button onClick={start} disabled={!workout.length}><Play className="h-4 w-4" /> Start workout</button>
+        {daySwitch}
       </div>
-      {workout.length ? <div className="tracker-session-preview">
-        {/* What "Ready to train" was asking you to commit to. The screen used to
-            end here, on a button and roughly seven hundred pixels of nothing,
-            with no way to check you had the right day staged before starting. */}
-        <p className="tracker-session-preview-head">
-          <span>In this session</span>
-          <small>{workout.length} {workout.length === 1 ? "exercise" : "exercises"} · {plannedSets} planned {plannedSets === 1 ? "set" : "sets"}</small>
-        </p>
-        <ol className="tracker-session-preview-list">
-          {workout.map((exercise, index) => <li key={exercise.id}>
-            <span className="tracker-session-preview-index">{String(index + 1).padStart(2, "0")}</span>
-            <span className="tracker-session-preview-name">
-              <strong>{exercise.name}</strong>
-              <small>{exercise.movement}</small>
-            </span>
-            <span className="tracker-session-preview-sets">{prescriptions[exercise.id] || "3 × 8–12"}</span>
-          </li>)}
+
+      {planned && <div className="session-prestart-list">
+        <p className="metric-label">Your exercises</p>
+        <ol>
+          {workout.map((exercise, index) => {
+            const row = <>
+              <span className="session-prestart-index">{String(index + 1).padStart(2, "0")}</span>
+              <span className="session-prestart-name">
+                <strong>{exercise.name}</strong>
+                <small>{prescriptions[exercise.id] || "3 × 8–12"}</small>
+              </span>
+              {onInspect && <ChevronRight className="h-5 w-5" aria-hidden />}
+            </>;
+            return <li key={exercise.id}>
+              {onInspect
+                ? <button type="button" className="session-prestart-row" onClick={() => onInspect(exercise)} aria-label={`${exercise.name}, ${prescriptions[exercise.id] || "3 × 8–12"}: open details`}>{row}</button>
+                : <div className="session-prestart-row">{row}</div>}
+            </li>;
+          })}
         </ol>
-      </div> : null}
+      </div>}
+
+      {planned && <details className="session-prestart-disclosure">
+        <summary><Settings className="h-5 w-5" aria-hidden /><span>Session preparation</span><ChevronRight className="h-5 w-5" aria-hidden /></summary>
+        <div className="session-prestart-disclosure-body"><WarmupPanel workout={workout} goal={goal} /></div>
+      </details>}
+
+      {planned && <details className="session-prestart-disclosure">
+        <summary><SlidersHorizontal className="h-5 w-5" aria-hidden /><span>Workout options</span><ChevronRight className="h-5 w-5" aria-hidden /></summary>
+        <div className="session-prestart-disclosure-body">
+          <div className="session-prestart-option">
+            <div>
+              <strong>Rest between sets</strong>
+              <small>{restOverride !== null ? "Set for this session. " : plannedRest ? "From your plan. " : "The default. "}You can change it mid-workout too.</small>
+            </div>
+            <div className="session-prestart-stepper" role="group" aria-label="Rest between sets">
+              <button type="button" onClick={() => setRestOverride(Math.max(REST_STEP_SECONDS, startRestSeconds - REST_STEP_SECONDS))} aria-label="Shorter rest">−{REST_STEP_SECONDS}s</button>
+              <b aria-live="polite">{clockFor(startRestSeconds)}</b>
+              <button type="button" onClick={() => setRestOverride(startRestSeconds + REST_STEP_SECONDS)} aria-label="Longer rest">+{REST_STEP_SECONDS}s</button>
+            </div>
+          </div>
+        </div>
+      </details>}
     </section>;
   }
 

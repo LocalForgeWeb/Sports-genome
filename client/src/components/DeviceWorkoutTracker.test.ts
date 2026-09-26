@@ -28,10 +28,13 @@ describe("Device Workout Tracker execution focus", () => {
    * With an empty day selected the panel said "Ready to train." above a disabled
    * Start button, told you to log the reps you hit, and then — lower down, in a
    * different voice — told you to select a Training Day you had already
-   * selected. Three sentences, none of them describing the screen.
+   * selected. Three sentences, none of them describing the screen. The title is
+   * the day's name now, and the line under it states the day's size or that it
+   * has none.
    */
   it("says what the staged day actually is rather than assuming one is ready", () => {
-    expect(source).toContain('{workout.length ? "Ready to train." : "This day is empty."}');
+    expect(source).toContain('"Nothing planned for this day yet"');
+    expect(source).not.toContain("Ready to train.");
     expect(source).not.toContain("Select a saved Training Day before starting a workout.");
     expect(source).not.toContain("Start the day below");
   });
@@ -70,11 +73,14 @@ describe("Device Workout Tracker execution focus", () => {
     // Pre-session setup above an execution surface pushed the active set below
     // the fold: the live card started at y=650 on a 390x844 viewport.
     const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8");
-    // It collapses to nothing now. The banner that replaced the chooser repeated
-    // the day the live card's own header already names, directly above it.
-    expect(home).toContain("trackerSessionLive ? null :");
+    // The chooser is handed to the tracker, which draws it under the day it
+    // names and only in the prestart branch - so it is gone the moment a
+    // session exists, with no second signal in Home to fall out of step.
+    expect(home).toContain('daySwitch={<details className="tracker-day-switch"');
+    expect(home).not.toContain("trackerSessionLive");
     expect(home).not.toContain("tracker-live-context");
-    expect(home).toContain("window.addEventListener(deviceWorkoutHistoryEvent, syncTrackerSession)");
+    expect(source.match(/\{daySwitch\}/g), "rendered in one place").toHaveLength(1);
+    expect(source.indexOf("{daySwitch}")).toBeLessThan(source.indexOf("const activeExercise = position"));
   });
 
   it("renders one concise set-log label instead of duplicating the action copy", () => {

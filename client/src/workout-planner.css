@@ -127,7 +127,7 @@
 .device-workout-tracker .execution-head > button:disabled:active { transform: none; }
 .device-workout-tracker .session-exercise-list { gap: .85rem; margin: 0; padding: .85rem; }.device-workout-tracker .session-exercise { overflow: hidden; border: 1px solid rgb(176 214 247 / .18); border-radius: 16px; background: rgb(7 26 49 / .72); padding: 0; box-shadow: 0 8px 20px rgb(0 0 0 / .12); }.device-workout-tracker .session-exercise > div:first-child { align-items: center; gap: .75rem; padding: .9rem .9rem .7rem; }.device-workout-tracker .session-exercise > div:first-child > span { min-width: 30px; color: #f1714f; font-size: 1.75rem; }.device-workout-tracker .session-exercise strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }.device-workout-tracker .session-exercise small { color: #a9c9e4; font-size: var(--sg-text-xs); }
 .device-workout-tracker .session-set-list { gap: .5rem; margin: 0; padding: 0 .7rem .7rem; }.device-workout-tracker .session-set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: .55rem; border: 1px solid rgb(176 214 247 / .16); border-radius: 12px; background: rgb(255 255 255 / .045); padding: .7rem; }.device-workout-tracker .session-set-row > strong { grid-column: 1 / -1; padding: 0; color: #bedcff; font-size: var(--sg-text-xs); letter-spacing: var(--sg-tracking-label); }.device-workout-tracker .session-set-row label { gap: .28rem; color: #a9c9e4; font-size: var(--sg-text-xs); }.device-workout-tracker .session-set-row input { height: 44px; border: 1px solid rgb(176 214 247 / .32); border-radius: 8px; background: var(--sg-surface-raised); padding: 0 .65rem; color: #fff; font-size: var(--sg-text-base); }.device-workout-tracker .session-set-row input:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .16); }.device-workout-tracker .session-set-row em { right: .65rem; bottom: .9rem; color: #91b4d2; font-size: var(--sg-text-xs); }.device-workout-tracker .session-set-row button { min-width: 68px; min-height: 44px; border: 1px solid var(--sg-action); border-radius: 8px; background: rgb(228 81 46 / .14); color: #ffb29d; font-size: var(--sg-text-xs); }.device-workout-tracker .session-set-row button:hover { background: rgb(228 81 46 / .24); }.device-workout-tracker .session-set-complete { border-color: rgb(242 193 77 / .48); background: rgb(242 193 77 / .09); }.device-workout-tracker .session-set-complete button { border-color: var(--sg-state-positive); background: var(--sg-state-positive); color: var(--sg-surface-deep); }
-@media (max-width: 640px) { .device-workout-tracker .execution-head { align-items: stretch; padding: 1rem; }.device-workout-tracker .execution-head p:last-child { display: none; }.device-workout-tracker .execution-head p.execution-head-instruction { display: block; }.device-workout-tracker .execution-head > button { justify-content: center; width: 100%; }.device-workout-tracker .session-exercise-list { padding: .7rem; }.device-workout-tracker .session-set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }.device-workout-tracker .session-set-row button { min-width: 58px; padding: 0 .35rem; }.device-workout-tracker .session-set-row button span { font-size: var(--sg-text-xs); } }
+@media (max-width: 640px) { .device-workout-tracker .execution-head { align-items: stretch; padding: 1rem; }.device-workout-tracker .execution-head p:last-child { display: none; }.device-workout-tracker .execution-head > button { justify-content: center; width: 100%; }.device-workout-tracker .session-exercise-list { padding: .7rem; }.device-workout-tracker .session-set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }.device-workout-tracker .session-set-row button { min-width: 58px; padding: 0 .35rem; }.device-workout-tracker .session-set-row button span { font-size: var(--sg-text-xs); } }
 
 /* Phone hierarchy: prescribe first; reveal diagnostics and discovery only when the athlete asks for them. */
 @media (max-width: 640px) {
@@ -524,30 +524,56 @@
 }
 
 /**
- * What the session holds, shown before you start it.
+ * Session, before it starts.
  *
- * The idle Tracker was a headline, a paragraph and a Start button, then roughly
- * seven hundred pixels of empty panel - the emptiest screen in the app, and the
- * one place where you commit to a session with no way to confirm you have the
- * right day staged. Everything here comes from data the panel was already
- * handed; nothing new is fetched or computed.
+ * The day is the title; where it sits in the plan and how much it is are the
+ * lines under it; one action follows. The prescription is rows to read,
+ * divided rather than boxed, and preparation and the session's own options
+ * each wait behind one line. Nothing here is a card: the page is the surface.
+ * The idle Tracker used to be a bordered panel inside a bordered panel, with a
+ * headline that promised readiness over a list in a third border.
  */
-.tracker-session-preview { padding: 1.15rem; }
-.tracker-session-preview-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; }
-.tracker-session-preview-head span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.tracker-session-preview-head small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }
-.tracker-session-preview-list { margin-top: .75rem; display: grid; gap: 1px; background: var(--sg-divider-on-dark); border: 1px solid var(--sg-divider-on-dark); border-radius: .6rem; overflow: hidden; }
-.tracker-session-preview-list li { display: flex; align-items: center; gap: .8rem; background: rgb(255 255 255 / .04); padding: .7rem .85rem; }
-.tracker-session-preview-index { flex: 0 0 auto; color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.15rem; font-weight: 800; line-height: 1; }
-.tracker-session-preview-name { display: grid; min-width: 0; flex: 1; gap: .15rem; }
-.tracker-session-preview-name strong { overflow: hidden; color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.tracker-session-preview-name small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
-/* The prescription, so "Ready to train" is checkable rather than a promise. */
-.tracker-session-preview-sets { flex: 0 0 auto; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .2rem .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; white-space: nowrap; }
-@media (max-width: 640px) {
-  .tracker-session-preview { padding: 1rem; }
-  .tracker-session-preview-list li { gap: .6rem; padding: .65rem .7rem; }
-}
+.session-prestart.device-workout-tracker, .destination-train .session-prestart.device-workout-tracker { margin: 0; overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 0 0 calc(var(--sg-space-6) + 3.5rem); }
+/* The radius every "-hero" gets would curve this one's bottom divider. */
+.session-prestart-hero { display: grid; gap: .3rem; justify-items: start; padding: .35rem 0 1.15rem; border-bottom: 1px solid var(--sg-divider-on-dark); border-radius: 0; }
+.session-prestart-day { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.8rem, 12.5vw, 3.6rem); font-weight: 800; line-height: .84; text-transform: uppercase; overflow-wrap: anywhere; }
+.session-prestart-position { margin-top: .5rem; color: var(--sg-text-on-dark); font-size: 1.35rem; font-weight: 600; line-height: 1.1; }
+.session-prestart-counts { margin-top: .2rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
+.session-prestart-actions { display: grid; justify-items: start; gap: .6rem; margin-top: 1rem; }
+.session-prestart-start { display: inline-flex; min-height: 52px; align-items: center; gap: .55rem; border: 1px solid #f1714f; border-radius: 12px; background: var(--sg-action-fill); padding: 0 1.5rem; color: #fff; font-size: 1.05rem; font-weight: 700; box-shadow: 0 10px 22px rgb(228 81 46 / .24); }
+.session-prestart-start:active { transform: scale(.98); }
+/* A bright primary action that cannot be pressed is a promise the screen does not keep. */
+.session-prestart-start:disabled { opacity: .4; box-shadow: none; cursor: not-allowed; transform: none; }
+.session-prestart-edit { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.session-prestart-edit:hover { text-decoration: underline; }
+.session-prestart-list { padding-top: 1.1rem; }
+.session-prestart-list > ol { margin: .35rem 0 0; padding: 0; list-style: none; }
+.session-prestart-list > ol > li { border-bottom: 1px solid var(--sg-divider-on-dark); }
+.session-prestart-row { display: flex; width: 100%; min-height: 64px; align-items: center; gap: 1rem; padding: .8rem 0; color: inherit; text-align: left; }
+button.session-prestart-row { cursor: pointer; }
+button.session-prestart-row:hover strong, button.session-prestart-row:focus-visible strong { color: var(--sg-focus-on-dark); }
+.session-prestart-index { flex: 0 0 2rem; color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.3rem; font-weight: 800; line-height: 1; }
+.session-prestart-name { display: grid; min-width: 0; flex: 1; gap: .25rem; }
+.session-prestart-name strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.2; }
+.session-prestart-name small { color: #9cc4ea; font-size: var(--sg-text-base); }
+.session-prestart-row > svg { flex: 0 0 auto; color: var(--sg-text-subtle-on-dark); }
+.session-prestart-disclosure { border-bottom: 1px solid var(--sg-divider-on-dark); }
+.session-prestart-disclosure > summary { display: flex; min-height: 3.6rem; align-items: center; gap: 1rem; padding: .5rem 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; cursor: pointer; list-style: none; }
+.session-prestart-disclosure > summary::-webkit-details-marker { display: none; }
+.session-prestart-disclosure > summary > span { flex: 1; }
+.session-prestart-disclosure > summary > svg:first-child { color: #9cc4ea; }
+.session-prestart-disclosure > summary > svg:last-child { color: var(--sg-text-subtle-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.session-prestart-disclosure[open] > summary > svg:last-child { transform: rotate(90deg); }
+.session-prestart-disclosure-body { padding: 0 0 1.1rem; }
+/* The preparation panel is a card of its own elsewhere; here it is a section of this page. */
+.session-prestart-disclosure-body .warmup-panel { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.session-prestart-option { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; }
+.session-prestart-option strong { display: block; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.session-prestart-option small { display: block; margin-top: .2rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+.session-prestart-stepper { display: inline-flex; align-items: center; gap: .5rem; }
+.session-prestart-stepper button { min-width: 48px; min-height: 44px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: rgb(255 255 255 / .05); color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.session-prestart-stepper button:hover { border-color: var(--sg-focus-on-dark); }
+.session-prestart-stepper b { min-width: 3.4rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.5rem; font-weight: 800; text-align: center; }
 
 /**
  * The Coach Scan header, which had less room than its contents needed.
