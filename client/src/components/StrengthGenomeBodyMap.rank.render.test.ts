@@ -79,7 +79,7 @@ describe("Strength/Rank mode", () => {
     const list = screen.getByRole("group", { name: "Strength Genome regions" });
     expect(within(list).getByRole("button", { name: "Biceps, Varsity · 41st" })).toBeTruthy();
     expect(within(list).getByRole("button", { name: "Chest, Regional · 68th" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /Show all/ }));
+    fireEvent.click(screen.getByRole("button", { name: /View all/ }));
     expect(within(list).getByRole("button", { name: "Quadriceps, Not scored" })).toBeTruthy();
   });
 

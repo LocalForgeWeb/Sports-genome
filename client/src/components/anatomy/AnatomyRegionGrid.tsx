@@ -1,6 +1,6 @@
 import React from "react";
 import { useId, useMemo, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { anatomyViewBox, anatomyViews } from "./figureGeometry";
 import { rankColorToken, type RankId } from "@shared/capabilityRank";
 import { RankIcon } from "@/components/RankIcon";
@@ -70,7 +70,7 @@ export function AnatomyRegionGrid({
   selectedId,
   onSelect,
   label,
-  initialVisible = 6,
+  initialVisible = 4,
 }: {
   rows: readonly AnatomyRegionRow[];
   selectedId?: string;
@@ -91,14 +91,13 @@ export function AnatomyRegionGrid({
     () => [...rows].sort((a, b) => Number(b.active) - Number(a.active)),
     [rows],
   );
-  const activeCount = ordered.filter((row) => row.active).length;
   /**
-   * Collapsed by default. Eighteen cards all reading "Nothing yet" is a wall
-   * rather than a menu, and the ones worth opening are the ones with something
-   * in them — so the list opens on those and never truncates them.
+   * Collapsed by default. Eighteen rows all reading "Nothing yet" is a wall
+   * rather than a menu, so the list opens on the few worth opening - the ones
+   * with something in them come first - and "View all" says how many there are.
    */
   const collapsible = ordered.length > initialVisible;
-  const visible = !collapsible || expanded ? ordered : ordered.slice(0, Math.max(initialVisible, activeCount));
+  const visible = !collapsible || expanded ? ordered : ordered.slice(0, initialVisible);
   const hidden = ordered.length - visible.length;
 
   return (
@@ -152,7 +151,7 @@ export function AnatomyRegionGrid({
 
       {collapsible && (hidden > 0 || expanded) && (
         <button type="button" className="region-grid-toggle" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
-          {expanded ? "Show fewer" : `Show all ${ordered.length} regions`}
+          {expanded ? "Show fewer regions" : `View all ${ordered.length} regions`}<ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
       )}
     </div>

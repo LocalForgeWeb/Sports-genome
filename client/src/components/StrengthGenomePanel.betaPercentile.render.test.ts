@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 
@@ -127,8 +127,11 @@ describe("a logged lift gets a percentile from the community curves", () => {
   it("says nothing about a placement that did not happen", () => {
     mocks.percentile.mockReturnValue({ status: "unavailable", reason: "no_curve_for_exercise" });
     openBiceps({ sexForReference: "male", baselineBodyWeight: 176 });
-    expect(screen.queryByText(/percentile/)).toBeNull();
-    expect(screen.getByText(/No ranking for this lift yet/)).toBeTruthy();
+    // Scoped to the record: the How ranks work disclosure below names the
+    // percentile bands in general, which is not a placement of this lift.
+    const record = screen.getByRole("region", { name: "Biceps recorded strength context" });
+    expect(within(record).queryByText(/percentile/)).toBeNull();
+    expect(within(record).getByText(/No ranking for this lift yet/)).toBeTruthy();
   });
 
   /**

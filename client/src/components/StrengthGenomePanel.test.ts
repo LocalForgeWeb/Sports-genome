@@ -79,10 +79,11 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('className="strength-profile-status"');
     expect(source).toContain('className="strength-profile-reference-summary"');
     expect(source).toContain('className="strength-profile-reference-details"');
-    expect(source).toContain('className={`strength-profile-coverage-ring');
-    // The coverage figure states its own boundary on screen rather than only to a
-    // screen reader, and the ring beside it is decoration for a number the
-    // definition list already carries.
+    // Two distinct metrics, named on screen, and the boundary said beside them:
+    // coverage is regions with a record, never a rank or a score.
+    expect(source).toContain('className="strength-profile-metrics"');
+    expect(source).toContain("regions covered");
+    expect(source).toContain("Coverage tracks logged regions, not rank.");
     expect(source).toContain("Covered means you have lifts recorded there. It is not a rank or a score.");
     expect(source).toContain('setSelectedRegion(null); setSelectedObservationId("");');
     expect(source).not.toContain('/manus-storage/');
@@ -104,7 +105,7 @@ describe("Strength Genome panel", () => {
   it("keeps the default profile status concise while leaving source-match limits available on demand", () => {
     expect(source).toContain('className="strength-profile-reference-summary"');
     expect(source).toContain('className="strength-profile-reference-details"');
-    expect(source).toContain("How comparison works");
+    expect(source).toContain("How ranks work");
   });
 
   it("requires catalog exercise selection and routes common curl names to biceps context", () => {
@@ -179,7 +180,7 @@ describe("Strength Genome panel", () => {
     // cut in half by a tall record.
     expect(source).toContain('`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`');
     const sheet = source.slice(source.indexOf("`strength-region-sheet${"));
-    expect(sheet.indexOf('strength-region-focus-row')).toBeLessThan(sheet.indexOf('\n      <div className="strength-observation-summary"'));
+    expect(sheet.indexOf('strength-region-focus-row')).toBeLessThan(sheet.indexOf('\n    </div>}'));
     expect(source).toContain('if (event.key !== "Escape") return;');
   });
 

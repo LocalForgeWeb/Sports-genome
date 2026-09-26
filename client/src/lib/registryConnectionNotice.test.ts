@@ -55,7 +55,7 @@ describe("the workspace surfaces the library's availability", () => {
   });
 
   it("keeps the notice inside the explanation the athlete opens for this question", () => {
-    const disclosure = panelSource.indexOf("How comparison works");
+    const disclosure = panelSource.indexOf("How ranks work");
     const notice = panelSource.indexOf("registryOfflineNotice &&");
     expect(disclosure).toBeGreaterThan(-1);
     expect(notice).toBeGreaterThan(disclosure);

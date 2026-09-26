@@ -2,12 +2,11 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import React from "react";
 import type { StrengthRegionDefinition } from "../../../shared/strengthGenomeDefinitions";
 import { catalogMuscleRegionIds } from "../../../shared/strengthGenomeDefinitions";
-import { RotateCw } from "lucide-react";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
 import { AnatomyRegionGrid, type AnatomyRegionRow } from "@/components/anatomy/AnatomyRegionGrid";
 import { buildStrengthRegionMap, type AnatomyRole } from "@/lib/anatomyRegions";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
-import { defaultAnatomySide, oppositeSide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
+import { anatomySides, defaultAnatomySide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
 import { confidenceLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
 import { RankLegend, displayPercentile, rankPercentileText } from "@/components/CapabilityRank";
 import { ordinal } from "@/lib/strengthPercentileCard";
@@ -130,28 +129,40 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
   useEffect(() => { setSide((current) => sideForSelection(current, selectedMuscleKeys)); }, [selectedMuscleKeys]);
 
   return <section className="strength-body-map" aria-label="Interactive strength context body map">
-    <div className="strength-body-map-head"><div><p className="metric-label">{rankMode ? "Your ranks" : "Your body"}</p><h2>Tap a muscle group to see <em>{rankMode ? "your rank." : "your lifts."}</em></h2></div><div className="strength-body-map-actions">{selectedRegionId && <button type="button" aria-label="Clear selected strength region" onClick={() => { emitInteractionFeedback(); onSelect(undefined); }}>Clear</button>}</div></div>
-    <div className="strength-body-chart">
-      <AnatomyFigure
-        view={side}
-        roles={roles}
-        selectedKeys={selectedMuscleKeys}
-        onSelect={chooseMuscle}
-        labelFor={(key) => labelByMuscle.get(key) ?? key}
-        rankFor={rankFor}
-        describeFor={rankMode ? (key) => { const regionId = regionByMuscle.get(key); if (regionId) return describeRegion(regionId, labelByMuscle.get(key) ?? key); const name = labelByMuscle.get(key) ?? key; return `${name.charAt(0).toUpperCase()}${name.slice(1)}, not part of any strength region`; } : undefined}
-      />
-      <div className="strength-body-chart-views"><span aria-hidden="true">{sideLabel(side)}</span><button type="button" className="strength-body-side-toggle" aria-label={`${turnToSideLabel(side)} of the body`} onClick={() => { emitInteractionFeedback(); setSide(oppositeSide(side)); }}><RotateCw className="h-3.5 w-3.5" aria-hidden="true" /> {turnToSideLabel(side)}</button></div>
-    </div>
-    {rankMode ? (
-      <RankLegend activeBand={activeBand} onBand={setActiveBand} regionLabelsByRank={regionLabelsByRank} />
-    ) : (
-      <div className="strength-map-legend">
-        <span className="strength-map-legend-on"><i />On record</span>
-        <span className="strength-map-legend-off"><i />Nothing logged yet</span>
-        <small>{recordedCount} of {rows.length} regions</small>
+    {/* Front / Back are the map's own local tabs, the reference's composition. The
+        selection follows the turn: a region drawn on the side facing away turns
+        the figure by itself, so the caption below can never name a muscle that
+        is not on screen. */}
+    <div className="strength-body-map-head">
+      <div className="strength-body-chart-views" role="group" aria-label="Side of the body shown">
+        {anatomySides.map((candidate) => <button key={candidate} type="button" className="strength-body-side-toggle" aria-pressed={side === candidate} aria-label={side === candidate ? `${sideLabel(candidate)} of the body, shown` : `${turnToSideLabel(side)} of the body`} onClick={() => { if (side === candidate) return; emitInteractionFeedback(); setSide(candidate); }}>{sideLabel(candidate)}</button>)}
       </div>
-    )}
+      <div className="strength-body-map-actions">{selectedRegionId && <button type="button" aria-label="Clear selected strength region" onClick={() => { emitInteractionFeedback(); onSelect(undefined); }}>Clear</button>}</div>
+    </div>
+    <div className="strength-body-map-stage">
+      <div className="strength-body-chart">
+        <AnatomyFigure
+          view={side}
+          roles={roles}
+          selectedKeys={selectedMuscleKeys}
+          onSelect={chooseMuscle}
+          labelFor={(key) => labelByMuscle.get(key) ?? key}
+          rankFor={rankFor}
+          describeFor={rankMode ? (key) => { const regionId = regionByMuscle.get(key); if (regionId) return describeRegion(regionId, labelByMuscle.get(key) ?? key); const name = labelByMuscle.get(key) ?? key; return `${name.charAt(0).toUpperCase()}${name.slice(1)}, not part of any strength region`; } : undefined}
+        />
+      </div>
+      {rankMode ? (
+        <RankLegend activeBand={activeBand} onBand={setActiveBand} regionLabelsByRank={regionLabelsByRank} />
+      ) : (
+        <div className="strength-map-legend">
+          <p className="metric-label">Your body</p>
+          <span className="strength-map-legend-on"><i />On record</span>
+          <span className="strength-map-legend-off"><i />Nothing logged yet</span>
+          <small>{recordedCount} of {rows.length} regions</small>
+        </div>
+      )}
+    </div>
+    <p className="strength-body-map-caption">Tap a muscle group to see <em>{rankMode ? "your rank." : "your lifts."}</em></p>
     {rankNotice}
     <AnatomyRegionGrid
       rows={rows}
