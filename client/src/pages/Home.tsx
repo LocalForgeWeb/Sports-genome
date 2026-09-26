@@ -2,7 +2,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
+import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { roleMapForLists } from "@/lib/anatomyRegions";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
@@ -1145,6 +1145,14 @@ export default function Home() {
     toast(`Week ${nextWeek} generated`, { description: `${splitDays.length} training days were built around your ${goal.toLowerCase()} goal and ${gymTimeBudget.label.toLowerCase()} budget.` });
   };
   const inspectExercise = (exercise: Exercise) => { setInspectedExercise(exercise); setActiveMuscle(exercise.primaryMuscles[0] || "obliques"); };
+  // The overlay is the topmost transient surface, so Escape closes it and
+  // nothing else; the list, filters and scroll it opened over are untouched.
+  useEffect(() => {
+    if (!inspectedExercise) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setInspectedExercise(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [inspectedExercise]);
   const showMovement = (movement: SportMovementProfile) => { setMovementId(movement.id); navigateWorkspace("recommended"); };
 
   /**
@@ -1556,8 +1564,37 @@ export default function Home() {
       <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">{primaryDestinations.map((item) => { const Icon = item.icon; const active = activePrimaryDestination === item.id; return <button type="button" key={item.id} onPointerUp={(event) => navigateDockDestination(item.defaultWorkspace!, event)} onClick={(event) => navigateDockDestination(item.defaultWorkspace!, event)} aria-current={active ? "page" : undefined} className={active ? "mobile-bottom-nav-active" : ""}><Icon className="h-4 w-4" /><span>{item.label}</span></button>; })}</nav>
     </div>
 
-    {inspectedExercise && <div className="fixed inset-0 z-50 bg-[#09120e]/65 p-0 backdrop-blur-sm xl:p-5"><div className="ml-auto h-full w-full max-w-[720px] overflow-y-auto bg-[var(--sg-surface-light)] shadow-2xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#d8e0d7] bg-[#f7f8f3]/95 px-5 py-4 backdrop-blur"><div><p className="metric-label">Exercise intelligence</p><p className="mt-1 font-display text-2xl font-bold uppercase leading-none text-[#15221b]">{inspectedExercise.name}</p></div><button onClick={() => setInspectedExercise(null)} className="grid h-9 w-9 place-items-center border border-[#d2dad1] bg-white"><X className="h-4 w-4" /></button></div><div className="p-5"><div className="grid gap-5 lg:grid-cols-[.9fr_1.1fr]"><div className="light-panel p-4"><AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} /></div><div><p className="metric-label">Movement role</p><h3 className="mt-1 font-display text-4xl font-bold uppercase leading-none text-[#17231f]">{inspectedExercise.movement}</h3><div className="mt-4 grid gap-2"><div className="exercise-insight"><p className="metric-label">Primary target</p><p>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Support tissues</p><p>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ")}</p></div><div className="exercise-insight"><p className="metric-label">Useful qualities</p><p>{inspectedExercise.qualities.join(" · ")}</p></div></div><button onClick={() => { addExercise(inspectedExercise); setWorkspace("day-plan"); setInspectedExercise(null); }} className="mt-5 inline-flex items-center gap-2 bg-[var(--sg-action-fill)] px-4 py-3 text-[11px] font-bold uppercase tracking-[.13em] text-[var(--sg-action-on)] hover:bg-[var(--sg-action-strong)]">Add to custom workout <Plus className="h-4 w-4" /></button></div></div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /><div className="mt-5 dark-panel p-5"><p className="metric-label !text-[#91a09a]">Current sport-action relevance</p><p className="mt-2 text-sm leading-6 text-[#d1dcd4]">For {selectedMovement.label}, this exercise is most useful when it supports {selectedMovement.family.toLowerCase()} through its {inspectedExercise.movement.toLowerCase()} pattern. Review the sport action in the Movement Atlas to see the full body-action reasoning.</p><button onClick={() => { setInspectedExercise(null); setWorkspace("movement"); }} className="mt-4 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.13em] text-[var(--sg-info)]">Open sport action <ArrowUpRight className="h-4 w-4" /></button></div><ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} /></div></div></div>}
-    {inspectedExercise && <div className="inspection-action-connection-float"><SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} /></div>}
+    {/* Exercise Intelligence: one full-height overlay over whatever opened it,
+        which stays mounted underneath with its list, filters and scroll. The
+        bottom navigation is hidden while it is open (index.css), and Escape or
+        the close control returns to the origin. Add is the same operation the
+        catalog's plus performs, on the same day the strip names. */}
+    {inspectedExercise && <div className="fixed inset-0 z-50 exercise-intelligence" role="dialog" aria-modal="true" aria-labelledby="exercise-intelligence-title">
+      <div className="exercise-intelligence-sheet">
+        <div className="exercise-intelligence-bar">
+          <img src={sportsGenomeAssets.circularBadge} alt="" className="exercise-intelligence-logo" />
+          <p className="metric-label">Exercise intelligence</p>
+          <button type="button" onClick={() => setInspectedExercise(null)} aria-label="Close exercise intelligence" className="exercise-intelligence-close"><X className="h-5 w-5" aria-hidden="true" /></button>
+        </div>
+        <div className="exercise-intelligence-body">
+          <h1 id="exercise-intelligence-title">{inspectedExercise.name}</h1>
+          <p className="exercise-intelligence-meta"><GradeStamp grade={inspectedExercise.muscleGrade} compact /><span>{inspectedExercise.movement}</span>{inspectedExercise.category && <span>{inspectedExercise.category}</span>}</p>
+          {/* The muscles, on the real figure: primary and supporting as the
+              figure's own paint, the lists as its rows, the turn control on a
+              phone. Tapping a muscle carries into Body Lab's selection. */}
+          <section className="exercise-intelligence-muscles" aria-label="Muscle involvement">
+            <AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} showInspector={false} nextStep={<dl className="exercise-intelligence-roles"><div><dt>Primary</dt><dd>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div><div><dt>Supporting</dt><dd>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div>{inspectedExercise.qualities.length > 0 && <div><dt>Qualities</dt><dd>{inspectedExercise.qualities.join(" · ")}</dd></div>}</dl>} />
+          </section>
+          <ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} compactHead />
+          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => { setInspectedExercise(null); navigateWorkspace("movement"); }} />
+          <details className="exercise-intelligence-disclosure"><summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Evidence context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary><div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /></div></details>
+        </div>
+        <div className="exercise-intelligence-actions">
+          <button type="button" className="exercise-intelligence-add" onClick={() => { addExercise(inspectedExercise); setInspectedExercise(null); }}>Add to Week {activeWeek} · {activeSlot.day} <Plus className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" className={`exercise-intelligence-favorite ${favoriteIds.has(inspectedExercise.id) ? "is-on" : ""}`} onClick={() => toggleFavorite(inspectedExercise)} aria-pressed={favoriteIds.has(inspectedExercise.id)} aria-label={`${favoriteIds.has(inspectedExercise.id) ? "Remove" : "Save"} ${inspectedExercise.name} ${favoriteIds.has(inspectedExercise.id) ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={favoriteIds.has(inspectedExercise.id) ? "currentColor" : "none"} /></button>
+        </div>
+      </div>
+    </div>}
     {tutorialOpen && <FeatureTour onClose={() => setTutorialOpen(false)} onNavigate={(view) => navigateWorkspace(view as Workspace)} />}
     {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} />}
     {pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => { pendingDestructiveAction.onCancel?.(); setPendingDestructiveAction(null); }} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}

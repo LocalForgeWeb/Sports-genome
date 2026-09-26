@@ -3508,3 +3508,104 @@ details:not([open]) > *:not(summary) {
 .destination-body .atlas-action-item[aria-pressed="true"] strong { color: #ff8a66; }
 .destination-body .atlas-action-item svg { color: var(--sg-text-subtle-on-dark); }
 .destination-body .atlas-details { border-color: var(--sg-divider-on-dark); }
+
+/* ── Exercise Intelligence ────────────────────────────────────────────────────
+ *
+ * One full-height overlay: the logo and Close on a bar that stays, the
+ * exercise's name and tag, the body with its muscles painted, the analysis
+ * tabs, the sport context, evidence behind a line, and Add / favorite in a
+ * strip that stays reachable above the safe area. The global navigation is
+ * hidden underneath it. It was a light sheet of bordered panels beside a
+ * floating card that covered the page's foot.
+ */
+.exercise-intelligence { display: grid; background: rgb(4 16 32 / .72); backdrop-filter: blur(6px); }
+.exercise-intelligence-sheet { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; width: 100%; max-width: 760px; height: 100%; margin-left: auto; overflow: hidden; background: radial-gradient(circle at 82% 4%, #1d4c84 0, var(--sg-surface-raised) 34%, var(--sg-surface-deep) 76%); color: var(--sg-text-on-dark); box-shadow: -18px 0 42px rgb(1 12 28 / .35); --sg-label-color: var(--sg-text-subtle-on-dark); }
+.exercise-intelligence-bar { display: flex; align-items: center; gap: .75rem; padding: max(.6rem, env(safe-area-inset-top)) 1rem .6rem; border-bottom: 1px solid var(--sg-divider-on-dark); }
+.exercise-intelligence-logo { width: 40px; height: 40px; object-fit: contain; }
+.exercise-intelligence-bar .metric-label { flex: 1; color: var(--sg-text-muted-on-dark); }
+.exercise-intelligence-close { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 999px; color: var(--sg-text-on-dark); }
+.exercise-intelligence-close:hover { background: rgb(255 255 255 / .08); }
+.exercise-intelligence-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; overflow-y: auto; overscroll-behavior: contain; padding: 1rem 1rem 1.5rem; -webkit-overflow-scrolling: touch; }
+.exercise-intelligence-body > h1 { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.2rem, 9vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
+.exercise-intelligence-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-top: -.5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
+.exercise-intelligence-meta span::first-letter { text-transform: uppercase; }
+.exercise-intelligence-muscles .anatomy-atlas-pro { border: 0; background: transparent; box-shadow: none; padding: 0; color: var(--sg-text-on-dark); }
+.exercise-intelligence-muscles .atlas-body-chart-wrap { border: 0; background: transparent; padding: 0; }
+.exercise-intelligence-muscles .atlas-body-chart { height: clamp(16rem, 44vh, 24rem); }
+.exercise-intelligence-muscles .atlas-view-captions, .exercise-intelligence-muscles .atlas-heat-legend-pro, .exercise-intelligence-muscles .atlas-ranking-head span { color: var(--sg-text-muted-on-dark); }
+.exercise-intelligence-muscles .atlas-ranking { border-top-color: var(--sg-divider-on-dark); }
+.exercise-intelligence-muscles .atlas-ranking-head h2 { color: var(--sg-text-on-dark); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row { border-bottom-color: var(--sg-divider-on-dark); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row.is-selected { background: rgb(164 200 232 / .12); box-shadow: inset 3px 0 var(--sg-action); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row-copy strong { color: var(--sg-text-on-dark); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row-copy small { color: var(--sg-text-muted-on-dark); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row svg { color: var(--sg-text-subtle-on-dark); }
+.exercise-intelligence-muscles .atlas-role-tag-primary { color: #ff8a66; }
+.exercise-intelligence-muscles .atlas-role-tag-stabilizer { color: var(--sg-focus-on-dark); }
+.exercise-intelligence-muscles .atlas-role-tag-synergist { color: var(--sg-link-on-dark); }
+.exercise-intelligence-muscles .atlas-role-tag-unrecorded { color: var(--sg-text-subtle-on-dark); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-ranking-toggle { color: var(--sg-link-on-dark); }
+.exercise-intelligence-muscles .atlas-role-methodology { border: 0; border-top: 1px solid var(--sg-divider-on-dark); background: transparent; color: var(--sg-text-muted-on-dark); }
+.exercise-intelligence-muscles .atlas-role-methodology summary { padding-left: 0; padding-right: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.exercise-intelligence-muscles .atlas-role-methodology > div { border-top: 0; padding-left: 0; padding-right: 0; }
+.exercise-intelligence-muscles .atlas-selected-strip { border-left-color: var(--sg-action); background: rgb(164 200 232 / .1); color: var(--sg-text-on-dark); }
+.exercise-intelligence-muscles .atlas-selected-strip .metric-label, .exercise-intelligence-muscles .atlas-selected-role, .exercise-intelligence-muscles .atlas-selected-confidence, .exercise-intelligence-muscles .atlas-selected-where { color: var(--sg-text-muted-on-dark); }
+.exercise-intelligence-roles { display: grid; gap: 0; }
+.exercise-intelligence-roles > div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: .5rem; padding: .55rem 0; border-top: 1px solid var(--sg-divider-on-dark); }
+.exercise-intelligence-roles dt { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; align-self: center; }
+.exercise-intelligence-roles dd { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+
+/* The analysis panel, on the dark sheet: the same rules its dark theme uses. */
+.exercise-intelligence .genome-panel { margin-top: 0; border: 0; border-top: 1px solid var(--sg-divider-on-dark); border-radius: 0; background: transparent; box-shadow: none; color: var(--sg-text-on-dark); }
+.exercise-intelligence .genome-panel-head { padding: 1rem 0 .6rem; border-bottom: 0; }
+.exercise-intelligence .genome-panel :is(h1, h2, h3, h4, strong, dt, th, .metric-label) { color: var(--sg-text-on-dark); }
+.exercise-intelligence .genome-panel :is(p, small, span, dd, li, summary, td) { color: var(--sg-text-muted-on-dark); }
+.exercise-intelligence .genome-panel .genome-panel-head span { color: var(--sg-text-subtle-on-dark); }
+.exercise-intelligence .genome-methodology { border-color: var(--sg-divider-on-dark); background: transparent; }
+.exercise-intelligence .genome-tabbar { border-bottom-color: var(--sg-divider-on-dark); background: transparent; gap: 1.25rem; }
+.exercise-intelligence .genome-tab { padding: .7rem 0; background: transparent; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); font-weight: 600; letter-spacing: 0; text-transform: none; box-shadow: none; border-bottom: 3px solid transparent; }
+.exercise-intelligence .genome-tab-active { background: transparent; color: #ff8a66; box-shadow: none; border-bottom-color: var(--sg-action); }
+.exercise-intelligence .genome-grid, .exercise-intelligence .genome-muscle-stack, .exercise-intelligence .genome-mechanics, .exercise-intelligence .genome-context { padding-left: 0; padding-right: 0; }
+.exercise-intelligence .genome-meter > div, .exercise-intelligence .genome-term-button { color: var(--sg-text-muted-on-dark); }
+.exercise-intelligence .genome-meter strong { color: var(--sg-text-on-dark); }
+.exercise-intelligence .genome-meter-track { background: rgb(255 255 255 / .12); }
+.exercise-intelligence .genome-radar-label { fill: var(--sg-text-muted-on-dark); }
+.exercise-intelligence .genome-quicknote, .exercise-intelligence .genome-muscle-row, .exercise-intelligence .genome-mechanic-block, .exercise-intelligence .genome-stat, .exercise-intelligence .genome-why, .exercise-intelligence .genome-list, .exercise-intelligence .genome-stack-read, .exercise-intelligence .genome-action-connection { border-color: var(--sg-divider-on-dark); background: transparent; }
+.exercise-intelligence .genome-tag { border-color: var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); color: var(--sg-text-on-dark); }
+.genome-fingerprint-all { grid-column: 1 / -1; }
+.genome-fingerprint-all > summary { display: inline-flex; min-height: 44px; align-items: center; cursor: pointer; list-style: none; color: var(--sg-link-color, var(--sg-info-strong)); font-size: var(--sg-text-base); font-weight: 600; }
+.genome-fingerprint-all > summary::-webkit-details-marker { display: none; }
+.genome-fingerprint-all dl { display: grid; margin: 0; }
+.genome-fingerprint-all dl > div { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .45rem 0; }
+.genome-fingerprint-all dl > div + div { border-top: 1px solid var(--sg-divider-on-light); }
+.genome-fingerprint-all dd { margin: 0; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.1rem; font-weight: 800; }
+.exercise-intelligence .genome-fingerprint-all dl > div + div { border-top-color: var(--sg-divider-on-dark); }
+.exercise-intelligence .genome-fingerprint-all dd { color: var(--sg-text-on-dark); }
+.exercise-intelligence .genome-fingerprint-all > summary { color: var(--sg-link-on-dark); }
+
+/* The sport context, inline where it belongs rather than floating over the page. */
+.exercise-intelligence .inspection-action-connection { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; border: 0; border-top: 1px solid var(--sg-divider-on-dark); border-radius: 0; background: transparent; padding: 1rem 0 0; box-shadow: none; }
+.inspection-action-connection-action { margin-top: .2rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.6rem, 6vw, 2rem); font-weight: 800; line-height: .95; text-transform: uppercase; }
+.inspection-action-connection-detail { margin-top: .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.inspection-action-connection-open { display: inline-flex; min-height: 44px; align-items: center; gap: .3rem; margin-top: .25rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.exercise-intelligence-disclosure { border-top: 1px solid var(--sg-divider-on-dark); border-bottom: 1px solid var(--sg-divider-on-dark); }
+.exercise-intelligence-disclosure > summary { display: flex; min-height: 3.6rem; align-items: center; gap: 1rem; padding: .5rem 0; cursor: pointer; list-style: none; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.exercise-intelligence-disclosure > summary::-webkit-details-marker { display: none; }
+.exercise-intelligence-disclosure > summary > span { flex: 1; }
+.exercise-intelligence-disclosure > summary > svg:first-child { color: #9cc4ea; }
+.exercise-intelligence-disclosure > summary > svg:last-child { color: var(--sg-text-subtle-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.exercise-intelligence-disclosure[open] > summary > svg:last-child { transform: rotate(180deg); }
+.exercise-intelligence-disclosure > div { padding: 0 0 1rem; }
+.exercise-intelligence-disclosure > div > section { margin-top: 0; }
+.exercise-intelligence-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .6rem; padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--sg-divider-on-dark); background: rgb(8 29 54 / .96); }
+.exercise-intelligence-add { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: .5rem; border: 1px solid #f1714f; border-radius: 12px; background: var(--sg-action-fill); padding: 0 1rem; color: #fff; font-size: var(--sg-text-lg); font-weight: 700; box-shadow: 0 10px 22px rgb(228 81 46 / .24); }
+.exercise-intelligence-add:active { transform: scale(.98); }
+.exercise-intelligence-favorite { display: grid; width: 52px; height: 52px; place-items: center; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; color: var(--sg-text-on-dark); }
+.exercise-intelligence-favorite.is-on { border-color: var(--sg-action); color: #ff8a66; }
+/* No global navigation inside the overlay; its own bar carries Close. */
+body:has(.exercise-intelligence) .mobile-bottom-nav, body:has(.exercise-intelligence) .mobile-workspace-dock, body:has(.exercise-intelligence) .session-resume-bar { display: none; }
+@media (min-width: 761px) { .exercise-intelligence { padding: 0; } }
+
+.exercise-intelligence .genome-reading-key > span { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); color: var(--sg-text-muted-on-dark); }
+.exercise-intelligence .genome-reading-key > span strong { color: var(--sg-text-on-dark); }
+.exercise-intelligence-disclosure, .exercise-intelligence .genome-methodology, .exercise-intelligence .genome-quicknote { border-radius: 0; }
