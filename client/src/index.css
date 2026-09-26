@@ -3529,3 +3529,12 @@ details:not([open]) > *:not(summary) {
 /* The same navy ground the other destinations stand on; Home was the one left on the bone. */
 .apex-content.destination-home { background: radial-gradient(circle at 82% 4%, #1d4c84 0, var(--sg-surface-raised) 34%, var(--sg-surface-deep) 76%); color: var(--sg-text-on-dark); }
 .destination-home .today-action-primary, .destination-home .today-action-panel, .destination-home .home-focus, .destination-home .home-priority { box-shadow: none; background-image: none; }
+/* Movement Atlas, flat: the earlier dark-destination rules painted its head
+   band, its rows and its selects as bordered surfaces. */
+.destination-body .atlas-improved-head { border: 0; background: transparent; box-shadow: none; }
+.destination-body .atlas-sport-select { border: 0; background: transparent; color: var(--sg-text-on-dark); }
+.destination-body .atlas-action-item { border: 0; background: transparent; color: var(--sg-text-on-dark); }
+.destination-body .atlas-action-item[aria-pressed="true"] { border: 0; background: transparent; }
+.destination-body .atlas-action-item[aria-pressed="true"] strong { color: #ff8a66; }
+.destination-body .atlas-action-item svg { color: var(--sg-text-subtle-on-dark); }
+.destination-body .atlas-details { border-color: var(--sg-divider-on-dark); }
