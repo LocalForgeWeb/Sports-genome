@@ -23,7 +23,9 @@ describe("mobile athlete presentation", () => {
     expect(catalog).toContain('className="catalog-discovery-tier"');
     expect(catalog).toContain('aria-label={`Inspect ${exercise.name}`}');
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
-    expect(catalogStyles).toContain(".catalog-discovery-search { top: 94px");
+    // One main scroll: the search field scrolls with the page rather than
+    // stacking a second sticky bar under the tab row.
+    expect(catalogStyles).not.toContain("position: sticky");
   });
 
   it("uses compact safe-area-aware controls for the guide, header, and Genome disclosure", () => {

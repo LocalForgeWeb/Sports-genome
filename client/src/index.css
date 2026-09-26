@@ -1598,37 +1598,7 @@ select {
   border-color: var(--sg-divider-on-dark);
 }
 
-/* Catalog and Profile retain their distinctive panels while inheriting the same contrast roles. */
-.catalog-discovery {
-  border-color: var(--sg-control-border-on-dark);
-  background: linear-gradient(155deg, var(--sg-surface-panel), var(--sg-surface-deep));
-  color: var(--sg-text-on-dark);
-}
-
-.catalog-discovery-search,
-.catalog-discovery-controls,
-.catalog-discovery-card,
-.catalog-discovery-empty {
-  border-color: var(--sg-control-border-on-dark);
-  color: var(--sg-text-on-dark);
-}
-
-.catalog-discovery-search,
-.catalog-discovery-controls,
-.catalog-discovery-empty {
-  background: var(--sg-surface-raised);
-}
-
-.catalog-discovery-card {
-  background: linear-gradient(105deg, var(--sg-surface-panel), var(--sg-surface-raised));
-}
-
-.catalog-discovery-card-copy strong,
-.catalog-discovery-search input,
-.catalog-discovery-controls select,
-.catalog-discovery-empty strong {
-  color: var(--sg-text-on-dark);
-}
+/* Catalog paints itself in catalog-discovery.css; nothing here wraps it in a panel. */
 
 .catalog-discovery-controls summary small,
 .catalog-discovery-controls label,
