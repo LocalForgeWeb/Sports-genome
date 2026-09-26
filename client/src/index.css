@@ -3609,3 +3609,54 @@ body:has(.exercise-intelligence) .mobile-bottom-nav, body:has(.exercise-intellig
 .exercise-intelligence .genome-reading-key > span { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); color: var(--sg-text-muted-on-dark); }
 .exercise-intelligence .genome-reading-key > span strong { color: var(--sg-text-on-dark); }
 .exercise-intelligence-disclosure, .exercise-intelligence .genome-methodology, .exercise-intelligence .genome-quicknote { border-radius: 0; }
+
+/* ── Progress ─────────────────────────────────────────────────────────────────
+ *
+ * One column: the record's counts as quiet facts, the sessions as open rows
+ * that open the record behind them, the trend as rows, the method behind a
+ * line. The four bordered panels and the bordered cards inside them are gone.
+ */
+.destination-progress .progress-review { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; color: var(--sg-text-on-dark); --sg-label-color: var(--sg-text-subtle-on-dark); }
+.destination-progress .progress-review-head { display: block; border: 0; padding: 0; }
+.destination-progress .progress-review-head h1 { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.2rem, 9vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
+.destination-progress .progress-review-head p { margin-top: .35rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
+.destination-progress .progress-facts { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--sg-divider-on-dark); border-bottom: 1px solid var(--sg-divider-on-dark); }
+.destination-progress .progress-facts > * { display: grid; align-content: start; gap: .2rem; padding: 1rem .5rem 1.1rem 0; text-align: left; color: var(--sg-text-on-dark); }
+.destination-progress .progress-facts > * + * { border-left: 1px solid var(--sg-divider-on-dark); padding-left: 1rem; }
+.destination-progress .progress-facts .stat-figure { color: var(--sg-link-on-dark); font-size: clamp(2rem, 8vw, 2.6rem); font-weight: 800; line-height: .9; }
+.destination-progress .progress-facts > :first-child .stat-figure { color: var(--sg-action); }
+.destination-progress .progress-facts strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.destination-progress .progress-facts small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.destination-progress .progress-records, .destination-progress .progress-comparison-card { display: grid; gap: .5rem; border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 0; }
+.destination-progress .progress-section-head h2 { font-size: clamp(1.5rem, 6vw, 1.9rem); line-height: 1; }
+.destination-progress .progress-section-head > span { align-self: end; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 400; letter-spacing: 0; text-transform: none; }
+.destination-progress .progress-session-rows, .destination-progress .progress-trend-rows { margin: 0; padding: 0; list-style: none; }
+.destination-progress .progress-session-rows > li + li, .destination-progress .progress-trend-rows > li + li { border-top: 1px solid var(--sg-divider-on-dark); }
+.destination-progress .progress-session-card { position: static; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .1rem .75rem; border: 0; border-radius: 0; background: transparent; padding: .8rem 0; }
+.destination-progress details.progress-session-card { display: block; }
+.destination-progress details.progress-session-card > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .1rem .75rem; cursor: pointer; list-style: none; }
+.destination-progress details.progress-session-card > summary::-webkit-details-marker { display: none; }
+.destination-progress .progress-session-card > p, .destination-progress details.progress-session-card > summary > p { grid-column: 1; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.2; }
+.destination-progress .progress-session-card small, .destination-progress details.progress-session-card > summary > small { grid-column: 1; margin-top: .1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+.destination-progress .progress-session-card > span, .destination-progress details.progress-session-card > summary > span { position: static; grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.destination-progress .progress-session-sets { display: grid; margin: .5rem 0 .25rem; padding: 0; list-style: none; }
+.destination-progress .progress-session-sets > li { display: flex; align-items: center; gap: .75rem; padding: .4rem 0; border-top: 1px solid var(--sg-divider-on-dark); color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+.destination-progress .progress-session-sets > li > span { flex: 1; min-width: 0; color: var(--sg-text-on-dark); }
+.destination-progress .progress-session-sets > li > b { font-weight: 600; }
+.destination-progress .progress-session-sets > li > i { color: var(--sg-text-subtle-on-dark); font-style: normal; }
+.destination-progress .progress-trend-rows .progress-session-card > strong { grid-column: 2; grid-row: 1 / span 2; align-self: center; margin: 0; font-size: 1.6rem; }
+.destination-progress .progress-trend-rows .progress-session-card em.progress-percentile { grid-column: 1 / -1; }
+.destination-progress .progress-excluded { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.destination-progress .progress-text-action { display: inline-flex; min-height: 44px; justify-self: start; gap: .35rem; border: 0; padding: 0; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.destination-progress .progress-text-action:hover { text-decoration: underline; color: var(--sg-link-on-dark); }
+.destination-progress .progress-method { border-top: 1px solid var(--sg-divider-on-dark); border-bottom: 1px solid var(--sg-divider-on-dark); }
+.destination-progress .progress-method > summary { display: flex; min-height: 3.5rem; align-items: center; gap: 1rem; cursor: pointer; list-style: none; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.destination-progress .progress-method > summary::-webkit-details-marker { display: none; }
+.destination-progress .progress-method > summary > svg { color: #9cc4ea; }
+.destination-progress .progress-method .progress-method-note { margin: 0 0 1rem; border: 0; padding: 0; font-size: var(--sg-text-base); }
+.destination-progress .progress-empty-copy { border-left: 0; padding: .25rem 0; font-size: var(--sg-text-lg); }
+/* Progress draws rows and a facts strip, not objects: no elevation, sheen,
+   fill or radius from the surface grammar above. */
+.destination-progress .progress-facts, .destination-progress .progress-session-card, .destination-progress .progress-method, .destination-progress .progress-records, .destination-progress .progress-comparison-card { border-radius: 0; box-shadow: none; background-image: none; overflow: visible; }
+.destination-progress .progress-facts { border-left: 0; border-right: 0; background: transparent; }
+.destination-progress details.progress-session-card > summary:hover { transform: none; box-shadow: none; }

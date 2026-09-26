@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Activity, ArrowUpRight, CalendarDays, Dumbbell, Info, Sparkles } from "lucide-react";
+import { ArrowUpRight, Info } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { summarizeWithinAthleteStrengthComparisons, type ChangeState } from "@/lib/withinAthleteStrengthChange";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
@@ -25,6 +25,8 @@ type RecordedSessionCard = {
   completedSetCount: number;
   exerciseCount: number;
   storage: "device" | "account";
+  /** A device record carries its exercises and sets; an account record carries counts only. */
+  exercises?: { name: string; done: number; planned: number; skipped: boolean }[];
 };
 
 type ProgressOverviewPanelProps = {
@@ -70,6 +72,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
       completedSetCount: session.exercises.reduce((total, exercise) => total + exercise.sets.filter((set) => set.completed).length, 0),
       exerciseCount: session.exercises.length,
       storage: "device" as const,
+      exercises: session.exercises.map((exercise) => ({ name: exercise.exerciseName, done: exercise.sets.filter((set) => set.completed).length, planned: exercise.sets.length, skipped: exercise.sets.length > 0 && exercise.sets.every((set) => set.skipped) })),
     }));
     const accountRecords = (sessions.data || []).filter((session) => session.status === "completed").map((session) => ({
       id: `account-${session.id}`,
@@ -132,16 +135,44 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
     [liftsForPercentile, percentiles.data, percentileSex],
   );
 
-  return <section className="progress-review space-y-4">
+  /**
+   * Handoff 10. One column: the record's counts as quiet facts, the sessions
+   * as open rows that open the record they stand for, the strength trend as
+   * rows with the method behind a line. The four bordered panels and the
+   * grid of bordered cards inside them are gone. Nothing here is planned
+   * work: every number is something the athlete finished or logged.
+   */
+  return <section className="progress-review">
     <header className="progress-review-head">
-      <div><p className="metric-label !text-[#9fc4eb]">Your training record</p><h1 className="mt-2 font-display text-5xl font-bold uppercase leading-[.82] text-white">Progress from<br /><em className="text-[var(--sg-info)]">real work.</em></h1><p className="mt-3 text-sm leading-5 text-[var(--sg-text-muted-on-dark)]">Every session you finished and every lift you logged.</p></div>
-      <Activity className="h-6 w-6 text-[var(--sg-text-subtle-on-dark)]" aria-hidden="true" />
+      <div><h1>Progress</h1><p>Every session you finished and every lift you logged.</p></div>
     </header>
-    <div className="grid gap-3 md:grid-cols-2">
-      <section className="dark-panel progress-stat-card"><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Completed days</p><p className="mt-2 font-display text-6xl font-bold leading-none text-white">{recordedSessions.length}</p><p className="mt-2 text-xs leading-5 text-[var(--sg-text-muted-on-dark)]">{latestSession ? latestSession.title : "No recorded session yet."}</p>{deviceRecordCount > 0 && <p className="mt-1 text-[11px] text-[var(--sg-text-muted-on-dark)]">{deviceRecordCount} stored on this device.</p>}</div><CalendarDays className="h-7 w-7 text-[var(--sg-text-subtle-on-dark)]" /><button type="button" onClick={onOpenTraining} className="progress-text-action">Training Days <ArrowUpRight className="h-4 w-4" /></button></section>
-      <section className="dark-panel progress-stat-card"><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Lifts logged</p><p className="mt-2 font-display text-6xl font-bold leading-none text-white">{loggedObservations.length}</p><p className="mt-2 text-xs leading-5 text-[var(--sg-text-muted-on-dark)]">{latestObservation ? latestObservation.exerciseName : "No lifts logged yet."}</p>{placements.best && <p className="mt-1 text-[11px] text-[var(--sg-text-muted-on-dark)]">Strongest placement: {placements.best.headline} · {placements.best.exerciseName}.</p>}</div><Dumbbell className="h-7 w-7 text-[var(--sg-text-subtle-on-dark)]" /><button type="button" onClick={onOpenStrength} className="progress-text-action">Strength Genome <Sparkles className="h-4 w-4" /></button></section>
+    <div className="progress-facts" aria-label={`${recordedSessions.length} workouts recorded, ${loggedObservations.length} lifts logged`}>
+      <div><b className="stat-figure">{recordedSessions.length}</b><strong>Workouts recorded</strong><small>{latestSession ? `Latest: ${latestSession.title}` : "No recorded session yet."}{deviceRecordCount > 0 ? ` · ${deviceRecordCount} on this device` : ""}</small></div>
+      <button type="button" onClick={onOpenStrength}><b className="stat-figure">{loggedObservations.length}</b><strong>Lifts logged</strong><small>{latestObservation ? `Latest: ${latestObservation.exerciseName}` : "No lifts logged yet."}{placements.best && <> · Strongest placement: {placements.best.headline} · {placements.best.exerciseName}.</>}</small></button>
     </div>
-    <section className="dark-panel progress-records"><div className="progress-section-head"><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Recorded workouts</p><h2>Your completed sessions.</h2></div><span>{recordedSessions.length} total</span></div>{recordedSessions.length ? <div className="mt-4 grid gap-2 md:grid-cols-2">{recordedSessions.slice(0, 6).map((session) => <article key={session.id} className="progress-session-card"><p>{session.title}</p><small>{session.completedAt.toLocaleDateString()} · {session.exerciseCount} exercises · {session.completedSetCount} sets</small><span>{session.storage === "device" ? "Device" : "Account"}</span></article>)}</div> : <p className="progress-empty-copy">Complete a Tracker workout to create your first record.</p>}</section>
-    <section className="dark-panel progress-comparison-card"><div className="progress-section-head"><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Strength progress</p><h2>{comparableStrengthChanges.length ? "Estimated change since your first log" : "No comparable history yet."}</h2></div><button type="button" aria-expanded={showComparisonDetails} onClick={() => setShowComparisonDetails((current) => !current)} className="progress-disclosure"><Info className="h-4 w-4" />How it works</button></div>{comparableStrengthChanges.length > 0 && <div className="mt-4 grid gap-2 md:grid-cols-2">{comparableStrengthChanges.slice(0, 4).map((change) => { const placement = placements.cards.get(trendKey(change)); return <article key={trendKey(change)} className="progress-session-card"><p>{change.exerciseName}</p><strong style={{ color: changeStateCopy[change.changeState].tone }}>{change.relativeChangePercent >= 0 ? "+" : ""}{change.relativeChangePercent.toFixed(0)}% e1RM</strong><small>{changeStateCopy[change.changeState].label} · {change.observationCount} logs</small>{placement && <em className="progress-percentile"><b>{placement.headline}</b> {placement.detail}{placement.bodyMassSource === "profile" ? " Read against your profile weight." : ""}</em>}</article>; })}</div>}{placements.gap && <p className="progress-percentile-gap">{placements.gap}</p>}{showComparisonDetails && <div className="progress-method-note">This pulls together your logged lifts and your completed sets, converting different rep counts to a comparable one-rep max estimate (Epley formula). Stable means the change is small enough that it could just be day-to-day variation; a confirmed change is big enough to be real. The change tracks you against your own past only — never against anyone else. Where a lift sits is a separate reading: your latest log of it placed on sex- and bodyweight-matched community curves, the same placement the Strength Genome shows for that lift.</div>}{excludedStrengthSets.length > 0 && <p className="mt-3 text-xs leading-5 text-[var(--sg-text-muted-on-dark)]">{excludedStrengthSets.reduce((total, item) => total + item.observationCount, 0)} logged set{excludedStrengthSets.length === 1 && excludedStrengthSets[0].observationCount === 1 ? "" : "s"} outside the validated rep range for estimation are recorded but not used for this trend.</p>}</section>
+
+    <section className="progress-records" aria-label="Recorded workouts">
+      <div className="progress-section-head"><div><p className="metric-label">Recorded workouts</p><h2>Your completed sessions.</h2></div><span>{recordedSessions.length} total</span></div>
+      {recordedSessions.length ? <ol className="progress-session-rows">{recordedSessions.slice(0, 8).map((session) => {
+        /* The date and the counts come from the record, never from today's
+           plan. A device record carries its sets, so the row opens on them; a
+           record that logged nothing says so rather than being dressed up or
+           dropped. An account record carries its counts only. */
+        const facts = <><small>{session.completedAt.toLocaleDateString()} · {session.exerciseCount} {session.exerciseCount === 1 ? "exercise" : "exercises"} · {session.completedSetCount === 0 ? "no sets logged" : `${session.completedSetCount} ${session.completedSetCount === 1 ? "set" : "sets"}`}</small><span>{session.storage === "device" ? "Device" : "Account"}</span></>;
+        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.name}><span>{exercise.name}</span><b>{exercise.done} of {exercise.planned} sets</b>{exercise.skipped ? <i>skipped</i> : null}</li>)}</ul></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
+      })}</ol> : <p className="progress-empty-copy">Complete a Session workout to create your first record.</p>}
+      <button type="button" onClick={onOpenTraining} className="progress-text-action">Open your plan <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
+    </section>
+
+    <section className="progress-comparison-card" aria-label="Strength progress">
+      <div className="progress-section-head"><div><p className="metric-label">Strength progress</p><h2>{comparableStrengthChanges.length ? "Estimated change since your first log" : "No comparable history yet."}</h2></div></div>
+      {comparableStrengthChanges.length > 0
+        ? <ol className="progress-trend-rows">{comparableStrengthChanges.slice(0, 4).map((change) => { const placement = placements.cards.get(trendKey(change)); return <li key={trendKey(change)} className="progress-session-card"><p>{change.exerciseName}</p><strong style={{ color: changeStateCopy[change.changeState].tone }}>{change.observationCount < 2 ? "Baseline" : `${change.relativeChangePercent >= 0 ? "+" : ""}${change.relativeChangePercent.toFixed(0)}% e1RM`}</strong><small>{changeStateCopy[change.changeState].label} · {change.observationCount} {change.observationCount === 1 ? "log" : "logs"}</small>{placement && <em className="progress-percentile"><b>{placement.headline}</b> {placement.detail}{placement.bodyMassSource === "profile" ? " Read against your profile weight." : ""}</em>}</li>; })}</ol>
+        : <p className="progress-empty-copy">{loggedObservations.length ? "Log the same lift again and its change starts tracking here." : "Log a lift in the Strength Genome to start a trend."}</p>}
+      {placements.gap && <p className="progress-percentile-gap">{placements.gap}</p>}
+      {excludedStrengthSets.length > 0 && <p className="progress-excluded">{excludedStrengthSets.reduce((total, item) => total + item.observationCount, 0)} logged set{excludedStrengthSets.length === 1 && excludedStrengthSets[0].observationCount === 1 ? "" : "s"} outside the validated rep range for estimation are recorded but not used for this trend.</p>}
+      <button type="button" onClick={onOpenStrength} className="progress-text-action">Open Strength Genome <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
+      <details className="progress-method"><summary onClick={() => setShowComparisonDetails((current) => !current)} aria-expanded={showComparisonDetails}><Info className="h-5 w-5" aria-hidden="true" /><span>How it works</span></summary><div className="progress-method-note">This pulls together your logged lifts and your completed sets, converting different rep counts to a comparable one-rep max estimate (Epley formula). Stable means the change is small enough that it could just be day-to-day variation; a confirmed change is big enough to be real. The change tracks you against your own past only — never against anyone else. Where a lift sits is a separate reading: your latest log of it placed on sex- and bodyweight-matched community curves, the same placement the Strength Genome shows for that lift.</div></details>
+    </section>
   </section>;
 }
