@@ -63,6 +63,8 @@ describe("canonical connected exercise catalog", () => {
     // both - so it is gone rather than deduplicated panel by panel.
     expect(homeSource).not.toContain('className="builder-upgrade-head"');
     expect(homeSource).not.toContain('workspace === "custom"');
-    expect(homeSource).toContain('{workspace === "day-plan" && <section className={`day-design-workspace');
+    // The workspace no longer carries a session-mode modifier: the inline logger
+    // was a second copy of the tracker the Session destination already owns.
+    expect(homeSource).toContain('{workspace === "day-plan" && <section className="day-design-workspace">');
   });
 });

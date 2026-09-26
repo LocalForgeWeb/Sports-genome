@@ -248,26 +248,38 @@ describe("workspace side navigation", () => {
     expect(source).toContain('Preparing this workspace…');
   });
 
-  it("removes duplicate mobile Training Day shortcuts while keeping the Session destination reachable", () => {
-    expect(trainingDayStyles).toContain('.day-design-import { display: none; }');
-    // The same two shortcuts, hidden by name rather than by position: both have their own
-    // panel further down, and a positional rule hid whichever button came first — which is
-    // now the one for adding exercises.
-    expect(trainingDayStyles).toContain('.day-active-actions .day-action-session, .day-active-actions .day-action-draft { display: none; }');
-    expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
+  /**
+   * These two cases used to be about hiding things on a phone: a hero paragraph,
+   * a week-generator paragraph, and two shortcuts that each had their own panel
+   * further down. None of that is rendered any more, so there is nothing to
+   * hide - the duplicates are gone rather than display:none. What has to survive
+   * is that every one of those capabilities is still reachable.
+   */
+  it("keeps every Training Day action reachable, without a second copy of any of them", () => {
     expect(source).toContain('className="day-action-add"');
     expect(source).toContain('label: "Session", workspace: "tracker"');
     expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
-    expect(source).toContain('Import this plan');
+    expect(source).toContain("Import plan");
+    // Starting the workout opens the destination that owns it rather than a
+    // logger rendered a second time inside the plan.
+    expect(source).toContain('className="day-action-session" onClick={() => navigateWorkspace("tracker")}');
+    expect(source).not.toContain("<WorkoutExecutionPanel");
+    expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
   });
 
-  it("compresses Training Day’s mobile default without removing week-selection controls", () => {
-    expect(trainingDayStyles).toContain(".day-design-hero p:last-child { display: none; }");
-    expect(trainingDayStyles).toContain(".three-week-head p:last-child { display: none; }");
-    expect(trainingDayStyles).toContain(".three-week-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }");
-    expect(trainingDayStyles).toContain(".three-week-tabs button { min-height: 76px;");
-    expect(source).toContain("<ThreeWeekPlanner activeWeek={activeWeek}");
-    expect(source).toContain("<WeeklyPlanBoard days={splitDays}");
+  it("chooses a week and a day in one tap each, with no block between them and the day", () => {
+    // Five blocks and about 900px stood in front of the first exercise, three of
+    // them naming the same day. Weeks are pills and days are tabs now.
+    expect(source).toContain("<TrainingPlanHeader");
+    expect(source).toContain("onSelectWeek={selectWeek}");
+    expect(source).toContain("onGenerateWeek={generateWeek}");
+    expect(source).toContain("onChooseDay={openTrainingDay}");
+    expect(trainingDayStyles).toContain(".training-plan-weeks {");
+    expect(trainingDayStyles).toContain(".training-plan-days {");
+    // The blocks they replaced are gone, not merely unrendered.
+    expect(source).not.toContain("<ThreeWeekPlanner");
+    expect(source).not.toContain("<WeeklyPlanBoard");
+    expect(source).not.toContain("<TrainingDayNav");
   });
 
   it("keeps Movement Atlas mobile discovery concise while retaining every family filter", () => {

@@ -43,7 +43,10 @@ describe("the session draft is part of the page, not a layer over it", () => {
 
   it("does not use a broad custom-row selector that can hide active Training Day content", () => {
     expect(source).toContain('workspace === "day-plan"');
-    expect(source).toContain("<WorkoutExecutionPanel");
+    // The inline logger is gone - the Session destination owns the tracker, and
+    // rendering one inside the plan as well was the duplicate surface this file
+    // exists to keep out. What must not come back is the broad selector.
+    expect(source).toContain('onClick={() => navigateWorkspace("tracker")}');
     expect(styles).not.toContain("main > section:has(.custom-row) { display: none; }");
   });
 });
