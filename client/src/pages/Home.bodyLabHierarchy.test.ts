@@ -15,7 +15,12 @@ describe("Body Lab workspace hierarchy", () => {
     const navigator = readFileSync(new URL("../components/BodyLabNavigator.tsx", import.meta.url), "utf8");
     const anatomy = readFileSync(new URL("../components/AnatomyMap.tsx", import.meta.url), "utf8");
     expect(navigator).toContain('className="body-lab-navigator body-lab-selection"');
-    expect(navigator).toContain("<h1>{selectedMovement.label}</h1>");
+    // The page's name, then the sport and action as one line with Change; the
+    // pickers open only when the athlete means to change something.
+    expect(navigator).toContain("<h1>Body Lab</h1>");
+    expect(navigator).toContain('className="body-lab-selection-action">{selectedMovement.label}</span>');
+    expect(navigator).toContain('className="body-lab-selection-change"');
+    expect(navigator).toContain("{changing && <div");
     expect(navigator).toContain("<span>Sport</span>");
     expect(navigator).toContain("<span>Action</span>");
     expect(navigator).not.toContain("Change what the map shows");

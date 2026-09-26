@@ -204,7 +204,7 @@
      chrome plus the caption row; 34rem stops a wide desktop column rendering an
      enormous body. Stated once here because the Body Lab and the Strength
      Genome must agree, and they live in different stylesheets. */
-  --sg-body-figure-height: clamp(18rem, calc(100vh - 20rem), 34rem);
+  --sg-body-figure-height: clamp(18rem, calc(100vh - 20rem), 30rem);
 
   --sg-motion-fast: 150ms;
   --sg-motion-base: 200ms;
@@ -1375,7 +1375,7 @@ select {
 /* Both bodies on one canvas: a landscape block, sized by width, not the tall
    column a single flipping figure needed. */
 @supports (height: 1dvh) {
-  :root { --sg-body-figure-height: clamp(18rem, calc(100dvh - 20rem), 34rem); }
+  :root { --sg-body-figure-height: clamp(18rem, calc(100dvh - 20rem), 30rem); }
 }
 
 /* The figure takes the shared height and fits itself into it, rather than
@@ -3456,3 +3456,43 @@ details:not([open]) > *:not(summary) {
 .weekly-day-trained .weekly-day-state { color: var(--sg-state-positive); }
 .weekly-day-live { border-left: 3px solid var(--sg-action); }
 .weekly-day-trained { border-left: 3px solid var(--sg-state-positive); }
+
+/* Body Lab on its dark destination, flat: the head, the canvas, the rows, the
+   next step and the method sit on the page, divided rather than boxed. The
+   panel border, gradient and shadow the atlas carried are gone; the rows keep
+   their role colours legible on the navy ground. */
+.destination-body .body-lab-navigator { border: 0; background: transparent; box-shadow: none; padding: 0; color: var(--sg-text-on-dark); }
+.destination-body .body-lab-selection-head h1 { color: var(--sg-text-on-dark); }
+.destination-body .body-lab-selection-context { color: var(--sg-text-muted-on-dark); }
+.destination-body .body-lab-selection-context .body-lab-selection-action { color: var(--sg-text-on-dark); }
+.destination-body .anatomy-atlas-pro { border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 0; color: var(--sg-text-on-dark); }
+.destination-body .atlas-body-chart-wrap { border: 0; border-radius: 0; background: transparent; padding: .25rem 0 0; }
+.destination-body .atlas-view-captions, .destination-body .atlas-heat-legend-pro { color: var(--sg-text-muted-on-dark); }
+.destination-body .atlas-selected-strip { border-left-color: var(--sg-action); background: rgb(164 200 232 / .1); color: var(--sg-text-on-dark); }
+.destination-body .atlas-selected-strip .metric-label, .destination-body .atlas-selected-role, .destination-body .atlas-selected-confidence, .destination-body .atlas-selected-where { color: var(--sg-text-muted-on-dark); }
+.destination-body .atlas-ranking { border-top-color: var(--sg-divider-on-dark); }
+.destination-body .atlas-ranking-head h2 { color: var(--sg-text-on-dark); }
+.destination-body .atlas-ranking-head span { color: var(--sg-text-muted-on-dark); }
+.destination-body .atlas-ranking .atlas-role-row { border-bottom-color: var(--sg-divider-on-dark); }
+.destination-body .atlas-ranking .atlas-role-row.is-selected { background: rgb(164 200 232 / .12); box-shadow: inset 3px 0 var(--sg-action); }
+.destination-body .atlas-ranking .atlas-role-row:hover { background: rgb(255 255 255 / .05); }
+.destination-body .atlas-ranking .atlas-role-row-copy strong { color: var(--sg-text-on-dark); }
+.destination-body .atlas-ranking .atlas-role-row-copy small { color: var(--sg-text-muted-on-dark); }
+.destination-body .atlas-ranking .atlas-role-row svg { color: var(--sg-text-subtle-on-dark); }
+.destination-body .atlas-role-tag-primary { color: #ff8a66; }
+.destination-body .atlas-role-tag-stabilizer { color: var(--sg-focus-on-dark); }
+.destination-body .atlas-role-tag-synergist { color: var(--sg-link-on-dark); }
+.destination-body .atlas-role-tag-unrecorded { color: var(--sg-text-subtle-on-dark); }
+.destination-body .atlas-ranking .atlas-ranking-toggle { color: var(--sg-link-on-dark); }
+.destination-body .atlas-ranking .atlas-ranking-toggle:hover { background: rgb(255 255 255 / .06); }
+.destination-body .atlas-role-methodology { border: 0; border-top: 1px solid var(--sg-divider-on-dark); background: transparent; color: var(--sg-text-muted-on-dark); }
+.destination-body .atlas-role-methodology summary { padding-left: 0; padding-right: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.destination-body .atlas-role-methodology > div { border-top: 0; padding-left: 0; padding-right: 0; }
+.destination-body .atlas-role-methodology p { font-size: var(--sg-text-base); }
+/* The next step as the reference draws it: one full-width action. */
+.destination-body .body-lab-next-step { border: 0; background: transparent; padding: 0; }
+.destination-body .body-lab-next-step > span { flex-basis: 100%; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); font-weight: 400; }
+.destination-body .body-lab-next-step > button { width: 100%; min-height: 52px; justify-content: center; border-radius: 12px; font-size: var(--sg-text-lg); font-weight: 700; letter-spacing: 0; text-transform: none; box-shadow: 0 10px 22px rgb(228 81 46 / .24); }
+.destination-body .atlas-inspector-detail > summary { color: var(--sg-link-on-dark); }
+.destination-body .body-lab-next-step { min-width: 0; }
+.destination-body .body-lab-next-step > button { white-space: normal; }

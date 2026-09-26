@@ -120,7 +120,7 @@
 
 /* Responsive */
 @media(max-width:940px){
-  .atlas-pro-grid{grid-template-columns:1fr}
+  .atlas-pro-grid{grid-template-columns:minmax(0,1fr)}
   .atlas-pro-inspector{border-left:0;border-top:1px solid var(--sg-divider-on-light);padding:1rem 0 0}
   .atlas-pro-grid>.atlas-ranking{grid-column:auto}
 }
@@ -249,3 +249,38 @@
 .destination-body .atlas-side-toggle{border-color:var(--sg-info);background:var(--sg-info);color:#06203c}
 .destination-body .atlas-side-toggle:hover{border-color:#8fc8ff;background:#8fc8ff;color:#06203c}
 .destination-body .atlas-side-toggle:focus-visible{outline-color:var(--sg-focus-on-dark)}
+
+/* Body Lab rows and foot. Flat rows in the record's role order, each carrying its role as a tag, the selected one tonal; static captions when both bodies show; the next step and the method at the foot. Three headed groups and a "show all" in label caps used to do this. */
+.atlas-body-chart-pair svg{max-width:100%}
+.atlas-view-captions-pair{display:grid;grid-template-columns:1fr 1fr;justify-items:center}
+.atlas-ranking-head h2{margin:0;color:var(--sg-text-on-light);font-family:var(--font-display,"Barlow Condensed",sans-serif);font-size:clamp(1.7rem,7vw,2.2rem);font-weight:800;line-height:.95;text-transform:uppercase}
+.atlas-ranking-head span{font-size:var(--sg-text-base)}
+.atlas-role-rows{display:grid;margin:0;padding:0;list-style:none}
+.atlas-ranking .atlas-role-row{width:100%;min-height:64px;grid-template-columns:auto minmax(0,1fr) auto auto;gap:.1rem .75rem;padding:.7rem .35rem;border-radius:0;border-bottom:1px solid var(--sg-divider-on-light)}
+.atlas-ranking .atlas-role-row.is-selected{background:var(--sg-surface-light-sunken);box-shadow:inset 3px 0 var(--sg-action)}
+.atlas-ranking .atlas-role-row-copy{display:grid;gap:.15rem;overflow:visible;white-space:normal}
+.atlas-ranking .atlas-role-row-copy strong{color:var(--sg-text-on-light);font-size:var(--sg-text-lg);font-weight:600;line-height:1.2}
+.atlas-ranking .atlas-role-row-copy small{color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-base);line-height:var(--sg-leading-snug)}
+.atlas-ranking .atlas-role-tag{font-size:var(--sg-text-base);font-weight:600;letter-spacing:0;text-transform:none;white-space:nowrap}
+.atlas-role-tag-primary{color:var(--sg-action)}
+.atlas-role-tag-stabilizer{color:#b8891c}
+.atlas-role-tag-synergist{color:#4f7ea8}
+.atlas-role-tag-unrecorded{color:var(--sg-text-subtle-on-light)}
+.atlas-role-row-unrecorded{opacity:.82}
+.atlas-ranking .atlas-ranking-toggle{gap:.3rem;min-height:44px;font-size:var(--sg-text-lg);font-weight:600;letter-spacing:0;text-transform:none}
+.atlas-foot{display:grid;gap:.75rem;margin-top:.9rem}
+.atlas-pro-grid>.atlas-foot{grid-column:1}
+.atlas-foot .atlas-role-methodology{max-width:none;margin:0}
+/* Flat: a global rule rounds every "-ranking", "-inspector" and "-foot" block, which turned their top dividers into card outlines. */
+.atlas-ranking,.atlas-pro-inspector,.atlas-foot,.atlas-selected-strip{border-radius:0}
+/* On a phone the strip under the body is the inspector; the empty prompt below the rows said "tap a muscle" a second time, in a rounded box. */
+@media (max-width:900px){.atlas-pro-inspector:not(.is-open){display:none}}
+/* The phone inspector, behind one line; on a wide screen it sits beside the body and the line is not shown. */
+.atlas-inspector-detail>summary{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:44px;cursor:pointer;list-style:none;color:var(--sg-info-strong);font-size:var(--sg-text-lg);font-weight:600}
+.atlas-inspector-detail>summary::-webkit-details-marker{display:none}
+.atlas-inspector-detail>summary svg{transition:transform var(--sg-motion-fast) var(--sg-ease)}
+.atlas-inspector-detail[open]>summary svg{transform:rotate(180deg)}
+.atlas-inspector-detail-body{padding-top:.5rem}
+@media(min-width:941px){.atlas-inspector-detail>summary{display:none}.atlas-inspector-detail-body{padding-top:0}}
+/* A grid item defaults to its min-content width; a one-line button in the foot took the page past a 320px viewport. */
+.atlas-foot,.atlas-ranking{min-width:0}

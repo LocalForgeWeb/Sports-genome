@@ -102,7 +102,7 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(source).not.toContain('selectedKey ? (muscleScores?.[selectedKey] ?? (matches(selectedKey, primary) ? 90 : 55)) : 0');
   });
 
-  it("groups compact role rows by importance and progressively discloses lower-priority worked muscles", async () => {
+  it("lists role rows by importance, each tagged with its role, and progressively discloses the rest", async () => {
     const { AnatomyMap } = await import("./AnatomyMap");
     const markup = renderToStaticMarkup(createElement(AnatomyMap, {
       primary: ["chest", "front delts", "triceps", "abs", "quads", "glutes"],
@@ -112,12 +112,20 @@ describe("Body Lab architecture mechanics disclosure", () => {
 
     expect(markup).toContain("Key muscle roles");
     expect(markup).toContain("muscles involved");
-    expect(markup).toContain("Primary movers");
-    expect(markup).toContain("Show all ");
-    expect(markup).toContain(" muscles");
+    // One list, the role as a tag on the row - not three headed groups.
+    expect(markup).toContain('class="atlas-role-tag atlas-role-tag-primary"');
+    expect(markup).not.toContain("Primary movers");
+    // Four rows first; the rest of the involved muscles and then the rest of
+    // the body are the same list one tap longer.
+    expect(markup.match(/class="atlas-role-row /g)).toHaveLength(4);
+    expect(markup).toContain("View all ");
+    expect(markup).toContain(" muscle roles");
     expect(markup).toContain("How muscle roles are classified");
-    expect(markup).toContain("Supporting role");
+    // The legend says what the paint draws: three states, and that the
+    // supporting fill is also the stabilizing one.
+    expect(markup).toContain("Supporting or stabilizing role");
     expect(markup).toContain("Primary role");
+    expect(markup).toContain("Neutral");
   });
 
   it("uses source-recorded action phase context instead of fabricating timing or force values", () => {
@@ -149,7 +157,10 @@ describe("Body Lab architecture mechanics disclosure", () => {
     const ranking = markup.slice(markup.indexOf('class="atlas-ranking"'));
     expect(ranking.indexOf("Gluteal complex")).toBeLessThan(ranking.indexOf("External oblique"));
     expect(ranking.indexOf("External oblique")).toBeLessThan(ranking.indexOf("Hamstrings"));
-    expect(markup).toContain("Stabilizers");
+    expect(ranking).toContain(">Stabilizer<");
+    expect(ranking).toContain(">Supporting<");
+    // A muscle with no role recorded is missing data, never "not used".
+    expect(markup).not.toContain("Not used here");
     expect(markup).not.toContain("Stabilizer · Strong indirect evidence");
   });
 
@@ -167,8 +178,10 @@ describe("Body Lab architecture mechanics disclosure", () => {
     // different stylesheets, so the value is a token rather than two literals
     // that agree today. A vh fallback is declared first for engines without dvh.
     const root = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(root).toContain("--sg-body-figure-height: clamp(18rem, calc(100vh - 20rem), 34rem)");
-    expect(root).toMatch(/@supports \(height: 1dvh\)[^}]*\{[^}]*--sg-body-figure-height: clamp\(18rem, calc\(100dvh - 20rem\), 34rem\)/);
+    // Capped at 30rem: with the page's name and the sport/action line above
+    // the body, 34rem put the feet 17px under the dock on a 390x844 phone.
+    expect(root).toContain("--sg-body-figure-height: clamp(18rem, calc(100vh - 20rem), 30rem)");
+    expect(root).toMatch(/@supports \(height: 1dvh\)[^}]*\{[^}]*--sg-body-figure-height: clamp\(18rem, calc\(100dvh - 20rem\), 30rem\)/);
     expect(root).toContain(".strength-body-chart .anatomy-figure { height: var(--sg-body-figure-height)");
   });
 
