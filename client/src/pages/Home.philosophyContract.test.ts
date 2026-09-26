@@ -32,32 +32,31 @@ describe("Home answers state, priority, and next action", () => {
   // "home-state-priority-action" (strong, primary application): the first major
   // viewport communicates current state/trend, the highest-value priority, and the
   // next best action. Secondary content must not compete for first attention.
-  it("puts the state and next-action panel ahead of the hero and the decision grid", () => {
-    expect(order("<TodayActionPanel")).toBeLessThan(order("<CommandHero"));
+  it("puts the state and next-action panel ahead of the movement focus and the priority exercises", () => {
+    expect(order("<TodayActionPanel")).toBeLessThan(order('className="home-focus"'));
+    expect(order('className="home-focus"')).toBeLessThan(order('className="home-priority"'));
   });
 
   // Anti-pattern for the same principle: "surfacing low-value novelty above a
-  // high-value action". Sport/goal/day and gym-time selects are configuration, not
-  // state, so they sit after the decision content.
-  it("keeps plan-input configuration below the decision content", () => {
-    const inputs = order('className="home-input-disclosure"');
-    expect(order("<TodayActionPanel")).toBeLessThan(inputs);
-    expect(order("<CommandHero")).toBeLessThan(inputs);
+  // high-value action". Sport/goal/day and session-time controls are
+  // configuration, not state: they live on Profile, one owner, and Home carries
+  // an entry point to them after the decision content.
+  it("keeps plan-input configuration off Home, behind one entry point to Profile", () => {
+    expect(home).not.toContain('className="home-input-disclosure"');
+    expect(home).not.toContain('className="gym-time-budget-card"');
+    const entry = order("Training preferences <ArrowRight");
+    expect(order("<TodayActionPanel")).toBeLessThan(entry);
+    expect(order('className="home-priority"')).toBeLessThan(entry);
+    expect(home.slice(entry - 120, entry)).toContain('navigateWorkspace("profile")');
   });
 
-  // "overview-first-detail-on-demand": complexity stays reachable behind a labelled
-  // disclosure rather than being deleted - the same rule requires that manual
-  // complexity controls remain available.
-  it("keeps both input decks reachable inside the labelled disclosure", () => {
-    const disclosure = home.slice(
-      order('className="home-input-disclosure"'),
-      home.indexOf("</details>", order('className="home-input-disclosure"'))
-    );
-    expect(disclosure).toContain('className="home-preference-deck"');
-    expect(disclosure).toContain('className="gym-time-budget-card"');
-    expect(disclosure).toContain("<summary>");
-    expect(home).not.toContain('{workspace === "command" && <section className="home-preference-deck"');
-    expect(home).not.toContain('{workspace === "command" && <section className="gym-time-budget-card"');
+  // "overview-first-detail-on-demand": the controls are not deleted, they moved.
+  // Session time joins goal and days on Profile so every input still has an owner.
+  it("keeps every plan input reachable on Profile", () => {
+    expect(home).toContain("gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))}");
+    const profile = readFileSync(new URL("../components/AthleteAboutMePanel.tsx", import.meta.url), "utf8");
+    expect(profile).toContain("<legend>Session time (minutes)</legend>");
+    expect(profile).toContain("gymTimeOptions.map((minutes) =>");
   });
 
   it("gives the state layer a visible place above the next action", () => {

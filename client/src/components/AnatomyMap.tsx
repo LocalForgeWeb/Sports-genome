@@ -128,7 +128,9 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
       const firstRole = detail?.roles[0];
       return firstRole ? (detail?.roleOrder.indexOf(firstRole) ?? fallbackOrder[entry.role]) : fallbackOrder[entry.role];
     };
-    return entries.sort((a, b) => orderFor(a) - orderFor(b)).slice(0, 8);
+    // Every region the action's record gives a role, so the count is the count.
+    // It was capped at eight, which Home's "N muscles involved" then disagreed with.
+    return entries.sort((a, b) => orderFor(a) - orderFor(b));
   }, [roles, detailFor]);
   /**
    * Every region the figure draws, in words.

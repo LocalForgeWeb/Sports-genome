@@ -4,6 +4,7 @@ import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
+import { roleMapForLists } from "@/lib/anatomyRegions";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { UniversalSearch } from "@/components/UniversalSearch";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
@@ -16,8 +17,6 @@ import { SessionDraftPanel } from "@/components/SessionDraftPanel";
 import type { SplitDay } from "@/lib/splitCycle";
 import type { TrainingLoadout as LoadoutMode } from "@/lib/loadoutTemplates";
 import { FeatureTour } from "@/components/FeatureTour";
-import { TrainingWeekPanel } from "@/components/TrainingWeekPanel";
-import { CommandHero } from "@/components/CommandHero";
 import { WorkspaceTabs } from "@/components/WorkspaceTabs";
 import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
 import { usePlanSync } from "@/lib/usePlanSync";
@@ -238,11 +237,6 @@ function prescriptionFor(index: number, goal: Goal) {
 
 export function shouldRenderMetric(detail: string) {
   return detail !== "coach-set planning marker";
-}
-
-function Metric({ label, value, detail, tone = "lime" }: { label: string; value: string; detail: string; tone?: "lime" | "orange" | "white" }) {
-  if (!shouldRenderMetric(detail)) return null;
-  return <div className="metric-card"><p className="metric-label">{label}</p><p className={`metric-value metric-${tone}`}>{value}</p><p className="metric-detail">{detail}</p></div>;
 }
 
 function RecommendationRow({ result, index, onAdd, onInspect }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void }) {
@@ -533,7 +527,7 @@ export default function Home() {
   );
   const movementSignals = getMovementSignals(selectedMovement);
   const movementMuscles = getMovementMuscles(selectedMovement);
-  const bodyLabRoleContext = getBodyLabRoleContext(activeSportId, selectedMovement.id, movementMuscles, movementSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
+  const bodyLabRoleContext =getBodyLabRoleContext(activeSportId, selectedMovement.id, movementMuscles, movementSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
   /**
    * The same three, resolved for whatever the reference library is showing.
    *
@@ -545,13 +539,12 @@ export default function Home() {
   const referenceRoleContext = browsingOtherSport
     ? getBodyLabRoleContext(browseSportId, referenceMovement.id, referenceMuscles, referenceSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"])
     : bodyLabRoleContext;
+  /** The count Body Lab shows for this action: canonical regions, aliases collapsed. */
+  const focusMuscleCount = useMemo(() => Object.keys(roleMapForLists(referenceRoleContext.primary, referenceRoleContext.supporting)).length, [referenceRoleContext]);
   // The same tolerant matcher the day picker uses, so a name typed here finds
   // what a name typed there finds.
   const filteredCatalog = useMemo(() => searchExercises(exercises, catalogQuery).slice(0, 24), [catalogQuery]);
   const genomeExercise = exercises.find((exercise) => exercise.id === genomeExerciseId) || exercises[0];
-  const completedExerciseCount = customWorkout.filter((exercise) => exerciseSettings[exercise.id]?.completed).length;
-  const activePlanStatus = customWorkout.length ? `${customWorkout.length} staged` : "Build a day";
-  const activePlanStatusDetail = customWorkout.length ? `${completedExerciseCount} marked complete in the active workspace` : "No exercises are staged in the current Training Day";
   const createWeekSnapshot = (): WeekSnapshot => ({
     days: commitDay(dayStore, draftDayKeyRef.current, activeDraft()),
     activeDayIndex: activeSlot.index,
@@ -1390,15 +1383,34 @@ export default function Home() {
           <div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => { openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div>
         </details>} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><div className="light-panel p-5"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /></div></section>}
-        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} />}
+        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} />}
         {workspace === "profile" && <section className="more-workspace"><div><p className="metric-label">Sports Genome</p><h1>More tools.</h1><p>Open the guide or restart onboarding when you need to change the foundation of your plan.</p></div><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><SupabaseResearchLibraryPanel /><div className="launch-setting"><div><p className="metric-label">Launch video</p><h2>Video intro before app opens</h2><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p></div><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled || replayPending} aria-busy={replayPending}>{replayPending ? "Starting the intro…" : "Preview intro video"}</button></div><p className="more-workspace-build" title="The build this device is running. If it does not change after an update, this device is pinned to an old address.">{buildStampLabel()}</p></section>}
         {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={activeDayLabel} live={liveSession} onOpenTracker={() => navigateWorkspace("tracker")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} /></>}
-        {workspace === "command" && <TrainingWeekPanel plannedDays={trainingDays} onOpenTracker={() => navigateWorkspace("tracker")} onOpenProgress={() => navigateWorkspace("progress")} />}
-        {workspace === "command" && <section className="space-y-5"><CommandHero heroImage={sportsGenomeAssets.heroLab} sportLabel={sportDisplayLabel} sportAbbrev={hasSportContext ? sportAbbrev(selectedSport.label) : sportContextMode === "general" ? "GEN" : "—"} trainingDays={trainingDays} topGrade={sessionRecommendations[0]?.grade || "C"} planStatus={activePlanStatus} planStatusDetail={activePlanStatusDetail} stagedExerciseCount={customWorkout.length} onOpenRecommendations={() => navigateWorkspace("recommended")} gradeStamp={<GradeStamp grade={sessionRecommendations[0]?.grade || "C"} compact />} />
-          <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]"><div className="dark-panel p-5"><div className="flex items-start justify-between gap-4"><div><p className="metric-label !text-[#91a09a]">Performance decision</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-white">Today&apos;s movement lens</h2></div><button onClick={() => setWorkspace("movement")} className="text-[var(--sg-info)]"><ArrowUpRight className="h-5 w-5" /></button></div><div className="mt-5 grid gap-3 md:grid-cols-2"><Metric label="Body action" value={movementSignals[0].toUpperCase()} detail="dominant movement signal" /><Metric label="Primary tissues" value={String(movementMuscles.length).padStart(2, "0")} detail="mapped muscle groups" tone="orange" /></div><div className="mt-5 border-t border-white/10 pt-4"><p className="metric-label !text-[#91a09a]">Transfer rationale</p><p className="mt-2 text-sm leading-6 text-[#d0d9d3]">{selectedMovement.gymTransferCue}</p></div></div><div className="light-panel p-5"><div className="flex items-start justify-between"><div><p className="metric-label">Coach dashboard</p><h2 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#18241f]">Priority blocks</h2></div><BrainCircuit className="h-5 w-5 text-[var(--sg-text-subtle-on-dark)]" /></div><div className="mt-5 space-y-2">{sessionRecommendations.slice(0, 3).map((result, index) => <button key={result.exercise.id} onClick={() => inspectExercise(result.exercise)} className="flex w-full items-center gap-3 border border-[#e4e8e1] bg-white p-3 text-left transition-colors hover:border-[var(--sg-action)]"><span className="font-display text-xl font-bold text-[#a4afa8]">0{index + 1}</span><span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold">{result.exercise.name}</span><span className="mt-1 block truncate text-[11px] text-[#708078]">{result.rationale}</span></span><GradeStamp grade={result.grade} compact /></button>)}</div><button onClick={() => setWorkspace("recommended")} className="mt-5 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.13em] text-[var(--sg-action-strong)]">View athlete recommendation <ArrowUpRight className="h-4 w-4" /></button></div></div></section>}
-        {workspace === "command" && <details className="home-input-disclosure"><summary>Adjust plan inputs — sport, goal, days, and time available</summary><div className="home-input-disclosure-body"><section className="home-preference-deck"><div><p className="metric-label">Training context</p><h2>Adjust your plan inputs.</h2><p>Changes update your sport lens, recommendations, and weekly split without restarting the app.</p></div><label><span>Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{!sportId && <option value="" disabled>{sportContextMode === "general" ? "No sport — general training" : "No sport chosen yet"}</option>}{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select></label><label><span>Goal</span><select value={goal} onChange={(event) => setGoal(event.target.value as Goal)}>{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Days / week</span><select value={trainingDays} onChange={(event) => setTrainingDays(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((days) => <option key={days} value={days}>{days} days</option>)}</select></label></section><section className="gym-time-budget-card"><div><p className="metric-label">Gym-time budget</p><h2>How long do you have today?</h2><p>{gymTimeBudget.scopeCue} Recommended stacks now cap at {gymTimeBudget.recommendationLimit} exercises, while the builder keeps the session-time estimate visible.</p></div><label><span>Available time</span><select value={gymMinutes} onChange={(event) => setGymMinutes(Number(event.target.value))}>{gymTimeOptions.map((minutes) => <option key={minutes} value={minutes}>{minutes === 90 ? "90+ minutes" : `${minutes} minutes`}</option>)}</select><small>{gymTimeBudget.restGuidance}</small></label></section></div></details>}
+        {/* Home, after the first viewport: the sport action the plan is built
+            around, the exercises ranked for it, and the two places the rest of
+            the app starts. All of it is one column on the page; the hero, the
+            movement-lens panel and the priority-blocks panel it replaces were
+            three cards saying the sport, the action and the top three matches
+            twice each. */}
+        {workspace === "command" && hasSportContext && <section className="home-focus" aria-label="Movement focus">
+          <p className="metric-label">Movement focus</p>
+          <h2>{selectedMovement.label}</h2>
+          <p className="home-focus-meta">{selectedMovement.family} · {focusMuscleCount} {focusMuscleCount === 1 ? "muscle" : "muscles"} involved</p>
+          <button type="button" className="home-link" onClick={() => { setActiveMuscle(null); navigateWorkspace("body"); }}>Explore in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+        </section>}
+        {workspace === "command" && hasSportContext && <section className="home-priority" aria-label="Priority exercises">
+          <div className="home-section-head"><p className="metric-label">Priority exercises</p><button type="button" className="home-link" onClick={() => navigateWorkspace("recommended")}>All matches <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
+          {/* The top of the same ranking Matches shows in full, with the tier the
+              catalog model assigns - not a grade invented for the row. */}
+          <ol className="home-priority-rows">{movementRecommendations.slice(0, 3).map((result, index) => <li key={result.exercise.id}><button type="button" className="home-priority-row" onClick={() => inspectExercise(result.exercise)}><span className="home-priority-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span className="home-priority-copy"><strong>{result.exercise.name}</strong><small>{[result.exercise.movement, ...result.exercise.primaryMuscles.slice(0, 2).map((muscle) => muscleLabels[muscle] || muscle)].join(" · ")}</small></span><GradeStamp grade={result.grade} compact /><ChevronRight className="h-4 w-4" aria-hidden="true" /></button></li>)}</ol>
+        </section>}
+        {workspace === "command" && !hasSportContext && <section className="home-focus" aria-label="Movement focus"><p className="metric-label">Movement focus</p><h2>No sport chosen</h2><p className="home-focus-meta">Choose a sport in Training preferences to see the action your plan is built around and the exercises ranked for it.</p></section>}
+        {workspace === "command" && <div className="home-entries">
+          <button type="button" onClick={() => navigateWorkspace("strength")}><Dumbbell className="h-5 w-5" aria-hidden="true" /> Strength Genome <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+          <button type="button" onClick={() => navigateWorkspace("profile")}><SlidersHorizontal className="h-5 w-5" aria-hidden="true" /> Training preferences <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+        </div>}
 
         {workspace === "recommended" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="Sport recommendations" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {/* Matches, one column: the sport and the action as controls, the

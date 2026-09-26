@@ -110,8 +110,6 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('label="Session readiness"');
     expect(source).not.toContain('value="82"');
     expect(source).not.toContain('detail="coach-set planning marker"');
-    expect(source).toContain('const activePlanStatus = customWorkout.length ? `${customWorkout.length} staged` : "Build a day";');
-    expect(source).toContain('const activePlanStatusDetail = customWorkout.length ? `${completedExerciseCount} marked complete in the active workspace` : "No exercises are staged in the current Training Day";');
   });
 
   it("uses a four-item mobile bottom bar (the philosophy's Home/Body Lab/Train/Progress contract) and moves contextual workspace controls to the top", () => {

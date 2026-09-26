@@ -57,7 +57,15 @@ describe("Not training for a sport stays sayable after onboarding", () => {
    * happened to sort first.
    */
   it("never shows a general athlete a sport they did not choose", () => {
-    expect(home).toContain('{!sportId && <option value="" disabled>{sportContextMode === "general" ? "No sport — general training" : "No sport chosen yet"}</option>}');
+    // Home's own sport select is gone (the inputs live here, on Profile). The
+    // one sport select left in Home is on Matches, and it renders only once a
+    // sport is chosen, so it can never list a sport a general athlete did not pick.
+    expect(home).not.toContain('className="home-preference-deck"');
+    const matches = home.indexOf('{workspace === "recommended" && hasSportContext &&');
+    expect(matches).toBeGreaterThan(-1);
+    const selects = [...home.matchAll(/<select value=\{sportId\}/g)].map((match) => match.index ?? -1);
+    expect(selects.length).toBeGreaterThan(0);
+    selects.forEach((index) => expect(index).toBeGreaterThan(matches));
   });
 });
 

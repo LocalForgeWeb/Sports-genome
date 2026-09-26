@@ -152,8 +152,25 @@ describe("Today action panel state layer", () => {
 
   it("still carries the next action beneath the state layer", () => {
     renderPanel();
-    expect(screen.getByText("Choose the next useful move.")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Design training day/i })).toBeTruthy();
+    expect(screen.getByText("No session built yet")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Create your plan/i })).toBeTruthy();
+  });
+
+  it("names the next session, its place in the plan and its size, with Review and Edit for that day", () => {
+    mocks.staged = 6;
+    renderPanel();
+    expect(screen.getByRole("heading", { name: "Push" })).toBeTruthy();
+    expect(screen.getByText("Week 1")).toBeTruthy();
+    expect(screen.getByText("6 exercises")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Review session/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Edit plan/i })).toBeTruthy();
+  });
+
+  it("reports the three facts on their own scopes, with zero completed reading as a number", () => {
+    renderPanel();
+    expect(screen.getByText("Planned days").previousSibling?.textContent).toBe("4");
+    expect(screen.getByText("Completed this week").previousSibling?.textContent).toBe("0");
+    expect(screen.getByText("Lifts logged").previousSibling?.textContent).toBe("2");
   });
 });
 
