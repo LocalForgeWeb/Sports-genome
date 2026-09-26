@@ -1009,3 +1009,32 @@
   .day-plan-actions .day-action-add,
   .day-plan-actions .day-action-session { flex: 1 1 100%; justify-content: center; }
 }
+
+/* -- Review: one column of labelled sections ------------------------------- *
+
+   It was a two-column grid of five panels, each with its own display heading
+   competing with the page's, and the recovery-spacing check rendered *inside*
+   the volume map - so "how are my sessions spaced" sat underneath a chart
+   answering a different question. One column, in the order the answers are
+   wanted, and each panel's heading drops to a section label so the page has one
+   voice rather than six. */
+
+.day-review-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; }
+.day-review-head h1 { font-family: var(--font-display, sans-serif); font-size: clamp(2rem, 7.5vw, 2.9rem); font-weight: 800; line-height: .92; text-transform: uppercase; }
+.day-review-head p { margin-top: .35rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.day-review-open { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.9rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: 0 1rem; color: var(--sg-action-on); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-review-open:hover:not(:disabled) { background: var(--sg-action-strong); }
+.day-review-open:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.day-review-open:disabled { opacity: .45; }
+
+.day-review-stack { display: grid; gap: 1rem; }
+
+/* The panels keep their own layout; what they lose here is a display heading
+   each, which on one column read as six pages stacked rather than six sections
+   of one. */
+.day-review-stack .warmup-head h3,
+.day-review-stack .weekly-volume-head h3,
+.day-review-stack .recovery-spacing-head h3 { font-size: 1.15rem; letter-spacing: var(--sg-tracking-label); }
+.day-review-stack .warmup-head > div:first-child > p:last-child,
+.day-review-stack .weekly-volume-head p:last-child,
+.day-review-stack .recovery-spacing-head p:last-child { margin-top: .3rem; font-size: var(--sg-text-xs); }

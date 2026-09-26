@@ -37,6 +37,7 @@ import { SportContextGate } from "@/components/SportContextGate";
 import type { SportContextMode } from "@shared/resilienceContext";
 import type { CapacityFocusState } from "@/components/CapacityFocusCard";
 import { DayCapacityNote } from "@/components/DayCapacityNote";
+import { RecoverySpacingPanel } from "@/components/RecoverySpacingPanel";
 import { TrainingPlanHeader } from "@/components/TrainingPlanHeader";
 import { SessionResumeBar } from "@/components/SessionResumeBar";
 import { exerciseProgressFor, trainingStateByDayLabel, useLiveSession } from "@/lib/liveSession";
@@ -1441,7 +1442,29 @@ export default function Home() {
         {/* Sport movement intelligence is about a sport action, not about the day you built,
             so it belongs with Matches and nowhere else. */}
         {workspace === "recommended" && <section className="mt-5"><MovementIntelligencePanel movement={enrichedSelectedMovement} fallback={selectedMovement} workout={customWorkout} onAdd={addExercise} onInspect={inspectExercise} /></section>}
-        {workspace === "review" && <section className="day-review-workspace"><div className="day-review-head"><div><p className="metric-label">05 / this day, checked</p><h1>Is this day<br /><em>any good?</em></h1><p>Everything that reads the day you built rather than changing it: what the stack covers and misses, what to warm up, how to prescribe it, and where the week's volume lands. Edit any of it back on Plan.</p></div></div><div className="grid gap-5 xl:grid-cols-[.9fr_1.1fr]"><div className="space-y-5"><WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /><ImportedPlanContext items={activeImportedContext} /></div><div className="space-y-5"><WarmupPanel workout={customWorkout} goal={goal} /><ProgrammingGuidePanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} /></div></div><WeeklyMuscleVolumePanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} /></section>}
+        {workspace === "review" && <section className="day-review-workspace">
+          <div className="day-review-head">
+            <div>
+              <h1>Review your week</h1>
+              <p>Week {activeWeek} · {trainingDays} planned days · {activeSlot.ordinal} open</p>
+            </div>
+            <button type="button" className="day-review-open" onClick={() => navigateWorkspace("tracker")} disabled={!customWorkout.length}>{liveSession ? "Back to workout" : "Open session"} <ArrowUpRight className="h-4 w-4" /></button>
+          </div>
+          {/* Everything here reads the plan rather than changing it, in the order
+              it is wanted: what to do before the session, where the week's volume
+              lands, how the days are spaced, then the reference material. */}
+          <div className="day-review-stack">
+            <WarmupPanel workout={customWorkout} goal={goal} />
+            <WeeklyMuscleVolumePanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} />
+            {/* Spacing is not a part of the volume map. It was rendered inside it,
+                so "how are my sessions spaced" lived underneath a chart answering
+                a different question. */}
+            <RecoverySpacingPanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} />
+            <ProgrammingGuidePanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} />
+            <WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} />
+            <ImportedPlanContext items={activeImportedContext} />
+          </div>
+        </section>}
         {workspace === "genome" && <ExerciseGenomeWorkspace exercises={filteredCatalog} selectedExercise={genomeExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} currentWorkout={customWorkout} goal={goal} query={catalogQuery} onQueryChange={setCatalogQuery} onSelectExercise={setGenomeExerciseId} onOpenBody={(muscle) => { setActiveMuscle(muscle); navigateWorkspace("body"); }} onInspect={inspectExercise} />}
         {workspace === "progress" && <ProgressOverviewPanel onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onRankProfile={(patch) => updateBaseline({ ...athleteBaseline, ...patch })} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}

@@ -1335,6 +1335,25 @@ select {
 .destination-train .weekly-volume-more > summary { color: var(--sg-link-on-dark); }
 .destination-train .weekly-volume-more > summary small { color: var(--sg-text-muted-on-dark); }
 .destination-train .weekly-volume-days span { color: var(--sg-text-muted-on-dark); }
+/* Headings and disclosure summaries these panels never had repainted.
+ * Sampled from the rendered page on Review: the recovery-spacing heading was
+ * rgb(16,41,71) and its "how this works" summary rgb(49,87,124), both on a panel
+ * of roughly rgb(13,40,72) - a contrast ratio of about 1.0, which is not low, it
+ * is invisible. The programming guide's heading was rgb(19,56,97) on the same
+ * ground. Repainting caught strong, p and small and stopped there. */
+.destination-train .recovery-spacing-head h3,
+.destination-train .weekly-volume-head h3,
+.destination-train .programming-guide-panel h3 { color: var(--sg-text-on-dark); }
+.destination-train .recovery-spacing-details summary,
+.destination-train .programming-guide-disclosure > summary { color: var(--sg-link-on-dark); }
+.destination-train .recovery-spacing-panel em,
+.destination-train .recovery-spacing-list span { color: var(--sg-text-muted-on-dark); }
+/* The clear state is a cream card with its own dark-green ink. Repainting its
+ * text for the dark panel without repainting the card put light grey on cream -
+ * the same defect moved rather than fixed - so the card is repainted, not the
+ * words on it. */
+.destination-train .recovery-spacing-clear { border-color: rgb(91 192 122 / .4); background: rgb(91 192 122 / .1); color: var(--sg-text-muted-on-dark); }
+.destination-train .recovery-spacing-clear svg { color: var(--sg-state-positive); }
 /* The row's headline number, and the per-day figures beside it.
  *
  * The panel's own colours are written for the light surface it renders on
