@@ -25,6 +25,6 @@ export default defineConfig({
   esbuild: { jsx: "automatic" },
   test: {
     environment: "node",
-    include: ["server/**/*.test.ts", "server/**/*.spec.ts", "client/**/*.test.ts", "client/**/*.spec.ts"],
+    include: ["server/**/*.test.ts", "server/**/*.spec.ts", "client/**/*.test.ts", "client/**/*.spec.ts", "scripts/higgsfield/**/*.test.ts"],
   },
 });
