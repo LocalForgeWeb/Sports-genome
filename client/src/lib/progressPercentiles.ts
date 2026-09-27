@@ -1,6 +1,7 @@
 import type { ComparableStrengthObservation, WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
 import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 import { catalogExerciseIdForName, strengthPercentileCard, strengthPercentileGapCopy, type StrengthPercentileCard } from "@/lib/strengthPercentileCard";
+import { ageAtLift } from "@/lib/normsCohort";
 
 /**
  * The Progress section's side of the beta percentile route.
@@ -22,6 +23,8 @@ export type PercentileLiftRequest = {
   measuredOneRmKg: number | null;
   loadKg: number | null;
   repetitions: number | null;
+  /** Age on the day of the lift, from the birth year whenever it was given. */
+  ageYears: number | null;
 };
 
 export type PercentileLift = {
@@ -54,7 +57,7 @@ export function liftsToPlace(
   changes: readonly WithinAthleteStrengthChange[],
   history: readonly ComparableStrengthObservation[],
   bodyMassKgById: ReadonlyMap<string, number>,
-  context: { sex: "male" | "female" | null; fallbackBodyMassKg?: number | null }
+  context: { sex: "male" | "female" | null; fallbackBodyMassKg?: number | null; birthYear?: number | null }
 ): PercentileLift[] {
   const byId = new Map(history.map((observation) => [String(observation.id), observation]));
   const lifts: PercentileLift[] = [];
@@ -84,6 +87,7 @@ export function liftsToPlace(
         measuredOneRmKg: measured ? loadKg : null,
         loadKg: measured ? null : loadKg,
         repetitions: measured ? null : repetitions,
+        ageYears: ageAtLift(context.birthYear ?? undefined, observation.observedAt) ?? null,
       },
     });
   }

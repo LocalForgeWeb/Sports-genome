@@ -43,6 +43,11 @@ export type StrengthCurve = {
   exerciseId: string;
   /** Set when the curve is borrowed from a variant, so the result can say whose curve it is. */
   aliasOfExerciseId?: string | null;
+  /**
+   * The study the anchors come from. Only the Strength Level family publishes an age table,
+   * so this decides whether an age adjustment can be made at all.
+   */
+  sourceStudyId?: string | null;
   sex: "male" | "female";
   normalizationMethod: StrengthNormMethod;
   /** The unit the anchor values are in, which decides what gets placed on them. */
@@ -74,12 +79,24 @@ export type StrengthPercentileUnavailableReason =
   | "above_highest_anchor"
   | "curve_is_not_one_rep_max";
 
+/**
+ * Whether the comparison was scaled for the athlete's age at the time of the lift.
+ *
+ * `placedValue` is what went onto the curve once scaled; `observedValue` on the result is
+ * always the lift as recorded. The lift itself is never changed - the comparison is.
+ */
+export type AgeAdjustment =
+  | { status: "applied"; version: typeof ageFactorVersion; ageYears: number; factor: number; placedValue: number }
+  | { status: "not_applied"; reason: "age_missing" | "outside_published_age_range" | "not_age_scalable_source"; ageYears: number | null };
+
 export type StrengthPercentileResult =
   | {
       status: "resolved";
       percentile: number;
-      /** What was placed on the curve: kg, or kg per kg of bodyweight for a relative curve. */
+      /** The lift as recorded, in the curve's unit: kg, lb, or kg per kg of bodyweight. */
       observedValue: number;
+      /** Age scaling, applied or not and why. The percentile already includes it. */
+      ageAdjustment: AgeAdjustment;
       estimate: OneRepMaxEstimate;
       confidence: number;
       scoringVersion: typeof strengthScoringVersion;
@@ -199,7 +216,57 @@ export function placeOnCurve(anchors: readonly CurveAnchor[], observedValue: num
 export type PercentileContext = {
   sex: "male" | "female" | null;
   bodyMassKg?: number | null;
+  /**
+   * Age on the day of the lift, not today. A birth year entered after the lift still counts:
+   * nothing is stored, so every lift is re-read at the age it was lifted at.
+   */
+  ageYears?: number | null;
 };
+
+/* -------------------------------------------------------------------------------------------
+ * Age: the published Strength Level age table
+ * ---------------------------------------------------------------------------------------- */
+
+/** The Strength Level study every beta curve is drawn from; the only source with an age table. */
+export const STRENGTH_LEVEL_SOURCE_STUDY_ID = "485b3c5e-cbe7-4755-b0bd-adb224877193";
+
+export const ageFactorVersion = "strengthlevel_age_factor_v1" as const;
+
+/**
+ * Transcribed from the database's `strengthlevel_age_factor_v1`, anchors and interpolation
+ * alike, the way the rest of this engine is transcribed from `strength_beta_v1`: the muscle
+ * ranks call that function directly, and the two routes must give one lift one number.
+ *
+ * A factor below 1 means that age is expected to lift less than the 25-40 baseline, so the
+ * lift is compared as though it were lift / factor.
+ */
+const AGE_ANCHORS = [15, 20, 25, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90] as const;
+const AGE_FACTORS = [0.854, 0.976, 1.0, 1.0, 0.949, 0.887, 0.816, 0.745, 0.675, 0.608, 0.547, 0.491, 0.439, 0.392] as const;
+
+export type AgeFactor =
+  | { status: "ok"; factor: number; confidence: number }
+  | { status: "age_missing" }
+  | { status: "outside_published_age_range" };
+
+/**
+ * The published table runs 15 to 90 and nothing is invented past either end: a 14-year-old
+ * gets no adjustment rather than an extrapolated one, exactly as the database refuses it.
+ */
+export function strengthLevelAgeFactor(ageYears: unknown): AgeFactor {
+  const age = numberOrNull(ageYears);
+  if (age === null) return { status: "age_missing" };
+  if (age < AGE_ANCHORS[0] || age > AGE_ANCHORS[AGE_ANCHORS.length - 1]) return { status: "outside_published_age_range" };
+  if (age >= 25 && age <= 40) return { status: "ok", factor: 1, confidence: 0.96 };
+  for (let index = 0; index < AGE_ANCHORS.length - 1; index += 1) {
+    const lowAge = AGE_ANCHORS[index];
+    const highAge = AGE_ANCHORS[index + 1];
+    if (age < lowAge || age > highAge) continue;
+    const share = (age - lowAge) / (highAge - lowAge);
+    const factor = AGE_FACTORS[index] + share * (AGE_FACTORS[index + 1] - AGE_FACTORS[index]);
+    return { status: "ok", factor: Number(factor.toFixed(4)), confidence: 0.93 };
+  }
+  return { status: "outside_published_age_range" };
+}
 
 /**
  * How a one-rep max in kilograms has to be expressed to sit on this curve.
@@ -250,23 +317,45 @@ export function resolveStrengthPercentile(
     return { status: "unavailable", reason: "body_mass_required" };
   }
 
-  const observedValue = placement === "relative" && bodyMassKg
-    ? Number((estimate.valueKg / bodyMassKg).toFixed(4))
+  const inCurveUnit = (kilograms: number) => placement === "relative" && bodyMassKg
+    ? Number((kilograms / bodyMassKg).toFixed(4))
     : placement === "pounds"
-      ? Number((estimate.valueKg / kilogramsPerPound).toFixed(2))
-      : estimate.valueKg;
+      ? Number((kilograms / kilogramsPerPound).toFixed(2))
+      : kilograms;
+  const observedValue = inCurveUnit(estimate.valueKg);
 
-  const placed = placeOnCurve(curve.anchors, observedValue);
+  // Age scales the comparison, never the lift: a 16-year-old's bench is placed as the
+  // 25-40 equivalent the published table gives it, and the recorded lift stays as it was.
+  const ageYears = numberOrNull(context.ageYears);
+  const ageFactor = strengthLevelAgeFactor(ageYears);
+  const ageScalable = curve.sourceStudyId === STRENGTH_LEVEL_SOURCE_STUDY_ID;
+  const placedValue = ageScalable && ageFactor.status === "ok" ? inCurveUnit(estimate.valueKg / ageFactor.factor) : observedValue;
+  const ageAdjustment: AgeAdjustment = ageFactor.status === "age_missing"
+    ? { status: "not_applied", reason: "age_missing", ageYears: null }
+    : !ageScalable
+      ? { status: "not_applied", reason: "not_age_scalable_source", ageYears }
+      : ageFactor.status === "ok"
+        ? { status: "applied", version: ageFactorVersion, ageYears: ageYears!, factor: ageFactor.factor, placedValue }
+        : { status: "not_applied", reason: "outside_published_age_range", ageYears };
+
+  const placed = placeOnCurve(curve.anchors, placedValue);
   if ("reason" in placed) return { status: "unavailable", reason: placed.reason, censoredAt: placed.censoredAt };
 
-  // Confidence is the estimate's own, held under the source's ceiling. It never changes the
-  // percentile: how sure we are and how strong the lift is are separate answers.
-  const capped = curve.confidenceCap === null ? estimate.confidence : Math.min(estimate.confidence, curve.confidenceCap);
+  // Confidence is the estimate's own, held under the source's ceiling and, when age scaled the
+  // comparison, under the age table's own confidence too - the same three the database takes
+  // the least of. It never changes the percentile: how sure we are and how strong the lift is
+  // are separate answers.
+  const capped = Math.min(
+    estimate.confidence,
+    curve.confidenceCap ?? 1,
+    ageAdjustment.status === "applied" && ageFactor.status === "ok" ? ageFactor.confidence : 1,
+  );
 
   return {
     status: "resolved",
     percentile: placed.percentile,
     observedValue,
+    ageAdjustment,
     estimate,
     confidence: Number(capped.toFixed(4)),
     scoringVersion: strengthScoringVersion,

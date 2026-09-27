@@ -91,6 +91,8 @@ const strengthPercentileLiftInput = z.object({
   loadKg: z.number().positive().max(1000).nullable().optional(),
   repetitions: z.number().int().min(1).max(100).nullable().optional(),
   repsInReserve: z.number().int().min(0).max(10).nullable().optional(),
+  /** Age on the day of the lift. The engine applies the published age table from 15 to 90. */
+  ageYears: z.number().min(0).max(120).nullable().optional(),
 });
 
 export const appRouter = router({
@@ -470,6 +472,8 @@ export const appRouter = router({
           loadKg: z.number().positive().max(1000),
           repetitions: z.number().int().min(1).max(100),
           bodyMassKg: z.number().positive().max(500).nullable(),
+          /** Age on the day of this lift, so a birth year given later re-reads every earlier lift. */
+          ageYears: z.number().min(0).max(120).nullable().optional(),
         // Each distinct saved weight is one database call, and this route is public: 30 bounds a
         // request to 31 calls. The client sends at most 30, newest first, duplicates removed.
         })).max(30),
