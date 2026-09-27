@@ -105,6 +105,8 @@
 /* The one line of explanation the Appearance card needs: what the choice does,
    and - when it follows the device - what the device is currently asking for. */
 .about-me-theme-note { margin-top: .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: 1.5; }
+/* Under a typed field, only once its value is plainly wrong or it was left short. */
+.about-me-field-hint { display: block; margin-top: .1rem; color: inherit; font-size: var(--sg-text-xs); font-weight: 600; letter-spacing: 0; text-transform: none; line-height: 1.5; }
 
 /* Whether a sport applies at all — three answers, not a dropdown with a trapdoor.
  *
