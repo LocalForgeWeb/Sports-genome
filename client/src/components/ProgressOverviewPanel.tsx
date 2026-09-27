@@ -38,9 +38,11 @@ type ProgressOverviewPanelProps = {
   /** The profile weight, in the athlete's unit, read against a lift that carries no weight of its own. */
   baselineBodyWeight?: number;
   weightUnit?: DisplayWeightUnit;
+  /** From About Me. Each lift is placed at the age it was lifted at, whenever the year was given. */
+  birthYear?: number;
 };
 
-export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForReference, baselineBodyWeight, weightUnit = "lb" }: ProgressOverviewPanelProps) {
+export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForReference, baselineBodyWeight, weightUnit = "lb", birthYear }: ProgressOverviewPanelProps) {
   const sessions = trpc.workoutLog.list.useQuery();
   const observations = trpc.strengthGenome.observations.useQuery();
   const trackedSets = trpc.workoutLog.progressionHistory.useQuery();
@@ -124,8 +126,8 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
     [loggedObservations],
   );
   const liftsForPercentile = useMemo(
-    () => liftsToPlace(comparableStrengthChanges.slice(0, 4), unifiedHistory, bodyMassKgById, { sex: percentileSex, fallbackBodyMassKg }),
-    [comparableStrengthChanges, unifiedHistory, bodyMassKgById, percentileSex, fallbackBodyMassKg],
+    () => liftsToPlace(comparableStrengthChanges.slice(0, 4), unifiedHistory, bodyMassKgById, { sex: percentileSex, fallbackBodyMassKg, birthYear }),
+    [comparableStrengthChanges, unifiedHistory, bodyMassKgById, percentileSex, fallbackBodyMassKg, birthYear],
   );
   const percentiles = trpc.strengthPercentile.forLifts.useQuery(
     { lifts: liftsForPercentile.map((lift) => lift.request) },

@@ -17,6 +17,13 @@ import {
  * exercises from every group are aggregated once. The scoring and the aggregation are both the
  * database's; only the body weight is threaded per lift.
  *
+ * Age is threaded the same way. `score_strength_profile_v1` takes no age, so lifts are grouped by
+ * saved weight and age at the lift, and each scored exercise in a group with an age goes
+ * through `apply_strengthlevel_age_adjustment_v1` before aggregation - the database's own age
+ * table, the one its age-aware scorers use, applied to the comparison and never to the lift.
+ * Age is the athlete's age on the day of that lift, so a birth year given later re-reads every
+ * earlier lift at the age it was lifted at.
+ *
  * `score_strength_profile_v2` is deliberately not used. It feeds heuristic
  * `strength_genome_score` values into the same aggregation as though they were percentiles,
  * and the aggregation's per-muscle evidence carries no evidence type - so a muscle drawn from
@@ -31,6 +38,8 @@ export type MuscleProfileLift = {
   repetitions: number;
   /** The body weight saved with this lift, not today's. */
   bodyMassKg: number | null;
+  /** Age on the day of this lift; absent when no birth year has been given. */
+  ageYears?: number | null;
 };
 
 export type MuscleProfileRequest = { sex: "male" | "female" | null; lifts: readonly MuscleProfileLift[] };
@@ -58,7 +67,18 @@ export type MuscleProfileResult =
       unranked: ProfileFailure[];
       /** Muscles the aggregation returned that failed validation and were not drawn. */
       rejectedMuscles: number;
+      /** How many scored lifts had their comparison scaled for age, and why the rest did not. */
+      ageAdjustment: AgeAdjustmentSummary;
     };
+
+export type AgeAdjustmentSummary = {
+  /** Scaled by the published table. */
+  applied: number;
+  /** Lifted at an age the table does not cover (under 15 or over 90), so compared unscaled. */
+  outsideTable: number;
+  /** No birth year to work from. */
+  noAge: number;
+};
 
 type ExerciseRow = { id: string; name: string; canonical_name: string };
 
@@ -162,6 +182,8 @@ export function createSupabaseStrengthProfileClient({ url, serviceRoleKey, fetch
     scoreProfile: (bodyweightKg: number, sex: "male" | "female", observations: unknown[]) =>
       rpc("score_strength_profile_v1", { p_bodyweight_kg: bodyweightKg, p_sex: sex, p_observations: observations }),
     aggregate: (compact: unknown[]) => rpc("aggregate_muscle_strength_v1", { p_exercise_scores: compact }),
+    adjustForAge: (exerciseId: string, bodyweightKg: number, sex: "male" | "female", ageYears: number, score: unknown) =>
+      rpc("apply_strengthlevel_age_adjustment_v1", { p_exercise_id: exerciseId, p_bodyweight_kg: bodyweightKg, p_sex: sex, p_age_years: ageYears, p_score: score }),
   };
 }
 
@@ -174,14 +196,20 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
   const sex = request.sex;
 
   const failures: ProfileFailure[] = [];
-  // Grouped to the tenth of a kilogram, which is finer than any scale an athlete reads.
-  const groups = new Map<number, { exercise_id: string; load: number; unit: "kg"; reps: number; exercise_name: string }[]>();
+  // Grouped by weight to the tenth of a kilogram, which is finer than any scale an athlete
+  // reads, and by age at the lift, since one group is scored and adjusted as one.
+  type Observation = { exercise_id: string; load: number; unit: "kg"; reps: number; exercise_name: string };
+  const groups = new Map<string, { bodyweightKg: number; ageYears: number | null; observations: Observation[] }>();
   for (const lift of request.lifts) {
     const exercise = findProfileExercise(index, lift);
     if (!exercise) { failures.push({ exerciseName: lift.exerciseName, reason: "exercise_not_recognised" }); continue; }
     if (!lift.bodyMassKg || lift.bodyMassKg <= 0) { failures.push({ exerciseName: lift.exerciseName, reason: "body_mass_required" }); continue; }
-    const key = Math.round(lift.bodyMassKg * 10) / 10;
-    groups.set(key, [...(groups.get(key) ?? []), { exercise_id: exercise.id, load: lift.loadKg, unit: "kg", reps: lift.repetitions, exercise_name: exercise.name }]);
+    const bodyweightKg = Math.round(lift.bodyMassKg * 10) / 10;
+    const ageYears = isFiniteIn(lift.ageYears, 0, 120) ? Math.round(lift.ageYears * 10) / 10 : null;
+    const key = `${bodyweightKg}|${ageYears ?? "-"}`;
+    const group = groups.get(key) ?? { bodyweightKg, ageYears, observations: [] };
+    group.observations.push({ exercise_id: exercise.id, load: lift.loadKg, unit: "kg", reps: lift.repetitions, exercise_name: exercise.name });
+    groups.set(key, group);
   }
 
   let scored = 0;
@@ -189,11 +217,20 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
   let failed = failures.length;
   const compact: { exercise_id: string; percentile: number; confidence: number }[] = [];
   const referenceByExerciseId = new Map<string, ReferenceGroup>();
+  const ageAdjustment: AgeAdjustmentSummary = { applied: 0, outsideTable: 0, noAge: 0 };
 
-  const responses = await Promise.all(Array.from(groups.entries()).map(([bodyweightKg, observations]) =>
-    client.scoreProfile(bodyweightKg, sex, observations).then((profile) => ({ profile, observations }))));
+  const responses = await Promise.all(Array.from(groups.values()).map(async ({ bodyweightKg, ageYears, observations }) => {
+    const profile = await client.scoreProfile(bodyweightKg, sex, observations) as Record<string, unknown> | null;
+    const raw = Array.isArray(profile?.exercise_scores) ? profile!.exercise_scores as Record<string, any>[] : [];
+    const exerciseScores = ageYears === null ? raw : await Promise.all(raw.map(async (score) => {
+      const exerciseId = typeof score?.exercise_id === "string" ? score.exercise_id : score?.input_observation?.exercise_id;
+      if (typeof exerciseId !== "string") return score;
+      return (await client.adjustForAge(exerciseId, bodyweightKg, sex, ageYears, score) ?? score) as Record<string, any>;
+    }));
+    return { profile: profile ? { ...profile, exercise_scores: exerciseScores } : profile, observations, ageYears };
+  }));
 
-  for (const { profile, observations } of responses) {
+  for (const { profile, observations, ageYears } of responses) {
     const body = (profile ?? {}) as Record<string, unknown>;
     if (body.status === "invalid_input") {
       observations.forEach((observation) => failures.push({ exerciseName: observation.exercise_name, reason: "invalid_input" }));
@@ -206,6 +243,9 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
       const exerciseId = typeof score?.exercise_id === "string" ? score.exercise_id : score?.input_observation?.exercise_id;
       if (typeof exerciseId !== "string" || !isFiniteIn(percentile, 0, 100)) continue;
       compact.push({ exercise_id: exerciseId, percentile, confidence: numberOf(score?.overall_confidence) ?? 0.5 });
+      if (ageYears === null) ageAdjustment.noAge += 1;
+      else if (score?.age_adjustment?.applied === true) ageAdjustment.applied += 1;
+      else if (score?.age_adjustment?.status === "outside_published_age_range") ageAdjustment.outsideTable += 1;
       const label = score?.percentile?.norm_source?.population_label;
       if (typeof label === "string" && label.trim()) referenceByExerciseId.set(exerciseId, { label: label.trim(), sex });
       scored += 1;
@@ -234,6 +274,7 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
     counts: { scored, estimatedOnly, failed },
     unranked: failures,
     rejectedMuscles: rawMuscles.length - muscles.length,
+    ageAdjustment,
   };
 }
 

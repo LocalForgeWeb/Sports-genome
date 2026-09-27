@@ -35,6 +35,7 @@ type CurveRow = {
   confidence_cap?: unknown;
   percentile?: unknown;
   value?: unknown;
+  source_study_id?: unknown;
 };
 
 /** One line of the exercise index: enough to go from a logged lift to a curve. */
@@ -57,7 +58,7 @@ const normMethods: StrengthNormMethod[] = [
 
 const curveUnits: StrengthCurveUnit[] = ["x_bodyweight", "kg", "lb", "lb_1rm", "reps"];
 
-const CURVE_SELECT = "exercise_id,sex,normalization_method,unit,source_role,confidence_cap,percentile,value";
+const CURVE_SELECT = "exercise_id,sex,normalization_method,unit,source_role,confidence_cap,percentile,value,source_study_id";
 
 function numberOrNull(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -86,6 +87,7 @@ export function assembleCurve(rows: readonly CurveRow[], exerciseId: string, sex
       percentile: numberOrNull(row.percentile),
       value: numberOrNull(row.value),
       sex: textOrNull(row.sex),
+      source: textOrNull(row.source_study_id),
     }))
     .filter(row =>
       row.method !== null &&
@@ -129,8 +131,13 @@ export function assembleCurve(rows: readonly CurveRow[], exerciseId: string, sex
   const chosen = ladders.sort((first, second) => rank(first) - rank(second) || second.length - first.length)[0];
 
   const caps = chosen.map(row => row.cap).filter((cap): cap is number => cap !== null);
+  // One source for the whole ladder, or none: an age table applies to the study it came from,
+  // and a ladder that mixed sources could not say which study's table to use.
+  const sources = new Set(chosen.map(row => row.source));
+  const sourceStudyId = sources.size === 1 ? chosen[0].source : null;
   return {
     exerciseId,
+    sourceStudyId,
     sex,
     normalizationMethod: chosen[0].method as StrengthNormMethod,
     unit: chosen[0].unit as StrengthCurveUnit,
@@ -286,6 +293,8 @@ export type StrengthPercentileRequest = {
   exerciseName?: string | null;
   sex: "male" | "female" | null;
   bodyMassKg?: number | null;
+  /** Age on the day of the lift, from the birth year the athlete has given, whenever given. */
+  ageYears?: number | null;
 } & OneRepMaxInput;
 
 /**
@@ -300,7 +309,7 @@ export async function getStrengthPercentile(request: StrengthPercentileRequest):
     || (await getCurveExerciseIndex().then(index => findCurveExercise(index, request)?.exerciseId));
   if (!exerciseId) return { status: "unavailable", reason: "no_curve_for_exercise" };
   const curve = await getStrengthCurve(exerciseId, request.sex);
-  return resolveStrengthPercentile(curve, request, { sex: request.sex, bodyMassKg: request.bodyMassKg ?? null });
+  return resolveStrengthPercentile(curve, request, { sex: request.sex, bodyMassKg: request.bodyMassKg ?? null, ageYears: request.ageYears ?? null });
 }
 
 /**
