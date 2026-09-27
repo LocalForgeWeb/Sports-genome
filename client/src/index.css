@@ -45,8 +45,8 @@
      how the day nav ended up stuck underneath the chrome in the first place. */
   --sg-pinned-chrome: 136px;
   --sg-text-muted-on-dark: #c3d7ea;
-  --sg-text-subtle-on-dark: #9eb3cb;
-  --sg-text-faint-on-dark: #829ab3;
+  --sg-text-subtle-on-dark: #acc0d6;
+  --sg-text-faint-on-dark: #aabed4;
 
   /* -- Light surfaces ----------------------------------------------------- */
   --sg-surface-light: #ffffff;
@@ -77,12 +77,12 @@
   --sg-info-strong: #2861cc;  /* 5.16:1 on the sunken surface; #2d6cdf was 4.39 */
   /* Inline links on a dark ground. --sg-info reads 3.77:1 on the lightest dark
      surface (--sg-surface-overlay), which small link text cannot use. */
-  --sg-link-on-dark: #7fb4f6;
+  --sg-link-on-dark: #96c4fa;
 
   /* -- State semantics. Every one of these pairs with a non-colour cue
         (label, icon, or position) in the markup, per the FIXED rule that
         consequential state meaning always has non-colour redundancy. ------ */
-  --sg-state-positive: #5bc07a;
+  --sg-state-positive: #80d698;
   --sg-state-caution: #f2c14d;
   --sg-state-critical: #e2564a;
   --sg-state-neutral: #9eb3cb;
@@ -1185,7 +1185,7 @@ select {
 .destination-body .atlas-sport-picker, .destination-body .movement-selector, .destination-body .body-lab-v2 > .view-header, .destination-body .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, var(--sg-surface-overlay), var(--sg-surface-panel)); color: var(--sg-text-on-dark); box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
 .destination-body .atlas-sport-picker *, .destination-body .movement-selector h1, .destination-body .body-lab-v2 > .view-header h1 { color: inherit; }
 
-.apex-content.destination-progress { background: radial-gradient(circle at 88% 0, #315b8f 0, var(--sg-surface-panel) 36%, var(--sg-surface-deep) 100%); color: var(--sg-text-on-dark); }
+.apex-content.destination-progress { background: radial-gradient(circle at 88% 0, #1d4c84 0, var(--sg-surface-panel) 36%, var(--sg-surface-deep) 100%); color: var(--sg-text-on-dark); }
 .destination-progress .view-header h1, .destination-progress .view-header p, .destination-progress .metric-label { color: var(--sg-text-on-dark); }
 
 .destination-progress .light-panel { border-color: rgb(164 200 232 / .28); background: linear-gradient(135deg, var(--sg-surface-panel), var(--sg-surface-raised)); color: var(--sg-text-on-dark); box-shadow: 0 14px 30px rgb(0 11 25 / .22); }
@@ -2163,7 +2163,7 @@ details:not([open]) > *:not(summary) {
 .strength-log-remove:hover:not(:disabled) { border-color: #c0392b; background: rgb(226 86 74 / .1); }
 .strength-log-remove:disabled { opacity: .5; }
 .strength-log-remove:focus-visible { outline: 2px solid var(--sg-focus-ring); outline-offset: 1px; }
-.strength-log-remove-error { margin-top: .75rem; border-left: 2px solid #c0392b; padding-left: .55rem; color: #c0392b; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+.strength-log-remove-error, .strength-log-save-error { margin-top: .75rem; border-left: 2px solid #c0392b; padding-left: .55rem; color: #c0392b; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
 @media (max-width: 640px) { .strength-log-remove { min-width: 44px; min-height: 44px; } }
 
 /* ── UI audit: page titles that rendered near-black on the dark shell ──────────
@@ -3755,7 +3755,7 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .strength-genome-workspace .strength-observation-review:hover { background: rgb(255 255 255 / .06); }
 .strength-genome-workspace .strength-log-remove { border-color: rgb(255 138 102 / .5); color: #ff8a66; }
 .strength-genome-workspace .strength-log-empty { margin-top: .25rem; border: 0; border-radius: 0; background: none; padding: .25rem 0 .5rem; }
-.strength-genome-workspace .strength-log-remove-error { color: #ff8a66; border-color: #ff8a66; }
+.strength-genome-workspace :is(.strength-log-remove-error, .strength-log-save-error) { color: #ff8a66; border-color: #ff8a66; }
 .strength-how-ranks { display: grid; gap: .75rem; padding-bottom: 1rem; }
 .strength-how-ranks p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .strength-genome-workspace .strength-profile-reference-details p.strength-profile-reference-offline { margin: 0; }
@@ -3933,3 +3933,58 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .local-search-scope > button { min-height: 44px; display: inline-flex; align-items: center; }
 .recommendation-score { min-width: 44px; }
 .atlas-family-row button { min-width: 44px; min-height: 44px; }
+
+/* Text scale and the desktop column — per the UX correction brief §13.
+   The context line wraps instead of cutting each word to "Wres…"; at an
+   extreme text size (its container narrower than nine of its own ems) it
+   steps aside, since Profile carries the same facts with a full label. On a
+   wide screen the brand row, the tab row and the content share one column
+   instead of stretching a phone list across the whole window. */
+.topbar-brand { container-type: inline-size; }
+.apex-topbar .topbar-context-chips { flex-wrap: wrap; row-gap: 0; }
+.apex-topbar .topbar-context-chips span { overflow: visible; text-overflow: clip; }
+@container (max-width: 9em) { .apex-topbar .topbar-context-chips { display: none; } }
+.mobile-bottom-nav button span { overflow-wrap: anywhere; }
+@media (min-width: 1024px) {
+  .apex-topbar, .workspace-top-switcher-shell, .apex-content { padding-inline: max(1.75rem, calc((100vw - 68rem) / 2)); }
+}
+/* At 200% text a single long word in a large heading ("MORNING", "TRANSFER")
+   would otherwise widen its grid track past the screen; it breaks instead. */
+.apex-content :is(h1, h2, h3, .metric-label, .stat-figure, .home-week-line) { overflow-wrap: anywhere; }
+.matches-head > div { min-width: 0; }
+
+.catalog-discovery-tabs { flex-wrap: wrap; }
+.programming-guide-disclosure > summary, .programming-guide-summary-signal { flex-wrap: wrap; }
+/* The rest of the 200% reflow: rows that must wrap, and fields that must not
+   dictate their column's width. */
+.home-section-head { flex-wrap: wrap; }
+.home-priority-row, .home-priority-row > * { min-width: 0; }
+.rate-stack-panel :is(summary, button) { flex-wrap: wrap; }
+.rate-stack-panel :is(summary, button) > * { min-width: 0; }
+.rate-stack-panel :is(small, i) { white-space: normal; }
+.atlas-tools > *, .atlas-search, .atlas-family-row { min-width: 0; }
+.atlas-search input { min-width: 0; width: 100%; flex: 1 1 0; }
+.home-focus > *, .day-exercise-picker > *, .day-exercise-picker :is(summary, button) > * { min-width: 0; }
+.home-priority-row :is(span, small, strong), .day-exercise-picker small { white-space: normal; }
+.atlas-family-row { flex-wrap: wrap; }
+.atlas-tools > label { min-width: 0; }
+.atlas-tools select { min-width: 0; width: 100%; max-width: 100%; }
+/* Chrome that scrolls away — per the UX correction brief NAV-12. On a phone the
+   brand row is not pinned: it scrolls with the page and only the tab row stays
+   at the top, so 48px of chrome sits over the content instead of 120px. On a
+   wide screen there is room to keep both. */
+@media (max-width: 1023px) {
+  .apex-topbar { position: static; }
+  .workspace-top-switcher-shell { top: 0; }
+}
+.programming-guide-disclosure > summary > *, .programming-guide-summary-signal, .programming-guide-summary-signal > * { min-width: 0; }
+.programming-guide-summary-signal { flex: 0 1 auto; }
+.programming-guide-panel strong { overflow-wrap: anywhere; }
+.weekly-volume-head { flex-wrap: wrap; }
+.weekly-volume-head > *, .workout-health-disclosure > summary > div { min-width: 0; }
+.weekly-volume-head :is(strong, small) { overflow-wrap: anywhere; }
+.workout-health-disclosure > summary > div { flex-wrap: wrap; }
+.health-signal { white-space: normal; }
+.day-plan-list { grid-template-columns: minmax(0, 1fr); }
+.day-plan-list > * { min-width: 0; }
+.rate-stack-eyebrow { white-space: normal; }

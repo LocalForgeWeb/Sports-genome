@@ -1,0 +1,793 @@
+[
+ {
+  "id": "J-A1",
+  "pass": true,
+  "detail": {
+   "label": "Home",
+   "title": "Home · Sports Genome",
+   "live": false,
+   "strip": false
+  }
+ },
+ {
+  "id": "J-A2",
+  "pass": true,
+  "detail": {
+   "heading": "Sport Transfer",
+   "cta": "Review workout",
+   "ctaBottom": 408
+  }
+ },
+ {
+  "id": "J-A3",
+  "pass": true,
+  "detail": {
+   "door": "Find exercises | Search by exercise, muscle or equipment",
+   "landed": {
+    "search": "?workspace=catalog",
+    "h1": "Exercise catalog",
+    "title": "Exercise catalog · Sports Genome",
+    "scrollY": 0,
+    "tab": "Exercises"
+   }
+  }
+ },
+ {
+  "id": "J-A4",
+  "pass": true,
+  "detail": {
+   "door": "Explore muscles & movements | See how sport actions involve your muscles",
+   "landed": {
+    "search": "?workspace=movement",
+    "h1": "Movement explorer",
+    "title": "Movement explorer · Sports Genome",
+    "scrollY": 0,
+    "tab": "Movements"
+   }
+  }
+ },
+ {
+  "id": "J-A5",
+  "pass": true,
+  "detail": {
+   "door": "View strength progress | Inspect your recorded lifts and muscle ranks",
+   "landed": {
+    "search": "?workspace=strength",
+    "h1": "Strength Genome",
+    "title": "Strength Genome · Sports Genome",
+    "scrollY": 0,
+    "tab": "Strength"
+   }
+  }
+ },
+ {
+  "id": "J-A6",
+  "pass": true,
+  "detail": [
+   "Exercise catalog · title \"Exercise catalog · Sports Genome\" · tab Exercises",
+   "Movement explorer · title \"Movement explorer · Sports Genome\" · tab Movements",
+   "Strength Genome · title \"Strength Genome · Sports Genome\" · tab Strength"
+  ]
+ },
+ {
+  "id": "J-A errors",
+  "pass": true,
+  "detail": "none"
+ },
+ {
+  "id": "J-B1",
+  "pass": true,
+  "detail": {
+   "day": "Week 1 · Day 05 · Sport Transfer",
+   "exercise": "Cable Rotational Row",
+   "set": "Set 2 of 4",
+   "strip": false
+  }
+ },
+ {
+  "id": "J-B2",
+  "pass": true,
+  "detail": {
+   "chose": "Push —",
+   "editing": "Editing Week 1 · Day 01 · Push | Sport Transfer workout in progress · Resume"
+  }
+ },
+ {
+  "id": "J-B3",
+  "pass": true,
+  "detail": {
+   "editingDay": "Editing Week 1 · Day 01 · Push",
+   "liveDay": "Week 1 · Day 05 · Sport Transfer"
+  }
+ },
+ {
+  "id": "J-B4",
+  "pass": true,
+  "detail": {
+   "name": "Cable Standing Punch",
+   "before": "4 × 3–5 · RPE 7 · 90 sec",
+   "after": "5 × 3–5 · RPE 7 · 90 sec",
+   "persisted": "5 × 3–5 · RPE 7 · 90 sec"
+  }
+ },
+ {
+  "id": "J-B5",
+  "pass": true,
+  "detail": {
+   "search": "?workspace=tracker",
+   "day": "Week 1 · Day 05 · Sport Transfer",
+   "exercise": "Cable Rotational Row",
+   "set": "Set 2 of 4",
+   "strip": false,
+   "resumeControls": 0
+  }
+ },
+ {
+  "id": "J-B6",
+  "pass": true,
+  "detail": {
+   "strip": false,
+   "resumeControls": 0
+  }
+ },
+ {
+  "id": "J-B7",
+  "pass": true,
+  "detail": {
+   "label": "Continue your workout",
+   "heading": "Sport Transfer",
+   "cta": "Resume Sport Transfer workout",
+   "strip": false,
+   "visibleResumeControls": 1
+  }
+ },
+ {
+  "id": "J-B errors",
+  "pass": true,
+  "detail": "none"
+ },
+ {
+  "id": "J-C1",
+  "pass": true,
+  "detail": {
+   "day1": "Pull —",
+   "strip": {
+    "summary": "Adding to Week 1 · Pull Change",
+    "visible": true,
+    "plus": "Add Barbell Bench Press to Week 1 · Pull"
+   }
+  }
+ },
+ {
+  "id": "J-C2",
+  "pass": true,
+  "detail": "Add Barbell Bench Press to Week 1 · Pull"
+ },
+ {
+  "id": "J-C3",
+  "pass": true,
+  "detail": {
+   "overlayName": "JM Press",
+   "disclosureOpen": true,
+   "scrollBefore": 420,
+   "listBefore": {
+    "count": 36,
+    "chips": []
+   },
+   "afterClose": {
+    "overlay": false,
+    "query": "press",
+    "count": 36,
+    "chips": [],
+    "scrollY": 420,
+    "search": "?workspace=catalog"
+   }
+  }
+ },
+ {
+  "id": "J-C4",
+  "pass": true,
+  "detail": {
+   "plusLabel": "Add Barbell Overhead Press to Week 1 · Pull",
+   "toast": {
+    "text": "Added to Week 1 · Pull | Barbell Overhead Press is in that day now. | Undo | View workout",
+    "buttons": [
+     "Undo",
+     "View workout"
+    ]
+   }
+  }
+ },
+ {
+  "id": "J-C5",
+  "pass": true,
+  "detail": {
+   "added": "Barbell Overhead Press",
+   "rows1": 0,
+   "view": {
+    "search": "?workspace=day-plan",
+    "active": "Pull 1",
+    "rows": 1,
+    "names": 1,
+    "days": [
+     "Push —",
+     "Pull 1",
+     "Legs —",
+     "Upper —",
+     "Sport Transfer 6"
+    ]
+   }
+  }
+ },
+ {
+  "id": "J-C6",
+  "pass": true,
+  "detail": {
+   "options": [
+    "DAY 01 · PUSH Empty",
+    "DAY 02 · PULL 1 planned",
+    "DAY 03 · LEGS Empty",
+    "DAY 04 · UPPER Empty",
+    "DAY 05 · SPORT TRANSFER 6 planned"
+   ],
+   "strip2": "Adding to Week 1 · Legs | Change",
+   "plus2": "Add Barbell Overhead Press to Week 1 · Legs",
+   "toast2": [
+    "Added to Week 1 · Legs"
+   ],
+   "before": [
+    "Push —",
+    "Pull 1",
+    "Legs —",
+    "Upper —",
+    "Sport Transfer 6"
+   ],
+   "after": [
+    "Push —",
+    "Pull 1",
+    "Legs 1",
+    "Upper —",
+    "Sport Transfer 6"
+   ],
+   "active": "Legs 1"
+  }
+ },
+ {
+  "id": "J-C7",
+  "pass": true,
+  "detail": {
+   "name7": "Z-Press",
+   "toasts7": [
+    "Added to Week 1 · Legs",
+    "Added to Week 1 · Legs"
+   ],
+   "occurrences": 1
+  }
+ },
+ {
+  "id": "J-C8",
+  "pass": true,
+  "detail": {
+   "before": {
+    "label": "Save Barbell Overhead Press to favorites",
+    "pressed": "false",
+    "toasts": [
+     "Added to Week 1 · Legs"
+    ],
+    "rows": 36
+   },
+   "after": {
+    "label": "Remove Barbell Overhead Press from favorites",
+    "pressed": "true",
+    "overlay": false,
+    "toasts": [
+     "Saved to favorites",
+     "Added to Week 1 · Legs"
+    ],
+    "favoritesFilter": "Favorites 1",
+    "rows": 36
+   },
+   "newToasts": [
+    "Saved to favorites"
+   ]
+  }
+ },
+ {
+  "id": "J-C errors",
+  "pass": true,
+  "detail": "none"
+ },
+ {
+  "id": "J-D1",
+  "pass": true,
+  "detail": {
+   "samples": [
+    {
+     "t": 0,
+     "v": null
+    },
+    {
+     "t": 584,
+     "v": "5 lifts logged · 1 workout recordedall time"
+    }
+   ]
+  }
+ },
+ {
+  "id": "J-D2",
+  "pass": true,
+  "detail": {
+   "homeLine": "5 lifts logged · 1 workout recordedall time",
+   "progress": {
+    "label": "1 workouts recorded, 5 lifts logged",
+    "facts": [
+     "1 Workouts recorded Latest: Push · 1 on this device",
+     "5 Lifts logged Latest: Barbell Bench Press"
+    ]
+   },
+   "strength": "9 / 18 regions covered | · | 5 lifts recorded"
+  }
+ },
+ {
+  "id": "J-D3",
+  "pass": true,
+  "detail": {
+   "strength": false,
+   "home": false
+  }
+ },
+ {
+  "id": "J-D4",
+  "pass": true,
+  "detail": {
+   "strength2": "10 / 18 regions covered | · | 6 lifts recorded",
+   "progress2": "1 workouts recorded, 6 lifts logged",
+   "home2": "6 lifts logged · 1 workout recordedall time",
+   "history": [
+    "Conventional Deadlift",
+    "Barbell Bench Press",
+    "Barbell Bench Press",
+    "Overhead Press",
+    "Back Squat",
+    "Lat Pulldown"
+   ]
+  }
+ },
+ {
+  "id": "J-D5",
+  "pass": true,
+  "detail": {
+   "home3": "6 lifts logged · 1 workout recordedall time",
+   "strength3": "10 / 18 regions covered | · | 6 lifts recorded"
+  }
+ },
+ {
+  "id": "J-D6",
+  "pass": true,
+  "detail": {
+   "fixtureSamples": [
+    "5 lifts logged · 1 workout recordedall time"
+   ],
+   "zeroSamples": [
+    "0 lifts logged · 0 workouts recordedall time"
+   ],
+   "zeroFirstLift": false
+  }
+ },
+ {
+  "id": "J-D errors",
+  "pass": true,
+  "detail": "none"
+ },
+ {
+  "id": "J-E1",
+  "pass": true,
+  "detail": {
+   "selected": [
+    "BILATERAL TAKEDOWN",
+    "DOUBLE-LEG SHOT"
+   ]
+  }
+ },
+ {
+  "id": "J-E2",
+  "pass": true,
+  "detail": {
+   "actionLabel": "DOUBLE-LEG SHOT",
+   "muscles": {
+    "search": "?workspace=body",
+    "context": "Wrestling / Double-leg shot Change",
+    "h1": "Muscle map",
+    "scrollY": 0
+   }
+  }
+ },
+ {
+  "id": "J-E3",
+  "pass": true,
+  "detail": {
+   "picked": {
+    "next": "Find gluteal complex exercises"
+   },
+   "cat": {
+    "search": "?workspace=catalog",
+    "chips": [
+     "Remove filter Gluteal complex"
+    ],
+    "count": 36,
+    "scrollY": 0
+   }
+  }
+ },
+ {
+  "id": "J-E4",
+  "pass": true,
+  "detail": {
+   "before": {
+    "search": "?workspace=catalog",
+    "chips": [
+     "Remove filter Gluteal complex"
+    ],
+    "count": 36,
+    "scrollY": 0
+   },
+   "after": {
+    "chips": [],
+    "count": 36
+   }
+  }
+ },
+ {
+  "id": "J-E5",
+  "pass": true,
+  "detail": {
+   "picked": {
+    "next": "Find gluteal complex exercises"
+   },
+   "back1": {
+    "search": "?workspace=body",
+    "context": "Wrestling / Double-leg shot Change",
+    "scrollY": 0
+   },
+   "back2": {
+    "search": "?workspace=movement",
+    "selected": [
+     "BILATERAL TAKEDOWN",
+     "DOUBLE-LEG SHOT"
+    ],
+    "scrollY": 0
+   }
+  }
+ },
+ {
+  "id": "J-E errors",
+  "pass": true,
+  "detail": "none"
+ },
+ {
+  "id": "J-F1",
+  "pass": true,
+  "detail": [
+   "direct URL: ?workspace=tracker card true",
+   "tab: ?workspace=tracker card true",
+   "Home resume: ?workspace=tracker card true",
+   "strip: ?workspace=tracker card true"
+  ]
+ },
+ {
+  "id": "J-F2",
+  "pass": true,
+  "detail": [
+   "direct URL: cardTop 274, largest unpainted run 70px at [588,658]",
+   "tab: cardTop 274, largest unpainted run 70px at [588,658]",
+   "Home resume: cardTop 274, largest unpainted run 70px at [588,658]",
+   "strip: cardTop 274, largest unpainted run 70px at [588,658]"
+  ]
+ },
+ {
+  "id": "J-F3",
+  "pass": true,
+  "detail": {
+   "complete": 1,
+   "set": "Set 2 of 4",
+   "restState": "Resting",
+   "clock": "1:31",
+   "stored": {
+    "weight": "135",
+    "reps": "5",
+    "completed": true
+   },
+   "clockLater": "1:29"
+  }
+ },
+ {
+  "id": "J-F4",
+  "pass": true,
+  "detail": {
+   "set": "Set 2 of 4",
+   "restState": "Resting",
+   "clock": "1:27",
+   "complete": 1,
+   "exercise": "Cable Rotational Row"
+  }
+ },
+ {
+  "id": "J-F5",
+  "pass": true,
+  "detail": {
+   "sessions": 1,
+   "completed": 1,
+   "active": 0,
+   "loggedSets": 1,
+   "prestart": true,
+   "live": false,
+   "strip": false,
+   "progressF": "1 workouts recorded, 1 lifts logged",
+   "homeF": "1 lift logged · 1 workout recordedall time"
+  }
+ },
+ {
+  "id": "J-F errors",
+  "pass": true,
+  "detail": "none"
+ },
+ {
+  "id": "J-G1",
+  "pass": true,
+  "detail": {
+   "search": "?workspace=profile",
+   "h1": "About me",
+   "title": "About me · Sports Genome",
+   "profileCurrent": "page",
+   "dockActive": [],
+   "tabRows": 0,
+   "strip": false
+  }
+ },
+ {
+  "id": "J-G2",
+  "pass": true,
+  "detail": {
+   "minutesBefore": "75",
+   "g2": {
+    "checked": "45",
+    "chipActive": "45",
+    "saved": "Saved on this device as you change them."
+   },
+   "afterReload": {
+    "checked": "45",
+    "stored": 45
+   }
+  }
+ },
+ {
+  "id": "J-G3",
+  "pass": true,
+  "detail": {
+   "groups": [
+    "Equipment",
+    "Training priorities",
+    "Account & sync",
+    "Appearance",
+    "Security",
+    "Guides & research",
+    "Launch video"
+   ],
+   "toggled": "Band",
+   "before": "Commercial gym · 7 types available",
+   "after": "Commercial gym · 8 types available"
+  }
+ },
+ {
+  "id": "J-G4",
+  "pass": true,
+  "detail": {
+   "planDay": "Sport Transfer 6",
+   "g4": {
+    "search": "?workspace=day-plan",
+    "active": "Sport Transfer 6"
+   }
+  }
+ },
+ {
+  "id": "J-G5 tracker",
+  "pass": true,
+  "detail": {
+   "refused": {
+    "alert": "This device would not store the last change. Your sets are still on screen, but they will not survive a reload — free up",
+    "complete": 1,
+    "set": "Set 2 of 4"
+   },
+   "retried": {
+    "alert": false,
+    "complete": 2,
+    "storedSets": 2
+   }
+  }
+ },
+ {
+  "id": "J-G5 lift log",
+  "pass": true,
+  "detail": {
+   "refused": {
+    "alert": "This lift was not saved: this device refused the write (storage full, private br",
+    "load": "225",
+    "exercise": "Barbell Bench Press",
+    "metrics": "0 / 18 regions covered · 0 lifts recorded",
+    "toast": [
+     "Could not save this lift on this device."
+    ]
+   },
+   "retried": {
+    "alert": false,
+    "load": "",
+    "metrics": "3 / 18 regions covered · 1 lift recorded",
+    "toast": [
+     "Lift saved on this device.",
+     "Could not save this lift on this device."
+    ]
+   }
+  }
+ },
+ {
+  "id": "J-G errors",
+  "pass": true,
+  "detail": "none"
+ },
+ {
+  "id": "J-H1",
+  "pass": true,
+  "detail": {
+   "tabs": [
+    {
+     "label": "Plan",
+     "l": 4,
+     "t": 69,
+     "r": 74,
+     "b": 117,
+     "w": 70,
+     "h": 48
+    },
+    {
+     "label": "Review",
+     "l": 74,
+     "t": 69,
+     "r": 163,
+     "b": 117,
+     "w": 89,
+     "h": 48
+    },
+    {
+     "label": "Workout",
+     "l": 163,
+     "t": 69,
+     "r": 260,
+     "b": 117,
+     "w": 97,
+     "h": 48
+    },
+    {
+     "label": "Matches",
+     "l": 260,
+     "t": 69,
+     "r": 356,
+     "b": 117,
+     "w": 96,
+     "h": 48
+    }
+   ],
+   "utilities": [
+    {
+     "label": "Search Sports Genome",
+     "l": 254,
+     "t": 12,
+     "r": 298,
+     "b": 56,
+     "w": 44,
+     "h": 44
+    },
+    {
+     "label": "Profile and settings",
+     "l": 304,
+     "t": 12,
+     "r": 348,
+     "b": 56,
+     "w": 44,
+     "h": 44
+    }
+   ],
+   "scrollW": 360
+  }
+ },
+ {
+  "id": "J-H2",
+  "pass": true,
+  "detail": {
+   "name": "Split-Stance Cable Chest Press",
+   "nameRight": 201,
+   "nameLines": 3,
+   "controls": [
+    "44x55@240",
+    "44x55@289"
+   ],
+   "overlaps": false,
+   "scrollW": 360,
+   "nameClipped": false
+  }
+ },
+ {
+  "id": "J-H3",
+  "pass": true,
+  "detail": {
+   "input": {
+    "t": 186,
+    "b": 234,
+    "h": 48
+   },
+   "inputVisible": true,
+   "button": {
+    "t": 188,
+    "b": 232,
+    "h": 44
+   },
+   "buttonVisible": true,
+   "disabled": false,
+   "dockTop": 351,
+   "scrollW": 360
+  }
+ },
+ {
+  "id": "J-H4",
+  "pass": true,
+  "detail": [
+   {
+    "label": "Plan",
+    "strip": 639,
+    "lastBottom": 616,
+    "last": "Review",
+    "clear": true
+   },
+   {
+    "label": "Exercises",
+    "strip": 639,
+    "lastBottom": 614,
+    "last": "Adding to Week 1 · Sport TransferChange",
+    "clear": true
+   },
+   {
+    "label": "Progress",
+    "strip": 639,
+    "lastBottom": 614,
+    "last": "How it works",
+    "clear": true
+   }
+  ]
+ },
+ {
+  "id": "J-H5",
+  "pass": true,
+  "detail": {
+   "openerLabel": "Inspect Incline Barbell Bench Press",
+   "opened": {
+    "overlay": true,
+    "focus": "Close exercise intelligence",
+    "historyOverlay": "exercise"
+   },
+   "escaped": {
+    "overlay": false,
+    "focus": "Inspect Incline Barbell Bench Press",
+    "search": "?workspace=catalog"
+   },
+   "backed": {
+    "overlay": false,
+    "focus": "Inspect Incline Barbell Bench Press",
+    "search": "?workspace=catalog"
+   }
+  }
+ },
+ {
+  "id": "J-H errors",
+  "pass": true,
+  "detail": "none"
+ }
+]

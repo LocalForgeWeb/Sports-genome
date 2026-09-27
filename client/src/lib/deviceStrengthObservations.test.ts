@@ -1,5 +1,28 @@
-import { describe, expect, it } from "vitest";
-import { prependDeviceStrengthObservation, removeDeviceStrengthObservation, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation } from "./deviceStrengthObservations";
+// @vitest-environment jsdom
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { deviceStrengthObservationEvent, deviceStrengthObservationKey, prependDeviceStrengthObservation, removeDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation } from "./deviceStrengthObservations";
+
+describe("saving the device record", () => {
+  afterEach(() => { vi.restoreAllMocks(); window.localStorage.clear(); });
+
+  it("reports a refused write instead of swallowing it, and fires no change event for it", () => {
+    const listener = vi.fn();
+    window.addEventListener(deviceStrengthObservationEvent, listener);
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new DOMException("QuotaExceededError"); });
+    expect(saveDeviceStrengthObservations([{ id: "a", exerciseName: "Back Squat", observedAt: "2026-09-01T10:00:00.000Z", measurementType: "MEASURED_1RM" }])).toBe(false);
+    expect(listener).not.toHaveBeenCalled();
+    window.removeEventListener(deviceStrengthObservationEvent, listener);
+  });
+
+  it("reports a write that reached the device and announces it", () => {
+    const listener = vi.fn();
+    window.addEventListener(deviceStrengthObservationEvent, listener);
+    expect(saveDeviceStrengthObservations([{ id: "a", exerciseName: "Back Squat", observedAt: "2026-09-01T10:00:00.000Z", measurementType: "MEASURED_1RM" }])).toBe(true);
+    expect(JSON.parse(window.localStorage.getItem(deviceStrengthObservationKey) || "[]")).toHaveLength(1);
+    expect(listener).toHaveBeenCalledTimes(1);
+    window.removeEventListener(deviceStrengthObservationEvent, listener);
+  });
+});
 
 const older: DeviceStrengthObservation = { id: "older", exerciseName: "Barbell Bench Press", observedAt: "2026-08-20T12:00:00.000Z", measurementType: "MEASURED_1RM", loadKg: 80 };
 const newer: DeviceStrengthObservation = { id: "newer", exerciseName: "EZ-Bar Preacher Curl", observedAt: "2026-08-28T12:00:00.000Z", measurementType: "MULTI_REP", loadKg: 36, repetitions: 10 };

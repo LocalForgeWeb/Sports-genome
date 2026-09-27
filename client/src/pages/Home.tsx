@@ -1006,18 +1006,22 @@ export default function Home() {
    * A draft replaces the open day, and only the open day. Clearing the loose prescription
    * and settings maps used to clear them for every day at once, because they were shared.
    */
+  // A draft replaces the day in one tap, so the message that reports it carries
+  // Undo: the rows, prescriptions and settings it replaced come back as they were.
   const applyDraftToActiveDay = (stack: Exercise[]) => {
+    const previous = { workout: customWorkout, prescriptions, settings: exerciseSettings };
     setCustomWorkout(stack);
     setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])));
     setExerciseSettings({});
+    return () => { setCustomWorkout(previous.workout); setPrescriptions(previous.prescriptions); setExerciseSettings(previous.settings); };
   };
   const loadDraft = () => {
-    applyDraftToActiveDay(draftedLoadout);
-    toast("Draft loaded", { description: `${activeSlot.ordinal} · ${activeSplitDay} is now built with the ${activeLoadout} orientation.` });
+    const restore = applyDraftToActiveDay(draftedLoadout);
+    toast("Draft loaded", { description: `${activeSlot.ordinal} · ${activeSplitDay} is now built with the ${activeLoadout} orientation.`, cancel: { label: "Undo", onClick: restore } });
   };
   const loadSmartDraft = () => {
-	    applyDraftToActiveDay(draftedLoadout);
-	    toast("Smart draft loaded", { description: `A diversified ${activeSplitDay.toLowerCase()} session is ready for review.` });
+	    const restore = applyDraftToActiveDay(draftedLoadout);
+	    toast("Smart draft loaded", { description: `A diversified ${activeSplitDay.toLowerCase()} session is ready for review.`, cancel: { label: "Undo", onClick: restore } });
   };
   const updateExerciseSettings = (exerciseId: number, patch: Partial<ExerciseSettings>) => setExerciseSettings((current) => ({ ...current, [exerciseId]: { ...getExerciseSettings(current, exerciseId), ...patch } }));
   useEffect(() => {
@@ -1188,7 +1192,11 @@ export default function Home() {
    * Closing with the button or Escape pops that same entry, so nothing is left
    * behind for the next Back to swallow.
    */
+  // The control that opened the overlay gets focus back when it closes, so a
+  // keyboard or screen-reader user lands where they were, not at the top.
+  const inspectorReturnFocus = useRef<HTMLElement | null>(null);
   const inspectExercise = (exercise: Exercise) => {
+    if (typeof document !== "undefined" && !inspectedExercise) inspectorReturnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setInspectedExercise(exercise);
     setActiveMuscle(exercise.primaryMuscles[0] || "obliques");
     if (typeof window !== "undefined" && window.history.state?.overlay !== "exercise") window.history.pushState({ workspace, overlay: "exercise" }, "", window.location.href);
@@ -1204,6 +1212,15 @@ export default function Home() {
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") closeInspector(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, [inspectedExercise]);
+  // Focus moves into the overlay when it opens and back to its opener when it
+  // closes; an opener that left with the screen (Explore in Body Lab) is skipped.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (inspectedExercise) { document.querySelector<HTMLElement>(".exercise-intelligence-close")?.focus({ preventScroll: true }); return; }
+    const opener = inspectorReturnFocus.current;
+    inspectorReturnFocus.current = null;
+    if (opener?.isConnected) opener.focus({ preventScroll: true });
   }, [inspectedExercise]);
   const showMovement = (movement: SportMovementProfile) => { setMovementId(movement.id); navigateWorkspace("recommended"); };
 

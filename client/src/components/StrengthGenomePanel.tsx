@@ -672,7 +672,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const observedRegionCount = directAccess ? countCoveredRegions(activeObservations) : strengthRegionDefinitions.filter((region) => regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT").length;
   const sourceMatchedObservationCount = activeObservations.filter((observation) => getRegistryReferenceForObservation(observation, referenceRows, athleteProfile, new Date(observation.observedAt))?.status === "matched" || getPiperReferenceForObservation(observation)?.status === "matched" || getPowerliftingReferenceForObservation(observation, powerliftingNorms)?.status === "matched").length;
   const activePriorityIds = new Set(priorities.data?.map(priority => priority.regionId) || overview.data?.athleteConfirmedPriorityRegionIds || []);
-  const persistDeviceObservations = (next: DeviceStrengthObservation[]) => { setDeviceObservations(next); saveDeviceStrengthObservations(next); };
+  // The view follows the device: a refused write keeps the old list and is
+  // reported, so nothing on screen claims a record the device does not hold.
+  const [deviceSaveError, setDeviceSaveError] = useState<string | null>(null);
+  const persistDeviceObservations = (next: DeviceStrengthObservation[]): boolean => { const written = saveDeviceStrengthObservations(next); if (written) setDeviceObservations(next); return written; };
   const setDeviceBodyMass = (observationId: string, bodyMassKgAtTest: number) => persistDeviceObservations(setDeviceStrengthObservationBodyMass(deviceObservations, observationId, bodyMassKgAtTest));
 
   const requestObservationRemoval = (observation: StrengthObservationRecord) =>
@@ -762,7 +765,13 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       notes: notes.trim() || undefined,
     };
     if (directAccess) {
-      persistDeviceObservations(prependDeviceStrengthObservation(deviceObservations, { ...nextObservation, id: `device-strength-${Date.now()}`, observedAt: nextObservation.observedAt.toISOString() }));
+      const written = persistDeviceObservations(prependDeviceStrengthObservation(deviceObservations, { ...nextObservation, id: `device-strength-${Date.now()}`, observedAt: nextObservation.observedAt.toISOString() }));
+      if (!written) {
+        setDeviceSaveError("This lift was not saved: this device refused the write (storage full, private browsing, or storage blocked). Your entry is still here — free some space and save again.");
+        toast.error("Could not save this lift on this device.");
+        return;
+      }
+      setDeviceSaveError(null);
       setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(""); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(prefilledPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(prefilledPowerliftingDeclaration); setNotes("");
       emitInteractionFeedback([10, 30, 10]); toast.success("Lift saved on this device.");
       return;
@@ -822,6 +831,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         <div className="strength-log-submit">
           <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--sg-action-fill)] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving" : "Save this lift"}</button>
           {!canSave && <p className="strength-log-blocked" role="status">{!selectedExercise ? "Choose an exercise from the catalog above to save this." : `Enter the load in ${weightUnitLabel(weightUnit)} to save this.`}</p>}
+          {deviceSaveError && <p className="strength-log-save-error" role="alert">{deviceSaveError}</p>}
         </div>
       </div>
     </details>

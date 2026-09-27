@@ -30,10 +30,20 @@ export function loadDeviceStrengthObservations(): DeviceStrengthObservation[] {
   }
 }
 
-export function saveDeviceStrengthObservations(observations: DeviceStrengthObservation[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(deviceStrengthObservationKey, JSON.stringify(observations));
+/**
+ * Returns whether the record reached the device. A refused write (storage full,
+ * private mode, storage disabled) is reported rather than swallowed, so the
+ * screen can keep the athlete's entry and say it was not saved.
+ */
+export function saveDeviceStrengthObservations(observations: DeviceStrengthObservation[]): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    window.localStorage.setItem(deviceStrengthObservationKey, JSON.stringify(observations));
+  } catch {
+    return false;
+  }
   window.dispatchEvent(new Event(deviceStrengthObservationEvent));
+  return true;
 }
 
 export function prependDeviceStrengthObservation(existing: DeviceStrengthObservation[], observation: DeviceStrengthObservation) {

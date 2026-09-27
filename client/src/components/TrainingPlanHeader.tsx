@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Check } from "lucide-react";
 import type { DaySlot } from "@/lib/trainingDayPlan";
 import type { DayTrainingState } from "@/lib/liveSession";
@@ -34,8 +35,16 @@ export function TrainingPlanHeader({
   onChooseDay: (index: number) => void;
 }) {
   const active = slots[activeIndex] || slots[0];
+  const count = active ? exerciseCountFor(active) : 0;
+  // The day row scrolls sideways when the labels outgrow the screen (large text,
+  // narrow widths). The selected day is the one the athlete is editing, so it is
+  // never left clipped off the edge: it is brought into view whenever it changes.
+  const daysRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const selected = daysRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    selected?.scrollIntoView({ inline: "nearest", block: "nearest" });
+  }, [activeIndex, activeWeek]);
   if (!active) return null;
-  const count = exerciseCountFor(active);
 
   return <section className="training-plan-header" aria-label="Training plan selection">
     <div className="training-plan-title">
@@ -64,7 +73,7 @@ export function TrainingPlanHeader({
       })}
     </div>
 
-    <div className="training-plan-days" role="tablist" aria-label="Day of the week">
+    <div ref={daysRef} className="training-plan-days" role="tablist" aria-label="Day of the week">
       {slots.map((slot, index) => {
         const selected = index === activeIndex;
         const trained = trainingStateFor?.(index) || null;
