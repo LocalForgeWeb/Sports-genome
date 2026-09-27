@@ -13,6 +13,19 @@ Commands actually run, fixtures, numeric traces and integration results (B005, B
 | Actual iOS build | No | No native shell on `main` (decisions D-003). |
 | App Store sandbox | Not applicable | Payments deferred by owner (D-001). |
 
+## Baseline before any Backend V1 change (B022)
+
+`main` at 52c8f52, 28 September 2026, work environment above.
+
+```text
+npx tsc --noEmit            -> exit 0
+npx vitest run              -> 236 files: 232 passed, 4 failed; 1932 tests: 1926 passed, 1 skipped, 5 failed, all live-Supabase credential/network tests
+                               (server/supabaseEvidenceConnection x2, supabaseEvidenceRls, supabasePublicAssets, supabaseStorageConnection)
+                               that need credentials and network this environment lacks; identical before this assignment.
+```
+
+Numeric baseline for the strength route, live database (from PR #67): male Barbell Bench Press, 81.65 kg x 1 at 65.77 kg body weight -> 48.97th percentile with no age (see decisions D-002 for the age traces).
+
 ## Checkpoints
 
 Format from brief §17.

@@ -18,8 +18,8 @@ On 28 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 262
-- `implementing`: 3
+- `pending`: 261
+- `implementing`: 4
 - `verified`: 3
 - `deferred (owner)`: 30
 <!-- summary:end -->
@@ -80,7 +80,7 @@ _No requirement IDs in this section._
 | B019 | Identify mock, seed, placeholder, and fallback values that can reach a real account. | pending |  |
 | B020 | Identify where local storage is authoritative, where server storage is authoritative, and where the app currently mixes them. | pending |  |
 | B021 | Record current schema/library/runtime versions and verify applicable current documentation before using version-dependent APIs. | implementing | Versions recorded in inventory.md § Versions. Current documentation is checked when a version-dependent API is used; noted per change in verification.md. |
-| B022 | Establish representative baseline fixtures and outputs before modifying calculations. | pending |  |
+| B022 | Establish representative baseline fixtures and outputs before modifying calculations. | implementing | Suite/typecheck baseline recorded in verification.md; per-engine numeric baselines are added before each calculation change. |
 | B023 | List current failures and uncertain behavior separately. Do not present an untested hypothesis as a confirmed defect. | pending |  |
 
 ## 3. Establish canonical data semantics
