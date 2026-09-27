@@ -43,10 +43,14 @@ describe("the API is actually deployed", () => {
   it("defines the API as one catch-all function so /api/trpc keeps its mount path", () => {
     const source = read("server/_core/serverless.ts");
     // The router and context are imported, never redefined, so the deployed surface
-    // cannot drift from the one the dev server runs.
-    expect(source).toContain('from "../routers"');
-    expect(source).toContain('from "./context"');
-    expect(source).toContain('app.use(\n  "/api/trpc",');
+    // cannot drift from the one the dev server runs. Both entry points mount the one
+    // shared handler, which is where the router and context are imported.
+    const handler = read("server/_core/apiHandler.ts");
+    expect(source).toContain('from "./apiHandler"');
+    expect(read("server/_core/index.ts")).toContain('from "./apiHandler"');
+    expect(handler).toContain('from "../routers"');
+    expect(handler).toContain('from "./context"');
+    expect(source).toContain('app.use("/api/trpc", requireJsonMutations, trpcHandler());');
     expect(source).not.toContain("listen(");
   });
 

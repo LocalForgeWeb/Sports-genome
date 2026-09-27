@@ -72,7 +72,7 @@ import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { browseAction, browseMovement, browseSport, followProfileSport, isBrowsingOtherSport, referenceMovementId, referenceSportId, type SportBrowseState } from "@/lib/sportBrowsing";
 import { buildVariedLoadout } from "@/lib/loadoutTemplates";
 import { cycleSplitIndex, splitDaysForFrequency } from "@/lib/splitCycle";
-import { buildDaySlots, commitDay, dayExerciseCount, emptyDayRecord, emptyDayStore, loadDay, placeImportedDays, remapDaysForFrequency, resolveActiveSlot, sameSplit, slotForKey, visibleDayPlan, type DayRecord, type DaySettings, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { buildDaySlots, commitDay, dayExerciseCount, emptyDayRecord, emptyDayStore, loadDay, moveWithin, placeImportedDays, remapDaysForFrequency, resolveActiveSlot, sameSplit, slotForKey, visibleDayPlan, type DayRecord, type DaySettings, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { toast } from "sonner";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { EmailAuthScreen } from "@/components/EmailAuthScreen";
@@ -478,6 +478,33 @@ export default function Home() {
     setCustomWorkout(record.workout);
     setPrescriptions(record.prescriptions);
     setExerciseSettings(record.settings);
+  };
+  /*
+   * Latest plan state for handlers that run later than the render that made them: the
+   * Undo in a toast is created at the edit and pressed seconds - and possibly a day
+   * switch - afterwards.
+   */
+  const planStateRef = useRef({ customWorkout, prescriptions, exerciseSettings });
+  planStateRef.current = { customWorkout, prescriptions, exerciseSettings };
+  /**
+   * Apply an edit to one specific day, wherever that day now lives.
+   *
+   * Every Undo used to write to whichever day happened to be open when it was pressed:
+   * remove Leg Press on Legs, switch to Push, press Undo, and Leg Press landed in Push
+   * while Legs stayed without it; undoing an add removed the same exercise from the new
+   * day instead. An edit now carries the key of the day it was made on. If that day is
+   * still the open one, the working draft changes; otherwise its stored record does.
+   */
+  const editDay = (dayKey: string, edit: (record: DayRecord) => DayRecord) => {
+    if (dayKey === draftDayKeyRef.current) {
+      const current = planStateRef.current;
+      const next = edit({ workout: current.customWorkout, prescriptions: current.prescriptions, settings: current.exerciseSettings, context: [] });
+      setCustomWorkout(next.workout);
+      setPrescriptions(next.prescriptions);
+      setExerciseSettings(next.settings);
+      return;
+    }
+    setDayStore((store) => commitDay(store, dayKey, edit(loadDay(store, dayKey))));
   };
   const visibleWeek = useMemo(() => visibleDayPlan(dayStore, splitDays), [dayStore, splitDays]);
   const weeklyPlan = visibleWeek.plan;
@@ -888,16 +915,28 @@ export default function Home() {
     return () => window.removeEventListener("popstate", restoreWorkspace);
   }, []);
   /**
+   * Nothing edits the plan before the saved plan has been read. An exercise added in
+   * that window was confirmed with a toast and then overwritten by the plan arriving
+   * a moment later; it is now refused with a reason instead.
+   */
+  const planReadyForEdits = () => {
+    if (planHydrated) return true;
+    toast("Your plan is still loading", { id: "plan-loading", description: "Try again in a moment - nothing was changed." });
+    return false;
+  };
+  /**
    * One add, to the day the strip names. The toast says which day received it
    * and offers the two things worth doing next: look at that day, or take it
    * back. A second tap on the same exercise is answered, not repeated.
    */
   const addExercise = (exercise: Exercise) => {
+    if (!planReadyForEdits()) return;
     if (customWorkout.some((item) => catalogExerciseIdFor(item) === exercise.id)) {
       toast("Already in this workout", { id: "plan-add", description: `${exercise.name} is already in Week ${activeWeek} · ${activeSlot.day}.` });
       return;
     }
     const destination = `Week ${activeWeek} · ${activeSlot.day}`;
+    const dayKey = draftDayKeyRef.current;
     setCustomWorkout((current) => current.some((item) => catalogExerciseIdFor(item) === exercise.id) ? current : [...current, exercise]);
     // One feedback surface per kind of action: a second add replaces the first
     // notice rather than stacking under it, and its Undo is bound to this exercise.
@@ -905,7 +944,8 @@ export default function Home() {
       id: "plan-add",
       description: `${exercise.name} is in that day now.`,
       action: { label: "View workout", onClick: () => navigateWorkspace("day-plan") },
-      cancel: { label: "Undo", onClick: () => setCustomWorkout((current) => current.filter((item) => catalogExerciseIdFor(item) !== exercise.id)) },
+      // Takes back this entry on this day: the exact instance, even after a day switch.
+      cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, workout: record.workout.filter((item) => item.id !== exercise.id) })) },
     });
   };
   const toggleFavorite = (exercise: Exercise) => {
@@ -923,6 +963,7 @@ export default function Home() {
     });
   };
   const importRoutine = (routine: ImportedRoutine) => {
+    if (!planReadyForEdits()) return;
     const importedDays = routine.days.filter((day) => day.items.length);
     if (!importedDays.length) return;
     // Each pasted day claims its own slot. Two days of the same family used to resolve to
@@ -965,30 +1006,36 @@ export default function Home() {
     });
   };
   const removeExercise = (id: number) => {
+    if (!planReadyForEdits()) return;
     const removedIndex = customWorkout.findIndex((exercise) => exercise.id === id);
     if (removedIndex === -1) return;
     const removed = customWorkout[removedIndex];
     const removedPrescription = prescriptions[id];
     const removedSettings = exerciseSettings[id];
+    const dayKey = draftDayKeyRef.current;
     setCustomWorkout((current) => current.filter((exercise) => exercise.id !== id));
     toast(`${removed.name} removed`, {
       action: {
         label: "Undo",
-        onClick: () => {
-          setCustomWorkout((current) => current.some((exercise) => exercise.id === id) ? current : [...current.slice(0, removedIndex), removed, ...current.slice(removedIndex)]);
-          if (removedPrescription !== undefined) setPrescriptions((current) => ({ ...current, [id]: removedPrescription }));
-          if (removedSettings !== undefined) setExerciseSettings((current) => ({ ...current, [id]: removedSettings }));
-        },
+        // Back into the day it came from, at the place it held, with its own prescription.
+        onClick: () => editDay(dayKey, (record) => record.workout.some((exercise) => exercise.id === id) ? record : {
+          ...record,
+          workout: [...record.workout.slice(0, removedIndex), removed, ...record.workout.slice(removedIndex)],
+          prescriptions: removedPrescription !== undefined ? { ...record.prescriptions, [id]: removedPrescription } : record.prescriptions,
+          settings: removedSettings !== undefined ? { ...record.settings, [id]: removedSettings } : record.settings,
+        }),
       },
     });
   };
   const duplicateExercise = (exercise: Exercise, prescription: string, settings: ExerciseSettings) => {
+    if (!planReadyForEdits()) return;
     const duplicate = duplicateWorkoutEntry(exercise);
     setCustomWorkout((current) => [...current, duplicate]);
     setPrescriptions((current) => ({ ...current, [duplicate.id]: prescription }));
     setExerciseSettings((current) => ({ ...current, [duplicate.id]: { ...settings, completed: false } }));
   };
   const replaceExercise = (outgoing: Exercise, incoming: Exercise) => {
+    if (!planReadyForEdits()) return;
     if (outgoing.id === incoming.id || customWorkout.some((exercise) => exercise.id === incoming.id)) return;
     setCustomWorkout((current) => current.map((exercise) => exercise.id === outgoing.id ? incoming : exercise));
     setPrescriptions((current) => {
@@ -1001,22 +1048,17 @@ export default function Home() {
     });
     toast("Stack correction applied", { description: `${outgoing.name} was replaced with ${incoming.name}; its prescription and coaching settings were preserved.` });
   };
-  const reorderExercise = (exerciseId: number, direction: -1 | 1) => setCustomWorkout((current) => {
-    const from = current.findIndex((exercise) => exercise.id === exerciseId);
-    const to = from + direction;
-    if (from < 0 || to < 0 || to >= current.length) return current;
-    const next = [...current];
-    [next[from], next[to]] = [next[to], next[from]];
-    return next;
-  });
+  const reorderExercise = (exerciseId: number, direction: -1 | 1) => setCustomWorkout((current) => moveWithin(current, exerciseId, direction));
   // A move is reported once, on one message that repeated taps keep updating,
   // and can be taken back exactly: Undo moves that same exercise the other way.
   const moveExercise = (exerciseId: number, direction: -1 | 1) => {
+    if (!planReadyForEdits()) return;
+    const dayKey = draftDayKeyRef.current;
     const from = customWorkout.findIndex((exercise) => exercise.id === exerciseId);
     const to = from + direction;
     if (from < 0 || to < 0 || to >= customWorkout.length) return;
     reorderExercise(exerciseId, direction);
-    toast(`Moved ${customWorkout[from].name} ${direction < 0 ? "earlier" : "later"}`, { id: "plan-reorder", description: `Now ${to + 1} of ${customWorkout.length} in ${activeSlot.day}.`, cancel: { label: "Undo", onClick: () => reorderExercise(exerciseId, direction < 0 ? 1 : -1) } });
+    toast(`Moved ${customWorkout[from].name} ${direction < 0 ? "earlier" : "later"}`, { id: "plan-reorder", description: `Now ${to + 1} of ${customWorkout.length} in ${activeSlot.day}.`, cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, workout: moveWithin(record.workout, exerciseId, direction < 0 ? 1 : -1) })) } });
   };
   /**
    * A draft replaces the open day, and only the open day. Clearing the loose prescription
@@ -1026,16 +1068,28 @@ export default function Home() {
   // Undo: the rows, prescriptions and settings it replaced come back as they were.
   const applyDraftToActiveDay = (stack: Exercise[]) => {
     const previous = { workout: customWorkout, prescriptions, settings: exerciseSettings };
+    const dayKey = draftDayKeyRef.current;
     setCustomWorkout(stack);
     setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])));
     setExerciseSettings({});
-    return () => { setCustomWorkout(previous.workout); setPrescriptions(previous.prescriptions); setExerciseSettings(previous.settings); };
+    const draftedIds = stack.map((exercise) => exercise.id).join(",");
+    // Restores the day it replaced - that day, and only while it still holds the draft.
+    // Edited since, it is left alone rather than rolled back over the athlete's own work.
+    return () => editDay(dayKey, (record) => {
+      if (record.workout.map((exercise) => exercise.id).join(",") !== draftedIds) {
+        toast("That day changed after the draft", { id: "draft-undo-skipped", description: "Undo was not applied, so your later edits are kept." });
+        return record;
+      }
+      return { ...record, workout: previous.workout, prescriptions: previous.prescriptions, settings: previous.settings };
+    });
   };
   const loadDraft = () => {
+    if (!planReadyForEdits()) return;
     const restore = applyDraftToActiveDay(draftedLoadout);
     toast("Draft loaded", { description: `${activeSlot.ordinal} · ${activeSplitDay} is now built with the ${activeLoadout} orientation.`, cancel: { label: "Undo", onClick: restore } });
   };
   const loadSmartDraft = () => {
+    if (!planReadyForEdits()) return;
 	    const restore = applyDraftToActiveDay(draftedLoadout);
 	    toast("Smart draft loaded", { description: `A diversified ${activeSplitDay.toLowerCase()} session is ready for review.`, cancel: { label: "Undo", onClick: restore } });
   };
@@ -1047,11 +1101,13 @@ export default function Home() {
     return customWorkout.filter((item) => item.id !== exerciseId && getExerciseSettings(exerciseSettings, item.id).rest !== rest).length;
   };
   const applyRestToDay = (rest: string) => {
+    if (!planReadyForEdits()) return;
     const previous = exerciseSettings;
+    const dayKey = draftDayKeyRef.current;
     const changed = customWorkout.filter((item) => getExerciseSettings(exerciseSettings, item.id).rest !== rest);
     if (!changed.length) return;
     setExerciseSettings((current) => Object.fromEntries(customWorkout.map((item) => [item.id, { ...getExerciseSettings(current, item.id), rest }])));
-    toast(`Rest set to ${rest} for ${changed.length === 1 ? "1 exercise" : `${changed.length} exercises`}`, { id: "plan-rest-all", description: `${changed.map((item) => item.name).join(", ")} · ${activeSlot.day}.`, cancel: { label: "Undo", onClick: () => setExerciseSettings(previous) } });
+    toast(`Rest set to ${rest} for ${changed.length === 1 ? "1 exercise" : `${changed.length} exercises`}`, { id: "plan-rest-all", description: `${changed.map((item) => item.name).join(", ")} · ${activeSlot.day}.`, cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, settings: previous })) } });
   };
   const updateExerciseSettings = (exerciseId: number, patch: Partial<ExerciseSettings>) => setExerciseSettings((current) => ({ ...current, [exerciseId]: { ...getExerciseSettings(current, exerciseId), ...patch } }));
   useEffect(() => {

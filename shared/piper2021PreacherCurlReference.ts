@@ -32,6 +32,25 @@ const bands: readonly Band[] = [
 ];
 const percentiles = [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95] as const;
 
+/**
+ * Pounds recovered from kilograms stored to two decimals are off by up to about 0.011 lb
+ * (150 lb is stored as 68.04 kg and read back as 150.0025 lb). The table's own resolution
+ * is 0.25 lb, so comparisons allow 0.02 lb either way.
+ */
+const STORAGE_TOLERANCE_LB = 0.02;
+
+/**
+ * The band a body mass falls in. The published bands are written "≤135", "135.1–150", …,
+ * which leaves gaps a real number can fall into (135.05, or 150.0025 after the round trip
+ * above) - and the old lookup then found nothing and threw while the record sheet
+ * rendered. Read as contiguous ranges: each band runs from just above the previous
+ * band's upper bound to its own, the last is open-ended.
+ */
+export function bandFor(bodyMassLb: number): Band | null {
+  if (!Number.isFinite(bodyMassLb) || bodyMassLb <= 0) return null;
+  return bands.find((candidate) => candidate.max == null || bodyMassLb <= candidate.max + STORAGE_TOLERANCE_LB) ?? null;
+}
+
 export function getPiper2021PreacherCurlReference(context: Piper2021PreacherCurlContext): Piper2021ReferenceResult {
   const missing: string[] = [];
   if (context.sex !== "male") missing.push("adult male source population");
@@ -45,8 +64,11 @@ export function getPiper2021PreacherCurlReference(context: Piper2021PreacherCurl
   if (!context.loadLb || context.loadLb < 0) missing.push("test load");
   if (!context.bodyMassLb || context.bodyMassLb <= 0) missing.push("test-day body mass");
   if (missing.length) return { status: "unavailable", missing };
-  const band = bands.find((candidate) => (candidate.min == null || context.bodyMassLb! >= candidate.min) && (candidate.max == null || context.bodyMassLb! <= candidate.max))!;
-  const firstAbove = band.cutPoints.findIndex((cutPoint) => context.loadLb! < cutPoint);
+  const band = bandFor(context.bodyMassLb!);
+  if (!band) return { status: "unavailable", missing: ["test-day body mass within the published bands"] };
+  // A load within the tolerance of a cut point is that cut point: 70 lb stored as 31.75 kg
+  // comes back as 69.997 lb and must not read as below the 70 lb cut.
+  const firstAbove = band.cutPoints.findIndex((cutPoint) => context.loadLb! < cutPoint - STORAGE_TOLERANCE_LB);
   const comparison = firstAbove === 0 ? "Below the study group’s 5th percentile" : firstAbove === -1 ? "At or above the study group’s 95th percentile" : `Between the study group’s ${percentiles[firstAbove - 1]}th and ${percentiles[firstAbove]}th percentile`;
   return { status: "matched", bodyMassBand: band.label, comparison, sourceLabel: "Piper et al. 2021 pre-training college-aged male preacher-curl 10RM reference" };
 }

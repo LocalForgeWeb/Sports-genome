@@ -365,6 +365,20 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const prior = loadDeviceWorkoutSessions().filter((item) => item.id !== session.id);
     const written = saveDeviceWorkoutSessions([session, ...prior]);
     setDurable(written);
+    /*
+     * A finish the device refused is not a finished workout. It used to close the live
+     * view, hide the storage warning with it and announce "1 set added to Progress"
+     * while storage still held the session as active. The workout now stays open, the
+     * warning stays up, and the message says what happened and offers the retry.
+     */
+    if (!written) {
+      toast.error("This workout could not be saved yet", {
+        id: "finish-not-saved",
+        description: "The device refused the save, so the workout is still open here and nothing was lost. Free up storage, then finish again.",
+        action: { label: "Try again", onClick: () => finish() },
+      });
+      return;
+    }
     setHistory([session, ...prior]);
     setActiveSession(null);
     setResumed(false);

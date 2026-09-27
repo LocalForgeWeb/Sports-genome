@@ -10,7 +10,8 @@ export async function getDb() {
     try {
       _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      // The error from a malformed URL quotes the URL, password included; log only its class.
+      console.warn("[Database] Failed to connect:", error instanceof Error ? error.name : "unknown error");
       _db = null;
     }
   }

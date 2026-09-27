@@ -1,4 +1,5 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
+import { mapWithConcurrency, withTimeout } from "./boundedCache";
 import {
   MUSCLE_CONFIDENCE_CALIBRATION_VERSION,
   RANK_SCHEME_VERSION,
@@ -82,6 +83,9 @@ export type AgeAdjustmentSummary = {
 
 type ExerciseRow = { id: string; name: string; canonical_name: string };
 
+/** Supabase calls one request may have in flight at each level of the route. */
+const UPSTREAM_CONCURRENCY = 4;
+
 function comparableName(value: string): string {
   return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
@@ -160,11 +164,11 @@ export function profileStatus(scored: number, estimatedOnly: number, failed: num
 export function createSupabaseStrengthProfileClient({ url, serviceRoleKey, fetchImplementation = fetch }: { url: string; serviceRoleKey: string; fetchImplementation?: typeof fetch }) {
   const baseUrl = url.replace(/\/+$/, "");
   const rpc = async (name: string, body: unknown) => {
-    const response = await fetchImplementation(new URL(`/rest/v1/rpc/${name}`, baseUrl), {
+    const response = await fetchImplementation(new URL(`/rest/v1/rpc/${name}`, baseUrl), withTimeout({
       method: "POST",
       headers: supabaseServiceHeaders(serviceRoleKey, { "Content-Type": "application/json" }),
       body: JSON.stringify(body),
-    });
+    }));
     if (!response.ok) throw new Error(`Supabase ${name} failed (${response.status})`);
     return response.json() as Promise<unknown>;
   };
@@ -174,7 +178,7 @@ export function createSupabaseStrengthProfileClient({ url, serviceRoleKey, fetch
       const requestUrl = new URL("/rest/v1/exercises", baseUrl);
       requestUrl.searchParams.set("select", "id,name,canonical_name");
       requestUrl.searchParams.set("canonical_name", "like.*__catalog_*");
-      const response = await fetchImplementation(requestUrl, { headers: supabaseServiceHeaders(serviceRoleKey) });
+      const response = await fetchImplementation(requestUrl, withTimeout({ headers: supabaseServiceHeaders(serviceRoleKey) }));
       if (!response.ok) throw new Error(`Supabase exercise index failed (${response.status})`);
       const rows = await response.json() as unknown;
       return Array.isArray(rows) ? rows.filter((row): row is ExerciseRow => typeof row?.id === "string" && typeof row?.canonical_name === "string") : [];
@@ -219,16 +223,17 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
   const referenceByExerciseId = new Map<string, ReferenceGroup>();
   const ageAdjustment: AgeAdjustmentSummary = { applied: 0, outsideTable: 0, noAge: 0 };
 
-  const responses = await Promise.all(Array.from(groups.values()).map(async ({ bodyweightKg, ageYears, observations }) => {
+  // At most four groups in flight, and four adjustments within each, rather than every call at once.
+  const responses = await mapWithConcurrency(Array.from(groups.values()), UPSTREAM_CONCURRENCY, async ({ bodyweightKg, ageYears, observations }) => {
     const profile = await client.scoreProfile(bodyweightKg, sex, observations) as Record<string, unknown> | null;
     const raw = Array.isArray(profile?.exercise_scores) ? profile!.exercise_scores as Record<string, any>[] : [];
-    const exerciseScores = ageYears === null ? raw : await Promise.all(raw.map(async (score) => {
+    const exerciseScores = ageYears === null ? raw : await mapWithConcurrency(raw, UPSTREAM_CONCURRENCY, async (score) => {
       const exerciseId = typeof score?.exercise_id === "string" ? score.exercise_id : score?.input_observation?.exercise_id;
       if (typeof exerciseId !== "string") return score;
       return (await client.adjustForAge(exerciseId, bodyweightKg, sex, ageYears, score) ?? score) as Record<string, any>;
-    }));
+    });
     return { profile: profile ? { ...profile, exercise_scores: exerciseScores } : profile, observations, ageYears };
-  }));
+  });
 
   for (const { profile, observations, ageYears } of responses) {
     const body = (profile ?? {}) as Record<string, unknown>;

@@ -1,7 +1,5 @@
 import express, { type Request, type Response } from "express";
-import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { appRouter } from "../routers";
-import { createContext } from "./context";
+import { requireJsonMutations, trpcHandler } from "./apiHandler";
 
 /**
  * The API as a serverless request handler.
@@ -50,13 +48,7 @@ app.use((req, _res, next) => {
   next();
 });
 
-app.use(
-  "/api/trpc",
-  createExpressMiddleware({
-    router: appRouter,
-    createContext,
-  })
-);
+app.use("/api/trpc", requireJsonMutations, trpcHandler());
 
 // Anything else under /api is a genuine 404. Answering in JSON stops a client from
 // parsing an HTML error page as if it were a tRPC response.

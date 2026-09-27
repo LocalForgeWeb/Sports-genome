@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { athleteWorkoutPlans } from "../drizzle/schema";
 import { getDb } from "./db";
 
@@ -93,20 +93,55 @@ export async function saveWorkoutPlan(
       : { status: "conflict", current: decision.current };
   }
 
+  /*
+   * The revision check and the write are one statement. Checked in one and written in
+   * another, two saves that both read revision 4 both passed and the second silently
+   * replaced the first - the exact loss the revision exists to prevent. The UPDATE only
+   * matches the revision the decision was made against; if another save got there
+   * first it matches nothing, and the caller gets the conflict it should have had.
+   */
   if (current) {
-    await db
+    const [result] = await db
       .update(athleteWorkoutPlans)
       .set({ planJson: input.planJson, planVersion: input.planVersion, revision: decision.revision })
-      .where(eq(athleteWorkoutPlans.userId, userId));
+      .where(and(eq(athleteWorkoutPlans.userId, userId), eq(athleteWorkoutPlans.revision, current.revision)));
+    if (affectedRows(result) === 0) return conflictWithLatest(userId);
   } else {
-    await db.insert(athleteWorkoutPlans).values({
-      userId,
-      planJson: input.planJson,
-      planVersion: input.planVersion,
-      revision: decision.revision,
-    });
+    try {
+      await db.insert(athleteWorkoutPlans).values({
+        userId,
+        planJson: input.planJson,
+        planVersion: input.planVersion,
+        revision: decision.revision,
+      });
+    } catch (error) {
+      // Two first saves at once: the unique index on userId lets one in. The other is a
+      // conflict against it, not a server error.
+      if (isDuplicateKey(error)) return conflictWithLatest(userId);
+      throw error;
+    }
   }
 
   const saved = await getWorkoutPlan(userId);
   return { status: "saved", revision: decision.revision, updatedAt: saved?.updatedAt ?? new Date() };
+}
+
+async function conflictWithLatest(userId: number): Promise<SavePlanResult> {
+  const latest = await getWorkoutPlan(userId);
+  if (!latest) throw new Error("Plan changed during save and could not be re-read");
+  return { status: "conflict", current: latest };
+}
+
+/** mysql2 reports an UPDATE's matched rows on its ResultSetHeader. */
+export function affectedRows(result: unknown): number {
+  const count = (result as { affectedRows?: unknown } | undefined)?.affectedRows;
+  return typeof count === "number" ? count : 0;
+}
+
+/** ER_DUP_ENTRY, wherever in the cause chain the driver put it. */
+export function isDuplicateKey(error: unknown): boolean {
+  for (let current = error as { code?: unknown; errno?: unknown; cause?: unknown } | undefined, depth = 0; current && depth < 5; current = current.cause as typeof current, depth += 1) {
+    if (current.code === "ER_DUP_ENTRY" || current.errno === 1062) return true;
+  }
+  return false;
 }
