@@ -2,7 +2,7 @@
 
 Brief: `docs/ux-walkthrough/brief.md` (annotated item by item). Source: the September 27, 2026 iPhone walkthrough. The recording itself was not supplied with the brief; the times and symptoms quoted there were taken as given and each cause was established in the code and the built app.
 
-Branch: `full-merge` locally, pushed to `main` (Vercel) and `claude/repo-access-il8zy5`. Build: the commit this file ships with — typecheck clean, `npx vite build` clean, `npx vitest run` 1880 passed / 1 skipped / 5 failed (the pre-existing `server/supabase*` credential tests, unchanged). Every check below ran in headless Chromium at 390×844 against the built app: browser emulation, not a physical iPhone and not the installed PWA. `env(safe-area-inset-*)` is 0 in that browser, so the safe-area work is verified structurally (the backdrop exists, is fixed and is solid once scrolled), not against a notch.
+Branch: `full-merge` locally, pushed to `main` (Vercel) and `claude/repo-access-il8zy5`. Build: the commit this file ships with — typecheck clean, `npx vite build` clean, `npx vitest run` 1926 passed / 1 skipped / 5 failed after merging main (the pre-existing `server/supabase*` credential tests, unchanged); journeys 18/18 and the launch probe 10/10 re-run on the merged build. Every check below ran in headless Chromium at 390×844 against the built app: browser emulation, not a physical iPhone and not the installed PWA. `env(safe-area-inset-*)` is 0 in that browser, so the safe-area work is verified structurally (the backdrop exists, is fixed and is solid once scrolled), not against a notch.
 
 ## Confirmed causes, in plain language
 
