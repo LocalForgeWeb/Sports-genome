@@ -42,12 +42,14 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)");
     expect(source).toContain("Your record");
     // Replaced by the rank itself; the population still travels with the number.
-    expect(source).toContain("{powerliftingRank.population}");
+    // A gym log is never ranked against competitive powerlifters (B065); that table answers only a declared competitor.
+    expect(source).not.toContain("rankAgainstPowerliftingNorms");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("No ranking for this lift yet");
     expect(source).toContain("Compared to that competition group");
-    expect(source).toContain("Where this ranks");
+    expect(source).toContain("Where this sits");
+    expect(source).not.toContain("Where this ranks");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
     // The body-mass field prefers the weight in effect on the lift's own day,

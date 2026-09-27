@@ -2,7 +2,7 @@
 
 Each decision names what was chosen, what else was possible, the evidence, and which requirements it touches. Scientific assumptions are recorded here rather than left in code comments alone (brief §1, B068, B101).
 
-## D-001 — Payments deferred by owner (28 September 2026)
+## D-001 — Payments deferred by owner (27 September 2026)
 
 **Decision.** Section 12 (B196–B220), Gate C (B276–B279), B189 and the payment portions of B184, B185, B194, B238, B239, B240 and B283 are out of this assignment, recorded as `deferred (owner)`.
 
@@ -29,3 +29,13 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Decision for this assignment.** Do not merge or port the shell inside the backend work: it is an app-packaging change with its own verification path, and the branch predates a month of product work. Treat it as the source to port from, not a branch to merge. Its offline outbox is prior art for B168/B170: any durable offline queue built here must be reconciled with it rather than become a second, competing design (B003, B197 spirit).
 
 **Consequence.** Anything that needs an actual iOS build (B283's iOS portion, B226 installed-client compatibility, B261 app termination on device) is `blocked` on the shell being ported to `main`. The 10 October iOS release depends on that port; it is named as a release risk in the gate report.
+
+## D-004 — No competitor rank for a gym lift (27 September 2026, batch 1) — intentional behavior change
+
+**Decision.** The Strength Genome panel no longer ranks an ordinary gym lift against the van den Hoek 2024 powerlifting population. That card appeared whenever the athlete had a sex on file, for any squat, bench or deadlift, and replaced the community percentile. Competitors are a selected, trained, tested population; a gym lift does not match their protocol or selection (B065). The competition comparison still appears, labelled "Compared to that competition group", only when the entry *is* an exact competition-context match (the existing `powerliftingReference` route). The default placement is the community `strength_beta_v1` percentile, whose card names its group ("among men who lift") in the same line as the number.
+
+**What replaces the gate.** Where a comparison needs something the athlete has not given, the panel asks for it with neutral options ("Women who lift", "Men who lift", "Prefer not to say") and an optional birth-year prompt; declining leaves progress tracking intact.
+
+**Not a regression.** Tests that pinned the old card (`StrengthGenomePanel.rankGate.test.ts`, `…registryReference.render.test.ts`, `StrengthGenomePanel.test.ts`, `strengthGenomeDefinitions.test.ts`) were rewritten to pin its absence. V2 should not restore it (B290).
+
+**Touches.** B065, B066, B290.

@@ -122,7 +122,13 @@ describe("Strength Genome registry comparison", () => {
    * published reference can place, so the athlete gets the rank instead of a
    * paragraph about why a comparison is impossible.
    */
-  it("ranks the lift even when the athlete never confirmed the study's population", () => {
+  /**
+   * Intentional change (Backend V1, B065). An unconfirmed gym squat used to be ranked
+   * against drug-tested powerlifting competitors instead of being left to the community
+   * curves; the reference policy excludes that population from default ranking. It is
+   * compared against competitors only when the athlete has declared that they compete.
+   */
+  it("does not rank a gym lift against competitors when the athlete never said they compete", () => {
     renderDetail({
       referenceRows: squatLadder,
       athleteProfile: { sexForReference: "male", birthYear: 1999 },
@@ -130,17 +136,15 @@ describe("Strength Genome registry comparison", () => {
     });
 
     expect(screen.queryByText("Compared to that study group")).toBeNull();
-    expect(screen.getByText("Where this ranks")).toBeTruthy();
-    expect(screen.getByText(/powerlifting competitors/)).toBeTruthy();
+    expect(screen.queryByText("Where this ranks")).toBeNull();
+    expect(screen.queryByText(/powerlifting competitors/)).toBeNull();
   });
 
-  it("still ranks the lift when the athlete's age falls outside the reported band", () => {
-    // Withholding a number from a 66-year-old, when the closest published
-    // reference is right there and can be named, was the behaviour replaced.
+  it("does not stand the competitor table in for an athlete outside its age band either", () => {
     renderDetail({ referenceRows: squatLadder, athleteProfile: { sexForReference: "male", birthYear: 1960 } });
 
     expect(screen.queryByText("Compared to that study group")).toBeNull();
-    expect(screen.getByText("Where this ranks")).toBeTruthy();
+    expect(screen.queryByText("Where this ranks")).toBeNull();
   });
 
   it("names the gate that closed the comparison rather than only the general rule", () => {

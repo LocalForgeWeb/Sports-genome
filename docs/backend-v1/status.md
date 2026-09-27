@@ -6,7 +6,7 @@ One row per requirement in `docs/backend-v1/brief.md` (copied unchanged from the
 
 ## Owner decision: payments deferred
 
-On 28 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B220), Gate C (B276–B279) and the other payment-specific tasks, and record them as **deferred by owner** — not incomplete, and not launch-blocking for this assignment. That covers:
+On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B220), Gate C (B276–B279) and the other payment-specific tasks, and record them as **deferred by owner** — not incomplete, and not launch-blocking for this assignment. That covers:
 
 - **Section 12, iOS subscriptions and grandfathered pricing:** B196–B220, in full.
 - **Gate C, payments:** B276–B279, in full.
@@ -18,9 +18,9 @@ On 28 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 261
-- `implementing`: 4
-- `verified`: 3
+- `pending`: 237
+- `implementing`: 17
+- `verified`: 14
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -73,15 +73,15 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B015 | Inventory tables, views, functions, triggers, jobs, Edge Functions, exposed schemas, storage buckets, and relevant policies. | pending |  |
-| B016 | Identify existing norm, eligibility, muscle-effect, sports-transfer, and strength-engine components. Treat historical names such as… | pending |  |
-| B017 | Identify calculations duplicated in SQL, server functions, frontend utilities, or hardcoded component logic. | pending |  |
-| B018 | Inventory research datasets with current row counts, eligible counts, review reasons, source revisions, and actual app consumption. Historical… | pending |  |
-| B019 | Identify mock, seed, placeholder, and fallback values that can reach a real account. | pending |  |
-| B020 | Identify where local storage is authoritative, where server storage is authoritative, and where the app currently mixes them. | pending |  |
+| B015 | Inventory tables, views, functions, triggers, jobs, Edge Functions, exposed schemas, storage buckets, and relevant policies. | verified | docs/backend-v1/inventory/supabase.md (tables, views, functions, triggers, cron, Edge Functions, storage, policies, grants, advisors) and inventory/server.md (MySQL schema, migrations 0000-0010, every tRPC procedure). |
+| B016 | Identify existing norm, eligibility, muscle-effect, sports-transfer, and strength-engine components. Treat historical names such as… | verified | inventory/engines.md: norm routes (research band, strength_beta_v1 curves, powerlifting, Piper, registry), eligibility views, muscle aggregation (aggregate_muscle_strength_v1), sport transfer, and the DB muscle-effect engine the app never calls. |
+| B017 | Identify calculations duplicated in SQL, server functions, frontend utilities, or hardcoded component logic. | verified | inventory/engines.md EN-03/EN-04/EN-10/EN-18/EN-21 and traces.md TR-01: e1RM computed two ways (TS mean of Epley+Brzycki vs DB Strength Level), two coverage models for one target, and more. |
+| B018 | Inventory research datasets with current row counts, eligible counts, review reasons, source revisions, and actual app consumption. Historical… | verified | inventory/supabase.md research datasets: row, eligible and review-status counts per family (e.g. 3,512 strength_norms; app_strength_beta_curves_v1 1,480 rows all Strength Level, 1,220 blocked + 260 without eligibility rows). |
+| B019 | Identify mock, seed, placeholder, and fallback values that can reach a real account. | verified | inventory/persistence.md PS-14 (fallback sport 'wrestling' written as sport_id; production Supabase URL/key built into every build), PS-21, PS-22. |
+| B020 | Identify where local storage is authoritative, where server storage is authoritative, and where the app currently mixes them. | verified | inventory/persistence.md authority table: everything day-to-day is device-local (directWorkspaceAccess = true); MySQL holds plan (sync), priorities and dormant session APIs; Supabase receives lift sync only. |
 | B021 | Record current schema/library/runtime versions and verify applicable current documentation before using version-dependent APIs. | implementing | Versions recorded in inventory.md § Versions. Current documentation is checked when a version-dependent API is used; noted per change in verification.md. |
 | B022 | Establish representative baseline fixtures and outputs before modifying calculations. | implementing | Suite/typecheck baseline recorded in verification.md; per-engine numeric baselines are added before each calculation change. |
-| B023 | List current failures and uncertain behavior separately. Do not present an untested hypothesis as a confirmed defect. | pending |  |
+| B023 | List current failures and uncertain behavior separately. Do not present an untested hypothesis as a confirmed defect. | verified | Every inventory finding is labelled CONFIRMED (with the test, probe or query) or HYPOTHESIS. |
 
 ## 3. Establish canonical data semantics
 
@@ -96,7 +96,7 @@ _No requirement IDs in this section._
 | B030 | Keep historical bodyweight and relevant profile context available for historical calculations. Do not silently apply today's weight to every past… | pending |  |
 | B031 | Preserve the recorded context when a user later changes age-related information, sex/reference-population choice, sport, or experience. | pending |  |
 | B032 | Enforce referential integrity and correct ownership across child rows, not just parent records. | pending |  |
-| B033 | Define stable operation IDs and revision/conflict handling for retryable writes. | pending |  |
+| B033 | Define stable operation IDs and revision/conflict handling for retryable writes. | implementing | Plan save: revision check and write are now one statement; a lost race returns conflict, concurrent first saves return one save and one conflict (0afbd64, server/workoutPlanSync.atomic.test.ts renders the real WHERE). Remaining: operation ids for workout start/complete and observation writes (SV-05, dormant MySQL routes), Supabase lift sync (PS-09). |
 
 ### Input validation
 
@@ -157,7 +157,7 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B064 | Identify the intended comparison population for each norm family: general population, trained people, athletes, competitors, or another defined… | pending |  |
-| B065 | Do not treat powerlifting competitors as the default population for all exercises or all users. | pending |  |
+| B065 | Do not treat powerlifting competitors as the default population for all exercises or all users. | verified | Competitor rank removed from the default panel; the competition comparison appears only for an exact competition-context match. D-004. Tests: StrengthGenomePanel.rankGate.test.ts (7), StrengthGenomePanel.registryReference.render.test.ts. |
 | B066 | Separate direct exercise-specific references from transferred or adjusted references. | pending |  |
 | B067 | Audit age, sex/reference-population, bodyweight, and training-status effects already present in the source so they are not applied twice. | pending |  |
 | B068 | For each multiplier or interpolation, record equation, source, applicable domain, direction, assumptions, and validation cases. | pending |  |
@@ -176,7 +176,7 @@ _No requirement IDs in this section._
 | B076 | Distinguish a true reference percentile from a normalized product score or rank band. | pending |  |
 | B077 | Handle lower-is-better metrics correctly, including completion time. | pending |  |
 | B078 | Preserve canonical rank identifiers and approved display mapping unless an independently justified change is required. | pending |  |
-| B079 | Verify threshold inclusivity at every rank boundary and keep rounding from moving an underlying score across the wrong boundary. | pending |  |
+| B079 | Verify threshold inclusivity at every rank boundary and keep rounding from moving an underlying score across the wrong boundary. | implementing | Piper 2021 preacher-curl bands made contiguous with an explicit inclusive/exclusive rule and a stored-value tolerance (shared/piper2021PreacherCurlReference.ts bandFor; client/src/lib/piper2021PreacherCurlReference.test.ts). Remaining rank boundaries reviewed with EN-16. |
 | B080 | Keep unranked/pending separate from the lowest rank. | pending |  |
 | B081 | Produce numeric traces for representative high, medium, low, missing-context, and unsupported performances. | pending |  |
 
@@ -237,7 +237,7 @@ _No requirement IDs in this section._
 | B113 | Explain any caps, weights, penalties, and saturation. Preserve per-region gaps alongside the headline score. | pending |  |
 | B114 | Use the same calculation snapshot for summary and detailed analysis. | pending |  |
 | B115 | Reproduce the walkthrough's 11-point versus 15-point adductor-gap discrepancy if possible. Determine whether it is scope, stale state, or formula… | pending |  |
-| B116 | Ensure edit, add, remove, reorder when relevant, and Undo invalidate exactly the necessary derived results. | pending |  |
+| B116 | Ensure edit, add, remove, reorder when relevant, and Undo invalidate exactly the necessary derived results. | implementing | Undo/edit now write through one path (editDay) so derived day results recompute from the committed day. Coverage-derived results are unified in batch 5 (B115). |
 | B117 | Distinguish planned weekly coverage from completed weekly exposure in API contracts and UI consumers. | pending |  |
 
 ### 7.2 Recommendation utility
@@ -315,9 +315,9 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B160 | Bind operations to stable week/day/session IDs, not visible labels or a mutable global selected index. | pending |  |
+| B160 | Bind operations to stable week/day/session IDs, not visible labels or a mutable global selected index. | implementing | Plan edits and Undo now go through editDay(dayKey, …) keyed on the stable day key, not the open day; reorder uses moveWithin by entry id. Week binding and session ids are reviewed with plan sync in batch 6. |
 | B161 | Distinguish a duplicate network request from the user intentionally adding another instance of an exercise. | pending |  |
-| B162 | Make Undo reference the exact operation/instance it reverses. | pending |  |
+| B162 | Make Undo reference the exact operation/instance it reverses. | verified | Every Undo captures the day key at the time of the edit and reverses only that entry; draft Undo refuses when the day changed after the draft. Test: client/src/pages/Home.undoAndLoading.test.ts. |
 | B163 | Prevent Undo from deleting another user's change or an independently edited record without conflict handling. | pending |  |
 | B164 | Make multi-row mutations atomic where partial success would corrupt the plan. | pending |  |
 | B165 | Preserve ordering deterministically and handle concurrent reorder/edit operations explicitly. | pending |  |
@@ -329,14 +329,14 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B167 | Document which actions work offline and which require verification/network access. | pending |  |
 | B168 | Use durable pending operations with stable IDs where offline writes are supported; survive app termination before sync. | pending |  |
-| B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | pending |  |
+| B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | implementing | A finished workout that could not be written is no longer reported as saved: the tracker stays open with 'This workout could not be saved yet' and Try again (DeviceWorkoutTracker finish). Account sync states come with batch 6. |
 | B170 | Reconcile retries idempotently; an app restart during sync must not duplicate sets. | pending |  |
 | B171 | Define conflict rules for two-device edits. Do not choose last-write-wins everywhere without considering lost workout data. | pending |  |
 | B172 | Preserve deletion intent through tombstones or an equivalent mechanism so stale devices do not resurrect deleted records. | pending |  |
 | B173 | Namespace local records/caches by account. Signing out and into another account must not reveal or merge the first account's data. | pending |  |
 | B174 | Make guest-to-account import explicit and repeatable without duplicate imports. | pending |  |
 | B175 | Avoid attaching ambiguous shared-device local data to a newly signed-in account without a clear ownership decision. | pending |  |
-| B176 | Define behavior when authentication expires during a save. Keep legitimate unsynced work recoverable. | pending |  |
+| B176 | Define behavior when authentication expires during a save. Keep legitimate unsynced work recoverable. | implementing | Local finish failure keeps the session recoverable (not closed). Auth-expiry during account save is latent while no sign-in control ships; handled with batch 6. |
 | B177 | Implement stable schema migration for existing local data if its format changes. | pending |  |
 
 ## 11. Supabase access control and server authority
@@ -348,10 +348,10 @@ _No requirement IDs in this section._
 | B180 | Test ownership on create, read, update, and delete, including attempted owner reassignment and foreign child-parent combinations. | pending |  |
 | B181 | Audit view/function privileges and execution context so an indirect endpoint cannot bypass intended ownership checks. | pending |  |
 | B182 | Review privileged functions individually. Do not add elevated execution merely to make a permission error disappear. | pending |  |
-| B183 | Keep server secrets out of frontend builds, logs, screenshots, and generated reports. | pending |  |
+| B183 | Keep server secrets out of frontend builds, logs, screenshots, and generated reports. | implementing | SV-01/SV-12 (0afbd64): unexpected API errors no longer return SQL or bound values; a malformed DATABASE_URL is no longer logged with its password. Live probe with an unreachable database: response carried only a reference; log line had no email, password or URL. Remaining: SV-07 hard-coded production Supabase URL/key in the client build (PS-14). |
 | B184 | Do not trust user-editable profile metadata for roles, paid access, evidence promotion, or administrative authorization. | pending | Payment portion (paid access must not come from profile metadata) deferred by owner; roles, evidence promotion and admin authorization remain in scope. |
 | B185 | Validate ownership and premium access on relevant server endpoints; hiding frontend buttons is not enforcement. | pending | Premium-access enforcement deferred by owner; ownership validation remains in scope. |
-| B186 | Verify session/token handling with the actual runtime and current guidance, including stale claims and sign-out behavior. | pending |  |
+| B186 | Verify session/token handling with the actual runtime and current guidance, including stale claims and sign-out behavior. | implementing | Cross-site form sign-out closed by refusing non-JSON POSTs (415), keeping SameSite=None for the future native shell (live probe). Remaining SV-11 session hygiene: sliding expiry, sign-out-all, revocation on passkey removal, purge of expired sessions. |
 | B187 | Test storage access if profile images, imports, or exports are used. | pending |  |
 | B188 | Provide account deletion and export behavior appropriate to actual stored data; include derived records, storage, and background jobs in the… | pending |  |
 | B189 | Ensure account deletion does not silently imply a separately billed App Store subscription has been canceled; make the subscription-management… | deferred (owner) | Payments deferred by owner for this assignment; not incomplete and not launch-blocking for it. |
@@ -365,11 +365,11 @@ _No requirement IDs in this section._
 | B192 | B cannot read, mutate, attach children to, or infer sensitive details about A's records through tables, joins, views, RPCs, search, or storage. | pending |  |
 | B193 | Anonymous requests receive only explicitly intended public information. | pending |  |
 | B194 | User clients cannot alter curated evidence, engine configuration, subscription state, or privileged flags. | pending | Subscription-state portion deferred by owner; curated evidence, engine configuration and privileged flags remain in scope. |
-| B195 | Server operations use only the necessary privilege and leave an appropriate operational trace without leaking sensitive payloads. | pending |  |
+| B195 | Server operations use only the necessary privilege and leave an appropriate operational trace without leaking sensitive payloads. | implementing | Server faults leave one JSON log line (reference, procedure, error class and driver code; no payload) — server/_core/apiErrors.ts, tests in apiErrors.test.ts. Server-role operations beyond the API not yet reviewed. |
 
 ## 12. iOS subscriptions and grandfathered pricing
 
-**Whole section deferred by owner (28 September 2026).** Not incomplete and not launch-blocking for this assignment.
+**Whole section deferred by owner (27 September 2026).** Not incomplete and not launch-blocking for this assignment.
 
 _No requirement IDs in this section._
 
@@ -441,10 +441,10 @@ _No requirement IDs in this section._
 | B233 | Investigate repeated queries, unnecessary full-dataset downloads, and recomputation on unrelated state changes. | pending |  |
 | B234 | Use indexes and bounded/paginated queries justified by actual access patterns. | pending |  |
 | B235 | Keep search results stable across pagination and updates where the product needs that consistency. | pending |  |
-| B236 | Prevent public or authenticated endpoints from triggering unbounded expensive analysis without appropriate bounds/rate controls. | pending |  |
+| B236 | Prevent public or authenticated endpoints from triggering unbounded expensive analysis without appropriate bounds/rate controls. | verified | SV-02 (0afbd64): maxBatchSize 10 (client splits at 10); per-client allowance of 120 calls/min per instance on the five public routes that fan out to Supabase; 8 s deadline on every Supabase call; muscle-rank route at most 4 upstream calls in flight; caller-keyed caches bounded (500/200/1000, LRU); caller curve id must be a UUID. Live probe: batch of 11 refused, 10 accepted; bad id rejected. Tests: server/boundedCache.test.ts. |
 | B237 | Make background calculations retryable and prevent stale job results from replacing newer input revisions. | pending |  |
-| B238 | Track error counts, failed saves/syncs, unsupported norm reasons, calculation failures, and entitlement-processing failures. | pending | Entitlement-processing failure tracking deferred by owner; the other counters remain in scope. |
-| B239 | Use correlation IDs or equivalent tracing across relevant client/server operations without logging entire private workouts, auth tokens, or signed… | pending | Signed purchase payloads deferred by owner; tracing and not logging workouts/tokens remain in scope. |
+| B238 | Track error counts, failed saves/syncs, unsupported norm reasons, calculation failures, and entitlement-processing failures. | implementing | Server faults are counted as structured log lines (scope=api). No aggregate counters for failed saves/syncs, unsupported norms or calculation failures yet. Entitlement failures: deferred by owner. |
+| B239 | Use correlation IDs or equivalent tracing across relevant client/server operations without logging entire private workouts, auth tokens, or signed… | implementing | Every server fault gets a reference returned to the caller and logged with it (0afbd64). Client-side correlation not yet propagated. Signed purchase payloads: deferred by owner. |
 | B240 | Provide a small operational runbook for failed sync, bad reference release, stale calculation, missed purchase event, and unavailable service. | pending | Missed-purchase-event runbook entry deferred by owner; the other runbook entries remain in scope. |
 | B241 | Verify that error monitoring itself does not expose secrets or sensitive profile details. | pending |  |
 
@@ -456,7 +456,7 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B242 | Convert 100 lb to 45.359237 kg using the exact mass conversion, then round only for display. | pending |  |
+| B242 | Convert 100 lb to 45.359237 kg using the exact mass conversion, then round only for display. | implementing | Piper lookup tolerates the 0.02 lb storage error from lb->kg->lb round trips (STORAGE_TOLERANCE_LB) instead of crashing or skipping a band. Per-set unit storage in batch 2. |
 | B243 | Verify equivalent pound/kilogram representations produce equivalent normalized results within declared floating-point tolerance. | pending |  |
 | B244 | A pair of 25 kg dumbbells under a total-external-load convention normalizes to 50 kg; the same entry explicitly recorded as 25 kg total remains 25 kg. | pending |  |
 | B245 | A unilateral 25 kg lift is not automatically converted to 50 kg merely because the user has two limbs. | pending |  |
@@ -493,7 +493,7 @@ _No requirement IDs in this section._
 | B261 | Log offline → terminate app → reopen → reconnect → one durable record. | pending |  |
 | B262 | Sign out A → sign in B → no A profile/plan/history leaks from caches. | pending |  |
 | B263 | Change week/day while a request is in flight → response updates its intended destination, not the newly selected day. | pending |  |
-| B264 | Launch with persisted plan loading → pending state, not false empty plan. | pending |  |
+| B264 | Launch with persisted plan loading → pending state, not false empty plan. | verified | Today panel shows 'Loading your plan…' until the saved plan is read, and every plan edit is refused (toast) before then, so nothing is confirmed and then overwritten. Test: Home.undoAndLoading.test.ts. |
 | B265 | Home/Plan/analysis/Progress use matching definitions and revisions for shared counts and scores. | pending |  |
 | B266 | Simulate late calculation response → newer input result remains authoritative. | pending |  |
 
@@ -522,7 +522,7 @@ _No requirement IDs in this section._
 
 ### Gate C — payments
 
-**Gate deferred by owner (28 September 2026).** Not a failed or blocked gate for this assignment.
+**Gate deferred by owner (27 September 2026).** Not a failed or blocked gate for this assignment.
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
@@ -563,7 +563,7 @@ _No requirement IDs in this section._
 | B287 | Record existing engine versions and assign new versions only for meaningful calculation/contract changes. | pending |  |
 | B288 | Maintain a compatibility map between client contract, engine version, schema revision, and reference-data revision. | pending |  |
 | B289 | Preserve baseline fixtures and add regression cases for every material bug repaired in V1. | pending |  |
-| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | pending |  |
+| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes are recorded as decisions (D-004 competitor rank) and in the rewritten tests; the handoff will list them all. |
 | B291 | Carry unresolved issues forward with stable IDs, dependencies, attempted approaches, and evidence. | pending |  |
 | B292 | Separate V2 ideas from unfinished V1 requirements. Do not quietly reclassify incomplete launch-critical work as a future enhancement. | pending |  |
 | B293 | For each candidate extension, identify whether it adds a module, expands supported inputs, improves evidence, or changes existing semantics. | pending |  |

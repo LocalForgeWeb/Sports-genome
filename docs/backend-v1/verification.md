@@ -15,7 +15,7 @@ Commands actually run, fixtures, numeric traces and integration results (B005, B
 
 ## Baseline before any Backend V1 change (B022)
 
-`main` at 52c8f52, 28 September 2026, work environment above.
+`main` at 52c8f52, 27 September 2026, work environment above.
 
 ```text
 npx tsc --noEmit            -> exit 0

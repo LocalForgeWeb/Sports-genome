@@ -1,6 +1,6 @@
 # Backend V1 inventory
 
-The system as found on 28 September 2026 (`main` at 52c8f52), before this assignment changed anything. Each part below was produced by reading the code and querying the live database read-only; findings are marked CONFIRMED or HYPOTHESIS in the parts.
+The system as found on 27 September 2026 (`main` at 52c8f52), before this assignment changed anything. Each part below was produced by reading the code and querying the live database read-only; findings are marked CONFIRMED or HYPOTHESIS in the parts.
 
 ## Architecture in one paragraph
 
