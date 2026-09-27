@@ -97,7 +97,8 @@ describe("the workout under way is readable from outside the tracker", () => {
 
 describe("every surface that described the day now reads the session", () => {
   it("keeps the way back to the workout on screen, and off the tracker itself", () => {
-    expect(home).toContain('{liveSession && workspace !== "tracker" && <SessionResumeBar live={liveSession}');
+    // Never on the tracker, and never on Home while the hero's own Resume is in view.
+    expect(home).toContain('{liveSession && workspace !== "tracker" && !(workspace === "command" && homeResumeVisible) && <SessionResumeBar live={liveSession}');
     expect(home).toContain('onResume={() => navigateWorkspace("tracker")}');
   });
 

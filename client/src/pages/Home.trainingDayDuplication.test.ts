@@ -57,7 +57,7 @@ describe("Training Day duplicate prescriptions", () => {
 
   it("bridges the explicit row action to the Training Day duplicate mutation without changing catalog add behavior", () => {
     expect(source).toContain('window.addEventListener("duplicate-training-exercise", duplicateFromPrescription)');
-    expect(source).toContain("if (current.some((item) => catalogExerciseIdFor(item) === exercise.id))");
+    expect(source).toContain("if (customWorkout.some((item) => catalogExerciseIdFor(item) === exercise.id))");
   });
 
   /**

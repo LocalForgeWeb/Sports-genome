@@ -31,7 +31,9 @@ describe("universal search and retrieval contract / local search", () => {
       // the page, where what was searched has to be said in words.
       return !/role="listbox"[\s\S]*aria-controls=\{listId\}|aria-controls=\{listId\}[\s\S]*role="listbox"/.test(source);
     });
-    expect(searches.length, "local search inputs were found").toBeGreaterThan(4);
+    // Four today: the Genome page's search retired with the page (its per-exercise
+    // analysis lives in the exercise overlay, which has no search of its own).
+    expect(searches.length, "local search inputs were found").toBeGreaterThan(3);
 
     const unscoped = searches.filter((path) => !readFileSync(path, "utf8").includes("<LocalSearchScope"));
     expect(unscoped.map((path) => path.replace(SRC, "")), "these searches state no scope").toEqual([]);

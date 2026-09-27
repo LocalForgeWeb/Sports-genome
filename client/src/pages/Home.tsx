@@ -2,7 +2,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dna, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UsersRound, X, Zap } from "lucide-react";
+import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, X, Zap } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { roleMapForLists } from "@/lib/anatomyRegions";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
@@ -80,7 +80,7 @@ import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
 import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 
-type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "genome" | "strength";
+type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength";
 type Goal = TrainingGoal;
 type StackMode = "suggested" | "custom";
 type StoredAthleteProfile = { version: 1 | 2 | 3; sportId: string; sportContextMode?: SportContextMode; capacityFocus?: CapacityFocusState; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
@@ -133,14 +133,13 @@ const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator").then
 const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPanel").then((module) => ({ default: module.CatalogDiscoveryPanel })));
 const CatalogExerciseEvidenceCard = lazy(() => import("@/components/CatalogExerciseEvidenceCard").then((module) => ({ default: module.CatalogExerciseEvidenceCard })));
 const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel").then((module) => ({ default: module.StrengthGenomePanel })));
-const ExerciseGenomeWorkspace = lazy(() => import("@/components/ExerciseGenomeWorkspace").then((module) => ({ default: module.ExerciseGenomeWorkspace })));
 const SelectedActionConnectionCard = lazy(() => import("@/components/SelectedActionConnectionCard").then((module) => ({ default: module.SelectedActionConnectionCard })));
 
 type NavGroup = "Home" | "Train" | "Explore" | "Sport";
 const navGroups: NavGroup[] = ["Home", "Train", "Sport", "Explore"];
 const navItems: { id: Workspace; label: string; icon: typeof Target; detail: string; group: NavGroup }[] = [
   { id: "command", label: "Home", icon: Target, detail: "plan context & next action", group: "Home" },
-  { id: "profile", label: "About Me", icon: UsersRound, detail: "baseline & equipment", group: "Home" },
+  { id: "profile", label: "About Me", icon: UserRound, detail: "baseline & equipment", group: "Home" },
   { id: "progress", label: "Progress", icon: BarChart3, detail: "training & observation record", group: "Home" },
   { id: "day-plan", label: "Training Days", icon: Layers3, detail: "design each saved day", group: "Train" },
   { id: "tracker", label: "Session", icon: Activity, detail: "start the day's workout and record its sets", group: "Train" },
@@ -150,7 +149,6 @@ const navItems: { id: Workspace; label: string; icon: typeof Target; detail: str
   { id: "body", label: "Body Lab", icon: Activity, detail: "muscle-to-movement analysis", group: "Explore" },
   { id: "strength", label: "Strength Genome", icon: BrainCircuit, detail: "your performance profile", group: "Home" },
   { id: "catalog", label: "Exercise Catalog", icon: BookOpen, detail: `${exercises.length} mapped exercises`, group: "Explore" },
-  { id: "genome", label: "Exercise Genome", icon: Dna, detail: "contextual exercise intelligence", group: "Explore" },
 ];
 
 // FIXED DEFAULT per the Sports Genome philosophy's Mobile global navigation contract: four
@@ -182,16 +180,15 @@ const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, Con
   train: [
     { id: "day-plan", label: "Plan", workspace: "day-plan" },
     { id: "review", label: "Review", workspace: "review" },
-    { id: "tracker", label: "Session", workspace: "tracker" },
+    { id: "tracker", label: "Workout", workspace: "tracker" },
     { id: "recommended", label: "Matches", workspace: "recommended" },
   ],
   // Body Lab is the reference library: look things up, understand them. Everything
   // here is about exercises and anatomy in general, not about this athlete.
   body: [
-    { id: "movement", label: "Movement", workspace: "movement" },
-    { id: "body", label: "Body Lab", workspace: "body" },
-    { id: "catalog", label: "Catalog", workspace: "catalog" },
-    { id: "genome", label: "Genome", workspace: "genome" },
+    { id: "movement", label: "Movements", workspace: "movement" },
+    { id: "body", label: "Muscles", workspace: "body" },
+    { id: "catalog", label: "Exercises", workspace: "catalog" },
   ],
   /**
    * Progress is the athlete's own record, so logging a lift belongs here.
@@ -214,7 +211,28 @@ export function primaryDestinationForWorkspace(workspace: Workspace): PrimaryDes
   return "home";
 }
 
+/**
+ * What each place is called, once, for the browser tab and for anything that
+ * has to name the current page in words. Pages carry their own heading in the
+ * content; this is the same name, kept in step.
+ */
+export const workspaceTitles: Record<Workspace, string> = {
+  command: "Home",
+  profile: "About me",
+  progress: "Your progress",
+  strength: "Strength Genome",
+  "day-plan": "Training plan",
+  review: "Review your week",
+  tracker: "Workout",
+  recommended: "Exercise matches",
+  movement: "Movement explorer",
+  body: "Muscle map",
+  catalog: "Exercise catalog",
+};
+
 export function workspaceFromLocation(value: string | null): Workspace {
+  // The Genome page folded into the catalog and its overlay; old links still land.
+  if (value === "genome") return "catalog";
   return navItems.some((item) => item.id === value) ? value as Workspace : "command";
 }
 
@@ -239,7 +257,7 @@ export function shouldRenderMetric(detail: string) {
   return detail !== "coach-set planning marker";
 }
 
-function RecommendationRow({ result, index, onAdd, onInspect }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void }) {
+function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void; destinationLabel?: string }) {
   const metrics = [
     ["Movement transfer", result.breakdown.movementTransferSimilarity],
     ["Muscle targeting", result.breakdown.muscleMatch],
@@ -256,7 +274,7 @@ function RecommendationRow({ result, index, onAdd, onInspect }: { result: Moveme
    * catalog's planning tier, which it names itself. Neither is a strength rank,
    * and the stamp is not handed the score, so the two labels stay distinct.
    */
-  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match score ${score} for ${result.exercise.name}: open details`}><strong>{score}</strong><small>match</small></button><GradeStamp grade={result.grade} compact /><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to the training day`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><p className="recommendation-trace"><span>Matched to</span> <strong>{result.hierarchy.movement}</strong> <span>to build</span> <strong>{result.hierarchy.physicalQualities.slice(0, 2).join(" and ").toLowerCase()}</strong></p></details></article>;
+  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match score ${score} for ${result.exercise.name}: open details`}><strong>{score}</strong><small>match</small></button><GradeStamp grade={result.grade} compact /><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><p className="recommendation-trace"><span>Matched to</span> <strong>{result.hierarchy.movement}</strong> <span>to build</span> <strong>{result.hierarchy.physicalQualities.slice(0, 2).join(" and ").toLowerCase()}</strong></p></details></article>;
 }
 
 function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => void }) {
@@ -315,7 +333,6 @@ export default function Home() {
   const [activeMuscle, setActiveMuscle] = useState<string | null>(null);
   const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [genomeExerciseId, setGenomeExerciseId] = useState(1);
   const [catalogQuery, setCatalogQuery] = useState("");
   const [catalogFilters, setCatalogFilters] = useState<CatalogFilters>(defaultCatalogFilters);
   const [localFavoriteIds, setLocalFavoriteIds] = useState<number[]>([]);
@@ -349,6 +366,16 @@ export default function Home() {
    * what has been done.
    */
   const liveSession = useLiveSession();
+  /** Whether Home's own resume module is on screen; the strip yields to it while it is. */
+  const [homeResumeVisible, setHomeResumeVisible] = useState(true);
+  useEffect(() => {
+    if (workspace !== "command" || !liveSession || typeof IntersectionObserver !== "function") { setHomeResumeVisible(workspace === "command"); return; }
+    const hero = document.querySelector(".today-action-live");
+    if (!hero) { setHomeResumeVisible(false); return; }
+    const observer = new IntersectionObserver(([entry]) => setHomeResumeVisible(entry?.isIntersecting ?? false), { threshold: 0.2 });
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [workspace, liveSession?.id]);
   /**
    * Which days of this week have been trained. Recomputed whenever the live
    * session changes, which is every checkpoint the tracker writes.
@@ -544,7 +571,6 @@ export default function Home() {
   // The same tolerant matcher the day picker uses, so a name typed here finds
   // what a name typed there finds.
   const filteredCatalog = useMemo(() => searchExercises(exercises, catalogQuery).slice(0, 24), [catalogQuery]);
-  const genomeExercise = exercises.find((exercise) => exercise.id === genomeExerciseId) || exercises[0];
   const createWeekSnapshot = (): WeekSnapshot => ({
     days: commitDay(dayStore, draftDayKeyRef.current, activeDraft()),
     activeDayIndex: activeSlot.index,
@@ -822,6 +848,8 @@ export default function Home() {
     }
     if (!keepScroll) window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
+  /** Tapping the destination you are already in returns that page to the top; it does not swap to the destination's first page. */
+  const dockTarget = (item: { id: PrimaryDestination; defaultWorkspace?: Workspace }): Workspace => (item.id === activePrimaryDestination ? workspace : item.defaultWorkspace!);
   const navigateDockDestination = (next: Workspace, event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => {
     if (event.type === "pointerup" && "pointerType" in event && event.pointerType !== "mouse") {
       dockTouchNavigationRef.current = { destination: next, timestamp: Date.now() };
@@ -848,21 +876,31 @@ export default function Home() {
     const restoreWorkspace = () => {
       // Browser Back is its own return path, so the search return bar goes with it.
       setSearchReturn(null);
+      // Whatever entry we landed on, an open overlay is the topmost thing and closes first.
+      setInspectedExercise(null);
       setWorkspaceState(workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
     };
     window.addEventListener("popstate", restoreWorkspace);
     return () => window.removeEventListener("popstate", restoreWorkspace);
   }, []);
-  const addExercise = (exercise: Exercise) => setCustomWorkout((current) => {
-    if (current.some((item) => catalogExerciseIdFor(item) === exercise.id)) {
-      toast("Already in this workout", { description: `${exercise.name} is already part of the active session.` });
-      return current;
+  /**
+   * One add, to the day the strip names. The toast says which day received it
+   * and offers the two things worth doing next: look at that day, or take it
+   * back. A second tap on the same exercise is answered, not repeated.
+   */
+  const addExercise = (exercise: Exercise) => {
+    if (customWorkout.some((item) => catalogExerciseIdFor(item) === exercise.id)) {
+      toast("Already in this workout", { description: `${exercise.name} is already in Week ${activeWeek} · ${activeSlot.day}.` });
+      return;
     }
-    // Names the day, since every plus in the app adds to the active one and the
-    // athlete may be on Matches, the catalog or Body Lab when they press it.
-    toast(`Added to Week ${activeWeek} · ${activeSlot.day}`, { description: `${exercise.name} is in that day now.` });
-    return [...current, exercise];
-  });
+    const destination = `Week ${activeWeek} · ${activeSlot.day}`;
+    setCustomWorkout((current) => current.some((item) => catalogExerciseIdFor(item) === exercise.id) ? current : [...current, exercise]);
+    toast(`Added to ${destination}`, {
+      description: `${exercise.name} is in that day now.`,
+      action: { label: "View workout", onClick: () => navigateWorkspace("day-plan") },
+      cancel: { label: "Undo", onClick: () => setCustomWorkout((current) => current.filter((item) => catalogExerciseIdFor(item) !== exercise.id)) },
+    });
+  };
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
     setLocalFavoriteIds((current) => currentlyFavorite ? current.filter((id) => id !== exercise.id) : Array.from(new Set([...current, exercise.id])));
@@ -1144,12 +1182,26 @@ export default function Home() {
     applyWeek(nextWeek, generated);
     toast(`Week ${nextWeek} generated`, { description: `${splitDays.length} training days were built around your ${goal.toLowerCase()} goal and ${gymTimeBudget.label.toLowerCase()} budget.` });
   };
-  const inspectExercise = (exercise: Exercise) => { setInspectedExercise(exercise); setActiveMuscle(exercise.primaryMuscles[0] || "obliques"); };
+  /**
+   * The overlay is a history entry of its own, so Back closes it and leaves the
+   * page underneath exactly as it was; a second Back then follows real history.
+   * Closing with the button or Escape pops that same entry, so nothing is left
+   * behind for the next Back to swallow.
+   */
+  const inspectExercise = (exercise: Exercise) => {
+    setInspectedExercise(exercise);
+    setActiveMuscle(exercise.primaryMuscles[0] || "obliques");
+    if (typeof window !== "undefined" && window.history.state?.overlay !== "exercise") window.history.pushState({ workspace, overlay: "exercise" }, "", window.location.href);
+  };
+  const closeInspector = () => {
+    if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") { window.history.back(); return; }
+    setInspectedExercise(null);
+  };
   // The overlay is the topmost transient surface, so Escape closes it and
   // nothing else; the list, filters and scroll it opened over are untouched.
   useEffect(() => {
     if (!inspectedExercise) return;
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setInspectedExercise(null); };
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") closeInspector(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [inspectedExercise]);
@@ -1216,8 +1268,7 @@ export default function Home() {
       const exercise = exercises.find((item) => String(item.id) === result.id);
       if (!exercise) return;
       inspectExercise(exercise);
-      setGenomeExerciseId(exercise.id);
-      target = "genome";
+      target = "catalog";
     } else if (result.type === "sport") {
       // Opening a sport from search is reading, not adopting. This used to call
       // chooseSport, which rewrites the athlete's sport and clears every saved
@@ -1312,9 +1363,8 @@ export default function Home() {
    * header says "Training Days" and the tabs say Plan / Review / Session, so
    * the destination's name is worth stating and this keeps it.
    */
-  const activeContextTabLabel = contextualWorkspaceTabs.find((tab) => tab.id === activeContextTabId)?.label ?? "";
-  const workspaceLabel = navItems.find((item) => item.id === workspace)?.label ?? "";
-  const topbarLabel = workspaceLabel.toLowerCase() === activeContextTabLabel.toLowerCase() ? "" : workspaceLabel;
+  // The browser tab names the page the same way the page names itself.
+  useEffect(() => { document.title = `${workspaceTitles[workspace]} · Sports Genome`; }, [workspace]);
   /**
    * A tab goes to its page. That is the whole behaviour.
    *
@@ -1353,26 +1403,16 @@ export default function Home() {
         * it says.
         */}
       <header className="apex-topbar">
-        <div className="flex min-w-0 items-center gap-3">
-          <img src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="topbar-brand-logo shrink-0 object-cover" />
-          <div className="min-w-0">{topbarLabel && <p className="metric-label">{topbarLabel}</p>}<div className="topbar-context-chips" aria-label={`Current planning context: ${sportDisplayLabel}, ${goal}, ${trainingDays} training days`}><span title={sportDisplayLabel}>{sportDisplayLabel}</span><span title={goal}>{goal}</span><span>{trainingDays} days</span></div></div>
+        <div className="topbar-brand">
+          <img src={sportsGenomeAssets.circularBadge} alt="Sports Genome" className="topbar-brand-logo shrink-0 object-cover" />
+          <div className="min-w-0">
+            <p className="topbar-wordmark">Sports Genome</p>
+            {/* The plan's three facts, and the one way to change them. A button,
+                not decoration: it says where it goes. */}
+            <button type="button" className="topbar-context-chips" onClick={() => navigateWorkspace("profile")} title="Edit training preferences" aria-label={`Edit training preferences. Current: ${sportDisplayLabel}, ${goal}, ${trainingDays} training days`}><span>{sportDisplayLabel}</span><span>{goal}</span><span>{trainingDays} days</span><SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" /></button>
+          </div>
         </div>
-      </header>
-      {/*
-        * The app's only top chrome, and always present.
-        *
-        * It used to render only where a destination had more than one page, which was
-        * fine while a header carried search and Profile. With the header gone this row
-        * carries them, so a single-page destination that skipped it would stranded both -
-        * Profile especially, which is deliberately kept out of the bottom nav and has no
-        * other route.
-        */}
-      <WorkspaceTabs
-        tabs={contextualWorkspaceTabs}
-        activeId={activeContextTabId}
-        label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}
-        onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)}
-        actions={<>
+        <div className="topbar-utilities">
           <UniversalSearch onOpenResult={openSearchResult} />
           <button
             type="button"
@@ -1380,9 +1420,17 @@ export default function Home() {
             aria-label="Profile and settings"
             aria-current={workspace === "profile" ? "page" : undefined}
             className="topbar-profile-button"
-          ><UsersRound className="h-4 w-4" /></button>
-        </>}
-      />
+          ><UserRound className="h-5 w-5" aria-hidden="true" /></button>
+        </div>
+      </header>
+      {/* Local tabs only where a destination has sibling pages; Home and Profile
+          have none, so they get no strip. The row is the tabs alone, full width. */}
+      {contextualWorkspaceTabs.length > 1 && <WorkspaceTabs
+        tabs={contextualWorkspaceTabs}
+        activeId={activeContextTabId}
+        label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}
+        onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)}
+      />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="light-panel p-6 text-sm text-[var(--sg-text-subtle-on-light)]">Preparing this workspace…</div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
@@ -1392,38 +1440,34 @@ export default function Home() {
           <summary><em>{trackerDayPickerOpen ? "Close" : "Change day"}</em><ChevronDown className="h-4 w-4" aria-hidden /></summary>
           <div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => { openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div>
         </details>} /></section>}
-        {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} selectedActionLabel={selectedMovement.label} onChangeAction={() => navigateWorkspace("movement")} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
+        {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} selectedActionLabel={selectedMovement.label} onChangeAction={() => navigateWorkspace("movement")} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn}
           guides={<div className="about-me-guides"><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><p>Restarting onboarding deletes every saved training day and starts setup again; it asks first.</p><SupabaseResearchLibraryPanel /></div>}
           launchVideo={<div className="launch-setting" aria-label="Launch video"><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={replayLaunchExperience} disabled={!launchExperienceEnabled || replayPending} aria-busy={replayPending}>{replayPending ? "Starting the intro…" : "Preview intro video"}</button></div>}
           launchVideoEnabled={launchExperienceEnabled}
           buildStamp={buildStampLabel()} />}
-        {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={activeDayLabel} live={liveSession} onOpenTracker={() => navigateWorkspace("tracker")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
+        {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={activeDayLabel} live={liveSession} planHasDays={daySlots.some((slot) => dayExerciseCount(dayStore, slot.key) > 0)} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} /></>}
-        {/* Home, after the first viewport: the sport action the plan is built
-            around, the exercises ranked for it, and the two places the rest of
-            the app starts. All of it is one column on the page; the hero, the
-            movement-lens panel and the priority-blocks panel it replaces were
-            three cards saying the sport, the action and the top three matches
-            twice each. */}
-        {workspace === "command" && hasSportContext && <section className="home-focus" aria-label="Movement focus">
-          <p className="metric-label">Movement focus</p>
-          <h2>{selectedMovement.label}</h2>
-          <p className="home-focus-meta">{selectedMovement.family} · {focusMuscleCount} {focusMuscleCount === 1 ? "muscle" : "muscles"} involved</p>
-          <button type="button" className="home-link" onClick={() => { setActiveMuscle(null); navigateWorkspace("body"); }}>Explore in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+        {/* Home, after the first viewport: what this app helps you do, as three
+            named doors with one line each, and then one insight about the sport
+            action the plan is built around, with the top of its ranking. */}
+        {workspace === "command" && <section className="home-explore" aria-labelledby="home-explore-heading">
+          <p className="metric-label" id="home-explore-heading">Explore Sports Genome</p>
+          <button type="button" className="home-explore-row" onClick={() => { setCatalogFilters(defaultCatalogFilters); navigateWorkspace("catalog"); }}><Search className="h-5 w-5" aria-hidden="true" /><span><strong>Find exercises</strong><small>Search by exercise, muscle or equipment</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("movement")}><Move3d className="h-5 w-5" aria-hidden="true" /><span><strong>Explore muscles &amp; movements</strong><small>See how sport actions involve your muscles</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("strength")}><Dumbbell className="h-5 w-5" aria-hidden="true" /><span><strong>View strength progress</strong><small>Inspect your recorded lifts and muscle ranks</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
         </section>}
-        {workspace === "command" && hasSportContext && <section className="home-priority" aria-label="Priority exercises">
-          <div className="home-section-head"><p className="metric-label">Priority exercises</p><button type="button" className="home-link" onClick={() => navigateWorkspace("recommended")}>All matches <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
+        {workspace === "command" && hasSportContext && <section className="home-focus" aria-label="Movement focus">
+          <div className="home-section-head"><p className="metric-label">Movement focus</p><button type="button" className="home-link" onClick={() => navigateWorkspace("recommended")}>All matches <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
+          <h2>{selectedMovement.label}</h2>
+          <p className="home-focus-meta">{selectedMovement.family} · {focusMuscleCount} {focusMuscleCount === 1 ? "muscle" : "muscles"} involved · the action your plan is built around</p>
           {/* The top of the same ranking Matches shows in full, with the tier the
               catalog model assigns - not a grade invented for the row. */}
-          <ol className="home-priority-rows">{movementRecommendations.slice(0, 3).map((result, index) => <li key={result.exercise.id}><button type="button" className="home-priority-row" onClick={() => inspectExercise(result.exercise)}><span className="home-priority-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span className="home-priority-copy"><strong>{result.exercise.name}</strong><small>{[result.exercise.movement, ...result.exercise.primaryMuscles.slice(0, 2).map((muscle) => muscleLabels[muscle] || muscle)].join(" · ")}</small></span><GradeStamp grade={result.grade} compact /><ChevronRight className="h-4 w-4" aria-hidden="true" /></button></li>)}</ol>
+          <ol className="home-priority-rows" aria-label="Top exercise matches">{movementRecommendations.slice(0, 3).map((result, index) => <li key={result.exercise.id}><button type="button" className="home-priority-row" onClick={() => inspectExercise(result.exercise)} aria-label={`View ${result.exercise.name} details`}><span className="home-priority-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span className="home-priority-copy"><strong>{result.exercise.name}</strong><small>{result.exercise.movement} · {result.exercise.primaryMuscles.slice(0, 2).map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</small></span><GradeStamp grade={result.exercise.muscleGrade} compact /><ChevronRight className="h-4 w-4" aria-hidden="true" /></button></li>)}</ol>
+          <button type="button" className="home-link" onClick={() => { setActiveMuscle(null); navigateWorkspace("body"); }}>Explore in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
         </section>}
-        {workspace === "command" && !hasSportContext && <section className="home-focus" aria-label="Movement focus"><p className="metric-label">Movement focus</p><h2>No sport chosen</h2><p className="home-focus-meta">Choose a sport in Training preferences to see the action your plan is built around and the exercises ranked for it.</p></section>}
-        {workspace === "command" && <div className="home-entries">
-          <button type="button" onClick={() => navigateWorkspace("strength")}><Dumbbell className="h-5 w-5" aria-hidden="true" /> Strength Genome <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-          <button type="button" onClick={() => navigateWorkspace("profile")}><SlidersHorizontal className="h-5 w-5" aria-hidden="true" /> Training preferences <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-        </div>}
+        {workspace === "command" && !hasSportContext && <section className="home-focus" aria-label="Movement focus"><p className="metric-label">Movement focus</p><h2>No sport chosen</h2><p className="home-focus-meta">Choose a sport in Training preferences to see the action your plan is built around and the exercises ranked for it.</p><button type="button" className="home-link" onClick={() => navigateWorkspace("profile")}>Training preferences <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></section>}
 
         {workspace === "recommended" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="Sport recommendations" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {/* Matches, one column: the sport and the action as controls, the
@@ -1467,7 +1511,7 @@ export default function Home() {
             <p>Exercises supporting {selectedMovement.label.toLowerCase()}, {sportProgrammingContext.priorities.length ? "ranked on the qualities above" : `ranked for ${selectedSport.label}`}.</p>
           </div>
           {movementRecommendations.length
-            ? <div className="matches-list">{movementRecommendations.map((result, index) => <RecommendationRow key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div>
+            ? <div className="matches-list">{movementRecommendations.map((result, index) => <RecommendationRow destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div>
             : <p className="matches-empty">Nothing in the catalog matches {selectedMovement.label.toLowerCase()} closely enough to rank. Explore the movement to see what it asks of the body, or choose another action.</p>}
           <details className="matches-disclosure">
             <summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Research context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary>
@@ -1498,12 +1542,20 @@ export default function Home() {
             onChooseDay={openTrainingDay}
           />
           <div className="day-design-main">
-            <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />
+            {/* Which day is being edited, and - when a workout is running - that
+                it is a different thing: the session took its own copy of the
+                exercises when it started, so edits here do not reach it. */}
+            {liveSession && <p className="day-editing-context" role="status">
+              <span>Editing <b>{activeDayLabel}</b>{liveSession.dayLabel === activeDayLabel ? " · this day's workout is under way; it keeps the exercises it started with" : ""}</span>
+              <button type="button" onClick={() => navigateWorkspace("tracker")}>{liveSession.dayLabel.split(" · ").pop()} workout in progress · Resume <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+            </p>}
             <div className="day-plan-list">
               {customWorkout.length
                 ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>)
                 : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" /><strong>Nothing in this day yet.</strong><p>Add exercises from the catalog, or paste a stack.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button></div>}
             </div>
+            {/* Below the day's own work, not between the heading and its rows. */}
+            <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />
             {/* One row, in the order they are reached for: build it, then run it,
                 then the two things you rarely need. It was five buttons under a
                 "Build it, run it, print it" heading that named all three. */}
@@ -1555,16 +1607,17 @@ export default function Home() {
             <ImportedPlanContext items={activeImportedContext} />
           </div>
         </section>}
-        {workspace === "genome" && <ExerciseGenomeWorkspace exercises={filteredCatalog} selectedExercise={genomeExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} currentWorkout={customWorkout} goal={goal} query={catalogQuery} onQueryChange={setCatalogQuery} onSelectExercise={setGenomeExerciseId} onOpenBody={(muscle) => { setActiveMuscle(muscle); navigateWorkspace("body"); }} onInspect={inspectExercise} />}
         {workspace === "progress" && <ProgressOverviewPanel onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onRankProfile={(patch) => updateBaseline({ ...athleteBaseline, ...patch })} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}
       </main></Suspense>
     </div>
     {/* Not on the tracker itself: there it would be a bar describing the screen
         you are looking at, over the top of it. */}
-    {liveSession && workspace !== "tracker" && <SessionResumeBar live={liveSession} onResume={() => navigateWorkspace("tracker")} />}
+    {/* One resume control per viewport: never on the tracker (it is the screen),
+        never on Home while the hero's own Resume is in view. */}
+    {liveSession && workspace !== "tracker" && !(workspace === "command" && homeResumeVisible) && <SessionResumeBar live={liveSession} onResume={() => navigateWorkspace("tracker")} />}
     <div className="mobile-workspace-dock" aria-label="Primary workspace navigation">
-      <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">{primaryDestinations.map((item) => { const Icon = item.icon; const active = activePrimaryDestination === item.id; return <button type="button" key={item.id} onPointerUp={(event) => navigateDockDestination(item.defaultWorkspace!, event)} onClick={(event) => navigateDockDestination(item.defaultWorkspace!, event)} aria-current={active ? "page" : undefined} className={active ? "mobile-bottom-nav-active" : ""}><Icon className="h-4 w-4" /><span>{item.label}</span></button>; })}</nav>
+      <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">{primaryDestinations.map((item) => { const Icon = item.icon; const active = activePrimaryDestination === item.id; return <button type="button" key={item.id} onPointerUp={(event) => navigateDockDestination(dockTarget(item), event)} onClick={(event) => navigateDockDestination(dockTarget(item), event)} aria-current={active ? "page" : undefined} className={active ? "mobile-bottom-nav-active" : ""}><Icon className="h-4 w-4" /><span>{item.label}</span></button>; })}</nav>
     </div>
 
     {/* Exercise Intelligence: one full-height overlay over whatever opened it,
@@ -1577,7 +1630,7 @@ export default function Home() {
         <div className="exercise-intelligence-bar">
           <img src={sportsGenomeAssets.circularBadge} alt="" className="exercise-intelligence-logo" />
           <p className="metric-label">Exercise intelligence</p>
-          <button type="button" onClick={() => setInspectedExercise(null)} aria-label="Close exercise intelligence" className="exercise-intelligence-close"><X className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" onClick={closeInspector} aria-label="Close exercise intelligence" className="exercise-intelligence-close"><X className="h-5 w-5" aria-hidden="true" /></button>
         </div>
         <div className="exercise-intelligence-body">
           <h1 id="exercise-intelligence-title">{inspectedExercise.name}</h1>
@@ -1587,6 +1640,9 @@ export default function Home() {
               phone. Tapping a muscle carries into Body Lab's selection. */}
           <section className="exercise-intelligence-muscles" aria-label="Muscle involvement">
             <AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} showInspector={false} nextStep={<dl className="exercise-intelligence-roles"><div><dt>Primary</dt><dd>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div><div><dt>Supporting</dt><dd>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div>{inspectedExercise.qualities.length > 0 && <div><dt>Qualities</dt><dd>{inspectedExercise.qualities.join(" · ")}</dd></div>}</dl>} />
+            {/* The one thing the retired Genome page offered that this overlay did
+                not: a way from the exercise's leading muscle into Body Lab. */}
+            {inspectedExercise.primaryMuscles[0] && <button type="button" className="exercise-intelligence-explore" onClick={() => { const muscle = inspectedExercise.primaryMuscles[0]!; closeInspector(); setActiveMuscle(muscle); navigateWorkspace("body"); }}>Explore {muscleLabels[inspectedExercise.primaryMuscles[0]] || inspectedExercise.primaryMuscles[0]} in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </section>
           <ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} compactHead />
           <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => { setInspectedExercise(null); navigateWorkspace("movement"); }} />

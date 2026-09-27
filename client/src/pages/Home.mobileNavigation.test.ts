@@ -37,8 +37,11 @@ describe("workspace side navigation", () => {
     expect(source).toContain('const active = activePrimaryDestination === item.id;');
     expect(source).toContain('const dockTouchNavigationRef = useRef');
     expect(source).toContain('const navigateDockDestination = (next: Workspace, event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) =>');
-    expect(source).toContain('onPointerUp={(event) => navigateDockDestination(item.defaultWorkspace!, event)}');
-    expect(source).toContain('onClick={(event) => navigateDockDestination(item.defaultWorkspace!, event)}');
+    // The destination you are already in returns its page to the top rather than
+    // swapping to its first page; any other destination opens at its first page.
+    expect(source).toContain('onPointerUp={(event) => navigateDockDestination(dockTarget(item), event)}');
+    expect(source).toContain('onClick={(event) => navigateDockDestination(dockTarget(item), event)}');
+    expect(source).toContain("item.id === activePrimaryDestination ? workspace : item.defaultWorkspace!");
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('window.history.pushState({ workspace: next }, "", url)');
     expect(source).toContain('window.addEventListener("popstate", restoreWorkspace)');
@@ -116,7 +119,7 @@ describe("workspace side navigation", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('className="mobile-workspace-dock"');
     expect(source).toContain('aria-label="Primary workspace navigation"');
-    expect(source).toContain('label: "Session", workspace: "tracker"');
+    expect(source).toContain('label: "Workout", workspace: "tracker"');
     expect(source).toContain('label: "Review", workspace: "review"');
     expect(source).toContain('navigateWorkspace("tracker")');
     expect(source).toContain('<DeviceWorkoutTracker');
@@ -126,7 +129,7 @@ describe("workspace side navigation", () => {
     expect(stackReviewSource).toContain('id="stack-review"');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');
-    expect(source).toContain('label: "Body Lab"');
+    expect(source).toContain('label: "Muscles"');
     expect(source).toContain('label: "Progress"');
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('type PrimaryDestination = "home" | "train" | "body" | "progress" | "secondary";');
@@ -194,15 +197,17 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.workspace-top-switcher-shell { top: var(--sg-topbar-height); padding-top: 0; }');
     expect(css).toContain('.apex-topbar { position: sticky; top: 0;');
 
-    // The header names the place only where the tab row does not: on Home the two
-    // are the same word, one above the other, which is the duplication that got
-    // the header deleted in the first place.
-    expect(source).toContain("const topbarLabel = workspaceLabel.toLowerCase() === activeContextTabLabel.toLowerCase() ? \"\" : workspaceLabel;");
-    expect(source).toContain("{topbarLabel && <p className=\"metric-label\">{topbarLabel}</p>}");
+    // The utilities live in the brand row, so the tab row is the tabs alone and
+    // no destination is ever covered; single-page destinations get no row.
+    expect(source).toContain('className="topbar-utilities"');
+    expect(source).toContain("{contextualWorkspaceTabs.length > 1 && <WorkspaceTabs");
+    expect(source).not.toContain("actions={<>");
+    // Every page has one name, used for the browser tab as well.
+    expect(source).toContain("export const workspaceTitles: Record<Workspace, string>");
+    expect(source).toContain("document.title = `${workspaceTitles[workspace]} · Sports Genome`");
 
-    // Rendered unconditionally: gated on `length > 1` it would skip Home, which has one
-    // page, and stranded Profile behind no route at all.
-    expect(source).not.toContain('contextualWorkspaceTabs.length > 1 && <WorkspaceTabs');
+    // Profile's route is the brand row's own button, so the tab row can be
+    // skipped on single-page destinations without stranding it.
     expect(source).toContain('<WorkspaceTabs');
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('className="topbar-profile-button"');
@@ -231,7 +236,7 @@ describe("workspace side navigation", () => {
 
   it("retains one explicit active contextual route for every Train and Body Lab tab", () => {
     // Train is four places in the order the work happens, each its own page.
-    ["Plan", "Review", "Session", "Matches", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
+    ["Plan", "Review", "Workout", "Matches", "Movements", "Muscles", "Exercises", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
     expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(tabsComponent).toContain('className={active ? "workspace-top-switcher-active" : ""}');
@@ -242,7 +247,6 @@ describe("workspace side navigation", () => {
     expect(source).toContain('const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator")');
     expect(source).toContain('const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPanel")');
     expect(source).toContain('const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel")');
-    expect(source).toContain('const ExerciseGenomeWorkspace = lazy(() => import("@/components/ExerciseGenomeWorkspace")');
     expect(source).toContain('Preparing this workspace…');
   });
 
@@ -255,7 +259,7 @@ describe("workspace side navigation", () => {
    */
   it("keeps every Training Day action reachable, without a second copy of any of them", () => {
     expect(source).toContain('className="day-action-add"');
-    expect(source).toContain('label: "Session", workspace: "tracker"');
+    expect(source).toContain('label: "Workout", workspace: "tracker"');
     expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
     expect(source).toContain("Import plan");
     // Starting the workout opens the destination that owns it rather than a
@@ -285,9 +289,9 @@ describe("workspace side navigation", () => {
     expect(atlasStyles).toContain(".atlas-improved-head > div:first-child > p:last-child { display: none; }");
     expect(atlasStyles).toContain(".atlas-family-row { flex-wrap: nowrap; overflow-x: auto;");
     expect(atlasStyles).toContain(".atlas-family-row button { flex: 0 0 auto; min-height: 38px; white-space: nowrap; }");
-    expect(source).toContain('id: "movement", label: "Movement"');
-    expect(source).toContain('id: "body", label: "Body Lab"');
-    expect(source).toContain('id: "catalog", label: "Catalog"');
+    expect(source).toContain('id: "movement", label: "Movements"');
+    expect(source).toContain('id: "body", label: "Muscles"');
+    expect(source).toContain('id: "catalog", label: "Exercises"');
   });
 
   it("keeps equipment editing and evidence details reachable on demand after Plan Context removal", () => {

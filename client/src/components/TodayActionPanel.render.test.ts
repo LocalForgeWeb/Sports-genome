@@ -42,7 +42,11 @@ function observation(id: number, loadKg: number, observedAt: string) {
   };
 }
 
-function renderPanel() {
+import { deviceStrengthObservationKey } from "@/lib/deviceStrengthObservations";
+import { deviceWorkoutHistoryKey } from "@/lib/deviceWorkoutLog";
+import type { LiveSession } from "@/lib/liveSession";
+
+function renderPanel(overrides: Partial<React.ComponentProps<typeof TodayActionPanel>> = {}) {
   return render(
     React.createElement(TodayActionPanel, {
       stagedExerciseCount: mocks.staged,
@@ -50,13 +54,101 @@ function renderPanel() {
       activeDayLabel: "Week 1 · Push",
       onOpenTraining: () => {},
       onOpenStrength: () => {},
+      hour: 9,
+      ...overrides,
     })
   );
 }
 
-describe("Today action panel state layer", () => {
+const live: LiveSession = { id: "s1", dayLabel: "Week 2 · Day 02 · Pull", startedAt: new Date().toISOString(), completedSets: 3, plannedSets: 12, exerciseNumber: 2, exerciseCount: 5, exerciseName: "Chin-up", setNumber: 2, setCount: 4, finishedExercises: ["Barbell Row"] };
+
+function seedDevice(lifts: number, finishedWorkouts: number) {
+  const now = Date.now();
+  localStorage.setItem(deviceStrengthObservationKey, JSON.stringify(Array.from({ length: lifts }, (_, index) => ({ id: `d${index}`, exerciseName: "Back Squat", observedAt: new Date(now - index * 86_400_000).toISOString(), measurementType: "MEASURED_1RM", loadKg: 100, laterality: "BILATERAL", dataQuality: "SELF_REPORTED" }))));
+  localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify(Array.from({ length: finishedWorkouts }, (_, index) => ({ id: `w${index}`, title: "Push", dayLabel: "Week 1 · Day 01 · Push", startedAt: new Date(now - 3_600_000).toISOString(), completedAt: new Date(now).toISOString(), status: "completed", exercises: [{ id: "e", exerciseName: "Barbell Bench Press", plannedPrescription: "3 × 5", sets: [{ weight: "80", reps: "5", completed: true }] }] }))));
+}
+
+describe("Today action panel: where you are and what to do", () => {
   afterEach(() => {
     document.body.innerHTML = "";
+    localStorage.clear();
+    mocks.observations = [];
+    mocks.trackedSets = [];
+    mocks.referenceRows = [];
+    mocks.staged = 0;
+  });
+
+  it("names the page and greets the athlete by the name they gave, or plainly", () => {
+    renderPanel({ athleteName: "Gabe" });
+    expect(screen.getByText("Home")).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 1, name: "Good morning, Gabe" })).toBeTruthy();
+    document.body.innerHTML = "";
+    renderPanel({ hour: 20 });
+    expect(screen.getByRole("heading", { level: 1, name: "Good evening" })).toBeTruthy();
+  });
+
+  it("puts a workout under way first, with resume as the one primary action and no first-lift prompt", () => {
+    renderPanel({ live });
+    const heading = screen.getByRole("heading", { level: 2, name: "Pull" });
+    expect(heading).toBeTruthy();
+    expect(screen.getByText("Continue your workout")).toBeTruthy();
+    expect(screen.getByText(/3 of 12 sets logged · next: Chin-up, set 2/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Resume Pull workout/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /View workout details/ })).toBeTruthy();
+    expect(screen.queryByText(/Log your first lift/)).toBeNull();
+    expect(screen.queryByText(/Nothing recorded yet/)).toBeNull();
+    // The primary module precedes the week summary in the document.
+    const primary = document.querySelector(".today-action-primary")!;
+    const week = document.querySelector(".home-week")!;
+    expect(primary.compareDocumentPosition(week) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.querySelectorAll(".today-action-cta")).toHaveLength(1);
+  });
+
+  it("names the next workout, its place in the plan and its size, with Review and Edit for that day", () => {
+    mocks.staged = 6;
+    renderPanel();
+    expect(screen.getByRole("heading", { name: "Push" })).toBeTruthy();
+    expect(screen.getByText("Week 1")).toBeTruthy();
+    expect(screen.getByText("6 exercises")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Review workout/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Edit plan/i })).toBeTruthy();
+  });
+
+  it("offers the plan when the selected day is empty, and creating one when there is no plan", () => {
+    renderPanel({ planHasDays: true, onOpenCatalog: () => {} });
+    expect(screen.getByText("Choose your next workout")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Open training plan/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Explore exercises/i })).toBeTruthy();
+    document.body.innerHTML = "";
+    renderPanel({ planHasDays: false });
+    expect(screen.getByText("Build training around your goals")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Create your plan/i })).toBeTruthy();
+  });
+
+  it("reads the week as one fraction and the lifetime record from the same store Strength reads", () => {
+    seedDevice(2, 1);
+    renderPanel();
+    expect(screen.getByText("Your week")).toBeTruthy();
+    expect(screen.getByLabelText(/1 of 4 planned workouts completed this week/)).toBeTruthy();
+    // Two typed lifts plus one lift carried from the finished workout: the Strength definition.
+    expect(screen.getByRole("button", { name: /3 lifts logged · 1 workout recorded, all time/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /View plan/ })).toBeTruthy();
+  });
+
+  it("reads zero as a number, not a verdict, with nothing recorded", () => {
+    renderPanel();
+    expect(screen.getByLabelText(/0 of 4 planned workouts completed this week/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /0 lifts logged · 0 workouts recorded/ })).toBeTruthy();
+    expect(screen.queryByText(/Nothing recorded/)).toBeNull();
+    expect(screen.queryByText(/Log your first lift/)).toBeNull();
+    expect(screen.queryByText("Where you are now")).toBeNull();
+  });
+});
+
+describe("Today action panel: the one insight", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+    localStorage.clear();
     mocks.observations = [];
     mocks.trackedSets = [];
     mocks.referenceRows = [];
@@ -64,116 +156,43 @@ describe("Today action panel state layer", () => {
   });
 
   it("headlines a confirmed change with its direction and its boundary", () => {
-    mocks.observations = [
-      observation(1, 100, "2026-01-05T12:00:00.000Z"),
-      observation(2, 145, "2026-06-05T12:00:00.000Z"),
-    ];
-    renderPanel();
-
+    mocks.observations = [observation(1, 100, "2026-01-05T12:00:00.000Z"), observation(2, 145, "2026-06-05T12:00:00.000Z")];
+    renderPanel({ directAccess: false });
+    expect(screen.getByText("Where you are now")).toBeTruthy();
     expect(screen.getByText("Back Squat")).toBeTruthy();
     expect(screen.getByText(/^\+\d+%$/)).toBeTruthy();
     expect(screen.getByText("Confirmed gain")).toBeTruthy();
     expect(screen.getByText(/not a rank against other people/)).toBeTruthy();
   });
 
-  it("reads a confirmed decline as a decline, in the losing colour", () => {
-    // This rendered in the positive-state green with a "Confirmed change" badge, so a
-    // regression and a gain were visually identical.
-    mocks.observations = [
-      observation(1, 145, "2026-01-05T12:00:00.000Z"),
-      observation(2, 100, "2026-06-05T12:00:00.000Z"),
-    ];
-    const { container } = renderPanel();
-
+  it("reads a confirmed decline as a decline, in the losing colour, never amplified", () => {
+    mocks.observations = [observation(1, 145, "2026-01-05T12:00:00.000Z"), observation(2, 100, "2026-06-05T12:00:00.000Z")];
+    const { container } = renderPanel({ directAccess: false });
     expect(screen.getByText("Confirmed decline")).toBeTruthy();
     expect(screen.getByText(/^-\d+%$/)).toBeTruthy();
     expect(screen.queryByText("Confirmed gain")).toBeNull();
-    // The direction is on the element the colour rule keys off.
     expect(container.querySelector('[data-sg-change="loss"]')).toBeTruthy();
-    // A decline never takes the amplified reveal.
     expect(container.querySelector('[data-sg-change-intensity="pronounced"]')).toBeNull();
   });
 
   it("marks a large gain for the pronounced reveal, and a modest one for the standard reveal", () => {
-    mocks.observations = [
-      observation(1, 100, "2026-01-05T12:00:00.000Z"),
-      observation(2, 145, "2026-06-05T12:00:00.000Z"),
-    ];
-    const large = renderPanel();
+    mocks.observations = [observation(1, 100, "2026-01-05T12:00:00.000Z"), observation(2, 145, "2026-06-05T12:00:00.000Z")];
+    const large = renderPanel({ directAccess: false });
     expect(large.container.querySelector('[data-sg-change-intensity="pronounced"]')).toBeTruthy();
     document.body.innerHTML = "";
-
-    // ~18%: confirmed, but not rare enough to amplify.
-    mocks.observations = [
-      observation(1, 100, "2026-01-05T12:00:00.000Z"),
-      observation(2, 118, "2026-06-05T12:00:00.000Z"),
-    ];
-    const modest = renderPanel();
+    mocks.observations = [observation(1, 100, "2026-01-05T12:00:00.000Z"), observation(2, 118, "2026-06-05T12:00:00.000Z")];
+    const modest = renderPanel({ directAccess: false });
     expect(modest.container.querySelector('[data-sg-change="gain"]')).toBeTruthy();
     expect(modest.container.querySelector('[data-sg-change-intensity="standard"]')).toBeTruthy();
   });
 
-  it("states no direction when the movement sits inside normal variation", () => {
-    // A ~2% difference is well inside the estimator's own error.
-    mocks.observations = [
-      observation(1, 100, "2026-01-05T12:00:00.000Z"),
-      observation(2, 102, "2026-06-05T12:00:00.000Z"),
-    ];
-    renderPanel();
-
+  it("says nothing at all when the movement sits inside normal variation", () => {
+    mocks.observations = [observation(1, 100, "2026-01-05T12:00:00.000Z"), observation(2, 102, "2026-06-05T12:00:00.000Z")];
+    renderPanel({ directAccess: false });
     expect(screen.queryByText(/^Confirmed (gain|decline)$/)).toBeNull();
-    expect(
-      screen.getByText("No change yet is large enough to call a real one rather than normal variation.")
-    ).toBeTruthy();
-  });
-
-  it("invites a first lift once, in the slot that also offers a way to do it", () => {
-    renderPanel();
-
-    // With nothing recorded, the state slot and the priority slot were saying the
-    // same thing one above the other - "No tracked lifts yet" over "Log your
-    // first lift" - and between them they pushed the staged training day out of
-    // the first viewport. The priority slot keeps it, because it is the one that
-    // carries a way out.
-    expect(screen.getByText("Log your first lift")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Open Strength Genome/i })).toBeTruthy();
-    expect(screen.queryByText("No tracked lifts yet")).toBeNull();
     expect(screen.queryByText("Where you are now")).toBeNull();
-    expect(screen.queryByText(/^Confirmed (gain|decline)$/)).toBeNull();
-  });
-
-  it("keeps the state slot as soon as it has a count of its own to report", () => {
-    // One logged lift is not a tracked change, but "1 lift tracked" is a fact the
-    // priority slot does not carry, so the slot earns its place again.
-    mocks.observations = [observation(1, 100, "2026-01-05T12:00:00.000Z")];
-    renderPanel();
-    expect(screen.getByText("Where you are now")).toBeTruthy();
-  });
-
-  it("still carries the next action beneath the state layer", () => {
-    renderPanel();
-    expect(screen.getByText("No session built yet")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Create your plan/i })).toBeTruthy();
-  });
-
-  it("names the next session, its place in the plan and its size, with Review and Edit for that day", () => {
-    mocks.staged = 6;
-    renderPanel();
-    expect(screen.getByRole("heading", { name: "Push" })).toBeTruthy();
-    expect(screen.getByText("Week 1")).toBeTruthy();
-    expect(screen.getByText("6 exercises")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Review session/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Edit plan/i })).toBeTruthy();
-  });
-
-  it("reports the three facts on their own scopes, with zero completed reading as a number", () => {
-    renderPanel();
-    expect(screen.getByText("Planned days").previousSibling?.textContent).toBe("4");
-    expect(screen.getByText("Completed this week").previousSibling?.textContent).toBe("0");
-    expect(screen.getByText("Lifts logged").previousSibling?.textContent).toBe("2");
   });
 });
-
 /** The approved back-squat ladder, so a real gate can be produced from real matching. */
 const squatLadder = [
   [10, 1.75],
@@ -209,75 +228,42 @@ const squatLadder = [
   boundary: "Competitive drug-tested unequipped powerlifting only.",
 }));
 
-describe("Today action panel priority slot", () => {
+describe("Today action panel: the record prompt", () => {
   afterEach(() => {
     document.body.innerHTML = "";
+    localStorage.clear();
     mocks.observations = [];
     mocks.trackedSets = [];
     mocks.referenceRows = [];
     mocks.staged = 0;
   });
 
-  it("asks for a first measurement when nothing is logged", () => {
-    renderPanel();
-    expect(screen.getByText("Where attention goes · Measure")).toBeTruthy();
-    expect(screen.getByText("Log your first lift")).toBeTruthy();
-  });
-
-  it("prompts to stage a day once lifts exist but no session is built", () => {
-    mocks.observations = [
-      observation(1, 100, "2026-01-05T12:00:00.000Z"),
-      observation(2, 145, "2026-06-05T12:00:00.000Z"),
-    ];
-    renderPanel();
-    expect(screen.getByText("Where attention goes · Act")).toBeTruthy();
-    expect(screen.getByText("Stage your next training day")).toBeTruthy();
-  });
-
-  it("asks for the body weight that is blocking a real comparison, ahead of any prescription", () => {
-    mocks.staged = 0; // a staged-day prompt would otherwise apply
+  it("asks for the body weight that is blocking a real comparison, below the primary action", () => {
+    mocks.staged = 6;
     mocks.referenceRows = squatLadder;
-    mocks.observations = [
-      {
-        id: 1,
-        exerciseName: "Back Squat",
-        observedAt: "2026-06-01T12:00:00.000Z",
-        measurementType: "MEASURED_1RM",
-        loadKg: 200,
-        bodyMassKgAtTest: null,
-        laterality: "BILATERAL",
-        referenceContextJson: JSON.stringify({
-          referenceId: "van_den_hoek_2024_powerlifting_relative_strength",
-          drugTestedCompetitionConfirmed: true,
-          unequippedCompetitionConfirmed: true,
-          maximumSuccessfulLiftConfirmed: true,
-          sex: "male",
-          ageYears: 27,
-        }),
-      },
-    ];
-    renderPanel();
-
-    expect(screen.getByText("Where attention goes · Measure")).toBeTruthy();
+    mocks.observations = [{
+      id: 1,
+      exerciseName: "Back Squat",
+      observedAt: "2026-06-01T12:00:00.000Z",
+      measurementType: "MEASURED_1RM",
+      loadKg: 200,
+      bodyMassKgAtTest: null,
+      laterality: "BILATERAL",
+      referenceContextJson: JSON.stringify({ referenceId: "van_den_hoek_2024_powerlifting_relative_strength", drugTestedCompetitionConfirmed: true, unequippedCompetitionConfirmed: true, maximumSuccessfulLiftConfirmed: true, sex: "male", ageYears: 27 }),
+    }];
+    renderPanel({ directAccess: false });
+    expect(screen.getByText("Next for your record")).toBeTruthy();
     expect(screen.getByText("Add your test-day body weight")).toBeTruthy();
-    expect(screen.getByText(/Back Squat/)).toBeTruthy();
-    expect(screen.queryByText("Stage your next training day")).toBeNull();
+    const primary = document.querySelector(".today-action-primary")!;
+    const prompt = document.querySelector(".today-action-priority")!;
+    expect(primary.compareDocumentPosition(prompt) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.querySelectorAll(".today-action-cta")).toHaveLength(1);
   });
 
-  it("sends a confirmed change to inspection rather than a prescription", () => {
-    mocks.staged = 4;
-    mocks.observations = [
-      observation(1, 100, "2026-01-05T12:00:00.000Z"),
-      observation(2, 145, "2026-06-05T12:00:00.000Z"),
-    ];
+  it("never prompts to log a first lift or to stage a day: the primary action already says so", () => {
     renderPanel();
-    expect(screen.getByText("Where attention goes · Inspect")).toBeTruthy();
-    expect(screen.getByText("Review the change on your record")).toBeTruthy();
-  });
-
-  it("shows exactly one priority", () => {
-    mocks.observations = [observation(1, 100, "2026-01-05T12:00:00.000Z")];
-    const { container } = renderPanel();
-    expect(container.querySelectorAll(".today-action-priority")).toHaveLength(1);
+    expect(screen.queryByText(/first lift/i)).toBeNull();
+    expect(screen.queryByText(/Stage your next training day/)).toBeNull();
+    expect(screen.queryByText("Next for your record")).toBeNull();
   });
 });

@@ -90,7 +90,7 @@ describe("the athlete's own record lives in one place", () => {
   it("leaves Body Lab as the reference library", () => {
     const body = home.slice(home.indexOf("body: ["), home.indexOf("body: [") + 320);
     expect(body).not.toContain('workspace: "strength"');
-    for (const workspace of ["movement", "body", "catalog", "genome"]) {
+    for (const workspace of ["movement", "body", "catalog"]) {
       expect(body).toContain(`workspace: "${workspace}"`);
     }
   });

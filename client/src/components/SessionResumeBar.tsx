@@ -23,13 +23,15 @@ export function SessionResumeBar({ live, onResume }: { live: LiveSession; onResu
   const now = live.exerciseName && live.setNumber && live.setCount
     ? `${live.exerciseName} · set ${live.setNumber} of ${live.setCount}`
     : "Every set logged — finish when you are ready";
+  // Which workout, by name: "Pull workout in progress", not a generic notice.
+  const dayName = live.dayLabel.split(" · ").pop() || live.dayLabel;
 
   return (
     <button
       type="button"
       className="session-resume-bar"
       onClick={onResume}
-      aria-label={`Resume your workout. ${live.dayLabel}, ${done} of ${total} sets logged. Now: ${now}`}
+      aria-label={`Resume ${dayName} workout. ${live.dayLabel}, ${done} of ${total} sets logged. Now: ${now}`}
     >
       <span className="session-resume-dial" aria-hidden="true">
         <i style={{ width: `${percent}%` }} />
@@ -37,7 +39,7 @@ export function SessionResumeBar({ live, onResume }: { live: LiveSession; onResu
       <span className="session-resume-copy">
         <strong>
           <Dot className="h-4 w-4" aria-hidden="true" />
-          Workout under way
+          {dayName} workout in progress
           <em>{done}/{total} sets</em>
         </strong>
         <small>{now}</small>

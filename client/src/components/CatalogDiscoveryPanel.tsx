@@ -18,6 +18,8 @@ type CatalogDiscoveryPanelProps = {
   onToggleFavorite: (exercise: Exercise) => void;
   onInspect: (exercise: Exercise) => void;
   onAdd: (exercise: Exercise) => void;
+  /** Where a plus puts the exercise, so the control says it: "Week 1 · Pull". */
+  destinationLabel?: string;
   selectedActionLabel?: string;
   /** Where the action the links are measured against is changed: the Movement Atlas. */
   onChangeAction?: () => void;
@@ -38,7 +40,7 @@ const actionLinkLabel: Record<CatalogFilters["actionLink"], string> = { all: "Al
  * details, the catalog's tag, and favorite and add as two separate targets that
  * never open the row. The bordered grid of 36 cards is gone.
  */
-export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, selectedActionLabel, onChangeAction, connectionForExercise }: CatalogDiscoveryPanelProps) {
+export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, destinationLabel, selectedActionLabel, onChangeAction, connectionForExercise }: CatalogDiscoveryPanelProps) {
   const [visibleCount, setVisibleCount] = useState(visiblePerPage);
   const options = useMemo(() => catalogFilterOptions(exercises), [exercises]);
   const baseResults = useMemo(() => filterCatalogExercises(exercises, filters, favoriteIds), [exercises, filters, favoriteIds]);
@@ -114,7 +116,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
         const connection = visibleConnections.get(exercise.id);
         return <article key={exercise.id} className="catalog-discovery-card">
           <button type="button" onClick={() => { emitInteractionFeedback(); onInspect(exercise); }} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`}><span className="catalog-discovery-identity"><strong>{exercise.name}</strong><small>{exercise.movement}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em>{connectionTellsCardsApart && connection && connection.label !== "Not mapped" ? <b className={`catalog-action-link catalog-action-link-${connection.label.toLowerCase().replace(/\s+/g, "-")}`} title={connection.detail}>{connection.label}</b> : null}<span className="catalog-discovery-details">View details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></span></span><span className="catalog-discovery-tier" title={`Catalog tag ${exercise.muscleGrade} — a label from the exercise catalog.`} aria-label={`Catalog tag ${exercise.muscleGrade}`}>{exercise.muscleGrade}</span></button>
-          <div className="catalog-discovery-actions"><button type="button" onClick={() => { emitInteractionFeedback(); onToggleFavorite(exercise); }} className={isFavorite ? "catalog-favorite-on" : ""} aria-pressed={isFavorite} aria-label={`${isFavorite ? "Remove" : "Save"} ${exercise.name} ${isFavorite ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} /></button><button type="button" onClick={() => { emitInteractionFeedback(); onAdd(exercise); }} aria-label={`Add ${exercise.name} to the training day`}><Plus className="h-5 w-5" /></button></div>
+          <div className="catalog-discovery-actions"><button type="button" onClick={() => { emitInteractionFeedback(); onToggleFavorite(exercise); }} className={isFavorite ? "catalog-favorite-on" : ""} aria-pressed={isFavorite} aria-label={`${isFavorite ? "Remove" : "Save"} ${exercise.name} ${isFavorite ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} /></button><button type="button" onClick={() => { emitInteractionFeedback(); onAdd(exercise); }} aria-label={`Add ${exercise.name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div>
         </article>;
       })}
     </div> : <div className="catalog-discovery-empty"><strong>{filters.favoritesOnly ? "No saved favorites yet." : filters.query ? `Nothing matches "${filters.query}"${activeFilterCount ? " with these filters" : ""}.` : "No exercises match these filters."}</strong><p>{filters.favoritesOnly ? "Use the heart on any exercise to save a personal shortlist." : activeFilterCount ? "Take a filter off, or try a broader movement, equipment or muscle term." : "Try a broader movement, equipment or muscle term."}</p><div>{activeFilterCount > 0 && <button type="button" onClick={clearFiltersKeepQuery}>Clear filters</button>}{filters.query && <button type="button" onClick={() => update("query", "")}>Clear search</button>}{filters.favoritesOnly && <button type="button" onClick={() => update("favoritesOnly", false)}>All exercises</button>}</div></div>}

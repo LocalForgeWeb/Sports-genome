@@ -20,10 +20,11 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogSource).not.toContain("A-grade or higher");
   });
 
-  it("mounts the canonical connection-aware Exercise Genome workspace with the same selected action", () => {
-    expect(homeSource).toContain("<ExerciseGenomeWorkspace exercises={filteredCatalog}");
-    expect(homeSource).toContain("enrichedSelectedMovement={enrichedSelectedMovement}");
-    expect(homeSource).toContain("selectedMovement={selectedMovement}");
+  it("mounts the exercise overlay with the same selected action the catalog is measured against", () => {
+    // The Genome page folded into this overlay: one place per exercise, not two.
+    expect(homeSource).not.toContain("<ExerciseGenomeWorkspace");
+    expect(homeSource).toContain("<SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement}");
+    expect(homeSource).toContain('if (value === "genome") return "catalog";');
   });
 
 	  it("keeps only actionable mobile Catalog connection states visible and visually distinct without presenting them as performance ratings", () => {

@@ -62,6 +62,8 @@ export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions }: {
     active?.scrollIntoView({ inline: "nearest", block: "nearest", behavior: "smooth" });
   }, [activeId]);
 
+  if (tabs.length <= 1 && !actions) return null;
+
   return (
     <div
       className="workspace-top-switcher-shell"

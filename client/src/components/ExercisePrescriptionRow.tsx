@@ -128,6 +128,9 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
       </span>
       <span className="custom-row-state">
         {settings.completed && <span className="custom-row-done" aria-label="Marked complete"><Check className="h-3.5 w-3.5" /></span>}
+        {/* The chevron opens the editor; it says so, because on its own it
+            read as "go somewhere". */}
+        <span className="custom-row-edit-label">Edit sets &amp; reps</span>
         <ChevronDown className="custom-row-chevron h-4 w-4" aria-hidden="true" />
       </span>
     </summary>

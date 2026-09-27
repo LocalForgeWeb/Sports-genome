@@ -29,6 +29,7 @@ import { RankCard, UnscoredRankCard } from "@/components/CapabilityRank";
 import { RankIcon } from "@/components/RankIcon";
 import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
 import { muscleRankLifts } from "@/lib/muscleRankLifts";
+import { countCoveredRegions } from "@/lib/athleteRecord";
 
 const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
   insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
@@ -660,7 +661,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     if (directAccess) return { state: "INSUFFICIENT_DATA" as const };
     return overview.data?.regions.find((region) => region.id === regionId);
   };
-  const observedRegionCount = strengthRegionDefinitions.filter((region) => regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT").length;
+  // The one definition Home and Progress read too: a region is covered when any
+  // recorded lift lands in it. An account can only add regions this device
+  // cannot see, never take one away.
+  const observedRegionCount = directAccess ? countCoveredRegions(activeObservations) : strengthRegionDefinitions.filter((region) => regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT").length;
   const sourceMatchedObservationCount = activeObservations.filter((observation) => getRegistryReferenceForObservation(observation, referenceRows, athleteProfile, new Date(observation.observedAt))?.status === "matched" || getPiperReferenceForObservation(observation)?.status === "matched" || getPowerliftingReferenceForObservation(observation, powerliftingNorms)?.status === "matched").length;
   const activePriorityIds = new Set(priorities.data?.map(priority => priority.regionId) || overview.data?.athleteConfirmedPriorityRegionIds || []);
   const persistDeviceObservations = (next: DeviceStrengthObservation[]) => { setDeviceObservations(next); saveDeviceStrengthObservations(next); };
