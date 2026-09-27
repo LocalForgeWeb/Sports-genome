@@ -644,7 +644,12 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     });
     return Array.from(counts.values());
   }, [rankProfile]);
-  const rankNotice = rankSex === null && rankLifts.length > 0
+  // While the ranks are being computed the map shows coverage, which is true
+  // and says so in its own legend; the line below says ranks are on the way so
+  // the coverage colours are not read as ranks.
+  const rankNotice = rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending
+    ? <p className="rank-profile-partial" role="status">Ranking your lifts… the map shows where lifts are on record until the ranks arrive.</p>
+    : rankSex === null && rankLifts.length > 0
     ? <p className="rank-profile-partial">Ranks on this map need the sex to compare against — set it in About Me.</p>
     : unrankedLifts.length > 0
       ? <details className="rank-profile-partial">

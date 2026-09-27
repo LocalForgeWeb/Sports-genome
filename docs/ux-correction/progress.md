@@ -2,7 +2,7 @@
 
 Checklist: `docs/ux-correction/checklist.md` (copied unchanged from the brief of September 26, 2026).
 
-Current phase: E/F — per-page completion, responsive, states, visual consistency
+Current phase: G — journeys, evidence, checklist and delivery
 Current branch/worktree: `full-merge` locally, pushed to `main` and `claude/repo-access-il8zy5`
 Running app / preview: `npx vite build` then `npx vite preview --port 4173 --strictPort`; audits in the session scratchpad drive it with headless Chromium (`/opt/pw-browsers/chromium`) — browser emulation, not a physical phone
 Last verified build: see the latest commit on `main` (typecheck clean; vitest passes apart from the 5 pre-existing `server/supabase*` credential failures)
@@ -39,9 +39,12 @@ Last verified build: see the latest commit on `main` (typecheck clean; vitest pa
 - Phase C — Home rebuilt (`TodayActionPanel.tsx`, Home blocks, `athleteRecord.ts` + tests). Evidence `scratchpad/homeprobe.mjs`: ordinary state leads with "Your next workout · Review workout / Edit plan" (CTA at 361px); live state leads with "Continue your workout · Resume Sport Transfer workout"; no first-lift prompt; three doors open Exercises / Movements / Strength at their headings; after finishing a workout and logging a lift, Home, Progress and Strength all read 1 lift · 1 workout, and it survives reload.
 - Phase D — evidence `scratchpad/phased.mjs`: Plan shows "Editing Week 1 · Day 02 · Pull | Sport Transfer workout in progress · Resume" while another workout runs; the capacity note sits below the rows; Resume from the strip opens the actual session (Sport Transfer, set 2 of 4); the add destination strip clears the resume strip; the plus is named "Add X to Week 1 · Pull"; the toast reads "Added to Week 1 · Pull" with Undo and View workout; a second tap answers "Already in this workout"; View workout opens Pull holding the one addition; no strip on the tracker; on Home the strip is hidden while the hero's Resume is in view and appears once it scrolls away.
 
+- Phase E — page audit `scratchpad/phasee.mjs` (each destination: one h1 that matches its tab and title, purpose line, primary action, no stale header). Aligned: Movements h1 "Movement explorer" + "How your sport moves, one action at a time." + "Explore involved muscles"; Muscles h1 "Muscle map"; Exercises h1 "Exercise catalog" (eyebrow and second heading removed); Matches h1 "Exercise matches" + purpose line + "Change movement" + a lens line saying what the score and tag mean; Plan/Review open the workout as "Open workout" or "Resume {day} workout"; Review names what it checks (planned workload, not completed work); Strength shows "Ranking your lifts…" while ranks load instead of an empty map; local search broadens with "Search the whole app instead"; prescription rows say "Edit sets & reps".
+- Phase F — width sweep `scratchpad/phasef.mjs` at 320/360 (20px root font)/390/430/1280: no horizontal scroll; no interactive target under 40px wide or tall (reorder and score controls 44px, atlas family chips 44px, search-scope button 44px tall); with the resume strip up, the last row on every page sits above the strip (the strip publishes its real height as `--sg-resume-height`, so a taller strip at large text still reserves its own space).
+
 ## In progress
 
-- Phase E/F: per-page checks (MOV/MUS/CAT/EX/PLAN/REV/WORK/MATCH/PROG/STR/PROFILE), VIS, A11Y, STATE.
+- Phase G: journeys A–H, first-time walkthrough, evidence set, checklist ticks, delivery.
 
 ## Open blockers
 

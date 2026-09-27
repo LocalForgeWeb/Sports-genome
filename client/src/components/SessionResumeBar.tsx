@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { ChevronRight, Dot } from "lucide-react";
 import type { LiveSession } from "@/lib/liveSession";
 
@@ -16,6 +17,21 @@ import type { LiveSession } from "@/lib/liveSession";
  * gone the moment the session is finished.
  */
 export function SessionResumeBar({ live, onResume }: { live: LiveSession; onResume: () => void }) {
+  const ref = useRef<HTMLButtonElement | null>(null);
+  /**
+   * The strip's real height, published for the page to reserve. With larger
+   * text the copy wraps and the strip grows past any fixed guess, and the last
+   * row of a list disappeared under it. Cleared when the strip goes.
+   */
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const publish = () => document.documentElement.style.setProperty("--sg-resume-height", `${Math.ceil(node.getBoundingClientRect().height)}px`);
+    publish();
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(publish) : null;
+    observer?.observe(node);
+    return () => { observer?.disconnect(); document.documentElement.style.removeProperty("--sg-resume-height"); };
+  }, []);
   const done = live.completedSets;
   const total = live.plannedSets;
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -28,6 +44,7 @@ export function SessionResumeBar({ live, onResume }: { live: LiveSession; onResu
 
   return (
     <button
+      ref={ref}
       type="button"
       className="session-resume-bar"
       onClick={onResume}

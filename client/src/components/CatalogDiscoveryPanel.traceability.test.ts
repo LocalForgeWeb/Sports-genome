@@ -48,8 +48,9 @@ describe("Catalog Discovery traceability presentation", () => {
   });
 
   it("leads with a concise discovery header while keeping search and exercise actions available", () => {
-    expect(component).toContain("Exercise catalog");
-    expect(component).toContain("Find an exercise");
+    // One heading, the page's name; the tab above already says Exercises.
+    expect(component).toContain("<h1>Exercise catalog</h1>");
+    expect(component).not.toContain("Find an exercise");
     expect(component).toContain("{exercises.length} options");
     expect(component).toContain('aria-label="Search exercises"');
     expect(component).toContain("Filter & sort");

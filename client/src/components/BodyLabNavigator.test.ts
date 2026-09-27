@@ -25,7 +25,7 @@ function mount(over: Partial<Parameters<typeof BodyLabNavigator>[0]> = {}) {
 describe("the Body Lab head", () => {
   it("names the page, and the sport and action it is showing, on one line", () => {
     mount();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Body Lab");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Muscle map");
     const context = document.querySelector(".body-lab-selection-context")!.textContent;
     expect(context).toContain(sport.label);
     expect(context).toContain(movements[1].label);

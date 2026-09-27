@@ -79,7 +79,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
 
   return <section className="catalog-discovery">
     <header className="catalog-discovery-heading">
-      <div><p>Exercise catalog</p><h1>Find an exercise</h1></div>
+      <div><h1>Exercise catalog</h1></div>
       {/* The count is the actual result set, against the catalog's actual size. */}
       <span>{results.length === exercises.length ? `${exercises.length} options` : `${results.length} of ${exercises.length}`}</span>
     </header>

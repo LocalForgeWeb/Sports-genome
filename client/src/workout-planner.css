@@ -112,7 +112,7 @@
 @media (max-width: 640px) { .account-entry-brand { padding: 1.25rem; }.account-entry-card { margin: 16vh 1rem 0; padding: 1.4rem; }.account-entry-card h1 { font-size: 3.7rem; }.account-entry-card button { width: 100%; } }
 
 /* Direct training-day building: catalog-first composition with lightweight ordering controls. */
-.day-orderable-exercise { position: relative; }.day-order-controls { position: absolute; z-index: 2; top: .65rem; right: .7rem; display: flex; gap: .2rem; }.day-order-controls button { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid rgb(255 255 255 / .16); color: #a9c0b5; }.day-order-controls button:hover:not(:disabled) { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }.day-order-controls button:disabled { cursor: not-allowed; opacity: .28; }
+.day-orderable-exercise { position: relative; }.day-order-controls { position: absolute; z-index: 2; top: .65rem; right: .7rem; display: flex; gap: .2rem; }.day-order-controls button { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid rgb(255 255 255 / .16); color: #a9c0b5; }.day-order-controls button:hover:not(:disabled) { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }.day-order-controls button:disabled { cursor: not-allowed; opacity: .28; }
 .day-exercise-picker { display: grid; gap: .75rem; }/* The way into the catalog. It was a disclosure that expanded the whole catalog
    inline, below a day the athlete was reading; the catalog now opens as a sheet
    over the page, so what stays here is the door, not a second copy of the room. */

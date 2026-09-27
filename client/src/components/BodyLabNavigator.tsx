@@ -27,7 +27,7 @@ export function BodyLabNavigator({ sports, activeSportId, movements, selectedMov
 
   return <section className="body-lab-navigator body-lab-selection" aria-label="Selected sport action">
     <div className="body-lab-selection-head">
-      <h1>Body Lab</h1>
+      <h1>Muscle map</h1>
       <p className="body-lab-selection-context">
         <span className="body-lab-selection-sport">{sportLabel}</span>
         <i aria-hidden="true">/</i>

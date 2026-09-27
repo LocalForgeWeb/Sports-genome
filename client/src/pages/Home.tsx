@@ -1479,7 +1479,7 @@ export default function Home() {
             scroll past. */}
         {workspace === "recommended" && hasSportContext && <section className="matches-page" aria-label="Exercise matches">
           <div className="matches-head">
-            <h1>Exercise matches</h1>
+            <div><h1>Exercise matches</h1><p className="matches-purpose">Exercises picked for how your sport moves.</p></div>
             {/* The athlete's own sport, not a browse: these rank for the sport
                 the plan is built on, so changing it here changes the plan's. */}
             <label className="matches-sport"><span className="sr-only">Sport</span><select value={sportId} onChange={(event) => chooseSport(event.target.value)}>{sportProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</select><ChevronDown className="h-4 w-4" aria-hidden="true" /></label>
@@ -1490,7 +1490,7 @@ export default function Home() {
           <div className="matches-context">
             <p className="metric-label">Movement context</p>
             <label className="matches-action"><span className="sr-only">Sport action</span><select value={selectedMovement.id} onChange={(event) => setMovementId(event.target.value)}>{sportMovements.map((movement) => <option key={movement.id} value={movement.id}>{movement.label}</option>)}</select><ChevronDown className="h-5 w-5" aria-hidden="true" /></label>
-            <button type="button" className="matches-link" onClick={() => navigateWorkspace("movement")}>Explore movement <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+            <button type="button" className="matches-link" onClick={() => navigateWorkspace("movement")}>Change movement <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
           </div>
           <div className="matches-lens">
             <details className="matches-lens-method">
@@ -1502,6 +1502,7 @@ export default function Home() {
               <div>
                 <p className="matches-lens-note">{sportProgrammingContext.priorities.length ? `Ranking these matches on ${sportProgrammingContext.priorities.join(", ")}` : "Ranking these matches on movement and muscle fit alone"} — drawn from {selectedSport.label}, {sportProgrammingContext.modifierLabel.toLowerCase()}.</p>
                 <p className="matches-lens-heading">How matching works</p>
+                <p>The score is how well an exercise fits these qualities, 0 to 100, from its catalog profile. The tag beside it is the catalog's tier for the exercise itself; neither is a rank of you.</p>
                 <p>{sportProgrammingContext.modalityBoundary}</p><p>{sportProgrammingContext.exerciseRole}</p><p>{sportProgrammingContext.programmingBoundary}</p>
               </div>
             </details>
@@ -1561,7 +1562,7 @@ export default function Home() {
                 "Build it, run it, print it" heading that named all three. */}
             <div className="day-plan-actions">
               <button type="button" className="day-action-add" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button>
-              <button type="button" className="day-action-session" onClick={() => navigateWorkspace("tracker")} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? "Back to workout" : "Start session"}</button>
+              <button type="button" className="day-action-session" onClick={() => navigateWorkspace("tracker")} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
               <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan</button>
               <PrintWorkoutButton disabled={!customWorkout.length} />
             </div>
@@ -1588,9 +1589,9 @@ export default function Home() {
           <div className="day-review-head">
             <div>
               <h1>Review your week</h1>
-              <p>Week {activeWeek} · {trainingDays} planned days · {activeSlot.ordinal} open</p>
+              <p>Week {activeWeek} · {trainingDays} planned days · {activeSlot.ordinal} open · checks the planned workload, not what you have completed</p>
             </div>
-            <button type="button" className="day-review-open" onClick={() => navigateWorkspace("tracker")} disabled={!customWorkout.length}>{liveSession ? "Back to workout" : "Open session"} <ArrowUpRight className="h-4 w-4" /></button>
+            <button type="button" className="day-review-open" onClick={() => navigateWorkspace("tracker")} disabled={!customWorkout.length}>{liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"} <ArrowUpRight className="h-4 w-4" /></button>
           </div>
           {/* Everything here reads the plan rather than changing it, in the order
               it is wanted: what to do before the session, where the week's volume

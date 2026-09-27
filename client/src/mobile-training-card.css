@@ -199,7 +199,7 @@
      way out and cost more than it bought: the summary has to reserve their
      width, and at 44 each the reserve squeezed the title column until the
      prescription line wrapped. Stacked vertically, tall is the useful axis. */
-  .day-orderable-exercise .day-order-controls button { width: 34px; min-width: 34px; height: 44px; }
+  .day-orderable-exercise .day-order-controls button { width: 44px; min-width: 44px; height: 44px; }
   .day-picker-serratus-cue { margin-top: .75rem; border-left: 3px solid #d5ad43; background: #fffaf0; padding: .65rem .72rem; color: #735d2b; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
   /* The index column is worth its width in the collapsed summary and is dead space
      under it, so the editor uses the full card. */

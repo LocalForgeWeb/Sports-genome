@@ -58,7 +58,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
   const step = (movement: SportMovementProfile | null) => { if (!movement) return; emitInteractionFeedback(); onMovement(movement); };
 
   return <section className="movement-atlas-improved">
-    <header className="atlas-improved-head"><div><h1>Movement Atlas</h1><p className="atlas-quiet-context">Explore how your sport moves.</p><p>{sportName} movement discovery</p></div></header>
+    <header className="atlas-improved-head"><div><h1>Movement explorer</h1><p className="atlas-quiet-context">How your sport moves, one action at a time.</p><p>{sportName} movement discovery</p></div></header>
     <div className="atlas-compact-selects">
       <label className="atlas-sport-select"><span className="sr-only">Sport</span><select value={sportId} onChange={(event) => { emitInteractionFeedback(); onSport(event.target.value); setModifierId(""); setShowAllActions(false); }} aria-label="Choose sport">{sports.map((sport) => <option key={sport.id} value={sport.id}>{sport.label}</option>)}</select><ChevronDown className="h-4 w-4" aria-hidden="true" /></label>
       {modifiers.length > 0 && <label className="atlas-sport-select"><span className="sr-only">Role, event or style</span><select value={modifierId} onChange={(event) => { emitInteractionFeedback(); setModifierId(event.target.value); }} aria-label="Choose a sport modifier"><option value="">General profile</option>{modifiers.map((modifier) => <option key={modifier.id} value={modifier.id}>{modifier.label}</option>)}</select><ChevronDown className="h-4 w-4" aria-hidden="true" /></label>}
@@ -84,7 +84,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
       <h3>Why it matters</h3>
       <p>{selectedMovement.gymTransferCue}</p>
     </section>
-    <button type="button" className="atlas-trace" onClick={() => { emitInteractionFeedback(); onOpenBody(); }}>Trace in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+    <button type="button" className="atlas-trace" onClick={() => { emitInteractionFeedback(); onOpenBody(); }}>Explore involved muscles <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
 
     <section className="atlas-explore" aria-label="Sport actions">
       <h3>Explore actions</h3>

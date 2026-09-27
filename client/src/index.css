@@ -1108,7 +1108,7 @@ select {
 .recommendation-row-main { grid-template-columns: 30px minmax(0, 1fr) auto auto 44px; }
 .recommendation-add { width: 44px; height: 44px; }
 @media (max-width: 640px) {
-  .recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 36px auto 44px; align-items: center; gap: .5rem; }
+  .recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 44px auto 44px; align-items: center; gap: .5rem; }
   .recommendation-score { display: grid; }
   .recommendation-add { width: 44px; height: 44px; }
   .recommendation-why { margin-top: .55rem; }
@@ -3926,3 +3926,10 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
   body:has(.session-resume-bar) .add-destination { bottom: calc(4.375rem + 1.25rem + var(--sg-resume-height) + .5rem); }
   body:has(.session-resume-bar) .apex-content { padding-bottom: calc(6.25rem + var(--sg-resume-height)); }
 }
+.matches-purpose { margin: .2rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
+
+/* Every target at least 44px on its short side: the broaden-search link, the
+   match score, the Atlas family chips and the reorder pair. */
+.local-search-scope > button { min-height: 44px; display: inline-flex; align-items: center; }
+.recommendation-score { min-width: 44px; }
+.atlas-family-row button { min-width: 44px; min-height: 44px; }

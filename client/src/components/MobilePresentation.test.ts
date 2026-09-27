@@ -55,7 +55,7 @@ describe("mobile athlete presentation", () => {
     expect(home).toContain('aria-label={`Inspect ${result.exercise.name}`}');
     // The score names itself, so it and the tier stamp beside it read as two facts.
     expect(home).toContain('aria-label={`Match score ${score} for ${result.exercise.name}: open details`}');
-    expect(appStyles).toContain('.recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 36px auto 44px;');
+    expect(appStyles).toContain('.recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 44px auto 44px;');
     expect(appStyles).toContain('.recommendation-score { display: grid; }');
     expect(appStyles).toContain('.recommendation-add { width: 44px; height: 44px; }');
     expect(appStyles).toContain('.apex-content > section.space-y-5 > div.border-l-2 { display: none; }');
@@ -69,9 +69,9 @@ describe("mobile athlete presentation", () => {
     expect(plannerStyles).toContain(".day-design-main > .grid > .day-programming-panel { order: 1; }");
     expect(plannerStyles).toContain(".day-programming-head p:last-child { display: none; }");
     expect(trainingCardStyles).toContain("position: absolute !important; top: .7rem; right: .7rem");
-    // 44 square, not 34. The app's tap floor overrules a height but not a width,
-    // so the old pair declared 34x34 and rendered 34 wide by 44 tall.
-    expect(trainingCardStyles).toContain("width: 34px; min-width: 34px; height: 44px");
+    // 44 square: the app's tap floor overrules a height but not a width, so the
+    // pair declares both.
+    expect(trainingCardStyles).toContain("width: 44px; min-width: 44px; height: 44px");
   });
 
   it("keeps mobile navigation opaque and Training Day dark-surface controls legible against navy panels", () => {
