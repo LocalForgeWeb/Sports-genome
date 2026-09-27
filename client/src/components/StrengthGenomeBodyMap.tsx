@@ -29,8 +29,13 @@ const regionToMuscles = buildStrengthRegionMap(catalogMuscleRegionIds);
  * was - where lifts are on record, and nothing about how strong - with its own legend. Each
  * mode keeps its own meaning; neither borrows the other's colours.
  */
-export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePriorityIds, selectedRegionId, onSelect, regionRanks = null, rankNotice = null }: { regions: (StrengthRegionDefinition & { state: RegionState })[]; activePriorityIds: Set<string>; selectedRegionId?: string; onSelect: (region?: StrengthRegionDefinition) => void; regionRanks?: ReadonlyMap<string, RegionRank> | null; rankNotice?: ReactNode }) {
+export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePriorityIds, selectedRegionId, onSelect, regionRanks = null, rankNotice = null, ranksPending = false }: { regions: (StrengthRegionDefinition & { state: RegionState })[]; activePriorityIds: Set<string>; selectedRegionId?: string; onSelect: (region?: StrengthRegionDefinition) => void; regionRanks?: ReadonlyMap<string, RegionRank> | null; rankNotice?: ReactNode; ranksPending?: boolean }) {
   const rankMode = regionRanks !== null;
+  // Coverage draws in its own blue, never the exercise atlas's red "primary muscle"
+  // hue, so the same body cannot say "primary role" on one screen and "lifts on
+  // record" on the next in one colour. While ranks are being computed the
+  // coverage fill is muted, so nothing bright appears only to be repainted.
+  const chartMode = rankMode ? "rank" : ranksPending ? "pending" : "coverage";
   const [activeBand, setActiveBand] = useState<RankId | null>(null);
   const regionByMuscle = useMemo(() => new Map(Object.entries(regionToMuscles).flatMap(([regionId, keys]) => keys.map((key) => [key, regionId] as const))), []);
   const regionById = useMemo(() => new Map(regions.map((region) => [region.id, region])), [regions]);
@@ -128,7 +133,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
   const [side, setSide] = useState<AnatomySide>(defaultAnatomySide);
   useEffect(() => { setSide((current) => sideForSelection(current, selectedMuscleKeys)); }, [selectedMuscleKeys]);
 
-  return <section className="strength-body-map" aria-label="Interactive strength context body map">
+  return <section className="strength-body-map" data-mode={chartMode} aria-label="Interactive strength context body map">
     {/* Front / Back are the map's own local tabs, the reference's composition. The
         selection follows the turn: a region drawn on the side facing away turns
         the figure by itself, so the caption below can never name a muscle that
@@ -140,7 +145,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
       <div className="strength-body-map-actions">{selectedRegionId && <button type="button" aria-label="Clear selected strength region" onClick={() => { emitInteractionFeedback(); onSelect(undefined); }}>Clear</button>}</div>
     </div>
     <div className="strength-body-map-stage">
-      <div className="strength-body-chart">
+      <div className="strength-body-chart" data-mode={chartMode}>
         <AnatomyFigure
           view={side}
           roles={roles}
@@ -148,15 +153,24 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
           onSelect={chooseMuscle}
           labelFor={(key) => labelByMuscle.get(key) ?? key}
           rankFor={rankFor}
-          describeFor={rankMode ? (key) => { const regionId = regionByMuscle.get(key); if (regionId) return describeRegion(regionId, labelByMuscle.get(key) ?? key); const name = labelByMuscle.get(key) ?? key; return `${name.charAt(0).toUpperCase()}${name.slice(1)}, not part of any strength region`; } : undefined}
+          describeFor={(key) => {
+            const regionId = regionByMuscle.get(key);
+            const name = labelByMuscle.get(key) ?? key;
+            if (!regionId) return `${name.charAt(0).toUpperCase()}${name.slice(1)}, not part of any strength region`;
+            if (rankMode) return describeRegion(regionId, name);
+            // Coverage in words: the figure never says "primary role" here, because the
+            // colour means lifts on record, not a muscle's part in an exercise.
+            const onRecord = regionById.get(regionId)?.state === "OBSERVED_TEST_CONTEXT";
+            return `${name}, ${onRecord ? "lifts on record" : "nothing logged yet"}${ranksPending ? ", ranking" : ""}`;
+          }}
         />
       </div>
       {rankMode ? (
         <RankLegend activeBand={activeBand} onBand={setActiveBand} regionLabelsByRank={regionLabelsByRank} />
       ) : (
-        <div className="strength-map-legend">
+        <div className="strength-map-legend" data-mode={chartMode}>
           <p className="metric-label">Your body</p>
-          <span className="strength-map-legend-on"><i />On record</span>
+          <span className="strength-map-legend-on"><i />{ranksPending ? "On record · ranking" : "On record"}</span>
           <span className="strength-map-legend-off"><i />Nothing logged yet</span>
           <small>{recordedCount} of {rows.length} regions</small>
         </div>

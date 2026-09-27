@@ -127,7 +127,7 @@ describe("Nothing edits the plan before it has been read", () => {
     auth.loading = true;
     window.history.replaceState({}, "", "/?workspace=command");
     render(createElement(Home));
-    await screen.findByText("Loading your plan…", undefined, { timeout: 15000 });
+    await screen.findByRole("status", { name: "Loading your plan" }, { timeout: 15000 });
     expect(document.body.textContent).not.toContain("No session built yet");
   });
 

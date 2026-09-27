@@ -17,6 +17,12 @@
 export const returningVisitStorageKey = "sports-genome-launched-before-v1";
 
 /**
+ * The intro itself: the one file the boot screen in index.html plays and the
+ * About Me preview plays again. One address, so the two can never drift apart.
+ */
+export const introVideoUrl = "https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4";
+
+/**
  * A one-shot request to watch the intro again.
  *
  * "Preview intro video" reloaded the page and nothing played, because a reload of a

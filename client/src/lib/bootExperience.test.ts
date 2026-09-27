@@ -83,8 +83,14 @@ describe("the document knows about the return before it paints", () => {
     expect(indexHtml).toContain('localStorage.getItem("sports-genome-launched-before-v1")');
   });
 
-  it("does not play the intro video on a returning launch", () => {
-    expect(indexHtml).toContain('document.documentElement.dataset.sportsGenomeBootReturn!=="yes"');
+  it("plays the intro on every launch the preference allows, with a way to skip it", () => {
+    // A returning athlete used to get a static shortcut that read as the app
+    // arriving through the animation; now the sequence runs whenever it is on,
+    // and Skip is one tap away.
+    expect(indexHtml).not.toContain('root.dataset.sportsGenomeBootReturn !== "yes"');
+    expect(indexHtml).toContain('root.dataset.sportsGenomeBoot !== "off"');
+    expect(indexHtml).toContain('id="sports-genome-boot-skip"');
+    expect(indexHtml).toContain('new Event("sports-genome-boot-skip")');
   });
 
   it("does not preload a video it will not play", () => {

@@ -33,7 +33,7 @@ function App() {
       <BootSplashLifecycle />
       <ThemeProvider>
         <TooltipProvider>
-          <Toaster />
+          <Toaster position="bottom-center" theme="dark" visibleToasts={2} duration={4500} />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

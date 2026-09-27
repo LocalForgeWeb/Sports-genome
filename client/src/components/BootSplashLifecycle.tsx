@@ -15,10 +15,19 @@ export function BootSplashLifecycle() {
 
     let cancelVideoWait: (() => void) | null = null;
     let timeout: number | null = null;
+    // Once, whatever asks: the hold ending, the video ending, or a skip.
+    let finished = false;
     const finish = () => {
+      if (finished) return;
+      finished = true;
       dismissBootSplash();
       rememberLaunch();
     };
+    // Skip lifts the screen at once, hold or no hold; a skip that already
+    // happened before this effect ran counts too.
+    const onSkip = () => finish();
+    window.addEventListener("sports-genome-boot-skip", onSkip, { once: true });
+    if (document.documentElement.dataset.sportsGenomeBootSkip === "yes") finish();
 
     // The hold starts when the sequence does, which is when its artwork can be
     // drawn - not when the document started, and not when React happened to
@@ -41,6 +50,7 @@ export function BootSplashLifecycle() {
     });
 
     return () => {
+      window.removeEventListener("sports-genome-boot-skip", onSkip);
       cancelArtWait();
       if (timeout !== null) window.clearTimeout(timeout);
       cancelVideoWait?.();

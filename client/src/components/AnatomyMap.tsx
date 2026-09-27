@@ -309,7 +309,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                   <h3>{selectedLabel}</h3>
                   {selectedPartName && <p className="atlas-inspector-part">{selectedPartName}</p>}
                 </div>
-                <button onClick={() => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); }} aria-label="Clear muscle selection">×</button>
+                <button onClick={() => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); onSelect(""); }} aria-label="Clear muscle selection">×</button>
               </div>
 
               {selectedParts.length > 1 && <div className="atlas-part-picker atlas-desktop-only" role="group" aria-label={`${selectedLabel} heads`}>
@@ -361,7 +361,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                 without hitting a 12px shape. */}
             {showAllRanked && filteredUninvolved.map((region) => <li key={region.key} className="atlas-role-row-unrecorded"><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong></span><em className="atlas-role-tag atlas-role-tag-unrecorded">No role recorded</em><ChevronRight className="h-4 w-4" /></button></li>)}
           </ol>
-          {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `View all ${filteredRanked.length + filteredUninvolved.length} muscle roles`} <ChevronRight className="h-4 w-4" aria-hidden="true" /></button>}
+          {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `View all ${filteredRanked.length + filteredUninvolved.length} mapped muscles`} <ChevronRight className="h-4 w-4" aria-hidden="true" /></button>}
         </section>
         <div className="atlas-foot">
           {nextStep}

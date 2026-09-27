@@ -105,7 +105,7 @@ function BandTally({ band, count }: { band: CoverageBand; count: number }) {
  *
  * Nothing was deleted; the last two moved behind the question they answer.
  */
-export function RateStackPanel({ workout, catalog, split, sportId, prescriptions, onAdd, onReplace: _onReplace, onFixMuscle }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; sportId?: string; prescriptions?: Record<number, string>; onAdd: (exercise: Exercise) => void; onReplace: (outgoing: Exercise, incoming: Exercise) => void; onFixMuscle?: (muscle: string) => void; }) {
+export function RateStackPanel({ workout, catalog, split, sportId, prescriptions, onAdd, onReplace: _onReplace, onFixMuscle, dayLabel = "Active Training Day" }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; sportId?: string; prescriptions?: Record<number, string>; onAdd: (exercise: Exercise) => void; onReplace: (outgoing: Exercise, incoming: Exercise) => void; onFixMuscle?: (muscle: string) => void; /** The day in the plan's words ("Week 1 · Day 05 · Legs"), named on the analysis surface. */ dayLabel?: string; }) {
   const [open, setOpen] = useState(false);
   const analysis = useMemo(() => analyzeSplitStack(workout, catalog, split), [catalog, split, workout]);
   const bars = useMemo(() => buildCoverageBars(analysis.ratings), [analysis.ratings]);
@@ -165,8 +165,8 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
         <details className="rate-stack-detail">
           <summary>
             <span>
-              <strong>Every target, measured</strong>
-              <small>{bars.length} {split.toLowerCase()} targets · how the score is built</small>
+              <strong>Target breakdown</strong>
+              <small>{bars.length} {split.toLowerCase()} targets · modeled from the day's prescriptions</small>
             </span>
             <ChevronDown className="h-4 w-4" />
           </summary>
@@ -220,7 +220,8 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
         <StackAnalysisPage
           workout={workout}
           split={split}
-          dayLabel="Active Training Day"
+          ratings={analysis.ratings}
+          dayLabel={dayLabel}
           targetIndex={analysis.score}
           suggestions={analysis.suggestions}
           catalog={catalog}

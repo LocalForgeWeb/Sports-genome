@@ -493,7 +493,7 @@ _No requirement IDs in this section._
 | B261 | Log offline → terminate app → reopen → reconnect → one durable record. | pending |  |
 | B262 | Sign out A → sign in B → no A profile/plan/history leaks from caches. | pending |  |
 | B263 | Change week/day while a request is in flight → response updates its intended destination, not the newly selected day. | pending |  |
-| B264 | Launch with persisted plan loading → pending state, not false empty plan. | verified | Today panel shows 'Loading your plan…' until the saved plan is read, and every plan edit is refused (toast) before then, so nothing is confirmed and then overwritten. Test: Home.undoAndLoading.test.ts. |
+| B264 | Launch with persisted plan loading → pending state, not false empty plan. | verified | Today holds a 'Loading your plan' status until the saved plan and profile are read (main's planReady, merged), and every plan edit is refused with a toast before then, so nothing is confirmed and then overwritten. Test: client/src/pages/Home.undoAndLoading.test.ts. |
 | B265 | Home/Plan/analysis/Progress use matching definitions and revisions for shared counts and scores. | pending |  |
 | B266 | Simulate late calculation response → newer input result remains authoritative. | pending |  |
 

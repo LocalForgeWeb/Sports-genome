@@ -33,6 +33,10 @@ type DayExercisePickerProps = {
    * they are looking and closes back to where they were.
    */
   sheetOpen?: boolean;
+  /** Where an add lands, in the plan's own words: "Week 1 · Legs". Falls back to the split. */
+  destination?: string;
+  /** The day as the plan names it ("Week 1 · Day 03 · Legs"), for the analysis surface. */
+  dayLabel?: string;
   /** Opens that sheet from inside the panel - the coverage read-out's shortfalls do. */
   onOpenSheet?: () => void;
   onCloseSheet?: () => void;
@@ -52,8 +56,14 @@ export function sortDayExerciseResults(results: Exercise[], muscle: string) {
   });
 }
 
-export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, sheetOpen = false, onOpenSheet, onCloseSheet, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
+export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, sheetOpen = false, destination, dayLabel, onOpenSheet, onCloseSheet, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const destinationLabel = destination ?? split;
+  // The footer's count is the day as persisted, including what was there before the
+  // sheet opened; what this visit added is said separately rather than folded in.
+  const [countAtOpen, setCountAtOpen] = useState(activeWorkout.length);
+  useEffect(() => { if (sheetOpen) setCountAtOpen(activeWorkout.length); }, [sheetOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  const addedThisVisit = Math.max(0, activeWorkout.length - countAtOpen);
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"split" | "all">("split");
   const [equipment, setEquipment] = useState("all");
@@ -216,23 +226,27 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
         onAdd={onAdd}
         onReplace={onReplace}
         onFixMuscle={(target) => { setMuscle(muscleFilterKey(target)); setQuery(""); onOpenSheet?.(); }}
+        dayLabel={dayLabel ?? destinationLabel}
       />
-      <button type="button" className="day-exercise-open-catalog" onClick={() => onOpenSheet?.()}>
-        <span><p className="metric-label">Add to this day</p><strong>{activeWorkout.length ? "Find an exercise" : "Start with your first exercise"}</strong><small>{gaps.length ? `Sorted to close ${muscleLabels[gaps[0].muscle] || gaps[0].muscle} first` : "Search, filter, then add from the catalog"}</small></span>
+      {/* The day's own "Add exercises" control already opens this sheet, so this
+          row earns its place only when it carries something that control does not:
+          the gap the analysis just named, and a search sorted to close it. */}
+      {activeWorkout.length > 0 && gaps.length > 0 && <button type="button" className="day-exercise-open-catalog" onClick={() => { setMuscle(muscleFilterKey(gaps[0].muscle)); setQuery(""); onOpenSheet?.(); }}>
+        <span><p className="metric-label">Add to {destinationLabel}</p><strong>Find exercises for {(muscleLabels[gaps[0].muscle] || gaps[0].muscle).toLowerCase()}</strong><small>Sorted to close {(muscleLabels[gaps[0].muscle] || gaps[0].muscle).toLowerCase()} first</small></span>
         <span className="day-exercise-disclosure-action">Browse <ChevronRight className="h-4 w-4" /></span>
-      </button>
+      </button>}
     </section>
 
     {/* Opened by "Add exercises". The same surface, over the day rather than below it. */}
     {sheetOpen && <div className="day-picker-sheet-scrim" onClick={(event) => { if (event.target === event.currentTarget) onCloseSheet?.(); }}>
       <section className="day-picker-sheet" role="dialog" aria-modal="true" aria-labelledby="day-picker-sheet-title">
         <header className="day-picker-sheet-head">
-          <div><p className="metric-label">Add to {split}</p><h2 id="day-picker-sheet-title">Add exercises</h2></div>
+          <div><p className="metric-label">Add to {destinationLabel}</p><h2 id="day-picker-sheet-title">Add exercises</h2></div>
           <button type="button" onClick={() => onCloseSheet?.()} aria-label="Close add exercises"><X className="h-4 w-4" /></button>
         </header>
         {pickerBody}
         <footer className="day-picker-sheet-foot">
-          <span>{activeWorkout.length} in this day</span>
+          <span aria-live="polite">{activeWorkout.length} in {destinationLabel}{addedThisVisit > 0 ? ` · ${addedThisVisit} added now` : ""}</span>
           <button type="button" onClick={() => onCloseSheet?.()}>Done</button>
         </footer>
       </section>

@@ -43,8 +43,10 @@ describe("Training Day exercise finder disclosure", () => {
   it("keeps Stack Analysis on the day and the catalog behind one clear control", () => {
     expect(source).toContain("<RateStackPanel");
     expect(source).toContain('className="day-exercise-open-catalog"');
-    expect(day).toContain("Find an exercise");
-    expect(source).toContain("Search, filter, then add from the catalog");
+    // The day's own "Add exercises" control opens the sheet, so the row under the
+    // analysis appears only when it carries the gap the analysis named.
+    expect(day).toContain("Find exercises for ");
+    expect(day).toContain("Sorted to close ");
   });
 
   /**
@@ -153,8 +155,8 @@ describe("Training Day exercise finder disclosure", () => {
    * expand. The sheet replaces that: nothing is expanded on the page at all, and
    * the empty day's own control opens it.
    */
-  it("names the first exercise as the thing to do on an empty day", () => {
-    expect(render([])).toContain("Start with your first exercise");
+  it("leaves an empty day to its own Add exercises control rather than a second invitation", () => {
+    expect(render([])).not.toContain("day-exercise-open-catalog");
     expect(render([])).not.toContain("day-picker-results");
   });
 
