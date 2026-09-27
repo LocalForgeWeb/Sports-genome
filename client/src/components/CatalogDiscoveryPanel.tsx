@@ -3,6 +3,7 @@ import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { ArrowRight, Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { catalogFilterOptions, defaultCatalogFilters, type CatalogFilters, filterCatalogByActionLink, filterCatalogExercises } from "@/lib/catalogDiscovery";
+import { suggestExerciseNames } from "@/lib/exerciseSearch";
 import { muscleLabels } from "@/components/AnatomyMap";
 import type { ExerciseActionConnection } from "@/lib/movementProgramAnalysis";
 import { sharedConnectionSummary } from "@/lib/movementProgramAnalysis";
@@ -18,6 +19,9 @@ type CatalogDiscoveryPanelProps = {
   onToggleFavorite: (exercise: Exercise) => void;
   onInspect: (exercise: Exercise) => void;
   onAdd: (exercise: Exercise) => void;
+  /** Exercises this device looked at lately, newest first; shown only while the list is unfiltered. */
+  recentIds?: readonly number[];
+  onClearRecent?: () => void;
   /** Where a plus puts the exercise, so the control says it: "Week 1 · Pull". */
   destinationLabel?: string;
   selectedActionLabel?: string;
@@ -40,7 +44,7 @@ const actionLinkLabel: Record<CatalogFilters["actionLink"], string> = { all: "Al
  * details, the catalog's tag, and favorite and add as two separate targets that
  * never open the row. The bordered grid of 36 cards is gone.
  */
-export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, destinationLabel, selectedActionLabel, onChangeAction, connectionForExercise }: CatalogDiscoveryPanelProps) {
+export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, recentIds = [], onClearRecent, destinationLabel, selectedActionLabel, onChangeAction, connectionForExercise }: CatalogDiscoveryPanelProps) {
   const [visibleCount, setVisibleCount] = useState(visiblePerPage);
   const options = useMemo(() => catalogFilterOptions(exercises), [exercises]);
   const baseResults = useMemo(() => filterCatalogExercises(exercises, filters, favoriteIds), [exercises, filters, favoriteIds]);
@@ -76,15 +80,21 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
     label: key === "muscle" ? (muscleLabels[filters.muscle] || filters.muscle) : key === "actionLink" ? actionLinkLabel[filters.actionLink] : filters[key],
   }));
   const activeFilterCount = activeChips.length;
+  // With nothing found: the nearest real names to what was typed, from the whole
+  // catalog, so the empty state can point at something rather than only apologise.
+  const listIsUnfiltered = !filters.query.trim() && !filters.favoritesOnly && activeFilterCount === 0;
+  const recentExercises = useMemo(() => (listIsUnfiltered ? recentIds.map((id) => exercises.find((exercise) => exercise.id === id)).filter((exercise): exercise is Exercise => Boolean(exercise)) : []), [listIsUnfiltered, recentIds, exercises]);
+  const suggestions = useMemo(() => (results.length === 0 && filters.query.trim() ? suggestExerciseNames(exercises, filters.query) : []), [results.length, filters.query, exercises]);
 
   return <section className="catalog-discovery">
     <header className="catalog-discovery-heading">
       <div><h1>Exercise catalog</h1></div>
       {/* The count is the actual result set, against the catalog's actual size. */}
-      <span>{results.length === exercises.length ? `${exercises.length} options` : `${results.length} of ${exercises.length}`}</span>
+      <span>{filters.favoritesOnly ? `${results.length} ${results.length === 1 ? "favorite" : "favorites"}` : results.length === exercises.length ? `${exercises.length} exercises` : `${results.length} of ${exercises.length} exercises`}</span>
     </header>
-    <div className="catalog-discovery-search"><Search className="h-4 w-4" aria-hidden="true" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder="Search exercises" aria-label="Search exercises" /><span>{results.length} matches</span></div>
-    <LocalSearchScope scope={`Searching the ${exercises.length} exercises in this catalog.`} query={filters.query} />
+    <div className="catalog-discovery-search"><Search className="h-4 w-4" aria-hidden="true" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder="Search exercises" aria-label="Search exercises" /></div>
+    {/* The scope line earns its place once there is a query to broaden; before that the heading's count says what is searched. */}
+    {filters.query.trim() ? <LocalSearchScope scope={`Searching the ${exercises.length} exercises in this catalog.`} query={filters.query} /> : null}
     {selectedActionLabel ? <div className="catalog-discovery-context">
       <small className="catalog-discovery-action-scope"><Target className="h-3 w-3" aria-hidden="true" /> Action links below are measured against <b>{selectedActionLabel}</b>.{sharedConnection ? ` ${sharedConnection}` : ""}</small>
       {onChangeAction && <button type="button" className="catalog-discovery-change" onClick={() => { emitInteractionFeedback(); onChangeAction(); }}>Change <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
@@ -110,6 +120,13 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       <button type="button" role="tab" aria-selected={!filters.favoritesOnly} onClick={() => update("favoritesOnly", false)}>All exercises</button>
       <button type="button" role="tab" aria-selected={filters.favoritesOnly} className="catalog-favorites-filter" onClick={() => update("favoritesOnly", true)}>Favorites <b>{favoriteIds.size}</b></button>
     </div>
+    {/* Recently viewed: separate from favourites and matches, only while the list is
+        unfiltered, and gone the moment a query or filter is in play. An id that no
+        longer names a catalog exercise is skipped. */}
+    {recentExercises.length > 0 && <section className="catalog-recent" aria-label="Recently viewed">
+      <div className="catalog-recent-head"><p className="metric-label">Recently viewed</p>{onClearRecent && <button type="button" onClick={() => { emitInteractionFeedback(); onClearRecent(); }}>Clear</button>}</div>
+      <ul className="catalog-recent-row">{recentExercises.map((exercise) => <li key={exercise.id}><button type="button" onClick={() => { emitInteractionFeedback(); onInspect(exercise); }} aria-label={`View ${exercise.name} details`}>{exercise.name}</button></li>)}</ul>
+    </section>}
     {results.length ? <div className="catalog-discovery-list">
       {visibleResults.map((exercise) => {
         const isFavorite = favoriteIds.has(exercise.id);
@@ -119,7 +136,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
           <div className="catalog-discovery-actions"><button type="button" onClick={() => { emitInteractionFeedback(); onToggleFavorite(exercise); }} className={isFavorite ? "catalog-favorite-on" : ""} aria-pressed={isFavorite} aria-label={`${isFavorite ? "Remove" : "Save"} ${exercise.name} ${isFavorite ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} /></button><button type="button" onClick={() => { emitInteractionFeedback(); onAdd(exercise); }} aria-label={`Add ${exercise.name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div>
         </article>;
       })}
-    </div> : <div className="catalog-discovery-empty"><strong>{filters.favoritesOnly ? "No saved favorites yet." : filters.query ? `Nothing matches "${filters.query}"${activeFilterCount ? " with these filters" : ""}.` : "No exercises match these filters."}</strong><p>{filters.favoritesOnly ? "Use the heart on any exercise to save a personal shortlist." : activeFilterCount ? "Take a filter off, or try a broader movement, equipment or muscle term." : "Try a broader movement, equipment or muscle term."}</p><div>{activeFilterCount > 0 && <button type="button" onClick={clearFiltersKeepQuery}>Clear filters</button>}{filters.query && <button type="button" onClick={() => update("query", "")}>Clear search</button>}{filters.favoritesOnly && <button type="button" onClick={() => update("favoritesOnly", false)}>All exercises</button>}</div></div>}
+    </div> : <div className="catalog-discovery-empty"><strong>{filters.favoritesOnly ? "No saved favorites yet." : filters.query ? `Nothing matches "${filters.query}"${activeFilterCount ? " with these filters" : ""}.` : "No exercises match these filters."}</strong><p>{filters.favoritesOnly ? "Use the heart on any exercise to save a personal shortlist." : activeFilterCount ? "Take a filter off, or try a broader movement, equipment or muscle term." : "Try a broader movement, equipment or muscle term."}</p><div>{suggestions.map((name) => <button type="button" key={name} onClick={() => update("query", name)}>Try “{name}”</button>)}{activeChips.map((chip) => <button type="button" key={chip.key} onClick={() => update(chip.key, "all" as never)}>Remove the {chip.label} filter</button>)}{activeFilterCount > 1 && <button type="button" onClick={clearFiltersKeepQuery}>Clear all filters</button>}{filters.query && <button type="button" onClick={() => update("query", "")}>Clear search</button>}{filters.favoritesOnly && <button type="button" onClick={() => update("favoritesOnly", false)}>Browse all exercises</button>}</div></div>}
     {results.length > visibleResults.length ? <button type="button" className="catalog-load-more" onClick={() => { emitInteractionFeedback(); setVisibleCount((count) => count + visiblePerPage); }}>Browse {Math.min(visiblePerPage, results.length - visibleResults.length)} more exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button> : null}
   </section>;
 }

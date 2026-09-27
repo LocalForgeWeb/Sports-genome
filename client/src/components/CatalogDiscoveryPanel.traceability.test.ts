@@ -51,7 +51,7 @@ describe("Catalog Discovery traceability presentation", () => {
     // One heading, the page's name; the tab above already says Exercises.
     expect(component).toContain("<h1>Exercise catalog</h1>");
     expect(component).not.toContain("Find an exercise");
-    expect(component).toContain("{exercises.length} options");
+    expect(component).toContain("{exercises.length} exercises");
     expect(component).toContain('aria-label="Search exercises"');
     expect(component).toContain("Filter & sort");
     expect(component).toContain("onToggleFavorite(exercise)");

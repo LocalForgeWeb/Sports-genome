@@ -247,7 +247,13 @@ describe("workspace side navigation", () => {
     expect(source).toContain('const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator")');
     expect(source).toContain('const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPanel")');
     expect(source).toContain('const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel")');
-    expect(source).toContain('Preparing this workspace…');
+    // The panels a first paint of Home never needs arrive with their screens.
+    expect(source).toContain('const DeviceWorkoutTracker = lazy(() => import("@/components/DeviceWorkoutTracker")');
+    expect(source).toContain('const AthleteAboutMePanel = lazy(() => import("@/components/AthleteAboutMePanel")');
+    expect(source).toContain('const ProgressOverviewPanel = lazy(() => import("@/components/ProgressOverviewPanel")');
+    // While one arrives, the canvas shows the shape of what is coming, not a sentence.
+    expect(source).toContain('className="workspace-skeleton"');
+    expect(source).not.toContain('Preparing this workspace…');
   });
 
   /**

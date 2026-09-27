@@ -95,3 +95,12 @@
 @supports selector(:has(*)) { .catalog-mode-active > section:has(.catalog-card) { display: none; } }
 /* A row, not a card: no elevation at rest or on hover. */
 .catalog-discovery-card, .catalog-discovery-card:hover { box-shadow: none; }
+
+/* Recently viewed: one quiet row of names, only while nothing is being searched (brief 11A). */
+.catalog-recent { display: grid; gap: .45rem; margin: .9rem 0 .2rem; }
+.catalog-recent-head { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+.catalog-recent-head p { margin: 0; }
+.catalog-recent-head button { min-height: 44px; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.catalog-recent-row { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.catalog-recent-row button { min-height: 44px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .4rem .85rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; line-height: 1.2; text-align: left; }
+.catalog-recent-row button:hover { border-color: var(--sg-focus-on-dark); }

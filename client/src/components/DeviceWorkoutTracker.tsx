@@ -127,7 +127,7 @@ function clockFor(seconds: number) {
   return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, "0")}`;
 }
 
-export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, onEditInPlan, onInspect, daySwitch }: {
+export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, onEditInPlan, onInspect, onOpenProgress, daySwitch }: {
   workout: Exercise[];
   prescriptions: Record<number, string>;
   settings: Record<number, ExerciseSettings>;
@@ -135,6 +135,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   dayLabel: string;
   /** Session shows the prescription; changing it is Plan's job, one tap away. */
   onEditInPlan?: () => void;
+  /** Where a finished workout's record lives; offered as the next step once it is written. */
+  onOpenProgress?: () => void;
   /** A row opens the exercise's own detail, as anywhere else in the app. */
   onInspect?: (exercise: Exercise) => void;
   /** The owner's day chooser, rendered under the day it names - only before a session starts. */
@@ -204,6 +206,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     weight: shownEntry("weight"),
     height: shownEntry("height"),
     reps: shownEntry("reps"),
+  };
+  /** True while a field shows the carried value rather than something typed or stored for this set. */
+  const isCarried = (field: EntryField) => {
+    if (!activeSession || !position || touchedEntries[entryKey(field)]) return false;
+    const set = activeSession.exercises[position.exerciseIndex].sets[position.setIndex];
+    return !set[field] && Boolean(carried?.[field]);
   };
 
   /**
@@ -366,8 +374,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       excludedDrafts ? `${excludedDrafts} typed but never logged` : "",
       skippedSets ? `${skippedSets} skipped` : "",
     ].filter(Boolean).join(" · ");
+    // The record is written; the message says what it holds and opens it.
     toast(`${completedSets} ${completedSets === 1 ? "set" : "sets"} added to Progress`, {
       description: leftOut ? `Left out: ${leftOut}.` : "Every logged set was recorded.",
+      ...(onOpenProgress ? { action: { label: "View record", onClick: onOpenProgress } } : {}),
     });
   };
 
@@ -396,7 +406,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
      */
     return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker session-prestart">
       <div className="session-prestart-hero">
-        <p className="metric-label">Workout session</p>
+        <p className="metric-label">Workout</p>
         <h1 className="session-prestart-day">{dayName}</h1>
         {dayPosition && <p className="session-prestart-position">{dayPosition}</p>}
         <p className="session-prestart-counts">{planned
@@ -431,7 +441,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       </div>}
 
       {planned && <details className="session-prestart-disclosure">
-        <summary><Settings className="h-5 w-5" aria-hidden /><span>Session preparation</span><ChevronRight className="h-5 w-5" aria-hidden /></summary>
+        <summary><Settings className="h-5 w-5" aria-hidden /><span>Preparation</span><ChevronRight className="h-5 w-5" aria-hidden /></summary>
         <div className="session-prestart-disclosure-body"><WarmupPanel workout={workout} goal={goal} /></div>
       </details>}
 
@@ -455,6 +465,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   }
 
   const activeExercise = position ? activeSession.exercises[position.exerciseIndex] : null;
+  const nextExerciseName = position ? activeSession.exercises.slice(position.exerciseIndex + 1).find((exercise) => !isExerciseSkipped(exercise))?.exerciseName ?? null : null;
   const activeSet = position && activeExercise ? activeExercise.sets[position.setIndex] : null;
 
   return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker">
@@ -512,15 +523,17 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         {carried.source === "session" ? "Last set" : "Last logged"}: {activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}
       </p>}
       <div className="live-set-entry" data-fields={activeEntryFields.length + 1}>
+        {/* A value carried from the last set is an offer until the athlete touches
+            the field: it is marked so it never passes for something already typed. */}
         {activeEntryFields.map((field) => <label key={field.measure}>
           <span>{field.label}</span>
-          <input value={shownEntries[field.measure]} inputMode="decimal" type="text" autoComplete="off" enterKeyHint="done"
+          <input value={shownEntries[field.measure]} inputMode="decimal" type="text" autoComplete="off" enterKeyHint="next" data-carried={isCarried(field.measure) ? "" : undefined}
             onChange={(event) => editEntry(field.measure, event.target.value)} placeholder="—" />
           <em>{field.unit}</em>
         </label>)}
         <label>
           <span>Reps</span>
-          <input value={shownEntries.reps} inputMode="numeric" type="text" autoComplete="off" enterKeyHint="done"
+          <input value={shownEntries.reps} inputMode="numeric" type="text" autoComplete="off" enterKeyHint="done" data-carried={isCarried("reps") ? "" : undefined}
             onChange={(event) => editEntry("reps", event.target.value)} placeholder="—" />
         </label>
       </div>
@@ -532,8 +545,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       <button type="button" className="live-set-skip" onClick={skipActiveExercise}>
         <SkipForward className="h-4 w-4" /> Skip {activeExercise.exerciseName}
       </button>
+      {/* What follows, as quiet supporting information: the athlete can rack the
+          next station during the rest without opening the full session. */}
+      {nextExerciseName && <p className="live-set-next">Next · {nextExerciseName}</p>}
     </div> : <div className="live-set-card live-set-card-done">
-      <p className="metric-label">Session complete</p>
+      <p className="metric-label">Workout complete</p>
       <h4>Every planned set is logged.</h4>
       {/* Now the dominant action: nothing is left to log, so finishing is the
           one thing this card is for, and the button is here rather than a scroll
@@ -562,7 +578,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         athlete keeps their place while checking or correcting earlier work. */}
     <details className="live-session-queue">
       <summary>
-        <span>Full session</span>
+        <span>Full workout</span>
         <small>every exercise and set{drafts ? ` · ${drafts} typed, not logged` : ""}</small>
         <ChevronRight className="h-4 w-4" aria-hidden />
       </summary>

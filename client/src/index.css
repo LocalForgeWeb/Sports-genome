@@ -3988,3 +3988,30 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .day-plan-list { grid-template-columns: minmax(0, 1fr); }
 .day-plan-list > * { min-width: 0; }
 .rate-stack-eyebrow { white-space: normal; }
+
+/* Product polish — per docs/ux-polish/brief.md.
+   Numbers line up (VIS-07); a tap registers at once and settles in 80ms, with no
+   movement for those who asked for none (INT-01/06); a value carried from the
+   last set reads as an offer until it is touched (LIFT-09); the next station is
+   quiet supporting text (LIFT-01); paragraphs keep a reading width on a wide
+   screen (LAY-06). */
+.live-rest-clock, .live-set-prescription, .session-progress, .stat-figure, .strength-profile-metrics, .home-week-line, .custom-row-identity em, .live-set-entry input, .session-set-row input, .progress-facts, .recommendation-score, .catalog-discovery-heading > span, .training-plan-day small { font-variant-numeric: tabular-nums; }
+:is(.apex-content, .exercise-intelligence) button:not(:disabled):not(.workspace-top-switcher button):not(.mobile-bottom-nav button):not(.training-plan-day) { transition: transform var(--sg-motion-fast) var(--sg-ease), opacity var(--sg-motion-fast) var(--sg-ease); }
+:is(.apex-content, .exercise-intelligence) button:not(:disabled):not(.workspace-top-switcher button):not(.mobile-bottom-nav button):not(.training-plan-day):active { transform: scale(.985); opacity: .92; }
+:is(.apex-content, .exercise-intelligence) button:disabled { cursor: not-allowed; opacity: .5; }
+@media (prefers-reduced-motion: reduce) { :is(.apex-content, .exercise-intelligence) button:not(:disabled):active { transform: none; transition: none; } }
+.live-set-entry input[data-carried] { color: var(--sg-text-muted-on-dark); font-style: italic; }
+.live-set-entry input[data-carried]:focus { font-style: normal; }
+.live-set-next { margin: .6rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+@media (min-width: 1024px) { .apex-content :is(h1, h2, h3, p) { max-width: 75ch; } }
+.universal-search-kbd { display: none; }
+@media (min-width: 1024px) and (hover: hover) { .universal-search-kbd { display: inline-block; margin-left: .35rem; border: 1px solid var(--sg-divider-on-light); border-radius: 4px; padding: 0 .3rem; color: var(--sg-text-muted-on-light); font-family: inherit; font-size: var(--sg-text-xs); line-height: 1.5; } }
+.strength-region-record-empty button { display: inline-flex; min-height: 44px; align-items: center; gap: .4rem; margin-top: .6rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .5rem .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+/* A screen still arriving keeps the canvas and the shape of what is coming: a
+   title bar and three rows, in place, no words to read (STATE-04). */
+.workspace-skeleton { display: grid; gap: .8rem; padding: 1.4rem 0; }
+.workspace-skeleton span { display: block; height: 1rem; border-radius: 6px; background: rgb(255 255 255 / .08); }
+.workspace-skeleton .workspace-skeleton-title { width: 55%; height: 2rem; margin-bottom: .6rem; }
+.workspace-skeleton span:nth-child(2) { width: 90%; } .workspace-skeleton span:nth-child(3) { width: 80%; } .workspace-skeleton span:nth-child(4) { width: 65%; }
+@media (prefers-reduced-motion: no-preference) { .workspace-skeleton span { animation: workspace-skeleton-pulse 1200ms var(--sg-ease) infinite alternate; } @keyframes workspace-skeleton-pulse { to { opacity: .55; } } }
+.live-set-entry input[data-carried] { color: var(--sg-text-muted-on-dark) !important; font-style: italic !important; }

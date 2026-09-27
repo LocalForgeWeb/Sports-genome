@@ -124,7 +124,7 @@ describe("Session, before it starts", () => {
   it("keeps preparation and options behind their own lines, closed", () => {
     mount();
     const details = Array.from(document.querySelectorAll<HTMLDetailsElement>("details.session-prestart-disclosure"));
-    expect(details.map((item) => item.querySelector("summary")!.textContent)).toEqual(["Session preparation", "Workout options"]);
+    expect(details.map((item) => item.querySelector("summary")!.textContent)).toEqual(["Preparation", "Workout options"]);
     expect(details.every((item) => !item.open)).toBe(true);
     expect(details[0].querySelector(".warmup-panel"), "preparation is the real panel").toBeTruthy();
   });
