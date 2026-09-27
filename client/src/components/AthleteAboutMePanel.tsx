@@ -1,4 +1,4 @@
-import React, { useState, type ReactNode } from "react";
+import React, { useEffect, useState, type ReactNode } from "react";
 import { ArrowRight, BookOpen, CalendarDays, ChevronDown, ChevronRight, Check, CloudUpload, Dumbbell, Fingerprint, Lock, Medal, Palette, PlayCircle, Scale, Sparkles, Target, Trash2, Trophy, UserRound } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { themeOptionCopy, themePreferences, type ThemePreference } from "@/lib/theme";
@@ -33,6 +33,26 @@ const contextModes: { value: SportContextMode; label: string; detail: string; ic
   { value: "general", label: "General strength and resilience", detail: "No sport. Strength, capacity and body-region goals all stay available.", icon: Dumbbell },
   { value: "undecided", label: "Decide later", detail: "Skip it for now. You can pick a sport whenever you want.", icon: Sparkles },
 ];
+
+/** Years an athlete could plausibly have been born in: the hundred before this one, and this one. */
+export function birthYearRange(now = new Date()): { min: number; max: number } {
+  const max = now.getFullYear();
+  return { min: max - 100, max };
+}
+
+/** The saved year a typed value stands for, or undefined while it is not yet a whole year in range. */
+export function parseBirthYear(text: string, now = new Date()): number | undefined {
+  if (!/^\d{4}$/.test(text)) return undefined;
+  const year = Number(text);
+  const { min, max } = birthYearRange(now);
+  return year > min && year <= max ? year : undefined;
+}
+
+/** The saved weight a typed value stands for: a positive number, with "145." still on its way to one. */
+export function parseBodyWeight(text: string): number | undefined {
+  const value = Number(text);
+  return text.trim() !== "" && Number.isFinite(value) && value > 0 ? value : undefined;
+}
 
 export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, guides, launchVideo, launchVideoEnabled, buildStamp }: {
   baseline: AthleteBaseline;
@@ -101,6 +121,30 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   };
   const { preference, theme, setPreference } = useTheme();
   const [editing, setEditing] = useState(false);
+
+  /**
+   * Birth year and bodyweight are typed, not picked, so each keeps a draft of its own. Bound
+   * straight to the saved profile, the year could not be typed at all on a phone: "1", "19"
+   * and "199" each failed the whole-year check, were saved as nothing, and the box stayed
+   * empty under the keyboard. The draft holds whatever is typed; the profile takes a value
+   * only once it is a whole one, and is cleared when the field no longer holds one. A change
+   * to the profile from elsewhere (the Strength rank gate also asks for the year) replaces the
+   * draft only when the two actually disagree, so it never wipes a year mid-entry.
+   */
+  const [birthYearText, setBirthYearText] = useState(baseline.birthYear ? String(baseline.birthYear) : "");
+  const [birthYearLeft, setBirthYearLeft] = useState(false);
+  const [bodyWeightText, setBodyWeightText] = useState(baseline.bodyWeight ? String(baseline.bodyWeight) : "");
+  useEffect(() => {
+    setBirthYearText((text) => (baseline.birthYear === parseBirthYear(text) ? text : baseline.birthYear ? String(baseline.birthYear) : ""));
+  }, [baseline.birthYear]);
+  useEffect(() => {
+    setBodyWeightText((text) => (baseline.bodyWeight === parseBodyWeight(text) ? text : baseline.bodyWeight ? String(baseline.bodyWeight) : ""));
+  }, [baseline.bodyWeight]);
+  const { min: birthYearMin, max: birthYearMax } = birthYearRange();
+  // Said once the year is plainly wrong (four digits, out of range) or the field was left short.
+  const birthYearHint = birthYearText && parseBirthYear(birthYearText) === undefined && (birthYearText.length === 4 || birthYearLeft)
+    ? (birthYearText.length < 4 ? "Four digits, like 1998." : `Between ${birthYearMin + 1} and ${birthYearMax}.`)
+    : null;
   /* Every collapsed group says what is inside it, from the actual state:
      the equipment preset and count, the target chosen, where the record is
      saved, the theme, whether a passkey is enrolled. Nothing here is a sample. */
@@ -128,7 +172,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
       <span className="about-me-avatar" aria-hidden="true"><UserRound className="h-9 w-9" /></span>
       <div><h2>{baseline.preferredName || "Athlete"}</h2><p>{identityLine}</p><button type="button" className="about-me-edit" aria-expanded={editing} aria-controls="about-me-identity-fields" onClick={() => { emitInteractionFeedback(); setEditing((current) => !current); }}>{editing ? "Done editing" : "Edit profile"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
     </div>
-    {editing && <section id="about-me-identity-fields" className="about-me-card about-me-identity-fields"><p className="about-me-boundary">Planning context only — editable inputs that guide stack availability, not health or ability ratings.</p><label><span>Preferred name</span><input value={baseline.preferredName || ""} placeholder="Add a name" onChange={(event) => onBaseline({ ...baseline, preferredName: event.target.value || undefined })} /></label><label><span>Training experience</span><select value={baseline.experience} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, experience: event.target.value as AthleteExperience }); }}>{experiences.map((item) => <option key={item}>{item}</option>)}</select></label><label><span>Bodyweight (optional)</span><div className="about-me-inline"><input inputMode="decimal" value={baseline.bodyWeight || ""} placeholder="Not added" onChange={(event) => { const bodyWeight = Number(event.target.value); onBaseline({ ...baseline, bodyWeight: Number.isFinite(bodyWeight) && bodyWeight > 0 ? bodyWeight : undefined }); }} /><select value={baseline.weightUnit} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, weightUnit: event.target.value as WeightUnit }); }}><option value="lb">lb</option><option value="kg">kg</option></select></div></label><label><span>Sex (used only to match published studies)</span><select value={baseline.sexForReference || ""} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, sexForReference: (event.target.value || undefined) as SexForReference | undefined }); }}><option value="">Not set</option><option value="female">Female</option><option value="male">Male</option><option value="intersex">Intersex</option><option value="unspecified">Prefer not to say</option></select></label><label><span>Birth year (optional)</span><input inputMode="numeric" value={baseline.birthYear || ""} placeholder="e.g. 1998" onChange={(event) => { const birthYear = Number(event.target.value.replace(/[^0-9]/g, "").slice(0, 4)); const currentYear = new Date().getFullYear(); onBaseline({ ...baseline, birthYear: Number.isFinite(birthYear) && birthYear > currentYear - 100 && birthYear <= currentYear ? birthYear : undefined }); }} /></label></section>}
+    {editing && <section id="about-me-identity-fields" className="about-me-card about-me-identity-fields"><p className="about-me-boundary">Planning context only — editable inputs that guide stack availability, not health or ability ratings.</p><label><span>Preferred name</span><input value={baseline.preferredName || ""} placeholder="Add a name" onChange={(event) => onBaseline({ ...baseline, preferredName: event.target.value || undefined })} /></label><label><span>Training experience</span><select value={baseline.experience} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, experience: event.target.value as AthleteExperience }); }}>{experiences.map((item) => <option key={item}>{item}</option>)}</select></label><label><span>Bodyweight (optional)</span><div className="about-me-inline"><input inputMode="decimal" value={bodyWeightText} placeholder="Not added" onChange={(event) => { const text = event.target.value.replace(/[^0-9.]/g, ""); setBodyWeightText(text); const bodyWeight = parseBodyWeight(text); if (bodyWeight !== baseline.bodyWeight) onBaseline({ ...baseline, bodyWeight }); }} /><select value={baseline.weightUnit} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, weightUnit: event.target.value as WeightUnit }); }}><option value="lb">lb</option><option value="kg">kg</option></select></div></label><label><span>Sex (used only to match published studies)</span><select value={baseline.sexForReference || ""} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, sexForReference: (event.target.value || undefined) as SexForReference | undefined }); }}><option value="">Not set</option><option value="female">Female</option><option value="male">Male</option><option value="intersex">Intersex</option><option value="unspecified">Prefer not to say</option></select></label><label><span>Birth year (optional)</span><input inputMode="numeric" autoComplete="bday-year" maxLength={4} value={birthYearText} placeholder="e.g. 1998" aria-describedby={birthYearHint ? "about-me-birth-year-hint" : undefined} onFocus={() => setBirthYearLeft(false)} onBlur={() => setBirthYearLeft(true)} onChange={(event) => { const text = event.target.value.replace(/[^0-9]/g, "").slice(0, 4); setBirthYearText(text); const birthYear = parseBirthYear(text); if (birthYear !== baseline.birthYear) onBaseline({ ...baseline, birthYear }); }} />{birthYearHint && <small id="about-me-birth-year-hint" className="about-me-field-hint" role="status">{birthYearHint}</small>}</label></section>}
 
     {/* The preferences the plan is built from, visible at a glance. Sport and
         goal open to their full choice sets; days and session time are the chips
