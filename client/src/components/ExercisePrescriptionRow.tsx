@@ -38,7 +38,7 @@ import "../mobile-training-card.css";
  * top set followed by back-offs is just as ordinary, and used to be impossible
  * to write - so "Vary by set" turns the single field into one field per set.
  */
-export function ExercisePrescriptionRow({ exercise, index, prescription, settings, progress, onPrescription, onSettings, onInspect, onRemove }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; progress?: ExerciseProgress | null; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void }) {
+export function ExercisePrescriptionRow({ exercise, index, prescription, settings, progress, onPrescription, onSettings, onInspect, onRemove, onApplyRestToDay, dayRestMismatch = 0 }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; progress?: ExerciseProgress | null; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void; /** Applies this row's rest to every other exercise in the day (brief 11C); the count says how many differ. */ onApplyRestToDay?: (rest: string) => void; dayRestMismatch?: number }) {
   /**
    * The editor's model is the list of sets, not the string.
    *
@@ -191,7 +191,7 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
 
       <div className="prescription-field prescription-field-pair">
         <label className="metric-label">Effort<select value={settings.rpe} onChange={(event) => onSettings({ rpe: event.target.value })} aria-label={`${exercise.name} effort`}>{rpes.map((value) => <option key={value}>{value}</option>)}</select></label>
-        <label className="metric-label">Rest<select value={settings.rest} onChange={(event) => onSettings({ rest: event.target.value })} aria-label={`${exercise.name} rest`}>{rests.map((value) => <option key={value}>{value}</option>)}</select></label>
+        <label className="metric-label">Rest<select value={settings.rest} onChange={(event) => onSettings({ rest: event.target.value })} aria-label={`${exercise.name} rest`}>{rests.map((value) => <option key={value}>{value}</option>)}</select></label>{onApplyRestToDay && dayRestMismatch > 0 && <button type="button" className="prescription-rest-all" onClick={() => onApplyRestToDay(settings.rest)}>Use {settings.rest} for the other {dayRestMismatch === 1 ? "exercise" : `${dayRestMismatch} exercises`} in this day</button>}
       </div>
 
       <details className="prescription-note"><summary>Coach note <ChevronDown className="h-3.5 w-3.5" /></summary><textarea value={settings.notes} onChange={(event) => onSettings({ notes: event.target.value })} placeholder="Technique cue, load, or substitution reason" /></details>

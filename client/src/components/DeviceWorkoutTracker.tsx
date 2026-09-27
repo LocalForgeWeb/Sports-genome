@@ -381,6 +381,43 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     });
   };
 
+  /** Explicit drill-down. Opening it does not move the active set, so the athlete keeps their place while checking or correcting earlier work. */
+  const queue = useMemo(() => !activeSession ? null : (
+      <details className="live-session-queue">
+        <summary>
+          <span>Full workout</span>
+          <small>every exercise and set{drafts ? ` · ${drafts} typed, not logged` : ""}</small>
+          <ChevronRight className="h-4 w-4" aria-hidden />
+        </summary>
+        <div className="session-exercise-list">{activeSession.exercises.map((exercise, exerciseIndex) => { const queueFields = entryFieldsFor(exercise.exerciseName); const exerciseSkipped = isExerciseSkipped(exercise); return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""}`}>
+          <div>
+            <span>{String(exerciseIndex + 1).padStart(2, "0")}</span>
+            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : exercise.plannedPrescription}</small></div>
+            <button type="button" className="session-exercise-skip" onClick={() => toggleExerciseSkip(exerciseIndex)} aria-pressed={exerciseSkipped}>
+              {exerciseSkipped ? <Undo2 className="h-3.5 w-3.5" /> : <SkipForward className="h-3.5 w-3.5" />}
+              <span>{exerciseSkipped ? "Put back" : "Skip"}</span>
+            </button>
+          </div>
+          <div className="session-set-list">{exercise.sets.map((set, setIndex) => <div key={setIndex} className={`session-set-row ${set.completed ? "session-set-complete" : ""} ${isDraftSet(set) ? "session-set-draft" : ""} ${set.skipped ? "session-set-skipped" : ""}`}>
+            <strong>Set {setIndex + 1}{isDraftSet(set) ? " · typed, not logged" : ""}{set.skipped ? " · skipped" : ""}</strong>
+            {queueFields.map((field) => <label key={field.measure}>
+              <span>{field.label}</span>
+              <input value={set[field.measure] || ""} inputMode="decimal" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { [field.measure]: sanitiseEntry(field.measure, event.target.value) })} placeholder="—" />
+              <em>{field.unit}</em>
+            </label>)}
+            <label>
+              <span>Reps</span>
+              <input value={set.reps} inputMode="numeric" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { reps: sanitiseEntry("reps", event.target.value) })} placeholder="—" />
+            </label>
+            <button onClick={() => updateSet(exercise.id, setIndex, { completed: !set.completed })} aria-pressed={set.completed}>
+              {set.completed ? <Undo2 className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
+              <span>{set.completed ? "Undo" : "Log set"}</span>
+            </button>
+          </div>)}</div>
+        </article>; })}</div>
+      </details>
+  ), [activeSession]);
+
   if (!activeSession) {
     const plannedSets = workout.reduce((total, exercise) => total + plannedSetCount(prescriptions[exercise.id] || "3 × 8–12"), 0);
     /**
@@ -574,41 +611,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       </span>
     </div>}
 
-    {/* Explicit drill-down. Opening it does not move the active set, so the
-        athlete keeps their place while checking or correcting earlier work. */}
-    <details className="live-session-queue">
-      <summary>
-        <span>Full workout</span>
-        <small>every exercise and set{drafts ? ` · ${drafts} typed, not logged` : ""}</small>
-        <ChevronRight className="h-4 w-4" aria-hidden />
-      </summary>
-      <div className="session-exercise-list">{activeSession.exercises.map((exercise, exerciseIndex) => { const queueFields = entryFieldsFor(exercise.exerciseName); const exerciseSkipped = isExerciseSkipped(exercise); return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""}`}>
-        <div>
-          <span>{String(exerciseIndex + 1).padStart(2, "0")}</span>
-          <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : exercise.plannedPrescription}</small></div>
-          <button type="button" className="session-exercise-skip" onClick={() => toggleExerciseSkip(exerciseIndex)} aria-pressed={exerciseSkipped}>
-            {exerciseSkipped ? <Undo2 className="h-3.5 w-3.5" /> : <SkipForward className="h-3.5 w-3.5" />}
-            <span>{exerciseSkipped ? "Put back" : "Skip"}</span>
-          </button>
-        </div>
-        <div className="session-set-list">{exercise.sets.map((set, setIndex) => <div key={setIndex} className={`session-set-row ${set.completed ? "session-set-complete" : ""} ${isDraftSet(set) ? "session-set-draft" : ""} ${set.skipped ? "session-set-skipped" : ""}`}>
-          <strong>Set {setIndex + 1}{isDraftSet(set) ? " · typed, not logged" : ""}{set.skipped ? " · skipped" : ""}</strong>
-          {queueFields.map((field) => <label key={field.measure}>
-            <span>{field.label}</span>
-            <input value={set[field.measure] || ""} inputMode="decimal" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { [field.measure]: sanitiseEntry(field.measure, event.target.value) })} placeholder="—" />
-            <em>{field.unit}</em>
-          </label>)}
-          <label>
-            <span>Reps</span>
-            <input value={set.reps} inputMode="numeric" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { reps: sanitiseEntry("reps", event.target.value) })} placeholder="—" />
-          </label>
-          <button onClick={() => updateSet(exercise.id, setIndex, { completed: !set.completed })} aria-pressed={set.completed}>
-            {set.completed ? <Undo2 className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
-            <span>{set.completed ? "Undo" : "Log set"}</span>
-          </button>
-        </div>)}</div>
-      </article>; })}</div>
-    </details>
+    {/* The full workout list, memoised on the session: the rest clock ticks once a
+        second and must not redraw every set row to do it (PERF-06). */}
+    {queue}
 
     {/* Cutting a session short. Below the queue and set quietly, because it is
         the rare exit, not the next step; it says what it will keep so the tap

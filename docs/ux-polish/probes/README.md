@@ -9,3 +9,7 @@ Scripts behind the before/after sets and the checks in `../progress.md`. Same re
 | `perf.mjs` | PERF-01: cold and warm time to Home's action, transferred JS/CSS, one catalog query, one anatomy selection, one set log; median of three. |
 | `polish-qa.mjs` | Count copy, recently viewed, no-result suggestions and filter removal, next-exercise cue, carried values, finish → View record, reorder Undo, region → Log a lift, ⌘K. |
 | `polish-qa2.mjs` | Landscape logging, reduced motion, a blocked image, a slow server. |
+| `compare-qa.mjs` | Compare sheet (11B), day-wide rest with Undo (11C), one front/back control, a 137.5 lb set, the sign-in-expired notice. |
+| `reqaudit.mjs` | tRPC procedures requested per navigation (duplicates), and state across a 390 → 1280 → 390 resize. |
+| `layoutaudit.mjs` | Left edges, section rhythm and icon sizes per page. |
+| `tickcost.mjs` | DOM mutations in five seconds of rest-clock ticking. |

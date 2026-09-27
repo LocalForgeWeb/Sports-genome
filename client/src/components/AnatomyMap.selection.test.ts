@@ -29,7 +29,7 @@ const draw = (props: Partial<Parameters<typeof AnatomyMap>[0]> = {}) =>
  */
 const select = (container: HTMLElement, label: string) => {
   const hit = () => container.querySelector(`.anatomy-hit[aria-label^="${label}"]`);
-  if (!hit()) fireEvent.click(container.querySelector(".atlas-side-toggle")!);
+  if (!hit()) fireEvent.click(container.querySelector(".atlas-side-tab[aria-pressed=\"false\"]")!);
   fireEvent.click(hit()!);
 };
 
@@ -120,11 +120,11 @@ describe("selecting a muscle in the Body Lab", () => {
     const { container } = draw();
     expect(container.querySelector('.anatomy-figure[data-view="front"]')).toBeTruthy();
     expect(container.querySelector('.anatomy-figure[data-view="both"]')).toBeNull();
-    const toggle = container.querySelector(".atlas-side-toggle")!;
-    expect(toggle.textContent).toContain("Show back");
+    const toggle = container.querySelector(".atlas-side-tab[aria-pressed=\"false\"]")!;
+    expect(toggle.getAttribute("aria-label")).toContain("Show back");
     fireEvent.click(toggle);
     expect(container.querySelector('.anatomy-figure[data-view="back"]')).toBeTruthy();
-    expect(container.querySelector(".atlas-side-toggle")!.textContent).toContain("Show front");
+    expect(container.querySelector(".atlas-side-tab[aria-pressed=\"false\"]")!.getAttribute("aria-label")).toContain("Show front");
   });
 
   it("turns to face a selection handed to it by the app", () => {

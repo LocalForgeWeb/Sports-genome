@@ -23,7 +23,7 @@ describe("the body chart on a wide screen", () => {
   it("draws both bodies with static captions and no turn control", () => {
     const { container } = draw();
     expect(container.querySelector('.anatomy-figure[data-view="both"]')).toBeTruthy();
-    expect(container.querySelector(".atlas-side-toggle")).toBeNull();
+    expect(container.querySelector(".atlas-side-tab")).toBeNull();
     const captions = [...container.querySelectorAll(".atlas-view-captions-pair span")].map((node) => node.textContent);
     expect(captions).toEqual(["Front", "Back"]);
   });
@@ -48,7 +48,7 @@ describe("the body chart on a phone", () => {
     // jsdom has no matchMedia, which is the narrow case.
     const { container } = draw();
     expect(container.querySelector('.anatomy-figure[data-view="front"]')).toBeTruthy();
-    expect(container.querySelector(".atlas-side-toggle")).toBeTruthy();
+    expect(container.querySelector(".atlas-side-tab")).toBeTruthy();
     expect(container.querySelector(".atlas-view-captions-pair")).toBeNull();
   });
 

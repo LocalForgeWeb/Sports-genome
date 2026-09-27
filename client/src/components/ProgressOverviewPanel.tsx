@@ -1,3 +1,4 @@
+import { plural } from "@/lib/plural";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, Info } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -144,7 +145,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
    */
   return <section className="progress-review">
     <header className="progress-review-head">
-      <div><h1>Progress</h1><p>Every session you finished and every lift you logged.</p></div>
+      <div><h1>Progress</h1><p>Every workout you finished and every lift you logged.</p></div>
     </header>
     <div className="progress-facts" aria-label={`${recordedSessions.length} workouts recorded, ${loggedObservations.length} lifts logged`}>
       <div><b className="stat-figure">{recordedSessions.length}</b><strong>Workouts recorded</strong><small>{latestSession ? `Latest: ${latestSession.title}` : "No recorded session yet."}{deviceRecordCount > 0 ? ` · ${deviceRecordCount} on this device` : ""}</small></div>
@@ -159,7 +160,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
            record that logged nothing says so rather than being dressed up or
            dropped. An account record carries its counts only. */
         const facts = <><small>{session.completedAt.toLocaleDateString()} · {session.exerciseCount} {session.exerciseCount === 1 ? "exercise" : "exercises"} · {session.completedSetCount === 0 ? "no sets logged" : `${session.completedSetCount} ${session.completedSetCount === 1 ? "set" : "sets"}`}</small><span>{session.storage === "device" ? "Device" : "Account"}</span></>;
-        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.name}><span>{exercise.name}</span><b>{exercise.done} of {exercise.planned} sets</b>{exercise.skipped ? <i>skipped</i> : null}</li>)}</ul></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
+        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.name}><span>{exercise.name}</span><b>{exercise.done} of {plural(exercise.planned, "set")}</b>{exercise.skipped ? <i>skipped</i> : null}</li>)}</ul></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
       })}</ol> : <p className="progress-empty-copy">Complete a Session workout to create your first record.</p>}
       <button type="button" onClick={onOpenTraining} className="progress-text-action">Open your plan <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
     </section>

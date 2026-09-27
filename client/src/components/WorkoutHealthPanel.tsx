@@ -17,7 +17,7 @@ export function WorkoutHealthPanel({ workout, prescriptions, settings, goal = "A
   const diagnostics = getWorkoutDiagnostics(workout, prescriptions, settings, goal, gymMinutes);
   const signal = diagnostics.fatigueExposure >= logicCalibration.workoutReview.highFatigueReview ? "High" : diagnostics.fatigueExposure >= logicCalibration.workoutReview.moderateFatigueReview ? "Moderate" : "Managed";
   const activeEquipmentSummary = equipmentSummary || storedEquipmentSummary();
-  return <section id="stack-review" className="workout-health-panel" aria-label="Session review">
+  return <section id="stack-review" className="workout-health-panel" aria-label="Workout review">
     <details className="workout-health-disclosure">
       <summary><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Stack review</p><h3>Coach scan</h3></div><div><span className={`health-signal health-signal-${signal.toLowerCase()}`}>{signal} planning signal</span><span className="health-review-link">Review</span></div></summary>
       <div className="workout-health-content">

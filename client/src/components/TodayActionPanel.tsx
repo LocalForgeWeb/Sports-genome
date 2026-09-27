@@ -1,3 +1,4 @@
+import { plural } from "@/lib/plural";
 import React, { useMemo } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -142,7 +143,7 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
             <p className="metric-label">Continue your workout</p>
             <h2>{splitDayLabel(live.dayLabel).name}</h2>
             <p className="today-action-position">{splitDayLabel(live.dayLabel).position}</p>
-            <p className="today-action-count">{live.completedSets} of {live.plannedSets} sets logged{live.exerciseName && live.setNumber ? ` · next: ${live.exerciseName}, set ${live.setNumber}` : " · every set logged"}</p>
+            <p className="today-action-count">{live.completedSets} of {plural(live.plannedSets, "set")} logged{live.exerciseName && live.setNumber ? ` · next: ${live.exerciseName}, set ${live.setNumber}` : " · every set logged"}</p>
           </div>
           <div className="today-action-actions">
             <button type="button" onClick={() => (onOpenTracker || onOpenTraining)()} className="today-action-cta">Resume {splitDayLabel(live.dayLabel).name} workout <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>

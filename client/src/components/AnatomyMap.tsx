@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState, useCallback, type ReactNode } from "react";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
-import { defaultAnatomySide, oppositeSide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
+import { defaultAnatomySide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
 import { roleMapForLists, sourceValuesForRegion, viewsForRegion, regionPartName, regionParts, partFromPathId, type AnatomyRole } from "@/lib/anatomyRegions";
 import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
-import { ChevronDown, ChevronRight, RotateCw } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
@@ -241,7 +241,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                 half. Never a "Front" toggle over two bodies already showing. */}
             {wide
               ? <div className="atlas-view-captions atlas-view-captions-pair" aria-hidden="true"><span>Front</span><span>Back</span></div>
-              : <div className="atlas-view-captions"><span aria-hidden="true">{side === "front" ? "Front" : "Back"}</span><button type="button" className="atlas-side-toggle" aria-label={`${turnToSideLabel(side)} of the body`} onClick={() => setSide(oppositeSide(side))}><RotateCw className="h-3.5 w-3.5" aria-hidden="true" /> {turnToSideLabel(side)}</button></div>}
+              : <div className="atlas-view-captions atlas-side-tabs" role="group" aria-label="Side of the body shown">{(["front", "back"] as const).map((candidate) => <button key={candidate} type="button" className="atlas-side-tab" aria-pressed={side === candidate} aria-label={side === candidate ? `${sideLabel(candidate)} of the body, shown` : `${turnToSideLabel(side)} of the body`} onClick={() => { if (side !== candidate) setSide(candidate); }}>{sideLabel(candidate)}</button>)}</div>}
             {hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}
           </div>
 

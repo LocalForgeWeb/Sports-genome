@@ -74,12 +74,12 @@ Do not make every list item a working surface. Use whitespace and fine separator
 
 - [x] **VIS-01** Normalize canvas, surface and overlay treatments through shared tokens. — already satisfied: canvas, surface and overlay come from the --sg-surface-* and overlay tokens; nothing added
 - [x] **VIS-02** Audit the app at actual phone size for accidental nested panels and eliminate the redundant ones. — before set reviewed at 390px; the nested Home cards were already replaced by rows, the Strength region grid is deliberate
-- [ ] **VIS-03** Establish one spacing rhythm across titles, sections, lists and bottom actions. — NOT DONE: spacing rhythm not re-audited this pass
-- [ ] **VIS-04** Align titles, paragraph edges, row text and section actions to consistent gutters. — NOT DONE: gutters not re-audited this pass
+- [x] **VIS-03** Establish one spacing rhythm across titles, sections, lists and bottom actions. — section rhythm measured on every page (probes/layoutaudit.mjs): titles, sections and rows share the 12px gutter; no page has its own spacing
+- [x] **VIS-04** Align titles, paragraph edges, row text and section actions to consistent gutters. — left edges: 12px on every page for titles, paragraphs, rows and actions (layoutaudit.mjs); the only other edges are indented row bodies
 - [x] **VIS-05** Make metadata visibly secondary without reducing it to unreadably tiny text. — metadata is muted tones at 11–13px and passed the contrast probe (extras.mjs)
 - [x] **VIS-06** Reserve the strongest orange treatment for the current primary action; use quieter secondary links elsewhere. — one orange action per screen, verified in the correction pass
 - [x] **VIS-07** Check numeric alignment with tabular numerals in sets, reps, timers and metric columns. — tabular numerals on timers, set counts, metrics, inputs and prescription lines (index.css polish block)
-- [ ] **VIS-08** Replace inconsistent icon sizing and stroke weights with the established shared icon system. — NOT DONE: icon sizing not audited this pass
+- [x] **VIS-08** Replace inconsistent icon sizing and stroke weights with the established shared icon system. — icons come in three sizes by role (20 actions, 16 inline, 14 small); no odd sizes found (layoutaudit.mjs)
 
 ### 2.2 Editorial discipline
 
@@ -88,11 +88,11 @@ Keep the athletic condensed heading style where it works. Use readable sentence-
 Long labels should wrap intentionally. Do not solve long exercise names by truncating the information that distinguishes variants. Keep variant/equipment details available when names are similar.
 
 - [x] **VIS-09** Remove redundant headings and boilerplate that do not help someone make a decision. — catalog: the in-field "N matches" duplicate removed, the scope line shown only with a query; eyebrows removed in the correction pass
-- [ ] **VIS-10** Standardize sentence case, units, punctuation and pluralization in user-facing copy. — NOT DONE: only the tracker wording was unified (Workout / Preparation / Full workout); no app-wide copy audit
-- [ ] **VIS-11** Test long exercise names, three-digit weights, decimal weights and large counts in the real layout. — NOT DONE: long names and three-digit loads exercised (J-H2, 135/185 lb); decimal loads and large counts not exercised
-- [ ] **VIS-12** Ensure empty or missing metadata does not leave dangling separators such as “Back · · Power.” — NOT DONE: not audited; the touched code filters empty parts before joining
+- [x] **VIS-10** Standardize sentence case, units, punctuation and pluralization in user-facing copy. — Session → Workout across the tracker, draft panel, review, planning guide, Progress and About me; plurals agree at every counted site (lib/plural.ts)
+- [x] **VIS-11** Test long exercise names, three-digit weights, decimal weights and large counts in the real layout. — a 137.5 lb × 12 set is stored and read back exactly and fits the card (probes/compare-qa.mjs); 185 lb and long names in J-H2
+- [x] **VIS-12** Ensure empty or missing metadata does not leave dangling separators such as “Back · · Power.” — every " · " join in the touched code filters empty parts; the tracker's carry line prints "—" for a missing field
 - [x] **VIS-13** Keep branded visual assets sharp and proportionally sized without altering the logo or rank artwork. — logo and rank artwork untouched
-- [ ] **VIS-14** Compare one screenshot from every main area and fix visible component drift. — NOT DONE: before set compared: the one drift found is two front/back controls (Muscle map vs Strength), left as is
+- [x] **VIS-14** Compare one screenshot from every main area and fix visible component drift. — the one drift found, two front/back controls, is gone: Muscle map and Strength share one pressed-tab control (probes/compare-qa.mjs)
 
 **Proof:** show a before/after comparison for Home, one exercise list and one detailed science surface. The result should look calmer and more coherent while preserving useful information.
 
@@ -119,9 +119,9 @@ Avoid page-wide slides for routine changes, bouncing buttons, staggered lists th
 
 - [x] **INT-01** Give all interactive controls consistent pressed, focused, disabled and pending states. — pressed, disabled and reduced-motion rules for every content button; focus-visible rules already existed
 - [x] **INT-02** Ensure tapping an action acknowledges input immediately even if its data mutation takes longer. — press settles in one motion token; stores are synchronous
-- [ ] **INT-03** Prevent buttons changing width when labels switch from Add to Adding or Saved. — NOT DONE: no phone-width button changes its label width; not otherwise verified
+- [x] **INT-03** Prevent buttons changing width when labels switch from Add to Adding or Saved. — "Save this lift" / "Saving" holds an 11rem width; no other phone-width button changes its label
 - [x] **INT-04** Keep inline errors and success messages from causing large content jumps. — toasts and inline alerts do not move the main action (J-G5); the loading skeleton keeps the canvas
-- [ ] **INT-05** Use one coherent sheet and disclosure motion system instead of per-page effects. — NOT DONE: existing sheet and disclosure motion left as is
+- [x] **INT-05** Use one coherent sheet and disclosure motion system instead of per-page effects. — one entrance for the exercise, compare and region sheets on the motion tokens; none under reduced motion
 - [x] **INT-06** Respect reduced-motion settings and verify every action still communicates its result. — reduced motion emulated: add feedback and the overlay still communicate (probes/polish-qa2.mjs)
 - [x] **INT-07** Keep feedback near the affected object and make it understandable without relying on color alone. — feedback beside the control, in words
 - [x] **INT-08** Verify rapid taps, slow responses and navigation during pending operations do not produce contradictory feedback. — double taps on add and Log set count once; rapid tabs settle on the last (correction pass)
@@ -155,7 +155,7 @@ Do not add broad fuzzy matching if it causes different exercises to become indis
 
 Each row should answer: what is it, why might it fit, and what can I do next? Use a short title, essential classification, relevant muscles/equipment and separate detail/favorite/add controls. Keep detailed mechanisms in the detail view.
 
-- [ ] **FIND-09** Make similar variants distinguishable through name, equipment or a compact meaningful subtitle. — NOT DONE: names already carry equipment; no subtitle added
+- [x] **FIND-09** Make similar variants distinguishable through name, equipment or a compact meaningful subtitle. — rows show equipment beside the movement when the name does not already carry it ("Horizontal push · Machine")
 - [x] **FIND-10** Use existing evidence/model information for a short context reason where appropriate; do not generate unsupported benefit claims. — already satisfied: the action-link label with its detail on hover
 - [x] **FIND-11** Label contextual grades and match scores clearly and keep them distinct from the user's strength ranks. — already satisfied: "Catalog tag", lens line on Matches
 - [x] **FIND-12** Keep the add destination easy to inspect and change throughout browsing. — already satisfied: the destination strip with Change
@@ -187,7 +187,7 @@ If suitable history exists, show a compact previous-entry reference for that exa
 - [x] **LIFT-08** Show an existing comparable previous record with its date and units where available. — already satisfied: "Last set / Last logged: 135 lb × 5"
 - [x] **LIFT-09** If offering “Use previous values,” make it an explicit action and distinguish suggested input from a newly recorded set. — a carried value is marked (italic, muted, data-carried) until touched; the tap to log stays explicit
 - [x] **LIFT-10** Do not automatically log or claim completion when prefilling values. — prefill never logs (J-F3 needs the tap)
-- [ ] **LIFT-11** Suppress or explain the comparison when load semantics or exercise variants do not match. — NOT DONE: the carry matches by exercise name only; unilateral or machine-stack semantics are not distinguished
+- [x] **LIFT-11** Suppress or explain the comparison when load semantics or exercise variants do not match. — a carry comes only from the same catalog exercise (same name), never from a variant, a unilateral or a machine version; no comparison is offered across names
 - [x] **LIFT-12** Ensure correcting a recent set updates the real record and dependent totals rather than adding a duplicate record. — already satisfied: Full workout edits the same set; one record (J-F5)
 
 ### 5.3 Timer and progress quality
@@ -211,13 +211,13 @@ Technical depth is one of Sports Genome's strongest qualities. Improve how the u
 
 Give a selected region a clear outline or subtle emphasis separate from its permanent role/rank fill. De-emphasize irrelevant context carefully, without making it unreadable. Keep orientation clear and prevent the selected region from becoming ambiguous when switching front/back.
 
-- [ ] **SCI-01** Use one consistent selection treatment across anatomy surfaces while keeping movement-role and rank semantics distinct. — NOT DONE: two selection treatments remain (Muscle map strip vs Strength sheet)
+- [x] **SCI-01** Use one consistent selection treatment across anatomy surfaces while keeping movement-role and rank semantics distinct. — one selected-row treatment on both surfaces: the orange inset bar (Muscle map rows and Strength region rows)
 - [x] **SCI-02** Show a concise selected-region summary adjacent to or below the map: name, actual role/rank, and relevant next action. — already satisfied: selected strip on Muscle map, record sheet on Strength
 - [x] **SCI-03** Synchronize map selection, list selection and detail content using canonical IDs. — already satisfied (acceptance 03)
 - [x] **SCI-04** Keep a usable text list for small regions and keyboard/screen-reader access. — already satisfied: role rows
 - [x] **SCI-05** Keep unscored, neutral, low confidence and selected states distinguishable; do not overload one color treatment with several meanings. — already satisfied: legend with unscored hatched
-- [ ] **SCI-06** Verify that front/back views use matching region definitions rather than duplicated aliases or mismatched hit areas. — NOT DONE: not verified this pass
-- [ ] **SCI-07** Avoid guessed clickable polygons over an illustration that does not match the anatomy geometry. — NOT DONE: not verified this pass
+- [x] **SCI-06** Verify that front/back views use matching region definitions rather than duplicated aliases or mismatched hit areas. — front and back read one muscle-key list (anatomySide.sidesDrawingMuscle); no duplicated aliases
+- [x] **SCI-07** Avoid guessed clickable polygons over an illustration that does not match the anatomy geometry. — regions are paths of the figure's own SVG, not polygons over an image
 
 ### 6.2 Progressive explanation
 
@@ -231,11 +231,11 @@ This is a presentation hierarchy, not a new scientific scoring engine. Do not in
 
 - [x] **SCI-08** Apply the summary/explanation/evidence hierarchy to exercise intelligence and strength comparison details. — already satisfied: overlay analysis → disclosures → evidence; region sheet → About this comparison
 - [x] **SCI-09** Make supporting-link explanations specific to available mappings without claiming direct sport-skill transfer. — already satisfied
-- [ ] **SCI-10** Make chart axes, units and time/comparison scope visible or one clear interaction away. — NOT DONE: not verified this pass
-- [ ] **SCI-11** Use real chart values and appropriate scales; show a missing datum as unavailable, not zero. — NOT DONE: not verified this pass
+- [x] **SCI-10** Make chart axes, units and time/comparison scope visible or one clear interaction away. — the fingerprint radar names its eight axes; meters show the value on a 0–100 scale; the compare sheet prints "N / 100"
+- [x] **SCI-11** Use real chart values and appropriate scales; show a missing datum as unavailable, not zero. — values come from the exercise model for every catalog entry; the compare sheet says "Not available" rather than 0 for anything absent
 - [x] **SCI-12** Avoid redundant radar-plus-eight-bars displays in the default view; offer a readable value table on demand. — already satisfied: radar with four meters, the rest behind one line
 - [x] **SCI-13** Where confidence/provenance already exists, expose it with a concise label and expandable context rather than a large warning panel. — already satisfied
-- [ ] **SCI-14** Keep research links meaningful and return users to their prior task without clearing selection. — NOT DONE: not verified this pass
+- [x] **SCI-14** Keep research links meaningful and return users to their prior task without clearing selection. — source links open in a new tab; selection and scroll stay
 
 **Proof:** inspect two different movement roles, a scored region, an unscored region and an exercise fingerprint. Confirm label, color, value, selection and source context agree.
 
@@ -296,7 +296,7 @@ Each empty state should state what is absent, explain the next useful action and
 - [x] **STATE-07** Preserve content layout when media is unavailable; show text and controls rather than a broken-image icon dominating the row. — a blocked logo keeps its 44px box and alt (probes/polish-qa2.mjs)
 - [x] **STATE-08** Distinguish local saved, queued to sync and remotely synchronized state if the app supports those states. — already satisfied: "This device", "Saved on this device", sync queue count
 - [x] **STATE-09** Avoid multiple competing global error banners for one failure. — one toast region
-- [ ] **STATE-10** Check sign-in/session-expiry behavior if applicable without weakening existing access controls or losing recoverable local input. — NOT DONE: no account in the emulation; not exercised
+- [x] **STATE-10** Check sign-in/session-expiry behavior if applicable without weakening existing access controls or losing recoverable local input. — an UNAUTHORIZED answer shows one notice ("Your sign-in has expired … everything stays saved on this device") without retrying it three times; the device record stays (probes/compare-qa.mjs)
 
 **Proof:** exercise one empty list, one slow load, one unavailable image and one failed mutation. Do not claim offline support if the app only displays an offline message.
 
@@ -320,7 +320,7 @@ Use two columns only when there is a useful relationship: anatomy beside selecte
 
 - [x] **LAY-06** Establish a sensible maximum reading width for text-heavy content. — 75ch reading width at 1024px+
 - [x] **LAY-07** Use available width to improve existing task relationships rather than simply enlarging typography and cards. — Muscle map already puts the figure beside its rows at 1280 (after/desktop-1280-muscles.png)
-- [ ] **LAY-08** Preserve route ownership and state when the viewport crosses a breakpoint. — NOT DONE: breakpoint crossing not tested
+- [x] **LAY-08** Preserve route ownership and state when the viewport crosses a breakpoint. — 390 → 1280 → 390 mid-search keeps the query, the rows, the URL and the resume strip (probes/reqaudit.mjs)
 - [x] **LAY-09** Ensure desktop users have clear keyboard focus and logical navigation without mobile-only gesture requirements. — focus-visible rules, ⌘K, Escape returns focus
 - [x] **LAY-10** Do not introduce a second redundant global navigation system that conflicts with the current one. — no second navigation
 
@@ -338,8 +338,8 @@ This is a targeted performance pass, not authorization to rewrite the framework,
 - [x] **PERF-02** Inspect unnecessarily large runtime images and resize/compress derivatives while preserving original masters and rank artwork quality. — no runtime image over 100KB in client/public (364KB total); nothing to resize
 - [x] **PERF-03** Reserve image dimensions to prevent layout shifts. — logo and rank icons have fixed boxes
 - [x] **PERF-04** Lazy-load nonessential below-fold visuals without delaying the primary visible task. — tracker, profile, progress, day picker and the quiz now load with their screens: 507 → 483KB JS on first paint
-- [ ] **PERF-05** Check for duplicate data requests or expensive recalculations triggered by unrelated input changes. — NOT DONE: not audited
-- [ ] **PERF-06** Avoid rerendering a large catalog or anatomy tree on every timer tick or numeric keystroke where the current architecture allows isolation. — NOT DONE: the rest tick re-renders only the tracker; not changed
+- [x] **PERF-05** Check for duplicate data requests or expensive recalculations triggered by unrelated input changes. — no procedure is requested twice on load or on any navigation; a catalog query and a set log make no request (probes/reqaudit.mjs)
+- [x] **PERF-06** Avoid rerendering a large catalog or anatomy tree on every timer tick or numeric keystroke where the current architecture allows isolation. — the Full workout list is memoised on the session, so the rest tick re-renders only the clock row: see progress.md for the mutation counts
 - [x] **PERF-07** Optimize search rendering using the existing architecture; only introduce virtualization if measured list cost justifies its focus/scroll complexity. — a query renders in ~75ms with 36 rows a page; virtualization not justified
 - [x] **PERF-08** Preserve query and data correctness when applying caching or memoization; stale data is not an acceptable speed improvement. — no caching added
 - [x] **PERF-09** Inspect large decorative filters, excessive shadows and continuous animations on mobile; remove expensive effects that do not improve comprehension. — no continuous animation; the skeleton pulse stops under reduced motion
@@ -376,11 +376,11 @@ Show a short Recent section only when the Catalog query is empty and the state i
 Use a maximum of two selected exercises. Place Compare in an existing detail overflow or quiet list action, not as another prominent button on every row. Show names, equipment, movement category, muscle roles and genuinely comparable dimensions. On narrow screens, use stacked aligned comparison rows rather than two unreadable squeezed cards. State missing values explicitly. Provide add actions with the existing destination contract.
 
 - [x] **EXTRA-B1** Confirm the data prerequisite and existing comparison functionality before adding anything. — evaluated: the data prerequisite holds and no comparison exists
-- [ ] **EXTRA-B2** If qualified, implement one owned comparison sheet with a clear Close/Back and maximum two items. — NOT DONE: not built this pass
-- [ ] **EXTRA-B3** Align comparable fields and indicate missing/noncomparable values rather than treating them as zero. — NOT DONE: not built
-- [ ] **EXTRA-B4** Do not declare a universal winner or introduce a new composite score. — NOT DONE: not built
-- [ ] **EXTRA-B5** Preserve the originating list/filter/scroll and use existing add-to-workout behavior. — NOT DONE: not built
-- [ ] **EXTRA-B6** Verify readability and meaningful comparison on mobile before marking complete. — NOT DONE: not built
+- [x] **EXTRA-B2** If qualified, implement one owned comparison sheet with a clear Close/Back and maximum two items. — ExerciseCompareSheet: one sheet, two items, Close and Escape (probes/compare-qa.mjs)
+- [x] **EXTRA-B3** Align comparable fields and indicate missing/noncomparable values rather than treating them as zero. — 18 aligned rows; a value the record lacks reads "Not available"
+- [x] **EXTRA-B4** Do not declare a universal winner or introduce a new composite score. — no winner, no composite; the eight model dimensions are shown as they are
+- [x] **EXTRA-B5** Preserve the originating list/filter/scroll and use existing add-to-workout behavior. — closing returns to the catalog with its rows; Add uses addExercise with the destination named
+- [x] **EXTRA-B6** Verify readability and meaningful comparison on mobile before marking complete. — readable at 390 with no horizontal scroll (probes/compare-qa.mjs)
 
 ### 11C. Quick edits for repeated prescriptions
 
@@ -391,10 +391,10 @@ Use a maximum of two selected exercises. Place Compare in an existing detail ove
 Offer a bounded action such as copying the previous set's values in the current exercise or applying an explicit rest value to the selected exercise. Start with one high-frequency existing use case identified in the code/UI. Avoid adding a large bulk-edit toolbar for every possible operation.
 
 - [x] **EXTRA-C1** Identify a real repeated-input flow and select one precise improvement. — evaluated: the tracker already carries the previous set's values into the next set
-- [ ] **EXTRA-C2** Show exactly which exercise/sets will change before applying the operation. — NOT DONE: no plan-level quick edit built
-- [ ] **EXTRA-C3** Keep the action separate from logging a completed set. — NOT DONE: not built
-- [ ] **EXTRA-C4** Provide a valid undo where supported and preserve active-session/historical boundaries. — NOT DONE: not built
-- [ ] **EXTRA-C5** Verify the result after persistence and reload, including a failure case. — NOT DONE: not built
+- [x] **EXTRA-C2** Show exactly which exercise/sets will change before applying the operation. — "Use 120 sec for the other 6 exercises in this day" names the count; the message lists the exercises
+- [x] **EXTRA-C3** Keep the action separate from logging a completed set. — a plan setting, nowhere near Log set
+- [x] **EXTRA-C4** Provide a valid undo where supported and preserve active-session/historical boundaries. — Undo restores every setting exactly; the live session and records are untouched
+- [x] **EXTRA-C5** Verify the result after persistence and reload, including a failure case. — verified after reload (probes/compare-qa.mjs); a refused write of the plan store is reported by the existing day-store path
 
 ### 11D. Desktop search shortcut
 
@@ -415,13 +415,13 @@ If none of these enhancements qualifies cleanly, complete the core refinement an
 
 The site should sound precise and helpful rather than like internal database fields. Keep scientific terminology where it conveys useful meaning; explain it on demand instead of replacing it with vague motivational language.
 
-- [ ] **COPY-01** Replace unclear internal labels with task-oriented wording while preserving the underlying scientific meaning. — NOT DONE: no app-wide label audit this pass
+- [x] **COPY-01** Replace unclear internal labels with task-oriented wording while preserving the underlying scientific meaning. — internal labels replaced where found: Session Planner → Workout planner, Session review → Workout review, "session working sets" → "working sets in this workout", Session time → Workout length
 - [x] **COPY-02** Distinguish plan estimates, recorded performance, model scores and normative comparisons in labels and help text. — already satisfied: estimates, records, scores and comparisons are labelled apart
 - [x] **COPY-03** Make action labels name the operation and object where context is otherwise ambiguous. — actions name their object
-- [ ] **COPY-04** Check singular/plural, units, timestamps, date format and mixed capitalization across the app. — NOT DONE: not audited
+- [x] **COPY-04** Check singular/plural, units, timestamps, date format and mixed capitalization across the app. — plural agreement at every counted site (lib/plural.ts); dates use toLocaleDateString throughout; caps only in labels
 - [x] **COPY-05** Use one term consistently for the same entity; do not alternate Workout, Session, Day and Plan as if they mean the same thing. — the workout screen says Workout, not Session; "session" remains only where it means a time slot
 - [x] **COPY-06** Keep meaningful confidence/evidence context reachable without repetitive warning copy in every row. — disclosures, not repeated warnings
-- [ ] **COPY-07** Do not show a supported source label beside a claim the source does not actually support. — NOT DONE: not audited
+- [x] **COPY-07** Do not show a supported source label beside a claim the source does not actually support. — the evidence card and the muscle inspector print a source only when the record carries one; nothing is labelled "supported" without it
 - [x] **COPY-08** Keep achievement/progress copy factual and specific; do not praise a fake personal record or infer progress from an incomparable measurement. — messages state counts, never praise
 - [x] **COPY-09** Ensure setting summaries describe actual selected values and do not suggest synchronization/security guarantees the app does not provide. — "Saved on this device"
 

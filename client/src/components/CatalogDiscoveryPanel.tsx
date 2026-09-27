@@ -22,6 +22,9 @@ type CatalogDiscoveryPanelProps = {
   /** Exercises this device looked at lately, newest first; shown only while the list is unfiltered. */
   recentIds?: readonly number[];
   onClearRecent?: () => void;
+  /** An exercise waiting for a second to compare with, named on the page so the wait is visible and cancellable. */
+  comparePendingName?: string;
+  onCancelCompare?: () => void;
   /** Where a plus puts the exercise, so the control says it: "Week 1 · Pull". */
   destinationLabel?: string;
   selectedActionLabel?: string;
@@ -44,7 +47,7 @@ const actionLinkLabel: Record<CatalogFilters["actionLink"], string> = { all: "Al
  * details, the catalog's tag, and favorite and add as two separate targets that
  * never open the row. The bordered grid of 36 cards is gone.
  */
-export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, recentIds = [], onClearRecent, destinationLabel, selectedActionLabel, onChangeAction, connectionForExercise }: CatalogDiscoveryPanelProps) {
+export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, recentIds = [], onClearRecent, comparePendingName, onCancelCompare, destinationLabel, selectedActionLabel, onChangeAction, connectionForExercise }: CatalogDiscoveryPanelProps) {
   const [visibleCount, setVisibleCount] = useState(visiblePerPage);
   const options = useMemo(() => catalogFilterOptions(exercises), [exercises]);
   const baseResults = useMemo(() => filterCatalogExercises(exercises, filters, favoriteIds), [exercises, filters, favoriteIds]);
@@ -93,6 +96,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       <span>{filters.favoritesOnly ? `${results.length} ${results.length === 1 ? "favorite" : "favorites"}` : results.length === exercises.length ? `${exercises.length} exercises` : `${results.length} of ${exercises.length} exercises`}</span>
     </header>
     <div className="catalog-discovery-search"><Search className="h-4 w-4" aria-hidden="true" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder="Search exercises" aria-label="Search exercises" /></div>
+    {comparePendingName && <p className="catalog-compare-pending" role="status"><span>Comparing <b>{comparePendingName}</b> · open another exercise and choose Compare.</span>{onCancelCompare && <button type="button" onClick={() => { emitInteractionFeedback(); onCancelCompare(); }}>Cancel</button>}</p>}
     {/* The scope line earns its place once there is a query to broaden; before that the heading's count says what is searched. */}
     {filters.query.trim() ? <LocalSearchScope scope={`Searching the ${exercises.length} exercises in this catalog.`} query={filters.query} /> : null}
     {selectedActionLabel ? <div className="catalog-discovery-context">
@@ -132,7 +136,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
         const isFavorite = favoriteIds.has(exercise.id);
         const connection = visibleConnections.get(exercise.id);
         return <article key={exercise.id} className="catalog-discovery-card">
-          <button type="button" onClick={() => { emitInteractionFeedback(); onInspect(exercise); }} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`}><span className="catalog-discovery-identity"><strong>{exercise.name}</strong><small>{exercise.movement}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em>{connectionTellsCardsApart && connection && connection.label !== "Not mapped" ? <b className={`catalog-action-link catalog-action-link-${connection.label.toLowerCase().replace(/\s+/g, "-")}`} title={connection.detail}>{connection.label}</b> : null}<span className="catalog-discovery-details">View details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></span></span><span className="catalog-discovery-tier" title={`Catalog tag ${exercise.muscleGrade} — a label from the exercise catalog.`} aria-label={`Catalog tag ${exercise.muscleGrade}`}>{exercise.muscleGrade}</span></button>
+          <button type="button" onClick={() => { emitInteractionFeedback(); onInspect(exercise); }} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`}><span className="catalog-discovery-identity"><strong>{exercise.name}</strong><small>{exercise.movement}{exercise.equipment && !exercise.name.toLowerCase().includes(exercise.equipment.toLowerCase()) ? ` · ${exercise.equipment}` : ""}</small><em>{exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</em>{connectionTellsCardsApart && connection && connection.label !== "Not mapped" ? <b className={`catalog-action-link catalog-action-link-${connection.label.toLowerCase().replace(/\s+/g, "-")}`} title={connection.detail}>{connection.label}</b> : null}<span className="catalog-discovery-details">View details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></span></span><span className="catalog-discovery-tier" title={`Catalog tag ${exercise.muscleGrade} — a label from the exercise catalog.`} aria-label={`Catalog tag ${exercise.muscleGrade}`}>{exercise.muscleGrade}</span></button>
           <div className="catalog-discovery-actions"><button type="button" onClick={() => { emitInteractionFeedback(); onToggleFavorite(exercise); }} className={isFavorite ? "catalog-favorite-on" : ""} aria-pressed={isFavorite} aria-label={`${isFavorite ? "Remove" : "Save"} ${exercise.name} ${isFavorite ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} /></button><button type="button" onClick={() => { emitInteractionFeedback(); onAdd(exercise); }} aria-label={`Add ${exercise.name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div>
         </article>;
       })}

@@ -22,7 +22,7 @@ export async function boot(p, { draft = true } = {}) {
     await p.waitForTimeout(1400);
     await p.locator('.day-plan-draft > summary').first().dispatchEvent('click').catch(() => {});
     await p.waitForTimeout(400);
-    await p.locator('.day-plan-draft button').filter({ hasText: /Draft this session/i }).first().dispatchEvent('click').catch(() => {});
+    await p.locator('.day-plan-draft button').filter({ hasText: /Draft this (session|workout)/i }).first().dispatchEvent('click').catch(() => {});
     await p.waitForTimeout(1200);
     await p.locator('.mobile-bottom-nav button').filter({ hasText: /^Home$/i }).first().dispatchEvent('click');
     await p.waitForTimeout(1400);

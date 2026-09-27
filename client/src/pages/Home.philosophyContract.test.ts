@@ -59,7 +59,7 @@ describe("Home answers state, priority, and next action", () => {
   it("keeps every plan input reachable on Profile", () => {
     expect(home).toContain("gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))}");
     const profile = readFileSync(new URL("../components/AthleteAboutMePanel.tsx", import.meta.url), "utf8");
-    expect(profile).toContain("<legend>Session time (minutes)</legend>");
+    expect(profile).toContain("<legend>Workout length (minutes)</legend>");
     expect(profile).toContain("gymTimeOptions.map((minutes) =>");
   });
 

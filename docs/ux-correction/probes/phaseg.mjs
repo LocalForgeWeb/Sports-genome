@@ -60,7 +60,7 @@ const LIFTS_KEY = 'sports-genome-device-strength-observations-v1';
   await p.locator('.training-plan-day').nth(other.i).dispatchEvent('click'); await wait(p, 800);
   if ((await p.locator('.custom-prescription').count()) === 0) { // an empty day: draft it so there is a prescription to change
     await p.locator('.day-plan-draft > summary').first().dispatchEvent('click').catch(() => {}); await wait(p, 400);
-    await p.locator('.day-plan-draft button').filter({ hasText: /Draft this session/i }).first().dispatchEvent('click').catch(() => {}); await wait(p, 1200);
+    await p.locator('.day-plan-draft button').filter({ hasText: /Draft this (session|workout)/i }).first().dispatchEvent('click').catch(() => {}); await wait(p, 1200);
   }
   const editing = await inner(p, '.day-editing-context');
   const editingDay = (editing || '').split(' | ')[0];

@@ -1,0 +1,30 @@
+// PERF-05: which tRPC procedures are requested on load and on each navigation (duplicates?); LAY-08: state across a breakpoint.
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { readFileSync } from 'node:fs';
+const logo = readFileSync(new URL('./logo.png', import.meta.url));
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const p = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+const calls = [];
+await p.route('**qiccnqkypbhlwpmjcsri.supabase.co/**', (r) => r.fulfill({ contentType: 'image/png', body: logo }));
+await p.route('**/api/trpc/**', (route) => { const procs = new URL(route.request().url()).pathname.replace('/api/trpc/', '').split(','); calls.push({ t: Date.now(), procs }); return route.fulfill({ contentType: 'application/json', body: JSON.stringify(procs.map(() => ({ result: { data: { json: null } } }))) }); });
+await p.goto('http://localhost:4173/'); await p.evaluate(() => localStorage.setItem('gym-optimizer-athlete-profile-v1', JSON.stringify({ version: 3, sportId: 'wrestling', sportContextMode: 'sport', goal: 'Max strength', trainingDays: 5, gymMinutes: 75, movementId: 'wrestling-1', baseline: { experience: 'Intermediate', weightUnit: 'lb', bodyWeight: 145, equipment: { gymAccess: 'Commercial gym', availableEquipment: ['Barbell', 'Dumbbells', 'Cable', 'Machine', 'Bodyweight', 'Bench', 'Free weights'] } } })));
+calls.length = 0; await p.goto('http://localhost:4173/?workspace=command', { waitUntil: 'domcontentloaded' }); await p.waitForTimeout(3000);
+const summarize = (label) => { const all = calls.flatMap((c) => c.procs); const counts = {}; for (const x of all) counts[x] = (counts[x] || 0) + 1; console.log(label, JSON.stringify({ batches: calls.length, procedures: all.length, repeated: Object.entries(counts).filter(([, n]) => n > 1).map(([k, n]) => `${k}×${n}`) })); calls.length = 0; };
+summarize('LOAD');
+const dock = (l) => p.locator('.mobile-bottom-nav button').filter({ hasText: l }).first().dispatchEvent('click');
+const tab = (l) => p.locator('.workspace-top-switcher button').filter({ hasText: l }).first().dispatchEvent('click');
+await dock('Progress'); await p.waitForTimeout(1200); summarize('→ Progress');
+await tab('Strength'); await p.waitForTimeout(1500); summarize('→ Strength');
+await dock('Home'); await p.waitForTimeout(1200); summarize('→ Home again');
+await dock('Body Lab'); await tab('Exercises'); await p.waitForTimeout(1000); await p.locator('input[aria-label="Search exercises"]').fill('press'); await p.waitForTimeout(800); summarize('catalog query');
+await dock('Train'); await tab('Plan'); await p.waitForTimeout(900); await p.locator('.day-plan-draft > summary').first().dispatchEvent('click').catch(() => {}); await p.waitForTimeout(400); await p.locator('.day-plan-draft button').filter({ hasText: /Draft this (session|workout)/i }).first().dispatchEvent('click').catch(() => {}); await p.waitForTimeout(1200); calls.length = 0;
+await tab('Workout'); await p.waitForTimeout(800); await p.locator('.session-prestart-start').dispatchEvent('click'); await p.waitForTimeout(800); await p.locator('.live-set-commit').dispatchEvent('click'); await p.waitForTimeout(800); summarize('log set');
+// LAY-08: cross the breakpoint mid-flow.
+await dock('Body Lab'); await tab('Exercises'); await p.waitForTimeout(600); await p.locator('input[aria-label="Search exercises"]').fill('row'); await p.waitForTimeout(500);
+const before = await p.evaluate(() => ({ search: location.search, query: document.querySelector('input[aria-label="Search exercises"]')?.value, rows: document.querySelectorAll('.catalog-discovery-card').length, strip: !!document.querySelector('.session-resume-bar') }));
+await p.setViewportSize({ width: 1280, height: 800 }); await p.waitForTimeout(800);
+const wide = await p.evaluate(() => ({ search: location.search, query: document.querySelector('input[aria-label="Search exercises"]')?.value, rows: document.querySelectorAll('.catalog-discovery-card').length, strip: !!document.querySelector('.session-resume-bar'), columnsPad: getComputedStyle(document.querySelector('.apex-content')).paddingLeft }));
+await p.setViewportSize({ width: 390, height: 844 }); await p.waitForTimeout(800);
+const after = await p.evaluate(() => ({ search: location.search, query: document.querySelector('input[aria-label="Search exercises"]')?.value, rows: document.querySelectorAll('.catalog-discovery-card').length, strip: !!document.querySelector('.session-resume-bar') }));
+console.log('LAY-08', JSON.stringify({ before, wide, after, pass: before.query === wide.query && wide.query === after.query && before.rows === after.rows && before.search === after.search && before.strip && wide.strip && after.strip }));
+await browser.close();
