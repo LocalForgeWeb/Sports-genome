@@ -45,7 +45,7 @@ describe("Progress places each trend's latest lift on the community curves", () 
 
   it("asks the same route the record sheet asks, for every trend at once", () => {
     expect(source).toContain("trpc.strengthPercentile.forLifts.useQuery(");
-    expect(source).toContain("liftsToPlace(comparableStrengthChanges.slice(0, 4), unifiedHistory, bodyMassKgById, { sex: percentileSex, fallbackBodyMassKg })");
+    expect(source).toContain("liftsToPlace(comparableStrengthChanges.slice(0, 4), unifiedHistory, bodyMassKgById, { sex: percentileSex, fallbackBodyMassKg, birthYear })");
     // Nothing to ask without a lift, and the route would only answer `load_required`.
     expect(source).toContain("enabled: liftsForPercentile.length > 0");
   });
@@ -67,6 +67,6 @@ describe("Progress places each trend's latest lift on the community curves", () 
   });
 
   it("is given the athlete's sex and profile weight by the page, the way the Strength Genome is", () => {
-    expect(home).toContain("<ProgressOverviewPanel onOpenStrength={() => navigateWorkspace(\"strength\")} onOpenTraining={() => navigateWorkspace(\"day-plan\")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} />");
+    expect(home).toContain("<ProgressOverviewPanel onOpenStrength={() => navigateWorkspace(\"strength\")} onOpenTraining={() => navigateWorkspace(\"day-plan\")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} />");
   });
 });

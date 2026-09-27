@@ -1,5 +1,6 @@
 import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { catalogExerciseIdForName } from "@/lib/strengthPercentileCard";
+import { ageAtLift } from "@/lib/normsCohort";
 
 export type RankableObservation = {
   exerciseName: string;
@@ -16,6 +17,11 @@ export type MuscleRankLift = {
   loadKg: number;
   repetitions: number;
   bodyMassKg: number | null;
+  /**
+   * Age on the day of this lift, worked out from the birth year whenever it was given - so a
+   * year entered today re-reads a lift from last spring at the age it was lifted at.
+   */
+  ageYears: number | null;
 };
 
 /**
@@ -45,7 +51,7 @@ export function liftBodyMassKg(observation: RankableObservation, history: readon
  * counts is the database aggregation's decision (it keeps the best-supported one), and making
  * that choice here as well would be a second policy for the same thing.
  */
-export function muscleRankLifts(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined): MuscleRankLift[] {
+export function muscleRankLifts(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): MuscleRankLift[] {
   const lifts: MuscleRankLift[] = [];
   const seen = new Set<string>();
   const newestFirst = [...observations].sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
@@ -60,9 +66,10 @@ export function muscleRankLifts(observations: readonly RankableObservation[], hi
       loadKg,
       repetitions,
       bodyMassKg: liftBodyMassKg(observation, history, profileBodyMassKg),
+      ageYears: ageAtLift(birthYear ?? undefined, observation.observedAt) ?? null,
     };
     // The same lift twice tells the aggregation nothing new, and costs URL.
-    const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${loadKg}|${repetitions}|${lift.bodyMassKg}`;
+    const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${loadKg}|${repetitions}|${lift.bodyMassKg}|${lift.ageYears}`;
     if (seen.has(key)) continue;
     seen.add(key);
     lifts.push(lift);

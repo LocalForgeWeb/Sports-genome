@@ -30,6 +30,7 @@ import { RankCard, UnscoredRankCard } from "@/components/CapabilityRank";
 import { RankIcon } from "@/components/RankIcon";
 import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
 import { muscleRankLifts } from "@/lib/muscleRankLifts";
+import { ageAtLift } from "@/lib/normsCohort";
 import { countCoveredRegions } from "@/lib/athleteRecord";
 
 const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
@@ -253,6 +254,8 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       measuredOneRmKg: measuredOneRm && latestRecord?.loadKg != null ? Number(latestRecord.loadKg) : null,
       loadKg: !measuredOneRm && latestRecord?.loadKg != null ? Number(latestRecord.loadKg) : null,
       repetitions: !measuredOneRm && latestRecord?.repetitions ? Number(latestRecord.repetitions) : null,
+      // Age on the day of this lift, so a birth year given after it still counts.
+      ageYears: latestRecord ? ageAtLift(athleteProfile?.birthYear ?? undefined, latestRecord.observedAt) ?? null : null,
     },
     // Nothing to place without a load, and the route would only answer `load_required`.
     { enabled: Boolean(latestRecord?.loadKg), staleTime: 5 * 60 * 1000, retry: false }
@@ -628,8 +631,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
    */
   const rankSex: "male" | "female" | null = sexForReference === "male" || sexForReference === "female" ? sexForReference : null;
   const rankLifts = useMemo(
-    () => muscleRankLifts(activeObservations, bodyWeightHistory, baselineBodyWeight != null ? displayWeightToKilograms(baselineBodyWeight, weightUnit) : null),
-    [activeObservations, bodyWeightHistory, baselineBodyWeight, weightUnit]
+    () => muscleRankLifts(activeObservations, bodyWeightHistory, baselineBodyWeight != null ? displayWeightToKilograms(baselineBodyWeight, weightUnit) : null, birthYear),
+    [activeObservations, bodyWeightHistory, baselineBodyWeight, weightUnit, birthYear]
   );
   const muscleRanks = trpc.strengthProfile.muscleRanks.useQuery(
     { sex: rankSex, lifts: rankLifts },
@@ -658,6 +661,18 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
           <ul>{unrankedLifts.map((item) => <li key={`${item.exerciseName}-${item.reason}`}>{item.exerciseName}{item.count > 1 ? ` ×${item.count}` : ""} — {unrankedReasonCopy[item.reason] ?? "could not be scored"}</li>)}</ul>
         </details>
       : null;
+  /**
+   * What age did to the ranks. The map's colours already include it; this says so, and says
+   * which lifts it could not reach, rather than leaving a birth year that seemed to do nothing.
+   */
+  const ageSummary = rankProfile?.ageAdjustment;
+  const ageSentences = birthYear && ageSummary ? [
+    ageSummary.applied > 0 ? "Ranks are adjusted for your age at each lift." : null,
+    ageSummary.outsideTable > 0
+      ? `${ageSummary.outsideTable} ${ageSummary.outsideTable === 1 ? "lift was" : "lifts were"} made at an age the published age adjustment does not cover (15 to 90), so ${ageSummary.outsideTable === 1 ? "it is" : "they are"} compared without one.`
+      : null,
+  ].filter(Boolean) : [];
+  const ageNotice = ageSentences.length ? <p className="rank-profile-partial" data-rank-age-note>{ageSentences.join(" ")}</p> : null;
   // Covered means "you have recorded work here", never a rank or a score. A
   // locally recorded lift counts in both access modes, so the server overview can
   // only add regions, never take one away that this device can see.
@@ -795,7 +810,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       </div>
     </section>
 
-    <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankNotice} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
+    <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankNotice || ageNotice ? <>{rankNotice}{ageNotice}</> : null} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
     {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
     {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} regionRank={regionRanks?.get(sheetRegion.id) ?? null} rankMode={regionRanks !== null} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} />
       <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: sheetRegion.id, active: !activePriorityIds.has(sheetRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(sheetRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(sheetRegion.id) ? "Focused" : "Set focus"}</button></div></div>

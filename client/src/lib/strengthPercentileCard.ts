@@ -61,8 +61,24 @@ export function strengthPercentileCard(
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
   return {
     headline: `${ordinal(result.percentile)} percentile`,
-    detail: `${placedAs} · among ${populationLabel[context.sex]} this lift.`,
+    detail: `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}`,
   };
+}
+
+/**
+ * The end of the card's sentence, saying what age did to the comparison.
+ *
+ * Said only where it changed something or was asked for and could not be given: 25 to 40 is
+ * the table's own baseline, where the factor is 1 and "adjusted for age 30" would describe a
+ * change that did not happen. Optional on the result because a response cached from before
+ * age reached the route carries none.
+ */
+export function ageAdjustmentNote(age: Extract<StrengthPercentileResult, { status: "resolved" }>["ageAdjustment"] | undefined): string {
+  if (age?.status === "applied" && age.factor !== 1) return `, adjusted for age ${Math.round(age.ageYears)}.`;
+  if (age?.status === "not_applied" && age.reason === "outside_published_age_range" && age.ageYears !== null) {
+    return `. Not adjusted for age ${Math.round(age.ageYears)}: the published age adjustment covers 15 to 90.`;
+  }
+  return ".";
 }
 
 /**

@@ -106,3 +106,29 @@ interpolates a community curve from an estimated 1RM. They answer differently an
 confidence, so a result must name which route produced it, and the UI must never show them as the
 same number. This is the same separation the resilience feature enforces between general and
 sport-specific evidence.
+
+## Age (27 September 2026)
+
+`strength_beta_v1` records "no default age weighting", and the app kept to that until the
+athlete asked for the opposite: a birth year, once given, should re-rank every lift at the age
+it was lifted at. The two now sit together as **no age weighting by default, age weighting
+whenever the athlete gives a birth year**, which is the athlete's own opt-in.
+
+- **Source of the factor.** The database's `strengthlevel_age_factor_v1`, the published
+  Strength Level age table (15 to 90, factor 1 from 25 to 40), as applied by
+  `apply_strengthlevel_age_adjustment_v1` and used by the database's own age-aware scorer
+  `score_strength_v2`. The comparison is scaled (lift / factor); the recorded lift never is.
+  Only curves from study `485b3c5e-cbe7-4755-b0bd-adb224877193` (Strength Level) are scaled,
+  which today is all 123 beta-curve exercises.
+- **Muscle ranks** call `apply_strengthlevel_age_adjustment_v1` on each scored exercise before
+  `aggregate_muscle_strength_v1`, grouping lifts by saved weight and age at the lift.
+- **Single-lift percentiles** (`strengthPercentile.forLift` / `forLifts`) apply the same table,
+  transcribed into `shared/strengthPercentile.ts` and pinned to the database's outputs.
+- **Age at the lift**, never today's: computed on the client from the birth year and the lift
+  date. Nothing is stored, so a birth year entered later re-reads every earlier lift.
+- **Outside 15 to 90** there is no factor and none is invented; the lift is compared unscaled
+  and the interface says so.
+
+Measured on the live database for a 180 lb bench at 145 lb, male: 48.97 with no age; 74.44 at
+15, 69.60 at 16, 60.67 at 18, 52.64 at 20, 48.97 at 30, 67.95 at 50. At 16 the chest region
+goes from 49.0 (Varsity) to 69.3 (Regional).
