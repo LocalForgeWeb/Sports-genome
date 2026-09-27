@@ -1,4 +1,4 @@
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, costlyPublicProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -82,7 +82,8 @@ function answer(outcome: RepairOutcome) {
  * canonical name; the name is the fallback for the handful of curves that carry no id.
  */
 const strengthPercentileLiftInput = z.object({
-  exerciseId: z.string().trim().min(1).max(80).nullish(),
+  // A curve id is a UUID from the curve index; anything else would only miss and fill the cache.
+  exerciseId: z.guid().nullish(),
   catalogExerciseId: z.number().int().positive().nullish(),
   exerciseName: z.string().trim().min(1).max(255).nullish(),
   sex: z.enum(["male", "female"]).nullable(),
@@ -167,7 +168,7 @@ export const appRouter = router({
       getSupabaseEvidenceInventory()
     ),
     supabaseLibrary: publicProcedure.query(() => getSupabaseResearchLibrary()),
-    supabaseExercise: publicProcedure
+    supabaseExercise: costlyPublicProcedure
       .input(z.object({ catalogExerciseId: z.number().int().positive() }))
       .query(({ input }) =>
         getSupabaseExerciseEvidence(input.catalogExerciseId)
@@ -433,7 +434,7 @@ export const appRouter = router({
   }),
 
   sportsGenome: router({
-    profile: publicProcedure
+    profile: costlyPublicProcedure
       .input(z.object({ sportId: z.string().trim().min(1).max(80) }))
       .query(({ input }) => getSupabaseSportProfile(input.sportId)),
   }),
@@ -463,7 +464,7 @@ export const appRouter = router({
    * weight so a later weight change never re-reads an old lift.
    */
   strengthProfile: router({
-    muscleRanks: publicProcedure
+    muscleRanks: costlyPublicProcedure
       .input(z.object({
         sex: z.enum(["male", "female"]).nullable(),
         lifts: z.array(z.object({
@@ -474,21 +475,22 @@ export const appRouter = router({
           bodyMassKg: z.number().positive().max(500).nullable(),
           /** Age on the day of this lift, so a birth year given later re-reads every earlier lift. */
           ageYears: z.number().min(0).max(120).nullable().optional(),
-        // Each distinct saved weight is one database call, and this route is public: 30 bounds a
-        // request to 31 calls. The client sends at most 30, newest first, duplicates removed.
+        // Each distinct saved weight and age at the lift is one scoring call, each scored lift with an
+        // age one adjustment call, plus one aggregation: 30 lifts bound a request to 61 Supabase calls,
+        // run at most four at a time. The client sends at most 30, newest first, duplicates removed.
         })).max(30),
       }))
       .query(({ input }) => getMuscleProfile(input)),
   }),
   strengthPercentile: router({
-    forLift: publicProcedure
+    forLift: costlyPublicProcedure
       .input(strengthPercentileLiftInput)
       .query(({ input }) => getStrengthPercentile(input)),
     /**
      * Several lifts in one request, answered in order. The Progress section places every
      * lift it shows a trend for; asking one at a time was a request per card.
      */
-    forLifts: publicProcedure
+    forLifts: costlyPublicProcedure
       .input(z.object({ lifts: z.array(strengthPercentileLiftInput).max(24) }))
       .query(({ input }) => getStrengthPercentiles(input.lifts)),
   }),

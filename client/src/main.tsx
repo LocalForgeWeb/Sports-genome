@@ -31,6 +31,8 @@ const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       url: "/api/trpc",
+      // The server refuses a batch of more than 10 (server/_core/apiHandler.ts); split instead.
+      maxItems: 10,
       transformer: superjson,
       fetch(input, init) {
         return globalThis.fetch(input, { ...(init ?? {}), credentials: "include" });
