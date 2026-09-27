@@ -2845,10 +2845,13 @@ details:not([open]) > *:not(summary) {
    already existed for exactly three classes; this gives it to the surfaces an
    athlete actually opens. Durations and curves come from the grammar tokens,
    so a reduced-motion reader collapses them to 1ms and still sees the end
-   state - `both` keeps the fill. */
+   state. The fill is `backwards`, not `both`: a retained `translateY(0)` is
+   still a transform, and a transformed panel becomes the containing block of
+   any `position: fixed` surface inside it - the Training Day analysis drew as
+   a small inset scroller under its own panel for exactly that reason. */
 @media (prefers-reduced-motion: no-preference) {
   .apex-content :where([class*="-panel"], [class*="-card"], [class*="-board"], [class*="-hero"]) {
-    animation: sg-surface-rise var(--sg-motion-slow) var(--sg-ease-entrance) both;
+    animation: sg-surface-rise var(--sg-motion-slow) var(--sg-ease-entrance) backwards;
   }
 
   /* A stack that arrives all at once is one event; a stack that arrives in
@@ -4062,3 +4065,90 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .atlas-side-tab:focus-visible, .strength-body-side-toggle:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .exercise-intelligence .atlas-side-tab { color: var(--sg-text-muted-on-dark); }
 .exercise-intelligence .atlas-side-tab[aria-pressed="true"] { color: var(--sg-text-on-dark); }
+
+/* Walkthrough correction — docs/ux-walkthrough/brief.md. */
+/* U01: the status area (clock, Dynamic Island) keeps a solid backdrop once the
+   light brand row has scrolled away, so navy content never moves under the clock. */
+.status-backdrop { position: fixed; top: 0; right: 0; left: 0; z-index: 45; height: env(safe-area-inset-top, 0px); background: var(--sg-surface-deep); opacity: 0; pointer-events: none; transition: opacity var(--sg-motion-fast) var(--sg-ease); }
+.status-backdrop.is-solid { opacity: 1; }
+@media (max-width: 1023px) { .workspace-top-switcher-shell { top: env(safe-area-inset-top, 0px); } }
+/* U02: one solid feedback surface, above the dock and any strip. */
+.toaster [data-sonner-toast][data-styled="true"] { border: 1px solid var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); backdrop-filter: none; }
+.toaster [data-sonner-toast][data-styled="true"] [data-title] { color: var(--sg-text-on-dark); font-weight: 700; }
+.toaster [data-sonner-toast][data-styled="true"] [data-button] { background: var(--sg-action-fill); color: #fff; font-weight: 700; }
+.toaster [data-sonner-toast][data-styled="true"] [data-cancel] { background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); font-weight: 700; }
+[data-sonner-toaster][data-y-position="bottom"] { bottom: calc(env(safe-area-inset-bottom, 0px) + 5.6rem + var(--sg-feedback-lift, 0px)) !important; }
+body:has(.session-resume-bar) { --sg-feedback-lift: var(--sg-resume-height); }
+body:has(.add-destination):has(.session-resume-bar) { --sg-feedback-lift: calc(var(--sg-resume-height) + 3.4rem); }
+body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 3.4rem; }
+/* U03: the Add exercises sheet in the app's own surface. */
+.day-picker-sheet { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
+.day-picker-sheet-head { border-bottom-color: var(--sg-divider-on-dark); }
+.day-picker-sheet-head h2 { color: var(--sg-text-on-dark); }
+.day-picker-sheet-head p, .day-picker-sheet-head .metric-label { color: var(--sg-text-muted-on-dark); }
+.day-picker-sheet-head button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
+.day-picker-sheet-foot { border-top-color: var(--sg-divider-on-dark); background: var(--sg-surface-raised); }
+.day-picker-sheet-foot span { color: var(--sg-text-muted-on-dark); }
+/* U04: the layers in order — picker (70) under analysis (80) under exercise detail (95) under compare (96). */
+.exercise-intelligence { z-index: 95 !important; }
+.exercise-compare { z-index: 96 !important; }
+/* U05: the analysis keeps its way out in view and says it in words. */
+.stack-analysis-head { position: sticky; top: 0; z-index: 2; }
+.stack-analysis-head > button { width: auto; min-width: 2.75rem; padding: 0 .85rem; gap: .35rem; font-size: var(--sg-text-sm); font-weight: 700; }
+/* V02: the intro preview in the boot screen's composition. */
+.intro-preview { position: fixed; inset: 0; z-index: 97; display: grid; place-items: center; overflow: hidden; background: #07182e; color: #f7f4ec; }
+.intro-preview-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #07182e; }
+@media (min-width: 641px) { .intro-preview-video { top: 50%; right: auto; bottom: auto; left: 50%; width: min(100%, 620px); height: min(100%, 620px); transform: translate(-50%, -50%); } }
+.intro-preview-wordmark { position: absolute; right: 0; bottom: 12.8%; left: 0; z-index: 1; text-align: center; }
+.intro-preview-name { margin: 0; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(22px, 6vw, 32px); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: .92; text-transform: uppercase; }
+.intro-preview-label { margin: .35rem 0 0; color: #c4d4e4; font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.intro-preview-status { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 1rem); right: 5rem; left: 1rem; z-index: 2; margin: 0; color: #c4d4e4; font-size: var(--sg-text-sm); }
+.intro-preview-close { position: absolute; top: calc(env(safe-area-inset-top, 0px) + .75rem); right: .75rem; z-index: 3; display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; border: 1px solid rgb(247 244 236 / .35); border-radius: 999px; background: rgb(7 24 46 / .72); padding: 0 .9rem; color: #f7f4ec; font-size: var(--sg-text-sm); font-weight: 700; }
+.intro-preview-close:focus-visible { outline: 2px solid #f7f4ec; outline-offset: 3px; }
+/* V03: the next-workout module while the plan is still being read — the same
+   height as the module it becomes, no words that could be wrong. */
+.today-action-loading { min-height: 15rem; }
+.today-action-loading span { display: block; height: 1rem; border-radius: 6px; background: rgb(255 255 255 / .08); }
+.today-action-loading .today-action-loading-title { width: 70%; height: 2.6rem; margin: .35rem 0 .8rem; }
+.today-action-loading .today-action-loading-cta { width: 11rem; height: 3rem; margin-top: 1.2rem; border-radius: 12px; background: rgb(255 255 255 / .12); }
+@media (prefers-reduced-motion: no-preference) { .today-action-loading span { animation: workspace-skeleton-pulse 1200ms var(--sg-ease) infinite alternate; } }
+
+/* Walkthrough D01 — Strength coverage has its own colour. The coverage map used the
+   exercise atlas's "primary muscle" red, so the body flashed red and then repainted in
+   rank colours once the ranks arrived. Coverage is now blue (the workspace's own
+   accent), muted while the ranks are being computed, and never red. */
+.strength-body-chart[data-mode="coverage"] .anatomy-figure { --anatomy-primary-1: #6db3ff; --anatomy-primary-2: #2861cc; }
+.strength-body-chart[data-mode="pending"] .anatomy-figure { --anatomy-primary-1: #7f9ec4; --anatomy-primary-2: #4d6a92; }
+.strength-map-legend[data-mode="coverage"] .strength-map-legend-on i { background: linear-gradient(#6db3ff, #2861cc); }
+.strength-map-legend[data-mode="pending"] .strength-map-legend-on i { background: linear-gradient(#7f9ec4, #4d6a92); }
+
+/* Walkthrough U03/U06 — the picker's rows and controls in the app's own surface. The
+   sheet went dark but its search, selects and result cards were still the light
+   panel's white boxes, one outlined card per option. Rows on one surface with
+   separators, controls on the raised tone, the name first and the fit line last. */
+.day-picker-sheet .day-picker-tools label, .day-picker-sheet .day-picker-tools select, .day-picker-sheet .day-picker-scope { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
+.day-picker-sheet .day-picker-tools input { color: var(--sg-text-on-dark); }
+.day-picker-sheet .day-picker-tools input::placeholder { color: var(--sg-text-subtle-on-dark); }
+.day-picker-sheet .day-picker-scope button { color: var(--sg-text-muted-on-dark); }
+.day-picker-sheet .day-picker-scope-active { background: var(--sg-action-fill); color: #fff !important; }
+.day-picker-sheet .day-picker-result-count, .day-picker-sheet .day-picker-empty, .day-picker-sheet .day-picker-serratus-cue { color: var(--sg-text-muted-on-dark); }
+.day-picker-sheet .day-picker-result-count strong { color: var(--sg-text-on-dark); }
+.day-picker-sheet .day-picker-results { display: block; margin-top: .9rem; border-top: 1px solid var(--sg-divider-on-dark); }
+.day-picker-sheet .day-picker-result { border: 0; border-bottom: 1px solid var(--sg-divider-on-dark); background: transparent; }
+.day-picker-sheet .day-picker-result > button:first-child { padding: .8rem .35rem .8rem 0; }
+.day-picker-sheet .day-picker-result strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); white-space: normal; }
+.day-picker-sheet .day-picker-result small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.day-picker-sheet .day-picker-result em { color: var(--sg-text-subtle-on-dark); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.day-picker-sheet .day-picker-fills-tag, .day-picker-sheet .day-picker-supports-tag { display: inline-block; margin-top: .3rem; font-size: var(--sg-text-sm); }
+.day-picker-sheet .day-picker-result > button:last-child { min-width: 3.6rem; border-left: 1px solid var(--sg-divider-on-dark); color: var(--sg-action); }
+.day-picker-sheet .day-picker-result > button:last-child:hover:not(:disabled) { background: rgb(255 255 255 / .06); }
+.day-picker-sheet .day-picker-result > button:last-child:disabled { background: transparent; color: var(--sg-text-subtle-on-dark); }
+.day-picker-sheet .day-picker-more { color: var(--sg-text-on-dark); border-color: var(--sg-control-border-on-dark); }
+/* D01, the region rows: a recorded region's thumbnail follows the map's coverage colour. */
+.strength-body-map[data-mode="coverage"] .region-thumb[data-active="true"] .region-thumb-muscle { fill: #4a94e6; }
+.strength-body-map[data-mode="pending"] .region-thumb[data-active="true"] .region-thumb-muscle { fill: #7f9ec4; }
+/* The muscle picker inside the sheet, on the same surface whatever the app theme. */
+.day-picker-sheet .muscle-select .athlete-sport-trigger, .day-picker-sheet .muscle-select .athlete-sport-panel { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
+.day-picker-sheet .muscle-select .athlete-sport-trigger strong, .day-picker-sheet .muscle-select .athlete-sport-option strong, .day-picker-sheet .muscle-select .athlete-sport-search input { color: var(--sg-text-on-dark); }
+.day-picker-sheet .muscle-select .athlete-sport-option small, .day-picker-sheet .muscle-select .athlete-sport-empty, .day-picker-sheet .muscle-select .athlete-sport-trigger-chevron { color: var(--sg-text-muted-on-dark); }
+.day-picker-sheet .muscle-select .athlete-sport-option.is-active { background: rgb(255 255 255 / .08); }

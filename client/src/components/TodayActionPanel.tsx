@@ -53,6 +53,8 @@ export type TodayActionPanelProps = {
   live?: LiveSession | null;
   /** Whether any day of the plan holds exercises, so an empty selected day is told apart from no plan. */
   planHasDays?: boolean;
+  /** False while the saved plan is still being read: the module holds its shape and says nothing it could be wrong about. */
+  planReady?: boolean;
   athleteName?: string;
   directAccess?: boolean;
   weightUnit?: DisplayWeightUnit;
@@ -66,7 +68,7 @@ export type TodayActionPanelProps = {
   hour?: number;
 };
 
-export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayLabel, live, planHasDays, athleteName, directAccess = true, weightUnit = "lb", onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour }: TodayActionPanelProps) {
+export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayLabel, live, planHasDays, planReady = true, athleteName, directAccess = true, weightUnit = "lb", onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour }: TodayActionPanelProps) {
   const overview = trpc.strengthGenome.overview.useQuery();
   const sessions = trpc.workoutLog.list.useQuery();
   const observations = trpc.strengthGenome.observations.useQuery();
@@ -164,6 +166,15 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
               <button type="button" onClick={onOpenTraining} className="today-action-secondary">Edit plan <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
             </div>
           </div>
+        : !planReady
+          ? <div className="today-action-primary today-action-loading" role="status" aria-label="Loading your plan">
+              <div>
+                <p className="metric-label">Your next workout</p>
+                <span className="today-action-loading-title" />
+                <span style={{ width: "40%" }} />
+              </div>
+              <span className="today-action-loading-cta" />
+            </div>
         : planHasDays
           ? <div className="today-action-primary today-action-empty">
               <div>

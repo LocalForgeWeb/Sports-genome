@@ -77,7 +77,7 @@ describe("surfaces arrive rather than appearing", () => {
   it("gives the content surfaces an entrance, not just three legacy classes", () => {
     expect(index).toContain("@keyframes sg-surface-rise");
     const arrival = index.slice(index.indexOf("/* ── 4. Arrival"));
-    expect(arrival.slice(0, 1400)).toContain("animation: sg-surface-rise var(--sg-motion-slow) var(--sg-ease-entrance) both");
+    expect(arrival.slice(0, 1400)).toContain("animation: sg-surface-rise var(--sg-motion-slow) var(--sg-ease-entrance) backwards");
   });
 
   it("staggers a stack so it reads as assembling rather than as one flash", () => {

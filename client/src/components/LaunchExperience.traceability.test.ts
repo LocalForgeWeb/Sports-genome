@@ -23,7 +23,9 @@ describe("silent document boot screen", () => {
     expect(home).toContain("Preview intro video");
     expect(home).toContain("Your supplied visual plays silently");
 	    expect(home).toContain("plays silently");
-    expect(home).toContain("replayBootSplash()");
+    // The preview is a surface over About me, not a second launch: nothing reloads.
+    expect(home).toContain("<IntroPreview returnTo={introOpener} onClose=");
+    expect(home).not.toContain("replayBootSplash()");
     expect(home).not.toContain("showLaunchExperience");
     expect(home).not.toContain("<LaunchExperience");
   });

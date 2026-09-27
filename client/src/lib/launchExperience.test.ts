@@ -190,12 +190,14 @@ describe("replaying the intro", () => {
     expect(bootSplashSource).toContain("export function bootSplashReplayRequested");
   });
 
-  it("takes the control out of reach once it has been pressed", () => {
+  it("opens the preview in place rather than relaunching the document", () => {
     const home = readFileSync(resolve(process.cwd(), "client/src/pages/Home.tsx"), "utf8");
-    expect(home).toContain("if (replayPending || bootSplashReplayRequested()) return;");
-    expect(home).toContain("disabled={!launchExperienceEnabled || replayPending}");
-    // And it says why it is unavailable rather than just going dead.
-    expect(home).toContain('replayPending ? "Starting the intro…" : "Preview intro video"');
+    // The old preview reloaded the page with a replay flag - a second launch that
+    // handed About me back half drawn. The control now opens a surface over the page.
+    expect(home).toContain("setIntroPreviewOpen(true)");
+    expect(home).toContain("<IntroPreview returnTo={introOpener} onClose={() => setIntroPreviewOpen(false)} />");
+    expect(home).not.toContain("replayPending");
+    expect(home).not.toContain("window.location.reload");
   });
 
   it("leaves no composited blur on the bar the splash is lifted off", () => {

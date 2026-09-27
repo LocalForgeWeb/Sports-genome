@@ -1,0 +1,282 @@
+[
+ {
+  "id": "A1 launch plays, lifts once, Home never says \"Create your plan\"",
+  "pass": true,
+  "d": {
+   "first": {
+    "boot": "playing",
+    "ready": false,
+    "cta": null
+   },
+   "home": {
+    "hero": "Sport Transfer",
+    "position": "Week 1 · Day 05",
+    "count": "6 exercises",
+    "cta": "Review workout",
+    "loading": false
+   },
+   "samplesN": 48
+  }
+ },
+ {
+  "id": "A2 Review workout shows the day Home named",
+  "pass": true,
+  "d": {
+   "review": {
+    "ws": "tracker",
+    "day": "Sport Transfer",
+    "position": "Week 1 · Day 05",
+    "rows": 6
+   },
+   "hero": "Sport Transfer"
+  }
+ },
+ {
+  "id": "A3 return Home: no replay, same selection",
+  "pass": true,
+  "d": {
+   "back": {
+    "splash": false,
+    "boot": "done",
+    "ws": "command"
+   },
+   "home2": {
+    "hero": "Sport Transfer",
+    "position": "Week 1 · Day 05",
+    "count": "6 exercises",
+    "cta": "Review workout",
+    "loading": false
+   }
+  }
+ },
+ {
+  "id": "B1 named filter, selected muscle and destination agree",
+  "pass": true,
+  "d": {
+   "muscle": {
+    "selected": "Gluteal complex",
+    "cta": "Find gluteal complex exercises"
+   },
+   "cat": {
+    "ws": "catalog",
+    "chips": [
+     "Gluteal complex"
+    ],
+    "dest": "Adding to Week 1 · Sport TransferChange "
+   }
+  }
+ },
+ {
+  "id": "B2 favourite feedback readable, one notice",
+  "pass": true,
+  "d": {
+   "text": "Saved to favoritesConventional Deadlift ",
+   "opaque": true,
+   "count": 1
+  }
+ },
+ {
+  "id": "B3 detail add lands in the intended day",
+  "pass": true,
+  "d": {
+   "detailName": "Conventional Deadlift",
+   "added": {
+    "toast": "Added to Week 1 · Sport TransferConventional Deadlift is in ",
+    "undo": true
+   },
+   "plan": {
+    "inPlan": true,
+    "count": 7,
+    "summary": "2 targets under. Trapezius is furthest behind, 35 points short."
+   }
+  }
+ },
+ {
+  "id": "B4 Undo reverses exactly the last add; counts and coverage recompute",
+  "pass": true,
+  "d": {
+   "secondName": "Added to Week 1 · Sport TransferBack Squat",
+   "afterUndo": {
+    "first": true,
+    "second": false,
+    "count": 7,
+    "summary": "2 targets under. Trapezius is furthest behind, 35 points short."
+   },
+   "planCount": 7
+  }
+ },
+ {
+  "id": "C1 footer count is the persisted day and the destination is explicit",
+  "pass": true,
+  "d": {
+   "dayCount": 6,
+   "foot": {
+    "head": "Add to Week 1 · Sport Transfer",
+    "foot": "6 in Week 1 · Sport Transfer"
+   }
+  }
+ },
+ {
+  "id": "C2 detail is foreground; query, results and position survive the return",
+  "pass": true,
+  "d": {
+   "resultsBefore": {
+    "n": 11,
+    "first": "Landmine Row"
+   },
+   "scrollBefore": 0,
+   "detail": {
+    "open": true,
+    "name": "Landmine Row",
+    "pickerBehind": true
+   },
+   "after": {
+    "query": "row",
+    "n": 11,
+    "scroll": 0,
+    "focusIn": true
+   }
+  }
+ },
+ {
+  "id": "C3 add updates footer, Added state, plan count and analysis together",
+  "pass": true,
+  "d": {
+   "afterAdd": {
+    "foot": "7 in Week 1 · Sport Transfer · 1 added now",
+    "toast": "Added to Week 1 · Sport TransferLandmine",
+    "addedState": 2
+   },
+   "plan": {
+    "n": 7,
+    "sub": "Sets & reps",
+    "summary": "2 targets under. Trapezius is furthest behind, 35 points short."
+   }
+  }
+ },
+ {
+  "id": "C4 changing the day changes the destination, no stale count",
+  "pass": true,
+  "d": {
+   "head": "Add to Week 1 · Legs",
+   "foot": "0 in Week 1 · Legs"
+  }
+ },
+ {
+  "id": "D1 analysis is a full-height surface with one scroll area and a titled exit",
+  "pass": true,
+  "d": {
+   "rect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "title": "Sport Transfer coverage",
+   "day": "Week 1 · Day 05 · Sport Transfer",
+   "close": "Close",
+   "nestedScrollers": 0,
+   "tips": [
+    "Trapezius is 35 points under target — the furthest behind. 1 suggested pick below adds direct work for the gaps."
+   ]
+  }
+ },
+ {
+  "id": "D2 summary and detailed gap agree under the same state",
+  "pass": true,
+  "d": {
+   "summary": "2 targets under. Trapezius is furthest behind, 35 points short.",
+   "tips": [
+    "Trapezius is 35 points under target — the furthest behind. 1 suggested pick below adds direct work for the gaps."
+   ]
+  }
+ },
+ {
+  "id": "D3 Strength shows truthful loading: muted coverage, said in the legend and notice, no red",
+  "pass": true,
+  "d": {
+   "mode": "pending",
+   "legend": "On record · ranking",
+   "notice": "Ranking your lifts… the map shows where ",
+   "figureH": 480,
+   "rowState": "On record",
+   "red": false
+  }
+ },
+ {
+  "id": "E1 scrolled About me keeps a status backdrop",
+  "pass": true,
+  "d": [
+   {
+    "y": 0,
+    "backdrop": false,
+    "backdropFixed": "fixed",
+    "topbarTop": 0
+   },
+   {
+    "y": 300,
+    "backdrop": true,
+    "backdropFixed": "fixed",
+    "topbarTop": -300
+   },
+   {
+    "y": 380,
+    "backdrop": true,
+    "backdropFixed": "fixed",
+    "topbarTop": -380
+   },
+   {
+    "y": 380,
+    "backdrop": true,
+    "backdropFixed": "fixed",
+    "topbarTop": -380
+   }
+  ]
+ },
+ {
+  "id": "E2 natural end returns to About me at the same position",
+  "pass": true,
+  "d": {
+   "y0": 555,
+   "e2": {
+    "preview": false,
+    "y": 555,
+    "overflow": "",
+    "focus": "Preview intro video",
+    "h1": "About me"
+   }
+  }
+ },
+ {
+  "id": "E3 reopen starts fresh; early close restores scroll and focus, no layer left",
+  "pass": true,
+  "d": {
+   "e3a": {
+    "preview": true,
+    "t": 0.617292
+   },
+   "e3": {
+    "preview": false,
+    "y": 555,
+    "focus": "Preview intro video",
+    "layers": 0
+   }
+  }
+ },
+ {
+  "id": "E4 the launch preference is honoured on the next open, both ways",
+  "pass": true,
+  "d": {
+   "pref": "on",
+   "e4": {
+    "boot": "on",
+    "video": "playing"
+   },
+   "pref2": "off",
+   "e5": {
+    "boot": "off",
+    "video": "skipped"
+   }
+  }
+ }
+]

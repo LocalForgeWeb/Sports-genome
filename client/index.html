@@ -9,6 +9,19 @@
     <link rel="apple-touch-icon" sizes="180x180" href="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-dna-180_c496e9d0.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#0b2240" />
+    <!-- What iOS shows between the tap and the first frame of this document: the
+         same navy as the boot screen, so the launch reads as one surface from the
+         home screen to Home. Without these it shows black (V01). -->
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/launch/sports-genome-launch-1320x2868.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/launch/sports-genome-launch-1206x2622.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/launch/sports-genome-launch-1290x2796.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/launch/sports-genome-launch-1179x2556.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/launch/sports-genome-launch-1170x2532.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/launch/sports-genome-launch-1284x2778.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/launch/sports-genome-launch-1125x2436.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/launch/sports-genome-launch-1242x2688.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/launch/sports-genome-launch-828x1792.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/launch/sports-genome-launch-750x1334.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Sports Genome" />
@@ -67,16 +80,21 @@
       html.sports-genome-boot-video-done.sports-genome-boot-video-ready .sports-genome-boot-video{opacity:.72;transform:scale(1.015);transition:opacity 420ms cubic-bezier(.23,1,.32,1),transform 620ms cubic-bezier(.23,1,.32,1)}
       @media (min-width:641px){html.sports-genome-boot-video-done.sports-genome-boot-video-ready .sports-genome-boot-video{transform:translate(-50%,-50%) scale(1.015)}}
       html[data-sports-genome-boot="off"] #sports-genome-boot-splash,html.sports-genome-app-ready #sports-genome-boot-splash{opacity:0;visibility:hidden;pointer-events:none}
+      /* The way past the intro, for anyone who has seen it: one control, in
+         reach of a thumb, arriving after the mark so it never flashes first. */
+      .sports-genome-boot-skip{position:absolute;right:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:0;z-index:2;width:max-content;min-height:44px;margin:0 auto;border:1px solid rgb(247 244 236 / .35);border-radius:999px;background:rgb(7 24 46 / .72);padding:0 18px;color:#f7f4ec;font:700 13px/1 "DM Sans",sans-serif;letter-spacing:.06em;opacity:0;cursor:pointer}
+      html.sports-genome-boot-art-ready .sports-genome-boot-skip{animation:boot-wordmark-in 320ms 1.3s cubic-bezier(.23,1,.32,1) both}
+      .sports-genome-boot-skip:focus-visible{outline:2px solid #f7f4ec;outline-offset:3px}
       @keyframes boot-video-in{from{opacity:0}to{opacity:1}}
       @keyframes boot-mark-form{0%{opacity:0;transform:scale(.94) translateZ(0)}62%{opacity:1;transform:scale(1.012) translateZ(0)}100%{opacity:1;transform:scale(1) translateZ(0)}}
       @keyframes boot-dna-lines-in{0%{opacity:0;transform:scale(.96) translateZ(0)}68%{opacity:1;transform:scale(1.01) translateZ(0)}100%{opacity:1;transform:scale(1) translateZ(0)}}
       @keyframes boot-wordmark-in{0%{opacity:0;transform:translateY(10px) scale(.96)}72%{opacity:1;transform:translateY(-1px) scale(1.012)}100%{opacity:1;transform:translateY(0) scale(1)}}
       @media (prefers-reduced-motion:reduce){#sports-genome-boot-splash{display:none}.sports-genome-boot-video,.sports-genome-boot-logo,.sports-genome-boot-dna-detail,.sports-genome-boot-name,.sports-genome-boot-label{animation:none}}
     </style>
-    <script>try{if(document.documentElement.dataset.sportsGenomeBootReturn!=="yes"&&document.documentElement.dataset.sportsGenomeBoot!=="off"){const l=document.createElement("link");l.rel="preload";l.as="video";l.type="video/mp4";l.setAttribute("fetchpriority","high");l.href="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4";document.head.appendChild(l)}}catch(e){}</script>
+    <script>try{if(document.documentElement.dataset.sportsGenomeBoot!=="off"){const l=document.createElement("link");l.rel="preload";l.as="video";l.type="video/mp4";l.setAttribute("fetchpriority","high");l.href="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4";document.head.appendChild(l)}}catch(e){}</script>
   </head>
   <body>
-    <div id="sports-genome-boot-splash" aria-hidden="true"><video id="sports-genome-boot-video" class="sports-genome-boot-video" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4" muted playsinline preload="auto" disablepictureinpicture></video><div class="sports-genome-boot-content"><div class="sports-genome-boot-mark"><img class="sports-genome-boot-logo" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-silhouette-exact_349405db.png" alt="" /><img class="sports-genome-boot-dna-detail" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-dna-detail-exact_8e94e37f.png" alt="" /></div><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div></div>
+    <div id="sports-genome-boot-splash"><video id="sports-genome-boot-video" class="sports-genome-boot-video" aria-hidden="true" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-intro-source_07000a26.mp4" muted playsinline preload="auto" disablepictureinpicture></video><div class="sports-genome-boot-content" aria-hidden="true"><div class="sports-genome-boot-mark"><img class="sports-genome-boot-logo" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-silhouette-exact_349405db.png" alt="" /><img class="sports-genome-boot-dna-detail" src="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-dna-detail-exact_8e94e37f.png" alt="" /></div><p class="sports-genome-boot-name">Sports Genome</p><p class="sports-genome-boot-label">Decoding performance</p></div><button type="button" id="sports-genome-boot-skip" class="sports-genome-boot-skip">Skip intro</button></div>
     <!-- When the choreography may begin: the moment its artwork can actually be drawn.
          `decode()` rather than `load`, because load fires before the bitmap is
          paintable and the first frame of a 500ms scale-up is exactly where that
@@ -137,9 +155,21 @@
         try { window.dispatchEvent(new Event("sports-genome-boot-video-done")); } catch (e) {}
       };
       var replay = root.dataset.sportsGenomeBootReplay === "yes";
+      // The intro plays on every launch the preference allows - a returning
+      // athlete used to get a 620ms static shortcut that read as the app
+      // arriving through the animation. Skip is one tap away for anyone who
+      // has seen it; a route change never replays it, since only a document
+      // load reaches this script.
       var wantsVideo = video && !reduced
-        && root.dataset.sportsGenomeBoot !== "off"
-        && root.dataset.sportsGenomeBootReturn !== "yes";
+        && root.dataset.sportsGenomeBoot !== "off";
+      var skip = document.getElementById("sports-genome-boot-skip");
+      if (skip) {
+        skip.addEventListener("click", function () {
+          root.dataset.sportsGenomeBootSkip = "yes";
+          settle("skipped");
+          try { window.dispatchEvent(new Event("sports-genome-boot-skip")); } catch (e) {}
+        });
+      }
       if (!wantsVideo) {
         root.dataset.sportsGenomeBootVideo = "skipped";
       } else {
