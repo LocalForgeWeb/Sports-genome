@@ -1,4 +1,5 @@
 import type { Exercise } from "./exerciseCatalog";
+import type { DisplayWeightUnit } from "./weightUnits";
 
 /**
  * Which boxes a set actually needs, and what each one measures.
@@ -45,7 +46,15 @@ function loadIsOptional(exercise: Pick<Exercise, "category" | "equipment">): boo
 
 export function setEntryFieldsFor(
   exercise: Pick<Exercise, "name" | "category" | "equipment"> | undefined,
+  /** The unit the weight box records in: the session's, which is the profile's when it started. */
+  weightUnit: DisplayWeightUnit = "lb",
 ): SetEntryField[] {
+  // The box used to say "lb" whatever the profile said, while every screen read the
+  // number in the profile's unit: a kg athlete typed next to "lb" and was scored in kg.
+  return fieldsFor(exercise).map((field) => field.measure === "weight" ? { ...field, unit: weightUnit } : field);
+}
+
+function fieldsFor(exercise: Pick<Exercise, "name" | "category" | "equipment"> | undefined): SetEntryField[] {
   if (!exercise) return [WEIGHT];
   const name = exercise.name.trim();
   const carriesAddedLoad = /\bweighted\b/i.test(name);

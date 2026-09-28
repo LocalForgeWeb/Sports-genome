@@ -23,6 +23,7 @@ import type { TrainingLoadout as LoadoutMode } from "@/lib/loadoutTemplates";
 import { FeatureTour } from "@/components/FeatureTour";
 import { WorkspaceTabs } from "@/components/WorkspaceTabs";
 import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
+import { loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, stampLegacyWeightUnits } from "@/lib/deviceWorkoutLog";
 import { usePlanSync } from "@/lib/usePlanSync";
 import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
 import { WarmupPanel } from "@/components/WarmupPanel";
@@ -740,6 +741,18 @@ export default function Home() {
     const profile: StoredAthleteProfile = { version: 3, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId: selectedMovement.id, baseline: athleteBaseline };
     try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
   }, [profileHydrated, onboardingComplete, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
+
+  /**
+   * Workouts logged before set units were stored are given one, once, from the profile's
+   * unit as it stands when the profile has been read - the unit every screen already reads
+   * them in - so switching lb and kg afterwards cannot rescale them (decision D-005).
+   */
+  useEffect(() => {
+    if (!profileHydrated) return;
+    const { sessions, stamped } = stampLegacyWeightUnits(loadDeviceWorkoutSessions(), athleteBaseline.weightUnit);
+    if (stamped > 0) saveDeviceWorkoutSessions(sessions);
+    // Once, when the profile is first read: a later unit change must not re-stamp anything.
+  }, [profileHydrated]);
 
   /**
    * The account's copy of the plan, alongside the device's.
@@ -1557,7 +1570,7 @@ export default function Home() {
       />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
               The tracker renders it only before a session starts; mid-workout
               the day cannot change under the sets being logged. */}
@@ -1732,7 +1745,7 @@ export default function Home() {
             <ImportedPlanContext items={activeImportedContext} />
           </div>
         </section>}
-        {workspace === "progress" && <ProgressOverviewPanel onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} />}
+        {workspace === "progress" && <ProgressOverviewPanel onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onRankProfile={(patch) => updateBaseline({ ...athleteBaseline, ...patch })} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}
       </main></Suspense>
     </div>

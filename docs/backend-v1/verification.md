@@ -40,3 +40,25 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: collect the five discovery parts, then P0 repairs.
 Access/decision blockers: MySQL unreachable; no iOS shell on main.
 ```
+
+```text
+Current branch/commit and environment: batch 1 merged as #68 (main 27f9b3c); production deployment dpl_8CMVritJtbW6s1mqiPcMqPwSPojW READY at sports-genome-mauve.vercel.app.
+Requirements completed and evidence: B065, B162, B264 verified (Home.undoAndLoading.test.ts, StrengthGenomePanel tests); server hardening from 0afbd64 in the same merge.
+Current confirmed failure/root cause: none open from batch 1.
+Files/migrations changed but not verified: none.
+Tests run and actual results: tsc 0; vitest 1952 pass, 1 skip, 5 fail (the live-Supabase tests, unreachable from this sandbox - identical on main); npm run build OK.
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: batch 2 - units per set, one active session across tabs, shared count definitions.
+Access/decision blockers: MySQL unreachable; no iOS shell on main.
+```
+
+```text
+Current branch/commit and environment: claude/training-day-navigation-workouts-83ro2c from main 27f9b3c; work environment as above.
+Requirements completed and evidence: B048, B243, B154, B158, B155, B156 verified; B024, B025, B265 implementing (status.md). Decisions D-005 (legacy units), D-006 (empty finish, shared counts). Contracts: § Logged weights and units, § Counts, § Active workout.
+Current confirmed failure/root cause: PS-10/EN-08/TR-06 - the weight box always said lb while readers used the profile unit; PS-11 - each tab wrote its whole session copy back; PS-13 - per-screen count rules. All reproduced by the new tests failing against the old code (mutation checks on the migration and on the stored-copy merge).
+Files/migrations changed but not verified: none. No database change.
+Tests run and actual results: tsc 0; vitest 1976 pass, 1 skip, 5 fail (same live-Supabase tests); npm run build OK. New: deviceWorkoutLog.units.test.ts (11), DeviceWorkoutTracker.units.test.ts (3), DeviceWorkoutTracker.tabs.test.ts (7), Home.undoAndLoading.test.ts (+1), athleteRecord.test.ts (+2, 1 rewritten).
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: merge batch 2; then batch 3 - strength selection and e1RM parity (EN-01..04, EN-06, EN-07, EN-09).
+Access/decision blockers: MySQL unreachable; no iOS shell on main.
+```

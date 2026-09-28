@@ -67,6 +67,6 @@ describe("Progress places each trend's latest lift on the community curves", () 
   });
 
   it("is given the athlete's sex and profile weight by the page, the way the Strength Genome is", () => {
-    expect(home).toContain("<ProgressOverviewPanel onOpenStrength={() => navigateWorkspace(\"strength\")} onOpenTraining={() => navigateWorkspace(\"day-plan\")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} />");
+    expect(home).toContain("<ProgressOverviewPanel onOpenStrength={() => navigateWorkspace(\"strength\")} onOpenTraining={() => navigateWorkspace(\"day-plan\")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />");
   });
 });

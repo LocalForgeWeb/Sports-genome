@@ -9,6 +9,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * Backend V1 discovery (docs/backend-v1/inventory/persistence.md PS-07, PS-08; traces.md
  * TR-04): Undo acted on whichever day was open when it was pressed, and an exercise added
  * while the plan was still loading was confirmed and then overwritten.
+ *
+ * It also pins that workouts logged before set units were stored are given the profile's
+ * unit once, when the profile is read (PS-10, EN-08; decision D-005).
  */
 
 type ToastOptions = { description?: string; action?: { label: string; onClick: () => void }; cancel?: { label: string; onClick: () => void } };
@@ -39,6 +42,7 @@ vi.mock("@/lib/trpc", () => {
 });
 
 import Home from "@/pages/Home";
+import { deviceWorkoutHistoryKey } from "@/lib/deviceWorkoutLog";
 import { exercises } from "@/lib/exerciseCatalog";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -49,7 +53,7 @@ Element.prototype.scrollIntoView = () => {};
 
 const PROFILE_KEY = "gym-optimizer-athlete-profile-v1";
 const PLAN_KEY = "gym-optimizer-workout-plan-v1";
-const profile = () => JSON.stringify({ version: 3, sportId: "", sportContextMode: "general", goal: "Muscle growth", trainingDays: 3, gymMinutes: 60, movementId: "", baseline: { experience: "Intermediate", weightUnit: "lb" } });
+const profile = (weightUnit: "lb" | "kg" = "lb") => JSON.stringify({ version: 3, sportId: "", sportContextMode: "general", goal: "Muscle growth", trainingDays: 3, gymMinutes: 60, movementId: "", baseline: { experience: "Intermediate", weightUnit } });
 const planWith = (entries: Record<string, number[]>) => {
   const week = { customWorkoutIds: [], weeklyPlanIds: {}, weeklyPlanEntries: Object.fromEntries(Object.entries(entries).map(([key, ids]) => [key, ids.map((id) => ({ entryId: id, catalogExerciseId: id }))])), prescriptions: {}, exerciseSettings: {}, weeklyPrescriptions: {}, weeklySettings: {}, importedPlanContext: {}, activeDayIndex: 0 };
   return JSON.stringify({ version: 2, ...week, weeks: { "1": week }, activeWeek: 1 });
@@ -146,5 +150,24 @@ describe("Nothing edits the plan before it has been read", () => {
     view.rerender(createElement(Home));
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
     expect(dayIds("0-Push")).toEqual([exercises[0].id]);
+  });
+});
+
+describe("Workouts logged before set units were stored", () => {
+  it("take the profile's unit once the profile is read, marked as inferred", async () => {
+    window.localStorage.setItem(PROFILE_KEY, profile("kg"));
+    window.localStorage.setItem(PLAN_KEY, planWith({ "0-Push": [exercises[0].id] }));
+    const legacy = { id: "device-1", title: "Day 01 workout", dayLabel: "Day 01 · Push", startedAt: "2026-09-01T10:00:00.000Z", completedAt: "2026-09-01T11:00:00.000Z", status: "completed", exercises: [{ id: "1-0", exerciseName: exercises[0].name, plannedPrescription: "3 × 5", sets: [{ weight: "100", reps: "5", completed: true }] }] };
+    const stamped = { ...legacy, id: "device-2", weightUnit: "lb" };
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([legacy, stamped]));
+    window.history.replaceState({}, "", "/?workspace=command");
+    render(createElement(Home));
+    await screen.findByRole("heading", { level: 1 }, { timeout: 15000 });
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    const history = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey) || "[]");
+    expect(history.find((session: { id: string }) => session.id === "device-1")).toMatchObject({ weightUnit: "kg", weightUnitInferred: true });
+    // A session that already had its unit keeps it.
+    expect(history.find((session: { id: string }) => session.id === "device-2")).toMatchObject({ weightUnit: "lb" });
+    expect(history.find((session: { id: string }) => session.id === "device-2")).not.toHaveProperty("weightUnitInferred");
   });
 });
