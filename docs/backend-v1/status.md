@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 228
-- `implementing`: 20
-- `verified`: 20
+- `pending`: 218
+- `implementing`: 23
+- `verified`: 27
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -75,7 +75,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B015 | Inventory tables, views, functions, triggers, jobs, Edge Functions, exposed schemas, storage buckets, and relevant policies. | verified | docs/backend-v1/inventory/supabase.md (tables, views, functions, triggers, cron, Edge Functions, storage, policies, grants, advisors) and inventory/server.md (MySQL schema, migrations 0000-0010, every tRPC procedure). |
 | B016 | Identify existing norm, eligibility, muscle-effect, sports-transfer, and strength-engine components. Treat historical names such as… | verified | inventory/engines.md: norm routes (research band, strength_beta_v1 curves, powerlifting, Piper, registry), eligibility views, muscle aggregation (aggregate_muscle_strength_v1), sport transfer, and the DB muscle-effect engine the app never calls. |
-| B017 | Identify calculations duplicated in SQL, server functions, frontend utilities, or hardcoded component logic. | verified | inventory/engines.md EN-03/EN-04/EN-10/EN-18/EN-21 and traces.md TR-01: e1RM computed two ways (TS mean of Epley+Brzycki vs DB Strength Level), two coverage models for one target, and more. |
+| B017 | Identify calculations duplicated in SQL, server functions, frontend utilities, or hardcoded component logic. | verified | Duplicates identified in inventory/engines.md; the three e1RM implementations are now one (shared/strengthPercentile.ts estimateOneRepMax, used by shared/oneRepMaxEstimation.ts). D-007. |
 | B018 | Inventory research datasets with current row counts, eligible counts, review reasons, source revisions, and actual app consumption. Historical… | verified | inventory/supabase.md research datasets: row, eligible and review-status counts per family (e.g. 3,512 strength_norms; app_strength_beta_curves_v1 1,480 rows all Strength Level, 1,220 blocked + 260 without eligibility rows). |
 | B019 | Identify mock, seed, placeholder, and fallback values that can reach a real account. | verified | inventory/persistence.md PS-14 (fallback sport 'wrestling' written as sport_id; production Supabase URL/key built into every build), PS-21, PS-22. |
 | B020 | Identify where local storage is authoritative, where server storage is authoritative, and where the app currently mixes them. | verified | inventory/persistence.md authority table: everything day-to-day is device-local (directWorkspaceAccess = true); MySQL holds plan (sync), priorities and dormant session APIs; Supabase receives lift sync only. |
@@ -117,7 +117,7 @@ _No requirement IDs in this section._
 | B041 | Separate numerical uncertainty, evidence quality, data completeness, and protocol compatibility; they are not interchangeable confidence concepts. | pending |  |
 | B042 | Do not invent numeric confidence percentages unless the method has a defensible calibration. Categorical confidence with reason codes is acceptable. | pending |  |
 | B043 | Include stable reason codes so the frontend can explain results without parsing prose. | pending |  |
-| B044 | Specify rounding at display boundaries; compare and aggregate with appropriate underlying precision. | pending |  |
+| B044 | Specify rounding at display boundaries; compare and aggregate with appropriate underlying precision. | verified | Placement and banding use unrounded values; e1RM kept to 3 dp as the database places it; the card rounds only for display (ordinal). EN-19 fixed. contracts.md § Estimated 1RM and placement. |
 | B045 | Define tie-breaking for equally ranked results and guarantee deterministic order. | pending |  |
 | B046 | Include relevant input/data/model versions in cache invalidation. Do not treat a user ID alone as a sufficient calculation cache key. | pending |  |
 | B047 | Keep raw events immutable where useful and version derived results so later recalculation does not erase original evidence. | pending |  |
@@ -143,14 +143,14 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B056 | Inventory existing estimated-maximum methods, coefficients, supported rep ranges, and eligible exercise families. | pending |  |
-| B057 | Verify formulas against their actual sources and intended protocols before broad application. | pending |  |
+| B056 | Inventory existing estimated-maximum methods, coefficients, supported rep ranges, and eligible exercise families. | verified | contracts.md § Estimated 1RM and placement: both database estimators, coefficients, rep and RIR ranges, confidence tables, and which exercises get which (get_strength_e1rm_estimator_v1). |
+| B057 | Verify formulas against their actual sources and intended protocols before broad application. | implementing | TS transcription verified against the database's own outputs (server/strengthPercentile.parity.test.ts, 10 sets within 0.005 percentile). The database's claim that its blend matches Strength Level's public calculator is not yet checked against that calculator. |
 | B058 | Do not run a repetitions-to-maximum formula on timed carries, jumps, distance tests, or isometric holds without a separate supported method. | pending |  |
-| B059 | Define handling of effort/RIR when available; missing effort must not silently become maximal effort. | pending |  |
+| B059 | Define handling of effort/RIR when available; missing effort must not silently become maximal effort. | verified | Unrecorded RIR is explicit (repsInReserve: null), read as the source protocol's set to failure, costs 0.08 confidence, and the card states the assumption and that the estimate is a floor. D-008. Test: strengthPercentileCard.effort.test.ts. |
 | B060 | Define how warm-ups, failed repetitions, partial sets, implausible records, and imported entries affect eligibility. | pending |  |
-| B061 | Document whether the product shows best historical, recent best, or another estimator. Keep those concepts separate. | pending |  |
+| B061 | Document whether the product shows best historical, recent best, or another estimator. Keep those concepts separate. | verified | contracts.md § Which observation counts: muscle ranks are best historical by percentile; the card and Progress read the lift in view or a trend's latest; a workout contributes its strongest set. |
 | B062 | Preserve sample count, recency, and source-observation IDs behind the displayed result. | pending |  |
-| B063 | Avoid accidental score decreases caused only by adding a weaker record to a best-performance summary; if a rolling estimator behaves differently,… | pending |  |
+| B063 | Avoid accidental score decreases caused only by adding a weaker record to a best-performance summary; if a rolling estimator behaves differently,… | verified | Adding a weaker lift cannot lower a muscle rank: server keeps the best percentile per exercise (live repro 84.67 -> 27.35 fixed), client sends each exercise's strongest lifts. Tests: supabaseStrengthProfile.test.ts 'Which observation speaks for an exercise', muscleRankLifts.test.ts. |
 
 ### 5.3 Reference population and adjustments
 
@@ -185,7 +185,7 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B082 | Document the mapping from eligible exercise performances to each region. | pending |  |
-| B083 | Prevent repeated copies of the same lift or tightly correlated variants from falsely creating independent evidence. | pending |  |
+| B083 | Prevent repeated copies of the same lift or tightly correlated variants from falsely creating independent evidence. | implementing | Identical lifts sent once; one observation per exercise reaches the aggregation; correlated variants decay by movement pattern in the database (0.55). Variant-level correlation (e.g. two bench variants) not yet reviewed. |
 | B084 | Keep primary muscle contribution, stabilization, and normative comparability distinct. | pending |  |
 | B085 | Define region aggregation and confidence rules rather than averaging unrelated exercise percentiles by default. | pending |  |
 | B086 | Preserve left/right asymmetry when supported; do not generate a weaker-side score from missing side data. | pending |  |
@@ -200,7 +200,7 @@ _No requirement IDs in this section._
 | B090 | Separate exercise-level attributes from prescription-level modifiers and observed-execution modifiers. | pending |  |
 | B091 | Keep planned stimulus and logged stimulus distinct. An unperformed prescription must not become completed training exposure. | pending |  |
 | B092 | Define the effect of set count, repetition scheme, load/relative intensity, effort, range, contraction type, and muscle role where supported. | pending |  |
-| B093 | If a field is absent, expose the actual default/assumption and its consequence. Do not assume unreported RIR equals zero. | pending |  |
+| B093 | If a field is absent, expose the actual default/assumption and its consequence. Do not assume unreported RIR equals zero. | verified | The card names the default (read as a set to failure) and its consequence (the lift places higher if reps were left in reserve). strengthPercentileCard.effort.test.ts. |
 | B094 | Audit for double counting when exercise tags and prescription modifiers encode the same characteristic. | pending |  |
 | B095 | Keep prime mover, synergist/supporting, and stabilizer roles explicit; stabilizer involvement must not automatically count as a full hypertrophy set. | pending |  |
 | B096 | Allow multiple muscles to receive contribution without treating contribution weights as a mandatory probability distribution summing to one unless… | pending |  |
@@ -477,7 +477,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B251 | Demonstrate how a compound lift contributes to multiple muscles without making every muscle's isolated strength equal to the whole lift. | pending |  |
 | B252 | Demonstrate planned versus performed exposure using a workout with prescribed sets that were not all completed. | pending |  |
-| B253 | Demonstrate what changes when RIR is known versus missing; explain the assumption rather than inventing an exact physiological difference. | pending |  |
+| B253 | Demonstrate what changes when RIR is known versus missing; explain the assumption rather than inventing an exact physiological difference. | verified | 70 kg x 5 unknown effort places at 43.68, at 2 RIR at 53.26 (database numbers, reproduced by the engine); confidence 0.84 vs 0.83. strengthPercentileCard.effort.test.ts. |
 | B254 | Demonstrate an unsupported exercise/test returning an honest status while preserving its valid workout log. | pending |  |
 | B255 | Demonstrate two nearly synonymous exercise names resolving to one canonical search identity without merging mechanically distinct variants. | pending |  |
 | B256 | Demonstrate a reference-data version change with preserved original inputs and a traceable output delta. | pending |  |
@@ -560,10 +560,10 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B287 | Record existing engine versions and assign new versions only for meaningful calculation/contract changes. | pending |  |
+| B287 | Record existing engine versions and assign new versions only for meaningful calculation/contract changes. | implementing | Card and trends report strength_beta_v2 with the estimator named; muscle ranks report the lifts' version and the aggregation's separately. The database's strength_scoring_versions v2 row misdescribes its e1RM method - correction prepared with the batch 7 migrations. |
 | B288 | Maintain a compatibility map between client contract, engine version, schema revision, and reference-data revision. | pending |  |
 | B289 | Preserve baseline fixtures and add regression cases for every material bug repaired in V1. | pending |  |
-| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes recorded as decisions with the tests rewritten: D-004 (competitor rank), D-006 (empty finish, shared counts). The handoff will list them all. |
+| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes recorded with rewritten tests: D-004 (competitor rank), D-006 (empty finish, shared counts), D-007 (one e1RM, best lift counts). The handoff will list them all. |
 | B291 | Carry unresolved issues forward with stable IDs, dependencies, attempted approaches, and evidence. | pending |  |
 | B292 | Separate V2 ideas from unfinished V1 requirements. Do not quietly reclassify incomplete launch-critical work as a future enhancement. | pending |  |
 | B293 | For each candidate extension, identify whether it adds a module, expands supported inputs, improves evidence, or changes existing semantics. | pending |  |

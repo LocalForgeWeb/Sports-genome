@@ -45,6 +45,25 @@ export type MuscleProfileLift = {
 
 export type MuscleProfileRequest = { sex: "male" | "female" | null; lifts: readonly MuscleProfileLift[] };
 
+/**
+ * Which of an exercise's observations speaks for it in the muscle ranks: the best placed one.
+ * The database's own aggregation keeps the most *confident* instead, and a lighter triple is
+ * more confident than a strong set of ten - logging 80 x 3 after 100 x 10 took a chest rank
+ * from 84.67 to 27.35 (EN-01). Sending the aggregation one observation per exercise, chosen
+ * here, leaves it no choice to make; the chosen observation keeps its own confidence.
+ */
+export const MUSCLE_EVIDENCE_SELECTION_RULE = "best_percentile_per_exercise_v1" as const;
+
+/** One entry per exercise: the highest percentile, ties to the more confident. */
+export function bestObservationPerExercise<T extends { exercise_id: string; percentile: number; confidence: number }>(scores: readonly T[]): T[] {
+  const best = new Map<string, T>();
+  for (const score of scores) {
+    const current = best.get(score.exercise_id);
+    if (!current || score.percentile > current.percentile || (score.percentile === current.percentile && score.confidence > current.confidence)) best.set(score.exercise_id, score);
+  }
+  return Array.from(best.values());
+}
+
 /** Mirrors `score_strength_profile_v1`'s own statuses; they stay visible rather than collapsing to ok. */
 export type ProfileStatus = "ok" | "partial" | "estimates_only" | "no_scored_observations";
 
@@ -56,7 +75,16 @@ export type MuscleProfileResult =
   | { status: "unavailable"; reason: "sex_required" | "no_lifts" | "not_configured" | "service_error" }
   | {
       status: ProfileStatus;
+      /**
+       * The version the lifts were scored under, as each score reports it (`strength_beta_v2`
+       * for the Strength Level route). It used to be the aggregation's label, `strength_beta_v1`,
+       * whose recorded method is not the one that ran (EN-04). Several are joined with "+".
+       */
       scoringVersion: string;
+      /** The muscle aggregation's own version and method. */
+      aggregationVersion: string;
+      /** One observation per exercise enters the aggregation: the best placed, whatever its confidence. */
+      selectionRule: typeof MUSCLE_EVIDENCE_SELECTION_RULE;
       rankSchemeVersion: typeof RANK_SCHEME_VERSION;
       confidenceCalibrationVersion: typeof MUSCLE_CONFIDENCE_CALIBRATION_VERSION;
       muscles: MuscleScore[];
@@ -220,6 +248,7 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
   let estimatedOnly = 0;
   let failed = failures.length;
   const compact: { exercise_id: string; percentile: number; confidence: number }[] = [];
+  const scoringVersions = new Set<string>();
   const referenceByExerciseId = new Map<string, ReferenceGroup>();
   const ageAdjustment: AgeAdjustmentSummary = { applied: 0, outsideTable: 0, noAge: 0 };
 
@@ -248,6 +277,7 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
       const exerciseId = typeof score?.exercise_id === "string" ? score.exercise_id : score?.input_observation?.exercise_id;
       if (typeof exerciseId !== "string" || !isFiniteIn(percentile, 0, 100)) continue;
       compact.push({ exercise_id: exerciseId, percentile, confidence: numberOf(score?.overall_confidence) ?? 0.5 });
+      if (typeof score?.scoring_version === "string") scoringVersions.add(score.scoring_version);
       if (ageYears === null) ageAdjustment.noAge += 1;
       else if (score?.age_adjustment?.applied === true) ageAdjustment.applied += 1;
       else if (score?.age_adjustment?.status === "outside_published_age_range") ageAdjustment.outsideTable += 1;
@@ -266,13 +296,16 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
     failed += groupFailures.length;
   }
 
-  const aggregate = compact.length ? await client.aggregate(compact) as Record<string, unknown> : { status: "no_evidence", scoring_version: "strength_beta_v1", muscles: [] };
+  const evidence = bestObservationPerExercise(compact);
+  const aggregate = evidence.length ? await client.aggregate(evidence) as Record<string, unknown> : { status: "no_evidence", scoring_version: "strength_beta_v1", muscles: [] };
   const rawMuscles = Array.isArray(aggregate?.muscles) ? aggregate.muscles : [];
   const muscles = rawMuscles.map((raw) => validateMuscle(raw, referenceByExerciseId)).filter((m): m is NonNullable<typeof m> => m !== null);
 
   return {
     status: profileStatus(scored, estimatedOnly, failed),
-    scoringVersion: typeof aggregate?.scoring_version === "string" ? aggregate.scoring_version : "unknown",
+    scoringVersion: scoringVersions.size ? Array.from(scoringVersions).sort().join("+") : "unknown",
+    aggregationVersion: `${typeof aggregate?.scoring_version === "string" ? aggregate.scoring_version : "unknown"}:${typeof aggregate?.aggregation_method === "string" ? aggregate.aggregation_method : "unknown"}`,
+    selectionRule: MUSCLE_EVIDENCE_SELECTION_RULE,
     rankSchemeVersion: RANK_SCHEME_VERSION,
     confidenceCalibrationVersion: MUSCLE_CONFIDENCE_CALIBRATION_VERSION,
     muscles,

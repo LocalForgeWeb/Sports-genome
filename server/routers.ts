@@ -451,7 +451,7 @@ export const appRouter = router({
   /**
    * Where a lift sits against sex- and bodyweight-matched community curves.
    *
-   * This is the beta route (`strength_beta_v1`), kept separate from the research-grade
+   * This is the beta route (`strength_beta_v2`), kept separate from the research-grade
    * reference path in normsResolution: that one reports a band between published cut points
    * from a directly measured lift, this one interpolates a community curve from an estimated
    * 1RM. Every result names its route, so the two can never be read as the same number.

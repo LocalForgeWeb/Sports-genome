@@ -2,6 +2,7 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setWeightKg, setWeightUnit, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
 import { resolveStrengthObservationRoute, strengthRegionIdsForCatalogMuscles } from "../../../shared/strengthGenomeDefinitions";
 
 /**
@@ -32,7 +33,7 @@ export type WorkoutStrengthObservation = {
   /** Where the athlete saw this happen, so the record can say so. */
   sessionLabel: string;
   sessionId: string;
-  /** How many sets of this exercise the session recorded, of which this is the heaviest. */
+  /** How many sets of this exercise the session recorded, of which this is the strongest by estimated 1RM. */
   setCount: number;
   /**
    * The athlete's body mass on the day of this session, stamped here so a later
@@ -110,11 +111,14 @@ function numeric(value: string | undefined) {
 }
 
 /**
- * One observation per exercise per finished session: the heaviest set that was
- * actually logged, tie-broken by reps. A session is a single training event, so
- * collapsing it this way keeps 33 logged sets from arriving as 33 entries in a
- * record meant to be read at a glance — while still recording every exercise
- * the athlete trained.
+ * One observation per exercise per finished session: the set with the highest estimated
+ * one-rep max, by the app's one estimator. A session is a single training event, so
+ * collapsing it this way keeps 33 logged sets from arriving as 33 entries in a record meant
+ * to be read at a glance — while still recording every exercise the athlete trained.
+ *
+ * It used to be the heaviest set, so a strong 100 x 10 lost to a lighter-effort 105 x 1 and
+ * the rank read the weaker performance (EN-02, D-007). Sets the estimator cannot read (past
+ * 15 reps, or no weight) are chosen only when no set can be read, heaviest then most reps.
  */
 export function workoutStrengthObservations(
   sessions: readonly DeviceWorkoutSession[],
@@ -137,7 +141,10 @@ export function workoutStrengthObservations(
         .map((set) => ({ weightKg: setWeightKg(set, session, fallbackUnit), weight: numeric(set.weight), unit: setWeightUnit(set, session, fallbackUnit), reps: numeric(set.reps) }))
         .filter((set) => set.reps !== undefined);
       if (!logged.length) return;
-      const best = logged.reduce((leader, set) => {
+      const withE1rm = logged.map((set) => ({ ...set, e1rmKg: set.weightKg === undefined || set.reps === undefined ? null : estimateOneRepMaxKg(set.weightKg, set.reps) }));
+      const best = withE1rm.reduce((leader, set) => {
+        if ((set.e1rmKg !== null) !== (leader.e1rmKg !== null)) return set.e1rmKg !== null ? set : leader;
+        if (set.e1rmKg !== null && leader.e1rmKg !== null && set.e1rmKg !== leader.e1rmKg) return set.e1rmKg > leader.e1rmKg ? set : leader;
         const leaderWeight = leader.weightKg ?? 0;
         const setWeight = set.weightKg ?? 0;
         if (setWeight !== leaderWeight) return setWeight > leaderWeight ? set : leader;

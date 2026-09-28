@@ -1,6 +1,8 @@
 import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { catalogExerciseIdForName } from "@/lib/strengthPercentileCard";
 import { ageAtLift } from "@/lib/normsCohort";
+import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
+import { strengthLevelAgeFactor } from "@shared/strengthPercentile";
 
 export type RankableObservation = {
   exerciseName: string;
@@ -46,20 +48,30 @@ export function liftBodyMassKg(observation: RankableObservation, history: readon
 }
 
 /**
- * What the muscle-rank route is sent: the most recent lifts with a load, newest first, up to
- * the route's cap. Every lift goes, not one per exercise - which of an exercise's lifts
- * counts is the database aggregation's decision (it keeps the best-supported one), and making
- * that choice here as well would be a second policy for the same thing.
+ * What the muscle-rank route is sent: each exercise's strongest lifts, however long ago they
+ * were logged.
+ *
+ * It used to send the newest 30 lifts and let the database pick among them, so a best lift
+ * from months back dropped out once 30 newer ones were logged (EN-02), and the database picks
+ * the most confident rather than the best (EN-01). Now, per exercise, the lifts are ranked by
+ * the shared e1RM read at the age they were lifted at - once per body mass (the relative
+ * curves most exercises use) and once without it (the absolute ones) - and the leader of each
+ * is sent. The server then keeps whichever of an exercise's lifts places best.
+ *
+ * Every exercise's leader goes before any exercise's runner-up; when there are more exercises
+ * than the route's cap, the ones trained most recently are kept. Lifts the estimator cannot
+ * read (past 15 reps) are not sent: the database refuses them too.
  */
 export function muscleRankLifts(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): MuscleRankLift[] {
-  const lifts: MuscleRankLift[] = [];
-  const seen = new Set<string>();
-  const newestFirst = [...observations].sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
-  for (const observation of newestFirst) {
+  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null };
+  const byExercise = new Map<string, Candidate[]>();
+  for (const observation of observations) {
     const loadKg = Number(observation.loadKg);
     if (observation.loadKg == null || !Number.isFinite(loadKg) || loadKg <= 0 || loadKg > 1000) continue;
     const repetitions = observation.measurementType === "MEASURED_1RM" ? 1 : Math.round(Number(observation.repetitions));
     if (!Number.isFinite(repetitions) || repetitions < 1 || repetitions > 100) continue;
+    const e1rmKg = estimateOneRepMaxKg(loadKg, repetitions);
+    if (e1rmKg === null) continue;
     const lift: MuscleRankLift = {
       catalogExerciseId: catalogExerciseIdForName(observation.exerciseName) ?? null,
       exerciseName: observation.exerciseName,
@@ -68,8 +80,32 @@ export function muscleRankLifts(observations: readonly RankableObservation[], hi
       bodyMassKg: liftBodyMassKg(observation, history, profileBodyMassKg),
       ageYears: ageAtLift(birthYear ?? undefined, observation.observedAt) ?? null,
     };
+    // Age scales the comparison the way the database will: divide by the published factor.
+    const factor = strengthLevelAgeFactor(lift.ageYears);
+    const adjustedKg = e1rmKg / (factor.status === "ok" ? factor.factor : 1);
+    const key = String(lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase());
+    const list = byExercise.get(key) ?? [];
+    list.push({ lift, observedAt: new Date(observation.observedAt).getTime() || 0, adjustedKg, relative: lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null });
+    byExercise.set(key, list);
+  }
+
+  const leaders: Candidate[] = [];
+  const runnersUp: Candidate[] = [];
+  const exercises = Array.from(byExercise.values()).map((candidates) => {
+    const byRelative = [...candidates].filter((c) => c.relative !== null).sort((a, b) => b.relative! - a.relative! || b.observedAt - a.observedAt)[0];
+    const byAbsolute = [...candidates].sort((a, b) => b.adjustedKg - a.adjustedKg || b.observedAt - a.observedAt)[0];
+    return { lastTrained: Math.max(...candidates.map((c) => c.observedAt)), first: byRelative ?? byAbsolute, second: byRelative && byRelative !== byAbsolute ? byAbsolute : null };
+  }).sort((a, b) => b.lastTrained - a.lastTrained);
+  for (const exercise of exercises) {
+    leaders.push(exercise.first);
+    if (exercise.second) runnersUp.push(exercise.second);
+  }
+
+  const lifts: MuscleRankLift[] = [];
+  const seen = new Set<string>();
+  for (const { lift } of [...leaders, ...runnersUp]) {
     // The same lift twice tells the aggregation nothing new, and costs URL.
-    const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${loadKg}|${repetitions}|${lift.bodyMassKg}|${lift.ageYears}`;
+    const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${lift.loadKg}|${lift.repetitions}|${lift.bodyMassKg}|${lift.ageYears}`;
     if (seen.has(key)) continue;
     seen.add(key);
     lifts.push(lift);

@@ -19,16 +19,26 @@ const session = (over: Partial<DeviceWorkoutSession> = {}): DeviceWorkoutSession
 });
 
 describe("carrying a finished workout into the Strength Genome", () => {
-  it("records one observation per exercise: the heaviest logged set, with the rest counted", () => {
+  // Intentional change (Backend V1 EN-02, D-007): the heaviest set (245 x 8) used to be kept.
+  // By the shared estimator 225 x 12 is the strongest: Epley 315 against Brzycki 304.1 for
+  // 245 x 8 and the 8-10 blend's 273.3 for 205 x 10.
+  it("records one observation per exercise: the set with the highest estimated 1RM, with the rest counted", () => {
     const [observation, ...rest] = workoutStrengthObservations([session()]);
     expect(rest).toHaveLength(0);
     expect(observation.exerciseName).toBe("Hack Squat");
-    expect(observation.repetitions).toBe(8);
+    expect(observation.repetitions).toBe(12);
     expect(observation.setCount).toBe(3);
     expect(observation.source).toBe("workout");
     expect(observation.sessionLabel).toBe("Week 1 · Legs");
-    // 245 lb, to kilograms.
-    expect(observation.loadKg).toBeCloseTo(111.13, 1);
+    // 225 lb, to kilograms.
+    expect(observation.loadKg).toBeCloseTo(102.06, 2);
+  });
+
+  it("falls back to the heaviest set only when no set can be estimated", () => {
+    const [observation] = workoutStrengthObservations([session({
+      exercises: [{ id: "a", exerciseName: "Hack Squat", plannedPrescription: "2 × 20", sets: [set("135", "20"), set("155", "18")] }],
+    })]);
+    expect(observation.loadKg).toBeCloseTo(155 * 0.45359237, 6);
   });
 
   it("breaks a tie on load by reps, so the harder set of the same weight is the one kept", () => {
@@ -75,7 +85,7 @@ describe("carrying a finished workout into the Strength Genome", () => {
   });
 
   it("reads the athlete's own unit rather than assuming pounds", () => {
-    expect(workoutStrengthObservations([session()], "kg")[0].loadKg).toBe(245);
+    expect(workoutStrengthObservations([session()], "kg")[0].loadKg).toBe(225);
   });
 });
 

@@ -1,5 +1,5 @@
 import { exercises } from "@/lib/exerciseCatalog";
-import type { StrengthPercentileResult } from "@shared/strengthPercentile";
+import type { OneRepMaxEstimate, StrengthPercentileResult } from "@shared/strengthPercentile";
 
 /**
  * Turning a beta percentile into the one line an athlete reads.
@@ -61,8 +61,22 @@ export function strengthPercentileCard(
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
   return {
     headline: `${ordinal(result.percentile)} percentile`,
-    detail: `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}`,
+    detail: `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}${effortNote(result.estimate)}`,
   };
+}
+
+/**
+ * What an unrecorded effort did to the estimate (B059, B093, B253).
+ *
+ * Nothing records reps in reserve yet, so a working set is read the way the source
+ * calculator reads every set: as taken to failure. That is the lowest the estimate - and so
+ * the placement - can be, and the card says so rather than letting it pass for a known
+ * maximal effort. A single rep, a measured maximum, or a result cached before effort was
+ * reported (no field at all) gets no note.
+ */
+export function effortNote(estimate: Partial<Pick<OneRepMaxEstimate, "basis" | "effectiveReps" | "repsInReserve">> | undefined): string {
+  if (!estimate || estimate.basis !== "estimated" || estimate.repsInReserve !== null || (estimate.effectiveReps ?? 1) <= 1) return "";
+  return " Read as a set taken to failure, because effort was not recorded; if reps were left in reserve, the lift places higher.";
 }
 
 /**
