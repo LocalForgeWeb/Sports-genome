@@ -748,3 +748,9 @@
  * "persistent and easy to adjust"; it has to clear the dock to be either.
  */
 .device-workout-tracker { padding-bottom: calc(var(--sg-space-6) + 3.5rem); }
+
+/* The equipment mark sits on the text baseline beside the label it belongs to,
+   never instead of it. `vertical-align` rather than flex: this <small> is a run of
+   inline text and turning it into a flex row would break the "movement · equipment"
+   wrap on a narrow phone. */
+.day-picker-result-meta .day-picker-equipment-mark { display: inline-block; margin-right: .22em; vertical-align: -.16em; opacity: .85; }
