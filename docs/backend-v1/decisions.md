@@ -141,3 +141,15 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 - **Preview and development builds use the production Supabase project** (PS-14, second half). `VITE_SUPABASE_URL` is configured to the production project for production, preview and development alike, and the client falls back to the production publishable key. Isolating previews needs a separate Supabase project or branch — an environment decision, not made here (B009).
 
 **Touches.** B019, B163, B171, B173, B174, B175, B177, B262; PS-01, PS-02, PS-03, PS-04, PS-05, PS-14, SV-04, SV-06.
+
+## D-013 — Supabase hardening prepared and proven, not applied (28 September 2026, batch 8)
+
+**Decision.** The Supabase findings SB-02, SB-03, SB-04, SB-06, SB-07, PS-09/SV-08 and the sport requirement behind PS-14 are closed by seven migrations in `supabase/prepared/backend_v1/`, **not applied** (B009). Each is proven on a local PostgreSQL copy of the live objects: a script shows the hole open on the live-equivalent schema, the migrations are applied, a second script shows it closed and the app's legitimate writes still working, and re-applying is harmless (`validation/run.sh`, ALL VALIDATION PASSED). They are kept out of `supabase/migrations/` because the repository has a Supabase GitHub integration that could apply that folder.
+
+**Found on the way.** The database requires a sport on every strength entry (`SPORT_REQUIRED`) and the benchmark pool requires one too; the "wrestling" fallback removed in batch 7 had been masking that general athletes' lifts could not be stored at all. `…120600` makes sport optional and keeps sportless entries out of the sport pool.
+
+**Client changes shipped now (compatible with the current database).** Unmappable lifts stay queued instead of being dropped and marked sent (SB-06, PS-18); lifts that can never form a row still leave the queue.
+
+**Owner decisions.** Applying the migrations; the anonymous public surface (SB-01); RPC EXECUTE grants (SB-11); tying the Supabase identity to the app account (SB-05). Listed in the README with the paired client change and rollback.
+
+**Touches.** B009, B032, B150, B168, B170, B178, B179, B180, B181, B190, B192, B193, B194.
