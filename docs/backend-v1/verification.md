@@ -139,3 +139,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: merge batch 9; performance measurements (B231-B233), gate report, handoff.
 Access/decision blockers: as before; plus the women's 10RM declaration route and the muscle band ceiling (owner).
 ```
+
+```text
+Current branch/commit and environment: batch 9 merged as #76 (main 19ae19d); batch 10 on claude/training-day-navigation-workouts-83ro2c.
+Requirements completed and evidence: B232 verified; B169, B231, B233 implementing; gate, process and earlier-delivered rows updated with evidence (status.md). Decision D-015. Records: performance.md, handoff.md.
+Current confirmed failure/root cause: Home and Progress asked workoutLog.list, strengthGenome.observations and workoutLog.progressionHistory with no account; each 401 raised "Your sign-in has expired". Reproduced in Chromium against the production bundle (fake API answering as the server code does) and confirmed on production with an owner-approved read-only probe: HTTP 401 UNAUTHORIZED "Please login (10001)" for all three.
+Files/migrations changed but not verified: none; no database change.
+Tests run and actual results: new accountQueries.directAccess.test.ts (2) fails against the old panels and passes after; browser check after the fix: no toast, Home 4 procedures in 1 batch. Performance: scripts/perf/measure-client.cjs, 10 runs x 18 conditions, in-page timing (performance.md, raw JSON kept). An earlier run timed with Playwright waits was discarded (poll back-off quantised short flows to ~400 ms). tsc 0; vitest 2078 pass, 1 skip, 5 fail (the same live-Supabase tests); build OK. Two source-string tests (TodayActionPanel.test.ts, ProgressOverviewPanel.test.ts) pinned the ungated call and were updated with the reason inline (B290).
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: merge batch 10; then the September 28 regression repair brief (Home layout, next-workout ownership, strip icons, notices, Plan hierarchy).
+Access/decision blockers: production server latency unmeasured (no route from the shell; Observability Plus); others as before.
+```

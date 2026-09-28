@@ -10,7 +10,9 @@ describe("Today action panel", () => {
     expect(source).toContain("useAthleteRecord({ directAccess, weightUnit, accountObservations, accountSessions })");
     // The account branch no longer counts typed lifts only (Backend V1 B155, B265).
     expect(source).not.toContain("overview.data?.observationCount");
-    expect(source).toContain("trpc.workoutLog.list.useQuery()");
+    // Asked only when an account is the source (intentional change, D-015): on the device
+    // stores the refusal raised a false "sign-in has expired".
+    expect(source).toContain("trpc.workoutLog.list.useQuery(undefined, { enabled: !directAccess })");
     expect(source).not.toContain("Session readiness");
     expect(source).not.toContain("coach-set planning marker");
   });
