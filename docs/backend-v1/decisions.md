@@ -96,3 +96,17 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Consequence carried forward.** Dumbbell sets logged before this change may be pair totals; nothing recorded which. They are read as the database reads them (one dumbbell). Laterality and variant context (B050) are still not recorded per set.
 
 **Touches.** B025, B040, B049, B050, B051, B052, B244; EN-07, EN-09.
+
+## D-010 — One coverage model for a Training Day (28 September 2026, batch 5) — intentional behavior change
+
+**Finding.** The walkthrough's adductor gap read −11 on the panel and −15 in the full analysis because two formulas graded one target (B115; TR-01): catalog tag points (Model A) on the panel and picker, and exercise-genome involvement normalised to the day's most-worked muscle (Model B) in the analysis. Model B's "gap" moved when an exercise that does not train the muscle was added (adductors −7 → −15 after a hip thrust, TR-02). Since discovery, main already hands the panel's ratings to the analysis for its rows and tips; what remained was the analysis' own fallback to Model B, Model B's numbers labelled "coverage", a capped score that hid surpluses and contradicted its own state (TR-11), a picker ordered by tags rather than by what it closes (TR-13), four different set-count defaults for one unset prescription (TR-05), and two wrong catalog tags driving the adductor gap (TR-12).
+
+**Decision.** Model A is the coverage model: it is the one with targets in its own unit. Model B stays as a separate, labelled measure — "relative involvement" — for the breakdown. Bands and deltas read the uncapped sum. The picker ranks by shortfall closed under Model A. All Training Day surfaces take one resolved prescription map. Leg Extension is tagged quads only (machine), Copenhagen Plank adductors first.
+
+**Root cause of B115.** Formula, not scope or stale state: the two numbers were two models.
+
+**Not done.** Set count in coverage (EN-11), a target revision (B109), per-exercise Model A contributions on screen (B107), planned vs completed exposure (B091, B117). Recorded for V2.
+
+**Not a regression.** `StackAnalysisPage.test.ts` pinned the "% coverage" label on relative involvement and now pins "relative involvement" (B290).
+
+**Touches.** B110, B112, B113, B114, B115, B119; TR-01, TR-02, TR-03, TR-05, TR-11, TR-12, TR-13.

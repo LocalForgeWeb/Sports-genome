@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 212
-- `implementing`: 27
-- `verified`: 29
+- `pending`: 205
+- `implementing`: 28
+- `verified`: 35
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -229,15 +229,15 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B108 | Identify the source of day/week targets and whether they depend on split, goal, schedule, sport, and user preferences. | pending |  |
+| B108 | Identify the source of day/week targets and whether they depend on split, goal, schedule, sport, and user preferences. | verified | Targets are constants per split label (splitStackAnalysis.ts requirements); they do not depend on goal, schedule, sport or preference. Stated in contracts.md § Training Day coverage. |
 | B109 | Store or reconstruct the target revision used by a result. A changed target must not masquerade as changed training. | pending |  |
-| B110 | Define per-muscle contribution, target, shortfall, surplus, and global aggregation separately. | pending |  |
+| B110 | Define per-muscle contribution, target, shortfall, surplus, and global aggregation separately. | verified | Contribution, target, reached, shortfall/surplus and the day score are defined separately (contracts.md § Training Day coverage) and computed separately in splitStackAnalysis.ts / stackCoverageVisual.ts. |
 | B111 | Specify behavior for zero targets and missing targets; avoid division by zero and invented perfect scores. | pending |  |
-| B112 | Define whether oversupply can compensate for a different missing muscle. Do not let that happen accidentally through simple totals. | pending |  |
-| B113 | Explain any caps, weights, penalties, and saturation. Preserve per-region gaps alongside the headline score. | pending |  |
-| B114 | Use the same calculation snapshot for summary and detailed analysis. | pending |  |
-| B115 | Reproduce the walkthrough's 11-point versus 15-point adductor-gap discrepancy if possible. Determine whether it is scope, stale state, or formula… | pending |  |
-| B116 | Ensure edit, add, remove, reorder when relevant, and Undo invalidate exactly the necessary derived results. | implementing | Undo/edit now write through one path (editDay) so derived day results recompute from the committed day. Coverage-derived results are unified in batch 5 (B115). |
+| B112 | Define whether oversupply can compensate for a different missing muscle. Do not let that happen accidentally through simple totals. | verified | Each target's share is capped before averaging, so a surplus cannot offset another muscle's gap; a gap moves only with work on that muscle. coverageConsistency.test.ts 'A surplus does not pay for a gap', TR-02 case. |
+| B113 | Explain any caps, weights, penalties, and saturation. Preserve per-region gaps alongside the headline score. | verified | Weights (56/24) and the display cap are stated in the panel boundary text and the contract; the cap now applies to bar length only, so surpluses are shown (TR-11). coverageConsistency.test.ts. |
+| B114 | Use the same calculation snapshot for summary and detailed analysis. | verified | Panel, full analysis and picker read one analyzeSplitStack snapshot; the analysis receives the panel's ratings or computes the same analysis. contracts.md § Training Day coverage. |
+| B115 | Reproduce the walkthrough's 11-point versus 15-point adductor-gap discrepancy if possible. Determine whether it is scope, stale state, or formula… | verified | Reproduced in discovery (TR-01: Model A -11 vs Model B -15, browser and numeric). Root cause: formula - two coverage models graded one target. One model now (D-010); the analysis never grades from relative involvement. coverageConsistency.test.ts, StackAnalysisPage.test.ts. |
+| B116 | Ensure edit, add, remove, reorder when relevant, and Undo invalidate exactly the necessary derived results. | implementing | Edits and Undo write through one path (batch 1); every Training Day surface now reads one resolved prescription map and one coverage snapshot, recomputed from the committed day (batch 5). |
 | B117 | Distinguish planned weekly coverage from completed weekly exposure in API contracts and UI consumers. | pending |  |
 
 ### 7.2 Recommendation utility
@@ -245,7 +245,7 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B118 | Define candidate eligibility before ranking: equipment, selected day, supported movement, user exclusions, time, and other actual constraints. | pending |  |
-| B119 | Calculate candidate marginal effect against the current snapshot and a specified candidate prescription. | pending |  |
+| B119 | Calculate candidate marginal effect against the current snapshot and a specified candidate prescription. | implementing | Picker ranks by the shortfall a candidate closes under the current snapshot (TR-13). The candidate's prescription does not enter because coverage ignores set count (EN-11). |
 | B120 | Separate hard constraints from preferences. A recommendation should not violate a hard equipment restriction just to improve a score. | pending |  |
 | B121 | Consider redundancy, session time, and fatigue cost where the existing model supports them. | pending |  |
 | B122 | Prevent duplicate candidates arising from aliases; distinguish legitimate variants. | pending |  |
@@ -563,7 +563,7 @@ _No requirement IDs in this section._
 | B287 | Record existing engine versions and assign new versions only for meaningful calculation/contract changes. | implementing | Card and trends report strength_beta_v2 with the estimator named; muscle ranks report the lifts' version and the aggregation's separately. The database's strength_scoring_versions v2 row misdescribes its e1RM method - correction prepared with the batch 7 migrations. |
 | B288 | Maintain a compatibility map between client contract, engine version, schema revision, and reference-data revision. | pending |  |
 | B289 | Preserve baseline fixtures and add regression cases for every material bug repaired in V1. | pending |  |
-| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes recorded with rewritten tests: D-004 (competitor rank), D-006 (empty finish, shared counts), D-007 (one e1RM, best lift counts). The handoff will list them all. |
+| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes recorded with rewritten tests: D-004, D-006, D-007, D-010. The handoff will list them all. |
 | B291 | Carry unresolved issues forward with stable IDs, dependencies, attempted approaches, and evidence. | pending |  |
 | B292 | Separate V2 ideas from unfinished V1 requirements. Do not quietly reclassify incomplete launch-critical work as a future enhancement. | pending |  |
 | B293 | For each candidate extension, identify whether it adds a module, expands supported inputs, improves evidence, or changes existing semantics. | pending |  |

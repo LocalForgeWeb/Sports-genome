@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronRight, Play, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2 } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import type { ExerciseSettings, TrainingGoal } from "@/lib/workoutPlanner";
+import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { WarmupPanel } from "@/components/WarmupPanel";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession,
@@ -82,7 +82,7 @@ function plannedRestSeconds(workout: Exercise[], settings: Record<number, Exerci
   return best;
 }
 
-function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string, restSeconds: number, weightUnit: DisplayWeightUnit): DeviceWorkoutSession {
+function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string, restSeconds: number, weightUnit: DisplayWeightUnit, goal: TrainingGoal): DeviceWorkoutSession {
   return {
     id: `device-${Date.now()}`,
     title: `${dayLabel} workout`,
@@ -93,7 +93,8 @@ function makeSession(workout: Exercise[], prescriptions: Record<number, string>,
     // Fixed for the life of the session: what the boxes say, and what every set is stored in.
     weightUnit,
     exercises: workout.map((exercise, index) => {
-      const plannedPrescription = prescriptions[exercise.id] || "3 × 8–12";
+      // The goal's default for this place in the day, the same one the Plan shows (TR-05).
+      const plannedPrescription = prescriptions[exercise.id] || getGoalPrescription(goal, index);
       return {
         id: `${exercise.id}-${index}`,
         exerciseName: exercise.name,
@@ -350,7 +351,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         return;
       }
       setResumed(false);
-      persist(makeSession(workout, prescriptions, dayLabel, startRestSeconds, weightUnit));
+      persist(makeSession(workout, prescriptions, dayLabel, startRestSeconds, weightUnit, goal));
     } finally {
       starting.current = false;
     }
@@ -539,7 +540,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   ), [activeSession]);
 
   if (!activeSession) {
-    const plannedSets = workout.reduce((total, exercise) => total + plannedSetCount(prescriptions[exercise.id] || "3 × 8–12"), 0);
+    const plannedSets = workout.reduce((total, exercise, index) => total + plannedSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)), 0);
     /**
      * "Week 2 · Day 02 · Pull": the day's name is the title of this screen and
      * its position in the plan is the line under it. The label is kept whole on
@@ -584,13 +585,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
               <span className="session-prestart-index">{String(index + 1).padStart(2, "0")}</span>
               <span className="session-prestart-name">
                 <strong>{exercise.name}</strong>
-                <small>{prescriptions[exercise.id] || "3 × 8–12"}</small>
+                <small>{prescriptions[exercise.id] || getGoalPrescription(goal, index)}</small>
               </span>
               {onInspect && <ChevronRight className="h-5 w-5" aria-hidden />}
             </>;
             return <li key={exercise.id}>
               {onInspect
-                ? <button type="button" className="session-prestart-row" onClick={() => onInspect(exercise)} aria-label={`${exercise.name}, ${prescriptions[exercise.id] || "3 × 8–12"}: open details`}>{row}</button>
+                ? <button type="button" className="session-prestart-row" onClick={() => onInspect(exercise)} aria-label={`${exercise.name}, ${prescriptions[exercise.id] || getGoalPrescription(goal, index)}: open details`}>{row}</button>
                 : <div className="session-prestart-row">{row}</div>}
             </li>;
           })}
