@@ -126,3 +126,18 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Not done.** Structured demand dimensions from the enriched action data (force direction, contraction, range: B129, B131), reason codes (B123), the breakdown's percentages that sit at 99 for most top picks, and redundancy/time/fatigue in ranking (B121). Recorded for V2.
 
 **Touches.** B118, B120, B129, B130, B132; EN-12, EN-13.
+
+## D-012 — One account's records stay its own on a shared device, and two devices never overwrite each other silently (28 September 2026, batch 7)
+
+**Context.** The shipped build has no sign-in control (`directWorkspaceAccess = true`), so these defects are latent — but each one silently loses or leaks data the moment sign-in or plan sync is turned on.
+
+**Decisions.**
+1. **Plan, profile and favourites are read per account record, and nothing is written into a record before it has been read** (PS-01, PS-03). On an account change the in-memory plan is cleared when the new record is empty, the profile resets to defaults and re-reads, and favourites re-read. The app still opens without waiting for auth; it re-reads when the account resolves. Reproduced first: "sign out A, sign in B, and A's plan becomes B's" (`Home.accountSwitch.test.ts`, which fails against the old code).
+2. **Plan sync is three-way** (SV-04, PS-04, PS-05). The device keeps, per account, the revision it last agreed with and a fingerprint of the plan then (`planSyncBase`). Only one side changed → that side wins; both changed, or no record of agreement and the copies differ → **conflict**: syncing stops, nothing is overwritten, and the athlete chooses "Keep this device's plan" or "Use the account's plan". The old hook adopted the account's revision on a conflict and pushed again 1.5 s later, overwriting the other device.
+3. **The sport sent with synced lifts is the athlete's chosen one or none** (PS-14); the browsing fallback (wrestling) was written as every general athlete's sport.
+
+**Deferred to the owner.**
+- **Workout history, typed lifts, body-weight log and the lift sync queue stay device-level** (PS-02, SV-06). Scoping them per account needs an ownership decision for history already on devices (B175) and an explicit guest-import step (B174, PS-17). With no sign-in in the build every record belongs to the one device user. **Before sign-in ships, this is launch-blocking.**
+- **Preview and development builds use the production Supabase project** (PS-14, second half). `VITE_SUPABASE_URL` is configured to the production project for production, preview and development alike, and the client falls back to the production publishable key. Isolating previews needs a separate Supabase project or branch — an environment decision, not made here (B009).
+
+**Touches.** B019, B163, B171, B173, B174, B175, B177, B262; PS-01, PS-02, PS-03, PS-04, PS-05, PS-14, SV-04, SV-06.

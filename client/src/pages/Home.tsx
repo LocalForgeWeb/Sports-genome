@@ -674,7 +674,29 @@ export default function Home() {
     };
   };
 
+  /**
+   * The profile, read per account record.
+   *
+   * It used to be read once at mount, so when the account resolved or changed, the profile
+   * still in memory was saved into the new account's record (PS-03, B173, B177). It is read
+   * at once - the app does not wait on auth to open - and read again whenever the account's
+   * record changes, starting from defaults when that record is empty.
+   */
+  const hydratedProfileKeyRef = useRef<string | null>(null);
   useEffect(() => {
+    if (hydratedProfileKeyRef.current === athleteProfileKey) return;
+    if (hydratedProfileKeyRef.current !== null) {
+      setProfileHydrated(false);
+      setSportContextMode("sport");
+      setSportId("");
+      setGoal("Athleticism");
+      setTrainingDays(3);
+      setGymMinutes(60);
+      setCapacityFocus({ reportedSignals: [] });
+      setAthleteBaseline({ experience: "Intermediate", weightUnit: "lb", equipment: defaultEquipmentProfile });
+      setMovementId("");
+      setOnboardingComplete(false);
+    }
     try {
       const stored = readScopedRecord(athleteProfileKeyBase, accountId, window.localStorage);
       if (stored) {
@@ -701,8 +723,9 @@ export default function Home() {
         }
       }
     } catch { /* Stored context is optional and may be cleared safely. */ }
+    hydratedProfileKeyRef.current = athleteProfileKey;
     setProfileHydrated(true);
-  }, []);
+  }, [athleteProfileKey]);
 
   useEffect(() => {
     try {
@@ -711,16 +734,23 @@ export default function Home() {
     } catch { /* Launch preferences are optional and default to enabled. */ }
   }, []);
 
+  // Favourites follow the same rule: read per account, and never written into a record
+  // that has not been read yet - which is how one account's shortlist became another's.
+  const hydratedFavoritesKeyRef = useRef<string | null>(null);
   useEffect(() => {
+    let next: number[] = [];
     try {
       const stored = JSON.parse(window.localStorage.getItem(favoriteExerciseKey) || "[]") as unknown;
-      if (Array.isArray(stored)) setLocalFavoriteIds(stored.filter((id): id is number => typeof id === "number" && exercises.some((exercise) => exercise.id === id)));
+      if (Array.isArray(stored)) next = stored.filter((id): id is number => typeof id === "number" && exercises.some((exercise) => exercise.id === id));
     } catch { /* Favorites fall back to an empty local shortlist. */ }
-  }, []);
+    setLocalFavoriteIds(next);
+    hydratedFavoritesKeyRef.current = favoriteExerciseKey;
+  }, [favoriteExerciseKey]);
 
   useEffect(() => {
+    if (hydratedFavoritesKeyRef.current !== favoriteExerciseKey) return;
     try { window.localStorage.setItem(favoriteExerciseKey, JSON.stringify(localFavoriteIds)); } catch { /* Device storage is an optional fallback. */ }
-  }, [localFavoriteIds]);
+  }, [localFavoriteIds, favoriteExerciseKey]);
 
   useEffect(() => {
     // Wait for auth to settle: the key is account-scoped, and hydrating from the
@@ -731,8 +761,29 @@ export default function Home() {
     // active day to a slot the athlete does not train.
     if (!profileHydrated) return;
     if (hydratedPlanKeyRef.current === workoutPlanKey) return;
+    // A different record is being read (another account, or signing out): until it has
+    // been, nothing may edit or save the plan.
+    if (hydratedPlanKeyRef.current !== null) {
+      setPlanHydrated(false);
+      // The serialised copy is the previous account's until this record has been read and
+      // saved again; sync must not compare it with this account's plan.
+      setSerializedPlan(null);
+    }
     try {
       const stored = readScopedRecord(workoutPlanKeyBase, accountId, window.localStorage);
+      if (!stored) {
+        /*
+         * Nothing saved under this record: it starts empty. The plan still in memory belongs to
+         * whoever was signed in before, and marking this key hydrated with it in place let the
+         * next save write A's plan into B's record - "sign out A, sign in B, and A's plan
+         * becomes B's" (PS-01, B173, B175, B262).
+         */
+        const slot = resolveActiveSlot(splitDays, 0, splitDays[0]);
+        setPlanWeeks({});
+        setActiveWeek(1);
+        setDayStore(emptyDayStore());
+        adoptActiveDay(slot, emptyDayRecord());
+      }
       if (stored) {
         const plan = JSON.parse(stored) as StoredWorkoutPlan;
         const legacy: StoredWeekSnapshot = { customWorkoutIds: plan.customWorkoutIds || [], weeklyPlanIds: plan.weeklyPlanIds || {}, customWorkoutEntries: plan.customWorkoutEntries, weeklyPlanEntries: plan.weeklyPlanEntries, prescriptions: plan.prescriptions || {}, exerciseSettings: plan.exerciseSettings || {}, weeklyPrescriptions: plan.weeklyPrescriptions || {}, weeklySettings: plan.weeklySettings, importedPlanContext: plan.importedPlanContext || {}, activeDayIndex: plan.activeDayIndex };
@@ -752,12 +803,14 @@ export default function Home() {
 
   useEffect(() => {
     if (!profileHydrated || !onboardingComplete) return;
+    // Only into the record that was read: never the previous account's profile into this one.
+    if (hydratedProfileKeyRef.current !== athleteProfileKey) return;
     // Only sport mode needs a sport id. Requiring one here is what used to drop a general
     // athlete's profile on every reload.
     if (sportContextMode === "sport" && !sportId) return;
     const profile: StoredAthleteProfile = { version: 3, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId: selectedMovement.id, baseline: athleteBaseline };
     try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
-  }, [profileHydrated, onboardingComplete, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
+  }, [profileHydrated, onboardingComplete, athleteProfileKey, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
 
   /**
    * Workouts logged before set units were stored are given one, once, from the profile's
@@ -789,7 +842,8 @@ export default function Home() {
   }, [workoutPlanKey]);
 
   const planSync = usePlanSync({
-    enabled: isAuthenticated && onboardingComplete,
+    enabled: isAuthenticated && onboardingComplete && planHydrated,
+    accountId,
     planJson: serializedPlan,
     planVersion: 2,
     onAdoptServerPlan: adoptServerPlan,
@@ -1212,7 +1266,9 @@ export default function Home() {
   const athleteSync = useAthleteSync({
     sexForReference: athleteBaseline.sexForReference,
     birthYear: athleteBaseline.birthYear,
-    sportId: activeSportId,
+    // Only a sport the athlete chose. The browsing fallback (the first sport in the list,
+    // wrestling) was written as the sport of every general athlete's lifts (PS-14, B019).
+    sportId: hasSportContext ? sportId : undefined,
     sportContextMode,
     weightUnit: athleteBaseline.weightUnit,
     appSports: sportProfiles,
@@ -1600,6 +1656,9 @@ export default function Home() {
           launchVideo={<div className="launch-setting" aria-label="Launch video"><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={(event) => { emitInteractionFeedback(12); setIntroOpener(event.currentTarget); setIntroPreviewOpen(true); }}>Preview intro video</button></div>}
           launchVideoEnabled={launchExperienceEnabled}
           buildStamp={buildStampLabel()} />}
+        {/* A plan changed on this device and on the account since they last matched. Syncing
+            stops until the athlete says which to keep; nothing is overwritten on their behalf. */}
+        {planSync.conflict && <div className="plan-sync-conflict" role="alert"><p><strong>Your plan changed on another device.</strong> This device and your account both have edits since they last matched, so neither was replaced.</p><div><button type="button" onClick={() => planSync.resolveConflict("device")}>Keep this device's plan</button><button type="button" onClick={() => planSync.resolveConflict("account")}>Use the account's plan</button></div></div>}
         {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} focusMuscles={homeFocusMuscles} planDays={homePlanDays} activeDayIndex={activeSlot.index} onChooseDay={openTrainingDay} onOpenProgress={() => navigateWorkspace("progress")} trainingDays={trainingDays} activeDayLabel={activeDayLabel} live={liveSession} planHasDays={daySlots.some((slot) => dayExerciseCount(dayStore, slot.key) > 0)} planReady={planHydrated && profileHydrated} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} /></>}

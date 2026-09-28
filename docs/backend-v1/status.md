@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 200
-- `implementing`: 31
-- `verified`: 37
+- `pending`: 195
+- `implementing`: 35
+- `verified`: 38
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -77,7 +77,7 @@ _No requirement IDs in this section._
 | B016 | Identify existing norm, eligibility, muscle-effect, sports-transfer, and strength-engine components. Treat historical names such as… | verified | inventory/engines.md: norm routes (research band, strength_beta_v1 curves, powerlifting, Piper, registry), eligibility views, muscle aggregation (aggregate_muscle_strength_v1), sport transfer, and the DB muscle-effect engine the app never calls. |
 | B017 | Identify calculations duplicated in SQL, server functions, frontend utilities, or hardcoded component logic. | verified | Duplicates identified in inventory/engines.md; the three e1RM implementations are now one (shared/strengthPercentile.ts estimateOneRepMax, used by shared/oneRepMaxEstimation.ts). D-007. |
 | B018 | Inventory research datasets with current row counts, eligible counts, review reasons, source revisions, and actual app consumption. Historical… | verified | inventory/supabase.md research datasets: row, eligible and review-status counts per family (e.g. 3,512 strength_norms; app_strength_beta_curves_v1 1,480 rows all Strength Level, 1,220 blocked + 260 without eligibility rows). |
-| B019 | Identify mock, seed, placeholder, and fallback values that can reach a real account. | verified | inventory/persistence.md PS-14 (fallback sport 'wrestling' written as sport_id; production Supabase URL/key built into every build), PS-21, PS-22. |
+| B019 | Identify mock, seed, placeholder, and fallback values that can reach a real account. | verified | inventory/persistence.md PS-14. The 'wrestling' fallback no longer reaches synced lifts (athleteSync.sport.test.ts); the production Supabase project used by preview/dev builds is an owner environment decision (D-012). |
 | B020 | Identify where local storage is authoritative, where server storage is authoritative, and where the app currently mixes them. | verified | inventory/persistence.md authority table: everything day-to-day is device-local (directWorkspaceAccess = true); MySQL holds plan (sync), priorities and dormant session APIs; Supabase receives lift sync only. |
 | B021 | Record current schema/library/runtime versions and verify applicable current documentation before using version-dependent APIs. | implementing | Versions recorded in inventory.md § Versions. Current documentation is checked when a version-dependent API is used; noted per change in verification.md. |
 | B022 | Establish representative baseline fixtures and outputs before modifying calculations. | implementing | Suite/typecheck baseline recorded in verification.md; per-engine numeric baselines are added before each calculation change. |
@@ -318,7 +318,7 @@ _No requirement IDs in this section._
 | B160 | Bind operations to stable week/day/session IDs, not visible labels or a mutable global selected index. | implementing | Plan edits and Undo now go through editDay(dayKey, …) keyed on the stable day key, not the open day; reorder uses moveWithin by entry id. Week binding and session ids are reviewed with plan sync in batch 6. |
 | B161 | Distinguish a duplicate network request from the user intentionally adding another instance of an exercise. | pending |  |
 | B162 | Make Undo reference the exact operation/instance it reverses. | verified | Every Undo captures the day key at the time of the edit and reverses only that entry; draft Undo refuses when the day changed after the draft. Test: client/src/pages/Home.undoAndLoading.test.ts. |
-| B163 | Prevent Undo from deleting another user's change or an independently edited record without conflict handling. | pending |  |
+| B163 | Prevent Undo from deleting another user's change or an independently edited record without conflict handling. | implementing | Plan sync no longer overwrites another device's plan on a conflict (it stops and asks). Undo acting on another user's record is covered by per-account records; Undo against a remotely edited plan is not specifically guarded. |
 | B164 | Make multi-row mutations atomic where partial success would corrupt the plan. | pending |  |
 | B165 | Preserve ordering deterministically and handle concurrent reorder/edit operations explicitly. | pending |  |
 | B166 | Return authoritative destination, count, and revision after mutation so feedback and downstream calculations agree. | pending |  |
@@ -329,13 +329,13 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B167 | Document which actions work offline and which require verification/network access. | pending |  |
 | B168 | Use durable pending operations with stable IDs where offline writes are supported; survive app termination before sync. | pending |  |
-| B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | implementing | A finished workout that could not be written is no longer reported as saved: the tracker stays open with 'This workout could not be saved yet' and Try again (DeviceWorkoutTracker finish). Account sync states come with batch 6. |
+| B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | implementing | Refused finish stays open (batch 1). Plan sync now shows a real conflict state with both choices; offline is still silent, and per-record 'saved to account' states for history are not built. |
 | B170 | Reconcile retries idempotently; an app restart during sync must not duplicate sets. | pending |  |
-| B171 | Define conflict rules for two-device edits. Do not choose last-write-wins everywhere without considering lost workout data. | pending |  |
+| B171 | Define conflict rules for two-device edits. Do not choose last-write-wins everywhere without considering lost workout data. | verified | Two-device rule defined and implemented: three-way reconcile; only-one-changed wins; both changed = conflict, no overwrite, athlete chooses (contracts.md § Account records on a device and plan sync). Tests: planSyncDecision.test.ts, usePlanSync.test.ts. |
 | B172 | Preserve deletion intent through tombstones or an equivalent mechanism so stale devices do not resurrect deleted records. | pending |  |
-| B173 | Namespace local records/caches by account. Signing out and into another account must not reveal or merge the first account's data. | pending |  |
-| B174 | Make guest-to-account import explicit and repeatable without duplicate imports. | pending |  |
-| B175 | Avoid attaching ambiguous shared-device local data to a newly signed-in account without a clear ownership decision. | pending |  |
+| B173 | Namespace local records/caches by account. Signing out and into another account must not reveal or merge the first account's data. | implementing | Plan, profile, favourites and plan-sync base are per account and read before written (D-012). History records remain device-level pending an ownership decision (B175). |
+| B174 | Make guest-to-account import explicit and repeatable without duplicate imports. | pending | Guest-to-account import is still implicit (first account claims the unscoped plan, PS-17). Recorded in D-012 for the sign-in work. |
+| B175 | Avoid attaching ambiguous shared-device local data to a newly signed-in account without a clear ownership decision. | implementing | No device plan/profile/favourites attach to an account they were not read from. History ownership on shared devices is an owner decision recorded in D-012. |
 | B176 | Define behavior when authentication expires during a save. Keep legitimate unsynced work recoverable. | implementing | Local finish failure keeps the session recoverable (not closed). Auth-expiry during account save is latent while no sign-in control ships; handled with batch 6. |
 | B177 | Implement stable schema migration for existing local data if its format changes. | pending |  |
 
@@ -491,7 +491,7 @@ _No requirement IDs in this section._
 | B259 | Undo one addition → only that addition removed; derived totals match. | pending |  |
 | B260 | Edit plan after completing a session → historical performed data unchanged. | pending |  |
 | B261 | Log offline → terminate app → reopen → reconnect → one durable record. | pending |  |
-| B262 | Sign out A → sign in B → no A profile/plan/history leaks from caches. | pending |  |
+| B262 | Sign out A → sign in B → no A profile/plan/history leaks from caches. | implementing | Plan, profile and favourites: no leak on sign out A -> sign in B (Home.accountSwitch.test.ts, which fails against the old code). Workout history, typed lifts and body-weight log are still device-level (D-012) - launch-blocking before sign-in ships. |
 | B263 | Change week/day while a request is in flight → response updates its intended destination, not the newly selected day. | pending |  |
 | B264 | Launch with persisted plan loading → pending state, not false empty plan. | verified | Today holds a 'Loading your plan' status until the saved plan and profile are read (main's planReady, merged), and every plan edit is refused with a toast before then, so nothing is confirmed and then overwritten. Test: client/src/pages/Home.undoAndLoading.test.ts. |
 | B265 | Home/Plan/analysis/Progress use matching definitions and revisions for shared counts and scores. | implementing | Home and Progress now share the record selector and definitions (D-006). Plan/analysis revisions are reviewed with coverage unification (B115, batch 5). |

@@ -106,3 +106,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: merge; then the latent account P0s (account-scoped device storage, plan sync conflicts) and the Supabase hardening migrations, validated without applying.
 Access/decision blockers: MySQL unreachable; no iOS shell on main.
 ```
+
+```text
+Current branch/commit and environment: batch 6 (#73) open; batch 7 on the same branch after it.
+Requirements completed and evidence: B171 verified; B019 re-verified; B163, B169, B173, B175, B262 implementing; B174 pending with the owner note. Decision D-012.
+Current confirmed failure/root cause: PS-01 reproduced in a Home test (A's plan saved into B's empty record) and fixed; PS-03 profile/favourites hydrated once at mount; SV-04/PS-05 conflict re-push reproduced against a fake API (usePlanSync.test.ts); PS-14 fallback sport.
+Files/migrations changed but not verified: none; no database change.
+Tests run and actual results: tsc 0; vitest all pass except the 5 live-Supabase tests; build OK. New: Home.accountSwitch.test.ts (3), usePlanSync.test.ts (5), planSyncDecision.test.ts (+6, 2 rewritten), athleteSync.sport.test.ts (1). Mutation check: removing the empty-record reset fails the plan switch test.
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: Supabase hardening migrations in the repo, validated without touching production.
+Access/decision blockers: MySQL unreachable; sign-in not in the build (latent P0s); preview/dev point at the production Supabase project (owner).
+```
