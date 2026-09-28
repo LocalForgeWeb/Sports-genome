@@ -238,6 +238,68 @@ describe("resolveNormsReference", () => {
       const result = resolveNormsReference(preacherCurlBand, { ...novice, bodyMassKg: 95 });
       expect(result).toMatchObject({ status: "unavailable", reason: "body_mass_not_in_reference_band" });
     });
+
+    // EN-14. Cut points from the registry's approved female pre-training preacher curl
+    // table, 58.967-63.503 kg (Piper et al. 2022), stored in `lb_10rm`.
+    const femalePreacherCurlBand = [
+      [30, 25],
+      [80, 35],
+      [90, 40],
+    ].map(([percentile, value]) =>
+      row({
+        percentile,
+        value,
+        referenceKey: `female-${percentile}`,
+        exerciseId: "exercise-preacher-curl",
+        exerciseName: "Preacher Curl",
+        localCatalogIds: [202],
+        measurementType: "direct_10rm_by_bodyweight_class",
+        unit: "lb_10rm",
+        sex: "female",
+        ageMin: 18,
+        ageMax: 25,
+        trainingStatus: "novice_college_age_pretraining",
+        competitionConditions: "",
+        bodyweightMinKg: 58.967,
+        bodyweightMaxKg: 63.503,
+        sourceStudyId: "study-piper-2022",
+      })
+    );
+    const femaleNovice: NormsAthleteContext = {
+      ...novice,
+      sex: "female",
+      bodyMassKg: 60,
+      loadKg: 15.87573295, // 35 lb
+      trainingStatus: "novice_college_age_pretraining",
+    };
+
+    it("reads a pound unit that names its own 10RM protocol", () => {
+      // `lb_10rm` used to be an unknown unit, so every female row was declined as an
+      // unsupported protocol.
+      const result = resolveNormsReference(femalePreacherCurlBand, femaleNovice);
+      expect(result.status).toBe("matched");
+      if (result.status !== "matched") return;
+      expect(result.observedValue).toBeCloseTo(35, 2);
+      expect(result.unit).toBe("lb_10rm");
+      expect(result.percentileBandLabel).toBe("80th percentile");
+    });
+
+    it("declines a unit whose protocol disagrees with the table's repetition count", () => {
+      const mislabelled = femalePreacherCurlBand.map(reference => row({ ...reference, unit: "lb_1rm" }));
+      const result = resolveNormsReference(mislabelled, femaleNovice);
+      expect(result).toMatchObject({ status: "unavailable", reason: "unsupported_measurement_protocol" });
+    });
+
+    it("keeps the women's table closed to the men's study declaration", () => {
+      // The only preacher-curl declaration the app captures is Piper 2021's (college-aged
+      // men, that study's equipment), which states the male population. It does not
+      // establish the 2022 women's population, so no rank is borrowed from it.
+      const result = resolveNormsReference(femalePreacherCurlBand, {
+        ...femaleNovice,
+        trainingStatus: "novice-to-intermediate; pre-training",
+      });
+      expect(result).toMatchObject({ status: "unavailable", reason: "training_status_mismatch" });
+    });
   });
 
   it("declines a protocol whose measurement family it cannot interpret", () => {

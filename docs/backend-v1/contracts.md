@@ -72,14 +72,14 @@ Calculation and data contracts, mapped to the code that implements them (brief �
 
 No weighted-bodyweight curve exists for any catalog pull-up, chin-up or dip (`score_weighted_pull_chin_v1` returns `estimated_only` for all of them), so a loaded set of those movements has no defensible percentile yet. Assistance is recorded as free text and is never scored (B051).
 
-## Training Day coverage (B110, B112, B113, B114, B115)
+## Training Day coverage (B109, B110, B112, B113, B114, B115)
 
 **Code.** `client/src/lib/splitStackAnalysis.ts` (`analyzeSplitStack`, `coveragePoints`), `stackCoverageVisual.ts` (`buildCoverageBars`), `pickerRanking.ts`, `components/RateStackPanel.tsx`, `components/StackAnalysisPage.tsx`. **Pinned by** `client/src/lib/coverageConsistency.test.ts`.
 
 | | Definition |
 |---|---|
 | Contribution | Per exercise per target muscle: 56 points when the catalog tags the muscle primary, 24 when supporting (catalog-planning weights, not activation). Set count does not enter (EN-11, still open). |
-| Target | A constant per split label and muscle (`requirements` in `splitStackAnalysis.ts`). Not adjusted for goal, schedule, sport or preference; no revision is stored (B108, B109). |
+| Target | A constant per split label and muscle (`requirements` in `splitStackAnalysis.ts`). Not adjusted for goal, schedule, sport or preference (B108). Revision `split_targets_v1` (`COVERAGE_TARGET_REVISION`) travels with every analysis as `targetRevision`; `splitStackAnalysis.revision.test.ts` fingerprints the targets, so one cannot change without a new revision (B109). |
 | Reached | The uncapped sum of contributions (`rawScore`). |
 | Shortfall / surplus | `rawScore − target`, shown as the row's delta and band. The bar's length alone is capped. |
 | Day score | The mean over targets of `min(100, score / target × 100)`. Each target's share is capped before averaging, so a surplus on one muscle cannot make up for a gap on another. |
@@ -87,6 +87,18 @@ No weighted-bodyweight curve exists for any catalog pull-up, chin-up or dip (`sc
 | Relative involvement | The exercise-genome share of the day's most-worked muscle (`analyzeWholeStackMuscles`). Shown as "relative involvement", never as coverage or a gap. |
 | Picker order | Search relevance, then the shortfall points a candidate would close (for each gap, its contribution capped at that gap), then the previous tiers. |
 | Set counts | One resolver: the athlete's prescription, else `getGoalPrescription(goal, position in the day)`. Home hands the resolved map to every surface. |
+
+## Muscle ranks on the map (B076, B084, EN-16)
+
+**Code.** `shared/capabilityRank.ts` (`regionRanksFromMuscles`, `isStabilizerOnly`), `components/StrengthGenomePanel.tsx` (How ranks work). **Pinned by** `client/src/lib/capabilityRank.test.ts`, `StrengthGenomePanel.betaPercentile.render.test.ts`.
+
+- A muscle score is `aggregate_muscle_strength_v1`'s role-weighted latent, not a reference percentile. It is drawn on the same seven bands as a lift, and the legend says it sits a little below the lifts behind it.
+- **Ceiling.** Curve anchors stop at P95 and the largest primary contribution weight is 0.98, so no muscle scores above about 94.9 (trace: bench 140 kg at 65.77 kg scored 95.00, its muscle 94.79). National and World Stage are unreachable for a muscle group, and the legend says so. Re-mapping the bands or the aggregation is an owner decision (D-014).
+- **Stabilizer-only muscles are not ranked.** A stabilizer passes at most 0.35 of the lift through, so its score is the lift's echo pulled toward 50 (bench at P80: serratus 55.11, subscapularis 54.15, infraspinatus 53.91). A muscle whose every contributing lift has role `stabilizer` is left off the map; the region is drawn from a muscle a lift moves, or shows Not scored.
+
+## Research references: units (B066, B140, EN-14)
+
+**Code.** `shared/normsReference.ts` (`kgToUnit`). A reference unit may name its protocol with its scale (`lb_10rm`, `kg_1rm`). It is read as that scale only when the suffix matches the row's own repetition count (from its measurement type); a mismatch is declined as `unsupported_measurement_protocol`. **Pinned by** `server/normsReference.test.ts` with real female cut points.
 
 ## Account records on a device and plan sync (B171, B173, B262)
 

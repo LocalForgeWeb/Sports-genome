@@ -185,4 +185,20 @@ describe("Drawing a region from its muscles", () => {
     const regions = regionRanksFromMuscles([muscle("rectus_femoris", 101, 0.6), muscle("tibialis_posterior", 50, 0.6)]);
     expect(regions.size).toBe(0);
   });
+
+  /** EN-16: bench at P80 put the infraspinatus at 53.91 - the lift's echo, not the muscle's rank. */
+  it("does not rank a muscle the lifts only steady", () => {
+    const steadied = (canonicalName: string, percentile: number, roles: string[]) => ({
+      ...muscle(canonicalName, percentile, 0.3, roles.length),
+      evidence: roles.map((role) => ({ exerciseName: "Bench Press", role, exercisePercentile: 80 })),
+    });
+    const regions = regionRanksFromMuscles([
+      steadied("infraspinatus", 53.91, ["stabilizer"]),
+      steadied("rectus_abdominis", 51.2, ["stabilizer", "stabilizer"]),
+      steadied("anterior_deltoid", 71.4, ["secondary", "stabilizer"]),
+    ]);
+    expect(regions.has("abdominals")).toBe(false);
+    // One lift moves it, so the shoulder keeps a rank - drawn from that muscle alone.
+    expect(regions.get("shoulders")?.muscles.map((m) => m.canonicalName)).toEqual(["anterior_deltoid"]);
+  });
 });
