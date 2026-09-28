@@ -27,9 +27,11 @@ const planDays = [
 ];
 
 /** A session finished an hour ago, so it sits inside the current training week. */
-function finished(dayLabel: string) {
+function finished(dayLabel: string, logged = true) {
   const at = new Date(Date.now() - 3_600_000).toISOString();
-  return { id: `s-${dayLabel}`, title: dayLabel, dayLabel, startedAt: at, completedAt: at, status: "completed", exercises: [] };
+  // One completed set: a finish with nothing logged is not a workout, on Home or anywhere.
+  const sets = logged ? [{ weight: "80", reps: "5", height: "", completed: true, skipped: false }] : [];
+  return { id: `s-${dayLabel}`, title: dayLabel, dayLabel, startedAt: at, completedAt: at, status: "completed", exercises: [{ id: "e1", exerciseName: "Barbell Bench Press", plannedPrescription: "4 × 3–5", sets }] };
 }
 
 function draw(overrides: Partial<React.ComponentProps<typeof TodayActionPanel>> = {}) {
@@ -82,6 +84,13 @@ describe("Home week strip and primary action", () => {
     expect(screen.getByRole("button", { name: /View workout summary/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Open Pull again/ })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Open next workout/ })).toBeNull();
+  });
+
+  it("does not mark a day whose session finished with nothing logged", () => {
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([finished("Week 1 · Day 01 · Push", false)]));
+    draw();
+    expect((document.querySelector('.home-week-strip li') as HTMLElement).dataset.state).toBe("planned");
+    expect(screen.getByRole("button", { name: /Open next workout/ })).toBeTruthy();
   });
 
   it("leaves a session finished last week out of this week's strip", () => {

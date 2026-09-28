@@ -2,7 +2,7 @@
 
 Brief: `docs/ux-next/brief.md` (annotated item by item). Basis: the six surfaces the brief names. The six screenshots and the companion Home concept were not attached to the brief as received; each surface was reproduced in the built app at the brief's described state and the visible issues matched the brief's findings (see `evidence/before-*`).
 
-Branch: `full-merge` locally, pushed to `main` (Vercel) and `claude/repo-access-il8zy5`. Build: typecheck clean, `npx vite build` clean, `npx vitest run` 1932 passed / 1 skipped / 5 failed (the pre-existing `server/supabase*` credential tests, unchanged). All screenshots are headless Chromium at 390×844 and 320×844 (2×), plus 390 with the root font size at 125% for large text. No physical device.
+Branch: `full-merge` locally, pushed to `main` (Vercel) and `claude/repo-access-il8zy5`. Build: typecheck clean, `npx vite build` clean, `npx vitest run` 2037 passed / 1 skipped / 5 failed after merging main's Backend V1 batches (the pre-existing `server/supabase*` credential tests, unchanged). All screenshots are headless Chromium at 390×844 and 320×844 (2×), plus 390 with the root font size at 125% for large text. No physical device.
 
 ## Layout versus state
 
@@ -36,7 +36,7 @@ Primary action contract as implemented:
 
 ## Changed files
 
-`RecoverySpacingPanel.tsx`, `recovery-spacing.css` (rewritten); `ProgrammingGuidePanel.tsx`, `WorkoutHealthPanel.tsx` (summaries); `ExercisePrescriptionRow.tsx` (no-break spaces inside parts), `mobile-training-card.css`, `workout-planner.css` (Reorder mode, Review summaries, volume map); `StackAnalysisPage.tsx`, `RateStackPanel.tsx`, `DayExercisePicker.tsx`, `stack-analysis.css` (empty state, header, add action); `capability-rank.css`, `anatomy/AnatomyFigure.tsx` (dark foundation, hatch, picture mode); `WeeklyMuscleVolumePanel.tsx` (rewritten); `TodayActionPanel.tsx`, `pages/Home.tsx`, `index.css` (Home); tests: `TodayActionPanel.week.render.test.ts` (new), `TodayActionPanel.test.ts`, `TodayActionPanel.render.test.ts` (labels).
+`RecoverySpacingPanel.tsx`, `recovery-spacing.css` (rewritten); `ProgrammingGuidePanel.tsx`, `WorkoutHealthPanel.tsx` (summaries); `ExercisePrescriptionRow.tsx` (no-break spaces inside parts), `mobile-training-card.css`, `workout-planner.css` (Reorder mode, Review summaries, volume map); `StackAnalysisPage.tsx`, `RateStackPanel.tsx`, `DayExercisePicker.tsx`, `stack-analysis.css` (empty state, header, add action); `capability-rank.css`, `anatomy/AnatomyFigure.tsx` (dark foundation, hatch, picture mode); `WeeklyMuscleVolumePanel.tsx` (rewritten); `TodayActionPanel.tsx`, `pages/Home.tsx`, `index.css`, `lib/athleteRecord.ts` (`completedDayLabelsThisWeek`) (Home); tests: `TodayActionPanel.week.render.test.ts` (new), `TodayActionPanel.test.ts`, `TodayActionPanel.render.test.ts` (labels).
 
 ## Verification
 
@@ -46,6 +46,6 @@ Primary action contract as implemented:
 
 ## Remaining
 
-1. The strip's *completed* mark reads device sessions when signed out and account sessions when signed in; a session completed on another device before sync will not show until it syncs.
+1. The strip's *completed* marks come from `useAthleteRecord`'s new `completedDayLabelsThisWeek`, the same sessions and week as its count (a finished session with nothing logged is not a workout, per Backend V1); a session completed on another device shows once it syncs.
 2. Explicit rest days are not a plan concept, so the contract's rest-day row has no implementation.
 3. The Strength figure's no-data hatch is softened, not removed; removing it would leave no-data indistinguishable from a dark neutral region.

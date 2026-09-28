@@ -40,7 +40,7 @@ const shot = (p, name, w) => p.screenshot({ path: `${out}/${label}-${name}-${w}$
 for (const w of widths) {
   const ctx = await browser.newContext({ viewport: { width: w, height: 844 }, deviceScaleFactor: 2 }); const p = await ctx.newPage(); await wire(p);
   const now = new Date(); const done = new Date(now.getTime() - 3600e3).toISOString();
-  const history = JSON.stringify([{ id: 'h1', title: 'Push', dayLabel: 'Week 1 · Day 01 · Push', startedAt: done, completedAt: done, status: 'completed', exercises: [{ id: 'e1', exerciseName: 'Barbell Bench Press', plannedPrescription: '4 × 3–5', sets: [{ setNumber: 1, reps: 5, load: 80, unit: 'kg', loggedAt: done }] }] }]);
+  const history = JSON.stringify([{ id: 'h1', title: 'Push', dayLabel: 'Week 1 · Day 01 · Push', startedAt: done, completedAt: done, status: 'completed', exercises: [{ id: 'e1', exerciseName: 'Barbell Bench Press', plannedPrescription: '4 × 3–5', sets: [{ weight: '80', reps: '5', height: '', completed: true, skipped: false }] }] }]);
   await seed(p, { 'sports-genome-device-strength-observations-v1': lifts, 'sports-genome-device-workout-history-v1': history });
   await p.goto(`${base}/`); await wait(p, 2200); await applyZoom(p);
   // Plan: Push, Pull and Sport Transfer drafted so Review has overlap to talk about.

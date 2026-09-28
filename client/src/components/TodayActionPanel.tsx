@@ -7,10 +7,9 @@ import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
 import { confirmedChangeEmphasis, leadingConfirmedChange, selectHomePriority } from "@/lib/homeStateSummary";
 import { getRegistryReferenceForObservation, type RegistryReferenceProfile } from "@/lib/registryReference";
-import { startOfTrainingWeek, type TrainingSession } from "@/lib/trainingWeekSummary";
+import type { TrainingSession } from "@/lib/trainingWeekSummary";
 import { useAthleteRecord } from "@/lib/athleteRecord";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
-import { loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
 import { roleMapForLists } from "@/lib/anatomyRegions";
 import { sideForSelection } from "@/lib/anatomySide";
@@ -107,24 +106,12 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
   const nextSession = splitDayLabel(activeDayLabel);
 
   /**
-   * Which plan days have a finished session this week - the same week scope as
-   * the completed count, read from the same records, so the strip and the
-   * fraction cannot disagree. A day is marked from its own saved session, never
-   * from its position in the plan.
+   * Which plan days have a finished workout this week: the record's own list, from the
+   * same sessions and the same week its "completed this week" count reads, so the strip
+   * and the fraction cannot disagree. A day is marked from its own saved workout, never
+   * from its position in the plan; a finish with nothing logged is not a workout.
    */
-  const trainedThisWeek = useMemo(() => {
-    const weekStart = startOfTrainingWeek(new Date());
-    const sessions: readonly { dayLabel?: string | null; status: string; startedAt: string | Date; completedAt?: string | Date | null }[] = directAccess ? loadDeviceWorkoutSessions() : accountSessions;
-    const labels = new Set<string>();
-    for (const session of sessions) {
-      if (session.status !== "completed" || !session.dayLabel) continue;
-      const marker = new Date(session.completedAt ?? session.startedAt);
-      if (!Number.isNaN(marker.getTime()) && marker >= weekStart) labels.add(session.dayLabel);
-    }
-    return labels;
-    // `live` changes at every checkpoint the tracker writes, including the one that finishes a workout.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [directAccess, accountSessions, live]);
+  const trainedThisWeek = useMemo(() => new Set(record.completedDayLabelsThisWeek), [record.completedDayLabelsThisWeek]);
   /** The next workout already has a finished session this week: its record is the primary action. */
   const nextCompleted = !live && hasStagedWorkout && trainedThisWeek.has(activeDayLabel);
 
