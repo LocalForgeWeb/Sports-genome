@@ -57,3 +57,17 @@ Calculation and data contracts, mapped to the code that implements them (brief Â
 - **A finished workout:** its strongest set by e1RM, one observation per exercise.
 - **The single-lift card and Progress:** the lift being looked at, or a trend's latest lift. Neither is a best-of.
 - **Duplicates:** identical lifts are sent once. Correlated variants are handled by the database aggregation's movement-pattern redundancy decay (0.55 per additional exercise in the same pattern).
+
+## Load conventions (B025, B049, B050, B052, EN-07, EN-09)
+
+**Code.** `shared/loadConventions.ts` (from `strength_exercise_scoring_policy.load_semantics`, read 28 September 2026; pinned to the catalog by `server/loadConventions.test.ts`), `client/src/lib/setEntryFields.ts`, `StrengthGenomePanel.tsx` (`StrengthLoadInput`), `workoutStrengthRecord.ts`, `useAthleteSync.ts`, `muscleRankLifts.ts`, `server/supabaseStrengthProfile.ts`.
+
+| Convention | Exercises | The box asks for | Sent as `load_semantics` | Muscle ranks |
+|---|---|---|---|---|
+| `per_implement` | 40 dumbbell movements | "Weight per dumbbell" / "Weight of one dumbbell" | `per_implement` | Load as entered (one dumbbell), as the database scores it |
+| `bodyweight_reps` | 50 (pull-ups, dips, push-ups, chin-upsâ€¦) | "Added weight", optional | `bodyweight_reps`, or `additional_load` when weight was added | Without load: sent as reps alone (rep curve). With added load: not scored, reported as `added_load_not_scored` |
+| `machine_displayed_load` | 87 cable and machine movements | "Weight" (the stack) | `machine_displayed_load` | Load as entered |
+| `per_hand` | Farmer's Walk | "Weight per hand" | `per_hand` | Not a loaded-e1RM exercise |
+| `total_external_load` | everything else | "Weight" | `total_external_load` | Load as entered; sent without load it is `load_required` |
+
+No weighted-bodyweight curve exists for any catalog pull-up, chin-up or dip (`score_weighted_pull_chin_v1` returns `estimated_only` for all of them), so a loaded set of those movements has no defensible percentile yet. Assistance is recorded as free text and is never scored (B051).

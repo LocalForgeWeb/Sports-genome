@@ -101,6 +101,28 @@ describe("The lifts sent to be ranked", () => {
     expect(lifts[0].exerciseName).toBe(`Exercise ${MUSCLE_RANK_LIFT_LIMIT + 4}`);
   });
 
+  // Backend V1 EN-09: bodyweight movements never reached the ranks; the policy scores them on reps.
+  it("sends a bodyweight movement as its best set of reps, without load", () => {
+    const lifts = muscleRankLifts([
+      { exerciseName: "Pull-Up", loadKg: null, repetitions: 8, observedAt: "2026-06-01T10:00:00.000Z" },
+      { exerciseName: "Pull-Up", loadKg: null, repetitions: 12, observedAt: "2026-05-01T10:00:00.000Z" },
+    ], [], 80);
+    expect(lifts.map((lift) => [lift.exerciseName, lift.loadKg, lift.repetitions])).toEqual([["Pull-Up", 0, 12]]);
+  });
+
+  it("sends a loaded set of a bodyweight movement too, after every exercise's best, so the server can say it is not scored", () => {
+    const lifts = muscleRankLifts([
+      { exerciseName: "Pull-Up", loadKg: null, repetitions: 10, observedAt: "2026-06-01T10:00:00.000Z" },
+      { exerciseName: "Pull-Up", loadKg: 20, repetitions: 5, observedAt: "2026-06-02T10:00:00.000Z" },
+      { exerciseName: "Bench", loadKg: 80, repetitions: 5, observedAt: "2026-06-03T10:00:00.000Z" },
+    ], [], 80);
+    expect(lifts.map((lift) => [lift.exerciseName, lift.loadKg])).toEqual([["Bench", 80], ["Pull-Up", 0], ["Pull-Up", 20]]);
+  });
+
+  it("does not send an unloaded set of a loaded exercise", () => {
+    expect(muscleRankLifts([{ exerciseName: "Barbell Bench Press", loadKg: null, repetitions: 5, observedAt: "2026-06-01T10:00:00.000Z" }], [], 80)).toEqual([]);
+  });
+
   it("does not send a set the estimator cannot read", () => {
     expect(muscleRankLifts([{ exerciseName: "Bench", loadKg: 40, repetitions: 20, observedAt: "2026-06-01T10:00:00.000Z" }], [], 80)).toEqual([]);
   });

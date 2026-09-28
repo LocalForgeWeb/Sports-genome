@@ -1,5 +1,6 @@
 import type { Exercise } from "./exerciseCatalog";
 import type { DisplayWeightUnit } from "./weightUnits";
+import { loadConventionFor } from "@shared/loadConventions";
 
 /**
  * Which boxes a set actually needs, and what each one measures.
@@ -28,6 +29,9 @@ export type SetEntryField = {
 };
 
 const WEIGHT: SetEntryField = { measure: "weight", label: "Weight", unit: "lb", optional: false };
+/** One dumbbell's weight: the database scores dumbbell work per implement (EN-07). */
+const PER_DUMBBELL: SetEntryField = { measure: "weight", label: "Weight per dumbbell", unit: "lb", optional: false };
+const PER_HAND: SetEntryField = { measure: "weight", label: "Weight per hand", unit: "lb", optional: false };
 const ADDED_WEIGHT: SetEntryField = { measure: "weight", label: "Added weight", unit: "lb", optional: true };
 const BOX_HEIGHT: SetEntryField = { measure: "height", label: "Box height", unit: "in", optional: true };
 
@@ -45,7 +49,7 @@ function loadIsOptional(exercise: Pick<Exercise, "category" | "equipment">): boo
 }
 
 export function setEntryFieldsFor(
-  exercise: Pick<Exercise, "name" | "category" | "equipment"> | undefined,
+  exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined,
   /** The unit the weight box records in: the session's, which is the profile's when it started. */
   weightUnit: DisplayWeightUnit = "lb",
 ): SetEntryField[] {
@@ -54,12 +58,17 @@ export function setEntryFieldsFor(
   return fieldsFor(exercise).map((field) => field.measure === "weight" ? { ...field, unit: weightUnit } : field);
 }
 
-function fieldsFor(exercise: Pick<Exercise, "name" | "category" | "equipment"> | undefined): SetEntryField[] {
+function fieldsFor(exercise: (Pick<Exercise, "name" | "category" | "equipment"> & { id?: number }) | undefined): SetEntryField[] {
   if (!exercise) return [WEIGHT];
   const name = exercise.name.trim();
   const carriesAddedLoad = /\bweighted\b/i.test(name);
+  // The scoring policy's convention decides first, where it names one: a chin-up is scored
+  // on reps even though the catalog files it under free weights.
+  const convention = loadConventionFor(exercise.id);
 
-  const loadField = carriesAddedLoad || loadIsOptional(exercise) ? ADDED_WEIGHT : WEIGHT;
+  const loadField = convention === "per_implement" ? PER_DUMBBELL
+    : convention === "per_hand" ? PER_HAND
+      : carriesAddedLoad || convention === "bodyweight_reps" || loadIsOptional(exercise) ? ADDED_WEIGHT : WEIGHT;
 
   if (BOX_EXERCISES.test(name)) {
     // An unloaded box jump records the box alone — that is the whole point of

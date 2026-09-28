@@ -470,14 +470,15 @@ export const appRouter = router({
         lifts: z.array(z.object({
           catalogExerciseId: z.number().int().positive().nullish(),
           exerciseName: z.string().trim().min(1).max(255),
-          loadKg: z.number().positive().max(1000),
+          /** 0 for a bodyweight movement done without added load; those are scored on reps. */
+          loadKg: z.number().min(0).max(1000),
           repetitions: z.number().int().min(1).max(100),
           bodyMassKg: z.number().positive().max(500).nullable(),
           /** Age on the day of this lift, so a birth year given later re-reads every earlier lift. */
           ageYears: z.number().min(0).max(120).nullable().optional(),
         // Each distinct saved weight and age at the lift is one scoring call, each scored lift with an
         // age one adjustment call, plus one aggregation: 30 lifts bound a request to 61 Supabase calls,
-        // run at most four at a time. The client sends at most 30, newest first, duplicates removed.
+        // run at most four at a time. The client sends at most 30 - each exercise's strongest lifts - duplicates removed.
         })).max(30),
       }))
       .query(({ input }) => getMuscleProfile(input)),
