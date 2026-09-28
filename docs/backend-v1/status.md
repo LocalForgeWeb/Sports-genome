@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 182
-- `implementing`: 38
-- `verified`: 41
+- `pending`: 176
+- `implementing`: 43
+- `verified`: 42
 - `blocked`: 7
 - `deferred (owner)`: 30
 <!-- summary:end -->
@@ -159,7 +159,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B064 | Identify the intended comparison population for each norm family: general population, trained people, athletes, competitors, or another defined… | pending |  |
 | B065 | Do not treat powerlifting competitors as the default population for all exercises or all users. | verified | Competitor rank removed from the default panel; the competition comparison appears only for an exact competition-context match. D-004. Tests: StrengthGenomePanel.rankGate.test.ts (7), StrengthGenomePanel.registryReference.render.test.ts. |
-| B066 | Separate direct exercise-specific references from transferred or adjusted references. | pending |  |
+| B066 | Separate direct exercise-specific references from transferred or adjusted references. | implementing | Unit parsing fixed for protocol-suffixed units (lb_10rm): female Piper 2022 10RM rows now match on unit when the population is declared (normsReference.test.ts). Direct vs transferred references otherwise unchanged; women's declaration route needs the 2022 protocol reviewed (D-014). |
 | B067 | Audit age, sex/reference-population, bodyweight, and training-status effects already present in the source so they are not applied twice. | pending |  |
 | B068 | For each multiplier or interpolation, record equation, source, applicable domain, direction, assumptions, and validation cases. | pending |  |
 | B069 | Apply an adjustment at a defined stage—observed metric, expected metric, distribution parameters, or another explicit layer. Do not multiply a… | pending |  |
@@ -174,7 +174,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B074 | Specify whether the reference provides an empirical distribution, percentiles, quantiles, means/SD, or only category thresholds. | pending |  |
 | B075 | Do not fabricate a normal distribution solely because mean and SD are convenient; justify the distribution or avoid overprecise percentile output. | pending |  |
-| B076 | Distinguish a true reference percentile from a normalized product score or rank band. | pending |  |
+| B076 | Distinguish a true reference percentile from a normalized product score or rank band. | implementing | Muscle score is labelled as read through lifts, with its ceiling stated (How ranks work, data-muscle-rank-ceiling); National/World Stage unreachable for muscles is disclosed. Re-mapping bands is an owner decision (D-014). |
 | B077 | Handle lower-is-better metrics correctly, including completion time. | pending |  |
 | B078 | Preserve canonical rank identifiers and approved display mapping unless an independently justified change is required. | pending |  |
 | B079 | Verify threshold inclusivity at every rank boundary and keep rounding from moving an underlying score across the wrong boundary. | implementing | Piper 2021 preacher-curl bands made contiguous with an explicit inclusive/exclusive rule and a stored-value tolerance (shared/piper2021PreacherCurlReference.ts bandFor; client/src/lib/piper2021PreacherCurlReference.test.ts). Remaining rank boundaries reviewed with EN-16. |
@@ -187,7 +187,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B082 | Document the mapping from eligible exercise performances to each region. | pending |  |
 | B083 | Prevent repeated copies of the same lift or tightly correlated variants from falsely creating independent evidence. | implementing | Identical lifts sent once; one observation per exercise reaches the aggregation; correlated variants decay by movement pattern in the database (0.55). Variant-level correlation (e.g. two bench variants) not yet reviewed. |
-| B084 | Keep primary muscle contribution, stabilization, and normative comparability distinct. | pending |  |
+| B084 | Keep primary muscle contribution, stabilization, and normative comparability distinct. | implementing | Stabilizer-only muscles are no longer ranked (isStabilizerOnly, capabilityRank.test.ts; live trace bench P80 -> serratus 55.11, infraspinatus 53.91). Primary vs secondary contribution weighting remains the DB aggregation's (EN-17 coefficients unsourced). |
 | B085 | Define region aggregation and confidence rules rather than averaging unrelated exercise percentiles by default. | pending |  |
 | B086 | Preserve left/right asymmetry when supported; do not generate a weaker-side score from missing side data. | pending |  |
 | B087 | Explain which observations drive a region result and which regions lack enough evidence. | pending |  |
@@ -231,7 +231,7 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B108 | Identify the source of day/week targets and whether they depend on split, goal, schedule, sport, and user preferences. | verified | Targets are constants per split label (splitStackAnalysis.ts requirements); they do not depend on goal, schedule, sport or preference. Stated in contracts.md § Training Day coverage. |
-| B109 | Store or reconstruct the target revision used by a result. A changed target must not masquerade as changed training. | pending |  |
+| B109 | Store or reconstruct the target revision used by a result. A changed target must not masquerade as changed training. | verified | Targets carry revision split_targets_v1 on every analysis (targetRevision); splitStackAnalysis.revision.test.ts fingerprints the targets and fails if one changes without a new revision. contracts.md § Training Day coverage. |
 | B110 | Define per-muscle contribution, target, shortfall, surplus, and global aggregation separately. | verified | Contribution, target, reached, shortfall/surplus and the day score are defined separately (contracts.md § Training Day coverage) and computed separately in splitStackAnalysis.ts / stackCoverageVisual.ts. |
 | B111 | Specify behavior for zero targets and missing targets; avoid division by zero and invented perfect scores. | pending |  |
 | B112 | Define whether oversupply can compensate for a different missing muscle. Do not let that happen accidentally through simple totals. | verified | Each target's share is capped before averaging, so a surplus cannot offset another muscle's gap; a gap moves only with work on that muscle. coverageConsistency.test.ts 'A surplus does not pay for a gap', TR-02 case. |
@@ -250,7 +250,7 @@ _No requirement IDs in this section._
 | B120 | Separate hard constraints from preferences. A recommendation should not violate a hard equipment restriction just to improve a score. | verified | Saved equipment is a hard constraint for every automatic recommendation (Matches, sport session, the day's suggested fixes), applied before ranking and cut; manual catalog browsing stays whole. D-011. Test: movementRecommendations.constraints.test.ts. |
 | B121 | Consider redundancy, session time, and fatigue cost where the existing model supports them. | pending |  |
 | B122 | Prevent duplicate candidates arising from aliases; distinguish legitimate variants. | pending |  |
-| B123 | Provide reason codes such as closes target gap, supports selected sport demand, available equipment, or lower redundancy. | pending |  |
+| B123 | Provide reason codes such as closes target gap, supports selected sport demand, available equipment, or lower redundancy. | implementing | Picker results carry why they rank: fillsGap (closes a target gap directly), supportsGap, closesPoints; equipment is a hard filter before ranking (batch 6). Typed codes for sport demand and redundancy are V2. |
 | B124 | Explain infeasible requests rather than generating impossible plans. | pending |  |
 | B125 | Preview a generated/replacement plan before committing; preserve the current plan unless the user accepts replacement. | pending |  |
 | B126 | Make recommendation order deterministic for a fixed snapshot, or expose/control the seed if diversity is intentional. | pending |  |
@@ -282,7 +282,7 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B139 | Audit evidence eligibility by normative family and protocol, not only row by row or by global switch. | pending |  |
-| B140 | Preserve provenance, population, test protocol, units, outcome direction, sample information, and transformation history. | pending |  |
+| B140 | Preserve provenance, population, test protocol, units, outcome direction, sample information, and transformation history. | implementing | Units keep their protocol suffix end to end and are checked against the row's repetition count before conversion (D-014). Transformation history beyond unit conversion is not recorded. |
 | B141 | Keep exact exercise matches separate from aliases, related movements, and inferred transfers. | pending |  |
 | B142 | Detect duplicated studies/data reported across multiple sources; do not inflate evidence volume by counting copies as independent samples. | pending |  |
 | B143 | Record promotion/rejection reasons and the revision in which they changed. | pending |  |

@@ -153,3 +153,13 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Owner decisions.** Applying the migrations; the anonymous public surface (SB-01); RPC EXECUTE grants (SB-11); tying the Supabase identity to the app account (SB-05). Listed in the README with the paired client change and rollback.
 
 **Touches.** B009, B032, B150, B168, B170, B178, B179, B180, B181, B190, B192, B193, B194.
+
+## D-014 — Female research references, muscle-rank ceiling, coverage target revision (28 September 2026, batch 9)
+
+**EN-14, female research references.** All 880 approved female 10RM rows (Piper et al. 2022) carry unit `lb_10rm`; the male rows (Piper et al. 2021) carry `lb`. The matcher knew only `kg` and `lb`, so every female row was declined as an unsupported protocol. It now reads `<kg|lb>_<n>rm` as that scale when `n` matches the row's repetition count. **Not changed:** the only 10RM declaration the app captures is the 2021 men's study (college-aged men, that study's equipment), and its confirmations do not establish the 2022 women's population or protocol, so women stay at `training_status_mismatch`. A women's declaration route needs the 2022 protocol reviewed first (owner / research). Nothing is inferred from one study to the other.
+
+**EN-16, muscle-rank ceiling.** The aggregation cannot place a muscle above about 94.9 (anchors top at P95; primary contribution weight at most 0.98). Changing the bands (user-specified in the rank icon brief) or the database aggregation is the owner's call, so the app now says so in How ranks work rather than offering bands a muscle cannot reach. Muscles read only through stabilizer roles are no longer ranked (their score is the lift's echo pulled toward 50).
+
+**B109, coverage target revision.** Split targets are revision `split_targets_v1`, returned with every analysis, and a fingerprint test fails if a target changes without a new revision. Set count in coverage (EN-11) and planned vs completed exposure (B091, B117) stay for V2 as recorded in D-010.
+
+**Touches.** B066, B076, B084, B109, B140; EN-11, EN-14, EN-16.

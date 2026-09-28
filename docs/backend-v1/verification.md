@@ -128,3 +128,14 @@ Open transactions/jobs or rollout state, if any: none. Nothing applied to Supaba
 Next concrete action: merge batch 8; then the remaining engine items (EN-11, EN-14, EN-16, B123), performance measurements, the gate report and handoff.
 Access/decision blockers: applying the Supabase migrations (owner, B009); SB-01, SB-05, SB-11 owner decisions (README); MySQL unreachable; sign-in not in the build.
 ```
+
+```text
+Current branch/commit and environment: batch 8 merged as #75 (main 37d659c); batch 9 on claude/training-day-navigation-workouts-83ro2c.
+Requirements completed and evidence: B109 verified; B066, B076, B084, B123, B140 implementing. Decision D-014; contracts § Muscle ranks on the map, § Research references: units.
+Current confirmed failure/root cause: EN-14 re-confirmed live - 880 approved female 10RM rows (Piper 2022) in lb_10rm, matcher knew only kg/lb; the declaration route is the 2021 men's study, so women also stop at training_status_mismatch (owner/research item, not inferred). EN-16 re-confirmed live - aggregate_muscle_strength_v1 for bench at P80: pec 79.67/78.64 primary, serratus 55.11, subscapularis 54.15, infraspinatus 53.91 all stabilizer-only; ceiling ~94.9.
+Files/migrations changed but not verified: none; no database change (read-only queries only).
+Tests run and actual results: tsc 0; vitest 2076 pass, 1 skip, 5 fail (the same live-Supabase tests); build OK. New: normsReference.test.ts (+3, real female cut points), capabilityRank.test.ts (+1), StrengthGenomePanel.betaPercentile.render.test.ts (+1), splitStackAnalysis.revision.test.ts (2). Mutation checks: old kgToUnit fails the lb_10rm test; old regionRanksFromMuscles fails the stabilizer test.
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: merge batch 9; performance measurements (B231-B233), gate report, handoff.
+Access/decision blockers: as before; plus the women's 10RM declaration route and the muscle band ceiling (owner).
+```

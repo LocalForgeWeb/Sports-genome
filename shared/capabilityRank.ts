@@ -313,12 +313,21 @@ export type RegionRank = {
  * blend: averaging four muscle percentiles would print a number no model produced, and the
  * brief rules out re-aggregating in the client. The detail lists every muscle with its own
  * rank, so the choice is visible rather than hidden.
+ *
+ * A muscle every contributing lift only steadies is left out (EN-16). The aggregation passes
+ * at most 0.35 of a stabilizer's lift through and pulls the rest toward the 50th percentile,
+ * so its score says how the lift went, not how the muscle compares - a bench press put the
+ * infraspinatus at 53.91 whatever the bench itself placed.
  */
+export function isStabilizerOnly(muscle: Pick<MuscleScore, "evidence">): boolean {
+  return muscle.evidence.length > 0 && muscle.evidence.every((item) => item.role === "stabilizer");
+}
+
 export function regionRanksFromMuscles(muscles: readonly MuscleScore[]): Map<string, RegionRank> {
   const byRegion = new Map<string, MuscleScore[]>();
   for (const muscle of muscles) {
     const regionId = muscleCanonicalNameToRegionId[muscle.canonicalName];
-    if (!regionId || !rankForPercentile(muscle.percentile)) continue;
+    if (!regionId || !rankForPercentile(muscle.percentile) || isStabilizerOnly(muscle)) continue;
     byRegion.set(regionId, [...(byRegion.get(regionId) ?? []), muscle]);
   }
   const result = new Map<string, RegionRank>();
