@@ -1,0 +1,273 @@
+{
+  "base": "http://localhost:4173",
+  "runs": 10,
+  "node": "v22.22.2",
+  "chromium": "/opt/pw-browsers/chromium",
+  "when": "2026-09-28T19:14:17.511Z",
+  "rows": [
+    {
+      "flow": "home_cold",
+      "fixture": "loaded",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 2315,
+      "p95": 2431,
+      "min": 2138,
+      "max": 2431,
+      "fcpP50": 2340,
+      "procedures": {
+        "auth.me": 1,
+        "resilience.targetCatalog": 1,
+        "sportsGenome.profile": 1,
+        "strengthGenome.referenceRows": 1
+      }
+    },
+    {
+      "flow": "home_cold",
+      "fixture": "loaded",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 3751,
+      "p95": 3895,
+      "min": 3547,
+      "max": 3895,
+      "fcpP50": 3796,
+      "procedures": {
+        "auth.me": 1,
+        "resilience.targetCatalog": 1,
+        "sportsGenome.profile": 1,
+        "strengthGenome.referenceRows": 1
+      }
+    },
+    {
+      "flow": "home_warm",
+      "fixture": "loaded",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 605,
+      "p95": 676,
+      "min": 461,
+      "max": 676,
+      "fcpP50": null,
+      "procedures": {
+        "auth.me": 1,
+        "resilience.targetCatalog": 1,
+        "sportsGenome.profile": 1,
+        "strengthGenome.referenceRows": 1
+      }
+    },
+    {
+      "flow": "home_warm",
+      "fixture": "loaded",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 1553,
+      "p95": 1746,
+      "min": 1413,
+      "max": 1746,
+      "fcpP50": null,
+      "procedures": {
+        "auth.me": 1,
+        "resilience.targetCatalog": 1,
+        "sportsGenome.profile": 1,
+        "strengthGenome.referenceRows": 1
+      }
+    },
+    {
+      "flow": "search_exercises",
+      "fixture": "loaded",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 28,
+      "p95": 35,
+      "min": 23,
+      "max": 35,
+      "fcpP50": null,
+      "procedures": {}
+    },
+    {
+      "flow": "search_exercises",
+      "fixture": "loaded",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 122,
+      "p95": 166,
+      "min": 109,
+      "max": 166,
+      "fcpP50": null,
+      "procedures": {}
+    },
+    {
+      "flow": "add_to_plan",
+      "fixture": "loaded",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 38,
+      "p95": 50,
+      "min": 35,
+      "max": 50,
+      "fcpP50": null,
+      "procedures": {}
+    },
+    {
+      "flow": "add_to_plan",
+      "fixture": "loaded",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 188,
+      "p95": 262,
+      "min": 143,
+      "max": 262,
+      "fcpP50": null,
+      "procedures": {}
+    },
+    {
+      "flow": "coverage_open_day",
+      "fixture": "loaded",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 333,
+      "p95": 347,
+      "min": 327,
+      "max": 347,
+      "fcpP50": null,
+      "procedures": {}
+    },
+    {
+      "flow": "coverage_open_day",
+      "fixture": "loaded",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 455,
+      "p95": 482,
+      "min": 424,
+      "max": 482,
+      "fcpP50": null,
+      "procedures": {}
+    },
+    {
+      "flow": "save_set",
+      "fixture": "loaded",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 25,
+      "p95": 40,
+      "min": 21,
+      "max": 40,
+      "fcpP50": null,
+      "procedures": {}
+    },
+    {
+      "flow": "save_set",
+      "fixture": "loaded",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 101,
+      "p95": 176,
+      "min": 84,
+      "max": 176,
+      "fcpP50": null,
+      "procedures": {}
+    },
+    {
+      "flow": "open_strength",
+      "fixture": "loaded",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 367,
+      "p95": 395,
+      "min": 333,
+      "max": 395,
+      "fcpP50": null,
+      "procedures": {
+        "researchEvidence.supabaseInventory": 1,
+        "strengthGenome.powerliftingNorms": 1,
+        "strengthGenome.referenceRegistryStatus": 1,
+        "strengthProfile.muscleRanks": 1
+      }
+    },
+    {
+      "flow": "open_strength",
+      "fixture": "loaded",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 564,
+      "p95": 770,
+      "min": 467,
+      "max": 770,
+      "fcpP50": null,
+      "procedures": {
+        "researchEvidence.supabaseInventory": 1,
+        "strengthGenome.powerliftingNorms": 1,
+        "strengthGenome.referenceRegistryStatus": 1,
+        "strengthProfile.muscleRanks": 1
+      }
+    },
+    {
+      "flow": "home_cold",
+      "fixture": "empty",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 2232,
+      "p95": 2330,
+      "min": 2103,
+      "max": 2330,
+      "fcpP50": 2268,
+      "procedures": {
+        "auth.me": 1,
+        "resilience.targetCatalog": 1,
+        "sportsGenome.profile": 1,
+        "strengthGenome.referenceRows": 1
+      }
+    },
+    {
+      "flow": "home_cold",
+      "fixture": "empty",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 3485,
+      "p95": 3863,
+      "min": 3300,
+      "max": 3863,
+      "fcpP50": 3524,
+      "procedures": {
+        "auth.me": 1,
+        "resilience.targetCatalog": 1,
+        "sportsGenome.profile": 1,
+        "strengthGenome.referenceRows": 1
+      }
+    },
+    {
+      "flow": "open_strength",
+      "fixture": "empty",
+      "throttle": 1,
+      "runs": 10,
+      "p50": 328,
+      "p95": 336,
+      "min": 323,
+      "max": 336,
+      "fcpP50": null,
+      "procedures": {
+        "researchEvidence.supabaseInventory": 1,
+        "strengthGenome.powerliftingNorms": 1,
+        "strengthGenome.referenceRegistryStatus": 1
+      }
+    },
+    {
+      "flow": "open_strength",
+      "fixture": "empty",
+      "throttle": 4,
+      "runs": 10,
+      "p50": 429,
+      "p95": 518,
+      "min": 400,
+      "max": 518,
+      "fcpP50": null,
+      "procedures": {
+        "researchEvidence.supabaseInventory": 1,
+        "strengthGenome.powerliftingNorms": 1,
+        "strengthGenome.referenceRegistryStatus": 1
+      }
+    }
+  ]
+}

@@ -48,9 +48,10 @@ type ProgressOverviewPanelProps = {
 };
 
 export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForReference, baselineBodyWeight, weightUnit = "lb", birthYear, directAccess = true }: ProgressOverviewPanelProps) {
-  const sessions = trpc.workoutLog.list.useQuery();
-  const observations = trpc.strengthGenome.observations.useQuery();
-  const trackedSets = trpc.workoutLog.progressionHistory.useQuery();
+  // Account-only routes, asked only when an account is the source (B233; see TodayActionPanel).
+  const sessions = trpc.workoutLog.list.useQuery(undefined, { enabled: !directAccess });
+  const observations = trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess });
+  const trackedSets = trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: !directAccess });
   const [deviceSessions, setDeviceSessions] = useState(() => loadDeviceWorkoutSessions());
   const [deviceObservations, setDeviceObservations] = useState(() => loadDeviceStrengthObservations());
   const [bodyWeightLog, setBodyWeightLog] = useState(() => loadBodyWeightLog());
