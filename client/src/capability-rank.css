@@ -140,3 +140,28 @@
    container is a card here; its parts are named without "-card" so they stay plain. */
 .rank-card details > * + * { margin-top: .6rem; }
 .rank-card details > ul + p { margin-top: .75rem; }
+
+/* ---- The body under the ranks ------------------------------------------------------------ */
+
+/* The rank fills were already the flat tokens at full opacity; what washed them out was
+   everything around them. The Body Lab figure's light-surface defaults - a pale grey shell,
+   pale grey neutral muscles, 2px mid-grey linework over every fill - were drawn on the navy
+   ground unchanged, so hands, feet, knees and the seams between regions were the brightest
+   things on the map. In rank encoding, and on the Strength chart in either mode, the body is a
+   dark desaturated foundation, the seams are a thin dark keyline, and only the ranks are colour. */
+.anatomy-figure[data-encoding="rank"],
+.strength-body-chart .anatomy-figure {
+  --anatomy-shell: #2c3a4f;
+  --anatomy-structural: #26334a;
+  --anatomy-muscle: #33425a;
+  --anatomy-line: #0a182b;
+  --anatomy-selection: #ffffff;
+}
+.anatomy-figure[data-encoding="rank"] .anatomy-linework > path,
+.strength-body-chart .anatomy-figure .anatomy-linework > path { stroke-width: 1.1; stroke-opacity: .85; }
+.anatomy-figure[data-encoding="rank"] .anatomy-muscle[data-rank] > path { stroke-width: 1; }
+/* Not scored: a recessive dark slate with a faint hatch. Texture still tells it apart from
+   Prospect and World Stage; it no longer competes with the ranked regions beside it. */
+.anatomy-figure[data-encoding="rank"] .anatomy-muscle[data-unscored] > path { stroke: var(--sg-rank-keyline); stroke-width: .75; vector-effect: non-scaling-stroke; }
+:root { --sg-rank-unavailable-fill: #283446; --sg-rank-unavailable-hatch: #4b5a6e; }
+.rank-legend-unscored i { background: repeating-linear-gradient(45deg, var(--sg-rank-unavailable-hatch) 0 1px, var(--sg-rank-unavailable-fill) 1px 6px); }

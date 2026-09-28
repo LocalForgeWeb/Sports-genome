@@ -80,7 +80,11 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
   const setCountNow = plan.sets.length;
   const rpes = Array.from(new Set([settings.rpe, "RPE 6", "RPE 7", "RPE 8", "RPE 9"]));
   const rests = Array.from(new Set([settings.rest, "60 sec", "90 sec", "120 sec", "180 sec"]));
-  const summaryLine = [displayPrescription(prescription), settings.rpe, settings.rest].filter(Boolean).join(" · ");
+  // Each part of the line is one unbreakable group - the spaces inside "90 sec"
+  // and "RPE 7" are no-break spaces - so a unit never lands on a line of its own,
+  // while the line as a whole still wraps between its parts.
+  const summaryParts = [displayPrescription(prescription), settings.rpe, settings.rest].filter((part): part is string => Boolean(part));
+  const summaryLine = summaryParts.map((part) => part.replace(/ /g, "\u00a0")).join(" · ");
   const muscles = exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ");
   const setsLabelId = `sets-label-${exercise.id}`;
   const listLabelId = `sets-list-${exercise.id}`;

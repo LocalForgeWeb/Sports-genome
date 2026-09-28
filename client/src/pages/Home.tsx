@@ -6,7 +6,7 @@ const IntroPreview = lazy(() => import("@/components/IntroPreview").then((module
 const ExerciseCompareSheet = lazy(() => import("@/components/ExerciseCompareSheet").then((module) => ({ default: module.ExerciseCompareSheet })));
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, X, Zap } from "lucide-react";
+import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { roleMapForLists } from "@/lib/anatomyRegions";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
@@ -386,8 +386,12 @@ export default function Home() {
    * session changes, which is every checkpoint the tracker writes.
    */
   const dayTrainingStates = useMemo(() => trainingStateByDayLabel(), [liveSession]);
+  /** Home's schematic and week strip, bound to the selected day and the plan's own days. */
+  const homeFocusMuscles = useMemo(() => Array.from(new Set(customWorkout.flatMap((exercise) => exercise.primaryMuscles))), [customWorkout]);
   // "Add exercises" opens a sheet over the day rather than scrolling the page to a panel.
   const [pickerSheetOpen, setPickerSheetOpen] = useState(false);
+  // Reorder is a mode for the whole list, not twelve arrow boxes beside six rows.
+  const [reorderingDay, setReorderingDay] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
   const [activeContextTab, setActiveContextTab] = useState<string | null>(null);
   const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string } | null>(null);
@@ -456,6 +460,8 @@ export default function Home() {
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
   const daySlots = useMemo(() => buildDaySlots(splitDays), [splitDays]);
+  /** Home's week strip: the plan's own days, with each day's exercise count. */
+  const homePlanDays = useMemo(() => daySlots.map((slot) => ({ index: slot.index, name: slot.day, label: `Week ${activeWeek} · ${slot.ordinal} · ${slot.day}`, exerciseCount: dayExerciseCount(dayStore, slot.key) })), [daySlots, activeWeek, dayStore]);
   /**
    * The active day, resolved rather than remembered.
    *
@@ -1594,7 +1600,7 @@ export default function Home() {
           launchVideo={<div className="launch-setting" aria-label="Launch video"><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={(event) => { emitInteractionFeedback(12); setIntroOpener(event.currentTarget); setIntroPreviewOpen(true); }}>Preview intro video</button></div>}
           launchVideoEnabled={launchExperienceEnabled}
           buildStamp={buildStampLabel()} />}
-        {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} trainingDays={trainingDays} activeDayLabel={activeDayLabel} live={liveSession} planHasDays={daySlots.some((slot) => dayExerciseCount(dayStore, slot.key) > 0)} planReady={planHydrated && profileHydrated} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
+        {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} focusMuscles={homeFocusMuscles} planDays={homePlanDays} activeDayIndex={activeSlot.index} onChooseDay={openTrainingDay} onOpenProgress={() => navigateWorkspace("progress")} trainingDays={trainingDays} activeDayLabel={activeDayLabel} live={liveSession} planHasDays={daySlots.some((slot) => dayExerciseCount(dayStore, slot.key) > 0)} planReady={planHydrated && profileHydrated} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} /></>}
         {/* Home, after the first viewport: what this app helps you do, as three
@@ -1698,7 +1704,7 @@ export default function Home() {
               <span>Editing <b>{activeDayLabel}</b>{liveSession.dayLabel === activeDayLabel ? " · this day's workout is under way; it keeps the exercises it started with" : ""}</span>
               <button type="button" onClick={() => navigateWorkspace("tracker")}>{liveSession.dayLabel.split(" · ").pop()} workout in progress · Resume <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
             </p>}
-            <div className="day-plan-list">
+            <div className={`day-plan-list${reorderingDay ? " is-reordering" : ""}`}>
               {customWorkout.length
                 ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>)
                 : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" /><strong>Nothing in this day yet.</strong><p>Add exercises from the catalog, or paste a stack.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button></div>}
@@ -1710,6 +1716,7 @@ export default function Home() {
                 "Build it, run it, print it" heading that named all three. */}
             <div className="day-plan-actions">
               <button type="button" className="day-action-add" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button>
+              {customWorkout.length > 1 && <button type="button" className="day-action-reorder" aria-pressed={reorderingDay} onClick={() => setReorderingDay((value) => !value)}><ArrowUpDown className="h-4 w-4" aria-hidden="true" /> {reorderingDay ? "Done reordering" : "Reorder"}</button>}
               <button type="button" className="day-action-session" onClick={() => navigateWorkspace("tracker")} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
               <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan</button>
               <PrintWorkoutButton disabled={!customWorkout.length} />
@@ -1750,8 +1757,8 @@ export default function Home() {
             {/* Spacing is not a part of the volume map. It was rendered inside it,
                 so "how are my sessions spaced" lived underneath a chart answering
                 a different question. */}
-            <RecoverySpacingPanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} />
-            <ProgrammingGuidePanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} />
+            <RecoverySpacingPanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} onOpenDay={(dayName) => { const index = daySlots.findIndex((slot) => slot.day === dayName); if (index >= 0) openTrainingDay(index); }} />
+            <ProgrammingGuidePanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} />
             <WorkoutHealthPanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} />
             <ImportedPlanContext items={activeImportedContext} />
           </div>

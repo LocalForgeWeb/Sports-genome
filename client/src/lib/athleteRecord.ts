@@ -23,7 +23,7 @@ import { strengthRegionDefinitions } from "@shared/strengthGenomeDefinitions";
 import { bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "./bodyWeightLog";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, type DeviceStrengthObservation } from "./deviceStrengthObservations";
 import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "./deviceWorkoutLog";
-import { summarizeTrainingWeek, type TrainingSession } from "./trainingWeekSummary";
+import { startOfTrainingWeek, summarizeTrainingWeek, type TrainingSession } from "./trainingWeekSummary";
 import type { DisplayWeightUnit } from "./weightUnits";
 import { strengthRegionIdsForExerciseName, workoutStrengthObservations, type WorkoutStrengthObservation } from "./workoutStrengthRecord";
 
@@ -37,6 +37,8 @@ export type AthleteRecordSummary = {
   regionTotal: number;
   workoutsRecorded: number;
   completedThisWeek: number;
+  /** The day labels of those finished workouts ("Week 1 · Day 01 · Push"), so a plan day can be marked from its own record. */
+  completedDayLabelsThisWeek: readonly string[];
   setsThisWeek: number;
   /** Where the record lives, said in words for the screens that name it. */
   storage: "device" | "account";
@@ -92,6 +94,13 @@ export function summarizeAthleteRecord(sources: AthleteRecordSources): AthleteRe
     ...(sources.directAccess ? [] : (sources.accountSessions ?? [])),
   ];
   const week = summarizeTrainingWeek(sessions, 0, sources.now);
+  // The same sessions and the same week the count reads, listed by the plan day they were for.
+  const weekStart = startOfTrainingWeek(sources.now ?? new Date());
+  const completedDayLabelsThisWeek = Array.from(new Set(sessions.flatMap((session) => {
+    if (session.status !== "completed" || !session.dayLabel) return [];
+    const marker = new Date(session.completedAt ?? session.startedAt);
+    return !Number.isNaN(marker.getTime()) && marker >= weekStart ? [session.dayLabel] : [];
+  })));
   return {
     liftsLogged: lifts.length,
     liftsFromWorkouts: fromWorkouts,
@@ -99,6 +108,7 @@ export function summarizeAthleteRecord(sources: AthleteRecordSources): AthleteRe
     regionTotal: strengthRegionDefinitions.length,
     workoutsRecorded: sessions.filter((session) => session.status === "completed").length,
     completedThisWeek: week.completedThisWeek,
+    completedDayLabelsThisWeek,
     setsThisWeek: week.setsThisWeek,
     storage: sources.directAccess ? "device" : "account",
   };

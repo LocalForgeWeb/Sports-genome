@@ -89,9 +89,15 @@ export type AnatomyFigureProps = {
   rankFor?: Readonly<Record<string, RankId | "unscored">>;
   /** Replaces the role wording in each region's accessible name. */
   describeFor?: (regionKey: string) => string | undefined;
+  /**
+   * False draws the figure as a picture: no hit layer, no tab stop, one accessible
+   * name from `caption`. Home's workout-focus schematic is read, not tapped.
+   */
+  interactive?: boolean;
+  caption?: string;
 };
 
-export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor }: AnatomyFigureProps) {
+export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption }: AnatomyFigureProps) {
   const uid = useId();
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
@@ -180,8 +186,8 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
       data-view={view}
       data-encoding={rankEncoding ? "rank" : undefined}
       viewBox={`0 0 ${canvasWidth} ${height}`}
-      role="group"
-      aria-label={`${viewName} muscle map. ${composed.length} selectable regions.`}
+      role={interactive ? "group" : "img"}
+      aria-label={interactive ? `${viewName} muscle map. ${composed.length} selectable regions.` : caption ?? `${viewName} muscle map`}
       onPointerLeave={() => setHover("")}
     >
       <defs>
@@ -209,7 +215,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
         {rankEncoding && (
           <pattern id={`${uid}-unscored`} patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(45)">
             <rect width="16" height="16" fill="var(--sg-rank-unavailable-fill)" />
-            <rect width="4" height="16" fill="var(--sg-rank-unavailable-hatch)" />
+            <rect width="1.5" height="16" fill="var(--sg-rank-unavailable-hatch)" />
           </pattern>
         )}
       </defs>
@@ -288,7 +294,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
             );
           }))}
 
-      <g className="anatomy-hit-layer">
+      {interactive && <g className="anatomy-hit-layer">
         {composed.map((muscle) => (
           <g
             key={muscle.key}
@@ -336,7 +342,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
             ))}
           </g>
         ))}
-      </g>
+      </g>}
     </svg>
   );
 }

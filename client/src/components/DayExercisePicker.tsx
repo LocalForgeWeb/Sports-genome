@@ -227,6 +227,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
         onReplace={onReplace}
         onFixMuscle={(target) => { setMuscle(muscleFilterKey(target)); setQuery(""); onOpenSheet?.(); }}
         dayLabel={dayLabel ?? destinationLabel}
+        onAddExercises={onOpenSheet ? () => { setMuscle("all"); setQuery(""); onOpenSheet(); } : undefined}
       />
       {/* The day's own "Add exercises" control already opens this sheet, so this
           row earns its place only when it carries something that control does not:

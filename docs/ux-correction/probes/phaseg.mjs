@@ -5,8 +5,8 @@ import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { mkdirSync, writeFileSync, copyFileSync } from 'node:fs';
 import { boot } from './home.mjs';
 
-const evidence = new URL('../evidence', import.meta.url).pathname;
-const scratch = new URL('.', import.meta.url).pathname.replace(/\/$/, '');
+const evidence = '/home/user/Sports-genome/docs/ux-correction/evidence';
+const scratch = '/tmp/claude-0/-home-user-Sports-genome/72e48dc4-5d2e-5f13-9687-9bbe2b3f83cf/scratchpad';
 mkdirSync(evidence, { recursive: true });
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 
@@ -375,7 +375,10 @@ const LIFTS_KEY = 'sports-genome-device-strength-observations-v1';
   await shot(p, 'train-header-360');
   // H2: large text with the longest plan row.
   await p.addStyleTag({ content: 'html { font-size: 20px !important; }' }); await wait(p, 400);
+  // Reorder is a mode now: the arrows are measured in it, as the athlete meets them.
+  await p.locator('.day-action-reorder').first().dispatchEvent('click').catch(() => {}); await wait(p, 300);
   const h2 = await p.evaluate(() => { const rows = [...document.querySelectorAll('.day-orderable-exercise')]; const longest = rows.map((row) => ({ row, name: row.querySelector('.custom-row-identity strong')?.textContent || '' })).sort((a, b) => b.name.length - a.name.length)[0]; if (!longest) return null; const name = longest.row.querySelector('.custom-row-identity strong').getBoundingClientRect(); const controls = [...longest.row.querySelectorAll('.day-order-controls button')].map((b) => b.getBoundingClientRect()); const overlaps = controls.some((c) => c.left < name.right && c.right > name.left && c.top < name.bottom && c.bottom > name.top); const nameLines = Math.round(name.height / parseFloat(getComputedStyle(longest.row.querySelector('.custom-row-identity strong')).lineHeight)); return { name: longest.name, nameRight: Math.round(name.right), nameLines, controls: controls.map((c) => `${Math.round(c.width)}x${Math.round(c.height)}@${Math.round(c.left)}`), overlaps, scrollW: document.documentElement.scrollWidth, nameClipped: name.right > 360 }; });
+  await p.locator('.day-action-reorder').first().dispatchEvent('click').catch(() => {}); await wait(p, 200);
   check('J-H2', h2 && !h2.overlaps && !h2.nameClipped && h2.scrollW === 360 && h2.controls.every((c) => { const [w, h] = c.split('@')[0].split('x').map(Number); return w >= 44 && h >= 44; }), h2);
   await p.evaluate(() => window.scrollTo(0, 0)); await wait(p, 200);
   await shot(p, 'narrow-large-text-360');

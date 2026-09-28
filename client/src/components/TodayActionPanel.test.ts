@@ -37,10 +37,10 @@ describe("Today action panel", () => {
     expect(source).toContain('const recordPrompt = priority.id.startsWith("gate:") ? priority : null;');
   });
 
-  it("makes Review workout and Edit plan refer to the same day", () => {
-    // Both read the one active day label; Review opens the Workout prestart and
-    // never starts a workout, Edit opens Plan.
-    expect(source).toContain('className="today-action-cta">Review workout');
+  it("makes Open next workout and Edit plan refer to the same day", () => {
+    // Both read the one active day label; the primary action opens the Workout
+    // prestart and never starts a workout, Edit opens Plan.
+    expect(source).toContain('className="today-action-cta">Open next workout');
     expect(source).toContain('onClick={onOpenTraining} className="today-action-secondary">Edit plan');
     expect(home).toContain('onOpenTracker={() => navigateWorkspace("tracker")}');
     expect(home).toContain('onOpenTraining={() => navigateWorkspace("day-plan")}');
@@ -50,7 +50,7 @@ describe("Today action panel", () => {
     expect(source).toContain("Choose your next workout");
     expect(source).toContain("Open training plan");
     expect(source).toContain("Build training around your goals");
-    expect(source).toContain("Create your plan");
+    expect(source).toContain("Build your first workout");
     expect(home).toContain("planHasDays={daySlots.some((slot) => dayExerciseCount(dayStore, slot.key) > 0)}");
   });
 

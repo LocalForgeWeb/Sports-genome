@@ -105,7 +105,7 @@ function BandTally({ band, count }: { band: CoverageBand; count: number }) {
  *
  * Nothing was deleted; the last two moved behind the question they answer.
  */
-export function RateStackPanel({ workout, catalog, split, sportId, prescriptions, onAdd, onReplace: _onReplace, onFixMuscle, dayLabel = "Active Training Day" }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; sportId?: string; prescriptions?: Record<number, string>; onAdd: (exercise: Exercise) => void; onReplace: (outgoing: Exercise, incoming: Exercise) => void; onFixMuscle?: (muscle: string) => void; /** The day in the plan's words ("Week 1 · Day 05 · Legs"), named on the analysis surface. */ dayLabel?: string; }) {
+export function RateStackPanel({ workout, catalog, split, sportId, prescriptions, onAdd, onReplace: _onReplace, onFixMuscle, dayLabel = "Active Training Day", onAddExercises }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; sportId?: string; prescriptions?: Record<number, string>; onAdd: (exercise: Exercise) => void; onReplace: (outgoing: Exercise, incoming: Exercise) => void; onFixMuscle?: (muscle: string) => void; /** The day in the plan's words ("Week 1 · Day 05 · Legs"), named on the analysis surface. */ dayLabel?: string; /** Opens the day's exercise picker; the analysis offers it on an empty day. */ onAddExercises?: () => void; }) {
   const [open, setOpen] = useState(false);
   const analysis = useMemo(() => analyzeSplitStack(workout, catalog, split), [catalog, split, workout]);
   const bars = useMemo(() => buildCoverageBars(analysis.ratings), [analysis.ratings]);
@@ -229,6 +229,7 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
           prescriptions={prescriptions}
           onAddSuggestion={onAdd}
           onClose={() => setOpen(false)}
+          onAddExercises={onAddExercises ? () => { setOpen(false); onAddExercises(); } : undefined}
           onInspectExercise={() => undefined}
         />
       )}

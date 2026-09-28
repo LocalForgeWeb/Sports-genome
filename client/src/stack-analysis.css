@@ -404,3 +404,15 @@
   .session-volume-reading { grid-area: reading; justify-content: flex-end; }
   .session-volume-rows { gap: .55rem; }
 }
+
+/* -- Next update: the header's exit and the empty state ------------------------ */
+/* One clean text action beside the title, not an X with a loose label stacked under it in a square. */
+.stack-analysis-head > button { display: inline-flex; flex-direction: row; align-items: center; gap: .35rem; width: auto; min-width: 2.75rem; height: 2.75rem; border-radius: 999px; padding: 0 .9rem .0rem .7rem; font-size: var(--sg-text-sm); font-weight: 700; }
+/* Under the header, not centred in a void: what is missing, what to do, one action. */
+.stack-analysis-empty { min-height: auto; place-items: start; align-content: start; justify-items: start; gap: .6rem; max-width: 34rem; padding: 1.25rem 1rem 2rem; text-align: left; }
+.stack-analysis-empty svg { color: var(--sg-text-subtle-on-dark); }
+.stack-analysis-empty h2 { font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; line-height: 1; text-transform: uppercase; }
+.stack-analysis-empty p { margin: 0; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.stack-analysis-empty-action { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; margin-top: .35rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: 0 1rem; color: #fff; font-size: var(--sg-text-sm); font-weight: 700; }
+.stack-analysis-empty-action:hover { background: var(--sg-action-strong); }
+.stack-analysis-empty-hint { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); }

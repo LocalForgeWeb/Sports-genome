@@ -19,7 +19,7 @@ export function WorkoutHealthPanel({ workout, prescriptions, settings, goal = "A
   const activeEquipmentSummary = equipmentSummary || storedEquipmentSummary();
   return <section id="stack-review" className="workout-health-panel" aria-label="Workout review">
     <details className="workout-health-disclosure">
-      <summary><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Stack review</p><h3>Coach scan</h3></div><div><span className={`health-signal health-signal-${signal.toLowerCase()}`}>{signal} planning signal</span><span className="health-review-link">Review</span></div></summary>
+      <summary><div><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Stack review</p><h3>Coach scan</h3></div><div><span className={`health-signal health-signal-${signal.toLowerCase()}`} aria-label={`${signal} planning signal: planned load of this workout`}><i aria-hidden="true" />{signal} planned load</span><span className="health-review-link">Review recommendations</span></div></summary>
       <div className="workout-health-content">
         <div className="health-stat-grid"><div><strong>{diagnostics.totalSets}</strong><span>planned work sets</span></div><div><strong>~{diagnostics.estimatedMinutes}m</strong><span>estimated time</span></div><div><strong>{diagnostics.sessionLoad}</strong><span>total effort</span></div><div><strong>{diagnostics.redundancy}%</strong><span>muscle overlap</span></div></div>
         {activeEquipmentSummary && <div className="health-block"><p className="metric-label !text-[var(--sg-text-subtle-on-dark)]">Automatic stack equipment</p><p className="health-prompt">{activeEquipmentSummary}</p></div>}

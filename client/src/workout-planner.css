@@ -1142,3 +1142,68 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .day-review-stack .programming-guide-disclosure > summary strong { color: var(--sg-text-muted-on-dark); }
 .day-review-stack .workout-health-disclosure > summary { background: transparent; }
 .day-review-stack .workout-health-disclosure > summary h3 { font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); }
+
+/* -- Next update: Review summaries and Reorder mode ---------------------------- */
+.day-plan-actions .day-action-reorder { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-plan-actions .day-action-reorder[aria-pressed="true"] { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }
+.day-plan-actions .day-action-reorder:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* The planning guide summary: title, what the count counts, one action - not a
+   display-size "0 WORK SETS" competing with the goal. */
+.programming-guide-disclosure > summary p strong { font-weight: 700; }
+.day-review-stack .programming-guide-disclosure > summary p strong { color: var(--sg-text-on-dark); }
+.programming-guide-summary-signal { display: inline-flex; align-items: center; gap: .3rem; align-self: center; font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.day-review-stack .programming-guide-summary-signal span { color: var(--sg-link-on-dark); }
+.programming-guide-disclosure[open] > summary .programming-guide-summary-signal svg { transform: rotate(180deg); }
+/* Coach scan: the planned-load signal is a dot and a phrase in product language,
+   not an opaque pill, and the link says what it opens. */
+.health-signal { display: inline-flex; align-items: center; border: 0; padding: 0; font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; white-space: normal; }
+.health-signal i { display: inline-block; width: .5rem; height: .5rem; margin-right: .45rem; border-radius: 999px; background: currentColor; }
+.health-review-link { color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.workout-health-disclosure > summary > div:last-child { display: grid; justify-items: end; gap: .2rem; }
+
+/* -- Next update: the muscle volume map on the dark ground ------------------------
+   The panel was drawn for a light card and repainted piecemeal for Review; the
+   status labels were still white boxes and the legend and totals were dim. One
+   surface, rows on separators, the total and the name on one line, the status as
+   a dot and a word. */
+.weekly-volume-panel { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); box-shadow: none; }
+.weekly-volume-head { flex-wrap: wrap; border-bottom-color: var(--sg-divider-on-dark); background: transparent; }
+.weekly-volume-head h3 { color: var(--sg-text-on-dark); }
+.weekly-volume-head p:last-child { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.weekly-volume-scope { align-self: flex-start; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; white-space: nowrap; }
+.weekly-volume-legend { border-bottom-color: var(--sg-divider-on-dark); color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.weekly-volume-legend i { width: 10px; height: 10px; }
+.weekly-volume-direct { background: var(--sg-action-fill); }
+.weekly-volume-support { background: #6fa3d9; }
+.weekly-volume-list { gap: 0; padding-top: 0; padding-bottom: 0; }
+.weekly-volume-list article { display: grid; gap: .35rem; border-bottom: 1px solid var(--sg-divider-on-dark); padding: .8rem 0; }
+.weekly-volume-list article:last-child { border-bottom: 0; }
+.weekly-volume-row { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: .6rem; }
+.weekly-volume-row strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.weekly-volume-row small { margin-top: .1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.weekly-volume-row > b { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.weekly-volume-track { position: relative; height: 8px; overflow: hidden; background: rgb(255 255 255 / .1); }
+.weekly-volume-track i { position: absolute; top: 0; bottom: 0; left: 0; display: block; }
+.weekly-volume-track .weekly-volume-bar-support { z-index: 0; background: #6fa3d9; }
+.weekly-volume-track .weekly-volume-bar-direct { z-index: 1; background: var(--sg-action-fill); }
+.weekly-volume-foot { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .25rem .8rem; margin: 0; }
+.weekly-volume-status { display: inline-flex; align-items: center; gap: .4rem; border: 0; background: transparent; padding: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.weekly-volume-status i { display: inline-block; width: .5rem; height: .5rem; border-radius: 999px; background: currentColor; }
+.weekly-volume-status-high { color: #ffb39c; }
+.weekly-volume-status-established { color: #f2d365; }
+.weekly-volume-status-building { color: #9fc8f4; }
+.weekly-volume-days { display: inline-flex; flex-wrap: wrap; gap: .2rem .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.weekly-volume-days b { color: var(--sg-text-on-dark); font-weight: 600; font-variant-numeric: tabular-nums; }
+.weekly-volume-total { margin: 0; padding: .7rem 1.15rem 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.weekly-volume-total b { color: var(--sg-text-on-dark); font-variant-numeric: tabular-nums; }
+.weekly-volume-more > summary { display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 2.75rem; cursor: pointer; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; list-style: none; }
+.weekly-volume-more > summary::-webkit-details-marker { display: none; }
+.weekly-volume-more > summary small { flex: 1 1 auto; min-width: 0; overflow: hidden; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); text-overflow: ellipsis; white-space: nowrap; }
+.weekly-volume-more > summary svg { flex: 0 0 auto; transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.weekly-volume-more[open] > summary svg { transform: rotate(180deg); }
+.weekly-volume-details summary { color: var(--sg-link-on-dark); }
+.weekly-volume-details p { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.day-review-stack .weekly-volume-total { padding-left: 0; padding-right: 0; }
+.day-review-stack .weekly-volume-row > b { grid-row: auto; }
+@media (max-width: 640px) { .weekly-volume-more > summary small { display: none; } }
+.day-review-stack .programming-guide-summary-signal, .day-review-stack .programming-guide-summary-signal span, .day-review-stack .health-review-link { font-size: var(--sg-text-sm); letter-spacing: 0; text-transform: none; }
