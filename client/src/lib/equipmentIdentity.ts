@@ -75,11 +75,16 @@ export function equipmentIsAmbiguous(id: EquipmentId): boolean {
 }
 
 /**
- * Ids with an authored icon of their own. Everything else falls back to the plate
- * mark; the row's text label still names the real equipment either way, so the
- * fallback loses precision, never information.
+ * Ids with an authored icon of their own: twelve of the catalog's thirteen values.
+ * The thirteenth is `freeWeights`, which stays on the plate mark on purpose - it
+ * names several implements at once, so there is no object to draw for it. The
+ * row's text label names the real equipment either way, so the fallback loses
+ * precision, never information.
  */
-export const drawnEquipmentIds: readonly EquipmentId[] = ["barbell", "dumbbell", "kettlebell"];
+export const drawnEquipmentIds: readonly EquipmentId[] = [
+  "barbell", "dumbbell", "kettlebell", "cable", "machine", "bodyweight",
+  "landmine", "medicineBall", "sled", "plyoBox", "battleRopes", "band",
+];
 
 export function equipmentHasOwnIcon(id: EquipmentId): boolean {
   return drawnEquipmentIds.includes(id);

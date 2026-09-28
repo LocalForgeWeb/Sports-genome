@@ -2,7 +2,10 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { exercises } from "./exerciseCatalog";
+import { catalogEquipment } from "./equipmentProfile";
 import {
   drawnEquipmentIds,
   equipmentHasOwnIcon,
@@ -76,12 +79,14 @@ describe("the rendered mark", () => {
     // The kettlebell's handle is a separate arc, so the gap under it cannot close.
     expect(kettlebell.match(/<path/g) ?? []).toHaveLength(2);
 
-    // Everything without its own icon shares one honest fallback.
+    // Everything without its own icon shares one honest fallback. Since Pass 3
+    // that is the ambiguous bucket and anything unrecognised - Cable and Machine
+    // have marks of their own now, and must NOT land here.
     const plate = draw("Free weights");
     expect(plate).toContain("<circle");
-    expect(draw("Cable")).toBe(plate);
-    expect(draw("Machine")).toBe(plate);
     expect(draw("Something the catalog has not used yet")).toBe(plate);
+    expect(draw("Cable")).not.toBe(plate);
+    expect(draw("Machine")).not.toBe(plate);
   });
 
   it("is silent beside a label that already names the equipment", () => {
@@ -108,5 +113,73 @@ describe("the rendered mark", () => {
     const markup = draw("Barbell") + draw("Dumbbells") + draw("Kettlebell") + draw("Free weights");
     expect(markup).toContain('stroke="currentColor"');
     expect(markup).not.toMatch(/#[0-9a-f]{3,6}/i);
+  });
+});
+
+/**
+ * Pass 3: the family past the three pilots.
+ *
+ * Twelve of the catalog's thirteen equipment values now have their own mark. The
+ * thirteenth, "Free weights", keeps the plate on purpose - it is 114 rows of
+ * several different implements, so there is no one object to draw.
+ *
+ * Two of the nine new marks failed at 16px and were redrawn rather than shipped:
+ * the landmine ended in a crossbar that closed into an arrowhead and read as
+ * "external link", and the band was an ellipse inside an ellipse, which is an eye
+ * - already the interface's symbol for "view". Both are checked here by shape, so
+ * neither can drift back.
+ */
+describe("the family past the pilots", () => {
+  const draw = (equipment: string) => renderToStaticMarkup(createElement(EquipmentIcon, { equipment }));
+
+  it("gives every equipment choice in onboarding a mark of its own", () => {
+    // That step rendered the same lucide dumbbell against all ten choices, so the
+    // icon column carried no information at all.
+    const drawn = catalogEquipment.map((value) => draw(value));
+    expect(new Set(drawn).size, "ten distinct marks").toBe(catalogEquipment.length);
+    const quiz = readFileSync(join(process.cwd(), "client/src/components/AthleteBaselineQuiz.tsx"), "utf8");
+    // Bounded forwards from the grid: "athlete-quiz-note" appears on every step,
+    // and the first one is long before this step.
+    const gridStart = quiz.indexOf("athlete-equipment-grid");
+    const grid = quiz.slice(gridStart, quiz.indexOf("athlete-quiz-note", gridStart));
+    expect(grid).toContain("<EquipmentIcon equipment={equipment}");
+    expect(grid, "no single glyph standing in for every choice").not.toContain("<Dumbbell");
+  });
+
+  it("draws every catalog value except the ambiguous bucket", () => {
+    const values = new Set(exercises.map((exercise) => exercise.equipment));
+    for (const value of values) {
+      const id = equipmentIdFor(value);
+      expect(equipmentHasOwnIcon(id) || equipmentIsAmbiguous(id), `${value} is neither drawn nor declared ambiguous`).toBe(true);
+    }
+    expect(drawnEquipmentIds).toHaveLength(12);
+  });
+
+  it("keeps the landmine off shapes the interface already uses for something else", () => {
+    // A bar ending in a crossbar is an arrow; a bar ending in a disc is not.
+    const landmine = draw("Landmine");
+    expect(landmine).toContain("<circle");
+    expect(landmine.match(/<path/g) ?? []).toHaveLength(2);
+  });
+
+  it("keeps the band from reading as an eye", () => {
+    const band = draw("Band");
+    // Concentric ellipses are an eye. One tube is a band.
+    expect((band.match(/<ellipse/g) ?? []).length).toBe(0);
+    expect(band).toContain("rotate(-20 12 12)");
+  });
+
+  it("stays one family: same box, same stroke, no colour of its own", () => {
+    const all = [...catalogEquipment, "Free weights", "Plyometric box", "Battle ropes"].map(draw).join("");
+    const boxes = all.match(/viewBox="0 0 24 24"/g) ?? [];
+    expect(boxes).toHaveLength(13);
+    const widths = new Set(all.match(/stroke-width="[\d.]+"/g) ?? []);
+    expect(widths.size, "one stroke weight across the family").toBe(1);
+    expect(all).not.toMatch(/#[0-9a-f]{3,6}/i);
+  });
+
+  it("shows the equipment where a suggestion already names it", () => {
+    const panel = readFileSync(join(process.cwd(), "client/src/components/ProgressionReviewPanel.tsx"), "utf8");
+    expect(panel).toContain("<EquipmentIcon equipment={suggestion.equipment}");
   });
 });

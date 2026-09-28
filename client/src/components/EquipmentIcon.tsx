@@ -76,6 +76,121 @@ function KettlebellMark() {
 }
 
 /**
+ * Pulley wheel, cable, handle. The wheel is what makes this a cable station
+ * rather than a hanging weight, so it stays a full circle even at 16px.
+ */
+function CableMark() {
+  return (
+    <>
+      <circle cx="12" cy="6.2" r="3.1" />
+      <path d="M12 9.3v7.4" />
+      <path d="M8.4 16.7h7.2" />
+    </>
+  );
+}
+
+/** A loaded weight stack: the part of a machine an athlete actually recognises. */
+function MachineMark() {
+  return (
+    <>
+      <rect x="6.4" y="4.4" width="11.2" height="15.2" rx="1.6" />
+      <path d="M6.4 9.6h11.2" />
+      <path d="M6.4 14.4h11.2" />
+    </>
+  );
+}
+
+/**
+ * A standing figure. Deliberately generic - no stance, no implied exercise, no
+ * body type - because this mark appears on 47 rows that have nothing else in
+ * common than needing no equipment.
+ */
+function BodyweightMark() {
+  return (
+    <>
+      <circle cx="12" cy="5.4" r="2.6" />
+      <path d="M7.6 11.4 12 10l4.4 1.4" />
+      <path d="M12 10v5l-2.6 5M12 15l2.6 5" />
+    </>
+  );
+}
+
+/**
+ * One end pinned to the floor, a plate on the end that lifts.
+ *
+ * The first version ended the bar in a crossbar, and at 16px the two strokes
+ * closed into an arrowhead - the mark read as "external link", not as equipment.
+ * A disc cannot be read as an arrow at any size.
+ */
+function LandmineMark() {
+  return (
+    <>
+      <path d="M3.4 19.8h4.6" />
+      <path d="M5.7 19.8 14.4 11.1" />
+      <circle cx="16.9" cy="8.6" r="3.1" />
+    </>
+  );
+}
+
+/** A ball with a seam, so it is not read as the plate mark's bare circle. */
+function MedicineBallMark() {
+  return (
+    <>
+      <circle cx="12" cy="12" r="8.4" />
+      <path d="M4.6 8.4c4.8 2.4 9.9 2.4 14.7 0" />
+      <path d="M4.6 15.6c4.8-2.4 9.9-2.4 14.7 0" />
+    </>
+  );
+}
+
+/** Runners on the floor, uprights, crossbar. */
+function SledMark() {
+  return (
+    <>
+      <path d="M3.6 19.4h16.8" />
+      <path d="M7.4 19.4V8.6M16.6 19.4V8.6" />
+      <path d="M7.4 8.6h9.2" />
+    </>
+  );
+}
+
+/** A box with its top face, which is the surface that gets jumped onto. */
+function PlyoBoxMark() {
+  return (
+    <>
+      <rect x="3.6" y="8.4" width="16.8" height="11.2" rx="1.6" />
+      <path d="M3.6 12.2h16.8" />
+    </>
+  );
+}
+
+/** Two ropes mid-wave. One wave reads as a squiggle; two read as ropes. */
+function BattleRopesMark() {
+  return (
+    <>
+      <path d="M3 9.2c2.6-3 5.2 3 7.8 0s5.2 3 7.8 0" />
+      <path d="M3 16.4c2.6-3 5.2 3 7.8 0s5.2 3 7.8 0" />
+    </>
+  );
+}
+
+/**
+ * A flat elastic loop under tension.
+ *
+ * The first version was an ellipse inside an ellipse, which at 16px is an eye -
+ * and an eye already means "view" everywhere else in an interface. A single
+ * rounded tube, tilted so it reads as stretched rather than rigid, has no such
+ * collision: it is not a bar, not a ring, and not an infinity symbol.
+ */
+function BandMark() {
+  return (
+    <g transform="rotate(-20 12 12)">
+      <rect x="2.6" y="8.8" width="18.8" height="6.4" rx="3.2" />
+    </g>
+  );
+}
+
+/**
  * The honest mark for equipment this app cannot resolve to one object - the
  * 114-row "Free weights" bucket, and any value the catalog adds later that this
  * module has not been taught. A plate is true of all of them and claims nothing
@@ -94,6 +209,15 @@ const marks: Record<string, () => ReactElement> = {
   barbell: BarbellMark,
   dumbbell: DumbbellMark,
   kettlebell: KettlebellMark,
+  cable: CableMark,
+  machine: MachineMark,
+  bodyweight: BodyweightMark,
+  landmine: LandmineMark,
+  medicineBall: MedicineBallMark,
+  sled: SledMark,
+  plyoBox: PlyoBoxMark,
+  battleRopes: BattleRopesMark,
+  band: BandMark,
 };
 
 export function EquipmentIcon({ equipment, size = 18, className, decorative = true }: {
