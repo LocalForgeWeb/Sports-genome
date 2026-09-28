@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 136
-- `implementing`: 58
-- `verified`: 65
+- `pending`: 133
+- `implementing`: 60
+- `verified`: 66
 - `blocked`: 9
 - `deferred (owner)`: 30
 <!-- summary:end -->
@@ -330,7 +330,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B167 | Document which actions work offline and which require verification/network access. | pending |  |
 | B168 | Use durable pending operations with stable IDs where offline writes are supported; survive app termination before sync. | implementing | The lift sync queue keeps unmappable lifts pending across restarts (localStorage) instead of dropping them (strengthSyncQueue.unmappable.test.ts); stable ids ride with the client_op_id migration. |
-| B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | implementing | Refused finish stays open (batch 1). Plan sync now shows a real conflict state with both choices; offline is still silent, and per-record 'saved to account' states for history are not built. |
+| B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | implementing | Refused finish stays open (batch 1). Plan sync shows a real conflict state with both choices. A device-store athlete is no longer told their sign-in expired (D-015). Offline is still silent; per-record 'saved to account' states for history are not built. |
 | B170 | Reconcile retries idempotently; an app restart during sync must not duplicate sets. | blocked | Idempotent lift sync prepared: client_op_id unique per user (20260928120500, proven: a resent lift is ignored) with the paired client upsert recorded in the README. Needs the migration applied first. |
 | B171 | Define conflict rules for two-device edits. Do not choose last-write-wins everywhere without considering lost workout data. | verified | Two-device rule defined and implemented: three-way reconcile; only-one-changed wins; both changed = conflict, no overwrite, athlete chooses (contracts.md § Account records on a device and plan sync). Tests: planSyncDecision.test.ts, usePlanSync.test.ts. |
 | B172 | Preserve deletion intent through tombstones or an equivalent mechanism so stale devices do not resurrect deleted records. | pending |  |
@@ -437,9 +437,9 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B231 | Measure representative latency and query count for opening Home, searching exercises, adding to a plan, saving a set, computing coverage, and… | pending |  |
-| B232 | Define environment, fixture size, cold/warm conditions, and percentile when reporting performance. A single local timing is not a production SLA. | pending |  |
-| B233 | Investigate repeated queries, unnecessary full-dataset downloads, and recomputation on unrelated state changes. | pending |  |
+| B231 | Measure representative latency and query count for opening Home, searching exercises, adding to a plan, saving a set, computing coverage, and… | implementing | Client side measured for all six flows with request counts (performance.md; scripts/perf/measure-client.cjs, 10 runs, 1x and 4x CPU, empty and loaded fixtures). Server latency in production not measured: the shell cannot reach the deployment and aggregated metrics need Observability Plus; scripts/perf/measure-api.cjs is ready for a machine that can. |
+| B232 | Define environment, fixture size, cold/warm conditions, and percentile when reporting performance. A single local timing is not a production SLA. | verified | performance.md states environment, build, browser, CPU throttling, fixture sizes, cold/warm definitions, timing method, runs and percentile method, and says the numbers are not a production SLA. |
+| B233 | Investigate repeated queries, unnecessary full-dataset downloads, and recomputation on unrelated state changes. | implementing | Repeated/unneeded queries: account-only routes on the device store fixed (D-015, 7 -> 4 procedures on Home); fallback sport profile request recorded (Perf-2). Full downloads: movement data for every sport in the first load (Perf-1), whole reference registry on Home (by design, size unmeasured). Recomputation on unrelated state changes not profiled. |
 | B234 | Use indexes and bounded/paginated queries justified by actual access patterns. | pending |  |
 | B235 | Keep search results stable across pagination and updates where the product needs that consistency. | pending |  |
 | B236 | Prevent public or authenticated endpoints from triggering unbounded expensive analysis without appropriate bounds/rate controls. | verified | SV-02 (0afbd64): maxBatchSize 10 (client splits at 10); per-client allowance of 120 calls/min per instance on the five public routes that fan out to Supabase; 8 s deadline on every Supabase call; muscle-rank route at most 4 upstream calls in flight; caller-keyed caches bounded (500/200/1000, LRU); caller curve id must be a UUID. Live probe: batch of 11 refused, 10 accepted; bad id rejected. Tests: server/boundedCache.test.ts. |

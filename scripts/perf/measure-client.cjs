@@ -63,6 +63,7 @@ async function freshPage(browser, { fixture, throttle }) {
     localStorage.setItem("sports-genome-device-workout-history-v1", JSON.stringify(seed.sessions));
     localStorage.setItem("sports-genome-device-strength-observations-v1", JSON.stringify(seed.typed));
   }, data);
+  await page.addInitScript(installProbes);
   if (throttle > 1) {
     const cdp = await context.newCDPSession(page);
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: throttle });
@@ -70,72 +71,112 @@ async function freshPage(browser, { fixture, throttle }) {
   return { context, page, calls };
 }
 
-const HOME_READY = (page) => page.getByText(/your next workout/i).first();
+/**
+ * Timing runs inside the page. Playwright's own waits poll with a back-off (up to 500 ms between
+ * checks), which rounded every short flow to its poll interval. Here the clock starts in the page
+ * at the action and stops on the first animation frame in which the result is in the document -
+ * rendered and laid out, 16 ms granularity. Home is timed from navigation start
+ * (performance.now()'s origin) to the frame its "Your next workout" line appears.
+ */
+function installProbes() {
+  const text = (selector, pattern) => [...document.querySelectorAll(selector)].find((el) => pattern.test(el.textContent.trim()) && el.getClientRects().length > 0) || null;
+  const byLabel = (label) => [...document.querySelectorAll("button[aria-label]")].find((el) => el.getAttribute("aria-label") === label && el.getClientRects().length > 0) || null;
+  const probes = {
+    home: () => text("p.metric-label", /your next workout/i),
+    searchResult: () => byLabel("Inspect Romanian Deadlift"),
+    undoToast: () => text("[data-sonner-toast] button", /^Undo$/),
+    gapRow: () => [...document.querySelectorAll("button[aria-label$='points short']")].find((el) => el.getClientRects().length > 0) || null,
+    nextSet: () => text("button.live-set-commit", /Log set 2/),
+    strengthMap: () => text("button", /^View all \d+ regions/),
+  };
+  const setInput = (input, value) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, value);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const actions = {
+    search: () => setInput(document.querySelector("input[placeholder='Search exercises']"), "romanian"),
+    add: () => byLabel("Add Barbell Bench Press to Week 1 · Upper").click(),
+    openTrain: () => text(".mobile-bottom-nav button", /^Train$/).click(),
+    logSet: () => text("button.live-set-commit", /Log set 1/).click(),
+    openStrength: () => [...document.querySelectorAll("button")].find((el) => (el.getAttribute("aria-label") || el.textContent).startsWith("View strength progress")).click(),
+  };
+  const waitFor = (probe, from, resolve) => {
+    const tick = () => (probes[probe]() ? resolve(performance.now() - from) : performance.now() - from > 30000 ? resolve(-1) : requestAnimationFrame(tick));
+    requestAnimationFrame(tick);
+  };
+  window.__perf = {
+    run: (action, probe) => new Promise((resolve) => { const t0 = performance.now(); actions[action](); waitFor(probe, t0, resolve); }),
+  };
+  waitFor("home", 0, (ms) => { window.__perfHomeReady = ms; });
+}
 
-async function timed(page, calls, act, ready) {
+const homeReady = async (page) => {
+  await page.waitForFunction(() => window.__perfHomeReady !== undefined, null, { timeout: 30000 });
+  return page.evaluate(() => window.__perfHomeReady);
+};
+
+async function inPage(page, calls, action, probe) {
   const before = calls.length;
-  const t0 = Date.now();
-  await act();
-  await ready().waitFor({ state: "visible", timeout: 30000 });
-  const ms = Date.now() - t0;
+  const ms = await page.evaluate(([a, p]) => window.__perf.run(a, p), [action, probe]);
+  if (ms < 0) throw new Error(`${action} -> ${probe} did not appear within 30 s`);
   await page.waitForTimeout(300);
-  return { ms, procs: calls.slice(before) };
+  return { ms: Math.round(ms), procs: calls.slice(before) };
 }
 
 const flows = {
   async home_cold(browser, condition) {
     const { context, page, calls } = await freshPage(browser, condition);
-    const result = await timed(page, calls, () => page.goto(BASE, { waitUntil: "commit" }), () => HOME_READY(page));
+    await page.goto(BASE, { waitUntil: "commit" });
+    const ms = Math.round(await homeReady(page));
     await page.waitForTimeout(1200);
-    result.procs = calls.slice();
-    result.fcp = await page.evaluate(() => performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? null);
+    const fcp = await page.evaluate(() => performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? null);
     await context.close();
-    return result;
+    return { ms, procs: calls.slice(), fcp };
   },
   async home_warm(browser, condition) {
     const { context, page, calls } = await freshPage(browser, condition);
-    await page.goto(BASE); await HOME_READY(page).waitFor();
+    await page.goto(BASE); await homeReady(page);
     await page.waitForTimeout(500);
-    const result = await timed(page, calls, () => page.reload({ waitUntil: "commit" }), () => HOME_READY(page));
+    const before = calls.length;
+    await page.reload({ waitUntil: "commit" });
+    const ms = Math.round(await homeReady(page));
+    await page.waitForTimeout(300);
     await context.close();
-    return result;
+    return { ms, procs: calls.slice(before) };
   },
   async search_exercises(browser, condition) {
     const { context, page, calls } = await freshPage(browser, condition);
-    await page.goto(BASE); await HOME_READY(page).waitFor();
+    await page.goto(BASE); await homeReady(page);
     await page.getByRole("button", { name: /Explore exercises/ }).first().click();
-    const box = page.getByPlaceholder("Search exercises");
-    await box.waitFor();
-    const result = await timed(page, calls, () => box.fill("romanian"), () => page.getByRole("button", { name: /^Inspect Romanian Deadlift$/ }).first());
+    await page.getByPlaceholder("Search exercises").waitFor();
+    const result = await inPage(page, calls, "search", "searchResult");
     await context.close();
     return result;
   },
   async add_to_plan(browser, condition) {
     const { context, page, calls } = await freshPage(browser, condition);
-    await page.goto(BASE); await HOME_READY(page).waitFor();
+    await page.goto(BASE); await homeReady(page);
     await page.getByRole("button", { name: /Explore exercises/ }).first().click();
-    const add = page.getByRole("button", { name: "Add Barbell Bench Press to Week 1 · Upper" });
-    await add.waitFor();
-    const result = await timed(page, calls, () => add.click(), () => page.getByRole("button", { name: "Undo", exact: true }));
+    await page.getByRole("button", { name: "Add Barbell Bench Press to Week 1 · Upper" }).waitFor();
+    const result = await inPage(page, calls, "add", "undoToast");
     await context.close();
     return result;
   },
   async coverage_open_day(browser, condition) {
     const { context, page, calls } = await freshPage(browser, condition);
-    await page.goto(BASE); await HOME_READY(page).waitFor();
+    await page.goto(BASE); await homeReady(page);
     await page.getByRole("button", { name: /Explore exercises/ }).first().click();
     for (const name of ["Barbell Bench Press", "Barbell Overhead Press", "Seated Cable Row"]) {
-      const add = page.getByRole("button", { name: `Add ${name} to Week 1 · Upper` });
       await page.getByPlaceholder("Search exercises").fill(name);
-      await add.click();
+      await page.getByRole("button", { name: `Add ${name} to Week 1 · Upper` }).click();
     }
-    const result = await timed(page, calls, () => page.getByRole("button", { name: "Train", exact: true }).click(), () => page.getByRole("button", { name: /points short/ }).first());
+    const result = await inPage(page, calls, "openTrain", "gapRow");
     await context.close();
     return result;
   },
   async save_set(browser, condition) {
     const { context, page, calls } = await freshPage(browser, condition);
-    await page.goto(BASE); await HOME_READY(page).waitFor();
+    await page.goto(BASE); await homeReady(page);
     await page.getByRole("button", { name: /Explore exercises/ }).first().click();
     await page.getByRole("button", { name: "Add Barbell Bench Press to Week 1 · Upper" }).click();
     await page.getByRole("button", { name: "Train", exact: true }).click();
@@ -145,15 +186,15 @@ const flows = {
     await inputs.first().waitFor();
     await inputs.nth(0).fill("135");
     await inputs.nth(1).fill("8");
-    const result = await timed(page, calls, () => page.getByRole("button", { name: "Log set 1" }).click(), () => page.getByRole("button", { name: "Log set 2" }));
+    const result = await inPage(page, calls, "logSet", "nextSet");
     await context.close();
     return result;
   },
   async open_strength(browser, condition) {
     const { context, page, calls } = await freshPage(browser, condition);
-    await page.goto(BASE); await HOME_READY(page).waitFor();
+    await page.goto(BASE); await homeReady(page);
     await page.waitForTimeout(500);
-    const result = await timed(page, calls, () => page.getByRole("button", { name: /View strength progress/ }).first().click(), () => page.getByRole("button", { name: /View all \d+ regions/ }));
+    const result = await inPage(page, calls, "openStrength", "strengthMap");
     await context.close();
     return result;
   },
