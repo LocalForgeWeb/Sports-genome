@@ -39,3 +39,23 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Not a regression.** Tests that pinned the old card (`StrengthGenomePanel.rankGate.test.ts`, `…registryReference.render.test.ts`, `StrengthGenomePanel.test.ts`, `strengthGenomeDefinitions.test.ts`) were rewritten to pin its absence. V2 should not restore it (B290).
 
 **Touches.** B065, B066, B290.
+
+## D-005 — Units for history logged before units were stored (28 September 2026, batch 2)
+
+**Finding.** Device sets stored a bare number. The tracker's box always said "lb", while every reader converted the number with the profile's unit *of the day* (inventory PS-10, EN-08, TR-06). Nothing recorded which unit a past set was typed in.
+
+**Decision.** Each set now stores its unit, and each session the unit it started with (see contracts.md § Logged weights and units). History without a unit is assigned the profile's unit once — when the profile has first been read after this build loads — and marked `weightUnitInferred: true`.
+
+**Why the profile's unit.** It is what every screen, rank and sync has already used for these sets, so the assignment changes no number the athlete has seen. The alternative, the box label ("lb"), would silently change every kg athlete's history by a factor of 2.2. Marking the rows "unknown" and excluding them would drop all existing history from ranks. The flag keeps the inference visible for any later correction.
+
+**Consequence.** For kg athletes whose history was typed against the "lb" label, the ambiguity that already existed is frozen, not resolved. From now on a unit switch cannot rescale a past lift.
+
+**Touches.** B024, B025, B048, B243; PS-10, EN-08, TR-06.
+
+## D-006 — A finish with nothing logged is not a workout (28 September 2026, batch 2) — intentional behavior change
+
+**Decision.** "Finish workout early" with no completed set ends the session and stores nothing (it used to store a completed session with no exercises, counted as a workout on Home and Progress and marking the day trained). Counts everywhere use `isCompletedWorkout` / `isCompletedSet`, so any such session already stored is no longer counted either. Progress now selects typed lifts and sessions by the same `directAccess` rule as Home and Strength; it used to add the device's and the account's together.
+
+**Not a regression.** `athleteRecord.test.ts` pinned the old count (`workoutsRecorded: 1` for an empty finish) and now pins 0; `TodayActionPanel.test.ts` and `ProgressOverviewPanel.test.ts` were updated for the shared selector (B290).
+
+**Touches.** B155, B156, B265.

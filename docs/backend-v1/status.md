@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 237
-- `implementing`: 17
-- `verified`: 14
+- `pending`: 228
+- `implementing`: 20
+- `verified`: 20
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -87,8 +87,8 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B024 | Preserve submitted measurements separately from normalized values and derived estimates. | pending |  |
-| B025 | Store explicit units, load convention, side/laterality, exercise variant, and equipment context where needed. | pending |  |
+| B024 | Preserve submitted measurements separately from normalized values and derived estimates. | implementing | Device sets keep the weight as typed and its unit; kg is derived on read, never stored in their place (contracts.md § Logged weights and units). Account-side tracker rows already store weightUnit; typed tests audited with EN-03/04. |
+| B025 | Store explicit units, load convention, side/laterality, exercise variant, and equipment context where needed. | implementing | Units stored per set and per session (DeviceSetLog.unit, DeviceWorkoutSession.weightUnit). Load convention, laterality and variant context remain with EN-07/EN-09 (batch 3). |
 | B026 | Distinguish unknown from zero and not-applicable from missing. | pending |  |
 | B027 | Define completed, skipped, warm-up, working, failed, and deleted observations consistently with the existing product. | pending |  |
 | B028 | Record event time and ingestion time separately where offline sync or delayed imports matter. | pending |  |
@@ -130,7 +130,7 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B048 | Normalize compatible units without losing original entry units. | pending |  |
+| B048 | Normalize compatible units without losing original entry units. | verified | Entry unit kept on every set; kg derived exactly; sync sends the original value and unit. Tests: client/src/lib/deviceWorkoutLog.units.test.ts, DeviceWorkoutTracker.units.test.ts. D-005 for pre-existing history. |
 | B049 | Make total-load versus per-hand conventions explicit and test both. | pending |  |
 | B050 | Distinguish unilateral results, bilateral totals, and paired dumbbells; do not double every unilateral entry. | pending |  |
 | B051 | Treat assistance as assistance. More assistance for the same task must not be ranked as greater unassisted performance. | pending |  |
@@ -304,11 +304,11 @@ _No requirement IDs in this section._
 | B151 | Keep plan templates and actual workout sessions separate. Editing tomorrow's prescription must not rewrite yesterday's performed sets. | pending |  |
 | B152 | Capture appropriate plan lineage/snapshot when a workout starts, using the existing architecture. | pending |  |
 | B153 | Define explicit session transitions: planned/not-started, active, completed, abandoned, and any existing additional states. | pending |  |
-| B154 | Make start/finish retry-safe so double taps or network retries do not create duplicate sessions or completion counts. | pending |  |
-| B155 | Define what counts as a completed workout, logged lift, and completed set. Use the same definitions in Home, Progress, and Strength. | pending |  |
-| B156 | Do not count a saved plan as a completed workout or a prescribed set as a logged observation. | pending |  |
+| B154 | Make start/finish retry-safe so double taps or network retries do not create duplicate sessions or completion counts. | verified | Start picks up a session already running instead of opening a second (double taps were already guarded); Finish reads the stored copy and refuses to complete a session already finished. Tests: DeviceWorkoutTracker.tabs.test.ts. |
+| B155 | Define what counts as a completed workout, logged lift, and completed set. Use the same definitions in Home, Progress, and Strength. | verified | Definitions in contracts.md § Counts, implemented once (isCompletedSet, isCompletedWorkout, recordedLifts) and used by Home, Progress and Strength. Tests: athleteRecord.test.ts, DeviceWorkoutTracker.tabs.test.ts (empty finish records nothing). D-006. |
+| B156 | Do not count a saved plan as a completed workout or a prescribed set as a logged observation. | verified | An empty finish stores nothing; stored empty sessions are not counted; a planned set is never a completed set; trainingStateByDayLabel no longer marks a day trained by an empty finish. |
 | B157 | Resolve Home's next workout from explicit plan/session rules rather than array position or a stale cached selection. | pending |  |
-| B158 | Keep an in-progress workout resumable across route changes and app restarts. | pending |  |
+| B158 | Keep an in-progress workout resumable across route changes and app restarts. | verified | Active session restored on mount with a resume cue (DeviceWorkoutTracker.live.test.ts resume cases); another tab's writes are picked up via the storage event and never overwritten (DeviceWorkoutTracker.tabs.test.ts). |
 | B159 | Define deletion/correction of a historical set and its effect on aggregates, records, and derived results. | pending |  |
 
 ### 10.2 Reliable add, remove, reorder, and Undo
@@ -457,7 +457,7 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B242 | Convert 100 lb to 45.359237 kg using the exact mass conversion, then round only for display. | implementing | Piper lookup tolerates the 0.02 lb storage error from lb->kg->lb round trips (STORAGE_TOLERANCE_LB) instead of crashing or skipping a band. Per-set unit storage in batch 2. |
-| B243 | Verify equivalent pound/kilogram representations produce equivalent normalized results within declared floating-point tolerance. | pending |  |
+| B243 | Verify equivalent pound/kilogram representations produce equivalent normalized results within declared floating-point tolerance. | verified | 100 kg and 220.46226218487757 lb give the same kg within 1e-9; 100 lb = 45.359237 kg exactly; a 225 lb set stays 102.058 kg after a unit switch (deviceWorkoutLog.units.test.ts). |
 | B244 | A pair of 25 kg dumbbells under a total-external-load convention normalizes to 50 kg; the same entry explicitly recorded as 25 kg total remains 25 kg. | pending |  |
 | B245 | A unilateral 25 kg lift is not automatically converted to 50 kg merely because the user has two limbs. | pending |  |
 | B246 | For a deliberately defined assisted-pull-up protocol, verify increasing assistance cannot improve the inferred unassisted performance with… | pending |  |
@@ -494,7 +494,7 @@ _No requirement IDs in this section._
 | B262 | Sign out A → sign in B → no A profile/plan/history leaks from caches. | pending |  |
 | B263 | Change week/day while a request is in flight → response updates its intended destination, not the newly selected day. | pending |  |
 | B264 | Launch with persisted plan loading → pending state, not false empty plan. | verified | Today holds a 'Loading your plan' status until the saved plan and profile are read (main's planReady, merged), and every plan edit is refused with a toast before then, so nothing is confirmed and then overwritten. Test: client/src/pages/Home.undoAndLoading.test.ts. |
-| B265 | Home/Plan/analysis/Progress use matching definitions and revisions for shared counts and scores. | pending |  |
+| B265 | Home/Plan/analysis/Progress use matching definitions and revisions for shared counts and scores. | implementing | Home and Progress now share the record selector and definitions (D-006). Plan/analysis revisions are reviewed with coverage unification (B115, batch 5). |
 | B266 | Simulate late calculation response → newer input result remains authoritative. | pending |  |
 
 ## 16. Release gates and definition of done
@@ -563,7 +563,7 @@ _No requirement IDs in this section._
 | B287 | Record existing engine versions and assign new versions only for meaningful calculation/contract changes. | pending |  |
 | B288 | Maintain a compatibility map between client contract, engine version, schema revision, and reference-data revision. | pending |  |
 | B289 | Preserve baseline fixtures and add regression cases for every material bug repaired in V1. | pending |  |
-| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes are recorded as decisions (D-004 competitor rank) and in the rewritten tests; the handoff will list them all. |
+| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes recorded as decisions with the tests rewritten: D-004 (competitor rank), D-006 (empty finish, shared counts). The handoff will list them all. |
 | B291 | Carry unresolved issues forward with stable IDs, dependencies, attempted approaches, and evidence. | pending |  |
 | B292 | Separate V2 ideas from unfinished V1 requirements. Do not quietly reclassify incomplete launch-critical work as a future enhancement. | pending |  |
 | B293 | For each candidate extension, identify whether it adds a module, expands supported inputs, improves evidence, or changes existing semantics. | pending |  |

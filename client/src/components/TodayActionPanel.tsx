@@ -7,7 +7,7 @@ import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
 import { confirmedChangeEmphasis, leadingConfirmedChange, selectHomePriority } from "@/lib/homeStateSummary";
 import { getRegistryReferenceForObservation, type RegistryReferenceProfile } from "@/lib/registryReference";
-import { summarizeTrainingWeek, type TrainingSession } from "@/lib/trainingWeekSummary";
+import type { TrainingSession } from "@/lib/trainingWeekSummary";
 import { useAthleteRecord } from "@/lib/athleteRecord";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 
@@ -69,7 +69,6 @@ export type TodayActionPanelProps = {
 };
 
 export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayLabel, live, planHasDays, planReady = true, athleteName, directAccess = true, weightUnit = "lb", onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour }: TodayActionPanelProps) {
-  const overview = trpc.strengthGenome.overview.useQuery();
   const sessions = trpc.workoutLog.list.useQuery();
   const observations = trpc.strengthGenome.observations.useQuery();
   const trackedSets = trpc.workoutLog.progressionHistory.useQuery();
@@ -83,10 +82,11 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
    * On an account the week is the account's saved sessions; on this device it is
    * the device's finished workouts - the same definition Progress reads.
    */
-  const completedThisWeek = directAccess
-    ? record.completedThisWeek
-    : summarizeTrainingWeek((sessions.data || []) as TrainingSession[], trainingDays).completedThisWeek;
-  const liftsLogged = directAccess ? record.liftsLogged : (overview.data?.observationCount ?? record.liftsLogged);
+  // One definition for every count (B155, B265): the record, which already reads the
+  // account's lifts and sessions when the account is the source. The account branch used to
+  // count typed lifts only, and a different set of sessions, from Progress.
+  const completedThisWeek = record.completedThisWeek;
+  const liftsLogged = record.liftsLogged;
   const hasStagedWorkout = stagedExerciseCount > 0;
   const nextSession = splitDayLabel(activeDayLabel);
 

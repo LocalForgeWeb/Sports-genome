@@ -167,9 +167,11 @@ export function useAthleteSync(options: {
           catalogExerciseId,
           observedAt: observation.observedAt,
           measurementType: observation.measurementType,
-          // Sent in the athlete's own unit; load_kg is generated in Postgres.
-          reportedLoad: observation.loadKg === undefined ? undefined : Number((weightUnit === "kg" ? observation.loadKg : observation.loadKg / 0.45359237).toFixed(2)),
-          reportedUnit: weightUnit,
+          // Sent exactly as typed, in the unit it was typed in; load_kg is generated in
+          // Postgres. It used to be re-expressed in today's profile unit, so a set logged
+          // in lb and synced after a switch to kg arrived as kilograms.
+          reportedLoad: observation.reportedLoad,
+          reportedUnit: observation.reportedUnit ?? weightUnit,
           repetitions: observation.repetitions,
           bodyMassKgAtTest: observation.bodyMassKgAtTest,
           source: "device" as const,

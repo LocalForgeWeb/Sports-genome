@@ -5,6 +5,7 @@ import {
   countPlannedSets,
   deviceWorkoutHistoryEvent,
   loadDeviceWorkoutSessions,
+  isCompletedWorkout,
   isExerciseSkipped,
 } from "@/lib/deviceWorkoutLog";
 
@@ -78,7 +79,8 @@ export function trainingStateByDayLabel(sessions = loadDeviceWorkoutSessions()):
     if (!session.dayLabel) continue;
     // A session running now outranks one finished earlier on the same day.
     if (session.status === "active") states[session.dayLabel] = "live";
-    else if (!states[session.dayLabel]) states[session.dayLabel] = "trained";
+    // A finish with nothing logged did not train the day.
+    else if (!states[session.dayLabel] && isCompletedWorkout(session)) states[session.dayLabel] = "trained";
   }
   return states;
 }

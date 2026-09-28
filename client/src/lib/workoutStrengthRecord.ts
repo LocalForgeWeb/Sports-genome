@@ -1,7 +1,7 @@
-import { displayWeightToKilograms, type DisplayWeightUnit } from "@/lib/weightUnits";
+import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
-import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { setWeightKg, setWeightUnit, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { resolveStrengthObservationRoute, strengthRegionIdsForCatalogMuscles } from "../../../shared/strengthGenomeDefinitions";
 
 /**
@@ -25,6 +25,9 @@ export type WorkoutStrengthObservation = {
   observedAt: string;
   measurementType: "MULTI_REP";
   loadKg?: number;
+  /** The weight exactly as it was typed, and the unit it was typed in - what is sent to the account. */
+  reportedLoad?: number;
+  reportedUnit?: DisplayWeightUnit;
   repetitions?: number;
   /** Where the athlete saw this happen, so the record can say so. */
   sessionLabel: string;
@@ -115,7 +118,8 @@ function numeric(value: string | undefined) {
  */
 export function workoutStrengthObservations(
   sessions: readonly DeviceWorkoutSession[],
-  weightUnit: DisplayWeightUnit = "lb",
+  /** Only for sets logged before units were stored and not yet stamped; every other set carries its own unit. */
+  fallbackUnit: DisplayWeightUnit = "lb",
   bodyWeightLog: readonly BodyWeightEntry[] = [],
 ): WorkoutStrengthObservation[] {
   const observations: WorkoutStrengthObservation[] = [];
@@ -126,14 +130,16 @@ export function workoutStrengthObservations(
     // both are frozen values, so a later weight change cannot reach a lift already recorded.
     const bodyMassKgAtTest = bodyWeightKgAt(bodyWeightLog, observedAt) ?? session.bodyMassKgAtCompletion;
     session.exercises.forEach((exercise) => {
+      // Each set is read in the unit it was typed in, and compared in kilograms, so a
+      // session that mixed units still finds its heaviest set.
       const logged = exercise.sets
         .filter((set) => set.completed && !set.skipped)
-        .map((set) => ({ weight: numeric(set.weight), reps: numeric(set.reps) }))
+        .map((set) => ({ weightKg: setWeightKg(set, session, fallbackUnit), weight: numeric(set.weight), unit: setWeightUnit(set, session, fallbackUnit), reps: numeric(set.reps) }))
         .filter((set) => set.reps !== undefined);
       if (!logged.length) return;
       const best = logged.reduce((leader, set) => {
-        const leaderWeight = leader.weight ?? 0;
-        const setWeight = set.weight ?? 0;
+        const leaderWeight = leader.weightKg ?? 0;
+        const setWeight = set.weightKg ?? 0;
         if (setWeight !== leaderWeight) return setWeight > leaderWeight ? set : leader;
         return (set.reps ?? 0) > (leader.reps ?? 0) ? set : leader;
       });
@@ -142,7 +148,9 @@ export function workoutStrengthObservations(
         exerciseName: exercise.exerciseName,
         observedAt,
         measurementType: "MULTI_REP",
-        loadKg: best.weight === undefined ? undefined : displayWeightToKilograms(best.weight, weightUnit),
+        loadKg: best.weightKg,
+        reportedLoad: best.weightKg === undefined ? undefined : best.weight,
+        reportedUnit: best.weightKg === undefined ? undefined : best.unit,
         repetitions: best.reps,
         sessionLabel: session.dayLabel || session.title,
         sessionId: session.id,

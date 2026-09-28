@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { strengthRegionDefinitions } from "@shared/strengthGenomeDefinitions";
 import { bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "./bodyWeightLog";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, type DeviceStrengthObservation } from "./deviceStrengthObservations";
-import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "./deviceWorkoutLog";
+import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "./deviceWorkoutLog";
 import { summarizeTrainingWeek, type TrainingSession } from "./trainingWeekSummary";
 import type { DisplayWeightUnit } from "./weightUnits";
 import { strengthRegionIdsForExerciseName, workoutStrengthObservations, type WorkoutStrengthObservation } from "./workoutStrengthRecord";
@@ -64,7 +64,8 @@ export function countCoveredRegions(lifts: readonly { exerciseName: string }[]):
 
 /** A finished device workout in the shape the week summary reads. */
 export function deviceSessionsAsTraining(sessions: readonly DeviceWorkoutSession[]): TrainingSession[] {
-  return sessions.map((session, index) => ({
+  // A finish with nothing logged is not a workout; a running session stays, for resume.
+  return sessions.filter((session) => session.status === "active" || isCompletedWorkout(session)).map((session, index) => ({
     id: index,
     title: session.title,
     dayLabel: session.dayLabel,
@@ -72,7 +73,7 @@ export function deviceSessionsAsTraining(sessions: readonly DeviceWorkoutSession
     startedAt: session.startedAt,
     completedAt: session.completedAt ?? null,
     exerciseCount: session.exercises.length,
-    completedSetCount: session.exercises.reduce((total, exercise) => total + exercise.sets.filter((set) => set.completed && !set.skipped).length, 0),
+    completedSetCount: session.exercises.reduce((total, exercise) => total + exercise.sets.filter(isCompletedSet).length, 0),
   }));
 }
 

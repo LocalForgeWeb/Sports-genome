@@ -47,9 +47,23 @@ describe("the athlete's record, read one way", () => {
     expect(summary.setsThisWeek).toBe(3);
   });
 
-  it("does not count a workout with no logged reps as a lift", () => {
+  // Intentional change (Backend V1 B155, B156): a finish with nothing logged used to count
+  // as a workout recorded and as a workout this week. It is not a workout.
+  it("does not count a finish with no completed set as a workout, or as a lift", () => {
     const empty = session("1", 1, [["Back Squat", 0]]);
-    expect(summarizeAthleteRecord({ ...base, deviceSessions: [empty] })).toMatchObject({ liftsLogged: 0, workoutsRecorded: 1 });
+    expect(summarizeAthleteRecord({ ...base, deviceSessions: [empty] })).toMatchObject({ liftsLogged: 0, workoutsRecorded: 0, completedThisWeek: 0, setsThisWeek: 0 });
+  });
+
+  it("counts a set marked done with no reps as a set and its workout, but not as a lift", () => {
+    const noReps = session("1", 1, [["Back Squat", 1]]);
+    noReps.exercises[0].sets[0].reps = "";
+    expect(summarizeAthleteRecord({ ...base, deviceSessions: [noReps] })).toMatchObject({ liftsLogged: 0, workoutsRecorded: 1, setsThisWeek: 1 });
+  });
+
+  it("does not count skipped sets, and a workout of only skipped sets is not a workout", () => {
+    const skipped = session("1", 1, [["Back Squat", 2]]);
+    skipped.exercises[0].sets.forEach((set) => { set.skipped = true; });
+    expect(summarizeAthleteRecord({ ...base, deviceSessions: [skipped] })).toMatchObject({ workoutsRecorded: 0, setsThisWeek: 0, liftsLogged: 0 });
   });
 
   it("reads the account's typed lifts when the account is the source, and the device's otherwise", () => {
