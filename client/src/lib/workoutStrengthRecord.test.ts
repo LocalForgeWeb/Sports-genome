@@ -84,6 +84,16 @@ describe("carrying a finished workout into the Strength Genome", () => {
       .toEqual(["2026-09-15T19:00:00.000Z", "2026-09-08T19:00:00.000Z"]);
   });
 
+  it("says what the weight means for the exercise, so the account reads it the same way (EN-07, EN-09)", () => {
+    const record = (exerciseName: string, weight: string) => workoutStrengthObservations([session({
+      exercises: [{ id: "a", exerciseName, plannedPrescription: "3 × 8", sets: [set(weight, "8")] }],
+    })])[0];
+    expect(record("Dumbbell Bench Press", "50").loadSemantics).toBe("per_implement");
+    expect(record("Barbell Bench Press", "185").loadSemantics).toBe("total_external_load");
+    expect(record("Pull-Up", "").loadSemantics).toBe("bodyweight_reps");
+    expect(record("Pull-Up", "25").loadSemantics).toBe("additional_load");
+  });
+
   it("reads the athlete's own unit rather than assuming pounds", () => {
     expect(workoutStrengthObservations([session()], "kg")[0].loadKg).toBe(225);
   });

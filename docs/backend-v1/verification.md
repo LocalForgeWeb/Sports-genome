@@ -73,3 +73,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: merge batch 3; probe the live muscle-rank route with a strong and a weak set of one exercise; then load conventions (EN-07, EN-09).
 Access/decision blockers: MySQL unreachable; no iOS shell on main.
 ```
+
+```text
+Current branch/commit and environment: batch 3 merged as #70 (main 837a505); production dpl_CyaDyxAmnmTUrJ6LwXPJu5b1pbtK READY.
+Requirements completed and evidence: batch 3 verified live - the production muscle-rank route, sent bench 100x10 and 80x3 at 80 kg, returned the chest at 84.67 under strength_beta_v2 / best_percentile_per_exercise_v1 (27.35 on the previous production build an hour earlier). Batch 4: B049, B052 verified; B025, B040, B050, B051, B244 implementing. Decision D-009; contract § Load conventions.
+Current confirmed failure/root cause: EN-07 (dumbbell box never said per dumbbell; every lift synced as total_external_load) and EN-09 (Pull-Up +20 kg x 5 = bodyweight x 5 = 15.71, reproduced live; unloaded bodyweight sets never reached ranks).
+Files/migrations changed but not verified: none; no database change.
+Tests run and actual results: tsc 0; vitest 2030 pass, 1 skip, 5 fail (live-Supabase, unreachable here); build OK. New: server/loadConventions.test.ts (10), setEntryFields.test.ts (+2), workoutStrengthRecord.test.ts (+1), muscleRankLifts.test.ts (+3), supabaseStrengthProfile.test.ts (+3), StrengthGenomePanel.weightUnit.render.test.ts (+1).
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: merge batch 4 and probe production with an unloaded and a loaded pull-up; then coverage unification (B115).
+Access/decision blockers: MySQL unreachable; no iOS shell on main.
+```

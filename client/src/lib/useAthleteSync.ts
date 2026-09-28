@@ -175,7 +175,8 @@ export function useAthleteSync(options: {
           repetitions: observation.repetitions,
           bodyMassKgAtTest: observation.bodyMassKgAtTest,
           source: "device" as const,
-          loadSemantics: "total_external_load",
+          // The exercise's own convention, not "total_external_load" for every lift (EN-07).
+          loadSemantics: observation.loadSemantics,
         },
       }];
     });

@@ -3,6 +3,7 @@ import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setWeightKg, setWeightUnit, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
+import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
 import { resolveStrengthObservationRoute, strengthRegionIdsForCatalogMuscles } from "../../../shared/strengthGenomeDefinitions";
 
 /**
@@ -29,6 +30,11 @@ export type WorkoutStrengthObservation = {
   /** The weight exactly as it was typed, and the unit it was typed in - what is sent to the account. */
   reportedLoad?: number;
   reportedUnit?: DisplayWeightUnit;
+  /**
+   * What the weight means for this exercise under the scoring policy - one dumbbell, the pair's
+   * bar, the stack, or load added to a bodyweight movement - sent with the lift (EN-07, EN-09).
+   */
+  loadSemantics: LoadConvention | "additional_load";
   repetitions?: number;
   /** Where the athlete saw this happen, so the record can say so. */
   sessionLabel: string;
@@ -150,6 +156,7 @@ export function workoutStrengthObservations(
         if (setWeight !== leaderWeight) return setWeight > leaderWeight ? set : leader;
         return (set.reps ?? 0) > (leader.reps ?? 0) ? set : leader;
       });
+      const convention = loadConventionFor(catalogByName.get(exercise.exerciseName.trim().toLowerCase())?.id);
       observations.push({
         id: `workout-${session.id}-${exercise.id}`,
         exerciseName: exercise.exerciseName,
@@ -158,6 +165,8 @@ export function workoutStrengthObservations(
         loadKg: best.weightKg,
         reportedLoad: best.weightKg === undefined ? undefined : best.weight,
         reportedUnit: best.weightKg === undefined ? undefined : best.unit,
+        // Weight on a movement scored by reps is load added to the body, not the whole load.
+        loadSemantics: convention === "bodyweight_reps" && best.weightKg !== undefined ? "additional_load" : convention,
         repetitions: best.reps,
         sessionLabel: session.dayLabel || session.title,
         sessionId: session.id,

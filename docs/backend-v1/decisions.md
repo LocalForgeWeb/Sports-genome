@@ -84,3 +84,15 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Not done.** Collecting RIR in the tracker: a product decision about the live-set surface, outside the backend work. When it is added, `repsInReserve` already flows through the engine; the muscle-rank route does not yet send it (`supabaseStrengthProfile.ts`), noted for V2.
 
 **Touches.** B059, B093, B253; EN-06.
+
+## D-009 — What a logged weight means (28 September 2026, batch 4)
+
+**Finding.** The database scores 40 dumbbell movements by one dumbbell and 50 bodyweight movements by reps alone, but the app said neither. The weight box read "Weight" for a dumbbell bench (entering the pair's total doubled the load: 43.10 → 95.00 in the bench trace), every lift was synced as `total_external_load`, and a pull-up with 20 kg added scored 15.71 — exactly as one without (reproduced live). Unloaded bodyweight sets never reached the muscle ranks at all (EN-07, EN-09).
+
+**Decision.** The policy's convention per catalog exercise is copied into `shared/loadConventions.ts` and used everywhere a weight is entered, stored or sent: the box names what to enter; the observation and the sync carry the convention; a bodyweight movement goes to the muscle ranks as reps alone, and a loaded set of one is reported as not scored rather than ranked as if the load were absent. The policy wins over the catalog's equipment field (Chin-Up is "Free weights" in the catalog but scored on reps).
+
+**Alternatives.** Route loaded pull-ups to `score_weighted_pull_chin_v1` — it has no curve for any catalog exercise, so it returns `estimated_only`. Fetch the policy at run time instead of copying it — a request per load for a table that changes with the research record, not with use; the copy is pinned by a test and names its source.
+
+**Consequence carried forward.** Dumbbell sets logged before this change may be pair totals; nothing recorded which. They are read as the database reads them (one dumbbell). Laterality and variant context (B050) are still not recorded per set.
+
+**Touches.** B025, B040, B049, B050, B051, B052, B244; EN-07, EN-09.

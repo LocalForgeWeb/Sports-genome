@@ -3,6 +3,7 @@ import { catalogExerciseIdForName } from "@/lib/strengthPercentileCard";
 import { ageAtLift } from "@/lib/normsCohort";
 import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
 import { strengthLevelAgeFactor } from "@shared/strengthPercentile";
+import { loadConventionFor } from "@shared/loadConventions";
 
 export type RankableObservation = {
   exerciseName: string;
@@ -61,19 +62,27 @@ export function liftBodyMassKg(observation: RankableObservation, history: readon
  * Every exercise's leader goes before any exercise's runner-up; when there are more exercises
  * than the route's cap, the ones trained most recently are kept. Lifts the estimator cannot
  * read (past 15 reps) are not sent: the database refuses them too.
+ *
+ * A movement the scoring policy reads on reps (a pull-up, a dip, a push-up) is sent without
+ * load, as its best set of reps - those never reached the ranks before (EN-09). A loaded set
+ * of one goes too, as the runner-up, so the server can say its added load is not scored.
  */
 export function muscleRankLifts(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): MuscleRankLift[] {
-  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null };
+  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null; repsOnly: boolean };
   const byExercise = new Map<string, Candidate[]>();
   for (const observation of observations) {
-    const loadKg = Number(observation.loadKg);
-    if (observation.loadKg == null || !Number.isFinite(loadKg) || loadKg <= 0 || loadKg > 1000) continue;
+    const catalogExerciseId = catalogExerciseIdForName(observation.exerciseName) ?? null;
+    const scoredOnReps = loadConventionFor(catalogExerciseId) === "bodyweight_reps";
+    const loadKg = observation.loadKg == null || observation.loadKg === "" ? 0 : Number(observation.loadKg);
+    if (!Number.isFinite(loadKg) || loadKg < 0 || loadKg > 1000) continue;
+    if (loadKg === 0 && !scoredOnReps) continue;
     const repetitions = observation.measurementType === "MEASURED_1RM" ? 1 : Math.round(Number(observation.repetitions));
     if (!Number.isFinite(repetitions) || repetitions < 1 || repetitions > 100) continue;
-    const e1rmKg = estimateOneRepMaxKg(loadKg, repetitions);
-    if (e1rmKg === null) continue;
+    const repsOnly = scoredOnReps && loadKg === 0;
+    const e1rmKg = repsOnly ? null : estimateOneRepMaxKg(loadKg, repetitions);
+    if (!repsOnly && e1rmKg === null) continue;
     const lift: MuscleRankLift = {
-      catalogExerciseId: catalogExerciseIdForName(observation.exerciseName) ?? null,
+      catalogExerciseId,
       exerciseName: observation.exerciseName,
       loadKg,
       repetitions,
@@ -82,19 +91,28 @@ export function muscleRankLifts(observations: readonly RankableObservation[], hi
     };
     // Age scales the comparison the way the database will: divide by the published factor.
     const factor = strengthLevelAgeFactor(lift.ageYears);
-    const adjustedKg = e1rmKg / (factor.status === "ok" ? factor.factor : 1);
+    // A rep test is ranked by its reps; a loaded lift by its age-adjusted e1RM.
+    const adjustedKg = repsOnly ? repetitions : e1rmKg! / (factor.status === "ok" ? factor.factor : 1);
     const key = String(lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase());
     const list = byExercise.get(key) ?? [];
-    list.push({ lift, observedAt: new Date(observation.observedAt).getTime() || 0, adjustedKg, relative: lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null });
+    list.push({ lift, observedAt: new Date(observation.observedAt).getTime() || 0, adjustedKg, relative: !repsOnly && lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null, repsOnly });
     byExercise.set(key, list);
   }
 
   const leaders: Candidate[] = [];
   const runnersUp: Candidate[] = [];
+  const strongest = (candidates: Candidate[], by: (candidate: Candidate) => number | null) =>
+    candidates.filter((c) => by(c) !== null).sort((a, b) => by(b)! - by(a)! || b.observedAt - a.observedAt)[0];
   const exercises = Array.from(byExercise.values()).map((candidates) => {
-    const byRelative = [...candidates].filter((c) => c.relative !== null).sort((a, b) => b.relative! - a.relative! || b.observedAt - a.observedAt)[0];
-    const byAbsolute = [...candidates].sort((a, b) => b.adjustedKg - a.adjustedKg || b.observedAt - a.observedAt)[0];
-    return { lastTrained: Math.max(...candidates.map((c) => c.observedAt)), first: byRelative ?? byAbsolute, second: byRelative && byRelative !== byAbsolute ? byAbsolute : null };
+    const lastTrained = Math.max(...candidates.map((c) => c.observedAt));
+    const repTests = candidates.filter((c) => c.repsOnly);
+    if (repTests.length) {
+      const loaded = candidates.filter((c) => !c.repsOnly);
+      return { lastTrained, first: strongest(repTests, (c) => c.adjustedKg)!, second: loaded.length ? strongest(loaded, (c) => c.adjustedKg)! : null };
+    }
+    const byRelative = strongest(candidates, (c) => c.relative);
+    const byAbsolute = strongest(candidates, (c) => c.adjustedKg)!;
+    return { lastTrained, first: byRelative ?? byAbsolute, second: byRelative && byRelative !== byAbsolute ? byAbsolute : null };
   }).sort((a, b) => b.lastTrained - a.lastTrained);
   for (const exercise of exercises) {
     leaders.push(exercise.first);

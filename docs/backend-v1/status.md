@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 218
-- `implementing`: 23
-- `verified`: 27
+- `pending`: 212
+- `implementing`: 27
+- `verified`: 29
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -88,7 +88,7 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B024 | Preserve submitted measurements separately from normalized values and derived estimates. | implementing | Device sets keep the weight as typed and its unit; kg is derived on read, never stored in their place (contracts.md § Logged weights and units). Account-side tracker rows already store weightUnit; typed tests audited with EN-03/04. |
-| B025 | Store explicit units, load convention, side/laterality, exercise variant, and equipment context where needed. | implementing | Units stored per set and per session (DeviceSetLog.unit, DeviceWorkoutSession.weightUnit). Load convention, laterality and variant context remain with EN-07/EN-09 (batch 3). |
+| B025 | Store explicit units, load convention, side/laterality, exercise variant, and equipment context where needed. | implementing | Units per set and session (batch 2) and the policy's load convention per exercise, carried on each observation and in sync (D-009, shared/loadConventions.ts). Laterality and variant context are still not recorded per set. |
 | B026 | Distinguish unknown from zero and not-applicable from missing. | pending |  |
 | B027 | Define completed, skipped, warm-up, working, failed, and deleted observations consistently with the existing product. | pending |  |
 | B028 | Record event time and ingestion time separately where offline sync or delayed imports matter. | pending |  |
@@ -113,7 +113,7 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B039 | Establish a typed boundary for each engine and validate requests/responses at external boundaries. | pending |  |
-| B040 | Define unsupported and partial outcomes explicitly. Do not return an ordinary success score with hidden fallback behavior. | pending |  |
+| B040 | Define unsupported and partial outcomes explicitly. Do not return an ordinary success score with hidden fallback behavior. | implementing | Explicit outcomes added: added_load_not_scored and load_required instead of an ordinary score with the load ignored; estimated_only and failures stay visible in unranked. Wider audit of fallbacks continues. |
 | B041 | Separate numerical uncertainty, evidence quality, data completeness, and protocol compatibility; they are not interchangeable confidence concepts. | pending |  |
 | B042 | Do not invent numeric confidence percentages unless the method has a defensible calibration. Categorical confidence with reason codes is acceptable. | pending |  |
 | B043 | Include stable reason codes so the frontend can explain results without parsing prose. | pending |  |
@@ -131,10 +131,10 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B048 | Normalize compatible units without losing original entry units. | verified | Entry unit kept on every set; kg derived exactly; sync sends the original value and unit. Tests: client/src/lib/deviceWorkoutLog.units.test.ts, DeviceWorkoutTracker.units.test.ts. D-005 for pre-existing history. |
-| B049 | Make total-load versus per-hand conventions explicit and test both. | pending |  |
-| B050 | Distinguish unilateral results, bilateral totals, and paired dumbbells; do not double every unilateral entry. | pending |  |
-| B051 | Treat assistance as assistance. More assistance for the same task must not be ranked as greater unassisted performance. | pending |  |
-| B052 | Preserve bodyweight-exercise conventions. Do not assume every push-up or dip moves exactly full bodyweight through an equivalent external-load… | pending |  |
+| B049 | Make total-load versus per-hand conventions explicit and test both. | verified | Conventions explicit per exercise and tested: per implement, per hand, total, machine, bodyweight reps (server/loadConventions.test.ts, setEntryFields.test.ts, StrengthGenomePanel.weightUnit.render.test.ts). contracts.md § Load conventions. |
+| B050 | Distinguish unilateral results, bilateral totals, and paired dumbbells; do not double every unilateral entry. | implementing | Paired dumbbells are entered and scored per implement (the database's convention), never doubled. Unilateral vs bilateral laterality is still not recorded per set. |
+| B051 | Treat assistance as assistance. More assistance for the same task must not be ranked as greater unassisted performance. | implementing | Assistance is free text and never scored, so it cannot be ranked as performance; assisted exercises have no scoring policy. No numeric assistance convention exists yet (B246 depends on one). |
+| B052 | Preserve bodyweight-exercise conventions. Do not assume every push-up or dip moves exactly full bodyweight through an equivalent external-load… | verified | Bodyweight movements are scored on reps alone, never converted to an external load; a loaded set is reported as added_load_not_scored. Tests: supabaseStrengthProfile.test.ts 'A movement scored on reps', muscleRankLifts.test.ts. |
 | B053 | Do not apply a universal machine-to-free-weight conversion. Preserve machine/protocol specificity and mark unsupported comparisons explicitly. | pending |  |
 | B054 | Keep range-of-motion, paused/touch-and-go, grip, tempo, and equipment differences where the reference actually depends on them. | pending |  |
 | B055 | Define which observations are eligible for strength inference and why others are excluded. | pending |  |
@@ -458,7 +458,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B242 | Convert 100 lb to 45.359237 kg using the exact mass conversion, then round only for display. | implementing | Piper lookup tolerates the 0.02 lb storage error from lb->kg->lb round trips (STORAGE_TOLERANCE_LB) instead of crashing or skipping a band. Per-set unit storage in batch 2. |
 | B243 | Verify equivalent pound/kilogram representations produce equivalent normalized results within declared floating-point tolerance. | verified | 100 kg and 220.46226218487757 lb give the same kg within 1e-9; 100 lb = 45.359237 kg exactly; a 225 lb set stays 102.058 kg after a unit switch (deviceWorkoutLog.units.test.ts). |
-| B244 | A pair of 25 kg dumbbells under a total-external-load convention normalizes to 50 kg; the same entry explicitly recorded as 25 kg total remains 25 kg. | pending |  |
+| B244 | A pair of 25 kg dumbbells under a total-external-load convention normalizes to 50 kg; the same entry explicitly recorded as 25 kg total remains 25 kg. | implementing | A dumbbell entry is one implement and stays so (25 kg is 25 kg per implement); nothing normalizes it to a total because both scoring routes read per implement. A pair-total entry path does not exist to test the other half. |
 | B245 | A unilateral 25 kg lift is not automatically converted to 50 kg merely because the user has two limbs. | pending |  |
 | B246 | For a deliberately defined assisted-pull-up protocol, verify increasing assistance cannot improve the inferred unassisted performance with… | pending |  |
 

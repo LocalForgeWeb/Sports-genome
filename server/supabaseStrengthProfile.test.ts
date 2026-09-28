@@ -5,6 +5,7 @@ const index = [
   { id: "03c880ed-4138-4217-92c2-28fff50845d1", name: "Barbell Bench Press", canonical_name: "barbell_bench_press__catalog_1" },
   { id: "8a5a495f-dbaa-4536-8bf7-f9582d6c43c3", name: "Lat Pulldown", canonical_name: "lat_pulldown__catalog_57" },
   { id: "1c710af1-7799-4cab-a79c-4cbac4048ba4", name: "Preacher Curl", canonical_name: "preacher_curl__catalog_126" },
+  { id: "5b3e0f4e-0000-4000-8000-000000000066", name: "Pull-Up", canonical_name: "pull_up__catalog_66" },
 ];
 
 const communityLabel = "Self-selected Strength Level community lifters (not general population)";
@@ -222,5 +223,34 @@ describe("Which observation speaks for an exercise", () => {
     const withWeaker = twoBenchSets();
     await scoreMuscleProfile(withWeaker, index, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80, 100, 10), lift("Barbell Bench Press", 1, 80, 80, 3)] });
     expect(withWeaker.aggregate.mock.calls[0][0]).toEqual(strongOnly.aggregate.mock.calls[0][0]);
+  });
+});
+
+/**
+ * EN-09, recorded live on 28 September 2026: a Pull-Up scored 15.71 at 80 kg for 5 reps with
+ * 20 kg added and without - the rep curve cannot see added load. Reps alone score as a rep test
+ * (12 reps: the 45th percentile across 12 muscles).
+ */
+describe("A movement scored on reps", () => {
+  it("is sent as reps alone when no weight was added", async () => {
+    const client = fakeClient();
+    await scoreMuscleProfile(client, index, { sex: "male", lifts: [lift("Pull-Up", 66, 80, 0, 12)] });
+    expect(client.scoreProfile.mock.calls[0][2]).toEqual([{ exercise_id: index[3].id, reps: 12, exercise_name: "Pull-Up" }]);
+  });
+
+  it("reports a set with added weight as not scored, instead of ranking it as if the weight were not there", async () => {
+    const client = fakeClient();
+    const result = await scoreMuscleProfile(client, index, { sex: "male", lifts: [lift("Pull-Up", 66, 80, 20, 5), lift("Barbell Bench Press", 1, 80)] });
+    const sent = client.scoreProfile.mock.calls.flatMap((call) => call[2] as { exercise_name: string }[]);
+    expect(sent.map((observation) => observation.exercise_name)).toEqual(["Barbell Bench Press"]);
+    if (result.status === "unavailable") throw new Error("expected a profile");
+    expect(result.unranked).toContainEqual({ exerciseName: "Pull-Up", reason: "added_load_not_scored" });
+    expect(result.status).toBe("partial");
+  });
+
+  it("asks for the weight of a loaded exercise sent without one", async () => {
+    const result = await scoreMuscleProfile(fakeClient(), index, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80, 0, 5)] });
+    if (result.status === "unavailable") throw new Error("expected a profile");
+    expect(result.unranked).toEqual([{ exerciseName: "Barbell Bench Press", reason: "load_required" }]);
   });
 });

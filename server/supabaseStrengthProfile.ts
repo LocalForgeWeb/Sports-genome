@@ -1,4 +1,5 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
+import { loadConventionFor } from "../shared/loadConventions";
 import { mapWithConcurrency, withTimeout } from "./boundedCache";
 import {
   MUSCLE_CONFIDENCE_CALIBRATION_VERSION,
@@ -230,17 +231,30 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
   const failures: ProfileFailure[] = [];
   // Grouped by weight to the tenth of a kilogram, which is finer than any scale an athlete
   // reads, and by age at the lift, since one group is scored and adjusted as one.
-  type Observation = { exercise_id: string; load: number; unit: "kg"; reps: number; exercise_name: string };
+  // A movement scored on reps goes as reps alone; everything else carries its load in kg.
+  type Observation = { exercise_id: string; load?: number; unit?: "kg"; reps: number; exercise_name: string };
   const groups = new Map<string, { bodyweightKg: number; ageYears: number | null; observations: Observation[] }>();
   for (const lift of request.lifts) {
     const exercise = findProfileExercise(index, lift);
     if (!exercise) { failures.push({ exerciseName: lift.exerciseName, reason: "exercise_not_recognised" }); continue; }
     if (!lift.bodyMassKg || lift.bodyMassKg <= 0) { failures.push({ exerciseName: lift.exerciseName, reason: "body_mass_required" }); continue; }
+    /*
+     * The scoring policy's convention (shared/loadConventions.ts). A movement scored on reps -
+     * a pull-up, a dip - is read from its rep curve, which knows nothing of added load: a
+     * pull-up with 20 kg on the belt scored exactly as one without (EN-09). Rather than return
+     * that as an ordinary rank, a loaded set of such a movement is reported as not scored, and
+     * an unloaded one is sent as the rep test it is. Anything else needs its load.
+     */
+    const repsOnly = loadConventionFor(catalogIdOf(exercise.canonical_name)) === "bodyweight_reps";
+    if (repsOnly && lift.loadKg > 0) { failures.push({ exerciseName: lift.exerciseName, reason: "added_load_not_scored" }); continue; }
+    if (!repsOnly && !(lift.loadKg > 0)) { failures.push({ exerciseName: lift.exerciseName, reason: "load_required" }); continue; }
     const bodyweightKg = Math.round(lift.bodyMassKg * 10) / 10;
     const ageYears = isFiniteIn(lift.ageYears, 0, 120) ? Math.round(lift.ageYears * 10) / 10 : null;
     const key = `${bodyweightKg}|${ageYears ?? "-"}`;
     const group = groups.get(key) ?? { bodyweightKg, ageYears, observations: [] };
-    group.observations.push({ exercise_id: exercise.id, load: lift.loadKg, unit: "kg", reps: lift.repetitions, exercise_name: exercise.name });
+    group.observations.push(repsOnly
+      ? { exercise_id: exercise.id, reps: lift.repetitions, exercise_name: exercise.name }
+      : { exercise_id: exercise.id, load: lift.loadKg, unit: "kg", reps: lift.repetitions, exercise_name: exercise.name });
     groups.set(key, group);
   }
 

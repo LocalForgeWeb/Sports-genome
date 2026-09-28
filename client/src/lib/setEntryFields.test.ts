@@ -33,6 +33,18 @@ describe("what a set actually records", () => {
     expect(plank).toMatchObject({ label: "Added weight", optional: true });
   });
 
+  // Backend V1 EN-07: the database scores dumbbell work by one dumbbell, and nothing said so.
+  it("asks for one dumbbell's weight wherever the scoring policy reads one implement", () => {
+    expect(shapeOf("Dumbbell Bench Press")).toEqual(["Weight per dumbbell (lb)"]);
+    expect(shapeOf("Hammer Curl")).toEqual(["Weight per dumbbell (lb)"]);
+    expect(shapeOf("Farmer’s Walk")).toEqual(["Weight per hand (lb)"]);
+  });
+
+  it("calls load on a movement scored on reps added weight, whatever the catalog files it under", () => {
+    // Chin-Up is "Free weights" in the catalog, but the policy compares it on reps.
+    expect(setEntryFieldsFor(exercises.find((exercise) => exercise.name === "Chin-Up"))[0]).toMatchObject({ label: "Added weight", optional: true });
+  });
+
   it("leaves an ordinary barbell or machine lift exactly as it was", () => {
     expect(shapeOf("Barbell Hip Thrust")).toEqual(["Weight (lb)"]);
     expect(shapeOf("Hack Squat")).toEqual(["Weight (lb)"]);
