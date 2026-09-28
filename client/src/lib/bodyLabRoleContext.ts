@@ -19,6 +19,26 @@ export type BodyLabRoleContext = {
   methodology: string;
 };
 
+/**
+ * What the Body Lab shows when the athlete has chosen no sport.
+ *
+ * Reported: an athlete picked "no sport" and a lower-back focus, and the Body Lab
+ * showed them the wrestling penetration step. Nothing was random about it. With no
+ * sport chosen, `selectedSport` falls back to `sportProfiles[0]`, which is
+ * Wrestling; `activeSportId` becomes "wrestling"; and `findSportMovement` returns
+ * that sport's first movement, which is the penetration step. Three ordinary
+ * fallbacks in a row turned an empty answer into a confident wrong one.
+ *
+ * An empty role map is the honest value: no muscle is claimed for an action the
+ * athlete never selected.
+ */
+export const noSportActionRoleContext: BodyLabRoleContext = {
+  primary: [],
+  supporting: [],
+  rolesByMuscle: {},
+  methodology: "No sport action is selected, so no muscle roles are shown. Pick a sport above to see what one of its actions asks of the body.",
+};
+
 const muscleAliases: Record<string, string[]> = {
   chest: ["pectoralis major", "pectoralis minor", "chest"],
   frontDelts: ["anterior deltoid"], sideDelts: ["lateral deltoid", "middle deltoid"], rearDelts: ["posterior deltoid"], shoulders: ["deltoid"],

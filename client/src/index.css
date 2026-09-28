@@ -3213,3 +3213,18 @@ details:not([open]) > *:not(summary) {
 [data-theme="dark"] .local-search-scope { color: var(--sg-text-muted-on-dark); }
 [data-theme="dark"] .local-search-scope button { color: var(--sg-link-on-dark); }
 [data-theme="dark"] .movement-assistance-content em { color: var(--sg-focus-on-dark); }
+
+/* The Body Lab's action layer when no sport is chosen. Same surface and rhythm as
+   the navigator it stands in for, so the screen keeps its shape. */
+.body-lab-pick-sport{margin-bottom:1rem;border:1px solid var(--sg-divider-on-light);border-radius:16px;background:var(--sg-surface-light);padding:1.1rem}
+.body-lab-pick-sport h1{margin-top:.35rem;color:var(--sg-text-on-light);font-family:"Barlow Condensed",sans-serif;font-size:var(--sg-text-lg);font-weight:800;line-height:1.05;text-transform:uppercase}
+.body-lab-pick-sport > p{margin-top:.5rem;color:var(--sg-text-muted-on-light);font-size:var(--sg-text-sm);line-height:var(--sg-leading-body)}
+.body-lab-pick-sport-options{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.85rem}
+.body-lab-pick-sport-options button{min-height:2.5rem;border:1px solid var(--sg-control-border-on-light,var(--sg-divider-on-light));border-radius:999px;padding:0 .9rem;color:var(--sg-text-on-light);font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
+.body-lab-pick-sport-options button:hover{border-color:var(--sg-info-strong);color:var(--sg-info-strong)}
+.body-lab-pick-sport-catalog{display:inline-flex;align-items:center;gap:.4rem;min-height:2.5rem;margin-top:.8rem;color:var(--sg-info-strong);font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
+[data-theme="dark"] .body-lab-pick-sport{border-color:var(--sg-control-border-on-dark);background:linear-gradient(145deg,var(--sg-surface-raised),var(--sg-surface-deep))}
+[data-theme="dark"] .body-lab-pick-sport h1{color:var(--sg-text-on-dark)}
+[data-theme="dark"] .body-lab-pick-sport > p{color:var(--sg-text-muted-on-dark)}
+[data-theme="dark"] .body-lab-pick-sport-options button{border-color:var(--sg-control-border-on-dark);color:var(--sg-text-on-dark)}
+[data-theme="dark"] .body-lab-pick-sport-catalog{color:var(--sg-link-on-dark)}
