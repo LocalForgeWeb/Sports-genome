@@ -1207,3 +1207,23 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .day-review-stack .weekly-volume-row > b { grid-row: auto; }
 @media (max-width: 640px) { .weekly-volume-more > summary small { display: none; } }
 .day-review-stack .programming-guide-summary-signal, .day-review-stack .programming-guide-summary-signal span, .day-review-stack .health-review-link { font-size: var(--sg-text-sm); letter-spacing: 0; text-transform: none; }
+
+/* A plan that changed on this device and on the account: syncing waits for the athlete. */
+.plan-sync-conflict {
+  margin: 0 0 1rem;
+  border-left: 3px solid var(--sg-state-critical);
+  background: rgb(226 86 74 / .16);
+  padding: .75rem .9rem;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-sm);
+  line-height: var(--sg-leading-body);
+}
+.plan-sync-conflict div { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .6rem; }
+.plan-sync-conflict button {
+  min-height: 44px;
+  border: 1px solid rgb(255 255 255 / .28);
+  border-radius: .6rem;
+  padding: .4rem .8rem;
+  color: var(--sg-text-on-dark);
+  background: rgb(255 255 255 / .06);
+}

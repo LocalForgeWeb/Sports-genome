@@ -87,3 +87,9 @@ No weighted-bodyweight curve exists for any catalog pull-up, chin-up or dip (`sc
 | Relative involvement | The exercise-genome share of the day's most-worked muscle (`analyzeWholeStackMuscles`). Shown as "relative involvement", never as coverage or a gap. |
 | Picker order | Search relevance, then the shortfall points a candidate would close (for each gap, its contribution capped at that gap), then the previous tiers. |
 | Set counts | One resolver: the athlete's prescription, else `getGoalPrescription(goal, position in the day)`. Home hands the resolved map to every surface. |
+
+## Account records on a device and plan sync (B171, B173, B262)
+
+- **Per-account records:** plan (`gym-optimizer-workout-plan-v1::<account>`), profile (`gym-optimizer-athlete-profile-v1::<account>`), favourites (`gym-optimizer-favorite-exercise-ids-v1::<account>`), and the plan-sync base (`sports-genome-plan-sync-base-v1::<account>`). A signed-out session uses the unscoped key. A record is read before anything may be written to it; an empty record starts empty, never with the previous account's state.
+- **Device-level records (not yet per account, D-012):** workout history, typed lifts, body-weight log, lift sync queue and synced keys.
+- **Plan sync decision (`reconcilePlans`):** device vs account vs last agreement → `same` | `device` (account unchanged, or only the device has a plan) | `server` (device unchanged, or only the account has one) | `conflict`. On a conflict, and on a `conflict` reply to a save, no push is made until `resolveConflict("device" | "account")`. A kept device plan is written on top of the account's current revision; a taken account plan becomes the new agreement. The device copy an adoption replaced is never pushed afterwards.
