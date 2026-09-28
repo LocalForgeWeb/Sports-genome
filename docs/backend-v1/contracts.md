@@ -23,7 +23,7 @@ Calculation and data contracts, mapped to the code that implements them (brief �
 |---|---|
 | Completed set | A set the athlete marked done and did not skip. A planned set is never a completed set. |
 | Completed workout | A finished session holding at least one completed set. Finishing with nothing logged ends the session and records nothing. |
-| Logged lift | One per exercise per completed workout - its heaviest completed set with at least one rep - plus each typed test. A completed set with no reps is a set, not a lift. |
+| Logged lift | One per exercise per completed workout - its completed set with the highest estimated 1RM (the heaviest, only when no set can be estimated) - plus each typed test. A completed set with no reps is a set, not a lift. |
 | Whose records | Typed lifts: the device's while the app runs on the device stores (`directAccess`), otherwise the account's. Workouts: the device's always, plus the account's sessions when the account is the source. Lifts carried from device workouts are always included. Home, Progress and Strength apply the same rule. |
 | This week | Completed workouts whose finish falls on or after the start of the current training week, and their completed sets. |
 
@@ -33,3 +33,27 @@ Calculation and data contracts, mapped to the code that implements them (brief �
 - Every change to a running session is applied to the copy in storage at that moment, so a set logged in another tab is kept. Another tab's writes are picked up through the `storage` event.
 - A session finished or removed elsewhere takes no further changes here and closes with a notice; Finish reads the stored copy, so it includes sets logged in another tab and cannot complete a session twice.
 - Local durability only. Account sync states are batch 6 (B169, B176).
+
+
+## Estimated 1RM and placement (B017, B044, B056, B057, B059, B093, B253, B287)
+
+**Code.** `shared/strengthPercentile.ts` (`estimateOneRepMax`, `placeOnCurve`, `resolveStrengthPercentile`), `shared/oneRepMaxEstimation.ts`. **Transcribed from** the database functions `estimate_e1rm_strengthlevel_v1`, `estimate_e1rm_v1`, `get_strength_e1rm_estimator_v1`, `get_beta_strength_percentile_v1_core` (definitions read 28 September 2026). **Pinned by** `server/strengthPercentile.parity.test.ts` (ten sets against the database's own outputs, within 0.005 percentile).
+
+| | |
+|---|---|
+| Estimator choice | Strength Level curve → `strengthlevel_compatible_v1`; any other curve → `sports_genome_generic_v1`. Surfaces that place nothing (trends, a workout's strongest set, the declared competition comparison) use `strengthlevel_compatible_v1`. |
+| `strengthlevel_compatible_v1` | Effective reps e = reps + RIR. e < 8: Brzycki `load × 36 / (37 − e)`; e > 10: Epley `load × (1 + e/30)`; 8 ≤ e ≤ 10: Brzycki × (1 − (e−8)/2) + Epley × (e−8)/2. |
+| `sports_genome_generic_v1` | 1 rep with no RIR: the load. Otherwise the mean of Epley and Brzycki. |
+| Accepted input | Reps 1–15 (integer, rounded as the database casts), RIR 0–5 when reported, e < 20. Anything else: `repetitions_out_of_range`. A measured 1RM passes through. |
+| Precision | e1RM kept to 3 decimals (the value the database places). Curve value and percentile are not rounded before banding; the card rounds the percentile to a whole ordinal for display. |
+| Confidence | The database's tables by effective reps; unknown effort −0.08 (floor 0.50); reported RIR > 0 −min(0.12, 0.025 × RIR) (floor 0.45) on the Strength Level route. Then capped by the source and the age table. Confidence never moves the percentile. |
+| Tails | Past the top or bottom anchor the card returns `above_highest_anchor` / `below_lowest_anchor` with the edge percentile; the database enters the lift at that edge (`above_range`, `below_range`). Both mean "at least the 95th" / "at most the 5th". |
+| Effort | Unrecorded RIR is `repsInReserve: null`, read as a set to failure (the source calculator's protocol). The estimate is then a floor, and the card says so (D-008). |
+| Version | Results carry `strength_beta_v2` with the estimator named. The database's `strength_scoring_versions.strength_beta_v2` row still says it uses v1's e1RM math; correcting it is a prepared migration (batch 7). |
+
+## Which observation counts (B061, B063, B083)
+
+- **Muscle ranks: best historical.** The client sends each exercise's strongest lifts by age-adjusted e1RM (relative to body mass, and absolute), whenever logged (`muscleRankLifts`). The server scores them all and passes the aggregation one per exercise: the highest percentile, keeping that observation's own confidence (`bestObservationPerExercise`, rule `best_percentile_per_exercise_v1`). Adding a weaker lift can never lower a rank.
+- **A finished workout:** its strongest set by e1RM, one observation per exercise.
+- **The single-lift card and Progress:** the lift being looked at, or a trend's latest lift. Neither is a best-of.
+- **Duplicates:** identical lifts are sent once. Correlated variants are handled by the database aggregation's movement-pattern redundancy decay (0.55 per additional exercise in the same pattern).

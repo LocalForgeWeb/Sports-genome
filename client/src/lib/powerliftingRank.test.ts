@@ -23,11 +23,12 @@ describe("rankableOneRepMaxKg", () => {
   });
 
   it("estimates from a multi-rep set, and says that it did", () => {
-    // Epley: 100 x 5 -> 116.67. Refusing to rank an ordinary working set was why
-    // the screen had a number for nobody.
+    // The app's one estimator (Backend V1 EN-03): Brzycki below 8 reps, so 100 x 5 -> 112.5,
+    // not Epley's 116.67. Refusing to rank an ordinary working set was why the screen had a
+    // number for nobody.
     const result = rankableOneRepMaxKg({ exerciseName: "x", measurementType: "MULTI_REP", loadKg: 100, repetitions: 5 });
     expect(result?.basis).toBe("estimated");
-    expect(result?.kg).toBeCloseTo(116.67, 1);
+    expect(result?.kg).toBeCloseTo(112.5, 3);
   });
 
   it("treats a single rep as measured, because it is one", () => {

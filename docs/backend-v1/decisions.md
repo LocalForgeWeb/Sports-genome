@@ -59,3 +59,28 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Not a regression.** `athleteRecord.test.ts` pinned the old count (`workoutsRecorded: 1` for an empty finish) and now pins 0; `TodayActionPanel.test.ts` and `ProgressOverviewPanel.test.ts` were updated for the shared selector (B290).
 
 **Touches.** B155, B156, B265.
+
+## D-007 — One e1RM, and the best lift counts (28 September 2026, batch 3) — intentional behavior change
+
+**Finding.** Three estimators read the same set: the card averaged Epley and Brzycki up to 12 reps, the muscle ranks used the database's Strength Level calculator up to 15, trends used Epley up to 12. 180 lb × 3 at 145 lb read 60.8 on the card and 57.74 in the ranks (EN-03). The ranks saw the newest 30 lifts only (EN-02), a workout contributed its heaviest set rather than its strongest, and the database aggregation kept an exercise's most confident observation rather than its best, so logging 80 × 3 after 100 × 10 took a chest rank from 84.67 to 27.35 (EN-01, reproduced live).
+
+**Decision.**
+1. The database's estimators are canonical, transcribed into `shared/strengthPercentile.ts` and pinned to its outputs. The Strength Level curves come from Strength Level's calculator protocol, so reading a set with that calculator is the protocol-matched choice (B057). Trends, the workout record and the competition comparison use the same estimator.
+2. Muscle ranks are best historical: the client sends each exercise's strongest lifts by age-adjusted e1RM regardless of date; the server keeps each exercise's highest percentile for the aggregation. No database change was needed: sent one observation per exercise, the aggregation's confidence-first dedup has nothing to choose between.
+3. A finished workout's observation is its strongest set by e1RM.
+
+**Alternatives.** Changing the database aggregation's dedup order (a migration outside this assignment's authorization, B009) — unnecessary given (2). Keeping the card's mean estimator and changing the database — rejected; the database is the research side's record and the curves' own protocol.
+
+**Not a regression.** Numbers on the card change for multi-rep sets (e.g. 100 kg × 5 → 112.5 kg; it was 114.58 on the card (mean) and 116.67 in trends (Epley)). Tests pinning the old estimator (`server/strengthPercentile.test.ts`, `powerliftingRank.test.ts`), the newest-30 rule (`muscleRankLifts.test.ts`, `ageAtLift.scoring.test.ts`) and the heaviest-set rule (`workoutStrengthRecord.test.ts`) were rewritten to the new values with the reason inline (B290).
+
+**Touches.** B017, B056, B057, B061, B063, B083, B287; EN-01–EN-04, EN-18, EN-19.
+
+## D-008 — Unrecorded effort (28 September 2026, batch 3)
+
+**Finding.** No surface records reps in reserve. Missing RIR was silently equal to 0 in the card, and the database treats it as a set to failure with a confidence penalty (EN-06).
+
+**Decision.** Keep the source protocol — a set without recorded effort is read as taken to failure, which makes the estimate and the placement a **floor** — and say so: the result carries `repsInReserve: null`, confidence drops by 0.08 as in the database, and the card adds "Read as a set taken to failure, because effort was not recorded; if reps were left in reserve, the lift places higher." A reported RIR is used as effective reps (e.g. 70 kg × 5 @ 2 RIR places at 53.26 against 43.68 unknown, both the database's numbers).
+
+**Not done.** Collecting RIR in the tracker: a product decision about the live-set surface, outside the backend work. When it is added, `repsInReserve` already flows through the engine; the muscle-rank route does not yet send it (`supabaseStrengthProfile.ts`), noted for V2.
+
+**Touches.** B059, B093, B253; EN-06.

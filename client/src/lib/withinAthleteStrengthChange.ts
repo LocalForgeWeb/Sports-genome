@@ -84,7 +84,7 @@ function changeStateFor(relativeChangePercent: number): ChangeState {
 
 /**
  * Compares an athlete's own estimated one-rep max over time for the same exercise,
- * using the Epley formula to make different rep ranges comparable (30x10 vs. a later
+ * using the shared Strength Level-compatible e1RM to make different rep ranges comparable (30x10 vs. a later
  * 50x12 both become an estimated 1RM, rather than requiring an identical rep count).
  * Never a population comparison, tier, or percentile - only a within-athlete trend
  * with an explicit insufficient-history/stable/emerging/confirmed change state.

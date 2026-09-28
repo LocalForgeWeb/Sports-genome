@@ -62,3 +62,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: merge batch 2; then batch 3 - strength selection and e1RM parity (EN-01..04, EN-06, EN-07, EN-09).
 Access/decision blockers: MySQL unreachable; no iOS shell on main.
 ```
+
+```text
+Current branch/commit and environment: batch 2 merged as #69 (main 84682e0), production READY. Branch restarted from it for batch 3.
+Requirements completed and evidence: B017, B044, B056, B059, B061, B063, B093, B253 verified; B057, B083, B287 implementing. Decisions D-007 (one e1RM, best lift counts), D-008 (unrecorded effort). Contracts § Estimated 1RM and placement, § Which observation counts.
+Current confirmed failure/root cause: EN-01 reproduced live (bench 100x10 + 80x3 at 80 kg: chest 27.35 sent together, 84.67 best alone); EN-03 card/rank disagreement from three estimators; EN-02 newest-30 selection and heaviest-set choice.
+Files/migrations changed but not verified: none. No database change; the strength_scoring_versions v2 description fix is deferred to the batch 7 prepared migrations.
+Tests run and actual results: tsc 0; vitest 2010 pass, 1 skip, 5 fail (live-Supabase, unreachable here); build OK. New: server/strengthPercentile.parity.test.ts (13, pinned to database outputs), strengthPercentileCard.effort.test.ts (3), supabaseStrengthProfile.test.ts (+2), muscleRankLifts.test.ts (+6 replacing 1), workoutStrengthRecord.test.ts (+1, 2 rewritten), ageAtLift.scoring.test.ts (+1, 2 rewritten).
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: merge batch 3; probe the live muscle-rank route with a strong and a weak set of one exercise; then load conventions (EN-07, EN-09).
+Access/decision blockers: MySQL unreachable; no iOS shell on main.
+```
