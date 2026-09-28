@@ -14,13 +14,23 @@ const lastSpring = { exerciseName: "Barbell Bench Press", loadKg: 81.65, measure
 const thisMonth = { ...lastSpring, loadKg: 85, observedAt: "2026-09-20T10:00:00Z" };
 
 describe("Muscle-rank lifts carry the age at each lift", () => {
+  // One lift per exercise is sent (its strongest, EN-02), so the two lifts are of different
+  // exercises here: each still goes with the age it was lifted at.
+  const squatLastSpring = { ...lastSpring, exerciseName: "Back Squat", loadKg: 100 };
+
   it("carries no age before a birth year is given", () => {
-    expect(muscleRankLifts([lastSpring, thisMonth], [], null).map((lift) => lift.ageYears)).toEqual([null, null]);
+    expect(muscleRankLifts([squatLastSpring, thisMonth], [], null).map((lift) => lift.ageYears)).toEqual([null, null]);
   });
 
   it("gives every earlier lift its own age once one is", () => {
-    const lifts = muscleRankLifts([lastSpring, thisMonth], [], null, 2010);
-    expect(lifts.map((lift) => [lift.loadKg, lift.ageYears])).toEqual([[85, 16], [81.65, 15]]);
+    const lifts = muscleRankLifts([squatLastSpring, thisMonth], [], null, 2010);
+    expect(lifts.map((lift) => [lift.exerciseName, lift.ageYears])).toEqual([["Barbell Bench Press", 16], ["Back Squat", 15]]);
+  });
+
+  it("chooses between one exercise's lifts at the age each was lifted at", () => {
+    // 81.65 kg at 15 is placed as 81.65 / 0.854 = 95.6 kg; 85 kg at 16 as 85 / 0.8784 = 96.8 kg.
+    const [lift] = muscleRankLifts([lastSpring, thisMonth], [], null, 2010);
+    expect([lift.loadKg, lift.ageYears]).toEqual([85, 16]);
   });
 });
 

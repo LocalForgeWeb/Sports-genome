@@ -1,4 +1,5 @@
 import { plural } from "@/lib/plural";
+import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { Activity, ChevronDown, CircleHelp, Dumbbell, Info, Plus, Trash2, X } from "lucide-react";
@@ -13,7 +14,7 @@ import { searchExercises } from "@/lib/exerciseSearch";
 import { displayWeightToKilograms, formatDisplayWeight, kilogramsToDisplayWeight, weightUnitLabel, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations, prependDeviceStrengthObservation, saveDeviceStrengthObservations, setDeviceStrengthObservationBodyMass, type DeviceStrengthObservation, removeDeviceStrengthObservation } from "@/lib/deviceStrengthObservations";
 import { getPiper2021PreacherCurlReference, piper2021PreacherCurlReferenceId, type Piper2021PreacherCurlContext } from "../../../shared/piper2021PreacherCurlReference";
-import { powerliftingRankMissingCopy, powerliftingRankNoPopulationCopy, rankAgainstPowerliftingNorms, getVanDenHoek2024PowerliftingReference, vanDenHoek2024ReferenceId, type PowerliftingRankMissing, type PowerliftingReferenceDeclaration } from "@/lib/powerliftingReference";
+import { getVanDenHoek2024PowerliftingReference, vanDenHoek2024ReferenceId, type PowerliftingReferenceDeclaration } from "@/lib/powerliftingReference";
 import type { PowerliftingNormRow } from "@shared/powerliftingNormsReference";
 import type { NormsReferenceRow } from "@shared/normsReference";
 import { studyGroupLabel } from "@/lib/studyGroupLabel";
@@ -120,8 +121,16 @@ export function StrengthCatalogSelectionPreview({ context }: { context: ReturnTy
   return <div className="strength-selected-exercise" aria-live="polite"><strong>{context.exerciseName}</strong><span>Primary: {context.primaryMuscles.join(" · ")}{context.supportingMuscles.length ? ` · Supporting: ${context.supportingMuscles.join(" · ")}` : ""}</span><small>{context.domainLabels.length ? `Recorded context: ${context.domainLabels.join(" · ")}` : "Recorded context unavailable"}</small><small>{context.boundary}</small></div>;
 }
 
-export function StrengthLoadInput({ weightUnit, value, requiresLoad, onChange }: { weightUnit: DisplayWeightUnit; value: string; requiresLoad: boolean; onChange: (value: string) => void }) {
-  return <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Load in {weightUnitLabel(weightUnit)} {requiresLoad ? "· required" : "· optional"}</span><input aria-label={`Load in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value.replace(/[^0-9.]/g, ""))} placeholder={requiresLoad ? `Enter ${weightUnit}` : "Optional"} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>;
+/** What the load box asks for, by the scoring policy's convention for the exercise (EN-07, EN-09). */
+const loadInputLabel = (convention: LoadConvention, unitLabel: string) =>
+  convention === "per_implement" ? `Weight of one dumbbell in ${unitLabel}`
+    : convention === "per_hand" ? `Weight in each hand in ${unitLabel}`
+      : convention === "bodyweight_reps" ? `Added weight in ${unitLabel}`
+        : `Load in ${unitLabel}`;
+
+export function StrengthLoadInput({ weightUnit, value, requiresLoad, onChange, convention = "total_external_load" }: { weightUnit: DisplayWeightUnit; value: string; requiresLoad: boolean; onChange: (value: string) => void; convention?: LoadConvention }) {
+  const label = loadInputLabel(convention, weightUnitLabel(weightUnit));
+  return <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">{label} {requiresLoad ? "· required" : "· optional"}</span><input aria-label={label} inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value.replace(/[^0-9.]/g, ""))} placeholder={requiresLoad ? `Enter ${weightUnit}` : "Optional"} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>;
 }
 
 export function StrengthBodyMassInput({ weightUnit, value, onChange }: { weightUnit: DisplayWeightUnit; value: string; onChange: (value: string) => void }) {
@@ -193,22 +202,14 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
    * sitting in the table the whole time. This ranks the lift and names the
    * population it is ranked against.
    */
-  const powerliftingRank = latestRecord ? rankAgainstPowerliftingNorms({
-    exerciseName: latestRecord.exerciseName,
-    measurementType: latestRecord.measurementType,
-    loadKg: latestRecord.loadKg == null ? null : Number(latestRecord.loadKg),
-    repetitions: latestRecord.repetitions,
-    // The same weight the ratio above is read against, borrowed provenance
-    // included: ranking off a weight the athlete has already given beats
-    // withholding the rank until they type it a second time. Where it is
-    // borrowed, the card says so.
-    bodyMassKgAtTest: effectiveBodyMassKg ?? null,
-    // The athlete's own answer, unmapped: narrowing it to male/female here made
-    // "Intersex" and "Prefer not to say" arrive as an empty field, and the
-    // screen answered them by asking for the field again.
-    sex: (athleteProfile?.sexForReference as SexForReference | undefined) || undefined,
-    ageYears: ageFromBirthYear(athleteProfile?.birthYear ?? undefined),
-  }, powerliftingNorms) : null;
+  /*
+   * No competitor rank for gym logs. A squat, bench or deadlift logged in the gym was
+   * ranked against drug-tested, unequipped powerlifting competitors (van den Hoek 2024),
+   * a population the reference policy excludes from default ranking and the brief rules
+   * out as a default (B065) - and once a birth year was known that rank replaced the
+   * community percentile. That table now answers only on the declared competitor path
+   * (`powerliftingReference` above), where the athlete has said they compete.
+   */
   // The registry resolves every approved source, so it leads. The two hand-written
   // routes stay as the offline fallback for the sources they already cover.
   const registryReference = useMemo(
@@ -217,15 +218,6 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   );
   const registryMatch = registryReference?.status === "matched" ? registryReference : null;
   const hasOutsideComparison = registryMatch != null || powerliftingReference?.status === "matched" || piperReference?.status === "matched";
-  /**
-   * The rank only renders where no stricter, exactly-matched source already did.
-   *
-   * It also takes over the body-weight ratio line above it, which reads "for
-   * your own context, not a rank" - true when nothing ranked the lift, and a
-   * direct contradiction of the card underneath once something does. The rank
-   * card states the same ratio itself, so the line is not lost.
-   */
-  const showRank = !hasOutsideComparison && powerliftingRank?.status === "ranked";
   // When the registry closed the comparison, say which gate closed it. "Add your test
   // body weight" is worth far more to an athlete than the general explanation alone.
   const registryGateExplanation = !hasOutsideComparison && registryReference?.status === "unavailable"
@@ -267,7 +259,14 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     ? strengthPercentileGapCopy[betaPercentile.data.reason] ?? null
     : null;
   // The stricter routes lead. This one fills the space they leave rather than sitting beside them.
-  const showPercentile = !hasOutsideComparison && !showRank && percentileCard != null;
+  const showPercentile = !hasOutsideComparison && percentileCard != null;
+  /*
+   * What the community comparison still needs, asked where the comparison would be. A
+   * group the curves do not split by is a complete answer, not a missing one, so it gets
+   * an explanation instead of the question again.
+   */
+  const needsGroup = !hasOutsideComparison && betaPercentile.data?.status === "unavailable" && betaPercentile.data.reason === "sex_required";
+  const groupWithoutCurve = needsGroup && Boolean(athleteProfile?.sexForReference) && percentileSex === null;
   const strengthTrend = latestRecord ? strengthChanges.find((change) => normalizedName(change.exerciseName) === normalizedName(latestRecord.exerciseName)) : undefined;
   useEffect(() => {
     if ((!registryMatch && piperReference?.status !== "matched") || !matchedReferenceRef.current) return;
@@ -287,15 +286,16 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
           <span className="strength-rating-state" style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{changeStateCopy[strengthTrend.changeState].label}</span>
           <p>Change in your estimated one-rep max across {strengthTrend.observationCount} logs since {strengthTrend.firstPoint.observedAt.toLocaleDateString()}.</p>
         </article> : <p className="strength-rating-empty">Log this lift once more and your progress rating shows up here.</p>}
-        {bodyMassRatio != null && !showRank && !showPercentile && <p className="strength-region-ratio-inline">{bodyMassRatio.toFixed(2)}× {bodyMassWeightPhrase[bodyMassSource!]} — for your own context, not a rank.</p>}
+        {bodyMassRatio != null && !showPercentile && <p className="strength-region-ratio-inline">{bodyMassRatio.toFixed(2)}× {bodyMassWeightPhrase[bodyMassSource!]} — for your own context, not a rank.</p>}
         {registryMatch ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that study group</p><strong>{registryMatch.percentileBandLabel}</strong><p>{registryMatch.unit === "x_bodyweight" ? `${registryMatch.observedValue.toFixed(2)}× body mass` : `${registryMatch.observedValue.toFixed(1)} ${registryMatch.unit}`}{studyGroupLabel(registryMatch.populationDefinition) ? ` · ${studyGroupLabel(registryMatch.populationDefinition)}` : ""}{registryMatch.sampleSize ? ` · ${registryMatch.sampleSize.toLocaleString()} people` : ""}. This exact test only.</p>{registryMatch.sourceUrl && <a href={registryMatch.sourceUrl} target="_blank" rel="noreferrer">View the source study</a>}</article> : powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that competition group</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body mass · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : null}
-        {showRank && powerliftingRank?.status === "ranked" && <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary strength-rank-card"><p className="metric-label">Where this ranks</p><strong>{powerliftingRank.percentileBandLabel}</strong><p>{powerliftingRank.relativeStrength.toFixed(2)}× body weight{bodyMassSource !== "recorded" ? ` (${bodyMassSourceNote[bodyMassSource!]})` : ""}{powerliftingRank.basis === "estimated" ? ", from an estimated one-rep max" : ""} · {powerliftingRank.population}.</p><a href={powerliftingRank.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article>}
         {showPercentile && percentileCard && <article className="strength-reference-matched strength-reference-primary strength-rank-card"><p className="metric-label">Where this sits</p><strong>{percentileCard.headline}</strong><p>{percentileCard.detail}{bodyMassSource !== null && bodyMassSource !== "recorded" ? ` Read against ${bodyMassWeightPhrase[bodyMassSource]}.` : ""}</p></article>}
-        {!hasOutsideComparison && !showRank && !showPercentile && percentileGap && <p className="strength-rank-needs">{percentileGap}</p>}
-        {!hasOutsideComparison && !showPercentile && powerliftingRank?.status === "needs" && <RankGate missing={powerliftingRank.missing} birthYear={athleteProfile?.birthYear ?? undefined} onProfile={onRankProfile} />}
-        {!hasOutsideComparison && !showPercentile && powerliftingRank?.status === "no_matching_population" && <p className="strength-rank-needs">{powerliftingRankNoPopulationCopy}</p>}
+        {!hasOutsideComparison && !showPercentile && percentileGap && !needsGroup && <p className="strength-rank-needs">{percentileGap}</p>}
+        {needsGroup && (groupWithoutCurve
+          ? <p className="strength-rank-needs">{communityGroupWithoutCurveCopy}</p>
+          : <ComparisonGate need="group" onProfile={onRankProfile} fallback={percentileGap} />)}
+        {showPercentile && !athleteProfile?.birthYear && <ComparisonGate need="birthYear" onProfile={onRankProfile} />}
         {bodyMassSource !== "recorded" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
-        <details className="strength-region-boundary"><summary>{hasOutsideComparison || showRank || showPercentile ? "About this comparison" : "No ranking for this lift yet"}</summary>{registryGateExplanation && <p className="strength-region-gate-reason">{registryGateExplanation}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showRank ? "Ranked against the published group named above, not against everyone. It places your lift on that study's own reported cut points." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
+        <details className="strength-region-boundary"><summary>{hasOutsideComparison || showPercentile ? "About this comparison" : "No ranking for this lift yet"}</summary>{registryGateExplanation && <p className="strength-region-gate-reason">{registryGateExplanation}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${plural(latestRecord.repetitions, "rep")}` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{/* The weight this lift was read against, said out loud: it was saved with the lift and does not move when the profile weight changes. */}{effectiveBodyMassKg != null ? ` · at ${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}` : ""}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
       </article>
     </> : <div className="strength-region-record-empty"><p>Nothing logged for this muscle group yet.</p><p>Log a lift that trains it and your progress will show up here.</p>{onLogLift && <button type="button" onClick={() => { emitInteractionFeedback(); onLogLift(); }}>Log a lift for {region.label.toLowerCase()} <Plus className="h-4 w-4" aria-hidden="true" /></button>}</div>}
@@ -399,49 +399,50 @@ function useSheetPresence<T>(selected: T | null, exitMs = sheetExitMs) {
   return { shown: selected ?? leaving, isLeaving: !selected && leaving != null };
 }
 
+/** Said instead of asking again when the athlete chose a group the curves are not split by. */
+const communityGroupWithoutCurveCopy =
+  "The community comparisons are split into men and women who lift, so this lift has no percentile for the group you chose. It still counts toward your own progress.";
+
 /**
- * The last step to a rank, taken here.
+ * The last step to a percentile, taken here.
  *
- * "Add the sex to compare against in About Me to see where this ranks" is a
- * true sentence and a dead end: the athlete is inside a record sheet on the
- * Progress tab, and the field is behind the bottom bar, in Profile, under
- * About Me, four taps away - after which nothing returns them to the lift they
- * were looking at. The same gate answered in place turns the rank on while the
- * card is still on screen.
+ * "Add the sex to compare against in About Me" is a true sentence and a dead end: the
+ * athlete is inside a record sheet on the Progress tab, and the field is four taps away
+ * in Profile, after which nothing returns them to the lift they were looking at. The
+ * same question answered in place turns the comparison on while the card is on screen.
  *
- * Only the two profile fields are offered. Load and test body weight belong to
- * the observation, not to the athlete, and the card already carries its own
- * form for the body weight directly underneath.
+ * Two profile fields only: the group the community curves are split by, which the
+ * comparison cannot run without, and - once it runs - the optional birth year that
+ * applies the published age adjustment. Load and test body weight belong to the
+ * observation, and the card carries its own body-weight form directly underneath.
  */
-function RankGate({ missing, birthYear, onProfile }: { missing: PowerliftingRankMissing; birthYear?: number; onProfile?: (patch: RankProfilePatch) => void }) {
-  const [year, setYear] = useState(birthYear ? String(birthYear) : "");
-  if (!onProfile || (missing !== "sex" && missing !== "age")) {
-    return <p className="strength-rank-needs">{powerliftingRankMissingCopy[missing]}</p>;
-  }
-  if (missing === "sex") {
+function ComparisonGate({ need, onProfile, fallback = null }: { need: "group" | "birthYear"; onProfile?: (patch: RankProfilePatch) => void; fallback?: string | null }) {
+  const [year, setYear] = useState("");
+  if (!onProfile) return fallback ? <p className="strength-rank-needs">{fallback}</p> : null;
+  if (need === "group") {
     return <div className="strength-rank-gate">
-      <p>{powerliftingRankMissingCopy.sex}</p>
+      <p>Choose the group to compare against and this lift gets a percentile.</p>
       <label><span>Compare against</span><select
         value=""
         aria-label="Group to compare this lift against"
         onChange={(event) => { if (!event.target.value) return; emitInteractionFeedback(); onProfile({ sexForReference: event.target.value as SexForReference }); }}
       >
         <option value="">Choose a group</option>
-        <option value="female">Female competitors</option>
-        <option value="male">Male competitors</option>
+        <option value="female">Women who lift</option>
+        <option value="male">Men who lift</option>
         <option value="unspecified">Prefer not to say</option>
       </select></label>
-      <small>Used only to pick which published group this lift is read against. It is saved to About Me.</small>
+      <small>Used only to pick which community curve this lift is read against. It is saved to About Me.</small>
     </div>;
   }
   const parsed = Number(year);
   const currentYear = new Date().getFullYear();
-  const valid = Number.isFinite(parsed) && parsed > currentYear - 100 && parsed <= currentYear;
+  const valid = /^\d{4}$/.test(year) && parsed > currentYear - 100 && parsed <= currentYear;
   return <form className="strength-rank-gate" onSubmit={(event) => { event.preventDefault(); if (!valid) return; emitInteractionFeedback(); onProfile({ birthYear: parsed }); }}>
-    <p>{powerliftingRankMissingCopy.age}</p>
+    <p>Optional: add your birth year and this comparison is adjusted for your age at each lift.</p>
     <label><span>Birth year</span><input inputMode="numeric" value={year} placeholder="e.g. 1998" aria-label="Birth year" onChange={(event) => setYear(event.target.value.replace(/[^0-9]/g, "").slice(0, 4))} /></label>
     <button type="submit" disabled={!valid}>Save</button>
-    <small>Used only to pick the age band. It is saved to About Me.</small>
+    <small>Used only for the published age adjustment (ages 15 to 90). It is saved to About Me.</small>
   </form>;
 }
 
@@ -453,6 +454,9 @@ const unrankedReasonCopy: Record<string, string> = {
   missing_percentile: "no comparison group for this lift yet",
   invalid_input: "could not be read",
   invalid_observation: "could not be read",
+  // A pull-up or dip is compared on reps; its comparison has no way to count added weight yet.
+  added_load_not_scored: "compared on reps alone, so sets with added weight are not ranked yet",
+  load_required: "needs the weight lifted",
 };
 
 export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "lb", baselineBodyWeight, sexForReference, birthYear, defaultTestingDetailOpen = false, directAccess = false, onRankProfile }: { onOpenTraining?: () => void; weightUnit?: DisplayWeightUnit; baselineBodyWeight?: number; sexForReference?: SexForReference; birthYear?: number; defaultTestingDetailOpen?: boolean; directAccess?: boolean; onRankProfile?: (patch: RankProfilePatch) => void }) {
@@ -826,7 +830,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
           <div className="grid gap-1.5 sm:col-span-2"><label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Choose exercise</span><input aria-label="Search and choose a catalog exercise" value={exerciseSearch} onChange={(event) => { setExerciseSearch(event.target.value); setSelectedExercise(null); setExerciseName(""); }} placeholder="Search catalog, then select" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label><LocalSearchScope scope="Searching the exercise catalog for a lift to record." query={exerciseSearch} />{exerciseSearch.trim() && !selectedExercise && <div className="strength-exercise-picker" role="listbox" aria-label="Catalog exercise results">{exerciseMatches.length ? exerciseMatches.map((exercise) => <button type="button" role="option" key={exercise.id} onClick={() => { emitInteractionFeedback(); setSelectedExercise(exercise); setExerciseName(exercise.name); setExerciseSearch(exercise.name); }}><strong>{exercise.name}</strong><span>{exercise.primaryMuscles.join(" · ")}</span></button>) : <p>No matching catalog exercise.</p>}</div>}{selectedExerciseContext && <StrengthCatalogSelectionPreview context={selectedExerciseContext} />}</div>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">How you measured it</span><select value={measurementType} onChange={(event) => setMeasurementType(event.target.value as MeasurementType)} className="h-12 rounded-xl border border-white/20 bg-[var(--sg-surface-raised)] px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30">{measurementOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Date</span><input type="date" value={observedDate} onChange={(event) => setObservedDate(event.target.value)} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
-          <StrengthLoadInput weightUnit={weightUnit} value={loadKg} requiresLoad={needsLoad} onChange={setLoadKg} />
+          <StrengthLoadInput weightUnit={weightUnit} value={loadKg} requiresLoad={needsLoad && loadConventionFor(selectedExercise?.id) !== "bodyweight_reps"} convention={loadConventionFor(selectedExercise?.id)} onChange={setLoadKg} />
           {measurementType === "MULTI_REP" && <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Repetitions</span><input inputMode="numeric" value={repetitions} onChange={(event) => setRepetitions(event.target.value.replace(/[^0-9]/g, ""))} placeholder="Enter reps" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>}
         </div>
         <button type="button" onClick={() => setAdvancedOpen((current) => !current)} className="mt-4 block text-[11px] font-bold uppercase tracking-[.12em] text-[#9fc8f4] hover:text-white">{advancedOpen ? "Hide" : "Show"} more options</button>

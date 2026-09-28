@@ -52,11 +52,78 @@ describe("The lifts sent to be ranked", () => {
     expect(encoded.length).toBeLessThan(6000);
   });
 
-  it("sends the newest lifts, up to the route's cap", () => {
+  // Intentional change (Backend V1 EN-02, D-007): the newest 30 lifts used to be sent, so an
+  // older best dropped out. Each exercise's strongest lift is sent instead.
+  it("sends an exercise's strongest lift, not its newest ones", () => {
     const many = Array.from({ length: 70 }, (_, i) => ({ exerciseName: "Bench", loadKg: 100 + i, repetitions: 5, observedAt: new Date(2026, 0, i + 1).toISOString() }));
-    const lifts = muscleRankLifts(many, [], 80);
+    expect(muscleRankLifts(many, [], 80).map((lift) => lift.loadKg)).toEqual([169]);
+  });
+
+  it("keeps a best lift from months ago after forty newer, lighter ones", () => {
+    const best = { exerciseName: "Bench", loadKg: 100, repetitions: 10, observedAt: "2026-01-05T10:00:00.000Z" };
+    const newer = Array.from({ length: 40 }, (_, i) => ({ exerciseName: ["Squat", "Row", "Bench"][i % 3], loadKg: 60, repetitions: 3, observedAt: new Date(2026, 5, i + 1).toISOString() }));
+    const benchLifts = muscleRankLifts([best, ...newer], [], 80).filter((lift) => lift.exerciseName === "Bench");
+    expect(benchLifts.map((lift) => [lift.loadKg, lift.repetitions])).toEqual([[100, 10]]);
+  });
+
+  it("ranks a strong ten ahead of a lighter triple, by the shared e1RM", () => {
+    // 100 x 10 is 133.3 kg estimated; 80 x 3 is 84.7 kg. The triple is more confident, not stronger.
+    const lifts = muscleRankLifts([
+      { exerciseName: "Bench", loadKg: 80, repetitions: 3, observedAt: "2026-06-02T10:00:00.000Z" },
+      { exerciseName: "Bench", loadKg: 100, repetitions: 10, observedAt: "2026-06-01T10:00:00.000Z" },
+    ], [], 80);
+    expect(lifts.map((lift) => [lift.loadKg, lift.repetitions])).toEqual([[100, 10]]);
+  });
+
+  it("reads each lift at its own age and body mass when choosing", () => {
+    // 80 kg at 16 is placed as 80 / 0.8784 = 91.1 kg; 88 kg at 30 as 88 kg. Same body mass.
+    const lifts = muscleRankLifts([
+      { exerciseName: "Bench", loadKg: 80, repetitions: 1, bodyMassKgAtTest: 70, observedAt: "2026-03-01T10:00:00.000Z" },
+      { exerciseName: "Bench", loadKg: 88, repetitions: 1, bodyMassKgAtTest: 70, observedAt: "2040-03-01T10:00:00.000Z" },
+    ], [], 70, 2010);
+    expect(lifts[0]).toMatchObject({ loadKg: 80, ageYears: 16 });
+  });
+
+  it("sends the heaviest absolute lift too when a lighter body made another lift the best relative one", () => {
+    const lifts = muscleRankLifts([
+      { exerciseName: "Bench", loadKg: 100, repetitions: 1, bodyMassKgAtTest: 70, observedAt: "2026-03-01T10:00:00.000Z" },
+      { exerciseName: "Bench", loadKg: 110, repetitions: 1, bodyMassKgAtTest: 90, observedAt: "2026-04-01T10:00:00.000Z" },
+    ], [], 80);
+    expect(lifts.map((lift) => lift.loadKg)).toEqual([100, 110]);
+  });
+
+  it("gives every exercise its best lift before any exercise a second, and keeps the most recently trained when over the cap", () => {
+    const exercisesTrained = Array.from({ length: MUSCLE_RANK_LIFT_LIMIT + 5 }, (_, i) => ({ exerciseName: `Exercise ${i}`, loadKg: 50, repetitions: 5, observedAt: new Date(2026, 0, i + 1).toISOString() }));
+    const lifts = muscleRankLifts(exercisesTrained, [], 80);
     expect(lifts).toHaveLength(MUSCLE_RANK_LIFT_LIMIT);
-    expect(lifts[0].loadKg).toBe(169);
-    expect(lifts.at(-1)?.loadKg).toBe(140);
+    expect(new Set(lifts.map((lift) => lift.exerciseName)).size).toBe(MUSCLE_RANK_LIFT_LIMIT);
+    expect(lifts.map((lift) => lift.exerciseName)).not.toContain("Exercise 0");
+    expect(lifts[0].exerciseName).toBe(`Exercise ${MUSCLE_RANK_LIFT_LIMIT + 4}`);
+  });
+
+  // Backend V1 EN-09: bodyweight movements never reached the ranks; the policy scores them on reps.
+  it("sends a bodyweight movement as its best set of reps, without load", () => {
+    const lifts = muscleRankLifts([
+      { exerciseName: "Pull-Up", loadKg: null, repetitions: 8, observedAt: "2026-06-01T10:00:00.000Z" },
+      { exerciseName: "Pull-Up", loadKg: null, repetitions: 12, observedAt: "2026-05-01T10:00:00.000Z" },
+    ], [], 80);
+    expect(lifts.map((lift) => [lift.exerciseName, lift.loadKg, lift.repetitions])).toEqual([["Pull-Up", 0, 12]]);
+  });
+
+  it("sends a loaded set of a bodyweight movement too, after every exercise's best, so the server can say it is not scored", () => {
+    const lifts = muscleRankLifts([
+      { exerciseName: "Pull-Up", loadKg: null, repetitions: 10, observedAt: "2026-06-01T10:00:00.000Z" },
+      { exerciseName: "Pull-Up", loadKg: 20, repetitions: 5, observedAt: "2026-06-02T10:00:00.000Z" },
+      { exerciseName: "Bench", loadKg: 80, repetitions: 5, observedAt: "2026-06-03T10:00:00.000Z" },
+    ], [], 80);
+    expect(lifts.map((lift) => [lift.exerciseName, lift.loadKg])).toEqual([["Bench", 80], ["Pull-Up", 0], ["Pull-Up", 20]]);
+  });
+
+  it("does not send an unloaded set of a loaded exercise", () => {
+    expect(muscleRankLifts([{ exerciseName: "Barbell Bench Press", loadKg: null, repetitions: 5, observedAt: "2026-06-01T10:00:00.000Z" }], [], 80)).toEqual([]);
+  });
+
+  it("does not send a set the estimator cannot read", () => {
+    expect(muscleRankLifts([{ exerciseName: "Bench", loadKg: 40, repetitions: 20, observedAt: "2026-06-01T10:00:00.000Z" }], [], 80)).toEqual([]);
   });
 });

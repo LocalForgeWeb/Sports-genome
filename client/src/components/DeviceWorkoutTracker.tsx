@@ -5,12 +5,13 @@ import type { ExerciseSettings, TrainingGoal } from "@/lib/workoutPlanner";
 import { WarmupPanel } from "@/components/WarmupPanel";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession,
-  isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
+  deviceWorkoutHistoryKey, isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
   unskipExercise, type DeviceWorkoutSession,
 } from "@/lib/deviceWorkoutLog";
 import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setEntryFieldsFor, type SetEntryMeasure } from "@/lib/setEntryFields";
+import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 import { toast } from "sonner";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
@@ -81,7 +82,7 @@ function plannedRestSeconds(workout: Exercise[], settings: Record<number, Exerci
   return best;
 }
 
-function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string, restSeconds: number): DeviceWorkoutSession {
+function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string, restSeconds: number, weightUnit: DisplayWeightUnit): DeviceWorkoutSession {
   return {
     id: `device-${Date.now()}`,
     title: `${dayLabel} workout`,
@@ -89,6 +90,8 @@ function makeSession(workout: Exercise[], prescriptions: Record<number, string>,
     startedAt: new Date().toISOString(),
     status: "active",
     restSeconds,
+    // Fixed for the life of the session: what the boxes say, and what every set is stored in.
+    weightUnit,
     exercises: workout.map((exercise, index) => {
       const plannedPrescription = prescriptions[exercise.id] || "3 × 8–12";
       return {
@@ -127,8 +130,10 @@ function clockFor(seconds: number) {
   return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, "0")}`;
 }
 
-export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, onEditInPlan, onInspect, onOpenProgress, daySwitch }: {
+export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, weightUnit = "lb", onEditInPlan, onInspect, onOpenProgress, daySwitch }: {
   workout: Exercise[];
+  /** The profile's unit. A session takes it when it starts and keeps it. */
+  weightUnit?: DisplayWeightUnit;
   prescriptions: Record<number, string>;
   settings: Record<number, ExerciseSettings>;
   goal: TrainingGoal;
@@ -169,23 +174,65 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    */
   const [touchedEntries, setTouchedEntries] = useState<Record<string, boolean>>({});
 
+  /**
+   * Read by handlers that outlive a render - a toast's Undo, a storage event - so they
+   * act on the session as it is now, not as it was when they were created.
+   */
+  const activeSessionRef = useRef<DeviceWorkoutSession | null>(null);
+  activeSessionRef.current = activeSession;
+  const weightUnitRef = useRef(weightUnit);
+  weightUnitRef.current = weightUnit;
+  /** A session started before units were stored takes the profile's unit, marked as inferred (decision D-005). */
+  const withUnit = (session: DeviceWorkoutSession): DeviceWorkoutSession =>
+    session.weightUnit ? session : { ...session, weightUnit: weightUnitRef.current, weightUnitInferred: true };
+
   useEffect(() => {
     const stored = loadDeviceWorkoutSessions();
     setHistory(stored);
-    const running = stored.find((session) => session.status === "active") || null;
+    const found = stored.find((session) => session.status === "active") || null;
+    const running = found ? withUnit(found) : null;
     setActiveSession(running);
     // An active session already on the device means this mount is a resume, not
     // a fresh start: the contract asks the resume cue to say what is confirmed.
     setResumed(Boolean(running));
   }, []);
 
+  /**
+   * The same session open in a second tab. Each tab used to hold its own copy and write
+   * the whole of it back, so a set logged in one tab was un-logged by the next write
+   * from the other (inventory PS-11). Now a write from the other tab is picked up here,
+   * and a workout finished there closes here instead of being resurrected.
+   */
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== null && event.key !== deviceWorkoutHistoryKey) return;
+      const stored = loadDeviceWorkoutSessions();
+      setHistory(stored);
+      const current = activeSessionRef.current;
+      if (current) {
+        const latest = stored.find((session) => session.id === current.id);
+        if (latest?.status === "active") { setActiveSession(withUnit(latest)); return; }
+        setActiveSession(null);
+        setResumed(false);
+        toast("This workout was closed in another tab", { id: "session-closed-elsewhere", description: latest ? "It was finished there, and its record is saved." : "Nothing more is recorded here." });
+        return;
+      }
+      const running = stored.find((session) => session.status === "active");
+      if (running) { setActiveSession(withUnit(running)); setResumed(true); }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  /** The unit this session records in: its own once started, the profile's before that. */
+  const sessionUnit: DisplayWeightUnit = activeSession?.weightUnit ?? weightUnit;
   const completed = useMemo(() => (activeSession ? countCompletedSets(activeSession) : 0), [activeSession]);
   const planned = useMemo(() => (activeSession ? countPlannedSets(activeSession) : 0), [activeSession]);
   const drafts = useMemo(() => (activeSession ? countDraftSets(activeSession) : 0), [activeSession]);
   const position = useMemo(() => (activeSession ? activePosition(activeSession) : null), [activeSession]);
   const carried = useMemo(
-    () => (activeSession && position ? carriedEntryFor(activeSession.exercises[position.exerciseIndex], position.setIndex, history) : null),
-    [activeSession, position, history],
+    () => (activeSession && position ? carriedEntryFor(activeSession.exercises[position.exerciseIndex], position.setIndex, history, sessionUnit) : null),
+    [activeSession, position, history, sessionUnit],
   );
 
   /**
@@ -219,10 +266,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * The boxes on screen come from the catalog entry behind the session, so each
    * one names exactly what it records.
    */
-  const entryFieldsFor = (exerciseName: string) => setEntryFieldsFor(exerciseCatalog.find((item) => item.name === exerciseName));
+  const entryFieldsFor = (exerciseName: string) => setEntryFieldsFor(exerciseCatalog.find((item) => item.name === exerciseName), sessionUnit);
   const activeEntryFields = activeSession && position
     ? entryFieldsFor(activeSession.exercises[position.exerciseIndex].exerciseName)
-    : setEntryFieldsFor(undefined);
+    : setEntryFieldsFor(undefined, sessionUnit);
 
   const editEntry = (field: EntryField, value: string) => {
     if (!activeSession || !position) return;
@@ -262,30 +309,63 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const prior = loadDeviceWorkoutSessions().filter((session) => session.id !== next.id);
     const written = saveDeviceWorkoutSessions([next, ...prior]);
     setDurable(written);
+    activeSessionRef.current = next;
     setActiveSession(next);
     setHistory([next, ...prior]);
     // The resume cue has done its job once the athlete acts on the session.
     setResumed(false);
   };
 
+  /**
+   * Applies a change to the session as it is stored now, not to this tab's copy of it,
+   * so a change made in another tab is kept rather than overwritten. A session that has
+   * been finished or removed meanwhile takes no more changes.
+   */
+  const commit = (change: (session: DeviceWorkoutSession) => DeviceWorkoutSession) => {
+    const current = activeSessionRef.current;
+    if (!current) return;
+    const latest = loadDeviceWorkoutSessions().find((session) => session.id === current.id);
+    if (latest && latest.status !== "active") {
+      setActiveSession(null);
+      setResumed(false);
+      toast("This workout was closed in another tab", { id: "session-closed-elsewhere", description: "It was finished there, and its record is saved." });
+      return;
+    }
+    persist(change(withUnit(latest ?? current)));
+  };
+
   const start = () => {
     if (!workout.length || starting.current) return;
     starting.current = true;
     try {
+      // One workout at a time on a device. A session already running - started in
+      // another tab, or before a reload - is picked up rather than joined by a second.
+      const running = loadDeviceWorkoutSessions().find((session) => session.status === "active");
+      if (running) {
+        setHistory(loadDeviceWorkoutSessions());
+        activeSessionRef.current = withUnit(running);
+        setActiveSession(withUnit(running));
+        setResumed(true);
+        toast("A workout is already running", { id: "session-already-running", description: `${running.dayLabel || running.title} is open on this device, so it was picked up here instead of starting a second one.` });
+        return;
+      }
       setResumed(false);
-      persist(makeSession(workout, prescriptions, dayLabel, startRestSeconds));
+      persist(makeSession(workout, prescriptions, dayLabel, startRestSeconds, weightUnit));
     } finally {
       starting.current = false;
     }
   };
 
-  const updateSet = (exerciseId: string, setIndex: number, patch: Partial<DeviceWorkoutSession["exercises"][number]["sets"][number]>, session = activeSession) => {
-    if (!session) return;
-    persist({
-      ...session,
-      exercises: session.exercises.map((exercise) => exercise.id !== exerciseId
-        ? exercise
-        : { ...exercise, sets: exercise.sets.map((set, index) => index === setIndex ? { ...set, ...patch } : set) }),
+  const updateSet = (exerciseId: string, setIndex: number, patch: Partial<DeviceWorkoutSession["exercises"][number]["sets"][number]>) => {
+    commit((session) => {
+      // Writing a weight writes the unit it was typed in with it.
+      const stamp = "weight" in patch ? { unit: session.weightUnit ?? weightUnit } : {};
+      return {
+        ...session,
+        exercises: session.exercises.map((exercise) => exercise.id !== exerciseId
+          ? exercise
+          : { ...exercise, sets: exercise.sets.map((set, index) => index === setIndex ? { ...set, ...patch, ...stamp } : set) }),
+      };
     });
   };
 
@@ -295,21 +375,21 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    */
   const completeActiveSet = () => {
     if (!activeSession || !position) return;
-    const restSeconds = activeSession.restSeconds || DEFAULT_REST_SECONDS;
-    persist({
-      ...activeSession,
-      restEndsAt: new Date(Date.now() + restSeconds * 1000).toISOString(),
-      exercises: activeSession.exercises.map((item, exerciseIndex) => exerciseIndex !== position.exerciseIndex
+    commit((session) => ({
+      ...session,
+      restEndsAt: new Date(Date.now() + (session.restSeconds || DEFAULT_REST_SECONDS) * 1000).toISOString(),
+      exercises: session.exercises.map((item, exerciseIndex) => exerciseIndex !== position.exerciseIndex
         ? item
         : { ...item, sets: item.sets.map((set, setIndex) => setIndex !== position.setIndex ? set : {
             // What you see in the box is what gets logged, including a field
             // the athlete deliberately emptied.
             weight: shownEntries.weight,
+            unit: sessionUnit,
             height: shownEntries.height,
             reps: shownEntries.reps,
             completed: true,
           }) }),
-    });
+    }));
   };
 
   /**
@@ -320,52 +400,92 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const skipActiveExercise = () => {
     if (!activeSession || !position) return;
     const name = activeSession.exercises[position.exerciseIndex].exerciseName;
-    persist({ ...skipExercise(activeSession, position.exerciseIndex), restEndsAt: undefined });
+    const exerciseIndex = position.exerciseIndex;
+    commit((session) => ({ ...skipExercise(session, exerciseIndex), restEndsAt: undefined }));
     toast(`Skipped ${name}`, {
       description: "Nothing was recorded for it. Reopen the full session to put it back.",
-      action: { label: "Undo", onClick: () => setActiveSession((current) => {
-        if (!current) return current;
-        const restored = unskipExercise(current, position.exerciseIndex);
-        persist(restored);
-        return restored;
-      }) },
+      action: { label: "Undo", onClick: () => commit((session) => unskipExercise(session, exerciseIndex)) },
     });
   };
 
   const toggleExerciseSkip = (exerciseIndex: number) => {
     if (!activeSession) return;
-    const exercise = activeSession.exercises[exerciseIndex];
-    persist(isExerciseSkipped(exercise) ? unskipExercise(activeSession, exerciseIndex) : skipExercise(activeSession, exerciseIndex));
+    commit((session) => isExerciseSkipped(session.exercises[exerciseIndex]) ? unskipExercise(session, exerciseIndex) : skipExercise(session, exerciseIndex));
   };
 
   const adjustRest = (delta: number) => {
     if (!activeSession) return;
-    const next = Math.max(REST_STEP_SECONDS, (activeSession.restSeconds || DEFAULT_REST_SECONDS) + delta);
-    persist({
-      ...activeSession,
-      restSeconds: next,
-      restEndsAt: restEndsAt ? new Date(restEndsAt + delta * 1000).toISOString() : activeSession.restEndsAt,
+    commit((session) => {
+      const endsAt = session.restEndsAt ? Date.parse(session.restEndsAt) : null;
+      return {
+        ...session,
+        restSeconds: Math.max(REST_STEP_SECONDS, (session.restSeconds || DEFAULT_REST_SECONDS) + delta),
+        restEndsAt: endsAt ? new Date(endsAt + delta * 1000).toISOString() : session.restEndsAt,
+      };
     });
   };
 
   const endRest = () => {
     if (!activeSession) return;
-    persist({ ...activeSession, restEndsAt: undefined });
+    commit((session) => ({ ...session, restEndsAt: undefined }));
   };
 
   const finish = () => {
-    if (!activeSession) return;
+    const current = activeSessionRef.current;
+    if (!current) return;
+    // Finish what is stored now, which includes sets logged in another tab.
+    const latest = loadDeviceWorkoutSessions().find((item) => item.id === current.id);
+    if (latest && latest.status !== "active") {
+      setActiveSession(null);
+      setResumed(false);
+      toast("This workout was already finished", { id: "session-closed-elsewhere", description: "It was finished in another tab, and its record is saved." });
+      return;
+    }
     // Read now, stored with the session: what the athlete weighs today is what this workout was
     // done at, and no later weight change gets to rewrite it.
     const { session, excludedDrafts, skippedSets, completedSets } = finalizeSession(
-      activeSession,
+      withUnit(latest ?? current),
       undefined,
       currentBodyWeightKg(loadBodyWeightLog()),
     );
     const prior = loadDeviceWorkoutSessions().filter((item) => item.id !== session.id);
+    /*
+     * Nothing logged is not a workout (B155, B156). A finish with no completed set used to
+     * be stored as a completed session and counted on Home and Progress as a workout done.
+     * It now ends the session and records nothing.
+     */
+    if (completedSets === 0) {
+      const cleared = saveDeviceWorkoutSessions(prior);
+      setDurable(cleared);
+      if (!cleared) {
+        toast.error("This workout could not be closed yet", { id: "finish-not-saved", description: "The device refused the save, so the workout is still open here. Free up storage, then try again.", action: { label: "Try again", onClick: () => finish() } });
+        return;
+      }
+      setHistory(prior);
+      activeSessionRef.current = null;
+      setActiveSession(null);
+      setResumed(false);
+      toast("Workout ended, nothing recorded", { id: "finish-empty", description: "No set was logged, so it does not count as a workout." });
+      return;
+    }
     const written = saveDeviceWorkoutSessions([session, ...prior]);
     setDurable(written);
+    /*
+     * A finish the device refused is not a finished workout. It used to close the live
+     * view, hide the storage warning with it and announce "1 set added to Progress"
+     * while storage still held the session as active. The workout now stays open, the
+     * warning stays up, and the message says what happened and offers the retry.
+     */
+    if (!written) {
+      toast.error("This workout could not be saved yet", {
+        id: "finish-not-saved",
+        description: "The device refused the save, so the workout is still open here and nothing was lost. Free up storage, then finish again.",
+        action: { label: "Try again", onClick: () => finish() },
+      });
+      return;
+    }
     setHistory([session, ...prior]);
+    activeSessionRef.current = null;
     setActiveSession(null);
     setResumed(false);
     // The exclusion is never silent: the contract drops uncompleted edits by

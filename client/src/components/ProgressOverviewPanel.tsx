@@ -4,7 +4,7 @@ import { ArrowUpRight, Info } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { summarizeWithinAthleteStrengthComparisons, type ChangeState } from "@/lib/withinAthleteStrengthChange";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
-import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
+import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations } from "@/lib/deviceStrengthObservations";
 import { workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
 import { bodyWeightLogEvent, currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
@@ -40,9 +40,14 @@ type ProgressOverviewPanelProps = {
   weightUnit?: DisplayWeightUnit;
   /** From About Me. Each lift is placed at the age it was lifted at, whenever the year was given. */
   birthYear?: number;
+  /**
+   * True while the app runs on the device stores alone. Decides whose typed lifts and
+   * sessions count, exactly as Home and Strength decide it (B155, B265).
+   */
+  directAccess?: boolean;
 };
 
-export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForReference, baselineBodyWeight, weightUnit = "lb", birthYear }: ProgressOverviewPanelProps) {
+export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForReference, baselineBodyWeight, weightUnit = "lb", birthYear, directAccess = true }: ProgressOverviewPanelProps) {
   const sessions = trpc.workoutLog.list.useQuery();
   const observations = trpc.strengthGenome.observations.useQuery();
   const trackedSets = trpc.workoutLog.progressionHistory.useQuery();
@@ -68,16 +73,18 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
   }, []);
 
   const recordedSessions = useMemo<RecordedSessionCard[]>(() => {
-    const deviceRecords = deviceSessions.filter((session) => session.status === "completed").map((session) => ({
+    // The shared definitions: a workout is a finish with at least one completed set, and a
+    // set counts when it was marked done and not skipped - the same count Home shows.
+    const deviceRecords = deviceSessions.filter(isCompletedWorkout).map((session) => ({
       id: session.id,
       title: session.title,
       completedAt: new Date(session.completedAt || session.startedAt),
-      completedSetCount: session.exercises.reduce((total, exercise) => total + exercise.sets.filter((set) => set.completed).length, 0),
+      completedSetCount: session.exercises.reduce((total, exercise) => total + exercise.sets.filter(isCompletedSet).length, 0),
       exerciseCount: session.exercises.length,
       storage: "device" as const,
-      exercises: session.exercises.map((exercise) => ({ name: exercise.exerciseName, done: exercise.sets.filter((set) => set.completed).length, planned: exercise.sets.length, skipped: exercise.sets.length > 0 && exercise.sets.every((set) => set.skipped) })),
+      exercises: session.exercises.map((exercise) => ({ name: exercise.exerciseName, done: exercise.sets.filter(isCompletedSet).length, planned: exercise.sets.length, skipped: exercise.sets.length > 0 && exercise.sets.every((set) => set.skipped) })),
     }));
-    const accountRecords = (sessions.data || []).filter((session) => session.status === "completed").map((session) => ({
+    const accountRecords = (directAccess ? [] : (sessions.data || [])).filter((session) => session.status === "completed").map((session) => ({
       id: `account-${session.id}`,
       title: session.title,
       completedAt: new Date(session.completedAt || session.startedAt),
@@ -86,18 +93,18 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
       storage: "account" as const,
     }));
     return [...deviceRecords, ...accountRecords].sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime());
-  }, [deviceSessions, sessions.data]);
+  }, [deviceSessions, sessions.data, directAccess]);
 
   const latestSession = recordedSessions[0];
-  // "Lifts logged" counted server observations only, so an athlete training on
-  // this device saw completed sessions above a count of zero. The record is
-  // whatever is on this device plus whatever is on the account — the same
-  // observations the Strength Genome reads.
+  // The record Home and Strength read (athleteRecord.recordedLifts): the typed lifts of
+  // whichever store is the source - this device's, or the account's - plus the lifts carried
+  // across from finished workouts. Progress used to add both stores together, so its count
+  // could differ from Home's for the same athlete.
   const workoutObservations = useMemo(() => workoutStrengthObservations(deviceSessions, weightUnit, bodyWeightLog), [deviceSessions, weightUnit, bodyWeightLog]);
   const loggedObservations = useMemo(
-    () => [...(observations.data || []), ...deviceObservations, ...workoutObservations]
+    () => [...(directAccess ? deviceObservations : (observations.data || [])), ...workoutObservations]
       .sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()),
-    [observations.data, deviceObservations, workoutObservations],
+    [observations.data, deviceObservations, workoutObservations, directAccess],
   );
   const latestObservation = loggedObservations[0];
   const unifiedHistory = useMemo(

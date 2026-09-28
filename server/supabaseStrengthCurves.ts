@@ -1,4 +1,5 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
+import { BoundedCache, withTimeout } from "./boundedCache";
 import {
   curvePlacement,
   resolveStrengthPercentile,
@@ -46,7 +47,8 @@ export type CurveExerciseRow = {
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
-const curveCache = new Map<string, { expiresAt: number; value: StrengthCurve | null }>();
+// Bounded: the key comes from the caller (exercise id and sex).
+const curveCache = new BoundedCache<string, StrengthCurve | null>(500, CACHE_TTL_MS);
 
 const normMethods: StrengthNormMethod[] = [
   "direct_community_relative_1rm_percentile",
@@ -203,7 +205,7 @@ export function createSupabaseStrengthCurveClient({
       requestUrl.searchParams.set("exercise_id", `eq.${exerciseId}`);
       requestUrl.searchParams.set("sex", `eq.${sex}`);
       requestUrl.searchParams.set("order", "percentile.asc");
-      const response = await fetchImplementation(requestUrl, { headers });
+      const response = await fetchImplementation(requestUrl, withTimeout({ headers }));
       if (!response.ok) throw new Error(`Supabase strength curve request failed (${response.status})`);
       const rows = (await response.json()) as CurveRow[];
       return assembleCurve(rows, exerciseId, sex);
@@ -218,7 +220,7 @@ export function createSupabaseStrengthCurveClient({
     async getExerciseIndex(): Promise<CurveExerciseRow[]> {
       const requestUrl = new URL("/rest/v1/app_strength_beta_curves_v1", baseUrl);
       requestUrl.searchParams.set("select", "exercise_id,exercise_canonical_name,exercise_name");
-      const response = await fetchImplementation(requestUrl, { headers });
+      const response = await fetchImplementation(requestUrl, withTimeout({ headers }));
       if (!response.ok) throw new Error(`Supabase strength curve index request failed (${response.status})`);
       const rows = (await response.json()) as Record<string, unknown>[];
       const seen = new Map<string, CurveExerciseRow>();
@@ -249,12 +251,12 @@ function getRuntimeClient() {
 export async function getStrengthCurve(exerciseId: string, sex: "male" | "female"): Promise<StrengthCurve | null> {
   const key = `${exerciseId}:${sex}`;
   const cached = curveCache.get(key);
-  if (cached && cached.expiresAt > Date.now()) return cached.value;
+  if (cached !== undefined) return cached;
   const client = getRuntimeClient();
   if (!client) return null;
   try {
     const value = await client.getCurve(exerciseId, sex);
-    curveCache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
+    curveCache.set(key, value);
     return value;
   } catch (error) {
     console.warn("[Supabase strength curve] lookup unavailable", {

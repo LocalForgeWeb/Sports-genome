@@ -190,7 +190,7 @@ const vanDenHoekSourceUrl = "https://www.sciencedirect.com/science/article/pii/S
  * The one-rep max to rank, and how it was arrived at.
  *
  * A single measured max is used as-is. A multi-rep set is converted with the
- * app's own Epley estimator, which refuses past twelve reps rather than
+ * app's one e1RM estimator (shared/oneRepMaxEstimation.ts), which refuses past fifteen reps rather than
  * extrapolating - so a high-rep set produces no rank instead of a wrong one.
  */
 export function rankableOneRepMaxKg(context: RankContext): { kg: number; basis: PowerliftingRankBasis } | null {

@@ -1,0 +1,98 @@
+# Backend V1 decisions
+
+Each decision names what was chosen, what else was possible, the evidence, and which requirements it touches. Scientific assumptions are recorded here rather than left in code comments alone (brief §1, B068, B101).
+
+## D-001 — Payments deferred by owner (27 September 2026)
+
+**Decision.** Section 12 (B196–B220), Gate C (B276–B279), B189 and the payment portions of B184, B185, B194, B238, B239, B240 and B283 are out of this assignment, recorded as `deferred (owner)`.
+
+**Why.** Owner instruction. They are neither incomplete work nor launch blockers *for this assignment*; `status_tool.py` refuses to reopen them without the owner.
+
+**Consequence carried forward.** No entitlement model exists or is designed here. Server endpoints are not gated by paid access. When payments return, B184/B185 must be revisited so premium access comes from verified provider evidence and never from profile metadata or a client flag.
+
+## D-002 — Age adjusts the comparison, only when the athlete gives a birth year (27 September 2026, PR #67)
+
+**Decision.** When a birth year is known, every Strength Level-sourced placement is made at the athlete's age *on the day of the lift*, using the database's `strengthlevel_age_factor_v1` (published Strength Level age table, ages 15–90, factor 1.0 from 25 to 40, linear interpolation between anchors). The lift is compared as `lift / factor` on the same curve; the recorded lift is unchanged. Outside 15–90 nothing is extrapolated and the interface says so. Without a birth year no age weighting is applied.
+
+**Alternatives.** (a) No age weighting at all — the recorded `strength_beta_v1` contract; rejected because the owner explicitly wants age relevance (brief §5.3). (b) Age-specific norms — not available for these exercises. (c) Extrapolating below 15 from the 15-year factor — rejected (B070: no silent extrapolation).
+
+**Stage (B069).** The adjustment is applied to the observed metric's comparison value (divide the e1RM by the factor) before curve placement — equivalent to multiplying the reference by the factor. It is applied exactly once; the curves themselves are all-ages community data with no age adjustment of their own (B067 — audit to confirm under Strength work).
+
+**Evidence.** Live database traces for a 180 lb bench at 145 lb body weight, male: 48.97 with no age; 74.44 at 15, 69.60 at 16, 60.67 at 18, 52.64 at 20, 48.97 at 30, 67.95 at 50. Tests: `server/strengthPercentile.age.test.ts` (engine pinned to the database outputs), `server/supabaseStrengthProfile.age.test.ts`, `client/src/lib/ageAtLift.scoring.test.ts`. Record: `docs/strength-percentile/live-contract-audit.md` § Age.
+
+**Touches.** B031, B067–B070, B247, B250.
+
+## D-003 — iOS integration status (B002)
+
+**Finding.** `main` contains no native shell: no `capacitor.config.*`, no `ios/`, no Capacitor dependency. The iOS work — Capacitor shell with native auth, CORS and safe-area handling; an offline workout outbox (`client/src/lib/offlineQueue.ts`, `offlineSession.ts`, `hooks/useWorkoutOutbox.ts`); a native share sheet; cloud iOS CI (`.github/workflows/ios.yml`); App Store submission files (`IOS_SETUP.md`, `ios-assets/`) — exists only on `origin/claude/ios-app-conversion-snuz36`, 86 commits from 18–22 August 2026, with **no common history with `main`** (`git merge-base` finds none). Its `Home.tsx` is 582 lines; `main`'s is 1,726.
+
+**Decision for this assignment.** Do not merge or port the shell inside the backend work: it is an app-packaging change with its own verification path, and the branch predates a month of product work. Treat it as the source to port from, not a branch to merge. Its offline outbox is prior art for B168/B170: any durable offline queue built here must be reconciled with it rather than become a second, competing design (B003, B197 spirit).
+
+**Consequence.** Anything that needs an actual iOS build (B283's iOS portion, B226 installed-client compatibility, B261 app termination on device) is `blocked` on the shell being ported to `main`. The 10 October iOS release depends on that port; it is named as a release risk in the gate report.
+
+## D-004 — No competitor rank for a gym lift (27 September 2026, batch 1) — intentional behavior change
+
+**Decision.** The Strength Genome panel no longer ranks an ordinary gym lift against the van den Hoek 2024 powerlifting population. That card appeared whenever the athlete had a sex on file, for any squat, bench or deadlift, and replaced the community percentile. Competitors are a selected, trained, tested population; a gym lift does not match their protocol or selection (B065). The competition comparison still appears, labelled "Compared to that competition group", only when the entry *is* an exact competition-context match (the existing `powerliftingReference` route). The default placement is the community `strength_beta_v1` percentile, whose card names its group ("among men who lift") in the same line as the number.
+
+**What replaces the gate.** Where a comparison needs something the athlete has not given, the panel asks for it with neutral options ("Women who lift", "Men who lift", "Prefer not to say") and an optional birth-year prompt; declining leaves progress tracking intact.
+
+**Not a regression.** Tests that pinned the old card (`StrengthGenomePanel.rankGate.test.ts`, `…registryReference.render.test.ts`, `StrengthGenomePanel.test.ts`, `strengthGenomeDefinitions.test.ts`) were rewritten to pin its absence. V2 should not restore it (B290).
+
+**Touches.** B065, B066, B290.
+
+## D-005 — Units for history logged before units were stored (28 September 2026, batch 2)
+
+**Finding.** Device sets stored a bare number. The tracker's box always said "lb", while every reader converted the number with the profile's unit *of the day* (inventory PS-10, EN-08, TR-06). Nothing recorded which unit a past set was typed in.
+
+**Decision.** Each set now stores its unit, and each session the unit it started with (see contracts.md § Logged weights and units). History without a unit is assigned the profile's unit once — when the profile has first been read after this build loads — and marked `weightUnitInferred: true`.
+
+**Why the profile's unit.** It is what every screen, rank and sync has already used for these sets, so the assignment changes no number the athlete has seen. The alternative, the box label ("lb"), would silently change every kg athlete's history by a factor of 2.2. Marking the rows "unknown" and excluding them would drop all existing history from ranks. The flag keeps the inference visible for any later correction.
+
+**Consequence.** For kg athletes whose history was typed against the "lb" label, the ambiguity that already existed is frozen, not resolved. From now on a unit switch cannot rescale a past lift.
+
+**Touches.** B024, B025, B048, B243; PS-10, EN-08, TR-06.
+
+## D-006 — A finish with nothing logged is not a workout (28 September 2026, batch 2) — intentional behavior change
+
+**Decision.** "Finish workout early" with no completed set ends the session and stores nothing (it used to store a completed session with no exercises, counted as a workout on Home and Progress and marking the day trained). Counts everywhere use `isCompletedWorkout` / `isCompletedSet`, so any such session already stored is no longer counted either. Progress now selects typed lifts and sessions by the same `directAccess` rule as Home and Strength; it used to add the device's and the account's together.
+
+**Not a regression.** `athleteRecord.test.ts` pinned the old count (`workoutsRecorded: 1` for an empty finish) and now pins 0; `TodayActionPanel.test.ts` and `ProgressOverviewPanel.test.ts` were updated for the shared selector (B290).
+
+**Touches.** B155, B156, B265.
+
+## D-007 — One e1RM, and the best lift counts (28 September 2026, batch 3) — intentional behavior change
+
+**Finding.** Three estimators read the same set: the card averaged Epley and Brzycki up to 12 reps, the muscle ranks used the database's Strength Level calculator up to 15, trends used Epley up to 12. 180 lb × 3 at 145 lb read 60.8 on the card and 57.74 in the ranks (EN-03). The ranks saw the newest 30 lifts only (EN-02), a workout contributed its heaviest set rather than its strongest, and the database aggregation kept an exercise's most confident observation rather than its best, so logging 80 × 3 after 100 × 10 took a chest rank from 84.67 to 27.35 (EN-01, reproduced live).
+
+**Decision.**
+1. The database's estimators are canonical, transcribed into `shared/strengthPercentile.ts` and pinned to its outputs. The Strength Level curves come from Strength Level's calculator protocol, so reading a set with that calculator is the protocol-matched choice (B057). Trends, the workout record and the competition comparison use the same estimator.
+2. Muscle ranks are best historical: the client sends each exercise's strongest lifts by age-adjusted e1RM regardless of date; the server keeps each exercise's highest percentile for the aggregation. No database change was needed: sent one observation per exercise, the aggregation's confidence-first dedup has nothing to choose between.
+3. A finished workout's observation is its strongest set by e1RM.
+
+**Alternatives.** Changing the database aggregation's dedup order (a migration outside this assignment's authorization, B009) — unnecessary given (2). Keeping the card's mean estimator and changing the database — rejected; the database is the research side's record and the curves' own protocol.
+
+**Not a regression.** Numbers on the card change for multi-rep sets (e.g. 100 kg × 5 → 112.5 kg; it was 114.58 on the card (mean) and 116.67 in trends (Epley)). Tests pinning the old estimator (`server/strengthPercentile.test.ts`, `powerliftingRank.test.ts`), the newest-30 rule (`muscleRankLifts.test.ts`, `ageAtLift.scoring.test.ts`) and the heaviest-set rule (`workoutStrengthRecord.test.ts`) were rewritten to the new values with the reason inline (B290).
+
+**Touches.** B017, B056, B057, B061, B063, B083, B287; EN-01–EN-04, EN-18, EN-19.
+
+## D-008 — Unrecorded effort (28 September 2026, batch 3)
+
+**Finding.** No surface records reps in reserve. Missing RIR was silently equal to 0 in the card, and the database treats it as a set to failure with a confidence penalty (EN-06).
+
+**Decision.** Keep the source protocol — a set without recorded effort is read as taken to failure, which makes the estimate and the placement a **floor** — and say so: the result carries `repsInReserve: null`, confidence drops by 0.08 as in the database, and the card adds "Read as a set taken to failure, because effort was not recorded; if reps were left in reserve, the lift places higher." A reported RIR is used as effective reps (e.g. 70 kg × 5 @ 2 RIR places at 53.26 against 43.68 unknown, both the database's numbers).
+
+**Not done.** Collecting RIR in the tracker: a product decision about the live-set surface, outside the backend work. When it is added, `repsInReserve` already flows through the engine; the muscle-rank route does not yet send it (`supabaseStrengthProfile.ts`), noted for V2.
+
+**Touches.** B059, B093, B253; EN-06.
+
+## D-009 — What a logged weight means (28 September 2026, batch 4)
+
+**Finding.** The database scores 40 dumbbell movements by one dumbbell and 50 bodyweight movements by reps alone, but the app said neither. The weight box read "Weight" for a dumbbell bench (entering the pair's total doubled the load: 43.10 → 95.00 in the bench trace), every lift was synced as `total_external_load`, and a pull-up with 20 kg added scored 15.71 — exactly as one without (reproduced live). Unloaded bodyweight sets never reached the muscle ranks at all (EN-07, EN-09).
+
+**Decision.** The policy's convention per catalog exercise is copied into `shared/loadConventions.ts` and used everywhere a weight is entered, stored or sent: the box names what to enter; the observation and the sync carry the convention; a bodyweight movement goes to the muscle ranks as reps alone, and a loaded set of one is reported as not scored rather than ranked as if the load were absent. The policy wins over the catalog's equipment field (Chin-Up is "Free weights" in the catalog but scored on reps).
+
+**Alternatives.** Route loaded pull-ups to `score_weighted_pull_chin_v1` — it has no curve for any catalog exercise, so it returns `estimated_only`. Fetch the policy at run time instead of copying it — a request per load for a table that changes with the research record, not with use; the copy is pinned by a test and names its source.
+
+**Consequence carried forward.** Dumbbell sets logged before this change may be pair totals; nothing recorded which. They are read as the database reads them (one dumbbell). Laterality and variant context (B050) are still not recorded per set.
+
+**Touches.** B025, B040, B049, B050, B051, B052, B244; EN-07, EN-09.

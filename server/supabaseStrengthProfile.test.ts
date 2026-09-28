@@ -5,15 +5,17 @@ const index = [
   { id: "03c880ed-4138-4217-92c2-28fff50845d1", name: "Barbell Bench Press", canonical_name: "barbell_bench_press__catalog_1" },
   { id: "8a5a495f-dbaa-4536-8bf7-f9582d6c43c3", name: "Lat Pulldown", canonical_name: "lat_pulldown__catalog_57" },
   { id: "1c710af1-7799-4cab-a79c-4cbac4048ba4", name: "Preacher Curl", canonical_name: "preacher_curl__catalog_126" },
+  { id: "5b3e0f4e-0000-4000-8000-000000000066", name: "Pull-Up", canonical_name: "pull_up__catalog_66" },
 ];
 
 const communityLabel = "Self-selected Strength Level community lifters (not general population)";
 
 /** Shaped exactly as the live `score_strength_profile_v1` returns an exercise score. */
-const exerciseScore = (exerciseId: string, percentile: number, name: string) => ({
+const exerciseScore = (exerciseId: string, percentile: number, name: string, confidence = 0.8) => ({
   status: "ok",
+  scoring_version: "strength_beta_v2",
   exercise_id: exerciseId,
-  overall_confidence: 0.8,
+  overall_confidence: confidence,
   percentile: { percentile_estimate: percentile, norm_source: { population_label: communityLabel, source_role: "beta_fallback" } },
   input_observation: { exercise_id: exerciseId, exercise_name: name },
 });
@@ -22,6 +24,7 @@ const exerciseScore = (exerciseId: string, percentile: number, name: string) => 
 const liveAggregate = {
   status: "ok",
   scoring_version: "strength_beta_v1",
+  aggregation_method: "role_and_contribution_attenuated_latent_evidence_with_redundancy_decay",
   muscles: [
     { muscle_id: "m-pec", muscle_name: "Pectoralis major — sternocostal head", muscle_canonical_name: "pectoralis_major_sternocostal", strength_percentile: 68.5, confidence: 0.601, evidence_count: 1, movement_pattern_count: 1, evidence: [{ exercise_id: index[0].id, exercise_name: "Barbell Bench Press", role: "primary", exercise_percentile: 68.75 }] },
     { muscle_id: "m-bic", muscle_name: "Biceps brachii", muscle_canonical_name: "biceps_brachii", strength_percentile: 41.16, confidence: 0.758, evidence_count: 2, movement_pattern_count: 2, evidence: [
@@ -77,7 +80,10 @@ describe("Scoring a muscle profile", () => {
     const result = await scoreMuscleProfile(fakeClient(), index, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80)] });
     if (result.status === "unavailable") throw new Error("expected a profile");
     expect(result.status).toBe("ok");
-    expect(result.scoringVersion).toBe("strength_beta_v1");
+    // The lifts' own version, not the aggregation's label (EN-04).
+    expect(result.scoringVersion).toBe("strength_beta_v2");
+    expect(result.aggregationVersion).toBe("strength_beta_v1:role_and_contribution_attenuated_latent_evidence_with_redundancy_decay");
+    expect(result.selectionRule).toBe("best_percentile_per_exercise_v1");
     expect(result.rankSchemeVersion).toBe("sg_capability_rank_v1");
     const pec = result.muscles.find((m) => m.canonicalName === "pectoralis_major_sternocostal");
     expect(pec?.percentile).toBe(68.5);
@@ -183,5 +189,68 @@ describe("The wire calls", () => {
     expect(JSON.parse(String(init.body))).toEqual({ p_bodyweight_kg: 80, p_sex: "male", p_observations: [] });
     // An opaque secret key rides in apikey only.
     expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
+  });
+});
+
+/**
+ * EN-01, recorded live on 28 September 2026 for a male lifter at 80 kg: bench 100 x 10 scores
+ * the 85th percentile (confidence 0.76) and 80 x 3 the 27.06th (0.812). Sent together, the
+ * database keeps the more confident triple and the chest reads 27.35; sent the best alone, 84.67.
+ */
+describe("Which observation speaks for an exercise", () => {
+  const bench = index[0];
+  const twoBenchSets = () => fakeClient({
+    scoreProfile: vi.fn(async () => ({
+      status: "ok",
+      exercise_scores: [exerciseScore(bench.id, 85, bench.name, 0.76), exerciseScore(bench.id, 27.06, bench.name, 0.812)],
+      estimated_only: [],
+      failures: [],
+    })),
+  });
+
+  it("sends the aggregation the best-placed set, not the most confident one", async () => {
+    const client = twoBenchSets();
+    const result = await scoreMuscleProfile(client, index, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80, 100, 10), lift("Barbell Bench Press", 1, 80, 80, 3)] });
+    expect(client.aggregate).toHaveBeenCalledWith([{ exercise_id: bench.id, percentile: 85, confidence: 0.76 }]);
+    if (result.status === "unavailable") throw new Error("expected a profile");
+    // Both lifts were scored; one speaks for the exercise.
+    expect(result.counts.scored).toBe(2);
+  });
+
+  it("never lowers an exercise's evidence when a weaker set is added", async () => {
+    const strongOnly = fakeClient({ scoreProfile: vi.fn(async () => ({ status: "ok", exercise_scores: [exerciseScore(bench.id, 85, bench.name, 0.76)], estimated_only: [], failures: [] })) });
+    await scoreMuscleProfile(strongOnly, index, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80, 100, 10)] });
+    const withWeaker = twoBenchSets();
+    await scoreMuscleProfile(withWeaker, index, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80, 100, 10), lift("Barbell Bench Press", 1, 80, 80, 3)] });
+    expect(withWeaker.aggregate.mock.calls[0][0]).toEqual(strongOnly.aggregate.mock.calls[0][0]);
+  });
+});
+
+/**
+ * EN-09, recorded live on 28 September 2026: a Pull-Up scored 15.71 at 80 kg for 5 reps with
+ * 20 kg added and without - the rep curve cannot see added load. Reps alone score as a rep test
+ * (12 reps: the 45th percentile across 12 muscles).
+ */
+describe("A movement scored on reps", () => {
+  it("is sent as reps alone when no weight was added", async () => {
+    const client = fakeClient();
+    await scoreMuscleProfile(client, index, { sex: "male", lifts: [lift("Pull-Up", 66, 80, 0, 12)] });
+    expect(client.scoreProfile.mock.calls[0][2]).toEqual([{ exercise_id: index[3].id, reps: 12, exercise_name: "Pull-Up" }]);
+  });
+
+  it("reports a set with added weight as not scored, instead of ranking it as if the weight were not there", async () => {
+    const client = fakeClient();
+    const result = await scoreMuscleProfile(client, index, { sex: "male", lifts: [lift("Pull-Up", 66, 80, 20, 5), lift("Barbell Bench Press", 1, 80)] });
+    const sent = client.scoreProfile.mock.calls.flatMap((call) => call[2] as { exercise_name: string }[]);
+    expect(sent.map((observation) => observation.exercise_name)).toEqual(["Barbell Bench Press"]);
+    if (result.status === "unavailable") throw new Error("expected a profile");
+    expect(result.unranked).toContainEqual({ exerciseName: "Pull-Up", reason: "added_load_not_scored" });
+    expect(result.status).toBe("partial");
+  });
+
+  it("asks for the weight of a loaded exercise sent without one", async () => {
+    const result = await scoreMuscleProfile(fakeClient(), index, { sex: "male", lifts: [lift("Barbell Bench Press", 1, 80, 0, 5)] });
+    if (result.status === "unavailable") throw new Error("expected a profile");
+    expect(result.unranked).toEqual([{ exerciseName: "Barbell Bench Press", reason: "load_required" }]);
   });
 });
