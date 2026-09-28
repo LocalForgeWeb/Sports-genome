@@ -84,9 +84,12 @@ export type PlanDayState = "live" | "trained" | "next" | "planned";
 const planDayWord: Record<PlanDayState, string> = { live: "under way", trained: "completed this week", next: "next up", planned: "planned" };
 
 export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayLabel, live, planHasDays, planReady = true, athleteName, directAccess = true, weightUnit = "lb", onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, focusMuscles = [], planDays = [], activeDayIndex, onChooseDay, onOpenProgress }: TodayActionPanelProps) {
-  const sessions = trpc.workoutLog.list.useQuery();
-  const observations = trpc.strengthGenome.observations.useQuery();
-  const trackedSets = trpc.workoutLog.progressionHistory.useQuery();
+  // Account-only routes, asked only when an account is the source. On the device stores they
+  // were refused as unauthorised on every Home open, and each refusal told an athlete who
+  // had never signed in that their sign-in had expired (B233).
+  const sessions = trpc.workoutLog.list.useQuery(undefined, { enabled: !directAccess });
+  const observations = trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess });
+  const trackedSets = trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: !directAccess });
   const referenceRows = trpc.strengthGenome.referenceRows.useQuery(undefined, { staleTime: 60 * 60 * 1000, refetchOnWindowFocus: false });
   const accountObservations = observations.data || [];
   const accountSessions = (sessions.data || []) as TrainingSession[];

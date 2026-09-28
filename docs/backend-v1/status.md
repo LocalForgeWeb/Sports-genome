@@ -18,10 +18,10 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 176
-- `implementing`: 43
-- `verified`: 42
-- `blocked`: 7
+- `pending`: 133
+- `implementing`: 60
+- `verified`: 66
+- `blocked`: 9
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -40,14 +40,14 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B001 | Read the whole brief and existing repository instructions before editing. | verified | Read the whole brief (copied to docs/backend-v1/brief.md). The repository has no CLAUDE.md or AGENTS.md; .claude/settings.json (permission allowlist) and the prior program convention in docs/ux-correction/ (copied brief + progress file) were read and followed. |
 | B002 | Identify the current repository, branch, database project, environments, deployed app, and actual iOS integration status. | verified | Repository LocalForgeWeb/Sports-genome; work branch claude/training-day-navigation-workouts-83ro2c merged to main by PR; databases: Supabase project qiccnqkypbhlwpmjcsri (reference data, service-role reads) and MySQL via DATABASE_URL (accounts, unreachable from the work environment); environments: Vercel production sports-genome-mauve.vercel.app plus per-branch previews, no staging; iOS: no native shell on main, Capacitor work only on an unmerged branch with unrelated history (decisions D-003). |
-| B003 | Inventory existing engines before adding new ones. Reuse and improve compatible modules. | pending |  |
-| B004 | Preserve user data, source provenance, canonical IDs, migration history, and unrelated work. | pending |  |
-| B005 | Never mark work verified on the basis of code inspection alone when a runtime or calculation test is required. | pending |  |
-| B006 | Do not invent scientific coefficients, supporting studies, database contents, or successful tests. | pending |  |
-| B007 | Continue through authorized implementation and verification; do not stop after producing a plan. | pending |  |
-| B008 | Treat absent access as a specific blocker. Complete independent work, state exactly what remains unverified, and do not pretend production was… | pending |  |
+| B003 | Inventory existing engines before adding new ones. Reuse and improve compatible modules. | verified | Engines inventoried before any change (inventory/engines.md). Existing modules repaired in place; the database's estimators were transcribed and pinned rather than a new engine written (D-007). No parallel engine added. |
+| B004 | Preserve user data, source provenance, canonical IDs, migration history, and unrelated work. | implementing | No user record deleted or rewritten destructively: legacy units stamped once and flagged (D-005); per-account keys read before written (D-012); prepared migrations are additive with rollback. Open: PS-21 destructive load fallbacks (malformed plan overwritten, unknown sport discarded) remain from before V1. |
+| B005 | Never mark work verified on the basis of code inspection alone when a runtime or calculation test is required. | verified | Every verified row cites a test run, a live query or a production probe; items supported by code reading alone are implementing or blocked (e.g. MySQL paths, SV-05). |
+| B006 | Do not invent scientific coefficients, supporting studies, database contents, or successful tests. | verified | Every coefficient in changed code comes from the database or a cited source and is pinned by a test (strengthPercentile.parity, loadConventions, age tests). Unsourced pre-existing aggregation coefficients are flagged, not tuned (EN-17). Fixtures use real registry values where they claim to. |
+| B007 | Continue through authorized implementation and verification; do not stop after producing a plan. | verified | Ten implementation batches merged and deployed (#68-#77); each ends in tests, a build and a production deploy. |
+| B008 | Treat absent access as a specific blocker. Complete independent work, state exactly what remains unverified, and do not pretend production was… | verified | Blockers named with what remains unverified: MySQL unreachable (account paths mock-tested only), no iOS shell (D-003), Supabase migrations not applied (D-013), production server latency not measured (performance.md). |
 | B009 | Do not perform destructive production changes or deploy outside existing authorization. Prepare concrete migrations and evidence first. | verified | No production change or deploy outside authorization: Supabase fixes are prepared and proven locally in supabase/prepared/backend_v1 (not in supabase/migrations, which a GitHub integration could apply). App deploys go through the owner-established Vercel flow. D-013. |
-| B010 | Maintain a resumable work record. Large task size is not a reason to forget partially completed requirements. | implementing | Resumable record: status.md (every B-ID), verification.md checkpoints, decisions.md. Updated at each stopping point. |
+| B010 | Maintain a resumable work record. Large task size is not a reason to forget partially completed requirements. | verified | status.md (every B-ID), verification.md checkpoints and decisions.md carried the work across several context resets without loss. |
 
 ## 1. Priority and deliverables
 
@@ -61,10 +61,10 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B011 | Create or extend these records without duplicating an equivalent existing tracking system. | implementing | Records live in docs/backend-v1/ following the docs/ux-correction convention (no second tracker): brief.md, status.md (this file, maintained with status_tool.py), inventory.md + inventory/*.md, contracts.md, decisions.md, verification.md, handoff.md. |
+| B011 | Create or extend these records without duplicating an equivalent existing tracking system. | verified | Records live in docs/backend-v1/ (brief, inventory, contracts, decisions, status, verification, performance, handoff); no second tracker. |
 | B012 | Give each requirement one of: pending, implementing, implemented-unverified, verified, blocked, or explicitly deferred with rationale. | verified | Every one of the 298 IDs has exactly one row and one status from the vocabulary above; status_tool.py refuses unknown statuses and refuses to reopen an owner-deferred row. |
-| B013 | Attach evidence to verified items and dependency information to blocked items. | pending |  |
-| B014 | Separate what this assignment actually changes from pre-existing behavior it merely confirms. | pending |  |
+| B013 | Attach evidence to verified items and dependency information to blocked items. | verified | Verified rows carry evidence; each blocked row names its dependency (owner authorization for the prepared migrations, iOS shell, MySQL access). |
+| B014 | Separate what this assignment actually changes from pre-existing behavior it merely confirms. | implementing | Decisions separate Finding (pre-existing) from Decision (this assignment); intentional changes are labelled. Not every confirmed-existing behaviour has its own status row. |
 
 ## 2. Discover the real system first
 
@@ -95,7 +95,7 @@ _No requirement IDs in this section._
 | B028 | Record event time and ingestion time separately where offline sync or delayed imports matter. | pending |  |
 | B029 | Define user timezone, date boundaries, and week-start behavior; do not infer the workout date from UTC ingestion alone. | pending |  |
 | B030 | Keep historical bodyweight and relevant profile context available for historical calculations. Do not silently apply today's weight to every past… | pending |  |
-| B031 | Preserve the recorded context when a user later changes age-related information, sex/reference-population choice, sport, or experience. | pending |  |
+| B031 | Preserve the recorded context when a user later changes age-related information, sex/reference-population choice, sport, or experience. | implementing | Each lift is placed at the age on its own day, so a birth year given later re-reads every lift correctly (D-002, ageAtLift.scoring.test.ts); body weight at completion is frozen per session. Server-side, derived entry context becomes immutable only with prepared migration 20260928120200 (D-013). |
 | B032 | Enforce referential integrity and correct ownership across child rows, not just parent records. | blocked | Fix prepared and proven: 20260928120100 (check-in parent ownership) and 20260928120300 (no client state writes). validation/before.sql shows B attaching to A's focus area; after.sql shows it refused. Applying needs owner authorization (B009). |
 | B033 | Define stable operation IDs and revision/conflict handling for retryable writes. | implementing | Plan save: revision check and write are now one statement; a lost race returns conflict, concurrent first saves return one save and one conflict (0afbd64, server/workoutPlanSync.atomic.test.ts renders the real WHERE). Remaining: operation ids for workout start/complete and observation writes (SV-05, dormant MySQL routes), Supabase lift sync (PS-09). |
 
@@ -163,7 +163,7 @@ _No requirement IDs in this section._
 | B067 | Audit age, sex/reference-population, bodyweight, and training-status effects already present in the source so they are not applied twice. | pending |  |
 | B068 | For each multiplier or interpolation, record equation, source, applicable domain, direction, assumptions, and validation cases. | pending |  |
 | B069 | Apply an adjustment at a defined stage—observed metric, expected metric, distribution parameters, or another explicit layer. Do not multiply a… | pending |  |
-| B070 | Test age-boundary continuity and behavior at the edges of the supported range. Do not extrapolate outside the domain silently. | pending |  |
+| B070 | Test age-boundary continuity and behavior at the edges of the supported range. Do not extrapolate outside the domain silently. | verified | Age table edges tested: unadjusted and explained at 14, no extrapolation beyond the curve (censored), unadjusted without a birth year (server/strengthPercentile.age.test.ts, pinned to database outputs; D-002). |
 | B071 | Verify whether bodyweight normalization uses a ratio, allometry, weight classes, regression, or another source-supported model. Avoid double… | pending |  |
 | B072 | Keep experienced-athlete expectations distinct from measured capability; do not automatically raise someone's performance score because they… | pending |  |
 | B073 | If a direct comparison is unavailable, use a clearly identified estimate only when the transfer method is defensible; otherwise return unsupported… | pending |  |
@@ -176,10 +176,10 @@ _No requirement IDs in this section._
 | B075 | Do not fabricate a normal distribution solely because mean and SD are convenient; justify the distribution or avoid overprecise percentile output. | pending |  |
 | B076 | Distinguish a true reference percentile from a normalized product score or rank band. | implementing | Muscle score is labelled as read through lifts, with its ceiling stated (How ranks work, data-muscle-rank-ceiling); National/World Stage unreachable for muscles is disclosed. Re-mapping bands is an owner decision (D-014). |
 | B077 | Handle lower-is-better metrics correctly, including completion time. | pending |  |
-| B078 | Preserve canonical rank identifiers and approved display mapping unless an independently justified change is required. | pending |  |
+| B078 | Preserve canonical rank identifiers and approved display mapping unless an independently justified change is required. | verified | Canonical rank ids and the approved display mapping are unchanged (capabilityRank.test.ts pins the seven ids and bands). The muscle ceiling is disclosed rather than re-mapped (D-014). |
 | B079 | Verify threshold inclusivity at every rank boundary and keep rounding from moving an underlying score across the wrong boundary. | implementing | Piper 2021 preacher-curl bands made contiguous with an explicit inclusive/exclusive rule and a stored-value tolerance (shared/piper2021PreacherCurlReference.ts bandFor; client/src/lib/piper2021PreacherCurlReference.test.ts). Remaining rank boundaries reviewed with EN-16. |
-| B080 | Keep unranked/pending separate from the lowest rank. | pending |  |
-| B081 | Produce numeric traces for representative high, medium, low, missing-context, and unsupported performances. | pending |  |
+| B080 | Keep unranked/pending separate from the lowest rank. | verified | Confirmed existing and kept: an invalid or missing value returns no rank, never Prospect; a region with no scored muscle is absent and drawn Not scored (capabilityRank.test.ts, StrengthGenomeBodyMap.rank.render.test.ts). |
+| B081 | Produce numeric traces for representative high, medium, low, missing-context, and unsupported performances. | implementing | Traces recorded: bench across ages 15-50 (D-002), chest 27.35 vs 84.67 (D-007), dumbbell and pull-up (D-009), P95 ceiling 94.79 and stabilizer muscles (D-014), female 10RM band (normsReference.test.ts). No single table of high/medium/low/missing/unsupported yet. |
 
 ### 5.5 Muscle-region strength inference
 
@@ -188,7 +188,7 @@ _No requirement IDs in this section._
 | B082 | Document the mapping from eligible exercise performances to each region. | pending |  |
 | B083 | Prevent repeated copies of the same lift or tightly correlated variants from falsely creating independent evidence. | implementing | Identical lifts sent once; one observation per exercise reaches the aggregation; correlated variants decay by movement pattern in the database (0.55). Variant-level correlation (e.g. two bench variants) not yet reviewed. |
 | B084 | Keep primary muscle contribution, stabilization, and normative comparability distinct. | implementing | Stabilizer-only muscles are no longer ranked (isStabilizerOnly, capabilityRank.test.ts; live trace bench P80 -> serratus 55.11, infraspinatus 53.91). Primary vs secondary contribution weighting remains the DB aggregation's (EN-17 coefficients unsourced). |
-| B085 | Define region aggregation and confidence rules rather than averaging unrelated exercise percentiles by default. | pending |  |
+| B085 | Define region aggregation and confidence rules rather than averaging unrelated exercise percentiles by default. | implementing | Region = best-evidenced muscle, never a blend; stabilizer-only muscles excluded (contracts § Muscle ranks on the map). Aggregation coefficients themselves are the database's and unsourced (EN-17). |
 | B086 | Preserve left/right asymmetry when supported; do not generate a weaker-side score from missing side data. | pending |  |
 | B087 | Explain which observations drive a region result and which regions lack enough evidence. | pending |  |
 | B088 | Keep coverage-of-records and rank strength as separate outputs, eliminating misleading loading-state color changes. | pending |  |
@@ -203,7 +203,7 @@ _No requirement IDs in this section._
 | B092 | Define the effect of set count, repetition scheme, load/relative intensity, effort, range, contraction type, and muscle role where supported. | pending |  |
 | B093 | If a field is absent, expose the actual default/assumption and its consequence. Do not assume unreported RIR equals zero. | verified | The card names the default (read as a set to failure) and its consequence (the lift places higher if reps were left in reserve). strengthPercentileCard.effort.test.ts. |
 | B094 | Audit for double counting when exercise tags and prescription modifiers encode the same characteristic. | pending |  |
-| B095 | Keep prime mover, synergist/supporting, and stabilizer roles explicit; stabilizer involvement must not automatically count as a full hypertrophy set. | pending |  |
+| B095 | Keep prime mover, synergist/supporting, and stabilizer roles explicit; stabilizer involvement must not automatically count as a full hypertrophy set. | implementing | Stabilizer-only muscles no longer receive a rank from the lifts that steady them (D-014). Role weighting inside the database aggregation unchanged. |
 | B096 | Allow multiple muscles to receive contribution without treating contribution weights as a mandatory probability distribution summing to one unless… | pending |  |
 | B097 | Keep volume-load calculations within compatible units/protocols. Do not aggregate kilograms, seconds, and meters into a physically meaningless… | pending |  |
 | B098 | Do not infer growth in grams, injury probability, or exact recovery hours from heuristic effect points. | pending |  |
@@ -273,7 +273,7 @@ _No requirement IDs in this section._
 | B133 | Keep direct evidence, mechanistic inference, and expert-authored mappings distinguishable. | pending |  |
 | B134 | Do not assign a causal transfer percentage when the evidence only supports a relevance score. | pending |  |
 | B135 | Verify that selecting a new sport/action updates filters and explanations without retaining the previous context. | pending |  |
-| B136 | Provide a coherent non-sport/general-training path; absence of a sport is not an error. | pending |  |
+| B136 | Provide a coherent non-sport/general-training path; absence of a sport is not an error. | implementing | General mode is a first-class choice (no sport sent with lifts, PS-14; 'General strength and resilience' label). The movement explorer still defaults to the first sport for browsing. |
 | B137 | Treat self-reported limitations and training priorities as explicit inputs, not automatically diagnosed injuries. Preserve supported exclusions… | pending |  |
 | B138 | Explain why the top recommendations differ from the next candidates and which constraints affected the ranking. | pending |  |
 
@@ -330,7 +330,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B167 | Document which actions work offline and which require verification/network access. | pending |  |
 | B168 | Use durable pending operations with stable IDs where offline writes are supported; survive app termination before sync. | implementing | The lift sync queue keeps unmappable lifts pending across restarts (localStorage) instead of dropping them (strengthSyncQueue.unmappable.test.ts); stable ids ride with the client_op_id migration. |
-| B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | implementing | Refused finish stays open (batch 1). Plan sync now shows a real conflict state with both choices; offline is still silent, and per-record 'saved to account' states for history are not built. |
+| B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | implementing | Refused finish stays open (batch 1). Plan sync shows a real conflict state with both choices. A device-store athlete is no longer told their sign-in expired (D-015). Offline is still silent; per-record 'saved to account' states for history are not built. |
 | B170 | Reconcile retries idempotently; an app restart during sync must not duplicate sets. | blocked | Idempotent lift sync prepared: client_op_id unique per user (20260928120500, proven: a resent lift is ignored) with the paired client upsert recorded in the README. Needs the migration applied first. |
 | B171 | Define conflict rules for two-device edits. Do not choose last-write-wins everywhere without considering lost workout data. | verified | Two-device rule defined and implemented: three-way reconcile; only-one-changed wins; both changed = conflict, no overwrite, athlete chooses (contracts.md § Account records on a device and plan sync). Tests: planSyncDecision.test.ts, usePlanSync.test.ts. |
 | B172 | Preserve deletion intent through tombstones or an equivalent mechanism so stale devices do not resurrect deleted records. | pending |  |
@@ -422,24 +422,24 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B221 | Keep a migration for every intended durable schema change and follow current project tooling conventions. | pending |  |
-| B222 | Test migrations against both a fresh database and a representative existing schema with populated fixtures. | pending |  |
-| B223 | Prefer additive changes and staged backfills when replacing a field or computation. | pending |  |
-| B224 | Check constraints, null/default behavior, foreign keys, indexes, and policies after backfill—not only before it. | pending |  |
+| B221 | Keep a migration for every intended durable schema change and follow current project tooling conventions. | implementing | Every intended Supabase schema change has a timestamped migration (supabase/prepared/backend_v1), kept out of supabase/migrations so the GitHub integration cannot apply it before the owner authorizes (D-013). |
+| B222 | Test migrations against both a fresh database and a representative existing schema with populated fixtures. | implementing | Migrations tested against a live-equivalent schema with populated fixtures, including re-apply (validation/run.sh on PostgreSQL 16.13). Not against a fresh Supabase branch or MySQL. |
+| B223 | Prefer additive changes and staged backfills when replacing a field or computation. | verified | Prepared changes are additive: a nullable client_op_id with a unique index, a new read policy, a trigger; grants narrowed only where no policy allowed the write. No field replaced; no backfill needed. |
+| B224 | Check constraints, null/default behavior, foreign keys, indexes, and policies after backfill—not only before it. | implementing | after.sql checks policies, grants, the unique index and the immutability trigger after applying, with legitimate writes still working. Production post-apply checks await the apply. |
 | B225 | Make backfills resumable, bounded, and observable; do not run unbounded production rewrites merely to simplify code. | pending |  |
 | B226 | Preserve old-client compatibility where installed iOS versions may continue calling an endpoint after release. | pending |  |
 | B227 | Give changed contracts an explicit compatibility or deprecation path. | pending |  |
 | B228 | Test rollback/recovery on staging. Recognize that reverting code does not necessarily reverse transformed data. | pending |  |
-| B229 | Do not reset migrations, truncate user tables, or recreate production datasets to force a clean test. | pending |  |
+| B229 | Do not reset migrations, truncate user tables, or recreate production datasets to force a clean test. | verified | Nothing was reset, truncated or recreated: production Supabase was read-only throughout; migrations were proven on a local copy. |
 | B230 | Ensure necessary backups/recovery access are available before an authorized material production migration; document what was actually verified. | pending |  |
 
 ## 14. Performance and operations
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B231 | Measure representative latency and query count for opening Home, searching exercises, adding to a plan, saving a set, computing coverage, and… | pending |  |
-| B232 | Define environment, fixture size, cold/warm conditions, and percentile when reporting performance. A single local timing is not a production SLA. | pending |  |
-| B233 | Investigate repeated queries, unnecessary full-dataset downloads, and recomputation on unrelated state changes. | pending |  |
+| B231 | Measure representative latency and query count for opening Home, searching exercises, adding to a plan, saving a set, computing coverage, and… | implementing | Client side measured for all six flows with request counts (performance.md; scripts/perf/measure-client.cjs, 10 runs, 1x and 4x CPU, empty and loaded fixtures). Server latency in production not measured: the shell cannot reach the deployment and aggregated metrics need Observability Plus; scripts/perf/measure-api.cjs is ready for a machine that can. |
+| B232 | Define environment, fixture size, cold/warm conditions, and percentile when reporting performance. A single local timing is not a production SLA. | verified | performance.md states environment, build, browser, CPU throttling, fixture sizes, cold/warm definitions, timing method, runs and percentile method, and says the numbers are not a production SLA. |
+| B233 | Investigate repeated queries, unnecessary full-dataset downloads, and recomputation on unrelated state changes. | implementing | Repeated/unneeded queries: account-only routes on the device store fixed (D-015, 7 -> 4 procedures on Home); fallback sport profile request recorded (Perf-2). Full downloads: movement data for every sport in the first load (Perf-1), whole reference registry on Home (by design, size unmeasured). Recomputation on unrelated state changes not profiled. |
 | B234 | Use indexes and bounded/paginated queries justified by actual access patterns. | pending |  |
 | B235 | Keep search results stable across pagination and updates where the product needs that consistency. | pending |  |
 | B236 | Prevent public or authenticated endpoints from triggering unbounded expensive analysis without appropriate bounds/rate controls. | verified | SV-02 (0afbd64): maxBatchSize 10 (client splits at 10); per-client allowance of 120 calls/min per instance on the five public routes that fan out to Supabase; 8 s deadline on every Supabase call; muscle-rank route at most 4 upstream calls in flight; caller-keyed caches bounded (500/200/1000, LRU); caller curve id must be a UUID. Live probe: batch of 11 refused, 10 accepted; bad id rejected. Tests: server/boundedCache.test.ts. |
@@ -468,9 +468,9 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B247 | Create a similar independent fixture for each actual adjustment stage, including inverse direction and already-adjusted reference data. | pending |  |
-| B248 | Verify bodyweight changes do not alter a historical score unless the selected historical-context policy explicitly calls for recalculation. | pending |  |
+| B248 | Verify bodyweight changes do not alter a historical score unless the selected historical-context policy explicitly calls for recalculation. | verified | A session keeps the body weight at completion, and a weight change later does not re-measure it (workoutStrengthRecord.test.ts 'bodyMassKgAtCompletion' cases). |
 | B249 | Verify lower-is-better tests reverse comparison direction correctly. | pending |  |
-| B250 | Verify unknown age/context leads to the documented estimate or missing-context state, not silently the best-performing demographic. | pending |  |
+| B250 | Verify unknown age/context leads to the documented estimate or missing-context state, not silently the best-performing demographic. | verified | Without a birth year the lift is placed unadjusted and says so (strengthPercentile.age.test.ts 'places the lift unadjusted when there is no birth year'; D-002); without sex the comparison asks for it. |
 
 ### 15.3 Scientific-engine behavior fixtures
 
@@ -479,7 +479,7 @@ _No requirement IDs in this section._
 | B251 | Demonstrate how a compound lift contributes to multiple muscles without making every muscle's isolated strength equal to the whole lift. | pending |  |
 | B252 | Demonstrate planned versus performed exposure using a workout with prescribed sets that were not all completed. | pending |  |
 | B253 | Demonstrate what changes when RIR is known versus missing; explain the assumption rather than inventing an exact physiological difference. | verified | 70 kg x 5 unknown effort places at 43.68, at 2 RIR at 53.26 (database numbers, reproduced by the engine); confidence 0.84 vs 0.83. strengthPercentileCard.effort.test.ts. |
-| B254 | Demonstrate an unsupported exercise/test returning an honest status while preserving its valid workout log. | pending |  |
+| B254 | Demonstrate an unsupported exercise/test returning an honest status while preserving its valid workout log. | verified | A loaded bodyweight set returns added_load_not_scored and a lift without load returns load_required, listed by reason while the workout log stays intact (supabaseStrengthProfile.test.ts; live probe batch 4). |
 | B255 | Demonstrate two nearly synonymous exercise names resolving to one canonical search identity without merging mechanically distinct variants. | pending |  |
 | B256 | Demonstrate a reference-data version change with preserved original inputs and a traceable output delta. | pending |  |
 
@@ -488,8 +488,8 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B257 | Add → retry same request → one addition; add a new intentional instance → expected additional instance. | pending |  |
-| B258 | Finish workout → duplicate finish event → one completed workout count. | pending |  |
-| B259 | Undo one addition → only that addition removed; derived totals match. | pending |  |
+| B258 | Finish workout → duplicate finish event → one completed workout count. | implementing | Finishing in one tab closes the workout in the other, and an edit to a workout another tab already finished is refused; an empty finish records nothing (DeviceWorkoutTracker.tabs.test.ts). No explicit duplicate-finish-event test, and none for account (MySQL) completion. |
+| B259 | Undo one addition → only that addition removed; derived totals match. | verified | Undo removes exactly the entry that was added, from the day it was added to, even after switching days (Home.undoAndLoading.test.ts; batch 1). |
 | B260 | Edit plan after completing a session → historical performed data unchanged. | pending |  |
 | B261 | Log offline → terminate app → reopen → reconnect → one durable record. | pending |  |
 | B262 | Sign out A → sign in B → no A profile/plan/history leaks from caches. | implementing | Plan, profile and favourites: no leak on sign out A -> sign in B (Home.accountSwitch.test.ts, which fails against the old code). Workout history, typed lifts and body-weight log are still device-level (D-012) - launch-blocking before sign-in ships. |
@@ -506,20 +506,20 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B267 | No known cross-user access path in exercised endpoints. | pending |  |
-| B268 | Plan/session writes survive the tested restart/offline/retry flows. | pending |  |
-| B269 | No duplicate completion or addition from retried operations. | pending |  |
-| B270 | Migrations and existing-user upgrade paths pass representative tests. | pending |  |
+| B267 | No known cross-user access path in exercised endpoints. | blocked | FAIL in production until the prepared migrations are applied: SB-07 (anon/authenticated write grants with no policy) and SB-02 (check-in on another athlete's focus area) reproduced on a live-equivalent schema (validation/before.sql) and closed by 20260928120000/120100 (after.sql). MySQL routes: ownership checked in code and mock tests only (DB unreachable). Needs owner authorization (B009, D-013). |
+| B268 | Plan/session writes survive the tested restart/offline/retry flows. | implementing | Device: one active session across tabs, stored-copy merge, refused finish stays open, restart resumes mid-rest (DeviceWorkoutTracker.tabs/units tests); plan per account read-before-write and three-way sync (usePlanSync.test.ts). Unverified: MySQL write paths (unreachable), iOS app termination (no shell). |
+| B269 | No duplicate completion or addition from retried operations. | blocked | Undo bound to its operation and plan save atomic (batch 1, 0afbd64). Retried lift sync can duplicate until client_op_id (20260928120500, proven locally) is applied with its paired client upsert; MySQL workout writes are not idempotent (SV-05). |
+| B270 | Migrations and existing-user upgrade paths pass representative tests. | implementing | Tested upgrade paths: legacy set units (deviceWorkoutLog.units.test.ts), per-account storage keys (Home.accountSwitch.test.ts), Supabase migrations on a live-equivalent local copy incl. re-apply (validation/run.sh). Not exercised: MySQL migrations 0000-0010 against real data (unreachable). |
 
 ### Gate B — internal logic
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B271 | Core exposed scores have explicit input semantics, a documented calculation path, source or assumption basis, and independent fixtures. | pending |  |
-| B272 | Unsupported inputs do not produce fabricated ordinary scores. | pending |  |
-| B273 | Summary/detail results agree for the same scope and input revision. | pending |  |
-| B274 | Major calculation changes have a before/after delta report and an explanation. | pending |  |
-| B275 | No tuning solely to make the owner's personal score look higher or to fit screenshots. Expected-case disagreement triggers source/method… | pending |  |
+| B271 | Core exposed scores have explicit input semantics, a documented calculation path, source or assumption basis, and independent fixtures. | implementing | Strength placement, e1RM, load conventions, coverage and muscle ranks have contracts (contracts.md) and fixtures pinned to database outputs. Muscle aggregation coefficients have no recorded source (EN-17); muscle effect dimensions are heuristics (EN-22). |
+| B272 | Unsupported inputs do not produce fabricated ordinary scores. | implementing | Unsupported inputs return reasons, not scores: added_load_not_scored, load_required, sex/age gates, stabilizer-only muscles unranked, protocol-mismatched units declined, rank null for invalid percentiles. Open: the server supplies confidence 0.5 when a score lacks one (EN-17). |
+| B273 | Summary/detail results agree for the same scope and input revision. | verified | Coverage panel, full analysis and picker read one snapshot (coverageConsistency.test.ts); card, trends and ranks share one estimator (strengthPercentile.parity.test.ts); every count reads the shared record (athleteRecord tests). |
+| B274 | Major calculation changes have a before/after delta report and an explanation. | verified | Before/after deltas recorded with each calculation change: chest 27.35 -> 84.67 (D-007, live), bench 100x5 e1RM 114.58/116.67 -> 112.5 (D-007), dumbbell 43.10 vs 95.00 and pull-up 15.71 (D-009), adductor -11/-15 (D-010), whizzer picks (D-011), stabilizer muscles and ceiling (D-014). |
+| B275 | No tuning solely to make the owner's personal score look higher or to fit screenshots. Expected-case disagreement triggers source/method… | verified | No coefficient was tuned. Every numeric change follows the database's protocol or a reproduced defect, and is pinned to database outputs or real registry values. |
 
 ### Gate C — payments
 
@@ -536,10 +536,10 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B280 | Frontend consumers use the repaired contracts. An unused correct backend does not fix the app. | pending |  |
-| B281 | Home, Plan, Workout, Progress, Strength, and exercise recommendations pass their relevant complete journeys. | pending |  |
-| B282 | Loading/error/partial states preserve usable data and understandable next steps. | pending |  |
-| B283 | Record what was tested on desktop, simulated mobile, actual iOS build, and store sandbox separately. | pending | Store sandbox coverage deferred by owner; desktop, simulated mobile and iOS build coverage remain in scope. |
+| B280 | Frontend consumers use the repaired contracts. An unused correct backend does not fix the app. | verified | Each repaired contract is wired to its screens and was verified in the running app or production: muscle ranks (batch 3 and 4 live probes), load labels, coverage panel/picker, recommendations, plan-sync conflict banner, rank legend. Dormant components not mounted (WorkoutExecutionPanel, ProgressionReviewPanel) still carry the old 3 x 8-12 fallback. |
+| B281 | Home, Plan, Workout, Progress, Strength, and exercise recommendations pass their relevant complete journeys. | implementing | Simulated mobile (Chromium 390x844, device stores): Home, exercise search, add to plan, Train day coverage, start workout and log a set, open Strength run end to end in scripts/perf/measure-client.cjs. Not run as complete journeys: finishing a workout into Progress, recommendations accepted into a plan, any account-backed journey (MySQL unreachable), iOS. |
+| B282 | Loading/error/partial states preserve usable data and understandable next steps. | implementing | Refused finish stays open; plan-sync conflict shown with both choices; ranks pending/partial states; the false 'sign-in has expired' toast on the device stores removed (batch 10). Offline plan sync is still silent. |
+| B283 | Record what was tested on desktop, simulated mobile, actual iOS build, and store sandbox separately. | verified | verification.md § Environments and performance.md record desktop/simulated mobile (headless Chromium) separately; actual iOS build not available (D-003); store sandbox deferred by owner (D-001). |
 
 ### Gate E — maintainability
 
@@ -563,7 +563,7 @@ _No requirement IDs in this section._
 |---|---|---|---|
 | B287 | Record existing engine versions and assign new versions only for meaningful calculation/contract changes. | implementing | Card and trends report strength_beta_v2 with the estimator named; muscle ranks report the lifts' version and the aggregation's separately. The database's strength_scoring_versions v2 row misdescribes its e1RM method - correction prepared with the batch 7 migrations. |
 | B288 | Maintain a compatibility map between client contract, engine version, schema revision, and reference-data revision. | pending |  |
-| B289 | Preserve baseline fixtures and add regression cases for every material bug repaired in V1. | pending |  |
+| B289 | Preserve baseline fixtures and add regression cases for every material bug repaired in V1. | verified | Each repaired defect has a regression test that failed against the old code (mutation checks recorded in verification.md for batches 2-10); baseline fixtures kept, rewritten ones carry the reason inline. |
 | B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes recorded with rewritten tests: D-004, D-006, D-007, D-010. The handoff will list them all. |
 | B291 | Carry unresolved issues forward with stable IDs, dependencies, attempted approaches, and evidence. | pending |  |
 | B292 | Separate V2 ideas from unfinished V1 requirements. Do not quietly reclassify incomplete launch-critical work as a future enhancement. | pending |  |

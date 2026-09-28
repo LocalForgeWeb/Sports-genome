@@ -5,9 +5,10 @@ const source = readFileSync(new URL("./ProgressOverviewPanel.tsx", import.meta.u
 
 describe("Progress overview", () => {
   it("summarizes saved session and observation records, merged with tracker history, without invented performance outcomes", () => {
-    expect(source).toContain("trpc.workoutLog.list.useQuery()");
-    expect(source).toContain("trpc.strengthGenome.observations.useQuery()");
-    expect(source).toContain("trpc.workoutLog.progressionHistory.useQuery()");
+    // Asked only when an account is the source (intentional change, D-015).
+    expect(source).toContain("trpc.workoutLog.list.useQuery(undefined, { enabled: !directAccess })");
+    expect(source).toContain("trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess })");
+    expect(source).toContain("trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: !directAccess })");
     // Account observations, lifts saved on this device, and finished tracker
     // workouts are one record here — counting only the server's rows showed a
     // device athlete zero lifts under a list of completed sessions.
