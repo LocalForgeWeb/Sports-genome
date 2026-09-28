@@ -110,3 +110,19 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Not a regression.** `StackAnalysisPage.test.ts` pinned the "% coverage" label on relative involvement and now pins "relative involvement" (B290).
 
 **Touches.** B110, B112, B113, B114, B115, B119; TR-01, TR-02, TR-03, TR-05, TR-11, TR-12, TR-13.
+
+## D-011 — Recommendations read the action, and respect the equipment (28 September 2026, batch 6) — intentional behavior change
+
+**Finding.** (EN-12, EN-13.) The Matches list had no equipment input, so the saved equipment profile was not a hard constraint; the sport session filtered by equipment only after cutting each movement's list to ten. An action's demands were read by substring over its text *including the muscle list*, and an exercise "matched" a demand if it shared any quality with it — nearly every exercise has "strength", which sat in the push, pull, knee and posterior rules alike.
+
+**Trace — wrestling overhook/whizzer (B132).**
+- Text: "downward and inward shoulder-arm *pressure* with trunk rotation…"; muscles "*posterior deltoid*, latissimus dorsi, pectorals, obliques…"; family "anti-underhook and rotational clinch"; the movement's own gym cue: "one-arm cable rows, carries, and anti-rotation presses".
+- Before: "pressure" matched `press` → **push**; "posterior deltoid" matched `posterior` → **hip extension**. Top picks: Split-Stance Cable Chest Press, Half-Kneeling Cable Chest Press, Alternating Landmine Press, landmine thruster and jerk.
+- After: demands **rotation, pull** (from the action text only; `press` no longer matches "pressure"). An exercise meets a demand by a distinctive quality (not "strength", "hypertrophy", "power", "endurance"), or, for push, pull, overhead and grip, by a prime mover. Top picks: Cable Standing Punch, Cable Reverse Chop, Cable Single-Arm Bent-Over Row, Landmine Row, Meadows Landmine Row, Landmine T-Bar Row.
+- Checked against other actions: sprawl → sled push, sled drag, sled sprint, carries; tackle absorption → medicine-ball passes and slams; tennis serve → punch, landmine press and jerk, medicine-ball throws; acceleration → depth drop, sled march, box jumps; snapdown → kettlebell snatch and rows. Matching lower-body demands on muscles was tried and rejected: it put hip abduction machines at the top of a sprawl.
+
+**Equipment (B118, B120).** The profile filters candidates before ranking and before any cut in the Matches list, the sport session and the day's suggested fixes. The catalog stays whole for manual additions, as the profile screen already says.
+
+**Not done.** Structured demand dimensions from the enriched action data (force direction, contraction, range: B129, B131), reason codes (B123), the breakdown's percentages that sit at 99 for most top picks, and redundancy/time/fatigue in ranking (B121). Recorded for V2.
+
+**Touches.** B118, B120, B129, B130, B132; EN-12, EN-13.
