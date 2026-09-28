@@ -14,7 +14,9 @@ const signalRules: { signal: MovementSignal; matcher: RegExp; muscles: string[];
   { signal: "lateral", matcher: /lateral|shuffle|cut|crossover|sidestep|carving|edge|jockey|dodge|turn/i, muscles: ["abductors", "adductors", "glutes", "quads"], qualities: ["lateralControl", "unilateral", "deceleration"] },
   { signal: "rotation", matcher: /rotation|rotational|swing|shot|throw|punch|pass|kick|hip turn|pivot|cradling/i, muscles: ["obliques", "glutes", "abs", "shoulders"], qualities: ["rotation", "power", "antiRotation"] },
   { signal: "jump", matcher: /jump|takeoff|bound|vault|hurdle|dunk|rebounding|header|aerial/i, muscles: ["quads", "glutes", "calves"], qualities: ["jumping", "power", "elasticity"] },
-  { signal: "push", matcher: /push|block|press|stiff-arm|tackle|scrum|drive|guard|handstand|lockout/i, muscles: ["chest", "triceps", "frontDelts", "quads"], qualities: ["strength", "bracing", "power"] },
+  // "press", not "pressure": the whizzer's "shoulder-arm pressure" read as a push and filled
+  // its top ten with chest presses (EN-13).
+  { signal: "push", matcher: /push|block|press(?!ure)|stiff-arm|tackle|scrum|drive|guard|handstand|lockout/i, muscles: ["chest", "triceps", "frontDelts", "quads"], qualities: ["strength", "bracing", "power"] },
   { signal: "pull", matcher: /pull|row|catch|grip|clinch|lock|faceoff|retraction|lever|rope/i, muscles: ["lats", "upperBack", "biceps", "forearms"], qualities: ["grip", "scapularControl", "strength"] },
   { signal: "overhead", matcher: /overhead|serve|spike|throw-in|pitch|streamline|reaching|release|butterfly/i, muscles: ["shoulders", "triceps", "traps", "rotatorCuff"], qualities: ["scapularControl", "strength", "power"] },
   { signal: "grip", matcher: /grip|hand|wrist|squeeze|cradle|stick|bat|racket|pummel/i, muscles: ["forearms", "biceps", "upperBack"], qualities: ["grip", "endurance"] },
@@ -24,6 +26,38 @@ const signalRules: { signal: MovementSignal; matcher: RegExp; muscles: string[];
   { signal: "conditioning", matcher: /sustained|repeated|high-rate|distance|cycle|recovery|running/i, muscles: ["quads", "glutes", "calves", "upperBack"], qualities: ["conditioning", "locomotion", "endurance"] },
   { signal: "singleLeg", matcher: /single-leg|unilateral|lead-leg|support leg|split stance|one foot/i, muscles: ["glutes", "quads", "abductors", "adductors"], qualities: ["unilateral", "lateralControl", "bracing"] },
 ];
+
+/**
+ * Qualities too common to say which action an exercise trains: nearly every exercise carries
+ * "strength", and it sat in the push, pull, knee and posterior rules alike, so every strength
+ * exercise "matched" a pull demand (EN-13).
+ */
+const genericQualities = new Set(["strength", "hypertrophy", "power", "endurance"]);
+
+/**
+ * Prime movers that identify an upper-body pattern on their own: a row is pulling because the
+ * lats and upper back drive it, whatever qualities its catalog entry lists. Lower-body signals
+ * get none - their muscles overlap so much (glutes sit in braking, posterior, conditioning and
+ * more) that matching on them put hip abduction machines at the top of a wrestling sprawl.
+ */
+const signalPrimeMovers: Partial<Record<MovementSignal, readonly string[]>> = {
+  push: ["chest", "triceps", "frontDelts"],
+  pull: ["lats", "upperBack", "biceps", "rearDelts"],
+  overhead: ["frontDelts", "sideDelts", "triceps", "traps"],
+  grip: ["forearms"],
+};
+
+/**
+ * Whether an exercise trains a signal: one of the signal's distinctive qualities, or, for the
+ * upper-body patterns, one of its prime movers. A chest press no longer counts as pulling
+ * because it builds "strength".
+ */
+export function exerciseMatchesSignal(exercise: Pick<Exercise, "qualities" | "primaryMuscles">, signal: MovementSignal): boolean {
+  const rule = signalRules.find((entry) => entry.signal === signal);
+  if (!rule) return false;
+  return rule.qualities.some((quality) => !genericQualities.has(quality) && exercise.qualities.includes(quality))
+    || (signalPrimeMovers[signal] ?? []).some((muscle) => exercise.primaryMuscles.includes(muscle));
+}
 
 const humanMuscleAliases: Record<string, string[]> = {
   chest: ["pectoralis", "pec"],
@@ -120,8 +154,14 @@ export function getSportProgrammingContext(sportId: string, modifierId?: string)
   };
 }
 
+/**
+ * The actions a sport movement demands, read from what the body does - never from the muscle
+ * list. The muscles used to be in the text searched, so a whizzer's "posterior deltoid" read as
+ * a posterior-chain (hip extension) demand (EN-13, B129). Muscles are matched separately, by
+ * `getMovementMuscles`.
+ */
 export function getMovementSignals(profile: SportMovementProfile): MovementSignal[] {
-  const haystack = `${profile.label} ${profile.bodyActions} ${profile.primaryMuscles} ${profile.stabilizers} ${profile.family}`;
+  const haystack = `${profile.label} ${profile.bodyActions} ${profile.family}`;
   const found = signalRules.filter((rule) => rule.matcher.test(haystack)).map((rule) => rule.signal);
   return found.length ? found : ["bracing"];
 }
@@ -247,13 +287,16 @@ export function orderHierarchyConstructedSession(results: MovementRecommendation
   return [...results].sort((first, second) => second.hierarchyConstructionScore - first.hierarchyConstructionScore || second.score - first.score || first.exercise.id - second.exercise.id);
 }
 
-export function getMovementRecommendations(profile: SportMovementProfile, limit = 6, modifierId?: string, registryEvidence?: RegistryEvidenceMap): MovementRecommendation[] {
+export function getMovementRecommendations(profile: SportMovementProfile, limit = 6, modifierId?: string, registryEvidence?: RegistryEvidenceMap, equipmentProfile?: AthleteEquipmentProfile): MovementRecommendation[] {
   const signals = getMovementSignals(profile);
   const profileMuscles = getMovementMuscles(profile);
   const hierarchy = buildMovementReasoning(profile, modifierId);
-  return exercises.map((exercise) => {
+  // The saved equipment is a hard constraint on anything recommended, applied before ranking
+  // and the cut - not after it, which could leave fewer picks than the gym can support (EN-12).
+  const available = equipmentProfile ? exercises.filter((exercise) => equipmentMatchesProfile(exercise.equipment, equipmentProfile.availableEquipment)) : exercises;
+  return available.map((exercise) => {
     const exerciseMuscles = [...exercise.primaryMuscles, ...exercise.secondaryMuscles];
-    const matchedSignals = signals.filter((signal) => signalRules.find((rule) => rule.signal === signal)?.qualities.some((quality) => exercise.qualities.includes(quality)));
+    const matchedSignals = signals.filter((signal) => exerciseMatchesSignal(exercise, signal));
     const matchedMuscles = profileMuscles.filter((muscle) => exerciseMuscles.includes(muscle) || (muscle === "shoulders" && exerciseMuscles.some((item) => ["frontDelts", "sideDelts", "rearDelts"].includes(item))));
     const sprintPowerAdjustment = sprintPowerEvidenceRankAdjustment(exercise, profile);
     const registryAdjustment = registryEvidenceRankAdjustment(exercise, registryEvidence);
@@ -270,7 +313,7 @@ export function getMovementRecommendations(profile: SportMovementProfile, limit 
 export function getSportSession(sportId: string, goal: string, limit = 6, equipmentProfile?: AthleteEquipmentProfile, modifierId?: string, registryEvidence?: RegistryEvidenceMap): MovementRecommendation[] {
   const profiles = sportMovementProfiles.filter((profile) => profile.sportId === sportId);
   const pooled = new Map<number, MovementRecommendation>();
-  profiles.forEach((profile) => getMovementRecommendations(profile, 10, modifierId, registryEvidence).forEach((result) => {
+  profiles.forEach((profile) => getMovementRecommendations(profile, 10, modifierId, registryEvidence, equipmentProfile).forEach((result) => {
     const existing = pooled.get(result.exercise.id);
     const goalBoost = goal === "Athleticism" && result.exercise.qualities.some((quality) => ["power", "jumping", "sprintSupport", "rotation"].includes(quality)) ? logicCalibration.recommendation.goalAthleticismLift : goal === "Muscle growth" && result.exercise.qualities.includes("hypertrophy") ? logicCalibration.recommendation.goalStrengthOrGrowthLift : goal === "Max strength" && result.exercise.qualities.includes("strength") ? logicCalibration.recommendation.goalStrengthOrGrowthLift : 0;
     const candidate = { ...result, score: result.score + goalBoost + result.hierarchyConstructionScore };

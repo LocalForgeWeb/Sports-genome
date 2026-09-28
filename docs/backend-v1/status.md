@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 205
-- `implementing`: 28
-- `verified`: 35
+- `pending`: 200
+- `implementing`: 31
+- `verified`: 37
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -244,9 +244,9 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B118 | Define candidate eligibility before ranking: equipment, selected day, supported movement, user exclusions, time, and other actual constraints. | pending |  |
+| B118 | Define candidate eligibility before ranking: equipment, selected day, supported movement, user exclusions, time, and other actual constraints. | implementing | Equipment eligibility applied before ranking (D-011). Exclusions and time as eligibility filters are not yet modelled. |
 | B119 | Calculate candidate marginal effect against the current snapshot and a specified candidate prescription. | implementing | Picker ranks by the shortfall a candidate closes under the current snapshot (TR-13). The candidate's prescription does not enter because coverage ignores set count (EN-11). |
-| B120 | Separate hard constraints from preferences. A recommendation should not violate a hard equipment restriction just to improve a score. | pending |  |
+| B120 | Separate hard constraints from preferences. A recommendation should not violate a hard equipment restriction just to improve a score. | verified | Saved equipment is a hard constraint for every automatic recommendation (Matches, sport session, the day's suggested fixes), applied before ranking and cut; manual catalog browsing stays whole. D-011. Test: movementRecommendations.constraints.test.ts. |
 | B121 | Consider redundancy, session time, and fatigue cost where the existing model supports them. | pending |  |
 | B122 | Prevent duplicate candidates arising from aliases; distinguish legitimate variants. | pending |  |
 | B123 | Provide reason codes such as closes target gap, supports selected sport demand, available equipment, or lower redundancy. | pending |  |
@@ -265,10 +265,10 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B129 | Map sport/action IDs to actual demand dimensions: force direction, contraction, range, timing, stability, coordination, or others already supported. | pending |  |
-| B130 | Keep physical demand mapping separate from superficial movement resemblance. | pending |  |
+| B129 | Map sport/action IDs to actual demand dimensions: force direction, contraction, range, timing, stability, coordination, or others already supported. | implementing | Demands now come from the action text only, and an exercise meets one by a distinctive quality or, for upper-body patterns, a prime mover (D-011). Structured force-direction/contraction/range dimensions are not yet used. |
+| B130 | Keep physical demand mapping separate from superficial movement resemblance. | implementing | Muscle names no longer create action demands (the whizzer's 'posterior deltoid' read as hip extension); muscle overlap is scored separately. Further separation depends on structured demand dimensions (B129). |
 | B131 | Define how exercise capacity profiles match demands and how training goal changes the weighting. | pending |  |
-| B132 | Trace at least one wrestling action, such as the currently shown overhook/whizzer, through demands, candidates, rationale, and prescription context. | pending |  |
+| B132 | Trace at least one wrestling action, such as the currently shown overhook/whizzer, through demands, candidates, rationale, and prescription context. | verified | Overhook/whizzer traced through text, demands, candidates and rationale before and after the fix in decisions.md D-011, with five other actions checked. |
 | B133 | Keep direct evidence, mechanistic inference, and expert-authored mappings distinguishable. | pending |  |
 | B134 | Do not assign a causal transfer percentage when the evidence only supports a relevance score. | pending |  |
 | B135 | Verify that selecting a new sport/action updates filters and explanations without retaining the previous context. | pending |  |

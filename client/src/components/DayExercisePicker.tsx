@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { filterStackForEquipment, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
 import { ChevronRight, Dumbbell, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment";
@@ -21,6 +22,11 @@ type DayExercisePickerProps = {
   sportId?: string;
   /** Prescriptions for the active day, so set volume is the real one, not a default. */
   prescriptions?: Record<number, string>;
+  /**
+   * The athlete's saved equipment. Suggested fixes only come from what they can use (EN-12);
+   * the catalog below stays whole for adding anything by hand.
+   */
+  equipmentProfile?: AthleteEquipmentProfile;
   onAdd: (exercise: Exercise) => void;
   onReplace: (outgoing: Exercise, incoming: Exercise) => void;
   onInspect: (exercise: Exercise) => void;
@@ -56,8 +62,9 @@ export function sortDayExerciseResults(results: Exercise[], muscle: string) {
   });
 }
 
-export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, sheetOpen = false, destination, dayLabel, onOpenSheet, onCloseSheet, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
+export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, equipmentProfile, sheetOpen = false, destination, dayLabel, onOpenSheet, onCloseSheet, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const suggestionCatalog = useMemo(() => equipmentProfile ? filterStackForEquipment(exercises, equipmentProfile) : exercises, [equipmentProfile, exercises]);
   const destinationLabel = destination ?? split;
   // The footer's count is the day as persisted, including what was there before the
   // sheet opened; what this visit added is said separately rather than folded in.
@@ -219,7 +226,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     <section className="day-exercise-picker" id="day-exercise-picker">
       <RateStackPanel
         workout={activeWorkout}
-        catalog={exercises}
+        catalog={suggestionCatalog}
         split={split}
         sportId={sportId}
         prescriptions={prescriptions}

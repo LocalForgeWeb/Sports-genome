@@ -95,3 +95,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: merge batch 5; then recommendations (EN-12 equipment as a hard constraint, EN-13 structured action demands), then the latent account P0s and Supabase migrations.
 Access/decision blockers: MySQL unreachable; no iOS shell on main.
 ```
+
+```text
+Current branch/commit and environment: batch 5 merged as #72 (main 7067f5d).
+Requirements completed and evidence: B120, B132 verified; B118, B129, B130 implementing. Decision D-011 (whizzer trace before and after, five other actions checked).
+Current confirmed failure/root cause: EN-12 (no equipment input to Matches; session filtered after the cut) and EN-13 (demands read from muscle names; "press" in "pressure"; "strength" matched every pattern).
+Files/migrations changed but not verified: none.
+Tests run and actual results: tsc 0; vitest all pass except the 5 live-Supabase tests; build OK. New: movementRecommendations.constraints.test.ts (6).
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: merge; then the latent account P0s (account-scoped device storage, plan sync conflicts) and the Supabase hardening migrations, validated without applying.
+Access/decision blockers: MySQL unreachable; no iOS shell on main.
+```
