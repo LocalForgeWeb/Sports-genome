@@ -77,9 +77,9 @@ export type FlushResult = { sent: number; remaining: number; skipped: number; re
  *
  * `resolveExerciseUuid` is injected rather than fetched here so the caller owns
  * the mapping cache, and so this can be tested against a known map. A lift whose
- * exercise has no Supabase uuid is dropped from the queue rather than retried
- * forever — `exercise_id` is a foreign key, and no amount of retrying will
- * invent a row in `public.exercises`.
+ * exercise has no Supabase uuid yet stays queued and is not marked sent: the
+ * mapping is read from the database, and while that read failed (SB-06) every
+ * lift was dropped as unmappable and lost. It is sent once its mapping resolves.
  */
 export async function flushSyncQueue(
   userId: string | null,
@@ -94,15 +94,21 @@ export async function flushSyncQueue(
 
   const rows: { key: string; payload: Record<string, unknown> }[] = [];
   const unmappable: string[] = [];
+  const unsendable: string[] = [];
   for (const item of queue) {
-    const row = toAthleteStrengthEntry(item.lift, item.athlete, resolveExerciseUuid(item.lift.catalogExerciseId));
+    const exerciseUuid = resolveExerciseUuid(item.lift.catalogExerciseId);
+    // A lift whose exercise cannot be mapped yet waits for the mapping. It used to be dropped
+    // and marked synced forever, so every lift was lost while the mapping read failed (SB-06,
+    // PS-18). A lift that can never form a row (no date, no reps and no load) still leaves.
+    if (!exerciseUuid) { unmappable.push(item.key); continue; }
+    const row = toAthleteStrengthEntry(item.lift, item.athlete, exerciseUuid);
     if (row) rows.push({ key: item.key, payload: forInsert(row) });
-    else unmappable.push(item.key);
+    else unsendable.push(item.key);
   }
 
   if (!rows.length) {
-    saveSyncQueue([]);
-    return { sent: 0, remaining: 0, skipped: unmappable.length };
+    if (unsendable.length) saveSyncQueue(queue.filter((item) => !unsendable.includes(item.key)));
+    return { sent: 0, remaining: queue.length - unsendable.length, skipped: unmappable.length + unsendable.length };
   }
 
   try {
@@ -113,8 +119,9 @@ export async function flushSyncQueue(
   }
 
   const landed = new Set(rows.map((row) => row.key));
-  const alreadySent = loadSyncedKeys().concat(rows.map((row) => row.key), unmappable);
+  const alreadySent = loadSyncedKeys().concat(rows.map((row) => row.key), unsendable);
   writeJson(strengthSyncedKey, Array.from(new Set(alreadySent)).slice(-5000));
-  saveSyncQueue(queue.filter((item) => !landed.has(item.key) && !unmappable.includes(item.key)));
-  return { sent: rows.length, remaining: 0, skipped: unmappable.length };
+  const remaining = queue.filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
+  saveSyncQueue(remaining);
+  return { sent: rows.length, remaining: remaining.length, skipped: unmappable.length + unsendable.length };
 }

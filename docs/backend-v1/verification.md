@@ -117,3 +117,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: Supabase hardening migrations in the repo, validated without touching production.
 Access/decision blockers: MySQL unreachable; sign-in not in the build (latent P0s); preview/dev point at the production Supabase project (owner).
 ```
+
+```text
+Current branch/commit and environment: batch 7 merged as #74 (main 1b25a11); batch 8 on claude/training-day-navigation-workouts-83ro2c.
+Requirements completed and evidence: B009, B178, B190 verified; B032, B170, B179, B180, B192, B193, B194 blocked (fix prepared and proven, applying needs owner authorization); B150, B168, B181 implementing. Decision D-013.
+Current confirmed failure/root cause: SB-07 (anon/authenticated hold insert/update/delete/truncate on tables with no policy for them), SB-02 (check-in accepted a focus area owned by another athlete), SB-03 (derived entry context editable after the fact), SB-04 (clients could write strength states), SB-06 (approved exercise mappings unreadable, so every lift was dropped as unmappable), PS-09 (a resent lift duplicated), PS-14 (entries required a sport). All seven reproduced in validation/before.sql against a live-equivalent schema.
+Files/migrations changed but not verified: supabase/prepared/backend_v1/2026092812{0000..0600}_*.sql - verified locally, NOT applied to the production project (B009). Kept out of supabase/migrations so the GitHub integration cannot apply them.
+Tests run and actual results: local PostgreSQL 16.13 - validation/run.sh (bootstrap, seed, before, migrations, after, re-apply) -> ALL VALIDATION PASSED; re-applying is harmless. tsc 0; vitest 2069 pass, 1 skip, 5 fail (the same live-Supabase tests, unreachable here); build OK. New: strengthSyncQueue.unmappable.test.ts (3) - an unmappable lift stays queued and is sent once its mapping resolves; a lift that can never form a row leaves the queue.
+Open transactions/jobs or rollout state, if any: none. Nothing applied to Supabase.
+Next concrete action: merge batch 8; then the remaining engine items (EN-11, EN-14, EN-16, B123), performance measurements, the gate report and handoff.
+Access/decision blockers: applying the Supabase migrations (owner, B009); SB-01, SB-05, SB-11 owner decisions (README); MySQL unreachable; sign-in not in the build.
+```

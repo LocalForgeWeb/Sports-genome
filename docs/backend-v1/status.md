@@ -18,9 +18,10 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 195
-- `implementing`: 35
-- `verified`: 38
+- `pending`: 182
+- `implementing`: 38
+- `verified`: 41
+- `blocked`: 7
 - `deferred (owner)`: 30
 <!-- summary:end -->
 
@@ -45,7 +46,7 @@ _No requirement IDs in this section._
 | B006 | Do not invent scientific coefficients, supporting studies, database contents, or successful tests. | pending |  |
 | B007 | Continue through authorized implementation and verification; do not stop after producing a plan. | pending |  |
 | B008 | Treat absent access as a specific blocker. Complete independent work, state exactly what remains unverified, and do not pretend production was… | pending |  |
-| B009 | Do not perform destructive production changes or deploy outside existing authorization. Prepare concrete migrations and evidence first. | pending |  |
+| B009 | Do not perform destructive production changes or deploy outside existing authorization. Prepare concrete migrations and evidence first. | verified | No production change or deploy outside authorization: Supabase fixes are prepared and proven locally in supabase/prepared/backend_v1 (not in supabase/migrations, which a GitHub integration could apply). App deploys go through the owner-established Vercel flow. D-013. |
 | B010 | Maintain a resumable work record. Large task size is not a reason to forget partially completed requirements. | implementing | Resumable record: status.md (every B-ID), verification.md checkpoints, decisions.md. Updated at each stopping point. |
 
 ## 1. Priority and deliverables
@@ -95,7 +96,7 @@ _No requirement IDs in this section._
 | B029 | Define user timezone, date boundaries, and week-start behavior; do not infer the workout date from UTC ingestion alone. | pending |  |
 | B030 | Keep historical bodyweight and relevant profile context available for historical calculations. Do not silently apply today's weight to every past… | pending |  |
 | B031 | Preserve the recorded context when a user later changes age-related information, sex/reference-population choice, sport, or experience. | pending |  |
-| B032 | Enforce referential integrity and correct ownership across child rows, not just parent records. | pending |  |
+| B032 | Enforce referential integrity and correct ownership across child rows, not just parent records. | blocked | Fix prepared and proven: 20260928120100 (check-in parent ownership) and 20260928120300 (no client state writes). validation/before.sql shows B attaching to A's focus area; after.sql shows it refused. Applying needs owner authorization (B009). |
 | B033 | Define stable operation IDs and revision/conflict handling for retryable writes. | implementing | Plan save: revision check and write are now one statement; a lost race returns conflict, concurrent first saves return one save and one conflict (0afbd64, server/workoutPlanSync.atomic.test.ts renders the real WHERE). Remaining: operation ids for workout start/complete and observation writes (SV-05, dormant MySQL routes), Supabase lift sync (PS-09). |
 
 ### Input validation
@@ -291,7 +292,7 @@ _No requirement IDs in this section._
 | B147 | Preserve rollback to the previous reference release without deleting newly collected raw evidence. | pending |  |
 | B148 | Expose concise evidence/reason metadata to app consumers while keeping large research payloads out of routine screen requests. | pending |  |
 | B149 | Keep personal user records separate from research norms and aggregate community data. | pending |  |
-| B150 | Do not automatically feed early users into population norms. Document opt-in/permission, deduplication, outlier handling, selection bias, and… | pending |  |
+| B150 | Do not automatically feed early users into population norms. Document opt-in/permission, deduplication, outlier handling, selection bias, and… | implementing | Entries without a sport, and entries whose derived context was edited, no longer reach the benchmark pool (prepared migrations). The pool stays opt-in and inactive (active_for_percentiles false) as found; its full documentation is V2. |
 
 ## 10. Plans, sessions, events, and reliable persistence
 
@@ -328,9 +329,9 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B167 | Document which actions work offline and which require verification/network access. | pending |  |
-| B168 | Use durable pending operations with stable IDs where offline writes are supported; survive app termination before sync. | pending |  |
+| B168 | Use durable pending operations with stable IDs where offline writes are supported; survive app termination before sync. | implementing | The lift sync queue keeps unmappable lifts pending across restarts (localStorage) instead of dropping them (strengthSyncQueue.unmappable.test.ts); stable ids ride with the client_op_id migration. |
 | B169 | Distinguish saved locally, syncing, saved to account, failed, and conflicting states. | implementing | Refused finish stays open (batch 1). Plan sync now shows a real conflict state with both choices; offline is still silent, and per-record 'saved to account' states for history are not built. |
-| B170 | Reconcile retries idempotently; an app restart during sync must not duplicate sets. | pending |  |
+| B170 | Reconcile retries idempotently; an app restart during sync must not duplicate sets. | blocked | Idempotent lift sync prepared: client_op_id unique per user (20260928120500, proven: a resent lift is ignored) with the paired client upsert recorded in the README. Needs the migration applied first. |
 | B171 | Define conflict rules for two-device edits. Do not choose last-write-wins everywhere without considering lost workout data. | verified | Two-device rule defined and implemented: three-way reconcile; only-one-changed wins; both changed = conflict, no overwrite, athlete chooses (contracts.md § Account records on a device and plan sync). Tests: planSyncDecision.test.ts, usePlanSync.test.ts. |
 | B172 | Preserve deletion intent through tombstones or an equivalent mechanism so stale devices do not resurrect deleted records. | pending |  |
 | B173 | Namespace local records/caches by account. Signing out and into another account must not reveal or merge the first account's data. | implementing | Plan, profile, favourites and plan-sync base are per account and read before written (D-012). History records remain device-level pending an ownership decision (B175). |
@@ -343,10 +344,10 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B178 | Enumerate exposed tables, views, RPCs, Edge Functions, and storage paths with their intended anonymous/user/server access. | pending |  |
-| B179 | Apply row-level restrictions to user-owned data and appropriate read-only rules to shared reference data. | pending |  |
-| B180 | Test ownership on create, read, update, and delete, including attempted owner reassignment and foreign child-parent combinations. | pending |  |
-| B181 | Audit view/function privileges and execution context so an indirect endpoint cannot bypass intended ownership checks. | pending |  |
+| B178 | Enumerate exposed tables, views, RPCs, Edge Functions, and storage paths with their intended anonymous/user/server access. | verified | inventory/supabase.md enumerates tables, views, RPCs, Edge Functions, storage and grants with their actual anon/authenticated/service access; intended access is set by the prepared migrations and the SB-01 owner decision. |
+| B179 | Apply row-level restrictions to user-owned data and appropriate read-only rules to shared reference data. | blocked | Reference tables become read-only for clients and user tables keep only policy-backed writes (20260928120000, proven locally). Applying needs owner authorization. |
+| B180 | Test ownership on create, read, update, and delete, including attempted owner reassignment and foreign child-parent combinations. | blocked | Ownership tested on create/update across users and foreign child-parent combinations in the local validation (before/after). Applying the fixes needs owner authorization. |
+| B181 | Audit view/function privileges and execution context so an indirect endpoint cannot bypass intended ownership checks. | implementing | Table privileges audited and a fix prepared; RPC EXECUTE grants and the SECURITY DEFINER RPC (SB-11) need a per-function review - owner decision in D-013. |
 | B182 | Review privileged functions individually. Do not add elevated execution merely to make a permission error disappear. | pending |  |
 | B183 | Keep server secrets out of frontend builds, logs, screenshots, and generated reports. | implementing | SV-01/SV-12 (0afbd64): unexpected API errors no longer return SQL or bound values; a malformed DATABASE_URL is no longer logged with its password. Live probe with an unreachable database: response carried only a reference; log line had no email, password or URL. Remaining: SV-07 hard-coded production Supabase URL/key in the client build (PS-14). |
 | B184 | Do not trust user-editable profile metadata for roles, paid access, evidence promotion, or administrative authorization. | pending | Payment portion (paid access must not come from profile metadata) deferred by owner; roles, evidence promotion and admin authorization remain in scope. |
@@ -355,16 +356,16 @@ _No requirement IDs in this section._
 | B187 | Test storage access if profile images, imports, or exports are used. | pending |  |
 | B188 | Provide account deletion and export behavior appropriate to actual stored data; include derived records, storage, and background jobs in the… | pending |  |
 | B189 | Ensure account deletion does not silently imply a separately billed App Store subscription has been canceled; make the subscription-management… | deferred (owner) | Payments deferred by owner for this assignment; not incomplete and not launch-blocking for it. |
-| B190 | Run relevant database/security advisors and investigate material findings rather than suppressing them. | pending |  |
+| B190 | Run relevant database/security advisors and investigate material findings rather than suppressing them. | verified | Security and performance advisors were run in discovery (inventory/supabase.md SB-11, SB-16); material findings are addressed by the prepared migrations or recorded as owner decisions (D-013). |
 
 ### Required access test identities
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B191 | A can operate on A's authorized records. | pending |  |
-| B192 | B cannot read, mutate, attach children to, or infer sensitive details about A's records through tables, joins, views, RPCs, search, or storage. | pending |  |
-| B193 | Anonymous requests receive only explicitly intended public information. | pending |  |
-| B194 | User clients cannot alter curated evidence, engine configuration, subscription state, or privileged flags. | pending | Subscription-state portion deferred by owner; curated evidence, engine configuration and privileged flags remain in scope. |
+| B192 | B cannot read, mutate, attach children to, or infer sensitive details about A's records through tables, joins, views, RPCs, search, or storage. | blocked | Cross-user attach (SB-02) and FK-existence probing closed by the prepared migrations, proven locally. Applying needs owner authorization. |
+| B193 | Anonymous requests receive only explicitly intended public information. | blocked | What anonymous visitors may read (SB-01: every anonymous visitor holds 'authenticated') is an owner decision on the public surface; the gating pattern is written in supabase/prepared/backend_v1/README.md. |
+| B194 | User clients cannot alter curated evidence, engine configuration, subscription state, or privileged flags. | blocked | Client write privileges on curated evidence and engine configuration tables are revoked by 20260928120000; derived states become server-only (20260928120300), entry context immutable (20260928120200); proven locally. Applying needs owner authorization. Subscription-state portion deferred by owner. |
 | B195 | Server operations use only the necessary privilege and leave an appropriate operational trace without leaking sensitive payloads. | implementing | Server faults leave one JSON log line (reference, procedure, error class and driver code; no payload) — server/_core/apiErrors.ts, tests in apiErrors.test.ts. Server-role operations beyond the API not yet reviewed. |
 
 ## 12. iOS subscriptions and grandfathered pricing
