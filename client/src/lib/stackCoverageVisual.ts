@@ -68,14 +68,19 @@ export function coverageScaleMaximum(ratings: readonly StackMuscleScore[]): numb
 
 export function buildCoverageBars(ratings: readonly StackMuscleScore[]): CoverageBar[] {
   const scale = coverageScaleMaximum(ratings);
-  return ratings.map((rating) => ({
-    muscle: rating.muscle,
-    role: rating.role,
-    band: bandForCoverage(rating.score, rating.target),
-    fillPercent: Math.round((Math.min(rating.score, scale) / scale) * 100),
-    targetPercent: Math.round((Math.min(rating.target, scale) / scale) * 100),
-    deltaToTarget: rating.score - rating.target,
-  }));
+  return ratings.map((rating) => {
+    // The band and the delta read the uncapped sum; only the bar's length is capped, so a
+    // surplus is said rather than hidden (TR-11).
+    const reached = rating.rawScore ?? rating.score;
+    return {
+      muscle: rating.muscle,
+      role: rating.role,
+      band: bandForCoverage(reached, rating.target),
+      fillPercent: Math.round((Math.min(reached, scale) / scale) * 100),
+      targetPercent: Math.round((Math.min(rating.target, scale) / scale) * 100),
+      deltaToTarget: reached - rating.target,
+    };
+  });
 }
 
 export type CoverageSummary = Record<CoverageBand, number> & {

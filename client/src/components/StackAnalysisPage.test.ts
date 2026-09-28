@@ -40,7 +40,10 @@ describe("Stack Analysis selected muscle", () => {
   });
 
   it("keeps the default analysis target-first while retaining optional non-target involvement as supporting context", () => {
-    expect(component).toContain('import { getSplitRequirements, type StackSuggestion } from "@/lib/splitStackAnalysis"');
+    expect(component).toContain('import { analyzeSplitStack, getSplitRequirements, type StackSuggestion } from "@/lib/splitStackAnalysis"');
+    // One coverage model on this page (Backend V1 TR-01, B115): without the panel's ratings it
+    // computes the same analysis, never a coverage score from relative involvement.
+    expect(component).toContain("const computed = ratings ?? analyzeSplitStack(workout, catalog, split).ratings;");
     expect(component).toContain("const targetAnalysis = useMemo(() => wholeStackAnalysis.filter");
     expect(component).toContain("const supportingAnalysis = useMemo(() => wholeStackAnalysis.filter");
     expect(component).toContain("Target coverage is calculated from this split’s intended muscles only.");
@@ -54,7 +57,10 @@ describe("Stack Analysis selected muscle", () => {
     // a rewrite of the markup cannot quietly drop the denominator.
     expect(markup).toContain("relative contribution, /100");
     expect(markup).toContain("/100");
-    expect(markup).toMatch(/\d+% coverage/);
+    // Relative involvement is a share of the day's most-worked muscle, and says so; "coverage"
+    // is reserved for the graded target model (TR-01, TR-02).
+    expect(markup).toMatch(/\d+% relative involvement/);
+    expect(markup).not.toMatch(/\d+% coverage/);
     expect(markup).toContain("Target coverage is calculated from this split");
     expect(markup).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });

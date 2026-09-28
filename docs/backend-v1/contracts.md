@@ -71,3 +71,19 @@ Calculation and data contracts, mapped to the code that implements them (brief �
 | `total_external_load` | everything else | "Weight" | `total_external_load` | Load as entered; sent without load it is `load_required` |
 
 No weighted-bodyweight curve exists for any catalog pull-up, chin-up or dip (`score_weighted_pull_chin_v1` returns `estimated_only` for all of them), so a loaded set of those movements has no defensible percentile yet. Assistance is recorded as free text and is never scored (B051).
+
+## Training Day coverage (B110, B112, B113, B114, B115)
+
+**Code.** `client/src/lib/splitStackAnalysis.ts` (`analyzeSplitStack`, `coveragePoints`), `stackCoverageVisual.ts` (`buildCoverageBars`), `pickerRanking.ts`, `components/RateStackPanel.tsx`, `components/StackAnalysisPage.tsx`. **Pinned by** `client/src/lib/coverageConsistency.test.ts`.
+
+| | Definition |
+|---|---|
+| Contribution | Per exercise per target muscle: 56 points when the catalog tags the muscle primary, 24 when supporting (catalog-planning weights, not activation). Set count does not enter (EN-11, still open). |
+| Target | A constant per split label and muscle (`requirements` in `splitStackAnalysis.ts`). Not adjusted for goal, schedule, sport or preference; no revision is stored (B108, B109). |
+| Reached | The uncapped sum of contributions (`rawScore`). |
+| Shortfall / surplus | `rawScore − target`, shown as the row's delta and band. The bar's length alone is capped. |
+| Day score | The mean over targets of `min(100, score / target × 100)`. Each target's share is capped before averaging, so a surplus on one muscle cannot make up for a gap on another. |
+| One snapshot | The panel, its full analysis and the picker all read `analyzeSplitStack`. The full analysis receives the panel's ratings, or computes the same analysis; it never grades coverage from relative involvement. |
+| Relative involvement | The exercise-genome share of the day's most-worked muscle (`analyzeWholeStackMuscles`). Shown as "relative involvement", never as coverage or a gap. |
+| Picker order | Search relevance, then the shortfall points a candidate would close (for each gap, its contribution capped at that gap), then the previous tiers. |
+| Set counts | One resolver: the athlete's prescription, else `getGoalPrescription(goal, position in the day)`. Home hands the resolved map to every surface. |

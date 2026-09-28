@@ -84,3 +84,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: merge batch 4 and probe production with an unloaded and a loaded pull-up; then coverage unification (B115).
 Access/decision blockers: MySQL unreachable; no iOS shell on main.
 ```
+
+```text
+Current branch/commit and environment: batch 4 merged as #71 (main 285dc0a), production READY.
+Requirements completed and evidence: batch 4 verified live - production muscle-rank route, sent Pull-Up 12 reps unloaded and 5 reps +20 kg at 80 kg: lats 45.07 from the rep curve, the loaded set listed as added_load_not_scored, status partial. Batch 5: B108, B110, B112, B113, B114, B115 verified; B116, B119 implementing. Decision D-010; contract § Training Day coverage.
+Current confirmed failure/root cause: B115 - formula (two coverage models for one target), confirmed in discovery; TR-11 capped surplus; TR-13 tag-ordered picker; TR-05 four set-count defaults; TR-12 wrong Leg Extension and Copenhagen Plank tags.
+Files/migrations changed but not verified: none; catalog data edit to two exercises (171, 217).
+Tests run and actual results: tsc 0; vitest all pass except the 5 live-Supabase tests; build OK. New: client/src/lib/coverageConsistency.test.ts (6), DeviceWorkoutTracker.prescription.test.ts (2); StackAnalysisPage.test.ts updated.
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: merge batch 5; then recommendations (EN-12 equipment as a hard constraint, EN-13 structured action demands), then the latent account P0s and Supabase migrations.
+Access/decision blockers: MySQL unreachable; no iOS shell on main.
+```
