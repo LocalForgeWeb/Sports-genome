@@ -3920,7 +3920,7 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .day-editing-context button { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; justify-self: start; color: #ff8a66; font-size: var(--sg-text-base); font-weight: 600; }
 .day-editing-context button:hover { text-decoration: underline; }
 .custom-row-edit-label { color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 600; white-space: nowrap; }
-@media (max-width: 420px) { .custom-row-edit-label { display: none; } }
+/* The edit action keeps its words at every width; on a phone it sits on its own line under the prescription (mobile-training-card.css). */
 @media (max-width: 960px) {
   body:has(.session-resume-bar) .apex-content { padding-bottom: calc(5.8rem + var(--sg-resume-height) + env(safe-area-inset-bottom, 0px)); }
   body:has(.session-resume-bar) .add-destination { bottom: calc(var(--sg-dock-height, 4.375rem) + var(--sg-resume-height) + .5rem); }
@@ -4152,3 +4152,45 @@ body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 
 .day-picker-sheet .muscle-select .athlete-sport-trigger strong, .day-picker-sheet .muscle-select .athlete-sport-option strong, .day-picker-sheet .muscle-select .athlete-sport-search input { color: var(--sg-text-on-dark); }
 .day-picker-sheet .muscle-select .athlete-sport-option small, .day-picker-sheet .muscle-select .athlete-sport-empty, .day-picker-sheet .muscle-select .athlete-sport-trigger-chevron { color: var(--sg-text-muted-on-dark); }
 .day-picker-sheet .muscle-select .athlete-sport-option.is-active { background: rgb(255 255 255 / .08); }
+
+/* Next update — Home: one dominant next action, a workout-focus schematic, a week strip. */
+.today-action-primary { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "actions"; align-items: start; column-gap: 1rem; }
+.today-action-with-focus { grid-template-columns: minmax(0, 2fr) minmax(5.5rem, 1fr); grid-template-areas: "copy figure" "actions actions"; }
+.today-action-copy { grid-area: copy; min-width: 0; }
+.today-action-primary .today-action-actions { grid-area: actions; width: 100%; justify-items: stretch; }
+.today-action-primary .today-action-cta { width: 100%; justify-content: center; }
+.today-action-primary .today-action-secondary { justify-self: start; }
+.today-action-primary p.today-action-count { font-size: var(--sg-text-base); }
+.home-focus { grid-area: figure; display: grid; justify-items: center; align-self: center; gap: .3rem; width: clamp(5rem, 26vw, 7.5rem); margin: 0; justify-self: end; }
+.home-focus .anatomy-figure { width: 100%; height: auto; --anatomy-shell: #2c3a4f; --anatomy-structural: #26334a; --anatomy-muscle: #33425a; --anatomy-line: #0a182b; --anatomy-primary-1: #f4915f; --anatomy-primary-2: #c9471f; --anatomy-supporting-1: #33425a; --anatomy-supporting-2: #33425a; }
+.home-focus .anatomy-figure .anatomy-linework > path { stroke-width: 1.1; stroke-opacity: .85; }
+.home-focus figcaption { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+@media (max-width: 359px) { .today-action-with-focus { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "actions"; } .home-focus { display: none; } }
+.home-week-strip { display: flex; flex-wrap: wrap; gap: .4rem; margin: .1rem 0 .35rem; padding: 0; list-style: none; }
+.home-week-strip li { flex: 1 1 4.2rem; min-width: 0; }
+.home-week-strip li > * { display: flex; width: 100%; min-height: 2.75rem; align-items: center; gap: .4rem; border: 1px solid var(--sg-control-border-on-dark); padding: 0 .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; text-align: left; }
+.home-week-strip li > * > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-week-strip li > * > i { display: inline-block; flex: 0 0 auto; width: .7rem; height: .7rem; border: 2px solid currentColor; border-radius: 999px; }
+.home-week-strip li[data-state="trained"] > * { color: var(--sg-state-positive); }
+.home-week-strip li[data-state="trained"] > * > i { background: currentColor; border-color: currentColor; }
+.home-week-strip li[data-state="live"] > * { border-color: var(--sg-action); color: var(--sg-action); }
+.home-week-strip li[data-state="live"] > * > i { background: currentColor; }
+.home-week-strip li[data-state="next"] > * { border-color: var(--sg-action); color: var(--sg-text-on-dark); }
+.home-week-strip li[data-state="next"] > * > i { border-color: var(--sg-action); }
+.home-week-strip li[data-state="planned"] > * > i { border-style: dashed; }
+.home-week-strip button:hover { border-color: var(--sg-focus-on-dark); }
+.home-week-strip button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* Week strip segments: the name may take two lines rather than losing its end to an ellipsis. */
+.home-week-strip li { flex: 1 1 3.6rem; }
+.home-week-strip li > * { align-items: flex-start; gap: .35rem; padding: .45rem .5rem; line-height: 1.15; }
+.home-week-strip li > * > i { margin-top: .2rem; }
+.home-week-strip li > * > span { overflow: visible; white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
+/* With the schematic beside it the title has two thirds of the width: a size that fits
+   "Sport Transfer" there without breaking inside the word, and never a break inside a word. */
+.today-action-with-focus h2 { font-size: clamp(2rem, 9.2vw, 3rem); overflow-wrap: normal; word-break: keep-all; hyphens: none; }
+.today-action-copy h2 { overflow-wrap: normal; word-break: keep-all; hyphens: none; }
+/* Strip segments are chips sized to their names; a plan with long names wraps to a second row. */
+.home-week-strip li { flex: 0 0 auto; min-width: 0; }
+.home-week-strip li > * { align-items: center; padding: .4rem .6rem; }
+.home-week-strip li > * > i { margin-top: 0; }
+.home-week-strip li > * > span { white-space: nowrap; overflow-wrap: normal; }

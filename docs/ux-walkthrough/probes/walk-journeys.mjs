@@ -30,7 +30,7 @@ const homeState = (p) => p.evaluate(() => ({ hero: document.querySelector('.toda
   await p.evaluate(() => document.getElementById('sports-genome-boot-video')?.dispatchEvent(new Event('ended'))); await ready(p); await wait(p, 800);
   const home = await homeState(p);
   const falseEmpty = samples.some((s) => /Create your plan/i.test(s.cta || ''));
-  check('A1 launch plays, lifts once, Home never says "Create your plan"', samples[0].boot === 'playing' && !falseEmpty && home.cta === 'Review workout', { first: samples[0], home, samplesN: samples.length });
+  check('A1 launch plays, lifts once, Home never says "Create your plan"', samples[0].boot === 'playing' && !falseEmpty && home.cta === 'Open next workout', { first: samples[0], home, samplesN: samples.length });
   await p.locator('.today-action-cta').dispatchEvent('click'); await wait(p, 1300);
   const review = await p.evaluate(() => ({ ws: new URLSearchParams(location.search).get('workspace'), day: document.querySelector('.session-prestart-day')?.textContent?.trim(), position: document.querySelector('.session-prestart-position')?.textContent?.trim(), rows: document.querySelectorAll('.session-prestart-exercise, .session-prestart-row, .prestart-exercise').length }));
   check('A2 Review workout shows the day Home named', ['review', 'tracker'].includes(review.ws) && !!review.day && home.hero && review.day.toLowerCase().includes(home.hero.toLowerCase().split('\n')[0].slice(0, 8).toLowerCase()), { review, hero: home.hero });

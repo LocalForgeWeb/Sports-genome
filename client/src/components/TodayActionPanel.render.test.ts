@@ -110,7 +110,7 @@ describe("Today action panel: where you are and what to do", () => {
     expect(screen.getByRole("heading", { name: "Push" })).toBeTruthy();
     expect(screen.getByText("Week 1")).toBeTruthy();
     expect(screen.getByText("6 exercises")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Review workout/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Open next workout/i })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Edit plan/i })).toBeTruthy();
   });
 
@@ -122,7 +122,7 @@ describe("Today action panel: where you are and what to do", () => {
     document.body.innerHTML = "";
     renderPanel({ planHasDays: false });
     expect(screen.getByText("Build training around your goals")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Create your plan/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Build your first workout/i })).toBeTruthy();
   });
 
   it("reads the week as one fraction and the lifetime record from the same store Strength reads", () => {
