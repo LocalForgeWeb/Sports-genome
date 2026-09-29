@@ -124,15 +124,6 @@ describe("Sport-optional onboarding", () => {
     expect(quizStepIds("general", false).length).toBeLessThan(quizStepIds("sport", true).length);
   });
 
-  it("offers to build a suggested plan only in sport mode, where Home can build one", () => {
-    // Home produces a suggested stack only for a sport; elsewhere "Build my plan" built nothing.
-    expect(source).toContain('const buildsSuggested = contextMode === "sport";');
-    expect(source.match(/finish\("suggested"\)/g)).toHaveLength(1);
-    expect(source).toMatch(/buildsSuggested \? <>[^]*?finish\("suggested"\)[^]*?<\/> : /);
-    expect(source).toContain("Open my plan");
-    expect(source).toContain("Your plan starts empty, ready for you to fill. Add exercises, or open Smart Draft on the Plan page to build a session from your kit.");
-  });
-
   it("states the insufficiency case rather than implying every target is covered", () => {
     expect(source).toContain("No reviewed exercise routine covers");
     expect(source).toContain("the plan will say what is missing instead of guessing");
@@ -163,11 +154,5 @@ describe("Onboarding quiz choices for assistive tech", () => {
     expect(pressed).toHaveLength(1);
     expect(pressed[0]).toContain("Build muscle");
     expect(buttons.filter((button) => button.includes('aria-pressed="false"'))).toHaveLength(3);
-  });
-
-  it("names the typed fields by what they hold, not by the unit beside them", () => {
-    expect(source).toContain('aria-label="Preferred name"');
-    expect(source).toContain("aria-label={`Body weight in ${weightUnit}`}");
-    expect(source).toContain('aria-label="Birth year"');
   });
 });

@@ -7,11 +7,18 @@ import type { SportProfile } from "@/lib/sportMovementDatabase";
 
 const sports = [{ id: "soccer", label: "Soccer", movementFamilies: [] }] as unknown as SportProfile[];
 
-/** Answer the quiz with its defaults, in the given context mode, up to the last step. */
-function reachPreview(mode: "sport" | "general" | "undecided") {
+const advance = () => fireEvent.click(screen.getByRole("button", { name: /^(Continue|Skip for now)$/ }));
+
+/** Step forward with the default answers until the step headed by `heading` is showing. */
+function advanceTo(heading: string) {
+  for (let guard = 0; guard < 20 && !screen.queryByText(heading); guard += 1) advance();
+  expect(screen.getByText(heading)).toBeTruthy();
+}
+
+/** Start the quiz and answer its first questions in the given context mode. */
+function startQuiz(mode: "sport" | "general" | "undecided") {
   const onComplete = vi.fn();
   render(React.createElement(AthleteBaselineQuiz, { sports, onComplete }));
-  const advance = () => fireEvent.click(screen.getByRole("button", { name: /^(Continue|Skip for now)$/ }));
   advance();
   const modeLabel = { sport: /I train for a sport/, general: /General strength and resilience/, undecided: /Decide later/ }[mode];
   fireEvent.click(screen.getByRole("button", { name: modeLabel }));
@@ -21,8 +28,13 @@ function reachPreview(mode: "sport" | "general" | "undecided") {
     fireEvent.click(screen.getByRole("option", { name: /Soccer/ }));
     advance();
   }
-  for (let guard = 0; guard < 20 && !screen.queryByText("all set."); guard += 1) advance();
-  expect(screen.getByText("all set.")).toBeTruthy();
+  return onComplete;
+}
+
+/** Answer the quiz with its defaults, in the given context mode, up to the last step. */
+function reachPreview(mode: "sport" | "general" | "undecided") {
+  const onComplete = startQuiz(mode);
+  advanceTo("all set.");
   return onComplete;
 }
 
@@ -47,5 +59,22 @@ describe("The quiz's last step offers only what it will do", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Build my plan/ }));
     expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ stackMode: "suggested", sportContextMode: "sport", sportId: "soccer" }));
+  });
+});
+
+describe("The quiz's typed fields for assistive tech", () => {
+  afterEach(() => cleanup());
+
+  it("names each typed field by what it holds, not by the unit beside it", () => {
+    startQuiz("general");
+    advanceTo("call you?");
+    expect(screen.getByRole("textbox", { name: "Preferred name" })).toBeTruthy();
+
+    advanceTo("kilograms?");
+    fireEvent.click(screen.getByRole("button", { name: /Kilograms/ }));
+    advanceTo("if you want.");
+    expect(screen.getByRole("textbox", { name: "Body weight in kg" })).toBeTruthy();
+    expect(screen.queryByRole("textbox", { name: "kg" })).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Birth year" })).toBeTruthy();
   });
 });

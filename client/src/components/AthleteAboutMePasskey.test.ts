@@ -2,9 +2,14 @@ import React, { createElement } from "react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ passkeysQuery: vi.fn() }));
+type RemoveOptions = { onSuccess?: () => void; onError?: () => void };
+const mocks = vi.hoisted(() => ({
+  passkeysQuery: vi.fn(),
+  removeOptions: { current: undefined as RemoveOptions | undefined },
+  toastError: vi.fn(),
+}));
 
 vi.mock("@/lib/trpc", () => ({
   trpc: {
@@ -12,10 +17,12 @@ vi.mock("@/lib/trpc", () => ({
       passkeyRegistrationOptions: { useMutation: () => ({ isPending: false, mutateAsync: vi.fn() }) },
       passkeyRegistrationVerify: { useMutation: () => ({ isPending: false, mutateAsync: vi.fn() }) },
       passkeys: { useQuery: mocks.passkeysQuery },
-      removePasskey: { useMutation: () => ({ isPending: false, mutate: vi.fn() }) },
+      removePasskey: { useMutation: (options: RemoveOptions) => { mocks.removeOptions.current = options; return { isPending: false, mutate: vi.fn() }; } },
     },
   },
 }));
+
+vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: mocks.toastError }), Toaster: () => null }));
 
 import { AthleteAboutMePanel } from "./AthleteAboutMePanel";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -31,20 +38,49 @@ const panelProps = {
   onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(),
 } as unknown as Parameters<typeof AthleteAboutMePanel>[0];
 const renderPanel = (accountSignedIn: boolean) => renderToStaticMarkup(createElement(ThemeProvider, null, createElement(AthleteAboutMePanel, { ...panelProps, accountSignedIn })));
+const securitySection = (markup: string) => markup.match(/<section class="about-me-security">([^]*?)<\/section>/)?.[1] ?? "";
 
 beforeEach(() => {
+  // A device that can make a passkey, so the checks below read the supported path
+  // rather than the "Passkey unavailable" copy a bare node environment would give.
+  vi.stubGlobal("window", { PublicKeyCredential: function PublicKeyCredential() {} });
   mocks.passkeysQuery.mockReset();
-  mocks.passkeysQuery.mockImplementation(() => ({ data: [{ id: 4, createdAt: new Date(), lastUsedAt: null }], refetch: vi.fn() }));
+  mocks.passkeysQuery.mockImplementation(() => ({ data: [{ id: 4, createdAt: new Date(), lastUsedAt: null }], isError: false, refetch: vi.fn() }));
+  mocks.removeOptions.current = undefined;
+  mocks.toastError.mockReset();
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 describe("AthleteAboutMePanel passkey management", () => {
   it("shows an enrolled passkey with a distinct scoped removal control", () => {
     const markup = renderPanel(true);
 
+    expect(markup).toContain("1 device passkey enrolled");
+    expect(markup).toContain("Enable Face ID / passkey");
     expect(markup).toContain("Enrolled passkeys");
     expect(markup).toContain("Device passkey 1");
     expect(markup).toContain("Remove device passkey 1");
     expect(mocks.passkeysQuery).toHaveBeenLastCalledWith(undefined, expect.objectContaining({ enabled: true }));
+  });
+
+  it("says a failed read failed, rather than that no passkey is enrolled", () => {
+    mocks.passkeysQuery.mockImplementation(() => ({ data: undefined, isError: true, refetch: vi.fn() }));
+    const markup = renderPanel(true);
+
+    expect(markup).toContain("Passkeys could not be read");
+    expect(markup).toContain("Could not read your passkeys right now.");
+    expect(markup).not.toContain("No device passkeys enrolled yet.");
+    expect(markup).not.toContain("Passkey not enrolled");
+  });
+
+  it("says so when a removal fails, and that the passkey is still enrolled", () => {
+    renderPanel(true);
+    mocks.removeOptions.current?.onError?.();
+
+    expect(mocks.toastError).toHaveBeenCalledWith("Could not remove that passkey. It is still enrolled.");
   });
 
   it("does not ask for passkeys, or offer to enrol one, on a device with no email sign-in", () => {
@@ -53,6 +89,8 @@ describe("AthleteAboutMePanel passkey management", () => {
 
     expect(mocks.passkeysQuery).toHaveBeenLastCalledWith(undefined, expect.objectContaining({ enabled: false }));
     expect(markup).not.toContain("Enable Face ID / passkey");
+    expect(markup).not.toContain("Passkey unavailable");
+    expect(securitySection(markup)).not.toContain("<button");
     expect(markup).not.toContain("Enrolled passkeys");
     expect(markup).not.toContain("Passkey not enrolled");
     expect(markup).toContain("Needs an email sign-in");
