@@ -48,7 +48,7 @@ export function TrainingPlanHeader({
 
   return <section className="training-plan-header" aria-label="Training plan selection">
     <div className="training-plan-title">
-      <p className="metric-label">04 / saved training-day plans</p>
+      <p className="metric-label">Saved training days</p>
       <h1>Training plan</h1>
     </div>
 
