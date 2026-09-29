@@ -1,5 +1,7 @@
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { forInsert, toAthleteStrengthEntry, type AthleteSnapshot, type RecordedLift } from "@/lib/athleteStrengthEntry";
+import { workoutObservationId } from "@/lib/workoutStrengthRecord";
+import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 
 /**
  * The outbox between a logged lift and `public.athlete_strength_entries`.
@@ -78,6 +80,20 @@ export function enqueueLifts(
 ): QueuedLift[] {
   const known = new Set([...syncedKeys, ...queue.map((item) => item.key)]);
   return [...queue, ...candidates.filter((item) => item.key && !known.has(item.key))];
+}
+
+/**
+ * Drops the lifts of a workout the athlete removed that have not been sent yet.
+ * Removing a workout deletes it from this device; a lift still waiting here would
+ * otherwise reach the account on the next flush, which is the mis-typed 225-for-22.5
+ * the removal exists to take back. Lifts already sent are not touched.
+ */
+export function removeQueuedLiftsForSession(
+  queue: readonly QueuedLift[],
+  session: Pick<DeviceWorkoutSession, "id" | "exercises">,
+): QueuedLift[] {
+  const removed = new Set(session.exercises.map((exercise) => workoutObservationId(session.id, exercise.id)));
+  return queue.filter((item) => !removed.has(item.key));
 }
 
 export function saveSyncQueue(queue: readonly QueuedLift[]): boolean {

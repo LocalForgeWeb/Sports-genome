@@ -142,6 +142,16 @@ export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[]): boo
 }
 
 /**
+ * Takes back a finished workout recorded on this device, the way a typed lift can be
+ * (removeDeviceStrengthObservation): a test run, a weight typed ten times too heavy or a
+ * workout finished by accident would otherwise count forever. Only a finished session
+ * can go, so the running one is never lost; the change reaches only this device.
+ */
+export function removeDeviceWorkoutSession(sessions: DeviceWorkoutSession[], sessionId: string): DeviceWorkoutSession[] {
+  return sessions.filter((session) => !(session.id === sessionId && session.status === "completed"));
+}
+
+/**
  * Live-session semantics, per three FIXED philosophy contracts that all govern
  * the active workout surface:
  *

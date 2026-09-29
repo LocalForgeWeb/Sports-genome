@@ -8,6 +8,7 @@ import {
   isCompletedWorkout,
   isExerciseSkipped,
 } from "@/lib/deviceWorkoutLog";
+import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 
 /**
  * The workout that is happening right now, readable from anywhere.
@@ -63,24 +64,33 @@ export function summarizeLiveSession(sessions = loadDeviceWorkoutSessions()): Li
 }
 
 /**
- * Which days have been trained, keyed by the label a session was started with.
+ * Which days have been trained this week, keyed by the label a session was started with.
  *
  * The week board read "6 exercises" for a day whether it had been trained, was
  * being trained right now, or had only ever been written down — so "see the
  * week" could not answer the first question anyone asks of a week, which is what
  * is left in it. The key is the same `Week 1 · Day 05 · Sport Transfer` string
  * the tracker stamps onto a session, so no second identity has to be invented.
+ *
+ * A label carries the plan's week, not a date, so an athlete repeating Week 1
+ * trains the same labels again. A finish counts only from Monday of this week,
+ * the same rule Home's week strip reads (summarizeAthleteRecord), so a day done
+ * weeks ago is not "Trained" here while Home calls it next up.
  */
 export type DayTrainingState = "live" | "trained";
 
-export function trainingStateByDayLabel(sessions = loadDeviceWorkoutSessions()): Record<string, DayTrainingState> {
+export function trainingStateByDayLabel(sessions = loadDeviceWorkoutSessions(), now: Date = new Date()): Record<string, DayTrainingState> {
+  const weekStart = startOfTrainingWeek(now);
   const states: Record<string, DayTrainingState> = {};
   for (const session of sessions) {
     if (!session.dayLabel) continue;
     // A session running now outranks one finished earlier on the same day.
     if (session.status === "active") states[session.dayLabel] = "live";
     // A finish with nothing logged did not train the day.
-    else if (!states[session.dayLabel] && isCompletedWorkout(session)) states[session.dayLabel] = "trained";
+    else if (!states[session.dayLabel] && isCompletedWorkout(session)) {
+      const marker = new Date(session.completedAt ?? session.startedAt);
+      if (!Number.isNaN(marker.getTime()) && marker >= weekStart) states[session.dayLabel] = "trained";
+    }
   }
   return states;
 }
@@ -135,4 +145,40 @@ export function useLiveSession(): LiveSession | null {
     };
   }, []);
   return live;
+}
+
+function sameDayTrainingStates(left: Record<string, DayTrainingState>, right: Record<string, DayTrainingState>) {
+  const keys = Object.keys(left);
+  return keys.length === Object.keys(right).length && keys.every((key) => left[key] === right[key]);
+}
+
+/**
+ * Keeps the Plan's day strip in step with the workout log.
+ *
+ * It used to be recomputed only when the live session changed. With no workout
+ * running, removing a finished one from Progress left the live session null
+ * before and after, so nothing reran and the Plan went on calling the day
+ * "Trained" while Home's week strip already had it as not done. It now listens
+ * to the log itself, like every other reader of it; `focus` also picks up a
+ * new week starting while the app sat open.
+ */
+export function useDayTrainingStates(): Record<string, DayTrainingState> {
+  const [states, setStates] = useState<Record<string, DayTrainingState>>(() => trainingStateByDayLabel());
+  useEffect(() => {
+    const refresh = () => {
+      const next = trainingStateByDayLabel();
+      // Every tracker checkpoint announces itself; most change no day's state.
+      setStates((current) => (sameDayTrainingStates(current, next) ? current : next));
+    };
+    refresh();
+    window.addEventListener(deviceWorkoutHistoryEvent, refresh);
+    window.addEventListener("storage", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.removeEventListener(deviceWorkoutHistoryEvent, refresh);
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+  return states;
 }

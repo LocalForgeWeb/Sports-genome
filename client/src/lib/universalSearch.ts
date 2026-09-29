@@ -186,17 +186,18 @@ function metricCandidates(): Candidate[] {
 
 /** Destinations keep search an accelerator to places, not a replacement for nav. */
 const DESTINATIONS: Candidate[] = [
-  { type: "destination", id: "day-plan", label: "Training day", context: "Train", terms: ["training day", "today", "workout"] },
-  { type: "destination", id: "tracker", label: "Workout tracker", context: "Train", terms: ["workout tracker", "tracker", "log sets"] },
+  // Each place is named as its page names itself, and filed where its page sits; the
+  // names it went by before stay as terms, so an old search still lands.
   // "Builder" was a second copy of Training Day and is gone; the words people search
   // for are kept here so the old name still finds the page that now owns the job.
-  { type: "destination", id: "day-plan", label: "Build a workout", context: "Train", terms: ["workout builder", "builder", "build a workout", "plan"] },
-  { type: "destination", id: "review", label: "Review this day", context: "Train", terms: ["review", "stack review", "prep", "warm up", "warmup", "programming", "volume"] },
+  { type: "destination", id: "day-plan", label: "Training plan", context: "Train", terms: ["training plan", "training day", "today", "plan", "workout builder", "builder", "build a workout"] },
+  { type: "destination", id: "tracker", label: "Workout", context: "Train", terms: ["workout", "workout tracker", "tracker", "session", "log sets"] },
+  { type: "destination", id: "review", label: "Review your week", context: "Train", terms: ["review your week", "review", "review this day", "stack review", "prep", "warm up", "warmup", "programming", "volume"] },
   { type: "destination", id: "progress", label: "Progress", context: "Progress", terms: ["progress", "history"] },
-  { type: "destination", id: "strength", label: "Strength Genome", context: "Body Lab", terms: ["strength genome", "strength", "lifts"] },
+  { type: "destination", id: "strength", label: "Strength Genome", context: "Progress", terms: ["strength genome", "strength", "lifts"] },
   { type: "destination", id: "catalog", label: "Exercise catalog", context: "Body Lab", terms: ["exercise catalog", "catalog", "exercises"] },
-  { type: "destination", id: "body", label: "Body Lab", context: "Body Lab", terms: ["body lab", "body map", "anatomy"] },
-  { type: "destination", id: "movement", label: "Movement atlas", context: "Body Lab", terms: ["movement atlas", "movements", "actions"] },
+  { type: "destination", id: "body", label: "Muscle map", context: "Body Lab", terms: ["muscle map", "body lab", "body map", "anatomy"] },
+  { type: "destination", id: "movement", label: "Movement explorer", context: "Body Lab", terms: ["movement explorer", "movement atlas", "movements", "actions"] },
   { type: "destination", id: "profile", label: "About me", context: "Profile", terms: ["about me", "profile", "settings", "account"] },
   /**
    * The contract's §11 "named/search/list path with the same authority as any
