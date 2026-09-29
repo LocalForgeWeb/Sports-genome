@@ -13,6 +13,16 @@ let lastNoticeAt = Number.NEGATIVE_INFINITY;
 
 const NOTICE_GAP_MS = 60_000;
 
+/**
+ * The words of the notice. It says nothing about signing in again: this build has no
+ * sign-in control for the athlete to go to, so the only promise it makes is the true
+ * one, that nothing on the device is lost.
+ */
+export const expiryNotice = {
+  title: "Your sign-in has expired",
+  description: "Everything stays saved on this device.",
+} as const;
+
 export function isExpiryError(error: unknown): boolean {
   return (error as { data?: { code?: string } } | null)?.data?.code === "UNAUTHORIZED";
 }

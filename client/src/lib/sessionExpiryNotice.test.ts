@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { forgetSession, isExpiryError, markSessionSeen, resetSessionExpiryNoticeForTests, shouldNoticeExpiry } from "./sessionExpiryNotice";
+import { expiryNotice, forgetSession, isExpiryError, markSessionSeen, resetSessionExpiryNoticeForTests, shouldNoticeExpiry } from "./sessionExpiryNotice";
 
 /**
  * "Your sign-in has expired" used to fire on any refused request. In the device workspace
@@ -47,5 +47,14 @@ describe("the sign-in expiry notice", () => {
     expect(isExpiryError(refused)).toBe(true);
     expect(isExpiryError({ data: { code: "NOT_FOUND" } })).toBe(false);
     expect(isExpiryError(null)).toBe(false);
+  });
+
+  // It used to say "Sign in again from About me to sync", and there is no sign-in there
+  // (or anywhere in this build) to go back to. Revert when a real sign-in path ships.
+  it("does not send the athlete to a sign-in control that is not there", () => {
+    expect(expiryNotice.title).toBe("Your sign-in has expired");
+    expect(expiryNotice.description).not.toMatch(/sign[ -]?in/i);
+    expect(expiryNotice.description).not.toMatch(/about me/i);
+    expect(expiryNotice.description).toBe("Everything stays saved on this device.");
   });
 });

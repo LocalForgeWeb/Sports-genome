@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -11,10 +10,9 @@ vi.mock("@/lib/athleteIdentity", () => ({
 import { AthleteAccountCard } from "./AthleteAccountCard";
 
 /**
- * The card promised a way into the account from another device, and the expiry notice
- * sent the athlete to About me to sign in again. This build has neither: the only
- * Supabase sign-in is anonymous and the account sign-in screen is unreachable. Revert
- * these checks when a real sign-in path ships.
+ * The card promised a way into the account from another device. This build has none:
+ * the only Supabase sign-in is anonymous and the account sign-in screen is unreachable.
+ * Revert these checks when a real sign-in path ships.
  */
 const render = (anonymous: boolean) => renderToStaticMarkup(createElement(AthleteAccountCard, {
   identity: { userId: "u1", anonymous },
@@ -36,10 +34,5 @@ describe("the account card says only what this build can do", () => {
     const markup = render(false);
     expect(markup).not.toContain("reachable from any device");
     expect(markup).toContain("not available in this build");
-  });
-
-  it("does not point an expired sign-in at a sign-in control that is not there", () => {
-    const main = readFileSync(new URL("../main.tsx", import.meta.url), "utf8");
-    expect(main).not.toContain("Sign in again from About me");
   });
 });

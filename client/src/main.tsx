@@ -1,6 +1,6 @@
 import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
-import { isExpiryError, shouldNoticeExpiry } from "@/lib/sessionExpiryNotice";
+import { expiryNotice, isExpiryError, shouldNoticeExpiry } from "@/lib/sessionExpiryNotice";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { httpBatchLink } from "@trpc/client";
@@ -9,14 +9,14 @@ import superjson from "superjson";
 import "./index.css";
 
 /**
- * A sign-in that has lapsed is said once, in words, and never costs the athlete
- * anything: the device record stays.
- * Every other failure is handled where it happens, beside the control. Only an
- * athlete who was signed in this visit hears it (see sessionExpiryNotice).
+ * A sign-in that has lapsed is said once, in words, and only to an athlete who was
+ * signed in this visit (see sessionExpiryNotice); it never costs the athlete
+ * anything: the device record stays. Every other failure is handled where it
+ * happens, beside the control.
  */
 const noticeExpiry = (error: unknown) => {
   if (!shouldNoticeExpiry(error)) return;
-  toast("Your sign-in has expired", { id: "session-expired", description: "Everything stays saved on this device." });
+  toast(expiryNotice.title, { id: "session-expired", description: expiryNotice.description });
 };
 const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError: noticeExpiry }),
