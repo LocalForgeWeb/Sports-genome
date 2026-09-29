@@ -740,37 +740,6 @@ select {
 /* Pulse card selection lane: the selected check has its own protected center-right position. */
 .pulse-option{padding-right:4.5rem!important}.pulse-option>span:nth-child(2){display:block;padding-right:.5rem}.pulse-check{position:absolute!important;top:50%!important;right:1.05rem!important;bottom:auto!important;display:grid!important;place-items:center!important;width:1.85rem!important;height:1.85rem!important;transform:translateY(-50%)!important;border:1px solid var(--sg-divider-on-light)!important;border-radius:999px!important;background:var(--sg-surface-light-sunken)!important;color:var(--sg-info-strong)!important;font-size:var(--sg-text-lg)!important;font-weight:800!important;line-height:1!important}.pulse-option-selected .pulse-check{border-color:var(--sg-action)!important;background:var(--sg-action-fill)!important;box-shadow:0 5px 14px rgb(228 81 46 / .24)!important;color:#fff!important}.pulse-option::before{right:1rem!important;max-width:calc(100% - 2rem)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.feature-tour-copy{max-width:39rem!important}.feature-tour-location{display:flex;gap:.65rem;align-items:flex-start;margin-top:1.25rem;border:1px solid var(--sg-divider-on-light);background:var(--sg-surface-light-sunken);padding:.75rem;color:#4e6983;font-size:var(--sg-text-sm);line-height:var(--sg-leading-body)}.feature-tour-location svg{flex:none;color:var(--sg-action)}.feature-tour-location span{display:grid;gap:2px}.feature-tour-location b{color:#1e3e60;font-size:var(--sg-text-xs);letter-spacing:var(--sg-tracking-label);text-transform:uppercase}.feature-tour-tasks{display:grid;gap:.45rem;margin-top:1.25rem}.feature-tour-tasks>div{display:grid;grid-template-columns:25px 1fr;gap:.65rem;align-items:start;border-bottom:1px solid var(--sg-divider-on-light);padding:.55rem 0;color:#526b82;font-size:var(--sg-text-sm);line-height:var(--sg-leading-body)}.feature-tour-tasks>div span{color:var(--sg-action);font-family:var(--font-display,sans-serif);font-size:var(--sg-text-lg);font-weight:800}.feature-tour-open{display:inline-flex;min-height:2.9rem;width:100%;align-items:center;justify-content:center;gap:.5rem;margin-top:1.2rem;border:0;border-radius:.6rem;background:var(--sg-action-fill);color:#fff;padding:.65rem .8rem;font-size:var(--sg-text-sm);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}.feature-tour-open:hover{background:var(--sg-action)}.feature-tour-open:hover{background:var(--sg-info-strong);color:#fff}@media(max-width:700px){.pulse-option{padding-right:3.75rem!important}.pulse-check{right:.75rem!important;width:1.6rem!important;height:1.6rem!important}.feature-tour-location,.feature-tour-tasks>div{font-size:var(--sg-text-sm)}}
 
-@media (max-width: 640px) {
-  .genome-selector-row {
-    display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr) 1rem;
-    align-items: center;
-    width: 100%;
-    min-height: 4.5rem;
-    gap: 0.75rem;
-    padding: 0.75rem 0.875rem;
-    border-bottom: 1px solid rgb(255 255 255 / 0.1);
-    text-align: left;
-  }
-
-  .genome-selector-row > span:nth-child(2) {
-    min-width: 0;
-  }
-
-  .genome-selector-row > span:nth-child(2) > span:first-child,
-  .genome-selector-row > span:nth-child(2) > span:last-child {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .genome-selector-active {
-    background: rgb(45 108 223 / 0.22);
-    box-shadow: inset 3px 0 0 var(--sg-workflow-blue);
-  }
-}
-
 /* Profile/settings use one consistent secondary entry point (not a primary nav destination). */
 .topbar-profile-button[aria-current="page"] { border-color: var(--sg-info-strong); color: var(--sg-info-strong); }
 
@@ -842,19 +811,6 @@ select {
 .genome-action-connection-supporting-link { background: #fff8e5; color: #87600c; }
 .genome-action-connection-not-mapped { background: var(--sg-surface-light-sunken); color: #506d84; }
 @media (max-width: 640px) { .genome-action-connection { grid-template-columns: 1fr; gap: .65rem; padding: .85rem; } }
-
-/* The prior inline Genome selector remains in source only during staged migration; the reusable workspace is canonical. */
-@supports selector(section:has(.genome-selector-row)) { .apex-content > section:has(.genome-selector-row) { display: none; } }
-.genome-selector-row-v2 { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr) 1rem; align-items: center; width: 100%; min-height: 4.8rem; gap: .7rem; border-bottom: 1px solid rgb(255 255 255 / .1); padding: .7rem .75rem; color: var(--sg-text-muted-on-dark); text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease), box-shadow var(--sg-motion-fast) var(--sg-ease); }
-.genome-selector-row-v2:hover { background: rgb(57 116 186 / .18); }
-.genome-selector-row-v2:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -2px; }
-.genome-selector-row-v2-active { background: rgb(45 108 223 / .25); box-shadow: inset 3px 0 0 var(--sg-focus-on-dark); }
-.genome-selector-connection { display: inline-flex; max-width: 100%; align-items: center; margin-top: .35rem; border-radius: 999px; padding: .16rem .42rem; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: 1; text-transform: uppercase; white-space: nowrap; }
-.genome-selector-connection i { overflow: hidden; margin-left: .18rem; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
-.genome-selector-connection-direct-support { background: rgb(228 81 46 / .24); color: #ffb9a5; }
-.genome-selector-connection-supporting-link { background: rgb(242 193 77 / .2); color: #ffe09a; }
-.genome-selector-connection-not-mapped { background: rgb(177 202 225 / .14); color: var(--sg-text-muted-on-dark); }
-@media (max-width: 640px) { .genome-selector-row-v2 { min-height: 5.35rem; grid-template-columns: 2.15rem minmax(0, 1fr) .85rem; padding: .75rem .85rem; } .genome-selector-connection { max-width: min(100%, 17rem); } }
 
 .inspection-action-connection-float { position: fixed; z-index: 51; right: 1rem; bottom: 1rem; width: min(672px, calc(100vw - 2rem)); }
 .inspection-action-connection { display: grid; grid-template-columns: minmax(0, .65fr) minmax(0, 1.35fr); gap: 1rem; border: 1px solid #2c5682; border-left: 3px solid var(--sg-focus-on-dark); border-radius: .9rem; background: rgb(11 34 64 / .97); box-shadow: 0 18px 44px rgb(5 20 40 / .42); padding: .95rem 1rem; }
@@ -1989,12 +1945,8 @@ details:not([open]) > *:not(summary) {
    deliberate pair. Each gets the same rhythm the .metric-label pair now has. */
 .catalog-discovery-heading h1 { margin-top: .3rem; }
 .today-action-facts p > span { margin-top: .25rem; }
-.genome-selector-row-v2 span > span + span { margin-top: .22rem; }
 .warmup-time strong + span, .warmup-time span + span { margin-top: .2rem; }
 .weekly-volume-head strong + small { margin-top: .3rem; }
-/* Running copy needs leading it can be scanned at; display headings keep their
-   tight editorial setting. */
-.genome-selector-row-v2 strong { line-height: var(--sg-leading-snug); }
 
 /* ── Tap targets ─────────────────────────────────────────────────────────────
    Platform guidance is 44x44pt, and the audit measured 34 controls below it —
@@ -2365,18 +2317,6 @@ details:not([open]) > *:not(summary) {
   .destination-progress .strength-body-map-head h2,
   .strength-body-map-head h2 { font-size: 1.45rem; line-height: var(--sg-leading-tight); }
 }
-
-/**
- * Which action the Genome list's link chips are measured against.
- *
- * Each row appended the selected sport action to its own chip, so all 24 read
- * "SUPPORTING LINK · PENETRATION STEP" - one value, repeated down the whole
- * list, and on a phone it pushed the chip to the full row width. It is one fact
- * about the list, so it is stated once above it, as the Catalog already does.
- */
-.genome-selector-scope { display: block; margin-top: .45rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
-.genome-selector-scope > svg { display: inline-block; margin-right: .3rem; vertical-align: -.15em; }
-.genome-selector-scope b { color: var(--sg-text-muted-on-dark); font-weight: 800; }
 
 /**
  * The weekly session track.
