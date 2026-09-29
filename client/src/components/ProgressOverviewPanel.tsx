@@ -116,7 +116,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
     () => mergeStrengthHistory(loggedObservations.map((observation) => ({ ...observation, loadKg: observation.loadKg ?? null, repetitions: observation.repetitions ?? null })), trackedSets.data || []),
     [loggedObservations, trackedSets.data]
   );
-  const strengthComparisonSummary = summarizeWithinAthleteStrengthComparisons(unifiedHistory);
+  const strengthComparisonSummary = useMemo(() => summarizeWithinAthleteStrengthComparisons(unifiedHistory), [unifiedHistory]);
   const comparableStrengthChanges = strengthComparisonSummary.comparable;
   const excludedStrengthSets = strengthComparisonSummary.excluded;
   const excludedSetCount = excludedStrengthSets.reduce((total, item) => total + item.observationCount, 0);
