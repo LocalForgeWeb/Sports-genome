@@ -588,15 +588,18 @@ export default function Home() {
     setDayStore((current) => commitDay(current, key, { workout: customWorkout, prescriptions, settings: exerciseSettings }));
   }, [planHydrated, onboardingComplete, customWorkout, prescriptions, exerciseSettings]);
 
+  // Without a chosen sport there is no sport to seed from. An empty seed keeps the draft
+  // general instead of quietly biasing it toward whichever sport happens to be first.
+  // The seed depends on sport, goal, window and gym, not on the open day, so a day
+  // switch does not re-rank the sport.
+  const draftSportSeed = useMemo(() => hasSportContext
+    ? getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap).map((item) => item.exercise)
+    : [], [activeSportId, hasSportContext, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
   const draftedLoadout = useMemo(() => {
-    // Without a chosen sport there is no sport to seed from. An empty seed keeps the draft
-    // general instead of quietly biasing it toward whichever sport happens to be first.
-    const sportSeed = hasSportContext
-      ? getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap).map((item) => item.exercise)
-      : [];
+    const sportSeed = draftSportSeed;
     const pool = filterStackForEquipment(getSplitExercisePool(exercises, activeSplitDay, sportSeed), athleteBaseline.equipment);
     return buildVariedLoadout(pool, activeSplitDay === "Sport Transfer" ? sportSeed : [], activeLoadout, gymTimeBudget.recommendationLimit);
-  }, [activeSportId, hasSportContext, goal, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
+  }, [draftSportSeed, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment]);
   /**
    * What the draft would cost in time, at the current settings.
    *
