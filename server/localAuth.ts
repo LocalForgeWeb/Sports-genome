@@ -8,6 +8,7 @@ import type { User } from "../drizzle/schema";
 import { accountPasskeys, emailCredentials, localAuthChallenges, localAuthSessions, users } from "../drizzle/schema";
 import { getDb } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { isDuplicateKey } from "./workoutPlanSync";
 
 export const LOCAL_AUTH_COOKIE = "go_email_session";
 const SESSION_DAYS = 30;
@@ -87,15 +88,26 @@ export async function registerEmailAccount(input: { email: string; password: str
   const email = normalizeEmail(input.email);
   const openId = `email-${randomUUID()}`;
   const salt = randomBytes(16).toString("hex");
-  const result = await db.transaction(async (tx) => {
-    const existing = await tx.select({ id: emailCredentials.id }).from(emailCredentials).where(eq(emailCredentials.email, email)).limit(1);
-    if (existing.length) return { ok: false as const, code: "EMAIL_EXISTS" as const };
-    await tx.insert(users).values({ openId, email, name: publicName(email), loginMethod: "email", lastSignedIn: new Date() });
-    const user = (await tx.select().from(users).where(eq(users.openId, openId)).limit(1))[0];
-    if (!user) throw new Error("Could not create account");
-    await tx.insert(emailCredentials).values({ userId: user.id, email, passwordHash: passwordHash(input.password, salt), passwordSalt: salt });
-    return { ok: true as const, user };
-  });
+  // Hashed before the transaction opens, so no pooled connection or row lock waits on scrypt.
+  const hash = passwordHash(input.password, salt);
+  let result;
+  try {
+    result = await db.transaction(async (tx) => {
+      const existing = await tx.select({ id: emailCredentials.id }).from(emailCredentials).where(eq(emailCredentials.email, email)).limit(1);
+      if (existing.length) return { ok: false as const, code: "EMAIL_EXISTS" as const };
+      await tx.insert(users).values({ openId, email, name: publicName(email), loginMethod: "email", lastSignedIn: new Date() });
+      const user = (await tx.select().from(users).where(eq(users.openId, openId)).limit(1))[0];
+      if (!user) throw new Error("Could not create account");
+      await tx.insert(emailCredentials).values({ userId: user.id, email, passwordHash: hash, passwordSalt: salt });
+      return { ok: true as const, user };
+    });
+  } catch (error) {
+    // Two registrations for one email at once: the check above does not lock, so the unique
+    // index lets one in. The other is the same "already used" answer, not a server fault, and
+    // the rollback takes its half-made user row with it.
+    if (isDuplicateKey(error)) return { ok: false as const, code: "EMAIL_EXISTS" as const };
+    throw error;
+  }
   if (!result.ok) return result;
   const user = result.user;
   await setLocalSession(user.id, req, res);
