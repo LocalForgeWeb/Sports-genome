@@ -60,6 +60,7 @@ import {
   setStrengthObservationBodyMass,
   setStrengthPriority,
 } from "./strengthGenome";
+import { strengthRegionDefinitions } from "../shared/strengthGenomeDefinitions";
 
 /**
  * One answer for "not yours" and "does not exist".
@@ -356,11 +357,21 @@ export const appRouter = router({
       listActiveStrengthPriorities(ctx.user.id)
     ),
     setPriority: protectedProcedure
-      .input(z.object({ regionId: z.string().trim().min(1).max(80), active: z.boolean(), note: z.string().trim().max(280).optional() }))
+      .input(z.object({
+        // An unknown region is bad input (BAD_REQUEST), refused before the procedure runs.
+        regionId: z.string().trim().min(1).max(80).refine(id => strengthRegionDefinitions.some(region => region.id === id), "Unknown Strength Genome region"),
+        active: z.boolean(),
+        note: z.string().trim().max(280).optional(),
+      }))
       .mutation(({ ctx, input }) => setStrengthPriority(ctx.user.id, input.regionId, input.active, input.note)),
     setObservationBodyMass: protectedProcedure
       .input(z.object({ observationId: z.number().int().positive(), bodyMassKgAtTest: z.number().positive().max(1000) }))
-      .mutation(({ ctx, input }) => setStrengthObservationBodyMass(ctx.user.id, input.observationId, input.bodyMassKgAtTest)),
+      .mutation(async ({ ctx, input }) => {
+        const saved = await setStrengthObservationBodyMass(ctx.user.id, input.observationId, input.bodyMassKgAtTest);
+        // The same sentence as answer(): a missing id and another account's id read alike.
+        if (!saved) throw new TRPCError({ code: "NOT_FOUND", message: "That record is not available on this account." });
+        return saved;
+      }),
     addObservation: protectedProcedure
       .input(
         z.object({

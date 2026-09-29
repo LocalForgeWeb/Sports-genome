@@ -93,7 +93,10 @@ export async function createStrengthObservation(
   return getStrengthObservation(userId, id);
 }
 
-/** Adds athlete-entered body mass to the same dated observation; it never estimates missing load or rank. */
+/**
+ * Adds athlete-entered body mass to the same dated observation; it never estimates missing load or rank.
+ * Null means the test is not on this account, missing or another athlete's alike.
+ */
 export async function setStrengthObservationBodyMass(
   userId: number,
   observationId: number,
@@ -103,7 +106,7 @@ export async function setStrengthObservationBodyMass(
   if (!db) throw new Error("Database is unavailable");
 
   const existing = await getStrengthObservation(userId, observationId);
-  if (!existing) throw new Error("Strength observation was not found");
+  if (!existing) return null;
 
   await db
     .update(strengthObservations)
