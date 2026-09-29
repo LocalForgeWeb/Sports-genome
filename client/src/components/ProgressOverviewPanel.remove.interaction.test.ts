@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -54,6 +54,9 @@ const removeButton = (title: string) => screen.getByRole("button", { name: new R
 describe("a finished workout on this device can be taken back from Progress", () => {
   beforeEach(seed);
   afterEach(() => {
+    // Unmount first, so a dialog left open does not keep its window key listener
+    // catching Escape and Tab in the tests after it.
+    cleanup();
     document.body.innerHTML = "";
     localStorage.clear();
     mocks.accountSessions = [];
@@ -86,10 +89,31 @@ describe("a finished workout on this device can be taken back from Progress", ()
     expect(loadDeviceWorkoutSessions().map((session) => session.id)).toEqual(["push", "pull", "live"]);
   });
 
+  // Runs straight after a test that ends with the question still open.
+  it("lets Escape and Tab reach the page again once Progress closes with the question open", () => {
+    const { unmount } = renderPanel();
+    fireEvent.click(removeButton("Pull"));
+    expect(screen.getByRole("alertdialog")).toBeTruthy();
+    unmount();
+    const page = vi.fn();
+    window.addEventListener("keydown", page);
+    try {
+      fireEvent.keyDown(document.body, { key: "Escape" });
+      const tabAllowed = fireEvent.keyDown(document.body, { key: "Tab" });
+      expect(page).toHaveBeenCalledTimes(2);
+      expect(tabAllowed).toBe(true);
+    } finally {
+      window.removeEventListener("keydown", page);
+    }
+  });
+
   it("removes only that workout once confirmed, and the list follows the device", () => {
     renderPanel();
     expect(screen.getByText("2 total")).toBeTruthy();
-    fireEvent.click(removeButton("Push"));
+    // Reached from the keyboard, so the button holds focus when it asks.
+    const opener = removeButton("Push");
+    opener.focus();
+    fireEvent.click(opener);
     fireEvent.click(screen.getByRole("button", { name: "Remove workout" }));
 
     expect(loadDeviceWorkoutSessions().map((session) => session.id)).toEqual(["pull", "live"]);
@@ -98,6 +122,9 @@ describe("a finished workout on this device can be taken back from Progress", ()
     expect(removeButton("Pull")).toBeTruthy();
     expect(screen.getByText("1 total")).toBeTruthy();
     expect(mocks.success).toHaveBeenCalledWith("Workout removed from this device.");
+    // The button left with its workout; focus stays with the list, not the top of the page.
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Your completed sessions." }));
   });
 
   it("takes the removed workout's unsent lifts out of the account outbox, and leaves the rest", () => {
