@@ -1,9 +1,17 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/_core/hooks/useAuth", () => ({ useAuth: () => ({ user: null, loading: false, isAuthenticated: false }) }));
+vi.mock("@/lib/trpc", () => ({ trpc: {} }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+
+import { RecommendationRow } from "./Home";
+import { getSportSession, type MovementRecommendation } from "@/lib/movementRecommendations";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-const rows = source.slice(source.indexOf("function RecommendationRow"), source.indexOf("function Onboarding"));
 
 /** The Matches workspace, from its gate to the next workspace. */
 const start = source.indexOf('{workspace === "recommended" && hasSportContext &&');
@@ -59,14 +67,22 @@ describe("Matches is one column of real controls", () => {
   });
 
   it("labels the score and the tier so two adjacent marks read as two facts", () => {
-    expect(rows).toContain("aria-label={`Match score ${score} for ${result.exercise.name}: open details`}");
-    // The stamp names its own tier and is not handed the score, so the two
-    // labels cannot restate each other.
-    expect(rows).toContain("<GradeStamp grade={result.exercise.muscleGrade} compact />");
-    // result.grade is gradeForScore(score): the match score again, in letters,
-    // under a label that calls it the catalog tier.
-    expect(rows).not.toContain("grade={result.grade}");
-    expect(rows).not.toContain("score={result.breakdown.overall}");
+    // A match whose score buckets to SS while the catalog rates the exercise S,
+    // so a stamp fed the score would read S+ and one fed the catalog reads S.
+    const base = getSportSession("track-and-field", "Athleticism", 1)[0];
+    expect(base).toBeDefined();
+    const result: MovementRecommendation = { ...base, grade: "SS", exercise: { ...base.exercise, muscleGrade: "S" }, breakdown: { ...base.breakdown, overall: 97 } };
+    const noop = () => {};
+    const markup = renderToStaticMarkup(createElement(RecommendationRow, { result, index: 0, onAdd: noop, onInspect: noop, destinationLabel: "Week 1 · Mon" }));
+
+    expect(markup).toContain(`aria-label="Match score 97 for ${result.exercise.name}: open details"`);
+    // The stamp names the exercise's catalog tier. result.grade is
+    // gradeForScore(score): the match score again, in letters, under a label
+    // that would call it the catalog tier.
+    expect(markup).toContain('aria-label="Catalog planning tier S"');
+    expect(markup).not.toContain("Catalog planning tier S+");
+    // The stamp is not handed the score, so the two labels cannot restate each other.
+    expect(markup).not.toContain("modelled overall match");
     // So one exercise wears the same tier on Matches and on Home's top three.
     expect(source).toContain("<GradeStamp grade={result.exercise.muscleGrade} compact /><ChevronRight");
   });

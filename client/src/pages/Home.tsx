@@ -272,7 +272,7 @@ export function shouldRenderMetric(detail: string) {
   return detail !== "coach-set planning marker";
 }
 
-function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void; destinationLabel?: string }) {
+export function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void; destinationLabel?: string }) {
   const metrics = [
     ["Movement transfer", result.breakdown.movementTransferSimilarity],
     ["Muscle targeting", result.breakdown.muscleMatch],
