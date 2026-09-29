@@ -1,6 +1,10 @@
+import React, { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { boundedQuizStep, convertBodyWeight, quizStepIds } from "./AthleteBaselineQuiz";
+import { AthleteBaselineQuiz, boundedQuizStep, convertBodyWeight, quizStepIds } from "./AthleteBaselineQuiz";
+
+(globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
 const source = readFileSync(new URL("./AthleteBaselineQuiz.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../athlete-baseline-quiz.css", import.meta.url), "utf8");
@@ -123,5 +127,38 @@ describe("Sport-optional onboarding", () => {
   it("states the insufficiency case rather than implying every target is covered", () => {
     expect(source).toContain("No reviewed exercise routine covers");
     expect(source).toContain("the plan will say what is missing instead of guessing");
+  });
+});
+
+describe("Onboarding quiz choices for assistive tech", () => {
+  const choiceClasses = ["athlete-choice", "athlete-access-choice", "athlete-equipment-choice", "athlete-schedule-choice", "athlete-unit-choice"];
+
+  it("says which answer is chosen on every choice button, not only through a class and an icon", () => {
+    // Split on the tag rather than matching `<button[^>]*>`: the `=>` in each onClick ends that match early.
+    const choiceButtons = source.split("<button").slice(1).filter((chunk) => {
+      const className = chunk.match(/className=\{?[`"]([\w-]+)/)?.[1];
+      return className !== undefined && choiceClasses.includes(className);
+    });
+    expect(choiceButtons.length).toBe(14);
+    for (const chunk of choiceButtons) {
+      const opening = chunk.slice(0, chunk.indexOf("className="));
+      expect(opening, chunk.slice(0, 80)).toContain("aria-pressed=");
+      expect(opening, chunk.slice(0, 80)).toContain('type="button"');
+    }
+  });
+
+  it("marks only the chosen goal as pressed on the first step", () => {
+    const markup = renderToStaticMarkup(createElement(AthleteBaselineQuiz, { sports: [], onComplete: () => {} }));
+    const buttons = markup.split("<button").slice(1);
+    const pressed = buttons.filter((button) => button.includes('aria-pressed="true"'));
+    expect(pressed).toHaveLength(1);
+    expect(pressed[0]).toContain("Build muscle");
+    expect(buttons.filter((button) => button.includes('aria-pressed="false"'))).toHaveLength(3);
+  });
+
+  it("names the typed fields by what they hold, not by the unit beside them", () => {
+    expect(source).toContain('aria-label="Preferred name"');
+    expect(source).toContain("aria-label={`Body weight in ${weightUnit}`}");
+    expect(source).toContain('aria-label="Birth year"');
   });
 });
