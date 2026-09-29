@@ -122,6 +122,14 @@ describe("layout integrity", () => {
     expect(css).toContain(".genome-fingerprint-bars { grid-template-columns: 1fr; }");
     expect(css).toContain(".genome-meter > div { font-size: var(--sg-text-xs)");
   });
+
+  it("keeps the retired onboarding styles out of every stylesheet", () => {
+    // The onboarding was rebuilt on .pulse-* classes. These selectors styled
+    // markup that no longer exists, including invented ::before/::after labels
+    // a maintainer could mistake for live UI.
+    [".onboarding-", ".tutorial-card", ".frequency-card", ".stack-choice", "onboarding-enter"]
+      .forEach((selector) => expect(allCss).not.toContain(selector));
+  });
 });
 
 describe("athlete-facing labels", () => {
