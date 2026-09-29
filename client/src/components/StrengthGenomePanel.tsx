@@ -521,6 +521,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const [repetitions, setRepetitions] = useState("");
   const [observedDate, setObservedDate] = useState(() => localDateKey());
   const [bodyMassKg, setBodyMassKg] = useState(() => baselineBodyWeight != null ? String(baselineBodyWeight) : "");
+  // The profile weight is an input default, so it only fills a box the athlete has
+  // not typed in: refilling an emptied box made it impossible to clear, and typing
+  // after backspace landed on the refilled number ("180" then "7" saved "1807").
+  const [bodyMassTouched, setBodyMassTouched] = useState(false);
   const [equipment, setEquipment] = useState("");
   const [romStandard, setRomStandard] = useState("");
   const [techniqueVariant, setTechniqueVariant] = useState("");
@@ -592,7 +596,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       setSelectedExercise(null);
       setLoadKg("");
       setRepetitions("");
-      setBodyMassKg("");
+      setBodyMassKg(baselineBodyWeight != null ? String(baselineBodyWeight) : "");
+      setBodyMassTouched(false);
       setEquipment("");
       setRomStandard("");
       setTechniqueVariant("");
@@ -787,7 +792,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         removeObservation.mutate({ observationId: Number(observation.id) });
       },
     });
-  useEffect(() => { if (baselineBodyWeight != null && bodyMassKg === "") setBodyMassKg(String(baselineBodyWeight)); }, [baselineBodyWeight, bodyMassKg]);
+  useEffect(() => { if (!bodyMassTouched && baselineBodyWeight != null) setBodyMassKg(String(baselineBodyWeight)); }, [baselineBodyWeight, bodyMassTouched]);
   const openSavedObservation = (observation: StrengthObservationRecord) => {
     const regionId = strengthRegionIdsForExerciseName(observation.exerciseName)[0];
     const region = strengthRegionDefinitions.find((candidate) => candidate.id === regionId);
@@ -897,7 +902,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         return;
       }
       setSaveError(null);
-      setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(""); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(prefilledPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(prefilledPowerliftingDeclaration); setNotes("");
+      setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(baselineBodyWeight != null ? String(baselineBodyWeight) : ""); setBodyMassTouched(false); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(prefilledPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(prefilledPowerliftingDeclaration); setNotes("");
       emitInteractionFeedback([10, 30, 10]); toast.success("Lift saved on this device.");
       return;
     }
@@ -943,7 +948,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         </div>
         <button type="button" onClick={() => setAdvancedOpen((current) => !current)} className="mt-4 block text-[11px] font-bold uppercase tracking-[.12em] text-[#9fc8f4] hover:text-white">{advancedOpen ? "Hide" : "Show"} more options</button>
         {advancedOpen && <div className="mt-3 grid gap-3 border-l-2 border-[var(--sg-focus-on-dark)] pl-3 sm:grid-cols-2">
-          <StrengthBodyMassInput weightUnit={weightUnit} value={bodyMassKg} onChange={setBodyMassKg} />
+          <StrengthBodyMassInput weightUnit={weightUnit} value={bodyMassKg} onChange={(value) => { setBodyMassTouched(true); setBodyMassKg(value); }} />
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">How it was set up</span><select value={dataQuality} onChange={(event) => setDataQuality(event.target.value as ObservationDataQuality)} className="h-11 rounded-xl border border-white/20 bg-[var(--sg-surface-raised)] px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30">{dataQualityOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Which side</span><select value={laterality} onChange={(event) => setLaterality(event.target.value as typeof laterality)} className="h-11 rounded-xl border border-white/20 bg-[var(--sg-surface-raised)] px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30"><option value="BILATERAL">Bilateral</option><option value="LEFT">Left</option><option value="RIGHT">Right</option></select></label>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Equipment</span><input value={equipment} onChange={(event) => setEquipment(event.target.value)} placeholder="e.g. barbell, rack" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
