@@ -588,7 +588,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // and the entry stays in the form so nothing typed is lost.
   const [saveError, setSaveError] = useState<string | null>(null);
   const addObservation = trpc.strengthGenome.addObservation.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (saved, variables) => {
       setSaveError(null);
       await Promise.all([
         utils.strengthGenome.overview.invalidate(),
@@ -613,7 +613,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       setPowerliftingReferenceOpen(false);
       setPowerliftingDeclaration(prefilledPowerliftingDeclaration);
       setNotes("");
-      toast.success("Lift saved. Your progress updates as you log more.");
+      toast.success("Lift saved. Your progress updates as you log more.", savedLiftToastOptions({ id: saved?.id ?? "", exerciseName: variables.exerciseName }));
     },
     // Every failure is reported here in fixed words: the server message is either
     // a validation list or a generic fault notice, neither of them for athletes.
@@ -812,13 +812,19 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       },
     });
   useEffect(() => { if (!bodyMassTouched && baselineBodyWeight != null) setBodyMassKg(String(baselineBodyWeight)); }, [baselineBodyWeight, bodyMassTouched]);
-  const openSavedObservation = (observation: StrengthObservationRecord) => {
+  const openSavedObservation = (observation: Pick<StrengthObservationRecord, "id" | "exerciseName">) => {
     const regionId = strengthRegionIdsForExerciseName(observation.exerciseName)[0];
     const region = strengthRegionDefinitions.find((candidate) => candidate.id === regionId);
     if (!region) return;
     setSelectedObservationId(String(observation.id));
     setSelectedRegion(region);
   };
+  // The saved lift's record is offered from the toast, not opened: the athlete may be logging
+  // several lifts in a row. A lift no region reads gets no action, as with the Review button.
+  const savedLiftToastOptions = (observation: Pick<StrengthObservationRecord, "id" | "exerciseName">) =>
+    strengthRegionIdsForExerciseName(observation.exerciseName).length
+      ? { action: { label: "View record", onClick: () => { emitInteractionFeedback(); setLogOpen(false); openSavedObservation(observation); } } }
+      : undefined;
   // Below the dock's breakpoint the record is pinned above the bottom bar, so it
   // is already on screen the instant a muscle is tapped. Scrolling there would
   // throw the figure the athlete just tapped off the top of the screen to reach
@@ -914,7 +920,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       notes: notes.trim() || undefined,
     };
     if (directAccess) {
-      const written = persistDeviceObservations(prependDeviceStrengthObservation(deviceObservations, { ...nextObservation, id: `device-strength-${Date.now()}`, observedAt: nextObservation.observedAt.toISOString() }));
+      const saved = { ...nextObservation, id: `device-strength-${Date.now()}`, observedAt: nextObservation.observedAt.toISOString() };
+      const written = persistDeviceObservations(prependDeviceStrengthObservation(deviceObservations, saved));
       if (!written) {
         setSaveError("This lift was not saved: this device refused the write (storage full, private browsing, or storage blocked). Your entry is still here — free some space and save again.");
         toast.error("Could not save this lift on this device.");
@@ -922,7 +929,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       }
       setSaveError(null);
       setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(baselineBodyWeight != null ? String(baselineBodyWeight) : ""); setBodyMassTouched(false); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(prefilledPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(prefilledPowerliftingDeclaration); setNotes("");
-      emitInteractionFeedback([10, 30, 10]); toast.success("Lift saved on this device.");
+      emitInteractionFeedback([10, 30, 10]); toast.success("Lift saved on this device.", savedLiftToastOptions(saved));
       return;
     }
     setSaveError(null);
