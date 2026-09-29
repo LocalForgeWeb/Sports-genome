@@ -68,7 +68,7 @@ describe("Matches is one column of real controls", () => {
 
   it("labels the score and the tier so two adjacent marks read as two facts", () => {
     // A match whose score buckets to SS while the catalog rates the exercise S,
-    // so a stamp fed the score would read S+ and one fed the catalog reads S.
+    // so a stamp fed the score would read SS and one fed the catalog reads S.
     const base = getSportSession("track-and-field", "Athleticism", 1)[0];
     expect(base).toBeDefined();
     const result: MovementRecommendation = { ...base, grade: "SS", exercise: { ...base.exercise, muscleGrade: "S" }, breakdown: { ...base.breakdown, overall: 97 } };
@@ -80,7 +80,7 @@ describe("Matches is one column of real controls", () => {
     // gradeForScore(score): the match score again, in letters, under a label
     // that would call it the catalog tier.
     expect(markup).toContain('aria-label="Catalog planning tier S"');
-    expect(markup).not.toContain("Catalog planning tier S+");
+    expect(markup).not.toContain("Catalog planning tier SS");
     // The stamp is not handed the score, so the two labels cannot restate each other.
     expect(markup).not.toContain("modelled overall match");
     // So one exercise wears the same tier on Matches and on Home's top three.

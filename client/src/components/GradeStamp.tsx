@@ -11,16 +11,14 @@ const tones: Record<Grade, string> = {
   F: "bg-white text-[#a1a5a1] border-[#e6e5df]",
 };
 
-const displayTier: Record<Grade, string> = { SS: "S+", S: "S", A: "A+", B: "A", C: "B+", D: "B", F: "C" };
-
 export function GradeStamp({ grade, score, compact = false }: { grade: Grade; score?: number; compact?: boolean }) {
   return (
     <span
-      aria-label={`Catalog planning tier ${displayTier[grade]}${score ? `, ${score} modelled overall match` : ""}`}
-      title={score ? `${displayTier[grade]} catalog-planning tier · ${score} modelled overall match` : `${displayTier[grade]} catalog-planning tier`}
+      aria-label={`Catalog planning tier ${grade}${score ? `, ${score} modelled overall match` : ""}`}
+      title={score ? `${grade} catalog-planning tier · ${score} modelled overall match` : `${grade} catalog-planning tier`}
       className={`inline-flex shrink-0 items-center justify-center border font-display font-bold leading-none ${compact ? "h-7 min-w-7 px-1 text-xs" : "h-10 min-w-10 px-2 text-lg"} ${tones[grade]}`}
     >
-      {displayTier[grade]}
+      {grade}
     </span>
   );
 }
