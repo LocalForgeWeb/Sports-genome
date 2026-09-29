@@ -24,7 +24,7 @@ const startButton = () => screen.getByRole("button", { name: /start workout/i })
 const restClock = () => document.querySelector(".session-prestart-stepper b")!.textContent;
 
 beforeEach(() => { window.localStorage.clear(); });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.useRealTimers(); });
 
 /**
  * Handoff 08. Before a session starts, this screen states the day, its place in
@@ -172,6 +172,31 @@ describe("a day already trained", () => {
     seed([finished({ id: running.id, startedAt: running.startedAt })]);
     fireEvent.click(screen.getByRole("button", { name: /finish workout early/i }));
     expect(doneLine()!.textContent).toContain("Done today · 1 set recorded");
+  });
+
+  it("appears when a set is logged on a workout another tab already finished", () => {
+    mount();
+    fireEvent.click(startButton());
+    const [running] = loadDeviceWorkoutSessions();
+    seed([finished({ id: running.id, startedAt: running.startedAt })]);
+    // Log set, +15s, Skip and End rest all go through the same change path.
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+    expect(document.querySelector(".session-prestart")).toBeTruthy();
+    expect(doneLine()!.textContent).toContain("Done today · 1 set recorded");
+  });
+
+  it("names the day it was done when that was earlier this week", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    // Local times, so the weekdays hold in any time zone: Wednesday 30 September 2026.
+    vi.setSystemTime(new Date(2026, 8, 30, 12, 0));
+    const monday = new Date(2026, 8, 28, 18, 0);
+    seed([finished({ startedAt: monday.toISOString(), completedAt: monday.toISOString() })]);
+    mount();
+    const text = doneLine()!.textContent!.trim();
+    expect(text.startsWith("Done ")).toBe(true);
+    expect(text).not.toContain("today");
+    expect(text).toContain(monday.toLocaleDateString(undefined, { weekday: "short" }));
+    expect(text).toContain("1 set recorded");
   });
 
   it("says nothing with no finished workout for this day this week", () => {

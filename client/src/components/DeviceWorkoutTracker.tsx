@@ -327,6 +327,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     if (!current) return;
     const latest = loadDeviceWorkoutSessions().find((session) => session.id === current.id);
     if (latest && latest.status !== "active") {
+      setHistory(loadDeviceWorkoutSessions());
       setActiveSession(null);
       setResumed(false);
       toast("This workout was closed in another tab", { id: "session-closed-elsewhere", description: "It was finished there, and its record is saved." });
