@@ -22,9 +22,8 @@ const copySources = [
   join(uiRoot, "lib/bodyLabRoleContext.ts"),
 ].filter(
   path =>
-    // The primitive itself, and a component gallery that nothing imports or routes -
-    // neither is copy an athlete can reach.
-    !path.endsWith("components/ui/table.tsx") && !path.endsWith("pages/ComponentShowcase.tsx")
+    // The table primitive itself is not copy an athlete reads.
+    !path.endsWith("components/ui/table.tsx")
 );
 
 /** Quoted strings long enough to be prose rather than an identifier or class name. */
