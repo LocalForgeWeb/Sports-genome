@@ -33,7 +33,12 @@ export function EmailAuthScreen({ onAuthenticated, loading }: { onAuthenticated:
     event.preventDefault();
     if (mode === "register" && password !== confirmPassword) return toast.error("Passwords do not match");
     if (mode === "register" && password.length < 12) return toast.error("Use at least 12 characters for your password");
-    const result = mode === "register" ? await register.mutateAsync({ email, password }) : await signIn.mutateAsync({ email, password });
+    let result;
+    try {
+      result = mode === "register" ? await register.mutateAsync({ email, password }) : await signIn.mutateAsync({ email, password });
+    } catch {
+      return toast.error(mode === "register" ? "Could not create your account right now. Check your connection and try again." : "Could not sign in right now. Check your connection and try again.");
+    }
     if (!result.ok) return toast.error(result.code === "EMAIL_EXISTS" ? "An account already uses that email" : result.code === "TEMPORARILY_LOCKED" ? "Too many attempts. Please wait and try again." : "Email or password is incorrect");
     if (mode === "register" && passkeySupported) {
       setOfferPasskey(true);
