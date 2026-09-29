@@ -3,6 +3,7 @@ import {
   displayPrescription,
   formatPrescription,
   parsePrescription,
+  renderableSetCount,
   repsForSet,
   setCount,
   uniformReps,
@@ -186,6 +187,25 @@ describe("what the rest of the app reads", () => {
     expect(repsForSet("3 × 8–12", 1)).toBe("8–12");
     // Past the end, the last set is the sensible answer rather than a blank.
     expect(repsForSet("2 × 10/8", 5)).toBe("8");
+  });
+});
+
+/** The number of set rows every logging surface builds for a prescription. */
+describe("renderableSetCount", () => {
+  it("reads the planned number of work sets from common prescription formats", () => {
+    expect(renderableSetCount("4 × 3–5")).toBe(4);
+    expect(renderableSetCount("3 x 8–12")).toBe(3);
+    expect(renderableSetCount("4 × 10/8/6/6")).toBe(4);
+  });
+
+  it("uses a safe default and prevents impractical set-log counts", () => {
+    expect(renderableSetCount("RPE 8, autoregulated")).toBe(3);
+    expect(renderableSetCount("20 × 1")).toBe(12);
+  });
+
+  it("caps the rows without changing what the prescription says", () => {
+    expect(setCount("20 × 15")).toBe(20);
+    expect(renderableSetCount("20 × 15")).toBe(12);
   });
 });
 
