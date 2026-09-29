@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
@@ -18,9 +18,10 @@ vi.mock("@/lib/trpc", () => ({
   },
 }));
 
+import { resetSessionExpiryNoticeForTests, shouldNoticeExpiry } from "@/lib/sessionExpiryNotice";
 import { useAuth } from "./useAuth";
 
-beforeEach(() => { window.localStorage.clear(); me.current = { id: 7, name: "Sam" }; });
+beforeEach(() => { window.localStorage.clear(); me.current = { id: 7, name: "Sam" }; resetSessionExpiryNoticeForTests(); });
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe("useAuth and device storage", () => {
@@ -40,5 +41,26 @@ describe("useAuth and device storage", () => {
     window.localStorage.setItem("sports-genome-user-info", JSON.stringify({ id: 7, name: "Sam" }));
     renderHook(() => useAuth());
     expect(window.localStorage.getItem("sports-genome-user-info")).toBeNull();
+  });
+});
+
+describe("useAuth and the sign-in expiry notice", () => {
+  const refused = { data: { code: "UNAUTHORIZED" } };
+
+  it("lets a later refusal read as a lapse once the account has answered", () => {
+    renderHook(() => useAuth());
+    expect(shouldNoticeExpiry(refused, 1_000)).toBe(true);
+  });
+
+  it("keeps quiet on a device with no account", () => {
+    me.current = null;
+    renderHook(() => useAuth());
+    expect(shouldNoticeExpiry(refused, 1_000)).toBe(false);
+  });
+
+  it("keeps quiet after the athlete signs out", async () => {
+    const { result } = renderHook(() => useAuth());
+    await act(async () => { await result.current.logout(); });
+    expect(shouldNoticeExpiry(refused, 1_000)).toBe(false);
   });
 });
