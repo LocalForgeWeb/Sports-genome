@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -54,6 +54,9 @@ const removeButton = (title: string) => screen.getByRole("button", { name: new R
 describe("a finished workout on this device can be taken back from Progress", () => {
   beforeEach(seed);
   afterEach(() => {
+    // Unmount first, so a dialog left open does not keep its window key listener
+    // catching Escape and Tab in the tests after it.
+    cleanup();
     document.body.innerHTML = "";
     localStorage.clear();
     mocks.accountSessions = [];
@@ -84,6 +87,24 @@ describe("a finished workout on this device can be taken back from Progress", ()
     expect(body).toContain("This cannot be undone.");
     // Nothing is gone until the athlete confirms.
     expect(loadDeviceWorkoutSessions().map((session) => session.id)).toEqual(["push", "pull", "live"]);
+  });
+
+  // Runs straight after a test that ends with the question still open.
+  it("lets Escape and Tab reach the page again once Progress closes with the question open", () => {
+    const { unmount } = renderPanel();
+    fireEvent.click(removeButton("Pull"));
+    expect(screen.getByRole("alertdialog")).toBeTruthy();
+    unmount();
+    const page = vi.fn();
+    window.addEventListener("keydown", page);
+    try {
+      fireEvent.keyDown(document.body, { key: "Escape" });
+      const tabAllowed = fireEvent.keyDown(document.body, { key: "Tab" });
+      expect(page).toHaveBeenCalledTimes(2);
+      expect(tabAllowed).toBe(true);
+    } finally {
+      window.removeEventListener("keydown", page);
+    }
   });
 
   it("removes only that workout once confirmed, and the list follows the device", () => {
