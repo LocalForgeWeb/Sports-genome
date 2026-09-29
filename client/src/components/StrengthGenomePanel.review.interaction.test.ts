@@ -3,7 +3,7 @@ import React from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined), toastError: vi.fn(), setPriorityOptions: {} as { onError?: () => void } }));
+const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined), toastError: vi.fn(), toastSuccess: vi.fn(), setPriorityOptions: {} as { onError?: () => void } }));
 
 vi.mock("@/lib/trpc", () => ({
   trpc: {
@@ -14,7 +14,7 @@ vi.mock("@/lib/trpc", () => ({
     // The muscle-rank route: no answer here keeps the map in the coverage view these tests describe.
     strengthProfile: { muscleRanks: { useQuery: () => ({ data: undefined }) } },
     researchEvidence: { supabaseInventory: { useQuery: () => ({ data: { status: "unavailable" } }) } },
-    // The repair router backs the "remove this test" control in the history list.
+    // The repair router backs the "remove this lift" control in the history list.
     repair: { deleteStrengthObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) } },
     strengthGenome: {
       overview: { useQuery: () => ({ data: { regions: [], athleteConfirmedPriorityRegionIds: [], nextAction: "Add a result" } }) },
@@ -35,7 +35,7 @@ vi.mock("@/lib/trpc", () => ({
   },
 }));
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: mocks.feedback }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: mocks.toastError } }));
+vi.mock("sonner", () => ({ toast: { success: mocks.toastSuccess, error: mocks.toastError } }));
 
 import { deviceStrengthObservationKey } from "@/lib/deviceStrengthObservations";
 import { StrengthGenomePanel } from "./StrengthGenomePanel";
@@ -45,6 +45,7 @@ describe("Strength Genome direct Review workflow", () => {
     mocks.feedback.mockReset();
     mocks.mutate.mockReset();
     mocks.toastError.mockReset();
+    mocks.toastSuccess.mockReset();
     localStorage.setItem(deviceStrengthObservationKey, JSON.stringify([{ id: "device-review", exerciseName: "Preacher Curl", observedAt: "2026-08-28T12:00:00.000Z", measurementType: "MULTI_REP", loadKg: 36.2873896, repetitions: 10, bodyMassKgAtTest: 81.6466266 }]));
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { callback(0); return 1; });
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
@@ -138,5 +139,17 @@ describe("Strength Genome direct Review workflow", () => {
     expect(mocks.mutate).toHaveBeenCalledWith({ regionId: "chest", active: true });
     mocks.setPriorityOptions.onError?.();
     expect(mocks.toastError).toHaveBeenCalledWith("Focus was not saved. Check your connection and try again.");
+  });
+
+  it("calls a logged lift a lift through the whole remove flow", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    // The row sits inside the closed Recent lifts list.
+    fireEvent.click(screen.getByRole("button", { name: /^Remove the Preacher Curl lift from /, hidden: true }));
+    expect(within(screen.getByRole("alertdialog")).getByText("Remove this lift?")).toBeTruthy();
+    expect(screen.getByText(/^The Preacher Curl lift from .* is deleted\./)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Remove lift" }));
+    expect(mocks.toastSuccess).toHaveBeenCalledWith("Lift removed from this device.");
+    expect(localStorage.getItem(deviceStrengthObservationKey) ?? "").not.toContain("device-review");
+    expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 });

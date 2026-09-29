@@ -112,7 +112,7 @@ describe("Strength region body-mass completion", () => {
     expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
 
     expect(screen.queryByText(/Recorded history/)).toBeNull();
-    const picker = screen.getByLabelText("Choose recorded test") as HTMLSelectElement;
+    const picker = screen.getByLabelText("Which lift to show") as HTMLSelectElement;
     fireEvent.change(picker, { target: { value: "102" } });
     // The picker itself names the selected test, so assert the displayed record actually
     // switched rather than looking for a duplicate name beneath it.

@@ -284,7 +284,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     {rankMode && (regionRank ? <RankCard regionRank={regionRank} /> : <UnscoredRankCard hasRecords={records.length > 0} />)}
     {latestRecord ? <>
       <article className="strength-region-record-card">
-        {records.length > 1 ? <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Choose recorded test" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label> : <span className="strength-region-test-name">{latestRecord.exerciseName}</span>}
+        {records.length > 1 ? <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Which lift to show" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label> : <span className="strength-region-test-name">{latestRecord.exerciseName}</span>}
         {strengthTrend ? <article className="strength-reference-matched strength-reference-primary strength-rating-card" style={{ borderColor: changeStateCopy[strengthTrend.changeState].tone }}>
           <p className="metric-label">Your rating on this lift</p>
           <strong className="strength-body-mass-ratio" style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{strengthTrend.relativeChangePercent >= 0 ? "+" : ""}{strengthTrend.relativeChangePercent.toFixed(0)}%</strong>
@@ -503,10 +503,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const removeObservation = trpc.repair.deleteStrengthObservation.useMutation({
     onSuccess: async () => {
       setObservationRemovalError(null);
-      toast.success("Test removed. Your history and comparisons no longer count it.");
+      toast.success("Lift removed. Your history and comparisons no longer count it.");
       await Promise.all([utils.strengthGenome.observations.invalidate(), utils.strengthGenome.overview.invalidate()]);
     },
-    onError: () => setObservationRemovalError("That test was not removed. Check your connection and try again."),
+    onError: () => setObservationRemovalError("That lift was not removed. Check your connection and try again."),
   });
   const prefilledPiperDeclaration: PiperReferenceDeclaration = { ...emptyPiperDeclaration, sex: mapSexForPiper(sexForReference), ageYears: ageFromBirthYear(birthYear) };
   const prefilledPowerliftingDeclaration: PowerliftingReferenceDeclaration = { ...emptyPowerliftingDeclaration, sex: mapSexForPowerlifting(sexForReference), ageYears: ageFromBirthYear(birthYear) };
@@ -746,16 +746,16 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
 
   const requestObservationRemoval = (observation: StrengthObservationRecord) =>
     setPendingObservationRemoval({
-      title: "Remove this test?",
-      body: `The ${observation.exerciseName} test from ${new Date(observation.observedAt).toLocaleDateString()} is deleted. It stops counting in your history, your change tracking, and any comparison drawn from it. This cannot be undone.`,
-      confirmLabel: "Remove test",
+      title: "Remove this lift?",
+      body: `The ${observation.exerciseName} lift from ${new Date(observation.observedAt).toLocaleDateString()} is deleted. It stops counting in your history, your change tracking, and any comparison drawn from it. This cannot be undone.`,
+      confirmLabel: "Remove lift",
       onConfirm: () => {
         setPendingObservationRemoval(null);
         setObservationRemovalError(null);
         if (directAccess) {
           persistDeviceObservations(removeDeviceStrengthObservation(deviceObservations, String(observation.id)));
           emitInteractionFeedback([10, 30, 10]);
-          toast.success("Test removed from this device.");
+          toast.success("Lift removed from this device.");
           return;
         }
         removeObservation.mutate({ observationId: Number(observation.id) });
@@ -931,7 +931,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       <summary><Dumbbell className="h-5 w-5" aria-hidden="true" /><span>Recent lifts</span><small>· {activeObservations.length} {recordWord}</small><ChevronDown className="h-5 w-5 strength-disclosure-chevron" aria-hidden="true" /></summary>
       <div className="strength-progress-log">
         {activeObservations.length > 0 && <p className="strength-recent-scope">{recentObservations.length < activeObservations.length ? `The latest ${recentObservations.length} of ${activeObservations.length}. ` : ""}{workoutObservations.length ? `${workoutObservations.length} carried across from finished workouts${directAccess ? ", saved on this device only" : ""}.` : (directAccess ? "Saved on this device only." : "")}</p>}
-        {recentObservations.length ? <div className="strength-recent-rows">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div id={`strength-recent-${observation.id}`}><p className="strength-recent-name">{observation.exerciseName}</p><p className="strength-recent-meta">{observation.source === "workout" ? `From ${observation.sessionLabel || "a workout"}` : measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div><div className="strength-log-row-actions">{strengthRegionIdsForExerciseName(observation.exerciseName).length > 0 && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} describedBy={`strength-recent-${observation.id}`} />}{observation.source !== "workout" && <button type="button" className="strength-log-remove" disabled={removeObservation.isPending} onClick={() => requestObservationRemoval(observation as StrengthObservationRecord)} aria-label={`Remove the ${observation.exerciseName} test from ${new Date(observation.observedAt).toLocaleDateString()}`} title="Remove this test"><Trash2 className="h-3.5 w-3.5" /></button>}</div></div>)}</div> : <div className="strength-log-empty"><Activity className="h-5 w-5" /><p><strong>Nothing logged yet</strong></p><p>Log your first lift and your progress starts tracking from there.</p></div>}{observationRemovalError && <p className="strength-log-remove-error" role="alert">{observationRemovalError}</p>}
+        {recentObservations.length ? <div className="strength-recent-rows">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div id={`strength-recent-${observation.id}`}><p className="strength-recent-name">{observation.exerciseName}</p><p className="strength-recent-meta">{observation.source === "workout" ? `From ${observation.sessionLabel || "a workout"}` : measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div><div className="strength-log-row-actions">{strengthRegionIdsForExerciseName(observation.exerciseName).length > 0 && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} describedBy={`strength-recent-${observation.id}`} />}{observation.source !== "workout" && <button type="button" className="strength-log-remove" disabled={removeObservation.isPending} onClick={() => requestObservationRemoval(observation as StrengthObservationRecord)} aria-label={`Remove the ${observation.exerciseName} lift from ${new Date(observation.observedAt).toLocaleDateString()}`} title="Remove this lift"><Trash2 className="h-3.5 w-3.5" /></button>}</div></div>)}</div> : <div className="strength-log-empty"><Activity className="h-5 w-5" /><p><strong>Nothing logged yet</strong></p><p>Log your first lift and your progress starts tracking from there.</p></div>}{observationRemovalError && <p className="strength-log-remove-error" role="alert">{observationRemovalError}</p>}
       </div>
     </details>
 
