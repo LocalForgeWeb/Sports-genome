@@ -50,6 +50,9 @@ describe("browsing a sport never changes the athlete's own", () => {
     // The one path that reaches chooseSport from a reference screen is the
     // explicit button, and it clears the overlay it came from.
     expect(source).toContain("onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }}");
+    // The cost is said before the tap, and only when there is a plan's sport to
+    // replace: chooseSport clears nothing for an athlete with no sport yet.
+    expect(source.match(/adoptClearsDays=\{Boolean\(sportId\)\}/g)).toHaveLength(2);
   });
 
   it("drops the overlay on leaving the reference library, so it never becomes a hidden mode", () => {
