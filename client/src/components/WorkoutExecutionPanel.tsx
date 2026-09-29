@@ -85,7 +85,7 @@ function SetLogger({ setNumber, target, setLog, unit, onSave, onClear, pending, 
   </div>;
 }
 
-export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportId, goal, dayLabel, isAuthenticated, onSignIn, bodyWeight, weightUnit, onApproveProgression, onApproveSegment, onAddSegmentSuggestion }: {
+export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportId, goal, dayLabel, isAuthenticated, onSignIn, bodyWeight, weightUnit, availableEquipment, onApproveProgression, onApproveSegment, onAddSegmentSuggestion }: {
   workout: Exercise[];
   prescriptions: Record<number, string>;
   settings: Record<number, ExerciseSettings>;
@@ -96,6 +96,7 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
   onSignIn: () => void;
   bodyWeight?: number;
   weightUnit?: "lb" | "kg";
+  availableEquipment?: string[];
   onApproveProgression?: (recommendation: ExerciseProgressionRecommendation) => void;
   onApproveSegment?: (signal: MuscleSegmentSignal) => void;
   onAddSegmentSuggestion?: (suggestion: SegmentPrioritySuggestion) => void;
@@ -174,5 +175,5 @@ export function WorkoutExecutionPanel({ workout, prescriptions, settings, sportI
     {pendingSetRemoval && <ConfirmDialog {...pendingSetRemoval} onCancel={() => setPendingSetRemoval(null)} />}
   </section>;
 
-  return <section id="workout-tracker" className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Ready to train.</h3><p>Each logged set records actual weight, reps, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{startMutation.isError && <p className="session-set-error" role="alert">That workout could not be started. A very long per-set target can exceed what the session record holds — shorten it, or split the exercise.</p>}{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} onApprove={handleProgressionApproval} onApproveSegment={handleSegmentApproval} onAddSuggestion={handleSegmentSuggestion} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
+  return <section id="workout-tracker" className="workout-execution-panel"><div className="execution-head"><div><p className="metric-label">Workout execution</p><h3>Ready to train.</h3><p>Each logged set records actual weight, reps, and completion in your account—not just the planned prescription.</p></div><button onClick={startWorkout} disabled={!workout.length || startMutation.isPending}>{startMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Start workout</button></div>{startMutation.isError && <p className="session-set-error" role="alert">That workout could not be started. A very long per-set target can exceed what the session record holds — shorten it, or split the exercise.</p>}{resumable && <button className="resume-workout" onClick={() => setActiveSessionId(resumable.id)}><Dumbbell className="h-4 w-4" /><span>Resume active: <strong>{resumable.title}</strong></span></button>}<ProgressionReviewPanel workout={workout} prescriptions={prescriptions} settings={settings} bodyWeight={bodyWeight} weightUnit={weightUnit} availableEquipment={availableEquipment} onApprove={handleProgressionApproval} onApproveSegment={handleSegmentApproval} onAddSuggestion={handleSegmentSuggestion} /><WorkoutHistoryTimeline sessions={historyQuery.data || []} isLoading={historyQuery.isLoading} /></section>;
 }
