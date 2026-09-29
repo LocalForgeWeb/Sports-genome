@@ -11,12 +11,17 @@ const tones: Record<Grade, string> = {
   F: "bg-white text-[#a1a5a1] border-[#e6e5df]",
 };
 
-export function GradeStamp({ grade, score, compact = false }: { grade: Grade; score?: number; compact?: boolean }) {
+/**
+ * The same letter scale carries more than one fact (the catalog tier, the
+ * contextual fit, a muscle's involvement), so `label` names which one this is.
+ */
+export function GradeStamp({ grade, score, compact = false, label = "Catalog planning tier" }: { grade: Grade; score?: number; compact?: boolean; label?: string }) {
+  const name = `${label} ${grade}`;
   return (
     <span
       role="img"
-      aria-label={`Catalog planning tier ${grade}${score ? `, ${score} modelled overall match` : ""}`}
-      title={score ? `${grade} catalog-planning tier · ${score} modelled overall match` : `${grade} catalog-planning tier`}
+      aria-label={score ? `${name}, ${score} modelled overall match` : name}
+      title={score ? `${name} · ${score} modelled overall match` : name}
       className={`inline-flex shrink-0 items-center justify-center border font-display font-bold leading-none ${compact ? "h-7 min-w-7 px-1 text-xs" : "h-10 min-w-10 px-2 text-lg"} ${tones[grade]}`}
     >
       {grade}

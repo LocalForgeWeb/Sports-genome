@@ -7,7 +7,7 @@ import { GradeStamp } from "./GradeStamp";
 
 const grades: Grade[] = ["SS", "S", "A", "B", "C", "D", "F"];
 
-function stamp(props: { grade: Grade; score?: number; compact?: boolean }) {
+function stamp(props: { grade: Grade; score?: number; compact?: boolean; label?: string }) {
   const { container } = render(createElement(GradeStamp, props));
   const element = container.querySelector("span");
   if (!element) throw new Error("GradeStamp rendered no span");
@@ -23,7 +23,7 @@ describe("GradeStamp", () => {
     const element = stamp({ grade, compact: true });
     expect(element.textContent).toBe(grade);
     expect(element.getAttribute("aria-label")).toBe(`Catalog planning tier ${grade}`);
-    expect(element.getAttribute("title")).toBe(`${grade} catalog-planning tier`);
+    expect(element.getAttribute("title")).toBe(`Catalog planning tier ${grade}`);
   });
 
   it("adds the modelled match to the name without changing the letter", () => {
@@ -42,5 +42,20 @@ describe("GradeStamp", () => {
 
     render(createElement(GradeStamp, { grade: "B" }));
     expect(screen.getByRole("img", { name: "Catalog planning tier B" }).textContent).toBe("B");
+  });
+
+  // The same letters also grade contextual fit and a muscle's involvement; a
+  // stamp for either must not be announced as the exercise's catalog tier.
+  it("is announced by the label it is given, in the name and the hover title", () => {
+    render(createElement(GradeStamp, { grade: "B", label: "Contextual fit", compact: true }));
+    const named = screen.getByRole("img", { name: "Contextual fit B" });
+    expect(named.textContent).toBe("B");
+    expect(named.getAttribute("title")).toBe("Contextual fit B");
+    expect(screen.queryByRole("img", { name: /Catalog planning tier/ })).toBeNull();
+    cleanup();
+
+    const element = stamp({ grade: "A", score: 82, label: "Muscle involvement tier" });
+    expect(element.getAttribute("aria-label")).toBe("Muscle involvement tier A, 82 modelled overall match");
+    expect(element.getAttribute("title")).toBe("Muscle involvement tier A · 82 modelled overall match");
   });
 });
