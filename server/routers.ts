@@ -144,7 +144,7 @@ export const appRouter = router({
       .input(
         z.object({
           email: z.string().trim().email().max(320),
-          response: z.object({ id: z.string() }).passthrough(),
+          response: z.object({ id: z.string().min(1).max(1400) }).passthrough(),
         })
       )
       .mutation(({ ctx, input }) =>
