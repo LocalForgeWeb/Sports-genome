@@ -110,7 +110,10 @@ describe("a finished workout on this device can be taken back from Progress", ()
   it("removes only that workout once confirmed, and the list follows the device", () => {
     renderPanel();
     expect(screen.getByText("2 total")).toBeTruthy();
-    fireEvent.click(removeButton("Push"));
+    // Reached from the keyboard, so the button holds focus when it asks.
+    const opener = removeButton("Push");
+    opener.focus();
+    fireEvent.click(opener);
     fireEvent.click(screen.getByRole("button", { name: "Remove workout" }));
 
     expect(loadDeviceWorkoutSessions().map((session) => session.id)).toEqual(["pull", "live"]);
@@ -119,6 +122,9 @@ describe("a finished workout on this device can be taken back from Progress", ()
     expect(removeButton("Pull")).toBeTruthy();
     expect(screen.getByText("1 total")).toBeTruthy();
     expect(mocks.success).toHaveBeenCalledWith("Workout removed from this device.");
+    // The button left with its workout; focus stays with the list, not the top of the page.
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Your completed sessions." }));
   });
 
   it("takes the removed workout's unsent lifts out of the account outbox, and leaves the rest", () => {

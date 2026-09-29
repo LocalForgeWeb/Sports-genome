@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { UniversalSearch } from "./UniversalSearch";
@@ -104,6 +104,64 @@ describe("ConfirmDialog keyboard behaviour", () => {
     expect(document.activeElement).not.toBe(opener);
     unmount();
     expect(document.activeElement).toBe(opener);
+  });
+
+  /**
+   * A list whose rows each carry their own Remove button, like Progress's recorded
+   * workouts or the Strength Genome's recent lifts: confirming takes away the row, and
+   * with it the button that asked the question.
+   */
+  function RemovableRows({ onConfirmed }: { onConfirmed?: () => void }) {
+    const [rows, setRows] = React.useState(["Push", "Pull"]);
+    const [asking, setAsking] = React.useState<string | null>(null);
+    return React.createElement("main", null,
+      React.createElement("section", { "aria-label": "Recorded workouts" },
+        React.createElement("h2", null, "Your completed sessions."),
+        React.createElement("ul", null, rows.map((row) => React.createElement("li", { key: row },
+          React.createElement("button", { type: "button", onClick: () => setAsking(row) }, `Remove ${row}`)))),
+        React.createElement("button", { type: "button" }, "Open your plan")),
+      asking && React.createElement(ConfirmDialog, {
+        ...request,
+        onConfirm: () => { setAsking(null); setRows((current) => current.filter((row) => row !== asking)); onConfirmed?.(); },
+        onCancel: () => setAsking(null),
+      }));
+  }
+
+  it("hands focus to the list's heading when confirming removes the control that asked", () => {
+    render(React.createElement(RemovableRows));
+    const opener = screen.getByRole("button", { name: "Remove Push" });
+    opener.focus();
+    fireEvent.click(opener);
+    fireEvent.click(screen.getByRole("button", { name: "Remove set" }));
+
+    expect(opener.isConnected).toBe(false);
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Your completed sessions." }));
+    // The heading takes focus only while it has it; it does not join the Tab order.
+    const heading = document.activeElement as HTMLElement;
+    expect(heading.tabIndex).toBe(-1);
+    heading.blur();
+    expect(heading.hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("still gives focus back to the control that asked when cancelling leaves it in place", () => {
+    render(React.createElement(RemovableRows));
+    const opener = screen.getByRole("button", { name: "Remove Pull" });
+    opener.focus();
+    fireEvent.click(opener);
+    fireEvent.click(within(screen.getByRole("alertdialog")).getByText("Cancel"));
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it("leaves focus where the page put it when confirming already moved it on", () => {
+    let planButton: HTMLElement | null = null;
+    render(React.createElement(RemovableRows, { onConfirmed: () => planButton?.focus() }));
+    planButton = screen.getByRole("button", { name: "Open your plan" });
+    const opener = screen.getByRole("button", { name: "Remove Push" });
+    opener.focus();
+    fireEvent.click(opener);
+    fireEvent.click(screen.getByRole("button", { name: "Remove set" }));
+    expect(document.activeElement).toBe(planButton);
   });
 
   it("leaves focus on Confirm when the page re-renders the dialog", () => {

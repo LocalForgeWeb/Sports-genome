@@ -17,6 +17,40 @@ export type ConfirmDialogRequest = {
   onCancel?: () => void;
 };
 
+const regionSelector = "section, [role='region'], main";
+const headingSelector = "h1, h2, h3, h4, h5, h6, [role='heading']";
+
+/** The sections, regions and main landmark that hold an element, nearest first. */
+function regionsAround(element: HTMLElement): HTMLElement[] {
+  const regions: HTMLElement[] = [];
+  for (let node = element.parentElement; node; node = node.parentElement) {
+    if (node.matches(regionSelector)) regions.push(node);
+  }
+  return regions;
+}
+
+/** Focus fell to the page itself, or sits on something no longer on it. */
+function focusWasLost(): boolean {
+  const active = document.activeElement;
+  return !active || active === document.body || !active.isConnected;
+}
+
+/**
+ * Puts focus on a region's first heading, or the region itself when it has none,
+ * so a keyboard or screen-reader athlete carries on where they were. A heading
+ * takes focus only while it holds it and never joins the Tab order.
+ */
+function focusRegion(region: HTMLElement, layer: HTMLElement | null) {
+  const heading = Array.from(region.querySelectorAll<HTMLElement>(headingSelector)).find((candidate) => !layer?.contains(candidate));
+  const target = heading ?? region;
+  const madeFocusable = !target.hasAttribute("tabindex");
+  if (madeFocusable) target.setAttribute("tabindex", "-1");
+  target.focus({ preventScroll: true });
+  if (!madeFocusable) return;
+  if (document.activeElement === target) target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
+  else target.removeAttribute("tabindex");
+}
+
 /**
  * Tier C confirmation per the philosophy's Reversible-action and destructive-confirmation
  * contract: names the affected object and consequence, and is visually distinguished (red,
@@ -35,6 +69,10 @@ export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel
   // to whatever asked the question once it is answered.
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
+    // Confirming a removal often takes the asking control away with its row. The
+    // sections around it, nearest first, are where focus goes instead.
+    const surroundings = opener ? regionsAround(opener) : [];
+    const layer = layerRef.current;
     cancelRef.current?.focus({ preventScroll: true });
     const onKey = (event: KeyboardEvent) => {
       // A layer opened over the question, such as search, handles its own keys.
@@ -58,7 +96,10 @@ export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel
     window.addEventListener("keydown", onKey, true);
     return () => {
       window.removeEventListener("keydown", onKey, true);
-      if (opener?.isConnected) opener.focus({ preventScroll: true });
+      if (opener?.isConnected) { opener.focus({ preventScroll: true }); return; }
+      if (!focusWasLost()) return;
+      const region = surroundings.find((candidate) => candidate.isConnected);
+      if (region) focusRegion(region, layer);
     };
     // The opener belongs to this one question.
     // eslint-disable-next-line react-hooks/exhaustive-deps
