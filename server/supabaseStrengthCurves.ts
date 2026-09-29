@@ -1,5 +1,6 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import { BoundedCache, withTimeout } from "./boundedCache";
+import { comparableName, numberOrNull, textOrNull } from "./rowValues";
 import {
   curvePlacement,
   resolveStrengthPercentile,
@@ -64,16 +65,6 @@ const normMethods: StrengthNormMethod[] = [
 const curveUnits: StrengthCurveUnit[] = ["x_bodyweight", "kg", "lb", "lb_1rm", "reps"];
 
 const CURVE_SELECT = "exercise_id,sex,normalization_method,unit,source_role,confidence_cap,percentile,value,source_study_id";
-
-function numberOrNull(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string" && value.trim() && Number.isFinite(Number(value))) return Number(value);
-  return null;
-}
-
-function textOrNull(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
 
 /**
  * Turns anchor rows into one curve.
@@ -165,10 +156,6 @@ export function catalogIdFromCanonicalName(canonicalName: string): number | null
   if (!match) return null;
   const parsed = Number(match[1]);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
-}
-
-function comparableName(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 /**
