@@ -24,7 +24,8 @@
 .movement-intelligence-head h3 { margin-top: .35rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 800; line-height: .85; text-transform: uppercase; }
 .movement-intelligence-head p:last-child { margin-top: .65rem; max-width: 48rem; font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); color: var(--sg-text-muted-on-dark); }
 .confidence-badge { align-self: flex-start; max-width: 7.5rem; border: 1px solid rgb(255 255 255 / .35); padding: .38rem .55rem; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-snug); text-transform: uppercase; white-space: normal; }
-.confidence-high { color: #c7f3de; }.confidence-moderate { color: #ffe1a6; }.confidence-limited { color: #ffd0c2; }
+/* One neutral colour at every level: the word carries the level, and a traffic-light hue would read "limited confidence" as a bad result. */
+.confidence-badge { color: var(--sg-text-muted-on-dark); }
 
 .movement-joint-grid { display: grid; gap: .75rem; padding: 1rem 1.35rem; border-bottom: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light-sunken); }
 .movement-joint-grid > div { padding-left: .75rem; border-left: 2px solid #71aef4; }
