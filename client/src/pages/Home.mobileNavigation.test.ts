@@ -90,9 +90,11 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('setRailOpen');
     expect(source).toContain('<div className="mobile-workspace-dock" aria-label="Primary workspace navigation">');
     expect(css).toContain('@media (min-width: 1024px) {\n  .apex-content { padding-bottom: 6.25rem; }');
+    // No sidebar is rendered, so none of its rules may linger in the stylesheets.
+    for (const styles of [css, mobileStyles, trainingDayStyles]) expect(styles).not.toMatch(/\.apex-rail|\.rail-[a-z]/);
   });
 
-  it("colours the shell by destination and keeps a non-neon active state", () => {
+  it("colours the shell by destination and keeps the old Gym Optimizer brand out", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('shell-${activePrimaryDestination}');
     expect(source).toContain('destination-${activePrimaryDestination}');
@@ -103,9 +105,6 @@ describe("workspace side navigation", () => {
     expect(source).toContain("guides={<div className=\"about-me-guides\">");
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
-    expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
-    expect(css).toContain('box-shadow: inset 4px 0 var(--sg-gold)');
-    expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
   });
 
   it("uses the supplied circular badge as a larger natural onboarding mark without changing title or progress controls", () => {
@@ -192,8 +191,6 @@ describe("workspace side navigation", () => {
     expect(css).toContain('min-height: 4.25rem;');
     expect(css).toContain('touch-action: manipulation;');
     expect(css).toContain('font-size: var(--sg-text-xs);');
-    expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');
-    expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');
   });
 
   /**

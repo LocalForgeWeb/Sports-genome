@@ -33,7 +33,6 @@
   .planning-disclosure-row { grid-template-columns: 1fr; gap: .5rem; }
   .planning-disclosure-card summary, .planning-evidence-card summary { min-height: 44px; padding: .45rem .65rem; }
   .planning-disclosure-detail, .planning-evidence-card > div { padding: .65rem; }
-  .rail-nav-item { min-height: 48px; }
   .genome-panel { margin-top: 14px; }
   .genome-panel-head { align-items: center; gap: .75rem; padding: .9rem; }
   .genome-panel-head h3 { max-width: 220px; font-size: 1.8rem; line-height: .86; }
