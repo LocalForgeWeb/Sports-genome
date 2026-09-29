@@ -175,9 +175,14 @@ export async function flushSyncQueue(
   // Only a rejection that one row can cause earns that retry. An expired session, a refused policy
   // or an outage turns every row down alike, and sending each alone would cost one more request
   // per lift on every flush for nothing.
+  // Each row is checked against the stored queue before it goes: a workout removed while these
+  // requests run prunes its lifts from storage, and `rows` is the copy taken before the first
+  // send. A pruned lift is neither sent nor counted as turned down.
   let dropped = false;
+  let withdrawn = 0;
   if (batchRejected && rows.length > 1 && worthRetryingRowByRow(batchStatus)) {
     for (const row of rows) {
+      if (!loadSyncQueue().some((item) => item.key === row.key)) { withdrawn += 1; continue; }
       try {
         const { error, status } = await supabase.from("athlete_strength_entries").insert([row.payload]);
         if (error && status === 0) { dropped = true; break; }
@@ -196,6 +201,6 @@ export async function flushSyncQueue(
   // lifts from storage; writing the old copy back would restore them and send them later.
   const remaining = loadSyncQueue().filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
   saveSyncQueue(remaining);
-  const reason = landed.size < rows.length ? (dropped ? "offline" : "rejected") : undefined;
+  const reason = landed.size + withdrawn < rows.length ? (dropped ? "offline" : "rejected") : undefined;
   return { sent: landed.size, remaining: remaining.length, skipped: unmappable.length + unsendable.length, reason };
 }

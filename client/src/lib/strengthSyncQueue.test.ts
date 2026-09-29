@@ -2,11 +2,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // The insert is held open by the test, so it can act while the flush waits on the network.
-const insertCalls: { rows: unknown[]; finish: (result: { error: null }) => void }[] = [];
+// Once `reply.with` is set, later inserts are answered at once and only recorded.
+type InsertResult = { error: { code: string } | null; status?: number };
+const insertCalls: { rows: Record<string, unknown>[]; finish: (result: InsertResult) => void }[] = [];
+const reply: { with: ((rows: Record<string, unknown>[]) => InsertResult) | null } = { with: null };
 vi.mock("@/lib/supabaseClient", () => ({
   getSupabaseClient: () => ({
     from: () => ({
-      insert: (rows: unknown[]) => new Promise((resolve) => { insertCalls.push({ rows, finish: resolve }); }),
+      insert: (rows: Record<string, unknown>[]) => new Promise((resolve) => {
+        insertCalls.push({ rows, finish: resolve });
+        if (reply.with) resolve(reply.with(rows));
+      }),
     }),
   }),
 }));
@@ -23,7 +29,7 @@ const lift = (key: string): QueuedLift => ({
   lift: { catalogExerciseId: 1, observedAt: "2026-09-18T12:00:00.000Z", measurementType: "MULTI_REP", reportedLoad: 225, reportedUnit: "lb", repetitions: 8, source: "device" },
 });
 
-beforeEach(() => { window.localStorage.clear(); insertCalls.length = 0; });
+beforeEach(() => { window.localStorage.clear(); insertCalls.length = 0; reply.with = null; });
 
 describe("the outbox between a logged lift and Supabase", () => {
   it("queues a lift that has neither been queued nor sent", () => {
@@ -87,6 +93,53 @@ describe("the outbox between a logged lift and Supabase", () => {
     expect(loadSyncQueue()).toEqual([]);
     expect(result).toMatchObject({ sent: 1, remaining: 0 });
     expect(loadSyncedKeys()).toEqual(["workout-pull-e"]);
+  });
+
+  describe("when a batch is turned down and the rows go one at a time", () => {
+    const withLoad = (key: string, reportedLoad: number): QueuedLift => ({ ...lift(key), lift: { ...lift(key).lift, reportedLoad } });
+    const mapped = () => "00000000-0000-0000-0000-00000000000e";
+    const sentLoads = () => insertCalls.slice(1).map((call) => call.rows[0].reported_load_value);
+    const rejected = { error: { code: "22003" }, status: 400 };
+    const landed = { error: null, status: 201 };
+    // A load past numeric(9,3) overflows the column: Postgres refuses any statement that holds it.
+    const database = (rows: Record<string, unknown>[]) => (rows.some((row) => row.reported_load_value === 2000000) ? rejected : landed);
+
+    it("does not send a removed workout's lift that was pruned while an earlier row was in flight", async () => {
+      // "bad" overflows the load column, so the batch is turned down and each row goes alone.
+      saveSyncQueue([withLoad("workout-w1-e", 100), withLoad("workout-w2-e", 225), withLoad("bad", 2000000)]);
+      const flushing = flushSyncQueue("user-1", mapped);
+      insertCalls[0].finish(rejected);
+      await vi.waitFor(() => expect(insertCalls).toHaveLength(2));
+
+      // The athlete removes workout w2 on Progress while w1's lift is still being sent.
+      saveSyncQueue(loadSyncQueue().filter((item) => item.key !== "workout-w2-e"));
+      reply.with = database;
+      insertCalls[1].finish(landed);
+      const result = await flushing;
+
+      expect(sentLoads()).toEqual([100, 2000000]);
+      expect(result).toMatchObject({ sent: 1, remaining: 1, reason: "rejected" });
+      expect(loadSyncQueue().map((item) => item.key)).toEqual(["bad"]);
+      expect(loadSyncedKeys()).toEqual(["workout-w1-e"]);
+    });
+
+    it("does not report a turned-down lift once the workout it came from was removed", async () => {
+      // The mistyped load is the one the athlete took back, so nothing left in the queue was refused.
+      saveSyncQueue([withLoad("workout-w1-e", 100), withLoad("workout-w2-e", 2000000)]);
+      const flushing = flushSyncQueue("user-1", mapped);
+      insertCalls[0].finish(rejected);
+      await vi.waitFor(() => expect(insertCalls).toHaveLength(2));
+
+      saveSyncQueue(loadSyncQueue().filter((item) => item.key !== "workout-w2-e"));
+      reply.with = database;
+      insertCalls[1].finish(landed);
+      const result = await flushing;
+
+      expect(sentLoads()).toEqual([100]);
+      expect(result).toEqual({ sent: 1, remaining: 0, skipped: 0, reason: undefined });
+      expect(loadSyncQueue()).toEqual([]);
+      expect(loadSyncedKeys()).toEqual(["workout-w1-e"]);
+    });
   });
 
   it("keeps a lift queued while a send was in flight", async () => {
