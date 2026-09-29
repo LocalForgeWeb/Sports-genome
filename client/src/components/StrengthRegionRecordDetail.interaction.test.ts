@@ -79,7 +79,7 @@ describe("Strength region body-mass completion", () => {
     mocks.bodyMassMutation.isPending = true;
     rerender(detailElement());
     openMeasurementDetail(container);
-    expect(screen.getByRole("status").textContent).toContain("Saving body mass for this test");
+    expect(screen.getByRole("status").textContent).toContain("Saving body weight for this lift");
     expect(screen.getByRole("button", { name: "Saving" }).getAttribute("aria-busy")).toBe("true");
     mocks.bodyMassMutation.isPending = false;
     rerender(detailElement());
