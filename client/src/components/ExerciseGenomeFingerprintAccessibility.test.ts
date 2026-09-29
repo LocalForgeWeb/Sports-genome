@@ -50,3 +50,14 @@ describe("Exercise Genome fingerprint labelling", () => {
     expect(markup).not.toContain("genome-fingerprint-legend");
   });
 });
+
+describe("Exercise Genome view tabs", () => {
+  it("says which of the four views is showing, not only with a class", () => {
+    const exercise = exercises.find((item) => item.name === "Seated Leg Curl") || exercises[0];
+    const markup = renderToStaticMarkup(createElement(ExerciseGenomePanel, { exercise, context: { goal: "Muscle growth", currentWorkout: [exercise] } }));
+    const occurrences = (needle: string) => markup.split(needle).length - 1;
+    expect(occurrences('aria-pressed="true"')).toBe(1);
+    expect(occurrences('aria-pressed="false"')).toBe(3);
+    expect(markup).toMatch(/<button type="button" aria-pressed="true" class="genome-tab genome-tab-active">/);
+  });
+});
