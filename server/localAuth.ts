@@ -1,4 +1,4 @@
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, lt } from "drizzle-orm";
 import { parse } from "cookie";
 import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "crypto";
 import type { Request, Response } from "express";
@@ -78,6 +78,10 @@ async function setLocalSession(userId: number, req: Request, res: Response) {
   if (!db) throw new Error("Account service unavailable");
   const token = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
+  // Each sign-in clears this athlete's own lapsed sessions, which lookups already refuse, so the
+  // table does not keep every dead one. Best effort: a failed sweep never blocks the sign-in.
+  await db.delete(localAuthSessions).where(and(eq(localAuthSessions.userId, userId), lt(localAuthSessions.expiresAt, new Date())))
+    .catch(error => console.warn("[Auth] Expired-session sweep skipped:", error instanceof Error ? error.name : "unknown error"));
   await db.insert(localAuthSessions).values({ userId, tokenHash: hashToken(token), expiresAt, lastSeenAt: new Date() });
   res.cookie(LOCAL_AUTH_COOKIE, token, { ...getSessionCookieOptions(req), maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000 });
 }
