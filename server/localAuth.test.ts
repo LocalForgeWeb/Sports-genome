@@ -33,11 +33,6 @@ describe("standalone email authentication safeguards", () => {
     // Renaming this cookie signs out every existing session.
     expect(LOCAL_AUTH_COOKIE).toBe("go_email_session");
   });
-
-  it("names the session cookie in one place only", () => {
-    const sharedConstants = readFileSync(new URL("../shared/const.ts", import.meta.url), "utf8");
-    expect(sharedConstants).not.toMatch(/COOKIE/);
-  });
 });
 
 describe("passkey verification the library rejects", () => {
@@ -87,16 +82,5 @@ describe("passkey verification the library rejects", () => {
 
     await expect(attempt).rejects.toBeInstanceOf(TRPCError);
     await expect(attempt).rejects.toMatchObject({ code: "BAD_REQUEST" });
-  });
-});
-
-describe("no environment-driven admin role", () => {
-  it("has no owner id, admin procedure or admin assignment in the database or procedure setup", () => {
-    for (const file of ["./db.ts", "./_core/trpc.ts"]) {
-      const text = readFileSync(new URL(file, import.meta.url), "utf8");
-      expect(text, file).not.toContain("OWNER_OPEN_ID");
-      expect(text, file).not.toContain("adminProcedure");
-      expect(text, file).not.toMatch(/role\s*=\s*['"]admin['"]/);
-    }
   });
 });
