@@ -573,20 +573,21 @@ export default function Home() {
     () => getWorkoutDiagnostics(draftedLoadout, {}, {}, goal, gymMinutes).estimatedMinutes,
     [draftedLoadout, goal, gymMinutes],
   );
-  const movementSignals = getMovementSignals(selectedMovement);
-  const movementMuscles = getMovementMuscles(selectedMovement);
-  const bodyLabRoleContext =getBodyLabRoleContext(activeSportId, selectedMovement.id, movementMuscles, movementSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
+  const bodyLabRoleContext = useMemo(() => {
+    const signals = getMovementSignals(selectedMovement);
+    return getBodyLabRoleContext(activeSportId, selectedMovement.id, getMovementMuscles(selectedMovement), signals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
+  }, [activeSportId, selectedMovement]);
   /**
-   * The same three, resolved for whatever the reference library is showing.
+   * The same role context, resolved for whatever the reference library is showing.
    *
-   * Identical to the three above whenever the athlete is on their own sport, so
+   * Identical to the one above whenever the athlete is on their own sport, so
    * the Body Lab is unchanged at rest; only a browsed sport makes them diverge.
    */
-  const referenceSignals = getMovementSignals(referenceMovement);
-  const referenceMuscles = getMovementMuscles(referenceMovement);
-  const referenceRoleContext = browsingOtherSport
-    ? getBodyLabRoleContext(browseSportId, referenceMovement.id, referenceMuscles, referenceSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"])
-    : bodyLabRoleContext;
+  const referenceRoleContext = useMemo(() => {
+    if (!browsingOtherSport) return bodyLabRoleContext;
+    const signals = getMovementSignals(referenceMovement);
+    return getBodyLabRoleContext(browseSportId, referenceMovement.id, getMovementMuscles(referenceMovement), signals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
+  }, [browsingOtherSport, browseSportId, referenceMovement, bodyLabRoleContext]);
   /** The count Body Lab shows for this action: canonical regions, aliases collapsed. */
   const focusMuscleCount = useMemo(() => Object.keys(roleMapForLists(referenceRoleContext.primary, referenceRoleContext.supporting)).length, [referenceRoleContext]);
   const createWeekSnapshot = (): WeekSnapshot => ({
