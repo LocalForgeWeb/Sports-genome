@@ -48,8 +48,19 @@ function writeJson(key: string, value: unknown): boolean {
   }
 }
 
-export const loadSyncQueue = (): QueuedLift[] => readJson<QueuedLift[]>(strengthSyncQueueKey, []).filter((item) => item?.key);
-export const loadSyncedKeys = (): string[] => readJson<string[]>(strengthSyncedKey, []);
+// Both loaders check the shape the way the body-weight and workout logs do: a stored
+// object or number would otherwise throw on every launch, and nothing rewrites it.
+export function loadSyncQueue(): QueuedLift[] {
+  const parsed = readJson<unknown>(strengthSyncQueueKey, []);
+  return Array.isArray(parsed)
+    ? parsed.filter((item): item is QueuedLift => Boolean(item) && typeof item.key === "string" && item.key.length > 0 && Boolean(item.lift))
+    : [];
+}
+
+export function loadSyncedKeys(): string[] {
+  const parsed = readJson<unknown>(strengthSyncedKey, []);
+  return Array.isArray(parsed) ? parsed.filter((key): key is string => typeof key === "string") : [];
+}
 
 /**
  * Adds lifts that are neither queued nor already sent. Pure, so the decision of
