@@ -52,11 +52,13 @@ describe("the muscle filter list", () => {
   });
 
   it("does not point at a list that is not there when nothing matches", () => {
-    open();
+    const { trigger } = open();
+    expect(trigger.getAttribute("aria-controls")).toBeTruthy();
     const search = screen.getByRole("combobox", { name: "Search muscles" });
     fireEvent.change(search, { target: { value: "zzz" } });
     expect(search.getAttribute("aria-expanded")).toBe("false");
     expect(search.hasAttribute("aria-activedescendant")).toBe(false);
     expect(search.hasAttribute("aria-controls")).toBe(false);
+    expect(trigger.hasAttribute("aria-controls")).toBe(false);
   });
 });

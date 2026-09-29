@@ -108,7 +108,7 @@ export function MuscleSelect({ muscles, value, labelFor, onChange, allLabel = "A
       className={`athlete-sport-trigger ${value !== "all" ? "is-chosen" : ""}`}
       aria-haspopup="listbox"
       aria-expanded={open}
-      aria-controls={open ? listId : undefined}
+      aria-controls={open && matches.length ? listId : undefined}
       aria-label="Filter day exercises by muscle group"
       onClick={() => setOpen((current) => !current)}
     >

@@ -35,7 +35,10 @@ describe("Exercise Genome term explanation", () => {
     expect(document.activeElement).toBe(close);
 
     // The close button is the only control in the card, so Tab stays on it.
-    fireEvent.keyDown(close, { key: "Tab" });
+    // jsdom never moves focus on a synthetic Tab, so check that the key was
+    // cancelled: fireEvent returns false once preventDefault has been called.
+    expect(fireEvent.keyDown(close, { key: "Tab" })).toBe(false);
+    expect(fireEvent.keyDown(close, { key: "Tab", shiftKey: true })).toBe(false);
     expect(document.activeElement).toBe(close);
 
     fireEvent.keyDown(document.activeElement as Element, { key: "Escape" });

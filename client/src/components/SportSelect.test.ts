@@ -58,6 +58,8 @@ describe("choosing a sport from a searchable list", () => {
     type("ac");
     expect(options()).toEqual([]);
     expect(screen.getByText(/No sport matches/)).toBeTruthy();
+    // No list is drawn, so the trigger must not name one.
+    expect(screen.getByRole("button", { name: /choose your sport/i }).hasAttribute("aria-controls")).toBe(false);
     // One more character, and the same query reaches the family it describes.
     type("acc");
     expect(options()).toEqual(["Ice hockey"]);

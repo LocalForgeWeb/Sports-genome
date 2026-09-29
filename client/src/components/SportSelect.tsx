@@ -109,7 +109,7 @@ export function SportSelect({ sports, value, onChange, labelFor, placeholder = "
       className={`athlete-sport-trigger ${selected ? "is-chosen" : ""}`}
       aria-haspopup="listbox"
       aria-expanded={open}
-      aria-controls={open ? listId : undefined}
+      aria-controls={open && matches.length ? listId : undefined}
       onClick={() => setOpen((current) => !current)}
     >
       <span>
