@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { TriangleAlert, X } from "lucide-react";
+import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 
 export type ConfirmDialogRequest = {
   title: string;
@@ -16,13 +17,95 @@ export type ConfirmDialogRequest = {
   onCancel?: () => void;
 };
 
+const regionSelector = "section, [role='region'], main";
+const headingSelector = "h1, h2, h3, h4, h5, h6, [role='heading']";
+
+/** The sections, regions and main landmark that hold an element, nearest first. */
+function regionsAround(element: HTMLElement): HTMLElement[] {
+  const regions: HTMLElement[] = [];
+  for (let node = element.parentElement; node; node = node.parentElement) {
+    if (node.matches(regionSelector)) regions.push(node);
+  }
+  return regions;
+}
+
+/** Focus fell to the page itself, or sits on something no longer on it. */
+function focusWasLost(): boolean {
+  const active = document.activeElement;
+  return !active || active === document.body || !active.isConnected;
+}
+
+/**
+ * Puts focus on a region's first heading, or the region itself when it has none,
+ * so a keyboard or screen-reader athlete carries on where they were. A heading
+ * takes focus only while it holds it and never joins the Tab order.
+ */
+function focusRegion(region: HTMLElement, layer: HTMLElement | null) {
+  const heading = Array.from(region.querySelectorAll<HTMLElement>(headingSelector)).find((candidate) => !layer?.contains(candidate));
+  const target = heading ?? region;
+  const madeFocusable = !target.hasAttribute("tabindex");
+  if (madeFocusable) target.setAttribute("tabindex", "-1");
+  target.focus({ preventScroll: true });
+  if (!madeFocusable) return;
+  if (document.activeElement === target) target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
+  else target.removeAttribute("tabindex");
+}
+
 /**
  * Tier C confirmation per the philosophy's Reversible-action and destructive-confirmation
  * contract: names the affected object and consequence, and is visually distinguished (red,
  * not the brand orange used for routine actions) from ordinary feedback.
  */
 export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel", onConfirm, onCancel }: Omit<ConfirmDialogRequest, "onCancel"> & { onCancel: () => void }) {
-  return <div className="confirm-dialog-layer" role="alertdialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-body">
+  const layerRef = useRef<HTMLDivElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  // Every caller passes a fresh onCancel on each render; reading it through a ref
+  // keeps the effect below from re-running and pulling focus off Confirm.
+  const onCancelRef = useRef(onCancel);
+  onCancelRef.current = onCancel;
+
+  // Focus starts on the least destructive answer, Escape cancels without reaching
+  // the layer underneath, Tab stays on the dialog's buttons, and focus goes back
+  // to whatever asked the question once it is answered.
+  useEffect(() => {
+    const opener = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
+    // Confirming a removal often takes the asking control away with its row. The
+    // sections around it, nearest first, are where focus goes instead.
+    const surroundings = opener ? regionsAround(opener) : [];
+    const layer = layerRef.current;
+    cancelRef.current?.focus({ preventScroll: true });
+    const onKey = (event: KeyboardEvent) => {
+      // A layer opened over the question, such as search, handles its own keys.
+      if (isKeyForAnotherLayer(event, layerRef.current)) return;
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        event.preventDefault();
+        onCancelRef.current();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const buttons = Array.from(layerRef.current?.querySelectorAll<HTMLButtonElement>("button") ?? []);
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+      if (!(active instanceof Node) || !layerRef.current?.contains(active)) { event.preventDefault(); first.focus(); }
+      else if (event.shiftKey && active === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      if (opener?.isConnected) { opener.focus({ preventScroll: true }); return; }
+      if (!focusWasLost()) return;
+      const region = surroundings.find((candidate) => candidate.isConnected);
+      if (region) focusRegion(region, layer);
+    };
+    // The opener belongs to this one question.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <div ref={layerRef} className="confirm-dialog-layer" role="alertdialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-body">
     <section className="confirm-dialog-card">
       <button type="button" onClick={onCancel} className="confirm-dialog-close" aria-label="Cancel">
         <X className="h-4 w-4" />
@@ -31,7 +114,7 @@ export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel
       <h2 id="confirm-dialog-title">{title}</h2>
       <p id="confirm-dialog-body">{body}</p>
       <div className="confirm-dialog-actions">
-        <button type="button" onClick={onCancel} className="confirm-dialog-cancel">{cancelLabel}</button>
+        <button ref={cancelRef} type="button" onClick={onCancel} className="confirm-dialog-cancel">{cancelLabel}</button>
         <button type="button" onClick={onConfirm} className="confirm-dialog-confirm">{confirmLabel}</button>
       </div>
     </section>

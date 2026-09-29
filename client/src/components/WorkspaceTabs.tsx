@@ -24,7 +24,7 @@ export type WorkspaceTab = { id: string; label: string };
  */
 export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions }: {
   tabs: readonly WorkspaceTab[];
-  activeId: string;
+  activeId: string | null;
   label: string;
   onSelect: (tab: WorkspaceTab) => void;
   actions?: ReactNode;

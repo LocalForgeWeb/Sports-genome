@@ -102,6 +102,13 @@ describe("Stack Analysis selected muscle", () => {
     expect(styles).toContain(".stack-analysis-row-copy { min-width: 0;");
   });
 
+  it("keeps the two summary facts on one row at phone width", () => {
+    // Sized to content at every width; no phone rule pushes the second fact onto its own row.
+    expect(styles).toContain(".stack-analysis-summary { grid-template-columns: repeat(2, max-content); }");
+    expect(styles).not.toMatch(/\.stack-analysis-summary > div:last-child \{[^}]*grid-column/);
+    expect(styles).not.toContain(".stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }");
+  });
+
   it("places direct split-compatible target additions ahead of detailed target rows", () => {
     expect(component).toContain('className="stack-analysis-next-picks"');
     expect(component.indexOf('className="stack-analysis-next-picks"')).toBeLessThan(component.indexOf('className="stack-analysis-list"'));

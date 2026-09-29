@@ -72,6 +72,14 @@ describe("the sign-in notice", () => {
     expect(notify.show).toHaveBeenCalledTimes(2);
   });
 
+  it("says nothing after a deliberate sign-out: auth.me answers null", () => {
+    const { client, notify, notice } = setup({ id: 7 });
+    disposers.push(notice.dispose);
+    client.setQueryData(authMe, null);
+    notice.onError(refused);
+    expect(notify.show).not.toHaveBeenCalled();
+  });
+
   it("does not restore the notice from a disposed listener", () => {
     const { client, notify, notice } = setup({ id: 7 });
     notice.onError(refused);

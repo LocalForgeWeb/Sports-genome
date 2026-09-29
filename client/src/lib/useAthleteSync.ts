@@ -25,6 +25,20 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
  */
 const catalogIdByName = new Map(exerciseCatalog.map((exercise) => [exercise.name.trim().toLowerCase(), exercise.id]));
 
+/**
+ * Calls `retry` when the device comes back online, and when the tab is shown again: a phone
+ * reopening the app fires no online event. Returns the unsubscribe.
+ */
+function onReconnect(retry: () => void): () => void {
+  const onVisible = () => { if (document.visibilityState === "visible") retry(); };
+  window.addEventListener("online", retry);
+  document.addEventListener("visibilitychange", onVisible);
+  return () => {
+    window.removeEventListener("online", retry);
+    document.removeEventListener("visibilitychange", onVisible);
+  };
+}
+
 export type AthleteSyncStatus = {
   identity: IdentityState;
   pending: number;
@@ -57,6 +71,11 @@ export function useAthleteSync(options: {
   const [pending, setPending] = useState(() => loadSyncQueue().length);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | undefined>();
   const running = useRef(false);
+  // A sync asked for while one is in flight runs once that one settles, through the latest
+  // callback, so it sees an id or map that arrived meanwhile. It used to be dropped, and a
+  // workout finished during a slow upload waited for some unrelated event to be queued.
+  const rerunRequested = useRef(false);
+  const latestSyncNow = useRef<() => void>(() => {});
 
   // One identity per device, established on first launch and reused after.
   useEffect(() => {
@@ -73,8 +92,47 @@ export function useAthleteSync(options: {
     return () => { cancelled = true; };
   }, [enabled, appSports]);
 
+  // An offline launch leaves identity "unreachable" and the map unread, and About me promises
+  // the record syncs when the service is back, so both are asked for again on reconnect.
+  // Only "unreachable" is retried: the other reasons are settings a retry cannot change.
+  // The ref keeps two anonymous sign-ins from racing and minting two users.
+  const resolvingIdentity = useRef(false);
+  useEffect(() => {
+    if (!enabled || identity.userId || identity.reason !== "unreachable") return;
+    let cancelled = false;
+    const stop = onReconnect(() => {
+      if (resolvingIdentity.current) return;
+      resolvingIdentity.current = true;
+      ensureAthleteIdentity()
+        .then((state) => { if (!cancelled) setIdentity(state); })
+        .finally(() => { resolvingIdentity.current = false; });
+    });
+    return () => { cancelled = true; stop(); };
+  }, [enabled, identity.userId, identity.reason]);
+
+  // Its own effect, so an id arriving first does not discard a map still on its way.
+  useEffect(() => {
+    if (!enabled || referenceMap) return;
+    let cancelled = false;
+    const stop = onReconnect(() => {
+      refreshReferenceMap(appSports).then((map) => { if (!cancelled && map) setReferenceMap(map); });
+    });
+    return () => { cancelled = true; stop(); };
+  }, [enabled, appSports, referenceMap]);
+
+  const [currentWeightKg, setCurrentWeightKg] = useState(() => currentBodyWeightKg(loadBodyWeightLog()));
+  useEffect(() => {
+    if (!enabled) return;
+    const refresh = () => setCurrentWeightKg(currentBodyWeightKg(loadBodyWeightLog()));
+    // Read again on subscribe: Home seeds the log from a stored profile before this runs.
+    refresh();
+    window.addEventListener(bodyWeightLogEvent, refresh);
+    return () => window.removeEventListener(bodyWeightLogEvent, refresh);
+  }, [enabled]);
+
   // The profile row follows the athlete's current defaults. It is a default, not
   // a measurement: every lift keeps its own dated body-weight snapshot.
+  // A newly logged weight reaches it straight away, not only on the next launch.
   useEffect(() => {
     if (!enabled || !identity.userId) return;
     upsertAthleteProfile(identity.userId, {
@@ -82,9 +140,9 @@ export function useAthleteSync(options: {
       birthYear,
       primarySportId: sportId ? referenceMap?.sportUuidBySlug[sportId] : undefined,
       sportContextMode,
-      defaultBodyWeightKg: currentBodyWeightKg(loadBodyWeightLog()),
+      defaultBodyWeightKg: currentWeightKg,
     });
-  }, [enabled, identity.userId, sexForReference, birthYear, sportId, sportContextMode, referenceMap]);
+  }, [enabled, identity.userId, sexForReference, birthYear, sportId, sportContextMode, referenceMap, currentWeightKg]);
 
   /**
    * The catalog, from the athlete's own session when the server route cannot
@@ -150,7 +208,8 @@ export function useAthleteSync(options: {
 
   /** Turns everything finished on this device into queued rows, then sends them. */
   const syncNow = useCallback(() => {
-    if (!enabled || running.current) return;
+    if (!enabled) return;
+    if (running.current) { rerunRequested.current = true; return; }
     running.current = true;
     const weightLog = loadBodyWeightLog();
     const observations = workoutStrengthObservations(loadDeviceWorkoutSessions(), weightUnit, weightLog);
@@ -190,8 +249,15 @@ export function useAthleteSync(options: {
         setPending(loadSyncQueue().length);
         if (result.sent) setLastSyncedAt(new Date().toISOString());
       })
-      .finally(() => { running.current = false; });
+      .finally(() => {
+        running.current = false;
+        if (rerunRequested.current) { rerunRequested.current = false; latestSyncNow.current(); }
+      });
   }, [enabled, weightUnit, athleteSnapshot, identity.userId, referenceMap]);
+
+  useEffect(() => { latestSyncNow.current = syncNow; }, [syncNow]);
+  // A flush that settles after unmount starts nothing.
+  useEffect(() => () => { rerunRequested.current = false; latestSyncNow.current = () => {}; }, []);
 
   // Sync when a workout finishes, when weight changes, when an id arrives, and
   // when the device comes back online.

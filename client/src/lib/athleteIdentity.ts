@@ -12,10 +12,11 @@ import type { SexForReference } from "@/components/AthleteBaselineQuiz";
  * launches, so the history is attached to an account from the very first lift
  * rather than from whenever they eventually decide to register.
  *
- * Adding an email later calls `updateUser` on that same id: the account gains a
- * way to sign in on another device, and not one row moves. That is the whole
- * reason for doing it in this order — registering first and back-filling later
- * is the version where early history gets orphaned.
+ * Adding an email later calls `updateUser` on that same id, which records who
+ * owns the account ahead of a sign-in path (none exists in the client yet), and
+ * not one row moves. That is the whole reason for doing it in this order —
+ * registering first and back-filling later is the version where early history
+ * gets orphaned.
  *
  * Every function here returns rather than throws. A failure to reach Supabase
  * is a normal condition — no network in a gym basement — and must never stop

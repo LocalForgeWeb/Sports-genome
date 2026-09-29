@@ -1,5 +1,25 @@
-import { describe, expect, it } from "vitest";
-import { enqueueLifts, type QueuedLift } from "./strengthSyncQueue";
+// @vitest-environment jsdom
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+// The insert is held open by the test, so it can act while the flush waits on the network.
+// Once `reply.with` is set, later inserts are answered at once and only recorded.
+type InsertResult = { error: { code: string } | null; status?: number };
+const insertCalls: { rows: Record<string, unknown>[]; finish: (result: InsertResult) => void }[] = [];
+const reply: { with: ((rows: Record<string, unknown>[]) => InsertResult) | null } = { with: null };
+vi.mock("@/lib/supabaseClient", () => ({
+  getSupabaseClient: () => ({
+    from: () => ({
+      insert: (rows: Record<string, unknown>[]) => new Promise((resolve) => {
+        insertCalls.push({ rows, finish: resolve });
+        if (reply.with) resolve(reply.with(rows));
+      }),
+    }),
+  }),
+}));
+
+import { enqueueLifts, flushSyncQueue, loadSyncQueue, loadSyncedKeys, removeQueuedLiftsForSession, saveSyncQueue, type QueuedLift } from "./strengthSyncQueue";
+import { workoutStrengthObservations } from "./workoutStrengthRecord";
+import type { DeviceWorkoutSession } from "./deviceWorkoutLog";
 import { matchSportUuids } from "./supabaseReferenceMap";
 
 const lift = (key: string): QueuedLift => ({
@@ -8,6 +28,8 @@ const lift = (key: string): QueuedLift => ({
   athlete: { sexForReference: "male", birthYear: 1998 },
   lift: { catalogExerciseId: 1, observedAt: "2026-09-18T12:00:00.000Z", measurementType: "MULTI_REP", reportedLoad: 225, reportedUnit: "lb", repetitions: 8, source: "device" },
 });
+
+beforeEach(() => { window.localStorage.clear(); insertCalls.length = 0; reply.with = null; });
 
 describe("the outbox between a logged lift and Supabase", () => {
   it("queues a lift that has neither been queued nor sent", () => {
@@ -26,6 +48,107 @@ describe("the outbox between a logged lift and Supabase", () => {
 
   it("drops an entry with no key rather than queueing something it cannot dedupe", () => {
     expect(enqueueLifts([], [], [lift(""), lift("b")]).map((item) => item.key)).toEqual(["b"]);
+  });
+
+  it("lets go of a removed workout's unsent lifts and keeps every other workout's", () => {
+    // Removing a workout deletes it from this device; a lift of it still waiting to be sent
+    // would otherwise reach the account on the next flush.
+    const workout = (id: string, exerciseIds: string[]) => ({
+      id,
+      title: "Push",
+      dayLabel: "Week 1 · Day 01 · Push",
+      startedAt: "2026-09-22T10:00:00.000Z",
+      completedAt: "2026-09-22T11:00:00.000Z",
+      status: "completed",
+      exercises: exerciseIds.map((exerciseId) => ({ id: exerciseId, exerciseName: "Barbell Bench Press", plannedPrescription: "3 × 5", sets: [{ weight: "225", reps: "5", completed: true }] })),
+    }) as DeviceWorkoutSession;
+    const removed = workout("device-1", ["bench-0", "row-1"]);
+    const kept = workout("device-17", ["bench-0"]);
+    // The keys the sync queues, derived the same way it derives them.
+    const queue = workoutStrengthObservations([removed, kept]).map((observation) => lift(observation.id));
+    expect(queue).toHaveLength(3);
+
+    expect(removeQueuedLiftsForSession(queue, removed).map((item) => item.key)).toEqual(
+      workoutStrengthObservations([kept]).map((observation) => observation.id),
+    );
+    expect(removeQueuedLiftsForSession(queue, workout("device-9", ["bench-0"]))).toEqual(queue);
+  });
+
+  it("does not bring back a removed workout's lift that was pruned while a send was in flight", async () => {
+    // One lift can be sent now; the other belongs to workout "push", whose exercise has no
+    // Supabase uuid yet, so it waits. The athlete removes "push" while the send is pending.
+    const sendable = { ...lift("workout-pull-e"), lift: { ...lift("workout-pull-e").lift, catalogExerciseId: 1 } };
+    const waiting = { ...lift("workout-push-e"), lift: { ...lift("workout-push-e").lift, catalogExerciseId: 2 } };
+    saveSyncQueue([sendable, waiting]);
+
+    const flushing = flushSyncQueue("user-1", (id) => (id === 1 ? "00000000-0000-0000-0000-00000000000e" : undefined));
+    expect(insertCalls).toHaveLength(1);
+    // What ProgressOverviewPanel's removal does: prune the workout's lifts from storage.
+    saveSyncQueue(loadSyncQueue().filter((item) => item.key !== "workout-push-e"));
+    expect(loadSyncQueue().map((item) => item.key)).toEqual(["workout-pull-e"]);
+
+    insertCalls[0].finish({ error: null });
+    const result = await flushing;
+
+    expect(loadSyncQueue()).toEqual([]);
+    expect(result).toMatchObject({ sent: 1, remaining: 0 });
+    expect(loadSyncedKeys()).toEqual(["workout-pull-e"]);
+  });
+
+  describe("when a batch is turned down and the rows go one at a time", () => {
+    const withLoad = (key: string, reportedLoad: number): QueuedLift => ({ ...lift(key), lift: { ...lift(key).lift, reportedLoad } });
+    const mapped = () => "00000000-0000-0000-0000-00000000000e";
+    const sentLoads = () => insertCalls.slice(1).map((call) => call.rows[0].reported_load_value);
+    const rejected = { error: { code: "22003" }, status: 400 };
+    const landed = { error: null, status: 201 };
+    // A load past numeric(9,3) overflows the column: Postgres refuses any statement that holds it.
+    const database = (rows: Record<string, unknown>[]) => (rows.some((row) => row.reported_load_value === 2000000) ? rejected : landed);
+
+    it("does not send a removed workout's lift that was pruned while an earlier row was in flight", async () => {
+      // "bad" overflows the load column, so the batch is turned down and each row goes alone.
+      saveSyncQueue([withLoad("workout-w1-e", 100), withLoad("workout-w2-e", 225), withLoad("bad", 2000000)]);
+      const flushing = flushSyncQueue("user-1", mapped);
+      insertCalls[0].finish(rejected);
+      await vi.waitFor(() => expect(insertCalls).toHaveLength(2));
+
+      // The athlete removes workout w2 on Progress while w1's lift is still being sent.
+      saveSyncQueue(loadSyncQueue().filter((item) => item.key !== "workout-w2-e"));
+      reply.with = database;
+      insertCalls[1].finish(landed);
+      const result = await flushing;
+
+      expect(sentLoads()).toEqual([100, 2000000]);
+      expect(result).toMatchObject({ sent: 1, remaining: 1, reason: "rejected" });
+      expect(loadSyncQueue().map((item) => item.key)).toEqual(["bad"]);
+      expect(loadSyncedKeys()).toEqual(["workout-w1-e"]);
+    });
+
+    it("does not report a turned-down lift once the workout it came from was removed", async () => {
+      // The mistyped load is the one the athlete took back, so nothing left in the queue was refused.
+      saveSyncQueue([withLoad("workout-w1-e", 100), withLoad("workout-w2-e", 2000000)]);
+      const flushing = flushSyncQueue("user-1", mapped);
+      insertCalls[0].finish(rejected);
+      await vi.waitFor(() => expect(insertCalls).toHaveLength(2));
+
+      saveSyncQueue(loadSyncQueue().filter((item) => item.key !== "workout-w2-e"));
+      reply.with = database;
+      insertCalls[1].finish(landed);
+      const result = await flushing;
+
+      expect(sentLoads()).toEqual([100]);
+      expect(result).toEqual({ sent: 1, remaining: 0, skipped: 0, reason: undefined });
+      expect(loadSyncQueue()).toEqual([]);
+      expect(loadSyncedKeys()).toEqual(["workout-w1-e"]);
+    });
+  });
+
+  it("keeps a lift queued while a send was in flight", async () => {
+    saveSyncQueue([lift("workout-a-e")]);
+    const flushing = flushSyncQueue("user-1", () => "00000000-0000-0000-0000-00000000000e");
+    saveSyncQueue([...loadSyncQueue(), lift("workout-b-e")]);
+    insertCalls[0].finish({ error: null });
+    await flushing;
+    expect(loadSyncQueue().map((item) => item.key)).toEqual(["workout-b-e"]);
   });
 });
 

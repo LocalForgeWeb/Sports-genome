@@ -39,20 +39,20 @@ describe("About me without an account session", () => {
   it("does not ask for passkeys or offer to enroll one", () => {
     const markup = render({});
     expect(asked.passkeys?.enabled).toBe(false);
-    expect(markup).not.toContain("<strong>Security</strong>");
-    expect(markup).not.toContain("Face ID / passkey");
+    // The group says so in one static line rather than offering a control that cannot work.
+    expect(markup).toContain("Face ID and passkey sign-in is not available in this build yet.");
+    expect(markup).not.toContain("Enable Face ID / passkey");
   });
 
   it("does both with one", () => {
-    const markup = render({ accountSession: true });
+    render({ accountSignedIn: true });
     expect(asked.passkeys?.enabled).toBe(true);
-    expect(markup).toContain("<strong>Security</strong>");
   });
 
   it("says a lapse in Account & sync for as long as it lasts", () => {
-    const quiet = render({ accountSession: true });
+    const quiet = render({ accountSignedIn: true });
     expect(quiet).not.toContain("Signed out of your account");
-    const lapsed = render({ accountSession: true, sessionLapsed: true });
+    const lapsed = render({ accountSignedIn: true, sessionLapsed: true });
     expect(lapsed).toContain("Signed out of your account");
     expect(lapsed).toContain("Changes you make are kept on this device");
   });
@@ -60,7 +60,7 @@ describe("About me without an account session", () => {
   it("returns before the enroll call without a session", () => {
     const source = readFileSync(resolve(process.cwd(), "client/src/components/AthleteAboutMePanel.tsx"), "utf8");
     const enroll = source.slice(source.indexOf("const enrollPasskey = async () => {"), source.indexOf("passkeyOptions.mutateAsync()"));
-    expect(enroll).toContain("if (!accountSession) return;");
+    expect(enroll).toContain("if (!accountSignedIn) return;");
   });
 });
 
@@ -76,10 +76,8 @@ describe("the rest of the device store's account-only paths", () => {
   });
 
   it("does not offer Set focus on the device store, where a focus cannot be kept", () => {
-    const row = strength.slice(strength.indexOf('className="strength-region-focus-row">'), strength.indexOf("</div>}</div>", strength.indexOf('className="strength-region-focus-row">')));
-    const device = row.slice(row.indexOf("{directAccess"), row.indexOf(": <>"));
-    expect(device).toContain("Review training");
-    expect(device).not.toContain("setPriority");
-    expect(device).not.toContain("Set focus");
+    const row = strength.slice(strength.indexOf('className="strength-region-focus-row">'));
+    expect(row).toContain("{!directAccess && <button type=\"button\" disabled={setPriority.isPending}");
+    expect(strength).toContain('<div ref={feedbackSurfaceRef} className="strength-region-focus-row">');
   });
 });

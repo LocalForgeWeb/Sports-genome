@@ -73,6 +73,20 @@ describe("Training Day exercise finder disclosure", () => {
     expect(source).toContain("onAdd(exercise)");
   });
 
+  /**
+   * The search box was named only by its placeholder, and phones offered
+   * autocorrect ("RDL" became a word) and a generic return key.
+   */
+  it("names the search field and asks phones for a search keyboard without autocorrect", () => {
+    const searchInput = built.match(/<input[^>]*placeholder="Search Push exercises"[^>]*>/)?.[0] ?? "";
+    expect(searchInput).not.toBe("");
+    expect(searchInput).toContain('aria-label="Search Push exercises"');
+    expect(searchInput).toMatch(/enterKeyHint="search"/i);
+    expect(searchInput).toMatch(/autoComplete="off"/i);
+    expect(searchInput).toMatch(/autoCorrect="off"/i);
+    expect(searchInput).toMatch(/spellCheck="false"/i);
+  });
+
   it("prioritizes direct muscle matches and makes the number of matching catalog options visible before an athlete scans results", () => {
     expect(source).toContain("export function sortDayExerciseResults");
     // The "Direct target · X" phrase is gone; the card lists the primary muscles

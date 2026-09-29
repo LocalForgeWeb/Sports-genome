@@ -6,19 +6,24 @@ import { startRegistration } from "@simplewebauthn/browser";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { accountSignInAvailable } from "@/lib/accountAccess";
-import { trainingGoalChoices, type AthleteBaseline, type AthleteExperience, type SexForReference, type WeightUnit } from "@/components/AthleteBaselineQuiz";
+import { expiryNotice, isExpiryError } from "@/lib/sessionExpiryNotice";
+import { trainingGoalChoices, convertBodyWeight, type AthleteBaseline, type AthleteExperience, type SexForReference, type WeightUnit } from "@/components/AthleteBaselineQuiz";
 import { catalogEquipment, gymAccessProfiles, type CatalogEquipment, type GymAccess } from "@/lib/equipmentProfile";
 import { gymTimeOptions } from "@/lib/gymTimeBudget";
 import type { SportProfile } from "@/lib/sportMovementDatabase";
 import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { getSportModifiers } from "@/lib/hierarchicalSportModel";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { decimalEntryText } from "@/lib/numericEntry";
+import { birthYearHint, parseBirthYear } from "@/lib/birthYear";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { AthleteAccountCard } from "@/components/AthleteAccountCard";
 import { CapacityFocusCard, type CapacityFocusState } from "@/components/CapacityFocusCard";
 import type { ResilienceTargetCatalog, SportContextMode } from "@shared/resilienceContext";
 import type { IdentityState } from "@/lib/athleteIdentity";
 import "@/athlete-about-me.css";
+
+export { parseBirthYear } from "@/lib/birthYear";
 
 const experiences: AthleteExperience[] = ["Beginner", "Intermediate", "Advanced"];
 
@@ -35,18 +40,14 @@ const contextModes: { value: SportContextMode; label: string; detail: string; ic
   { value: "undecided", label: "Decide later", detail: "Skip it for now. You can pick a sport whenever you want.", icon: Sparkles },
 ];
 
-/** Years an athlete could plausibly have been born in: the hundred before this one, and this one. */
-export function birthYearRange(now = new Date()): { min: number; max: number } {
-  const max = now.getFullYear();
-  return { min: max - 100, max };
-}
-
-/** The saved year a typed value stands for, or undefined while it is not yet a whole year in range. */
-export function parseBirthYear(text: string, now = new Date()): number | undefined {
-  if (!/^\d{4}$/.test(text)) return undefined;
-  const year = Number(text);
-  const { min, max } = birthYearRange(now);
-  return year > min && year <= max ? year : undefined;
+/**
+ * A lapsed sign-in is already said app-wide (main.tsx) under the id "session-expired".
+ * A passkey failure for that reason says it under the same id, so it replaces that
+ * notice with what happened to the passkey instead of stacking a second toast below it,
+ * and still answers the tap when the app-wide notice keeps quiet (once a minute at most).
+ */
+function noticePasskeyExpiry(outcome: string) {
+  toast(expiryNotice.title, { id: "session-expired", description: `${outcome} ${expiryNotice.description}` });
 }
 
 /** The saved weight a typed value stands for: a positive number, with "145." still on its way to one. */
@@ -55,7 +56,7 @@ export function parseBodyWeight(text: string): number | undefined {
   return text.trim() !== "" && Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
-export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, accountSession = false, sessionLapsed = false, accountFocusRequest = 0, guides, launchVideo, launchVideoEnabled, buildStamp }: {
+export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, accountSignedIn = false, sessionLapsed = false, accountFocusRequest = 0, guides, launchVideo, launchVideoEnabled, buildStamp }: {
   baseline: AthleteBaseline;
   goal: TrainingGoal;
   trainingDays: number;
@@ -79,12 +80,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   syncPending?: number;
   benchmarkOptIn?: boolean;
   onBenchmarkOptIn?: (next: boolean) => void;
-  /**
-   * Whether an app-server account session exists (auth.me holds a user). Passkeys belong to
-   * that account: without it the passkey list was asked anyway, refused, and the refusal
-   * raised the sign-in notice on this very screen (Sep 28 regression brief §7).
-   */
-  accountSession?: boolean;
+  /** Whether this device holds an email sign-in (auth.me). Passkey routes are account-only (protectedProcedure) and answer UNAUTHORIZED without one (D-015). */
+  accountSignedIn?: boolean;
   /** Signed in, then refused: the lasting status for the one-time notice (lib/sessionNotice.ts). */
   sessionLapsed?: boolean;
   /** Bumped by the notice's "Account & sync" action; opens that group and brings it into view. */
@@ -102,7 +99,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const [pendingDestructiveAction, setPendingDestructiveAction] = useState<ConfirmDialogRequest | null>(null);
   const passkeyOptions = trpc.auth.passkeyRegistrationOptions.useMutation();
   const passkeyVerify = trpc.auth.passkeyRegistrationVerify.useMutation();
-  const accountPasskeys = trpc.auth.passkeys.useQuery(undefined, { enabled: accountSession });
+  const accountPasskeys = trpc.auth.passkeys.useQuery(undefined, { enabled: accountSignedIn, retry: false });
   const accountGroupRef = useRef<HTMLDetailsElement | null>(null);
   useEffect(() => {
     const group = accountGroupRef.current;
@@ -110,7 +107,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
     group.open = true;
     group.scrollIntoView({ block: "center" });
   }, [accountFocusRequest]);
-  const removePasskey = trpc.auth.removePasskey.useMutation({ onSuccess: () => { accountPasskeys.refetch(); toast.success("Passkey removed from this account"); } });
+  const removePasskey = trpc.auth.removePasskey.useMutation({ onSuccess: () => { accountPasskeys.refetch(); toast.success("Passkey removed from this account"); }, onError: (error) => { if (isExpiryError(error)) return noticePasskeyExpiry("That passkey is still enrolled."); toast.error("Could not remove that passkey. It is still enrolled."); } });
   const requestRemovePasskey = (passkeyId: number, label: string) => setPendingDestructiveAction({
     title: "Remove this passkey?",
     body: `${label} will no longer be able to sign in to this account with Face ID, Touch ID, or your device's screen lock. You can enroll it again afterward, but this specific removal cannot be undone.`,
@@ -126,8 +123,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
     onBaseline({ ...baseline, equipment: { ...equipment, availableEquipment } });
   };
   const enrollPasskey = async () => {
-    // A passkey is added to an account; with no session the server refuses it.
-    if (!accountSession) return;
+    if (!accountSignedIn) return;
     if (!passkeySupported) return toast.error("This device does not support passkeys");
     try {
       const options = await passkeyOptions.mutateAsync();
@@ -135,7 +131,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
       const verified = await passkeyVerify.mutateAsync({ response });
       if (!verified.ok) return toast.error("Could not save this device passkey");
       toast.success("Face ID / device passkey is ready");
-    } catch {
+    } catch (error) {
+      if (isExpiryError(error)) return noticePasskeyExpiry("No passkey was added.");
       toast.error("Face ID or device passkey setup was cancelled or unavailable");
     }
   };
@@ -143,13 +140,14 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const [editing, setEditing] = useState(false);
 
   /**
-   * Birth year and bodyweight are typed, not picked, so each keeps a draft of its own. Bound
+   * Birth year and body weight are typed, not picked, so each keeps a draft of its own. Bound
    * straight to the saved profile, the year could not be typed at all on a phone: "1", "19"
    * and "199" each failed the whole-year check, were saved as nothing, and the box stayed
    * empty under the keyboard. The draft holds whatever is typed; the profile takes a value
    * only once it is a whole one, and is cleared when the field no longer holds one. A change
    * to the profile from elsewhere (the Strength rank gate also asks for the year) replaces the
    * draft only when the two actually disagree, so it never wipes a year mid-entry.
+   * Switching lb/kg converts the saved weight: the unit is how it is shown, not a new weigh-in.
    */
   const [birthYearText, setBirthYearText] = useState(baseline.birthYear ? String(baseline.birthYear) : "");
   const [birthYearLeft, setBirthYearLeft] = useState(false);
@@ -160,11 +158,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   useEffect(() => {
     setBodyWeightText((text) => (baseline.bodyWeight === parseBodyWeight(text) ? text : baseline.bodyWeight ? String(baseline.bodyWeight) : ""));
   }, [baseline.bodyWeight]);
-  const { min: birthYearMin, max: birthYearMax } = birthYearRange();
   // Said once the year is plainly wrong (four digits, out of range) or the field was left short.
-  const birthYearHint = birthYearText && parseBirthYear(birthYearText) === undefined && (birthYearText.length === 4 || birthYearLeft)
-    ? (birthYearText.length < 4 ? "Four digits, like 1998." : `Between ${birthYearMin + 1} and ${birthYearMax}.`)
-    : null;
+  const yearHint = birthYearHint(birthYearText, birthYearLeft);
   /* Every collapsed group says what is inside it, from the actual state:
      the equipment preset and count, the target chosen, where the record is
      saved, the theme, whether a passkey is enrolled. Nothing here is a sample. */
@@ -180,8 +175,14 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
     : identity.userId ? (identity.anonymous ? "Saved to an account on this device" : "Saved to your account")
     : "Saved on this device";
   const accountPending = syncPending > 0 ? ` · ${syncPending} ${syncPending === 1 ? "lift" : "lifts"} waiting` : "";
-  const passkeyCount = accountPasskeys.data?.length ?? 0;
-  const securitySummary = !passkeySupported ? "Passkey unavailable on this device" : passkeyCount ? `${passkeyCount} device ${passkeyCount === 1 ? "passkey" : "passkeys"} enrolled` : "Passkey not enrolled";
+  // Passkeys belong to an email sign-in; without one, any cached list is not this device's to show.
+  // This build offers no sign-in (Home.tsx directWorkspaceAccess), so the copy says what the build
+  // does, not something to go and get.
+  const passkeyCount = accountSignedIn ? accountPasskeys.data?.length ?? 0 : 0;
+  const securitySummary = !accountSignedIn ? "Not available in this build"
+    : !passkeySupported ? "Passkey unavailable on this device"
+    : accountPasskeys.isError ? "Passkeys could not be read"
+    : passkeyCount ? `${passkeyCount} device ${passkeyCount === 1 ? "passkey" : "passkeys"} enrolled` : "Passkey not enrolled";
   const equipmentSummary = `${equipment.gymAccess} · ${equipment.availableEquipment.length} ${equipment.availableEquipment.length === 1 ? "type" : "types"} available`;
   const identityLine = [baseline.experience ? `${baseline.experience} athlete` : "Athlete profile", baseline.bodyWeight ? `${baseline.bodyWeight} ${baseline.weightUnit}` : null].filter(Boolean).join(" · ");
   return <section className="about-me-panel">
@@ -193,7 +194,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
       <span className="about-me-avatar" aria-hidden="true"><UserRound className="h-9 w-9" /></span>
       <div><h2>{baseline.preferredName || "Athlete"}</h2><p>{identityLine}</p><button type="button" className="about-me-edit" aria-expanded={editing} aria-controls="about-me-identity-fields" onClick={() => { emitInteractionFeedback(); setEditing((current) => !current); }}>{editing ? "Done editing" : "Edit profile"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
     </div>
-    {editing && <section id="about-me-identity-fields" className="about-me-card about-me-identity-fields"><p className="about-me-boundary">Planning context only — editable inputs that guide stack availability, not health or ability ratings.</p><label><span>Preferred name</span><input value={baseline.preferredName || ""} placeholder="Add a name" onChange={(event) => onBaseline({ ...baseline, preferredName: event.target.value || undefined })} /></label><label><span>Training experience</span><select value={baseline.experience} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, experience: event.target.value as AthleteExperience }); }}>{experiences.map((item) => <option key={item}>{item}</option>)}</select></label><label><span>Bodyweight (optional)</span><div className="about-me-inline"><input inputMode="decimal" value={bodyWeightText} placeholder="Not added" onChange={(event) => { const text = event.target.value.replace(/[^0-9.]/g, ""); setBodyWeightText(text); const bodyWeight = parseBodyWeight(text); if (bodyWeight !== baseline.bodyWeight) onBaseline({ ...baseline, bodyWeight }); }} /><select value={baseline.weightUnit} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, weightUnit: event.target.value as WeightUnit }); }}><option value="lb">lb</option><option value="kg">kg</option></select></div></label><label><span>Sex (used only to match published studies)</span><select value={baseline.sexForReference || ""} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, sexForReference: (event.target.value || undefined) as SexForReference | undefined }); }}><option value="">Not set</option><option value="female">Female</option><option value="male">Male</option><option value="intersex">Intersex</option><option value="unspecified">Prefer not to say</option></select></label><label><span>Birth year (optional)</span><input inputMode="numeric" autoComplete="bday-year" maxLength={4} value={birthYearText} placeholder="e.g. 1998" aria-describedby={birthYearHint ? "about-me-birth-year-hint" : undefined} onFocus={() => setBirthYearLeft(false)} onBlur={() => setBirthYearLeft(true)} onChange={(event) => { const text = event.target.value.replace(/[^0-9]/g, "").slice(0, 4); setBirthYearText(text); const birthYear = parseBirthYear(text); if (birthYear !== baseline.birthYear) onBaseline({ ...baseline, birthYear }); }} />{birthYearHint && <small id="about-me-birth-year-hint" className="about-me-field-hint" role="status">{birthYearHint}</small>}</label></section>}
+    {editing && <section id="about-me-identity-fields" className="about-me-card about-me-identity-fields"><p className="about-me-boundary">Planning context only — editable inputs that guide stack availability, not health or ability ratings.</p><label><span>Preferred name</span><input value={baseline.preferredName || ""} placeholder="Add a name" onChange={(event) => onBaseline({ ...baseline, preferredName: event.target.value || undefined })} /></label><label><span>Training experience</span><select value={baseline.experience} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, experience: event.target.value as AthleteExperience }); }}>{experiences.map((item) => <option key={item}>{item}</option>)}</select></label><label><span>Body weight (optional)</span><div className="about-me-inline"><input inputMode="decimal" value={bodyWeightText} placeholder="Not added" onChange={(event) => { const text = decimalEntryText(event.target.value); setBodyWeightText(text); const bodyWeight = parseBodyWeight(text); if (bodyWeight !== baseline.bodyWeight) onBaseline({ ...baseline, bodyWeight }); }} /><select aria-label="Weight unit" value={baseline.weightUnit} onChange={(event) => { emitInteractionFeedback(); const weightUnit = event.target.value as WeightUnit; if (weightUnit === baseline.weightUnit) return; onBaseline({ ...baseline, weightUnit, bodyWeight: baseline.bodyWeight ? convertBodyWeight(baseline.bodyWeight, baseline.weightUnit, weightUnit) : undefined }); }}><option value="lb">lb</option><option value="kg">kg</option></select></div></label><label><span>Sex (used only to match published studies)</span><select value={baseline.sexForReference || ""} onChange={(event) => { emitInteractionFeedback(); onBaseline({ ...baseline, sexForReference: (event.target.value || undefined) as SexForReference | undefined }); }}><option value="">Not set</option><option value="female">Female</option><option value="male">Male</option><option value="intersex">Intersex</option><option value="unspecified">Prefer not to say</option></select></label><label><span>Birth year (optional)</span><input inputMode="numeric" autoComplete="bday-year" maxLength={4} value={birthYearText} placeholder="e.g. 1998" aria-describedby={yearHint ? "about-me-birth-year-hint" : undefined} onFocus={() => setBirthYearLeft(false)} onBlur={() => setBirthYearLeft(true)} onChange={(event) => { const text = event.target.value.replace(/[^0-9]/g, "").slice(0, 4); setBirthYearText(text); const birthYear = parseBirthYear(text); if (birthYear !== baseline.birthYear) onBaseline({ ...baseline, birthYear }); }} />{yearHint && <small id="about-me-birth-year-hint" className="about-me-field-hint" role="status">{yearHint}</small>}</label></section>}
 
     {/* The preferences the plan is built from, visible at a glance. Sport and
         goal open to their full choice sets; days and session time are the chips
@@ -210,7 +211,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
         control that existed still exists, inside the group that owns it. */}
     <div className="about-me-groups">
       <details className="about-me-group"><summary><Dumbbell className="h-6 w-6" aria-hidden="true" /><span><strong>Equipment</strong><small>{equipmentSummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
-        <section className="about-me-equipment"><div className="about-me-equipment-head"><div><p>Recommended stacks use the selected equipment below. The catalog remains complete, so you can inspect or manually add any exercise.</p></div></div><div className="about-me-access-row">{(Object.keys(gymAccessProfiles) as GymAccess[]).map((access) => <button key={access} onClick={() => setGymAccess(access)} className={equipment.gymAccess === access ? "about-me-access-active" : ""}>{access}</button>)}</div><div className="about-me-equipment-grid">{catalogEquipment.map((item) => <button key={item} onClick={() => toggleEquipment(item)} className={equipment.availableEquipment.includes(item) ? "about-me-equipment-active" : ""}><Scale className="h-4 w-4" /><span>{item}</span>{equipment.availableEquipment.includes(item) && <Check className="ml-auto h-4 w-4" />}</button>)}</div></section>
+        <section className="about-me-equipment"><div className="about-me-equipment-head"><div><p>Recommended stacks use the selected equipment below. The catalog remains complete, so you can inspect or manually add any exercise.</p></div></div><div className="about-me-access-row" role="group" aria-label="Where you train">{(Object.keys(gymAccessProfiles) as GymAccess[]).map((access) => <button key={access} type="button" aria-pressed={equipment.gymAccess === access} onClick={() => setGymAccess(access)} className={equipment.gymAccess === access ? "about-me-access-active" : ""}>{access}</button>)}</div><div className="about-me-equipment-grid" role="group" aria-label="Equipment you can use">{catalogEquipment.map((item) => { const selected = equipment.availableEquipment.includes(item); const locked = item === "Bodyweight"; return <button key={item} type="button" aria-pressed={selected} aria-disabled={locked || undefined} title={locked ? "Always available" : undefined} onClick={() => toggleEquipment(item)} className={selected ? "about-me-equipment-active" : ""}><Scale className="h-4 w-4" aria-hidden="true" /><span>{item}</span>{selected && <Check className="ml-auto h-4 w-4" aria-hidden="true" />}</button>; })}</div></section>
       </details>
       <details className="about-me-group"><summary><Target className="h-6 w-6" aria-hidden="true" /><span><strong>Training priorities</strong><small>{prioritiesSummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         <CapacityFocusCard catalog={targetCatalog} value={capacityFocus} onChange={onCapacityFocus} />
@@ -222,9 +223,9 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
       <details className="about-me-group"><summary><Palette className="h-6 w-6" aria-hidden="true" /><span><strong>Appearance</strong><small>{themeOptionCopy[preference].label}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         <section className="about-me-card"><label><span>Theme</span><select value={preference} onChange={(event) => { emitInteractionFeedback(); setPreference(event.target.value as ThemePreference); }}>{themePreferences.map((option) => <option key={option} value={option}>{themeOptionCopy[option].label}</option>)}</select></label><p className="about-me-theme-note">{themeOptionCopy[preference].detail}{preference === "system" ? ` Right now that is ${theme === "dark" ? "dark" : "light chrome"}.` : ""}</p></section>
       </details>
-      {accountSession && <details className="about-me-group"><summary><Lock className="h-6 w-6" aria-hidden="true" /><span><strong>Security</strong><small>{securitySummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
-        <section className="about-me-security"><div><p className="metric-label">Account security</p><h3>Face ID / passkey</h3><p>Use this device’s Face ID, Touch ID, or secure screen lock to sign in without typing your password. Your biometric data stays on your device.</p></div><button onClick={enrollPasskey} disabled={!passkeySupported || passkeyOptions.isPending || passkeyVerify.isPending}><Fingerprint className="h-4 w-4" /> {passkeySupported ? "Enable Face ID / passkey" : "Passkey unavailable"}</button>{accountPasskeys.data?.length ? <div className="about-me-passkey-list" aria-label="Enrolled passkeys">{accountPasskeys.data.map((passkey, index) => <div key={passkey.id} className="about-me-passkey-row"><span>Device passkey {index + 1}{passkey.lastUsedAt ? " · used before" : " · not used yet"}</span><button type="button" aria-label={`Remove device passkey ${index + 1}`} onClick={() => requestRemovePasskey(passkey.id, `Device passkey ${index + 1}`)} disabled={removePasskey.isPending}><Trash2 className="h-3.5 w-3.5" /> Remove</button></div>)}</div> : <p className="about-me-passkey-empty">No device passkeys enrolled yet.</p>}</section>
-      </details>}
+      <details className="about-me-group"><summary><Lock className="h-6 w-6" aria-hidden="true" /><span><strong>Security</strong><small>{securitySummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
+        <section className="about-me-security">{!accountSignedIn ? <div><p className="metric-label">Account security</p><h3>Face ID / passkey</h3><p>Face ID and passkey sign-in is not available in this build yet. Your record does not need it: it is saved as Account &amp; sync describes.</p></div> : <><div><p className="metric-label">Account security</p><h3>Face ID / passkey</h3><p>Use this device’s Face ID, Touch ID, or secure screen lock to sign in without typing your password. Your biometric data stays on your device.</p></div><button onClick={enrollPasskey} disabled={!passkeySupported || passkeyOptions.isPending || passkeyVerify.isPending}><Fingerprint className="h-4 w-4" /> {passkeySupported ? "Enable Face ID / passkey" : "Passkey unavailable"}</button>{accountPasskeys.isError ? <p className="about-me-passkey-empty">Could not read your passkeys right now.</p> : accountPasskeys.data?.length ? <div className="about-me-passkey-list" aria-label="Enrolled passkeys">{accountPasskeys.data.map((passkey, index) => <div key={passkey.id} className="about-me-passkey-row"><span>Device passkey {index + 1}{passkey.lastUsedAt ? " · used before" : " · not used yet"}</span><button type="button" aria-label={`Remove device passkey ${index + 1}`} onClick={() => requestRemovePasskey(passkey.id, `Device passkey ${index + 1}`)} disabled={removePasskey.isPending}><Trash2 className="h-3.5 w-3.5" /> Remove</button></div>)}</div> : <p className="about-me-passkey-empty">No device passkeys enrolled yet.</p>}</>}</section>
+      </details>
       {guides && <details className="about-me-group"><summary><BookOpen className="h-6 w-6" aria-hidden="true" /><span><strong>Guides &amp; research</strong><small>Onboarding, sources, and help</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>{guides}</details>}
       {launchVideo && <details className="about-me-group"><summary><PlayCircle className="h-6 w-6" aria-hidden="true" /><span><strong>Launch video</strong><small>{launchVideoEnabled ? "Play when the app opens" : "Off"}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>{launchVideo}</details>}
     </div>

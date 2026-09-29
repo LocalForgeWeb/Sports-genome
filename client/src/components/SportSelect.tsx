@@ -28,6 +28,7 @@ export function SportSelect({ sports, value, onChange, labelFor, placeholder = "
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const listId = useId();
@@ -80,14 +81,18 @@ export function SportSelect({ sports, value, onChange, labelFor, placeholder = "
     listRef.current?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`)?.scrollIntoView?.({ block: "nearest" });
   }, [activeIndex, open]);
 
+  // Closing unmounts the focused search field, so focus goes back to the trigger
+  // rather than falling to the top of the document.
   const commit = (sport: SportProfile) => {
     onChange(sport.id);
     setOpen(false);
     setQuery("");
+    triggerRef.current?.focus?.();
   };
 
   const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Escape") { setOpen(false); setQuery(""); return; }
+    // Escape closes this list only, not a sheet or dialog it sits in.
+    if (event.key === "Escape") { event.stopPropagation(); setOpen(false); setQuery(""); triggerRef.current?.focus?.(); return; }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       if (!matches.length) return;
@@ -99,11 +104,12 @@ export function SportSelect({ sports, value, onChange, labelFor, placeholder = "
 
   return <div className="athlete-sport-select" ref={rootRef}>
     <button
+      ref={triggerRef}
       type="button"
       className={`athlete-sport-trigger ${selected ? "is-chosen" : ""}`}
       aria-haspopup="listbox"
       aria-expanded={open}
-      aria-controls={open ? listId : undefined}
+      aria-controls={open && matches.length ? listId : undefined}
       onClick={() => setOpen((current) => !current)}
     >
       <span>
@@ -122,7 +128,11 @@ export function SportSelect({ sports, value, onChange, labelFor, placeholder = "
           onChange={(event) => setQuery(event.target.value)}
           placeholder={placeholder}
           aria-label="Search sports"
-          aria-controls={listId}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={matches.length > 0}
+          aria-controls={matches.length ? listId : undefined}
+          aria-activedescendant={matches.length ? `${listId}-option-${activeIndex}` : undefined}
           autoComplete="off"
         />
         {query && <button type="button" onClick={() => { setQuery(""); searchRef.current?.focus(); }} aria-label="Clear search"><X className="h-4 w-4" /></button>}
@@ -133,6 +143,7 @@ export function SportSelect({ sports, value, onChange, labelFor, placeholder = "
           <button
             type="button"
             role="option"
+            id={`${listId}-option-${index}`}
             data-index={index}
             aria-selected={sport.id === value}
             className={`athlete-sport-option ${index === activeIndex ? "is-active" : ""} ${sport.id === value ? "is-selected" : ""}`}

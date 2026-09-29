@@ -26,14 +26,13 @@ No `sessionStorage`, IndexedDB or Cache Storage is used by app code. A grep of `
 | `sports-genome-strength-synced-v1` | `strengthSyncQueue.ts:28,54,116-117` | JSON `string[]`, capped with `slice(-5000)` | Keys already sent (the only dedupe) | **No** (not per Supabase identity) | None |
 | `sports-genome-supabase-reference-map-v1` | `lib/supabaseReferenceMap.ts:27-82` | JSON `{exerciseUuidByCatalogId, sportUuidBySlug, loadedAt}`, no TTL | Reference cache, not user data | N/A | None |
 | `sports-genome-auth-v1` | `lib/supabaseClient.ts:47` (supabase-js persisted session) | supabase-js session JSON | **The athlete's Supabase identity** (an anonymous user's tokens) | Device-level; it *is* the identity. No sign-out, no sign-in | Library-managed |
-| `sports-genome-user-info` | `_core/hooks/useAuth.ts:43` | `JSON.stringify(auth.me)`, which becomes `"null"`/`"undefined"` when signed out | The MySQL user row, rewritten on every auth state change | No. Nothing reads it (PS-24) | None |
+| `sports-genome-user-info` | Fixed: no longer written; `_core/hooks/useAuth.ts` removes a leftover copy on mount | Was `JSON.stringify(auth.me)`, which became `"null"`/`"undefined"` when signed out | Was the MySQL user row, rewritten on every auth state change | No. Nothing read it (PS-24, fixed) | Cleared on mount |
 | `sports-genome-benchmark-opt-in-v1` | `Home.tsx:1116-1122` | `"true"\|"false"` | Consent to the norms pool | **No**: the next account on the device inherits the answer shown in the UI | None |
 | `sports-genome-recent-exercises-v1` | `lib/recentExercises.ts:12-31` | `number[]`, at most 8 | Recently viewed exercises | No | None |
 | `sports-genome-theme-v1` | `lib/theme.ts:21`, `contexts/ThemeContext.tsx:35,66`, `client/index.html:33` | `"dark"\|"light"` | Preference | N/A (device preference) | None |
 | `sports-genome-launch-experience-enabled-v1` | `lib/launchExperience.ts:1`, `Home.tsx:662-667,1398-1404` | `"on"\|"off"` | Preference | N/A | None |
 | `sports-genome-launched-before-v1` | `lib/bootExperience.ts:17,145-152` | `"yes"` | Boot-intro state | N/A | None |
 | `sports-genome-replay-intro-v1` | `lib/bootExperience.ts:28`, `lib/bootSplash.ts:85`, `client/index.html:34` (removed when read) | `"yes"` | One-shot replay flag | N/A | None |
-| `sidebar-width` | `components/DashboardLayout.tsx:34,45,51` | number string | Layout preference. HYPOTHESIS: dead code, since no importer outside the file | N/A | None |
 
 **In-memory only (lost on reload):** in `usePlanSync`, `revisionRef`, `pulledRef` and `lastPushedRef` (`lib/usePlanSync.ts:27-29`), which also means the pending debounced push is lost. In `useAthleteSync`, `identity`, the `running` guard and `lastCapacity` (`lib/useAthleteSync.ts:59-63,139`).
 
@@ -188,7 +187,7 @@ Severity: **P0** loses or duplicates performed data, or leaks one account's data
 | PS-21 | P2 | B177 | CONFIRMED (code) | **Destructive load fallbacks.** A malformed plan is overwritten with an empty one; plan exercises missing from the catalog are dropped and re-saved; a profile with an unknown sport is discarded (`Home.tsx:603-604,640-641,703`) | Keep the unreadable original under a quarantine key; version every stored document with explicit migrators |
 | PS-22 | P2 | B019, B033, B266 | CONFIRMED `ps-pure` (id collision); code | **Assorted weak ids and writes.** `device-<ms>` ids can collide; capacity writes are marked sent before they succeed; a late favourites response overwrites newer optimistic state (`Home.tsx:915`) | Use UUIDs; mark sent only after success; ignore stale responses by request sequence |
 | PS-23 | P2 | B154, B164 | CONFIRMED (code, not exercised) | **Dormant MySQL session API**: start has no operation id, inserts are not transactional, and a retried complete returns NOT_FOUND (`server/workoutSessions.ts:23-52,147-155`) | Add a client op id with a unique constraint, a transaction, and an idempotent complete that returns the existing row |
-| PS-24 | P2 | B173 | CONFIRMED (code) | **`sports-genome-user-info` persists the MySQL user row** on the device, and nothing reads it (`useAuth.ts:43`) | Remove the write, or clear it on sign-out |
+| PS-24 | P2 | B173 | FIXED (code) | **`sports-genome-user-info` persisted the MySQL user row** on the device, and nothing read it (was `useAuth.ts:43`) | Done: the write was removed, and `useAuth` clears the leftover copy on mount (`client/src/_core/hooks/useAuth.test.ts`) |
 
 ## 9. Not verified
 

@@ -16,9 +16,8 @@ describe("universal search and retrieval contract / local search", () => {
   // "Local inline search remains allowed inside bounded collections but must
   // state its scope and offer broadening when appropriate."
   it("gives every bounded local search a scope line and a way to broaden", () => {
-    // Universal search IS the broad scope, and the showcase page renders vendor
-    // component demos rather than an athlete-facing search.
-    const exempt = ["UniversalSearch.tsx", "ComponentShowcase.tsx"];
+    // Universal search IS the broad scope.
+    const exempt = ["UniversalSearch.tsx"];
 
     const searches = tsxFiles(SRC).filter((path) => {
       if (exempt.some((name) => path.endsWith(name))) return false;
@@ -29,7 +28,9 @@ describe("universal search and retrieval contract / local search", () => {
       // there is nothing to broaden to that closing the popup does not already
       // do. The rule is for a search over a collection rendered elsewhere on
       // the page, where what was searched has to be said in words.
-      return !/role="listbox"[\s\S]*aria-controls=\{listId\}|aria-controls=\{listId\}[\s\S]*role="listbox"/.test(source);
+      // The reference can be conditional (no listbox is rendered when nothing
+      // matches), so any aria-controls expression naming listId counts.
+      return !/role="listbox"[\s\S]*aria-controls=\{[^}]*\blistId\b[^}]*\}|aria-controls=\{[^}]*\blistId\b[^}]*\}[\s\S]*role="listbox"/.test(source);
     });
     // Four today: the Genome page's search retired with the page (its per-exercise
     // analysis lives in the exercise overlay, which has no search of its own).

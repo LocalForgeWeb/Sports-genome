@@ -33,7 +33,6 @@
   .planning-disclosure-row { grid-template-columns: 1fr; gap: .5rem; }
   .planning-disclosure-card summary, .planning-evidence-card summary { min-height: 44px; padding: .45rem .65rem; }
   .planning-disclosure-detail, .planning-evidence-card > div { padding: .65rem; }
-  .rail-nav-item { min-height: 48px; }
   .genome-panel { margin-top: 14px; }
   .genome-panel-head { align-items: center; gap: .75rem; padding: .9rem; }
   .genome-panel-head h3 { max-width: 220px; font-size: 1.8rem; line-height: .86; }
@@ -47,8 +46,6 @@
   .genome-learn-card { width: 100%; max-height: min(78svh, 680px); overflow-y: auto; border-radius: 22px 22px 0 0; padding: 1.2rem 1rem calc(1.2rem + env(safe-area-inset-bottom)); }
   .genome-learn-card h4 { max-width: calc(100% - 2rem); font-size: 2rem; }
   .genome-learn-close { width: 44px; height: 44px; }
-  .feature-guide-button { right: max(.8rem, env(safe-area-inset-right)); bottom: max(.8rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; justify-content: center; border-radius: 999px; padding: 0; }
-  .feature-guide-button span { display: none; }
   .body-lab-v2 .view-header { gap: .55rem; padding: 0; }
   .body-lab-v2 .view-header h1 { font-size: 2.6rem; }
   .body-lab-v2 .view-header-note { display: none; }

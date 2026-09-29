@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { accountSignInAvailable } from "@/lib/accountAccess";
+import { expiryNotice, isExpiryError } from "@/lib/sessionExpiryNotice";
 
 /**
  * "You're signed out of your account": said once per lapse, never on a timer (Sep 28
@@ -28,11 +29,12 @@ import { accountSignInAvailable } from "@/lib/accountAccess";
  * device's account-scoped records.
  */
 
-export const sessionNoticeId = "session-lapsed";
+/** The same id as the per-control messages (lib/sessionExpiryNotice.ts), which replace it. */
+export const sessionNoticeId = expiryNotice.id;
 const authMeKey = [["auth", "me"]];
 const isAuthMe = (queryKey: readonly unknown[]) => JSON.stringify(queryKey[0]) === JSON.stringify(authMeKey[0]);
 
-export const isUnauthorized = (error: unknown) => (error as { data?: { code?: string } } | null)?.data?.code === "UNAUTHORIZED";
+export const isUnauthorized = isExpiryError;
 
 export type SessionNoticeToast = {
   show: (title: string, options: { id: string; description: string; closeButton: boolean; duration: number; action: { label: string; onClick: () => void } }) => void;
@@ -58,11 +60,11 @@ export function createSessionNotice(queryClient: QueryClient, notify: SessionNot
   const onError = (error: unknown) => {
     if (!isUnauthorized(error) || lapsed || !signedIn()) return;
     lapsed = true;
-    notify.show("You're signed out of your account", {
+    notify.show(expiryNotice.title, {
       id: sessionNoticeId,
       description: accountSignInAvailable
-        ? "Changes you make are kept on this device. Sign in to sync them."
-        : "Changes you make are kept on this device. This version can't sign in again, so account sync has stopped.",
+        ? `${expiryNotice.description} Sign in to sync them.`
+        : `${expiryNotice.description} This version can't sign in again, so account sync has stopped.`,
       closeButton: true,
       duration: 8000,
       action: accountSignInAvailable

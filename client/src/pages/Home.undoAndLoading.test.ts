@@ -26,9 +26,10 @@ vi.mock("@/_core/hooks/useAuth", () => ({
   useAuth: () => ({ user: auth.user, loading: auth.loading, error: null, isAuthenticated: Boolean(auth.user), logout: async () => {}, refresh: async () => ({}) }),
 }));
 vi.mock("@/lib/supabaseClient", () => ({ getSupabaseClient: () => null, supabaseConfigured: false }));
+const { mutateSpy } = vi.hoisted(() => ({ mutateSpy: vi.fn() }));
 vi.mock("@/lib/trpc", () => {
   const query = () => ({ data: undefined, isLoading: false, isPending: false, isError: false, isFetching: false, error: null, refetch: async () => ({}) });
-  const mutation = () => ({ mutate: () => {}, mutateAsync: async () => ({ status: "saved", revision: 1, updatedAt: new Date() }), isPending: false, error: null, reset: () => {} });
+  const mutation = () => ({ mutate: mutateSpy, mutateAsync: async () => ({ status: "saved", revision: 1, updatedAt: new Date() }), isPending: false, error: null, reset: () => {} });
   const node: unknown = new Proxy(function () {}, {
     get(_target, prop) {
       if (prop === "useQuery" || prop === "useSuspenseQuery") return query;
@@ -73,7 +74,7 @@ async function switchDestinationTo(label: RegExp) {
   await act(async () => { fireEvent.click(day); });
 }
 
-beforeEach(() => { window.localStorage.clear(); toasts.length = 0; auth.user = null; auth.loading = false; });
+beforeEach(() => { window.localStorage.clear(); toasts.length = 0; auth.user = null; auth.loading = false; mutateSpy.mockClear(); });
 afterEach(() => { cleanup(); });
 
 describe("Undo takes back the edit it belongs to, on the day it was made", () => {
@@ -150,6 +151,25 @@ describe("Nothing edits the plan before it has been read", () => {
     view.rerender(createElement(Home));
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
     expect(dayIds("0-Push")).toEqual([exercises[0].id]);
+  });
+});
+
+describe("Favourites without an account", () => {
+  it("keeps the heart on this device and confirms it, without sending the account-only request", async () => {
+    window.localStorage.setItem(PROFILE_KEY, profile());
+    window.localStorage.setItem(PLAN_KEY, planWith({ "0-Push": [exercises[0].id] }));
+    window.history.replaceState({}, "", "/?workspace=catalog");
+    render(createElement(Home));
+    const [heart] = await screen.findAllByRole("button", { name: /^Save .+ to favorites$/ }, { timeout: 15000 });
+    const saved = exercises.find((exercise) => heart.getAttribute("aria-label") === `Save ${exercise.name} to favorites`)!;
+    await act(async () => { fireEvent.click(heart); });
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+
+    expect(toasts.some((entry) => entry.title === "Saved to favorites")).toBe(true);
+    expect(toasts.some((entry) => entry.title === "Saved on this device")).toBe(false);
+    // The no-account record: scopedKey with no account is the bare key.
+    expect(JSON.parse(window.localStorage.getItem("gym-optimizer-favorite-exercise-ids-v1") || "[]")).toContain(saved.id);
+    expect(mutateSpy.mock.calls.some(([input]) => Boolean(input) && typeof input === "object" && "catalogExerciseId" in input && "favorited" in input)).toBe(false);
   });
 });
 

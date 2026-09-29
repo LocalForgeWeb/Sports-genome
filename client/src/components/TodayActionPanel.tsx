@@ -1,6 +1,6 @@
 import { plural } from "@/lib/plural";
 import React, { useMemo } from "react";
-import { ArrowRight, ArrowUpRight, Circle, CircleCheck, CirclePlay } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Circle, CircleArrowRight, CircleCheck, CirclePlay, type LucideIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import type { LiveSession } from "@/lib/liveSession";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
@@ -86,7 +86,8 @@ export type TodayActionPanelProps = {
 
 export type PlanDayState = "live" | "trained" | "next" | "planned";
 const planDayWord: Record<PlanDayState, string> = { live: "under way", trained: "done this week", next: "next up", planned: "planned" };
-const planDayIcon: Record<PlanDayState, typeof Circle> = { live: CirclePlay, trained: CircleCheck, next: Circle, planned: Circle };
+/** One icon shape per state, so a day reads the same without colour: done, under way, next, still to come. */
+const planDayIcon: Record<PlanDayState, LucideIcon> = { trained: CircleCheck, live: CirclePlay, next: CircleArrowRight, planned: Circle };
 const noWeek = emptyDayStore();
 
 export function TodayActionPanel({ plan, live, athleteName, directAccess = true, weightUnit = "lb", goal = "Athleticism", onOpenWorkout, onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, onOpenProgress }: TodayActionPanelProps) {
@@ -234,7 +235,7 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
             </div>
             {/* The schematic is planned involvement - the exercises' primary muscles -
                 drawn in the action colour so it cannot be read as a Strength rank. */}
-            {focusFigure && <figure className="today-action-figure">
+            {focusFigure && <figure className="today-action-focus">
               <AnatomyFigure view={focusFigure.side} frame={focusFrames[focusFigure.side][focusFigure.frame]} roles={focusFigure.roles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={focusCaption} />
               <figcaption>Planned focus</figcaption>
             </figure>}
@@ -280,7 +281,7 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
           alone. "View plan" is the way in; the entries do not change the next workout. No
           weekdays are claimed; the plan has none. */}
       {next.kind !== "loading" && next.kind !== "none" && planDays.length > 0 && <ol className="home-week-strip" aria-label="Planned workouts this week, in plan order">
-        {planDays.map((day) => { const state = stateForDay(day); const Icon = planDayIcon[state]; const tag = state === "next" ? "Next" : state === "live" ? "Now" : null; return <li key={day.key} data-state={state} data-empty={day.exerciseCount ? undefined : ""} aria-current={tag ? "step" : undefined}><span className="home-week-chip"><Icon className="h-4 w-4" aria-hidden="true" /><span>{day.slot.day}</span>{tag && <em className="home-week-tag">{tag}</em>}<small className="sr-only">, {planDayWord[state]}{day.exerciseCount ? "" : ", not built yet"}</small></span></li>; })}
+        {planDays.map((day) => { const state = stateForDay(day); const Icon = planDayIcon[state]; const tag = state === "next" ? "Next" : state === "live" ? "Now" : null; return <li key={day.key} data-state={state} data-empty={day.exerciseCount ? undefined : ""} aria-current={tag ? "step" : undefined}><span className="home-week-chip"><Icon className="home-week-icon" aria-hidden="true" /><span>{day.slot.day}</span>{tag && <em className="home-week-tag">{tag}</em>}<small className="sr-only">, {planDayWord[state]}{day.exerciseCount ? "" : ", not built yet"}</small></span></li>; })}
       </ol>}
       <p className="home-week-line"><b className="stat-figure today-action-figure-accent">{plannedDone}</b> <span>of <b>{plan.slots.length}</b> planned {plan.slots.length === 1 ? "workout" : "workouts"} done this week{moreThisWeek > 0 ? ` · ${moreThisWeek} more ${moreThisWeek === 1 ? "session" : "sessions"} this week` : ""}</span></p>
       <button type="button" className="home-week-record" onClick={onOpenStrength} aria-label={`${lifetimeLine}, all time. View strength progress`}>{lifetimeLine}<small>all time</small></button>

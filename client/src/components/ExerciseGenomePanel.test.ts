@@ -88,4 +88,14 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
       expect(markup).toContain(boundary);
     }
   });
+
+  it("ships no styles for the retired Genome selector list", () => {
+    // The selector rows, their connection pills and the scope line were only
+    // emitted by the deleted ExerciseGenomeWorkspace; the panel renders none of
+    // them, so neither the rules nor the "staged migration" note about them stay.
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(css).not.toMatch(/\.genome-selector-/);
+    expect(css).not.toContain("prior inline Genome selector");
+    expect(source).not.toContain("genome-selector");
+  });
 });

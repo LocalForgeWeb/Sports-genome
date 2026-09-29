@@ -131,6 +131,8 @@
 .rank-unscored-card strong { display: block; margin-bottom: .2rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .rank-profile-partial { margin: .5rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-snug); }
 .rank-profile-partial summary { color: #9fc8f4; cursor: pointer; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; min-height: 2.75rem; display: flex; align-items: center; }
+.rank-profile-retry { min-height: 2.75rem; padding: 0 .25rem; border: 0; background: none; color: #9fc8f4; font: inherit; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; cursor: pointer; }
+.rank-profile-retry:disabled { opacity: .6; cursor: default; }
 
 @media (prefers-reduced-motion: reduce) {
   .anatomy-figure[data-encoding="rank"] .anatomy-muscle > path { transition: none; }

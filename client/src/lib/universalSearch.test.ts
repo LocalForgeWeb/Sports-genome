@@ -100,3 +100,46 @@ describe("universal search and retrieval contract", () => {
     expect(searchEverything("zzzzqqqq")).toEqual([]);
   });
 });
+
+/**
+ * Search named places by names their pages had dropped - "Movement atlas" opened a
+ * page headed "Movement explorer" - and filed the Strength Genome under Body Lab
+ * after it had moved to Progress. Typing the heading you had just read found nothing.
+ */
+describe("destinations are named as their pages name themselves", () => {
+  const destinations = (query: string) => flat(searchEverything(query)).filter((r) => r.type === "destination");
+
+  it("files the Strength Genome under Progress, where it now lives", () => {
+    const strength = destinations("strength genome").find((r) => r.id === "strength");
+    expect(strength?.context).toBe("Progress");
+  });
+
+  it("finds each page by its own heading, as an exact match", () => {
+    // The page titles and headings, written out here rather than read from Home.
+    for (const title of ["Training plan", "Review your week", "Workout", "Movement explorer", "Muscle map", "Strength Genome", "Exercise catalog"]) {
+      const first = destinations(title)[0];
+      expect(first?.label, title).toBe(title);
+      expect(first?.matchKind, title).toBe("exact");
+    }
+  });
+
+  it("still reaches each page by the name it used to go by", () => {
+    const retired: [string, string][] = [
+      ["movement atlas", "movement"],
+      ["build a workout", "day-plan"],
+      ["builder", "day-plan"],
+      ["review this day", "review"],
+      ["workout tracker", "tracker"],
+      ["training day", "day-plan"],
+    ];
+    for (const [query, id] of retired) expect(destinations(query)[0]?.id, query).toBe(id);
+  });
+
+  it("lists each place once, so no two results share an identity", () => {
+    // The result list keys each row by type and id.
+    for (const query of ["workout", "plan", "train", "review", "body"]) {
+      const ids = destinations(query).map((r) => r.id);
+      expect(new Set(ids).size, query).toBe(ids.length);
+    }
+  });
+});

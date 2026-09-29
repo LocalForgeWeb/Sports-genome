@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <!-- viewport-fit=cover: with the black-translucent status bar the page runs under the
+         clock, and iOS reports env(safe-area-inset-*) only when the page covers the screen.
+         Without it every inset reads 0, so the status-area backdrop had no height and
+         scrolled content showed behind the clock. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
     <title>Sports Genome — Decoding Performance</title>
     <meta name="description" content="Build sport-aware workouts from a 400-exercise movement and muscle catalog." />
     <link rel="icon" type="image/png" sizes="64x64" href="https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets/sports-genome-upright-s-dna-64_904d4b7b.png" />
@@ -23,7 +27,7 @@
     <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/launch/sports-genome-launch-828x1792.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/launch/sports-genome-launch-750x1334.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Sports Genome" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

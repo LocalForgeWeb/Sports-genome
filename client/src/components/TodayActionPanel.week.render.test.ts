@@ -65,6 +65,35 @@ describe("Home week strip and primary action", () => {
     expect(screen.getByRole("button", { name: /Open next workout/ })).toBeTruthy();
   });
 
+  // From #81, adapted to the summary strip (Sep 28 regression brief §5): the strip is not a
+  // picker, so there are no buttons to name; the words ride in each entry's text instead.
+  it("gives each day state its own icon shape, hidden from screen readers", () => {
+    // The old marks were CSS rings; a dashed 11px ring read as a broken "C" on a phone.
+    const shapes: Record<string, string> = { trained: "lucide-circle-check", live: "lucide-circle-play", next: "lucide-circle-arrow-right", planned: "lucide-circle" };
+    const seen: Record<string, string> = {};
+    const collect = (wanted: string[]) => {
+      for (const state of wanted) {
+        const svg = document.querySelector(`.home-week-strip li[data-state="${state}"] svg.home-week-icon`) as SVGElement | null;
+        expect(svg, state).not.toBeNull();
+        expect(svg?.classList.contains(shapes[state]), `${state} uses ${shapes[state]}`).toBe(true);
+        expect(svg?.getAttribute("aria-hidden")).toBe("true");
+        seen[state] = Array.from(svg?.classList ?? []).filter((name) => name.startsWith("lucide-")).sort().join(" ");
+      }
+      expect(document.querySelector(".home-week-strip li i")).toBeNull();
+    };
+    // Nothing done yet: the next day and the days still to come.
+    draw();
+    collect(["next", "planned"]);
+    document.body.innerHTML = "";
+    // One day done and one under way (a day under way takes the place of "next").
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([finished("Week 1 · Day 01 · Push")]));
+    const live = { id: "s1", dayLabel: "Week 1 · Day 02 · Pull", startedAt: new Date().toISOString(), completedSets: 3, plannedSets: 12, exerciseNumber: 2, exerciseCount: 5, exerciseName: "Chin-up", setNumber: 2, setCount: 4, finishedExercises: ["Barbell Row"] };
+    draw({ live });
+    collect(["trained", "live"]);
+    // No two states share a shape.
+    expect(new Set(Object.values(seen)).size).toBe(4);
+  });
+
   it("does not mark the first days done merely because the count is one", () => {
     // Legs finished, not Push: the strip follows the record, not the order.
     window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([finished("Week 1 · Day 03 · Legs")]));
@@ -132,12 +161,12 @@ describe("Home week strip and primary action", () => {
 
   it("draws the workout focus as a picture in the action colour, never as a rank map", () => {
     draw();
-    const figure = document.querySelector(".today-action-figure .anatomy-figure") as SVGElement | null;
+    const figure = document.querySelector(".today-action-focus .anatomy-figure") as SVGElement | null;
     expect(figure).toBeTruthy();
     expect(figure?.getAttribute("role")).toBe("img");
     expect(figure?.getAttribute("aria-label")).toMatch(/^Planned workout focus, front view: .*not a strength rank, recovery readiness or measured activation\.$/);
     expect(figure?.getAttribute("data-encoding")).toBeNull();
-    expect(document.querySelector(".today-action-figure .anatomy-hit-layer")).toBeNull();
+    expect(document.querySelector(".today-action-focus .anatomy-hit-layer")).toBeNull();
     expect(screen.getByText("Planned focus")).toBeTruthy();
     expect(document.querySelector(".today-action-focus-line")?.textContent).toBe("Workout focus Lats · Biceps");
   });
@@ -145,7 +174,7 @@ describe("Home week strip and primary action", () => {
   /** Sep 28 regression brief §6: the figure faces and frames where the day's work is. */
   it("turns a pulling day to the back and crops it to the upper body", () => {
     draw({ plan: todayPlan({ Push: 3 }, { split: ["Push", "Pull", "Legs"], primaryMuscles: ["lats", "upperBack"] }) });
-    const figure = document.querySelector(".today-action-figure .anatomy-figure")!;
+    const figure = document.querySelector(".today-action-focus .anatomy-figure")!;
     expect(figure.getAttribute("data-view")).toBe("back");
     expect(figure.getAttribute("data-frame")).toBe("");
     expect(figure.getAttribute("viewBox")).toBe("95 150 486 540");
@@ -153,12 +182,12 @@ describe("Home week strip and primary action", () => {
 
   it("names the day's regions but draws no empty body when nothing it trains is drawn", () => {
     draw({ plan: todayPlan({ Push: 2 }, { split: ["Push", "Pull", "Legs"], primaryMuscles: ["serratusAnterior"] }) });
-    expect(document.querySelector(".today-action-figure")).toBeNull();
+    expect(document.querySelector(".today-action-focus")).toBeNull();
     expect(document.querySelector(".today-action-focus-line")?.textContent).toBe("Workout focus Chest");
   });
 
   it("shows no schematic when the workout names no muscles, and none for the live workout", () => {
     draw({ plan: todayPlan({ Push: 6, Pull: 5 }, { split: ["Push", "Pull", "Legs"] }) });
-    expect(document.querySelector(".today-action-figure")).toBeNull();
+    expect(document.querySelector(".today-action-focus")).toBeNull();
   });
 });

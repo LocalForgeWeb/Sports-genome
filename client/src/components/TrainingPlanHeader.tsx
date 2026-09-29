@@ -48,23 +48,23 @@ export function TrainingPlanHeader({
 
   return <section className="training-plan-header" aria-label="Training plan selection">
     <div className="training-plan-title">
-      <p className="metric-label">04 / saved training-day plans</p>
+      <p className="metric-label">Saved training days</p>
       <h1>Training plan</h1>
     </div>
 
-    <div className="training-plan-weeks" role="tablist" aria-label="Training week">
+    <div className="training-plan-weeks" role="group" aria-label="Training week">
       {weeks.map(({ week, ready, savedDays }) => {
         const selected = week === activeWeek;
-        // An ungenerated week is not disabled: the pill is how you make it,
-        // which is what the separate "Generate the weeks" block was for.
+        // An ungenerated week is not disabled: the pill is how you make it, which
+        // is what the separate "Generate the weeks" block was for. So the weeks are
+        // buttons, not tabs: a tab only shows a place, and this one builds a week.
         const generates = !ready && week === nextWeekToGenerate;
         return <button
           key={week}
           type="button"
-          role="tab"
-          aria-selected={selected}
+          aria-current={selected ? "true" : undefined}
           disabled={!ready && !generates}
-          onClick={() => (ready ? onSelectWeek(week) : onGenerateWeek())}
+          onClick={ready ? () => onSelectWeek(week) : generates ? onGenerateWeek : undefined}
           className={`training-plan-week${selected ? " training-plan-week-active" : ""}`}
         >
           Week {week}

@@ -34,13 +34,22 @@ export function useAuth(options?: UseAuthOptions) {
       }
       throw error;
     } finally {
+      // auth.me answering null is what tells lib/sessionNotice.ts nobody is signed in, so a
+      // refusal after a deliberate sign-out is not called a lapse.
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
     }
   }, [logoutMutation, utils]);
 
+  /**
+   * Earlier builds copied the account row into device storage on every render. Nothing
+   * read it, and a blocked or full store threw mid-render, so clear what devices still hold.
+   */
+  useEffect(() => {
+    try { window.localStorage.removeItem("sports-genome-user-info"); } catch { /* Storage is optional. */ }
+  }, []);
+
   const state = useMemo(() => {
-    localStorage.setItem("sports-genome-user-info", JSON.stringify(meQuery.data));
     return {
       user: meQuery.data ?? null,
       loading: meQuery.isLoading || logoutMutation.isPending,
