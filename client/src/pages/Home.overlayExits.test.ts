@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
@@ -8,7 +8,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * way out of it has to leave history as if the overlay had never been there:
  * "Add to Week" pops the entry the way the close button does, and "Explore in
  * Body Lab" turns the entry into Body Lab's, so one Back returns to where the
- * overlay was opened.
+ * overlay was opened. Escape pressed in a layer opened over it belongs to that
+ * layer, not to the overlay underneath.
  */
 
 vi.mock("sonner", () => {
@@ -98,6 +99,26 @@ describe("Leaving the exercise overlay leaves nothing behind in history", () => 
     await tick();
 
     expect(screen.queryByRole("dialog")).toBeNull();
+    expect(window.history.state?.overlay).toBeUndefined();
+    expect(window.location.search).toBe("?workspace=catalog");
+  });
+
+  it("Escape in search opened over the overlay closes search only; the next Escape closes the overlay", async () => {
+    await openOverlayFromCatalog();
+    await act(async () => { fireEvent.keyDown(window, { key: "k", ctrlKey: true }); });
+    const search = screen.getByRole("dialog", { name: "Search Sports Genome" });
+    const input = within(search).getByRole("combobox");
+    await act(async () => { fireEvent.keyDown(input, { key: "Escape" }); });
+    await tick();
+
+    expect(screen.queryByRole("dialog", { name: "Search Sports Genome" })).toBeNull();
+    expect(document.querySelector(".exercise-intelligence")).toBeTruthy();
+    expect(window.history.state?.overlay).toBe("exercise");
+
+    const close = document.querySelector<HTMLButtonElement>(".exercise-intelligence-close")!;
+    await act(async () => { fireEvent.keyDown(close, { key: "Escape" }); });
+    await tick();
+    expect(document.querySelector(".exercise-intelligence")).toBeNull();
     expect(window.history.state?.overlay).toBeUndefined();
     expect(window.location.search).toBe("?workspace=catalog");
   });

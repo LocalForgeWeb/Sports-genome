@@ -106,6 +106,14 @@ describe("choosing a week and a day", () => {
     expect(markup).toContain("Trained");
   });
 
+  // "04 /" was a design-mock section number shown to athletes, like the
+  // "01 / PROGRAM BIAS / EDITABLE" tag athlete-baseline-quiz.css removed from onboarding.
+  it("names the page in plain words, with no mock section number", () => {
+    const markup = render();
+    expect(markup).toContain("Saved training days");
+    expect(markup).not.toMatch(/\b0\d \//);
+  });
+
   it("renders nothing rather than a header for a week with no days", () => {
     expect(render({ slots: [], activeIndex: 0 })).toBe("");
   });

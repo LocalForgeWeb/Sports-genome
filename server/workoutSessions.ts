@@ -24,30 +24,34 @@ export async function createWorkoutSession(userId: number, input: StartWorkoutSe
   const db = await getDb();
   if (!db) throw new Error("Database is unavailable");
 
-  const inserted = await db.insert(workoutSessions).values({
-    userId,
-    title: input.title,
-    sportId: input.sportId,
-    goal: input.goal,
-    dayLabel: input.dayLabel,
-    plannedExerciseCount: input.exercises.length,
-  }).$returningId();
-  const sessionId = inserted[0]?.id;
-  if (!sessionId) throw new Error("Workout session could not be created");
+  // One transaction: a failed exercise insert must not leave an "active" session with no exercises.
+  const sessionId = await db.transaction(async (tx) => {
+    const inserted = await tx.insert(workoutSessions).values({
+      userId,
+      title: input.title,
+      sportId: input.sportId,
+      goal: input.goal,
+      dayLabel: input.dayLabel,
+      plannedExerciseCount: input.exercises.length,
+    }).$returningId();
+    const id = inserted[0]?.id;
+    if (!id) throw new Error("Workout session could not be created");
 
-  if (input.exercises.length) {
-    await db.insert(workoutSessionExercises).values(input.exercises.map((exercise, index) => ({
-      sessionId,
-      catalogExerciseId: exercise.catalogExerciseId,
-      exerciseName: exercise.exerciseName,
-      movement: exercise.movement,
-      primaryMuscles: exercise.primaryMuscles?.join(", "),
-      plannedPrescription: exercise.plannedPrescription,
-      plannedRpe: exercise.plannedRpe,
-      plannedRest: exercise.plannedRest,
-      exerciseOrder: index,
-    })));
-  }
+    if (input.exercises.length) {
+      await tx.insert(workoutSessionExercises).values(input.exercises.map((exercise, index) => ({
+        sessionId: id,
+        catalogExerciseId: exercise.catalogExerciseId,
+        exerciseName: exercise.exerciseName,
+        movement: exercise.movement,
+        primaryMuscles: exercise.primaryMuscles?.join(", "),
+        plannedPrescription: exercise.plannedPrescription,
+        plannedRpe: exercise.plannedRpe,
+        plannedRest: exercise.plannedRest,
+        exerciseOrder: index,
+      })));
+    }
+    return id;
+  });
 
   return getWorkoutSession(userId, sessionId);
 }

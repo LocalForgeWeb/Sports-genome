@@ -1,14 +1,38 @@
-import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { emitInteractionFeedback } from "./interactionFeedback";
 
-const source = readFileSync(new URL("./interactionFeedback.ts", import.meta.url), "utf8");
-
+/**
+ * Vibration is a best-effort extra on a tap: where the browser offers it the athlete feels
+ * the tap, and where it does not (Safari, a blocked page, a server render) the tap still works.
+ */
 describe("interaction feedback fallback", () => {
-  it("uses vibration only when the browser supports it and keeps failure non-blocking", () => {
-    expect(source).toContain('typeof navigator === "undefined"');
-    expect(source).toContain('typeof navigator.vibrate !== "function"');
-    expect(source).toContain("navigator.vibrate(pattern)");
-    expect(source).toContain("interaction remains fully functional");
-    expect(source).toContain("Safari may ignore this API");
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("vibrates briefly by default and passes a given pattern through", () => {
+    const vibrate = vi.fn(() => true);
+    vi.stubGlobal("navigator", { vibrate });
+
+    emitInteractionFeedback();
+    emitInteractionFeedback([10, 30]);
+
+    expect(vibrate).toHaveBeenNthCalledWith(1, 12);
+    expect(vibrate).toHaveBeenNthCalledWith(2, [10, 30]);
+  });
+
+  it("does not let a refused vibration break the tap", () => {
+    vi.stubGlobal("navigator", { vibrate: () => { throw new Error("blocked"); } });
+    expect(() => emitInteractionFeedback()).not.toThrow();
+  });
+
+  it("does nothing where the browser has no vibration (Safari)", () => {
+    vi.stubGlobal("navigator", {});
+    expect(() => emitInteractionFeedback()).not.toThrow();
+  });
+
+  it("does nothing where there is no navigator at all", () => {
+    vi.stubGlobal("navigator", undefined);
+    expect(() => emitInteractionFeedback()).not.toThrow();
   });
 });

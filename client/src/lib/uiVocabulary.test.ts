@@ -22,9 +22,8 @@ const copySources = [
   join(uiRoot, "lib/bodyLabRoleContext.ts"),
 ].filter(
   path =>
-    // The primitive itself, and a component gallery that nothing imports or routes -
-    // neither is copy an athlete can reach.
-    !path.endsWith("components/ui/table.tsx") && !path.endsWith("pages/ComponentShowcase.tsx")
+    // The table primitive itself is not copy an athlete reads.
+    !path.endsWith("components/ui/table.tsx")
 );
 
 /** Quoted strings long enough to be prose rather than an identifier or class name. */
@@ -54,6 +53,24 @@ describe("the interface does not say 'table'", () => {
     // The vault table in the movement database is not a database table.
     const movement = readFileSync(join(uiRoot, "lib/sportMovementDatabase.ts"), "utf8");
     expect(movement).toContain("table");
+  });
+});
+
+/**
+ * The athlete cannot act on a backend setting, and the app otherwise never names
+ * its backend. Case-sensitive on a word edge, so identifiers such as
+ * SupabaseExerciseEvidence or supabaseEvidence.status, which prose() also
+ * catches between quotes, are not copy.
+ */
+describe("the interface does not name its backend", () => {
+  it("never names the backend vendor in athlete-facing copy", () => {
+    const offenders: string[] = [];
+    for (const path of copySources) {
+      for (const text of prose(path)) {
+        if (/\bSupabase\b/.test(text)) offenders.push(`${path.replace(uiRoot, "")}: ${text.slice(0, 90)}`);
+      }
+    }
+    expect(offenders, offenders.join("\n")).toEqual([]);
   });
 });
 

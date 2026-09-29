@@ -2,31 +2,18 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const component = readFileSync(join(process.cwd(), "client/src/components/WorkspaceTabs.tsx"), "utf8");
 const home = readFileSync(join(process.cwd(), "client/src/pages/Home.tsx"), "utf8");
 const css = readFileSync(join(process.cwd(), "client/src/index.css"), "utf8");
 
 /**
  * The contextual tab row scrolls horizontally and hides its own scrollbar. Measured
  * on a 390px phone, the Train group's six tabs need 697px - so three of them sat off
- * screen with nothing at all to say they existed.
+ * screen with nothing at all to say they existed. WorkspaceTabs.render.test.ts covers
+ * how the row measures itself and brings the active tab into view; these check that
+ * the stylesheet shows what the row reports.
  */
 describe("the tab row admits that it scrolls", () => {
-  it("tracks whether there is more in either direction", () => {
-    expect(component).toContain("node.scrollWidth - node.clientWidth");
-    expect(component).toContain("scrollLeft > 1");
-    expect(component).toContain("scrollLeft < maxScroll - 1");
-  });
-
-  it("tolerates a sub-pixel residue rather than lighting a fade on a row that fits", () => {
-    // Exact comparisons leave an indicator permanently on.
-    expect(component).not.toContain("scrollLeft > 0");
-    expect(component).not.toContain("scrollLeft < maxScroll)");
-  });
-
-  it("exposes the state as attributes the stylesheet can key off", () => {
-    expect(component).toContain('data-overflow-start');
-    expect(component).toContain('data-overflow-end');
+  it("keys the marks off the attributes the row sets", () => {
     expect(css).toContain('.workspace-top-switcher-shell[data-overflow-start="yes"]::before');
     expect(css).toContain('.workspace-top-switcher-shell[data-overflow-end="yes"]::after');
   });
@@ -42,37 +29,6 @@ describe("the tab row admits that it scrolls", () => {
 
   it("keeps the indicator off a label", () => {
     expect(css).toContain('[data-overflow-end="yes"] .workspace-top-switcher{padding-right:2rem}');
-  });
-
-  it("re-measures when the row or its contents change size", () => {
-    expect(component).toContain("ResizeObserver");
-    expect(component).toContain('node.addEventListener("scroll", measure');
-  });
-
-  it("cleans up its listeners", () => {
-    expect(component).toContain('node.removeEventListener("scroll", measure)');
-    expect(component).toContain("observer?.disconnect()");
-  });
-
-  it("survives a browser without ResizeObserver", () => {
-    expect(component).toContain('typeof ResizeObserver === "function"');
-  });
-});
-
-describe("arriving at an off-screen tab shows it", () => {
-  it("scrolls the active tab into view", () => {
-    expect(component).toContain('querySelector<HTMLElement>(\'[aria-current="page"]\')');
-    expect(component).toContain("scrollIntoView");
-  });
-
-  it("scrolls only the row, not the page", () => {
-    // block: "nearest" stops the whole document jumping to the tab strip.
-    expect(component).toContain('inline: "nearest", block: "nearest"');
-  });
-
-  it("re-runs when the active tab changes", () => {
-    const effect = component.slice(component.indexOf("Arriving at a tab"));
-    expect(effect).toContain("[activeId]");
   });
 });
 

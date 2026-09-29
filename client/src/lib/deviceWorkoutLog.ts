@@ -104,15 +104,23 @@ export function stampLegacyWeightUnits(sessions: DeviceWorkoutSession[], unit: D
 export const deviceWorkoutHistoryKey = "sports-genome-device-workout-history-v1";
 export const deviceWorkoutHistoryEvent = "sports-genome:device-workout-history";
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+/**
+ * A null entry used to throw at any level, so the whole history loaded as empty and the next
+ * checkpoint wrote that over every workout; a string, number or array was read as a junk
+ * object. Entries that are not objects are now skipped at each level. Anything that is an
+ * object is kept as it is, whatever its status: dropping it here would erase it on the next save.
+ */
 export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey) || "[]");
-    return Array.isArray(parsed) ? parsed.map((session) => ({
+    return Array.isArray(parsed) ? parsed.filter(isRecord).map((session) => ({
       ...session,
-      exercises: Array.isArray(session.exercises) ? session.exercises.map((exercise: DeviceWorkoutExercise) => ({
+      exercises: Array.isArray(session.exercises) ? session.exercises.filter(isRecord).map((exercise) => ({
         ...exercise,
-        sets: Array.isArray(exercise.sets) ? exercise.sets.map(normalizeSet) : [],
+        sets: Array.isArray(exercise.sets) ? exercise.sets.filter(isRecord).map((set) => normalizeSet(set as DeviceSetLog)) : [],
       })) : [],
       weightUnit: isWeightUnit(session.weightUnit) ? session.weightUnit : undefined,
     })) as DeviceWorkoutSession[] : [];
@@ -282,11 +290,6 @@ export function weightInUnit(weight: string, from: DisplayWeightUnit, to: Displa
   if (!Number.isFinite(value)) return weight;
   const converted = kilogramsToDisplayWeight(displayWeightToKilograms(value, from), to);
   return String(Math.round(converted * 100) / 100);
-}
-
-/** Whether a session is currently running on this device. */
-export function hasActiveDeviceSession(): boolean {
-  return loadDeviceWorkoutSessions().some((session) => session.status === "active");
 }
 
 /**

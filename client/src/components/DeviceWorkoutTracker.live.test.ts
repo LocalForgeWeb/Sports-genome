@@ -371,6 +371,43 @@ describe("half-typed numeric entry", () => {
   });
 });
 
+/**
+ * The keypad labels its return key Next on the load box and Done on reps. With
+ * no handler behind them, Android sent Enter and nothing happened.
+ */
+describe("return key on the live entry", () => {
+  const entry = () => within(document.querySelector(".live-set-entry") as HTMLElement);
+  const weight = () => entry().getByLabelText(/weight/i) as HTMLInputElement;
+  const reps = () => entry().getByLabelText(/reps/i) as HTMLInputElement;
+
+  it("moves from the load box to reps on Next, without logging", () => {
+    startWorkout();
+    weight().focus();
+    fireEvent.keyDown(weight(), { key: "Enter" });
+    expect(document.activeElement).toBe(reps());
+    expect(screen.getByRole("button", { name: /log set 1/i })).toBeTruthy();
+    expect(JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!)[0].exercises[0].sets[0].completed).toBe(false);
+  });
+
+  it("logs the set on Done in the reps box", () => {
+    startWorkout();
+    fireEvent.change(weight(), { target: { value: "135" } });
+    fireEvent.change(reps(), { target: { value: "8" } });
+    fireEvent.keyDown(reps(), { key: "Enter" });
+    expect(screen.getByRole("button", { name: /log set 2/i })).toBeTruthy();
+    const stored = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!);
+    expect(stored[0].exercises[0].sets[0]).toMatchObject({ weight: "135", reps: "8", completed: true });
+  });
+
+  it("logs nothing for a held return key", () => {
+    startWorkout();
+    fireEvent.change(reps(), { target: { value: "8" } });
+    fireEvent.keyDown(reps(), { key: "Enter", repeat: true });
+    expect(screen.getByRole("button", { name: /log set 1/i })).toBeTruthy();
+    expect(JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!)[0].exercises[0].sets[0].completed).toBe(false);
+  });
+});
+
 describe("skipping an exercise from the live card", () => {
   it("moves to the next exercise and records nothing for the one passed", () => {
     startWorkout();
@@ -480,5 +517,40 @@ describe("active workout continuity contract", () => {
   it("shows no resume cue for a workout started in this sitting", () => {
     startWorkout();
     expect(document.querySelector(".tracker-resume-cue")).toBeNull();
+  });
+});
+
+/**
+ * The clock only ticks while a rest runs, so between sets it stops. A set logged
+ * minutes later used to count down from the gap plus the rest ("3:20" for a 1:30
+ * rest), and +15s on a finished rest briefly read "Resting" again.
+ */
+describe("rest clock after a pause between sets", () => {
+  beforeEach(() => { vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "setTimeout", "clearTimeout", "Date"] }); });
+  afterEach(() => { vi.useRealTimers(); });
+
+  const clock = () => document.querySelector(".live-rest-clock")!.textContent;
+  const state = () => document.querySelector(".live-rest-state")!.textContent;
+
+  // Two separate waits: the tick is only cleared once the finished rest renders.
+  function restThenWait() {
+    startWorkout();
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+    act(() => { vi.advanceTimersByTime(91_000); });
+    expect(state()).toBe("Rest complete");
+    act(() => { vi.advanceTimersByTime(110_000); });
+  }
+
+  it("starts the next rest at its full length, not the length plus the pause", () => {
+    restThenWait();
+    fireEvent.click(screen.getByRole("button", { name: /log set 2/i }));
+    expect(clock()).toBe("1:30");
+    expect(state()).toBe("Resting");
+  });
+
+  it("keeps a finished rest finished when it is lengthened long after it ended", () => {
+    restThenWait();
+    fireEvent.click(screen.getByRole("button", { name: /lengthen rest/i }));
+    expect(state()).toBe("Rest complete");
   });
 });

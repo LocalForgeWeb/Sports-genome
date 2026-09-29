@@ -46,6 +46,9 @@ const programmingTargets: Record<TrainingGoal, ProgrammingTarget> = {
   Capacity: { goal: "Capacity", sessionSetBand: [12, 22], workingSetCue: "Use progressive, repeatable work sets or timed intervals while preserving position and movement quality.", repetitionCue: "Higher-repetition or timed work can support local endurance; 15+ repetitions with lighter-to-moderate resistance is a traditional reference, not a rule for every exercise.", restCue: "Shorter rests can be useful when quality remains repeatable; use less than 90 seconds as a reference rather than a mandatory limit.", weeklyVolumeCue: "Build repeatability progressively and track comparable performance over time instead of targeting one universal weekly set total.", evidenceBoundary: "Capacity guidance is a planning model. It does not measure aerobic fitness, sport workload, or individual fatigue tolerance." },
 };
 
+/** A saved goal is read back from storage, so it is checked against the four goals before it indexes the targets. */
+export const isTrainingGoal = (value: unknown): value is TrainingGoal => typeof value === "string" && Object.prototype.hasOwnProperty.call(programmingTargets, value);
+
 const parseNumber = (value: string | undefined, fallback: number) => Number.parseInt(value?.match(/\d+/)?.[0] || "", 10) || fallback;
 
 export const getExerciseSettings = (settings: Record<number, ExerciseSettings>, exerciseId: number) => settings[exerciseId] || defaultSettings;

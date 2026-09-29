@@ -70,6 +70,28 @@ describe("Home week strip and primary action", () => {
     expect(screen.getByRole("button", { name: /Open next workout/ })).toBeTruthy();
   });
 
+  it("shows each day's state as a word beside the dot, not by colour alone", () => {
+    // Completed and under way share the filled-dot shape; only a word tells them apart without hue.
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([finished("Week 1 · Day 01 · Push")]));
+    const live = { id: "s1", dayLabel: "Week 1 · Day 02 · Pull", startedAt: new Date().toISOString(), completedSets: 3, plannedSets: 12, exerciseNumber: 2, exerciseCount: 5, exerciseName: "Chin-up", setNumber: 2, setCount: 4, finishedExercises: ["Barbell Row"] };
+    draw({ live });
+    const segment = (state: string) => document.querySelector(`.home-week-strip li[data-state="${state}"]`) as HTMLElement;
+    expect(segment("trained").querySelector("small")?.textContent).toBe("Done");
+    expect(segment("live").querySelector("small")?.textContent).toBe("Now");
+    expect(segment("planned").querySelector("small")).toBeNull();
+    // The word is for the eye; the accessible name already says the state in full.
+    expect(segment("trained").querySelector("small")?.getAttribute("aria-hidden")).toBe("true");
+    expect(screen.getByRole("button", { name: /^Push, completed this week/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Pull, under way/ })).toBeTruthy();
+  });
+
+  it("marks the next day with a word as well as its ring", () => {
+    draw();
+    const next = document.querySelector('.home-week-strip li[data-state="next"]') as HTMLElement;
+    expect(next.querySelector("small")?.textContent).toBe("Next");
+    expect(screen.getByRole("button", { name: /^Pull, next up/ })).toBeTruthy();
+  });
+
   it("does not mark the first days completed merely because the count is one", () => {
     // Legs finished, not Push: the strip follows the record, not the order.
     window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([finished("Week 1 · Day 03 · Legs")]));

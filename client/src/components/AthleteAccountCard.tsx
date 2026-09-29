@@ -30,8 +30,10 @@ export function AthleteAccountCard({ identity, pending, optedIn, onOptIn }: {
     ? identity.anonymous
       ? "Saved to an account on this device. You can attach an email to it; signing in on another device is not available in this build yet."
       : "Saved to your account, with your email attached. Signing in on another device is not available in this build yet."
+    // "anonymous_sign_ins_disabled" means the Supabase project has Auth > Anonymous
+    // sign-ins off. Turning it on starts the sync, and the queued lifts upload then.
     : identity.reason === "anonymous_sign_ins_disabled"
-      ? "This project does not allow accounts to be created automatically yet, so your record is saved on this device only. Turning on anonymous sign-ins in Supabase starts the sync; nothing logged before then is lost."
+      ? "Accounts are not switched on for this app yet, so your record is saved on this device only. Nothing you log is lost: it uploads once they are."
       : identity.reason === "not_configured"
         ? "This build has no account service configured. Everything you log is saved on this device."
         : "Could not reach the account service. Everything you log is saved on this device and will sync when it is back.";

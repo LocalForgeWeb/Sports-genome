@@ -173,6 +173,9 @@ export function setCount(value: string | undefined): number {
  * Separate from `setCount` on purpose: the weekly volume map wants the truth about a
  * pasted "20 × 15", and the logger wants a number of input rows a person can scroll
  * past. Capping inside the parser conflated the two and silently rewrote the plan.
+ * Every surface that builds set rows (the session logger, the device tracker) reads
+ * this rather than the leading number, so a varied "4 × 10/8/6/6" or a hand-edited
+ * plan gives the same number of rows everywhere.
  */
 export function renderableSetCount(value: string | undefined): number {
   return Math.max(1, Math.min(maxEditableSets, setCount(value)));

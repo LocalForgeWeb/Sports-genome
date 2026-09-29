@@ -53,7 +53,7 @@ Calculation and data contracts, mapped to the code that implements them (brief Â
 
 ## Which observation counts (B061, B063, B083)
 
-- **Muscle ranks: best historical.** The client sends each exercise's strongest lifts by age-adjusted e1RM (relative to body mass, and absolute), whenever logged (`muscleRankLifts`). The server scores them all and passes the aggregation one per exercise: the highest percentile, keeping that observation's own confidence (`bestObservationPerExercise`, rule `best_percentile_per_exercise_v1`). Adding a weaker lift can never lower a rank.
+- **Muscle ranks: best historical.** The client sends each exercise's strongest lifts by age-adjusted e1RM (relative to body mass, and absolute), whenever logged (`muscleRankLiftSelection`). The server scores them all and passes the aggregation one per exercise: the highest percentile, keeping that observation's own confidence (`bestObservationPerExercise`, rule `best_percentile_per_exercise_v1`). Adding a weaker lift can never lower a rank.
 - **A finished workout:** its strongest set by e1RM, one observation per exercise.
 - **The single-lift card and Progress:** the lift being looked at, or a trend's latest lift. Neither is a best-of.
 - **Duplicates:** identical lifts are sent once. Correlated variants are handled by the database aggregation's movement-pattern redundancy decay (0.55 per additional exercise in the same pattern).

@@ -1,5 +1,6 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import { BoundedCache, withTimeout } from "./boundedCache";
+import { numberOrNull, textOrNull } from "./rowValues";
 import type {
   SupabaseSportExerciseRecommendation,
   SupabaseSportMovementDemand,
@@ -56,18 +57,6 @@ const profileCache = new BoundedCache<string, SupabaseSportProfile>(200, CACHE_T
 
 const CONNECTED_BOUNDARY =
   "Sport demand and recommendation records describe population-level evidence from the Sports Genome research registry. They add reasoning context here and do not replace the local exercise catalog, athlete-specific mechanics, or existing recommendation scoring.";
-
-function textOrNull(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
-
-function numberOrNull(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string" && value.trim() && Number.isFinite(Number(value))) {
-    return Number(value);
-  }
-  return null;
-}
 
 function integerOrNull(value: unknown): number | null {
   const parsed = numberOrNull(value);

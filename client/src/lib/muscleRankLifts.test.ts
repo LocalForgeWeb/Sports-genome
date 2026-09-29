@@ -1,22 +1,59 @@
 import { describe, expect, it } from "vitest";
-import { MUSCLE_RANK_LIFT_LIMIT, liftBodyMassKg, muscleRankLifts } from "./muscleRankLifts";
+import { MUSCLE_RANK_LIFT_LIMIT, liftBodyMass, muscleRankLiftSelection } from "./muscleRankLifts";
 import type { BodyWeightEntry } from "./bodyWeightLog";
 
 const history: BodyWeightEntry[] = [{ bodyMassKg: 82, enteredUnit: "kg", observedAt: "2026-08-01T00:00:00.000Z" }];
+/** The lifts sent, without what rides beside them. */
+const muscleRankLifts = (...args: Parameters<typeof muscleRankLiftSelection>) => muscleRankLiftSelection(...args).lifts;
 
 describe("The body weight a lift is read against", () => {
   /** The rule: a lift keeps the weight saved with it, whatever the profile says today. */
   it("uses the weight saved with the lift first", () => {
-    expect(liftBodyMassKg({ exerciseName: "Bench", observedAt: "2026-09-01", bodyMassKgAtTest: 80 }, history, 90)).toBe(80);
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-09-01", bodyMassKgAtTest: 80 }, history, 90)).toEqual({ kg: 80, source: "recorded" });
   });
   it("falls back to the weight log for that day", () => {
-    expect(liftBodyMassKg({ exerciseName: "Bench", observedAt: "2026-09-01" }, history, 90)).toBe(82);
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-09-01" }, history, 90)).toEqual({ kg: 82, source: "dated" });
   });
   it("uses the profile weight only when nothing closer exists", () => {
-    expect(liftBodyMassKg({ exerciseName: "Bench", observedAt: "2026-07-01" }, history, 90)).toBe(90);
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-07-01" }, history, 90)).toEqual({ kg: 90, source: "profile" });
   });
   it("gives no weight rather than a made-up one", () => {
-    expect(liftBodyMassKg({ exerciseName: "Bench", observedAt: "2026-07-01" }, [], null)).toBeNull();
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-07-01" }, [], null)).toBeNull();
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-07-01" }, history, null)).toBeNull();
+  });
+});
+
+describe("Which ranked lifts are read against the profile weight", () => {
+  it("names only the lifts with no weight of their own day", () => {
+    const selection = muscleRankLiftSelection([
+      { exerciseName: "Barbell Bench Press", loadKg: 100, repetitions: 5, bodyMassKgAtTest: 80, observedAt: "2026-09-01T10:00:00.000Z" },
+      { exerciseName: "Preacher Curl", loadKg: 30, repetitions: 8, observedAt: "2026-09-02T10:00:00.000Z" },
+      { exerciseName: "Back Squat", loadKg: 120, repetitions: 5, observedAt: "2026-07-01T10:00:00.000Z" },
+    ], history, 80);
+    expect(selection.lifts).toHaveLength(3);
+    expect(selection.profileWeightLifts).toEqual([{ exerciseName: "Back Squat", fromWorkout: false }]);
+  });
+
+  /** Only a typed lift's record can take the weight of its day, so the map must know which is which. */
+  it("says which of them came from a finished workout", () => {
+    const selection = muscleRankLiftSelection([
+      { exerciseName: "Back Squat", loadKg: 100, repetitions: 5, observedAt: "2026-07-02T10:00:00.000Z", source: "workout" },
+      { exerciseName: "Barbell Bench Press", loadKg: 80, repetitions: 5, observedAt: "2026-07-01T10:00:00.000Z" },
+    ], history, 80);
+    expect(selection.profileWeightLifts).toEqual([
+      { exerciseName: "Back Squat", fromWorkout: true },
+      { exerciseName: "Barbell Bench Press", fromWorkout: false },
+    ]);
+  });
+
+  it("does not name a profile-weight lift that is not sent", () => {
+    // The saved-weight single is the stronger lift both ways, so the lighter one stays home.
+    const selection = muscleRankLiftSelection([
+      { exerciseName: "Bench", loadKg: 100, repetitions: 1, bodyMassKgAtTest: 80, observedAt: "2026-09-01T10:00:00.000Z" },
+      { exerciseName: "Bench", loadKg: 60, repetitions: 1, observedAt: "2026-07-01T10:00:00.000Z" },
+    ], history, 80);
+    expect(selection.lifts.map((lift) => lift.loadKg)).toEqual([100]);
+    expect(selection.profileWeightLifts).toEqual([]);
   });
 });
 

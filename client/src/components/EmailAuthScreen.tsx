@@ -8,6 +8,17 @@ import "@/email-auth.css";
 
 type AuthMode = "signIn" | "register";
 
+/**
+ * The server counts sign-in calls per network address (server/_core/rateLimit.ts) and answers
+ * TOO_MANY_REQUESTS past the allowance. A shared gym or office network can reach it, so the
+ * athlete is told to wait, not to check a connection or a passkey that is working.
+ */
+const RATE_LIMITED_MESSAGE = "Too many sign-in attempts from this network. Wait a minute and try again.";
+
+function errorCode(error: unknown): string | undefined {
+  return (error as { data?: { code?: string } } | null)?.data?.code;
+}
+
 export function EmailAuthScreen({ onAuthenticated, loading }: { onAuthenticated: () => void; loading: boolean }) {
   const [mode, setMode] = useState<AuthMode>("signIn");
   const [email, setEmail] = useState("");
@@ -39,7 +50,8 @@ export function EmailAuthScreen({ onAuthenticated, loading }: { onAuthenticated:
     } catch (error) {
       // The server refused what was typed (an address the browser accepts but the server does not,
       // such as a missing ".com", or an overlong password): a connection hint would send the athlete the wrong way.
-      const code = (error as { data?: { code?: string } } | null)?.data?.code;
+      const code = errorCode(error);
+      if (code === "TOO_MANY_REQUESTS") return toast.error(RATE_LIMITED_MESSAGE);
       if (code === "BAD_REQUEST") return toast.error("Check your email address and password, then try again.");
       return toast.error(mode === "register" ? "Could not create your account right now. Check your connection and try again." : "Could not sign in right now. Check your connection and try again.");
     }
@@ -60,7 +72,8 @@ export function EmailAuthScreen({ onAuthenticated, loading }: { onAuthenticated:
       const finished = await passkeyVerify.mutateAsync({ email, response: response as unknown as { id: string } & Record<string, unknown> });
       if (!finished.ok) return toast.error("Face ID or passkey verification did not complete");
       await refreshAndContinue();
-    } catch {
+    } catch (error) {
+      if (errorCode(error) === "TOO_MANY_REQUESTS") return toast.error(RATE_LIMITED_MESSAGE);
       toast.error("Face ID or device passkey was cancelled or unavailable");
     }
   }

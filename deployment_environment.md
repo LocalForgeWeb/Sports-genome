@@ -15,7 +15,6 @@ in the repository holds their values, and nothing should.
 | `VITE_SUPABASE_URL` | Every research-backed surface: the approved norms registry, the evidence library, the sport profile. The API answers, but with empty results. | `https://qiccnqkypbhlwpmjcsri.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Same as above — the registry reads behind the service role, because `app_reference_eligibility` and the norms tables are not browser-readable and should not be. It also turns off **targeted capacity**: `resilience.targetCatalog` answers `unavailable`, so the "something you want stronger / anything going on there right now" step in onboarding and the same card in the profile collapse to a boundary sentence with nothing selectable. The 26 rows in `app_resilience_target_catalog_v1` are there and correct; nothing can read them. | Supabase → project `qiccnqkypbhlwpmjcsri` → Project Settings → API Keys. Either key shape works: a new **secret** key (`sb_secret_...`, created under "Secret keys") or the legacy `service_role` JWT under "Legacy API keys". Not the publishable/`anon` key — see below. |
 | `DATABASE_URL` | Accounts and anything saved to one: workout sessions, saved tests, favourites, priorities. Device-local records still work. | The MySQL connection string |
-| `OWNER_OPEN_ID` | Owner-only routes. | The owner's open id |
 
 `VITE_SUPABASE_URL` is read by the server (`server/normsRegistry.ts` and the other
 Supabase adapters), despite the `VITE_` prefix. The prefix is historical; it is not a

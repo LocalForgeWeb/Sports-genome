@@ -16,9 +16,8 @@ describe("universal search and retrieval contract / local search", () => {
   // "Local inline search remains allowed inside bounded collections but must
   // state its scope and offer broadening when appropriate."
   it("gives every bounded local search a scope line and a way to broaden", () => {
-    // Universal search IS the broad scope, and the showcase page renders vendor
-    // component demos rather than an athlete-facing search.
-    const exempt = ["UniversalSearch.tsx", "ComponentShowcase.tsx"];
+    // Universal search IS the broad scope.
+    const exempt = ["UniversalSearch.tsx"];
 
     const searches = tsxFiles(SRC).filter((path) => {
       if (exempt.some((name) => path.endsWith(name))) return false;

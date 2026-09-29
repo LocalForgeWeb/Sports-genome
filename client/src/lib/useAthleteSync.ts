@@ -71,6 +71,11 @@ export function useAthleteSync(options: {
   const [pending, setPending] = useState(() => loadSyncQueue().length);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | undefined>();
   const running = useRef(false);
+  // A sync asked for while one is in flight runs once that one settles, through the latest
+  // callback, so it sees an id or map that arrived meanwhile. It used to be dropped, and a
+  // workout finished during a slow upload waited for some unrelated event to be queued.
+  const rerunRequested = useRef(false);
+  const latestSyncNow = useRef<() => void>(() => {});
 
   // One identity per device, established on first launch and reused after.
   useEffect(() => {
@@ -115,8 +120,19 @@ export function useAthleteSync(options: {
     return () => { cancelled = true; stop(); };
   }, [enabled, appSports, referenceMap]);
 
+  const [currentWeightKg, setCurrentWeightKg] = useState(() => currentBodyWeightKg(loadBodyWeightLog()));
+  useEffect(() => {
+    if (!enabled) return;
+    const refresh = () => setCurrentWeightKg(currentBodyWeightKg(loadBodyWeightLog()));
+    // Read again on subscribe: Home seeds the log from a stored profile before this runs.
+    refresh();
+    window.addEventListener(bodyWeightLogEvent, refresh);
+    return () => window.removeEventListener(bodyWeightLogEvent, refresh);
+  }, [enabled]);
+
   // The profile row follows the athlete's current defaults. It is a default, not
   // a measurement: every lift keeps its own dated body-weight snapshot.
+  // A newly logged weight reaches it straight away, not only on the next launch.
   useEffect(() => {
     if (!enabled || !identity.userId) return;
     upsertAthleteProfile(identity.userId, {
@@ -124,9 +140,9 @@ export function useAthleteSync(options: {
       birthYear,
       primarySportId: sportId ? referenceMap?.sportUuidBySlug[sportId] : undefined,
       sportContextMode,
-      defaultBodyWeightKg: currentBodyWeightKg(loadBodyWeightLog()),
+      defaultBodyWeightKg: currentWeightKg,
     });
-  }, [enabled, identity.userId, sexForReference, birthYear, sportId, sportContextMode, referenceMap]);
+  }, [enabled, identity.userId, sexForReference, birthYear, sportId, sportContextMode, referenceMap, currentWeightKg]);
 
   /**
    * The catalog, from the athlete's own session when the server route cannot
@@ -192,7 +208,8 @@ export function useAthleteSync(options: {
 
   /** Turns everything finished on this device into queued rows, then sends them. */
   const syncNow = useCallback(() => {
-    if (!enabled || running.current) return;
+    if (!enabled) return;
+    if (running.current) { rerunRequested.current = true; return; }
     running.current = true;
     const weightLog = loadBodyWeightLog();
     const observations = workoutStrengthObservations(loadDeviceWorkoutSessions(), weightUnit, weightLog);
@@ -232,8 +249,15 @@ export function useAthleteSync(options: {
         setPending(loadSyncQueue().length);
         if (result.sent) setLastSyncedAt(new Date().toISOString());
       })
-      .finally(() => { running.current = false; });
+      .finally(() => {
+        running.current = false;
+        if (rerunRequested.current) { rerunRequested.current = false; latestSyncNow.current(); }
+      });
   }, [enabled, weightUnit, athleteSnapshot, identity.userId, referenceMap]);
+
+  useEffect(() => { latestSyncNow.current = syncNow; }, [syncNow]);
+  // A flush that settles after unmount starts nothing.
+  useEffect(() => () => { rerunRequested.current = false; latestSyncNow.current = () => {}; }, []);
 
   // Sync when a workout finishes, when weight changes, when an id arrives, and
   // when the device comes back online.

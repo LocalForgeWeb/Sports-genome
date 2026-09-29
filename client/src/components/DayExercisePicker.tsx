@@ -108,39 +108,6 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
   );
   const ranked = useMemo(() => rankPickerResults(results.map((match) => match.exercise), gaps, relevance), [gaps, relevance, results]);
   const visibleRanked = ranked.slice(0, resultLimit);
-  /**
-   * What the rows on screen actually have to say for themselves.
-   *
-   * The list's header already names what it is sorted by. A row that repeats it
-   * is a caption printed twenty-four times: on an empty Push day every option
-   * closed the same gap, so every row read "Closes Pectoralis major, 90 short"
-   * and every row led with "PECTORALIS MAJOR". Both lines are shown only where
-   * they differ between rows, which is the only way they help anyone choose.
-   */
-  // Everything the header prints, so a row is only stripped of what the reader
-  // has already been told - on an empty day every muscle is short, and removing
-  // all of them left every row with nothing to say.
-  //
-  // Both, not one or the other. The header leads with the day's shortfalls and
-  // falls back to the muscle filter, while this stripped only the filter, so a
-  // Legs day filtered to quadriceps printed "Gluteal complex and Rectus
-  // abdominis first" at the top and then "Also Gluteal complex" on all
-  // twenty-four rows underneath it.
-  const sortedBy = Array.from(new Set([
-    ...(muscle !== "all" ? [muscle] : []),
-    ...gaps.slice(0, 2).map((gap) => gap.muscle),
-  ]));
-  const showGapTag = gapTagIsInformative(visibleRanked);
-  // What most of these rows would otherwise each say for themselves. Stated
-  // once, above the list, so the rows that differ are the only ones that speak.
-  const visibleExercises = visibleRanked.map((result) => result.exercise);
-  const shared = sharedRowMuscles(visibleExercises, sortedBy);
-  // Everything the reader has been told by the time they reach a row: what the
-  // list is sorted by, and what the line above says most of it shares.
-  const alreadyNamed = [...sortedBy, ...shared.muscles];
-  const showMuscleLine = muscleLineIsInformative(visibleExercises, alreadyNamed);
-
-  const existingCatalogIds = new Set(activeWorkout.map((exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id));
 
   useEffect(() => { setResultLimit(initialResultLimit); }, [equipment, muscle, query, scope, split]);
 
@@ -201,11 +168,55 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     };
   }, [sheetOpen]);
 
-  const pickerBody = <>
+  /**
+   * The sheet's rows, and the facts each one states, are built only while the
+   * sheet is open. They were built on every render and then thrown away, and the
+   * Plan page re-renders this panel on every keystroke in a reps field.
+   *
+   * Called, never mounted as `<PickerBody />`: an inner component is a new type on
+   * every render, so React would remount it and the search box would lose focus
+   * on each keystroke.
+   */
+  const renderPickerBody = () => {
+    /**
+     * What the rows on screen actually have to say for themselves.
+     *
+     * The list's header already names what it is sorted by. A row that repeats it
+     * is a caption printed twenty-four times: on an empty Push day every option
+     * closed the same gap, so every row read "Closes Pectoralis major, 90 short"
+     * and every row led with "PECTORALIS MAJOR". Both lines are shown only where
+     * they differ between rows, which is the only way they help anyone choose.
+     */
+    // Everything the header prints, so a row is only stripped of what the reader
+    // has already been told - on an empty day every muscle is short, and removing
+    // all of them left every row with nothing to say.
+    //
+    // Both, not one or the other. The header leads with the day's shortfalls and
+    // falls back to the muscle filter, while this stripped only the filter, so a
+    // Legs day filtered to quadriceps printed "Gluteal complex and Rectus
+    // abdominis first" at the top and then "Also Gluteal complex" on all
+    // twenty-four rows underneath it.
+    const sortedBy = Array.from(new Set([
+      ...(muscle !== "all" ? [muscle] : []),
+      ...gaps.slice(0, 2).map((gap) => gap.muscle),
+    ]));
+    const showGapTag = gapTagIsInformative(visibleRanked);
+    // What most of these rows would otherwise each say for themselves. Stated
+    // once, above the list, so the rows that differ are the only ones that speak.
+    const visibleExercises = visibleRanked.map((result) => result.exercise);
+    const shared = sharedRowMuscles(visibleExercises, sortedBy);
+    // Everything the reader has been told by the time they reach a row: what the
+    // list is sorted by, and what the line above says most of it shares.
+    const alreadyNamed = [...sortedBy, ...shared.muscles];
+    const showMuscleLine = muscleLineIsInformative(visibleExercises, alreadyNamed);
+
+    const existingCatalogIds = new Set(activeWorkout.map((exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id));
+
+    return <>
   <div className="day-exercise-picker-content">
         <div className="day-exercise-picker-head"><div><p className="metric-label">Build this day yourself</p><h3>Add exercises directly</h3><p>Start with split-matched options, then switch to the full catalog when you want a deliberate exception.</p></div><Dumbbell className="h-5 w-5" /></div>
         {gaps.length > 0 && activeWorkout.length > 0 && <div className="day-picker-gaps"><span className="day-picker-gaps-label">Short in this day</span>{gaps.map((gap) => <button key={gap.muscle} type="button" onClick={() => setMuscle(muscle === muscleFilterKey(gap.muscle) ? "all" : muscleFilterKey(gap.muscle))} className={muscle === muscleFilterKey(gap.muscle) ? "day-picker-gap day-picker-gap-active" : "day-picker-gap"} aria-pressed={muscle === muscleFilterKey(gap.muscle)}>{muscleLabels[gap.muscle] || gap.muscle}<i>{gap.deltaToTarget}</i></button>)}{muscle !== "all" && <button type="button" className="day-picker-gap-clear" onClick={() => setMuscle("all")}>Clear</button>}</div>}
-        <div className="day-picker-tools"><label><Search className="h-4 w-4" aria-hidden="true" /><input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${scope === "split" ? split : "all"} exercises`} /></label><MuscleSelect muscles={muscleOptions} value={muscle} labelFor={(key) => muscleLabels[key] || key} onChange={setMuscle} /><select value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter day exercises by equipment"><option value="all">All equipment</option>{equipmentOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select><div className="day-picker-scope"><button type="button" aria-pressed={scope === "split"} onClick={() => setScope("split")} className={scope === "split" ? "day-picker-scope-active" : ""}><SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" /> {split} fit</button><button type="button" aria-pressed={scope === "all"} onClick={() => setScope("all")} className={scope === "all" ? "day-picker-scope-active" : ""}>All catalog</button></div></div>
+        <div className="day-picker-tools"><label><Search className="h-4 w-4" aria-hidden="true" /><input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${scope === "split" ? split : "all"} exercises`} aria-label={`Search ${scope === "split" ? split : "all"} exercises`} enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} /></label><MuscleSelect muscles={muscleOptions} value={muscle} labelFor={(key) => muscleLabels[key] || key} onChange={setMuscle} /><select value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter day exercises by equipment"><option value="all">All equipment</option>{equipmentOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select><div className="day-picker-scope"><button type="button" aria-pressed={scope === "split"} onClick={() => setScope("split")} className={scope === "split" ? "day-picker-scope-active" : ""}><SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" /> {split} fit</button><button type="button" aria-pressed={scope === "all"} onClick={() => setScope("all")} className={scope === "all" ? "day-picker-scope-active" : ""}>All catalog</button></div></div>
         <LocalSearchScope scope={`Searching ${scope === "split" ? `${split}-compatible` : "all catalog"} exercises.`} query={query} />
         <p className="day-picker-result-count" aria-live="polite"><strong>{results.length}</strong> option{results.length === 1 ? "" : "s"}{gaps.length > 0 ? ` · ${gaps.map((gap) => muscleLabels[gap.muscle] || gap.muscle).slice(0, 2).join(" and ")} first` : muscle !== "all" ? ` · direct ${muscleLabels[muscle] || muscle} targets first` : scope === "split" ? ` · ${split}-compatible` : " · full catalog"}{guessed && <span className="day-picker-result-guess">Nothing is spelled “{query.trim()}” — these are the closest.</span>}{shared.muscles.length > 0 &&<span className="day-picker-result-shared">{shared.everyRow ? "All of these also work" : "Most of these also work"} {shared.muscles.map((muscleKey) => (muscleLabels[muscleKey] || muscleKey).toLowerCase()).join(" and ")}.</span>}</p>
         {muscle === "serratusAnterior" && <p className="day-picker-serratus-cue">Serratus anterior options are available: <strong>Cable Serratus Punch</strong> and <strong>Scapular Wall Slide</strong>. Both are permitted in the Push Day pool.</p>}
@@ -222,6 +233,8 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
         </p>}
       </div>
   </>;
+  };
+  const pickerBody = sheetOpen ? renderPickerBody() : null;
 
   /**
    * The catalog used to render twice on the Training Day: inline in a disclosure

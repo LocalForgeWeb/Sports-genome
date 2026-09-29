@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { exerciseProgressFor, summarizeLiveSession, trainingStateByDayLabel } from "./liveSession";
+import { exerciseProgressFor, sameLiveSession, summarizeLiveSession, trainingStateByDayLabel } from "./liveSession";
 import type { DeviceWorkoutSession } from "./deviceWorkoutLog";
 
 const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8");
@@ -119,6 +119,33 @@ describe("the workout under way is readable from outside the tracker", () => {
   });
 });
 
+describe("two summaries of the same workout read as the same", () => {
+  it("treats no workout on both sides as the same, and no workout against one as different", () => {
+    expect(sameLiveSession(null, null)).toBe(true);
+    expect(sameLiveSession(null, summarizeLiveSession([session()]))).toBe(false);
+    expect(sameLiveSession(summarizeLiveSession([session()]), null)).toBe(false);
+  });
+
+  it("treats two reads of an unchanged workout as the same", () => {
+    expect(sameLiveSession(summarizeLiveSession([session()]), summarizeLiveSession([session()]))).toBe(true);
+  });
+
+  it("tells a newly completed set apart", () => {
+    const oneMore = session();
+    oneMore.exercises[0].sets[1] = set({ completed: true });
+    expect(sameLiveSession(summarizeLiveSession([session()]), summarizeLiveSession([oneMore]))).toBe(false);
+  });
+
+  it("tells a skipped exercise apart", () => {
+    const skipped = session();
+    skipped.exercises[1].sets = skipped.exercises[1].sets.map(() => set({ skipped: true }));
+    const before = summarizeLiveSession([session()]);
+    const after = summarizeLiveSession([skipped]);
+    expect(after?.finishedExercises).not.toEqual(before?.finishedExercises);
+    expect(sameLiveSession(before, after)).toBe(false);
+  });
+});
+
 describe("every surface that described the day now reads the session", () => {
   it("keeps the way back to the workout on screen, and off the tracker itself", () => {
     // Never on the tracker, and never on Home while the hero's own Resume is in view.
@@ -127,7 +154,7 @@ describe("every surface that described the day now reads the session", () => {
   });
 
   it("gives the plan rows the state the session has each exercise in", () => {
-    expect(home).toContain("progress={liveSession ? exerciseProgressFor(exercise.name) : null}");
+    expect(home).toContain("progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null}");
   });
 
   it("marks the week board's days, keyed by the label the session was started with", () => {

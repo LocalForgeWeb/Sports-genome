@@ -175,3 +175,21 @@ export function getExerciseActionConnection(exercise: Exercise, movement?: Enric
   }
   return { label: "Not mapped", detail: "No direct movement-record or muscle-role link is currently mapped." };
 }
+
+/**
+ * The same connection, worked out once per exercise for one selected action.
+ *
+ * The catalog asks for it on every search keystroke and filter change, and the
+ * action-link filter asks for all 400 exercises at once. The answer depends only
+ * on the exercise and the action, so one lookup per action can keep it.
+ */
+export function createActionConnectionLookup(movement?: EnrichedSportMovement): (exercise: Exercise) => ExerciseActionConnection {
+  const cache = new Map<number, ExerciseActionConnection>();
+  return (exercise) => {
+    const cached = cache.get(exercise.id);
+    if (cached) return cached;
+    const connection = getExerciseActionConnection(exercise, movement);
+    cache.set(exercise.id, connection);
+    return connection;
+  };
+}

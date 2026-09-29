@@ -186,8 +186,3 @@ export function workoutStrengthObservations(
   });
   return observations.sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
 }
-
-/** Whether any observation in the record belongs to this region. */
-export function regionHasRecordedWork(regionId: string, exerciseNames: readonly string[]): boolean {
-  return exerciseNames.some((name) => strengthRegionIdsForExerciseName(name).includes(regionId));
-}

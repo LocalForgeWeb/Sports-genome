@@ -79,3 +79,23 @@ describe("The highlighted tab follows the page on screen", () => {
     expect(within(row).getByRole("button", { name: "Review" }).getAttribute("aria-current")).toBeNull();
   });
 });
+
+describe("Back from a search result", () => {
+  // The return bar named the page from an old navigation list ("Training Days",
+  // "Session", "Movement Atlas") that no heading or tab uses any more.
+  it("names the page the athlete came from the way that page names itself", async () => {
+    window.history.replaceState({}, "", "/?workspace=day-plan");
+    render(createElement(Home));
+    await screen.findByRole("navigation", { name: "Train workspace pages" }, { timeout: 15000 });
+
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Search Sports Genome" })); });
+    const input = within(screen.getByRole("dialog", { name: "Search Sports Genome" })).getByRole("combobox");
+    fireEvent.change(input, { target: { value: "muscle map" } });
+    await act(async () => { fireEvent.keyDown(input, { key: "Enter" }); });
+    await tick();
+
+    expect(window.location.search).toBe("?workspace=body");
+    expect(screen.getByRole("button", { name: /Back to Training plan$/ })).toBeTruthy();
+    expect(screen.queryByText(/Back to Training Days/)).toBeNull();
+  });
+});
