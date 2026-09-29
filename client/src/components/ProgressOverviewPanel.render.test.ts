@@ -42,7 +42,8 @@ describe("Progress counts agree with the words beside them", () => {
     fixtures.sessions = [push];
     fixtures.observations = [twentyReps(11, "2026-09-01T10:00:00Z")];
     const { container } = renderPanel();
-    expect(container.querySelector(".progress-facts")?.getAttribute("aria-label")).toBe("1 workout recorded, 1 lift logged");
+    expect(screen.getByRole("group", { name: "1 workout recorded, 1 lift logged" })).toBeTruthy();
+    expect(container.querySelector(".progress-records .progress-session-card")?.textContent).toContain("Account");
     expect(container.querySelector(".progress-excluded")?.textContent).toBe("1 logged set outside the validated rep range for estimation is recorded but not used for this trend.");
   });
 
@@ -50,7 +51,7 @@ describe("Progress counts agree with the words beside them", () => {
     fixtures.sessions = [push];
     fixtures.observations = [twentyReps(11, "2026-09-01T10:00:00Z"), twentyReps(12, "2026-09-08T10:00:00Z")];
     const { container } = renderPanel();
-    expect(container.querySelector(".progress-facts")?.getAttribute("aria-label")).toBe("1 workout recorded, 2 lifts logged");
+    expect(screen.getByRole("group", { name: "1 workout recorded, 2 lifts logged" })).toBeTruthy();
     expect(container.querySelector(".progress-excluded")?.textContent).toBe("2 logged sets outside the validated rep range for estimation are recorded but not used for this trend.");
   });
 
