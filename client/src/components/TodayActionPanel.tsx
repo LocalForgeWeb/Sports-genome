@@ -82,6 +82,8 @@ export type TodayActionPanelProps = {
 
 export type PlanDayState = "live" | "trained" | "next" | "planned";
 const planDayWord: Record<PlanDayState, string> = { live: "under way", trained: "completed this week", next: "next up", planned: "planned" };
+/** The state as a visible word beside the dot; "planned" needs none, its dashed ring is its shape. */
+const planDayMark: Partial<Record<PlanDayState, string>> = { trained: "Done", live: "Now", next: "Next" };
 
 export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayLabel, live, planHasDays, planReady = true, athleteName, directAccess = true, weightUnit = "lb", onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, focusMuscles = [], planDays = [], activeDayIndex, onChooseDay, onOpenProgress }: TodayActionPanelProps) {
   // Account-only routes, asked only when an account is the source. On the device stores they
@@ -257,10 +259,11 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
     <section className="home-week" aria-label="Your week">
       <div className="home-section-head"><p className="metric-label">Your week</p><button type="button" className="home-link" onClick={onOpenTraining}>View plan <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
       {/* One segment per planned session, in plan order: completed, under way, next, or
-          still to come - each from that day's own saved session, and said in words as
-          well as shape. No weekdays are claimed; the plan has none. */}
+          still to come - each from that day's own saved session. The state is shown as a
+          word beside the dot, not by colour alone, and said in full to a screen reader.
+          No weekdays are claimed; the plan has none. */}
       {planDays.length > 0 && <ol className="home-week-strip" aria-label="Planned sessions this week, in plan order">
-        {planDays.map((day) => { const state = stateForDay(day); const name = `${day.name}, ${planDayWord[state]}${day.exerciseCount ? "" : ", empty"}`; const inner = <><i aria-hidden="true" /><span>{day.name}</span></>; return <li key={day.label} data-state={state}>{onChooseDay ? <button type="button" aria-label={name} aria-current={state === "next" ? "true" : undefined} onClick={() => onChooseDay(day.index)}>{inner}</button> : <span role="img" aria-label={name}>{inner}</span>}</li>; })}
+        {planDays.map((day) => { const state = stateForDay(day); const name = `${day.name}, ${planDayWord[state]}${day.exerciseCount ? "" : ", empty"}`; const mark = planDayMark[state]; const inner = <><i aria-hidden="true" /><span>{day.name}</span>{mark && <small aria-hidden="true">{mark}</small>}</>; return <li key={day.label} data-state={state}>{onChooseDay ? <button type="button" aria-label={name} aria-current={state === "next" ? "true" : undefined} onClick={() => onChooseDay(day.index)}>{inner}</button> : <span role="img" aria-label={name}>{inner}</span>}</li>; })}
       </ol>}
       <p className="home-week-line" aria-label={`${completedThisWeek} of ${trainingDays} planned ${trainingDays === 1 ? "workout" : "workouts"} completed this week`}><b className="stat-figure today-action-figure-accent" aria-hidden="true">{completedThisWeek}</b><span>of <b>{trainingDays}</b> planned {trainingDays === 1 ? "workout" : "workouts"} completed this week</span></p>
       <button type="button" className="home-week-record" onClick={onOpenStrength} aria-label={`${lifetimeLine}, all time. View strength progress`}>{lifetimeLine}<small>all time</small></button>

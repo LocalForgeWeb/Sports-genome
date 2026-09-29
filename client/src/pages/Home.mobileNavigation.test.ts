@@ -98,9 +98,11 @@ describe("workspace side navigation", () => {
     // The starter kit's sidebar shell ("Page 1" / "Page 2") was never routed; it must not come back.
     expect(existsSync(new URL("../components/DashboardLayout.tsx", import.meta.url))).toBe(false);
     expect(existsSync(new URL("../components/ui/sidebar.tsx", import.meta.url))).toBe(false);
+    // No sidebar is rendered, so none of its rules may linger in the stylesheets.
+    for (const styles of [css, mobileStyles, trainingDayStyles]) expect(styles).not.toMatch(/\.apex-rail|\.rail-[a-z]/);
   });
 
-  it("colours the shell by destination and keeps a non-neon active state", () => {
+  it("colours the shell by destination and keeps the old Gym Optimizer brand out", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('shell-${activePrimaryDestination}');
     expect(source).toContain('destination-${activePrimaryDestination}');
@@ -111,9 +113,6 @@ describe("workspace side navigation", () => {
     expect(source).toContain("guides={<div className=\"about-me-guides\">");
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
-    expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
-    expect(css).toContain('box-shadow: inset 4px 0 var(--sg-gold)');
-    expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
   });
 
   it("has one onboarding: the eleven-step quiz, with no retired four-step tour left in the shell", () => {
@@ -192,13 +191,22 @@ describe("workspace side navigation", () => {
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
     expect(css).toContain('.apex-content { padding-bottom: calc(5.8rem');
     expect(css).toContain('.mobile-workspace-dock { position: fixed;');
+    // The resume bar and the add-to-day strip ride on the dock, so they switch
+    // at the dock's own breakpoint (at 961px they floated 20px above a flush
+    // dock) and clear the home-indicator inset the dock pads for.
+    expect(css).toContain('@media (min-width: 1024px) { .session-resume-bar { bottom: calc(4.375rem + 1.25rem); } }');
+    // No rule may switch at the old 960/961px line, including the multi-line
+    // block that lifts the add strip over the resume bar while a workout is live.
+    expect(css).not.toMatch(/@media \((?:max|min)-width: 96[01]px\)/);
+    expect(css).toContain('body:has(.session-resume-bar) .add-destination { bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + var(--sg-resume-height) + .5rem); }');
+    expect(css).not.toContain('env(safe-area-inset-bottom, 0px) * 0');
+    expect(css).toContain('bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px));');
+    expect(css).toContain('.add-destination { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .5rem);');
     expect(source).not.toContain('className="mobile-workspace-actions"');
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));');
     expect(css).toContain('min-height: 4.25rem;');
     expect(css).toContain('touch-action: manipulation;');
     expect(css).toContain('font-size: var(--sg-text-xs);');
-    expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');
-    expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');
   });
 
   /**

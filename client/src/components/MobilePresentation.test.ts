@@ -29,14 +29,26 @@ describe("mobile athlete presentation", () => {
     expect(catalogStyles).not.toContain("position: sticky");
   });
 
-  it("uses compact safe-area-aware controls for the guide, header, and Genome disclosure", () => {
+  it("uses compact safe-area-aware controls for the header and Genome disclosure", () => {
     expect(mobileStyles).toContain("env(safe-area-inset-bottom)");
-    expect(mobileStyles).toContain(".feature-guide-button span { display: none; }");
+    // The floating guide button is gone (the guide opens from Profile), so no
+    // stylesheet should keep laying it out.
+    for (const styles of [mobileStyles, appStyles]) expect(styles).not.toContain("feature-guide-button");
     expect(mobileStyles).toContain(".genome-methodology");
     // No header to make safe-area-aware any more; the tab row it left behind is the
     // top of the page, and pads for the notch itself.
     expect(mobileStyles).not.toContain(".apex-topbar");
     expect(mobileStyles).toContain(".workspace-top-switcher { top: 0;");
+  });
+
+  it("keeps the retired day switcher and sticky session strip out of the stylesheets", () => {
+    // Neither is rendered any more; their rules pinned hand-picked sticky offsets
+    // that --sg-pinned-chrome replaced, so they must not come back as dead layout.
+    for (const styles of [plannerStyles, appStyles]) {
+      expect(styles).not.toContain("training-day-nav");
+      expect(styles).not.toContain("session-execution-strip");
+      expect(styles).not.toContain("day-session-mode");
+    }
   });
 
   it("keeps full-screen overlay headers below the status bar", () => {
