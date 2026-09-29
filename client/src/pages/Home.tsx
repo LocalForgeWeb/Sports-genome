@@ -215,6 +215,17 @@ export function primaryDestinationForWorkspace(workspace: Workspace): PrimaryDes
   if (contextualWorkspaces.progress.some((tab) => tab.workspace === workspace)) return "progress";
   return "home";
 }
+/**
+ * Which tab is highlighted is decided by the page on screen and nothing else.
+ * Every tab has its own workspace (Home.noRepeatedPages.test.ts enforces it), so
+ * Back, the dock and in-page links cannot leave a different tab lit.
+ */
+export function contextTabIdForWorkspace(workspace: Workspace): string | null {
+  const destination = primaryDestinationForWorkspace(workspace);
+  if (destination === "secondary") return null;
+  const tabs = contextualWorkspaces[destination];
+  return tabs.find((tab) => tab.workspace === workspace)?.id ?? tabs[0]?.id ?? null;
+}
 
 /**
  * What each place is called, once, for the browser tab and for anything that
@@ -393,7 +404,6 @@ export default function Home() {
   // Reorder is a mode for the whole list, not twelve arrow boxes beside six rows.
   const [reorderingDay, setReorderingDay] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
-  const [activeContextTab, setActiveContextTab] = useState<string | null>(null);
   const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string } | null>(null);
   /**
    * The tracker's day chooser is a disclosure. It opens itself when the day
@@ -939,7 +949,6 @@ export default function Home() {
    * looking at the top of the page.
    */
   const navigateWorkspace = (next: Workspace, { keepScroll = false }: { keepScroll?: boolean } = {}) => {
-    setActiveContextTab(null);
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
     /**
@@ -1563,7 +1572,7 @@ export default function Home() {
 
   const activePrimaryDestination = primaryDestinationForWorkspace(workspace);
   const contextualWorkspaceTabs = activePrimaryDestination === "secondary" ? [] : contextualWorkspaces[activePrimaryDestination];
-  const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;
+  const activeContextTabId = contextTabIdForWorkspace(workspace);
   /**
    * The header names the place only when the tab row underneath it does not.
    *
@@ -1581,10 +1590,7 @@ export default function Home() {
    * at an anchor inside a page you were already on, which is why pressing one could
    * look like nothing had happened except the page moving under you.
    */
-  const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => {
-    navigateWorkspace(tab.workspace);
-    setActiveContextTab(tab.id);
-  };
+  const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => navigateWorkspace(tab.workspace);
 
   if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">Checking secure account access…</div>;
   if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen onAuthenticated={() => { void refresh(); }} loading={loading} />;
