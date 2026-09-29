@@ -6,7 +6,7 @@ const IntroPreview = lazy(() => import("@/components/IntroPreview").then((module
 const ExerciseCompareSheet = lazy(() => import("@/components/ExerciseCompareSheet").then((module) => ({ default: module.ExerciseCompareSheet })));
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
+import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { roleMapForLists } from "@/lib/anatomyRegions";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
@@ -137,21 +137,6 @@ const CatalogExerciseEvidenceCard = lazy(() => import("@/components/CatalogExerc
 const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel").then((module) => ({ default: module.StrengthGenomePanel })));
 const SelectedActionConnectionCard = lazy(() => import("@/components/SelectedActionConnectionCard").then((module) => ({ default: module.SelectedActionConnectionCard })));
 
-type NavGroup = "Home" | "Train" | "Explore" | "Sport";
-const navItems: { id: Workspace; label: string; icon: typeof Target; detail: string; group: NavGroup }[] = [
-  { id: "command", label: "Home", icon: Target, detail: "plan context & next action", group: "Home" },
-  { id: "profile", label: "About Me", icon: UserRound, detail: "baseline & equipment", group: "Home" },
-  { id: "progress", label: "Progress", icon: BarChart3, detail: "training & observation record", group: "Home" },
-  { id: "day-plan", label: "Training Days", icon: Layers3, detail: "design each saved day", group: "Train" },
-  { id: "tracker", label: "Session", icon: Activity, detail: "start the day's workout and record its sets", group: "Train" },
-  { id: "recommended", label: "Matches", icon: Sparkles, detail: "exercises ranked for a sport action", group: "Train" },
-  { id: "review", label: "Review", icon: SlidersHorizontal, detail: "is this day any good", group: "Train" },
-  { id: "movement", label: "Movement Atlas", icon: Move3d, detail: `${sportMovementProfiles.length} researched sport actions`, group: "Sport" },
-  { id: "body", label: "Body Lab", icon: Activity, detail: "muscle-to-movement analysis", group: "Explore" },
-  { id: "strength", label: "Strength Genome", icon: BrainCircuit, detail: "your performance profile", group: "Home" },
-  { id: "catalog", label: "Exercise Catalog", icon: BookOpen, detail: `${exercises.length} mapped exercises`, group: "Explore" },
-];
-
 // FIXED DEFAULT per the Sports Genome philosophy's Mobile global navigation contract: four
 // persistent labeled destinations (Home / Body Lab / Train / Progress). Sport stays a
 // contextual, deep-linkable object reachable from Home/Body Lab/Progress and search rather
@@ -241,11 +226,12 @@ export const workspaceTitles: Record<Workspace, string> = {
   body: "Muscle map",
   catalog: "Exercise catalog",
 };
+const workspaceIds = Object.keys(workspaceTitles) as Workspace[];
 
 export function workspaceFromLocation(value: string | null): Workspace {
   // The Genome page folded into the catalog and its overlay; old links still land.
   if (value === "genome") return "catalog";
-  return navItems.some((item) => item.id === value) ? value as Workspace : "command";
+  return workspaceIds.includes(value as Workspace) ? value as Workspace : "command";
 }
 
 function prescriptionFor(index: number, goal: Goal) {
@@ -1496,7 +1482,7 @@ export default function Home() {
     // user still at the top of it.
     if (anchor) revealWorkspaceAnchor(anchor);
     // Nothing to return to when the result opens the screen already on display.
-    if (target !== origin) setSearchReturn({ workspace: origin, label: navItems.find((item) => item.id === origin)?.label || "where you were" });
+    if (target !== origin) setSearchReturn({ workspace: origin, label: workspaceTitles[origin] });
   };
   const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, sportContextMode: selectedMode, focus, constraint, reportedSignals, stackMode, baseline }: AthleteQuizSelection) => {
     setGoal(selectedGoal);

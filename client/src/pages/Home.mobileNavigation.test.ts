@@ -23,6 +23,11 @@ describe("workspace side navigation", () => {
     expect(workspaceFromLocation("tracker")).toBe("tracker");
     expect(workspaceFromLocation("not-a-workspace")).toBe("command");
     expect(workspaceFromLocation(null)).toBe("command");
+    for (const id of ["command", "profile", "progress", "strength", "day-plan", "review", "tracker", "recommended", "movement", "body", "catalog"]) expect(workspaceFromLocation(id)).toBe(id);
+    expect(workspaceFromLocation("genome")).toBe("catalog");
+    // Keys every object has are not pages.
+    expect(workspaceFromLocation("constructor")).toBe("command");
+    expect(workspaceFromLocation("__proto__")).toBe("command");
     expect(primaryDestinationForWorkspace("day-plan")).toBe("train");
     expect(primaryDestinationForWorkspace("recommended")).toBe("train");
     expect(primaryDestinationForWorkspace("catalog")).toBe("body");
@@ -226,6 +231,8 @@ describe("workspace side navigation", () => {
     // Every page has one name, used for the browser tab as well.
     expect(source).toContain("export const workspaceTitles: Record<Workspace, string>");
     expect(source).toContain("document.title = `${workspaceTitles[workspace]} · Sports Genome`");
+    // The retired side-rail list and its second set of page names are gone, not kept in step.
+    expect(source).not.toMatch(/\bnavItems\b|\bnavGroups\b/);
 
     // Profile's route is the brand row's own button, so the tab row can be
     // skipped on single-page destinations without stranding it.
