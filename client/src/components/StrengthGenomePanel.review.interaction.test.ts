@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined) }));
@@ -78,6 +78,39 @@ describe("Strength Genome direct Review workflow", () => {
     fireEvent.click(review);
     fireEvent.click(screen.getByRole("button", { name: "Close Biceps detail" }));
     expect(document.activeElement).toBe(review);
+  });
+
+  it("leaves focus in the exercise search when Escape there closes the record", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    const review = screen.getByRole("button", { name: "Review" });
+    review.focus();
+    fireEvent.click(review);
+    const search = screen.getByLabelText("Search and choose a catalog exercise");
+    search.focus();
+    fireEvent.keyDown(search, { key: "Escape" });
+    expect(document.activeElement).toBe(search);
+  });
+
+  it("forgets the opener of a record closed another way", () => {
+    // jsdom has no scrollIntoView; Log a lift scrolls the form into view.
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { value: scrollIntoView, configurable: true, writable: true });
+    try {
+      render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+      // Open an empty region from the list, then leave it through its Log a lift button.
+      const chest = within(screen.getByRole("group", { name: "Strength Genome regions" })).getByRole("button", { name: /^Chest,/ });
+      chest.focus();
+      fireEvent.click(chest);
+      fireEvent.click(screen.getByRole("button", { name: /^Log a lift for chest/ }));
+      expect(document.activeElement).toBe(screen.getByLabelText("Search and choose a catalog exercise"));
+      // A click that does not focus its button (Safari) leaves focus on the page.
+      (document.activeElement as HTMLElement).blur();
+      fireEvent.click(screen.getByRole("button", { name: "Review" }));
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(document.activeElement).not.toBe(chest);
+    } finally {
+      delete (HTMLElement.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+    }
   });
 
   it("tells a screen reader which lift each Review button opens", () => {

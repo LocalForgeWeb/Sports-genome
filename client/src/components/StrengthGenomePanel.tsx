@@ -604,11 +604,15 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       setNotes("");
       toast.success("Lift saved. Your progress updates as you log more.");
     },
-    // An expired sign-in is handled once, app-wide, in main.tsx. Every other
-    // failure is reported here in fixed words: the server message is either a
-    // validation list or a generic fault notice, neither of them for athletes.
+    // Every failure is reported here in fixed words: the server message is either
+    // a validation list or a generic fault notice, neither of them for athletes.
+    // An expired sign-in gets no toast of its own: main.tsx says that app-wide,
+    // but at most once a minute, so the reason is still written beside the button.
     onError: (error) => {
-      if (error.data?.code === "UNAUTHORIZED") return;
+      if (error.data?.code === "UNAUTHORIZED") {
+        setSaveError("This lift was not saved because your sign-in has expired. Your entry is still here: sign in again from About me, then save.");
+        return;
+      }
       setSaveError(error.data?.code === "BAD_REQUEST"
         ? "This lift was not saved: check the date and the numbers, then save again. Your entry is still here."
         : "This lift was not saved. Your entry is still here. Check your connection and save again.");
@@ -675,11 +679,13 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // A failed rank request says so and can be tried again. The server answers a
   // database outage as "unavailable: service_error" rather than as an error, so
   // both count. A missing server setting stays quiet: trying again cannot fix it.
-  // Offline, the request waits for a connection and says that instead.
+  // Offline, the request waits for a connection and says that instead. Both
+  // speak only while no ranks are drawn: a background refetch that fails, or
+  // waits offline, keeps the ranks already on the map, and they still stand.
   const ranksWanted = rankSex !== null && rankLifts.length > 0;
-  const ranksFailed = ranksWanted && (muscleRanks.isError || (muscleRanks.data?.status === "unavailable" && muscleRanks.data.reason === "service_error"));
-  const ranksOffline = ranksWanted && !ranksFailed && muscleRanks.fetchStatus === "paused";
   const rankProfile = muscleRanks.data && muscleRanks.data.status !== "unavailable" ? muscleRanks.data : null;
+  const ranksFailed = ranksWanted && rankProfile === null && (muscleRanks.isError || (muscleRanks.data?.status === "unavailable" && muscleRanks.data.reason === "service_error"));
+  const ranksOffline = ranksWanted && muscleRanks.isPending && muscleRanks.fetchStatus === "paused";
   const regionRanks = useMemo(() => (rankProfile ? regionRanksFromMuscles(rankProfile.muscles) : null), [rankProfile]);
   const unrankedLifts = useMemo(() => {
     const counts = new Map<string, { exerciseName: string; reason: string; count: number }>();
@@ -769,8 +775,12 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // a panel that had not moved. Only the wide layout, where the record really
   // does sit further down the page, scrolls to it.
   useEffect(() => {
+    // However the record closed (the close button, Escape, a second tap on the
+    // muscle, Log a lift), its opener is forgotten, so a later open whose click
+    // leaves focus on the page never hands focus to a control from an old visit.
+    if (!selectedRegion) { regionOpenerRef.current = null; return; }
     const detail = regionDetailRef.current;
-    if (!selectedRegion || !detail || typeof window === "undefined") return;
+    if (!detail || typeof window === "undefined") return;
     // Remember the opener before focus moves into the record. Focus already
     // inside the record (a second lift reviewed from it) is never the opener.
     const active = document.activeElement;
@@ -791,12 +801,16 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   }, [selectedRegion?.id, selectedObservationId]);
   // Closing hands focus back to the opener. The record stays mounted, hidden,
   // for its exit animation, so focus left in it would sit in hidden content.
+  // Focus anywhere else stays put: Escape is heard page-wide, and pressing it in
+  // the exercise search must not pull focus to a muscle further up the page.
   const closeRegionRecord = () => {
+    const active = document.activeElement;
+    const focusWasInRecord = !active || active === document.body || Boolean(regionDetailRef.current?.contains(active));
     setSelectedRegion(null);
     setSelectedObservationId("");
     const opener = regionOpenerRef.current;
     regionOpenerRef.current = null;
-    if (opener?.isConnected) opener.focus({ preventScroll: true });
+    if (focusWasInRecord && opener?.isConnected) opener.focus({ preventScroll: true });
   };
   // Escape closes the pinned record, the way it closes any other layer that sits
   // over the page. The figure stays tappable while it is open, so this is the

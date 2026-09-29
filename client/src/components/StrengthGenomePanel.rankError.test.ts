@@ -92,6 +92,30 @@ describe("muscle ranks that could not be worked out", () => {
     expect(screen.queryByText(failedNotice)).toBeNull();
   });
 
+  // A background refetch keeps the ranks it already has. The map still draws
+  // them, so neither notice may claim the map is showing coverage instead.
+  const ranked = { status: "ok", muscles: [], unranked: [{ exerciseName: "Barbell Bench Press", reason: "no_reference" }] };
+
+  it("says nothing about waiting when ranks are drawn and a refetch waits offline", () => {
+    mocks.ranks = { data: ranked, isPending: false, isFetching: false, fetchStatus: "paused", refetch: mocks.refetch };
+    renderPanel();
+    expect(document.querySelector(".strength-map-legend")).toBeNull();
+    expect(screen.queryByText(/Waiting for a connection/)).toBeNull();
+    expect(screen.queryByText(failedNotice)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+    expect(screen.getByText("1 lift is not in these ranks")).toBeTruthy();
+  });
+
+  it("says nothing failed when ranks are drawn and a background refetch fails", () => {
+    mocks.ranks = { data: ranked, isError: true, isPending: false, isFetching: false, fetchStatus: "idle", refetch: mocks.refetch };
+    renderPanel();
+    expect(document.querySelector(".strength-map-legend")).toBeNull();
+    expect(screen.queryByText(failedNotice)).toBeNull();
+    expect(screen.queryByText(/Waiting for a connection/)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+    expect(screen.getByText("1 lift is not in these ranks")).toBeTruthy();
+  });
+
   it("asks for the sex to compare against, and nothing else, when none is set", () => {
     mocks.ranks = { data: undefined, isError: true, refetch: mocks.refetch };
     renderPanel({});

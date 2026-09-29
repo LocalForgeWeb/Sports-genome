@@ -69,10 +69,12 @@ describe("Strength Genome signed-in lift save", () => {
     expect(mocks.toastError).toHaveBeenCalledWith("Could not save this lift.");
   });
 
-  it("leaves an expired sign-in to the app-wide notice", () => {
+  it("says beside the button that an expired sign-in stopped the save, and leaves the toast to the app-wide notice", () => {
     render(React.createElement(StrengthGenomePanel, { weightUnit: "kg" }));
     act(() => { mocks.addObservationOptions?.onError?.({ data: { code: "UNAUTHORIZED" } }); });
-    expect(screen.queryByRole("alert")).toBeNull();
+    const alert = screen.getByRole("alert").textContent ?? "";
+    expect(alert).toContain("This lift was not saved because your sign-in has expired");
+    expect(alert).toContain("Your entry is still here");
     expect(mocks.toastError).not.toHaveBeenCalled();
   });
 
