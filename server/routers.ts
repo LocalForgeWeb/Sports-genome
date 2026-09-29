@@ -50,6 +50,7 @@ import {
   type RepairOutcome,
 } from "./dataIntegrityRepair";
 import {
+  athleteStrengthProfileInputSchema,
   getAthleteStrengthProfile,
   upsertAthleteStrengthProfile,
 } from "./athleteStrengthProfile";
@@ -436,17 +437,7 @@ export const appRouter = router({
     referenceRows: publicProcedure.query(() => getPublicNormsReference()),
     profile: protectedProcedure.query(({ ctx }) => getAthleteStrengthProfile(ctx.user.id)),
     setProfile: protectedProcedure
-      .input(
-        z.object({
-          dateOfBirth: z
-            .string()
-            .regex(/^\d{4}-\d{2}-\d{2}$/)
-            .optional(),
-          sexForReference: z
-            .enum(["female", "male", "intersex", "unspecified"])
-            .optional(),
-        })
-      )
+      .input(athleteStrengthProfileInputSchema)
       .mutation(({ ctx, input }) => upsertAthleteStrengthProfile(ctx.user.id, input)),
   }),
 
