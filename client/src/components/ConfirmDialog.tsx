@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { TriangleAlert, X } from "lucide-react";
+import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 
 export type ConfirmDialogRequest = {
   title: string;
@@ -22,7 +23,48 @@ export type ConfirmDialogRequest = {
  * not the brand orange used for routine actions) from ordinary feedback.
  */
 export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel", onConfirm, onCancel }: Omit<ConfirmDialogRequest, "onCancel"> & { onCancel: () => void }) {
-  return <div className="confirm-dialog-layer" role="alertdialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-body">
+  const layerRef = useRef<HTMLDivElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  // Every caller passes a fresh onCancel on each render; reading it through a ref
+  // keeps the effect below from re-running and pulling focus off Confirm.
+  const onCancelRef = useRef(onCancel);
+  onCancelRef.current = onCancel;
+
+  // Focus starts on the least destructive answer, Escape cancels without reaching
+  // the layer underneath, Tab stays on the dialog's buttons, and focus goes back
+  // to whatever asked the question once it is answered.
+  useEffect(() => {
+    const opener = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
+    cancelRef.current?.focus({ preventScroll: true });
+    const onKey = (event: KeyboardEvent) => {
+      // A layer opened over the question, such as search, handles its own keys.
+      if (isKeyForAnotherLayer(event, layerRef.current)) return;
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        event.preventDefault();
+        onCancelRef.current();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const buttons = Array.from(layerRef.current?.querySelectorAll<HTMLButtonElement>("button") ?? []);
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+      if (!(active instanceof Node) || !layerRef.current?.contains(active)) { event.preventDefault(); first.focus(); }
+      else if (event.shiftKey && active === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+    };
+    // The opener belongs to this one question.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <div ref={layerRef} className="confirm-dialog-layer" role="alertdialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-body">
     <section className="confirm-dialog-card">
       <button type="button" onClick={onCancel} className="confirm-dialog-close" aria-label="Cancel">
         <X className="h-4 w-4" />
@@ -31,7 +73,7 @@ export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel
       <h2 id="confirm-dialog-title">{title}</h2>
       <p id="confirm-dialog-body">{body}</p>
       <div className="confirm-dialog-actions">
-        <button type="button" onClick={onCancel} className="confirm-dialog-cancel">{cancelLabel}</button>
+        <button ref={cancelRef} type="button" onClick={onCancel} className="confirm-dialog-cancel">{cancelLabel}</button>
         <button type="button" onClick={onConfirm} className="confirm-dialog-confirm">{confirmLabel}</button>
       </div>
     </section>

@@ -208,7 +208,7 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
         </details>
       )}
 
-      <button onClick={() => setOpen(true)} className="rate-stack-trigger">
+      <button type="button" onClick={() => setOpen(true)} className="rate-stack-trigger">
         <span>
           <Maximize2 className="h-4 w-4" /> Open full analysis
         </span>
