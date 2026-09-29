@@ -10,6 +10,7 @@ const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8")
 const appStyles = readFileSync(new URL("../index.css", import.meta.url), "utf8");
 const plannerStyles = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
 const trainingCardStyles = readFileSync(new URL("../mobile-training-card.css", import.meta.url), "utf8");
+const stackAnalysisStyles = readFileSync(new URL("../stack-analysis.css", import.meta.url), "utf8");
 
 describe("mobile athlete presentation", () => {
   it("keeps source and hierarchy methodology available through compact disclosure controls", () => {
@@ -36,6 +37,22 @@ describe("mobile athlete presentation", () => {
     // top of the page, and pads for the notch itself.
     expect(mobileStyles).not.toContain(".apex-topbar");
     expect(mobileStyles).toContain(".workspace-top-switcher { top: 0;");
+  });
+
+  it("keeps full-screen overlay headers below the status bar", () => {
+    // The installed app draws under a translucent status bar, so a close control
+    // pinned to the top edge of a full-screen overlay sits beneath the clock and
+    // notch. Each of these headers pads itself down by the inset, as the Exercise
+    // Intelligence bar already does.
+    const compareBar = appStyles.match(/\.exercise-compare-bar \{[^}]*\}/)?.[0];
+    expect(compareBar).toContain("padding: max(.85rem, env(safe-area-inset-top, 0px))");
+    const stackHead = stackAnalysisStyles.match(/^\.stack-analysis-head \{[^}]*\}/m)?.[0];
+    expect(stackHead).toContain("env(safe-area-inset-top");
+    // The phone rule resets padding with a shorthand, so it carries its own inset.
+    const phoneStackHead = stackAnalysisStyles.match(/@media \(max-width: 760px\) \{ \.stack-analysis-head \{[^}]*\}/)?.[0];
+    expect(phoneStackHead).toContain("env(safe-area-inset-top");
+    const phoneImportScrim = appStyles.match(/\.routine-import-scrim \{ display: block;[^}]*\}/)?.[0];
+    expect(phoneImportScrim).toContain("env(safe-area-inset-top");
   });
 
   it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {
