@@ -20,11 +20,38 @@ export type DeviceStrengthObservation = {
 export const deviceStrengthObservationKey = "sports-genome-device-strength-observations-v1";
 export const deviceStrengthObservationEvent = "sports-genome:device-strength-observations";
 
+const numericFields = ["loadKg", "repetitions", "bodyMassKgAtTest"] as const;
+
+/**
+ * One stored element, checked before any screen reads it. The record is sorted by date and
+ * matched by exercise name while Home renders, so an element without them would throw on
+ * every launch until site data was cleared. Fields the type does not list are kept, so a
+ * load-then-save loses nothing. A missing or null number stays missing: it means "not
+ * recorded", and turning it into 0 would invent a 0 kg body weight.
+ */
+function readDeviceStrengthObservation(entry: unknown): DeviceStrengthObservation | null {
+  if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+  const record: Record<string, unknown> = { ...entry };
+  const { id, exerciseName, observedAt, measurementType } = record;
+  if (typeof id !== "string" || !id) return null;
+  if (typeof exerciseName !== "string" || !exerciseName.trim()) return null;
+  if (typeof observedAt !== "string" || !Number.isFinite(Date.parse(observedAt))) return null;
+  if (typeof measurementType !== "string") return null;
+  for (const field of numericFields) {
+    const value = record[field];
+    if (value == null || (typeof value === "number" && Number.isFinite(value))) continue;
+    const parsed = typeof value === "string" && value.trim() ? Number(value) : Number.NaN;
+    if (Number.isFinite(parsed)) record[field] = parsed;
+    else delete record[field];
+  }
+  return record as DeviceStrengthObservation;
+}
+
 export function loadDeviceStrengthObservations(): DeviceStrengthObservation[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(window.localStorage.getItem(deviceStrengthObservationKey) || "[]");
-    return Array.isArray(parsed) ? parsed as DeviceStrengthObservation[] : [];
+    return Array.isArray(parsed) ? parsed.map(readDeviceStrengthObservation).filter((o): o is DeviceStrengthObservation => o !== null) : [];
   } catch {
     return [];
   }
