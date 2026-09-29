@@ -3992,3 +3992,5 @@ body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 
 .home-week-strip li > * { align-items: center; padding: .4rem .6rem; }
 .home-week-strip li > * > i { margin-top: 0; }
 .home-week-strip li > * > span { white-space: nowrap; overflow-wrap: normal; }
+/* The state word beside the dot, so "completed" and "under way" never rest on hue alone. */
+.home-week-strip li > * > small { flex: 0 0 auto; color: inherit; font-size: var(--sg-text-xs); font-weight: 700; white-space: nowrap; }
