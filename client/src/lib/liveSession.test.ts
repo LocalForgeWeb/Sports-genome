@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { exerciseProgressFor, summarizeLiveSession, trainingStateByDayLabel } from "./liveSession";
+import { exerciseProgressFor, sameLiveSession, summarizeLiveSession, trainingStateByDayLabel } from "./liveSession";
 import type { DeviceWorkoutSession } from "./deviceWorkoutLog";
 
 const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8");
@@ -116,6 +116,33 @@ describe("the workout under way is readable from outside the tracker", () => {
     expect(trainingStateByDayLabel([session({ status: "completed" })], saturday)[label]).toBe("trained");
     expect(trainingStateByDayLabel([session({ status: "completed" }), session()], saturday)[label]).toBe("live");
     expect(trainingStateByDayLabel([session(), session({ status: "completed" })], saturday)[label]).toBe("live");
+  });
+});
+
+describe("two summaries of the same workout read as the same", () => {
+  it("treats no workout on both sides as the same, and no workout against one as different", () => {
+    expect(sameLiveSession(null, null)).toBe(true);
+    expect(sameLiveSession(null, summarizeLiveSession([session()]))).toBe(false);
+    expect(sameLiveSession(summarizeLiveSession([session()]), null)).toBe(false);
+  });
+
+  it("treats two reads of an unchanged workout as the same", () => {
+    expect(sameLiveSession(summarizeLiveSession([session()]), summarizeLiveSession([session()]))).toBe(true);
+  });
+
+  it("tells a newly completed set apart", () => {
+    const oneMore = session();
+    oneMore.exercises[0].sets[1] = set({ completed: true });
+    expect(sameLiveSession(summarizeLiveSession([session()]), summarizeLiveSession([oneMore]))).toBe(false);
+  });
+
+  it("tells a skipped exercise apart", () => {
+    const skipped = session();
+    skipped.exercises[1].sets = skipped.exercises[1].sets.map(() => set({ skipped: true }));
+    const before = summarizeLiveSession([session()]);
+    const after = summarizeLiveSession([skipped]);
+    expect(after?.finishedExercises).not.toEqual(before?.finishedExercises);
+    expect(sameLiveSession(before, after)).toBe(false);
   });
 });
 

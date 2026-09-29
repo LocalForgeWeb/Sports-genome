@@ -124,16 +124,33 @@ export function exerciseProgressFor(name: string, sessions = loadDeviceWorkoutSe
 }
 
 /**
+ * Whether two summaries say the same thing. Compared whole rather than field by
+ * field, so a field added to LiveSession later cannot be left out of the check
+ * and quietly stop a surface updating. Both sides come from the one literal in
+ * summarizeLiveSession, so their keys are always in the same order.
+ */
+export function sameLiveSession(a: LiveSession | null, b: LiveSession | null): boolean {
+  return a === b || (a !== null && b !== null && JSON.stringify(a) === JSON.stringify(b));
+}
+
+/**
  * Keeps a surface in step with the session without polling.
  *
  * The tracker already announces every checkpoint on `deviceWorkoutHistoryEvent`,
  * because the continuity contract makes it write to storage before it treats an
  * action as saved. `storage` covers the same session open in a second tab.
+ *
+ * Most of those checkpoints change nothing a summary shows (every keystroke in a
+ * weight box is one, and so is every return to the app), so an unchanged summary
+ * keeps the object it had and whoever reads it does not render again.
  */
 export function useLiveSession(): LiveSession | null {
   const [live, setLive] = useState<LiveSession | null>(() => summarizeLiveSession());
   useEffect(() => {
-    const refresh = () => setLive(summarizeLiveSession());
+    const refresh = () => setLive((previous) => {
+      const next = summarizeLiveSession();
+      return sameLiveSession(previous, next) ? previous : next;
+    });
     refresh();
     window.addEventListener(deviceWorkoutHistoryEvent, refresh);
     window.addEventListener("storage", refresh);
