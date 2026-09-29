@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -55,5 +55,43 @@ describe("the picker sheet holds still while the athlete types", () => {
     render(createElement(DayExercisePicker, props(false)));
     expect(document.body.style.position).toBe("");
     expect(window.scrollTo).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Closing the sheet unmounts the search field that held focus, so focus fell to
+ * the top of the document instead of the "Add exercises" button that opened it.
+ * And the split / all-catalog toggle said which side was on only with a fill.
+ */
+describe("the picker sheet for keyboard and screen-reader users", () => {
+  beforeEach(() => {
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn() }));
+    vi.stubGlobal("scrollTo", vi.fn());
+  });
+  afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); document.body.removeAttribute("style"); });
+
+  it("moves focus into the search field, and back to the button that opened it on close", () => {
+    vi.useFakeTimers();
+    const opener = document.createElement("button");
+    opener.textContent = "Add exercises";
+    document.body.appendChild(opener);
+    opener.focus();
+
+    const view = render(createElement(DayExercisePicker, props(true)));
+    vi.advanceTimersByTime(60);
+    expect(document.activeElement).toBe(view.getByPlaceholderText(/Search Pull exercises/));
+
+    view.rerender(createElement(DayExercisePicker, props(false)));
+    expect(document.activeElement).toBe(opener);
+    opener.remove();
+  });
+
+  it("says which scope is on, not only with a fill colour", () => {
+    const view = render(createElement(DayExercisePicker, props(true)));
+    expect(view.getByRole("button", { name: /Pull fit/, pressed: true })).toBeTruthy();
+    expect(view.getByRole("button", { name: /All catalog/, pressed: false })).toBeTruthy();
+    fireEvent.click(view.getByRole("button", { name: /All catalog/ }));
+    expect(view.getByRole("button", { name: /Pull fit/, pressed: false })).toBeTruthy();
+    expect(view.getByRole("button", { name: /All catalog/, pressed: true })).toBeTruthy();
   });
 });
