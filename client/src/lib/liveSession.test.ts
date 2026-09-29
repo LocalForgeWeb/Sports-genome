@@ -127,7 +127,7 @@ describe("every surface that described the day now reads the session", () => {
   });
 
   it("gives the plan rows the state the session has each exercise in", () => {
-    expect(home).toContain("progress={liveSession ? exerciseProgressFor(exercise.name) : null}");
+    expect(home).toContain("progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null}");
   });
 
   it("marks the week board's days, keyed by the label the session was started with", () => {

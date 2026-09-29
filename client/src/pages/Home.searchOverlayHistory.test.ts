@@ -1,12 +1,13 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * The lit tab is the tab of the page on screen, however the athlete got there.
- * Reported: tap Review, press Back, and the page returns to Plan while Review
- * stays lit, because the tapped tab was remembered and Back never cleared it.
+ * An exercise opened from search shows over the catalog, so its overlay entry
+ * has to sit on top of the catalog's. It used to sit underneath: closing the
+ * overlay left an entry behind for a later Back to swallow, and Back with the
+ * overlay open skipped the catalog the athlete had just been shown.
  */
 
 vi.mock("sonner", () => {
@@ -31,6 +32,18 @@ vi.mock("@/lib/trpc", () => {
   });
   return { trpc: new Proxy({}, { get(_target, prop) { return prop === "useUtils" || prop === "useContext" ? () => node : node; } }) };
 });
+// Search itself is covered by its own tests; here it only has to hand Home one exercise result.
+vi.mock("@/components/UniversalSearch", async () => {
+  const { createElement: h } = await import("react");
+  const { exercises: catalog } = await import("@/lib/exerciseCatalog");
+  const first = catalog[0];
+  return {
+    UniversalSearch: ({ onOpenResult }: { onOpenResult: (result: unknown) => void }) => h("button", {
+      type: "button",
+      onClick: () => onOpenResult({ type: "exercise", id: String(first.id), label: first.name, context: "", matchKind: "exact", score: 1 }),
+    }, "Open search result"),
+  };
+});
 
 import Home from "@/pages/Home";
 import { exercises } from "@/lib/exerciseCatalog";
@@ -47,9 +60,6 @@ const profile = JSON.stringify({ version: 3, sportId: "", sportContextMode: "gen
 const week = { customWorkoutIds: [], weeklyPlanIds: {}, weeklyPlanEntries: { "0-Push": [{ entryId: exercises[0].id, catalogExerciseId: exercises[0].id }] }, prescriptions: {}, exerciseSettings: {}, weeklyPrescriptions: {}, weeklySettings: {}, importedPlanContext: {}, activeDayIndex: 0 };
 const plan = JSON.stringify({ version: 2, ...week, weeks: { "1": week }, activeWeek: 1 });
 
-// history.back() is applied on a later task, and so is the popstate it fires.
-const tick = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
-
 beforeEach(() => {
   window.localStorage.clear();
   window.localStorage.setItem(PROFILE_KEY, profile);
@@ -57,45 +67,27 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); });
 
-describe("The highlighted tab follows the page on screen", () => {
-  it("lights Plan again after tapping Review and pressing Back", async () => {
+describe("An exercise opened from search", () => {
+  it("puts its overlay over the catalog, closes back to the catalog, and leaves no entry for a later Back", async () => {
     window.history.replaceState({}, "", "/?workspace=day-plan");
     render(createElement(Home));
-    const tabs = await screen.findByRole("navigation", { name: "Train workspace pages" }, { timeout: 15000 });
-    const plan = within(tabs).getByRole("button", { name: "Plan" });
-    const review = within(tabs).getByRole("button", { name: "Review" });
-    expect(plan.getAttribute("aria-current")).toBe("page");
+    const open = await screen.findByRole("button", { name: "Open search result" }, { timeout: 15000 });
 
-    await act(async () => { fireEvent.click(review); });
-    await tick();
-    expect(window.location.search).toBe("?workspace=review");
-    expect(within(tabs).getByRole("button", { name: "Review" }).getAttribute("aria-current")).toBe("page");
+    await act(async () => { fireEvent.click(open); });
+    expect(window.history.state?.overlay).toBe("exercise");
+    expect(window.location.search).toBe("?workspace=catalog");
+    await screen.findByRole("dialog", undefined, { timeout: 15000 });
+
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Close exercise intelligence" })); });
+    await waitFor(() => expect(document.querySelector(".exercise-intelligence-close")).toBeNull());
+    await waitFor(() => expect(window.history.state?.overlay).toBeUndefined());
+    expect(window.location.search).toBe("?workspace=catalog");
+    // The catalog's screen loads on first arrival, so it can land a moment later.
+    await waitFor(() => expect(document.querySelector(".catalog-experience-surface")).toBeTruthy(), { timeout: 15000 });
+    // Closing the overlay is not a Back, so the way back to the page search was opened from stays.
+    expect(screen.getByText("Opened from search.")).toBeTruthy();
 
     await act(async () => { window.history.back(); });
-    await tick();
-    expect(window.location.search).toBe("?workspace=day-plan");
-    const row = screen.getByRole("navigation", { name: "Train workspace pages" });
-    expect(within(row).getByRole("button", { name: "Plan" }).getAttribute("aria-current")).toBe("page");
-    expect(within(row).getByRole("button", { name: "Review" }).getAttribute("aria-current")).toBeNull();
-  });
-});
-
-describe("Back from a search result", () => {
-  // The return bar named the page from an old navigation list ("Training Days",
-  // "Session", "Movement Atlas") that no heading or tab uses any more.
-  it("names the page the athlete came from the way that page names itself", async () => {
-    window.history.replaceState({}, "", "/?workspace=day-plan");
-    render(createElement(Home));
-    await screen.findByRole("navigation", { name: "Train workspace pages" }, { timeout: 15000 });
-
-    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Search Sports Genome" })); });
-    const input = within(screen.getByRole("dialog", { name: "Search Sports Genome" })).getByRole("combobox");
-    fireEvent.change(input, { target: { value: "muscle map" } });
-    await act(async () => { fireEvent.keyDown(input, { key: "Enter" }); });
-    await tick();
-
-    expect(window.location.search).toBe("?workspace=body");
-    expect(screen.getByRole("button", { name: /Back to Training plan$/ })).toBeTruthy();
-    expect(screen.queryByText(/Back to Training Days/)).toBeNull();
+    await waitFor(() => expect(window.location.search).toBe("?workspace=day-plan"));
   });
 });

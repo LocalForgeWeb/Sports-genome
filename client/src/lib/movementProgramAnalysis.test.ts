@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Exercise } from "./exerciseCatalog";
+import { exercises as catalogExercises, type Exercise } from "./exerciseCatalog";
 import { enrichedSportMovements } from "./enrichedSportMovementDatabase";
-import { getExerciseActionConnection, sharedConnectionSummary } from "./movementProgramAnalysis";
+import { createActionConnectionLookup, getExerciseActionConnection, sharedConnectionSummary } from "./movementProgramAnalysis";
 
 const exercise = (name: string, primaryMuscles: string[]): Exercise => ({
   id: 999,
@@ -42,6 +42,30 @@ describe("selected action exercise connections", () => {
     const connection = getExerciseActionConnection(exercise("Lateral deltoid isolation", ["sideDelts"]), movement);
     expect(connection.label).toBe("Not mapped");
     expect(connection.detail).toContain("No direct movement-record");
+  });
+});
+
+describe("a connection worked out once per selected action", () => {
+  const movement = enrichedSportMovements[0];
+
+  it("gives every catalog exercise the same answer as working it out directly", () => {
+    const lookup = createActionConnectionLookup(movement);
+    for (const entry of catalogExercises) {
+      expect(lookup(entry)).toEqual(getExerciseActionConnection(entry, movement));
+    }
+  });
+
+  it("hands back the answer it already has instead of working it out again", () => {
+    const lookup = createActionConnectionLookup(movement);
+    const first = catalogExercises[0];
+    // A fresh computation is a new object, so the same object back means it was kept.
+    expect(getExerciseActionConnection(first, movement)).not.toBe(getExerciseActionConnection(first, movement));
+    expect(lookup(first)).toBe(lookup(first));
+  });
+
+  it("says Not mapped when there is no record for the action", () => {
+    const lookup = createActionConnectionLookup(undefined);
+    expect(lookup(catalogExercises[0]).label).toBe("Not mapped");
   });
 });
 
