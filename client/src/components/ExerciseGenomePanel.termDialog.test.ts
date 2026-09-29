@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
 import { ExerciseGenomePanel } from "./ExerciseGenomePanel";
+import { UniversalSearch } from "./UniversalSearch";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
@@ -58,6 +59,32 @@ describe("Exercise Genome term explanation", () => {
     fireEvent.click(close);
     expect(view.queryByRole("dialog")).toBeNull();
     expect(document.activeElement).toBe(opener);
+  });
+
+  // Search opens over anything with Cmd/Ctrl+K. While it holds focus, its keys
+  // are its own: the explanation behind it must not pull Tab onto its close
+  // button, and one Escape must close search, not the explanation underneath.
+  it("leaves Tab and Escape to search opened over it, then closes on the next Escape", () => {
+    const view = render(createElement(React.Fragment, null,
+      createElement(UniversalSearch, { onOpenResult: vi.fn() }),
+      createElement(ExerciseGenomePanel, { exercise, context: { goal: "Muscle growth", currentWorkout: [exercise] }, compactHead: true })));
+    fireEvent.click(view.getByRole("button", { name: "Learn about Hypertrophy potential" }));
+    const term = view.getByRole("dialog", { name: "Hypertrophy potential explained" });
+    expect(document.activeElement).toBe(view.getByRole("button", { name: "Close term explanation" }));
+
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const input = view.getByRole("combobox", { name: /search muscles/i });
+    expect(document.activeElement).toBe(input);
+    expect(fireEvent.keyDown(input, { key: "Tab" })).toBe(true);
+    expect(document.activeElement).toBe(input);
+
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(view.queryByRole("combobox", { name: /search muscles/i })).toBeNull();
+    expect(term.isConnected).toBe(true);
+    expect(view.getByRole("dialog", { name: "Hypertrophy potential explained" })).toBe(term);
+
+    fireEvent.keyDown(document.activeElement ?? window, { key: "Escape" });
+    expect(view.queryByRole("dialog", { name: "Hypertrophy potential explained" })).toBeNull();
   });
 
   it("says which analysis view is showing, and moves that when another is chosen", () => {

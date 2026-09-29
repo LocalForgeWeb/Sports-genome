@@ -8,6 +8,7 @@ import { GradeStamp } from "@/components/GradeStamp";
 import { exerciseEvidenceCoverage } from "@/lib/evidenceCoverage";
 import { evidenceTraceability } from "@/lib/evidenceTraceability";
 import { getExerciseActionConnection, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
+import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import type { SupabaseExerciseEvidence } from "../../../shared/supabaseEvidence";
 
 type Tab = "fingerprint" | "muscles" | "mechanics" | "context";
@@ -75,6 +76,7 @@ function Meter({ label, value, tone = "blue", onLearn }: { label: string; value:
  * on Escape, so the key is caught on the way down and goes no further.
  */
 function GenomeLearnOverlay({ term, onClose }: { term: LearnKey; onClose: () => void }) {
+  const layerRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -82,6 +84,8 @@ function GenomeLearnOverlay({ term, onClose }: { term: LearnKey; onClose: () => 
     const opener = document.activeElement as HTMLElement | SVGElement | null;
     closeRef.current?.focus({ preventScroll: true });
     const onKey = (event: KeyboardEvent) => {
+      // A layer opened over the explanation, such as search, handles its own keys.
+      if (isKeyForAnotherLayer(event, layerRef.current)) return;
       if (event.key === "Escape") { event.stopPropagation(); onCloseRef.current(); return; }
       // The close button is the only control in the card, so Tab stays on it.
       if (event.key === "Tab") { event.preventDefault(); closeRef.current?.focus(); }
@@ -92,7 +96,7 @@ function GenomeLearnOverlay({ term, onClose }: { term: LearnKey; onClose: () => 
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
-  return <div className="genome-learn-overlay" role="dialog" aria-modal="true" aria-label={`${genomeTermInfo[term].label} explained`}><div className="genome-learn-card"><button ref={closeRef} type="button" onClick={onClose} aria-label="Close term explanation" className="genome-learn-close">×</button><p className="metric-label">Genome term explained</p><h4>{genomeTermInfo[term].label}</h4><p><strong>What it means.</strong> {genomeTermInfo[term].meaning}</p><p><strong>What the model weighs.</strong> {genomeTermInfo[term].inputs}</p>{term in labels && <p><strong>What changes with context.</strong> The fingerprint index is a standardized catalog comparison. Its planning value changes when the athlete's goal, selected sport action, current stack distinctness, and estimated recovery cost change; those inputs feed Contextual fit rather than turning the fingerprint into a direct athlete measurement.</p>}<p><strong>How to read the number.</strong> {genomeTermInfo[term].read}</p><div className="genome-learn-boundary">This is a planning estimate used to compare exercises — not a lab measurement, a medical assessment, or a universal recommendation.</div></div></div>;
+  return <div ref={layerRef} className="genome-learn-overlay" role="dialog" aria-modal="true" aria-label={`${genomeTermInfo[term].label} explained`}><div className="genome-learn-card"><button ref={closeRef} type="button" onClick={onClose} aria-label="Close term explanation" className="genome-learn-close">×</button><p className="metric-label">Genome term explained</p><h4>{genomeTermInfo[term].label}</h4><p><strong>What it means.</strong> {genomeTermInfo[term].meaning}</p><p><strong>What the model weighs.</strong> {genomeTermInfo[term].inputs}</p>{term in labels && <p><strong>What changes with context.</strong> The fingerprint index is a standardized catalog comparison. Its planning value changes when the athlete's goal, selected sport action, current stack distinctness, and estimated recovery cost change; those inputs feed Contextual fit rather than turning the fingerprint into a direct athlete measurement.</p>}<p><strong>How to read the number.</strong> {genomeTermInfo[term].read}</p><div className="genome-learn-boundary">This is a planning estimate used to compare exercises — not a lab measurement, a medical assessment, or a universal recommendation.</div></div></div>;
 }
 
 /** The four the summary shows; the full fingerprint keeps all eight behind a line. */
