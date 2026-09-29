@@ -107,10 +107,10 @@ export const deviceWorkoutHistoryEvent = "sports-genome:device-workout-history";
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 
 /**
- * An entry that holds no data at all (null, a string, a number) is skipped at each level
- * rather than read. One such entry used to throw, the whole history loaded as empty, and the
- * next checkpoint wrote that empty list over every workout. Anything that is an object is
- * kept as it is, whatever its status: dropping it here would erase it on the next save.
+ * A null entry used to throw at any level, so the whole history loaded as empty and the next
+ * checkpoint wrote that over every workout; a string, number or array was read as a junk
+ * object. Entries that are not objects are now skipped at each level. Anything that is an
+ * object is kept as it is, whatever its status: dropping it here would erase it on the next save.
  */
 export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
   if (typeof window === "undefined") return [];

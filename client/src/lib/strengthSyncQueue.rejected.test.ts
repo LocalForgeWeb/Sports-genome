@@ -68,3 +68,22 @@ describe("A dropped connection", () => {
     expect(loadSyncedKeys()).toEqual(["a"]);
   });
 });
+
+describe("A rejection every row shares", () => {
+  // An expired session, a refused policy and an outage turn down each row alike, so sending each
+  // alone would only add one request per lift to every flush.
+  it.each([
+    [401, "PGRST301"],
+    [403, "42501"],
+    [503, "PGRST000"],
+  ])("(status %i) keeps every lift and is not retried row by row", async (status, code) => {
+    insert.mockResolvedValue({ error: { code }, status });
+    saveSyncQueue([lift("a", 100), lift("b", 110), lift("c", 120)]);
+
+    const result = await flushSyncQueue("user-1", mapped);
+    expect(result).toMatchObject({ sent: 0, remaining: 3, reason: "rejected" });
+    expect(insert).toHaveBeenCalledTimes(1);
+    expect(queuedKeys()).toEqual(["a", "b", "c"]);
+    expect(loadSyncedKeys()).toEqual([]);
+  });
+});

@@ -105,6 +105,14 @@ export function saveSyncQueue(queue: readonly QueuedLift[]): boolean {
 export type FlushResult = { sent: number; remaining: number; skipped: number; reason?: "no_session" | "not_configured" | "offline" | "rejected" };
 
 /**
+ * Whether sending the rows one at a time can get past a batch PostgREST turned down with this
+ * status. One row can cause a 400 (a bad value, a failed check, a missing field) or a 409 (a
+ * duplicate, a missing reference), and a 413 is the batch being too large to take whole. An
+ * expired session (401), a refused policy (403) or an outage (5xx) turns down every row alike.
+ */
+const worthRetryingRowByRow = (status: number) => status === 400 || status === 409 || status === 413;
+
+/**
  * Sends what is queued, one row per lift, and keeps anything that did not land.
  *
  * `resolveExerciseUuid` is injected rather than fetched here so the caller owns
@@ -150,9 +158,11 @@ export async function flushSyncQueue(
   // what tells "offline" from a row the database turned down.
   const landed = new Set<string>();
   let batchRejected = false;
+  let batchStatus = 0;
   try {
     const { error, status } = await supabase.from("athlete_strength_entries").insert(rows.map((row) => row.payload));
     if (error && status === 0) return { sent: 0, remaining: queue.length, skipped: 0, reason: "offline" };
+    batchStatus = status;
     if (error) batchRejected = true;
     else rows.forEach((row) => landed.add(row.key));
   } catch {
@@ -162,8 +172,11 @@ export async function flushSyncQueue(
   // One row the database turns down fails the whole batch, and it used to hold back every lift
   // queued with it on every later flush. The rows go again one at a time, so the good ones land;
   // a row still turned down stays queued, unmarked, to be tried again later.
+  // Only a rejection that one row can cause earns that retry. An expired session, a refused policy
+  // or an outage turns every row down alike, and sending each alone would cost one more request
+  // per lift on every flush for nothing.
   let dropped = false;
-  if (batchRejected && rows.length > 1) {
+  if (batchRejected && rows.length > 1 && worthRetryingRowByRow(batchStatus)) {
     for (const row of rows) {
       try {
         const { error, status } = await supabase.from("athlete_strength_entries").insert([row.payload]);

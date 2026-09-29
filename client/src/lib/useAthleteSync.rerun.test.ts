@@ -9,8 +9,8 @@ import type { FlushResult } from "./strengthSyncQueue";
  * finished during a slow upload was then neither queued nor sent until some unrelated event
  * fired, although the outbox promises a finished workout is on it straight away.
  */
-const sync = vi.hoisted(() => ({ flushSyncQueue: vi.fn() }));
-vi.mock("@/lib/athleteIdentity", () => ({ ensureAthleteIdentity: async () => ({ userId: "u1", anonymous: true }), upsertAthleteProfile: vi.fn() }));
+const sync = vi.hoisted(() => ({ flushSyncQueue: vi.fn(), ensureAthleteIdentity: vi.fn() }));
+vi.mock("@/lib/athleteIdentity", () => ({ ensureAthleteIdentity: sync.ensureAthleteIdentity, upsertAthleteProfile: vi.fn() }));
 vi.mock("@/lib/supabaseReferenceMap", () => ({ loadCachedReferenceMap: () => null, refreshReferenceMap: async () => null }));
 vi.mock("@/lib/strengthSyncQueue", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./strengthSyncQueue")>()),
@@ -24,6 +24,7 @@ import { loadSyncQueue } from "./strengthSyncQueue";
 
 const STABLE = [{ id: "wrestling", label: "Wrestling" }] as const;
 const idle: FlushResult = { sent: 0, remaining: 0, skipped: 0 };
+const signedIn = { userId: "u1", anonymous: true };
 const benchKey = "workout-s1-e1";
 const finishedBench: DeviceWorkoutSession = {
   id: "s1",
@@ -50,6 +51,7 @@ function holdNextFlush() {
 beforeEach(() => {
   window.localStorage.clear();
   sync.flushSyncQueue.mockReset().mockResolvedValue(idle);
+  sync.ensureAthleteIdentity.mockReset().mockResolvedValue(signedIn);
 });
 
 afterEach(() => { cleanup(); });
@@ -70,6 +72,24 @@ describe("A sync asked for while a send is in flight", () => {
     await settle();
     expect(sync.flushSyncQueue).toHaveBeenCalledTimes(before + 1);
     expect(queuedKeys()).toContain(benchKey);
+  });
+
+  it("reruns with an id that arrived while the send was in flight", async () => {
+    let resolveIdentity: (state: typeof signedIn) => void = () => {};
+    sync.ensureAthleteIdentity.mockReturnValueOnce(new Promise((resolve) => { resolveIdentity = resolve; }));
+    const release = holdNextFlush();
+    mount();
+    expect(sync.flushSyncQueue).toHaveBeenCalledTimes(1);
+    expect(sync.flushSyncQueue.mock.calls[0]?.[0]).toBeNull();
+
+    // The id lands mid-send; the new callback asks for a sync, which waits for the send to settle.
+    await act(async () => { resolveIdentity(signedIn); });
+    expect(sync.flushSyncQueue).toHaveBeenCalledTimes(1);
+
+    await act(async () => { release(); });
+    await settle();
+    expect(sync.flushSyncQueue).toHaveBeenCalledTimes(2);
+    expect(sync.flushSyncQueue.mock.calls.at(-1)?.[0]).toBe("u1");
   });
 
   it("merges several requests during one send into a single rerun", async () => {
