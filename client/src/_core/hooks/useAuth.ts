@@ -39,8 +39,15 @@ export function useAuth(options?: UseAuthOptions) {
     }
   }, [logoutMutation, utils]);
 
+  /**
+   * Earlier builds copied the account row into device storage on every render. Nothing
+   * read it, and a blocked or full store threw mid-render, so clear what devices still hold.
+   */
+  useEffect(() => {
+    try { window.localStorage.removeItem("sports-genome-user-info"); } catch { /* Storage is optional. */ }
+  }, []);
+
   const state = useMemo(() => {
-    localStorage.setItem("sports-genome-user-info", JSON.stringify(meQuery.data));
     return {
       user: meQuery.data ?? null,
       loading: meQuery.isLoading || logoutMutation.isPending,
