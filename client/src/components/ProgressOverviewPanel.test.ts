@@ -30,6 +30,10 @@ describe("Progress overview", () => {
     expect(source).toContain("Estimated change since your first log");
     expect(source).toContain("tracks you against your own past only — never against anyone else");
     expect(source).toContain("Epley formula");
+    // The trend rows name the estimate the method note defines, not a bare abbreviation.
+    expect(source).toContain("% est. 1RM");
+    expect(source).toContain("(est. 1RM, Epley formula)");
+    expect(source).not.toContain("e1RM");
     expect(source).toContain("outside the validated rep range for estimation");
     expect(source).not.toContain("readiness score");
     expect(source).not.toContain("Personal record");

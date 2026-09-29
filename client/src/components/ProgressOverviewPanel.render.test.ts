@@ -51,4 +51,13 @@ describe("Progress counts agree with the words beside them", () => {
     expect(container.querySelector(".progress-facts")?.getAttribute("aria-label")).toBe("1 workout recorded, 2 lifts logged");
     expect(container.querySelector(".progress-excluded")?.textContent).toBe("2 logged sets outside the validated rep range for estimation are recorded but not used for this trend.");
   });
+
+  it("names the trend's unit in words the method note defines", () => {
+    const fives = (id: number, observedAt: string, loadKg: string) => ({ ...twentyReps(id, observedAt), loadKg, repetitions: 5 });
+    fixtures.observations = [fives(21, "2026-09-01T10:00:00Z", "60"), fives(22, "2026-09-08T10:00:00Z", "66")];
+    const { container } = renderPanel();
+    expect(container.querySelector(".progress-trend-rows strong")?.textContent).toMatch(/^\+\d+% est\. 1RM$/);
+    expect(container.querySelector(".progress-method-note")?.textContent).toContain("estimated one-rep max (est. 1RM, Epley formula)");
+    expect(container.textContent).not.toContain("e1RM");
+  });
 });
