@@ -865,10 +865,11 @@ export default function Home() {
     if (!id) return;
     const changed = Boolean(sportId) && sportId !== id;
     if (changed) {
-      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, catalogFilters, activeDayIndex: activeSlot.index };
+      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, catalogFilters, activeDayIndex: activeSlot.index, sportModifierId: athleteBaseline.sportModifierId };
       const undoSwitch = () => {
         setSportId(previous.sportId);
         setMovementId(previous.movementId);
+        setAthleteBaseline((current) => ({ ...current, sportModifierId: previous.sportModifierId }));
         setActiveMuscle(previous.activeMuscle ?? null);
         setDayStore(previous.dayStore);
         setPlanWeeks(previous.planWeeks);
@@ -882,7 +883,11 @@ export default function Home() {
       setPlanWeeks({});
       setActiveWeek(1);
       setCatalogFilters(defaultCatalogFilters);
-      toast("Sport changed", { description: "Saved training days for the previous sport were cleared.", action: { label: "Undo", onClick: undoSwitch } });
+      // A role or style belongs to the sport it was chosen in. Ids repeat across
+      // sports ("freestyle" is a wrestling style and a swimming stroke), so one
+      // carried over would switch on a role the athlete never picked.
+      setAthleteBaseline((current) => ({ ...current, sportModifierId: undefined }));
+      toast("Sport changed", { description: "Saved training days and the role or style for the previous sport were cleared.", action: { label: "Undo", onClick: undoSwitch } });
     }
     setSportId(id);
     const first = sportMovementProfiles.find((movement) => movement.sportId === id);
