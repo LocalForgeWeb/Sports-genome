@@ -153,7 +153,10 @@ export async function flushSyncQueue(
   const landed = new Set(rows.map((row) => row.key));
   const alreadySent = loadSyncedKeys().concat(rows.map((row) => row.key), unsendable);
   writeJson(strengthSyncedKey, Array.from(new Set(alreadySent)).slice(-5000));
-  const remaining = queue.filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
+  // The queue is read again rather than filtered from the copy taken before the insert. The
+  // insert can take seconds on a gym network, and a workout removed in that time prunes its
+  // lifts from storage; writing the old copy back would restore them and send them later.
+  const remaining = loadSyncQueue().filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
   saveSyncQueue(remaining);
   return { sent: rows.length, remaining: remaining.length, skipped: unmappable.length + unsendable.length };
 }
