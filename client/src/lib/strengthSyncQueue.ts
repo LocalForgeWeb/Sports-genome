@@ -48,12 +48,17 @@ function writeJson(key: string, value: unknown): boolean {
   }
 }
 
+const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
 // Both loaders check the shape the way the body-weight and workout logs do: a stored
 // object or number would otherwise throw on every launch, and nothing rewrites it.
+// A queued entry needs its lift and the athlete it was read against: a flush reads
+// both, and one that throws stops every other lift in the queue from being sent.
 export function loadSyncQueue(): QueuedLift[] {
   const parsed = readJson<unknown>(strengthSyncQueueKey, []);
   return Array.isArray(parsed)
-    ? parsed.filter((item): item is QueuedLift => Boolean(item) && typeof item.key === "string" && item.key.length > 0 && Boolean(item.lift))
+    ? parsed.filter((item): item is QueuedLift =>
+      isObject(item) && typeof item.key === "string" && item.key.length > 0 && isObject(item.lift) && isObject(item.athlete))
     : [];
 }
 

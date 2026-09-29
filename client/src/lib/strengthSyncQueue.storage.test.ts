@@ -37,4 +37,13 @@ describe("Reading the lift queue back from the device", () => {
     window.localStorage.setItem(strengthSyncQueueKey, JSON.stringify([{ key: "k" }, null, 7, lift("valid")]));
     expect(loadSyncQueue()).toEqual([lift("valid")]);
   });
+
+  it("drops a queued entry with no athlete, or a lift that is not a lift", () => {
+    window.localStorage.setItem(strengthSyncQueueKey, JSON.stringify([
+      { key: "k", lift: lift("k").lift },
+      { key: "s", lift: "x", athlete: lift("s").athlete },
+      lift("valid"),
+    ]));
+    expect(loadSyncQueue()).toEqual([lift("valid")]);
+  });
 });

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { IdentityState } from "./athleteIdentity";
 import type { ReferenceMap } from "./supabaseReferenceMap";
 
@@ -44,6 +44,10 @@ beforeEach(() => {
   sync.refreshReferenceMap.mockReset();
   sync.flushSyncQueue.mockReset().mockResolvedValue({ sent: 0, remaining: 0, skipped: 0 });
 });
+
+// Globals are off, so Testing Library does not unmount on its own. A hook left mounted keeps
+// its online listener and would call the shared flush spy during the next test.
+afterEach(() => { cleanup(); });
 
 describe("Coming back online after an offline launch", () => {
   it("asks for the account id and the exercise map again, and sends the queue with them", async () => {
