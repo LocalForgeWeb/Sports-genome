@@ -292,11 +292,6 @@ export function weightInUnit(weight: string, from: DisplayWeightUnit, to: Displa
   return String(Math.round(converted * 100) / 100);
 }
 
-/** Whether a session is currently running on this device. */
-export function hasActiveDeviceSession(): boolean {
-  return loadDeviceWorkoutSessions().some((session) => session.status === "active");
-}
-
 /**
  * The load/reps to offer for the next set: the last set the athlete confirmed
  * for this exercise in this session, falling back to the last confirmed
