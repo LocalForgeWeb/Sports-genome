@@ -1402,6 +1402,25 @@ export default function Home() {
     if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") { window.history.back(); return; }
     setInspectedExercise(null);
   };
+  /**
+   * Leaving the overlay for another screen: the overlay's own history entry
+   * becomes that screen's, so one Back returns to where it was opened and
+   * nothing is left for a later Back to swallow. history.back() followed by
+   * pushState would race: the queued back is either cancelled by the push or
+   * applied after it.
+   */
+  const leaveInspectorFor = (next: Workspace) => {
+    if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") {
+      const url = new URL(window.location.href);
+      // Same screen: navigateWorkspace will not push, so popping the overlay entry is safe.
+      if (url.searchParams.get("workspace") === next) { closeInspector(); navigateWorkspace(next); return; }
+      url.searchParams.set("workspace", next);
+      window.history.replaceState({ workspace: next }, "", url);
+    }
+    setInspectedExercise(null);
+    // The URL already names `next`, so this only resets context and scrolls.
+    navigateWorkspace(next);
+  };
   // The overlay is the topmost transient surface, so Escape closes it and
   // nothing else; the list, filters and scroll it opened over are untouched.
   useEffect(() => {
@@ -1868,14 +1887,14 @@ export default function Home() {
             <AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} showInspector={false} nextStep={<dl className="exercise-intelligence-roles"><div><dt>Primary</dt><dd>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div><div><dt>Supporting</dt><dd>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div>{inspectedExercise.qualities.length > 0 && <div><dt>Qualities</dt><dd>{inspectedExercise.qualities.join(" · ")}</dd></div>}</dl>} />
             {/* The one thing the retired Genome page offered that this overlay did
                 not: a way from the exercise's leading muscle into Body Lab. */}
-            {inspectedExercise.primaryMuscles[0] && <button type="button" className="exercise-intelligence-explore" onClick={() => { const muscle = inspectedExercise.primaryMuscles[0]!; closeInspector(); setActiveMuscle(muscle); navigateWorkspace("body"); }}>Explore {muscleLabels[inspectedExercise.primaryMuscles[0]] || inspectedExercise.primaryMuscles[0]} in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+            {inspectedExercise.primaryMuscles[0] && <button type="button" className="exercise-intelligence-explore" onClick={() => { const muscle = inspectedExercise.primaryMuscles[0]!; setActiveMuscle(muscle); leaveInspectorFor("body"); }}>Explore {muscleLabels[inspectedExercise.primaryMuscles[0]] || inspectedExercise.primaryMuscles[0]} in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </section>
           <ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} compactHead />
-          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => { setInspectedExercise(null); navigateWorkspace("movement"); }} />
+          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => leaveInspectorFor("movement")} />
           <details className="exercise-intelligence-disclosure"><summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Evidence context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary><div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /></div></details>
         </div>
         <div className="exercise-intelligence-actions">
-          <button type="button" className="exercise-intelligence-add" onClick={() => { addExercise(inspectedExercise); setInspectedExercise(null); }}>Add to Week {activeWeek} · {activeSlot.day} <Plus className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" className="exercise-intelligence-add" onClick={() => { addExercise(inspectedExercise); closeInspector(); }}>Add to Week {activeWeek} · {activeSlot.day} <Plus className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className={`exercise-intelligence-favorite ${favoriteIds.has(inspectedExercise.id) ? "is-on" : ""}`} onClick={() => toggleFavorite(inspectedExercise)} aria-pressed={favoriteIds.has(inspectedExercise.id)} aria-label={`${favoriteIds.has(inspectedExercise.id) ? "Remove" : "Save"} ${inspectedExercise.name} ${favoriteIds.has(inspectedExercise.id) ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={favoriteIds.has(inspectedExercise.id) ? "currentColor" : "none"} /></button>
         </div>
       </div>
