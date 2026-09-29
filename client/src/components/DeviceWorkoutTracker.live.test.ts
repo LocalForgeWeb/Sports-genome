@@ -482,3 +482,38 @@ describe("active workout continuity contract", () => {
     expect(document.querySelector(".tracker-resume-cue")).toBeNull();
   });
 });
+
+/**
+ * The clock only ticks while a rest runs, so between sets it stops. A set logged
+ * minutes later used to count down from the gap plus the rest ("3:20" for a 1:30
+ * rest), and +15s on a finished rest briefly read "Resting" again.
+ */
+describe("rest clock after a pause between sets", () => {
+  beforeEach(() => { vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "setTimeout", "clearTimeout", "Date"] }); });
+  afterEach(() => { vi.useRealTimers(); });
+
+  const clock = () => document.querySelector(".live-rest-clock")!.textContent;
+  const state = () => document.querySelector(".live-rest-state")!.textContent;
+
+  // Two separate waits: the tick is only cleared once the finished rest renders.
+  function restThenWait() {
+    startWorkout();
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+    act(() => { vi.advanceTimersByTime(91_000); });
+    expect(state()).toBe("Rest complete");
+    act(() => { vi.advanceTimersByTime(110_000); });
+  }
+
+  it("starts the next rest at its full length, not the length plus the pause", () => {
+    restThenWait();
+    fireEvent.click(screen.getByRole("button", { name: /log set 2/i }));
+    expect(clock()).toBe("1:30");
+    expect(state()).toBe("Resting");
+  });
+
+  it("keeps a finished rest finished when it is lengthened long after it ended", () => {
+    restThenWait();
+    fireEvent.click(screen.getByRole("button", { name: /lengthen rest/i }));
+    expect(state()).toBe("Rest complete");
+  });
+});

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronRight, Play, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2 } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
@@ -281,6 +281,16 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const restRemaining = restEndsAt ? Math.max(0, Math.round((restEndsAt - now) / 1000)) : 0;
   const resting = Boolean(restEndsAt && restRemaining > 0);
   const restComplete = Boolean(restEndsAt && restRemaining === 0);
+
+  /**
+   * `now` only ticks while resting, so it is stale whenever a rest starts or
+   * moves: a set logged minutes after the last rest ended showed the gap added
+   * to the clock, and +15s on a finished rest briefly read "Resting". Resync
+   * before paint, whether the rest came from this tab, another one or a resume.
+   */
+  useLayoutEffect(() => {
+    if (restEndsAt) setNow(Date.now());
+  }, [restEndsAt]);
 
   useEffect(() => {
     if (!resting) return;
