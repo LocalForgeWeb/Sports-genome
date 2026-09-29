@@ -94,4 +94,21 @@ describe("Strength Genome signed-in lift save", () => {
     fireEvent.click(save);
     expect(mocks.mutate).not.toHaveBeenCalled();
   });
+
+  it("opens the form on the athlete's own day, not the UTC day", () => {
+    const originalZone = process.env.TZ;
+    process.env.TZ = "America/New_York";
+    // 9:30pm on Sep 27 in New York, already Sep 28 in UTC.
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-09-28T01:30:00Z") });
+    try {
+      render(React.createElement(StrengthGenomePanel, { weightUnit: "kg" }));
+      const date = screen.getByLabelText("Date") as HTMLInputElement;
+      expect(date.value).toBe("2026-09-27");
+      // The picker offers no day after today.
+      expect(date.max).toBe("2026-09-27");
+    } finally {
+      vi.useRealTimers();
+      if (originalZone === undefined) delete process.env.TZ; else process.env.TZ = originalZone;
+    }
+  });
 });

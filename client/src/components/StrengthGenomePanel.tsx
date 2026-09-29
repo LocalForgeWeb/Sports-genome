@@ -33,6 +33,7 @@ import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
 import { muscleRankLifts } from "@/lib/muscleRankLifts";
 import { ageAtLift } from "@/lib/normsCohort";
 import { countCoveredRegions } from "@/lib/athleteRecord";
+import { localDateKey } from "@/lib/localDate";
 
 const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
   insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
@@ -516,7 +517,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const [measurementType, setMeasurementType] = useState<MeasurementType>("MEASURED_1RM");
   const [loadKg, setLoadKg] = useState("");
   const [repetitions, setRepetitions] = useState("");
-  const [observedDate, setObservedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [observedDate, setObservedDate] = useState(() => localDateKey());
   const [bodyMassKg, setBodyMassKg] = useState(() => baselineBodyWeight != null ? String(baselineBodyWeight) : "");
   const [equipment, setEquipment] = useState("");
   const [romStandard, setRomStandard] = useState("");
@@ -632,7 +633,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const powerliftingCaptureAvailable = ["Back Squat", "Barbell Bench Press", "Conventional Deadlift"].includes(exerciseName) && measurementType === "MEASURED_1RM";
   // A date the record can hold: not before 1970 and not days ahead. A typo year
   // such as 0202 or 2100 would otherwise be saved as it stands, or refused by the
-  // server. Two days of slack covers the form's default date, which is UTC.
+  // server. The form defaults to the athlete's own day; the two days of slack
+  // match the server, which cannot know the athlete's time zone.
   const liftDateAt = new Date(`${observedDate}T12:00:00`).getTime();
   const liftDateInRange = Number.isFinite(liftDateAt) && liftDateAt >= Date.UTC(1970, 0, 2) && liftDateAt <= Date.now() + 2 * 86_400_000;
   const canSave = Boolean(selectedExercise) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0)) && liftDateInRange;
@@ -899,7 +901,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="grid gap-1.5 sm:col-span-2"><label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Choose exercise</span><input aria-label="Search and choose a catalog exercise" value={exerciseSearch} onChange={(event) => { setExerciseSearch(event.target.value); setSelectedExercise(null); setExerciseName(""); }} placeholder="Search catalog, then select" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label><LocalSearchScope scope="Searching the exercise catalog for a lift to record." query={exerciseSearch} />{exerciseSearch.trim() && !selectedExercise && <div className="strength-exercise-picker" role="listbox" aria-label="Catalog exercise results">{exerciseMatches.length ? exerciseMatches.map((exercise) => <button type="button" role="option" key={exercise.id} onClick={() => { emitInteractionFeedback(); setSelectedExercise(exercise); setExerciseName(exercise.name); setExerciseSearch(exercise.name); }}><strong>{exercise.name}</strong><span>{exercise.primaryMuscles.join(" · ")}</span></button>) : <p>No matching catalog exercise.</p>}</div>}{selectedExerciseContext && <StrengthCatalogSelectionPreview context={selectedExerciseContext} />}</div>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">How you measured it</span><select value={measurementType} onChange={(event) => setMeasurementType(event.target.value as MeasurementType)} className="h-12 rounded-xl border border-white/20 bg-[var(--sg-surface-raised)] px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30">{measurementOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-          <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Date</span><input type="date" min="1970-01-02" max={new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)} value={observedDate} onChange={(event) => setObservedDate(event.target.value)} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Date</span><input type="date" min="1970-01-02" max={localDateKey()} value={observedDate} onChange={(event) => setObservedDate(event.target.value)} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
           <StrengthLoadInput weightUnit={weightUnit} value={loadKg} requiresLoad={needsLoad && loadConventionFor(selectedExercise?.id) !== "bodyweight_reps"} convention={loadConventionFor(selectedExercise?.id)} onChange={setLoadKg} />
           {measurementType === "MULTI_REP" && <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Repetitions</span><input inputMode="numeric" value={repetitions} onChange={(event) => setRepetitions(event.target.value.replace(/[^0-9]/g, ""))} placeholder="Enter reps" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>}
         </div>
