@@ -35,6 +35,26 @@ function relyingParty(req: Request) {
   return { origin, rpID: new URL(origin).hostname };
 }
 
+// The library throws on a challenge, origin or shape mismatch. A rejected passkey is not a server fault,
+// so it comes back as "not verified". Only the step is logged: never the message or the response itself.
+export async function verifyPasskeyRegistration(options: Parameters<typeof verifyRegistrationResponse>[0]) {
+  try {
+    return await verifyRegistrationResponse(options);
+  } catch {
+    console.warn(JSON.stringify({ scope: "auth", event: "passkey_verification_rejected", step: "register" }));
+    return { verified: false as const };
+  }
+}
+
+export async function verifyPasskeyAuthentication(options: Parameters<typeof verifyAuthenticationResponse>[0]) {
+  try {
+    return await verifyAuthenticationResponse(options);
+  } catch {
+    console.warn(JSON.stringify({ scope: "auth", event: "passkey_verification_rejected", step: "authenticate" }));
+    return { verified: false as const };
+  }
+}
+
 async function storeChallenge(identifier: string, purpose: "register" | "authenticate", challenge: string) {
   const db = await getDb();
   if (!db) throw new Error("Account service unavailable");
@@ -134,7 +154,7 @@ export async function finishPasskeyRegistration(user: User, response: unknown, r
   const challenge = await consumeChallenge(String(user.id), "register");
   if (!challenge) return { ok: false as const, code: "EXPIRED_CHALLENGE" as const };
   const { origin, rpID } = relyingParty(req);
-  const verification = await verifyRegistrationResponse({ response: response as RegistrationResponseJSON, expectedChallenge: challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true });
+  const verification = await verifyPasskeyRegistration({ response: response as RegistrationResponseJSON, expectedChallenge: challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true });
   if (!verification.verified || !verification.registrationInfo) return { ok: false as const, code: "INVALID_PASSKEY" as const };
   const credential = verification.registrationInfo.credential;
   const db = await getDb();
@@ -180,7 +200,7 @@ export async function finishPasskeyAuthentication(emailInput: string, response: 
   const record = rows[0];
   if (!record) return { ok: false as const, code: "INVALID_PASSKEY" as const };
   const { origin, rpID } = relyingParty(req);
-  const verification = await verifyAuthenticationResponse({ response: response as AuthenticationResponseJSON, expectedChallenge: challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true, credential: { id: record.passkey.credentialId, publicKey: Buffer.from(record.passkey.publicKey, "base64"), counter: record.passkey.counter, transports: record.passkey.transports ? JSON.parse(record.passkey.transports) : undefined } });
+  const verification = await verifyPasskeyAuthentication({ response: response as AuthenticationResponseJSON, expectedChallenge: challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true, credential: { id: record.passkey.credentialId, publicKey: Buffer.from(record.passkey.publicKey, "base64"), counter: record.passkey.counter, transports: record.passkey.transports ? JSON.parse(record.passkey.transports) : undefined } });
   if (!verification.verified) return { ok: false as const, code: "INVALID_PASSKEY" as const };
   await db.update(accountPasskeys).set({ counter: verification.authenticationInfo.newCounter, lastUsedAt: new Date() }).where(eq(accountPasskeys.id, record.passkey.id));
   await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, record.user.id));
