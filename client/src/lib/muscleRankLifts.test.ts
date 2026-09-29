@@ -31,7 +31,19 @@ describe("Which ranked lifts are read against the profile weight", () => {
       { exerciseName: "Back Squat", loadKg: 120, repetitions: 5, observedAt: "2026-07-01T10:00:00.000Z" },
     ], history, 80);
     expect(selection.lifts).toHaveLength(3);
-    expect(selection.profileWeightExercises).toEqual(["Back Squat"]);
+    expect(selection.profileWeightLifts).toEqual([{ exerciseName: "Back Squat", fromWorkout: false }]);
+  });
+
+  /** Only a typed lift's record can take the weight of its day, so the map must know which is which. */
+  it("says which of them came from a finished workout", () => {
+    const selection = muscleRankLiftSelection([
+      { exerciseName: "Back Squat", loadKg: 100, repetitions: 5, observedAt: "2026-07-02T10:00:00.000Z", source: "workout" },
+      { exerciseName: "Barbell Bench Press", loadKg: 80, repetitions: 5, observedAt: "2026-07-01T10:00:00.000Z" },
+    ], history, 80);
+    expect(selection.profileWeightLifts).toEqual([
+      { exerciseName: "Back Squat", fromWorkout: true },
+      { exerciseName: "Barbell Bench Press", fromWorkout: false },
+    ]);
   });
 
   it("does not name a profile-weight lift that is not sent", () => {
@@ -41,7 +53,7 @@ describe("Which ranked lifts are read against the profile weight", () => {
       { exerciseName: "Bench", loadKg: 60, repetitions: 1, observedAt: "2026-07-01T10:00:00.000Z" },
     ], history, 80);
     expect(selection.lifts.map((lift) => lift.loadKg)).toEqual([100]);
-    expect(selection.profileWeightExercises).toEqual([]);
+    expect(selection.profileWeightLifts).toEqual([]);
   });
 });
 

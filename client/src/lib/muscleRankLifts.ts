@@ -12,6 +12,8 @@ export type RankableObservation = {
   measurementType?: string | null;
   bodyMassKgAtTest?: number | string | null;
   observedAt: string | Date;
+  /** "workout" when the lift was carried across from a finished workout rather than typed into the log. */
+  source?: string | null;
 };
 
 export type MuscleRankLift = {
@@ -36,6 +38,13 @@ export const MUSCLE_RANK_LIFT_LIMIT = 30;
 
 /** Where a lift's body weight came from: saved with it, the weight log for that day, or the profile. */
 export type LiftBodyMassSource = "recorded" | "dated" | "profile";
+
+/**
+ * A lift sent to be ranked against the profile weight, and whether it came from a finished
+ * workout. Only a typed lift's record can take the weight of its day; a workout's lift is read
+ * against the weight saved for that day, and there is no form to add one afterwards.
+ */
+export type ProfileWeightLift = { exerciseName: string; fromWorkout: boolean };
 
 /**
  * The body weight a lift is read against, in the same order the record detail uses: the
@@ -70,12 +79,13 @@ export function liftBodyMass(observation: RankableObservation, history: readonly
  * load, as its best set of reps - those never reached the ranks before (EN-09). A loaded set
  * of one goes too, as the runner-up, so the server can say its added load is not scored.
  *
- * Beside the lifts comes the exercise of each one sent with no weight of its own day, read
- * against the profile weight instead - so the map can name the records to complete. It rides
+ * Beside the lifts comes each one sent with no weight of its own day, read against the profile
+ * weight instead, and whether it was typed or came from a workout - so the map can name the
+ * records to complete, and send the athlete only to the ones that can take a weight. It rides
  * beside the lifts, not on them: the lifts travel in the request URL.
  */
-export function muscleRankLiftSelection(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): { lifts: MuscleRankLift[]; profileWeightExercises: string[] } {
-  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null; repsOnly: boolean; bodyMassSource: LiftBodyMassSource | null };
+export function muscleRankLiftSelection(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): { lifts: MuscleRankLift[]; profileWeightLifts: ProfileWeightLift[] } {
+  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null; repsOnly: boolean; bodyMassSource: LiftBodyMassSource | null; fromWorkout: boolean };
   const byExercise = new Map<string, Candidate[]>();
   for (const observation of observations) {
     const catalogExerciseId = catalogExerciseIdForName(observation.exerciseName) ?? null;
@@ -103,7 +113,7 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
     const adjustedKg = repsOnly ? repetitions : e1rmKg! / (factor.status === "ok" ? factor.factor : 1);
     const key = String(lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase());
     const list = byExercise.get(key) ?? [];
-    list.push({ lift, observedAt: new Date(observation.observedAt).getTime() || 0, adjustedKg, relative: !repsOnly && lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null, repsOnly, bodyMassSource: bodyMass?.source ?? null });
+    list.push({ lift, observedAt: new Date(observation.observedAt).getTime() || 0, adjustedKg, relative: !repsOnly && lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null, repsOnly, bodyMassSource: bodyMass?.source ?? null, fromWorkout: observation.source === "workout" });
     byExercise.set(key, list);
   }
 
@@ -128,16 +138,16 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
   }
 
   const lifts: MuscleRankLift[] = [];
-  const profileWeightExercises: string[] = [];
+  const profileWeightLifts: ProfileWeightLift[] = [];
   const seen = new Set<string>();
-  for (const { lift, bodyMassSource } of [...leaders, ...runnersUp]) {
+  for (const { lift, bodyMassSource, fromWorkout } of [...leaders, ...runnersUp]) {
     // The same lift twice tells the aggregation nothing new, and costs URL.
     const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${lift.loadKg}|${lift.repetitions}|${lift.bodyMassKg}|${lift.ageYears}`;
     if (seen.has(key)) continue;
     seen.add(key);
     lifts.push(lift);
-    if (bodyMassSource === "profile") profileWeightExercises.push(lift.exerciseName);
+    if (bodyMassSource === "profile") profileWeightLifts.push({ exerciseName: lift.exerciseName, fromWorkout });
     if (lifts.length === MUSCLE_RANK_LIFT_LIMIT) break;
   }
-  return { lifts, profileWeightExercises };
+  return { lifts, profileWeightLifts };
 }
