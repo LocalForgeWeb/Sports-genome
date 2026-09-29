@@ -124,6 +124,15 @@ describe("Sport-optional onboarding", () => {
     expect(quizStepIds("general", false).length).toBeLessThan(quizStepIds("sport", true).length);
   });
 
+  it("offers to build a suggested plan only in sport mode, where Home can build one", () => {
+    // Home produces a suggested stack only for a sport; elsewhere "Build my plan" built nothing.
+    expect(source).toContain('const buildsSuggested = contextMode === "sport";');
+    expect(source.match(/finish\("suggested"\)/g)).toHaveLength(1);
+    expect(source).toMatch(/buildsSuggested \? <>[^]*?finish\("suggested"\)[^]*?<\/> : /);
+    expect(source).toContain("Open my plan");
+    expect(source).toContain("Your plan starts empty, ready for you to fill. Add exercises, or open Smart Draft on the Plan page to build a session from your kit.");
+  });
+
   it("states the insufficiency case rather than implying every target is covered", () => {
     expect(source).toContain("No reviewed exercise routine covers");
     expect(source).toContain("the plan will say what is missing instead of guessing");
