@@ -1,4 +1,4 @@
-import { protectedProcedure, publicProcedure, router, costlyPublicProcedure } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, costlyPublicProcedure, authPublicProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -101,7 +101,7 @@ const strengthPercentileLiftInput = z.object({
 export const appRouter = router({
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    register: publicProcedure
+    register: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
@@ -111,7 +111,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) =>
         registerEmailAccount(input, ctx.req, ctx.res)
       ),
-    signIn: publicProcedure
+    signIn: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
@@ -137,12 +137,12 @@ export const appRouter = router({
       .mutation(({ ctx, input }) =>
         removeAccountPasskey(ctx.user.id, input.passkeyId)
       ),
-    passkeyAuthenticationOptions: publicProcedure
+    passkeyAuthenticationOptions: authPublicProcedure
       .input(z.object({ email: z.string().trim().email().max(320) }))
       .mutation(({ ctx, input }) =>
         beginPasskeyAuthentication(input.email, ctx.req)
       ),
-    passkeyAuthenticationVerify: publicProcedure
+    passkeyAuthenticationVerify: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
