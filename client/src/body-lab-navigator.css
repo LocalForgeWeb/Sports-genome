@@ -27,9 +27,9 @@
   line-height: 1.3;
 }
 .body-lab-selection-context i { font-style: normal; opacity: .6; }
-/* Action labels are recorded in lower case; a sentence starts with a capital. */
+/* Action labels are recorded in lower case; movementDisplayLabel gives them a capital, the same
+   way in the heading and in the select's options, which CSS could not reach. */
 .body-lab-selection-context .body-lab-selection-action { display: inline-block; }
-.body-lab-selection-context .body-lab-selection-action::first-letter { text-transform: uppercase; }
 .body-lab-selection-change {
   display: inline-flex;
   min-height: 2.75rem;
@@ -62,7 +62,10 @@
   letter-spacing: var(--sg-tracking-label);
   text-transform: uppercase;
 }
+/* No tracking on the control: the label's .1em caps tracking reached it through preflight's
+   inherit rule and truncated long actions sooner (Sep 28 regression brief §10). */
 .body-lab-navigator select {
+  letter-spacing: 0;
   min-width: 0;
   height: 2.75rem;
   border: 1px solid #bfd5e6;

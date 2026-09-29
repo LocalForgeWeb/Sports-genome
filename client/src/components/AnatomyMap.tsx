@@ -280,7 +280,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
           <div className="atlas-heat-legend-pro">
             {/* Swatches carry the figure's own fills, gradients included, so the
                 legend cannot drift from what the body is actually painted. */}
-            <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#ec5f4a,#bb2114)" }} /><span>{trainingDay ? "Prime mover in this day" : "Primary role"}</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#e9be55,#c08f24)" }} /><span>{trainingDay ? "Supporting in this day" : "Supporting or stabilizing role"}</span><i className="atlas-swatch" style={{ background: "#e8ecf4" }} /><span>Neutral</span></>
+            <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))" }} /><span>{trainingDay ? "Prime mover in this day" : "Primary role"}</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))" }} /><span>{trainingDay ? "Supporting in this day" : "Supporting or stabilizing role"}</span><i className="atlas-swatch" style={{ background: "var(--sg-role-neutral-on-dark)" }} /><span>Neutral</span></>
           </div>
         </div>
 
@@ -355,7 +355,9 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
         <section className="atlas-ranking" aria-label="Key muscle roles">
           <div className="atlas-ranking-head"><h2>{ranked.length} {ranked.length === 1 ? "muscle" : "muscles"} involved</h2><span>{([[trainingDay ? "prime movers" : "primary", roleCounts.primary], ["stabilizing", roleCounts.stabilizing], ["supporting", roleCounts.supporting]] as const).filter(([, n]) => n > 0).map(([word, n]) => `${n} ${word}`).join(" · ")}</span></div>
           <ol className="atlas-role-rows">
-            {visibleRanked.map((region) => <li key={region.key}><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong>{rowNote(region) && <small>{rowNote(region)}</small>}</span><em className={`atlas-role-tag atlas-role-tag-${region.role.toLowerCase()}`}>{trainingDay && region.role === "Primary" ? "Prime mover" : roleWord[region.role]}</em><ChevronRight className="h-4 w-4" /></button></li>)}
+            {visibleRanked.map((region) => <li key={region.key}><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}>{/* The figure's own two role colours: it paints stabilizing and supporting alike, so the
+                dots do too (the text tag carries the finer role). They were three literals, one
+                of them the State rank's gold and one Prospect's slate. */}<i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "var(--sg-role-primary-1)" : "var(--sg-role-supporting-1)" }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong>{rowNote(region) && <small>{rowNote(region)}</small>}</span><em className={`atlas-role-tag atlas-role-tag-${region.role.toLowerCase()}`}>{trainingDay && region.role === "Primary" ? "Prime mover" : roleWord[region.role]}</em><ChevronRight className="h-4 w-4" /></button></li>)}
             {/* The rest of the body, named rather than only drawn. The action's
                 record lists no role for these - which is missing data, not a
                 finding that the muscle sits out - and they stay reachable

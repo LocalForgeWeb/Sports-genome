@@ -1,8 +1,9 @@
+import { rankPaint } from "./rankPaint";
 import React from "react";
 import { useId, useMemo, useRef, useState } from "react";
 import { anatomyViewBox, anatomyViews, type AnatomyMuscle, type AnatomyView } from "./figureGeometry";
 import type { AnatomyRole } from "@/lib/anatomyRegions";
-import { rankColorToken, type RankId } from "@shared/capabilityRank";
+import type { RankId } from "@shared/capabilityRank";
 import "./anatomy-figure.css";
 
 /**
@@ -158,11 +159,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
   const rankEncoding = rankFor !== undefined;
 
   const fillFor = (key: string) => {
-    if (rankEncoding) {
-      const rankId = rankFor[key];
-      if (rankId === "unscored") return `url(#${uid}-unscored)`;
-      return rankId ? `var(${rankColorToken(rankId)})` : undefined;
-    }
+    if (rankEncoding) return rankPaint(rankFor[key], `${uid}-unscored`);
     const role = roles[key];
     if (role === "primary") return `url(#${uid}-primary)`;
     if (role === "supporting") return `url(#${uid}-supporting)`;
