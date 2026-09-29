@@ -43,7 +43,7 @@ import { DayCapacityNote } from "@/components/DayCapacityNote";
 import { RecoverySpacingPanel } from "@/components/RecoverySpacingPanel";
 import { TrainingPlanHeader } from "@/components/TrainingPlanHeader";
 import { SessionResumeBar } from "@/components/SessionResumeBar";
-import { exerciseProgressFor, useDayTrainingStates, useLiveSession } from "@/lib/liveSession";
+import { exerciseProgressFor, useDayTrainingStates, useLiveSession, useWorkoutLogWrites } from "@/lib/liveSession";
 import { capacityProposalFor } from "@/lib/capacityTargets";
 import { revealWorkspaceAnchor } from "@/lib/workspaceAnchor";
 const AthleteAboutMePanel = lazy(() => import("@/components/AthleteAboutMePanel").then((module) => ({ default: module.AthleteAboutMePanel })));
@@ -331,11 +331,16 @@ export default function Home() {
    */
   const liveSession = useLiveSession();
   /**
-   * The log the plan rows read their progress from, parsed once per change to the
-   * session rather than once per row per render. Every write to the log gives
-   * `liveSession` a new identity, so this cannot go stale.
+   * The log the plan rows read their progress from, parsed once per save to the
+   * log rather than once per row per render. It is keyed on the saves themselves,
+   * not on `liveSession`: the summary keeps its identity through a save that
+   * changes nothing it shows (a weight typed into a set), so keyed on the summary
+   * the rows would keep the log from before that save. The saves are counted only
+   * while the rows are on screen with a workout running; the tracker saves on
+   * every keystroke, and each count renders all of Home.
    */
-  const liveWorkoutLog = useMemo(() => (liveSession ? loadDeviceWorkoutSessions() : []), [liveSession]);
+  const workoutLogWrites = useWorkoutLogWrites(Boolean(liveSession) && workspace === "day-plan");
+  const liveWorkoutLog = useMemo(() => (workoutLogWrites === null ? [] : loadDeviceWorkoutSessions()), [workoutLogWrites]);
   /** Whether Home's own resume module is on screen; the strip yields to it while it is. */
   const [homeResumeVisible, setHomeResumeVisible] = useState(true);
   useEffect(() => {

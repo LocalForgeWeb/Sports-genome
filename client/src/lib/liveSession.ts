@@ -4,6 +4,7 @@ import {
   countCompletedSets,
   countPlannedSets,
   deviceWorkoutHistoryEvent,
+  deviceWorkoutHistoryKey,
   loadDeviceWorkoutSessions,
   isCompletedWorkout,
   isExerciseSkipped,
@@ -162,6 +163,40 @@ export function useLiveSession(): LiveSession | null {
     };
   }, []);
   return live;
+}
+
+/**
+ * A count of saves to the workout log, for a reader that parses the log once
+ * and keys that parse on the count.
+ *
+ * useLiveSession keeps its summary through a save that changes nothing the
+ * summary shows, such as a weight typed into a set. So the summary's identity
+ * says the summary changed, not that the log did, and a parse keyed on it keeps
+ * the log as it was before that save. The count moves on every save in this
+ * tab and on every change another tab makes to the log.
+ *
+ * Every keystroke in the tracker's weight box is a save, and each move of the
+ * count renders whoever holds it, so it counts only while `listening`. While
+ * not listening it is null, so a reader keyed on it parses the log again as
+ * soon as it listens again, rather than keeping a copy from before the gap.
+ */
+export function useWorkoutLogWrites(listening: boolean): number | null {
+  const [writes, setWrites] = useState(0);
+  useEffect(() => {
+    if (!listening) return;
+    const count = () => setWrites((current) => current + 1);
+    const countLogChange = (event: StorageEvent) => {
+      // A null key is another tab clearing its storage, the log with it.
+      if (event.key === null || event.key === deviceWorkoutHistoryKey) count();
+    };
+    window.addEventListener(deviceWorkoutHistoryEvent, count);
+    window.addEventListener("storage", countLogChange);
+    return () => {
+      window.removeEventListener(deviceWorkoutHistoryEvent, count);
+      window.removeEventListener("storage", countLogChange);
+    };
+  }, [listening]);
+  return listening ? writes : null;
 }
 
 function sameDayTrainingStates(left: Record<string, DayTrainingState>, right: Record<string, DayTrainingState>) {

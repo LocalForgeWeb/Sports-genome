@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
+import { useMemo } from "react";
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { deviceWorkoutHistoryEvent, saveDeviceWorkoutSessions, type DeviceWorkoutSession } from "./deviceWorkoutLog";
-import { useLiveSession } from "./liveSession";
+import { deviceWorkoutHistoryEvent, deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, type DeviceWorkoutSession } from "./deviceWorkoutLog";
+import { useLiveSession, useWorkoutLogWrites } from "./liveSession";
 
 const set = (over: Partial<DeviceWorkoutSession["exercises"][number]["sets"][number]> = {}) =>
   ({ weight: "", reps: "", completed: false, ...over });
@@ -79,5 +80,62 @@ describe("the live workout summary changes only when the workout does", () => {
     act(() => { saveDeviceWorkoutSessions([running({ status: "completed", completedAt: "2026-09-25T11:00:00.000Z" })]); });
 
     expect(result.current).toBeNull();
+  });
+});
+
+/** How Home's Plan rows read the log: parsed once, keyed on the count of saves. */
+function useLogKeyedOnWrites(listening: boolean) {
+  const writes = useWorkoutLogWrites(listening);
+  return useMemo(() => (writes === null ? [] : loadDeviceWorkoutSessions()), [writes]);
+}
+const typedWeight = (log: DeviceWorkoutSession[]) => log[0]?.exercises[0]?.sets[1]?.weight;
+
+/**
+ * Because the summary keeps its identity through such saves, a copy of the log
+ * keyed on the summary kept the log from before them. The count of saves moves
+ * on every one of them.
+ */
+describe("the count of saves to the workout log", () => {
+  afterEach(() => {
+    cleanup();
+    window.localStorage.clear();
+  });
+
+  it("moves on a save that leaves the live summary as it was, so a copy of the log keyed on it is read again", () => {
+    saveDeviceWorkoutSessions([running()]);
+    const { result } = renderHook(() => ({ live: useLiveSession(), log: useLogKeyedOnWrites(true) }));
+    const before = result.current;
+    expect(typedWeight(before.log)).toBe("");
+
+    act(() => { saveDeviceWorkoutSessions([withSet(running(), 1, { weight: "22" })]); });
+
+    expect(result.current.live).toBe(before.live);
+    expect(typedWeight(result.current.log)).toBe("22");
+  });
+
+  it("moves when another tab changes the log, and not when it changes anything else", () => {
+    const { result } = renderHook(() => useWorkoutLogWrites(true));
+    const before = result.current;
+
+    act(() => { window.dispatchEvent(new StorageEvent("storage", { key: "gym-optimizer-workout-plan-v1" })); });
+    expect(result.current).toBe(before);
+
+    act(() => { window.dispatchEvent(new StorageEvent("storage", { key: deviceWorkoutHistoryKey })); });
+    expect(result.current).not.toBe(before);
+  });
+
+  it("renders nothing while not listening, and the copy catches up with the saves it missed once it listens again", () => {
+    saveDeviceWorkoutSessions([running()]);
+    let renders = 0;
+    const { result, rerender } = renderHook(({ listening }) => { renders += 1; return useLogKeyedOnWrites(listening); }, { initialProps: { listening: true } });
+    expect(typedWeight(result.current)).toBe("");
+
+    rerender({ listening: false });
+    const rendersBefore = renders;
+    act(() => { saveDeviceWorkoutSessions([withSet(running(), 1, { weight: "22" })]); });
+    expect(renders).toBe(rendersBefore);
+
+    rerender({ listening: true });
+    expect(typedWeight(result.current)).toBe("22");
   });
 });
