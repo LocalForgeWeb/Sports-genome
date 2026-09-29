@@ -128,6 +128,16 @@ describe("Strength Genome log form", () => {
     expect(screen.getByText("Fix or clear the added weight in kilograms to save this.")).toBeTruthy();
   });
 
+  it("names the powerlifting competition categories with a real apostrophe", () => {
+    openFormWith("Back Squat");
+    // Opening a details element fires "toggle", which is what the form listens for.
+    const reference = screen.getByText("Competitive powerlifting reference").closest("details")!;
+    reference.open = true;
+    fireEvent(reference, new Event("toggle"));
+    const category = screen.getByLabelText("Which competition category?") as HTMLSelectElement;
+    expect(Array.from(category.options, (option) => option.textContent)).toEqual(["Choose a category", "Women’s competition", "Men’s competition"]);
+  });
+
   it("keeps no 0 kg max for a pull-up max saved with no added weight", () => {
     const save = openFormWith("Pull-Up");
     expect(save.disabled).toBe(false);

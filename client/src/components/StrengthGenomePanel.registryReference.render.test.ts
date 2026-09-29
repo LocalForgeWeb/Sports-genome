@@ -106,7 +106,7 @@ describe("Strength Genome registry comparison", () => {
     renderDetail({ referenceRows: squatLadder, athleteProfile: { sexForReference: "male", birthYear: 1999 } });
 
     expect(screen.getByText("50th-90th percentile")).toBeTruthy();
-    expect(screen.getByText(/2\.50× body mass/)).toBeTruthy();
+    expect(screen.getByText(/2\.50× body weight/)).toBeTruthy();
     // The source's own population and sample stay attached to the number.
     expect(screen.getByText(/powerlifting; strength-trained competitive/)).toBeTruthy();
     expect(screen.getByText(/103,984 people/)).toBeTruthy();

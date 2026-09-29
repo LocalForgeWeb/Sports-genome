@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   mutate: vi.fn(),
   invalidate: vi.fn().mockResolvedValue(undefined),
   toastError: vi.fn(),
+  toast: vi.fn(),
   addObservationOptions: null as AddObservationOptions | null,
 }));
 
@@ -43,7 +44,7 @@ vi.mock("@/lib/trpc", () => ({
   },
 }));
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: vi.fn() }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: mocks.toastError } }));
+vi.mock("sonner", () => ({ toast: Object.assign(mocks.toast, { success: vi.fn(), error: mocks.toastError }) }));
 
 import { StrengthGenomePanel } from "./StrengthGenomePanel";
 
@@ -51,6 +52,7 @@ describe("Strength Genome signed-in lift save", () => {
   beforeEach(() => {
     mocks.mutate.mockReset();
     mocks.toastError.mockReset();
+    mocks.toast.mockReset();
     mocks.addObservationOptions = null;
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { callback(0); return 1; });
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
@@ -69,7 +71,7 @@ describe("Strength Genome signed-in lift save", () => {
     expect(mocks.toastError).toHaveBeenCalledWith("Could not save this lift.");
   });
 
-  it("says beside the button that an expired sign-in stopped the save, and leaves the toast to the app-wide notice", () => {
+  it("says beside the button that an expired sign-in stopped the save, and says it under the app-wide notice's id", () => {
     render(React.createElement(StrengthGenomePanel, { weightUnit: "kg" }));
     act(() => { mocks.addObservationOptions?.onError?.({ data: { code: "UNAUTHORIZED" } }); });
     const alert = screen.getByRole("alert").textContent ?? "";
@@ -77,6 +79,10 @@ describe("Strength Genome signed-in lift save", () => {
     expect(alert).toBe("This lift was not saved because your sign-in has expired. Your entry is still here.");
     expect(alert).not.toMatch(/about me|sign in again/i);
     expect(mocks.toastError).not.toHaveBeenCalled();
+    // One toast, replacing the app-wide notice, with words that are true of a lift saved nowhere.
+    expect(mocks.toast).toHaveBeenCalledTimes(1);
+    const [, options] = mocks.toast.mock.calls[0];
+    expect(options).toEqual({ id: "session-expired", description: "This lift was not saved. Your entry is still in the form." });
   });
 
   it("will not save a lift dated with a typo year, and says which field to fix", () => {

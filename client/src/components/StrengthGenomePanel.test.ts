@@ -68,10 +68,10 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("displayWeightToKilograms(parsedLoad, weightUnit)");
     expect(source).toContain("displayWeightToKilograms(parsedBodyMass, weightUnit)");
     expect(source).toContain("formatDisplayWeight(latestRecord.loadKg, weightUnit)");
-    expect(source).toContain("Test body mass saved. Your recorded ratio is ready.");
-    expect(source).toContain("Could not save test body mass. Check your connection and try again.");
     expect(source).toContain("setBodyMassSaveError");
-    expect(source).toContain("Body mass was not saved. Your entry is still here");
+    // The record sheet says "body weight" throughout, like the button beside it.
+    expect(source).not.toContain("Saving body mass");
+    expect(source).not.toContain("× body mass");
     expect(source).toContain('role="status"');
     expect(source).toContain('role="alert"');
     expect(source).toContain('aria-busy={!directAccess && setObservationBodyMass.isPending}');
