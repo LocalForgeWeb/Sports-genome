@@ -13,7 +13,6 @@ import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { UniversalSearch } from "@/components/UniversalSearch";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import type { SearchResult } from "@/lib/universalSearch";
-import { searchExercises } from "@/lib/exerciseSearch";
 import { GradeStamp } from "@/components/GradeStamp";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
 import { StackImportPanel, type ImportedRoutine, type ImportedRoutineContext } from "@/components/StackImportPanel";
@@ -169,7 +168,7 @@ const primaryDestinations: { id: PrimaryDestination; label: string; icon: typeof
   { id: "train", label: "Train", icon: Layers3, defaultWorkspace: "day-plan" },
   { id: "progress", label: "Progress", icon: BarChart3, defaultWorkspace: "progress" },
 ];
-const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, ContextualWorkspaceTab[]> = {
+export const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, ContextualWorkspaceTab[]> = {
   home: [{ id: "command", label: "Home", workspace: "command" }],
   /**
    * Four places, in the order the work happens: plan it, check it, do it, and a
@@ -214,6 +213,17 @@ export function primaryDestinationForWorkspace(workspace: Workspace): PrimaryDes
   if (contextualWorkspaces.body.some((tab) => tab.workspace === workspace)) return "body";
   if (contextualWorkspaces.progress.some((tab) => tab.workspace === workspace)) return "progress";
   return "home";
+}
+/**
+ * Which tab is highlighted is decided by the page on screen and nothing else.
+ * Every tab has its own workspace (Home.noRepeatedPages.test.ts enforces it), so
+ * Back, the dock and in-page links cannot leave a different tab lit.
+ */
+export function contextTabIdForWorkspace(workspace: Workspace): string | null {
+  const destination = primaryDestinationForWorkspace(workspace);
+  if (destination === "secondary") return null;
+  const tabs = contextualWorkspaces[destination];
+  return tabs.find((tab) => tab.workspace === workspace)?.id ?? tabs[0]?.id ?? null;
 }
 
 /**
@@ -262,7 +272,7 @@ export function shouldRenderMetric(detail: string) {
   return detail !== "coach-set planning marker";
 }
 
-function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void; destinationLabel?: string }) {
+export function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void; destinationLabel?: string }) {
   const metrics = [
     ["Movement transfer", result.breakdown.movementTransferSimilarity],
     ["Muscle targeting", result.breakdown.muscleMatch],
@@ -276,10 +286,12 @@ function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }
   /**
    * Two numbers side by side read as one unless each says what it is. The
    * score is the modelled match for the selected action; the stamp is the
-   * catalog's planning tier, which it names itself. Neither is a strength rank,
-   * and the stamp is not handed the score, so the two labels stay distinct.
+   * catalog's planning tier, which it names itself - the exercise's catalog
+   * muscleGrade, not the match score bucketed into letters. Neither is a
+   * strength rank, and the stamp is not handed the score, so the two labels
+   * stay distinct.
    */
-  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match score ${score} for ${result.exercise.name}: open details`}><strong>{score}</strong><small>match</small></button><GradeStamp grade={result.grade} compact /><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><p className="recommendation-trace"><span>Matched to</span> <strong>{result.hierarchy.movement}</strong> <span>to build</span> <strong>{result.hierarchy.physicalQualities.slice(0, 2).join(" and ").toLowerCase()}</strong></p></details></article>;
+  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match score ${score} for ${result.exercise.name}: open details`}><strong>{score}</strong><small>match</small></button><GradeStamp grade={result.exercise.muscleGrade} compact /><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><p className="recommendation-trace"><span>Matched to</span> <strong>{result.hierarchy.movement}</strong> <span>to build</span> <strong>{result.hierarchy.physicalQualities.slice(0, 2).join(" and ").toLowerCase()}</strong></p></details></article>;
 }
 
 function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => void }) {
@@ -338,7 +350,6 @@ export default function Home() {
   const [activeMuscle, setActiveMuscle] = useState<string | null>(null);
   const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [catalogQuery, setCatalogQuery] = useState("");
   const [catalogFilters, setCatalogFilters] = useState<CatalogFilters>(defaultCatalogFilters);
   const [localFavoriteIds, setLocalFavoriteIds] = useState<number[]>([]);
   const [atlasQuery, setAtlasQuery] = useState("");
@@ -393,7 +404,6 @@ export default function Home() {
   // Reorder is a mode for the whole list, not twelve arrow boxes beside six rows.
   const [reorderingDay, setReorderingDay] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
-  const [activeContextTab, setActiveContextTab] = useState<string | null>(null);
   const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string } | null>(null);
   /**
    * The tracker's day chooser is a disclosure. It opens itself when the day
@@ -456,7 +466,6 @@ export default function Home() {
   const browseSportLabel = sportProfiles.find((profile) => profile.id === browseSportId)?.label || browseSportId;
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
   const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment), [selectedMovement, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment]);
-  const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap), [activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
   const daySlots = useMemo(() => buildDaySlots(splitDays), [splitDays]);
@@ -581,15 +590,18 @@ export default function Home() {
     setDayStore((current) => commitDay(current, key, { workout: customWorkout, prescriptions, settings: exerciseSettings }));
   }, [planHydrated, onboardingComplete, customWorkout, prescriptions, exerciseSettings]);
 
+  // Without a chosen sport there is no sport to seed from. An empty seed keeps the draft
+  // general instead of quietly biasing it toward whichever sport happens to be first.
+  // The seed depends on sport, goal, window and gym, not on the open day, so a day
+  // switch does not re-rank the sport.
+  const draftSportSeed = useMemo(() => hasSportContext
+    ? getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap).map((item) => item.exercise)
+    : [], [activeSportId, hasSportContext, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
   const draftedLoadout = useMemo(() => {
-    // Without a chosen sport there is no sport to seed from. An empty seed keeps the draft
-    // general instead of quietly biasing it toward whichever sport happens to be first.
-    const sportSeed = hasSportContext
-      ? getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap).map((item) => item.exercise)
-      : [];
+    const sportSeed = draftSportSeed;
     const pool = filterStackForEquipment(getSplitExercisePool(exercises, activeSplitDay, sportSeed), athleteBaseline.equipment);
     return buildVariedLoadout(pool, activeSplitDay === "Sport Transfer" ? sportSeed : [], activeLoadout, gymTimeBudget.recommendationLimit);
-  }, [activeSportId, hasSportContext, goal, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
+  }, [draftSportSeed, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment]);
   /**
    * What the draft would cost in time, at the current settings.
    *
@@ -617,9 +629,6 @@ export default function Home() {
     : bodyLabRoleContext;
   /** The count Body Lab shows for this action: canonical regions, aliases collapsed. */
   const focusMuscleCount = useMemo(() => Object.keys(roleMapForLists(referenceRoleContext.primary, referenceRoleContext.supporting)).length, [referenceRoleContext]);
-  // The same tolerant matcher the day picker uses, so a name typed here finds
-  // what a name typed there finds.
-  const filteredCatalog = useMemo(() => searchExercises(exercises, catalogQuery).slice(0, 24), [catalogQuery]);
   const createWeekSnapshot = (): WeekSnapshot => ({
     days: commitDay(dayStore, draftDayKeyRef.current, activeDraft()),
     activeDayIndex: activeSlot.index,
@@ -736,11 +745,13 @@ export default function Home() {
 
   // Favourites follow the same rule: read per account, and never written into a record
   // that has not been read yet - which is how one account's shortlist became another's.
+  // Like the profile and plan, the first account to sign in claims the shortlist built
+  // before accounts were kept apart, or while signed out.
   const hydratedFavoritesKeyRef = useRef<string | null>(null);
   useEffect(() => {
     let next: number[] = [];
     try {
-      const stored = JSON.parse(window.localStorage.getItem(favoriteExerciseKey) || "[]") as unknown;
+      const stored = JSON.parse(readScopedRecord(favoriteExerciseKeyBase, accountId, window.localStorage) || "[]") as unknown;
       if (Array.isArray(stored)) next = stored.filter((id): id is number => typeof id === "number" && exercises.some((exercise) => exercise.id === id));
     } catch { /* Favorites fall back to an empty local shortlist. */ }
     setLocalFavoriteIds(next);
@@ -903,7 +914,7 @@ export default function Home() {
     if (!id) return;
     const changed = Boolean(sportId) && sportId !== id;
     if (changed) {
-      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, catalogQuery, catalogFilters, activeDayIndex: activeSlot.index };
+      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, catalogFilters, activeDayIndex: activeSlot.index };
       const undoSwitch = () => {
         setSportId(previous.sportId);
         setMovementId(previous.movementId);
@@ -911,7 +922,6 @@ export default function Home() {
         setDayStore(previous.dayStore);
         setPlanWeeks(previous.planWeeks);
         setActiveWeek(previous.activeWeek);
-        setCatalogQuery(previous.catalogQuery);
         setCatalogFilters(previous.catalogFilters);
         const restored = resolveActiveSlot(splitDays, previous.activeDayIndex, splitDays[previous.activeDayIndex] || splitDays[0]);
         adoptActiveDay(restored, loadDay(previous.dayStore, restored.key));
@@ -920,7 +930,6 @@ export default function Home() {
       adoptActiveDay(daySlots[0], emptyDayRecord());
       setPlanWeeks({});
       setActiveWeek(1);
-      setCatalogQuery("");
       setCatalogFilters(defaultCatalogFilters);
       toast("Sport changed", { description: "Saved training days for the previous sport were cleared.", action: { label: "Undo", onClick: undoSwitch } });
     }
@@ -939,7 +948,6 @@ export default function Home() {
    * looking at the top of the page.
    */
   const navigateWorkspace = (next: Workspace, { keepScroll = false }: { keepScroll?: boolean } = {}) => {
-    setActiveContextTab(null);
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
     /**
@@ -1035,11 +1043,19 @@ export default function Home() {
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
     setLocalFavoriteIds((current) => currentlyFavorite ? current.filter((id) => id !== exercise.id) : Array.from(new Set([...current, exercise.id])));
+    // Without an account the shortlist lives only in this device's no-account record, and favorites.set is account-only: its refusal would read as "Your sign-in has expired" (D-015).
+    if (!isAuthenticated) {
+      toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { id: "favorite", description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist on this device.` });
+      return;
+    }
     favoriteMutation.mutate({ catalogExerciseId: exercise.id, favorited: !currentlyFavorite }, {
       onSuccess: (ids) => {
-        // The server answers with the full list; anything else keeps the
-        // optimistic local list rather than spreading a non-array into a Set.
-        if (Array.isArray(ids)) setLocalFavoriteIds(ids);
+        // The server answers with its full list. It is added to this device's list, not
+        // swapped in: the device list also holds the shortlist claimed at sign-in and any
+        // heart that failed to send, neither is on the server, and a swap deleted them for
+        // good. This tap's own change is already in the device list. A reply that is not
+        // a list is ignored.
+        if (Array.isArray(ids)) setLocalFavoriteIds((current) => Array.from(new Set([...current, ...ids])));
         void favoriteQuery.refetch();
         toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { id: "favorite", description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist.` });
       },
@@ -1393,6 +1409,25 @@ export default function Home() {
     if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") { window.history.back(); return; }
     setInspectedExercise(null);
   };
+  /**
+   * Leaving the overlay for another screen: the overlay's own history entry
+   * becomes that screen's, so one Back returns to where it was opened and
+   * nothing is left for a later Back to swallow. history.back() followed by
+   * pushState would race: the queued back is either cancelled by the push or
+   * applied after it.
+   */
+  const leaveInspectorFor = (next: Workspace) => {
+    if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") {
+      const url = new URL(window.location.href);
+      // Same screen: navigateWorkspace will not push, so popping the overlay entry is safe.
+      if (url.searchParams.get("workspace") === next) { closeInspector(); navigateWorkspace(next); return; }
+      url.searchParams.set("workspace", next);
+      window.history.replaceState({ workspace: next }, "", url);
+    }
+    setInspectedExercise(null);
+    // The URL already names `next`, so this only resets context and scrolls.
+    navigateWorkspace(next);
+  };
   // The overlay is the topmost transient surface, so Escape closes it and
   // nothing else; the list, filters and scroll it opened over are untouched.
   useEffect(() => {
@@ -1563,7 +1598,7 @@ export default function Home() {
 
   const activePrimaryDestination = primaryDestinationForWorkspace(workspace);
   const contextualWorkspaceTabs = activePrimaryDestination === "secondary" ? [] : contextualWorkspaces[activePrimaryDestination];
-  const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;
+  const activeContextTabId = contextTabIdForWorkspace(workspace);
   /**
    * The header names the place only when the tab row underneath it does not.
    *
@@ -1581,10 +1616,7 @@ export default function Home() {
    * at an anchor inside a page you were already on, which is why pressing one could
    * look like nothing had happened except the page moving under you.
    */
-  const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => {
-    navigateWorkspace(tab.workspace);
-    setActiveContextTab(tab.id);
-  };
+  const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => navigateWorkspace(tab.workspace);
 
   if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">Checking secure account access…</div>;
   if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen onAuthenticated={() => { void refresh(); }} loading={loading} />;
@@ -1818,7 +1850,7 @@ export default function Home() {
                 a different question. */}
             <RecoverySpacingPanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} onOpenDay={(dayName) => { const index = daySlots.findIndex((slot) => slot.day === dayName); if (index >= 0) openTrainingDay(index); }} />
             <ProgrammingGuidePanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} />
-            <WorkoutHealthPanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} />
+            <WorkoutHealthPanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} equipmentSummary={equipmentProfileSummary(athleteBaseline.equipment)} />
             <ImportedPlanContext items={activeImportedContext} />
           </div>
         </section>}
@@ -1862,14 +1894,14 @@ export default function Home() {
             <AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} showInspector={false} nextStep={<dl className="exercise-intelligence-roles"><div><dt>Primary</dt><dd>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div><div><dt>Supporting</dt><dd>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div>{inspectedExercise.qualities.length > 0 && <div><dt>Qualities</dt><dd>{inspectedExercise.qualities.join(" · ")}</dd></div>}</dl>} />
             {/* The one thing the retired Genome page offered that this overlay did
                 not: a way from the exercise's leading muscle into Body Lab. */}
-            {inspectedExercise.primaryMuscles[0] && <button type="button" className="exercise-intelligence-explore" onClick={() => { const muscle = inspectedExercise.primaryMuscles[0]!; closeInspector(); setActiveMuscle(muscle); navigateWorkspace("body"); }}>Explore {muscleLabels[inspectedExercise.primaryMuscles[0]] || inspectedExercise.primaryMuscles[0]} in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+            {inspectedExercise.primaryMuscles[0] && <button type="button" className="exercise-intelligence-explore" onClick={() => { const muscle = inspectedExercise.primaryMuscles[0]!; setActiveMuscle(muscle); leaveInspectorFor("body"); }}>Explore {muscleLabels[inspectedExercise.primaryMuscles[0]] || inspectedExercise.primaryMuscles[0]} in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </section>
           <ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} compactHead />
-          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => { setInspectedExercise(null); navigateWorkspace("movement"); }} />
+          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => leaveInspectorFor("movement")} />
           <details className="exercise-intelligence-disclosure"><summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Evidence context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary><div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /></div></details>
         </div>
         <div className="exercise-intelligence-actions">
-          <button type="button" className="exercise-intelligence-add" onClick={() => { addExercise(inspectedExercise); setInspectedExercise(null); }}>Add to Week {activeWeek} · {activeSlot.day} <Plus className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" className="exercise-intelligence-add" onClick={() => { addExercise(inspectedExercise); closeInspector(); }}>Add to Week {activeWeek} · {activeSlot.day} <Plus className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className={`exercise-intelligence-favorite ${favoriteIds.has(inspectedExercise.id) ? "is-on" : ""}`} onClick={() => toggleFavorite(inspectedExercise)} aria-pressed={favoriteIds.has(inspectedExercise.id)} aria-label={`${favoriteIds.has(inspectedExercise.id) ? "Remove" : "Save"} ${inspectedExercise.name} ${favoriteIds.has(inspectedExercise.id) ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={favoriteIds.has(inspectedExercise.id) ? "currentColor" : "none"} /></button>
         </div>
       </div>
