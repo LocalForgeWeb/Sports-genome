@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { StackImportPanel } from "./StackImportPanel";
+import { UniversalSearch } from "./UniversalSearch";
 
 /**
  * The routine import is a layer over the Train page: it is announced as a
@@ -10,7 +11,10 @@ import { StackImportPanel } from "./StackImportPanel";
  * Import plan when it closes.
  */
 describe("StackImportPanel as a dialog", () => {
-  afterEach(() => { document.body.innerHTML = ""; });
+  afterEach(() => {
+    cleanup();
+    document.body.innerHTML = "";
+  });
 
   it("is a dialog named by its heading", () => {
     render(React.createElement(StackImportPanel, { onClose: vi.fn(), onImport: vi.fn() }));
@@ -51,5 +55,20 @@ describe("StackImportPanel as a dialog", () => {
     expect(document.activeElement).toBe(textarea);
     fireEvent.keyDown(window, { key: "Escape" });
     expect(latestClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves Escape to search opened over it, then closes on the next Escape", () => {
+    const onClose = vi.fn();
+    render(React.createElement(React.Fragment, null,
+      React.createElement(UniversalSearch, { onOpenResult: vi.fn() }),
+      React.createElement(StackImportPanel, { onClose, onImport: vi.fn() })));
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const input = screen.getByRole("combobox", { name: /search muscles/i });
+    expect(document.activeElement).toBe(input);
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(screen.queryByRole("combobox", { name: /search muscles/i })).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(document.activeElement ?? window, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

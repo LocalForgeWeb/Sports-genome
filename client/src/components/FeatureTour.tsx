@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Activity, ArrowLeft, ArrowRight, Dumbbell, Home, LineChart, X } from "lucide-react";
+import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 
 /**
  * First-run guide.
@@ -55,6 +56,7 @@ export function FeatureTour({ onClose, onNavigate }: { onClose: () => void; onNa
   const Icon = current.icon;
   const isLast = step === steps.length - 1;
   const openCurrent = () => { onNavigate(current.view); onClose(); };
+  const layerRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLElement>(null);
   // Home passes a fresh onClose on every render; reading it through a ref keeps
@@ -68,6 +70,8 @@ export function FeatureTour({ onClose, onNavigate }: { onClose: () => void; onNa
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     closeRef.current?.focus({ preventScroll: true });
     const onKey = (event: KeyboardEvent) => {
+      // A layer opened over the guide, such as search, handles its own keys.
+      if (isKeyForAnotherLayer(event, layerRef.current)) return;
       if (event.key === "Escape") { event.stopPropagation(); onCloseRef.current(); return; }
       if (event.key !== "Tab" || !cardRef.current) return;
       const buttons = Array.from(cardRef.current.querySelectorAll<HTMLElement>("button"));
@@ -89,7 +93,7 @@ export function FeatureTour({ onClose, onNavigate }: { onClose: () => void; onNa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div className="feature-tour-layer" role="dialog" aria-modal="true" aria-labelledby="feature-tour-title">
+  return <div ref={layerRef} className="feature-tour-layer" role="dialog" aria-modal="true" aria-labelledby="feature-tour-title">
     <section ref={cardRef} className="feature-tour-card">
       <button ref={closeRef} type="button" onClick={onClose} className="feature-tour-close" aria-label="Close guide"><X className="h-4 w-4" aria-hidden="true" /></button>
 

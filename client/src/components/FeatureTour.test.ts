@@ -1,15 +1,19 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FeatureTour } from "./FeatureTour";
+import { UniversalSearch } from "./UniversalSearch";
 
 /**
  * The first-run guide is a modal: focus moves into it, Escape closes it, Tab
  * stays inside it, and focus goes back to whatever opened it.
  */
 describe("FeatureTour keyboard behaviour", () => {
-  afterEach(() => { document.body.innerHTML = ""; });
+  afterEach(() => {
+    cleanup();
+    document.body.innerHTML = "";
+  });
 
   function openFrom() {
     const opener = document.createElement("button");
@@ -67,5 +71,22 @@ describe("FeatureTour keyboard behaviour", () => {
     expect(document.activeElement).toBe(next);
     fireEvent.keyDown(window, { key: "Escape" });
     expect(latestClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves Tab and Escape to search opened over it, then closes on the next Escape", () => {
+    const onClose = vi.fn();
+    render(React.createElement(React.Fragment, null,
+      React.createElement(UniversalSearch, { onOpenResult: vi.fn() }),
+      React.createElement(FeatureTour, { onClose, onNavigate: vi.fn() })));
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const input = screen.getByRole("combobox", { name: /search muscles/i });
+    expect(document.activeElement).toBe(input);
+    fireEvent.keyDown(input, { key: "Tab" });
+    expect(document.activeElement).toBe(input);
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(screen.queryByRole("combobox", { name: /search muscles/i })).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(document.activeElement ?? window, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

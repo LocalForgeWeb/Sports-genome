@@ -1,11 +1,15 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { UniversalSearch } from "./UniversalSearch";
 
 describe("ConfirmDialog (Reversible-action and destructive-confirmation contract, Tier C)", () => {
-  afterEach(() => { document.body.innerHTML = ""; });
+  afterEach(() => {
+    cleanup();
+    document.body.innerHTML = "";
+  });
 
   it("names the affected object and consequence, and requires an explicit confirm click", () => {
     const onConfirm = vi.fn();
@@ -58,7 +62,10 @@ describe("ConfirmDialog (Reversible-action and destructive-confirmation contract
 });
 
 describe("ConfirmDialog keyboard behaviour", () => {
-  afterEach(() => { document.body.innerHTML = ""; });
+  afterEach(() => {
+    cleanup();
+    document.body.innerHTML = "";
+  });
 
   const request = {
     title: "Remove this set?",
@@ -119,5 +126,22 @@ describe("ConfirmDialog keyboard behaviour", () => {
     expect(document.activeElement).toBe(close);
     fireEvent.keyDown(document.activeElement!, { key: "Tab", shiftKey: true });
     expect(document.activeElement).toBe(confirm);
+  });
+
+  it("leaves Tab and Escape to search opened over it, then cancels on the next Escape", () => {
+    const onCancel = vi.fn();
+    render(React.createElement(React.Fragment, null,
+      React.createElement(UniversalSearch, { onOpenResult: vi.fn() }),
+      React.createElement(ConfirmDialog, { ...request, onConfirm: vi.fn(), onCancel })));
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const input = screen.getByRole("combobox", { name: /search muscles/i });
+    expect(document.activeElement).toBe(input);
+    fireEvent.keyDown(input, { key: "Tab" });
+    expect(document.activeElement).toBe(input);
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(screen.queryByRole("combobox", { name: /search muscles/i })).toBeNull();
+    expect(onCancel).not.toHaveBeenCalled();
+    fireEvent.keyDown(document.activeElement ?? window, { key: "Escape" });
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 });

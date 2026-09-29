@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { StackAnalysisPage } from "./StackAnalysisPage";
+import { UniversalSearch } from "./UniversalSearch";
 import { analyzeSplitStack } from "@/lib/splitStackAnalysis";
 import { exercises } from "@/lib/exerciseCatalog";
 
@@ -34,6 +35,7 @@ function props(onClose: () => void) {
 
 describe("StackAnalysisPage as a layer", () => {
   afterEach(() => {
+    cleanup();
     document.body.innerHTML = "";
     document.body.style.overflow = "";
   });
@@ -73,5 +75,29 @@ describe("StackAnalysisPage as a layer", () => {
     expect(document.body.style.overflow).toBe("hidden");
     fireEvent.keyDown(window, { key: "Escape" });
     expect(latestClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("lets search opened over it close first, and leaves the page scrollable once both are closed", () => {
+    function TrainWithAnalysis() {
+      const [open, setOpen] = React.useState(true);
+      return React.createElement(React.Fragment, null,
+        React.createElement(UniversalSearch, { onOpenResult: () => undefined }),
+        open ? React.createElement(StackAnalysisPage, props(() => setOpen(false))) : null);
+    }
+    render(React.createElement(TrainWithAnalysis));
+    const analysis = () => screen.queryByRole("dialog", { name: "Training Day stack analysis" });
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const input = screen.getByRole("combobox");
+    expect(document.activeElement).toBe(input);
+
+    // The first Escape is for the search in front, not the analysis under it.
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(screen.queryByRole("combobox")).toBeNull();
+    expect(analysis()).toBeTruthy();
+    expect(document.body.style.overflow).toBe("hidden");
+
+    fireEvent.keyDown(document.activeElement ?? window, { key: "Escape" });
+    expect(analysis()).toBeNull();
+    expect(document.body.style.overflow).toBe("");
   });
 });

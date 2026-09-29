@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { TriangleAlert, X } from "lucide-react";
+import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 
 export type ConfirmDialogRequest = {
   title: string;
@@ -36,6 +37,8 @@ export function ConfirmDialog({ title, body, confirmLabel, cancelLabel = "Cancel
     const opener = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
     cancelRef.current?.focus({ preventScroll: true });
     const onKey = (event: KeyboardEvent) => {
+      // A layer opened over the question, such as search, handles its own keys.
+      if (isKeyForAnotherLayer(event, layerRef.current)) return;
       if (event.key === "Escape") {
         event.stopPropagation();
         event.preventDefault();
