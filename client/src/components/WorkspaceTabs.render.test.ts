@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { createElement } from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WorkspaceTabs, type WorkspaceTab } from "./WorkspaceTabs";
 
@@ -36,9 +36,10 @@ describe("the tab row admits that it scrolls", () => {
 
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
     delete (Element.prototype as Partial<Element>).scrollIntoView;
-    delete (HTMLElement.prototype as Partial<HTMLElement>).scrollWidth;
-    delete (HTMLElement.prototype as Partial<HTMLElement>).clientWidth;
+    delete (HTMLElement.prototype as { scrollWidth?: unknown }).scrollWidth;
+    delete (HTMLElement.prototype as { clientWidth?: unknown }).clientWidth;
   });
 
   it("marks the side that has more tabs, and follows the scroll", () => {
@@ -73,6 +74,39 @@ describe("the tab row admits that it scrolls", () => {
 
     expect(shell()?.dataset.overflowStart).toBe("no");
     expect(shell()?.dataset.overflowEnd).toBe("no");
+  });
+
+  it("measures again when the row is resized, and lets go of the row when it leaves", () => {
+    // A rotation or a late font load changes the widths with no scroll event to report it.
+    let resized: ResizeObserverCallback | undefined;
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+    vi.stubGlobal("ResizeObserver", class {
+      constructor(callback: ResizeObserverCallback) { resized = callback; }
+      observe = observe;
+      unobserve = vi.fn();
+      disconnect = disconnect;
+    });
+    widths.scroll = 390;
+    widths.client = 390;
+    const { shell, unmount } = renderTabs();
+    const nav = screen.getByRole("navigation", { name: "Train" });
+
+    expect(observe).toHaveBeenCalledWith(nav);
+    expect(shell()?.dataset.overflowStart).toBe("no");
+    expect(shell()?.dataset.overflowEnd).toBe("no");
+
+    widths.scroll = 697;
+    act(() => resized?.([], {} as ResizeObserver));
+
+    expect(shell()?.dataset.overflowStart).toBe("no");
+    expect(shell()?.dataset.overflowEnd).toBe("yes");
+
+    const removeEventListener = vi.spyOn(nav, "removeEventListener");
+    unmount();
+
+    expect(disconnect).toHaveBeenCalled();
+    expect(removeEventListener).toHaveBeenCalledWith("scroll", expect.any(Function));
   });
 
   it("renders nothing for a lone tab, and only the actions when there are some", () => {
