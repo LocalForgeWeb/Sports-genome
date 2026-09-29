@@ -672,6 +672,13 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     { sex: rankSex, lifts: rankLifts },
     { enabled: rankSex !== null && rankLifts.length > 0, staleTime: 5 * 60 * 1000, retry: false }
   );
+  // A failed rank request says so and can be tried again. The server answers a
+  // database outage as "unavailable: service_error" rather than as an error, so
+  // both count. A missing server setting stays quiet: trying again cannot fix it.
+  // Offline, the request waits for a connection and says that instead.
+  const ranksWanted = rankSex !== null && rankLifts.length > 0;
+  const ranksFailed = ranksWanted && (muscleRanks.isError || (muscleRanks.data?.status === "unavailable" && muscleRanks.data.reason === "service_error"));
+  const ranksOffline = ranksWanted && !ranksFailed && muscleRanks.fetchStatus === "paused";
   const rankProfile = muscleRanks.data && muscleRanks.data.status !== "unavailable" ? muscleRanks.data : null;
   const regionRanks = useMemo(() => (rankProfile ? regionRanksFromMuscles(rankProfile.muscles) : null), [rankProfile]);
   const unrankedLifts = useMemo(() => {
@@ -685,7 +692,11 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // While the ranks are being computed the map shows coverage, which is true
   // and says so in its own legend; the line below says ranks are on the way so
   // the coverage colours are not read as ranks.
-  const rankNotice = rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending
+  const rankNotice = ranksFailed
+    ? <p className="rank-profile-partial" role="status">Ranks could not be worked out just now, so the map shows where lifts are on record. <button type="button" className="rank-profile-retry" disabled={muscleRanks.isFetching} onClick={() => { emitInteractionFeedback(); void muscleRanks.refetch(); }}>{muscleRanks.isFetching ? "Trying again…" : "Try again"}</button></p>
+    : ranksOffline
+    ? <p className="rank-profile-partial" role="status">Waiting for a connection to rank your lifts. Until then the map shows where lifts are on record.</p>
+    : rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending
     ? <p className="rank-profile-partial" role="status">Ranking your lifts… the map shows where lifts are on record until the ranks arrive.</p>
     : rankSex === null && rankLifts.length > 0
     ? <p className="rank-profile-partial">Ranks on this map need the sex to compare against — set it in About Me.</p>
