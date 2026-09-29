@@ -78,6 +78,7 @@ import { EmailAuthScreen } from "@/components/EmailAuthScreen";
 import { SupabaseResearchLibraryPanel } from "@/components/SupabaseResearchLibraryPanel";
 import { trpc } from "@/lib/trpc";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { isLaunchExperienceEnabled, launchExperiencePreferenceKey } from "@/lib/launchExperience";
 import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
@@ -1386,11 +1387,17 @@ export default function Home() {
     // The URL already names `next`, so this only resets context and scrolls.
     navigateWorkspace(next);
   };
-  // The overlay is the topmost transient surface, so Escape closes it and
-  // nothing else; the list, filters and scroll it opened over are untouched.
+  // Escape closes the overlay and nothing else; the list, filters and scroll it
+  // opened over are untouched. A layer opened over it (search, with Cmd/Ctrl+K)
+  // keeps its own Escape, so one press closes that layer and not this one too.
+  const inspectorLayerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!inspectedExercise) return;
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") closeInspector(); };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      if (isKeyForAnotherLayer(event, inspectorLayerRef.current)) return;
+      closeInspector();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [inspectedExercise]);
@@ -1839,7 +1846,7 @@ export default function Home() {
         catalog's plus performs, on the same day the strip names. */}
     {introPreviewOpen && <Suspense fallback={null}><IntroPreview returnTo={introOpener} onClose={() => setIntroPreviewOpen(false)} /></Suspense>}
     {comparePair && <Suspense fallback={null}><ExerciseCompareSheet pair={comparePair} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} onAdd={addExercise} onClose={() => setComparePair(null)} onInspect={(exercise) => { setComparePair(null); inspectExercise(exercise); }} /></Suspense>}
-    {inspectedExercise && <div className="fixed inset-0 z-50 exercise-intelligence" role="dialog" aria-modal="true" aria-labelledby="exercise-intelligence-title">
+    {inspectedExercise && <div className="fixed inset-0 z-50 exercise-intelligence" ref={inspectorLayerRef} role="dialog" aria-modal="true" aria-labelledby="exercise-intelligence-title">
       <div className="exercise-intelligence-sheet">
         <div className="exercise-intelligence-bar">
           <img src={sportsGenomeAssets.circularBadge} alt="" className="exercise-intelligence-logo" />
