@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MUSCLE_RANK_LIFT_LIMIT, liftBodyMassKg, muscleRankLifts } from "./muscleRankLifts";
+import { MUSCLE_RANK_LIFT_LIMIT, liftBodyMass, liftBodyMassKg, muscleRankLiftSelection, muscleRankLifts } from "./muscleRankLifts";
 import type { BodyWeightEntry } from "./bodyWeightLog";
 
 const history: BodyWeightEntry[] = [{ bodyMassKg: 82, enteredUnit: "kg", observedAt: "2026-08-01T00:00:00.000Z" }];
@@ -17,6 +17,34 @@ describe("The body weight a lift is read against", () => {
   });
   it("gives no weight rather than a made-up one", () => {
     expect(liftBodyMassKg({ exerciseName: "Bench", observedAt: "2026-07-01" }, [], null)).toBeNull();
+  });
+  it("says where each weight came from, in the same order", () => {
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-09-01", bodyMassKgAtTest: 80 }, history, 90)).toEqual({ kg: 80, source: "recorded" });
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-09-01" }, history, 90)).toEqual({ kg: 82, source: "dated" });
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-07-01" }, history, 90)).toEqual({ kg: 90, source: "profile" });
+    expect(liftBodyMass({ exerciseName: "Bench", observedAt: "2026-07-01" }, history, null)).toBeNull();
+  });
+});
+
+describe("How many ranked lifts are read against the profile weight", () => {
+  it("counts only the lifts with no weight of their own day", () => {
+    const selection = muscleRankLiftSelection([
+      { exerciseName: "Barbell Bench Press", loadKg: 100, repetitions: 5, bodyMassKgAtTest: 80, observedAt: "2026-09-01T10:00:00.000Z" },
+      { exerciseName: "Preacher Curl", loadKg: 30, repetitions: 8, observedAt: "2026-09-02T10:00:00.000Z" },
+      { exerciseName: "Back Squat", loadKg: 120, repetitions: 5, observedAt: "2026-07-01T10:00:00.000Z" },
+    ], history, 80);
+    expect(selection.lifts).toHaveLength(3);
+    expect(selection.profileWeightCount).toBe(1);
+  });
+
+  it("does not count a profile-weight lift that is not sent", () => {
+    // The saved-weight single is the stronger lift both ways, so the lighter one stays home.
+    const selection = muscleRankLiftSelection([
+      { exerciseName: "Bench", loadKg: 100, repetitions: 1, bodyMassKgAtTest: 80, observedAt: "2026-09-01T10:00:00.000Z" },
+      { exerciseName: "Bench", loadKg: 60, repetitions: 1, observedAt: "2026-07-01T10:00:00.000Z" },
+    ], history, 80);
+    expect(selection.lifts.map((lift) => lift.loadKg)).toEqual([100]);
+    expect(selection.profileWeightCount).toBe(0);
   });
 });
 

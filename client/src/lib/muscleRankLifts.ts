@@ -34,18 +34,25 @@ export type MuscleRankLift = {
  */
 export const MUSCLE_RANK_LIFT_LIMIT = 30;
 
+/** Where a lift's body weight came from: saved with it, the weight log for that day, or the profile. */
+export type LiftBodyMassSource = "recorded" | "dated" | "profile";
+
 /**
  * The body weight a lift is read against, in the same order the record detail uses: the
  * weight saved with the lift, then what the weight log says for that day, then the profile
  * weight. The first is the rule - a later weight change must not re-read an old lift - and
  * the other two only fill in for lifts that were saved without one.
  */
-export function liftBodyMassKg(observation: RankableObservation, history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined): number | null {
+export function liftBodyMass(observation: RankableObservation, history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined): { kg: number; source: LiftBodyMassSource } | null {
   const recorded = Number(observation.bodyMassKgAtTest);
-  if (observation.bodyMassKgAtTest != null && Number.isFinite(recorded) && recorded > 0) return recorded;
+  if (observation.bodyMassKgAtTest != null && Number.isFinite(recorded) && recorded > 0) return { kg: recorded, source: "recorded" };
   const dated = bodyWeightKgAt(history, observation.observedAt);
-  if (dated !== undefined && dated > 0) return dated;
-  return profileBodyMassKg != null && profileBodyMassKg > 0 ? profileBodyMassKg : null;
+  if (dated !== undefined && dated > 0) return { kg: dated, source: "dated" };
+  return profileBodyMassKg != null && profileBodyMassKg > 0 ? { kg: profileBodyMassKg, source: "profile" } : null;
+}
+
+export function liftBodyMassKg(observation: RankableObservation, history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined): number | null {
+  return liftBodyMass(observation, history, profileBodyMassKg)?.kg ?? null;
 }
 
 /**
@@ -68,7 +75,16 @@ export function liftBodyMassKg(observation: RankableObservation, history: readon
  * of one goes too, as the runner-up, so the server can say its added load is not scored.
  */
 export function muscleRankLifts(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): MuscleRankLift[] {
-  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null; repsOnly: boolean };
+  return muscleRankLiftSelection(observations, history, profileBodyMassKg, birthYear).lifts;
+}
+
+/**
+ * The same selection, plus how many of the lifts sent carry no weight of their own day and are
+ * read against the profile weight - so the map can say so. The count rides beside the lifts,
+ * not on them: the lifts travel in the request URL.
+ */
+export function muscleRankLiftSelection(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): { lifts: MuscleRankLift[]; profileWeightCount: number } {
+  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null; repsOnly: boolean; bodyMassSource: LiftBodyMassSource | null };
   const byExercise = new Map<string, Candidate[]>();
   for (const observation of observations) {
     const catalogExerciseId = catalogExerciseIdForName(observation.exerciseName) ?? null;
@@ -81,12 +97,13 @@ export function muscleRankLifts(observations: readonly RankableObservation[], hi
     const repsOnly = scoredOnReps && loadKg === 0;
     const e1rmKg = repsOnly ? null : estimateOneRepMaxKg(loadKg, repetitions);
     if (!repsOnly && e1rmKg === null) continue;
+    const bodyMass = liftBodyMass(observation, history, profileBodyMassKg);
     const lift: MuscleRankLift = {
       catalogExerciseId,
       exerciseName: observation.exerciseName,
       loadKg,
       repetitions,
-      bodyMassKg: liftBodyMassKg(observation, history, profileBodyMassKg),
+      bodyMassKg: bodyMass?.kg ?? null,
       ageYears: ageAtLift(birthYear ?? undefined, observation.observedAt) ?? null,
     };
     // Age scales the comparison the way the database will: divide by the published factor.
@@ -95,7 +112,7 @@ export function muscleRankLifts(observations: readonly RankableObservation[], hi
     const adjustedKg = repsOnly ? repetitions : e1rmKg! / (factor.status === "ok" ? factor.factor : 1);
     const key = String(lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase());
     const list = byExercise.get(key) ?? [];
-    list.push({ lift, observedAt: new Date(observation.observedAt).getTime() || 0, adjustedKg, relative: !repsOnly && lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null, repsOnly });
+    list.push({ lift, observedAt: new Date(observation.observedAt).getTime() || 0, adjustedKg, relative: !repsOnly && lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null, repsOnly, bodyMassSource: bodyMass?.source ?? null });
     byExercise.set(key, list);
   }
 
@@ -120,14 +137,16 @@ export function muscleRankLifts(observations: readonly RankableObservation[], hi
   }
 
   const lifts: MuscleRankLift[] = [];
+  let profileWeightCount = 0;
   const seen = new Set<string>();
-  for (const { lift } of [...leaders, ...runnersUp]) {
+  for (const { lift, bodyMassSource } of [...leaders, ...runnersUp]) {
     // The same lift twice tells the aggregation nothing new, and costs URL.
     const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${lift.loadKg}|${lift.repetitions}|${lift.bodyMassKg}|${lift.ageYears}`;
     if (seen.has(key)) continue;
     seen.add(key);
     lifts.push(lift);
+    if (bodyMassSource === "profile") profileWeightCount += 1;
     if (lifts.length === MUSCLE_RANK_LIFT_LIMIT) break;
   }
-  return lifts;
+  return { lifts, profileWeightCount };
 }

@@ -31,7 +31,7 @@ import { regionRanksFromMuscles, type RegionRank } from "@shared/capabilityRank"
 import { RankCard, UnscoredRankCard } from "@/components/CapabilityRank";
 import { RankIcon } from "@/components/RankIcon";
 import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
-import { muscleRankLifts } from "@/lib/muscleRankLifts";
+import { muscleRankLiftSelection } from "@/lib/muscleRankLifts";
 import { ageAtLift } from "@/lib/normsCohort";
 import { countCoveredRegions } from "@/lib/athleteRecord";
 import { decimalEntryText } from "@/lib/numericEntry";
@@ -698,16 +698,18 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   );
 
   /**
-   * Strength/Rank mode. The athlete's lifts, each at the body weight saved with it, scored and
+   * Strength/Rank mode. The athlete's lifts, each at the body weight saved with it (or, for a
+   * lift saved without one, the weight log for that day, then the profile weight), scored and
    * aggregated per muscle by the database; the map draws each region from the muscle best
    * supported by evidence. Without a sex to compare against, or with no reachable service, the
    * map stays in its coverage view rather than drawing ranks it cannot justify.
    */
   const rankSex: "male" | "female" | null = sexForReference === "male" || sexForReference === "female" ? sexForReference : null;
-  const rankLifts = useMemo(
-    () => muscleRankLifts(activeObservations, bodyWeightHistory, baselineBodyWeight != null ? displayWeightToKilograms(baselineBodyWeight, weightUnit) : null, birthYear),
+  const rankSelection = useMemo(
+    () => muscleRankLiftSelection(activeObservations, bodyWeightHistory, baselineBodyWeight != null ? displayWeightToKilograms(baselineBodyWeight, weightUnit) : null, birthYear),
     [activeObservations, bodyWeightHistory, baselineBodyWeight, weightUnit, birthYear]
   );
+  const rankLifts = rankSelection.lifts;
   const muscleRanks = trpc.strengthProfile.muscleRanks.useQuery(
     { sex: rankSex, lifts: rankLifts },
     { enabled: rankSex !== null && rankLifts.length > 0, staleTime: 5 * 60 * 1000, retry: false }
@@ -760,6 +762,11 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       : null,
   ].filter(Boolean) : [];
   const ageNotice = ageSentences.length ? <p className="rank-profile-partial" data-rank-age-note>{ageSentences.join(" ")}</p> : null;
+  // A lift is read against the weight saved with it; where the profile weight stood in, say so.
+  const profileWeightCount = rankSelection.profileWeightCount;
+  const bodyMassNotice = rankProfile && profileWeightCount > 0
+    ? <p className="rank-profile-partial" data-rank-body-mass-note>{profileWeightCount === 1 ? "1 lift has" : `${profileWeightCount} lifts have`} no body weight saved for {profileWeightCount === 1 ? "its" : "their"} day, so {profileWeightCount === 1 ? "it is" : "they are"} read against your profile weight. Open the lift's record to save what you weighed that day.</p>
+    : null;
   // Covered means "you have recorded work here", never a rank or a score. A
   // locally recorded lift counts in both access modes, so the server overview can
   // only add regions, never take one away that this device can see.
@@ -930,7 +937,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       </div>
     </section>
 
-    <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankNotice || ageNotice ? <>{rankNotice}{ageNotice}</> : null} ranksPending={rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
+    <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankNotice || ageNotice || bodyMassNotice ? <>{rankNotice}{ageNotice}{bodyMassNotice}</> : null} ranksPending={rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
     {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
     {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} regionRank={regionRanks?.get(sheetRegion.id) ?? null} rankMode={regionRanks !== null} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={closeRegionRecord} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} registryOffline={registryOfflineNotice !== null} />
       {/* Focus is kept only with an account's priorities, which direct access never
