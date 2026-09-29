@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { contextTabIdForWorkspace, contextualWorkspaces, primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation, workspaceTitles } from "./Home";
 
@@ -90,6 +90,9 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('setRailOpen');
     expect(source).toContain('<div className="mobile-workspace-dock" aria-label="Primary workspace navigation">');
     expect(css).toContain('@media (min-width: 1024px) {\n  .apex-content { padding-bottom: 6.25rem; }');
+    // The starter kit's sidebar shell ("Page 1" / "Page 2") was never routed; it must not come back.
+    expect(existsSync(new URL("../components/DashboardLayout.tsx", import.meta.url))).toBe(false);
+    expect(existsSync(new URL("../components/ui/sidebar.tsx", import.meta.url))).toBe(false);
   });
 
   it("colours the shell by destination and keeps a non-neon active state", () => {
