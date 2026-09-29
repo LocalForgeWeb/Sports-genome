@@ -1502,6 +1502,9 @@ export default function Home() {
     setGoal(selectedGoal);
     setTrainingDays(selectedDays);
     setAthleteBaseline(baseline);
+    // The quiz weight is a measurement taken today. Record it now rather than waiting for the
+    // next launch's seed, so a lift finished in this first session is saved with it.
+    if (baseline.bodyWeight && baseline.bodyWeight > 0) saveBodyWeightLog(recordBodyWeight(loadBodyWeightLog(), baseline.bodyWeight, baseline.weightUnit, new Date(), "onboarding"));
     setSportContextMode(selectedMode);
     setCapacityFocus({ focus, constraint, reportedSignals });
     if (selectedMode === "sport") chooseSport(selectedSportId); else setSportId("");
