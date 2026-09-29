@@ -80,6 +80,20 @@ describe("email sign-in when the request itself fails", () => {
     expect((screen.getByLabelText("Password") as HTMLInputElement).value).toBe("a long enough password");
   });
 
+  it("asks the athlete to check what they typed when the server refuses the input", async () => {
+    mocks.signIn.mockRejectedValue(Object.assign(new Error("Invalid email"), { data: { code: "BAD_REQUEST" } }));
+    const { onAuthenticated, form } = renderScreen();
+    fill("Email", "athlete@gmail");
+    fill("Password", "correct horse battery");
+
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledWith("Check your email address and password, then try again."));
+    expect(mocks.toastError).toHaveBeenCalledTimes(1);
+    expect(onAuthenticated).not.toHaveBeenCalled();
+    expect((screen.getByLabelText("Email") as HTMLInputElement).value).toBe("athlete@gmail");
+  });
+
   it("still names a wrong password when the server answers", async () => {
     mocks.signIn.mockResolvedValue({ ok: false, code: "INVALID_CREDENTIALS" });
     const { onAuthenticated, form } = renderScreen();

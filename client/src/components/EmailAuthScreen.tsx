@@ -36,7 +36,11 @@ export function EmailAuthScreen({ onAuthenticated, loading }: { onAuthenticated:
     let result;
     try {
       result = mode === "register" ? await register.mutateAsync({ email, password }) : await signIn.mutateAsync({ email, password });
-    } catch {
+    } catch (error) {
+      // The server refused what was typed (an address the browser accepts but the server does not,
+      // such as a missing ".com", or an overlong password): a connection hint would send the athlete the wrong way.
+      const code = (error as { data?: { code?: string } } | null)?.data?.code;
+      if (code === "BAD_REQUEST") return toast.error("Check your email address and password, then try again.");
       return toast.error(mode === "register" ? "Could not create your account right now. Check your connection and try again." : "Could not sign in right now. Check your connection and try again.");
     }
     if (!result.ok) return toast.error(result.code === "EMAIL_EXISTS" ? "An account already uses that email" : result.code === "TEMPORARILY_LOCKED" ? "Too many attempts. Please wait and try again." : "Email or password is incorrect");
