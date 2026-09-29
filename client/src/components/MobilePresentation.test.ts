@@ -67,6 +67,15 @@ describe("mobile athlete presentation", () => {
     expect(appStyles).toMatch(/\.confirm-dialog-confirm\{[^}]*min-height:2\.75rem/);
   });
 
+  it("caps the guide and confirm dialog cards at the viewport so a tall card scrolls", () => {
+    // The four-step guide opens by itself after onboarding. On a short or
+    // landscape screen the card is taller than the view, and a centred card in a
+    // fixed layer cannot be scrolled to, so the close, Skip and Next controls must
+    // stay reachable by scrolling inside the card.
+    expect(appStyles).toMatch(/\.feature-tour-card\{[^}]*max-height:calc\(100dvh - 2rem\)[^}]*overflow-y:auto/);
+    expect(appStyles).toMatch(/\.confirm-dialog-card\{[^}]*max-height:calc\(100dvh - 2rem\)[^}]*overflow-y:auto/);
+  });
+
   it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {
     // Both were inline timings (180ms, 170ms) that no longer collapsed under the
     // reduced-motion preference. On the shared token they are still brief and now
