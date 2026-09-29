@@ -186,6 +186,15 @@ describe("workspace side navigation", () => {
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
     expect(css).toContain('.apex-content { padding-bottom: calc(5.8rem');
     expect(css).toContain('.mobile-workspace-dock { position: fixed;');
+    // The resume bar and the add-to-day strip ride on the dock, so they switch
+    // at the dock's own breakpoint (at 961px they floated 20px above a flush
+    // dock) and clear the home-indicator inset the dock pads for.
+    expect(css).toContain('@media (min-width: 1024px) { .session-resume-bar { bottom: calc(4.375rem + 1.25rem); } }');
+    expect(css).not.toContain('(min-width: 961px) { .session-resume-bar');
+    expect(css).not.toContain('(min-width: 961px) { .add-destination');
+    expect(css).not.toContain('env(safe-area-inset-bottom, 0px) * 0');
+    expect(css).toContain('bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px));');
+    expect(css).toContain('.add-destination { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .5rem);');
     expect(source).not.toContain('className="mobile-workspace-actions"');
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));');
     expect(css).toContain('min-height: 4.25rem;');

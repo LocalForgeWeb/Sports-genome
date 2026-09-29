@@ -2269,8 +2269,8 @@ details:not([open]) > *:not(summary) {
 
 /* Where a plus puts an exercise. It rides at the foot of the screen while the
    list scrolls, above the dock, and settles into the flow at the end. */
-.add-destination { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + .5rem); border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: linear-gradient(135deg, rgb(24 60 99 / .98), rgb(12 38 70 / .98)); box-shadow: 0 -10px 26px rgb(4 20 40 / .3); backdrop-filter: blur(16px); color: var(--sg-text-on-dark); }
-@media (min-width: 961px) { .add-destination { bottom: calc(4.375rem + 1.25rem + .5rem); } }
+.add-destination { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .5rem); border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: linear-gradient(135deg, rgb(24 60 99 / .98), rgb(12 38 70 / .98)); box-shadow: 0 -10px 26px rgb(4 20 40 / .3); backdrop-filter: blur(16px); color: var(--sg-text-on-dark); }
+@media (min-width: 1024px) { .add-destination { bottom: calc(4.375rem + 1.25rem + .5rem); } }
 .add-destination > summary { display: flex; min-height: 3.5rem; align-items: center; gap: .8rem; padding: .5rem .9rem; cursor: pointer; list-style: none; font-size: var(--sg-text-lg); }
 .add-destination > summary::-webkit-details-marker { display: none; }
 .add-destination > summary > svg { flex: 0 0 auto; color: #9cc4ea; }
@@ -3058,14 +3058,14 @@ details:not([open]) > *:not(summary) {
   position: fixed;
   z-index: 45;
   right: 0;
-  bottom: var(--sg-dock-height, 4.375rem);
+  bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px));
   left: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: .75rem;
   border-top: 1px solid rgb(226 113 62 / .5);
-  padding: .6rem 1rem calc(.6rem + env(safe-area-inset-bottom, 0px) * 0);
+  padding: .6rem 1rem;
   background: linear-gradient(135deg, rgb(24 60 99 / .98), rgb(12 38 70 / .98));
   box-shadow: 0 -10px 26px rgb(4 20 40 / .3);
   backdrop-filter: blur(16px);
@@ -3144,7 +3144,7 @@ details:not([open]) > *:not(summary) {
 /* The dock floats with a margin on wide screens and sits flush on a phone, so
    the bar has to clear a different amount in each case. */
 .session-resume-bar { --sg-dock-height: 4.375rem; }
-@media (min-width: 961px) { .session-resume-bar { bottom: calc(4.375rem + 1.25rem); } }
+@media (min-width: 1024px) { .session-resume-bar { bottom: calc(4.375rem + 1.25rem); } }
 
 /* -- The same state, on the row it belongs to ------------------------------- */
 
@@ -3719,11 +3719,11 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .day-editing-context button:hover { text-decoration: underline; }
 .custom-row-edit-label { color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 600; white-space: nowrap; }
 /* The edit action keeps its words at every width; on a phone it sits on its own line under the prescription (mobile-training-card.css). */
-@media (max-width: 960px) {
+@media (max-width: 1023px) {
   body:has(.session-resume-bar) .apex-content { padding-bottom: calc(5.8rem + var(--sg-resume-height) + env(safe-area-inset-bottom, 0px)); }
-  body:has(.session-resume-bar) .add-destination { bottom: calc(var(--sg-dock-height, 4.375rem) + var(--sg-resume-height) + .5rem); }
+  body:has(.session-resume-bar) .add-destination { bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + var(--sg-resume-height) + .5rem); }
 }
-@media (min-width: 961px) {
+@media (min-width: 1024px) {
   body:has(.session-resume-bar) .add-destination { bottom: calc(4.375rem + 1.25rem + var(--sg-resume-height) + .5rem); }
   body:has(.session-resume-bar) .apex-content { padding-bottom: calc(6.25rem + var(--sg-resume-height)); }
 }
