@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { forInsert, sexCodeFor, toAthleteStrengthEntry, type RecordedLift } from "./athleteStrengthEntry";
-import { normsCohortFor, ageAtLift } from "./normsCohort";
+import { ageAtLift } from "./normsCohort";
 
 const UUID = "11111111-2222-3333-4444-555555555555";
 const lift = (over: Partial<RecordedLift> = {}): RecordedLift => ({
@@ -81,29 +81,17 @@ describe("shaping a lift for public.athlete_strength_entries", () => {
   });
 });
 
-describe("the norms cohort a lift contributes to", () => {
-  it("bands age and body mass, and names no individual", () => {
-    const cohort = normsCohortFor({ sexForReference: "male", birthYear: 1998, bodyMassKg: 81.65, sportId: "wrestling", observedAt: "2026-06-10" });
-    expect(cohort.ageBandStart).toBe(25);
-    expect(cohort.ageBandEnd).toBe(29);
-    expect(cohort.bodyMassBandStartKg).toBe(80);
-    expect(cohort.code).toBe("s1-2529-080-wrestling");
-    expect(cohort.complete).toBe(true);
-  });
-
-  it("freezes the cohort at the lift, so ageing does not move last year's lift", () => {
+describe("age at the lift", () => {
+  it("is the age in the year of the lift, so ageing does not move last year's lift", () => {
     expect(ageAtLift(1998, "2026-06-10")).toBe(28);
     expect(ageAtLift(1998, "2020-06-10")).toBe(22);
-    const then = normsCohortFor({ sexForReference: "male", birthYear: 1998, bodyMassKg: 90, sportId: "wrestling", observedAt: "2020-06-10" });
-    const now = normsCohortFor({ sexForReference: "male", birthYear: 1998, bodyMassKg: 81, sportId: "wrestling", observedAt: "2026-06-10" });
-    expect(then.code).not.toBe(now.code);
   });
 
-  it("marks a partial descriptor incomplete instead of guessing the missing part", () => {
-    const cohort = normsCohortFor({ observedAt: "2026-06-10" });
-    expect(cohort.complete).toBe(false);
-    expect(cohort.code).toBe("s0-xxxx-xxx-unspecified");
-    expect(cohort.ageBandStart).toBeUndefined();
-    expect(cohort.bodyMassBandStartKg).toBeUndefined();
+  it("is unknown without a birth year rather than guessed", () => {
+    expect(ageAtLift(undefined, "2026-06-10")).toBeUndefined();
+  });
+
+  it("is unknown when the birth year gives an implausible age", () => {
+    expect(ageAtLift(2024, "2026-06-10")).toBeUndefined();
   });
 });
