@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -107,6 +107,20 @@ describe("layout integrity", () => {
 
   it("retires the acid-lime accent across every stylesheet", () => {
     expect(allCss).not.toContain("#b8ff5b");
+  });
+
+  it("imports only stylesheets that exist and keeps the retired Body Lab atlas out", () => {
+    const imports = [...css.matchAll(/@import\s+"\.\/([^"]+\.css)";/g)].map((m) => m[1]);
+    expect(imports.length).toBeGreaterThan(0);
+    imports.forEach((file) => expect(existsSync(join(SRC, file)), `${file} is on disk`).toBe(true));
+    // The dual-atlas board and its callouts were replaced by the anatomy-atlas-pro
+    // map; nothing renders them, so their rules must not come back.
+    expect(allCss).not.toContain(".dual-atlas");
+    expect(allCss).not.toContain(".atlas-callout");
+    expect(css).not.toContain("anatomy-fallback");
+    // The Exercise Genome overrides shared a line with that atlas and stay live.
+    expect(css).toContain(".genome-fingerprint-bars { grid-template-columns: 1fr; }");
+    expect(css).toContain(".genome-meter > div { font-size: var(--sg-text-xs)");
   });
 });
 
