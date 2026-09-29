@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined), toastError: vi.fn(), toastSuccess: vi.fn(), setPriorityOptions: {} as { onError?: (error: { data?: { code?: string } }) => void } }));
@@ -52,7 +52,9 @@ describe("Strength Genome direct Review workflow", () => {
     vi.stubGlobal("scrollTo", vi.fn());
   });
 
-  afterEach(() => { document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
+  // Unmount first: an open region record listens on window for Escape, and a
+  // panel left mounted would keep that listener into the next test.
+  afterEach(() => { cleanup(); document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
 
   it("opens the routed biceps record detail from the rendered Review action with optional feedback", () => {
     render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
@@ -147,7 +149,13 @@ describe("Strength Genome direct Review workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Set focus" }));
     mocks.setPriorityOptions.onError?.({ data: { code: "UNAUTHORIZED" } });
     expect(mocks.toastError).toHaveBeenCalledTimes(1);
-    expect(mocks.toastError).toHaveBeenCalledWith("Focus was not saved because your sign-in has expired. Sign in again from About me.");
+    // Under the app-wide notice's id, so it takes that notice's place rather than
+    // stacking a second toast under it, and with no pointer to a sign-in: this
+    // build has none to go back to.
+    const [message, options] = mocks.toastError.mock.calls[0];
+    expect(message).toBe("Focus was not saved because your sign-in has expired.");
+    expect(options).toMatchObject({ id: "session-expired" });
+    expect(message).not.toMatch(/about me|sign in again/i);
   });
 
   it("calls a logged lift a lift through the whole remove flow", () => {

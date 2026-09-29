@@ -611,9 +611,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     // a validation list or a generic fault notice, neither of them for athletes.
     // An expired sign-in gets no toast of its own: main.tsx says that app-wide,
     // but at most once a minute, so the reason is still written beside the button.
+    // It names no place to sign in again: this build has none (see sessionExpiryNotice).
     onError: (error) => {
       if (error.data?.code === "UNAUTHORIZED") {
-        setSaveError("This lift was not saved because your sign-in has expired. Your entry is still here: sign in again from About me, then save.");
+        setSaveError("This lift was not saved because your sign-in has expired. Your entry is still here.");
         return;
       }
       setSaveError(error.data?.code === "BAD_REQUEST"
@@ -633,21 +634,29 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const selectedExerciseContext = useMemo(() => selectedExercise ? getStrengthCatalogSelectionContext(selectedExercise) : null, [selectedExercise]);
   const piperCaptureAvailable = exerciseName === "Preacher Curl" && measurementType === "MULTI_REP";
   const powerliftingCaptureAvailable = ["Back Squat", "Barbell Bench Press", "Conventional Deadlift"].includes(exerciseName) && measurementType === "MEASURED_1RM";
-  // A date the record can hold: not before 1970 and not days ahead. A typo year
+  // A real day the record can hold: not before 1970 and not after the athlete's own
+  // today, the picker's own min and max, which a typed date can get past. A typo year
   // such as 0202 or 2100 would otherwise be saved as it stands, or refused by the
-  // server. The form defaults to the athlete's own day; the two days of slack
-  // match the server, which cannot know the athlete's time zone.
+  // server. The day is read back to refuse one the month does not have, which Date
+  // would roll over (2021-02-30 into March). The server keeps two days of slack
+  // because it cannot know the athlete's time zone; this form knows it, so it keeps none.
   const liftDateAt = new Date(`${observedDate}T12:00:00`).getTime();
-  const liftDateInRange = Number.isFinite(liftDateAt) && liftDateAt >= Date.UTC(1970, 0, 2) && liftDateAt <= Date.now() + 2 * 86_400_000;
+  const liftDateInRange = /^\d{4}-\d{2}-\d{2}$/.test(observedDate)
+    && Number.isFinite(liftDateAt)
+    && localDateKey(new Date(liftDateAt)) === observedDate
+    && observedDate >= "1970-01-02"
+    && observedDate <= localDateKey();
   // The load is required where its label says so, and a blank box is not 0 kg:
   // Number("") is 0, which would save a 0 kg max. A working set needs its reps
   // to be read at all. A pull-up or push-up is scored on reps, so its load stays optional.
   const loadConvention = loadConventionFor(selectedExercise?.id);
   const loadRequired = needsLoad && loadConvention !== "bodyweight_reps";
   const hasLoad = loadKg.trim() !== "" && Number.isFinite(parsedLoad);
-  // Such as "." or "1.2.3", which the load box lets through. In an optional box it
-  // is named by the box's own label, since "enter the load" would ask for a value
-  // the label says is not needed.
+  // Only a lone separator reaches this: the load box's decimalEntryText reads a ","
+  // as "." and folds any later points into the decimals ("1.2.3" becomes "1.23"), so
+  // a bare "." is the one entry it lets through that is not a number. In an optional
+  // box it is named by the box's own label, since "enter the load" would ask for a
+  // value the label says is not needed.
   const loadInvalid = loadKg.trim() !== "" && !Number.isFinite(parsedLoad);
   const loadLabel = loadInputLabel(loadConvention, weightUnitLabel(weightUnit));
   const loadMissing = loadRequired && !(hasLoad && parsedLoad > 0);
@@ -845,11 +854,15 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     onSuccess: async () => {
       await Promise.all([utils.strengthGenome.overview.invalidate(), utils.strengthGenome.priorities.invalidate()]);
     },
-    // An expired sign-in is not a connection fault: say the real cause and fix.
-    // main.tsx's app-wide notice speaks at most once a minute, so this one still does.
+    // An expired sign-in is not a connection fault: say the real cause, and name no
+    // place to sign in again, since this build has none. main.tsx's app-wide notice
+    // speaks at most once a minute, so this one still does, under that notice's id so
+    // it takes the notice's place rather than stacking under it. Sonner keeps any field
+    // the replaced toast had, so the notice's "Everything stays saved on this device"
+    // is cleared: the focus was saved nowhere.
     onError: (error) => {
       if (error.data?.code === "UNAUTHORIZED") {
-        toast.error("Focus was not saved because your sign-in has expired. Sign in again from About me.");
+        toast.error("Focus was not saved because your sign-in has expired.", { id: "session-expired", description: undefined });
         return;
       }
       toast.error("Focus was not saved. Check your connection and try again.");
