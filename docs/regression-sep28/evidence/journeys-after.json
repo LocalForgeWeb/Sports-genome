@@ -1,0 +1,350 @@
+{
+ "j1": {
+  "sawLoading": false,
+  "cold": {
+   "label": "Your next workout",
+   "title": "Push",
+   "count": "5 exercises",
+   "focus": "Workout focus Chest · Shoulders",
+   "figure": "front",
+   "cta": [
+    "Open next workout",
+    "Edit plan"
+   ],
+   "strip": [
+    "next:Next",
+    "planned",
+    "planned",
+    "planned",
+    "planned"
+   ],
+   "resume": false
+  },
+  "warm": {
+   "label": "Your next workout",
+   "title": "Push",
+   "count": "5 exercises",
+   "focus": "Workout focus Chest · Shoulders",
+   "figure": "front",
+   "cta": [
+    "Open next workout",
+    "Edit plan"
+   ],
+   "strip": [
+    "next:Next",
+    "planned",
+    "planned",
+    "planned",
+    "planned"
+   ],
+   "resume": false
+  }
+ },
+ "j3": {
+  "afterBrowse": {
+   "label": "Your next workout",
+   "title": "Push",
+   "count": "5 exercises",
+   "focus": "Workout focus Chest · Shoulders",
+   "figure": "front",
+   "cta": [
+    "Open next workout",
+    "Edit plan"
+   ],
+   "strip": [
+    "next:Next",
+    "planned",
+    "planned",
+    "planned",
+    "planned"
+   ],
+   "resume": false
+  },
+  "afterReload": {
+   "label": "Your next workout",
+   "title": "Push",
+   "count": "5 exercises",
+   "focus": "Workout focus Chest · Shoulders",
+   "figure": "front",
+   "cta": [
+    "Open next workout",
+    "Edit plan"
+   ],
+   "strip": [
+    "next:Next",
+    "planned",
+    "planned",
+    "planned",
+    "planned"
+   ],
+   "resume": false
+  },
+  "ctaOpens": {
+   "url": "?workspace=tracker",
+   "prestart": "Push",
+   "live": null,
+   "session": null
+  }
+ },
+ "j4": {
+  "home": {
+   "label": "Your next workout",
+   "title": "Pull",
+   "count": "3 exercises",
+   "focus": "Workout focus Upper back · Lats · Shoulders",
+   "figure": "back",
+   "cta": [
+    "Open next workout",
+    "Edit plan"
+   ],
+   "strip": [
+    "planned",
+    "next:Next",
+    "planned",
+    "planned",
+    "planned"
+   ],
+   "resume": false
+  },
+  "ctaOpens": {
+   "prestart": "Pull",
+   "live": null,
+   "session": null
+  }
+ },
+ "j5": {
+  "started": {
+   "prestart": null,
+   "live": "Week 1 · Day 02 · Pull",
+   "session": "device-1790721340077"
+  },
+  "homeLive": {
+   "label": "Continue your workout",
+   "title": "Pull",
+   "count": "0 of 11 sets logged · next: Lat Pulldown, set 1",
+   "figure": null,
+   "cta": [
+    "Resume Pull workout",
+    "View workout details"
+   ],
+   "strip": [
+    "planned",
+    "live:Now",
+    "planned",
+    "planned",
+    "planned"
+   ],
+   "resume": false
+  },
+  "resumed": {
+   "prestart": null,
+   "live": "Week 1 · Day 02 · Pull",
+   "session": "device-1790721340077"
+  },
+  "afterReload": {
+   "prestart": null,
+   "live": "Week 1 · Day 02 · Pull",
+   "session": "device-1790721340077"
+  },
+  "sameSession": true
+ },
+ "toastsSeen": [],
+ "errors": [],
+ "j2": [
+  {
+   "font": 100,
+   "width": 320,
+   "scrollW": 320,
+   "innerW": 320,
+   "narrow": [],
+   "tagsInside": true,
+   "backdrop": {
+    "solid": true,
+    "opacity": "1"
+   }
+  },
+  {
+   "font": 100,
+   "width": 375,
+   "scrollW": 375,
+   "innerW": 375,
+   "narrow": [
+    "button.home-link 198"
+   ],
+   "tagsInside": true,
+   "backdrop": {
+    "solid": true,
+    "opacity": "1"
+   }
+  },
+  {
+   "font": 100,
+   "width": 390,
+   "scrollW": 390,
+   "innerW": 390,
+   "narrow": [
+    "button.home-link 198"
+   ],
+   "tagsInside": true,
+   "backdrop": {
+    "solid": true,
+    "opacity": "1"
+   }
+  },
+  {
+   "font": 100,
+   "width": 430,
+   "scrollW": 430,
+   "innerW": 430,
+   "narrow": [
+    "button.home-link 198"
+   ],
+   "tagsInside": true,
+   "backdrop": {
+    "solid": true,
+    "opacity": "1"
+   }
+  },
+  {
+   "font": 125,
+   "width": 320,
+   "scrollW": 320,
+   "innerW": 320,
+   "narrow": [],
+   "tagsInside": true,
+   "backdrop": {
+    "solid": true,
+    "opacity": "1"
+   }
+  },
+  {
+   "font": 125,
+   "width": 375,
+   "scrollW": 375,
+   "innerW": 375,
+   "narrow": [],
+   "tagsInside": true,
+   "backdrop": {
+    "solid": true,
+    "opacity": "1"
+   }
+  },
+  {
+   "font": 125,
+   "width": 390,
+   "scrollW": 390,
+   "innerW": 390,
+   "narrow": [],
+   "tagsInside": true,
+   "backdrop": {
+    "solid": true,
+    "opacity": "1"
+   }
+  },
+  {
+   "font": 125,
+   "width": 430,
+   "scrollW": 430,
+   "innerW": 430,
+   "narrow": [
+    "button.home-link 247"
+   ],
+   "tagsInside": true,
+   "backdrop": {
+    "solid": true,
+    "opacity": "1"
+   }
+  }
+ ],
+ "j6": {
+  "addButtonsOnEmpty": 1,
+  "upper": {
+   "rows": 1,
+   "index": "33/100"
+  },
+  "push": {
+   "rows": 5,
+   "index": "80/100",
+   "headline": "Serratus anterior is the one gap, 35 pts under target."
+  }
+ },
+ "j8": {
+  "row": {
+   "label": "Lats, State · 88th",
+   "thumbRank": "state"
+  },
+  "mapRanksForLats": [
+   "state"
+  ],
+  "selected": [
+   "lats"
+  ],
+  "sheet": "YOUR RECORD LATS STATE CIRCUIT 88th percentile Compared with Strength Level lifters, men. ESTIMATED HIGH CONFIDENCE WHY THIS RANK? WHICH LIFT Lat Pulldown · 9/2"
+ },
+ "j9": [
+  {
+   "name": "Upper back",
+   "total": "13.5",
+   "parts": "12/1.5"
+  },
+  {
+   "name": "Latissimus dorsi",
+   "total": "12",
+   "parts": "12/0"
+  },
+  {
+   "name": "Rectus abdominis",
+   "total": "11",
+   "parts": "0/11"
+  },
+  {
+   "name": "Pectoralis major",
+   "total": "10",
+   "parts": "10/0"
+  },
+  {
+   "name": "Gluteal muscles",
+   "total": "9.5",
+   "parts": "8/1.5"
+  },
+  {
+   "name": "Anterior deltoids",
+   "total": "9",
+   "parts": "4/5"
+  },
+  {
+   "name": "Posterior deltoids",
+   "total": "9",
+   "parts": "3/6"
+  },
+  {
+   "name": "Quadriceps",
+   "total": "8",
+   "parts": "8/0"
+  }
+ ],
+ "j10": {
+  "before": {
+   "DAY 01 · PUSH": "5 planned",
+   "DAY 02 · PULL": "3 planned",
+   "DAY 03 · LEGS": "3 planned",
+   "DAY 04 · UPPER": "Empty",
+   "DAY 05 · SPORT TRANSFER": "1 planned"
+  },
+  "afterAdd": {
+   "DAY 01 · PUSH": "5 planned",
+   "DAY 02 · PULL": "3 planned",
+   "DAY 03 · LEGS": "4 planned",
+   "DAY 04 · UPPER": "Empty",
+   "DAY 05 · SPORT TRANSFER": "1 planned"
+  },
+  "afterUndo": {
+   "DAY 01 · PUSH": "5 planned",
+   "DAY 02 · PULL": "3 planned",
+   "DAY 03 · LEGS": "3 planned",
+   "DAY 04 · UPPER": "Empty",
+   "DAY 05 · SPORT TRANSFER": "1 planned"
+  },
+  "stripAfterUndo": "Adding to Week 1 · Pull Change"
+ }
+}
