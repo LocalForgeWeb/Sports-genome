@@ -303,7 +303,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
           ? <p className="strength-rank-needs">{communityGroupWithoutCurveCopy}</p>
           : <ComparisonGate need="group" onProfile={onRankProfile} fallback={percentileGap} />)}
         {showPercentile && !athleteProfile?.birthYear && <ComparisonGate need="birthYear" onProfile={onRankProfile} />}
-        {bodyMassSource !== "recorded" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body weight for this lift…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
+        {bodyMassSource !== "recorded" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Body weight for this lift saved on this device. Your recorded ratio is ready."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body weight for this lift…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
         <details className="strength-region-boundary"><summary>{hasOutsideComparison || showPercentile ? "About this comparison" : "No ranking for this lift yet"}</summary>{(registryGateExplanation ?? registryOfflineReason) && <p className="strength-region-gate-reason">{registryGateExplanation ?? registryOfflineReason}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${plural(latestRecord.repetitions, "rep")}` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{/* The weight this lift was read against, said out loud: it was saved with the lift and does not move when the profile weight changes. */}{effectiveBodyMassKg != null ? ` · at ${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}` : ""}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
       </article>
@@ -432,7 +432,7 @@ function ComparisonGate({ need, onProfile, fallback = null, scope = "lift" }: { 
   if (!onProfile) return fallback ? <p className="strength-rank-needs">{fallback}</p> : null;
   if (need === "group") {
     return <div className="strength-rank-gate">
-      <p>{scope === "map" ? "Pick a group to compare against and this map ranks each muscle group." : "Choose the group to compare against and this lift gets a percentile."}</p>
+      <p>{scope === "map" ? "Pick a group to compare against and this map ranks the muscle groups your lifts train." : "Choose the group to compare against and this lift gets a percentile."}</p>
       <label><span>Compare against</span><select
         value=""
         aria-label={scope === "map" ? "Group to rank your lifts against" : "Group to compare this lift against"}
@@ -769,11 +769,20 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       : null,
   ].filter(Boolean) : [];
   const ageNotice = ageSentences.length ? <p className="rank-profile-partial" data-rank-age-note>{ageSentences.join(" ")}</p> : null;
-  // A lift is read against the weight saved with it; where the profile weight stood in, say so.
-  const profileWeightCount = rankSelection.profileWeightCount;
-  const bodyMassNotice = rankProfile && profileWeightCount > 0
-    ? <p className="rank-profile-partial" data-rank-body-mass-note>{profileWeightCount === 1 ? "1 lift has" : `${profileWeightCount} lifts have`} no body weight saved for {profileWeightCount === 1 ? "its" : "their"} day, so {profileWeightCount === 1 ? "it is" : "they are"} read against your profile weight. Open the lift's record to save what you weighed that day.</p>
-    : null;
+  // A lift is read against the weight saved with it; where the profile weight stood in, say so,
+  // and name the lifts, so the athlete knows which records to open. Several are listed the way
+  // the lifts left out of the ranks are.
+  const profileWeightExercises = rankSelection.profileWeightExercises;
+  const profileWeightLifts = Array.from(profileWeightExercises.reduce((counts, name) => counts.set(name, (counts.get(name) ?? 0) + 1), new Map<string, number>()));
+  const bodyMassNotice = !rankProfile || profileWeightExercises.length === 0
+    ? null
+    : profileWeightExercises.length === 1
+    ? <p className="rank-profile-partial" data-rank-body-mass-note>Your {profileWeightExercises[0]} lift has no body weight saved for its day, so it is read against your profile weight. Open its record to save what you weighed that day.</p>
+    : <details className="rank-profile-partial" data-rank-body-mass-note>
+        <summary>{profileWeightExercises.length} lifts are read against your profile weight</summary>
+        <p>They have no body weight saved for their day. Open each one's record to save what you weighed that day.</p>
+        <ul>{profileWeightLifts.map(([name, count]) => <li key={name}>{name}{count > 1 ? ` ×${count}` : ""}</li>)}</ul>
+      </details>;
   // Covered means "you have recorded work here", never a rank or a score. A
   // locally recorded lift counts in both access modes, so the server overview can
   // only add regions, never take one away that this device can see.
@@ -821,9 +830,11 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   };
   // The saved lift's record is offered from the toast, not opened: the athlete may be logging
   // several lifts in a row. A lift no region reads gets no action, as with the Review button.
+  // The toast is gone once its action runs, so it cannot take focus back when the record
+  // closes: Log a lift, where the athlete came from, is made the opener instead.
   const savedLiftToastOptions = (observation: Pick<StrengthObservationRecord, "id" | "exerciseName">) =>
     strengthRegionIdsForExerciseName(observation.exerciseName).length
-      ? { action: { label: "View record", onClick: () => { emitInteractionFeedback(); setLogOpen(false); openSavedObservation(observation); } } }
+      ? { action: { label: "View record", onClick: () => { emitInteractionFeedback(); setLogOpen(false); logFormRef.current?.querySelector<HTMLElement>(".strength-log-open")?.focus({ preventScroll: true }); openSavedObservation(observation); } } }
       : undefined;
   // Below the dock's breakpoint the record is pinned above the bottom bar, so it
   // is already on screen the instant a muscle is tapped. Scrolling there would

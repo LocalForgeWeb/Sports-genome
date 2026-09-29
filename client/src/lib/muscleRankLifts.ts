@@ -51,10 +51,6 @@ export function liftBodyMass(observation: RankableObservation, history: readonly
   return profileBodyMassKg != null && profileBodyMassKg > 0 ? { kg: profileBodyMassKg, source: "profile" } : null;
 }
 
-export function liftBodyMassKg(observation: RankableObservation, history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined): number | null {
-  return liftBodyMass(observation, history, profileBodyMassKg)?.kg ?? null;
-}
-
 /**
  * What the muscle-rank route is sent: each exercise's strongest lifts, however long ago they
  * were logged.
@@ -73,17 +69,12 @@ export function liftBodyMassKg(observation: RankableObservation, history: readon
  * A movement the scoring policy reads on reps (a pull-up, a dip, a push-up) is sent without
  * load, as its best set of reps - those never reached the ranks before (EN-09). A loaded set
  * of one goes too, as the runner-up, so the server can say its added load is not scored.
+ *
+ * Beside the lifts comes the exercise of each one sent with no weight of its own day, read
+ * against the profile weight instead - so the map can name the records to complete. It rides
+ * beside the lifts, not on them: the lifts travel in the request URL.
  */
-export function muscleRankLifts(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): MuscleRankLift[] {
-  return muscleRankLiftSelection(observations, history, profileBodyMassKg, birthYear).lifts;
-}
-
-/**
- * The same selection, plus how many of the lifts sent carry no weight of their own day and are
- * read against the profile weight - so the map can say so. The count rides beside the lifts,
- * not on them: the lifts travel in the request URL.
- */
-export function muscleRankLiftSelection(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): { lifts: MuscleRankLift[]; profileWeightCount: number } {
+export function muscleRankLiftSelection(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): { lifts: MuscleRankLift[]; profileWeightExercises: string[] } {
   type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null; repsOnly: boolean; bodyMassSource: LiftBodyMassSource | null };
   const byExercise = new Map<string, Candidate[]>();
   for (const observation of observations) {
@@ -137,7 +128,7 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
   }
 
   const lifts: MuscleRankLift[] = [];
-  let profileWeightCount = 0;
+  const profileWeightExercises: string[] = [];
   const seen = new Set<string>();
   for (const { lift, bodyMassSource } of [...leaders, ...runnersUp]) {
     // The same lift twice tells the aggregation nothing new, and costs URL.
@@ -145,8 +136,8 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
     if (seen.has(key)) continue;
     seen.add(key);
     lifts.push(lift);
-    if (bodyMassSource === "profile") profileWeightCount += 1;
+    if (bodyMassSource === "profile") profileWeightExercises.push(lift.exerciseName);
     if (lifts.length === MUSCLE_RANK_LIFT_LIMIT) break;
   }
-  return { lifts, profileWeightCount };
+  return { lifts, profileWeightExercises };
 }

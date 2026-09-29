@@ -57,7 +57,15 @@ describe("the rank map says when a lift is read against the profile weight", () 
   it("names the lift saved without a body weight, and how to fix it", () => {
     renderWith([bench]);
     const notice = document.querySelector("[data-rank-body-mass-note]");
-    expect(notice?.textContent).toBe("1 lift has no body weight saved for its day, so it is read against your profile weight. Open the lift's record to save what you weighed that day.");
+    expect(notice?.textContent).toBe("Your Barbell Bench Press lift has no body weight saved for its day, so it is read against your profile weight. Open its record to save what you weighed that day.");
+  });
+
+  it("lists each lift saved without a body weight when there are several", () => {
+    renderWith([bench, { ...bench, id: "device-squat", exerciseName: "Back Squat", observedAt: "2026-09-10T12:00:00.000Z", loadKg: 120 }, { ...bench, id: "device-curl", exerciseName: "Preacher Curl", loadKg: 30, bodyMassKgAtTest: 80 }]);
+    const notice = document.querySelector("[data-rank-body-mass-note]")!;
+    expect(notice.querySelector("summary")?.textContent).toBe("2 lifts are read against your profile weight");
+    expect(Array.from(notice.querySelectorAll("li"), (item) => item.textContent)).toEqual(["Barbell Bench Press", "Back Squat"]);
+    expect(notice.textContent).toContain("Open each one's record to save what you weighed that day.");
   });
 
   it("says nothing when every lift carries the weight saved with it", () => {

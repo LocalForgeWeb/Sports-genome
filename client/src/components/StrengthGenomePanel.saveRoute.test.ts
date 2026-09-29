@@ -90,6 +90,26 @@ describe("a saved lift offers its record from the toast", () => {
     expect(heading.textContent).toBe("Biceps");
   });
 
+  it("gives focus back to Log a lift when that record closes, since the toast is gone by then", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "kg" }));
+    saveLift("Preacher Curl", "30");
+    const [, options] = mocks.success.mock.calls[0] as [string, ToastOptions];
+
+    // The action pressed from the keyboard: focus is on the toast's button, which the
+    // toast takes away with it as soon as the action has run.
+    const toastButton = document.createElement("button");
+    toastButton.textContent = "View record";
+    document.body.appendChild(toastButton);
+    toastButton.focus();
+    act(() => { options!.action!.onClick(); });
+    toastButton.remove();
+    expect((document.activeElement as HTMLElement).hasAttribute("data-strength-region-heading")).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "Close Biceps detail" }));
+
+    expect(document.activeElement).toBe(document.querySelector(".strength-log-open"));
+  });
+
   it("offers the record after an account save too", async () => {
     render(React.createElement(StrengthGenomePanel, { weightUnit: "kg" }));
     await act(async () => { await mocks.addObservationOptions?.onSuccess?.({ id: 42 }, { exerciseName: "Preacher Curl" }); });

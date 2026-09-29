@@ -9,6 +9,8 @@ const mocks = vi.hoisted(() => ({
   mutationOptions: null as null | { onSuccess: () => Promise<void>; onError: () => void },
   invalidate: vi.fn(),
   feedback: vi.fn(),
+  success: vi.fn(),
+  error: vi.fn(),
 }));
 
 vi.mock("@/lib/trpc", () => ({
@@ -27,7 +29,7 @@ vi.mock("@/lib/trpc", () => ({
     },
   },
 }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { success: mocks.success, error: mocks.error } }));
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: mocks.feedback }));
 
 import { StrengthRegionRecordDetail } from "./StrengthGenomePanel";
@@ -59,6 +61,8 @@ describe("Strength region body-mass completion", () => {
     mocks.mutationOptions = null;
     mocks.invalidate.mockReset();
     mocks.feedback.mockReset();
+    mocks.success.mockReset();
+    mocks.error.mockReset();
   });
 
   it("submits an account-backed missing body mass and keeps the ratio as supporting detail after refreshed data returns", async () => {
@@ -67,6 +71,7 @@ describe("Strength region body-mass completion", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
     expect(mocks.bodyMassMutation.mutate).toHaveBeenCalledWith({ observationId: 101, bodyMassKgAtTest: 81.6466266 });
     await act(async () => { await mocks.mutationOptions?.onSuccess(); });
+    expect(mocks.success).toHaveBeenCalledWith("Body weight for this lift saved. Your recorded ratio is ready.");
     rerender(React.createElement(StrengthRegionRecordDetail, { region: biceps, observations: [{ ...missingBodyMassObservation[0], bodyMassKgAtTest: 81.6466266 }], onClose: noOp, weightUnit: "lb", directAccess: false, onSetDeviceBodyMass: noOp }));
     expect(screen.getByText(/0\.44× your body weight on that day — for your own context, not a rank\./)).toBeTruthy();
   });
@@ -85,7 +90,8 @@ describe("Strength region body-mass completion", () => {
     rerender(detailElement());
     openMeasurementDetail(container);
     act(() => { mocks.mutationOptions?.onError(); });
-    expect(screen.getByRole("alert").textContent).toContain("Your entry is still here");
+    expect(screen.getByRole("alert").textContent).toBe("Body weight was not saved. Your entry is still here—check your connection and try again.");
+    expect(mocks.error).toHaveBeenCalledWith("Could not save the body weight for this lift. Check your connection and try again.");
     expect(input.value).toBe("180");
     fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
     expect(mocks.bodyMassMutation.mutate).toHaveBeenCalledTimes(2);
@@ -100,6 +106,8 @@ describe("Strength region body-mass completion", () => {
     expect(setDeviceBodyMass).toHaveBeenCalledWith("101", 81.6466266);
     expect(mocks.bodyMassMutation.mutate).not.toHaveBeenCalled();
     expect(mocks.feedback).toHaveBeenCalledWith([10, 30, 10]);
+    // The weight typed is that day's, not the profile's, and the toast says so.
+    expect(mocks.success).toHaveBeenCalledWith("Body weight for this lift saved on this device. Your recorded ratio is ready.");
   });
 
   it("uses optional feedback for direct supporting-measurement completion and close, and switches between recorded tests via the picker instead of a raw history list", () => {

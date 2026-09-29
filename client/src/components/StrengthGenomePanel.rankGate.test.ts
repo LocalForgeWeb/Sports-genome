@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined) }));
@@ -75,7 +75,7 @@ describe("the last step to a percentile is taken where the percentile would be",
     vi.stubGlobal("scrollTo", vi.fn());
   });
 
-  afterEach(() => { document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
+  afterEach(() => { cleanup(); document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
 
   it("answers the gate in place instead of naming a field on another screen", () => {
     // "Add the sex to compare against in About Me" is true and unreachable: the field is
@@ -162,7 +162,7 @@ describe("the map asks for the group its ranks compare against, in place", () =>
     vi.stubGlobal("scrollTo", vi.fn());
   });
 
-  afterEach(() => { document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
+  afterEach(() => { cleanup(); document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
 
   function renderMap(props: Record<string, unknown>) {
     render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb", ...props }));
@@ -173,7 +173,7 @@ describe("the map asks for the group its ranks compare against, in place", () =>
     renderMap({ onRankProfile });
 
     expect(screen.queryByText(/set it in About Me/)).toBeNull();
-    expect(screen.getByText(/this map ranks each muscle group/)).toBeTruthy();
+    expect(screen.getByText(/this map ranks the muscle groups your lifts train/)).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Group to rank your lifts against"), { target: { value: "female" } });
     expect(onRankProfile).toHaveBeenCalledWith({ sexForReference: "female" });
   });
