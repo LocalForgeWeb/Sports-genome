@@ -93,6 +93,9 @@
 }
 .athlete-quiz-stage h1 em { color: var(--sg-text-subtle-on-dark); font-style: normal; }
 .athlete-quiz-copy { max-width: 46ch; margin: 12px 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+/* A field's hint keeps its line even while empty: text that arrives when the field
+   blurs would otherwise push the buttons below it down mid-press. */
+.athlete-quiz-field-hint { min-height: calc(var(--sg-text-base) * var(--sg-leading-body)); }
 /* The boundary each step states is worth keeping — it sits under the choices,
    where it informs rather than gates. */
 .athlete-quiz-note { max-width: 52ch; margin: 20px 0 0; color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
