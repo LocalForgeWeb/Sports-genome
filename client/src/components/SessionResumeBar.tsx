@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ChevronRight, Dot } from "lucide-react";
 import type { LiveSession } from "@/lib/liveSession";
+import { registerFeedbackSurface } from "@/lib/feedbackClearance";
 
 /**
  * The workout you are in the middle of, on every screen that is not it.
@@ -21,7 +22,8 @@ export function SessionResumeBar({ live, onResume }: { live: LiveSession; onResu
   /**
    * The strip's real height, published for the page to reserve. With larger
    * text the copy wraps and the strip grows past any fixed guess, and the last
-   * row of a list disappeared under it. Cleared when the strip goes.
+   * row of a list disappeared under it. Cleared when the strip goes. Toasts
+   * are lifted clear of it too (lib/feedbackClearance.ts).
    */
   useEffect(() => {
     const node = ref.current;
@@ -30,7 +32,8 @@ export function SessionResumeBar({ live, onResume }: { live: LiveSession; onResu
     publish();
     const observer = typeof ResizeObserver === "function" ? new ResizeObserver(publish) : null;
     observer?.observe(node);
-    return () => { observer?.disconnect(); document.documentElement.style.removeProperty("--sg-resume-height"); };
+    const unregister = registerFeedbackSurface(node);
+    return () => { observer?.disconnect(); unregister(); document.documentElement.style.removeProperty("--sg-resume-height"); };
   }, []);
   const done = live.completedSets;
   const total = live.plannedSets;

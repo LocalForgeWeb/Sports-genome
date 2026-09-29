@@ -6,6 +6,9 @@ const IntroPreview = lazy(() => import("@/components/IntroPreview").then((module
 const ExerciseCompareSheet = lazy(() => import("@/components/ExerciseCompareSheet").then((module) => ({ default: module.ExerciseCompareSheet })));
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { directWorkspaceAccess } from "@/lib/accountAccess";
+import { sessionNotice, useSessionLapsed } from "@/lib/sessionNotice";
+import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
 import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
@@ -130,9 +133,6 @@ export function buildGeneratedWeekSportSeed(sportId: string, goal: TrainingGoal,
 const athleteProfileKeyBase = "gym-optimizer-athlete-profile-v1";
 const workoutPlanKeyBase = "gym-optimizer-workout-plan-v1";
 const favoriteExerciseKeyBase = "gym-optimizer-favorite-exercise-ids-v1";
-// Temporary product-access switch. The email/password and passkey implementation
-// remains intact below and can be restored by setting this to false.
-const directWorkspaceAccess = true;
 const ExerciseGenomePanel = lazy(() => import("@/components/ExerciseGenomePanel").then((module) => ({ default: module.ExerciseGenomePanel })));
 const MovementAtlasPanel = lazy(() => import("@/components/MovementAtlasPanel").then((module) => ({ default: module.MovementAtlasPanel })));
 const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator").then((module) => ({ default: module.BodyLabNavigator })));
@@ -316,6 +316,9 @@ export default function Home() {
   /** Which account's plan is currently in memory, so the writer cannot cross accounts. */
   const hydratedPlanKeyRef = useRef<string | null>(null);
   const accountId = user?.id ?? null;
+  // Set from a refused call while signed in until auth.me answers with a user again.
+  const sessionLapsed = useSessionLapsed();
+  const [accountFocusRequest, setAccountFocusRequest] = useState(0);
   const athleteProfileKey = scopedKey(athleteProfileKeyBase, accountId);
   const workoutPlanKey = scopedKey(workoutPlanKeyBase, accountId);
   const favoriteExerciseKey = scopedKey(favoriteExerciseKeyBase, accountId);
@@ -1025,6 +1028,18 @@ export default function Home() {
     return () => window.removeEventListener("popstate", restoreWorkspace);
   }, []);
   /**
+   * The sign-in notice's "Account & sync" action lands here: About me, with that group
+   * open. The notice lives outside React (lib/sessionNotice.ts), so it is handed a function
+   * that always calls the current navigation.
+   */
+  const openAccountSyncRef = useRef(() => {});
+  openAccountSyncRef.current = () => { navigateWorkspace("profile"); setAccountFocusRequest((request) => request + 1); };
+  useEffect(() => {
+    const notice = sessionNotice();
+    notice?.setOpenAccount(() => openAccountSyncRef.current());
+    return () => notice?.setOpenAccount(null);
+  }, []);
+  /**
    * Nothing edits the plan before the saved plan has been read. An exercise added in
    * that window was confirmed with a toast and then overwritten by the plan arriving
    * a moment later; it is now refused with a reason instead.
@@ -1061,6 +1076,13 @@ export default function Home() {
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
     setLocalFavoriteIds((current) => currentlyFavorite ? current.filter((id) => id !== exercise.id) : Array.from(new Set([...current, exercise.id])));
+    // Kept on this device either way. Only an account session sends it on: without one the
+    // call was refused, and the refusal raised a sign-in notice beside this toast (Sep 28
+    // regression brief §7), just as favorites.list is asked only with a session.
+    if (!isAuthenticated) {
+      toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { id: "favorite", description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist on this device.` });
+      return;
+    }
     favoriteMutation.mutate({ catalogExerciseId: exercise.id, favorited: !currentlyFavorite }, {
       onSuccess: (ids) => {
         // The server answers with the full list; anything else keeps the
@@ -1069,7 +1091,7 @@ export default function Home() {
         void favoriteQuery.refetch();
         toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { id: "favorite", description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist.` });
       },
-      onError: () => toast("Saved on this device", { id: "favorite", description: "Your favorite is available locally and will sync when account storage is available." }),
+      onError: () => toast("Saved on this device", { id: "favorite", description: "Your account did not take the change; it is kept on this device." }),
     });
   };
   const importRoutine = (routine: ImportedRoutine) => {
@@ -1669,9 +1691,12 @@ export default function Home() {
             type="button"
             onClick={() => navigateWorkspace("profile")}
             aria-label="Profile and settings"
+            aria-describedby={sessionLapsed ? "topbar-session-status" : undefined}
             aria-current={workspace === "profile" ? "page" : undefined}
             className="topbar-profile-button"
+            data-alert={sessionLapsed || undefined}
           ><UserRound className="h-5 w-5" aria-hidden="true" /></button>
+          {sessionLapsed && <span id="topbar-session-status" className="sr-only">Signed out of your account</span>}
         </div>
       </header>
       {/* Local tabs only where a destination has sibling pages; Home and Profile
@@ -1692,7 +1717,7 @@ export default function Home() {
           <div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => { chooseDayToTrain(slot); openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div>
         </details>} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} recentIds={recentExerciseIds} onClearRecent={clearRecentExercises} comparePendingName={comparePending?.name} onCancelCompare={() => setComparePending(null)} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} selectedActionLabel={selectedMovement.label} onChangeAction={() => navigateWorkspace("movement")} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
-        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn}
+        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} accountSession={isAuthenticated && !sessionLapsed} sessionLapsed={sessionLapsed} accountFocusRequest={accountFocusRequest}
           guides={<div className="about-me-guides"><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><p>Restarting onboarding deletes every saved training day and starts setup again; it asks first.</p><SupabaseResearchLibraryPanel /></div>}
           launchVideo={<div className="launch-setting" aria-label="Launch video"><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={(event) => { emitInteractionFeedback(12); setIntroOpener(event.currentTarget); setIntroPreviewOpen(true); }}>Preview intro video</button></div>}
           launchVideoEnabled={launchExperienceEnabled}
@@ -1910,7 +1935,7 @@ export default function Home() {
           <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => { setInspectedExercise(null); navigateWorkspace("movement"); }} />
           <details className="exercise-intelligence-disclosure"><summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Evidence context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary><div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /></div></details>
         </div>
-        <div className="exercise-intelligence-actions">
+        <div ref={feedbackSurfaceRef} className="exercise-intelligence-actions">
           <button type="button" className="exercise-intelligence-add" onClick={() => { addExercise(inspectedExercise); setInspectedExercise(null); }}>Add to Week {activeWeek} · {activeSlot.day} <Plus className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className={`exercise-intelligence-favorite ${favoriteIds.has(inspectedExercise.id) ? "is-on" : ""}`} onClick={() => toggleFavorite(inspectedExercise)} aria-pressed={favoriteIds.has(inspectedExercise.id)} aria-label={`${favoriteIds.has(inspectedExercise.id) ? "Remove" : "Save"} ${inspectedExercise.name} ${favoriteIds.has(inspectedExercise.id) ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={favoriteIds.has(inspectedExercise.id) ? "currentColor" : "none"} /></button>
         </div>

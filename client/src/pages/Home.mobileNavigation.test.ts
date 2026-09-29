@@ -58,7 +58,10 @@ describe("workspace side navigation", () => {
   });
 
   it("keeps the email and passkey entry implementation available behind a reversible direct-workspace access switch", () => {
-    expect(source).toContain("const directWorkspaceAccess = true;");
+    // Intentional change, Sep 28 regression brief §7: the switch moved to lib/accountAccess.ts so
+    // the sign-in notice can tell whether "Sign in" is something this build offers.
+    expect(readFileSync(new URL("../lib/accountAccess.ts", import.meta.url), "utf8")).toContain("export const directWorkspaceAccess = true;");
+    expect(source).toContain('import { directWorkspaceAccess } from "@/lib/accountAccess";');
     expect(source).toContain('if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen');
     expect(source).toContain('if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">');
   });

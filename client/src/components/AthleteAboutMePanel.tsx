@@ -1,10 +1,11 @@
-import React, { useEffect, useState, type ReactNode } from "react";
+import React, { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BookOpen, CalendarDays, ChevronDown, ChevronRight, Check, CloudUpload, Dumbbell, Fingerprint, Lock, Medal, Palette, PlayCircle, Scale, Sparkles, Target, Trash2, Trophy, UserRound } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { themeOptionCopy, themePreferences, type ThemePreference } from "@/lib/theme";
 import { startRegistration } from "@simplewebauthn/browser";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { accountSignInAvailable } from "@/lib/accountAccess";
 import { trainingGoalChoices, type AthleteBaseline, type AthleteExperience, type SexForReference, type WeightUnit } from "@/components/AthleteBaselineQuiz";
 import { catalogEquipment, gymAccessProfiles, type CatalogEquipment, type GymAccess } from "@/lib/equipmentProfile";
 import { gymTimeOptions } from "@/lib/gymTimeBudget";
@@ -54,7 +55,7 @@ export function parseBodyWeight(text: string): number | undefined {
   return text.trim() !== "" && Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
-export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, guides, launchVideo, launchVideoEnabled, buildStamp }: {
+export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, accountSession = false, sessionLapsed = false, accountFocusRequest = 0, guides, launchVideo, launchVideoEnabled, buildStamp }: {
   baseline: AthleteBaseline;
   goal: TrainingGoal;
   trainingDays: number;
@@ -78,6 +79,16 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   syncPending?: number;
   benchmarkOptIn?: boolean;
   onBenchmarkOptIn?: (next: boolean) => void;
+  /**
+   * Whether an app-server account session exists (auth.me holds a user). Passkeys belong to
+   * that account: without it the passkey list was asked anyway, refused, and the refusal
+   * raised the sign-in notice on this very screen (Sep 28 regression brief §7).
+   */
+  accountSession?: boolean;
+  /** Signed in, then refused: the lasting status for the one-time notice (lib/sessionNotice.ts). */
+  sessionLapsed?: boolean;
+  /** Bumped by the notice's "Account & sync" action; opens that group and brings it into view. */
+  accountFocusRequest?: number;
   /** The guide, onboarding restart and research library, owned by the page that has them. */
   guides?: ReactNode;
   /** The launch video setting and preview, likewise. */
@@ -91,7 +102,14 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const [pendingDestructiveAction, setPendingDestructiveAction] = useState<ConfirmDialogRequest | null>(null);
   const passkeyOptions = trpc.auth.passkeyRegistrationOptions.useMutation();
   const passkeyVerify = trpc.auth.passkeyRegistrationVerify.useMutation();
-  const accountPasskeys = trpc.auth.passkeys.useQuery();
+  const accountPasskeys = trpc.auth.passkeys.useQuery(undefined, { enabled: accountSession });
+  const accountGroupRef = useRef<HTMLDetailsElement | null>(null);
+  useEffect(() => {
+    const group = accountGroupRef.current;
+    if (!accountFocusRequest || !group) return;
+    group.open = true;
+    group.scrollIntoView({ block: "center" });
+  }, [accountFocusRequest]);
   const removePasskey = trpc.auth.removePasskey.useMutation({ onSuccess: () => { accountPasskeys.refetch(); toast.success("Passkey removed from this account"); } });
   const requestRemovePasskey = (passkeyId: number, label: string) => setPendingDestructiveAction({
     title: "Remove this passkey?",
@@ -108,6 +126,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
     onBaseline({ ...baseline, equipment: { ...equipment, availableEquipment } });
   };
   const enrollPasskey = async () => {
+    // A passkey is added to an account; with no session the server refuses it.
+    if (!accountSession) return;
     if (!passkeySupported) return toast.error("This device does not support passkeys");
     try {
       const options = await passkeyOptions.mutateAsync();
@@ -155,7 +175,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const selectedTargetName = targetCatalog?.status === "connected" ? targetCatalog.targets.find((target) => target.targetKey === capacityFocus.focus?.targetKey)?.name : undefined;
   const constraintReported = capacityFocus.constraint?.constraintType && capacityFocus.constraint.constraintType !== "proactive_none";
   const prioritiesSummary = selectedTargetName ? `${selectedTargetName}${constraintReported ? " · something reported there" : ""}` : "Choose a region or capacity";
-  const accountSummary = !identity ? "Saved on this device"
+  const accountSummary = sessionLapsed ? "Signed out of your account"
+    : !identity ? "Saved on this device"
     : identity.userId ? (identity.anonymous ? "Saved to an account on this device" : "Saved to your account")
     : "Saved on this device";
   const accountPending = syncPending > 0 ? ` · ${syncPending} ${syncPending === 1 ? "lift" : "lifts"} waiting` : "";
@@ -194,15 +215,16 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
       <details className="about-me-group"><summary><Target className="h-6 w-6" aria-hidden="true" /><span><strong>Training priorities</strong><small>{prioritiesSummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         <CapacityFocusCard catalog={targetCatalog} value={capacityFocus} onChange={onCapacityFocus} />
       </details>
-      <details className="about-me-group"><summary><CloudUpload className="h-6 w-6" aria-hidden="true" /><span><strong>Account &amp; sync</strong><small>{accountSummary}{accountPending}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
+      <details ref={accountGroupRef} className="about-me-group"><summary><CloudUpload className="h-6 w-6" aria-hidden="true" /><span><strong>Account &amp; sync</strong><small>{accountSummary}{accountPending}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
+        {sessionLapsed && <p className="about-me-group-note" role="status">You&apos;re signed out of your account. Changes you make are kept on this device{accountSignInAvailable ? "; sign in to sync them." : ". This version can't sign in again, so account sync has stopped."}</p>}
         {identity ? <AthleteAccountCard identity={identity} pending={syncPending} optedIn={benchmarkOptIn} onOptIn={onBenchmarkOptIn} /> : <p className="about-me-group-note">Everything you log is saved on this device.</p>}
       </details>
       <details className="about-me-group"><summary><Palette className="h-6 w-6" aria-hidden="true" /><span><strong>Appearance</strong><small>{themeOptionCopy[preference].label}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         <section className="about-me-card"><label><span>Theme</span><select value={preference} onChange={(event) => { emitInteractionFeedback(); setPreference(event.target.value as ThemePreference); }}>{themePreferences.map((option) => <option key={option} value={option}>{themeOptionCopy[option].label}</option>)}</select></label><p className="about-me-theme-note">{themeOptionCopy[preference].detail}{preference === "system" ? ` Right now that is ${theme === "dark" ? "dark" : "light chrome"}.` : ""}</p></section>
       </details>
-      <details className="about-me-group"><summary><Lock className="h-6 w-6" aria-hidden="true" /><span><strong>Security</strong><small>{securitySummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
+      {accountSession && <details className="about-me-group"><summary><Lock className="h-6 w-6" aria-hidden="true" /><span><strong>Security</strong><small>{securitySummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         <section className="about-me-security"><div><p className="metric-label">Account security</p><h3>Face ID / passkey</h3><p>Use this device’s Face ID, Touch ID, or secure screen lock to sign in without typing your password. Your biometric data stays on your device.</p></div><button onClick={enrollPasskey} disabled={!passkeySupported || passkeyOptions.isPending || passkeyVerify.isPending}><Fingerprint className="h-4 w-4" /> {passkeySupported ? "Enable Face ID / passkey" : "Passkey unavailable"}</button>{accountPasskeys.data?.length ? <div className="about-me-passkey-list" aria-label="Enrolled passkeys">{accountPasskeys.data.map((passkey, index) => <div key={passkey.id} className="about-me-passkey-row"><span>Device passkey {index + 1}{passkey.lastUsedAt ? " · used before" : " · not used yet"}</span><button type="button" aria-label={`Remove device passkey ${index + 1}`} onClick={() => requestRemovePasskey(passkey.id, `Device passkey ${index + 1}`)} disabled={removePasskey.isPending}><Trash2 className="h-3.5 w-3.5" /> Remove</button></div>)}</div> : <p className="about-me-passkey-empty">No device passkeys enrolled yet.</p>}</section>
-      </details>
+      </details>}
       {guides && <details className="about-me-group"><summary><BookOpen className="h-6 w-6" aria-hidden="true" /><span><strong>Guides &amp; research</strong><small>Onboarding, sources, and help</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>{guides}</details>}
       {launchVideo && <details className="about-me-group"><summary><PlayCircle className="h-6 w-6" aria-hidden="true" /><span><strong>Launch video</strong><small>{launchVideoEnabled ? "Play when the app opens" : "Off"}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>{launchVideo}</details>}
     </div>

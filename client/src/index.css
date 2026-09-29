@@ -3850,6 +3850,10 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .topbar-utilities .universal-search-trigger { position: relative; }
 .topbar-utilities .universal-search-trigger svg, .topbar-utilities .topbar-profile-button svg { width: 1.25rem; height: 1.25rem; }
 .topbar-profile-button[aria-current="page"], [data-theme="dark"] .topbar-profile-button[aria-current="page"] { border-color: var(--sg-action); background: rgb(228 81 46 / .1); color: var(--sg-action); }
+/* Signed in, then refused (lib/sessionNotice.ts): a small, non-blocking mark on the way to
+   About me's Account & sync, for as long as that lasts. The toast says it once; this stays. */
+.topbar-profile-button[data-alert] { position: relative; }
+.topbar-profile-button[data-alert]::after { content: ""; position: absolute; top: .35rem; right: .35rem; width: .55rem; height: .55rem; border: 2px solid var(--sg-surface-deep); border-radius: 50%; background: var(--sg-action); }
 /* The tabs: sentence case, one weight, one orange underline for the current
    page on every destination, and four Train labels that fit a 360pt phone. */
 .workspace-top-switcher-shell::after { right: 2px; }
@@ -4064,10 +4068,12 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .toaster [data-sonner-toast][data-styled="true"] [data-title] { color: var(--sg-text-on-dark); font-weight: 700; }
 .toaster [data-sonner-toast][data-styled="true"] [data-button] { background: var(--sg-action-fill); color: #fff; font-weight: 700; }
 .toaster [data-sonner-toast][data-styled="true"] [data-cancel] { background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); font-weight: 700; }
-[data-sonner-toaster][data-y-position="bottom"] { bottom: calc(env(safe-area-inset-bottom, 0px) + 5.6rem + var(--sg-feedback-lift, 0px)) !important; }
-body:has(.session-resume-bar) { --sg-feedback-lift: var(--sg-resume-height); }
-body:has(.add-destination):has(.session-resume-bar) { --sg-feedback-lift: calc(var(--sg-resume-height) + 3.4rem); }
-body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 3.4rem; }
+/* The one rule for where toasts sit: above the bottom navigation, and above whatever else pins
+   controls to the bottom of the screen. Those surfaces register in lib/feedbackClearance.ts,
+   which sets --sg-feedback-clear to the height of the highest one on screen. */
+[data-sonner-toaster][data-y-position="bottom"] { bottom: max(calc(env(safe-area-inset-bottom, 0px) + 5.6rem), var(--sg-feedback-clear, 0px)) !important; }
+/* The sign-in notice's close button: on the surface's own tokens, and a 24px target. */
+.toaster [data-sonner-toast][data-styled="true"] [data-close-button] { width: 1.5rem; height: 1.5rem; border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
 /* U03: the Add exercises sheet in the app's own surface. */
 .day-picker-sheet { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
 .day-picker-sheet-head { border-bottom-color: var(--sg-divider-on-dark); }
@@ -4184,6 +4190,6 @@ body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 
    plus a word for the current day. The 11px CSS ring with a dashed border read as a loading
    spinner cut into fragments (Sep 28 regression brief §5). */
 .home-week-strip li > * > svg { flex: 0 0 auto; width: 1rem; height: 1rem; }
-.home-week-strip .home-week-tag { margin-left: .1rem; padding: .05rem .35rem; border-radius: 999px; background: var(--sg-action); color: #fff; font-size: var(--sg-text-xs); font-style: normal; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.home-week-strip .home-week-tag { margin-left: .1rem; padding: .05rem .35rem; border-radius: 999px; background: var(--sg-action); color: #fff; font-size: var(--sg-text-xs); font-style: normal; font-weight: 800; letter-spacing: var(--sg-tracking-open); text-transform: uppercase; }
 .home-week-strip li[data-state="live"] .home-week-tag { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; color: var(--sg-action); }
 .home-week-strip li[data-empty] > * > span:first-of-type { opacity: .7; }

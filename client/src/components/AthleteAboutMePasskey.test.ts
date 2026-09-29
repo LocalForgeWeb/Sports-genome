@@ -30,6 +30,8 @@ describe("AthleteAboutMePanel passkey management", () => {
       sportId: "soccer",
       sports: [{ id: "soccer", label: "Soccer" }],
       onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(),
+      // Passkeys belong to an account session (Sep 28 regression brief §7).
+      accountSession: true,
     })));
 
     expect(markup).toContain("Enrolled passkeys");

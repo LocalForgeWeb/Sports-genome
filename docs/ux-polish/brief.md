@@ -296,7 +296,7 @@ Each empty state should state what is absent, explain the next useful action and
 - [x] **STATE-07** Preserve content layout when media is unavailable; show text and controls rather than a broken-image icon dominating the row. — a blocked logo keeps its 44px box and alt (probes/polish-qa2.mjs)
 - [x] **STATE-08** Distinguish local saved, queued to sync and remotely synchronized state if the app supports those states. — already satisfied: "This device", "Saved on this device", sync queue count
 - [x] **STATE-09** Avoid multiple competing global error banners for one failure. — one toast region
-- [x] **STATE-10** Check sign-in/session-expiry behavior if applicable without weakening existing access controls or losing recoverable local input. — an UNAUTHORIZED answer shows one notice ("Your sign-in has expired … everything stays saved on this device") without retrying it three times; the device record stays (probes/compare-qa.mjs)
+- [x] **STATE-10** Check sign-in/session-expiry behavior if applicable without weakening existing access controls or losing recoverable local input. — an UNAUTHORIZED answer shows one notice ("Your sign-in has expired … everything stays saved on this device") without retrying it three times; the device record stays (probes/compare-qa.mjs). Superseded 29 September (Sep 28 regression repair §7): the notice now fires only when a signed-in session is refused, once per lapse, with a close button and an action (client/src/lib/sessionNotice.ts); the device store never raises it.
 
 **Proof:** exercise one empty list, one slow load, one unavailable image and one failed mutation. Do not claim offline support if the app only displays an offline message.
 

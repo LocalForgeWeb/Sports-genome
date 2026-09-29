@@ -49,8 +49,8 @@ export function ProgressionReviewSummary({ exercises, history, catalog = [], ava
   </section>;
 }
 
-export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyWeight, weightUnit, onApprove, onApproveSegment, onAddSuggestion }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; bodyWeight?: number; weightUnit?: "lb" | "kg"; onApprove?: (recommendation: ExerciseProgressionRecommendation) => void; onApproveSegment?: (signal: MuscleSegmentSignal) => void; onAddSuggestion?: (suggestion: SegmentPrioritySuggestion) => void }) {
-  const historyQuery = trpc.workoutLog.progressionHistory.useQuery(undefined, { refetchOnWindowFocus: false });
+export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyWeight, weightUnit, accountSession = false, onApprove, onApproveSegment, onAddSuggestion }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; bodyWeight?: number; weightUnit?: "lb" | "kg"; /** The history is an account's; it is asked only with a session (Sep 28 regression brief §7). */ accountSession?: boolean; onApprove?: (recommendation: ExerciseProgressionRecommendation) => void; onApproveSegment?: (signal: MuscleSegmentSignal) => void; onAddSuggestion?: (suggestion: SegmentPrioritySuggestion) => void }) {
+  const historyQuery = trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: accountSession, refetchOnWindowFocus: false });
   const storedBodyContext = useMemo(() => {
     if (bodyWeight && bodyWeight > 0) return { bodyWeight, weightUnit };
     if (typeof window === "undefined") return undefined;
