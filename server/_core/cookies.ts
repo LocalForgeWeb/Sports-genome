@@ -39,10 +39,15 @@ export function getSessionCookieOptions(
   //       ? hostname
   //       : undefined;
 
+  // SameSite=None stays on HTTPS for the future cross-origin native shell (see
+  // requireJsonMutations in apiHandler.ts). Browsers drop a None cookie that is not
+  // Secure, so a plain-http request (the local server on http://localhost) gets Lax,
+  // which same-origin requests still carry.
+  const secure = isSecureRequest(req);
   return {
     httpOnly: true,
     path: "/",
-    sameSite: "none",
-    secure: isSecureRequest(req),
+    sameSite: secure ? "none" : "lax",
+    secure,
   };
 }
