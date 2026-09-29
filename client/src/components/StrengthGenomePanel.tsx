@@ -424,16 +424,18 @@ const communityGroupWithoutCurveCopy =
  * comparison cannot run without, and - once it runs - the optional birth year that
  * applies the published age adjustment. Load and test body weight belong to the
  * observation, and the card carries its own body-weight form directly underneath.
+ *
+ * The body map asks the same group question for its ranks, with scope "map".
  */
-function ComparisonGate({ need, onProfile, fallback = null }: { need: "group" | "birthYear"; onProfile?: (patch: RankProfilePatch) => void; fallback?: string | null }) {
+function ComparisonGate({ need, onProfile, fallback = null, scope = "lift" }: { need: "group" | "birthYear"; onProfile?: (patch: RankProfilePatch) => void; fallback?: string | null; scope?: "lift" | "map" }) {
   const [year, setYear] = useState("");
   if (!onProfile) return fallback ? <p className="strength-rank-needs">{fallback}</p> : null;
   if (need === "group") {
     return <div className="strength-rank-gate">
-      <p>Choose the group to compare against and this lift gets a percentile.</p>
+      <p>{scope === "map" ? "Pick a group to compare against and this map ranks each muscle group." : "Choose the group to compare against and this lift gets a percentile."}</p>
       <label><span>Compare against</span><select
         value=""
-        aria-label="Group to compare this lift against"
+        aria-label={scope === "map" ? "Group to rank your lifts against" : "Group to compare this lift against"}
         onChange={(event) => { if (!event.target.value) return; emitInteractionFeedback(); onProfile({ sexForReference: event.target.value as SexForReference }); }}
       >
         <option value="">Choose a group</option>
@@ -441,7 +443,7 @@ function ComparisonGate({ need, onProfile, fallback = null }: { need: "group" | 
         <option value="male">Men who lift</option>
         <option value="unspecified">Prefer not to say</option>
       </select></label>
-      <small>Used only to pick which community curve this lift is read against. It is saved to About Me.</small>
+      <small>{scope === "map" ? "Used only to pick which community curves your lifts are read against." : "Used only to pick which community curve this lift is read against."} It is saved to About Me.</small>
     </div>;
   }
   // Read the same way as in onboarding and About Me, so a year one takes the others take too.
@@ -743,7 +745,12 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     : rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending
     ? <p className="rank-profile-partial" role="status">Ranking your lifts… the map shows where lifts are on record until the ranks arrive.</p>
     : rankSex === null && rankLifts.length > 0
-    ? <p className="rank-profile-partial">Ranks on this map need the sex to compare against — set it in About Me.</p>
+    // Intersex and Prefer not to say are complete answers, so they are not asked again.
+    ? sexForReference
+      ? <p className="rank-profile-partial">Muscle ranks compare against men or women who lift, so for the group you chose this map shows where lifts are on record.</p>
+      : onRankProfile
+      ? <ComparisonGate need="group" scope="map" onProfile={onRankProfile} />
+      : <p className="rank-profile-partial">Ranks on this map need the sex to compare against — set it in About Me.</p>
     : unrankedLifts.length > 0
       ? <details className="rank-profile-partial">
           <summary>{rankProfile!.unranked.length} {rankProfile!.unranked.length === 1 ? "lift is" : "lifts are"} not in these ranks</summary>
