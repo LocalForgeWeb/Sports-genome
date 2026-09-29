@@ -102,17 +102,17 @@ describe("Home week strip and primary action", () => {
 
   it("draws the workout focus as a picture in the action colour, never as a rank map", () => {
     draw();
-    const figure = document.querySelector(".home-focus .anatomy-figure") as SVGElement | null;
+    const figure = document.querySelector(".today-action-focus .anatomy-figure") as SVGElement | null;
     expect(figure).toBeTruthy();
     expect(figure?.getAttribute("role")).toBe("img");
     expect(figure?.getAttribute("aria-label")).toMatch(/^Workout focus: /);
     expect(figure?.getAttribute("data-encoding")).toBeNull();
-    expect(document.querySelector(".home-focus .anatomy-hit-layer")).toBeNull();
+    expect(document.querySelector(".today-action-focus .anatomy-hit-layer")).toBeNull();
     expect(screen.getByText("Workout focus")).toBeTruthy();
   });
 
   it("shows no schematic when the workout names no muscles, and none for the live workout", () => {
     draw({ focusMuscles: [] });
-    expect(document.querySelector(".home-focus")).toBeNull();
+    expect(document.querySelector(".today-action-focus")).toBeNull();
   });
 });
