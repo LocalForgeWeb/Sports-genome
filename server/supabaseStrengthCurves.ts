@@ -49,6 +49,9 @@ export type CurveExerciseRow = {
 const CACHE_TTL_MS = 5 * 60 * 1000;
 // Bounded: the key comes from the caller (exercise id and sex).
 const curveCache = new BoundedCache<string, StrengthCurve | null>(500, CACHE_TTL_MS);
+// Fetches in flight, so lifts that miss the cache at once share one request. An entry lives only
+// until its fetch settles, which keeps the map as small as the number of requests running.
+const pendingCurves = new Map<string, Promise<StrengthCurve | null>>();
 
 const normMethods: StrengthNormMethod[] = [
   "direct_community_relative_1rm_percentile",
@@ -254,37 +257,55 @@ export async function getStrengthCurve(exerciseId: string, sex: "male" | "female
   if (cached !== undefined) return cached;
   const client = getRuntimeClient();
   if (!client) return null;
-  try {
-    const value = await client.getCurve(exerciseId, sex);
-    curveCache.set(key, value);
-    return value;
-  } catch (error) {
-    console.warn("[Supabase strength curve] lookup unavailable", {
-      exerciseId,
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
-    return null;
-  }
+  const pending = pendingCurves.get(key);
+  if (pending) return pending;
+  const request = (async () => {
+    try {
+      const value = await client.getCurve(exerciseId, sex);
+      curveCache.set(key, value);
+      return value;
+    } catch (error) {
+      console.warn("[Supabase strength curve] lookup unavailable", {
+        exerciseId,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+      return null;
+    } finally {
+      pendingCurves.delete(key);
+    }
+  })();
+  pendingCurves.set(key, request);
+  return request;
 }
 
 const indexCache: { expiresAt: number; value: CurveExerciseRow[] } = { expiresAt: 0, value: [] };
+// The index fetch in flight, shared the same way. It never rejects, and a failure is not cached,
+// so the next request after an outage tries again.
+let pendingIndex: Promise<CurveExerciseRow[]> | null = null;
 
 /** The exercise index, cached like the curves themselves; an outage returns an empty index. */
 export async function getCurveExerciseIndex(): Promise<CurveExerciseRow[]> {
   if (indexCache.expiresAt > Date.now()) return indexCache.value;
   const client = getRuntimeClient();
   if (!client) return [];
-  try {
-    const value = await client.getExerciseIndex();
-    indexCache.expiresAt = Date.now() + CACHE_TTL_MS;
-    indexCache.value = value;
-    return value;
-  } catch (error) {
-    console.warn("[Supabase strength curve] index unavailable", {
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
-    return [];
-  }
+  if (pendingIndex) return pendingIndex;
+  const request = (async () => {
+    try {
+      const value = await client.getExerciseIndex();
+      indexCache.expiresAt = Date.now() + CACHE_TTL_MS;
+      indexCache.value = value;
+      return value;
+    } catch (error) {
+      console.warn("[Supabase strength curve] index unavailable", {
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+      return [];
+    } finally {
+      pendingIndex = null;
+    }
+  })();
+  pendingIndex = request;
+  return request;
 }
 
 export type StrengthPercentileRequest = {
@@ -318,8 +339,9 @@ export async function getStrengthPercentile(request: StrengthPercentileRequest):
  * The same route for a list of lifts, answered in the order asked.
  *
  * The Progress section reads every lift the athlete has a trend for, and one round trip per
- * lift was N requests for one screen. The exercise index and each curve are cached, so the
- * only cost per extra lift is the resolution itself.
+ * lift was N requests for one screen. The exercise index and each curve are cached, and lifts
+ * that miss the cache at once share one fetch, so the only cost per extra lift is the
+ * resolution itself.
  */
 export async function getStrengthPercentiles(requests: readonly StrengthPercentileRequest[]): Promise<StrengthPercentileResult[]> {
   return Promise.all(requests.map(request => getStrengthPercentile(request)));
@@ -328,6 +350,8 @@ export async function getStrengthPercentiles(requests: readonly StrengthPercenti
 /** Test seam: the module-level caches would otherwise leak between cases. */
 export function resetStrengthCurveCache() {
   curveCache.clear();
+  pendingCurves.clear();
   indexCache.expiresAt = 0;
   indexCache.value = [];
+  pendingIndex = null;
 }
