@@ -89,7 +89,7 @@ describe("Back from a search result", () => {
     await screen.findByRole("navigation", { name: "Train workspace pages" }, { timeout: 15000 });
 
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Search Sports Genome" })); });
-    const input = screen.getByRole("combobox");
+    const input = within(screen.getByRole("dialog", { name: "Search Sports Genome" })).getByRole("combobox");
     fireEvent.change(input, { target: { value: "muscle map" } });
     await act(async () => { fireEvent.keyDown(input, { key: "Enter" }); });
     await tick();
