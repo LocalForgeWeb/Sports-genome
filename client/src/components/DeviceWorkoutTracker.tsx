@@ -5,9 +5,10 @@ import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@
 import { WarmupPanel } from "@/components/WarmupPanel";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession,
-  deviceWorkoutHistoryKey, isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
+  deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
   unskipExercise, type DeviceWorkoutSession,
 } from "@/lib/deviceWorkoutLog";
+import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setEntryFieldsFor, type SetEntryMeasure } from "@/lib/setEntryFields";
@@ -458,6 +459,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     // Finish what is stored now, which includes sets logged in another tab.
     const latest = loadDeviceWorkoutSessions().find((item) => item.id === current.id);
     if (latest && latest.status !== "active") {
+      setHistory(loadDeviceWorkoutSessions());
       setActiveSession(null);
       setResumed(false);
       toast("This workout was already finished", { id: "session-closed-elsewhere", description: "It was finished in another tab, and its record is saved." });
@@ -572,6 +574,21 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const dayPosition = labelParts.slice(0, -1).join(" · ");
     const planned = workout.length > 0;
     /**
+     * The day's latest finished workout this week, by the rule Home's week strip
+     * reads (trainingStateByDayLabel): the same label, at least one completed set,
+     * finished since Monday. The finish toast fades; this line stays, so the
+     * screen still says the day was trained and where its record lives.
+     */
+    const weekStart = startOfTrainingWeek(new Date());
+    const trained = history
+      .map((session) => ({ session, at: new Date(session.completedAt ?? session.startedAt) }))
+      .filter(({ session, at }) => session.dayLabel === dayLabel && isCompletedWorkout(session) && at >= weekStart)
+      .sort((a, b) => b.at.getTime() - a.at.getTime())[0] ?? null;
+    const trainedSets = trained ? trained.session.exercises.flatMap((exercise) => exercise.sets).filter(isCompletedSet).length : 0;
+    const trainedWhen = trained && trained.at.toDateString() === new Date().toDateString()
+      ? "today"
+      : trained?.at.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+    /**
      * Prestart, and nothing else. What the athlete is about to do, stated once:
      * the day, where it sits in the plan, how much it is, and one action. The
      * prescription follows as rows to read - not the Plan editor, so no reorder
@@ -591,6 +608,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         <p className="session-prestart-counts">{planned
           ? `${workout.length} ${workout.length === 1 ? "exercise" : "exercises"} · ${plannedSets} ${plannedSets === 1 ? "set" : "sets"}`
           : "Nothing planned for this day yet"}</p>
+        {trained && <p className="session-prestart-done" role="status">
+          <Check className="h-4 w-4" aria-hidden /> Done {trainedWhen} · {trainedSets} {trainedSets === 1 ? "set" : "sets"} recorded
+          {onOpenProgress && <button type="button" className="session-prestart-edit" onClick={onOpenProgress}>View record <ArrowRight className="h-4 w-4" aria-hidden /></button>}
+        </p>}
         <div className="session-prestart-actions">
           <button type="button" className="session-prestart-start" onClick={start} disabled={!planned}><Play className="h-4 w-4" aria-hidden /> Start workout <ArrowRight className="h-4 w-4" aria-hidden /></button>
           {onEditInPlan && <button type="button" className="session-prestart-edit" onClick={onEditInPlan}>{planned ? "Edit in Plan" : "Build it in Plan"} <ArrowRight className="h-4 w-4" aria-hidden /></button>}

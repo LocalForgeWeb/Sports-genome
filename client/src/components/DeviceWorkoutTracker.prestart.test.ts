@@ -3,7 +3,7 @@ import React, { createElement } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DeviceWorkoutTracker } from "./DeviceWorkoutTracker";
-import { deviceWorkoutHistoryKey, loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
+import { deviceWorkoutHistoryKey, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { exercises } from "@/lib/exerciseCatalog";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -127,6 +127,69 @@ describe("Session, before it starts", () => {
     expect(details.map((item) => item.querySelector("summary")!.textContent)).toEqual(["Preparation", "Workout options"]);
     expect(details.every((item) => !item.open)).toBe(true);
     expect(details[0].querySelector(".warmup-panel"), "preparation is the real panel").toBeTruthy();
+  });
+});
+
+/**
+ * After a finish, the toast that links to the record fades in a few seconds and
+ * this screen went back to looking exactly as it did before the workout. It now
+ * says the day was trained this week and links to the record, by the same rule
+ * as Home's week strip.
+ */
+describe("a day already trained", () => {
+  const day = "Week 2 · Day 02 · Pull";
+  const finished = (over: Partial<DeviceWorkoutSession> = {}, sets: DeviceWorkoutSession["exercises"][number]["sets"] = [{ weight: "100", reps: "8", completed: true, unit: "lb" }]): DeviceWorkoutSession => ({
+    id: "device-1", title: `${day} workout`, dayLabel: day, startedAt: new Date().toISOString(), completedAt: new Date().toISOString(), status: "completed", weightUnit: "lb",
+    exercises: [{ id: `${exercises[0].id}-0`, exerciseName: exercises[0].name, plannedPrescription: "3 × 8", sets }],
+    ...over,
+  });
+  const seed = (sessions: DeviceWorkoutSession[]) => window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify(sessions));
+  const doneLine = () => screen.queryByRole("status");
+
+  it("says so, links to the record, and still offers the day", () => {
+    seed([finished()]);
+    const onOpenProgress = vi.fn();
+    mount({ onOpenProgress });
+    expect(doneLine()!.textContent).toContain("Done today · 1 set recorded");
+    fireEvent.click(screen.getByRole("button", { name: /view record/i }));
+    expect(onOpenProgress).toHaveBeenCalledTimes(1);
+    expect(startButton()).toBeTruthy();
+  });
+
+  it("appears as soon as a workout here is finished", () => {
+    mount({ onOpenProgress: () => undefined });
+    expect(doneLine()).toBeNull();
+    fireEvent.click(startButton());
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+    fireEvent.click(screen.getByRole("button", { name: /finish workout early/i }));
+    expect(doneLine()!.textContent).toContain("Done today · 1 set recorded");
+  });
+
+  it("appears when the workout turns out to have been finished in another tab", () => {
+    mount();
+    fireEvent.click(startButton());
+    const [running] = loadDeviceWorkoutSessions();
+    seed([finished({ id: running.id, startedAt: running.startedAt })]);
+    fireEvent.click(screen.getByRole("button", { name: /finish workout early/i }));
+    expect(doneLine()!.textContent).toContain("Done today · 1 set recorded");
+  });
+
+  it("says nothing with no finished workout for this day this week", () => {
+    mount();
+    expect(doneLine()).toBeNull();
+    cleanup();
+    seed([finished({ dayLabel: "Week 2 · Day 03 · Legs" })]);
+    mount();
+    expect(doneLine(), "another day's workout").toBeNull();
+    cleanup();
+    seed([finished({}, [{ weight: "", reps: "", completed: false, skipped: true }])]);
+    mount();
+    expect(doneLine(), "only a skipped set").toBeNull();
+    cleanup();
+    const lastWeek = new Date(Date.now() - 8 * 86_400_000).toISOString();
+    seed([finished({ startedAt: lastWeek, completedAt: lastWeek })]);
+    mount();
+    expect(doneLine(), "finished before this week").toBeNull();
   });
 });
 

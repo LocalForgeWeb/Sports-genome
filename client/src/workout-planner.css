@@ -539,6 +539,7 @@
 .session-prestart-day { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.8rem, 12.5vw, 3.6rem); font-weight: 800; line-height: .84; text-transform: uppercase; overflow-wrap: anywhere; }
 .session-prestart-position { margin-top: .5rem; color: var(--sg-text-on-dark); font-size: 1.35rem; font-weight: 600; line-height: 1.1; }
 .session-prestart-counts { margin-top: .2rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
+.session-prestart-done { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .35rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); }
 .session-prestart-actions { display: grid; justify-items: start; gap: .6rem; margin-top: 1rem; }
 .session-prestart-start { display: inline-flex; min-height: 52px; align-items: center; gap: .55rem; border: 1px solid #f1714f; border-radius: 12px; background: var(--sg-action-fill); padding: 0 1.5rem; color: #fff; font-size: 1.05rem; font-weight: 700; box-shadow: 0 10px 22px rgb(228 81 46 / .24); }
 .session-prestart-start:active { transform: scale(.98); }
