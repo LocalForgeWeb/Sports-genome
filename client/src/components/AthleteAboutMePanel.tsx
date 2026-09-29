@@ -5,6 +5,7 @@ import { themeOptionCopy, themePreferences, type ThemePreference } from "@/lib/t
 import { startRegistration } from "@simplewebauthn/browser";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { expiryNotice, isExpiryError } from "@/lib/sessionExpiryNotice";
 import { trainingGoalChoices, convertBodyWeight, type AthleteBaseline, type AthleteExperience, type SexForReference, type WeightUnit } from "@/components/AthleteBaselineQuiz";
 import { catalogEquipment, gymAccessProfiles, type CatalogEquipment, type GymAccess } from "@/lib/equipmentProfile";
 import { gymTimeOptions } from "@/lib/gymTimeBudget";
@@ -37,6 +38,16 @@ const contextModes: { value: SportContextMode; label: string; detail: string; ic
   { value: "general", label: "General strength and resilience", detail: "No sport. Strength, capacity and body-region goals all stay available.", icon: Dumbbell },
   { value: "undecided", label: "Decide later", detail: "Skip it for now. You can pick a sport whenever you want.", icon: Sparkles },
 ];
+
+/**
+ * A lapsed sign-in is already said app-wide (main.tsx) under the id "session-expired".
+ * A passkey failure for that reason says it under the same id, so it replaces that
+ * notice with what happened to the passkey instead of stacking a second toast below it,
+ * and still answers the tap when the app-wide notice keeps quiet (once a minute at most).
+ */
+function noticePasskeyExpiry(outcome: string) {
+  toast(expiryNotice.title, { id: "session-expired", description: `${outcome} ${expiryNotice.description}` });
+}
 
 /** The saved weight a typed value stands for: a positive number, with "145." still on its way to one. */
 export function parseBodyWeight(text: string): number | undefined {
@@ -84,7 +95,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const passkeyOptions = trpc.auth.passkeyRegistrationOptions.useMutation();
   const passkeyVerify = trpc.auth.passkeyRegistrationVerify.useMutation();
   const accountPasskeys = trpc.auth.passkeys.useQuery(undefined, { enabled: accountSignedIn, retry: false });
-  const removePasskey = trpc.auth.removePasskey.useMutation({ onSuccess: () => { accountPasskeys.refetch(); toast.success("Passkey removed from this account"); }, onError: () => { toast.error("Could not remove that passkey. It is still enrolled."); } });
+  const removePasskey = trpc.auth.removePasskey.useMutation({ onSuccess: () => { accountPasskeys.refetch(); toast.success("Passkey removed from this account"); }, onError: (error) => { if (isExpiryError(error)) return noticePasskeyExpiry("That passkey is still enrolled."); toast.error("Could not remove that passkey. It is still enrolled."); } });
   const requestRemovePasskey = (passkeyId: number, label: string) => setPendingDestructiveAction({
     title: "Remove this passkey?",
     body: `${label} will no longer be able to sign in to this account with Face ID, Touch ID, or your device's screen lock. You can enroll it again afterward, but this specific removal cannot be undone.`,
@@ -108,7 +119,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
       const verified = await passkeyVerify.mutateAsync({ response });
       if (!verified.ok) return toast.error("Could not save this device passkey");
       toast.success("Face ID / device passkey is ready");
-    } catch {
+    } catch (error) {
+      if (isExpiryError(error)) return noticePasskeyExpiry("No passkey was added.");
       toast.error("Face ID or device passkey setup was cancelled or unavailable");
     }
   };

@@ -4,10 +4,11 @@ import { resolve } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-type RemoveOptions = { onSuccess?: () => void; onError?: () => void };
+type RemoveOptions = { onSuccess?: () => void; onError?: (error?: unknown) => void };
 const mocks = vi.hoisted(() => ({
   passkeysQuery: vi.fn(),
   removeOptions: { current: undefined as RemoveOptions | undefined },
+  toast: vi.fn(),
   toastError: vi.fn(),
 }));
 
@@ -22,7 +23,7 @@ vi.mock("@/lib/trpc", () => ({
   },
 }));
 
-vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: mocks.toastError }), Toaster: () => null }));
+vi.mock("sonner", () => ({ toast: Object.assign(mocks.toast, { success: vi.fn(), error: mocks.toastError }), Toaster: () => null }));
 
 import { AthleteAboutMePanel } from "./AthleteAboutMePanel";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -47,6 +48,7 @@ beforeEach(() => {
   mocks.passkeysQuery.mockReset();
   mocks.passkeysQuery.mockImplementation(() => ({ data: [{ id: 4, createdAt: new Date(), lastUsedAt: null }], isError: false, refetch: vi.fn() }));
   mocks.removeOptions.current = undefined;
+  mocks.toast.mockReset();
   mocks.toastError.mockReset();
 });
 
@@ -81,6 +83,19 @@ describe("AthleteAboutMePanel passkey management", () => {
     mocks.removeOptions.current?.onError?.();
 
     expect(mocks.toastError).toHaveBeenCalledWith("Could not remove that passkey. It is still enrolled.");
+    expect(mocks.toast).not.toHaveBeenCalled();
+  });
+
+  it("says an expired sign-in once, in place of the app-wide notice, rather than stacking a second toast", () => {
+    renderPanel(true);
+    mocks.removeOptions.current?.onError?.({ data: { code: "UNAUTHORIZED" } });
+
+    expect(mocks.toastError).not.toHaveBeenCalled();
+    expect(mocks.toast).toHaveBeenCalledTimes(1);
+    expect(mocks.toast).toHaveBeenCalledWith("Your sign-in has expired", {
+      id: "session-expired",
+      description: "That passkey is still enrolled. Everything stays saved on this device.",
+    });
   });
 
   it("does not ask for passkeys, or offer to enrol one, on a device with no email sign-in", () => {
