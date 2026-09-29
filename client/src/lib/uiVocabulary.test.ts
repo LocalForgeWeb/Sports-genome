@@ -58,6 +58,24 @@ describe("the interface does not say 'table'", () => {
 });
 
 /**
+ * The athlete cannot act on a backend setting, and the app otherwise never names
+ * its backend. Case-sensitive on a word edge, so identifiers such as
+ * SupabaseExerciseEvidence or supabaseEvidence.status, which prose() also
+ * catches between quotes, are not copy.
+ */
+describe("the interface does not name its backend", () => {
+  it("never names the backend vendor in athlete-facing copy", () => {
+    const offenders: string[] = [];
+    for (const path of copySources) {
+      for (const text of prose(path)) {
+        if (/\bSupabase\b/.test(text)) offenders.push(`${path.replace(uiRoot, "")}: ${text.slice(0, 90)}`);
+      }
+    }
+    expect(offenders, offenders.join("\n")).toEqual([]);
+  });
+});
+
+/**
  * Nearly every glossary entry used to end by naming what the value was NOT. Fifteen
  * in a row meant the athlete finished each explanation knowing less than when they
  * started.
