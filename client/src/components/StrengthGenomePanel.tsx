@@ -652,9 +652,11 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const loadConvention = loadConventionFor(selectedExercise?.id);
   const loadRequired = needsLoad && loadConvention !== "bodyweight_reps";
   const hasLoad = loadKg.trim() !== "" && Number.isFinite(parsedLoad);
-  // Such as "." or "1.2.3", which the load box lets through. In an optional box it
-  // is named by the box's own label, since "enter the load" would ask for a value
-  // the label says is not needed.
+  // Only a lone separator reaches this: the load box's decimalEntryText reads a ","
+  // as "." and folds any later points into the decimals ("1.2.3" becomes "1.23"), so
+  // a bare "." is the one entry it lets through that is not a number. In an optional
+  // box it is named by the box's own label, since "enter the load" would ask for a
+  // value the label says is not needed.
   const loadInvalid = loadKg.trim() !== "" && !Number.isFinite(parsedLoad);
   const loadLabel = loadInputLabel(loadConvention, weightUnitLabel(weightUnit));
   const loadMissing = loadRequired && !(hasLoad && parsedLoad > 0);

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined) }));
@@ -50,7 +50,7 @@ describe("Strength Genome log form", () => {
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
   });
 
-  afterEach(() => { document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
+  afterEach(() => { cleanup(); document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
 
   it("will not save a measured max with no load, and a blank load is not 0 kg", () => {
     const save = openFormWith("Back Squat");
@@ -105,6 +105,20 @@ describe("Strength Genome log form", () => {
     const [lift] = savedLifts();
     expect(lift).toMatchObject({ exerciseName: "Back Squat", measurementType: "ISOMETRIC" });
     expect(lift).not.toHaveProperty("loadKg");
+  });
+
+  it("folds a second decimal point into the load, so only a lone separator is left to fix", () => {
+    const save = openFormWith("Back Squat");
+    const load = screen.getByLabelText("Load in kilograms") as HTMLInputElement;
+    fireEvent.change(load, { target: { value: "1.2.3" } });
+    expect(load.value).toBe("1.23");
+    expect(save.disabled).toBe(false);
+
+    // A comma is the decimal point on many keypads; alone it is still not a number.
+    fireEvent.change(load, { target: { value: "," } });
+    expect(load.value).toBe(".");
+    expect(save.disabled).toBe(true);
+    expect(screen.getByText("Enter the load in kilograms to save this.")).toBeTruthy();
   });
 
   it("names a pull-up's optional added weight when what was typed there is not a number", () => {
