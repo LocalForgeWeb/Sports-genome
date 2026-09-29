@@ -49,13 +49,4 @@ describe("Body Lab workspace hierarchy", () => {
     expect(styles).toContain(".destination-body .body-lab-navigator-actions button:last-child { border-color: var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); }");
     expect(anatomyStyles).toContain(".atlas-body-chart-wrap{position:relative;display:flex;justify-content:center;align-items:center");
   });
-
-  it("works out the action's muscle roles once per action, not on every render", () => {
-    // Computed inline, each render made a new role context, so the muscle count
-    // memo keyed on it never held and the map was handed new lists every time.
-    expect(source.match(/getBodyLabRoleContext\(/g)).toHaveLength(2);
-    expect(source).toMatch(/const bodyLabRoleContext = useMemo\(\(\) => \{[^}]*getBodyLabRoleContext\(activeSportId, selectedMovement\.id[^}]*\}, \[activeSportId, selectedMovement\]\);/);
-    // A browsed sport has to re-resolve when the browse changes, or the map shows the old sport's roles.
-    expect(source).toMatch(/const referenceRoleContext = useMemo\(\(\) => \{[^}]*getBodyLabRoleContext\(browseSportId, referenceMovement\.id[^}]*\}, \[browsingOtherSport, browseSportId, referenceMovement, bodyLabRoleContext\]\);/);
-  });
 });

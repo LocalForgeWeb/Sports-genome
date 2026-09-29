@@ -15,9 +15,11 @@ import "../sport-browse-notice.css";
  * the sport picker, so selecting a sport to read it can never be mistaken for
  * committing to it. What adopting costs is said before the tap, and Undo
  * follows it. `adoptClearsDays` is false when there is no sport of their own
- * yet: adopting then clears nothing, so nothing is said.
+ * yet: adopting then clears nothing, so nothing is said. `adoptClearsRole` is
+ * true when they have picked a role or style, which belongs to their sport and
+ * is cleared with the days, so the line names it too.
  */
-export function SportBrowseNotice({ browsing, browsedSportLabel, ownSportLabel, onAdopt, onReturn, adoptClearsDays = true }: { browsing: boolean; browsedSportLabel: string; ownSportLabel: string; onAdopt: () => void; onReturn: () => void; adoptClearsDays?: boolean }) {
+export function SportBrowseNotice({ browsing, browsedSportLabel, ownSportLabel, onAdopt, onReturn, adoptClearsDays = true, adoptClearsRole = false }: { browsing: boolean; browsedSportLabel: string; ownSportLabel: string; onAdopt: () => void; onReturn: () => void; adoptClearsDays?: boolean; adoptClearsRole?: boolean }) {
   const consequenceId = useId();
   if (!browsing) return null;
   return (
@@ -27,7 +29,7 @@ export function SportBrowseNotice({ browsing, browsedSportLabel, ownSportLabel, 
         <span>
           <strong>Viewing {browsedSportLabel}</strong>
           <small>Your plan stays on {ownSportLabel} while you look.</small>
-          {adoptClearsDays && <small id={consequenceId} className="sport-browse-notice-consequence">Making {browsedSportLabel} your sport clears your saved training days. You can undo it straight after.</small>}
+          {adoptClearsDays && <small id={consequenceId} className="sport-browse-notice-consequence">Making {browsedSportLabel} your sport clears your saved training days{adoptClearsRole ? " and your role or style" : ""}. You can undo it straight after.</small>}
         </span>
       </p>
       <div className="sport-browse-notice-actions">

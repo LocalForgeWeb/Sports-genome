@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
@@ -48,10 +48,12 @@ const PROFILE_KEY = "gym-optimizer-athlete-profile-v1";
 const savedModifier = () => JSON.parse(window.localStorage.getItem(PROFILE_KEY) || "null")?.baseline?.sportModifierId;
 const lensNote = () => document.querySelector(".matches-lens-note")?.textContent || "";
 
+const saveWrestler = (sportModifierId?: string) => window.localStorage.setItem(PROFILE_KEY, JSON.stringify({ version: 3, sportId: "wrestling", sportContextMode: "sport", goal: "Muscle growth", trainingDays: 3, gymMinutes: 60, movementId: "", baseline: { experience: "Intermediate", weightUnit: "lb", ...(sportModifierId ? { sportModifierId } : {}) } }));
+
 beforeEach(() => {
   window.localStorage.clear();
   toasts.length = 0;
-  window.localStorage.setItem(PROFILE_KEY, JSON.stringify({ version: 3, sportId: "wrestling", sportContextMode: "sport", goal: "Muscle growth", trainingDays: 3, gymMinutes: 60, movementId: "", baseline: { experience: "Intermediate", weightUnit: "lb", sportModifierId: "freestyle" } }));
+  saveWrestler("freestyle");
 });
 afterEach(() => { cleanup(); });
 
@@ -76,4 +78,43 @@ describe("Changing sport from Matches", () => {
     expect(lensNote()).toMatch(/drawn from Wrestling, freestyle\.$/);
     expect(savedModifier()).toBe("freestyle");
   });
+});
+
+describe("What a sport change says it cleared", () => {
+  it("does not claim a role or style was cleared when the athlete never chose one", async () => {
+    saveWrestler();
+    window.history.replaceState({}, "", "/?workspace=recommended");
+    render(createElement(Home));
+    const select = await screen.findByRole("combobox", { name: "Sport" }, { timeout: 15000 });
+    await act(async () => { fireEvent.change(select, { target: { value: "swimming" } }); });
+
+    const changed = toasts.find((entry) => entry.title === "Sport changed");
+    expect(changed?.options?.description).toBe("Saved training days for the previous sport were cleared.");
+  });
+});
+
+describe("Making a browsed sport your own says what it clears before the tap", () => {
+  // The Body Lab draws a full anatomy map, which makes role queries over the
+  // whole page slow in jsdom; the navigator's own controls are found directly.
+  const browseTo = async (sportId: string) => {
+    window.history.replaceState({}, "", "/?workspace=body");
+    render(createElement(Home));
+    const change = await waitFor(() => { const button = document.querySelector<HTMLButtonElement>(".body-lab-selection-change"); if (!button) throw new Error("Body Lab not ready"); return button; }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(change); });
+    await act(async () => { fireEvent.change(document.querySelector("#body-lab-selection-controls select")!, { target: { value: sportId } }); });
+    const adopt = document.querySelector(".sport-browse-notice-adopt");
+    expect(adopt?.textContent).toMatch(/^Make .+ my sport/);
+    return document.getElementById(adopt!.getAttribute("aria-describedby")!)?.textContent ?? "";
+  };
+
+  it("names the role or style a Freestyle wrestler would lose", async () => {
+    expect(await browseTo("soccer")).toMatch(/clears your saved training days and your role or style\./);
+  }, 30000);
+
+  it("names only the days when there is no role or style to lose", async () => {
+    saveWrestler();
+    const consequence = await browseTo("soccer");
+    expect(consequence).toMatch(/clears your saved training days\./);
+    expect(consequence).not.toContain("role or style");
+  }, 30000);
 });
