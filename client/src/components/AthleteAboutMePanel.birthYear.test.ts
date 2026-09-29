@@ -111,6 +111,13 @@ describe("Typing a bodyweight in About Me", () => {
     expect(onBaseline).toHaveBeenLastCalledWith({ ...base, bodyWeight: 145.5 });
   });
 
+  it("reads a decimal comma as the decimal point", () => {
+    const { onBaseline, weight } = draw(base);
+    fireEvent.change(weight(), { target: { value: "72,5" } });
+    expect(weight().value).toBe("72.5");
+    expect(onBaseline).toHaveBeenLastCalledWith({ ...base, bodyWeight: 72.5 });
+  });
+
   /* The unit is how the weight is shown. Switching it used to keep the number, so 180 lb was
      saved as 180 kg and logged as a new weigh-in every later lift was read against. */
   it("converts the saved weight when the unit is switched", () => {

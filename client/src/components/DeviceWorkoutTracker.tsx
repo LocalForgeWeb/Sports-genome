@@ -15,6 +15,7 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 import { toast } from "sonner";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { decimalEntryText } from "@/lib/numericEntry";
 
 /**
  * The live execution surface, governed by four adopted philosophy contracts:
@@ -116,9 +117,7 @@ type EntryField = SetEntryMeasure | "reps";
 
 function sanitiseEntry(field: EntryField, value: string) {
   if (field === "reps") return value.replace(/[^0-9]/g, "").slice(0, 4);
-  const digitsAndDot = value.replace(/[^0-9.]/g, "");
-  const [whole, ...rest] = digitsAndDot.split(".");
-  return (rest.length ? `${whole}.${rest.join("").slice(0, 2)}` : whole).slice(0, 7);
+  return decimalEntryText(value).slice(0, 7);
 }
 
 /** True when a target is a bare count or range, so the word "reps" belongs after it. */

@@ -351,6 +351,13 @@ describe("half-typed numeric entry", () => {
     expect(weight().value).toBe("12.39");
   });
 
+  // A comma-locale decimal keypad offers only ",". It was stripped, so 72,5 became 725.
+  it("reads a decimal comma as the decimal point", () => {
+    startWorkout();
+    fireEvent.change(weight(), { target: { value: "72,5" } });
+    expect(weight().value).toBe("72.5");
+  });
+
   it("keeps reps whole", () => {
     startWorkout();
     fireEvent.change(entry().getByLabelText(/reps/i), { target: { value: "1o.5" } });
