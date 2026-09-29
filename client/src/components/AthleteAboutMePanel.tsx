@@ -54,7 +54,7 @@ export function parseBodyWeight(text: string): number | undefined {
   return text.trim() !== "" && Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
-export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, guides, launchVideo, launchVideoEnabled, buildStamp }: {
+export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, accountSignedIn = false, guides, launchVideo, launchVideoEnabled, buildStamp }: {
   baseline: AthleteBaseline;
   goal: TrainingGoal;
   trainingDays: number;
@@ -78,6 +78,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   syncPending?: number;
   benchmarkOptIn?: boolean;
   onBenchmarkOptIn?: (next: boolean) => void;
+  /** Whether this device holds an email sign-in (auth.me). Passkey routes are account-only (protectedProcedure) and answer UNAUTHORIZED without one (D-015). */
+  accountSignedIn?: boolean;
   /** The guide, onboarding restart and research library, owned by the page that has them. */
   guides?: ReactNode;
   /** The launch video setting and preview, likewise. */
@@ -91,8 +93,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const [pendingDestructiveAction, setPendingDestructiveAction] = useState<ConfirmDialogRequest | null>(null);
   const passkeyOptions = trpc.auth.passkeyRegistrationOptions.useMutation();
   const passkeyVerify = trpc.auth.passkeyRegistrationVerify.useMutation();
-  const accountPasskeys = trpc.auth.passkeys.useQuery();
-  const removePasskey = trpc.auth.removePasskey.useMutation({ onSuccess: () => { accountPasskeys.refetch(); toast.success("Passkey removed from this account"); } });
+  const accountPasskeys = trpc.auth.passkeys.useQuery(undefined, { enabled: accountSignedIn, retry: false });
+  const removePasskey = trpc.auth.removePasskey.useMutation({ onSuccess: () => { accountPasskeys.refetch(); toast.success("Passkey removed from this account"); }, onError: () => { toast.error("Could not remove that passkey. It is still enrolled."); } });
   const requestRemovePasskey = (passkeyId: number, label: string) => setPendingDestructiveAction({
     title: "Remove this passkey?",
     body: `${label} will no longer be able to sign in to this account with Face ID, Touch ID, or your device's screen lock. You can enroll it again afterward, but this specific removal cannot be undone.`,
@@ -108,6 +110,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
     onBaseline({ ...baseline, equipment: { ...equipment, availableEquipment } });
   };
   const enrollPasskey = async () => {
+    if (!accountSignedIn) return;
     if (!passkeySupported) return toast.error("This device does not support passkeys");
     try {
       const options = await passkeyOptions.mutateAsync();
@@ -159,8 +162,12 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
     : identity.userId ? (identity.anonymous ? "Saved to an account on this device" : "Saved to your account")
     : "Saved on this device";
   const accountPending = syncPending > 0 ? ` · ${syncPending} ${syncPending === 1 ? "lift" : "lifts"} waiting` : "";
-  const passkeyCount = accountPasskeys.data?.length ?? 0;
-  const securitySummary = !passkeySupported ? "Passkey unavailable on this device" : passkeyCount ? `${passkeyCount} device ${passkeyCount === 1 ? "passkey" : "passkeys"} enrolled` : "Passkey not enrolled";
+  // Passkeys belong to an email sign-in; without one, any cached list is not this device's to show.
+  const passkeyCount = accountSignedIn ? accountPasskeys.data?.length ?? 0 : 0;
+  const securitySummary = !accountSignedIn ? "Needs an email sign-in"
+    : !passkeySupported ? "Passkey unavailable on this device"
+    : accountPasskeys.isError ? "Passkeys could not be read"
+    : passkeyCount ? `${passkeyCount} device ${passkeyCount === 1 ? "passkey" : "passkeys"} enrolled` : "Passkey not enrolled";
   const equipmentSummary = `${equipment.gymAccess} · ${equipment.availableEquipment.length} ${equipment.availableEquipment.length === 1 ? "type" : "types"} available`;
   const identityLine = [baseline.experience ? `${baseline.experience} athlete` : "Athlete profile", baseline.bodyWeight ? `${baseline.bodyWeight} ${baseline.weightUnit}` : null].filter(Boolean).join(" · ");
   return <section className="about-me-panel">
@@ -201,7 +208,7 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
         <section className="about-me-card"><label><span>Theme</span><select value={preference} onChange={(event) => { emitInteractionFeedback(); setPreference(event.target.value as ThemePreference); }}>{themePreferences.map((option) => <option key={option} value={option}>{themeOptionCopy[option].label}</option>)}</select></label><p className="about-me-theme-note">{themeOptionCopy[preference].detail}{preference === "system" ? ` Right now that is ${theme === "dark" ? "dark" : "light chrome"}.` : ""}</p></section>
       </details>
       <details className="about-me-group"><summary><Lock className="h-6 w-6" aria-hidden="true" /><span><strong>Security</strong><small>{securitySummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
-        <section className="about-me-security"><div><p className="metric-label">Account security</p><h3>Face ID / passkey</h3><p>Use this device’s Face ID, Touch ID, or secure screen lock to sign in without typing your password. Your biometric data stays on your device.</p></div><button onClick={enrollPasskey} disabled={!passkeySupported || passkeyOptions.isPending || passkeyVerify.isPending}><Fingerprint className="h-4 w-4" /> {passkeySupported ? "Enable Face ID / passkey" : "Passkey unavailable"}</button>{accountPasskeys.data?.length ? <div className="about-me-passkey-list" aria-label="Enrolled passkeys">{accountPasskeys.data.map((passkey, index) => <div key={passkey.id} className="about-me-passkey-row"><span>Device passkey {index + 1}{passkey.lastUsedAt ? " · used before" : " · not used yet"}</span><button type="button" aria-label={`Remove device passkey ${index + 1}`} onClick={() => requestRemovePasskey(passkey.id, `Device passkey ${index + 1}`)} disabled={removePasskey.isPending}><Trash2 className="h-3.5 w-3.5" /> Remove</button></div>)}</div> : <p className="about-me-passkey-empty">No device passkeys enrolled yet.</p>}</section>
+        <section className="about-me-security">{!accountSignedIn ? <div><p className="metric-label">Account security</p><h3>Face ID / passkey</h3><p>Face ID and passkeys sign in to an email account, and this device is not signed in to one. Your record does not need one: it is saved as Account &amp; sync describes.</p></div> : <><div><p className="metric-label">Account security</p><h3>Face ID / passkey</h3><p>Use this device’s Face ID, Touch ID, or secure screen lock to sign in without typing your password. Your biometric data stays on your device.</p></div><button onClick={enrollPasskey} disabled={!passkeySupported || passkeyOptions.isPending || passkeyVerify.isPending}><Fingerprint className="h-4 w-4" /> {passkeySupported ? "Enable Face ID / passkey" : "Passkey unavailable"}</button>{accountPasskeys.isError ? <p className="about-me-passkey-empty">Could not read your passkeys right now.</p> : accountPasskeys.data?.length ? <div className="about-me-passkey-list" aria-label="Enrolled passkeys">{accountPasskeys.data.map((passkey, index) => <div key={passkey.id} className="about-me-passkey-row"><span>Device passkey {index + 1}{passkey.lastUsedAt ? " · used before" : " · not used yet"}</span><button type="button" aria-label={`Remove device passkey ${index + 1}`} onClick={() => requestRemovePasskey(passkey.id, `Device passkey ${index + 1}`)} disabled={removePasskey.isPending}><Trash2 className="h-3.5 w-3.5" /> Remove</button></div>)}</div> : <p className="about-me-passkey-empty">No device passkeys enrolled yet.</p>}</>}</section>
       </details>
       {guides && <details className="about-me-group"><summary><BookOpen className="h-6 w-6" aria-hidden="true" /><span><strong>Guides &amp; research</strong><small>Onboarding, sources, and help</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>{guides}</details>}
       {launchVideo && <details className="about-me-group"><summary><PlayCircle className="h-6 w-6" aria-hidden="true" /><span><strong>Launch video</strong><small>{launchVideoEnabled ? "Play when the app opens" : "Off"}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>{launchVideo}</details>}
