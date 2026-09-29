@@ -1833,26 +1833,33 @@ export default function Home() {
             <div className={`day-plan-list${reorderingDay ? " is-reordering" : ""}`}>
               {customWorkout.length
                 ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>)
-                : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" /><strong>Nothing in this day yet.</strong><p>Add exercises from the catalog, or paste a stack.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button></div>}
+                /* An empty day has one thing to do, said once, with the day it is about. It had
+                   two equal Add exercises buttons (this one and the action row's), a profile
+                   prompt and a 0/100 gauge before anything was in it (Sep 28 regression brief §8). */
+                : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" aria-hidden="true" /><strong>{activeSlot.day} is empty</strong><p>Week {activeWeek} · {activeSlot.ordinal}. Add the exercises you want on this day; its coverage against the {activeSplitDay.toLowerCase()} targets appears once one is in.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" /> Add exercises</button><button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" aria-hidden="true" /> Or import a plan</button></div>}
             </div>
-            {/* Below the day's own work, not between the heading and its rows. */}
-            <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />
+            {/* Below the day's own work, not between the heading and its rows. A declared focus
+                shows even on an empty day; the optional "name it in your profile" prompt waits
+                until the day has something in it. */}
+            {(customWorkout.length > 0 || capacityFocus.focus) && <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />}
             {/* One row, in the order they are reached for: build it, then run it,
                 then the two things you rarely need. It was five buttons under a
-                "Build it, run it, print it" heading that named all three. */}
-            <div className="day-plan-actions">
+                "Build it, run it, print it" heading that named all three. Only on a
+                day with work in it: on an empty one it repeated Add and held two
+                disabled buttons. */}
+            {customWorkout.length > 0 && <div className="day-plan-actions">
               <button type="button" className="day-action-add" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button>
               {customWorkout.length > 1 && <button type="button" className="day-action-reorder" aria-pressed={reorderingDay} onClick={() => setReorderingDay((value) => !value)}><ArrowUpDown className="h-4 w-4" aria-hidden="true" /> {reorderingDay ? "Done reordering" : "Reorder"}</button>}
               <button type="button" className="day-action-session" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
               <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan</button>
               <PrintWorkoutButton disabled={!customWorkout.length} />
-            </div>
+            </div>}
             <DayExercisePicker equipmentProfile={athleteBaseline.equipment} sheetOpen={pickerSheetOpen} destination={`Week ${activeWeek} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={dayPrescriptions} onAdd={addExercise} onReplace={replaceExercise} onInspect={inspectExercise} />
             {/* The generator is one row until it is wanted. Open, it is the panel
                 it always was; closed, it was 636px of controls for a thing you do
                 once a week at most. */}
             <details className="day-plan-draft">
-              <summary><span><BrainCircuit className="h-4 w-4" aria-hidden="true" /><strong>Smart Draft</strong><small>Build a replacement session</small></span><ChevronRight className="h-4 w-4" aria-hidden="true" /></summary>
+              <summary><span><BrainCircuit className="h-4 w-4" aria-hidden="true" /><strong>Smart Draft</strong><small>{customWorkout.length ? "Build a replacement session" : "Build a session for this day"}</small></span><ChevronRight className="h-4 w-4" aria-hidden="true" /></summary>
               <SessionDraftPanel dayLabel={`${activeSlot.ordinal} · ${activeSplitDay}`} minutes={gymMinutes} budget={gymTimeBudget} loadout={activeLoadout} exerciseCount={draftedLoadout.length} estimatedMinutes={draftedLoadoutMinutes} replacingCount={customWorkout.length} onMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} onLoadout={setActiveLoadout} onDraft={loadDraft} />
             </details>
             <p className="day-review-pointer">Warm-up, programming detail and the week's volume are on <button type="button" onClick={() => navigateContextualWorkspace({ id: "review", label: "Review", workspace: "review" })}>Review</button>.</p>

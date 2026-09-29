@@ -97,8 +97,9 @@ export function TrainingPlanHeader({
         <h2>{active.day}</h2>
         <p>Week {activeWeek} · {active.ordinal} · {count ? `${count} exercise${count === 1 ? "" : "s"}` : "Empty"}</p>
       </div>
-      {/* A status, not a control. Every edit is already written to this day. */}
-      <span className="training-plan-saved"><Check className="h-3.5 w-3.5" aria-hidden="true" /> Saved</span>
+      {/* A status, not a control. Every edit is already written to this day. Not said of an
+          empty day, where "Empty · Saved" read as if nothing were a saved plan. */}
+      {count > 0 && <span className="training-plan-saved"><Check className="h-3.5 w-3.5" aria-hidden="true" /> Saved</span>}
     </div>
   </section>;
 }

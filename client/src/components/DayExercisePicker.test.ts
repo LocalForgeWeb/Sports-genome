@@ -42,11 +42,11 @@ const empty = render([], true);
 describe("Training Day exercise finder disclosure", () => {
   it("keeps Stack Analysis on the day and the catalog behind one clear control", () => {
     expect(source).toContain("<RateStackPanel");
-    expect(source).toContain('className="day-exercise-open-catalog"');
-    // The day's own "Add exercises" control opens the sheet, so the row under the
-    // analysis appears only when it carries the gap the analysis named.
-    expect(day).toContain("Find exercises for ");
-    expect(day).toContain("Sorted to close ");
+    // Intentional change, Sep 28 regression brief §8: the coverage summary's one fix action
+    // carries the gap; the white "Find exercises for" card under it repeated it.
+    expect(source).not.toContain('className="day-exercise-open-catalog"');
+    expect(day).toContain("Furthest behind");
+    expect(day).toMatch(/aria-label="Find [^"]+ exercises, \d+ pts under target"/);
   });
 
   /**
