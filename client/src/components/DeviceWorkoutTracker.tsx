@@ -664,6 +664,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       {drafts ? `, and ${drafts} ${drafts === 1 ? "set was" : "sets were"} typed but never logged — check ${drafts === 1 ? "it" : "them"} before you finish.` : "."}
     </p>}
 
+    {/* Where the athlete now stands, said once per move. It sits outside the card so it
+        stays mounted when the card swaps for the done card: that swap unmounts the
+        focused Log button, and a live region mounted with its text is often not read. */}
+    <p className="sr-only" role="status">{activeExercise && activeSet && position ? `${activeExercise.exerciseName}, set ${position.setIndex + 1} of ${activeExercise.sets.length}` : "Every planned set is logged."}</p>
+
     {activeExercise && activeSet && position ? <div className="live-set-card">
       <p className="metric-label">Now · exercise {position.exerciseIndex + 1} of {activeSession.exercises.length}</p>
       <h4>{activeExercise.exerciseName}</h4>

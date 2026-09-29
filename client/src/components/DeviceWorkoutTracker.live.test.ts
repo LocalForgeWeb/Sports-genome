@@ -118,6 +118,27 @@ describe("live workout glance contract", () => {
     expect(document.querySelectorAll(".live-set-commit")).toHaveLength(0);
   });
 
+  // The focused Log button only relabels itself, and on the last set it unmounts:
+  // a screen-reader user has to be told where they now are.
+  it("tells a screen reader where the athlete stands after each logged set", () => {
+    startWorkout();
+    const commit = () => fireEvent.click(document.querySelector(".live-set-commit")!);
+    fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
+    const status = screen.getByRole("status");
+    expect(status.textContent).toContain(exercises[0].name);
+    expect(status.textContent).toContain("set 2 of 3");
+    commit();
+    commit();
+    expect(status.textContent).toContain(exercises[1].name);
+    expect(status.textContent).toContain("set 1 of 2");
+    commit();
+    commit();
+    expect(status.textContent).toBe("Every planned set is logged.");
+    // The same region, still mounted: one that appears along with its text is often not read.
+    expect(status.isConnected).toBe(true);
+    expect(screen.getByRole("status")).toBe(status);
+  });
+
   // "Secondary ... history ... use explicit drill-down that preserves
   // active-set context."
   it("does not move the active set when the full session is opened", () => {
