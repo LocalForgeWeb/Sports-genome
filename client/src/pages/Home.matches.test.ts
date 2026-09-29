@@ -58,12 +58,13 @@ describe("Matches is one column of real controls", () => {
     for (const batch of ["selected\"", "Add selected", "Add all", "6 selected"]) expect(matches).not.toContain(batch);
   });
 
-  it("labels the score and the tier so two adjacent marks read as two facts", () => {
-    expect(rows).toContain("aria-label={`Match score ${score} for ${result.exercise.name}: open details`}");
-    // The stamp names its own tier and is not handed the score, so the two
-    // labels cannot restate each other.
-    expect(rows).toContain("<GradeStamp grade={result.grade} compact />");
-    expect(rows).not.toContain("score={result.breakdown.overall}");
+  it("shows one match signal per row, labelled with its scale", () => {
+    expect(rows).toContain("aria-label={`Match ${score} of 99 for ${name}: open details`}");
+    // Intentional change, Sep 28 regression brief §11: the letter stamp banded the same score
+    // while announcing itself as the catalog tier. It is gone from the row; its band is said
+    // inside Why, as what it is.
+    expect(rows).not.toContain("<GradeStamp");
+    expect(rows).toContain("Match band {displayTier[result.grade]}, from the same match number; not the exercise's catalog tier.");
   });
 
   it("keeps research context and movement intelligence on the page, behind their own lines", () => {

@@ -41,7 +41,7 @@ export function WeeklyMuscleVolumePanel({ plan, prescriptions, goal }: { plan: W
     const status = getVolumeStatus(volume);
     return <article key={volume.muscle}>
       <div className="weekly-volume-row">
-        <div><strong>{volume.label}</strong><small>{setsFigure(volume.directSets)} direct · {setsFigure(volume.supportSets)} supporting</small></div>
+        <div><strong>{volume.label}</strong><small>{setsFigure(volume.directSets)} direct + {setsFigure(volume.supportSets)} supporting contribution</small></div>
         <b>{setsFigure(volume.equivalentSets)}</b>
       </div>
       <div className="weekly-volume-track" role="img" aria-label={`${volume.label}: ${setsFigure(volume.equivalentSets)} attributed sets, of the week's largest ${setsFigure(max)}`}>
@@ -49,8 +49,8 @@ export function WeeklyMuscleVolumePanel({ plan, prescriptions, goal }: { plan: W
         <i className="weekly-volume-bar-support" style={{ width: `${Math.min(100, (volume.equivalentSets / max) * 100)}%` }} />
       </div>
       <p className="weekly-volume-foot">
-        <span className={`weekly-volume-status weekly-volume-status-${status.tone}`}><i aria-hidden="true" />{status.label}</span>
-        {Object.keys(volume.daySets).length > 1 && <span className="weekly-volume-days">{Object.entries(volume.daySets).map(([key, sets]) => <span key={key}>{dayName(key)} <b>{setsFigure(sets)}</b></span>)}</span>}
+        <span className={`weekly-volume-status weekly-volume-status-${status.tone}`} title="Planned direct sets a week: Building below 6, Established from 6, High exposure from 12"><i aria-hidden="true" />{status.label} · {setsFigure(volume.directSets)} direct</span>
+        {Object.keys(volume.daySets).length > 1 && <span className="weekly-volume-days"><span>By day (attributed)</span>{Object.entries(volume.daySets).map(([key, sets]) => <span key={key}>{dayName(key)} <b>{setsFigure(sets)}</b></span>)}</span>}
       </p>
     </article>;
   };
@@ -63,7 +63,7 @@ export function WeeklyMuscleVolumePanel({ plan, prescriptions, goal }: { plan: W
       </div>
       {savedDays > 0 && <p className="weekly-volume-scope">Planned · {savedDays} saved {savedDays === 1 ? "day" : "days"}</p>}
     </div>
-    <div className="weekly-volume-legend"><span><i className="weekly-volume-direct" />Direct working sets</span><span><i className="weekly-volume-support" />Supporting work, counted at half</span></div>
+    <div className="weekly-volume-legend"><span><i className="weekly-volume-direct" />Direct working sets</span><span><i className="weekly-volume-support" />Supporting contribution: each supporting set adds 0.5, already applied</span><span>Status: planned direct sets a week (Building &lt;6 · Established 6–11 · High exposure 12+)</span></div>
     {featured.length ? <>
       <div className="weekly-volume-list">{featured.map(volumeRow)}</div>
       {remaining.length > 0 && <details className="weekly-volume-more">

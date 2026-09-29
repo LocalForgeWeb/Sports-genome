@@ -1105,10 +1105,10 @@ select {
 
 /* Recommendation cards now lead with the one decision: exercise, stated role,
    relative planning match, and add. Explanations remain inside the disclosure. */
-.recommendation-row-main { grid-template-columns: 30px minmax(0, 1fr) auto auto 44px; }
+.recommendation-row-main { grid-template-columns: 30px minmax(0, 1fr) auto 44px; }
 .recommendation-add { width: 44px; height: 44px; }
 @media (max-width: 640px) {
-  .recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 44px auto 44px; align-items: center; gap: .5rem; }
+  .recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 44px 44px; align-items: center; gap: .5rem; }
   .recommendation-score { display: grid; }
   .recommendation-add { width: 44px; height: 44px; }
   .recommendation-why { margin-top: .55rem; }
@@ -2437,7 +2437,14 @@ details:not([open]) > *:not(summary) {
 .recommendation-registry { margin-left: .5rem; border: 1px solid rgb(45 108 223 / .4); background: rgb(45 108 223 / .1); padding: .1rem .35rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; vertical-align: middle; }
 /* The score column is sized to its content, not the 36px the phone rule gives
    it: "match", the label that makes the number a fact, ran under the stamp. */
-.matches-list .recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) auto auto 44px; gap: .6rem; }
+/* Sep 28 regression brief §11: four columns, the letter stamp gone; its 28px and a gap went
+   back to the name, which wrapped to three lines at 320. */
+.matches-list .recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) auto 44px; gap: .6rem; }
+.recommendation-rationale { margin: .6rem 0 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.recommendation-why .recommendation-trace { margin-top: .5rem; border-top: 0; padding-top: 0; font-size: var(--sg-text-xs); }
+.recommendation-facets > p { margin: 0 0 .35rem; color: #f1c36d; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.recommendation-facets > p small { margin-left: .35rem; color: var(--sg-text-faint-on-dark); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.recommendation-band { margin: .55rem 0 0; color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
 .matches-list .recommendation-score strong { color: var(--sg-link-on-dark); font-size: 1.6rem; font-weight: 800; }
 .matches-list .recommendation-score small { margin-top: .1rem; color: var(--sg-text-subtle-on-dark); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .matches-list .recommendation-add { border: 2px solid var(--sg-action); border-radius: 999px; color: var(--sg-action); }

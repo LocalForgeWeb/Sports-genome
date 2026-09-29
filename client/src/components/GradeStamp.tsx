@@ -11,7 +11,12 @@ const tones: Record<Grade, string> = {
   F: "bg-white text-[#a1a5a1] border-[#e6e5df]",
 };
 
-const displayTier: Record<Grade, string> = { SS: "S+", S: "S", A: "A+", B: "A", C: "B+", D: "B", F: "C" };
+/**
+ * The letter a catalog grade is shown as, everywhere. The catalog card printed the raw grade
+ * ("A") while the overlay and Home printed this ("A+") for the same exercise (Sep 28
+ * regression brief §11). Only catalog grades are handed to GradeStamp.
+ */
+export const displayTier: Record<Grade, string> = { SS: "S+", S: "S", A: "A+", B: "A", C: "B+", D: "B", F: "C" };
 
 export function GradeStamp({ grade, score, compact = false }: { grade: Grade; score?: number; compact?: boolean }) {
   return (

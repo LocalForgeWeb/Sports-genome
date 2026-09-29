@@ -16,7 +16,7 @@ import { UniversalSearch } from "@/components/UniversalSearch";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import type { SearchResult } from "@/lib/universalSearch";
 import { searchExercises } from "@/lib/exerciseSearch";
-import { GradeStamp } from "@/components/GradeStamp";
+import { displayTier, GradeStamp } from "@/components/GradeStamp";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
 import { StackImportPanel, type ImportedRoutine, type ImportedRoutineContext } from "@/components/StackImportPanel";
 import { SessionDraftPanel } from "@/components/SessionDraftPanel";
@@ -69,7 +69,7 @@ import { getExerciseActionConnection, lookupEnrichedMovement } from "@/lib/movem
 import { getBodyLabRoleContext } from "@/lib/bodyLabRoleContext";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { movementDisplayLabel } from "@/lib/movementLabel";
-import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation, type RegistryEvidenceMap } from "@/lib/movementRecommendations";
+import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, movementSignalLabels, muscleWords, orderHierarchyConstructedSession, type MovementRecommendation, type RegistryEvidenceMap } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions, normalizeGymMinutes } from "@/lib/gymTimeBudget";
 import { buildApprovedProgressionNote, buildApprovedSegmentPriorityNote } from "@/lib/progressiveTraining";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
@@ -274,13 +274,20 @@ function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }
     ["Velocity", result.breakdown.velocityMatch],
   ];
   const score = result.breakdown.overall;
+  const name = result.exercise.name;
+  // What this exercise actually shares with the action: its own signals and muscles. The
+  // trace line used the sport's qualities, the same on every row (Sep 28 regression brief §11).
+  const shared = [
+    result.matchedSignals.map((signal) => movementSignalLabels[signal]).slice(0, 3).join(", "),
+    result.matchedMuscles.map(muscleWords).slice(0, 3).join(", "),
+  ].filter(Boolean);
   /**
-   * Two numbers side by side read as one unless each says what it is. The
-   * score is the modelled match for the selected action; the stamp is the
-   * catalog's planning tier, which it names itself. Neither is a strength rank,
-   * and the stamp is not handed the score, so the two labels stay distinct.
+   * One signal per row: the match number. The letter stamp beside it banded the same score
+   * (93 read "S+", 91 "S") while announcing itself as the catalog's tier, and the catalog tier
+   * for the same exercise is a different letter on every other surface. Its band is said in
+   * the explanation instead, as what it is.
    */
-  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match score ${score} for ${result.exercise.name}: open details`}><strong>{score}</strong><small>match</small></button><GradeStamp grade={result.grade} compact /><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><p className="recommendation-trace"><span>Matched to</span> <strong>{result.hierarchy.movement}</strong> <span>to build</span> <strong>{result.hierarchy.physicalQualities.slice(0, 2).join(" and ").toLowerCase()}</strong></p></details></article>;
+  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${name}`}><p>{name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match ${score} of 99 for ${name}: open details`}><strong>{score}</strong><small>match</small></button><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary aria-label={`Why ${name} matches`}>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><p className="recommendation-rationale">{result.rationale}</p>{shared.length > 0 && <p className="recommendation-trace"><span>Shares</span> <strong>{shared.join("; ")}</strong> <span>with {movementDisplayLabel(result.hierarchy.movement).toLowerCase()}</span></p>}<div className="recommendation-why-grid"><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div><div className="recommendation-facets"><p>Profile facets <small>not inputs to the match number</small></p><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div></div></div><p className="recommendation-band">Match band {displayTier[result.grade]}, from the same match number; not the exercise's catalog tier.</p></details></article>;
 }
 
 function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => void }) {
@@ -1068,7 +1075,10 @@ export default function Home() {
     toast(`Added to ${destination}`, {
       id: "plan-add",
       description: `${exercise.name} is in that day now.`,
-      action: { label: "View workout", onClick: () => navigateWorkspace("day-plan") },
+      // Opens the day that received it, even after the strip moved to another day: it opened
+      // whatever day was active, where the exercise was not (Sep 28 regression brief §11).
+      // State setters, not selectTrainingDay, whose captured active slot would be stale here.
+      action: { label: "View workout", onClick: () => { const slot = daySlots.find((item) => item.key === dayKey); if (slot) { setActiveSplitDayIndex(slot.index); setActiveSplitDay(slot.day); } navigateWorkspace("day-plan"); } },
       // Takes back this entry on this day: the exact instance, even after a day switch.
       cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, workout: record.workout.filter((item) => item.id !== exercise.id) })) },
     });
@@ -1780,16 +1790,16 @@ export default function Home() {
                 <ChevronDown className="h-5 w-5" aria-hidden="true" />
               </summary>
               <div>
-                <p className="matches-lens-note">{sportProgrammingContext.priorities.length ? `Ranking these matches on ${sportProgrammingContext.priorities.join(", ")}` : "Ranking these matches on movement and muscle fit alone"} — drawn from {selectedSport.label}, {sportProgrammingContext.modifierLabel.toLowerCase()}.</p>
+                <p className="matches-lens-note">{sportProgrammingContext.priorities.length ? `Your sport's priorities: ${sportProgrammingContext.priorities.join(", ")}` : "No sport priorities for this profile"} — from {selectedSport.label}, {sportProgrammingContext.modifierLabel.toLowerCase()}. They shape your plan's drafts, not this list.</p>
                 <p className="matches-lens-heading">How matching works</p>
-                <p>The score is how well an exercise fits these qualities, 0 to 100, from its catalog profile. The tag beside it is the catalog's tier for the exercise itself; neither is a rank of you.</p>
+                <p>The match number (50 to 99) counts how many of this action's movements and muscles an exercise shares, from its catalog profile. It is not a rank of you, and the priorities above do not change it.</p>
                 <p>{sportProgrammingContext.modalityBoundary}</p><p>{sportProgrammingContext.exerciseRole}</p><p>{sportProgrammingContext.programmingBoundary}</p>
               </div>
             </details>
           </div>
           <div className="matches-count">
             <h2>{movementRecommendations.length} {movementRecommendations.length === 1 ? "match" : "matches"}</h2>
-            <p>Exercises supporting {selectedMovement.label.toLowerCase()}, {sportProgrammingContext.priorities.length ? "ranked on the qualities above" : `ranked for ${selectedSport.label}`}.</p>
+            <p>Exercises that share the most with {movementDisplayLabel(selectedMovement.label).toLowerCase()}, most shared first.</p>
           </div>
           {movementRecommendations.length
             ? <div className="matches-list">{movementRecommendations.map((result, index) => <RecommendationRow destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div>
@@ -1890,7 +1900,7 @@ export default function Home() {
             {/* Spacing is not a part of the volume map. It was rendered inside it,
                 so "how are my sessions spaced" lived underneath a chart answering
                 a different question. */}
-            <RecoverySpacingPanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} onOpenDay={(dayName) => { const index = daySlots.findIndex((slot) => slot.day === dayName); if (index >= 0) openTrainingDay(index); }} />
+            <RecoverySpacingPanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} onOpenDay={(dayKey) => { const index = daySlots.findIndex((slot) => slot.key === dayKey); if (index < 0) return; /* Opens it: openTrainingDay stays on Review by design, so "Open" only moved a marker (Sep 28 regression brief §9). */ selectTrainingDay(index); navigateWorkspace("day-plan"); }} />
             <ProgrammingGuidePanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} />
             <WorkoutHealthPanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} />
             <ImportedPlanContext items={activeImportedContext} />

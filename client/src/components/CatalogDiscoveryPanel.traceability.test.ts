@@ -33,8 +33,10 @@ describe("Catalog Discovery traceability presentation", () => {
     // It is shown as the bare letter so it stops crushing the exercise name into
     // "Incline Ba...", but the full phrasing has to survive for anyone reading
     // the card by its accessible name or hovering it.
-    const tag = screen.getByLabelText("Catalog tag A");
-    expect(tag.textContent).toBe("A");
+    // Intentional change, Sep 28 regression brief §11: the same letter as the overlay and
+    // Home (displayTier), where a catalog "A" reads "A+"; it was the raw grade here only.
+    const tag = screen.getByLabelText("Catalog planning tier A+");
+    expect(tag.textContent).toBe("A+");
     expect(tag.getAttribute("title")).toContain("a label from the exercise catalog");
     expect(document.body.textContent).not.toMatch(/percentile|rank(ed|ing)?\b|top \d/i);
   });
