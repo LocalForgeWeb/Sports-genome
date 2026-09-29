@@ -127,7 +127,14 @@ describe("every surface that described the day now reads the session", () => {
   });
 
   it("gives the plan rows the state the session has each exercise in", () => {
-    expect(home).toContain("progress={liveSession ? exerciseProgressFor(exercise.name) : null}");
+    expect(home).toContain("progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null}");
+  });
+
+  it("parses the workout log once per change to the session, not once per plan row per render", () => {
+    // Every write to the log gives liveSession a new identity, so keying on it keeps the rows fresh.
+    expect(home).toContain("const liveWorkoutLog = useMemo(() => (liveSession ? loadDeviceWorkoutSessions() : []), [liveSession]);");
+    // The default argument re-reads and re-parses the whole history on every call.
+    expect(home).not.toMatch(/exerciseProgressFor\(exercise\.name\)/);
   });
 
   it("marks the week board's days, keyed by the label the session was started with", () => {
