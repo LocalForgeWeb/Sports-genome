@@ -4152,9 +4152,13 @@ body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 
    section, so these rules squeezed that section into a 101px right-hand column and hid it below
    360px (Sep 28 regression brief §3); the figure now has a class of its own. */
 .today-action-figure { grid-area: figure; display: grid; justify-items: center; align-self: center; gap: .3rem; width: clamp(5rem, 26vw, 7.5rem); margin: 0; justify-self: end; }
-.today-action-figure .anatomy-figure { width: 100%; height: auto; --anatomy-shell: #2c3a4f; --anatomy-structural: #26334a; --anatomy-muscle: #33425a; --anatomy-line: #0a182b; --anatomy-primary-1: #f4915f; --anatomy-primary-2: #c9471f; --anatomy-supporting-1: #33425a; --anatomy-supporting-2: #33425a; }
+.today-action-figure .anatomy-figure { width: auto; max-width: 100%; height: 8.125rem; --anatomy-shell: #2c3a4f; --anatomy-structural: #26334a; --anatomy-muscle: #33425a; --anatomy-line: #0a182b; --anatomy-primary-1: #f4915f; --anatomy-primary-2: #c9471f; --anatomy-supporting-1: #33425a; --anatomy-supporting-2: #33425a; }
 .today-action-figure .anatomy-figure .anatomy-linework > path { stroke-width: 1.1; stroke-opacity: .85; }
 .today-action-figure figcaption { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+/* The focus summary under the count: a label and the ranked regions, wrapping at word
+   boundaries in the copy column (Sep 28 regression brief §6). */
+.today-action-focus-line { margin-top: .35rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.today-action-focus-line span { display: block; margin-bottom: .1rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 @media (max-width: 359px) { .today-action-with-focus { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "actions"; } .today-action-figure { display: none; } }
 .home-week-strip { display: flex; flex-wrap: wrap; gap: .4rem; margin: .1rem 0 .35rem; padding: 0; list-style: none; }
 .home-week-strip li { flex: 1 1 4.2rem; min-width: 0; }

@@ -11,12 +11,11 @@ import type { TrainingSession } from "@/lib/trainingWeekSummary";
 import { useAthleteRecord } from "@/lib/athleteRecord";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
-import { roleMapForLists } from "@/lib/anatomyRegions";
-import { sideForSelection } from "@/lib/anatomySide";
-import { muscleLabels } from "@/components/AnatomyMap";
 import { dayExerciseCount, emptyDayStore, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { resolveNextWorkout, slotOfDayLabel, slotsDoneThisWeek, trainingWeekFor, type NextWorkoutChoice } from "@/lib/nextWorkout";
-import type { TrainingGoal } from "@/lib/workoutPlanner";
+import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
+import { parseSetCount } from "@/lib/sessionVolume";
+import { focusFrames, focusSummary, workoutFocus } from "@/lib/workoutFocus";
 
 /**
  * Home's first viewport, in the order a newcomer needs it:
@@ -90,7 +89,7 @@ const planDayWord: Record<PlanDayState, string> = { live: "under way", trained: 
 const planDayIcon: Record<PlanDayState, typeof Circle> = { live: CirclePlay, trained: CircleCheck, next: Circle, planned: Circle };
 const noWeek = emptyDayStore();
 
-export function TodayActionPanel({ plan, live, athleteName, directAccess = true, weightUnit = "lb", onOpenWorkout, onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, onOpenProgress }: TodayActionPanelProps) {
+export function TodayActionPanel({ plan, live, athleteName, directAccess = true, weightUnit = "lb", goal = "Athleticism", onOpenWorkout, onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, onOpenProgress }: TodayActionPanelProps) {
   // Account-only routes, asked only when an account is the source. On the device stores they
   // were refused as unauthorised on every Home open, and each refusal told an athlete who
   // had never signed in that their sign-in had expired (B233).
@@ -138,13 +137,19 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
   const stateForDay = (day: { slot: DaySlot; key: string }): PlanDayState =>
     liveSlot === day.key ? "live" : doneSlots.has(day.key) ? "trained" : !live && next.kind === "workout" && next.slot.index === day.slot.index ? "next" : "planned";
 
-  /** The workout-focus schematic: the next workout's primary muscles, in one warm accent, never rank colours. */
-  const focusMuscles = useMemo(() => Array.from(new Set(nextExercises.flatMap((exercise) => exercise.primaryMuscles))), [nextExercises]);
-  const focusRoles = useMemo(() => roleMapForLists(focusMuscles, []), [focusMuscles]);
-  const focusKeys = useMemo(() => Object.keys(focusRoles), [focusRoles]);
-  const focusSide = useMemo(() => sideForSelection("front", focusKeys), [focusKeys]);
-  const focusNames = useMemo(() => Array.from(new Set(focusMuscles.map((muscle) => muscleLabels[muscle] || muscle))).slice(0, 4).join(", "), [focusMuscles]);
-  const showFocus = next.kind === "workout" && !live && focusKeys.length > 0;
+  /**
+   * Workout focus: where the next workout's direct work lands, ranked by its sets (the day's own
+   * prescriptions, else the goal default the Plan shows), with one figure turned and cropped to
+   * that work. Planned focus only: never a rank, readiness or measured activation (§6).
+   */
+  const focus = useMemo(() => {
+    if (!nextWorkout) return null;
+    const prescriptions = weekStore.prescriptions[nextWorkout.slot.key] ?? {};
+    return workoutFocus(nextExercises, (exercise, index) => parseSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)));
+  }, [nextWorkout, nextExercises, weekStore, goal]);
+  const focusLine = focusSummary(focus);
+  const focusFigure = next.kind === "workout" && !live ? focus?.figure ?? null : null;
+  const focusCaption = focus && focusFigure ? `Planned workout focus, ${focusFigure.side} view: ${focus.regions.map((region) => region.label).join(", ")}. From the exercises' primary muscles; not a strength rank, recovery readiness or measured activation.` : "";
 
   const trackedChanges = useMemo(
     () =>
@@ -218,19 +223,20 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
             <span className="today-action-loading-cta" />
           </div>
       : next.kind === "workout"
-        ? <div className={`today-action-primary${showFocus ? " today-action-with-focus" : ""}`}>
+        ? <div className={`today-action-primary${focusFigure ? " today-action-with-focus" : ""}`}>
             <div className="today-action-copy">
               <p className="metric-label">Your next workout</p>
               <h2>{next.slot.day}</h2>
               <p className="today-action-position">Week {next.week} · {next.slot.ordinal}</p>
               <i className="today-action-rule" aria-hidden="true" />
-              <p className="today-action-count">{next.exerciseCount} {next.exerciseCount === 1 ? "exercise" : "exercises"}{focusNames ? ` · ${focusNames}` : ""}</p>
+              <p className="today-action-count">{next.exerciseCount} {next.exerciseCount === 1 ? "exercise" : "exercises"}</p>
+              {focusLine && <p className="today-action-focus-line"><span>Workout focus</span> {focusLine}</p>}
             </div>
             {/* The schematic is planned involvement - the exercises' primary muscles -
                 drawn in the action colour so it cannot be read as a Strength rank. */}
-            {showFocus && <figure className="today-action-figure">
-              <AnatomyFigure view={focusSide} roles={focusRoles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={`Workout focus: ${focusNames}`} />
-              <figcaption>Workout focus</figcaption>
+            {focusFigure && <figure className="today-action-figure">
+              <AnatomyFigure view={focusFigure.side} frame={focusFrames[focusFigure.side][focusFigure.frame]} roles={focusFigure.roles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={focusCaption} />
+              <figcaption>Planned focus</figcaption>
             </figure>}
             <div className="today-action-actions">
               {/* The plan carries no dates, so this is the next planned workout, opened at its

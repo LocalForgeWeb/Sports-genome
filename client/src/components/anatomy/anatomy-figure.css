@@ -39,6 +39,10 @@
    figure once overflowed it downwards. */
 .anatomy-figure[data-view="both"] { width: 100%; height: auto; max-height: 100%; }
 
+/* A cropped figure (Home's workout focus) keeps its drawing inside the crop; the default
+   overflow: visible would paint the rest of the body around it. */
+.anatomy-figure[data-frame] { overflow: hidden; }
+
 /* The filled body under everything. Joints the muscle layer does not cover —
    knees, shins — are body here rather than holes showing the page through. */
 .anatomy-shell { fill: var(--anatomy-shell); }
