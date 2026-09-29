@@ -169,7 +169,7 @@ const primaryDestinations: { id: PrimaryDestination; label: string; icon: typeof
   { id: "train", label: "Train", icon: Layers3, defaultWorkspace: "day-plan" },
   { id: "progress", label: "Progress", icon: BarChart3, defaultWorkspace: "progress" },
 ];
-const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, ContextualWorkspaceTab[]> = {
+export const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, ContextualWorkspaceTab[]> = {
   home: [{ id: "command", label: "Home", workspace: "command" }],
   /**
    * Four places, in the order the work happens: plan it, check it, do it, and a
@@ -1053,9 +1053,12 @@ export default function Home() {
     }
     favoriteMutation.mutate({ catalogExerciseId: exercise.id, favorited: !currentlyFavorite }, {
       onSuccess: (ids) => {
-        // The server answers with the full list; anything else keeps the
-        // optimistic local list rather than spreading a non-array into a Set.
-        if (Array.isArray(ids)) setLocalFavoriteIds(ids);
+        // The server answers with its full list. It is added to this device's list, not
+        // swapped in: the device list also holds the shortlist claimed at sign-in and any
+        // heart that failed to send, neither is on the server, and a swap deleted them for
+        // good. This tap's own change is already in the device list. A reply that is not
+        // a list is ignored.
+        if (Array.isArray(ids)) setLocalFavoriteIds((current) => Array.from(new Set([...current, ...ids])));
         void favoriteQuery.refetch();
         toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { id: "favorite", description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist.` });
       },

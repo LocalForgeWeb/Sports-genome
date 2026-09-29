@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
@@ -18,9 +18,10 @@ vi.mock("@/_core/hooks/useAuth", () => ({
   useAuth: () => ({ user: auth.user, loading: auth.loading, error: null, isAuthenticated: Boolean(auth.user), logout: async () => {}, refresh: async () => ({}) }),
 }));
 vi.mock("@/lib/supabaseClient", () => ({ getSupabaseClient: () => null, supabaseConfigured: false }));
+const { mutateSpy } = vi.hoisted(() => ({ mutateSpy: vi.fn() }));
 vi.mock("@/lib/trpc", () => {
   const query = () => ({ data: undefined, isLoading: false, isPending: false, isError: false, isFetching: false, error: null, refetch: async () => ({}) });
-  const mutation = () => ({ mutate: () => {}, mutateAsync: async () => ({ status: "saved", revision: 1, updatedAt: new Date() }), isPending: false, error: null, reset: () => {} });
+  const mutation = () => ({ mutate: mutateSpy, mutateAsync: async () => ({ status: "saved", revision: 1, updatedAt: new Date() }), isPending: false, error: null, reset: () => {} });
   const node: unknown = new Proxy(function () {}, {
     get(_target, prop) {
       if (prop === "useQuery" || prop === "useSuspenseQuery") return query;
@@ -55,7 +56,7 @@ const idsIn = (key: string): number[] => {
 };
 const settle = async () => { await act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); }); };
 
-beforeEach(() => { window.localStorage.clear(); auth.user = null; auth.loading = false; window.history.replaceState({}, "", "/?workspace=command"); });
+beforeEach(() => { window.localStorage.clear(); auth.user = null; auth.loading = false; mutateSpy.mockReset(); window.history.replaceState({}, "", "/?workspace=command"); });
 afterEach(() => cleanup());
 
 describe("Changing account on one device", () => {
@@ -119,5 +120,31 @@ describe("Changing account on one device", () => {
     expect(JSON.parse(window.localStorage.getItem("gym-optimizer-favorite-exercise-ids-v1::7") || "null")).toEqual(shortlist);
     // Claimed, so the next account to sign in on this device cannot claim it too.
     expect(window.localStorage.getItem("gym-optimizer-favorite-exercise-ids-v1")).toBeNull();
+  });
+
+  it("keeps the claimed shortlist when the first heart after sign-in is answered", async () => {
+    const shortlist = [exercises[0].id, exercises[1].id];
+    window.localStorage.setItem(PROFILE, profile("Alex"));
+    window.localStorage.setItem("gym-optimizer-favorite-exercise-ids-v1", JSON.stringify(shortlist));
+    window.history.replaceState({}, "", "/?workspace=catalog");
+    const view = render(createElement(Home));
+    await screen.findAllByRole("button", { name: /^Save .+ to favorites$/ }, { timeout: 15000 });
+
+    auth.user = { id: 7 };
+    view.rerender(createElement(Home));
+    await settle();
+    await settle();
+    // The server has never seen the claimed shortlist, so its reply to this heart names this exercise alone.
+    const [heart] = screen.getAllByRole("button", { name: /^Save .+ to favorites$/ });
+    const saved = exercises.find((exercise) => heart.getAttribute("aria-label") === `Save ${exercise.name} to favorites`)!;
+    mutateSpy.mockImplementation((input: unknown, options?: { onSuccess?: (ids: number[]) => void }) => {
+      if (input && typeof input === "object" && "favorited" in input) options?.onSuccess?.([saved.id]);
+    });
+    await act(async () => { fireEvent.click(heart); });
+    await settle();
+
+    expect(mutateSpy.mock.calls.some(([input]) => Boolean(input) && typeof input === "object" && "favorited" in input)).toBe(true);
+    const kept = JSON.parse(window.localStorage.getItem("gym-optimizer-favorite-exercise-ids-v1::7") || "[]");
+    expect(kept).toEqual(expect.arrayContaining([...shortlist, saved.id]));
   });
 });

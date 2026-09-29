@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { contextTabIdForWorkspace, primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation } from "./Home";
+import { contextTabIdForWorkspace, contextualWorkspaces, primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation, workspaceTitles } from "./Home";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const tabsComponent = readFileSync(new URL("../components/WorkspaceTabs.tsx", import.meta.url), "utf8");
@@ -39,16 +39,18 @@ describe("workspace side navigation", () => {
     expect(contextTabIdForWorkspace("strength")).toBe("strength");
     expect(contextTabIdForWorkspace("catalog")).toBe("catalog");
     expect(contextTabIdForWorkspace("profile")).toBeNull();
-    const workspaces = ["command", "profile", "progress", "recommended", "review", "day-plan", "tracker", "body", "movement", "catalog", "strength"] as const;
+    // Every page there is: workspaceTitles must name each one, so a new page is covered here too.
+    const workspaces = Object.keys(workspaceTitles) as (keyof typeof workspaceTitles)[];
     for (const workspace of workspaces) {
       const id = contextTabIdForWorkspace(workspace);
-      if (primaryDestinationForWorkspace(workspace) === "secondary") {
+      const destination = primaryDestinationForWorkspace(workspace);
+      if (destination === "secondary") {
         expect(id).toBeNull();
         continue;
       }
-      // The lit tab belongs to this page's own destination, never to another one.
-      expect(id).not.toBeNull();
-      expect(primaryDestinationForWorkspace(id as (typeof workspaces)[number])).toBe(primaryDestinationForWorkspace(workspace));
+      // The lit tab sits in this page's own tab row, and it is the tab that opens this page.
+      const litTab = contextualWorkspaces[destination].find((tab) => tab.id === id);
+      expect(litTab?.workspace).toBe(workspace);
     }
   });
 
