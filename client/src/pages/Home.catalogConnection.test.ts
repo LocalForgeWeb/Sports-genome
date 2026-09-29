@@ -9,7 +9,9 @@ const globalStyles = readFileSync(resolve(import.meta.dirname, "../index.css"), 
 
 describe("canonical connected exercise catalog", () => {
   it("uses Catalog Discovery with the selected sport-action connection helper", () => {
-    expect(homeSource).toContain("connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)}");
+    expect(homeSource).toContain("connectionForExercise={connectionForExercise}");
+    // One cached lookup per selected action, so a keystroke or an unrelated render reuses it.
+    expect(homeSource).toContain("createActionConnectionLookup(enrichedSelectedMovement), [enrichedSelectedMovement]");
     expect(homeSource).toContain("selectedActionLabel={selectedMovement.label}");
     expect(catalogSource).toContain("catalog-action-link");
     expect(catalogSource).toContain("connection.label");
