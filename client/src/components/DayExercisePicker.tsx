@@ -108,39 +108,6 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
   );
   const ranked = useMemo(() => rankPickerResults(results.map((match) => match.exercise), gaps, relevance), [gaps, relevance, results]);
   const visibleRanked = ranked.slice(0, resultLimit);
-  /**
-   * What the rows on screen actually have to say for themselves.
-   *
-   * The list's header already names what it is sorted by. A row that repeats it
-   * is a caption printed twenty-four times: on an empty Push day every option
-   * closed the same gap, so every row read "Closes Pectoralis major, 90 short"
-   * and every row led with "PECTORALIS MAJOR". Both lines are shown only where
-   * they differ between rows, which is the only way they help anyone choose.
-   */
-  // Everything the header prints, so a row is only stripped of what the reader
-  // has already been told - on an empty day every muscle is short, and removing
-  // all of them left every row with nothing to say.
-  //
-  // Both, not one or the other. The header leads with the day's shortfalls and
-  // falls back to the muscle filter, while this stripped only the filter, so a
-  // Legs day filtered to quadriceps printed "Gluteal complex and Rectus
-  // abdominis first" at the top and then "Also Gluteal complex" on all
-  // twenty-four rows underneath it.
-  const sortedBy = Array.from(new Set([
-    ...(muscle !== "all" ? [muscle] : []),
-    ...gaps.slice(0, 2).map((gap) => gap.muscle),
-  ]));
-  const showGapTag = gapTagIsInformative(visibleRanked);
-  // What most of these rows would otherwise each say for themselves. Stated
-  // once, above the list, so the rows that differ are the only ones that speak.
-  const visibleExercises = visibleRanked.map((result) => result.exercise);
-  const shared = sharedRowMuscles(visibleExercises, sortedBy);
-  // Everything the reader has been told by the time they reach a row: what the
-  // list is sorted by, and what the line above says most of it shares.
-  const alreadyNamed = [...sortedBy, ...shared.muscles];
-  const showMuscleLine = muscleLineIsInformative(visibleExercises, alreadyNamed);
-
-  const existingCatalogIds = new Set(activeWorkout.map((exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id));
 
   useEffect(() => { setResultLimit(initialResultLimit); }, [equipment, muscle, query, scope, split]);
 
@@ -201,7 +168,51 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     };
   }, [sheetOpen]);
 
-  const pickerBody = <>
+  /**
+   * The sheet's rows, and the facts each one states, are built only while the
+   * sheet is open. They were built on every render and then thrown away, and the
+   * Plan page re-renders this panel on every keystroke in a reps field.
+   *
+   * Called, never mounted as `<PickerBody />`: an inner component is a new type on
+   * every render, so React would remount it and the search box would lose focus
+   * on each keystroke.
+   */
+  const renderPickerBody = () => {
+    /**
+     * What the rows on screen actually have to say for themselves.
+     *
+     * The list's header already names what it is sorted by. A row that repeats it
+     * is a caption printed twenty-four times: on an empty Push day every option
+     * closed the same gap, so every row read "Closes Pectoralis major, 90 short"
+     * and every row led with "PECTORALIS MAJOR". Both lines are shown only where
+     * they differ between rows, which is the only way they help anyone choose.
+     */
+    // Everything the header prints, so a row is only stripped of what the reader
+    // has already been told - on an empty day every muscle is short, and removing
+    // all of them left every row with nothing to say.
+    //
+    // Both, not one or the other. The header leads with the day's shortfalls and
+    // falls back to the muscle filter, while this stripped only the filter, so a
+    // Legs day filtered to quadriceps printed "Gluteal complex and Rectus
+    // abdominis first" at the top and then "Also Gluteal complex" on all
+    // twenty-four rows underneath it.
+    const sortedBy = Array.from(new Set([
+      ...(muscle !== "all" ? [muscle] : []),
+      ...gaps.slice(0, 2).map((gap) => gap.muscle),
+    ]));
+    const showGapTag = gapTagIsInformative(visibleRanked);
+    // What most of these rows would otherwise each say for themselves. Stated
+    // once, above the list, so the rows that differ are the only ones that speak.
+    const visibleExercises = visibleRanked.map((result) => result.exercise);
+    const shared = sharedRowMuscles(visibleExercises, sortedBy);
+    // Everything the reader has been told by the time they reach a row: what the
+    // list is sorted by, and what the line above says most of it shares.
+    const alreadyNamed = [...sortedBy, ...shared.muscles];
+    const showMuscleLine = muscleLineIsInformative(visibleExercises, alreadyNamed);
+
+    const existingCatalogIds = new Set(activeWorkout.map((exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id));
+
+    return <>
   <div className="day-exercise-picker-content">
         <div className="day-exercise-picker-head"><div><p className="metric-label">Build this day yourself</p><h3>Add exercises directly</h3><p>Start with split-matched options, then switch to the full catalog when you want a deliberate exception.</p></div><Dumbbell className="h-5 w-5" /></div>
         {gaps.length > 0 && activeWorkout.length > 0 && <div className="day-picker-gaps"><span className="day-picker-gaps-label">Short in this day</span>{gaps.map((gap) => <button key={gap.muscle} type="button" onClick={() => setMuscle(muscle === muscleFilterKey(gap.muscle) ? "all" : muscleFilterKey(gap.muscle))} className={muscle === muscleFilterKey(gap.muscle) ? "day-picker-gap day-picker-gap-active" : "day-picker-gap"} aria-pressed={muscle === muscleFilterKey(gap.muscle)}>{muscleLabels[gap.muscle] || gap.muscle}<i>{gap.deltaToTarget}</i></button>)}{muscle !== "all" && <button type="button" className="day-picker-gap-clear" onClick={() => setMuscle("all")}>Clear</button>}</div>}
@@ -222,6 +233,8 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
         </p>}
       </div>
   </>;
+  };
+  const pickerBody = sheetOpen ? renderPickerBody() : null;
 
   /**
    * The catalog used to render twice on the Training Day: inline in a disclosure

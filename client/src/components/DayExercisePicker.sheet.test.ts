@@ -6,6 +6,13 @@ import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DayExercisePicker } from "./DayExercisePicker";
 import { exercises } from "@/lib/exerciseCatalog";
+import { distinguishingMuscles, sharedRowMuscles } from "@/lib/pickerRowFacts";
+
+// Pass-through spies, so a test can see whether the rows' facts were worked out at all.
+vi.mock("@/lib/pickerRowFacts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/pickerRowFacts")>();
+  return { ...actual, distinguishingMuscles: vi.fn(actual.distinguishingMuscles), sharedRowMuscles: vi.fn(actual.sharedRowMuscles) };
+});
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
@@ -93,5 +100,33 @@ describe("the picker sheet for keyboard and screen-reader users", () => {
     fireEvent.click(view.getByRole("button", { name: /All catalog/ }));
     expect(view.getByRole("button", { name: /Pull fit/, pressed: false })).toBeTruthy();
     expect(view.getByRole("button", { name: /All catalog/, pressed: true })).toBeTruthy();
+  });
+});
+
+/**
+ * The Plan page re-renders this panel on every keystroke in a reps field. The
+ * sheet's rows, and the facts each row states, were rebuilt each time while the
+ * sheet was closed and nothing showed them.
+ */
+describe("the closed sheet does no work for rows nobody can see", () => {
+  beforeEach(() => {
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn() }));
+    vi.stubGlobal("scrollTo", vi.fn());
+    vi.mocked(distinguishingMuscles).mockClear();
+    vi.mocked(sharedRowMuscles).mockClear();
+  });
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.body.removeAttribute("style"); });
+
+  it("builds the rows and their facts only while the sheet is open", () => {
+    const view = render(createElement(DayExercisePicker, props(false)));
+    view.rerender(createElement(DayExercisePicker, props(false)));
+    view.rerender(createElement(DayExercisePicker, props(false)));
+    expect(sharedRowMuscles).not.toHaveBeenCalled();
+    expect(distinguishingMuscles).not.toHaveBeenCalled();
+
+    view.rerender(createElement(DayExercisePicker, props(true)));
+    expect(sharedRowMuscles).toHaveBeenCalled();
+    expect(distinguishingMuscles).toHaveBeenCalled();
+    expect(document.querySelectorAll(".day-picker-result").length).toBeGreaterThan(0);
   });
 });
