@@ -20,10 +20,17 @@ describe("Home sport state safeguards", () => {
   it("resets weekly sport-specific drafts without rendering an obstructive sport-change toast", () => {
     expect(source).toContain('setPlanWeeks({});');
     expect(source).toContain('setActiveWeek(1);');
-	    expect(source).toContain('setCatalogQuery("");');
 	    expect(source).toContain('setCatalogFilters(defaultCatalogFilters);');
     expect(source).not.toContain('toast("Sport context updated"');
     expect(source).not.toContain("Your current workout was retained for review");
+  });
+
+  it("builds no sport session or catalog search that nothing reads", () => {
+    // A full sport session ranks the whole catalog once per movement of the
+    // sport; building one nobody renders cost every mount and settings change.
+    expect(source).not.toContain("const sessionRecommendations");
+    expect(source).not.toContain("filteredCatalog");
+    expect(source).not.toContain("searchExercises(");
   });
 
   it("routes automatic Smart Draft through the active split-filtered loadout instead of the sport-wide session list", () => {

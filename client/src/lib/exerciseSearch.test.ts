@@ -95,9 +95,11 @@ describe("every exercise search box uses the same matcher", () => {
     expect(source).not.toContain(".toLowerCase().includes(normalizedQuery)");
   });
 
-  it("the Plan page's finder", () => {
+  it("the Plan page keeps no finder of its own", () => {
+    // The Catalog below is the one exercise finder; Home kept a second query
+    // and search that nothing on screen ever read.
     const source = read("../pages/Home.tsx");
-    expect(source).toContain("searchExercises(exercises, catalogQuery)");
+    expect(source).not.toContain("catalogQuery");
     expect(source).not.toMatch(/exercise\.primaryMuscles\.join\(" "\)}`\.toLowerCase\(\)\.includes\(catalogQuery/);
   });
 

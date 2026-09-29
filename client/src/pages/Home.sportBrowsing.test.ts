@@ -35,9 +35,9 @@ describe("browsing a sport never changes the athlete's own", () => {
   it("feeds those two screens the browsed sport and leaves every plan surface on the athlete's", () => {
     expect(source).toContain("sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement}");
     expect(source).toContain("activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement}");
-    // The session, the generated week and the smart draft all still read the
-    // athlete's own sport, which is what browsing must never touch.
-    expect(source).toContain("getSportSession(activeSportId, goal, gymTimeBudget.recommendationLimit");
+    // The generated week and the smart draft both still read the athlete's
+    // own sport, which is what browsing must never touch.
+    expect(source).toContain("getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3)");
     expect(source).toContain("buildGeneratedWeekSportSeed(activeSportId, goal");
   });
 
