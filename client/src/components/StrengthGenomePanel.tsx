@@ -611,9 +611,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     // a validation list or a generic fault notice, neither of them for athletes.
     // An expired sign-in gets no toast of its own: main.tsx says that app-wide,
     // but at most once a minute, so the reason is still written beside the button.
+    // It names no place to sign in again: this build has none (see sessionExpiryNotice).
     onError: (error) => {
       if (error.data?.code === "UNAUTHORIZED") {
-        setSaveError("This lift was not saved because your sign-in has expired. Your entry is still here: sign in again from About me, then save.");
+        setSaveError("This lift was not saved because your sign-in has expired. Your entry is still here.");
         return;
       }
       setSaveError(error.data?.code === "BAD_REQUEST"
@@ -845,11 +846,15 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     onSuccess: async () => {
       await Promise.all([utils.strengthGenome.overview.invalidate(), utils.strengthGenome.priorities.invalidate()]);
     },
-    // An expired sign-in is not a connection fault: say the real cause and fix.
-    // main.tsx's app-wide notice speaks at most once a minute, so this one still does.
+    // An expired sign-in is not a connection fault: say the real cause, and name no
+    // place to sign in again, since this build has none. main.tsx's app-wide notice
+    // speaks at most once a minute, so this one still does, under that notice's id so
+    // it takes the notice's place rather than stacking under it. Sonner keeps any field
+    // the replaced toast had, so the notice's "Everything stays saved on this device"
+    // is cleared: the focus was saved nowhere.
     onError: (error) => {
       if (error.data?.code === "UNAUTHORIZED") {
-        toast.error("Focus was not saved because your sign-in has expired. Sign in again from About me.");
+        toast.error("Focus was not saved because your sign-in has expired.", { id: "session-expired", description: undefined });
         return;
       }
       toast.error("Focus was not saved. Check your connection and try again.");

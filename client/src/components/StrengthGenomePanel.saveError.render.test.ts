@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type AddObservationOptions = { onError?: (error: { data?: { code?: string } }) => void };
@@ -56,7 +56,7 @@ describe("Strength Genome signed-in lift save", () => {
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
   });
 
-  afterEach(() => { document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
+  afterEach(() => { cleanup(); document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
 
   it("says beside the button that a failed save did not save, and keeps the entry", () => {
     render(React.createElement(StrengthGenomePanel, { weightUnit: "kg" }));
@@ -73,8 +73,9 @@ describe("Strength Genome signed-in lift save", () => {
     render(React.createElement(StrengthGenomePanel, { weightUnit: "kg" }));
     act(() => { mocks.addObservationOptions?.onError?.({ data: { code: "UNAUTHORIZED" } }); });
     const alert = screen.getByRole("alert").textContent ?? "";
-    expect(alert).toContain("This lift was not saved because your sign-in has expired");
-    expect(alert).toContain("Your entry is still here");
+    // No pointer to a sign-in: this build has none for the athlete to go back to.
+    expect(alert).toBe("This lift was not saved because your sign-in has expired. Your entry is still here.");
+    expect(alert).not.toMatch(/about me|sign in again/i);
     expect(mocks.toastError).not.toHaveBeenCalled();
   });
 
