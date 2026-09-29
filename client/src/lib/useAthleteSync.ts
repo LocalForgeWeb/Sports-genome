@@ -25,6 +25,20 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
  */
 const catalogIdByName = new Map(exerciseCatalog.map((exercise) => [exercise.name.trim().toLowerCase(), exercise.id]));
 
+/**
+ * Calls `retry` when the device comes back online, and when the tab is shown again: a phone
+ * reopening the app fires no online event. Returns the unsubscribe.
+ */
+function onReconnect(retry: () => void): () => void {
+  const onVisible = () => { if (document.visibilityState === "visible") retry(); };
+  window.addEventListener("online", retry);
+  document.addEventListener("visibilitychange", onVisible);
+  return () => {
+    window.removeEventListener("online", retry);
+    document.removeEventListener("visibilitychange", onVisible);
+  };
+}
+
 export type AthleteSyncStatus = {
   identity: IdentityState;
   pending: number;
@@ -72,6 +86,34 @@ export function useAthleteSync(options: {
     refreshReferenceMap(appSports).then((map) => { if (!cancelled && map) setReferenceMap(map); });
     return () => { cancelled = true; };
   }, [enabled, appSports]);
+
+  // An offline launch leaves identity "unreachable" and the map unread, and About me promises
+  // the record syncs when the service is back, so both are asked for again on reconnect.
+  // Only "unreachable" is retried: the other reasons are settings a retry cannot change.
+  // The ref keeps two anonymous sign-ins from racing and minting two users.
+  const resolvingIdentity = useRef(false);
+  useEffect(() => {
+    if (!enabled || identity.userId || identity.reason !== "unreachable") return;
+    let cancelled = false;
+    const stop = onReconnect(() => {
+      if (resolvingIdentity.current) return;
+      resolvingIdentity.current = true;
+      ensureAthleteIdentity()
+        .then((state) => { if (!cancelled) setIdentity(state); })
+        .finally(() => { resolvingIdentity.current = false; });
+    });
+    return () => { cancelled = true; stop(); };
+  }, [enabled, identity.userId, identity.reason]);
+
+  // Its own effect, so an id arriving first does not discard a map still on its way.
+  useEffect(() => {
+    if (!enabled || referenceMap) return;
+    let cancelled = false;
+    const stop = onReconnect(() => {
+      refreshReferenceMap(appSports).then((map) => { if (!cancelled && map) setReferenceMap(map); });
+    });
+    return () => { cancelled = true; stop(); };
+  }, [enabled, appSports, referenceMap]);
 
   // The profile row follows the athlete's current defaults. It is a default, not
   // a measurement: every lift keeps its own dated body-weight snapshot.
