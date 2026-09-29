@@ -190,8 +190,10 @@ describe("workspace side navigation", () => {
     // at the dock's own breakpoint (at 961px they floated 20px above a flush
     // dock) and clear the home-indicator inset the dock pads for.
     expect(css).toContain('@media (min-width: 1024px) { .session-resume-bar { bottom: calc(4.375rem + 1.25rem); } }');
-    expect(css).not.toContain('(min-width: 961px) { .session-resume-bar');
-    expect(css).not.toContain('(min-width: 961px) { .add-destination');
+    // No rule may switch at the old 960/961px line, including the multi-line
+    // block that lifts the add strip over the resume bar while a workout is live.
+    expect(css).not.toMatch(/@media \((?:max|min)-width: 96[01]px\)/);
+    expect(css).toContain('body:has(.session-resume-bar) .add-destination { bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + var(--sg-resume-height) + .5rem); }');
     expect(css).not.toContain('env(safe-area-inset-bottom, 0px) * 0');
     expect(css).toContain('bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px));');
     expect(css).toContain('.add-destination { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .5rem);');
