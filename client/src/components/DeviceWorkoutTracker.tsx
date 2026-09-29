@@ -45,16 +45,6 @@ const DEFAULT_REST_SECONDS = 90;
 const REST_STEP_SECONDS = 15;
 
 /**
- * The planner can write a target per set ("4 × 10/8/6/6"), so the count comes
- * from the same reader the editor writes with rather than the leading number:
- * a hand edit that leaves the two disagreeing should give the athlete the sets
- * that were actually written down.
- */
-function plannedSetCount(prescription: string) {
-  return renderableSetCount(prescription);
-}
-
-/**
  * "90 sec", "2 min", "120s": a rest setting from the plan, in seconds. Null when
  * the setting does not say.
  */
@@ -101,7 +91,7 @@ function makeSession(workout: Exercise[], prescriptions: Record<number, string>,
         id: `${exercise.id}-${index}`,
         exerciseName: exercise.name,
         plannedPrescription,
-        sets: Array.from({ length: plannedSetCount(plannedPrescription) }, () => ({ weight: "", reps: "", completed: false })),
+        sets: Array.from({ length: renderableSetCount(plannedPrescription) }, () => ({ weight: "", reps: "", completed: false })),
       };
     }),
   };
@@ -563,7 +553,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   ), [activeSession]);
 
   if (!activeSession) {
-    const plannedSets = workout.reduce((total, exercise, index) => total + plannedSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)), 0);
+    const plannedSets = workout.reduce((total, exercise, index) => total + renderableSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)), 0);
     /**
      * "Week 2 · Day 02 · Pull": the day's name is the title of this screen and
      * its position in the plan is the line under it. The label is kept whole on
