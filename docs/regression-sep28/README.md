@@ -269,4 +269,13 @@ Every existing test changed on purpose carries an inline "Intentional change, Se
 
 ## Release status
 
-Deploy status is filled in when this merges.
+**Released.** The PR merged as #82, squashed onto `main` as 8be0ef3 on 29 September 2026.
+
+- Vercel production deployment `dpl_Hx5yP4QzysDJdrHHSqnMKap2crkG` reached READY for that commit.
+- It is aliased to `sports-genome-mauve.vercel.app`.
+- The preview deployment of the PR head (8ea5a23) was also READY before the merge.
+- The build and the tests were re-run on 8be0ef3 itself (see Tests run).
+
+Two things are not yet checked:
+- the regression journeys on an iPhone (REG-1 in `docs/backend-v1/handoff.md`);
+- anything behind a sign-in, because this build has no sign-in.
