@@ -120,8 +120,19 @@ export function useAthleteSync(options: {
     return () => { cancelled = true; stop(); };
   }, [enabled, appSports, referenceMap]);
 
+  const [currentWeightKg, setCurrentWeightKg] = useState(() => currentBodyWeightKg(loadBodyWeightLog()));
+  useEffect(() => {
+    if (!enabled) return;
+    const refresh = () => setCurrentWeightKg(currentBodyWeightKg(loadBodyWeightLog()));
+    // Read again on subscribe: Home seeds the log from a stored profile before this runs.
+    refresh();
+    window.addEventListener(bodyWeightLogEvent, refresh);
+    return () => window.removeEventListener(bodyWeightLogEvent, refresh);
+  }, [enabled]);
+
   // The profile row follows the athlete's current defaults. It is a default, not
   // a measurement: every lift keeps its own dated body-weight snapshot.
+  // A newly logged weight reaches it straight away, not only on the next launch.
   useEffect(() => {
     if (!enabled || !identity.userId) return;
     upsertAthleteProfile(identity.userId, {
@@ -129,9 +140,9 @@ export function useAthleteSync(options: {
       birthYear,
       primarySportId: sportId ? referenceMap?.sportUuidBySlug[sportId] : undefined,
       sportContextMode,
-      defaultBodyWeightKg: currentBodyWeightKg(loadBodyWeightLog()),
+      defaultBodyWeightKg: currentWeightKg,
     });
-  }, [enabled, identity.userId, sexForReference, birthYear, sportId, sportContextMode, referenceMap]);
+  }, [enabled, identity.userId, sexForReference, birthYear, sportId, sportContextMode, referenceMap, currentWeightKg]);
 
   /**
    * The catalog, from the athlete's own session when the server route cannot
