@@ -22,6 +22,7 @@ vi.mock("@/lib/trpc", () => ({
 vi.mock("sonner", () => ({ toast: { success: mocks.success, error: mocks.error } }));
 
 import { deviceWorkoutHistoryKey, loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
+import { loadSyncQueue, saveSyncQueue, type QueuedLift } from "@/lib/strengthSyncQueue";
 import { ProgressOverviewPanel } from "./ProgressOverviewPanel";
 
 const finished = (id: string, title: string, completedAt: string) => ({
@@ -47,7 +48,8 @@ function renderPanel(directAccess = true) {
   return render(React.createElement(ProgressOverviewPanel, { onOpenStrength: () => {}, onOpenTraining: () => {}, directAccess }));
 }
 
-const removeButton = (title: string) => screen.getByRole("button", { name: new RegExp(`^Remove the ${title} workout from `) });
+// The name starts with the words on the button, so a voice command that reads them finds it.
+const removeButton = (title: string) => screen.getByRole("button", { name: new RegExp(`^Remove this workout: ${title}, `) });
 
 describe("a finished workout on this device can be taken back from Progress", () => {
   beforeEach(seed);
@@ -64,6 +66,8 @@ describe("a finished workout on this device can be taken back from Progress", ()
     renderPanel();
     const button = removeButton("Push");
     expect(button.textContent).toBe("Remove this workout");
+    // Its spoken name begins with the words on it, so "click Remove this workout" finds it.
+    expect(button.getAttribute("aria-label")?.startsWith(`${button.textContent}:`)).toBe(true);
     expect(button.closest("details")).not.toBeNull();
     expect(button.closest("summary")).toBeNull();
     expect(button.closest("details")?.querySelector(".progress-session-sets")).not.toBeNull();
@@ -90,10 +94,19 @@ describe("a finished workout on this device can be taken back from Progress", ()
 
     expect(loadDeviceWorkoutSessions().map((session) => session.id)).toEqual(["pull", "live"]);
     expect(screen.queryByRole("alertdialog")).toBeNull();
-    expect(screen.queryByRole("button", { name: /^Remove the Push workout/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Remove this workout: Push,/ })).toBeNull();
     expect(removeButton("Pull")).toBeTruthy();
     expect(screen.getByText("1 total")).toBeTruthy();
     expect(mocks.success).toHaveBeenCalledWith("Workout removed from this device.");
+  });
+
+  it("takes the removed workout's unsent lifts out of the account outbox, and leaves the rest", () => {
+    const queued = (key: string) => ({ key, queuedAt: "2026-09-23T12:00:00.000Z", athlete: {}, lift: { catalogExerciseId: 1, observedAt: "2026-09-23T10:00:00.000Z", measurementType: "MULTI_REP", reportedLoad: 225, reportedUnit: "lb", repetitions: 5, source: "device" } });
+    saveSyncQueue([queued("workout-push-push-e"), queued("workout-pull-pull-e")] as QueuedLift[]);
+    renderPanel();
+    fireEvent.click(removeButton("Push"));
+    fireEvent.click(screen.getByRole("button", { name: "Remove workout" }));
+    expect(loadSyncQueue().map((item) => item.key)).toEqual(["workout-pull-pull-e"]);
   });
 
   it("changes nothing when the athlete cancels", () => {
@@ -121,6 +134,6 @@ describe("a finished workout on this device can be taken back from Progress", ()
     mocks.accountSessions = [{ id: 7, title: "Upper", status: "completed", startedAt: "2026-09-20T10:00:00.000Z", completedAt: "2026-09-20T11:00:00.000Z", completedSetCount: 12, exerciseCount: 4 }];
     renderPanel(false);
     expect(screen.getByText("Upper")).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /^Remove the / })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Remove this workout/ })).toBeNull();
   });
 });

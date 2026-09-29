@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { enqueueLifts, type QueuedLift } from "./strengthSyncQueue";
+import { enqueueLifts, removeQueuedLiftsForSession, type QueuedLift } from "./strengthSyncQueue";
+import { workoutStrengthObservations } from "./workoutStrengthRecord";
+import type { DeviceWorkoutSession } from "./deviceWorkoutLog";
 import { matchSportUuids } from "./supabaseReferenceMap";
 
 const lift = (key: string): QueuedLift => ({
@@ -26,6 +28,30 @@ describe("the outbox between a logged lift and Supabase", () => {
 
   it("drops an entry with no key rather than queueing something it cannot dedupe", () => {
     expect(enqueueLifts([], [], [lift(""), lift("b")]).map((item) => item.key)).toEqual(["b"]);
+  });
+
+  it("lets go of a removed workout's unsent lifts and keeps every other workout's", () => {
+    // Removing a workout deletes it from this device; a lift of it still waiting to be sent
+    // would otherwise reach the account on the next flush.
+    const workout = (id: string, exerciseIds: string[]) => ({
+      id,
+      title: "Push",
+      dayLabel: "Week 1 · Day 01 · Push",
+      startedAt: "2026-09-22T10:00:00.000Z",
+      completedAt: "2026-09-22T11:00:00.000Z",
+      status: "completed",
+      exercises: exerciseIds.map((exerciseId) => ({ id: exerciseId, exerciseName: "Barbell Bench Press", plannedPrescription: "3 × 5", sets: [{ weight: "225", reps: "5", completed: true }] })),
+    }) as DeviceWorkoutSession;
+    const removed = workout("device-1", ["bench-0", "row-1"]);
+    const kept = workout("device-17", ["bench-0"]);
+    // The keys the sync queues, derived the same way it derives them.
+    const queue = workoutStrengthObservations([removed, kept]).map((observation) => lift(observation.id));
+    expect(queue).toHaveLength(3);
+
+    expect(removeQueuedLiftsForSession(queue, removed).map((item) => item.key)).toEqual(
+      workoutStrengthObservations([kept]).map((observation) => observation.id),
+    );
+    expect(removeQueuedLiftsForSession(queue, workout("device-9", ["bench-0"]))).toEqual(queue);
   });
 });
 

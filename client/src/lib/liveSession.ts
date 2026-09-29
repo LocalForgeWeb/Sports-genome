@@ -146,3 +146,39 @@ export function useLiveSession(): LiveSession | null {
   }, []);
   return live;
 }
+
+function sameDayTrainingStates(left: Record<string, DayTrainingState>, right: Record<string, DayTrainingState>) {
+  const keys = Object.keys(left);
+  return keys.length === Object.keys(right).length && keys.every((key) => left[key] === right[key]);
+}
+
+/**
+ * Keeps the Plan's day strip in step with the workout log.
+ *
+ * It used to be recomputed only when the live session changed. With no workout
+ * running, removing a finished one from Progress left the live session null
+ * before and after, so nothing reran and the Plan went on calling the day
+ * "Trained" while Home's week strip already had it as not done. It now listens
+ * to the log itself, like every other reader of it; `focus` also picks up a
+ * new week starting while the app sat open.
+ */
+export function useDayTrainingStates(): Record<string, DayTrainingState> {
+  const [states, setStates] = useState<Record<string, DayTrainingState>>(() => trainingStateByDayLabel());
+  useEffect(() => {
+    const refresh = () => {
+      const next = trainingStateByDayLabel();
+      // Every tracker checkpoint announces itself; most change no day's state.
+      setStates((current) => (sameDayTrainingStates(current, next) ? current : next));
+    };
+    refresh();
+    window.addEventListener(deviceWorkoutHistoryEvent, refresh);
+    window.addEventListener("storage", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.removeEventListener(deviceWorkoutHistoryEvent, refresh);
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+  return states;
+}

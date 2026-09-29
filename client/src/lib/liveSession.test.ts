@@ -111,8 +111,11 @@ describe("the workout under way is readable from outside the tracker", () => {
 
   it("lets a session running now outrank one finished earlier on the same day", () => {
     const label = "Week 1 · Day 05 · Sport Transfer";
-    expect(trainingStateByDayLabel([session({ status: "completed" }), session()])[label]).toBe("live");
-    expect(trainingStateByDayLabel([session(), session({ status: "completed" })])[label]).toBe("live");
+    // Inside the finished session's own week, so it would read "trained" on its own.
+    const saturday = new Date(2026, 8, 26, 12);
+    expect(trainingStateByDayLabel([session({ status: "completed" })], saturday)[label]).toBe("trained");
+    expect(trainingStateByDayLabel([session({ status: "completed" }), session()], saturday)[label]).toBe("live");
+    expect(trainingStateByDayLabel([session(), session({ status: "completed" })], saturday)[label]).toBe("live");
   });
 });
 
@@ -132,6 +135,8 @@ describe("every surface that described the day now reads the session", () => {
     // so no second identity for a day has to be invented or kept in step.
     expect(home).toContain("const activeDayLabel = `Week ${activeWeek} · ${activeSlot.ordinal} · ${activeSlot.day}`;");
     expect(home).toContain("trainingStateFor={(index) => dayTrainingStates[`Week ${activeWeek} · ${daySlots[index]?.ordinal} · ${daySlots[index]?.day}`] || null}");
+    // Read from the log on every write, not only when a running workout changes.
+    expect(home).toContain("const dayTrainingStates = useDayTrainingStates();");
   });
 
   it("stops Home telling an athlete who is training to start when they are ready", () => {

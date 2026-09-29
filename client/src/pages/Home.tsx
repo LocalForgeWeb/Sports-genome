@@ -45,7 +45,7 @@ import { DayCapacityNote } from "@/components/DayCapacityNote";
 import { RecoverySpacingPanel } from "@/components/RecoverySpacingPanel";
 import { TrainingPlanHeader } from "@/components/TrainingPlanHeader";
 import { SessionResumeBar } from "@/components/SessionResumeBar";
-import { exerciseProgressFor, trainingStateByDayLabel, useLiveSession } from "@/lib/liveSession";
+import { exerciseProgressFor, useDayTrainingStates, useLiveSession } from "@/lib/liveSession";
 import { capacityProposalFor } from "@/lib/capacityTargets";
 import { revealWorkspaceAnchor } from "@/lib/workspaceAnchor";
 const AthleteAboutMePanel = lazy(() => import("@/components/AthleteAboutMePanel").then((module) => ({ default: module.AthleteAboutMePanel })));
@@ -382,10 +382,10 @@ export default function Home() {
     return () => observer.disconnect();
   }, [workspace, liveSession?.id]);
   /**
-   * Which days of this week have been trained. Recomputed whenever the live
-   * session changes, which is every checkpoint the tracker writes.
+   * Which days of this week have been trained. Read from the workout log on
+   * every write to it, so a workout removed from Progress stops counting here too.
    */
-  const dayTrainingStates = useMemo(() => trainingStateByDayLabel(), [liveSession]);
+  const dayTrainingStates = useDayTrainingStates();
   /** Home's schematic and week strip, bound to the selected day and the plan's own days. */
   const homeFocusMuscles = useMemo(() => Array.from(new Set(customWorkout.flatMap((exercise) => exercise.primaryMuscles))), [customWorkout]);
   // "Add exercises" opens a sheet over the day rather than scrolling the page to a panel.

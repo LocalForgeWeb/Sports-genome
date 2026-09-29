@@ -8,6 +8,7 @@ import { summarizeWithinAthleteStrengthComparisons, type ChangeState } from "@/l
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, removeDeviceWorkoutSession, saveDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations } from "@/lib/deviceStrengthObservations";
+import { loadSyncQueue, removeQueuedLiftsForSession, saveSyncQueue } from "@/lib/strengthSyncQueue";
 import { workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
 import { bodyWeightLogEvent, currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { displayWeightToKilograms, type DisplayWeightUnit } from "@/lib/weightUnits";
@@ -133,7 +134,13 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
       confirmLabel: "Remove workout",
       onConfirm: () => {
         setPendingRemoval(null);
-        const written = saveDeviceWorkoutSessions(removeDeviceWorkoutSession(loadDeviceWorkoutSessions(), session.id));
+        const sessions = loadDeviceWorkoutSessions();
+        const removed = sessions.find((entry) => entry.id === session.id && entry.status === "completed");
+        // Its lifts not yet sent leave the account outbox first: the save below wakes the
+        // sync, which would otherwise read them from the queue and send them. If the save
+        // is refused, the workout stays and its lifts are queued again on the next sync.
+        if (removed) saveSyncQueue(removeQueuedLiftsForSession(loadSyncQueue(), removed));
+        const written = saveDeviceWorkoutSessions(removeDeviceWorkoutSession(sessions, session.id));
         if (written) toast.success("Workout removed from this device.");
         else toast.error("This workout could not be removed", { description: "The device refused the save, so nothing changed." });
       },
@@ -192,7 +199,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
            record that logged nothing says so rather than being dressed up or
            dropped. An account record carries its counts only. */
         const facts = <><small>{session.completedAt.toLocaleDateString()} · {session.exerciseCount} {session.exerciseCount === 1 ? "exercise" : "exercises"} · {session.completedSetCount === 0 ? "no sets logged" : `${session.completedSetCount} ${session.completedSetCount === 1 ? "set" : "sets"}`}</small><span>{session.storage === "device" ? "Device" : "Account"}</span></>;
-        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.name}><span>{exercise.name}</span><b>{exercise.done} of {plural(exercise.planned, "set")}</b>{exercise.skipped ? <i>skipped</i> : null}</li>)}</ul><button type="button" className="progress-text-action" onClick={() => requestSessionRemoval(session)} aria-label={`Remove the ${session.title} workout from ${session.completedAt.toLocaleDateString()}`}>Remove this workout</button></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
+        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.name}><span>{exercise.name}</span><b>{exercise.done} of {plural(exercise.planned, "set")}</b>{exercise.skipped ? <i>skipped</i> : null}</li>)}</ul><button type="button" className="progress-text-action" onClick={() => requestSessionRemoval(session)} aria-label={`Remove this workout: ${session.title}, ${session.completedAt.toLocaleDateString()}`}>Remove this workout</button></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
       })}</ol> : <p className="progress-empty-copy">Complete a Session workout to create your first record.</p>}
       <button type="button" onClick={onOpenTraining} className="progress-text-action">Open your plan <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
     </section>
