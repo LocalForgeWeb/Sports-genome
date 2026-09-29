@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 133
-- `implementing`: 60
-- `verified`: 66
+- `pending`: 121
+- `implementing`: 58
+- `verified`: 80
 - `blocked`: 9
 - `deferred (owner)`: 30
 <!-- summary:end -->
@@ -537,17 +537,17 @@ _No requirement IDs in this section._
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
 | B280 | Frontend consumers use the repaired contracts. An unused correct backend does not fix the app. | verified | Each repaired contract is wired to its screens and was verified in the running app or production: muscle ranks (batch 3 and 4 live probes), load labels, coverage panel/picker, recommendations, plan-sync conflict banner, rank legend. Dormant components not mounted (WorkoutExecutionPanel, ProgressionReviewPanel) still carry the old 3 x 8-12 fallback. |
-| B281 | Home, Plan, Workout, Progress, Strength, and exercise recommendations pass their relevant complete journeys. | implementing | Simulated mobile (Chromium 390x844, device stores): Home, exercise search, add to plan, Train day coverage, start workout and log a set, open Strength run end to end in scripts/perf/measure-client.cjs. Not run as complete journeys: finishing a workout into Progress, recommendations accepted into a plan, any account-backed journey (MySQL unreachable), iOS. |
-| B282 | Loading/error/partial states preserve usable data and understandable next steps. | implementing | Refused finish stays open; plan-sync conflict shown with both choices; ranks pending/partial states; the false 'sign-in has expired' toast on the device stores removed (batch 10). Offline plan sync is still silent. |
+| B281 | Home, Plan, Workout, Progress, Strength, and exercise recommendations pass their relevant complete journeys. | implementing | Simulated mobile (Chromium, 320-430 px, 100% and 125% text, device stores): the Sep 28 brief's journeys passed on 8be0ef3 (docs/regression-sep28: cold/warm Home, Plan browsing -> Home -> open workout, explicit day change, active session resumed across navigation and reload, empty day then populated, Matches add/Undo/View workout, Strength map consistency), plus the batch 10 flows (search, add, coverage, start and log a set, Strength). Not run: finishing a workout into Progress as one journey, recommendations beyond Matches, any account-backed journey (MySQL unreachable), iOS/WebKit. |
+| B282 | Loading/error/partial states preserve usable data and understandable next steps. | implementing | Refused finish stays open; plan-sync conflict shown with both choices; ranks pending/partial states; the empty day reads 'Not available yet' instead of 0/100; the sign-in notice fires once per lapse with a close button, an action and a lasting status (Sep 28 repair, #82). Offline plan sync is still silent. |
 | B283 | Record what was tested on desktop, simulated mobile, actual iOS build, and store sandbox separately. | verified | verification.md § Environments and performance.md record desktop/simulated mobile (headless Chromium) separately; actual iOS build not available (D-003); store sandbox deferred by owner (D-001). |
 
 ### Gate E — maintainability
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B284 | Tests, migrations, decisions, and documentation match the implemented state. | pending |  |
-| B285 | Known remaining risks are prioritized and have specific reproduction or verification steps. | pending |  |
-| B286 | V2 can begin by reading the handoff and running the baseline without reconstructing undocumented decisions. | pending |  |
+| B284 | Tests, migrations, decisions, and documentation match the implemented state. | verified | At 8be0ef3 (production): tsc --noEmit exit 0; vitest 2,539 passed, 1 skipped, 5 failed (live-Supabase network tests, same five as every batch); npm run build passes. Decisions D-001-D-015 and docs/regression-sep28 record every behaviour change; prepared migrations labelled not applied everywhere (gates.md, handoff.md). |
+| B285 | Known remaining risks are prioritized and have specific reproduction or verification steps. | verified | handoff.md 'Remaining defects' lists each open risk with priority, a reproduction or verification step, the next step and its dependency (stable IDs from inventory/*.md, plus REG-1 from the Sep 28 repair). |
+| B286 | V2 can begin by reading the handoff and running the baseline without reconstructing undocumented decisions. | verified | handoff.md 'Run the baseline' gives the commands run for B284 with their expected results; decisions.md, the intentional-change table and the version map carry every decision V2 needs (gates.md). |
 
 ## 17. Work sequence and checkpoints
 
@@ -561,15 +561,15 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B287 | Record existing engine versions and assign new versions only for meaningful calculation/contract changes. | implementing | Card and trends report strength_beta_v2 with the estimator named; muscle ranks report the lifts' version and the aggregation's separately. The database's strength_scoring_versions v2 row misdescribes its e1RM method - correction prepared with the batch 7 migrations. |
-| B288 | Maintain a compatibility map between client contract, engine version, schema revision, and reference-data revision. | pending |  |
+| B287 | Record existing engine versions and assign new versions only for meaningful calculation/contract changes. | verified | handoff.md 'Versions and compatibility map' records each engine's identifier; strength_beta_v2 was the only new version, assigned for the estimator change (D-007); UI-only changes (Sep 28 repair) assigned none. |
+| B288 | Maintain a compatibility map between client contract, engine version, schema revision, and reference-data revision. | verified | handoff.md 'Versions and compatibility map': client contract, engine versions, coverage target revision (split_targets_v1), device storage keys, Supabase and MySQL schema states, with the migration ordering constraint. |
 | B289 | Preserve baseline fixtures and add regression cases for every material bug repaired in V1. | verified | Each repaired defect has a regression test that failed against the old code (mutation checks recorded in verification.md for batches 2-10); baseline fixtures kept, rewritten ones carry the reason inline. |
-| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | implementing | Intentional changes recorded with rewritten tests: D-004, D-006, D-007, D-010. The handoff will list them all. |
-| B291 | Carry unresolved issues forward with stable IDs, dependencies, attempted approaches, and evidence. | pending |  |
-| B292 | Separate V2 ideas from unfinished V1 requirements. Do not quietly reclassify incomplete launch-critical work as a future enhancement. | pending |  |
-| B293 | For each candidate extension, identify whether it adds a module, expands supported inputs, improves evidence, or changes existing semantics. | pending |  |
-| B294 | Keep deprecated paths until their actual consumers have migrated, then remove them through a deliberate follow-up. | pending |  |
-| B295 | Ensure model/data rollback does not require erasing user observations. | pending |  |
+| B290 | Mark intentional behavior changes explicitly so V2 does not mistake them for regressions. | verified | handoff.md 'Intentional behaviour changes' lists D-004-D-015 and the #82 changes; every rewritten test carries an inline 'Intentional change' note with its reason. |
+| B291 | Carry unresolved issues forward with stable IDs, dependencies, attempted approaches, and evidence. | verified | handoff.md 'Remaining defects' carries each unresolved issue with its stable ID, dependency, attempted approach where one was tried (e.g. prepared migrations, D-013) and evidence. |
+| B292 | Separate V2 ideas from unfinished V1 requirements. Do not quietly reclassify incomplete launch-critical work as a future enhancement. | verified | handoff.md 'V1 requirements not done' lists unfinished V1 work by area, kept apart from the V2 candidates table; status.md keeps each as pending/implementing. |
+| B293 | For each candidate extension, identify whether it adds a module, expands supported inputs, improves evidence, or changes existing semantics. | verified | handoff.md 'V2 candidates' classifies each as adds a module, expands inputs/outputs, improves evidence, or changes existing semantics. |
+| B294 | Keep deprecated paths until their actual consumers have migrated, then remove them through a deliberate follow-up. | verified | Legacy unscoped storage keys still read; dormant components and MySQL profile plumbing kept until nothing mounts them (handoff.md 'Constraints for V2'). sessionExpiryNotice.ts was reduced, not removed, because StrengthGenomePanel and About me still read its words (#82). |
+| B295 | Ensure model/data rollback does not require erasing user observations. | verified | Every V1 model change is code-only and never rewrote a stored observation; each prepared migration has a rollback that deletes no data (supabase/prepared/backend_v1/README.md). |
 
 ### Potential V2 directions — not automatic V1 scope
 
@@ -579,9 +579,9 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B296 | Do not claim the app is launch-ready solely because this checklist is long, tests compile, or all code has been written. | pending |  |
-| B297 | Do not describe an unrun test as passed or a proposed migration as applied. | pending |  |
-| B298 | End with a concrete next-state handoff, not a vague invitation to start the work later. | pending |  |
+| B296 | Do not claim the app is launch-ready solely because this checklist is long, tests compile, or all code has been written. | verified | gates.md and the final response state 'not launch-ready' with the failing and unverified gates named. |
+| B297 | Do not describe an unrun test as passed or a proposed migration as applied. | verified | gates.md reports only commands run on 8be0ef3; the prepared Supabase migrations are reported as not applied; untested platforms (iOS, WebKit, MySQL) are reported as unverified. |
+| B298 | End with a concrete next-state handoff, not a vague invitation to start the work later. | verified | handoff.md ends with owner decisions (numbered, with what each blocks), remaining defects with next steps, and the baseline to run; gates.md names what would change each failing gate. |
 
 ## 20. Official implementation references
 
