@@ -1,12 +1,15 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   signIn: vi.fn(),
   register: vi.fn(),
   passkey: vi.fn(),
+  passkeyOptions: vi.fn(),
+  passkeyVerify: vi.fn(),
+  startAuthentication: vi.fn(),
   invalidate: vi.fn().mockResolvedValue(undefined),
   toastError: vi.fn(),
   toastSuccess: vi.fn(),
@@ -18,14 +21,15 @@ vi.mock("@/lib/trpc", () => ({
     auth: {
       register: { useMutation: () => ({ mutateAsync: mocks.register, isPending: false }) },
       signIn: { useMutation: () => ({ mutateAsync: mocks.signIn, isPending: false }) },
-      passkeyAuthenticationOptions: { useMutation: () => ({ mutateAsync: mocks.passkey, isPending: false }) },
-      passkeyAuthenticationVerify: { useMutation: () => ({ mutateAsync: mocks.passkey, isPending: false }) },
+      passkeyAuthenticationOptions: { useMutation: () => ({ mutateAsync: mocks.passkeyOptions, isPending: false }) },
+      passkeyAuthenticationVerify: { useMutation: () => ({ mutateAsync: mocks.passkeyVerify, isPending: false }) },
       passkeyRegistrationOptions: { useMutation: () => ({ mutateAsync: mocks.passkey, isPending: false }) },
       passkeyRegistrationVerify: { useMutation: () => ({ mutateAsync: mocks.passkey, isPending: false }) },
     },
   },
 }));
 vi.mock("sonner", () => ({ toast: { error: mocks.toastError, success: mocks.toastSuccess } }));
+vi.mock("@simplewebauthn/browser", () => ({ startAuthentication: mocks.startAuthentication, startRegistration: vi.fn() }));
 
 import { EmailAuthScreen } from "./EmailAuthScreen";
 
@@ -48,7 +52,7 @@ describe("email sign-in when the request itself fails", () => {
     mocks.toastError.mockReset();
   });
 
-  afterEach(() => { document.body.innerHTML = ""; });
+  afterEach(() => { cleanup(); });
 
   it("says sign-in could not finish and keeps what the athlete typed", async () => {
     mocks.signIn.mockRejectedValue(new Error("Failed to fetch"));
@@ -105,5 +109,91 @@ describe("email sign-in when the request itself fails", () => {
     await waitFor(() => expect(mocks.toastError).toHaveBeenCalledWith("Email or password is incorrect"));
     expect(mocks.toastError).toHaveBeenCalledTimes(1);
     expect(onAuthenticated).not.toHaveBeenCalled();
+  });
+});
+
+const RATE_LIMITED = "Too many sign-in attempts from this network. Wait a minute and try again.";
+const tooManyRequests = () => Object.assign(new Error("Too many requests in a short time. Wait a minute and try again."), { data: { code: "TOO_MANY_REQUESTS" } });
+
+describe("sign-in when the server says this network has tried too often", () => {
+  beforeEach(() => {
+    for (const mock of [mocks.signIn, mocks.register, mocks.passkeyOptions, mocks.passkeyVerify, mocks.startAuthentication, mocks.toastError]) mock.mockReset();
+    // jsdom has no WebAuthn; a device that has it, so the passkey button renders.
+    (window as unknown as { PublicKeyCredential?: unknown }).PublicKeyCredential = function PublicKeyCredential() {};
+  });
+
+  afterEach(() => {
+    cleanup();
+    delete (window as unknown as { PublicKeyCredential?: unknown }).PublicKeyCredential;
+  });
+
+  it("asks the athlete to wait rather than check their connection when email sign-in is refused", async () => {
+    mocks.signIn.mockRejectedValue(tooManyRequests());
+    const { onAuthenticated, form } = renderScreen();
+    fill("Email", "athlete@example.com");
+    fill("Password", "correct horse battery");
+
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledWith(RATE_LIMITED));
+    expect(mocks.toastError).toHaveBeenCalledTimes(1);
+    expect(onAuthenticated).not.toHaveBeenCalled();
+    expect((screen.getByLabelText("Password") as HTMLInputElement).value).toBe("correct horse battery");
+  });
+
+  it("asks the athlete to wait when creating an account is refused", async () => {
+    mocks.register.mockRejectedValue(tooManyRequests());
+    const { onAuthenticated, form } = renderScreen();
+    fireEvent.click(screen.getByRole("button", { name: "Need an account? Create one" }));
+    fill("Email", "athlete@example.com");
+    fill("Password", "a long enough password");
+    fill("Confirm password", "a long enough password");
+
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledWith(RATE_LIMITED));
+    expect(mocks.toastError).toHaveBeenCalledTimes(1);
+    expect(onAuthenticated).not.toHaveBeenCalled();
+  });
+
+  it("asks the athlete to wait rather than saying Face ID was cancelled when passkey sign-in is refused before the prompt", async () => {
+    mocks.passkeyOptions.mockRejectedValue(tooManyRequests());
+    const { onAuthenticated } = renderScreen();
+    fill("Email", "athlete@example.com");
+
+    fireEvent.click(screen.getByRole("button", { name: /Sign in with Face ID \/ passkey/ }));
+
+    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledWith(RATE_LIMITED));
+    expect(mocks.toastError).toHaveBeenCalledTimes(1);
+    expect(mocks.startAuthentication).not.toHaveBeenCalled();
+    expect(onAuthenticated).not.toHaveBeenCalled();
+  });
+
+  it("asks the athlete to wait when the passkey check is refused after Face ID", async () => {
+    mocks.passkeyOptions.mockResolvedValue({ ok: true, options: { challenge: "c" } });
+    mocks.startAuthentication.mockResolvedValue({ id: "credential" });
+    mocks.passkeyVerify.mockRejectedValue(tooManyRequests());
+    const { onAuthenticated } = renderScreen();
+    fill("Email", "athlete@example.com");
+
+    fireEvent.click(screen.getByRole("button", { name: /Sign in with Face ID \/ passkey/ }));
+
+    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledWith(RATE_LIMITED));
+    expect(mocks.toastError).toHaveBeenCalledTimes(1);
+    expect(mocks.passkeyVerify).toHaveBeenCalledWith({ email: "athlete@example.com", response: { id: "credential" } });
+    expect(onAuthenticated).not.toHaveBeenCalled();
+  });
+
+  it("still says Face ID was cancelled when the athlete dismisses the prompt", async () => {
+    mocks.passkeyOptions.mockResolvedValue({ ok: true, options: { challenge: "c" } });
+    mocks.startAuthentication.mockRejectedValue(Object.assign(new Error("The operation was aborted"), { name: "NotAllowedError" }));
+    renderScreen();
+    fill("Email", "athlete@example.com");
+
+    fireEvent.click(screen.getByRole("button", { name: /Sign in with Face ID \/ passkey/ }));
+
+    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledWith("Face ID or device passkey was cancelled or unavailable"));
+    expect(mocks.toastError).toHaveBeenCalledTimes(1);
+    expect(mocks.passkeyVerify).not.toHaveBeenCalled();
   });
 });
