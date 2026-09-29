@@ -112,6 +112,9 @@ export type FlushResult = { sent: number; remaining: number; skipped: number; re
  * exercise has no Supabase uuid yet stays queued and is not marked sent: the
  * mapping is read from the database, and while that read failed (SB-06) every
  * lift was dropped as unmappable and lost. It is sent once its mapping resolves.
+ *
+ * A row the database rejects stays queued the same way, and no longer holds back
+ * the rows queued around it: those are sent one at a time and land on their own.
  */
 export async function flushSyncQueue(
   userId: string | null,
@@ -143,20 +146,43 @@ export async function flushSyncQueue(
     return { sent: 0, remaining: queue.length - unsendable.length, skipped: unmappable.length + unsendable.length };
   }
 
+  // postgrest-js hands back a dropped connection as status 0 rather than throwing, so that is
+  // what tells "offline" from a row the database turned down.
+  const landed = new Set<string>();
+  let batchRejected = false;
   try {
-    const { error } = await supabase.from("athlete_strength_entries").insert(rows.map((row) => row.payload));
-    if (error) return { sent: 0, remaining: queue.length, skipped: 0, reason: "rejected" };
+    const { error, status } = await supabase.from("athlete_strength_entries").insert(rows.map((row) => row.payload));
+    if (error && status === 0) return { sent: 0, remaining: queue.length, skipped: 0, reason: "offline" };
+    if (error) batchRejected = true;
+    else rows.forEach((row) => landed.add(row.key));
   } catch {
     return { sent: 0, remaining: queue.length, skipped: 0, reason: "offline" };
   }
 
-  const landed = new Set(rows.map((row) => row.key));
-  const alreadySent = loadSyncedKeys().concat(rows.map((row) => row.key), unsendable);
+  // One row the database turns down fails the whole batch, and it used to hold back every lift
+  // queued with it on every later flush. The rows go again one at a time, so the good ones land;
+  // a row still turned down stays queued, unmarked, to be tried again later.
+  let dropped = false;
+  if (batchRejected && rows.length > 1) {
+    for (const row of rows) {
+      try {
+        const { error, status } = await supabase.from("athlete_strength_entries").insert([row.payload]);
+        if (error && status === 0) { dropped = true; break; }
+        if (!error) landed.add(row.key);
+      } catch {
+        dropped = true;
+        break;
+      }
+    }
+  }
+
+  const alreadySent = loadSyncedKeys().concat(Array.from(landed), unsendable);
   writeJson(strengthSyncedKey, Array.from(new Set(alreadySent)).slice(-5000));
   // The queue is read again rather than filtered from the copy taken before the insert. The
   // insert can take seconds on a gym network, and a workout removed in that time prunes its
   // lifts from storage; writing the old copy back would restore them and send them later.
   const remaining = loadSyncQueue().filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
   saveSyncQueue(remaining);
-  return { sent: rows.length, remaining: remaining.length, skipped: unmappable.length + unsendable.length };
+  const reason = landed.size < rows.length ? (dropped ? "offline" : "rejected") : undefined;
+  return { sent: landed.size, remaining: remaining.length, skipped: unmappable.length + unsendable.length, reason };
 }
