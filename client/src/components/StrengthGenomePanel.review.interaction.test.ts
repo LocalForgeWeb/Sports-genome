@@ -60,4 +60,30 @@ describe("Strength Genome direct Review workflow", () => {
     // covers, so this says so plainly rather than explaining a study protocol.
     expect(screen.getByText("No ranking for this lift yet")).toBeTruthy();
   });
+
+  it("hands focus back to the Review button when Escape closes the record", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    const review = screen.getByRole("button", { name: "Review" });
+    review.focus();
+    fireEvent.click(review);
+    expect(document.activeElement).not.toBe(review);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(document.activeElement).toBe(review);
+  });
+
+  it("hands focus back to the Review button when the close button closes the record", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    const review = screen.getByRole("button", { name: "Review" });
+    review.focus();
+    fireEvent.click(review);
+    fireEvent.click(screen.getByRole("button", { name: "Close Biceps detail" }));
+    expect(document.activeElement).toBe(review);
+  });
+
+  it("tells a screen reader which lift each Review button opens", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    const describedBy = screen.getByRole("button", { name: "Review" }).getAttribute("aria-describedby");
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy!)?.textContent).toContain("Preacher Curl");
+  });
 });

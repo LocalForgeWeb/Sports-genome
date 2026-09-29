@@ -137,8 +137,10 @@ export function StrengthBodyMassInput({ weightUnit, value, onChange }: { weightU
   return <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Body mass at test ({weightUnit})</span><input aria-label={`Body mass at test in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Optional" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>;
 }
 
-export function StrengthObservationReviewButton({ observation, onReview }: { observation: StrengthObservationRecord; onReview: (observation: StrengthObservationRecord) => void }) {
-  return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review">Review</button>;
+// The visible name stays "Review"; `describedBy` points at the row's lift and
+// date so a screen reader hears which lift each Review opens.
+export function StrengthObservationReviewButton({ observation, onReview, describedBy }: { observation: StrengthObservationRecord; onReview: (observation: StrengthObservationRecord) => void; describedBy?: string }) {
+  return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review" aria-describedby={describedBy}>Review</button>;
 }
 
 export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, onLogLift }: { regionRank?: RegionRank | null; rankMode?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
@@ -532,6 +534,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const { shown: sheetRegion, isLeaving: sheetLeaving } = useSheetPresence(selectedRegion);
   const [selectedObservationId, setSelectedObservationId] = useState("");
   const regionDetailRef = useRef<HTMLDivElement | null>(null);
+  // Whatever opened the record (a muscle, a region button, a Review button) gets
+  // focus back when the record closes, instead of focus falling to the page.
+  const regionOpenerRef = useRef<HTMLElement | SVGElement | null>(null);
   const [deviceObservations, setDeviceObservations] = useState<DeviceStrengthObservation[]>(() => loadDeviceStrengthObservations());
   useEffect(() => {
     if (!directAccess) return;
@@ -749,6 +754,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   useEffect(() => {
     const detail = regionDetailRef.current;
     if (!selectedRegion || !detail || typeof window === "undefined") return;
+    // Remember the opener before focus moves into the record. Focus already
+    // inside the record (a second lift reviewed from it) is never the opener.
+    const active = document.activeElement;
+    if ((active instanceof HTMLElement || active instanceof SVGElement) && active !== document.body && !detail.contains(active)) regionOpenerRef.current = active;
     const frame = window.requestAnimationFrame(() => {
       if (!window.matchMedia?.("(max-width: 1023px)").matches) {
         const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -763,6 +772,15 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     });
     return () => window.cancelAnimationFrame(frame);
   }, [selectedRegion?.id, selectedObservationId]);
+  // Closing hands focus back to the opener. The record stays mounted, hidden,
+  // for its exit animation, so focus left in it would sit in hidden content.
+  const closeRegionRecord = () => {
+    setSelectedRegion(null);
+    setSelectedObservationId("");
+    const opener = regionOpenerRef.current;
+    regionOpenerRef.current = null;
+    if (opener?.isConnected) opener.focus({ preventScroll: true });
+  };
   // Escape closes the pinned record, the way it closes any other layer that sits
   // over the page. The figure stays tappable while it is open, so this is the
   // only dismissal a keyboard needs beyond the close button.
@@ -770,8 +788,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     if (!selectedRegion || typeof window === "undefined") return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      setSelectedRegion(null);
-      setSelectedObservationId("");
+      closeRegionRecord();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -835,7 +852,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
 
     <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankNotice || ageNotice ? <>{rankNotice}{ageNotice}</> : null} ranksPending={rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
     {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
-    {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} regionRank={regionRanks?.get(sheetRegion.id) ?? null} rankMode={regionRanks !== null} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} />
+    {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} regionRank={regionRanks?.get(sheetRegion.id) ?? null} rankMode={regionRanks !== null} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={closeRegionRecord} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} />
       <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: sheetRegion.id, active: !activePriorityIds.has(sheetRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(sheetRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(sheetRegion.id) ? "Focused" : "Set focus"}</button></div></div>
     </div>}
 
@@ -880,7 +897,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       <summary><Dumbbell className="h-5 w-5" aria-hidden="true" /><span>Recent lifts</span><small>· {activeObservations.length} {recordWord}</small><ChevronDown className="h-5 w-5 strength-disclosure-chevron" aria-hidden="true" /></summary>
       <div className="strength-progress-log">
         {activeObservations.length > 0 && <p className="strength-recent-scope">{recentObservations.length < activeObservations.length ? `The latest ${recentObservations.length} of ${activeObservations.length}. ` : ""}{workoutObservations.length ? `${workoutObservations.length} carried across from finished workouts${directAccess ? ", saved on this device only" : ""}.` : (directAccess ? "Saved on this device only." : "")}</p>}
-        {recentObservations.length ? <div className="strength-recent-rows">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div><p className="strength-recent-name">{observation.exerciseName}</p><p className="strength-recent-meta">{observation.source === "workout" ? `From ${observation.sessionLabel || "a workout"}` : measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div><div className="strength-log-row-actions">{strengthRegionIdsForExerciseName(observation.exerciseName).length > 0 && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} />}{observation.source !== "workout" && <button type="button" className="strength-log-remove" disabled={removeObservation.isPending} onClick={() => requestObservationRemoval(observation as StrengthObservationRecord)} aria-label={`Remove the ${observation.exerciseName} test from ${new Date(observation.observedAt).toLocaleDateString()}`} title="Remove this test"><Trash2 className="h-3.5 w-3.5" /></button>}</div></div>)}</div> : <div className="strength-log-empty"><Activity className="h-5 w-5" /><p><strong>Nothing logged yet</strong></p><p>Log your first lift and your progress starts tracking from there.</p></div>}{observationRemovalError && <p className="strength-log-remove-error" role="alert">{observationRemovalError}</p>}
+        {recentObservations.length ? <div className="strength-recent-rows">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div id={`strength-recent-${observation.id}`}><p className="strength-recent-name">{observation.exerciseName}</p><p className="strength-recent-meta">{observation.source === "workout" ? `From ${observation.sessionLabel || "a workout"}` : measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div><div className="strength-log-row-actions">{strengthRegionIdsForExerciseName(observation.exerciseName).length > 0 && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} describedBy={`strength-recent-${observation.id}`} />}{observation.source !== "workout" && <button type="button" className="strength-log-remove" disabled={removeObservation.isPending} onClick={() => requestObservationRemoval(observation as StrengthObservationRecord)} aria-label={`Remove the ${observation.exerciseName} test from ${new Date(observation.observedAt).toLocaleDateString()}`} title="Remove this test"><Trash2 className="h-3.5 w-3.5" /></button>}</div></div>)}</div> : <div className="strength-log-empty"><Activity className="h-5 w-5" /><p><strong>Nothing logged yet</strong></p><p>Log your first lift and your progress starts tracking from there.</p></div>}{observationRemovalError && <p className="strength-log-remove-error" role="alert">{observationRemovalError}</p>}
       </div>
     </details>
 
