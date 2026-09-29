@@ -270,7 +270,8 @@ describe("workspace side navigation", () => {
     expect(source).toContain("Import plan");
     // Starting the workout opens the destination that owns it rather than a
     // logger rendered a second time inside the plan.
-    expect(source).toContain('className="day-action-session" onClick={() => navigateWorkspace("tracker")}');
+    // Opening a day's workout from Plan is an explicit choice to train it, unless one is running.
+    expect(source).toContain('className="day-action-session" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }}');
     expect(source).not.toContain("<WorkoutExecutionPanel");
     expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
   });

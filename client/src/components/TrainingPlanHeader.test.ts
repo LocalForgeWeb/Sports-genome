@@ -85,7 +85,9 @@ describe("choosing a week and a day", () => {
     expect(markup).toContain("training-plan-day-live");
     expect(markup).toContain("Training now");
     expect(markup).toContain("training-plan-day-trained");
-    expect(markup).toContain("Trained");
+    // "Done this week", not "Trained": the state is scoped to the calendar week, the same rule
+    // Home's strip reads (intentional change, Sep 28 regression brief §5).
+    expect(markup).toContain("Done this week");
   });
 
   it("renders nothing rather than a header for a week with no days", () => {

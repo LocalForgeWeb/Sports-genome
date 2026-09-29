@@ -87,7 +87,7 @@ export function TrainingPlanHeader({
           className={`training-plan-day${selected ? " training-plan-day-active" : ""}${trained ? ` training-plan-day-${trained}` : ""}`}
         >
           {slot.day}
-          <small>{trained === "live" ? "Training now" : trained === "trained" ? "Trained" : planned ? `${planned}` : "—"}</small>
+          <small>{trained === "live" ? "Training now" : trained === "trained" ? "Done this week" : planned ? `${planned}` : "—"}</small>
         </button>;
       })}
     </div>

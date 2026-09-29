@@ -110,7 +110,10 @@ describe("every surface that described the day now reads the session", () => {
     // The same `Week 1 · Day 05 · Sport Transfer` string the tracker stamps on,
     // so no second identity for a day has to be invented or kept in step.
     expect(home).toContain("const activeDayLabel = `Week ${activeWeek} · ${activeSlot.ordinal} · ${activeSlot.day}`;");
-    expect(home).toContain("trainingStateFor={(index) => dayTrainingStates[`Week ${activeWeek} · ${daySlots[index]?.ordinal} · ${daySlots[index]?.day}`] || null}");
+    // Plan's tabs read the slot part of that label, finished this calendar week, so a day done in
+    // any plan week this week is marked and one done last week is not (intentional change,
+    // Sep 28 regression brief §5; liveSession trainingStateBySlot).
+    expect(home).toContain("trainingStateFor={(index) => dayTrainingStates[`${daySlots[index]?.ordinal} · ${daySlots[index]?.day}`] || null}");
   });
 
   it("stops Home telling an athlete who is training to start when they are ready", () => {

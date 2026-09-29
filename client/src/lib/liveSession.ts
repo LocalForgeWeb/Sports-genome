@@ -8,6 +8,8 @@ import {
   isCompletedWorkout,
   isExerciseSkipped,
 } from "@/lib/deviceWorkoutLog";
+import { slotOfDayLabel } from "@/lib/nextWorkout";
+import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 
 /**
  * The workout that is happening right now, readable from anywhere.
@@ -81,6 +83,28 @@ export function trainingStateByDayLabel(sessions = loadDeviceWorkoutSessions()):
     if (session.status === "active") states[session.dayLabel] = "live";
     // A finish with nothing logged did not train the day.
     else if (!states[session.dayLabel] && isCompletedWorkout(session)) states[session.dayLabel] = "trained";
+  }
+  return states;
+}
+
+/**
+ * Plan days by slot ("Day 02 · Pull"): running now, or finished this calendar week.
+ *
+ * `trainingStateByDayLabel` above never looks at dates, so Plan's tabs said "Trained" for a day
+ * finished weeks ago while Home's strip, which counts this week, said it was still to do (Sep 28
+ * regression brief §5). This reads the same rule as Home (nextWorkout.ts slotsDoneThisWeek): the
+ * week starts Monday 00:00 local, a finish with nothing logged is not a workout, and a session
+ * counts for the slot it was started from whichever plan week that was.
+ */
+export function trainingStateBySlot(sessions = loadDeviceWorkoutSessions(), now: Date = new Date()): Record<string, DayTrainingState> {
+  const weekStart = startOfTrainingWeek(now);
+  const states: Record<string, DayTrainingState> = {};
+  for (const session of sessions) {
+    if (!session.dayLabel) continue;
+    const slot = slotOfDayLabel(session.dayLabel);
+    if (session.status === "active") { states[slot] = "live"; continue; }
+    const finished = new Date(session.completedAt ?? session.startedAt);
+    if (!states[slot] && isCompletedWorkout(session) && !Number.isNaN(finished.getTime()) && finished >= weekStart) states[slot] = "trained";
   }
   return states;
 }
