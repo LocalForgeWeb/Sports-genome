@@ -148,3 +148,22 @@ describe("Changing account on one device", () => {
     expect(kept).toEqual(expect.arrayContaining([...shortlist, saved.id]));
   });
 });
+
+describe("A saved profile that no longer reads cleanly", () => {
+  /**
+   * The goal indexes the programming targets on every render and the training days pick
+   * the split, so a goal that is not one of the four, or a missing day count, used to
+   * throw on load or show "NaN days a week". Both fall back to the defaults, and the
+   * next save writes the repaired record.
+   */
+  it("opens Home and repairs an unknown goal and a missing training-day count", async () => {
+    window.localStorage.setItem(`${PROFILE}::1`, JSON.stringify({ version: 3, sportId: "", sportContextMode: "general", goal: "Strength", gymMinutes: 60, movementId: "", baseline: { experience: "Intermediate", weightUnit: "lb", preferredName: "Alex" } }));
+    auth.user = { id: 1 };
+    render(createElement(Home));
+    await screen.findByRole("heading", { level: 1 }, { timeout: 15000 });
+    await settle();
+    const saved = JSON.parse(window.localStorage.getItem(`${PROFILE}::1`)!);
+    expect(saved.goal).toBe("Athleticism");
+    expect(saved.trainingDays).toBe(3);
+  });
+});
