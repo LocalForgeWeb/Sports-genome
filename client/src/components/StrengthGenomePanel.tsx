@@ -31,7 +31,7 @@ import { regionRanksFromMuscles, type RegionRank } from "@shared/capabilityRank"
 import { RankCard, UnscoredRankCard } from "@/components/CapabilityRank";
 import { RankIcon } from "@/components/RankIcon";
 import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
-import { muscleRankLiftSelection } from "@/lib/muscleRankLifts";
+import { muscleRankLiftSelection, type ProfileWeightLift } from "@/lib/muscleRankLifts";
 import { ageAtLift } from "@/lib/normsCohort";
 import { countCoveredRegions } from "@/lib/athleteRecord";
 import { decimalEntryText } from "@/lib/numericEntry";
@@ -147,7 +147,7 @@ export function StrengthObservationReviewButton({ observation, onReview, describ
   return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review" aria-describedby={describedBy}>Review</button>;
 }
 
-export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, onLogLift, registryOffline = false }: { regionRank?: RegionRank | null; rankMode?: boolean; /** The research library could not be reached, so no comparison is a fact about the library, not the lift. */ registryOffline?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
+export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, onLogLift, registryOffline = false }: { regionRank?: RegionRank | null; rankMode?: boolean; /** The research library could not be reached, so no comparison is a fact about the library, not the lift. */ registryOffline?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; /** Saves the weight of a device-held lift's day; true only when a lift took it and the device kept it. */ onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => boolean; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
   const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => compareRegionRecordRelevance(region.id, a, b)), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
@@ -303,7 +303,9 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
           ? <p className="strength-rank-needs">{communityGroupWithoutCurveCopy}</p>
           : <ComparisonGate need="group" onProfile={onRankProfile} fallback={percentileGap} />)}
         {showPercentile && !athleteProfile?.birthYear && <ComparisonGate need="birthYear" onProfile={onRankProfile} />}
-        {bodyMassSource !== "recorded" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Body weight for this lift saved on this device. Your recorded ratio is ready."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body weight for this lift…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
+        {/* A lift from a finished workout lives in the workout log, which keeps the weight of its day and has no field to add one afterwards; its record says what it is read against instead of offering a form that would store nothing. */}
+        {bodyMassSource !== "recorded" && latestRecord.source === "workout" && <p className="strength-workout-body-mass" data-workout-body-mass-note>This lift is from a workout, so it is read against the body weight saved for that day, or your profile weight when none was saved.</p>}
+        {bodyMassSource !== "recorded" && latestRecord.source !== "workout" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { if (!onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest)) { setBodyMassSaveError("Body weight was not saved on this device. Your entry is still here."); return; } setBodyMassSaveError(null); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Body weight for this lift saved on this device. Your recorded ratio is ready."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body weight for this lift…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
         <details className="strength-region-boundary"><summary>{hasOutsideComparison || showPercentile ? "About this comparison" : "No ranking for this lift yet"}</summary>{(registryGateExplanation ?? registryOfflineReason) && <p className="strength-region-gate-reason">{registryGateExplanation ?? registryOfflineReason}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${plural(latestRecord.repetitions, "rep")}` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{/* The weight this lift was read against, said out loud: it was saved with the lift and does not move when the profile weight changes. */}{effectiveBodyMassKg != null ? ` · at ${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}` : ""}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
       </article>
@@ -771,17 +773,25 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const ageNotice = ageSentences.length ? <p className="rank-profile-partial" data-rank-age-note>{ageSentences.join(" ")}</p> : null;
   // A lift is read against the weight saved with it; where the profile weight stood in, say so,
   // and name the lifts, so the athlete knows which records to open. Several are listed the way
-  // the lifts left out of the ranks are.
-  const profileWeightExercises = rankSelection.profileWeightExercises;
-  const profileWeightLifts = Array.from(profileWeightExercises.reduce((counts, name) => counts.set(name, (counts.get(name) ?? 0) + 1), new Map<string, number>()));
-  const bodyMassNotice = !rankProfile || profileWeightExercises.length === 0
+  // the lifts left out of the ranks are. Only a lift logged by hand can take the weight of its
+  // day in its record, so only those are sent there; a lift from a workout is named, and marked,
+  // without an action its record does not offer.
+  const profileWeightLifts = rankSelection.profileWeightLifts;
+  const handLoggedProfileWeightCount = profileWeightLifts.filter((lift) => !lift.fromWorkout).length;
+  const profileWeightRows = Array.from(profileWeightLifts.reduce((rows, lift) => {
+    const key = `${lift.exerciseName}|${lift.fromWorkout}`;
+    return rows.set(key, { ...lift, count: (rows.get(key)?.count ?? 0) + 1 });
+  }, new Map<string, ProfileWeightLift & { count: number }>()).values());
+  const bodyMassNotice = !rankProfile || profileWeightLifts.length === 0
     ? null
-    : profileWeightExercises.length === 1
-    ? <p className="rank-profile-partial" data-rank-body-mass-note>Your {profileWeightExercises[0]} lift has no body weight saved for its day, so it is read against your profile weight. Open its record to save what you weighed that day.</p>
+    : profileWeightLifts.length === 1
+    ? <p className="rank-profile-partial" data-rank-body-mass-note>{profileWeightLifts[0].fromWorkout
+        ? `Your ${profileWeightLifts[0].exerciseName} lift from a workout has no body weight saved for its day, so it is read against your profile weight.`
+        : `Your ${profileWeightLifts[0].exerciseName} lift has no body weight saved for its day, so it is read against your profile weight. Open its record to save what you weighed that day.`}</p>
     : <details className="rank-profile-partial" data-rank-body-mass-note>
-        <summary>{profileWeightExercises.length} lifts are read against your profile weight</summary>
-        <p>They have no body weight saved for their day. Open each one's record to save what you weighed that day.</p>
-        <ul>{profileWeightLifts.map(([name, count]) => <li key={name}>{name}{count > 1 ? ` ×${count}` : ""}</li>)}</ul>
+        <summary>{profileWeightLifts.length} lifts are read against your profile weight</summary>
+        <p>{`They have no body weight saved for their day.${handLoggedProfileWeightCount === 0 ? "" : handLoggedProfileWeightCount === profileWeightLifts.length ? " Open each one's record to save what you weighed that day." : " For each lift you logged by hand, open its record to save what you weighed that day."}`}</p>
+        <ul>{profileWeightRows.map((row) => <li key={`${row.exerciseName}|${row.fromWorkout}`}>{row.exerciseName}{row.count > 1 ? ` ×${row.count}` : ""}{row.fromWorkout ? " — from a workout" : ""}</li>)}</ul>
       </details>;
   // Covered means "you have recorded work here", never a rank or a score. A
   // locally recorded lift counts in both access modes, so the server overview can
@@ -801,7 +811,12 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // The view follows the device: a refused write keeps the old list and is
   // reported, so nothing on screen claims a record the device does not hold.
   const persistDeviceObservations = (next: DeviceStrengthObservation[]): boolean => { const written = saveDeviceStrengthObservations(next); if (written) setDeviceObservations(next); return written; };
-  const setDeviceBodyMass = (observationId: string, bodyMassKgAtTest: number) => persistDeviceObservations(setDeviceStrengthObservationBodyMass(deviceObservations, observationId, bodyMassKgAtTest));
+  // True only when a lift on this device took the weight and the device kept it, so the record
+  // never says a weight was saved that went nowhere.
+  const setDeviceBodyMass = (observationId: string, bodyMassKgAtTest: number): boolean => {
+    const next = setDeviceStrengthObservationBodyMass(deviceObservations, observationId, bodyMassKgAtTest);
+    return next !== null && persistDeviceObservations(next);
+  };
 
   const requestObservationRemoval = (observation: StrengthObservationRecord) =>
     setPendingObservationRemoval({

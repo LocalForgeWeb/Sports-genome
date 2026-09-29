@@ -37,6 +37,11 @@ describe("device-local Strength Genome observations", () => {
     expect(setDeviceStrengthObservationBodyMass([newer, older], "newer", 81.6466266)).toEqual([{ ...newer, bodyMassKgAtTest: 81.6466266 }, older]);
   });
 
+  it("says when there was no lift to save the body weight on, so nothing claims it was saved", () => {
+    // A lift from a finished workout is not in this list, whatever its record shows.
+    expect(setDeviceStrengthObservationBodyMass([newer, older], "workout-session-1-exercise-1", 80)).toBeNull();
+  });
+
   it("preserves an explicit source-condition declaration with a direct-access test", () => {
     const context = JSON.stringify({ referenceId: "piper_2021_preacher_curl_10rm", sex: "male", ageYears: 21, collegeStudentConfirmed: true, preTrainingConfirmed: true, directlyObservedConfirmed: true, exactProtocolConfirmed: true });
     const record = { ...newer, exerciseName: "Preacher Curl", referenceContextJson: context };

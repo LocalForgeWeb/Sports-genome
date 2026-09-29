@@ -77,7 +77,13 @@ export function prependDeviceStrengthObservation(existing: DeviceStrengthObserva
   return [observation, ...existing.filter((item) => item.id !== observation.id)].sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
 }
 
-export function setDeviceStrengthObservationBodyMass(existing: DeviceStrengthObservation[], observationId: string, bodyMassKgAtTest: number) {
+/**
+ * Saves the body weight of one device-held lift's day. Returns null when no lift here has
+ * that id - a lift from a finished workout lives in the workout log, not in this list - so
+ * the screen can tell a weight that was stored from one that went nowhere.
+ */
+export function setDeviceStrengthObservationBodyMass(existing: DeviceStrengthObservation[], observationId: string, bodyMassKgAtTest: number): DeviceStrengthObservation[] | null {
+  if (!existing.some((item) => item.id === observationId)) return null;
   return existing.map((item) => item.id === observationId ? { ...item, bodyMassKgAtTest } : item);
 }
 

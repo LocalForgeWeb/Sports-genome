@@ -99,7 +99,8 @@ describe("Strength region body-mass completion", () => {
   });
 
   it("keeps direct-access completion local and bypasses the account mutation", () => {
-    const setDeviceBodyMass = vi.fn();
+    // The device kept the weight.
+    const setDeviceBodyMass = vi.fn(() => true);
     renderDetail({ directAccess: true, onSetDeviceBodyMass: setDeviceBodyMass });
     fireEvent.change(screen.getByLabelText("Body weight on the day of this lift, in pounds"), { target: { value: "180" } });
     fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
@@ -110,10 +111,38 @@ describe("Strength region body-mass completion", () => {
     expect(mocks.success).toHaveBeenCalledWith("Body weight for this lift saved on this device. Your recorded ratio is ready.");
   });
 
+  it("does not say a weight was saved on this device when nothing was stored, and keeps the entry", () => {
+    const setDeviceBodyMass = vi.fn(() => false);
+    renderDetail({ directAccess: true, onSetDeviceBodyMass: setDeviceBodyMass });
+    const input = screen.getByLabelText("Body weight on the day of this lift, in pounds") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "180" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
+    expect(setDeviceBodyMass).toHaveBeenCalledWith("101", 81.6466266);
+    expect(mocks.success).not.toHaveBeenCalled();
+    expect(mocks.feedback).not.toHaveBeenCalledWith([10, 30, 10]);
+    expect(screen.getByRole("alert").textContent).toBe("Body weight was not saved on this device. Your entry is still here.");
+    expect(input.value).toBe("180");
+  });
+
+  it("offers no body-weight form on a lift from a finished workout, and says what it is read against", () => {
+    // A workout's lift lives in the workout log: a form here would store nothing on this
+    // device, and send an id the account cannot read.
+    const workoutCurl = { id: "workout-session-1-exercise-1", exerciseName: "Preacher Curl", observedAt: "2026-08-28T12:00:00.000Z", measurementType: "MULTI_REP", loadKg: 30, repetitions: 8, source: "workout" as const, sessionLabel: "Day 1", setCount: 3 };
+    for (const directAccess of [true, false]) {
+      const { container, unmount } = render(detailElement({ directAccess, observations: [workoutCurl], baselineBodyWeight: 180 }));
+      expect(container.querySelector(".strength-recorded-measurement")).toBeNull();
+      expect(screen.queryByText("Not your weight that day?")).toBeNull();
+      expect(screen.queryByText("Add test body weight")).toBeNull();
+      expect(screen.queryByRole("button", { name: "Save this body weight" })).toBeNull();
+      expect(container.querySelector("[data-workout-body-mass-note]")?.textContent).toBe("This lift is from a workout, so it is read against the body weight saved for that day, or your profile weight when none was saved.");
+      unmount();
+    }
+  });
+
   it("uses optional feedback for direct supporting-measurement completion and close, and switches between recorded tests via the picker instead of a raw history list", () => {
     const onClose = vi.fn();
     const alternate = { ...missingBodyMassObservation[0], id: 102, exerciseName: "Machine Preacher Curl", loadKg: 40, bodyMassKgAtTest: 81.6466266 };
-    renderDetail({ directAccess: true, onSetDeviceBodyMass: vi.fn(), onClose, observations: [missingBodyMassObservation[0], alternate] });
+    renderDetail({ directAccess: true, onSetDeviceBodyMass: vi.fn(() => true), onClose, observations: [missingBodyMassObservation[0], alternate] });
 
     fireEvent.change(screen.getByLabelText("Body weight on the day of this lift, in pounds"), { target: { value: "180" } });
     fireEvent.click(screen.getByRole("button", { name: "Save this body weight" }));
