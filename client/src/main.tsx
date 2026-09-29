@@ -1,5 +1,6 @@
 import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
+import { expiryNotice, isExpiryError, shouldNoticeExpiry } from "@/lib/sessionExpiryNotice";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { httpBatchLink } from "@trpc/client";
@@ -8,23 +9,20 @@ import superjson from "superjson";
 import "./index.css";
 
 /**
- * A sign-in that has lapsed is said once, in words, and never costs the athlete
- * anything: the device record stays, and About me is where to sign in again.
- * Every other failure is handled where it happens, beside the control.
+ * A sign-in that has lapsed is said once, in words, and only to an athlete who was
+ * signed in this visit (see sessionExpiryNotice); it never costs the athlete
+ * anything: the device record stays. Every other failure is handled where it
+ * happens, beside the control.
  */
-let expiryNoticeAt = 0;
 const noticeExpiry = (error: unknown) => {
-  const code = (error as { data?: { code?: string } } | null)?.data?.code;
-  if (code !== "UNAUTHORIZED" || Date.now() - expiryNoticeAt < 60_000) return;
-  expiryNoticeAt = Date.now();
-  toast("Your sign-in has expired", { id: "session-expired", description: "Everything stays saved on this device. Sign in again from About me to sync." });
+  if (!shouldNoticeExpiry(error)) return;
+  toast(expiryNotice.title, { id: "session-expired", description: expiryNotice.description });
 };
-const isExpiry = (error: unknown) => (error as { data?: { code?: string } } | null)?.data?.code === "UNAUTHORIZED";
 const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError: noticeExpiry }),
   mutationCache: new MutationCache({ onError: noticeExpiry }),
   // A lapsed sign-in does not get better on the third try; say so at once.
-  defaultOptions: { queries: { retry: (count, error) => !isExpiry(error) && count < 3 } },
+  defaultOptions: { queries: { retry: (count, error) => !isExpiryError(error) && count < 3 } },
 });
 
 const trpcClient = trpc.createClient({

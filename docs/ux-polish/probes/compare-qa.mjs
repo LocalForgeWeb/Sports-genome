@@ -56,11 +56,11 @@ await dock(p, 'Train'); await tab(p, 'Workout'); await wait(p, 800); await p.loc
 await p.locator('.live-set-entry input').first().fill('137.5'); await p.locator('.live-set-entry input').last().fill('12'); await p.locator('.live-set-commit').dispatchEvent('click'); await wait(p, 500);
 const v = await p.evaluate((H) => { const s = JSON.parse(localStorage.getItem(H) || '[]').find((x) => x.status === 'active'); const last = document.querySelector('.live-set-last'); const r = last?.getBoundingClientRect(); return { stored: s.exercises[0].sets[0].weight, last: last?.textContent, fits: r ? r.right <= innerWidth : null, scrollW: document.documentElement.scrollWidth }; }, 'sports-genome-device-workout-history-v1');
 check('VIS-11 decimal load kept exactly', v.stored === '137.5' && v.last?.includes('137.5 lb × 12') && v.fits && v.scrollW === 390, v);
-// STATE-10 expiry notice
+// STATE-10 expiry notice: auth.me is refused too, so no sign-in was ever seen and nothing has "expired"
 await p.route('**/api/trpc/**', (route) => route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify(new URL(route.request().url()).pathname.replace('/api/trpc/', '').split(',').map(() => ({ error: { json: { message: 'Please login (10001)', code: -32001, data: { code: 'UNAUTHORIZED', httpStatus: 401 } } } }))) }));
 await dock(p, 'Progress'); await tab(p, 'Progress'); await wait(p, 2500);
 const e = await p.evaluate(() => ({ toasts: [...document.querySelectorAll('[data-sonner-toast]')].map((t) => t.innerText.split('\n')[0]), record: document.querySelector('.progress-facts')?.getAttribute('aria-label') }));
-check('STATE-10 expiry notice once, record kept', e.toasts.filter((t) => t === 'Your sign-in has expired').length === 1 && e.record?.includes('workouts recorded'), e);
+check('STATE-10 no expiry notice without a sign-in, record kept', e.toasts.filter((t) => t === 'Your sign-in has expired').length === 0 && e.record?.includes('workouts recorded'), e);
 check('errors', errs.length === 0, errs);
 await browser.close();
 console.log(`${results.filter(Boolean).length}/${results.length} passed`);
