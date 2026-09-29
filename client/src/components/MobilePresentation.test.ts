@@ -55,6 +55,18 @@ describe("mobile athlete presentation", () => {
     expect(phoneImportScrim).toContain("env(safe-area-inset-top");
   });
 
+  it("gives the first-run guide and the confirm dialog 44px tap targets of their own", () => {
+    // These two modals mount at the Home root, outside main.apex-content, so the
+    // app-wide tap floor never reaches them. Where the floor does reach, it sets a
+    // height but not a width, so the close buttons declare both.
+    expect(appStyles).toMatch(/\.confirm-dialog-close\{[^}]*width:2\.75rem;height:2\.75rem/);
+    expect(appStyles).toMatch(/\.feature-tour-close\{[^}]*width:2\.75rem;height:2\.75rem/);
+    expect(appStyles).toMatch(/\.feature-tour-skip,\.feature-tour-back\{[^}]*min-height:2\.75rem/);
+    expect(appStyles).toMatch(/\.feature-tour-next\{[^}]*min-height:2\.75rem/);
+    expect(appStyles).toMatch(/\.confirm-dialog-cancel\{[^}]*min-height:2\.75rem/);
+    expect(appStyles).toMatch(/\.confirm-dialog-confirm\{[^}]*min-height:2\.75rem/);
+  });
+
   it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {
     // Both were inline timings (180ms, 170ms) that no longer collapsed under the
     // reduced-motion preference. On the shared token they are still brief and now
