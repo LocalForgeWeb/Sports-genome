@@ -62,8 +62,13 @@ describe("Matches is one column of real controls", () => {
     expect(rows).toContain("aria-label={`Match score ${score} for ${result.exercise.name}: open details`}");
     // The stamp names its own tier and is not handed the score, so the two
     // labels cannot restate each other.
-    expect(rows).toContain("<GradeStamp grade={result.grade} compact />");
+    expect(rows).toContain("<GradeStamp grade={result.exercise.muscleGrade} compact />");
+    // result.grade is gradeForScore(score): the match score again, in letters,
+    // under a label that calls it the catalog tier.
+    expect(rows).not.toContain("grade={result.grade}");
     expect(rows).not.toContain("score={result.breakdown.overall}");
+    // So one exercise wears the same tier on Matches and on Home's top three.
+    expect(source).toContain("<GradeStamp grade={result.exercise.muscleGrade} compact /><ChevronRight");
   });
 
   it("keeps research context and movement intelligence on the page, behind their own lines", () => {
