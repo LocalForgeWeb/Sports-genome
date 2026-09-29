@@ -79,13 +79,34 @@ describe("the workout under way is readable from outside the tracker", () => {
   });
 
   it("tells a trained day from one that was only written down", () => {
+    // Saturday of the week the fixture's session was started in.
     const states = trainingStateByDayLabel([
       session({ status: "completed", dayLabel: "Week 1 · Day 01 · Push" }),
       session({ dayLabel: "Week 1 · Day 05 · Sport Transfer" }),
-    ]);
+    ], new Date(2026, 8, 26, 12));
     expect(states["Week 1 · Day 01 · Push"]).toBe("trained");
     expect(states["Week 1 · Day 05 · Sport Transfer"]).toBe("live");
     expect(states["Week 1 · Day 02 · Pull"]).toBeUndefined();
+  });
+
+  it("counts a day trained only this week, the week Home's strip reads", () => {
+    // A label names the plan's week, not a date: repeating Week 1 trains the same
+    // labels again, so a Push finished last week is not this week's Push.
+    const push = "Week 1 · Day 01 · Push";
+    const finishedAt = (date: Date) => session({ status: "completed", dayLabel: push, completedAt: date.toISOString() });
+    const saturday = new Date(2026, 8, 26, 12);
+    expect(trainingStateByDayLabel([finishedAt(new Date(2026, 8, 18, 18))], saturday)[push]).toBeUndefined();
+    expect(trainingStateByDayLabel([finishedAt(new Date(2026, 8, 22, 18))], saturday)[push]).toBe("trained");
+
+    // A Sunday belongs to the week that began the Monday before it.
+    const sunday = new Date(2026, 8, 27, 12);
+    expect(trainingStateByDayLabel([finishedAt(new Date(2026, 8, 21, 0, 0))], sunday)[push]).toBe("trained");
+    expect(trainingStateByDayLabel([finishedAt(new Date(2026, 8, 21, 9))], sunday)[push]).toBe("trained");
+    expect(trainingStateByDayLabel([finishedAt(new Date(2026, 8, 20, 18))], sunday)[push]).toBeUndefined();
+
+    // A workout still running is marked however long ago it was started.
+    const leftRunning = session({ dayLabel: push, startedAt: new Date(2026, 8, 5, 10).toISOString() });
+    expect(trainingStateByDayLabel([leftRunning], saturday)[push]).toBe("live");
   });
 
   it("lets a session running now outrank one finished earlier on the same day", () => {
