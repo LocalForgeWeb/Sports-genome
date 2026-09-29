@@ -746,11 +746,13 @@ export default function Home() {
 
   // Favourites follow the same rule: read per account, and never written into a record
   // that has not been read yet - which is how one account's shortlist became another's.
+  // Like the profile and plan, the first account to sign in claims the shortlist built
+  // before accounts were kept apart, or while signed out.
   const hydratedFavoritesKeyRef = useRef<string | null>(null);
   useEffect(() => {
     let next: number[] = [];
     try {
-      const stored = JSON.parse(window.localStorage.getItem(favoriteExerciseKey) || "[]") as unknown;
+      const stored = JSON.parse(readScopedRecord(favoriteExerciseKeyBase, accountId, window.localStorage) || "[]") as unknown;
       if (Array.isArray(stored)) next = stored.filter((id): id is number => typeof id === "number" && exercises.some((exercise) => exercise.id === id));
     } catch { /* Favorites fall back to an empty local shortlist. */ }
     setLocalFavoriteIds(next);

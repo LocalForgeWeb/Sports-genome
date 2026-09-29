@@ -104,4 +104,20 @@ describe("Changing account on one device", () => {
     await settle();
     expect(JSON.parse(window.localStorage.getItem("gym-optimizer-favorite-exercise-ids-v1::2") || "[]")).toEqual([]);
   });
+
+  it("claims a shortlist built before sign-in", async () => {
+    const shortlist = [exercises[0].id, exercises[1].id];
+    window.localStorage.setItem(PROFILE, profile("Alex"));
+    window.localStorage.setItem("gym-optimizer-favorite-exercise-ids-v1", JSON.stringify(shortlist));
+    const view = render(createElement(Home));
+    await screen.findByRole("heading", { level: 1 }, { timeout: 15000 });
+
+    auth.user = { id: 7 };
+    view.rerender(createElement(Home));
+    await settle();
+    await settle();
+    expect(JSON.parse(window.localStorage.getItem("gym-optimizer-favorite-exercise-ids-v1::7") || "null")).toEqual(shortlist);
+    // Claimed, so the next account to sign in on this device cannot claim it too.
+    expect(window.localStorage.getItem("gym-optimizer-favorite-exercise-ids-v1")).toBeNull();
+  });
 });
