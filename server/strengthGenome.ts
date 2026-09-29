@@ -50,46 +50,51 @@ export async function createStrengthObservation(
   const db = await getDb();
   if (!db) throw new Error("Database is unavailable");
 
-  const inserted = await db
-    .insert(strengthObservations)
-    .values({
-      userId,
-      catalogExerciseId: input.catalogExerciseId ?? null,
-      exerciseName: input.exerciseName,
-      observedAt: input.observedAt,
-      measurementType: input.measurementType,
-      loadKg: decimal(input.loadKg, 2),
-      repetitions: input.repetitions ?? null,
-      measuredOneRmKg: decimal(input.measuredOneRmKg, 2),
-      estimatedOneRmKg: decimal(input.estimatedOneRmKg, 2),
-      estimationMethod: input.estimationMethod || null,
-      estimatedErrorPercent: decimal(input.estimatedErrorPercent, 2),
-      bodyMassKgAtTest: decimal(input.bodyMassKgAtTest, 2),
-      totalSystemLoadKg: decimal(input.totalSystemLoadKg, 2),
-      rpe: decimal(input.rpe, 1),
-      rir: decimal(input.rir, 1),
-      equipment: input.equipment || null,
-      romStandard: input.romStandard || null,
-      techniqueVariant: input.techniqueVariant || null,
-      tempo: input.tempo || null,
-      laterality: input.laterality,
-      externalAssistance: input.externalAssistance || null,
-      dataQuality: input.dataQuality,
-      referenceContextJson: input.referenceContextJson || null,
-      notes: input.notes || null,
-    })
-    .$returningId();
+  // One transaction: a failed body-mass row must not leave the lift saved behind a server error,
+  // where a retry would save it twice.
+  const id = await db.transaction(async (tx) => {
+    const inserted = await tx
+      .insert(strengthObservations)
+      .values({
+        userId,
+        catalogExerciseId: input.catalogExerciseId ?? null,
+        exerciseName: input.exerciseName,
+        observedAt: input.observedAt,
+        measurementType: input.measurementType,
+        loadKg: decimal(input.loadKg, 2),
+        repetitions: input.repetitions ?? null,
+        measuredOneRmKg: decimal(input.measuredOneRmKg, 2),
+        estimatedOneRmKg: decimal(input.estimatedOneRmKg, 2),
+        estimationMethod: input.estimationMethod || null,
+        estimatedErrorPercent: decimal(input.estimatedErrorPercent, 2),
+        bodyMassKgAtTest: decimal(input.bodyMassKgAtTest, 2),
+        totalSystemLoadKg: decimal(input.totalSystemLoadKg, 2),
+        rpe: decimal(input.rpe, 1),
+        rir: decimal(input.rir, 1),
+        equipment: input.equipment || null,
+        romStandard: input.romStandard || null,
+        techniqueVariant: input.techniqueVariant || null,
+        tempo: input.tempo || null,
+        laterality: input.laterality,
+        externalAssistance: input.externalAssistance || null,
+        dataQuality: input.dataQuality,
+        referenceContextJson: input.referenceContextJson || null,
+        notes: input.notes || null,
+      })
+      .$returningId();
 
-  const id = inserted[0]?.id;
-  if (!id) throw new Error("Strength observation could not be saved");
-  if (input.bodyMassKgAtTest !== undefined) {
-    await db.insert(bodyMassObservations).values({
-      userId,
-      bodyMassKg: input.bodyMassKgAtTest.toFixed(2),
-      observedAt: input.observedAt,
-      source: "athlete_entry",
-    });
-  }
+    const id = inserted[0]?.id;
+    if (!id) throw new Error("Strength observation could not be saved");
+    if (input.bodyMassKgAtTest !== undefined) {
+      await tx.insert(bodyMassObservations).values({
+        userId,
+        bodyMassKg: input.bodyMassKgAtTest.toFixed(2),
+        observedAt: input.observedAt,
+        source: "athlete_entry",
+      });
+    }
+    return id;
+  });
   return getStrengthObservation(userId, id);
 }
 
@@ -108,16 +113,18 @@ export async function setStrengthObservationBodyMass(
   const existing = await getStrengthObservation(userId, observationId);
   if (!existing) return null;
 
-  await db
-    .update(strengthObservations)
-    .set({ bodyMassKgAtTest: bodyMassKgAtTest.toFixed(2) })
-    .where(and(eq(strengthObservations.userId, userId), eq(strengthObservations.id, observationId)));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(strengthObservations)
+      .set({ bodyMassKgAtTest: bodyMassKgAtTest.toFixed(2) })
+      .where(and(eq(strengthObservations.userId, userId), eq(strengthObservations.id, observationId)));
 
-  await db.insert(bodyMassObservations).values({
-    userId,
-    bodyMassKg: bodyMassKgAtTest.toFixed(2),
-    observedAt: existing.observedAt,
-    source: "athlete_entry",
+    await tx.insert(bodyMassObservations).values({
+      userId,
+      bodyMassKg: bodyMassKgAtTest.toFixed(2),
+      observedAt: existing.observedAt,
+      source: "athlete_entry",
+    });
   });
 
   return getStrengthObservation(userId, observationId);
