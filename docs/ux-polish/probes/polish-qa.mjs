@@ -46,7 +46,7 @@ await p.locator('.live-session-finish').first().dispatchEvent('click'); await wa
 const f0 = await p.evaluate(() => ({ toast: document.querySelector('[data-sonner-toast]')?.innerText.replace(/\n/g, ' | '), buttons: [...document.querySelectorAll('[data-sonner-toast] button')].map((b) => b.textContent) }));
 await p.locator('[data-sonner-toast] button').filter({ hasText: 'View record' }).first().dispatchEvent('click'); await wait(p, 900);
 const f1 = await p.evaluate(() => ({ search: location.search, label: document.querySelector('.progress-facts')?.getAttribute('aria-label') }));
-check('LIFT-17/FLOW finish → record', f0.buttons.includes('View record') && f1.search === '?workspace=progress' && f1.label?.startsWith('1 workouts recorded'), { f0, f1 });
+check('LIFT-17/FLOW finish → record', f0.buttons.includes('View record') && f1.search === '?workspace=progress' && f1.label?.startsWith('1 workout recorded'), { f0, f1 });
 // Reorder undo.
 await dock(p, 'Train'); await tab(p, 'Plan'); await wait(p, 800);
 const r0 = await p.evaluate(() => [...document.querySelectorAll('.custom-row-identity strong')].map((e) => e.textContent).slice(0, 2));
