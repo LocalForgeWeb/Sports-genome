@@ -70,8 +70,8 @@ describe("Home week strip and primary action", () => {
     expect(screen.getByRole("button", { name: /Open next workout/ })).toBeTruthy();
   });
 
-  it("shows each day's state as a word beside the dot, not by colour alone", () => {
-    // Completed and under way share the filled-dot shape; only a word tells them apart without hue.
+  it("shows each day's state as a word beside the icon, not by colour alone", () => {
+    // The word says the state for the eye as well as the icon shape.
     window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([finished("Week 1 · Day 01 · Push")]));
     const live = { id: "s1", dayLabel: "Week 1 · Day 02 · Pull", startedAt: new Date().toISOString(), completedSets: 3, plannedSets: 12, exerciseNumber: 2, exerciseCount: 5, exerciseName: "Chin-up", setNumber: 2, setCount: 4, finishedExercises: ["Barbell Row"] };
     draw({ live });
@@ -85,7 +85,34 @@ describe("Home week strip and primary action", () => {
     expect(screen.getByRole("button", { name: /^Pull, under way/ })).toBeTruthy();
   });
 
-  it("marks the next day with a word as well as its ring", () => {
+  it("gives each day state its own icon shape, hidden from screen readers", () => {
+    // The old marks were CSS rings; a dashed 11px ring read as a broken "C" on a phone.
+    const shapes: Record<string, string> = { trained: "lucide-circle-check", live: "lucide-circle-play", next: "lucide-circle-arrow-right", planned: "lucide-circle" };
+    const seen: Record<string, string> = {};
+    const collect = (states: string[]) => {
+      for (const state of states) {
+        const svg = document.querySelector(`.home-week-strip li[data-state="${state}"] svg.home-week-icon`) as SVGElement | null;
+        expect(svg, state).not.toBeNull();
+        expect(svg?.classList.contains(shapes[state]), `${state} uses ${shapes[state]}`).toBe(true);
+        expect(svg?.getAttribute("aria-hidden")).toBe("true");
+        seen[state] = Array.from(svg?.classList ?? []).filter((name) => name.startsWith("lucide-")).sort().join(" ");
+      }
+      expect(document.querySelector(".home-week-strip li i")).toBeNull();
+    };
+    // Nothing done yet: the next day and the days still to come.
+    draw();
+    collect(["next", "planned"]);
+    document.body.innerHTML = "";
+    // One day done and one under way (a day under way takes the place of "next").
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([finished("Week 1 · Day 01 · Push")]));
+    const live = { id: "s1", dayLabel: "Week 1 · Day 02 · Pull", startedAt: new Date().toISOString(), completedSets: 3, plannedSets: 12, exerciseNumber: 2, exerciseCount: 5, exerciseName: "Chin-up", setNumber: 2, setCount: 4, finishedExercises: ["Barbell Row"] };
+    draw({ live });
+    collect(["trained", "live"]);
+    // No two states share a shape.
+    expect(new Set(Object.values(seen)).size).toBe(4);
+  });
+
+  it("marks the next day with a word as well as its icon", () => {
     draw();
     const next = document.querySelector('.home-week-strip li[data-state="next"]') as HTMLElement;
     expect(next.querySelector("small")?.textContent).toBe("Next");
