@@ -108,14 +108,11 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
   });
 
-  it("uses the supplied circular badge as a larger natural onboarding mark without changing title or progress controls", () => {
-    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(source).toContain('src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="pulse-brand-badge"');
-    expect(source).toContain('<span className="font-display text-2xl font-bold uppercase tracking-wide text-white">Sports Genome</span>');
-    expect(source).toContain('<div className="pulse-progress"><span>STEP {step + 1} / 4</span>');
-    expect(css).toContain('.pulse-header .pulse-brand-badge { display: block !important; width: 54px; height: 54px;');
-    expect(css).toContain('border-radius: 999px;');
-    expect(css).toContain('.pulse-header > div:first-child::before, .pulse-header > div:first-child::after { content: none; display: none; }');
+  it("has one onboarding: the eleven-step quiz, with no retired four-step tour left in the shell", () => {
+    // A four-step "Pulse" tour sat in Home.tsx long after the quiz replaced it,
+    // never rendered, describing screens that no longer exist.
+    expect(source).not.toContain("function Onboarding(");
+    expect(source).toContain("<AthleteBaselineQuiz ");
   });
 
   it("uses the supplied circular badge in the active eleven-step onboarding header at a natural readable scale", () => {

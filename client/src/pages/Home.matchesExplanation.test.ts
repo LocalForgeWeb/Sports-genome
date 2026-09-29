@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
-const recommendations = source.slice(source.indexOf("function RecommendationRow"), source.indexOf("function Onboarding"));
+const recommendations = source.slice(source.indexOf("function RecommendationRow"), source.indexOf("export default function Home"));
 
 describe("recommendation explanation depth", () => {
   // "Insight explanation depth contract": "Do not expose raw model attribution
