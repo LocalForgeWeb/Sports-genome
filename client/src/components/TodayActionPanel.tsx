@@ -200,7 +200,7 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
             </div>
             {/* The schematic is planned involvement - the exercises' primary muscles -
                 drawn in the action colour so it cannot be read as a Strength rank. */}
-            {showFocus && <figure className="home-focus">
+            {showFocus && <figure className="today-action-figure">
               <AnatomyFigure view={focusSide} roles={focusRoles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={`Workout focus: ${focusNames}`} />
               <figcaption>Workout focus</figcaption>
             </figure>}

@@ -8,7 +8,6 @@ import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
-import { roleMapForLists } from "@/lib/anatomyRegions";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { UniversalSearch } from "@/components/UniversalSearch";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
@@ -65,6 +64,7 @@ import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, type E
 import { getExerciseActionConnection, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { getBodyLabRoleContext } from "@/lib/bodyLabRoleContext";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
+import { movementDisplayLabel } from "@/lib/movementLabel";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation, type RegistryEvidenceMap } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions, normalizeGymMinutes } from "@/lib/gymTimeBudget";
 import { buildApprovedProgressionNote, buildApprovedSegmentPriorityNote } from "@/lib/progressiveTraining";
@@ -615,8 +615,6 @@ export default function Home() {
   const referenceRoleContext = browsingOtherSport
     ? getBodyLabRoleContext(browseSportId, referenceMovement.id, referenceMuscles, referenceSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"])
     : bodyLabRoleContext;
-  /** The count Body Lab shows for this action: canonical regions, aliases collapsed. */
-  const focusMuscleCount = useMemo(() => Object.keys(roleMapForLists(referenceRoleContext.primary, referenceRoleContext.supporting)).length, [referenceRoleContext]);
   // The same tolerant matcher the day picker uses, so a name typed here finds
   // what a name typed there finds.
   const filteredCatalog = useMemo(() => searchExercises(exercises, catalogQuery).slice(0, 24), [catalogQuery]);
@@ -993,7 +991,13 @@ export default function Home() {
       setSearchReturn(null);
       // Whatever entry we landed on, an open overlay is the topmost thing and closes first.
       setInspectedExercise(null);
-      setWorkspaceState(workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
+      // The same rules an in-app navigation applies (navigateWorkspace): the local tab row
+      // follows the page it lands on, and a sport being browsed does not outlive Body Lab.
+      // Back used to keep both, so a later "Explore this movement" opened another sport.
+      const next = workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace"));
+      setActiveContextTab(null);
+      if (primaryDestinationForWorkspace(next) !== "body") setSportBrowse(followProfileSport);
+      setWorkspaceState(next);
     };
     window.addEventListener("popstate", restoreWorkspace);
     return () => window.removeEventListener("popstate", restoreWorkspace);
@@ -1671,16 +1675,17 @@ export default function Home() {
           <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("movement")}><Move3d className="h-5 w-5" aria-hidden="true" /><span><strong>Explore muscles &amp; movements</strong><small>See how sport actions involve your muscles</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("strength")}><Dumbbell className="h-5 w-5" aria-hidden="true" /><span><strong>View strength progress</strong><small>Inspect your recorded lifts and muscle ranks</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
         </section>}
-        {workspace === "command" && hasSportContext && <section className="home-focus" aria-label="Movement focus">
-          <div className="home-section-head"><p className="metric-label">Movement focus</p><button type="button" className="home-link" onClick={() => navigateWorkspace("recommended")}>All matches <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
-          <h2>{selectedMovement.label}</h2>
-          <p className="home-focus-meta">{selectedMovement.family} · {focusMuscleCount} {focusMuscleCount === 1 ? "muscle" : "muscles"} involved · the action your plan is built around</p>
-          {/* The top of the same ranking Matches shows in full, with the tier the
-              catalog model assigns - not a grade invented for the row. */}
-          <ol className="home-priority-rows" aria-label="Top exercise matches">{movementRecommendations.slice(0, 3).map((result, index) => <li key={result.exercise.id}><button type="button" className="home-priority-row" onClick={() => inspectExercise(result.exercise)} aria-label={`View ${result.exercise.name} details`}><span className="home-priority-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span className="home-priority-copy"><strong>{result.exercise.name}</strong><small>{result.exercise.movement} · {result.exercise.primaryMuscles.slice(0, 2).map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</small></span><GradeStamp grade={result.exercise.muscleGrade} compact /><ChevronRight className="h-4 w-4" aria-hidden="true" /></button></li>)}</ol>
-          <button type="button" className="home-link" onClick={() => { setActiveMuscle(null); navigateWorkspace("body"); }}>Explore in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+        {/* Home previews the sport action; it is not a second training editor. The ranked
+            exercises, their grades and add controls live in Matches and Body Lab (Sep 28
+            regression brief §3). The link opens the Movement Atlas on the athlete's own action,
+            with any browse, search or family filter left over from an earlier visit cleared. */}
+        {workspace === "command" && hasSportContext && <section className="home-focus" aria-label="Sport focus">
+          <p className="metric-label">Sport focus</p>
+          <h2>{movementDisplayLabel(selectedMovement.label)}</h2>
+          <p className="home-focus-meta">{selectedMovement.bodyActions}</p>
+          <button type="button" className="home-link" onClick={() => { setSportBrowse(followProfileSport); setAtlasQuery(""); setAtlasFamily("All"); navigateWorkspace("movement"); }}>Explore this movement <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
         </section>}
-        {workspace === "command" && !hasSportContext && <section className="home-focus" aria-label="Movement focus"><p className="metric-label">Movement focus</p><h2>No sport chosen</h2><p className="home-focus-meta">Choose a sport in Training preferences to see the action your plan is built around and the exercises ranked for it.</p><button type="button" className="home-link" onClick={() => navigateWorkspace("profile")}>Training preferences <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></section>}
+        {workspace === "command" && !hasSportContext && <section className="home-focus" aria-label="Sport focus"><p className="metric-label">Sport focus</p><h2>No sport chosen</h2><p className="home-focus-meta">Choose a sport to see the action your plan is built around.</p><button type="button" className="home-link" onClick={() => navigateWorkspace("profile")}>Training preferences <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></section>}
 
         {workspace === "recommended" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="Sport recommendations" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {/* Matches, one column: the sport and the action as controls, the

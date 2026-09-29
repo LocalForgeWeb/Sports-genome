@@ -90,6 +90,8 @@ describe("Home decision-first planning surfaces", () => {
      */
     expect(markup).toContain('class="apex-shell shell-body');
     expect(markup).toMatch(/aria-current="page"[^>]*>Exercises</);
-    expect(readFileSync(new URL("./Home.tsx", import.meta.url), "utf8")).toContain("Explore in Body Lab");
+    // The overlay's own handoff. Home's "Explore in Body Lab" link went with the Home movement
+    // list (Sep 28 regression brief §3); Home now links to the movement itself.
+    expect(readFileSync(new URL("./Home.tsx", import.meta.url), "utf8")).toContain('className="exercise-intelligence-explore"');
   });
 });
