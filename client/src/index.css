@@ -4161,11 +4161,11 @@ body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 
 .today-action-primary .today-action-cta { width: 100%; justify-content: center; }
 .today-action-primary .today-action-secondary { justify-self: start; }
 .today-action-primary p.today-action-count { font-size: var(--sg-text-base); }
-.home-focus { grid-area: figure; display: grid; justify-items: center; align-self: center; gap: .3rem; width: clamp(5rem, 26vw, 7.5rem); margin: 0; justify-self: end; }
-.home-focus .anatomy-figure { width: 100%; height: auto; --anatomy-shell: #2c3a4f; --anatomy-structural: #26334a; --anatomy-muscle: #33425a; --anatomy-line: #0a182b; --anatomy-primary-1: #f4915f; --anatomy-primary-2: #c9471f; --anatomy-supporting-1: #33425a; --anatomy-supporting-2: #33425a; }
-.home-focus .anatomy-figure .anatomy-linework > path { stroke-width: 1.1; stroke-opacity: .85; }
-.home-focus figcaption { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-@media (max-width: 359px) { .today-action-with-focus { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "actions"; } .home-focus { display: none; } }
+.today-action-focus { grid-area: figure; display: grid; justify-items: center; align-self: center; gap: .3rem; width: clamp(5rem, 26vw, 7.5rem); margin: 0; justify-self: end; }
+.today-action-focus .anatomy-figure { width: 100%; height: auto; --anatomy-shell: #2c3a4f; --anatomy-structural: #26334a; --anatomy-muscle: #33425a; --anatomy-line: #0a182b; --anatomy-primary-1: #f4915f; --anatomy-primary-2: #c9471f; --anatomy-supporting-1: #33425a; --anatomy-supporting-2: #33425a; }
+.today-action-focus .anatomy-figure .anatomy-linework > path { stroke-width: 1.1; stroke-opacity: .85; }
+.today-action-focus figcaption { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+@media (max-width: 359px) { .today-action-with-focus { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "actions"; } .today-action-focus { display: none; } }
 .home-week-strip { display: flex; flex-wrap: wrap; gap: .4rem; margin: .1rem 0 .35rem; padding: 0; list-style: none; }
 .home-week-strip li { flex: 1 1 4.2rem; min-width: 0; }
 .home-week-strip li > * { display: flex; width: 100%; min-height: 2.75rem; align-items: center; gap: .4rem; border: 1px solid var(--sg-control-border-on-dark); padding: 0 .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; text-align: left; }
