@@ -1044,6 +1044,11 @@ export default function Home() {
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
     setLocalFavoriteIds((current) => currentlyFavorite ? current.filter((id) => id !== exercise.id) : Array.from(new Set([...current, exercise.id])));
+    // Without an account the shortlist lives only in this device's no-account record, and favorites.set is account-only: its refusal would read as "Your sign-in has expired" (D-015).
+    if (!isAuthenticated) {
+      toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { id: "favorite", description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist on this device.` });
+      return;
+    }
     favoriteMutation.mutate({ catalogExerciseId: exercise.id, favorited: !currentlyFavorite }, {
       onSuccess: (ids) => {
         // The server answers with the full list; anything else keeps the
