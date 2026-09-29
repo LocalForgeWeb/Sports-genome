@@ -1,4 +1,3 @@
-import { forgetSession, markSessionSeen } from "@/lib/sessionExpiryNotice";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
@@ -35,7 +34,8 @@ export function useAuth(options?: UseAuthOptions) {
       }
       throw error;
     } finally {
-      forgetSession();
+      // auth.me answering null is what tells lib/sessionNotice.ts nobody is signed in, so a
+      // refusal after a deliberate sign-out is not called a lapse.
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
     }
@@ -48,11 +48,6 @@ export function useAuth(options?: UseAuthOptions) {
   useEffect(() => {
     try { window.localStorage.removeItem("sports-genome-user-info"); } catch { /* Storage is optional. */ }
   }, []);
-
-  // The one place a real sign-in is observed; only after it can a refusal mean it lapsed.
-  useEffect(() => {
-    if (meQuery.data) markSessionSeen();
-  }, [meQuery.data]);
 
   const state = useMemo(() => {
     return {

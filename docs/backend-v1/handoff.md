@@ -11,7 +11,7 @@ Final state of the Backend V1 assignment and what V2 inherits (brief ยง18, B284โ
 3. **Sign-in is not in the build** (`directWorkspaceAccess = true`). Account paths are proven against mocks only (MySQL was unreachable). Before sign-in ships, history must become per-account (D-012) and account deletion/export must exist (SV-09).
 4. **Payments are deferred by the owner** (D-001). Gate C is out of scope, not failed.
 
-What works and was verified in the running app or production: strength placement (one estimator, pinned to the database; best lift per exercise; age at the lift), load conventions (per dumbbell, bodyweight by reps), muscle ranks (no stabilizer echoes, ceiling disclosed), a single Training Day coverage model with a versioned target set, recommendations constrained by equipment and read from the action, account-scoped device records with three-way plan sync, and a device store that no longer fires account-only requests or a false "sign-in has expired" message.
+What works and was verified in the running app or production: strength placement (one estimator, pinned to the database; best lift per exercise; age at the lift), load conventions (per dumbbell, bodyweight by reps), muscle ranks (no stabilizer echoes, ceiling disclosed), a single Training Day coverage model with a versioned target set, recommendations constrained by equipment and read from the action, account-scoped device records with three-way plan sync, and a device store that no longer fires account-only requests or a false "sign-in has expired" message. (Batch 10 first claimed this with four calls still reachable, in About me, the favourite toggle and Strength's Set focus; closed on 29 September, see the D-015 correction.)
 
 | | |
 |---|---|

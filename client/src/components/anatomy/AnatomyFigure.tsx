@@ -1,8 +1,9 @@
+import { rankPaint } from "./rankPaint";
 import React from "react";
 import { useId, useMemo, useRef, useState } from "react";
 import { anatomyViewBox, anatomyViews, type AnatomyMuscle, type AnatomyView } from "./figureGeometry";
 import type { AnatomyRole } from "@/lib/anatomyRegions";
-import { rankColorToken, type RankId } from "@shared/capabilityRank";
+import type { RankId } from "@shared/capabilityRank";
 import "./anatomy-figure.css";
 
 /**
@@ -95,9 +96,15 @@ export type AnatomyFigureProps = {
    */
   interactive?: boolean;
   caption?: string;
+  /**
+   * A crop of a single view, in the figure's own viewBox units: Home's workout focus shows the
+   * upper or lower body when that is where the work is, rather than a whole body at thumbnail
+   * size. The content is clipped to it.
+   */
+  frame?: { x: number; y: number; width: number; height: number };
 };
 
-export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption }: AnatomyFigureProps) {
+export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption, frame }: AnatomyFigureProps) {
   const uid = useId();
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
@@ -152,11 +159,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
   const rankEncoding = rankFor !== undefined;
 
   const fillFor = (key: string) => {
-    if (rankEncoding) {
-      const rankId = rankFor[key];
-      if (rankId === "unscored") return `url(#${uid}-unscored)`;
-      return rankId ? `var(${rankColorToken(rankId)})` : undefined;
-    }
+    if (rankEncoding) return rankPaint(rankFor[key], `${uid}-unscored`);
     const role = roles[key];
     if (role === "primary") return `url(#${uid}-primary)`;
     if (role === "supporting") return `url(#${uid}-supporting)`;
@@ -185,7 +188,8 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
       className="anatomy-figure"
       data-view={view}
       data-encoding={rankEncoding ? "rank" : undefined}
-      viewBox={`0 0 ${canvasWidth} ${height}`}
+      viewBox={frame && view !== "both" ? `${frame.x} ${frame.y} ${frame.width} ${frame.height}` : `0 0 ${canvasWidth} ${height}`}
+      data-frame={frame && view !== "both" ? "" : undefined}
       role={interactive ? "group" : "img"}
       aria-label={interactive ? `${viewName} muscle map. ${composed.length} selectable regions.` : caption ?? `${viewName} muscle map`}
       onPointerLeave={() => setHover("")}

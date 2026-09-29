@@ -5,8 +5,18 @@ import { equipmentMatchesProfile, type AthleteEquipmentProfile } from "@/lib/equ
 import { buildMovementReasoning, getSportDemandModel } from "./hierarchicalSportModel";
 import { getSprintPowerEvidenceContext } from "./sprintPowerEvidence";
 import { logicCalibration } from "./evidenceTraceability";
+import { displayNames } from "./weeklyVolume";
 
 export type MovementSignal = "acceleration" | "braking" | "lateral" | "rotation" | "jump" | "push" | "pull" | "overhead" | "grip" | "bracing" | "posterior" | "knee" | "conditioning" | "singleLeg";
+
+/** The signals in words, for the one line that says what a match actually shares with the action. */
+export const movementSignalLabels: Record<MovementSignal, string> = {
+  acceleration: "acceleration", braking: "braking", lateral: "lateral movement", rotation: "rotation", jump: "jumping", push: "pushing", pull: "pulling",
+  overhead: "overhead work", grip: "grip", bracing: "bracing", posterior: "posterior-chain work", knee: "knee-dominant work", conditioning: "conditioning", singleLeg: "single-leg work",
+};
+
+/** A muscle key in words ("anterior deltoids", not "frontDelts"), for display text only. */
+export const muscleWords = (muscle: string) => (displayNames[muscle] || muscle).toLowerCase();
 
 const signalRules: { signal: MovementSignal; matcher: RegExp; muscles: string[]; qualities: string[] }[] = [
   { signal: "acceleration", matcher: /acceleration|sprint|start|drive|push-off|stride|skating/i, muscles: ["glutes", "hamstrings", "quads", "calves"], qualities: ["sprintSupport", "locomotion", "power"] },
@@ -215,7 +225,7 @@ function buildBreakdown(exercise: Exercise, signals: MovementSignal[], matchedSi
     matchedSignals.includes("singleLeg") && exercise.qualities.includes("unilateral") ? "unilateral force-production correspondence" : "",
     matchedSignals.includes("acceleration") && exercise.qualities.includes("power") ? "forward projection and acceleration qualities" : "",
     matchedSignals.includes("rotation") && exercise.qualities.includes("rotation") ? "trunk-to-hip rotational transfer" : "",
-    matchedMuscles.length >= 2 ? `direct support for ${matchedMuscles.slice(0, 2).join(" and ")}` : "",
+    matchedMuscles.length >= 2 ? `direct support for ${matchedMuscles.slice(0, 2).map(muscleWords).join(" and ")}` : "",
     exercise.qualities.includes("bracing") || exercise.qualities.includes("antiRotation") ? "position and trunk-stiffness demand" : "",
   ].filter(Boolean).slice(0, 3);
   const limitations = [

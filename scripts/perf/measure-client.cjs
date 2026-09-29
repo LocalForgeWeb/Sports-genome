@@ -22,7 +22,23 @@ const BASE = process.argv[2] || "http://localhost:4173";
 const RUNS = Number(process.argv[3] || 10);
 const CHROMIUM = process.env.PLAYWRIGHT_CHROMIUM || "/opt/pw-browsers/chromium";
 
-const PROTECTED = new Set(["workoutLog.list", "workoutLog.progressionHistory", "strengthGenome.observations", "strengthGenome.priorities", "strengthGenome.overview", "workoutPlan.get", "favorites.list"]);
+/**
+ * Every protectedProcedure in server/routers.ts, read from the file rather than listed by hand:
+ * the hand list had seven and missed auth.passkeys, favorites.set, setPriority and the passkey
+ * mutations, the device-store calls that were still refused (Sep 28 regression brief §7).
+ */
+const PROTECTED = (() => {
+  const found = new Set();
+  let router = "";
+  for (const line of require("fs").readFileSync(require("path").resolve(__dirname, "../../server/routers.ts"), "utf8").split("\n")) {
+    if (/^\s*\/\//.test(line)) continue;
+    const routerMatch = line.match(/^ {2}(\w+): router\(\{/);
+    if (routerMatch) router = routerMatch[1];
+    const procedure = line.match(/^ {4}(\w+): protectedProcedure\b/);
+    if (procedure && router) found.add(`${router}.${procedure[1]}`);
+  }
+  return found;
+})();
 
 /** A year of training: 104 finished workouts (two a week), five lifts of three sets each, and 40 typed lifts. */
 function loadedFixture() {

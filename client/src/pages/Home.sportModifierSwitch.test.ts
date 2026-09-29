@@ -66,16 +66,18 @@ describe("Changing sport from Matches", () => {
     window.history.replaceState({}, "", "/?workspace=recommended");
     render(createElement(Home));
     const select = await screen.findByRole("combobox", { name: "Sport" }, { timeout: 15000 });
-    expect(lensNote()).toMatch(/drawn from Wrestling, freestyle\.$/);
+    // Intentional change, Sep 28 regression brief §11: the priorities are named as the sport's,
+    // not as what ranks this list.
+    expect(lensNote()).toMatch(/from Wrestling, freestyle\. They shape your plan's drafts, not this list\.$/);
 
     await act(async () => { fireEvent.change(select, { target: { value: "swimming" } }); });
-    expect(lensNote()).toMatch(/drawn from Swimming, general sport profile\.$/);
+    expect(lensNote()).toMatch(/from Swimming, general sport profile\. They shape your plan's drafts, not this list\.$/);
     expect(savedModifier()).toBeUndefined();
 
     const changed = toasts.find((entry) => entry.title === "Sport changed");
     expect(changed?.options?.description).toMatch(/role or style/);
     await act(async () => { changed!.options!.action!.onClick(); });
-    expect(lensNote()).toMatch(/drawn from Wrestling, freestyle\.$/);
+    expect(lensNote()).toMatch(/from Wrestling, freestyle\. They shape your plan's drafts, not this list\.$/);
     expect(savedModifier()).toBe("freestyle");
   });
 });

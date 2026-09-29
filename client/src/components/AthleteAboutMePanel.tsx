@@ -1,10 +1,11 @@
-import React, { useEffect, useState, type ReactNode } from "react";
+import React, { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BookOpen, CalendarDays, ChevronDown, ChevronRight, Check, CloudUpload, Dumbbell, Fingerprint, Lock, Medal, Palette, PlayCircle, Scale, Sparkles, Target, Trash2, Trophy, UserRound } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { themeOptionCopy, themePreferences, type ThemePreference } from "@/lib/theme";
 import { startRegistration } from "@simplewebauthn/browser";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { accountSignInAvailable } from "@/lib/accountAccess";
 import { expiryNotice, isExpiryError } from "@/lib/sessionExpiryNotice";
 import { trainingGoalChoices, convertBodyWeight, type AthleteBaseline, type AthleteExperience, type SexForReference, type WeightUnit } from "@/components/AthleteBaselineQuiz";
 import { catalogEquipment, gymAccessProfiles, type CatalogEquipment, type GymAccess } from "@/lib/equipmentProfile";
@@ -55,7 +56,7 @@ export function parseBodyWeight(text: string): number | undefined {
   return text.trim() !== "" && Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
-export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, accountSignedIn = false, guides, launchVideo, launchVideoEnabled, buildStamp }: {
+export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, onGymMinutes, sportId, sportContextMode = "sport", sports, onBaseline, onGoal, onDays, onSport, onSportContextMode = () => {}, capacityFocus = { reportedSignals: [] }, targetCatalog, onCapacityFocus = () => {}, identity, syncPending = 0, benchmarkOptIn = false, onBenchmarkOptIn = () => {}, accountSignedIn = false, sessionLapsed = false, accountFocusRequest = 0, guides, launchVideo, launchVideoEnabled, buildStamp }: {
   baseline: AthleteBaseline;
   goal: TrainingGoal;
   trainingDays: number;
@@ -81,6 +82,10 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   onBenchmarkOptIn?: (next: boolean) => void;
   /** Whether this device holds an email sign-in (auth.me). Passkey routes are account-only (protectedProcedure) and answer UNAUTHORIZED without one (D-015). */
   accountSignedIn?: boolean;
+  /** Signed in, then refused: the lasting status for the one-time notice (lib/sessionNotice.ts). */
+  sessionLapsed?: boolean;
+  /** Bumped by the notice's "Account & sync" action; opens that group and brings it into view. */
+  accountFocusRequest?: number;
   /** The guide, onboarding restart and research library, owned by the page that has them. */
   guides?: ReactNode;
   /** The launch video setting and preview, likewise. */
@@ -95,6 +100,13 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const passkeyOptions = trpc.auth.passkeyRegistrationOptions.useMutation();
   const passkeyVerify = trpc.auth.passkeyRegistrationVerify.useMutation();
   const accountPasskeys = trpc.auth.passkeys.useQuery(undefined, { enabled: accountSignedIn, retry: false });
+  const accountGroupRef = useRef<HTMLDetailsElement | null>(null);
+  useEffect(() => {
+    const group = accountGroupRef.current;
+    if (!accountFocusRequest || !group) return;
+    group.open = true;
+    group.scrollIntoView({ block: "center" });
+  }, [accountFocusRequest]);
   const removePasskey = trpc.auth.removePasskey.useMutation({ onSuccess: () => { accountPasskeys.refetch(); toast.success("Passkey removed from this account"); }, onError: (error) => { if (isExpiryError(error)) return noticePasskeyExpiry("That passkey is still enrolled."); toast.error("Could not remove that passkey. It is still enrolled."); } });
   const requestRemovePasskey = (passkeyId: number, label: string) => setPendingDestructiveAction({
     title: "Remove this passkey?",
@@ -158,7 +170,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
   const selectedTargetName = targetCatalog?.status === "connected" ? targetCatalog.targets.find((target) => target.targetKey === capacityFocus.focus?.targetKey)?.name : undefined;
   const constraintReported = capacityFocus.constraint?.constraintType && capacityFocus.constraint.constraintType !== "proactive_none";
   const prioritiesSummary = selectedTargetName ? `${selectedTargetName}${constraintReported ? " · something reported there" : ""}` : "Choose a region or capacity";
-  const accountSummary = !identity ? "Saved on this device"
+  const accountSummary = sessionLapsed ? "Signed out of your account"
+    : !identity ? "Saved on this device"
     : identity.userId ? (identity.anonymous ? "Saved to an account on this device" : "Saved to your account")
     : "Saved on this device";
   const accountPending = syncPending > 0 ? ` · ${syncPending} ${syncPending === 1 ? "lift" : "lifts"} waiting` : "";
@@ -203,7 +216,8 @@ export function AthleteAboutMePanel({ baseline, goal, trainingDays, gymMinutes, 
       <details className="about-me-group"><summary><Target className="h-6 w-6" aria-hidden="true" /><span><strong>Training priorities</strong><small>{prioritiesSummary}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
         <CapacityFocusCard catalog={targetCatalog} value={capacityFocus} onChange={onCapacityFocus} />
       </details>
-      <details className="about-me-group"><summary><CloudUpload className="h-6 w-6" aria-hidden="true" /><span><strong>Account &amp; sync</strong><small>{accountSummary}{accountPending}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
+      <details ref={accountGroupRef} className="about-me-group"><summary><CloudUpload className="h-6 w-6" aria-hidden="true" /><span><strong>Account &amp; sync</strong><small>{accountSummary}{accountPending}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>
+        {sessionLapsed && <p className="about-me-group-note" role="status">You&apos;re signed out of your account. Changes you make are kept on this device{accountSignInAvailable ? "; sign in to sync them." : ". This version can't sign in again, so account sync has stopped."}</p>}
         {identity ? <AthleteAccountCard identity={identity} pending={syncPending} optedIn={benchmarkOptIn} onOptIn={onBenchmarkOptIn} /> : <p className="about-me-group-note">Everything you log is saved on this device.</p>}
       </details>
       <details className="about-me-group"><summary><Palette className="h-6 w-6" aria-hidden="true" /><span><strong>Appearance</strong><small>{themeOptionCopy[preference].label}</small></span><ChevronRight className="h-5 w-5 about-me-group-chevron" aria-hidden="true" /></summary>

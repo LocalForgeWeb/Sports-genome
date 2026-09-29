@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, ListTree } from "lucide-react";
 import type { SportMovementProfile, SportProfile } from "@/lib/sportMovementDatabase";
 import { getAdjacentMovement } from "@/lib/bodyLabNavigation";
+import { movementDisplayLabel } from "@/lib/movementLabel";
 import "../body-lab-navigator.css";
 
 /**
@@ -21,6 +22,14 @@ import "../body-lab-navigator.css";
  */
 export function BodyLabNavigator({ sports, activeSportId, movements, selectedMovement, onSport, onMovement, onOpenAtlas }: { sports: SportProfile[]; activeSportId: string; movements: SportMovementProfile[]; selectedMovement: SportMovementProfile; onSport: (sportId: string) => void; onMovement: (movement: SportMovementProfile) => void; onOpenAtlas: () => void }) {
   const [changing, setChanging] = useState(false);
+  const changeRef = useRef<HTMLButtonElement | null>(null);
+  /**
+   * Choosing an action is the end of the task, so the controls close and the map below comes
+   * back into place; Escape does the same from anywhere inside them (Sep 28 regression brief
+   * §10). A sport change and prev/next stepping keep them open, since the next step is still
+   * a choice here. Focus returns to Change, where the athlete opened them.
+   */
+  const close = () => { setChanging(false); window.requestAnimationFrame(() => changeRef.current?.focus()); };
   const previous = getAdjacentMovement(movements, selectedMovement.id, -1);
   const next = getAdjacentMovement(movements, selectedMovement.id, 1);
   const sportLabel = sports.find((sport) => sport.id === activeSportId)?.label || "";
@@ -31,12 +40,12 @@ export function BodyLabNavigator({ sports, activeSportId, movements, selectedMov
       <p className="body-lab-selection-context">
         <span className="body-lab-selection-sport">{sportLabel}</span>
         <i aria-hidden="true">/</i>
-        <span className="body-lab-selection-action">{selectedMovement.label}</span>
-        <button type="button" className="body-lab-selection-change" aria-expanded={changing} aria-controls="body-lab-selection-controls" onClick={() => setChanging((current) => !current)}>{changing ? "Done" : "Change"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+        <span className="body-lab-selection-action">{movementDisplayLabel(selectedMovement.label)}</span>
+        <button ref={changeRef} type="button" className="body-lab-selection-change" aria-expanded={changing} aria-controls="body-lab-selection-controls" onClick={() => setChanging((current) => !current)}>{changing ? "Done" : "Change"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
       </p>
     </div>
 
-    {changing && <div id="body-lab-selection-controls" className="body-lab-selection-controls">
+    {changing && <div id="body-lab-selection-controls" className="body-lab-selection-controls" onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); close(); } }}>
       <label>
         <span>Sport</span>
         <select value={activeSportId} onChange={(event) => onSport(event.target.value)}>
@@ -45,8 +54,9 @@ export function BodyLabNavigator({ sports, activeSportId, movements, selectedMov
       </label>
       <label>
         <span>Action</span>
-        <select value={selectedMovement.id} onChange={(event) => { const movement = movements.find((item) => item.id === event.target.value); if (movement) onMovement(movement); }}>
-          {movements.map((movement) => <option key={movement.id} value={movement.id}>{movement.label}</option>)}
+        <select value={selectedMovement.id} onChange={(event) => { const movement = movements.find((item) => item.id === event.target.value); if (movement) { onMovement(movement); close(); } }}>
+          {/* Sentence case in the data, not by CSS: an <option> cannot take ::first-letter. */}
+          {movements.map((movement) => <option key={movement.id} value={movement.id}>{movementDisplayLabel(movement.label)}</option>)}
         </select>
       </label>
       <div className="body-lab-navigator-actions">

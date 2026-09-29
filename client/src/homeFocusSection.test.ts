@@ -23,7 +23,9 @@ function homeFocusBlocks(css: string): string[] {
 
 describe("Home movement focus section", () => {
   it("is the only element with the home-focus class", () => {
-    expect(home).toContain('<section className="home-focus" aria-label="Movement focus">');
+    // Intentional change, Sep 28 regression brief §3: the section is the compact "Sport focus"
+    // preview now, one action and its link to Body Lab.
+    expect(home).toContain('<section className="home-focus" aria-label="Sport focus">');
     expect(todayPanel).not.toMatch(/className="home-focus"/);
     expect(todayPanel).toContain('<figure className="today-action-focus">');
   });

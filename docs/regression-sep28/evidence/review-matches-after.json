@@ -1,0 +1,138 @@
+{
+ "reviewEmptyGap": {
+  "recovery": "RECOVERY SPACING No shared muscle exposure between the neighbouring days compared. Compared Push → Pull, Pull → Legs. Not compared: Legs and Sport Transfer, with an empty day between them in plan order.",
+  "clear": "Spacing check clear for the pairs compared. It reads planned sets only, not readiness, sleep, sport practice or pain.",
+  "firstRow": "Pectoralis major 28 direct + 0 supporting contribution 28 High exposure · 28 direct By day (attributed) Push 11 Sport Transfer 17",
+  "legend": "Direct working sets Supporting contribution: each supporting set adds 0.5, already applied Status: planned direct sets a week (Building <6 · Established 6–11 · High exposure 12+)"
+ },
+ "reviewAlerts": {
+  "head": "RECOVERY SPACING 2 neighbouring pairs with heavy shared exposure in the saved plan. Compared Push → Pull, Pull → Legs, Legs → Upper, Upper → Sport Transfer.",
+  "rows": [
+   "Pull → Legs Heavy shared exposure · neighbouring plan days (plan order, not dates) Open Legs Latissimus dorsi Pull 17 / Legs 17 attributed sets Upper back Pull 17 / Legs 17 attributed sets Biceps brachii Pull 8.5 / Legs 8.5 attributed sets Posterior deltoids Pull 8.5 / Legs 8.5 attributed sets +1 more shared",
+   "Upper → Sport Transfer Heavy shared exposure · neighbouring plan days (plan order, not dates) Open Sport Transfer Pectoralis major Upper 17 / Sport Transfer 17 attributed sets Triceps brachii Upper 8.5 / Sport Transfer 8.5 attributed sets Anterior deltoids Upper 8.5 / Sport Transfer 8.5 attributed sets"
+  ]
+ },
+ "reviewOpen": {
+  "label": "Open Legs",
+  "url": "?workspace=day-plan",
+  "identity": "LegsWeek 2 · Day 03 · 5 exercises Saved"
+ },
+ "matches320": {
+  "rows": [
+   {
+    "text": "01 Cable Standing Punch General physical preparation 93 match A",
+    "stamp": true,
+    "nameWidth": 116,
+    "nameLines": 3,
+    "summary": "Why Cable Standing Punch matches"
+   },
+   {
+    "text": "02 Cable Reverse Chop General physical preparation 93 match S",
+    "stamp": true,
+    "nameWidth": 116,
+    "nameLines": 2,
+    "summary": "Why Cable Reverse Chop matches"
+   },
+   {
+    "text": "03 Cable Single-Arm Bent-Over Row General physical preparation 91 match S",
+    "stamp": true,
+    "nameWidth": 116,
+    "nameLines": 3,
+    "summary": "Why Cable Single-Arm Bent-Over Row matches"
+   },
+   {
+    "text": "04 Landmine Row Special physical preparation 89 match S",
+    "stamp": true,
+    "nameWidth": 116,
+    "nameLines": 1,
+    "summary": "Why Landmine Row matches"
+   },
+   {
+    "text": "05 Meadows Landmine Row Special physical preparation 89 match S",
+    "stamp": true,
+    "nameWidth": 116,
+    "nameLines": 2,
+    "summary": "Why Meadows Landmine Row matches"
+   },
+   {
+    "text": "06 Landmine T-Bar Row Special physical preparation 89 match S",
+    "stamp": true,
+    "nameWidth": 116,
+    "nameLines": 2,
+    "summary": "Why Landmine T-Bar Row matches"
+   }
+  ],
+  "copy": {
+   "count": "Exercises that share the most with overhook / whizzer, most shared first.",
+   "method": [
+    "",
+    "",
+    ""
+   ]
+  },
+  "why": "Why this match? Builds rotational force with a clear trunk-to-hip transfer path. Shares rotation; pectoralis major, anterior deltoids, deltoids with overhook / whizzer STRENGTHS + trunk-to-hip rotational transfer + direct support for pectoralis major and anterior deltoids + position and trunk-stiffness demand LIMITS − use alongside more movement-specific work when transfer is the main goal PROFILE FACETS not inputs to the match number MOVEMENT TRANSFER 57 MUSCLE TARGETING 99 JOINT ACTION 52 QUALITY 69 FORCE PATH 84 STABILITY 84 VELOCITY 83",
+  "scrollW": 320
+ },
+ "matches390": {
+  "rows": [
+   {
+    "text": "01 Cable Standing Punch General physical preparation 93 match A",
+    "stamp": true,
+    "nameWidth": 186,
+    "nameLines": 1,
+    "summary": "Why Cable Standing Punch matches"
+   },
+   {
+    "text": "02 Cable Reverse Chop General physical preparation 93 match S",
+    "stamp": true,
+    "nameWidth": 186,
+    "nameLines": 1,
+    "summary": "Why Cable Reverse Chop matches"
+   },
+   {
+    "text": "03 Cable Single-Arm Bent-Over Row General physical preparation 91 match S",
+    "stamp": true,
+    "nameWidth": 186,
+    "nameLines": 2,
+    "summary": "Why Cable Single-Arm Bent-Over Row matches"
+   },
+   {
+    "text": "04 Landmine Row Special physical preparation 89 match S",
+    "stamp": true,
+    "nameWidth": 186,
+    "nameLines": 1,
+    "summary": "Why Landmine Row matches"
+   },
+   {
+    "text": "05 Meadows Landmine Row Special physical preparation 89 match S",
+    "stamp": true,
+    "nameWidth": 186,
+    "nameLines": 2,
+    "summary": "Why Meadows Landmine Row matches"
+   },
+   {
+    "text": "06 Landmine T-Bar Row Special physical preparation 89 match S",
+    "stamp": true,
+    "nameWidth": 186,
+    "nameLines": 1,
+    "summary": "Why Landmine T-Bar Row matches"
+   }
+  ],
+  "copy": {
+   "count": "Exercises that share the most with overhook / whizzer, most shared first.",
+   "method": [
+    "",
+    "",
+    ""
+   ]
+  },
+  "why": "Why this match? Builds rotational force with a clear trunk-to-hip transfer path. Shares rotation; pectoralis major, anterior deltoids, deltoids with overhook / whizzer STRENGTHS + trunk-to-hip rotational transfer + direct support for pectoralis major and anterior deltoids + position and trunk-stiffness demand LIMITS − use alongside more movement-specific work when transfer is the main goal PROFILE FACETS not inputs to the match number MOVEMENT TRANSFER 57 MUSCLE TARGETING 99 JOINT ACTION 52 QUALITY 69 FORCE PATH 84 STABILITY 84 VELOCITY 83",
+  "scrollW": 390
+ },
+ "viewWorkout": {
+  "added": "Cable Standing Punch",
+  "url": "?workspace=day-plan",
+  "identity": "LegsWeek 2 · Day 03 · 6 exercises Saved",
+  "present": true
+ }
+}

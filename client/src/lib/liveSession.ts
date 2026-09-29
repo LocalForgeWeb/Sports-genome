@@ -9,6 +9,7 @@ import {
   isCompletedWorkout,
   isExerciseSkipped,
 } from "@/lib/deviceWorkoutLog";
+import { slotOfDayLabel } from "@/lib/nextWorkout";
 import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 
 /**
@@ -92,6 +93,28 @@ export function trainingStateByDayLabel(sessions = loadDeviceWorkoutSessions(), 
       const marker = new Date(session.completedAt ?? session.startedAt);
       if (!Number.isNaN(marker.getTime()) && marker >= weekStart) states[session.dayLabel] = "trained";
     }
+  }
+  return states;
+}
+
+/**
+ * Plan days by slot ("Day 02 · Pull"): running now, or finished this calendar week.
+ *
+ * `trainingStateByDayLabel` above never looks at dates, so Plan's tabs said "Trained" for a day
+ * finished weeks ago while Home's strip, which counts this week, said it was still to do (Sep 28
+ * regression brief §5). This reads the same rule as Home (nextWorkout.ts slotsDoneThisWeek): the
+ * week starts Monday 00:00 local, a finish with nothing logged is not a workout, and a session
+ * counts for the slot it was started from whichever plan week that was.
+ */
+export function trainingStateBySlot(sessions = loadDeviceWorkoutSessions(), now: Date = new Date()): Record<string, DayTrainingState> {
+  const weekStart = startOfTrainingWeek(now);
+  const states: Record<string, DayTrainingState> = {};
+  for (const session of sessions) {
+    if (!session.dayLabel) continue;
+    const slot = slotOfDayLabel(session.dayLabel);
+    if (session.status === "active") { states[slot] = "live"; continue; }
+    const finished = new Date(session.completedAt ?? session.startedAt);
+    if (!states[slot] && isCompletedWorkout(session) && !Number.isNaN(finished.getTime()) && finished >= weekStart) states[slot] = "trained";
   }
   return states;
 }
@@ -215,10 +238,12 @@ function sameDayTrainingStates(left: Record<string, DayTrainingState>, right: Re
  * new week starting while the app sat open.
  */
 export function useDayTrainingStates(): Record<string, DayTrainingState> {
-  const [states, setStates] = useState<Record<string, DayTrainingState>>(() => trainingStateByDayLabel());
+  // Keyed by slot ("Day 02 · Pull"), whatever plan week the session named: a day trained this
+  // calendar week is done in every plan week (Sep 28 regression brief §5; trainingStateBySlot).
+  const [states, setStates] = useState<Record<string, DayTrainingState>>(() => trainingStateBySlot());
   useEffect(() => {
     const refresh = () => {
-      const next = trainingStateByDayLabel();
+      const next = trainingStateBySlot();
       // Every tracker checkpoint announces itself; most change no day's state.
       setStates((current) => (sameDayTrainingStates(current, next) ? current : next));
     };

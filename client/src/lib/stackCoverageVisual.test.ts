@@ -8,7 +8,10 @@ import {
   dialGeometry,
   scoreBand,
   summarizeCoverage,
+  coverageBandCopy,
+  formatCoverageDelta,
 } from "@/lib/stackCoverageVisual";
+import { volumeReadingCopy } from "@/lib/sessionVolume";
 
 const rating = (over: Partial<StackMuscleScore> = {}): StackMuscleScore => ({
   muscle: "chest",
@@ -72,7 +75,8 @@ describe("summarizeCoverage", () => {
       rating({ muscle: "triceps", target: 70, score: 56 }),
       rating({ muscle: "chest", target: 90, score: 112 }),
     ]);
-    expect(summarizeCoverage(bars, name).headline).toBe("TRICEPS is the one gap, 14 points short.");
+    // Intentional change, Sep 28 regression brief §8: one delta wording, with its unit.
+    expect(summarizeCoverage(bars, name).headline).toBe("TRICEPS is the one gap, 14 pts under target.");
   });
 
   it("leads with the worst shortfall when there are several", () => {
@@ -95,15 +99,18 @@ describe("summarizeCoverage", () => {
 
   it("says so plainly when nothing is short", () => {
     const bars = buildCoverageBars([rating({ target: 90, score: 92 })]);
-    expect(summarizeCoverage(bars, name).headline).toBe("Every target in this split is covered.");
+    expect(summarizeCoverage(bars, name).headline).toBe("The target is reached.");
   });
 
-  it("still flags heavy volume when no target is short", () => {
+  it("still names a target well past its mark when none is short, without calling it volume", () => {
     const bars = buildCoverageBars([
       rating({ target: 90, score: 92 }),
       rating({ muscle: "triceps", target: 45, score: 100 }),
     ]);
-    expect(summarizeCoverage(bars, name).headline).toBe("All targets covered; 1 carrying heavy volume.");
+    // Intentional change, Sep 28 regression brief §8: "heavy volume" named sets on a scale of
+    // catalog-tag points, and Session volume used "heavy" for sets on the same page.
+    expect(summarizeCoverage(bars, name).headline).toBe("All 2 targets reached; 1 well past target.");
+    expect(summarizeCoverage(bars, name).headline).not.toMatch(/volume|heavy/i);
   });
 
   it("counts each band", () => {
@@ -118,6 +125,24 @@ describe("summarizeCoverage", () => {
 
   it("has something to say about an empty split rather than rendering a blank", () => {
     expect(summarizeCoverage([], name).headline).toBe("No split targets to measure.");
+  });
+});
+
+describe("formatCoverageDelta", () => {
+  it("says points and a direction, once, the same way everywhere", () => {
+    expect(formatCoverageDelta(52)).toBe("52 pts over target");
+    expect(formatCoverageDelta(-4)).toBe("4 pts under target");
+    expect(formatCoverageDelta(0)).toBe("on target");
+    expect(formatCoverageDelta(-60, { short: true })).toBe("60 pts under");
+  });
+});
+
+describe("two scales, two vocabularies", () => {
+  it("shares no band word with Session volume's readings", () => {
+    // Coverage points and sets per session read "heavy" and "light" for one muscle at once.
+    const coverage = new Set(Object.values(coverageBandCopy).map((copy) => copy.label.toLowerCase()));
+    const volume = Object.values(volumeReadingCopy).map((copy) => copy.label.toLowerCase());
+    expect(volume.filter((label) => coverage.has(label))).toEqual([]);
   });
 });
 

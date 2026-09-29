@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { filterStackForEquipment, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
-import { ChevronRight, Dumbbell, Plus, Search, SlidersHorizontal, X } from "lucide-react";
+import { Dumbbell, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment";
 import { muscleLabels } from "@/components/AnatomyMap";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { RateStackPanel } from "@/components/RateStackPanel";
 import { analyzeSplitStack } from "@/lib/splitStackAnalysis";
-import { buildCoverageBars } from "@/lib/stackCoverageVisual";
+import { buildCoverageBars, formatCoverageDelta } from "@/lib/stackCoverageVisual";
 import { pickerGapTargets, rankPickerResults } from "@/lib/pickerRanking";
 import { matchesAreGuesses, rankExerciseMatches, suggestExerciseNames } from "@/lib/exerciseSearch";
 import { distinguishingMuscles, gapTagIsInformative, muscleLineIsInformative, sharedRowMuscles } from "@/lib/pickerRowFacts";
@@ -215,7 +215,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     return <>
   <div className="day-exercise-picker-content">
         <div className="day-exercise-picker-head"><div><p className="metric-label">Build this day yourself</p><h3>Add exercises directly</h3><p>Start with split-matched options, then switch to the full catalog when you want a deliberate exception.</p></div><Dumbbell className="h-5 w-5" /></div>
-        {gaps.length > 0 && activeWorkout.length > 0 && <div className="day-picker-gaps"><span className="day-picker-gaps-label">Short in this day</span>{gaps.map((gap) => <button key={gap.muscle} type="button" onClick={() => setMuscle(muscle === muscleFilterKey(gap.muscle) ? "all" : muscleFilterKey(gap.muscle))} className={muscle === muscleFilterKey(gap.muscle) ? "day-picker-gap day-picker-gap-active" : "day-picker-gap"} aria-pressed={muscle === muscleFilterKey(gap.muscle)}>{muscleLabels[gap.muscle] || gap.muscle}<i>{gap.deltaToTarget}</i></button>)}{muscle !== "all" && <button type="button" className="day-picker-gap-clear" onClick={() => setMuscle("all")}>Clear</button>}</div>}
+        {gaps.length > 0 && activeWorkout.length > 0 && <div className="day-picker-gaps"><span className="day-picker-gaps-label">Short in this day</span>{gaps.map((gap) => <button key={gap.muscle} type="button" onClick={() => setMuscle(muscle === muscleFilterKey(gap.muscle) ? "all" : muscleFilterKey(gap.muscle))} className={muscle === muscleFilterKey(gap.muscle) ? "day-picker-gap day-picker-gap-active" : "day-picker-gap"} aria-pressed={muscle === muscleFilterKey(gap.muscle)}>{muscleLabels[gap.muscle] || gap.muscle}<i>{formatCoverageDelta(gap.deltaToTarget, { short: true })}</i></button>)}{muscle !== "all" && <button type="button" className="day-picker-gap-clear" onClick={() => setMuscle("all")}>Clear</button>}</div>}
         <div className="day-picker-tools"><label><Search className="h-4 w-4" aria-hidden="true" /><input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${scope === "split" ? split : "all"} exercises`} aria-label={`Search ${scope === "split" ? split : "all"} exercises`} enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false} /></label><MuscleSelect muscles={muscleOptions} value={muscle} labelFor={(key) => muscleLabels[key] || key} onChange={setMuscle} /><select value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter day exercises by equipment"><option value="all">All equipment</option>{equipmentOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select><div className="day-picker-scope"><button type="button" aria-pressed={scope === "split"} onClick={() => setScope("split")} className={scope === "split" ? "day-picker-scope-active" : ""}><SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" /> {split} fit</button><button type="button" aria-pressed={scope === "all"} onClick={() => setScope("all")} className={scope === "all" ? "day-picker-scope-active" : ""}>All catalog</button></div></div>
         <LocalSearchScope scope={`Searching ${scope === "split" ? `${split}-compatible` : "all catalog"} exercises.`} query={query} />
         <p className="day-picker-result-count" aria-live="polite"><strong>{results.length}</strong> option{results.length === 1 ? "" : "s"}{gaps.length > 0 ? ` · ${gaps.map((gap) => muscleLabels[gap.muscle] || gap.muscle).slice(0, 2).join(" and ")} first` : muscle !== "all" ? ` · direct ${muscleLabels[muscle] || muscle} targets first` : scope === "split" ? ` · ${split}-compatible` : " · full catalog"}{guessed && <span className="day-picker-result-guess">Nothing is spelled “{query.trim()}” — these are the closest.</span>}{shared.muscles.length > 0 &&<span className="day-picker-result-shared">{shared.everyRow ? "All of these also work" : "Most of these also work"} {shared.muscles.map((muscleKey) => (muscleLabels[muscleKey] || muscleKey).toLowerCase()).join(" and ")}.</span>}</p>
@@ -258,13 +258,8 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
         dayLabel={dayLabel ?? destinationLabel}
         onAddExercises={onOpenSheet ? () => { setMuscle("all"); setQuery(""); onOpenSheet(); } : undefined}
       />
-      {/* The day's own "Add exercises" control already opens this sheet, so this
-          row earns its place only when it carries something that control does not:
-          the gap the analysis just named, and a search sorted to close it. */}
-      {activeWorkout.length > 0 && gaps.length > 0 && <button type="button" className="day-exercise-open-catalog" onClick={() => { setMuscle(muscleFilterKey(gaps[0].muscle)); setQuery(""); onOpenSheet?.(); }}>
-        <span><p className="metric-label">Add to {destinationLabel}</p><strong>Find exercises for {(muscleLabels[gaps[0].muscle] || gaps[0].muscle).toLowerCase()}</strong><small>Sorted to close {(muscleLabels[gaps[0].muscle] || gaps[0].muscle).toLowerCase()} first</small></span>
-        <span className="day-exercise-disclosure-action">Browse <ChevronRight className="h-4 w-4" /></span>
-      </button>}
+      {/* The "Find exercises for {gap}" card that sat here repeated the coverage panel's own
+          fix action, on a white card inside the dark day (Sep 28 regression brief §8). */}
     </section>
 
     {/* Opened by "Add exercises". The same surface, over the day rather than below it. */}

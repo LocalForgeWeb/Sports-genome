@@ -48,8 +48,8 @@ export function ProgressionReviewSummary({ exercises, history, catalog = [], ava
   </section>;
 }
 
-export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyWeight, weightUnit, availableEquipment, onApprove, onApproveSegment, onAddSuggestion }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; bodyWeight?: number; weightUnit?: "lb" | "kg"; availableEquipment?: string[]; onApprove?: (recommendation: ExerciseProgressionRecommendation) => void; onApproveSegment?: (signal: MuscleSegmentSignal) => void; onAddSuggestion?: (suggestion: SegmentPrioritySuggestion) => void }) {
-  const historyQuery = trpc.workoutLog.progressionHistory.useQuery(undefined, { refetchOnWindowFocus: false });
+export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyWeight, weightUnit, availableEquipment, accountSession = false, onApprove, onApproveSegment, onAddSuggestion }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; bodyWeight?: number; weightUnit?: "lb" | "kg"; availableEquipment?: string[]; /** The history is an account's; it is asked only with a session (Sep 28 regression brief §7). */ accountSession?: boolean; onApprove?: (recommendation: ExerciseProgressionRecommendation) => void; onApproveSegment?: (signal: MuscleSegmentSignal) => void; onAddSuggestion?: (suggestion: SegmentPrioritySuggestion) => void }) {
+  const historyQuery = trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: accountSession, refetchOnWindowFocus: false });
   // Body weight and equipment come from the caller, which reads the athlete's own
   // profile. The bare profile key this used to read is removed once a profile moves
   // to its account-scoped key, so it held nothing for a signed-in athlete.

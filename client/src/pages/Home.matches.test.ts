@@ -75,7 +75,8 @@ describe("Matches is one column of real controls", () => {
     const noop = () => {};
     const markup = renderToStaticMarkup(createElement(RecommendationRow, { result, index: 0, onAdd: noop, onInspect: noop, destinationLabel: "Week 1 · Mon" }));
 
-    expect(markup).toContain(`aria-label="Match score 97 for ${result.exercise.name}: open details"`);
+    // Sep 28 regression brief §11: the number names its scale.
+    expect(markup).toContain(`aria-label="Match 97 of 99 for ${result.exercise.name}: open details"`);
     // The stamp names the exercise's catalog tier. result.grade is
     // gradeForScore(score): the match score again, in letters, under a label
     // that would call it the catalog tier.
@@ -83,8 +84,8 @@ describe("Matches is one column of real controls", () => {
     expect(markup).not.toContain("Catalog planning tier SS");
     // The stamp is not handed the score, so the two labels cannot restate each other.
     expect(markup).not.toContain("modelled overall match");
-    // So one exercise wears the same tier on Matches and on Home's top three.
-    expect(source).toContain("<GradeStamp grade={result.exercise.muscleGrade} compact /><ChevronRight");
+    // Home no longer lists a top three beside its sport focus (Sep 28 regression brief §3:
+    // a compact preview), so Matches is where an exercise's tier is shown in a list.
   });
 
   it("keeps research context and movement intelligence on the page, behind their own lines", () => {

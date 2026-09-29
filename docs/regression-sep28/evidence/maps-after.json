@@ -1,0 +1,113 @@
+{
+ "bodyLab": {
+  "picker": {
+   "letterSpacing": "normal",
+   "options": [
+    "Penetration step",
+    "Double-leg shot",
+    "Single-leg shot",
+    "High-crotch entry",
+    "Sprawl"
+   ]
+  },
+  "afterChoice": {
+   "open": 0,
+   "context": "Wrestling / Double-leg shot Change"
+  },
+  "afterEscape": {
+   "open": 0,
+   "focus": "body-lab-selection-change"
+  },
+  "roles": {
+   "primary": [
+    [
+     "rgb(255, 122, 47)",
+     [
+      "state",
+      24.9
+     ]
+    ],
+    [
+     "rgb(232, 102, 42)",
+     [
+      "national",
+      23.7
+     ]
+    ]
+   ],
+   "supporting": [
+    [
+     "rgb(47, 196, 201)",
+     [
+      "jv",
+      21.6
+     ]
+    ],
+    [
+     "rgb(31, 154, 163)",
+     [
+      "prospect",
+      19.1
+     ]
+    ]
+   ],
+   "dots": [
+    {
+     "tag": "Primary",
+     "dot": "rgb(255, 122, 47)",
+     "nearest": [
+      "state",
+      24.9
+     ]
+    },
+    {
+     "tag": "Primary",
+     "dot": "rgb(255, 122, 47)",
+     "nearest": [
+      "state",
+      24.9
+     ]
+    },
+    {
+     "tag": "Primary",
+     "dot": "rgb(255, 122, 47)",
+     "nearest": [
+      "state",
+      24.9
+     ]
+    },
+    {
+     "tag": "Primary",
+     "dot": "rgb(255, 122, 47)",
+     "nearest": [
+      "state",
+      24.9
+     ]
+    }
+   ]
+  }
+ },
+ "strength": {
+  "mode": "rank",
+  "calves": {
+   "state": "Prospect12th",
+   "fill": "rgb(130, 144, 163)",
+   "unscored": null,
+   "shell": "rgb(0, 0, 0)"
+  },
+  "biceps": {
+   "state": "Not scored",
+   "fill": "url(\"#_r_1_-unscored\")",
+   "unscored": "true",
+   "shell": "rgb(0, 0, 0)"
+  },
+  "chest": {
+   "state": "World Stage99th",
+   "fill": "rgb(23, 27, 36)",
+   "unscored": null,
+   "shell": "rgb(0, 0, 0)"
+  },
+  "worldStageStroke": "1.5px",
+  "otherRankStroke": "1px"
+ }
+}
