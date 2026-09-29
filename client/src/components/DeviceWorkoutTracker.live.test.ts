@@ -371,6 +371,43 @@ describe("half-typed numeric entry", () => {
   });
 });
 
+/**
+ * The keypad labels its return key Next on the load box and Done on reps. With
+ * no handler behind them, Android sent Enter and nothing happened.
+ */
+describe("return key on the live entry", () => {
+  const entry = () => within(document.querySelector(".live-set-entry") as HTMLElement);
+  const weight = () => entry().getByLabelText(/weight/i) as HTMLInputElement;
+  const reps = () => entry().getByLabelText(/reps/i) as HTMLInputElement;
+
+  it("moves from the load box to reps on Next, without logging", () => {
+    startWorkout();
+    weight().focus();
+    fireEvent.keyDown(weight(), { key: "Enter" });
+    expect(document.activeElement).toBe(reps());
+    expect(screen.getByRole("button", { name: /log set 1/i })).toBeTruthy();
+    expect(JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!)[0].exercises[0].sets[0].completed).toBe(false);
+  });
+
+  it("logs the set on Done in the reps box", () => {
+    startWorkout();
+    fireEvent.change(weight(), { target: { value: "135" } });
+    fireEvent.change(reps(), { target: { value: "8" } });
+    fireEvent.keyDown(reps(), { key: "Enter" });
+    expect(screen.getByRole("button", { name: /log set 2/i })).toBeTruthy();
+    const stored = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!);
+    expect(stored[0].exercises[0].sets[0]).toMatchObject({ weight: "135", reps: "8", completed: true });
+  });
+
+  it("logs nothing for a held return key", () => {
+    startWorkout();
+    fireEvent.change(reps(), { target: { value: "8" } });
+    fireEvent.keyDown(reps(), { key: "Enter", repeat: true });
+    expect(screen.getByRole("button", { name: /log set 1/i })).toBeTruthy();
+    expect(JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!)[0].exercises[0].sets[0].completed).toBe(false);
+  });
+});
+
 describe("skipping an exercise from the live card", () => {
   it("moves to the next exercise and records nothing for the one passed", () => {
     startWorkout();

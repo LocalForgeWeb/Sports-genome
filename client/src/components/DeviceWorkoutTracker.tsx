@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronRight, Play, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2 } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
@@ -402,6 +402,18 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     }));
   };
 
+  /** The keyboard's return key does what its label says: Next moves to the following box, Done on the last box logs the set. */
+  const onEntryKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    const inputs = Array.from(event.currentTarget.closest(".live-set-entry")?.querySelectorAll("input") ?? []);
+    const next = inputs[inputs.indexOf(event.currentTarget) + 1];
+    if (next) { next.focus(); return; }
+    if (event.repeat) return; // a held key must not log several sets
+    event.currentTarget.blur(); // close the keyboard so the rest row is visible
+    completeActiveSet();
+  };
+
   /**
    * "I didn't get to do the hip thrust" — the rack was taken, time ran out.
    * Skipping resolves the exercise's remaining sets and moves execution on,
@@ -700,13 +712,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         {activeEntryFields.map((field) => <label key={field.measure}>
           <span>{field.label}</span>
           <input value={shownEntries[field.measure]} inputMode="decimal" type="text" autoComplete="off" enterKeyHint="next" data-carried={isCarried(field.measure) ? "" : undefined}
-            onChange={(event) => editEntry(field.measure, event.target.value)} placeholder="—" />
+            onChange={(event) => editEntry(field.measure, event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
           <em>{field.unit}</em>
         </label>)}
         <label>
           <span>Reps</span>
           <input value={shownEntries.reps} inputMode="numeric" type="text" autoComplete="off" enterKeyHint="done" data-carried={isCarried("reps") ? "" : undefined}
-            onChange={(event) => editEntry("reps", event.target.value)} placeholder="—" />
+            onChange={(event) => editEntry("reps", event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
         </label>
       </div>
       <button type="button" className="live-set-commit" onClick={completeActiveSet}>
