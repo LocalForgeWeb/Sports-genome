@@ -5,6 +5,7 @@ import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { Activity, ChevronDown, CircleHelp, Dumbbell, Info, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { expiryNotice } from "@/lib/sessionExpiryNotice";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { getStrengthCatalogSelectionContext, strengthRegionDefinitions, type StrengthRegionDefinition } from "../../../shared/strengthGenomeDefinitions";
 import { StrengthGenomeBodyMap } from "@/components/StrengthGenomeBodyMap";
@@ -614,12 +615,16 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     },
     // Every failure is reported here in fixed words: the server message is either
     // a validation list or a generic fault notice, neither of them for athletes.
-    // An expired sign-in gets no toast of its own: main.tsx says that app-wide,
-    // but at most once a minute, so the reason is still written beside the button.
-    // It names no place to sign in again: this build has none (see sessionExpiryNotice).
+    // An expired sign-in is said app-wide by main.tsx first, with "Everything stays
+    // saved on this device", which is not true of a lift that was saved nowhere. So
+    // this replaces that notice under its id (Sonner keeps any field not passed, so the
+    // description is given), and still speaks when that notice keeps quiet (it speaks
+    // once a minute at most). The reason is also written beside the button. Neither
+    // names a place to sign in again: this build has none (see sessionExpiryNotice).
     onError: (error) => {
       if (error.data?.code === "UNAUTHORIZED") {
         setSaveError("This lift was not saved because your sign-in has expired. Your entry is still here.");
+        toast(expiryNotice.title, { id: "session-expired", description: "This lift was not saved. Your entry is still in the form." });
         return;
       }
       setSaveError(error.data?.code === "BAD_REQUEST"
