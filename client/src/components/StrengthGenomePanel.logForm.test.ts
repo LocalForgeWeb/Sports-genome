@@ -91,6 +91,29 @@ describe("Strength Genome log form", () => {
     expect(lift).not.toHaveProperty("measuredOneRmKg");
   });
 
+  it("asks to fix or clear a stray number in an optional load box, by the box's own name", () => {
+    const save = openFormWith("Back Squat");
+    fireEvent.change(screen.getByLabelText("How you measured it"), { target: { value: "ISOMETRIC" } });
+    fireEvent.change(screen.getByLabelText("Load in kilograms"), { target: { value: "." } });
+    expect(save.disabled).toBe(true);
+    expect(screen.getByText("Fix or clear the load in kilograms to save this.")).toBeTruthy();
+    expect(screen.queryByText("Enter the load in kilograms to save this.")).toBeNull();
+
+    fireEvent.change(screen.getByLabelText("Load in kilograms"), { target: { value: "" } });
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+    const [lift] = savedLifts();
+    expect(lift).toMatchObject({ exerciseName: "Back Squat", measurementType: "ISOMETRIC" });
+    expect(lift).not.toHaveProperty("loadKg");
+  });
+
+  it("names a pull-up's optional added weight when what was typed there is not a number", () => {
+    const save = openFormWith("Pull-Up");
+    fireEvent.change(screen.getByLabelText("Added weight in kilograms"), { target: { value: "." } });
+    expect(save.disabled).toBe(true);
+    expect(screen.getByText("Fix or clear the added weight in kilograms to save this.")).toBeTruthy();
+  });
+
   it("keeps no 0 kg max for a pull-up max saved with no added weight", () => {
     const save = openFormWith("Pull-Up");
     expect(save.disabled).toBe(false);

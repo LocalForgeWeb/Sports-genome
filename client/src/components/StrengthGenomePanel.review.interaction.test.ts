@@ -3,7 +3,7 @@ import React from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined), toastError: vi.fn(), toastSuccess: vi.fn(), setPriorityOptions: {} as { onError?: () => void } }));
+const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined), toastError: vi.fn(), toastSuccess: vi.fn(), setPriorityOptions: {} as { onError?: (error: { data?: { code?: string } }) => void } }));
 
 vi.mock("@/lib/trpc", () => ({
   trpc: {
@@ -22,7 +22,7 @@ vi.mock("@/lib/trpc", () => ({
       priorities: { useQuery: () => ({ data: [] }) },
       addObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
       // A failed focus write is reported through the options' onError.
-      setPriority: { useMutation: (options: { onError?: () => void }) => { mocks.setPriorityOptions = options; return { mutate: mocks.mutate, isPending: false }; } },
+      setPriority: { useMutation: (options: { onError?: (error: { data?: { code?: string } }) => void }) => { mocks.setPriorityOptions = options; return { mutate: mocks.mutate, isPending: false }; } },
       setObservationBodyMass: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
       powerliftingNorms: { useQuery: () => ({ data: [] }) },
       referenceRows: { useQuery: () => ({ data: [] }) },
@@ -137,8 +137,17 @@ describe("Strength Genome direct Review workflow", () => {
     fireEvent.click(within(screen.getByRole("group", { name: "Strength Genome regions" })).getByRole("button", { name: /^Chest,/ }));
     fireEvent.click(screen.getByRole("button", { name: "Set focus" }));
     expect(mocks.mutate).toHaveBeenCalledWith({ regionId: "chest", active: true });
-    mocks.setPriorityOptions.onError?.();
+    mocks.setPriorityOptions.onError?.({ data: { code: "INTERNAL_SERVER_ERROR" } });
     expect(mocks.toastError).toHaveBeenCalledWith("Focus was not saved. Check your connection and try again.");
+  });
+
+  it("names an expired sign-in, not the connection, when the focus is not saved for that reason", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: false, weightUnit: "lb" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "Strength Genome regions" })).getByRole("button", { name: /^Chest,/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Set focus" }));
+    mocks.setPriorityOptions.onError?.({ data: { code: "UNAUTHORIZED" } });
+    expect(mocks.toastError).toHaveBeenCalledTimes(1);
+    expect(mocks.toastError).toHaveBeenCalledWith("Focus was not saved because your sign-in has expired. Sign in again from About me.");
   });
 
   it("calls a logged lift a lift through the whole remove flow", () => {
