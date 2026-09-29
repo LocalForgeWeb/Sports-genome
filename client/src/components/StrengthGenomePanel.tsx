@@ -34,6 +34,7 @@ import { muscleRankLifts } from "@/lib/muscleRankLifts";
 import { ageAtLift } from "@/lib/normsCohort";
 import { countCoveredRegions } from "@/lib/athleteRecord";
 import { decimalEntryText } from "@/lib/numericEntry";
+import { parseBirthYear } from "@/lib/birthYear";
 
 const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
   insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
@@ -436,10 +437,10 @@ function ComparisonGate({ need, onProfile, fallback = null }: { need: "group" | 
       <small>Used only to pick which community curve this lift is read against. It is saved to About Me.</small>
     </div>;
   }
-  const parsed = Number(year);
-  const currentYear = new Date().getFullYear();
-  const valid = /^\d{4}$/.test(year) && parsed > currentYear - 100 && parsed <= currentYear;
-  return <form className="strength-rank-gate" onSubmit={(event) => { event.preventDefault(); if (!valid) return; emitInteractionFeedback(); onProfile({ birthYear: parsed }); }}>
+  // Read the same way as in onboarding and About Me, so a year one takes the others take too.
+  const parsed = parseBirthYear(year);
+  const valid = parsed !== undefined;
+  return <form className="strength-rank-gate" onSubmit={(event) => { event.preventDefault(); if (parsed === undefined) return; emitInteractionFeedback(); onProfile({ birthYear: parsed }); }}>
     <p>Optional: add your birth year and this comparison is adjusted for your age at each lift.</p>
     <label><span>Birth year</span><input inputMode="numeric" value={year} placeholder="e.g. 1998" aria-label="Birth year" onChange={(event) => setYear(event.target.value.replace(/[^0-9]/g, "").slice(0, 4))} /></label>
     <button type="submit" disabled={!valid}>Save</button>

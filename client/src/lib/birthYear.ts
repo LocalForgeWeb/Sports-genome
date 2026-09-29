@@ -1,7 +1,8 @@
 /**
- * The birth year is asked for in two places, onboarding and About Me, and both read it the
- * same way. It lives here rather than in either component because About Me already imports
- * from the onboarding quiz, so the quiz importing back from About Me would be a cycle.
+ * The birth year is asked for in three places, onboarding, About Me and the Strength rank
+ * gate, and all three read it the same way. It lives here rather than in any one component
+ * because About Me already imports from the onboarding quiz, so the quiz importing back from
+ * About Me would be a cycle.
  */
 
 /** Years an athlete could plausibly have been born in: the hundred before this one, and this one. */

@@ -21,7 +21,7 @@ import type { ResilienceTargetCatalog, SportContextMode } from "@shared/resilien
 import type { IdentityState } from "@/lib/athleteIdentity";
 import "@/athlete-about-me.css";
 
-export { birthYearRange, parseBirthYear } from "@/lib/birthYear";
+export { parseBirthYear } from "@/lib/birthYear";
 
 const experiences: AthleteExperience[] = ["Beginner", "Intermediate", "Advanced"];
 

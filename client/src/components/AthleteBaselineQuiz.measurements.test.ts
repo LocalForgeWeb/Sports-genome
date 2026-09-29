@@ -36,17 +36,34 @@ describe("Typing a birth year during onboarding", () => {
 
     fireEvent.focus(year);
     fireEvent.change(year, { target: { value: "199" } });
-    expect(screen.queryByRole("status")).toBeNull();
+    expect(screen.getByRole("status").textContent).toBe("");
     fireEvent.blur(year);
     expect(screen.getByRole("status").textContent).toBe("Four digits, like 1998.");
 
     fireEvent.focus(year);
     fireEvent.change(year, { target: { value: "1998" } });
-    expect(screen.queryByRole("status")).toBeNull();
+    expect(screen.getByRole("status").textContent).toBe("");
     expect(year.getAttribute("aria-describedby")).toBeNull();
 
     advance();
     fireEvent.click(screen.getByRole("button", { name: "Open my plan" }));
     expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ baseline: expect.objectContaining({ birthYear: 1998 }) }));
+  });
+
+  it("holds Continue once to say why, even when the field never lost focus", () => {
+    // A tapped button does not always take focus (iOS Safari), so the field may never blur.
+    // Waiting for blur, the step moved on and the short year was dropped unseen.
+    const onComplete = reach("if you want.");
+    fireEvent.change(screen.getByRole("textbox", { name: "Birth year" }), { target: { value: "199" } });
+
+    advance();
+    expect(screen.getByText("if you want.")).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toBe("Four digits, like 1998. Or continue without it.");
+
+    // The year is optional: a second press goes on without it.
+    advance();
+    expect(screen.queryByText("if you want.")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Open my plan" }));
+    expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ baseline: expect.objectContaining({ birthYear: undefined }) }));
   });
 });
