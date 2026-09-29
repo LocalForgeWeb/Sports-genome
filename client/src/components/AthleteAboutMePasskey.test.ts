@@ -108,8 +108,10 @@ describe("AthleteAboutMePanel passkey management", () => {
     expect(securitySection(markup)).not.toContain("<button");
     expect(markup).not.toContain("Enrolled passkeys");
     expect(markup).not.toContain("Passkey not enrolled");
-    expect(markup).toContain("Needs an email sign-in");
-    expect(markup).toContain("not signed in to one");
+    // This build has no sign-in to go and get, so the copy says what the build does.
+    expect(markup).toContain("Not available in this build");
+    expect(securitySection(markup)).toContain("Face ID and passkey sign-in is not available in this build yet. Your record does not need it: it is saved as Account &amp; sync describes.");
+    expect(markup).not.toMatch(/email sign-in|not signed in/i);
   });
 
   it("uses nonblocking optional feedback for deliberate athlete-context and equipment changes", () => {
