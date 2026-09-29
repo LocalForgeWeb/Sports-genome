@@ -130,8 +130,9 @@ describe("Strength Genome panel", () => {
     ];
     expect(selectStrengthRegionRecord(records, "second")).toEqual(records[1]);
     expect(selectStrengthRegionRecord(records, "missing")).toEqual(records[0]);
-    expect(source).toContain('aria-label="Choose recorded test"');
+    expect(source).toContain('aria-label="Which lift to show"');
     expect(source).toContain("setSelectedRecordId(event.target.value)");
+    expect(source).not.toContain('"Remove this test?"');
   });
 
   it("falls back to the newest dated test rather than whichever record happens to sit first", () => {
@@ -149,7 +150,7 @@ describe("Strength Genome panel", () => {
 
   it("switches between a region's recorded tests via the test picker instead of a separate raw history list, and shows qualified percentile routes plus the missing-reference state", () => {
     expect(source).not.toContain('className="strength-region-history"');
-    expect(source).toContain('aria-label="Choose recorded test"');
+    expect(source).toContain('aria-label="Which lift to show"');
     expect(source).toContain('getPiperReferenceForObservation');
     expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
