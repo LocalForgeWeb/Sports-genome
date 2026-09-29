@@ -10,13 +10,13 @@ import "./index.css";
 
 /**
  * A sign-in that has lapsed is said once, in words, and never costs the athlete
- * anything: the device record stays, and About me is where to sign in again.
+ * anything: the device record stays.
  * Every other failure is handled where it happens, beside the control. Only an
  * athlete who was signed in this visit hears it (see sessionExpiryNotice).
  */
 const noticeExpiry = (error: unknown) => {
   if (!shouldNoticeExpiry(error)) return;
-  toast("Your sign-in has expired", { id: "session-expired", description: "Everything stays saved on this device. Sign in again from About me to sync." });
+  toast("Your sign-in has expired", { id: "session-expired", description: "Everything stays saved on this device." });
 };
 const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError: noticeExpiry }),
