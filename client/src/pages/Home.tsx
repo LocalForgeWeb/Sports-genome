@@ -352,6 +352,10 @@ export default function Home() {
   const [reorderingDay, setReorderingDay] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
   const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string } | null>(null);
+  // Set while the exercise overlay closes itself through history.back(): that
+  // popstate is the overlay going away, not the athlete pressing Back, so the
+  // search return bar underneath stays.
+  const overlayClosingRef = useRef(false);
   /**
    * The tracker's day chooser is a disclosure. It opens itself when the day
    * on screen has nothing to start - the choice is the only thing to do - and
@@ -945,7 +949,9 @@ export default function Home() {
   useEffect(() => {
     const restoreWorkspace = () => {
       // Browser Back is its own return path, so the search return bar goes with it.
-      setSearchReturn(null);
+      // Closing the overlay with its own button or Escape is not a Back.
+      if (overlayClosingRef.current) overlayClosingRef.current = false;
+      else setSearchReturn(null);
       // Whatever entry we landed on, an open overlay is the topmost thing and closes first.
       setInspectedExercise(null);
       setWorkspaceState(workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
@@ -1353,7 +1359,7 @@ export default function Home() {
     if (typeof window !== "undefined" && window.history.state?.overlay !== "exercise") window.history.pushState({ workspace, overlay: "exercise" }, "", window.location.href);
   };
   const closeInspector = () => {
-    if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") { window.history.back(); return; }
+    if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") { overlayClosingRef.current = true; window.history.back(); return; }
     setInspectedExercise(null);
   };
   /**
@@ -1444,6 +1450,9 @@ export default function Home() {
     // Landing an athlete who searched "shoulder pain" at the top of a long
     // profile and leaving them to scroll is the same as not having found it.
     let anchor = "";
+    // An exercise opens over the catalog, so its overlay entry goes on top of
+    // the catalog's: Back then closes the overlay and leaves the catalog.
+    let pendingInspect: Exercise | null = null;
     if (result.type === "destination") {
       const [workspaceId, anchorId = ""] = result.id.split("#");
       target = workspaceId as Workspace;
@@ -1454,7 +1463,7 @@ export default function Home() {
     } else if (result.type === "exercise") {
       const exercise = exercises.find((item) => String(item.id) === result.id);
       if (!exercise) return;
-      inspectExercise(exercise);
+      pendingInspect = exercise;
       target = "catalog";
     } else if (result.type === "sport") {
       // Opening a sport from search is reading, not adopting. This used to call
@@ -1477,6 +1486,7 @@ export default function Home() {
     if (!target) return;
     const origin = workspace;
     navigateWorkspace(target, { keepScroll: Boolean(anchor) });
+    if (pendingInspect) inspectExercise(pendingInspect);
     // Focus, not just scroll: §11 requires focus to land near the object the
     // athlete came for, and a scrolled page leaves a keyboard or screen-reader
     // user still at the top of it.
