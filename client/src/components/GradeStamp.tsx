@@ -14,6 +14,7 @@ const tones: Record<Grade, string> = {
 export function GradeStamp({ grade, score, compact = false }: { grade: Grade; score?: number; compact?: boolean }) {
   return (
     <span
+      role="img"
       aria-label={`Catalog planning tier ${grade}${score ? `, ${score} modelled overall match` : ""}`}
       title={score ? `${grade} catalog-planning tier · ${score} modelled overall match` : `${grade} catalog-planning tier`}
       className={`inline-flex shrink-0 items-center justify-center border font-display font-bold leading-none ${compact ? "h-7 min-w-7 px-1 text-xs" : "h-10 min-w-10 px-2 text-lg"} ${tones[grade]}`}
