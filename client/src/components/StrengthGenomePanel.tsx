@@ -634,12 +634,18 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const selectedExerciseContext = useMemo(() => selectedExercise ? getStrengthCatalogSelectionContext(selectedExercise) : null, [selectedExercise]);
   const piperCaptureAvailable = exerciseName === "Preacher Curl" && measurementType === "MULTI_REP";
   const powerliftingCaptureAvailable = ["Back Squat", "Barbell Bench Press", "Conventional Deadlift"].includes(exerciseName) && measurementType === "MEASURED_1RM";
-  // A date the record can hold: not before 1970 and not days ahead. A typo year
+  // A real day the record can hold: not before 1970 and not after the athlete's own
+  // today, the picker's own min and max, which a typed date can get past. A typo year
   // such as 0202 or 2100 would otherwise be saved as it stands, or refused by the
-  // server. The form defaults to the athlete's own day; the two days of slack
-  // match the server, which cannot know the athlete's time zone.
+  // server. The day is read back to refuse one the month does not have, which Date
+  // would roll over (2021-02-30 into March). The server keeps two days of slack
+  // because it cannot know the athlete's time zone; this form knows it, so it keeps none.
   const liftDateAt = new Date(`${observedDate}T12:00:00`).getTime();
-  const liftDateInRange = Number.isFinite(liftDateAt) && liftDateAt >= Date.UTC(1970, 0, 2) && liftDateAt <= Date.now() + 2 * 86_400_000;
+  const liftDateInRange = /^\d{4}-\d{2}-\d{2}$/.test(observedDate)
+    && Number.isFinite(liftDateAt)
+    && localDateKey(new Date(liftDateAt)) === observedDate
+    && observedDate >= "1970-01-02"
+    && observedDate <= localDateKey();
   // The load is required where its label says so, and a blank box is not 0 kg:
   // Number("") is 0, which would save a 0 kg max. A working set needs its reps
   // to be read at all. A pull-up or push-up is scored on reps, so its load stays optional.

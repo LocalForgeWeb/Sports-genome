@@ -96,6 +96,57 @@ describe("Strength Genome signed-in lift save", () => {
     expect(mocks.mutate).not.toHaveBeenCalled();
   });
 
+  it("will not save a lift typed with tomorrow's date, though the server's slack would take it", () => {
+    const originalZone = process.env.TZ;
+    process.env.TZ = "America/New_York";
+    // 9:30pm on Sep 27 in New York, already Sep 28 in UTC and within the server's two days.
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-09-28T01:30:00Z") });
+    try {
+      render(React.createElement(StrengthGenomePanel, { weightUnit: "kg" }));
+      fireEvent.click(screen.getByText("Log a lift"));
+      fireEvent.change(screen.getByLabelText("Search and choose a catalog exercise"), { target: { value: "Back Squat" } });
+      fireEvent.click(screen.getAllByRole("option")[0]);
+      fireEvent.change(screen.getByLabelText("Load in kilograms"), { target: { value: "100" } });
+      const save = screen.getByRole("button", { name: /Save this lift/ }) as HTMLButtonElement;
+      const date = screen.getByLabelText("Date") as HTMLInputElement;
+      expect(date.value).toBe("2026-09-27");
+      expect(save.disabled).toBe(false);
+
+      // A desktop date box takes a typed day past its max.
+      fireEvent.change(date, { target: { value: "2026-09-28" } });
+
+      expect(date.value).toBe("2026-09-28");
+      expect(save.disabled).toBe(true);
+      expect(screen.getByText("Enter the date this lift happened.")).toBeTruthy();
+      fireEvent.click(save);
+      expect(mocks.mutate).not.toHaveBeenCalled();
+
+      // Today itself is still a day the lift can be saved on.
+      fireEvent.change(date, { target: { value: "2026-09-27" } });
+      expect(save.disabled).toBe(false);
+    } finally {
+      vi.useRealTimers();
+      if (originalZone === undefined) delete process.env.TZ; else process.env.TZ = originalZone;
+    }
+  });
+
+  it("will not save a lift dated with a day the month does not have", () => {
+    render(React.createElement(StrengthGenomePanel, { weightUnit: "kg" }));
+    fireEvent.click(screen.getByText("Log a lift"));
+    fireEvent.change(screen.getByLabelText("Search and choose a catalog exercise"), { target: { value: "Back Squat" } });
+    fireEvent.click(screen.getAllByRole("option")[0]);
+    fireEvent.change(screen.getByLabelText("Load in kilograms"), { target: { value: "100" } });
+    const save = screen.getByRole("button", { name: /Save this lift/ }) as HTMLButtonElement;
+    const date = screen.getByLabelText("Date") as HTMLInputElement;
+    // jsdom's date box drops a day it cannot parse, as browsers do, so the day is
+    // set on the element's value property the way a stale autofill might.
+    Object.defineProperty(date, "value", { configurable: true, get: () => "2021-02-30", set: () => undefined });
+    fireEvent.change(date);
+
+    expect(save.disabled).toBe(true);
+    expect(screen.getByText("Enter the date this lift happened.")).toBeTruthy();
+  });
+
   it("opens the form on the athlete's own day, not the UTC day", () => {
     const originalZone = process.env.TZ;
     process.env.TZ = "America/New_York";
