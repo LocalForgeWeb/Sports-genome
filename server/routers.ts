@@ -1,4 +1,4 @@
-import { protectedProcedure, publicProcedure, router, costlyPublicProcedure } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, costlyPublicProcedure, authPublicProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -50,6 +50,7 @@ import {
   type RepairOutcome,
 } from "./dataIntegrityRepair";
 import {
+  athleteStrengthProfileInputSchema,
   getAthleteStrengthProfile,
   upsertAthleteStrengthProfile,
 } from "./athleteStrengthProfile";
@@ -60,6 +61,7 @@ import {
   setStrengthObservationBodyMass,
   setStrengthPriority,
 } from "./strengthGenome";
+import { strengthRegionDefinitions } from "../shared/strengthGenomeDefinitions";
 
 /**
  * One answer for "not yours" and "does not exist".
@@ -99,7 +101,7 @@ const strengthPercentileLiftInput = z.object({
 export const appRouter = router({
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    register: publicProcedure
+    register: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
@@ -109,7 +111,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) =>
         registerEmailAccount(input, ctx.req, ctx.res)
       ),
-    signIn: publicProcedure
+    signIn: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
@@ -135,12 +137,12 @@ export const appRouter = router({
       .mutation(({ ctx, input }) =>
         removeAccountPasskey(ctx.user.id, input.passkeyId)
       ),
-    passkeyAuthenticationOptions: publicProcedure
+    passkeyAuthenticationOptions: authPublicProcedure
       .input(z.object({ email: z.string().trim().email().max(320) }))
       .mutation(({ ctx, input }) =>
         beginPasskeyAuthentication(input.email, ctx.req)
       ),
-    passkeyAuthenticationVerify: publicProcedure
+    passkeyAuthenticationVerify: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
@@ -356,11 +358,21 @@ export const appRouter = router({
       listActiveStrengthPriorities(ctx.user.id)
     ),
     setPriority: protectedProcedure
-      .input(z.object({ regionId: z.string().trim().min(1).max(80), active: z.boolean(), note: z.string().trim().max(280).optional() }))
+      .input(z.object({
+        // An unknown region is bad input (BAD_REQUEST), refused before the procedure runs.
+        regionId: z.string().trim().min(1).max(80).refine(id => strengthRegionDefinitions.some(region => region.id === id), "Unknown Strength Genome region"),
+        active: z.boolean(),
+        note: z.string().trim().max(280).optional(),
+      }))
       .mutation(({ ctx, input }) => setStrengthPriority(ctx.user.id, input.regionId, input.active, input.note)),
     setObservationBodyMass: protectedProcedure
       .input(z.object({ observationId: z.number().int().positive(), bodyMassKgAtTest: z.number().positive().max(1000) }))
-      .mutation(({ ctx, input }) => setStrengthObservationBodyMass(ctx.user.id, input.observationId, input.bodyMassKgAtTest)),
+      .mutation(async ({ ctx, input }) => {
+        const saved = await setStrengthObservationBodyMass(ctx.user.id, input.observationId, input.bodyMassKgAtTest);
+        // The same sentence as answer(): a missing id and another account's id read alike.
+        if (!saved) throw new TRPCError({ code: "NOT_FOUND", message: "That record is not available on this account." });
+        return saved;
+      }),
     addObservation: protectedProcedure
       .input(
         z.object({
@@ -425,17 +437,7 @@ export const appRouter = router({
     referenceRows: publicProcedure.query(() => getPublicNormsReference()),
     profile: protectedProcedure.query(({ ctx }) => getAthleteStrengthProfile(ctx.user.id)),
     setProfile: protectedProcedure
-      .input(
-        z.object({
-          dateOfBirth: z
-            .string()
-            .regex(/^\d{4}-\d{2}-\d{2}$/)
-            .optional(),
-          sexForReference: z
-            .enum(["female", "male", "intersex", "unspecified"])
-            .optional(),
-        })
-      )
+      .input(athleteStrengthProfileInputSchema)
       .mutation(({ ctx, input }) => upsertAthleteStrengthProfile(ctx.user.id, input)),
   }),
 

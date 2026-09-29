@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TRPCError } from "@trpc/server";
-import { hasPasskeyOption, nextPasswordFailureState, verifyPasskeyAuthentication, verifyPasskeyRegistration } from "./localAuth";
+import { LOCAL_AUTH_COOKIE, hasPasskeyOption, nextPasswordFailureState, verifyPasskeyAuthentication, verifyPasskeyRegistration } from "./localAuth";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 import { readFileSync } from "node:fs";
@@ -27,6 +27,11 @@ describe("standalone email authentication safeguards", () => {
     expect(source).toContain('rpName: "Sports Genome"');
     expect(source).toContain('"Sports Genome athlete"');
     expect(source).not.toContain('rpName: "Gym Optimizer"');
+  });
+
+  it("keeps the session cookie name every signed-in browser already holds", () => {
+    // Renaming this cookie signs out every existing session.
+    expect(LOCAL_AUTH_COOKIE).toBe("go_email_session");
   });
 });
 

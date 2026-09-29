@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { BoundedCache, mapWithConcurrency, withTimeout } from "./boundedCache";
-import { COSTLY_ROUTE_LIMIT, clientKeyOf, resetCostlyCallWindows, takeCostlyCall } from "./_core/rateLimit";
+import { AUTH_ROUTE_LIMIT, COSTLY_ROUTE_LIMIT, clientKeyOf, resetCostlyCallWindows, takeAuthCall, takeCostlyCall } from "./_core/rateLimit";
+import { appRouter } from "./routers";
+import type { TrpcContext } from "./_core/context";
 
 describe("A cache keyed by caller input", () => {
   it("never holds more than its limit, dropping the least recently used first", () => {
@@ -68,5 +70,32 @@ describe("The allowance for costly public routes", () => {
     expect(clientKeyOf({ ip: "203.0.113.9" })).toBe("203.0.113.9");
     expect(clientKeyOf({ socket: { remoteAddress: "::1" } })).toBe("::1");
     expect(clientKeyOf(undefined)).toBe("unknown");
+  });
+});
+
+describe("The allowance for the public sign-in routes", () => {
+  beforeEach(() => resetCostlyCallWindows());
+
+  it("is counted apart from the costly allowance and refuses a client past its limit", () => {
+    for (let call = 0; call < AUTH_ROUTE_LIMIT.maxCalls; call += 1) expect(takeAuthCall("10.0.0.1", 1000)).toBe(true);
+    expect(takeAuthCall("10.0.0.1", 1000)).toBe(false);
+    expect(takeAuthCall("10.0.0.2", 1000)).toBe(true);
+    // The sign-in count spent none of the same client's costly allowance.
+    expect(takeCostlyCall("10.0.0.1", 1000)).toBe(true);
+  });
+
+  it("refuses a sign-in call past the limit, even a malformed one", async () => {
+    const ctx: TrpcContext = {
+      user: null,
+      req: { ip: "198.51.100.7", headers: {} } as unknown as TrpcContext["req"],
+      res: {} as TrpcContext["res"],
+    };
+    const caller = appRouter.createCaller(ctx);
+    const attempt = () => caller.auth.signIn({ email: "not-an-email", password: "x" });
+
+    for (let call = 0; call < AUTH_ROUTE_LIMIT.maxCalls; call += 1) {
+      await expect(attempt()).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    }
+    await expect(attempt()).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS" });
   });
 });
