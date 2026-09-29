@@ -3,7 +3,7 @@ import React from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined) }));
+const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined), toastError: vi.fn(), setPriorityOptions: {} as { onError?: () => void } }));
 
 vi.mock("@/lib/trpc", () => ({
   trpc: {
@@ -21,7 +21,8 @@ vi.mock("@/lib/trpc", () => ({
       observations: { useQuery: () => ({ data: [] }) },
       priorities: { useQuery: () => ({ data: [] }) },
       addObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
-      setPriority: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
+      // A failed focus write is reported through the options' onError.
+      setPriority: { useMutation: (options: { onError?: () => void }) => { mocks.setPriorityOptions = options; return { mutate: mocks.mutate, isPending: false }; } },
       setObservationBodyMass: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) },
       powerliftingNorms: { useQuery: () => ({ data: [] }) },
       referenceRows: { useQuery: () => ({ data: [] }) },
@@ -34,7 +35,7 @@ vi.mock("@/lib/trpc", () => ({
   },
 }));
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: mocks.feedback }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: mocks.toastError } }));
 
 import { deviceStrengthObservationKey } from "@/lib/deviceStrengthObservations";
 import { StrengthGenomePanel } from "./StrengthGenomePanel";
@@ -42,6 +43,8 @@ import { StrengthGenomePanel } from "./StrengthGenomePanel";
 describe("Strength Genome direct Review workflow", () => {
   beforeEach(() => {
     mocks.feedback.mockReset();
+    mocks.mutate.mockReset();
+    mocks.toastError.mockReset();
     localStorage.setItem(deviceStrengthObservationKey, JSON.stringify([{ id: "device-review", exerciseName: "Preacher Curl", observedAt: "2026-08-28T12:00:00.000Z", measurementType: "MULTI_REP", loadKg: 36.2873896, repetitions: 10, bodyMassKgAtTest: 81.6466266 }]));
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { callback(0); return 1; });
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
@@ -118,5 +121,22 @@ describe("Strength Genome direct Review workflow", () => {
     const describedBy = screen.getByRole("button", { name: "Review" }).getAttribute("aria-describedby");
     expect(describedBy).toBeTruthy();
     expect(document.getElementById(describedBy!)?.textContent).toContain("Preacher Curl");
+  });
+
+  it("offers no focus on a device-only record, which has nowhere to keep one, and still offers training", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review" }));
+    expect(screen.queryByRole("button", { name: "Set focus" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Review training" })).toBeTruthy();
+    expect(screen.getByText("Want to train this?")).toBeTruthy();
+  });
+
+  it("offers focus on an account record and says so when the focus is not saved", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: false, weightUnit: "lb" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "Strength Genome regions" })).getByRole("button", { name: /^Chest,/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Set focus" }));
+    expect(mocks.mutate).toHaveBeenCalledWith({ regionId: "chest", active: true });
+    mocks.setPriorityOptions.onError?.();
+    expect(mocks.toastError).toHaveBeenCalledWith("Focus was not saved. Check your connection and try again.");
   });
 });
