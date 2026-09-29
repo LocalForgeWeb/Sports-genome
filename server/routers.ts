@@ -144,7 +144,7 @@ export const appRouter = router({
       .input(
         z.object({
           email: z.string().trim().email().max(320),
-          response: z.object({ id: z.string() }).passthrough(),
+          response: z.object({ id: z.string().min(1).max(1400) }).passthrough(),
         })
       )
       .mutation(({ ctx, input }) =>
@@ -366,7 +366,13 @@ export const appRouter = router({
         z.object({
           catalogExerciseId: z.number().int().positive().optional(),
           exerciseName: z.string().trim().min(1).max(255),
-          observedAt: z.date(),
+          // Inside what a TIMESTAMP column holds (1970 to 2038), and not days
+          // ahead: a typo year is a clear BAD_REQUEST, not a failed insert. Two
+          // days of slack covers a UTC date read at local noon.
+          observedAt: z.date().refine(
+            (date) => date.getTime() >= Date.UTC(1970, 0, 2) && date.getTime() < Date.UTC(2038, 0, 1) && date.getTime() <= Date.now() + 2 * 86_400_000,
+            { message: "Enter the date the lift happened." }
+          ),
           measurementType: z.enum([
             "MEASURED_1RM",
             "MULTI_REP",

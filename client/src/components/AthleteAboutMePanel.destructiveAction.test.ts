@@ -30,7 +30,7 @@ describe("AthleteAboutMePanel passkey removal (Reversible-action contract, Tier 
   it("requires a named confirmation before removing a device passkey, rather than mutating on the first click", () => {
     render(React.createElement(ThemeProvider, null, React.createElement(AthleteAboutMePanel, {
       baseline, goal: "Athleticism", trainingDays: 3, sportId: "", sports: [],
-      onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(),
+      onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(), accountSignedIn: true,
     })));
     fireEvent.click(screen.getByRole("button", { name: "Remove device passkey 1" }));
     expect(mocks.removePasskeyMutate).not.toHaveBeenCalled();
@@ -46,7 +46,7 @@ describe("AthleteAboutMePanel passkey removal (Reversible-action contract, Tier 
   it("does not remove the passkey when the confirmation is cancelled", () => {
     render(React.createElement(ThemeProvider, null, React.createElement(AthleteAboutMePanel, {
       baseline, goal: "Athleticism", trainingDays: 3, sportId: "", sports: [],
-      onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(),
+      onBaseline: vi.fn(), onGoal: vi.fn(), onDays: vi.fn(), onSport: vi.fn(), accountSignedIn: true,
     })));
     fireEvent.click(screen.getByRole("button", { name: "Remove device passkey 1" }));
     fireEvent.click(screen.getByText("Cancel"));

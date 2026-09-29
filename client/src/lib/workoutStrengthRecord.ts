@@ -111,6 +111,14 @@ export function compareRegionRecordRelevance(
   return new Date(right.observedAt).getTime() - new Date(left.observedAt).getTime();
 }
 
+/**
+ * The id a finished session's exercise is recorded under, here and in the account outbox
+ * (strengthSyncQueue), so a workout taken back can be found in both.
+ */
+export function workoutObservationId(sessionId: string, exerciseId: string): string {
+  return `workout-${sessionId}-${exerciseId}`;
+}
+
 function numeric(value: string | undefined) {
   const parsed = Number(String(value || "").trim());
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
@@ -158,7 +166,7 @@ export function workoutStrengthObservations(
       });
       const convention = loadConventionFor(catalogByName.get(exercise.exerciseName.trim().toLowerCase())?.id);
       observations.push({
-        id: `workout-${session.id}-${exercise.id}`,
+        id: workoutObservationId(session.id, exercise.id),
         exerciseName: exercise.exerciseName,
         observedAt,
         measurementType: "MULTI_REP",

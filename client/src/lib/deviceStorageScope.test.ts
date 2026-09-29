@@ -125,7 +125,7 @@ describe("Home hydrates and writes against the same account", () => {
 
   it("claims any pre-namespace record on sign-in", () => {
     // Migration is part of the read, not a separate effect that could run after it.
-    for (const base of ["athleteProfileKeyBase", "workoutPlanKeyBase"]) {
+    for (const base of ["athleteProfileKeyBase", "workoutPlanKeyBase", "favoriteExerciseKeyBase"]) {
       expect(home).toContain(`readScopedRecord(${base}, accountId, window.localStorage)`);
     }
   });

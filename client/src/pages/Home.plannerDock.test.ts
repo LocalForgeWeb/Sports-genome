@@ -64,6 +64,20 @@ describe("the draft asks how long you have", () => {
     expect(source).toContain("buildVariedLoadout(pool, activeSplitDay === \"Sport Transfer\" ? sportSeed : [], activeLoadout, gymTimeBudget.recommendationLimit)");
   });
 
+  it("ranks the sport once per setting, not again on every training-day switch", () => {
+    // Ranking the sport is the expensive part of a draft, and it does not read
+    // the open day or its loadout, so it lives in its own memo.
+    const seed = source.slice(source.indexOf("const draftSportSeed = useMemo("), source.indexOf("const draftedLoadout = useMemo("));
+    const seedDeps = seed.slice(seed.lastIndexOf("["));
+    expect(seed).toContain("getSportSession(");
+    expect(seedDeps).not.toContain("activeSplitDay");
+    expect(seedDeps).not.toContain("activeLoadout");
+    const draft = source.slice(source.indexOf("const draftedLoadout = useMemo("), source.indexOf("const draftedLoadoutMinutes"));
+    const draftDeps = draft.slice(draft.lastIndexOf("["));
+    expect(draft).not.toContain("getSportSession(");
+    expect(draftDeps).toContain("draftSportSeed");
+  });
+
   it("states the cost of the draft before it is made, so the time control cannot be decorative", () => {
     expect(source).toContain("const draftedLoadoutMinutes = useMemo(");
     expect(source).toContain("getWorkoutDiagnostics(draftedLoadout, {}, {}, goal, gymMinutes).estimatedMinutes");

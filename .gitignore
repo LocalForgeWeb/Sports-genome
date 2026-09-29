@@ -115,3 +115,6 @@ client/public/__manus__/version.json
 
 # Higgsfield generation outputs and run ledger (scripts/higgsfield)
 design/higgsfield/runs/
+
+# Isolated git worktrees that Claude Code workflow agents run in. Tooling state, never project content.
+.claude/worktrees/

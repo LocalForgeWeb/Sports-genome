@@ -1,11 +1,14 @@
 import { plural } from "@/lib/plural";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, Info } from "lucide-react";
+import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { summarizeWithinAthleteStrengthComparisons, type ChangeState } from "@/lib/withinAthleteStrengthChange";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
-import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
+import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, removeDeviceWorkoutSession, saveDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations } from "@/lib/deviceStrengthObservations";
+import { loadSyncQueue, removeQueuedLiftsForSession, saveSyncQueue } from "@/lib/strengthSyncQueue";
 import { workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
 import { bodyWeightLogEvent, currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { displayWeightToKilograms, type DisplayWeightUnit } from "@/lib/weightUnits";
@@ -56,6 +59,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
   const [deviceObservations, setDeviceObservations] = useState(() => loadDeviceStrengthObservations());
   const [bodyWeightLog, setBodyWeightLog] = useState(() => loadBodyWeightLog());
   const [showComparisonDetails, setShowComparisonDetails] = useState(false);
+  const [pendingRemoval, setPendingRemoval] = useState<ConfirmDialogRequest | null>(null);
 
   useEffect(() => {
     const refreshDeviceSessions = () => setDeviceSessions(loadDeviceWorkoutSessions());
@@ -118,6 +122,31 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
   const deviceRecordCount = recordedSessions.filter((session) => session.storage === "device").length;
 
   /**
+   * A finished workout on this device can be taken back, like a typed lift. The list is read
+   * fresh from storage rather than from this component's copy, as the tracker does; the save
+   * announces itself, so this list, Home and the Strength Genome all refresh from it. An
+   * account record has no removal route, so it offers none.
+   */
+  const requestSessionRemoval = (session: RecordedSessionCard) =>
+    setPendingRemoval({
+      title: "Remove this workout?",
+      body: `${session.title} from ${session.completedAt.toLocaleDateString()} is deleted from this device. It stops counting in your workouts, your strength trends and your muscle ranks. This cannot be undone.`,
+      confirmLabel: "Remove workout",
+      onConfirm: () => {
+        setPendingRemoval(null);
+        const sessions = loadDeviceWorkoutSessions();
+        const removed = sessions.find((entry) => entry.id === session.id && entry.status === "completed");
+        // Its lifts not yet sent leave the account outbox first: the save below wakes the
+        // sync, which would otherwise read them from the queue and send them. If the save
+        // is refused, the workout stays and its lifts are queued again on the next sync.
+        if (removed) saveSyncQueue(removeQueuedLiftsForSession(loadSyncQueue(), removed));
+        const written = saveDeviceWorkoutSessions(removeDeviceWorkoutSession(sessions, session.id));
+        if (written) toast.success("Workout removed from this device.");
+        else toast.error("This workout could not be removed", { description: "The device refused the save, so nothing changed." });
+      },
+    });
+
+  /**
    * Where each lift sits, against sex- and bodyweight-matched community curves.
    *
    * The same route, request and copy as the Strength Genome's record sheet, so a lift
@@ -170,7 +199,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
            record that logged nothing says so rather than being dressed up or
            dropped. An account record carries its counts only. */
         const facts = <><small>{session.completedAt.toLocaleDateString()} · {session.exerciseCount} {session.exerciseCount === 1 ? "exercise" : "exercises"} · {session.completedSetCount === 0 ? "no sets logged" : `${session.completedSetCount} ${session.completedSetCount === 1 ? "set" : "sets"}`}</small><span>{session.storage === "device" ? "Device" : "Account"}</span></>;
-        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.name}><span>{exercise.name}</span><b>{exercise.done} of {plural(exercise.planned, "set")}</b>{exercise.skipped ? <i>skipped</i> : null}</li>)}</ul></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
+        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.name}><span>{exercise.name}</span><b>{exercise.done} of {plural(exercise.planned, "set")}</b>{exercise.skipped ? <i>skipped</i> : null}</li>)}</ul><button type="button" className="progress-text-action" onClick={() => requestSessionRemoval(session)} aria-label={`Remove this workout: ${session.title}, ${session.completedAt.toLocaleDateString()}`}>Remove this workout</button></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
       })}</ol> : <p className="progress-empty-copy">Complete a Session workout to create your first record.</p>}
       <button type="button" onClick={onOpenTraining} className="progress-text-action">Open your plan <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
     </section>
@@ -185,5 +214,6 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
       <button type="button" onClick={onOpenStrength} className="progress-text-action">Open Strength Genome <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
       <details className="progress-method"><summary onClick={() => setShowComparisonDetails((current) => !current)} aria-expanded={showComparisonDetails}><Info className="h-5 w-5" aria-hidden="true" /><span>How it works</span></summary><div className="progress-method-note">This pulls together your logged lifts and your completed sets, converting different rep counts to a comparable one-rep max estimate (Epley formula). Stable means the change is small enough that it could just be day-to-day variation; a confirmed change is big enough to be real. The change tracks you against your own past only — never against anyone else. Where a lift sits is a separate reading: your latest log of it placed on sex- and bodyweight-matched community curves, the same placement the Strength Genome shows for that lift.</div></details>
     </section>
+    {pendingRemoval && <ConfirmDialog {...pendingRemoval} onCancel={() => setPendingRemoval(null)} />}
   </section>;
 }

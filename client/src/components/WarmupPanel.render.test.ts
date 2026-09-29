@@ -3,6 +3,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { exercises } from "@/lib/exerciseCatalog";
+import { getStackWarmup, mobilityTagLabel } from "@/lib/preTrainingMobility";
 import { WarmupPanel } from "./WarmupPanel";
 
 afterEach(() => { document.body.innerHTML = ""; });
@@ -41,5 +42,13 @@ describe("Review's warm-up states what, before how", () => {
   it("still says this is preparation rather than a screening", () => {
     draw();
     expect(document.querySelector(".warmup-footer")?.textContent).toContain("not a medical screening");
+  });
+
+  it("names the stack signals in the same plain words as the sentence above them", () => {
+    draw();
+    const chips = [...document.querySelectorAll(".warmup-focus b")].map((node) => node.textContent);
+    // Splitting the identifiers on capitals printed "horizontal Push" and "single Leg".
+    expect(chips).toEqual(getStackWarmup(exercises.slice(0, 6), "Max strength").focusTags.slice(0, 5).map(mobilityTagLabel));
+    expect(chips).toContain("horizontal push");
   });
 });

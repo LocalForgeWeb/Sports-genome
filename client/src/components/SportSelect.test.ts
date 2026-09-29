@@ -58,6 +58,8 @@ describe("choosing a sport from a searchable list", () => {
     type("ac");
     expect(options()).toEqual([]);
     expect(screen.getByText(/No sport matches/)).toBeTruthy();
+    // No list is drawn, so the trigger must not name one.
+    expect(screen.getByRole("button", { name: /choose your sport/i }).hasAttribute("aria-controls")).toBe(false);
     // One more character, and the same query reaches the family it describes.
     type("acc");
     expect(options()).toEqual(["Ice hockey"]);
@@ -92,6 +94,31 @@ describe("choosing a sport from a searchable list", () => {
     fireEvent.keyDown(screen.getByLabelText("Search sports"), { key: "Escape" });
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.queryByLabelText("Search sports")).toBeNull();
+  });
+
+  it("tells a screen reader which row the arrow keys have reached", () => {
+    open();
+    const search = screen.getByRole("combobox", { name: "Search sports" });
+    expect(search.getAttribute("aria-expanded")).toBe("true");
+    fireEvent.keyDown(search, { key: "ArrowDown" });
+    const active = document.getElementById(search.getAttribute("aria-activedescendant") ?? "");
+    expect(active?.getAttribute("role")).toBe("option");
+    expect(active?.querySelector("strong")?.textContent).toBe("BJJ");
+  });
+
+  it("gives focus back to the trigger when Escape closes the list", () => {
+    open();
+    fireEvent.keyDown(screen.getByLabelText("Search sports"), { key: "Escape" });
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: /choose your sport/i }));
+  });
+
+  it("gives focus back to the trigger once a sport is chosen, by Enter or by click", () => {
+    open();
+    fireEvent.keyDown(screen.getByLabelText("Search sports"), { key: "Enter" });
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: /choose your sport/i }));
+    fireEvent.click(screen.getByRole("button", { name: /choose your sport/i }));
+    fireEvent.click(screen.getAllByRole("option")[2]);
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: /choose your sport/i }));
   });
 
   it("shows the chosen sport on the trigger rather than making the athlete reopen it", () => {

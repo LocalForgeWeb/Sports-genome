@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation } from "./Home";
+import { contextTabIdForWorkspace, contextualWorkspaces, primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation, workspaceTitles } from "./Home";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const tabsComponent = readFileSync(new URL("../components/WorkspaceTabs.tsx", import.meta.url), "utf8");
@@ -30,6 +30,28 @@ describe("workspace side navigation", () => {
     // than in the reference library.
     expect(primaryDestinationForWorkspace("strength")).toBe("progress");
     expect(primaryDestinationForWorkspace("profile")).toBe("secondary");
+  });
+
+  it("highlights the tab of the page on screen, whichever way the athlete got there", () => {
+    // Back from Review lands on Plan, and Plan is the tab that lights up.
+    expect(contextTabIdForWorkspace("day-plan")).toBe("day-plan");
+    expect(contextTabIdForWorkspace("review")).toBe("review");
+    expect(contextTabIdForWorkspace("strength")).toBe("strength");
+    expect(contextTabIdForWorkspace("catalog")).toBe("catalog");
+    expect(contextTabIdForWorkspace("profile")).toBeNull();
+    // Every page there is: workspaceTitles must name each one, so a new page is covered here too.
+    const workspaces = Object.keys(workspaceTitles) as (keyof typeof workspaceTitles)[];
+    for (const workspace of workspaces) {
+      const id = contextTabIdForWorkspace(workspace);
+      const destination = primaryDestinationForWorkspace(workspace);
+      if (destination === "secondary") {
+        expect(id).toBeNull();
+        continue;
+      }
+      // The lit tab sits in this page's own tab row, and it is the tab that opens this page.
+      const litTab = contextualWorkspaces[destination].find((tab) => tab.id === id);
+      expect(litTab?.workspace).toBe(workspace);
+    }
   });
 
   it("uses bottom-only primary navigation and browser history-aware contextual navigation", () => {
@@ -150,7 +172,9 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain("scrollIntoView({ behavior: \"smooth\", block: \"start\" })");
     expect(source).toContain('const navigateContextualWorkspace = (tab: ContextualWorkspaceTab)');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
-    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    // The highlighted tab is read from the page on screen, so Back cannot leave another tab lit.
+    expect(source).toContain("const activeContextTabId = contextTabIdForWorkspace(workspace);");
+    expect(source).not.toContain("setActiveContextTab");
     // Active-tab resolution moved into the row component with the markup.
     expect(source).toContain("activeId={activeContextTabId}");
     expect(tabsComponent).toContain("const active = tab.id === activeId;");
@@ -237,7 +261,9 @@ describe("workspace side navigation", () => {
   it("retains one explicit active contextual route for every Train and Body Lab tab", () => {
     // Train is four places in the order the work happens, each its own page.
     ["Plan", "Review", "Workout", "Matches", "Movements", "Muscles", "Exercises", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
-    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    // The highlighted tab is read from the page on screen, so Back cannot leave another tab lit.
+    expect(source).toContain("const activeContextTabId = contextTabIdForWorkspace(workspace);");
+    expect(source).not.toContain("setActiveContextTab");
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(tabsComponent).toContain('className={active ? "workspace-top-switcher-active" : ""}');
   });

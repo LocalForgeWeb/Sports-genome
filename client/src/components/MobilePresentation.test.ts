@@ -10,6 +10,7 @@ const home = readFileSync(new URL("../pages/Home.tsx", import.meta.url), "utf8")
 const appStyles = readFileSync(new URL("../index.css", import.meta.url), "utf8");
 const plannerStyles = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
 const trainingCardStyles = readFileSync(new URL("../mobile-training-card.css", import.meta.url), "utf8");
+const stackAnalysisStyles = readFileSync(new URL("../stack-analysis.css", import.meta.url), "utf8");
 
 describe("mobile athlete presentation", () => {
   it("keeps source and hierarchy methodology available through compact disclosure controls", () => {
@@ -36,6 +37,43 @@ describe("mobile athlete presentation", () => {
     // top of the page, and pads for the notch itself.
     expect(mobileStyles).not.toContain(".apex-topbar");
     expect(mobileStyles).toContain(".workspace-top-switcher { top: 0;");
+  });
+
+  it("keeps full-screen overlay headers below the status bar", () => {
+    // The installed app draws under a translucent status bar, so a close control
+    // pinned to the top edge of a full-screen overlay sits beneath the clock and
+    // notch. Each of these headers pads itself down by the inset, as the Exercise
+    // Intelligence bar already does.
+    const compareBar = appStyles.match(/\.exercise-compare-bar \{[^}]*\}/)?.[0];
+    expect(compareBar).toContain("padding: max(.85rem, env(safe-area-inset-top, 0px))");
+    const stackHead = stackAnalysisStyles.match(/^\.stack-analysis-head \{[^}]*\}/m)?.[0];
+    expect(stackHead).toContain("env(safe-area-inset-top");
+    // The phone rule resets padding with a shorthand, so it carries its own inset.
+    const phoneStackHead = stackAnalysisStyles.match(/@media \(max-width: 760px\) \{ \.stack-analysis-head \{[^}]*\}/)?.[0];
+    expect(phoneStackHead).toContain("env(safe-area-inset-top");
+    const phoneImportScrim = appStyles.match(/\.routine-import-scrim \{ display: block;[^}]*\}/)?.[0];
+    expect(phoneImportScrim).toContain("env(safe-area-inset-top");
+  });
+
+  it("gives the first-run guide and the confirm dialog 44px tap targets of their own", () => {
+    // These two modals mount at the Home root, outside main.apex-content, so the
+    // app-wide tap floor never reaches them. Where the floor does reach, it sets a
+    // height but not a width, so the close buttons declare both.
+    expect(appStyles).toMatch(/\.confirm-dialog-close\{[^}]*width:2\.75rem;height:2\.75rem/);
+    expect(appStyles).toMatch(/\.feature-tour-close\{[^}]*width:2\.75rem;height:2\.75rem/);
+    expect(appStyles).toMatch(/\.feature-tour-skip,\.feature-tour-back\{[^}]*min-height:2\.75rem/);
+    expect(appStyles).toMatch(/\.feature-tour-next\{[^}]*min-height:2\.75rem/);
+    expect(appStyles).toMatch(/\.confirm-dialog-cancel\{[^}]*min-height:2\.75rem/);
+    expect(appStyles).toMatch(/\.confirm-dialog-confirm\{[^}]*min-height:2\.75rem/);
+  });
+
+  it("caps the guide and confirm dialog cards at the viewport so a tall card scrolls", () => {
+    // The four-step guide opens by itself after onboarding. On a short or
+    // landscape screen the card is taller than the view, and a centred card in a
+    // fixed layer cannot be scrolled to, so the close, Skip and Next controls must
+    // stay reachable by scrolling inside the card.
+    expect(appStyles).toMatch(/\.feature-tour-card\{[^}]*max-height:calc\(100dvh - 2rem\)[^}]*overflow-y:auto/);
+    expect(appStyles).toMatch(/\.confirm-dialog-card\{[^}]*max-height:calc\(100dvh - 2rem\)[^}]*overflow-y:auto/);
   });
 
   it("keeps disclosure and tab motion brief while respecting reduced-motion preferences", () => {

@@ -15,6 +15,7 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 import { toast } from "sonner";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { decimalEntryText } from "@/lib/numericEntry";
 
 /**
  * The live execution surface, governed by four adopted philosophy contracts:
@@ -116,9 +117,7 @@ type EntryField = SetEntryMeasure | "reps";
 
 function sanitiseEntry(field: EntryField, value: string) {
   if (field === "reps") return value.replace(/[^0-9]/g, "").slice(0, 4);
-  const digitsAndDot = value.replace(/[^0-9.]/g, "");
-  const [whole, ...rest] = digitsAndDot.split(".");
-  return (rest.length ? `${whole}.${rest.join("").slice(0, 2)}` : whole).slice(0, 7);
+  return decimalEntryText(value).slice(0, 7);
 }
 
 /** True when a target is a bare count or range, so the word "reps" belongs after it. */
@@ -663,6 +662,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       Picked up where you left off. {completed} {completed === 1 ? "set is" : "sets are"} confirmed
       {drafts ? `, and ${drafts} ${drafts === 1 ? "set was" : "sets were"} typed but never logged — check ${drafts === 1 ? "it" : "them"} before you finish.` : "."}
     </p>}
+
+    {/* Where the athlete now stands, said once per move. It sits outside the card so it
+        stays mounted when the card swaps for the done card: that swap unmounts the
+        focused Log button, and a live region mounted with its text is often not read. */}
+    <p className="sr-only" role="status">{activeExercise && activeSet && position ? `${activeExercise.exerciseName}, set ${position.setIndex + 1} of ${activeExercise.sets.length}` : "Every planned set is logged."}</p>
 
     {activeExercise && activeSet && position ? <div className="live-set-card">
       <p className="metric-label">Now · exercise {position.exerciseIndex + 1} of {activeSession.exercises.length}</p>

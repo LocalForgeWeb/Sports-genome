@@ -1,5 +1,7 @@
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { forInsert, toAthleteStrengthEntry, type AthleteSnapshot, type RecordedLift } from "@/lib/athleteStrengthEntry";
+import { workoutObservationId } from "@/lib/workoutStrengthRecord";
+import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 
 /**
  * The outbox between a logged lift and `public.athlete_strength_entries`.
@@ -48,8 +50,24 @@ function writeJson(key: string, value: unknown): boolean {
   }
 }
 
-export const loadSyncQueue = (): QueuedLift[] => readJson<QueuedLift[]>(strengthSyncQueueKey, []).filter((item) => item?.key);
-export const loadSyncedKeys = (): string[] => readJson<string[]>(strengthSyncedKey, []);
+const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
+// Both loaders check the shape the way the body-weight and workout logs do: a stored
+// object or number would otherwise throw on every launch, and nothing rewrites it.
+// A queued entry needs its lift and the athlete it was read against: a flush reads
+// both, and one that throws stops every other lift in the queue from being sent.
+export function loadSyncQueue(): QueuedLift[] {
+  const parsed = readJson<unknown>(strengthSyncQueueKey, []);
+  return Array.isArray(parsed)
+    ? parsed.filter((item): item is QueuedLift =>
+      isObject(item) && typeof item.key === "string" && item.key.length > 0 && isObject(item.lift) && isObject(item.athlete))
+    : [];
+}
+
+export function loadSyncedKeys(): string[] {
+  const parsed = readJson<unknown>(strengthSyncedKey, []);
+  return Array.isArray(parsed) ? parsed.filter((key): key is string => typeof key === "string") : [];
+}
 
 /**
  * Adds lifts that are neither queued nor already sent. Pure, so the decision of
@@ -62,6 +80,20 @@ export function enqueueLifts(
 ): QueuedLift[] {
   const known = new Set([...syncedKeys, ...queue.map((item) => item.key)]);
   return [...queue, ...candidates.filter((item) => item.key && !known.has(item.key))];
+}
+
+/**
+ * Drops the lifts of a workout the athlete removed that have not been sent yet.
+ * Removing a workout deletes it from this device; a lift still waiting here would
+ * otherwise reach the account on the next flush, which is the mis-typed 225-for-22.5
+ * the removal exists to take back. Lifts already sent are not touched.
+ */
+export function removeQueuedLiftsForSession(
+  queue: readonly QueuedLift[],
+  session: Pick<DeviceWorkoutSession, "id" | "exercises">,
+): QueuedLift[] {
+  const removed = new Set(session.exercises.map((exercise) => workoutObservationId(session.id, exercise.id)));
+  return queue.filter((item) => !removed.has(item.key));
 }
 
 export function saveSyncQueue(queue: readonly QueuedLift[]): boolean {
@@ -121,7 +153,10 @@ export async function flushSyncQueue(
   const landed = new Set(rows.map((row) => row.key));
   const alreadySent = loadSyncedKeys().concat(rows.map((row) => row.key), unsendable);
   writeJson(strengthSyncedKey, Array.from(new Set(alreadySent)).slice(-5000));
-  const remaining = queue.filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
+  // The queue is read again rather than filtered from the copy taken before the insert. The
+  // insert can take seconds on a gym network, and a workout removed in that time prunes its
+  // lifts from storage; writing the old copy back would restore them and send them later.
+  const remaining = loadSyncQueue().filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
   saveSyncQueue(remaining);
   return { sent: rows.length, remaining: remaining.length, skipped: unmappable.length + unsendable.length };
 }

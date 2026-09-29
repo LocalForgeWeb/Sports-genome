@@ -145,10 +145,19 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
   useEffect(() => { setResultLimit(initialResultLimit); }, [equipment, muscle, query, scope, split]);
 
   // The cursor starts in the search field, because searching is what the sheet is for.
+  // The control that opened the sheet gets focus back when it closes. A Safari
+  // tap does not focus a button, so the body is not treated as an opener; and one
+  // that has gone (the empty day's "Add exercises" after the first add) is skipped.
   useEffect(() => {
     if (!sheetOpen) return;
+    const active = document.activeElement;
+    const opener = active instanceof HTMLElement && active !== document.body ? active : null;
     const focusTimer = window.setTimeout(() => searchRef.current?.focus(), 60);
-    return () => window.clearTimeout(focusTimer);
+    return () => {
+      window.clearTimeout(focusTimer);
+      // No scroll: the page-pinning cleanup below puts the athlete's place back.
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+    };
   }, [sheetOpen]);
 
   // Escape closes it, the way every other layer over this page closes.
@@ -196,7 +205,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
   <div className="day-exercise-picker-content">
         <div className="day-exercise-picker-head"><div><p className="metric-label">Build this day yourself</p><h3>Add exercises directly</h3><p>Start with split-matched options, then switch to the full catalog when you want a deliberate exception.</p></div><Dumbbell className="h-5 w-5" /></div>
         {gaps.length > 0 && activeWorkout.length > 0 && <div className="day-picker-gaps"><span className="day-picker-gaps-label">Short in this day</span>{gaps.map((gap) => <button key={gap.muscle} type="button" onClick={() => setMuscle(muscle === muscleFilterKey(gap.muscle) ? "all" : muscleFilterKey(gap.muscle))} className={muscle === muscleFilterKey(gap.muscle) ? "day-picker-gap day-picker-gap-active" : "day-picker-gap"} aria-pressed={muscle === muscleFilterKey(gap.muscle)}>{muscleLabels[gap.muscle] || gap.muscle}<i>{gap.deltaToTarget}</i></button>)}{muscle !== "all" && <button type="button" className="day-picker-gap-clear" onClick={() => setMuscle("all")}>Clear</button>}</div>}
-        <div className="day-picker-tools"><label><Search className="h-4 w-4" /><input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${scope === "split" ? split : "all"} exercises`} /></label><MuscleSelect muscles={muscleOptions} value={muscle} labelFor={(key) => muscleLabels[key] || key} onChange={setMuscle} /><select value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter day exercises by equipment"><option value="all">All equipment</option>{equipmentOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select><div className="day-picker-scope"><button onClick={() => setScope("split")} className={scope === "split" ? "day-picker-scope-active" : ""}><SlidersHorizontal className="h-3.5 w-3.5" /> {split} fit</button><button onClick={() => setScope("all")} className={scope === "all" ? "day-picker-scope-active" : ""}>All catalog</button></div></div>
+        <div className="day-picker-tools"><label><Search className="h-4 w-4" aria-hidden="true" /><input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${scope === "split" ? split : "all"} exercises`} /></label><MuscleSelect muscles={muscleOptions} value={muscle} labelFor={(key) => muscleLabels[key] || key} onChange={setMuscle} /><select value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter day exercises by equipment"><option value="all">All equipment</option>{equipmentOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select><div className="day-picker-scope"><button type="button" aria-pressed={scope === "split"} onClick={() => setScope("split")} className={scope === "split" ? "day-picker-scope-active" : ""}><SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" /> {split} fit</button><button type="button" aria-pressed={scope === "all"} onClick={() => setScope("all")} className={scope === "all" ? "day-picker-scope-active" : ""}>All catalog</button></div></div>
         <LocalSearchScope scope={`Searching ${scope === "split" ? `${split}-compatible` : "all catalog"} exercises.`} query={query} />
         <p className="day-picker-result-count" aria-live="polite"><strong>{results.length}</strong> option{results.length === 1 ? "" : "s"}{gaps.length > 0 ? ` · ${gaps.map((gap) => muscleLabels[gap.muscle] || gap.muscle).slice(0, 2).join(" and ")} first` : muscle !== "all" ? ` · direct ${muscleLabels[muscle] || muscle} targets first` : scope === "split" ? ` · ${split}-compatible` : " · full catalog"}{guessed && <span className="day-picker-result-guess">Nothing is spelled “{query.trim()}” — these are the closest.</span>}{shared.muscles.length > 0 &&<span className="day-picker-result-shared">{shared.everyRow ? "All of these also work" : "Most of these also work"} {shared.muscles.map((muscleKey) => (muscleLabels[muscleKey] || muscleKey).toLowerCase()).join(" and ")}.</span>}</p>
         {muscle === "serratusAnterior" && <p className="day-picker-serratus-cue">Serratus anterior options are available: <strong>Cable Serratus Punch</strong> and <strong>Scapular Wall Slide</strong>. Both are permitted in the Push Day pool.</p>}

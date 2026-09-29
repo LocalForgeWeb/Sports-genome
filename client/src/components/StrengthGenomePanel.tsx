@@ -33,6 +33,9 @@ import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
 import { muscleRankLifts } from "@/lib/muscleRankLifts";
 import { ageAtLift } from "@/lib/normsCohort";
 import { countCoveredRegions } from "@/lib/athleteRecord";
+import { decimalEntryText } from "@/lib/numericEntry";
+import { parseBirthYear } from "@/lib/birthYear";
+import { localDateKey } from "@/lib/localDate";
 
 const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
   insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
@@ -130,18 +133,20 @@ const loadInputLabel = (convention: LoadConvention, unitLabel: string) =>
 
 export function StrengthLoadInput({ weightUnit, value, requiresLoad, onChange, convention = "total_external_load" }: { weightUnit: DisplayWeightUnit; value: string; requiresLoad: boolean; onChange: (value: string) => void; convention?: LoadConvention }) {
   const label = loadInputLabel(convention, weightUnitLabel(weightUnit));
-  return <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">{label} {requiresLoad ? "· required" : "· optional"}</span><input aria-label={label} inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value.replace(/[^0-9.]/g, ""))} placeholder={requiresLoad ? `Enter ${weightUnit}` : "Optional"} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>;
+  return <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">{label} {requiresLoad ? "· required" : "· optional"}</span><input aria-label={label} inputMode="decimal" value={value} onChange={(event) => onChange(decimalEntryText(event.target.value))} placeholder={requiresLoad ? `Enter ${weightUnit}` : "Optional"} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>;
 }
 
 export function StrengthBodyMassInput({ weightUnit, value, onChange }: { weightUnit: DisplayWeightUnit; value: string; onChange: (value: string) => void }) {
-  return <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Body mass at test ({weightUnit})</span><input aria-label={`Body mass at test in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Optional" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>;
+  return <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Body mass at test ({weightUnit})</span><input aria-label={`Body mass at test in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={value} onChange={(event) => onChange(decimalEntryText(event.target.value))} placeholder="Optional" className="h-11 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>;
 }
 
-export function StrengthObservationReviewButton({ observation, onReview }: { observation: StrengthObservationRecord; onReview: (observation: StrengthObservationRecord) => void }) {
-  return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review">Review</button>;
+// The visible name stays "Review"; `describedBy` points at the row's lift and
+// date so a screen reader hears which lift each Review opens.
+export function StrengthObservationReviewButton({ observation, onReview, describedBy }: { observation: StrengthObservationRecord; onReview: (observation: StrengthObservationRecord) => void; describedBy?: string }) {
+  return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review" aria-describedby={describedBy}>Review</button>;
 }
 
-export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, onLogLift }: { regionRank?: RegionRank | null; rankMode?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
+export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, onLogLift, registryOffline = false }: { regionRank?: RegionRank | null; rankMode?: boolean; /** The research library could not be reached, so no comparison is a fact about the library, not the lift. */ registryOffline?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => void; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
   const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => compareRegionRecordRelevance(region.id, a, b)), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
@@ -260,6 +265,9 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     : null;
   // The stricter routes lead. This one fills the space they leave rather than sitting beside them.
   const showPercentile = !hasOutsideComparison && percentileCard != null;
+  // With the library unreachable there are no rows to gate on, so say that
+  // plainly rather than let the lift read as one that did not qualify.
+  const registryOfflineReason = registryOffline && !hasOutsideComparison && !showPercentile ? registryUnavailableExplanation.registry_unavailable : null;
   /*
    * What the community comparison still needs, asked where the comparison would be. A
    * group the curves do not split by is a complete answer, not a missing one, so it gets
@@ -279,7 +287,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     {rankMode && (regionRank ? <RankCard regionRank={regionRank} /> : <UnscoredRankCard hasRecords={records.length > 0} />)}
     {latestRecord ? <>
       <article className="strength-region-record-card">
-        {records.length > 1 ? <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Choose recorded test" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label> : <span className="strength-region-test-name">{latestRecord.exerciseName}</span>}
+        {records.length > 1 ? <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Which lift to show" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label> : <span className="strength-region-test-name">{latestRecord.exerciseName}</span>}
         {strengthTrend ? <article className="strength-reference-matched strength-reference-primary strength-rating-card" style={{ borderColor: changeStateCopy[strengthTrend.changeState].tone }}>
           <p className="metric-label">Your rating on this lift</p>
           <strong className="strength-body-mass-ratio" style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{strengthTrend.relativeChangePercent >= 0 ? "+" : ""}{strengthTrend.relativeChangePercent.toFixed(0)}%</strong>
@@ -294,8 +302,8 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
           ? <p className="strength-rank-needs">{communityGroupWithoutCurveCopy}</p>
           : <ComparisonGate need="group" onProfile={onRankProfile} fallback={percentileGap} />)}
         {showPercentile && !athleteProfile?.birthYear && <ComparisonGate need="birthYear" onProfile={onRankProfile} />}
-        {bodyMassSource !== "recorded" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(event.target.value.replace(/[^0-9.]/g, "")); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
-        <details className="strength-region-boundary"><summary>{hasOutsideComparison || showPercentile ? "About this comparison" : "No ranking for this lift yet"}</summary>{registryGateExplanation && <p className="strength-region-gate-reason">{registryGateExplanation}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
+        {bodyMassSource !== "recorded" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Saved profile body weight attached to this test on this device."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body mass for this test…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
+        <details className="strength-region-boundary"><summary>{hasOutsideComparison || showPercentile ? "About this comparison" : "No ranking for this lift yet"}</summary>{(registryGateExplanation ?? registryOfflineReason) && <p className="strength-region-gate-reason">{registryGateExplanation ?? registryOfflineReason}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${plural(latestRecord.repetitions, "rep")}` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{/* The weight this lift was read against, said out loud: it was saved with the lift and does not move when the profile weight changes. */}{effectiveBodyMassKg != null ? ` · at ${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}` : ""}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
       </article>
     </> : <div className="strength-region-record-empty"><p>Nothing logged for this muscle group yet.</p><p>Log a lift that trains it and your progress will show up here.</p>{onLogLift && <button type="button" onClick={() => { emitInteractionFeedback(); onLogLift(); }}>Log a lift for {region.label.toLowerCase()} <Plus className="h-4 w-4" aria-hidden="true" /></button>}</div>}
@@ -435,10 +443,10 @@ function ComparisonGate({ need, onProfile, fallback = null }: { need: "group" | 
       <small>Used only to pick which community curve this lift is read against. It is saved to About Me.</small>
     </div>;
   }
-  const parsed = Number(year);
-  const currentYear = new Date().getFullYear();
-  const valid = /^\d{4}$/.test(year) && parsed > currentYear - 100 && parsed <= currentYear;
-  return <form className="strength-rank-gate" onSubmit={(event) => { event.preventDefault(); if (!valid) return; emitInteractionFeedback(); onProfile({ birthYear: parsed }); }}>
+  // Read the same way as in onboarding and About Me, so a year one takes the others take too.
+  const parsed = parseBirthYear(year);
+  const valid = parsed !== undefined;
+  return <form className="strength-rank-gate" onSubmit={(event) => { event.preventDefault(); if (parsed === undefined) return; emitInteractionFeedback(); onProfile({ birthYear: parsed }); }}>
     <p>Optional: add your birth year and this comparison is adjusted for your age at each lift.</p>
     <label><span>Birth year</span><input inputMode="numeric" value={year} placeholder="e.g. 1998" aria-label="Birth year" onChange={(event) => setYear(event.target.value.replace(/[^0-9]/g, "").slice(0, 4))} /></label>
     <button type="submit" disabled={!valid}>Save</button>
@@ -474,7 +482,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // The registry's own availability, kept apart from the per-lift gates: an offline
   // library must not read as "your lift did not qualify".
   const registryStatusQuery = trpc.strengthGenome.referenceRegistryStatus.useQuery(undefined, { staleTime: 60 * 60 * 1000, refetchOnWindowFocus: false });
-  const registryOfflineNotice = registryConnectionNotice(registryStatusQuery.data?.connection as RegistryConnectionState | undefined);
+  // A request that failed outright (no signal, or the API down) is the library
+  // being out of reach too. While loading or retrying, isError stays false.
+  const registryFetchFailed = registryStatusQuery.isError || referenceRowsQuery.isError;
+  const registryOfflineNotice = registryConnectionNotice(registryFetchFailed ? { state: "unreachable", detail: "" } : registryStatusQuery.data?.connection as RegistryConnectionState | undefined);
   const athleteProfile = useMemo<RegistryReferenceProfile>(() => ({ sexForReference, birthYear }), [sexForReference, birthYear]);
   const approvedReferenceExercises = useMemo(
     () => Array.from(new Set(referenceRows.map((row) => row.exerciseName).filter((name): name is string => Boolean(name)))).sort(),
@@ -495,10 +506,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const removeObservation = trpc.repair.deleteStrengthObservation.useMutation({
     onSuccess: async () => {
       setObservationRemovalError(null);
-      toast.success("Test removed. Your history and comparisons no longer count it.");
+      toast.success("Lift removed. Your history and comparisons no longer count it.");
       await Promise.all([utils.strengthGenome.observations.invalidate(), utils.strengthGenome.overview.invalidate()]);
     },
-    onError: () => setObservationRemovalError("That test was not removed. Check your connection and try again."),
+    onError: () => setObservationRemovalError("That lift was not removed. Check your connection and try again."),
   });
   const prefilledPiperDeclaration: PiperReferenceDeclaration = { ...emptyPiperDeclaration, sex: mapSexForPiper(sexForReference), ageYears: ageFromBirthYear(birthYear) };
   const prefilledPowerliftingDeclaration: PowerliftingReferenceDeclaration = { ...emptyPowerliftingDeclaration, sex: mapSexForPowerlifting(sexForReference), ageYears: ageFromBirthYear(birthYear) };
@@ -508,7 +519,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const [measurementType, setMeasurementType] = useState<MeasurementType>("MEASURED_1RM");
   const [loadKg, setLoadKg] = useState("");
   const [repetitions, setRepetitions] = useState("");
-  const [observedDate, setObservedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [observedDate, setObservedDate] = useState(() => localDateKey());
   const [bodyMassKg, setBodyMassKg] = useState(() => baselineBodyWeight != null ? String(baselineBodyWeight) : "");
   const [equipment, setEquipment] = useState("");
   const [romStandard, setRomStandard] = useState("");
@@ -532,6 +543,9 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const { shown: sheetRegion, isLeaving: sheetLeaving } = useSheetPresence(selectedRegion);
   const [selectedObservationId, setSelectedObservationId] = useState("");
   const regionDetailRef = useRef<HTMLDivElement | null>(null);
+  // Whatever opened the record (a muscle, a region button, a Review button) gets
+  // focus back when the record closes, instead of focus falling to the page.
+  const regionOpenerRef = useRef<HTMLElement | SVGElement | null>(null);
   const [deviceObservations, setDeviceObservations] = useState<DeviceStrengthObservation[]>(() => loadDeviceStrengthObservations());
   useEffect(() => {
     if (!directAccess) return;
@@ -563,8 +577,12 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     () => workoutStrengthObservations(workoutSessions, weightUnit, bodyWeightHistory),
     [workoutSessions, weightUnit, bodyWeightHistory],
   );
+  // A lift that did not save says so beside the button, in either access mode,
+  // and the entry stays in the form so nothing typed is lost.
+  const [saveError, setSaveError] = useState<string | null>(null);
   const addObservation = trpc.strengthGenome.addObservation.useMutation({
     onSuccess: async () => {
+      setSaveError(null);
       await Promise.all([
         utils.strengthGenome.overview.invalidate(),
         utils.strengthGenome.observations.invalidate(),
@@ -589,6 +607,21 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       setNotes("");
       toast.success("Lift saved. Your progress updates as you log more.");
     },
+    // Every failure is reported here in fixed words: the server message is either
+    // a validation list or a generic fault notice, neither of them for athletes.
+    // An expired sign-in gets no toast of its own: main.tsx says that app-wide,
+    // but at most once a minute, so the reason is still written beside the button.
+    // It names no place to sign in again: this build has none (see sessionExpiryNotice).
+    onError: (error) => {
+      if (error.data?.code === "UNAUTHORIZED") {
+        setSaveError("This lift was not saved because your sign-in has expired. Your entry is still here.");
+        return;
+      }
+      setSaveError(error.data?.code === "BAD_REQUEST"
+        ? "This lift was not saved: check the date and the numbers, then save again. Your entry is still here."
+        : "This lift was not saved. Your entry is still here. Check your connection and save again.");
+      toast.error("Could not save this lift.");
+    },
   });
 
   const parsedLoad = useMemo(() => Number(loadKg), [loadKg]);
@@ -601,7 +634,34 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const selectedExerciseContext = useMemo(() => selectedExercise ? getStrengthCatalogSelectionContext(selectedExercise) : null, [selectedExercise]);
   const piperCaptureAvailable = exerciseName === "Preacher Curl" && measurementType === "MULTI_REP";
   const powerliftingCaptureAvailable = ["Back Squat", "Barbell Bench Press", "Conventional Deadlift"].includes(exerciseName) && measurementType === "MEASURED_1RM";
-  const canSave = Boolean(selectedExercise) && (!needsLoad || (Number.isFinite(parsedLoad) && parsedLoad >= 0));
+  // A real day the record can hold: not before 1970 and not after the athlete's own
+  // today, the picker's own min and max, which a typed date can get past. A typo year
+  // such as 0202 or 2100 would otherwise be saved as it stands, or refused by the
+  // server. The day is read back to refuse one the month does not have, which Date
+  // would roll over (2021-02-30 into March). The server keeps two days of slack
+  // because it cannot know the athlete's time zone; this form knows it, so it keeps none.
+  const liftDateAt = new Date(`${observedDate}T12:00:00`).getTime();
+  const liftDateInRange = /^\d{4}-\d{2}-\d{2}$/.test(observedDate)
+    && Number.isFinite(liftDateAt)
+    && localDateKey(new Date(liftDateAt)) === observedDate
+    && observedDate >= "1970-01-02"
+    && observedDate <= localDateKey();
+  // The load is required where its label says so, and a blank box is not 0 kg:
+  // Number("") is 0, which would save a 0 kg max. A working set needs its reps
+  // to be read at all. A pull-up or push-up is scored on reps, so its load stays optional.
+  const loadConvention = loadConventionFor(selectedExercise?.id);
+  const loadRequired = needsLoad && loadConvention !== "bodyweight_reps";
+  const hasLoad = loadKg.trim() !== "" && Number.isFinite(parsedLoad);
+  // Only a lone separator reaches this: the load box's decimalEntryText reads a ","
+  // as "." and folds any later points into the decimals ("1.2.3" becomes "1.23"), so
+  // a bare "." is the one entry it lets through that is not a number. In an optional
+  // box it is named by the box's own label, since "enter the load" would ask for a
+  // value the label says is not needed.
+  const loadInvalid = loadKg.trim() !== "" && !Number.isFinite(parsedLoad);
+  const loadLabel = loadInputLabel(loadConvention, weightUnitLabel(weightUnit));
+  const loadMissing = loadRequired && !(hasLoad && parsedLoad > 0);
+  const repsMissing = measurementType === "MULTI_REP" && !(repetitions !== "" && Number.isInteger(parsedRepetitions) && parsedRepetitions >= 1);
+  const canSave = Boolean(selectedExercise) && !loadMissing && !loadInvalid && !repsMissing && liftDateInRange;
   // Lifts typed into the form and lifts carried across from finished workouts are
   // one record. The device tracker writes to this device in both access modes, so
   // its sessions are merged in both — they are never mirrored server-side, so
@@ -642,7 +702,16 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     { sex: rankSex, lifts: rankLifts },
     { enabled: rankSex !== null && rankLifts.length > 0, staleTime: 5 * 60 * 1000, retry: false }
   );
+  // A failed rank request says so and can be tried again. The server answers a
+  // database outage as "unavailable: service_error" rather than as an error, so
+  // both count. A missing server setting stays quiet: trying again cannot fix it.
+  // Offline, the request waits for a connection and says that instead. Both
+  // speak only while no ranks are drawn: a background refetch that fails, or
+  // waits offline, keeps the ranks already on the map, and they still stand.
+  const ranksWanted = rankSex !== null && rankLifts.length > 0;
   const rankProfile = muscleRanks.data && muscleRanks.data.status !== "unavailable" ? muscleRanks.data : null;
+  const ranksFailed = ranksWanted && rankProfile === null && (muscleRanks.isError || (muscleRanks.data?.status === "unavailable" && muscleRanks.data.reason === "service_error"));
+  const ranksOffline = ranksWanted && muscleRanks.isPending && muscleRanks.fetchStatus === "paused";
   const regionRanks = useMemo(() => (rankProfile ? regionRanksFromMuscles(rankProfile.muscles) : null), [rankProfile]);
   const unrankedLifts = useMemo(() => {
     const counts = new Map<string, { exerciseName: string; reason: string; count: number }>();
@@ -655,7 +724,11 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // While the ranks are being computed the map shows coverage, which is true
   // and says so in its own legend; the line below says ranks are on the way so
   // the coverage colours are not read as ranks.
-  const rankNotice = rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending
+  const rankNotice = ranksFailed
+    ? <p className="rank-profile-partial" role="status">Ranks could not be worked out just now, so the map shows where lifts are on record. <button type="button" className="rank-profile-retry" disabled={muscleRanks.isFetching} onClick={() => { emitInteractionFeedback(); void muscleRanks.refetch(); }}>{muscleRanks.isFetching ? "Trying again…" : "Try again"}</button></p>
+    : ranksOffline
+    ? <p className="rank-profile-partial" role="status">Waiting for a connection to rank your lifts. Until then the map shows where lifts are on record.</p>
+    : rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending
     ? <p className="rank-profile-partial" role="status">Ranking your lifts… the map shows where lifts are on record until the ranks arrive.</p>
     : rankSex === null && rankLifts.length > 0
     ? <p className="rank-profile-partial">Ranks on this map need the sex to compare against — set it in About Me.</p>
@@ -694,22 +767,21 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const activePriorityIds = new Set(priorities.data?.map(priority => priority.regionId) || overview.data?.athleteConfirmedPriorityRegionIds || []);
   // The view follows the device: a refused write keeps the old list and is
   // reported, so nothing on screen claims a record the device does not hold.
-  const [deviceSaveError, setDeviceSaveError] = useState<string | null>(null);
   const persistDeviceObservations = (next: DeviceStrengthObservation[]): boolean => { const written = saveDeviceStrengthObservations(next); if (written) setDeviceObservations(next); return written; };
   const setDeviceBodyMass = (observationId: string, bodyMassKgAtTest: number) => persistDeviceObservations(setDeviceStrengthObservationBodyMass(deviceObservations, observationId, bodyMassKgAtTest));
 
   const requestObservationRemoval = (observation: StrengthObservationRecord) =>
     setPendingObservationRemoval({
-      title: "Remove this test?",
-      body: `The ${observation.exerciseName} test from ${new Date(observation.observedAt).toLocaleDateString()} is deleted. It stops counting in your history, your change tracking, and any comparison drawn from it. This cannot be undone.`,
-      confirmLabel: "Remove test",
+      title: "Remove this lift?",
+      body: `The ${observation.exerciseName} lift from ${new Date(observation.observedAt).toLocaleDateString()} is deleted. It stops counting in your history, your change tracking, and any comparison drawn from it. This cannot be undone.`,
+      confirmLabel: "Remove lift",
       onConfirm: () => {
         setPendingObservationRemoval(null);
         setObservationRemovalError(null);
         if (directAccess) {
           persistDeviceObservations(removeDeviceStrengthObservation(deviceObservations, String(observation.id)));
           emitInteractionFeedback([10, 30, 10]);
-          toast.success("Test removed from this device.");
+          toast.success("Lift removed from this device.");
           return;
         }
         removeObservation.mutate({ observationId: Number(observation.id) });
@@ -729,8 +801,16 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // a panel that had not moved. Only the wide layout, where the record really
   // does sit further down the page, scrolls to it.
   useEffect(() => {
+    // However the record closed (the close button, Escape, a second tap on the
+    // muscle, Log a lift), its opener is forgotten, so a later open whose click
+    // leaves focus on the page never hands focus to a control from an old visit.
+    if (!selectedRegion) { regionOpenerRef.current = null; return; }
     const detail = regionDetailRef.current;
-    if (!selectedRegion || !detail || typeof window === "undefined") return;
+    if (!detail || typeof window === "undefined") return;
+    // Remember the opener before focus moves into the record. Focus already
+    // inside the record (a second lift reviewed from it) is never the opener.
+    const active = document.activeElement;
+    if ((active instanceof HTMLElement || active instanceof SVGElement) && active !== document.body && !detail.contains(active)) regionOpenerRef.current = active;
     const frame = window.requestAnimationFrame(() => {
       if (!window.matchMedia?.("(max-width: 1023px)").matches) {
         const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -745,6 +825,19 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     });
     return () => window.cancelAnimationFrame(frame);
   }, [selectedRegion?.id, selectedObservationId]);
+  // Closing hands focus back to the opener. The record stays mounted, hidden,
+  // for its exit animation, so focus left in it would sit in hidden content.
+  // Focus anywhere else stays put: Escape is heard page-wide, and pressing it in
+  // the exercise search must not pull focus to a muscle further up the page.
+  const closeRegionRecord = () => {
+    const active = document.activeElement;
+    const focusWasInRecord = !active || active === document.body || Boolean(regionDetailRef.current?.contains(active));
+    setSelectedRegion(null);
+    setSelectedObservationId("");
+    const opener = regionOpenerRef.current;
+    regionOpenerRef.current = null;
+    if (focusWasInRecord && opener?.isConnected) opener.focus({ preventScroll: true });
+  };
   // Escape closes the pinned record, the way it closes any other layer that sits
   // over the page. The figure stays tappable while it is open, so this is the
   // only dismissal a keyboard needs beyond the close button.
@@ -752,8 +845,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     if (!selectedRegion || typeof window === "undefined") return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      setSelectedRegion(null);
-      setSelectedObservationId("");
+      closeRegionRecord();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -761,6 +853,19 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const setPriority = trpc.strengthGenome.setPriority.useMutation({
     onSuccess: async () => {
       await Promise.all([utils.strengthGenome.overview.invalidate(), utils.strengthGenome.priorities.invalidate()]);
+    },
+    // An expired sign-in is not a connection fault: say the real cause, and name no
+    // place to sign in again, since this build has none. main.tsx's app-wide notice
+    // speaks at most once a minute, so this one still does, under that notice's id so
+    // it takes the notice's place rather than stacking under it. Sonner keeps any field
+    // the replaced toast had, so the notice's "Everything stays saved on this device"
+    // is cleared: the focus was saved nowhere.
+    onError: (error) => {
+      if (error.data?.code === "UNAUTHORIZED") {
+        toast.error("Focus was not saved because your sign-in has expired.", { id: "session-expired", description: undefined });
+        return;
+      }
+      toast.error("Focus was not saved. Check your connection and try again.");
     },
   });
 
@@ -772,7 +877,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       measurementType,
       loadKg: Number.isFinite(parsedLoad) && loadKg !== "" ? displayWeightToKilograms(parsedLoad, weightUnit) : undefined,
       repetitions: Number.isFinite(parsedRepetitions) && repetitions !== "" ? parsedRepetitions : undefined,
-      measuredOneRmKg: measurementType === "MEASURED_1RM" && Number.isFinite(parsedLoad) ? displayWeightToKilograms(parsedLoad, weightUnit) : undefined,
+      measuredOneRmKg: measurementType === "MEASURED_1RM" && hasLoad && parsedLoad > 0 ? displayWeightToKilograms(parsedLoad, weightUnit) : undefined,
       bodyMassKgAtTest: Number.isFinite(parsedBodyMass) && bodyMassKg !== "" ? displayWeightToKilograms(parsedBodyMass, weightUnit) : undefined,
       equipment: equipment.trim() || undefined,
       romStandard: romStandard.trim() || undefined,
@@ -787,15 +892,16 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     if (directAccess) {
       const written = persistDeviceObservations(prependDeviceStrengthObservation(deviceObservations, { ...nextObservation, id: `device-strength-${Date.now()}`, observedAt: nextObservation.observedAt.toISOString() }));
       if (!written) {
-        setDeviceSaveError("This lift was not saved: this device refused the write (storage full, private browsing, or storage blocked). Your entry is still here — free some space and save again.");
+        setSaveError("This lift was not saved: this device refused the write (storage full, private browsing, or storage blocked). Your entry is still here — free some space and save again.");
         toast.error("Could not save this lift on this device.");
         return;
       }
-      setDeviceSaveError(null);
+      setSaveError(null);
       setExerciseName(""); setExerciseSearch(""); setSelectedExercise(null); setLoadKg(""); setRepetitions(""); setBodyMassKg(""); setEquipment(""); setRomStandard(""); setTechniqueVariant(""); setTempo(""); setLaterality("BILATERAL"); setExternalAssistance(""); setDataQuality("SELF_REPORTED"); setPiperReferenceOpen(false); setPiperDeclaration(prefilledPiperDeclaration); setPowerliftingReferenceOpen(false); setPowerliftingDeclaration(prefilledPowerliftingDeclaration); setNotes("");
       emitInteractionFeedback([10, 30, 10]); toast.success("Lift saved on this device.");
       return;
     }
+    setSaveError(null);
     addObservation.mutate(nextObservation);
   };
 
@@ -816,8 +922,10 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
 
     <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankNotice || ageNotice ? <>{rankNotice}{ageNotice}</> : null} ranksPending={rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
     {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
-    {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} regionRank={regionRanks?.get(sheetRegion.id) ?? null} rankMode={regionRanks !== null} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={() => { setSelectedRegion(null); setSelectedObservationId(""); }} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} />
-      <div className="strength-region-focus-row"><p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p><div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button><button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: sheetRegion.id, active: !activePriorityIds.has(sheetRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(sheetRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(sheetRegion.id) ? "Focused" : "Set focus"}</button></div></div>
+    {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role="group" aria-label={`${sheetRegion.label} record`} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} regionRank={regionRanks?.get(sheetRegion.id) ?? null} rankMode={regionRanks !== null} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={closeRegionRecord} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} registryOffline={registryOfflineNotice !== null} />
+      {/* Focus is kept only with an account's priorities, which direct access never
+          reads, so on a device-only record the row offers training alone. */}
+      <div className="strength-region-focus-row">{directAccess ? <p><strong>Want to train this?</strong> Add it to a day in Train.</p> : <p><strong>Want to prioritize this?</strong> Optional. It will not change today&apos;s workout on its own.</p>}<div><button type="button" onClick={() => { emitInteractionFeedback(); onOpenTraining(); }} className="strength-focus-secondary">Review training</button>{!directAccess && <button type="button" disabled={setPriority.isPending} onClick={() => { emitInteractionFeedback(); setPriority.mutate({ regionId: sheetRegion.id, active: !activePriorityIds.has(sheetRegion.id) }); }} className={`strength-focus-primary ${activePriorityIds.has(sheetRegion.id) ? "is-active" : ""}`}>{activePriorityIds.has(sheetRegion.id) ? "Focused" : "Set focus"}</button>}</div></div>
     </div>}
 
     {/* The one primary action. It opens the existing form in place - every
@@ -829,8 +937,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="grid gap-1.5 sm:col-span-2"><label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Choose exercise</span><input aria-label="Search and choose a catalog exercise" value={exerciseSearch} onChange={(event) => { setExerciseSearch(event.target.value); setSelectedExercise(null); setExerciseName(""); }} placeholder="Search catalog, then select" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label><LocalSearchScope scope="Searching the exercise catalog for a lift to record." query={exerciseSearch} />{exerciseSearch.trim() && !selectedExercise && <div className="strength-exercise-picker" role="listbox" aria-label="Catalog exercise results">{exerciseMatches.length ? exerciseMatches.map((exercise) => <button type="button" role="option" key={exercise.id} onClick={() => { emitInteractionFeedback(); setSelectedExercise(exercise); setExerciseName(exercise.name); setExerciseSearch(exercise.name); }}><strong>{exercise.name}</strong><span>{exercise.primaryMuscles.join(" · ")}</span></button>) : <p>No matching catalog exercise.</p>}</div>}{selectedExerciseContext && <StrengthCatalogSelectionPreview context={selectedExerciseContext} />}</div>
           <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">How you measured it</span><select value={measurementType} onChange={(event) => setMeasurementType(event.target.value as MeasurementType)} className="h-12 rounded-xl border border-white/20 bg-[var(--sg-surface-raised)] px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30">{measurementOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-          <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Date</span><input type="date" value={observedDate} onChange={(event) => setObservedDate(event.target.value)} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
-          <StrengthLoadInput weightUnit={weightUnit} value={loadKg} requiresLoad={needsLoad && loadConventionFor(selectedExercise?.id) !== "bodyweight_reps"} convention={loadConventionFor(selectedExercise?.id)} onChange={setLoadKg} />
+          <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Date</span><input type="date" min="1970-01-02" max={localDateKey()} value={observedDate} onChange={(event) => setObservedDate(event.target.value)} className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>
+          <StrengthLoadInput weightUnit={weightUnit} value={loadKg} requiresLoad={loadRequired} convention={loadConvention} onChange={setLoadKg} />
           {measurementType === "MULTI_REP" && <label className="grid gap-1.5"><span className="text-[11px] font-bold uppercase tracking-[.12em] text-[var(--sg-text-subtle-on-dark)]">Repetitions</span><input inputMode="numeric" value={repetitions} onChange={(event) => setRepetitions(event.target.value.replace(/[^0-9]/g, ""))} placeholder="Enter reps" className="h-12 rounded-xl border border-white/20 bg-white/5 px-3 text-sm text-white outline-none placeholder:text-[var(--sg-text-faint-on-dark)] focus:border-[var(--sg-info)] focus:ring-2 focus:ring-[#5b9cf1]/30" /></label>}
         </div>
         <button type="button" onClick={() => setAdvancedOpen((current) => !current)} className="mt-4 block text-[11px] font-bold uppercase tracking-[.12em] text-[#9fc8f4] hover:text-white">{advancedOpen ? "Hide" : "Show"} more options</button>
@@ -850,8 +958,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         {powerliftingCaptureAvailable && <details className="strength-piper-capture strength-powerlifting-capture" open={powerliftingReferenceOpen} onToggle={(event) => setPowerliftingReferenceOpen(event.currentTarget.open)}><summary>Competitive powerlifting reference</summary><p>Optional. This compares one exact maximum under drug-tested, unequipped competition standards for adults aged 18–35; it does not rate everyday gym lifts.</p>{powerliftingReferenceOpen && <div className="strength-piper-fields strength-powerlifting-fields"><label><span>Which competition category?</span><select value={powerliftingDeclaration.sex || ""} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, sex: (event.target.value || undefined) as PowerliftingReferenceDeclaration["sex"] }))}><option value="">Choose a category</option><option value="female">Women.s competition</option><option value="male">Men.s competition</option></select></label><label><span>Age on test day</span><input aria-label="Age on test day for powerlifting reference" inputMode="numeric" value={powerliftingDeclaration.ageYears || ""} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, ageYears: Number(event.target.value.replace(/[^0-9]/g, "")) || undefined }))} placeholder="18–35" /></label><label><input type="checkbox" checked={powerliftingDeclaration.drugTestedCompetitionConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, drugTestedCompetitionConfirmed: event.target.checked }))} /> This was a drug-tested powerlifting competition lift.</label><label><input type="checkbox" checked={powerliftingDeclaration.unequippedCompetitionConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, unequippedCompetitionConfirmed: event.target.checked }))} /> The lift was unequipped under the competition standard.</label><label><input type="checkbox" checked={powerliftingDeclaration.maximumSuccessfulLiftConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, maximumSuccessfulLiftConfirmed: event.target.checked }))} /> This was the maximum successful competition lift.</label><p>Use the saved profile weight only if it matches your body mass on this test day.</p></div>}</details>}
         <div className="strength-log-submit">
           <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--sg-action-fill)] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving" : "Save this lift"}</button>
-          {!canSave && <p className="strength-log-blocked" role="status">{!selectedExercise ? "Choose an exercise from the catalog above to save this." : `Enter the load in ${weightUnitLabel(weightUnit)} to save this.`}</p>}
-          {deviceSaveError && <p className="strength-log-save-error" role="alert">{deviceSaveError}</p>}
+          {!canSave && <p className="strength-log-blocked" role="status">{!selectedExercise ? "Choose an exercise from the catalog above to save this." : !liftDateInRange ? "Enter the date this lift happened." : loadMissing ? `Enter the load in ${weightUnitLabel(weightUnit)} to save this.` : loadInvalid ? `Fix or clear the ${loadLabel.charAt(0).toLowerCase()}${loadLabel.slice(1)} to save this.` : "Enter the reps of the working set to save this."}</p>}
+          {saveError && <p className="strength-log-save-error" role="alert">{saveError}</p>}
         </div>
       </div>
     </details>
@@ -861,7 +969,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       <summary><Dumbbell className="h-5 w-5" aria-hidden="true" /><span>Recent lifts</span><small>· {activeObservations.length} {recordWord}</small><ChevronDown className="h-5 w-5 strength-disclosure-chevron" aria-hidden="true" /></summary>
       <div className="strength-progress-log">
         {activeObservations.length > 0 && <p className="strength-recent-scope">{recentObservations.length < activeObservations.length ? `The latest ${recentObservations.length} of ${activeObservations.length}. ` : ""}{workoutObservations.length ? `${workoutObservations.length} carried across from finished workouts${directAccess ? ", saved on this device only" : ""}.` : (directAccess ? "Saved on this device only." : "")}</p>}
-        {recentObservations.length ? <div className="strength-recent-rows">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div><p className="strength-recent-name">{observation.exerciseName}</p><p className="strength-recent-meta">{observation.source === "workout" ? `From ${observation.sessionLabel || "a workout"}` : measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div><div className="strength-log-row-actions">{strengthRegionIdsForExerciseName(observation.exerciseName).length > 0 && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} />}{observation.source !== "workout" && <button type="button" className="strength-log-remove" disabled={removeObservation.isPending} onClick={() => requestObservationRemoval(observation as StrengthObservationRecord)} aria-label={`Remove the ${observation.exerciseName} test from ${new Date(observation.observedAt).toLocaleDateString()}`} title="Remove this test"><Trash2 className="h-3.5 w-3.5" /></button>}</div></div>)}</div> : <div className="strength-log-empty"><Activity className="h-5 w-5" /><p><strong>Nothing logged yet</strong></p><p>Log your first lift and your progress starts tracking from there.</p></div>}{observationRemovalError && <p className="strength-log-remove-error" role="alert">{observationRemovalError}</p>}
+        {recentObservations.length ? <div className="strength-recent-rows">{recentObservations.map((observation) => <div key={observation.id} className="flex items-center justify-between gap-3 py-3 first:pt-0"><div id={`strength-recent-${observation.id}`}><p className="strength-recent-name">{observation.exerciseName}</p><p className="strength-recent-meta">{observation.source === "workout" ? `From ${observation.sessionLabel || "a workout"}` : measurementTypeLabel(observation.measurementType)} · {new Date(observation.observedAt).toLocaleDateString()}</p></div><div className="strength-log-row-actions">{strengthRegionIdsForExerciseName(observation.exerciseName).length > 0 && <StrengthObservationReviewButton observation={observation as StrengthObservationRecord} onReview={openSavedObservation} describedBy={`strength-recent-${observation.id}`} />}{observation.source !== "workout" && <button type="button" className="strength-log-remove" disabled={removeObservation.isPending} onClick={() => requestObservationRemoval(observation as StrengthObservationRecord)} aria-label={`Remove the ${observation.exerciseName} lift from ${new Date(observation.observedAt).toLocaleDateString()}`} title="Remove this lift"><Trash2 className="h-3.5 w-3.5" /></button>}</div></div>)}</div> : <div className="strength-log-empty"><Activity className="h-5 w-5" /><p><strong>Nothing logged yet</strong></p><p>Log your first lift and your progress starts tracking from there.</p></div>}{observationRemovalError && <p className="strength-log-remove-error" role="alert">{observationRemovalError}</p>}
       </div>
     </details>
 
