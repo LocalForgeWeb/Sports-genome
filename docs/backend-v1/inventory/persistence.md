@@ -33,7 +33,6 @@ No `sessionStorage`, IndexedDB or Cache Storage is used by app code. A grep of `
 | `sports-genome-launch-experience-enabled-v1` | `lib/launchExperience.ts:1`, `Home.tsx:662-667,1398-1404` | `"on"\|"off"` | Preference | N/A | None |
 | `sports-genome-launched-before-v1` | `lib/bootExperience.ts:17,145-152` | `"yes"` | Boot-intro state | N/A | None |
 | `sports-genome-replay-intro-v1` | `lib/bootExperience.ts:28`, `lib/bootSplash.ts:85`, `client/index.html:34` (removed when read) | `"yes"` | One-shot replay flag | N/A | None |
-| `sidebar-width` | `components/DashboardLayout.tsx:34,45,51` | number string | Layout preference. HYPOTHESIS: dead code, since no importer outside the file | N/A | None |
 
 **In-memory only (lost on reload):** in `usePlanSync`, `revisionRef`, `pulledRef` and `lastPushedRef` (`lib/usePlanSync.ts:27-29`), which also means the pending debounced push is lost. In `useAthleteSync`, `identity`, the `running` guard and `lastCapacity` (`lib/useAthleteSync.ts:59-63,139`).
 

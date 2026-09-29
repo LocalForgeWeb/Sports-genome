@@ -133,6 +133,15 @@ describe("Typing a bodyweight in About Me", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Weight unit" }), { target: { value: "kg" } });
     expect(onBaseline).toHaveBeenLastCalledWith({ ...base, weightUnit: "kg", bodyWeight: undefined });
   });
+
+  /* "Bodyweight" is the equipment chip for training with no load; the measurement is two words,
+     as it is everywhere else the app asks for it. */
+  it("names the weight field as a measurement, not the equipment category", () => {
+    const { weight } = draw(base);
+    const label = screen.getByText("Body weight (optional)");
+    expect(screen.queryByText("Bodyweight (optional)")).toBeNull();
+    expect(label.closest("label")?.contains(weight())).toBe(true);
+  });
 });
 
 describe("What counts as a year", () => {

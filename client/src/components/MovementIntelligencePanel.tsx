@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertTriangle, Check, ChevronDown, CircleDot, ExternalLink, Layers3, Plus, ShieldAlert } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { EnrichedSportMovement } from "@/lib/enrichedSportMovementDatabase";
@@ -14,11 +14,14 @@ function RoleList({ title, entries }: { title: string; entries: ReturnType<typeo
 
 export function MovementIntelligencePanel({ movement, fallback, workout, onAdd, onInspect, compact = false }: { movement?: EnrichedSportMovement; fallback: SportMovementProfile; workout: Exercise[]; onAdd?: (exercise: Exercise) => void; onInspect?: (exercise: Exercise) => void; compact?: boolean }) {
   const [showAllAssistance, setShowAllAssistance] = useState(false);
-  if (!movement) return <div className="light-panel p-5"><p className="metric-label">Research enrichment pending</p><p className="mt-2 text-sm text-[#607069]">This action remains available through the existing movement profile while its detailed research record is loaded.</p></div>;
-  const analysis = analyzeWorkoutForMovement(movement, workout);
-  const assistance = getMovementAssistance(movement, fallback, compact ? 4 : 6);
+  // Assistance scores the whole catalog. Home re-renders this panel on every
+  // change while Matches is open, and "See more" re-renders it too, so each
+  // result is kept until what it reads from changes.
+  const analysis = useMemo(() => movement ? analyzeWorkoutForMovement(movement, workout) : null, [movement, workout]);
+  const assistance = useMemo(() => movement ? getMovementAssistance(movement, fallback, compact ? 4 : 6) : [], [movement, fallback, compact]);
+  const sprintPowerEvidence = useMemo(() => movement ? getSprintPowerEvidenceContext(movement) : null, [movement]);
+  if (!movement || !analysis) return <div className="light-panel p-5"><p className="metric-label">Research enrichment pending</p><p className="mt-2 text-sm text-[#607069]">This action remains available through the existing movement profile while its detailed research record is loaded.</p></div>;
   const shownAssistance = showAllAssistance ? assistance : assistance.slice(0, 3);
-  const sprintPowerEvidence = getSprintPowerEvidenceContext(movement);
 
   return <section className={`movement-intelligence-panel ${compact ? "movement-intelligence-compact" : ""}`}>
     <div className="movement-intelligence-head"><div><p className="metric-label">Movement intelligence</p><h3>{movement.label}</h3><p>{movement.commonForceOrSkillDemand}</p></div><span className={`confidence-badge confidence-${movement.evidenceConfidence}`}>{movement.evidenceConfidence} confidence</span></div>
