@@ -273,6 +273,14 @@ export type MuscleEvidence = {
   exerciseName: string;
   role: string | null;
   exercisePercentile: number | null;
+  /**
+   * How directly the lift reads this muscle: its contribution weight as a share of the lift's
+   * mover contribution, 0-1 (D-016). A fly reads the sternocostal pec at 0.47, a bench press
+   * at 0.24. Null only for evidence recorded before the rule existed.
+   */
+  directness: number | null;
+  /** The share of the muscle's evidence weight this lift carried, 0-1: what it did for the rank. */
+  weightShare: number | null;
 };
 
 /** One scored muscle, as the aggregation returned it, validated. */
