@@ -25,6 +25,7 @@ vi.mock("@/lib/trpc", () => ({
 }));
 
 import { TodayActionPanel } from "./TodayActionPanel";
+import { todayPlan } from "./todayPlanFixture";
 
 /**
  * Two logs of the same lift, far enough apart that the within-athlete model rates the
@@ -49,9 +50,9 @@ import type { LiveSession } from "@/lib/liveSession";
 function renderPanel(overrides: Partial<React.ComponentProps<typeof TodayActionPanel>> = {}) {
   return render(
     React.createElement(TodayActionPanel, {
-      stagedExerciseCount: mocks.staged,
-      trainingDays: 4,
-      activeDayLabel: "Week 1 · Push",
+      // Push is Day 01 of a four-day split; `mocks.staged` exercises are built on it.
+      plan: todayPlan({ Push: mocks.staged }),
+      onOpenWorkout: () => {},
       onOpenTraining: () => {},
       onOpenStrength: () => {},
       hour: 9,
@@ -108,28 +109,40 @@ describe("Today action panel: where you are and what to do", () => {
     mocks.staged = 6;
     renderPanel();
     expect(screen.getByRole("heading", { name: "Push" })).toBeTruthy();
-    expect(screen.getByText("Week 1")).toBeTruthy();
+    expect(screen.getByText("Week 1 · Day 01")).toBeTruthy();
     expect(screen.getByText("6 exercises")).toBeTruthy();
     expect(screen.getByRole("button", { name: /Open next workout/i })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Edit plan/i })).toBeTruthy();
   });
 
-  it("offers the plan when the selected day is empty, and creating one when there is no plan", () => {
-    renderPanel({ planHasDays: true, onOpenCatalog: () => {} });
-    expect(screen.getByText("Choose your next workout")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Open training plan/i })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Explore exercises/i })).toBeTruthy();
+  /**
+   * Home names a built day even when other days are empty; there is no "choose your next workout"
+   * state, because the day Plan is showing never becomes Home's (Sep 28 regression brief §4).
+   */
+  it("names the first built day when others are empty, and offers to build when nothing is", () => {
+    renderPanel({ plan: todayPlan({ Push: 0, Pull: 3, Upper: 0 }), onOpenCatalog: () => {} });
+    expect(screen.getByRole("heading", { level: 2, name: "Pull" })).toBeTruthy();
+    expect(screen.queryByText("Choose your next workout")).toBeNull();
     document.body.innerHTML = "";
-    renderPanel({ planHasDays: false });
+    renderPanel({ plan: todayPlan({}), onOpenCatalog: () => {} });
     expect(screen.getByText("Build training around your goals")).toBeTruthy();
     expect(screen.getByRole("button", { name: /Build your first workout/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Explore exercises/i })).toBeTruthy();
+  });
+
+  it("holds its shape and claims nothing while the plan is still being read", () => {
+    renderPanel({ plan: todayPlan({ Push: 5 }, { ready: false }) });
+    expect(screen.getByRole("status", { name: "Loading your plan" })).toBeTruthy();
+    expect(document.querySelector(".home-week-strip")).toBeNull();
   });
 
   it("reads the week as one fraction and the lifetime record from the same store Strength reads", () => {
     seedDevice(2, 1);
+    mocks.staged = 3;
     renderPanel();
     expect(screen.getByText("Your week")).toBeTruthy();
-    expect(screen.getByLabelText(/1 of 4 planned workouts completed this week/)).toBeTruthy();
+    // Plain text, read as written: the number is no longer hidden behind an aria-label.
+    expect(document.querySelector(".home-week-line")?.textContent).toBe("1 of 4 planned workouts done this week");
     // Two typed lifts plus one lift carried from the finished workout: the Strength definition.
     expect(screen.getByRole("button", { name: /3 lifts logged · 1 workout recorded, all time/ })).toBeTruthy();
     expect(screen.getByRole("button", { name: /View plan/ })).toBeTruthy();
@@ -137,7 +150,7 @@ describe("Today action panel: where you are and what to do", () => {
 
   it("reads zero as a number, not a verdict, with nothing recorded", () => {
     renderPanel();
-    expect(screen.getByLabelText(/0 of 4 planned workouts completed this week/)).toBeTruthy();
+    expect(document.querySelector(".home-week-line")?.textContent).toBe("0 of 4 planned workouts done this week");
     expect(screen.getByRole("button", { name: /0 lifts logged · 0 workouts recorded/ })).toBeTruthy();
     expect(screen.queryByText(/Nothing recorded/)).toBeNull();
     expect(screen.queryByText(/Log your first lift/)).toBeNull();

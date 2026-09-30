@@ -1,9 +1,9 @@
-import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from '@shared/const';
+import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
 import { publicErrorMessage } from "./apiErrors";
-import { assertCostlyCallAllowed } from "./rateLimit";
+import { assertAuthCallAllowed, assertCostlyCallAllowed } from "./rateLimit";
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
@@ -27,6 +27,12 @@ export const costlyPublicProcedure = t.procedure.use(async ({ ctx, next }) => {
   return next();
 });
 
+/** A public sign-in route (register, sign in, passkey sign-in): counted per client, before its input is read. */
+export const authPublicProcedure = t.procedure.use(async ({ ctx, next }) => {
+  assertAuthCallAllowed(ctx.req);
+  return next();
+});
+
 const requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
 
@@ -43,20 +49,3 @@ const requireUser = t.middleware(async opts => {
 });
 
 export const protectedProcedure = t.procedure.use(requireUser);
-
-export const adminProcedure = t.procedure.use(
-  t.middleware(async opts => {
-    const { ctx, next } = opts;
-
-    if (!ctx.user || ctx.user.role !== 'admin') {
-      throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
-    }
-
-    return next({
-      ctx: {
-        ...ctx,
-        user: ctx.user,
-      },
-    });
-  }),
-);

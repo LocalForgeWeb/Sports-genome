@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 import type { WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
-import { muscleRankLifts } from "./muscleRankLifts";
+import { muscleRankLiftSelection } from "./muscleRankLifts";
 import { liftsToPlace } from "./progressPercentiles";
 import { ageAdjustmentNote, strengthPercentileCard } from "./strengthPercentileCard";
 
@@ -12,6 +12,8 @@ import { ageAdjustmentNote, strengthPercentileCard } from "./strengthPercentileC
  */
 const lastSpring = { exerciseName: "Barbell Bench Press", loadKg: 81.65, measurementType: "MEASURED_1RM", observedAt: "2025-04-10T10:00:00Z", bodyMassKgAtTest: 65.77 };
 const thisMonth = { ...lastSpring, loadKg: 85, observedAt: "2026-09-20T10:00:00Z" };
+/** The lifts sent, without what rides beside them. */
+const muscleRankLifts = (...args: Parameters<typeof muscleRankLiftSelection>) => muscleRankLiftSelection(...args).lifts;
 
 describe("Muscle-rank lifts carry the age at each lift", () => {
   // One lift per exercise is sent (its strongest, EN-02), so the two lifts are of different

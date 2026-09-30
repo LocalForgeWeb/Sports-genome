@@ -15,7 +15,8 @@ export type MuscleVolume = {
   daySets: Record<string, number>;
 };
 
-const displayNames: Record<string, string> = {
+/** One set of muscle names for Review's panels; recovery spacing reads it too. */
+export const displayNames: Record<string, string> = {
   chest: "Pectoralis major", frontDelts: "Anterior deltoids", sideDelts: "Middle deltoids", rearDelts: "Posterior deltoids", shoulders: "Deltoids",
   triceps: "Triceps brachii", biceps: "Biceps brachii", brachialis: "Brachialis", forearms: "Forearms", abs: "Rectus abdominis", obliques: "External obliques",
   quads: "Quadriceps", glutes: "Gluteal muscles", hamstrings: "Hamstrings", calves: "Calves", tibialis: "Tibialis anterior", abductors: "Hip abductors", adductors: "Hip adductors",

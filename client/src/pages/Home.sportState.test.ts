@@ -20,10 +20,17 @@ describe("Home sport state safeguards", () => {
   it("resets weekly sport-specific drafts without rendering an obstructive sport-change toast", () => {
     expect(source).toContain('setPlanWeeks({});');
     expect(source).toContain('setActiveWeek(1);');
-	    expect(source).toContain('setCatalogQuery("");');
 	    expect(source).toContain('setCatalogFilters(defaultCatalogFilters);');
     expect(source).not.toContain('toast("Sport context updated"');
     expect(source).not.toContain("Your current workout was retained for review");
+  });
+
+  it("builds no sport session or catalog search that nothing reads", () => {
+    // A full sport session ranks the whole catalog once per movement of the
+    // sport; building one nobody renders cost every mount and settings change.
+    expect(source).not.toContain("const sessionRecommendations");
+    expect(source).not.toContain("filteredCatalog");
+    expect(source).not.toContain("searchExercises(");
   });
 
   it("routes automatic Smart Draft through the active split-filtered loadout instead of the sport-wide session list", () => {
@@ -63,7 +70,9 @@ describe("Home sport state safeguards", () => {
     // the only thing that touches a saved day.
     expect(source).toContain("const openTrainingDay = (index: number) => {");
     // Closing the chooser after a pick is disclosure state, not a save.
-    expect(source).toContain("onClick={() => { openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }}");
+    // Picking a day here is also the athlete's explicit choice of what to train next, which Home
+    // then shows (Sep 28 regression brief §4); it still saves nothing.
+    expect(source).toContain("onClick={() => { chooseDayToTrain(slot); openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }}");
     expect(source).not.toContain("const chooseTrackerDay =");
   });
 });

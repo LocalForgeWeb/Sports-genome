@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Activity, ArrowDownRight, ArrowUpRight, Check, Equal, Info, RotateCcw, TrendingUp } from "lucide-react";
 import { exercises as catalogExercises, type Exercise } from "@/lib/exerciseCatalog";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
@@ -49,27 +48,14 @@ export function ProgressionReviewSummary({ exercises, history, catalog = [], ava
   </section>;
 }
 
-export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyWeight, weightUnit, onApprove, onApproveSegment, onAddSuggestion }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; bodyWeight?: number; weightUnit?: "lb" | "kg"; onApprove?: (recommendation: ExerciseProgressionRecommendation) => void; onApproveSegment?: (signal: MuscleSegmentSignal) => void; onAddSuggestion?: (suggestion: SegmentPrioritySuggestion) => void }) {
-  const historyQuery = trpc.workoutLog.progressionHistory.useQuery(undefined, { refetchOnWindowFocus: false });
-  const storedBodyContext = useMemo(() => {
-    if (bodyWeight && bodyWeight > 0) return { bodyWeight, weightUnit };
-    if (typeof window === "undefined") return undefined;
-    try {
-      const stored = JSON.parse(window.localStorage.getItem("gym-optimizer-athlete-profile-v1") || "null");
-      const storedWeight = Number(stored?.baseline?.bodyWeight);
-      return Number.isFinite(storedWeight) && storedWeight > 0 ? { bodyWeight: storedWeight, weightUnit: stored?.baseline?.weightUnit === "kg" ? "kg" as const : "lb" as const } : undefined;
-    } catch { return undefined; }
-  }, [bodyWeight, weightUnit]);
-  const availableEquipment = useMemo(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const stored = JSON.parse(window.localStorage.getItem("gym-optimizer-athlete-profile-v1") || "null");
-      return Array.isArray(stored?.baseline?.equipment?.availableEquipment) ? stored.baseline.equipment.availableEquipment as string[] : [];
-    } catch { return []; }
-  }, []);
-  const exercises = buildProgressionExercises(workout, prescriptions, storedBodyContext?.bodyWeight, storedBodyContext?.weightUnit);
+export function ProgressionReviewPanel({ workout, prescriptions, settings, bodyWeight, weightUnit, availableEquipment, accountSession = false, onApprove, onApproveSegment, onAddSuggestion }: { workout: Exercise[]; prescriptions: Record<number, string>; settings: Record<number, ExerciseSettings>; bodyWeight?: number; weightUnit?: "lb" | "kg"; availableEquipment?: string[]; /** The history is an account's; it is asked only with a session (Sep 28 regression brief §7). */ accountSession?: boolean; onApprove?: (recommendation: ExerciseProgressionRecommendation) => void; onApproveSegment?: (signal: MuscleSegmentSignal) => void; onAddSuggestion?: (suggestion: SegmentPrioritySuggestion) => void }) {
+  const historyQuery = trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: accountSession, refetchOnWindowFocus: false });
+  // Body weight and equipment come from the caller, which reads the athlete's own
+  // profile. The bare profile key this used to read is removed once a profile moves
+  // to its account-scoped key, so it held nothing for a signed-in athlete.
+  const exercises = buildProgressionExercises(workout, prescriptions, bodyWeight, weightUnit);
   const history = (historyQuery.data || []) as LoggedPerformanceSet[];
   if (!workout.length) return null;
   if (historyQuery.isLoading) return <section className="progression-review-panel"><p className="metric-label">Progression review</p><p className="mt-2 text-xs text-[var(--sg-text-subtle-on-light)]">Loading comparable completed set history…</p></section>;
-  return <ProgressionReviewSummary exercises={exercises} history={history} catalog={catalogExercises} availableEquipment={availableEquipment} onApprove={onApprove} onApproveSegment={onApproveSegment} onAddSuggestion={onAddSuggestion} />;
+  return <ProgressionReviewSummary exercises={exercises} history={history} catalog={catalogExercises} availableEquipment={availableEquipment ?? []} onApprove={onApprove} onApproveSegment={onApproveSegment} onAddSuggestion={onAddSuggestion} />;
 }

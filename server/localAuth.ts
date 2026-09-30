@@ -1,4 +1,4 @@
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, lt } from "drizzle-orm";
 import { parse } from "cookie";
 import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "crypto";
 import type { Request, Response } from "express";
@@ -8,6 +8,7 @@ import type { User } from "../drizzle/schema";
 import { accountPasskeys, emailCredentials, localAuthChallenges, localAuthSessions, users } from "../drizzle/schema";
 import { getDb } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { isDuplicateKey } from "./workoutPlanSync";
 
 export const LOCAL_AUTH_COOKIE = "go_email_session";
 const SESSION_DAYS = 30;
@@ -35,6 +36,26 @@ function relyingParty(req: Request) {
   return { origin, rpID: new URL(origin).hostname };
 }
 
+// The library throws on a challenge, origin or shape mismatch. A rejected passkey is not a server fault,
+// so it comes back as "not verified". Only the step is logged: never the message or the response itself.
+export async function verifyPasskeyRegistration(options: Parameters<typeof verifyRegistrationResponse>[0]) {
+  try {
+    return await verifyRegistrationResponse(options);
+  } catch {
+    console.warn(JSON.stringify({ scope: "auth", event: "passkey_verification_rejected", step: "register" }));
+    return { verified: false as const };
+  }
+}
+
+export async function verifyPasskeyAuthentication(options: Parameters<typeof verifyAuthenticationResponse>[0]) {
+  try {
+    return await verifyAuthenticationResponse(options);
+  } catch {
+    console.warn(JSON.stringify({ scope: "auth", event: "passkey_verification_rejected", step: "authenticate" }));
+    return { verified: false as const };
+  }
+}
+
 async function storeChallenge(identifier: string, purpose: "register" | "authenticate", challenge: string) {
   const db = await getDb();
   if (!db) throw new Error("Account service unavailable");
@@ -57,6 +78,10 @@ async function setLocalSession(userId: number, req: Request, res: Response) {
   if (!db) throw new Error("Account service unavailable");
   const token = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
+  // Each sign-in clears this athlete's own lapsed sessions, which lookups already refuse, so the
+  // table does not keep every dead one. Best effort: a failed sweep never blocks the sign-in.
+  await db.delete(localAuthSessions).where(and(eq(localAuthSessions.userId, userId), lt(localAuthSessions.expiresAt, new Date())))
+    .catch(error => console.warn("[Auth] Expired-session sweep skipped:", error instanceof Error ? error.name : "unknown error"));
   await db.insert(localAuthSessions).values({ userId, tokenHash: hashToken(token), expiresAt, lastSeenAt: new Date() });
   res.cookie(LOCAL_AUTH_COOKIE, token, { ...getSessionCookieOptions(req), maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000 });
 }
@@ -67,15 +92,26 @@ export async function registerEmailAccount(input: { email: string; password: str
   const email = normalizeEmail(input.email);
   const openId = `email-${randomUUID()}`;
   const salt = randomBytes(16).toString("hex");
-  const result = await db.transaction(async (tx) => {
-    const existing = await tx.select({ id: emailCredentials.id }).from(emailCredentials).where(eq(emailCredentials.email, email)).limit(1);
-    if (existing.length) return { ok: false as const, code: "EMAIL_EXISTS" as const };
-    await tx.insert(users).values({ openId, email, name: publicName(email), loginMethod: "email", lastSignedIn: new Date() });
-    const user = (await tx.select().from(users).where(eq(users.openId, openId)).limit(1))[0];
-    if (!user) throw new Error("Could not create account");
-    await tx.insert(emailCredentials).values({ userId: user.id, email, passwordHash: passwordHash(input.password, salt), passwordSalt: salt });
-    return { ok: true as const, user };
-  });
+  // Hashed before the transaction opens, so no pooled connection or row lock waits on scrypt.
+  const hash = passwordHash(input.password, salt);
+  let result;
+  try {
+    result = await db.transaction(async (tx) => {
+      const existing = await tx.select({ id: emailCredentials.id }).from(emailCredentials).where(eq(emailCredentials.email, email)).limit(1);
+      if (existing.length) return { ok: false as const, code: "EMAIL_EXISTS" as const };
+      await tx.insert(users).values({ openId, email, name: publicName(email), loginMethod: "email", lastSignedIn: new Date() });
+      const user = (await tx.select().from(users).where(eq(users.openId, openId)).limit(1))[0];
+      if (!user) throw new Error("Could not create account");
+      await tx.insert(emailCredentials).values({ userId: user.id, email, passwordHash: hash, passwordSalt: salt });
+      return { ok: true as const, user };
+    });
+  } catch (error) {
+    // Two registrations for one email at once: the check above does not lock, so the unique
+    // index lets one in. The other is the same "already used" answer, not a server fault, and
+    // the rollback takes its half-made user row with it.
+    if (isDuplicateKey(error)) return { ok: false as const, code: "EMAIL_EXISTS" as const };
+    throw error;
+  }
   if (!result.ok) return result;
   const user = result.user;
   await setLocalSession(user.id, req, res);
@@ -134,7 +170,7 @@ export async function finishPasskeyRegistration(user: User, response: unknown, r
   const challenge = await consumeChallenge(String(user.id), "register");
   if (!challenge) return { ok: false as const, code: "EXPIRED_CHALLENGE" as const };
   const { origin, rpID } = relyingParty(req);
-  const verification = await verifyRegistrationResponse({ response: response as RegistrationResponseJSON, expectedChallenge: challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true });
+  const verification = await verifyPasskeyRegistration({ response: response as RegistrationResponseJSON, expectedChallenge: challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true });
   if (!verification.verified || !verification.registrationInfo) return { ok: false as const, code: "INVALID_PASSKEY" as const };
   const credential = verification.registrationInfo.credential;
   const db = await getDb();
@@ -180,7 +216,7 @@ export async function finishPasskeyAuthentication(emailInput: string, response: 
   const record = rows[0];
   if (!record) return { ok: false as const, code: "INVALID_PASSKEY" as const };
   const { origin, rpID } = relyingParty(req);
-  const verification = await verifyAuthenticationResponse({ response: response as AuthenticationResponseJSON, expectedChallenge: challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true, credential: { id: record.passkey.credentialId, publicKey: Buffer.from(record.passkey.publicKey, "base64"), counter: record.passkey.counter, transports: record.passkey.transports ? JSON.parse(record.passkey.transports) : undefined } });
+  const verification = await verifyPasskeyAuthentication({ response: response as AuthenticationResponseJSON, expectedChallenge: challenge, expectedOrigin: origin, expectedRPID: rpID, requireUserVerification: true, credential: { id: record.passkey.credentialId, publicKey: Buffer.from(record.passkey.publicKey, "base64"), counter: record.passkey.counter, transports: record.passkey.transports ? JSON.parse(record.passkey.transports) : undefined } });
   if (!verification.verified) return { ok: false as const, code: "INVALID_PASSKEY" as const };
   await db.update(accountPasskeys).set({ counter: verification.authenticationInfo.newCounter, lastUsedAt: new Date() }).where(eq(accountPasskeys.id, record.passkey.id));
   await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, record.user.id));

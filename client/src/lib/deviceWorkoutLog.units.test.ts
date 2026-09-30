@@ -102,6 +102,45 @@ describe("Storage keeps the unit", () => {
   });
 });
 
+describe("A stored history with an entry that holds nothing", () => {
+  beforeEach(() => window.localStorage.clear());
+
+  const valid = session({ id: "kept", weightUnit: "kg", exercises: squat([{ weight: "100", reps: "5", completed: true, unit: "kg" }]) });
+  const store = (history: unknown[]) => window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify(history));
+
+  it("skips the empty entries and keeps the workout next to them", () => {
+    store([null, valid, "junk", 42]);
+    const loaded = loadDeviceWorkoutSessions();
+    expect(loaded.map((item) => item.id)).toEqual(["kept"]);
+    expect(loaded[0].exercises[0].sets).toMatchObject([{ weight: "100", reps: "5", completed: true, unit: "kg" }]);
+  });
+
+  it("skips an empty exercise or set inside a workout, keeping the rest", () => {
+    const [exercise] = squat([{ weight: "100", reps: "5", completed: true, unit: "kg" }]);
+    store([{ ...valid, exercises: [null, { ...exercise, sets: [null, ...exercise.sets] }] }]);
+    const [loaded] = loadDeviceWorkoutSessions();
+    expect(loaded.exercises).toHaveLength(1);
+    expect(loaded.exercises[0].sets).toHaveLength(1);
+    expect(loaded.exercises[0].sets[0].weight).toBe("100");
+  });
+
+  it("keeps the earlier workouts when the next checkpoint is saved", () => {
+    store([null, valid, "junk", 42]);
+    const next = session({ id: "new", status: "active", completedAt: undefined, exercises: squat([]) });
+    saveDeviceWorkoutSessions([next, ...loadDeviceWorkoutSessions()]);
+    const stored = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!) as { id: string }[];
+    expect(stored.map((item) => item.id)).toEqual(["new", "kept"]);
+  });
+
+  it("keeps a workout whose status it does not know, so a save cannot erase it", () => {
+    store([{ ...valid, id: "odd", status: "bogus" }]);
+    const loaded = loadDeviceWorkoutSessions();
+    expect(loaded.map((item) => item.id)).toEqual(["odd"]);
+    saveDeviceWorkoutSessions(loaded);
+    expect(loadDeviceWorkoutSessions().map((item) => [item.id, item.status])).toEqual([["odd", "bogus"]]);
+  });
+});
+
 describe("The tracker offers last time's weight in this session's unit", () => {
   it("converts a set logged in lb when today's session records in kg", () => {
     const history = [session({ weightUnit: "lb", exercises: squat([{ weight: "225", reps: "5", completed: true, unit: "lb" }]) })];

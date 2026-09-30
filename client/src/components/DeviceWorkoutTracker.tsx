@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronRight, Play, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2 } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import type { ExerciseSettings, TrainingGoal } from "@/lib/workoutPlanner";
+import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { WarmupPanel } from "@/components/WarmupPanel";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession,
-  deviceWorkoutHistoryKey, isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
+  deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
   unskipExercise, type DeviceWorkoutSession,
 } from "@/lib/deviceWorkoutLog";
+import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setEntryFieldsFor, type SetEntryMeasure } from "@/lib/setEntryFields";
@@ -15,6 +16,7 @@ import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 import { toast } from "sonner";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { decimalEntryText } from "@/lib/numericEntry";
 
 /**
  * The live execution surface, governed by four adopted philosophy contracts:
@@ -41,16 +43,6 @@ import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 
 const DEFAULT_REST_SECONDS = 90;
 const REST_STEP_SECONDS = 15;
-
-/**
- * The planner can write a target per set ("4 × 10/8/6/6"), so the count comes
- * from the same reader the editor writes with rather than the leading number:
- * a hand edit that leaves the two disagreeing should give the athlete the sets
- * that were actually written down.
- */
-function plannedSetCount(prescription: string) {
-  return renderableSetCount(prescription);
-}
 
 /**
  * "90 sec", "2 min", "120s": a rest setting from the plan, in seconds. Null when
@@ -82,7 +74,7 @@ function plannedRestSeconds(workout: Exercise[], settings: Record<number, Exerci
   return best;
 }
 
-function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string, restSeconds: number, weightUnit: DisplayWeightUnit): DeviceWorkoutSession {
+function makeSession(workout: Exercise[], prescriptions: Record<number, string>, dayLabel: string, restSeconds: number, weightUnit: DisplayWeightUnit, goal: TrainingGoal): DeviceWorkoutSession {
   return {
     id: `device-${Date.now()}`,
     title: `${dayLabel} workout`,
@@ -93,12 +85,13 @@ function makeSession(workout: Exercise[], prescriptions: Record<number, string>,
     // Fixed for the life of the session: what the boxes say, and what every set is stored in.
     weightUnit,
     exercises: workout.map((exercise, index) => {
-      const plannedPrescription = prescriptions[exercise.id] || "3 × 8–12";
+      // The goal's default for this place in the day, the same one the Plan shows (TR-05).
+      const plannedPrescription = prescriptions[exercise.id] || getGoalPrescription(goal, index);
       return {
         id: `${exercise.id}-${index}`,
         exerciseName: exercise.name,
         plannedPrescription,
-        sets: Array.from({ length: plannedSetCount(plannedPrescription) }, () => ({ weight: "", reps: "", completed: false })),
+        sets: Array.from({ length: renderableSetCount(plannedPrescription) }, () => ({ weight: "", reps: "", completed: false })),
       };
     }),
   };
@@ -115,9 +108,7 @@ type EntryField = SetEntryMeasure | "reps";
 
 function sanitiseEntry(field: EntryField, value: string) {
   if (field === "reps") return value.replace(/[^0-9]/g, "").slice(0, 4);
-  const digitsAndDot = value.replace(/[^0-9.]/g, "");
-  const [whole, ...rest] = digitsAndDot.split(".");
-  return (rest.length ? `${whole}.${rest.join("").slice(0, 2)}` : whole).slice(0, 7);
+  return decimalEntryText(value).slice(0, 7);
 }
 
 /** True when a target is a bare count or range, so the word "reps" belongs after it. */
@@ -282,6 +273,16 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const resting = Boolean(restEndsAt && restRemaining > 0);
   const restComplete = Boolean(restEndsAt && restRemaining === 0);
 
+  /**
+   * `now` only ticks while resting, so it is stale whenever a rest starts or
+   * moves: a set logged minutes after the last rest ended showed the gap added
+   * to the clock, and +15s on a finished rest briefly read "Resting". Resync
+   * before paint, whether the rest came from this tab, another one or a resume.
+   */
+  useLayoutEffect(() => {
+    if (restEndsAt) setNow(Date.now());
+  }, [restEndsAt]);
+
   useEffect(() => {
     if (!resting) return;
     const tick = window.setInterval(() => setNow(Date.now()), 1000);
@@ -326,6 +327,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     if (!current) return;
     const latest = loadDeviceWorkoutSessions().find((session) => session.id === current.id);
     if (latest && latest.status !== "active") {
+      setHistory(loadDeviceWorkoutSessions());
       setActiveSession(null);
       setResumed(false);
       toast("This workout was closed in another tab", { id: "session-closed-elsewhere", description: "It was finished there, and its record is saved." });
@@ -350,7 +352,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         return;
       }
       setResumed(false);
-      persist(makeSession(workout, prescriptions, dayLabel, startRestSeconds, weightUnit));
+      persist(makeSession(workout, prescriptions, dayLabel, startRestSeconds, weightUnit, goal));
     } finally {
       starting.current = false;
     }
@@ -390,6 +392,18 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             completed: true,
           }) }),
     }));
+  };
+
+  /** The keyboard's return key does what its label says: Next moves to the following box, Done on the last box logs the set. */
+  const onEntryKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    const inputs = Array.from(event.currentTarget.closest(".live-set-entry")?.querySelectorAll("input") ?? []);
+    const next = inputs[inputs.indexOf(event.currentTarget) + 1];
+    if (next) { next.focus(); return; }
+    if (event.repeat) return; // a held key must not log several sets
+    event.currentTarget.blur(); // close the keyboard so the rest row is visible
+    completeActiveSet();
   };
 
   /**
@@ -436,6 +450,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     // Finish what is stored now, which includes sets logged in another tab.
     const latest = loadDeviceWorkoutSessions().find((item) => item.id === current.id);
     if (latest && latest.status !== "active") {
+      setHistory(loadDeviceWorkoutSessions());
       setActiveSession(null);
       setResumed(false);
       toast("This workout was already finished", { id: "session-closed-elsewhere", description: "It was finished in another tab, and its record is saved." });
@@ -539,7 +554,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   ), [activeSession]);
 
   if (!activeSession) {
-    const plannedSets = workout.reduce((total, exercise) => total + plannedSetCount(prescriptions[exercise.id] || "3 × 8–12"), 0);
+    const plannedSets = workout.reduce((total, exercise, index) => total + renderableSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)), 0);
     /**
      * "Week 2 · Day 02 · Pull": the day's name is the title of this screen and
      * its position in the plan is the line under it. The label is kept whole on
@@ -549,6 +564,21 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const dayName = labelParts[labelParts.length - 1] || dayLabel;
     const dayPosition = labelParts.slice(0, -1).join(" · ");
     const planned = workout.length > 0;
+    /**
+     * The day's latest finished workout this week, by the rule Home's week strip
+     * reads (trainingStateByDayLabel): the same label, at least one completed set,
+     * finished since Monday. The finish toast fades; this line stays, so the
+     * screen still says the day was trained and where its record lives.
+     */
+    const weekStart = startOfTrainingWeek(new Date());
+    const trained = history
+      .map((session) => ({ session, at: new Date(session.completedAt ?? session.startedAt) }))
+      .filter(({ session, at }) => session.dayLabel === dayLabel && isCompletedWorkout(session) && at >= weekStart)
+      .sort((a, b) => b.at.getTime() - a.at.getTime())[0] ?? null;
+    const trainedSets = trained ? trained.session.exercises.flatMap((exercise) => exercise.sets).filter(isCompletedSet).length : 0;
+    const trainedWhen = trained && trained.at.toDateString() === new Date().toDateString()
+      ? "today"
+      : trained?.at.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
     /**
      * Prestart, and nothing else. What the athlete is about to do, stated once:
      * the day, where it sits in the plan, how much it is, and one action. The
@@ -569,6 +599,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         <p className="session-prestart-counts">{planned
           ? `${workout.length} ${workout.length === 1 ? "exercise" : "exercises"} · ${plannedSets} ${plannedSets === 1 ? "set" : "sets"}`
           : "Nothing planned for this day yet"}</p>
+        {trained && <p className="session-prestart-done" role="status">
+          <Check className="h-4 w-4" aria-hidden /> Done {trainedWhen} · {trainedSets} {trainedSets === 1 ? "set" : "sets"} recorded
+          {onOpenProgress && <button type="button" className="session-prestart-edit" onClick={onOpenProgress}>View record <ArrowRight className="h-4 w-4" aria-hidden /></button>}
+        </p>}
         <div className="session-prestart-actions">
           <button type="button" className="session-prestart-start" onClick={start} disabled={!planned}><Play className="h-4 w-4" aria-hidden /> Start workout <ArrowRight className="h-4 w-4" aria-hidden /></button>
           {onEditInPlan && <button type="button" className="session-prestart-edit" onClick={onEditInPlan}>{planned ? "Edit in Plan" : "Build it in Plan"} <ArrowRight className="h-4 w-4" aria-hidden /></button>}
@@ -584,13 +618,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
               <span className="session-prestart-index">{String(index + 1).padStart(2, "0")}</span>
               <span className="session-prestart-name">
                 <strong>{exercise.name}</strong>
-                <small>{prescriptions[exercise.id] || "3 × 8–12"}</small>
+                <small>{prescriptions[exercise.id] || getGoalPrescription(goal, index)}</small>
               </span>
               {onInspect && <ChevronRight className="h-5 w-5" aria-hidden />}
             </>;
             return <li key={exercise.id}>
               {onInspect
-                ? <button type="button" className="session-prestart-row" onClick={() => onInspect(exercise)} aria-label={`${exercise.name}, ${prescriptions[exercise.id] || "3 × 8–12"}: open details`}>{row}</button>
+                ? <button type="button" className="session-prestart-row" onClick={() => onInspect(exercise)} aria-label={`${exercise.name}, ${prescriptions[exercise.id] || getGoalPrescription(goal, index)}: open details`}>{row}</button>
                 : <div className="session-prestart-row">{row}</div>}
             </li>;
           })}
@@ -663,6 +697,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       {drafts ? `, and ${drafts} ${drafts === 1 ? "set was" : "sets were"} typed but never logged — check ${drafts === 1 ? "it" : "them"} before you finish.` : "."}
     </p>}
 
+    {/* Where the athlete now stands, said once per move. It sits outside the card so it
+        stays mounted when the card swaps for the done card: that swap unmounts the
+        focused Log button, and a live region mounted with its text is often not read. */}
+    <p className="sr-only" role="status">{activeExercise && activeSet && position ? `${activeExercise.exerciseName}, set ${position.setIndex + 1} of ${activeExercise.sets.length}` : "Every planned set is logged."}</p>
+
     {activeExercise && activeSet && position ? <div className="live-set-card">
       <p className="metric-label">Now · exercise {position.exerciseIndex + 1} of {activeSession.exercises.length}</p>
       <h4>{activeExercise.exerciseName}</h4>
@@ -685,13 +724,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         {activeEntryFields.map((field) => <label key={field.measure}>
           <span>{field.label}</span>
           <input value={shownEntries[field.measure]} inputMode="decimal" type="text" autoComplete="off" enterKeyHint="next" data-carried={isCarried(field.measure) ? "" : undefined}
-            onChange={(event) => editEntry(field.measure, event.target.value)} placeholder="—" />
+            onChange={(event) => editEntry(field.measure, event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
           <em>{field.unit}</em>
         </label>)}
         <label>
           <span>Reps</span>
           <input value={shownEntries.reps} inputMode="numeric" type="text" autoComplete="off" enterKeyHint="done" data-carried={isCarried("reps") ? "" : undefined}
-            onChange={(event) => editEntry("reps", event.target.value)} placeholder="—" />
+            onChange={(event) => editEntry("reps", event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
         </label>
       </div>
       <button type="button" className="live-set-commit" onClick={completeActiveSet}>

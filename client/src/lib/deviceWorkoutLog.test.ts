@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, countSkippedSets,
-  finalizeSession, isDraftSet, isExerciseSkipped, lastCompletedSetFor, skipExercise, unskipExercise,
+  finalizeSession, isDraftSet, isExerciseSkipped, lastCompletedSetFor, removeDeviceWorkoutSession, skipExercise, unskipExercise,
   type DeviceWorkoutSession,
 } from "./deviceWorkoutLog";
 
@@ -204,5 +204,24 @@ describe("skipping an exercise", () => {
     const partly = { ...session().exercises[0], sets: session().exercises[0].sets.map((set, index) => index === 3 ? { ...set, skipped: true } : set) };
     expect(isExerciseSkipped(partly)).toBe(false);
     expect(isExerciseSkipped(skipExercise(session(), 1).exercises[1])).toBe(true);
+  });
+});
+
+describe("taking back a finished workout", () => {
+  const finished = (id: string) => session({ id, status: "completed", completedAt: "2026-09-01T11:00:00.000Z" });
+
+  it("removes only the finished session it names, and keeps the rest in order", () => {
+    const sessions = [finished("a"), finished("b"), finished("c")];
+    expect(removeDeviceWorkoutSession(sessions, "b").map((item) => item.id)).toEqual(["a", "c"]);
+  });
+
+  it("changes nothing for an id it does not hold", () => {
+    const sessions = [finished("a"), finished("b")];
+    expect(removeDeviceWorkoutSession(sessions, "missing")).toEqual(sessions);
+  });
+
+  it("never removes the workout that is still running", () => {
+    const sessions = [finished("a"), session({ id: "live", status: "active" })];
+    expect(removeDeviceWorkoutSession(sessions, "live").map((item) => item.id)).toEqual(["a", "live"]);
   });
 });

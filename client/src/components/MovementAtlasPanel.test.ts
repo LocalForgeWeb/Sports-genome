@@ -1,3 +1,4 @@
+import { movementDisplayLabel } from "@/lib/movementLabel";
 import React, { createElement } from "react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -27,7 +28,7 @@ describe("Movement Atlas database interaction", () => {
   });
   it("renders compact sport controls, full-row action selection, the retained analysis fields, and the Body Lab handoff", () => {
     const markup = renderToStaticMarkup(createElement(MovementAtlasPanel, { sportName: "Track & Field", sportId: "track-and-field", sports: sportProfiles, movements: track, selectedMovement: selected, query: "sprint", family: "All", onQuery: vi.fn(), onFamily: vi.fn(), onSport: vi.fn(), onMovement: vi.fn(), onOpenBody: vi.fn() }));
-    expect(markup).toContain("Choose sport"); expect(markup).toContain("General profile"); expect(markup).toContain("movements"); expect(markup).toContain(selected.label); expect(markup).toContain("Physiological demand"); expect(markup).toContain("Programming context"); expect(markup).toContain("Explore involved muscles");
+    expect(markup).toContain("Choose sport"); expect(markup).toContain("General profile"); expect(markup).toContain("movements"); expect(markup).toContain(movementDisplayLabel(selected.label)); expect(markup).toContain("Physiological demand"); expect(markup).toContain("Programming context"); expect(markup).toContain("Explore involved muscles");
   });
   it("keeps qualitative evidence language and deliberate visual press feedback without ranking or activation claims", () => {
     expect(source).toContain("not direct activation readings"); expect(source).toContain('emitInteractionFeedback(); onMovement(movement);'); expect(styles).toContain('.atlas-action-item:active'); expect(styles).toContain('transform: scale(.97);');

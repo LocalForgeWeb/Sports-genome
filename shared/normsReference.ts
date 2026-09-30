@@ -156,10 +156,17 @@ function requiredRepetitions(row: NormsReferenceRow): number | null {
   return match ? Number(match[1]) : null;
 }
 
-function kgToUnit(valueKg: number, unit: string): number | null {
-  if (unit === "kg") return valueKg;
-  if (unit === "lb") return valueKg / KG_PER_LB;
-  return null;
+/**
+ * Expresses a kilogram load in a reference's unit. A unit may carry its protocol as
+ * well as its scale - the female Piper 10RM rows are `lb_10rm` where the male rows are
+ * `lb` (EN-14) - and that suffix has to agree with the repetition count the row is
+ * compared at; a `lb_1rm` unit on a 10RM table is declined, not converted.
+ */
+function kgToUnit(valueKg: number, unit: string, reps: number): number | null {
+  const match = /^(kg|lb)(?:_(\d+)rm)?$/.exec(unit);
+  if (!match) return null;
+  if (match[2] !== undefined && Number(match[2]) !== reps) return null;
+  return match[1] === "kg" ? valueKg : valueKg / KG_PER_LB;
 }
 
 function withinInclusive(value: number, min: number | null, max: number | null): boolean {
@@ -233,7 +240,7 @@ function observedValueInReferenceUnit(
     return { value: loadKg / bodyMassKg };
   }
 
-  const converted = kgToUnit(loadKg, row.unit);
+  const converted = kgToUnit(loadKg, row.unit, reps);
   // An unrecognised unit is not a silent pass-through: the reference is simply
   // not usable for this observation.
   if (converted === null) return { reason: "unsupported_measurement_protocol" };

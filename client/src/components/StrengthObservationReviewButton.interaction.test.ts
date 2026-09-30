@@ -21,4 +21,10 @@ describe("Strength observation Review action", () => {
     expect(feedback.emit).toHaveBeenCalledTimes(1);
     expect(onReview).toHaveBeenCalledWith(observation);
   });
+
+  it("keeps the visible name and points its description at the lift it opens", () => {
+    const observation = { id: "local-1", exerciseName: "Preacher Curl", observedAt: "2026-08-28T12:00:00.000Z", measurementType: "MULTI_REP", loadKg: 36, repetitions: 10 };
+    render(React.createElement(StrengthObservationReviewButton, { observation, onReview: vi.fn(), describedBy: "x" }));
+    expect(screen.getByRole("button", { name: "Review" }).getAttribute("aria-describedby")).toBe("x");
+  });
 });

@@ -55,7 +55,7 @@ There are 47 procedures in `server/routers.ts`. None is owner- or admin-only. Th
 
 | Procedure (routers.ts line) | Access | Input validation | Tables read/written | Scoped to ctx.user.id? Child-parent check | Idempotency / retry / conflict | Cost / notes |
 |---|---|---|---|---|---|---|
-| `auth.me` (100) | public | — | none (returns `ctx.user`, the full `users` row) | Returns only the caller's row | n/a | Stored in `localStorage["sports-genome-user-info"]` (`useAuth.ts:43`) |
+| `auth.me` (100) | public | — | none (returns `ctx.user`, the full `users` row) | Returns only the caller's row | n/a | — |
 | `auth.register` (101-110) | public | email ≤320; password 12–200 | R `emailCredentials`; W `users`, `emailCredentials`, `localAuthSessions` (in a transaction, except the session insert) | n/a | Returns `EMAIL_EXISTS`, which enumerates accounts. Concurrent same-email registration hits the unique index and returns 500 whose message contains the insert params (password hash and salt). HYPOTHESIS, via the SV-01 mechanism. | scrypt per call; no email verification; no rate limit |
 | `auth.signIn` (111-120) | public | email ≤320; password 1–200 | R `emailCredentials` ⋈ `users`; W `emailCredentials.failedAttempts/lockedUntil`, `users.lastSignedIn`, `localAuthSessions` | n/a | Any caller can lock any email for 15 min by failing five times. `TEMPORARILY_LOCKED` only appears for existing emails. | scrypt per call; unthrottled |
 | `auth.passkeyRegistrationOptions` (121) | protected | none | R `accountPasskeys`; W `localAuthChallenges` | yes | Replaces the previous challenge | No input parser, so a cross-site multipart POST is accepted (see SV-10) |

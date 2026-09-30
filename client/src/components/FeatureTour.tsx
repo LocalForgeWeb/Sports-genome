@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Activity, ArrowLeft, ArrowRight, Dumbbell, Home, LineChart, X } from "lucide-react";
+import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 
 /**
  * First-run guide.
@@ -55,12 +56,48 @@ export function FeatureTour({ onClose, onNavigate }: { onClose: () => void; onNa
   const Icon = current.icon;
   const isLast = step === steps.length - 1;
   const openCurrent = () => { onNavigate(current.view); onClose(); };
+  const layerRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLElement>(null);
+  // Home passes a fresh onClose on every render; reading it through a ref keeps
+  // the effect below from re-running and pulling focus back to Close each time.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
-  return <div className="feature-tour-layer" role="dialog" aria-modal="true" aria-labelledby="feature-tour-title">
-    <section className="feature-tour-card">
-      <button onClick={onClose} className="feature-tour-close" aria-label="Close guide"><X className="h-4 w-4" /></button>
+  // Focus moves into the guide, Escape closes it, Tab stays inside it, and focus
+  // goes back to whatever opened it - the way every other layer over the app behaves.
+  useEffect(() => {
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeRef.current?.focus({ preventScroll: true });
+    const onKey = (event: KeyboardEvent) => {
+      // A layer opened over the guide, such as search, handles its own keys.
+      if (isKeyForAnotherLayer(event, layerRef.current)) return;
+      if (event.key === "Escape") { event.stopPropagation(); onCloseRef.current(); return; }
+      if (event.key !== "Tab" || !cardRef.current) return;
+      const buttons = Array.from(cardRef.current.querySelectorAll<HTMLElement>("button"));
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+      // Also covers focus dropping to the page when Next or Back unmounts under it.
+      if (!(active instanceof Node) || !cardRef.current.contains(active)) { event.preventDefault(); first.focus(); }
+      else if (event.shiftKey && active === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+    };
+    // The opener belongs to this one presentation of the guide.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      <div className="feature-tour-icon"><Icon className="h-6 w-6" /></div>
+  return <div ref={layerRef} className="feature-tour-layer" role="dialog" aria-modal="true" aria-labelledby="feature-tour-title">
+    <section ref={cardRef} className="feature-tour-card">
+      <button ref={closeRef} type="button" onClick={onClose} className="feature-tour-close" aria-label="Close guide"><X className="h-4 w-4" aria-hidden="true" /></button>
+
+      <div className="feature-tour-icon"><Icon className="h-6 w-6" aria-hidden="true" /></div>
       <p className="metric-label">{current.tab} tab · {step + 1} of {steps.length}</p>
       <h2 id="feature-tour-title">{current.title}</h2>
       <p className="feature-tour-copy">{current.copy}</p>
@@ -69,8 +106,8 @@ export function FeatureTour({ onClose, onNavigate }: { onClose: () => void; onNa
           more than three they will skim. */}
       <p className="feature-tour-task"><span>Try this</span>{current.task}</p>
 
-      <button onClick={openCurrent} className="feature-tour-open">
-        Open {current.tab} <ArrowRight className="h-4 w-4" />
+      <button type="button" onClick={openCurrent} className="feature-tour-open">
+        Open {current.tab} <ArrowRight className="h-4 w-4" aria-hidden="true" />
       </button>
 
       <div className="feature-tour-progress" aria-hidden="true">
@@ -81,13 +118,13 @@ export function FeatureTour({ onClose, onNavigate }: { onClose: () => void; onNa
       </div>
 
       <div className="feature-tour-actions">
-        <button onClick={onClose} className="feature-tour-skip">{isLast ? "Close" : "Skip guide"}</button>
+        <button type="button" onClick={onClose} className="feature-tour-skip">{isLast ? "Close" : "Skip guide"}</button>
         <div className="flex gap-2">
-          {step > 0 && <button onClick={() => setStep(value => value - 1)} className="feature-tour-back">
-            <ArrowLeft className="h-4 w-4" /> Back
+          {step > 0 && <button type="button" onClick={() => setStep(value => value - 1)} className="feature-tour-back">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
           </button>}
-          {!isLast && <button onClick={() => setStep(value => value + 1)} className="feature-tour-next">
-            Next <ArrowRight className="h-4 w-4" />
+          {!isLast && <button type="button" onClick={() => setStep(value => value + 1)} className="feature-tour-next">
+            Next <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>}
         </div>
       </div>

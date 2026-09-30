@@ -6,9 +6,11 @@ const IntroPreview = lazy(() => import("@/components/IntroPreview").then((module
 const ExerciseCompareSheet = lazy(() => import("@/components/ExerciseCompareSheet").then((module) => ({ default: module.ExerciseCompareSheet })));
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
+import { directWorkspaceAccess } from "@/lib/accountAccess";
+import { sessionNotice, useSessionLapsed } from "@/lib/sessionNotice";
+import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
+import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
-import { roleMapForLists } from "@/lib/anatomyRegions";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { UniversalSearch } from "@/components/UniversalSearch";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
@@ -31,7 +33,6 @@ import { ImportedPlanContext } from "@/components/ImportedPlanContext";
 import { ProgrammingGuidePanel } from "@/components/ProgrammingGuidePanel";
 import { WeeklyMuscleVolumePanel } from "@/components/WeeklyMuscleVolumePanel";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
-import { WorkoutExecutionPanel } from "@/components/WorkoutExecutionPanel";
 import { PROGRESSION_APPROVAL_EVENT, SEGMENT_PRIORITY_APPROVAL_EVENT, SEGMENT_SUGGESTION_APPROVAL_EVENT } from "@/components/WorkoutExecutionPanel";
 const DeviceWorkoutTracker = lazy(() => import("@/components/DeviceWorkoutTracker").then((module) => ({ default: module.DeviceWorkoutTracker })));
 const DayExercisePicker = lazy(() => import("@/components/DayExercisePicker").then((module) => ({ default: module.DayExercisePicker })));
@@ -45,7 +46,8 @@ import { DayCapacityNote } from "@/components/DayCapacityNote";
 import { RecoverySpacingPanel } from "@/components/RecoverySpacingPanel";
 import { TrainingPlanHeader } from "@/components/TrainingPlanHeader";
 import { SessionResumeBar } from "@/components/SessionResumeBar";
-import { exerciseProgressFor, trainingStateByDayLabel, useLiveSession } from "@/lib/liveSession";
+import { exerciseProgressFor, useDayTrainingStates, useLiveSession, useWorkoutLogWrites } from "@/lib/liveSession";
+import type { NextWorkoutChoice } from "@/lib/nextWorkout";
 import { capacityProposalFor } from "@/lib/capacityTargets";
 import { revealWorkspaceAnchor } from "@/lib/workspaceAnchor";
 const AthleteAboutMePanel = lazy(() => import("@/components/AthleteAboutMePanel").then((module) => ({ default: module.AthleteAboutMePanel })));
@@ -62,11 +64,12 @@ import { HierarchyPlanningDisclosure } from "@/components/HierarchyPlanningDiscl
 import { defaultEquipmentProfile, equipmentProfileSummary, filterStackForEquipment } from "@/lib/equipmentProfile";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { defaultCatalogFilters, type CatalogFilters } from "@/lib/catalogDiscovery";
-import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
-import { getExerciseActionConnection, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
+import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, isTrainingGoal, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
+import { createActionConnectionLookup, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { getBodyLabRoleContext } from "@/lib/bodyLabRoleContext";
 import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from "@/lib/sportMovementDatabase";
-import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, orderHierarchyConstructedSession, type MovementRecommendation, type RegistryEvidenceMap } from "@/lib/movementRecommendations";
+import { movementDisplayLabel } from "@/lib/movementLabel";
+import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, movementSignalLabels, muscleWords, orderHierarchyConstructedSession, type MovementRecommendation, type RegistryEvidenceMap } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions, normalizeGymMinutes } from "@/lib/gymTimeBudget";
 import { buildApprovedProgressionNote, buildApprovedSegmentPriorityNote } from "@/lib/progressiveTraining";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
@@ -81,6 +84,7 @@ import { EmailAuthScreen } from "@/components/EmailAuthScreen";
 import { SupabaseResearchLibraryPanel } from "@/components/SupabaseResearchLibraryPanel";
 import { trpc } from "@/lib/trpc";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { isLaunchExperienceEnabled, launchExperiencePreferenceKey } from "@/lib/launchExperience";
 import { buildStampLabel } from "@/lib/buildStamp";
 import { sportsGenomeAssets } from "@/lib/sportsGenomeAssets";
@@ -88,7 +92,6 @@ import type { WeeklyPrescriptionStore } from "@/lib/weeklyVolume";
 
 type Workspace = "command" | "profile" | "progress" | "recommended" | "review" | "day-plan" | "tracker" | "body" | "movement" | "catalog" | "strength";
 type Goal = TrainingGoal;
-type StackMode = "suggested" | "custom";
 type StoredAthleteProfile = { version: 1 | 2 | 3; sportId: string; sportContextMode?: SportContextMode; capacityFocus?: CapacityFocusState; goal: Goal; trainingDays: number; movementId: string; gymMinutes?: number; baseline?: AthleteBaseline };
 type StoredWorkoutEntry = { entryId: number; catalogExerciseId: number };
 type WorkoutEntry = Exercise & { catalogExerciseId?: number };
@@ -100,7 +103,7 @@ type WorkoutEntry = Exercise & { catalogExerciseId?: number };
  */
 type WeekSnapshot = { days: WeeklyDayStore; activeDayIndex: number };
 type StoredWeekSnapshot = { customWorkoutIds: number[]; weeklyPlanIds: Record<string, number[]>; customWorkoutEntries?: StoredWorkoutEntry[]; weeklyPlanEntries?: Record<string, StoredWorkoutEntry[]>; prescriptions: Record<number, string>; exerciseSettings: Record<number, ExerciseSettings>; weeklyPrescriptions?: WeeklyPrescriptionStore; weeklySettings?: Record<string, DaySettings>; importedPlanContext?: Record<string, ImportedRoutineContext[]>; activeDayIndex?: number };
-type StoredWorkoutPlan = StoredWeekSnapshot & { version: 1 | 2; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number };
+type StoredWorkoutPlan = StoredWeekSnapshot & { version: 1 | 2; weeks?: Record<string, StoredWeekSnapshot>; activeWeek?: number; nextWorkout?: NextWorkoutChoice };
 
 let duplicateEntrySequence = 0;
 const catalogExerciseIdFor = (exercise: WorkoutEntry) => exercise.catalogExerciseId || exercise.id;
@@ -130,9 +133,6 @@ export function buildGeneratedWeekSportSeed(sportId: string, goal: TrainingGoal,
 const athleteProfileKeyBase = "gym-optimizer-athlete-profile-v1";
 const workoutPlanKeyBase = "gym-optimizer-workout-plan-v1";
 const favoriteExerciseKeyBase = "gym-optimizer-favorite-exercise-ids-v1";
-// Temporary product-access switch. The email/password and passkey implementation
-// remains intact below and can be restored by setting this to false.
-const directWorkspaceAccess = true;
 const ExerciseGenomePanel = lazy(() => import("@/components/ExerciseGenomePanel").then((module) => ({ default: module.ExerciseGenomePanel })));
 const MovementAtlasPanel = lazy(() => import("@/components/MovementAtlasPanel").then((module) => ({ default: module.MovementAtlasPanel })));
 const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator").then((module) => ({ default: module.BodyLabNavigator })));
@@ -140,22 +140,6 @@ const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPa
 const CatalogExerciseEvidenceCard = lazy(() => import("@/components/CatalogExerciseEvidenceCard").then((module) => ({ default: module.CatalogExerciseEvidenceCard })));
 const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel").then((module) => ({ default: module.StrengthGenomePanel })));
 const SelectedActionConnectionCard = lazy(() => import("@/components/SelectedActionConnectionCard").then((module) => ({ default: module.SelectedActionConnectionCard })));
-
-type NavGroup = "Home" | "Train" | "Explore" | "Sport";
-const navGroups: NavGroup[] = ["Home", "Train", "Sport", "Explore"];
-const navItems: { id: Workspace; label: string; icon: typeof Target; detail: string; group: NavGroup }[] = [
-  { id: "command", label: "Home", icon: Target, detail: "plan context & next action", group: "Home" },
-  { id: "profile", label: "About Me", icon: UserRound, detail: "baseline & equipment", group: "Home" },
-  { id: "progress", label: "Progress", icon: BarChart3, detail: "training & observation record", group: "Home" },
-  { id: "day-plan", label: "Training Days", icon: Layers3, detail: "design each saved day", group: "Train" },
-  { id: "tracker", label: "Session", icon: Activity, detail: "start the day's workout and record its sets", group: "Train" },
-  { id: "recommended", label: "Matches", icon: Sparkles, detail: "exercises ranked for a sport action", group: "Train" },
-  { id: "review", label: "Review", icon: SlidersHorizontal, detail: "is this day any good", group: "Train" },
-  { id: "movement", label: "Movement Atlas", icon: Move3d, detail: `${sportMovementProfiles.length} researched sport actions`, group: "Sport" },
-  { id: "body", label: "Body Lab", icon: Activity, detail: "muscle-to-movement analysis", group: "Explore" },
-  { id: "strength", label: "Strength Genome", icon: BrainCircuit, detail: "your performance profile", group: "Home" },
-  { id: "catalog", label: "Exercise Catalog", icon: BookOpen, detail: `${exercises.length} mapped exercises`, group: "Explore" },
-];
 
 // FIXED DEFAULT per the Sports Genome philosophy's Mobile global navigation contract: four
 // persistent labeled destinations (Home / Body Lab / Train / Progress). Sport stays a
@@ -170,7 +154,7 @@ const primaryDestinations: { id: PrimaryDestination; label: string; icon: typeof
   { id: "train", label: "Train", icon: Layers3, defaultWorkspace: "day-plan" },
   { id: "progress", label: "Progress", icon: BarChart3, defaultWorkspace: "progress" },
 ];
-const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, ContextualWorkspaceTab[]> = {
+export const contextualWorkspaces: Record<Exclude<PrimaryDestination, "secondary">, ContextualWorkspaceTab[]> = {
   home: [{ id: "command", label: "Home", workspace: "command" }],
   /**
    * Four places, in the order the work happens: plan it, check it, do it, and a
@@ -216,6 +200,17 @@ export function primaryDestinationForWorkspace(workspace: Workspace): PrimaryDes
   if (contextualWorkspaces.progress.some((tab) => tab.workspace === workspace)) return "progress";
   return "home";
 }
+/**
+ * Which tab is highlighted is decided by the page on screen and nothing else.
+ * Every tab has its own workspace (Home.noRepeatedPages.test.ts enforces it), so
+ * Back, the dock and in-page links cannot leave a different tab lit.
+ */
+export function contextTabIdForWorkspace(workspace: Workspace): string | null {
+  const destination = primaryDestinationForWorkspace(workspace);
+  if (destination === "secondary") return null;
+  const tabs = contextualWorkspaces[destination];
+  return tabs.find((tab) => tab.workspace === workspace)?.id ?? tabs[0]?.id ?? null;
+}
 
 /**
  * What each place is called, once, for the browser tab and for anything that
@@ -235,24 +230,12 @@ export const workspaceTitles: Record<Workspace, string> = {
   body: "Muscle map",
   catalog: "Exercise catalog",
 };
+const workspaceIds = Object.keys(workspaceTitles) as Workspace[];
 
 export function workspaceFromLocation(value: string | null): Workspace {
   // The Genome page folded into the catalog and its overlay; old links still land.
   if (value === "genome") return "catalog";
-  return navItems.some((item) => item.id === value) ? value as Workspace : "command";
-}
-
-const goalDetail: Record<Goal, string> = {
-  Athleticism: "Explosive force, movement quality, and sport transfer.",
-  "Muscle growth": "More target-tissue work with controlled fatigue.",
-  "Max strength": "High force production, bracing, and compound-lift skill.",
-  Capacity: "Repeatable output, work tolerance, and positional control.",
-};
-
-const splitKeywords: Record<SplitDay, string[]> = { Push: ["push", "press", "fly", "dip"], Pull: ["pull", "row", "curl"], Legs: ["squat", "hinge", "lunge", "calf"], Upper: ["push", "press", "pull", "row"], Lower: ["squat", "hinge", "lunge", "deadlift", "calf"], "Full Body": ["squat", "hinge", "push", "pull", "carry"], "Sport Transfer": [] };
-
-function sportAbbrev(label: string) {
-  return label === "American football" ? "Football" : label === "Brazilian jiu-jitsu" ? "BJJ" : label === "Olympic weightlifting" ? "Weightlifting" : label;
+  return workspaceIds.includes(value as Workspace) ? value as Workspace : "command";
 }
 
 function prescriptionFor(index: number, goal: Goal) {
@@ -263,7 +246,7 @@ export function shouldRenderMetric(detail: string) {
   return detail !== "coach-set planning marker";
 }
 
-function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void; destinationLabel?: string }) {
+export function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }: { result: MovementRecommendation; index: number; onAdd: () => void; onInspect: () => void; destinationLabel?: string }) {
   const metrics = [
     ["Movement transfer", result.breakdown.movementTransferSimilarity],
     ["Muscle targeting", result.breakdown.muscleMatch],
@@ -274,34 +257,19 @@ function RecommendationRow({ result, index, onAdd, onInspect, destinationLabel }
     ["Velocity", result.breakdown.velocityMatch],
   ];
   const score = result.breakdown.overall;
+  const name = result.exercise.name;
+  // What this exercise actually shares with the action: its own signals and muscles. The
+  // trace line used the sport's qualities, the same on every row (Sep 28 regression brief §11).
+  const shared = [
+    result.matchedSignals.map((signal) => movementSignalLabels[signal]).slice(0, 3).join(", "),
+    result.matchedMuscles.map(muscleWords).slice(0, 3).join(", "),
+  ].filter(Boolean);
   /**
-   * Two numbers side by side read as one unless each says what it is. The
-   * score is the modelled match for the selected action; the stamp is the
-   * catalog's planning tier, which it names itself. Neither is a strength rank,
-   * and the stamp is not handed the score, so the two labels stay distinct.
+   * Two marks side by side, and each says what it is: the number is the match for the
+   * selected action (50-99); the stamp is the exercise's own catalog planning tier, not the
+   * match bucketed into letters. The Why panel leads with this exercise's own rationale.
    */
-  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${result.exercise.name}`}><p>{result.exercise.name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match score ${score} for ${result.exercise.name}: open details`}><strong>{score}</strong><small>match</small></button><GradeStamp grade={result.grade} compact /><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${result.exercise.name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><div className="recommendation-why-grid"><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div></div><p className="recommendation-trace"><span>Matched to</span> <strong>{result.hierarchy.movement}</strong> <span>to build</span> <strong>{result.hierarchy.physicalQualities.slice(0, 2).join(" and ").toLowerCase()}</strong></p></details></article>;
-}
-
-function Onboarding({ onComplete }: { onComplete: (profile: { goal: Goal; trainingDays: number; sportId: string; stackMode: StackMode }) => void }) {
-  const [step, setStep] = useState(0);
-  const [goal, setGoal] = useState<Goal>("Athleticism");
-  const [trainingDays, setTrainingDays] = useState(3);
-  const [sportId, setSportId] = useState("");
-  const start = (stackMode: StackMode) => onComplete({ goal, trainingDays, sportId, stackMode });
-  const tour = [
-    [Target, "Command Center", "See the sport lens, selected movement, and the training decision driving today’s work."],
-    [Move3d, "Movement Atlas", "Inspect 20 actions for each sport, including body actions, movers, stabilizers, and transfer cues."],
-    [Activity, "Body Lab", "Click muscle regions to connect a sporting action to anatomy and matching exercise support."],
-    [SlidersHorizontal, "Workout Builder", "Start with a transparent recommended stack or edit every exercise, prescription, and priority yourself."],
-  ] as const;
-
-  return <div className="pulse-shell"><div className="pulse-orb pulse-orb-one" /><div className="pulse-orb pulse-orb-two" /><header className="pulse-header"><div className="flex items-center gap-2"><img src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="pulse-brand-badge" /><span className="font-display text-2xl font-bold uppercase tracking-wide text-white">Sports Genome</span></div><div className="pulse-progress"><span>STEP {step + 1} / 4</span><div>{[0, 1, 2, 3].map((index) => <i key={index} className={index <= step ? "pulse-progress-on" : ""} />)}</div></div></header><main className="pulse-main">
-    {step === 0 && <section className="pulse-stage"><span className="pulse-kicker">Pulse Quiz / Outcome bias</span><h1>What outcome<br /><em>should we bias first?</em></h1><p className="pulse-copy">Choose the quality your next training block should prioritize. Your sport, schedule, and stack will refine the decision next.</p><div className="pulse-option-grid">{(["Athleticism", "Muscle growth", "Max strength", "Capacity"] as Goal[]).map((item, index) => <button key={item} onClick={() => setGoal(item)} className={`pulse-option ${goal === item ? "pulse-option-selected" : ""}`}><span className="pulse-option-index">0{index + 1}</span><span><strong>{item}</strong><small>{goalDetail[item]}</small></span><span className="pulse-check">{goal === item ? "✓" : ""}</span></button>)}</div><button onClick={() => setStep(1)} className="pulse-next">Set training priority <ArrowUpRight className="h-4 w-4" /></button></section>}
-    {step === 1 && <section className="pulse-stage"><span className="pulse-kicker">Sport context</span><h1>Where do you<br /><em>want to perform?</em></h1><p className="pulse-copy">Choose a sport to load its researched movement demands. Nothing is selected until you choose it.</p><div className="pulse-sport-grid">{sportProfiles.map((profile, index) => <button key={profile.id} onClick={() => setSportId(profile.id)} className={`pulse-sport ${sportId === profile.id ? "pulse-sport-selected" : ""}`}><span>{String(index + 1).padStart(2, "0")}</span><strong>{sportAbbrev(profile.label)}</strong><small>{profile.movementFamilies.length} movement families</small></button>)}</div><div className="pulse-actions"><button onClick={() => setStep(0)} className="pulse-back">Back</button><button disabled={!sportId} onClick={() => setStep(2)} className="pulse-next">Continue <ArrowUpRight className="h-4 w-4" /></button></div></section>}
-    {step === 2 && <section className="pulse-stage"><span className="pulse-kicker">Real-world schedule</span><h1>How many days<br /><em>can you show up?</em></h1><p className="pulse-copy">We will shape the plan to the week you can actually sustain.</p><div className="pulse-frequency-grid">{[[1, "One full-body priority"], [2, "Keep it sharp"], [3, "Build momentum"], [4, "Push progress"], [5, "Train often"], [6, "High exposure"], [7, "Daily practice"]].map(([days, detail]) => <button key={days} onClick={() => setTrainingDays(days as number)} className={`pulse-frequency ${trainingDays === days ? "pulse-frequency-selected" : ""}`}><strong>{days}</strong><span>days / week</span><small>{detail}</small></button>)}</div><div className="pulse-actions"><button onClick={() => setStep(1)} className="pulse-back">Back</button><button onClick={() => setStep(3)} className="pulse-next">Choose my start <ArrowUpRight className="h-4 w-4" /></button></div></section>}
-    {step === 3 && <section className="pulse-stage"><span className="pulse-kicker">Choose your start</span><h1>Your plan is<br /><em>ready to take shape.</em></h1><div className="pulse-plan-summary"><span>{sportProfiles.find((profile) => profile.id === sportId)?.label}</span><i /> <span>{goal}</span><i /> <span>{plural(trainingDays, "day")}/week</span></div><div className="pulse-start-grid"><button onClick={() => start("suggested")} className="pulse-start pulse-start-primary"><Sparkles className="h-7 w-7" /><strong>Make my<br />suggested stack</strong><small>Start with a sport-aware plan, then edit every part of it.</small><span>Build my plan <ArrowUpRight className="h-4 w-4" /></span></button><button onClick={() => start("custom")} className="pulse-start"><SlidersHorizontal className="h-7 w-7" /><strong>Start<br />from scratch</strong><small>Open a blank builder and shape the session yourself.</small><span>Open builder <ArrowUpRight className="h-4 w-4" /></span></button></div><button onClick={() => setStep(2)} className="pulse-back mt-7">Back</button></section>}
-  </main></div>;
+  return <article className="recommendation-row"><div className="recommendation-row-main"><span className="recommendation-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><button type="button" onClick={onInspect} className="recommendation-copy" aria-label={`Inspect ${name}`}><p>{name}{result.registryEvidence && <span className="recommendation-registry" title={result.registryEvidence.rationale ?? "Reviewed Sports Genome research-registry recommendation"}>Registry-verified</span>}</p><small>{result.preparation}</small></button><button type="button" onClick={onInspect} className="recommendation-score" aria-label={`Match ${score} of 99 for ${name}: open details`}><strong>{score}</strong><small>match</small></button><GradeStamp grade={result.exercise.muscleGrade} compact /><button type="button" onClick={onAdd} className="recommendation-add" aria-label={`Add ${name} to ${destinationLabel ?? "the training day"}`}><Plus className="h-5 w-5" /></button></div><details className="recommendation-why"><summary aria-label={`Why ${name} matches`}>Why this match?<ChevronDown className="h-3.5 w-3.5" aria-hidden="true" /></summary><p className="recommendation-rationale">{result.rationale}</p>{shared.length > 0 && <p className="recommendation-trace"><span>Shares</span> <strong>{shared.join("; ")}</strong> <span>with {movementDisplayLabel(result.hierarchy.movement).toLowerCase()}</span></p>}<div className="recommendation-why-grid"><div className="recommendation-evidence"><div><p>Strengths</p>{result.breakdown.strengths.map((item) => <span key={item}>+ {item}</span>)}</div><div><p>Limits</p>{result.breakdown.limitations.map((item) => <span key={item}>− {item}</span>)}</div></div><div className="recommendation-facets"><p>Profile facets <small>not inputs to the match number</small></p><div className="recommendation-score-grid">{metrics.map(([label, value]) => <div key={String(label)}><small>{label}</small><strong>{value}</strong></div>)}</div></div></div></details></article>;
 }
 
 export default function Home() {
@@ -316,11 +284,12 @@ export default function Home() {
   /** Which account's plan is currently in memory, so the writer cannot cross accounts. */
   const hydratedPlanKeyRef = useRef<string | null>(null);
   const accountId = user?.id ?? null;
+  // Set from a refused call while signed in until auth.me answers with a user again.
+  const sessionLapsed = useSessionLapsed();
+  const [accountFocusRequest, setAccountFocusRequest] = useState(0);
   const athleteProfileKey = scopedKey(athleteProfileKeyBase, accountId);
   const workoutPlanKey = scopedKey(workoutPlanKeyBase, accountId);
   const favoriteExerciseKey = scopedKey(favoriteExerciseKeyBase, accountId);
-
-  const startLogin = () => toast.error("Please sign in with your Sports Genome email account.");
 
   const [workspace, setWorkspaceState] = useState<Workspace>(() => typeof window === "undefined" ? "command" : workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
   const dockTouchNavigationRef = useRef<{ destination: Workspace; timestamp: number } | null>(null);
@@ -339,7 +308,6 @@ export default function Home() {
   const [activeMuscle, setActiveMuscle] = useState<string | null>(null);
   const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [catalogQuery, setCatalogQuery] = useState("");
   const [catalogFilters, setCatalogFilters] = useState<CatalogFilters>(defaultCatalogFilters);
   const [localFavoriteIds, setLocalFavoriteIds] = useState<number[]>([]);
   const [atlasQuery, setAtlasQuery] = useState("");
@@ -359,6 +327,12 @@ export default function Home() {
   const [dayStore, setDayStore] = useState<WeeklyDayStore>(emptyDayStore);
   const [planWeeks, setPlanWeeks] = useState<Record<number, WeekSnapshot>>({});
   const [activeWeek, setActiveWeek] = useState(1);
+  /**
+   * An explicit choice to train a day (the tracker's Change day, or opening a day's workout from
+   * Plan or Review). It is the only thing besides the plan and this week's finished sessions that
+   * decides Home's next workout; browsing Plan's days and weeks does not (nextWorkout.ts).
+   */
+  const [trainChoice, setTrainChoice] = useState<NextWorkoutChoice | null>(null);
   const [profileHydrated, setProfileHydrated] = useState(false);
   const [planHydrated, setPlanHydrated] = useState(false);
   const [activeSplitDay, setActiveSplitDay] = useState<SplitDay>("Sport Transfer");
@@ -372,6 +346,17 @@ export default function Home() {
    * what has been done.
    */
   const liveSession = useLiveSession();
+  /**
+   * The log the plan rows read their progress from, parsed once per save to the
+   * log rather than once per row per render. It is keyed on the saves themselves,
+   * not on `liveSession`: the summary keeps its identity through a save that
+   * changes nothing it shows (a weight typed into a set), so keyed on the summary
+   * the rows would keep the log from before that save. The saves are counted only
+   * while the rows are on screen with a workout running; the tracker saves on
+   * every keystroke, and each count renders all of Home.
+   */
+  const workoutLogWrites = useWorkoutLogWrites(Boolean(liveSession) && workspace === "day-plan");
+  const liveWorkoutLog = useMemo(() => (workoutLogWrites === null ? [] : loadDeviceWorkoutSessions()), [workoutLogWrites]);
   /** Whether Home's own resume module is on screen; the strip yields to it while it is. */
   const [homeResumeVisible, setHomeResumeVisible] = useState(true);
   useEffect(() => {
@@ -383,19 +368,23 @@ export default function Home() {
     return () => observer.disconnect();
   }, [workspace, liveSession?.id]);
   /**
-   * Which days of this week have been trained. Recomputed whenever the live
-   * session changes, which is every checkpoint the tracker writes.
+   * Which days of this week have been trained. Read from the workout log on
+   * every write to it, so a workout removed from Progress stops counting here too.
    */
-  const dayTrainingStates = useMemo(() => trainingStateByDayLabel(), [liveSession]);
+  // Running now, or finished this calendar week, by plan slot, read from the log on every
+  // write: the rule Home's strip reads.
+  const dayTrainingStates = useDayTrainingStates();
   /** Home's schematic and week strip, bound to the selected day and the plan's own days. */
-  const homeFocusMuscles = useMemo(() => Array.from(new Set(customWorkout.flatMap((exercise) => exercise.primaryMuscles))), [customWorkout]);
   // "Add exercises" opens a sheet over the day rather than scrolling the page to a panel.
   const [pickerSheetOpen, setPickerSheetOpen] = useState(false);
   // Reorder is a mode for the whole list, not twelve arrow boxes beside six rows.
   const [reorderingDay, setReorderingDay] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
-  const [activeContextTab, setActiveContextTab] = useState<string | null>(null);
   const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string } | null>(null);
+  // Set while the exercise overlay closes itself through history.back(): that
+  // popstate is the overlay going away, not the athlete pressing Back, so the
+  // search return bar underneath stays.
+  const overlayClosingRef = useRef(false);
   /**
    * The tracker's day chooser is a disclosure. It opens itself when the day
    * on screen has nothing to start - the choice is the only thing to do - and
@@ -456,13 +445,12 @@ export default function Home() {
   const referenceMovement = referenceMovements.find((movement) => movement.id === referenceMovementId(movementId, sportBrowse)) || findSportMovement(browseSportId);
   const browseSportLabel = sportProfiles.find((profile) => profile.id === browseSportId)?.label || browseSportId;
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
-  const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId, registryEvidenceMap), [selectedMovement, athleteBaseline.sportModifierId, registryEvidenceMap]);
-  const sessionRecommendations = useMemo(() => getSportSession(activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap), [activeSportId, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
+  /** The catalog's action links, each worked out once for the selected action rather than on every render. */
+  const connectionForExercise = useMemo(() => createActionConnectionLookup(enrichedSelectedMovement), [enrichedSelectedMovement]);
+  const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment), [selectedMovement, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment]);
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
   const daySlots = useMemo(() => buildDaySlots(splitDays), [splitDays]);
-  /** Home's week strip: the plan's own days, with each day's exercise count. */
-  const homePlanDays = useMemo(() => daySlots.map((slot) => ({ index: slot.index, name: slot.day, label: `Week ${activeWeek} · ${slot.ordinal} · ${slot.day}`, exerciseCount: dayExerciseCount(dayStore, slot.key) })), [daySlots, activeWeek, dayStore]);
   /**
    * The active day, resolved rather than remembered.
    *
@@ -475,6 +463,17 @@ export default function Home() {
   const activeDayIndex = activeSlot.index;
   const activeDayKey = activeSlot.key;
   const activeDayLabel = `Week ${activeWeek} · ${activeSlot.ordinal} · ${activeSlot.day}`;
+  /**
+   * The day's prescriptions as every surface must read them: what the athlete set, else the
+   * goal default for that exercise's place in the day - the one the Plan row already shows.
+   * The tracker fell back to "3 × 8–12", the full analysis to 3 sets and the Plan to "4 × 3–6"
+   * for the same unset exercise, so one day showed 14 planned sets and started a 12-set workout
+   * (TR-05, B093, B114). Surfaces are handed this map, so their own fallbacks never fire here.
+   */
+  const dayPrescriptions = useMemo(
+    () => Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal)])),
+    [customWorkout, prescriptions, goal],
+  );
   /** The day the working draft belongs to, so an edit can never be filed against another day. */
   const draftDayKeyRef = useRef(activeSlot.key);
   const splitDaysRef = useRef(splitDays);
@@ -487,6 +486,17 @@ export default function Home() {
     setPrescriptions(record.prescriptions);
     setExerciseSettings(record.settings);
   };
+  /**
+   * What Home reads to decide the next workout: every saved plan week, with the day being edited
+   * written into its own week, plus the explicit choice. Not the inspected day: Home resolves its
+   * own day from these (TodayActionPanel -> resolveNextWorkout).
+   */
+  const homePlan = useMemo(() => ({
+    ready: planHydrated && profileHydrated,
+    slots: daySlots,
+    weeks: { ...Object.fromEntries(Object.entries(planWeeks).map(([week, snapshot]) => [Number(week), snapshot.days])), [activeWeek]: commitDay(dayStore, draftDayKeyRef.current, activeDraft()) } as Record<number, WeeklyDayStore>,
+    choice: trainChoice,
+  }), [planHydrated, profileHydrated, daySlots, planWeeks, activeWeek, dayStore, customWorkout, prescriptions, exerciseSettings, trainChoice]);
   /*
    * Latest plan state for handlers that run later than the render that made them: the
    * Undo in a toast is created at the edit and pressed seconds - and possibly a day
@@ -534,6 +544,8 @@ export default function Home() {
     if (!profileHydrated || !planHydrated) { splitDaysRef.current = splitDays; return; }
     if (sameSplit(previous, splitDays)) return;
     splitDaysRef.current = splitDays;
+    // The chosen day was a position in the old split; it may not exist in the new one.
+    setTrainChoice(null);
     const committed = commitDay(dayStore, draftDayKeyRef.current, activeDraft());
     const { store, moved } = remapDaysForFrequency(committed, previous, splitDays);
     const carried = moved[draftDayKeyRef.current];
@@ -571,15 +583,18 @@ export default function Home() {
     setDayStore((current) => commitDay(current, key, { workout: customWorkout, prescriptions, settings: exerciseSettings }));
   }, [planHydrated, onboardingComplete, customWorkout, prescriptions, exerciseSettings]);
 
+  // Without a chosen sport there is no sport to seed from. An empty seed keeps the draft
+  // general instead of quietly biasing it toward whichever sport happens to be first.
+  // The seed depends on sport, goal, window and gym, not on the open day, so a day
+  // switch does not re-rank the sport.
+  const draftSportSeed = useMemo(() => hasSportContext
+    ? getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap).map((item) => item.exercise)
+    : [], [activeSportId, hasSportContext, goal, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
   const draftedLoadout = useMemo(() => {
-    // Without a chosen sport there is no sport to seed from. An empty seed keeps the draft
-    // general instead of quietly biasing it toward whichever sport happens to be first.
-    const sportSeed = hasSportContext
-      ? getSportSession(activeSportId, goal, Math.max(8, gymTimeBudget.recommendationLimit + 3), athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap).map((item) => item.exercise)
-      : [];
+    const sportSeed = draftSportSeed;
     const pool = filterStackForEquipment(getSplitExercisePool(exercises, activeSplitDay, sportSeed), athleteBaseline.equipment);
     return buildVariedLoadout(pool, activeSplitDay === "Sport Transfer" ? sportSeed : [], activeLoadout, gymTimeBudget.recommendationLimit);
-  }, [activeSportId, hasSportContext, goal, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment, athleteBaseline.sportModifierId, registryEvidenceMap]);
+  }, [draftSportSeed, activeSplitDay, activeLoadout, gymTimeBudget.recommendationLimit, athleteBaseline.equipment]);
   /**
    * What the draft would cost in time, at the current settings.
    *
@@ -591,25 +606,21 @@ export default function Home() {
     () => getWorkoutDiagnostics(draftedLoadout, {}, {}, goal, gymMinutes).estimatedMinutes,
     [draftedLoadout, goal, gymMinutes],
   );
-  const movementSignals = getMovementSignals(selectedMovement);
-  const movementMuscles = getMovementMuscles(selectedMovement);
-  const bodyLabRoleContext =getBodyLabRoleContext(activeSportId, selectedMovement.id, movementMuscles, movementSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
+  const bodyLabRoleContext = useMemo(() => {
+    const signals = getMovementSignals(selectedMovement);
+    return getBodyLabRoleContext(activeSportId, selectedMovement.id, getMovementMuscles(selectedMovement), signals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
+  }, [activeSportId, selectedMovement]);
   /**
-   * The same three, resolved for whatever the reference library is showing.
+   * The same role context, resolved for whatever the reference library is showing.
    *
-   * Identical to the three above whenever the athlete is on their own sport, so
+   * Identical to the one above whenever the athlete is on their own sport, so
    * the Body Lab is unchanged at rest; only a browsed sport makes them diverge.
    */
-  const referenceSignals = getMovementSignals(referenceMovement);
-  const referenceMuscles = getMovementMuscles(referenceMovement);
-  const referenceRoleContext = browsingOtherSport
-    ? getBodyLabRoleContext(browseSportId, referenceMovement.id, referenceMuscles, referenceSignals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"])
-    : bodyLabRoleContext;
-  /** The count Body Lab shows for this action: canonical regions, aliases collapsed. */
-  const focusMuscleCount = useMemo(() => Object.keys(roleMapForLists(referenceRoleContext.primary, referenceRoleContext.supporting)).length, [referenceRoleContext]);
-  // The same tolerant matcher the day picker uses, so a name typed here finds
-  // what a name typed there finds.
-  const filteredCatalog = useMemo(() => searchExercises(exercises, catalogQuery).slice(0, 24), [catalogQuery]);
+  const referenceRoleContext = useMemo(() => {
+    if (!browsingOtherSport) return bodyLabRoleContext;
+    const signals = getMovementSignals(referenceMovement);
+    return getBodyLabRoleContext(browseSportId, referenceMovement.id, getMovementMuscles(referenceMovement), signals.includes("rotation") ? ["abs", "obliques", "glutes"] : ["abs", "glutes"]);
+  }, [browsingOtherSport, browseSportId, referenceMovement, bodyLabRoleContext]);
   const createWeekSnapshot = (): WeekSnapshot => ({
     days: commitDay(dayStore, draftDayKeyRef.current, activeDraft()),
     activeDayIndex: activeSlot.index,
@@ -664,7 +675,29 @@ export default function Home() {
     };
   };
 
+  /**
+   * The profile, read per account record.
+   *
+   * It used to be read once at mount, so when the account resolved or changed, the profile
+   * still in memory was saved into the new account's record (PS-03, B173, B177). It is read
+   * at once - the app does not wait on auth to open - and read again whenever the account's
+   * record changes, starting from defaults when that record is empty.
+   */
+  const hydratedProfileKeyRef = useRef<string | null>(null);
   useEffect(() => {
+    if (hydratedProfileKeyRef.current === athleteProfileKey) return;
+    if (hydratedProfileKeyRef.current !== null) {
+      setProfileHydrated(false);
+      setSportContextMode("sport");
+      setSportId("");
+      setGoal("Athleticism");
+      setTrainingDays(3);
+      setGymMinutes(60);
+      setCapacityFocus({ reportedSignals: [] });
+      setAthleteBaseline({ experience: "Intermediate", weightUnit: "lb", equipment: defaultEquipmentProfile });
+      setMovementId("");
+      setOnboardingComplete(false);
+    }
     try {
       const stored = readScopedRecord(athleteProfileKeyBase, accountId, window.localStorage);
       if (stored) {
@@ -676,8 +709,8 @@ export default function Home() {
         if ((profile.version === 1 || profile.version === 2 || profile.version === 3) && (storedMode === "sport" ? sportResolves : true)) {
           setSportContextMode(storedMode);
           setSportId(storedMode === "sport" ? profile.sportId : "");
-          setGoal(profile.goal);
-          setTrainingDays(Math.max(1, Math.min(7, profile.trainingDays)));
+          setGoal(isTrainingGoal(profile.goal) ? profile.goal : "Athleticism");
+          setTrainingDays(Number.isFinite(profile.trainingDays) ? Math.max(1, Math.min(7, Math.round(profile.trainingDays))) : 3);
           setGymMinutes(Math.max(30, Math.min(90, profile.gymMinutes || 60)));
           if (profile.baseline) {
             setAthleteBaseline({ ...profile.baseline, equipment: profile.baseline.equipment || defaultEquipmentProfile });
@@ -691,8 +724,9 @@ export default function Home() {
         }
       }
     } catch { /* Stored context is optional and may be cleared safely. */ }
+    hydratedProfileKeyRef.current = athleteProfileKey;
     setProfileHydrated(true);
-  }, []);
+  }, [athleteProfileKey]);
 
   useEffect(() => {
     try {
@@ -701,16 +735,25 @@ export default function Home() {
     } catch { /* Launch preferences are optional and default to enabled. */ }
   }, []);
 
+  // Favourites follow the same rule: read per account, and never written into a record
+  // that has not been read yet - which is how one account's shortlist became another's.
+  // Like the profile and plan, the first account to sign in claims the shortlist built
+  // before accounts were kept apart, or while signed out.
+  const hydratedFavoritesKeyRef = useRef<string | null>(null);
   useEffect(() => {
+    let next: number[] = [];
     try {
-      const stored = JSON.parse(window.localStorage.getItem(favoriteExerciseKey) || "[]") as unknown;
-      if (Array.isArray(stored)) setLocalFavoriteIds(stored.filter((id): id is number => typeof id === "number" && exercises.some((exercise) => exercise.id === id)));
+      const stored = JSON.parse(readScopedRecord(favoriteExerciseKeyBase, accountId, window.localStorage) || "[]") as unknown;
+      if (Array.isArray(stored)) next = stored.filter((id): id is number => typeof id === "number" && exercises.some((exercise) => exercise.id === id));
     } catch { /* Favorites fall back to an empty local shortlist. */ }
-  }, []);
+    setLocalFavoriteIds(next);
+    hydratedFavoritesKeyRef.current = favoriteExerciseKey;
+  }, [favoriteExerciseKey]);
 
   useEffect(() => {
+    if (hydratedFavoritesKeyRef.current !== favoriteExerciseKey) return;
     try { window.localStorage.setItem(favoriteExerciseKey, JSON.stringify(localFavoriteIds)); } catch { /* Device storage is an optional fallback. */ }
-  }, [localFavoriteIds]);
+  }, [localFavoriteIds, favoriteExerciseKey]);
 
   useEffect(() => {
     // Wait for auth to settle: the key is account-scoped, and hydrating from the
@@ -721,8 +764,30 @@ export default function Home() {
     // active day to a slot the athlete does not train.
     if (!profileHydrated) return;
     if (hydratedPlanKeyRef.current === workoutPlanKey) return;
+    // A different record is being read (another account, or signing out): until it has
+    // been, nothing may edit or save the plan.
+    if (hydratedPlanKeyRef.current !== null) {
+      setPlanHydrated(false);
+      // The serialised copy is the previous account's until this record has been read and
+      // saved again; sync must not compare it with this account's plan.
+      setSerializedPlan(null);
+    }
     try {
       const stored = readScopedRecord(workoutPlanKeyBase, accountId, window.localStorage);
+      if (!stored) {
+        /*
+         * Nothing saved under this record: it starts empty. The plan still in memory belongs to
+         * whoever was signed in before, and marking this key hydrated with it in place let the
+         * next save write A's plan into B's record - "sign out A, sign in B, and A's plan
+         * becomes B's" (PS-01, B173, B175, B262).
+         */
+        const slot = resolveActiveSlot(splitDays, 0, splitDays[0]);
+        setPlanWeeks({});
+        setActiveWeek(1);
+        setTrainChoice(null);
+        setDayStore(emptyDayStore());
+        adoptActiveDay(slot, emptyDayRecord());
+      }
       if (stored) {
         const plan = JSON.parse(stored) as StoredWorkoutPlan;
         const legacy: StoredWeekSnapshot = { customWorkoutIds: plan.customWorkoutIds || [], weeklyPlanIds: plan.weeklyPlanIds || {}, customWorkoutEntries: plan.customWorkoutEntries, weeklyPlanEntries: plan.weeklyPlanEntries, prescriptions: plan.prescriptions || {}, exerciseSettings: plan.exerciseSettings || {}, weeklyPrescriptions: plan.weeklyPrescriptions || {}, weeklySettings: plan.weeklySettings, importedPlanContext: plan.importedPlanContext || {}, activeDayIndex: plan.activeDayIndex };
@@ -732,6 +797,7 @@ export default function Home() {
         const slot = resolveActiveSlot(splitDays, activeSnapshot.activeDayIndex, splitDays[activeSnapshot.activeDayIndex] || splitDays[0]);
         setPlanWeeks(restoredWeeks);
         setActiveWeek(nextActiveWeek);
+        setTrainChoice(plan.nextWorkout && Number.isFinite(plan.nextWorkout.week) && Number.isFinite(plan.nextWorkout.index) && typeof plan.nextWorkout.day === "string" ? plan.nextWorkout : null);
         setDayStore(activeSnapshot.days);
         adoptActiveDay(slot, loadDay(activeSnapshot.days, slot.key));
       }
@@ -742,12 +808,14 @@ export default function Home() {
 
   useEffect(() => {
     if (!profileHydrated || !onboardingComplete) return;
+    // Only into the record that was read: never the previous account's profile into this one.
+    if (hydratedProfileKeyRef.current !== athleteProfileKey) return;
     // Only sport mode needs a sport id. Requiring one here is what used to drop a general
     // athlete's profile on every reload.
     if (sportContextMode === "sport" && !sportId) return;
     const profile: StoredAthleteProfile = { version: 3, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId: selectedMovement.id, baseline: athleteBaseline };
     try { window.localStorage.setItem(athleteProfileKey, JSON.stringify(profile)); } catch { /* Persistence is optional. */ }
-  }, [profileHydrated, onboardingComplete, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
+  }, [profileHydrated, onboardingComplete, athleteProfileKey, sportId, sportContextMode, capacityFocus, goal, trainingDays, gymMinutes, movementId, selectedMovement.id, athleteBaseline]);
 
   /**
    * Workouts logged before set units were stored are given one, once, from the profile's
@@ -779,7 +847,8 @@ export default function Home() {
   }, [workoutPlanKey]);
 
   const planSync = usePlanSync({
-    enabled: isAuthenticated && onboardingComplete,
+    enabled: isAuthenticated && onboardingComplete && planHydrated,
+    accountId,
     planJson: serializedPlan,
     planVersion: 2,
     onAdoptServerPlan: adoptServerPlan,
@@ -797,11 +866,12 @@ export default function Home() {
       ...serializeWeekSnapshot(currentWeek),
       weeks: Object.fromEntries(Object.entries(allWeeks).map(([week, snapshot]) => [week, serializeWeekSnapshot(snapshot)])),
       activeWeek,
+      ...(trainChoice ? { nextWorkout: trainChoice } : {}),
     };
     const serialized = JSON.stringify(plan);
     setSerializedPlan(serialized);
     try { window.localStorage.setItem(workoutPlanKey, serialized); } catch { /* Persistence is optional. */ }
-  }, [planHydrated, onboardingComplete, workoutPlanKey, customWorkout, prescriptions, exerciseSettings, dayStore, planWeeks, activeWeek, splitDays]);
+  }, [planHydrated, onboardingComplete, workoutPlanKey, customWorkout, prescriptions, exerciseSettings, dayStore, planWeeks, activeWeek, splitDays, trainChoice]);
 
   // A new action is a new map; whatever was selected on the old one is not
   // selected on this one. It used to pick the action's first muscle here, which
@@ -839,15 +909,15 @@ export default function Home() {
     if (!id) return;
     const changed = Boolean(sportId) && sportId !== id;
     if (changed) {
-      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, catalogQuery, catalogFilters, activeDayIndex: activeSlot.index };
+      const previous = { sportId, movementId, activeMuscle, dayStore, planWeeks, activeWeek, catalogFilters, activeDayIndex: activeSlot.index, sportModifierId: athleteBaseline.sportModifierId };
       const undoSwitch = () => {
         setSportId(previous.sportId);
         setMovementId(previous.movementId);
+        setAthleteBaseline((current) => ({ ...current, sportModifierId: previous.sportModifierId }));
         setActiveMuscle(previous.activeMuscle ?? null);
         setDayStore(previous.dayStore);
         setPlanWeeks(previous.planWeeks);
         setActiveWeek(previous.activeWeek);
-        setCatalogQuery(previous.catalogQuery);
         setCatalogFilters(previous.catalogFilters);
         const restored = resolveActiveSlot(splitDays, previous.activeDayIndex, splitDays[previous.activeDayIndex] || splitDays[0]);
         adoptActiveDay(restored, loadDay(previous.dayStore, restored.key));
@@ -856,9 +926,13 @@ export default function Home() {
       adoptActiveDay(daySlots[0], emptyDayRecord());
       setPlanWeeks({});
       setActiveWeek(1);
-      setCatalogQuery("");
+      setTrainChoice(null);
       setCatalogFilters(defaultCatalogFilters);
-      toast("Sport changed", { description: "Saved training days for the previous sport were cleared.", action: { label: "Undo", onClick: undoSwitch } });
+      // A role or style belongs to the sport it was chosen in. Ids repeat across
+      // sports ("freestyle" is a wrestling style and a swimming stroke), so one
+      // carried over would switch on a role the athlete never picked.
+      setAthleteBaseline((current) => ({ ...current, sportModifierId: undefined }));
+      toast("Sport changed", { description: previous.sportModifierId ? "Saved training days and the role or style for the previous sport were cleared." : "Saved training days for the previous sport were cleared.", action: { label: "Undo", onClick: undoSwitch } });
     }
     setSportId(id);
     const first = sportMovementProfiles.find((movement) => movement.sportId === id);
@@ -875,7 +949,6 @@ export default function Home() {
    * looking at the top of the page.
    */
   const navigateWorkspace = (next: Workspace, { keepScroll = false }: { keepScroll?: boolean } = {}) => {
-    setActiveContextTab(null);
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
     /**
@@ -926,13 +999,32 @@ export default function Home() {
   useEffect(() => {
     const restoreWorkspace = () => {
       // Browser Back is its own return path, so the search return bar goes with it.
-      setSearchReturn(null);
+      // Closing the overlay with its own button or Escape is not a Back.
+      if (overlayClosingRef.current) overlayClosingRef.current = false;
+      else setSearchReturn(null);
       // Whatever entry we landed on, an open overlay is the topmost thing and closes first.
       setInspectedExercise(null);
-      setWorkspaceState(workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace")));
+      // The same rule an in-app navigation applies (navigateWorkspace): a sport being browsed
+      // does not outlive Body Lab. Back used to keep it, so a later "Explore this movement"
+      // opened another sport. (The local tab row follows the workspace on its own.)
+      const next = workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace"));
+      if (primaryDestinationForWorkspace(next) !== "body") setSportBrowse(followProfileSport);
+      setWorkspaceState(next);
     };
     window.addEventListener("popstate", restoreWorkspace);
     return () => window.removeEventListener("popstate", restoreWorkspace);
+  }, []);
+  /**
+   * The sign-in notice's "Account & sync" action lands here: About me, with that group
+   * open. The notice lives outside React (lib/sessionNotice.ts), so it is handed a function
+   * that always calls the current navigation.
+   */
+  const openAccountSyncRef = useRef(() => {});
+  openAccountSyncRef.current = () => { navigateWorkspace("profile"); setAccountFocusRequest((request) => request + 1); };
+  useEffect(() => {
+    const notice = sessionNotice();
+    notice?.setOpenAccount(() => openAccountSyncRef.current());
+    return () => notice?.setOpenAccount(null);
   }, []);
   /**
    * Nothing edits the plan before the saved plan has been read. An exercise added in
@@ -963,7 +1055,10 @@ export default function Home() {
     toast(`Added to ${destination}`, {
       id: "plan-add",
       description: `${exercise.name} is in that day now.`,
-      action: { label: "View workout", onClick: () => navigateWorkspace("day-plan") },
+      // Opens the day that received it, even after the strip moved to another day: it opened
+      // whatever day was active, where the exercise was not (Sep 28 regression brief §11).
+      // State setters, not selectTrainingDay, whose captured active slot would be stale here.
+      action: { label: "View workout", onClick: () => { const slot = daySlots.find((item) => item.key === dayKey); if (slot) { setActiveSplitDayIndex(slot.index); setActiveSplitDay(slot.day); } navigateWorkspace("day-plan"); } },
       // Takes back this entry on this day: the exact instance, even after a day switch.
       cancel: { label: "Undo", onClick: () => editDay(dayKey, (record) => ({ ...record, workout: record.workout.filter((item) => item.id !== exercise.id) })) },
     });
@@ -971,15 +1066,25 @@ export default function Home() {
   const toggleFavorite = (exercise: Exercise) => {
     const currentlyFavorite = favoriteIds.has(exercise.id);
     setLocalFavoriteIds((current) => currentlyFavorite ? current.filter((id) => id !== exercise.id) : Array.from(new Set([...current, exercise.id])));
+    // Kept on this device either way. Only an account session sends it on: without one the
+    // call was refused, and the refusal raised a sign-in notice beside this toast (Sep 28
+    // regression brief §7), just as favorites.list is asked only with a session.
+    if (!isAuthenticated) {
+      toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { id: "favorite", description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist on this device.` });
+      return;
+    }
     favoriteMutation.mutate({ catalogExerciseId: exercise.id, favorited: !currentlyFavorite }, {
       onSuccess: (ids) => {
-        // The server answers with the full list; anything else keeps the
-        // optimistic local list rather than spreading a non-array into a Set.
-        if (Array.isArray(ids)) setLocalFavoriteIds(ids);
+        // The server answers with its full list. It is added to this device's list, not
+        // swapped in: the device list also holds the shortlist claimed at sign-in and any
+        // heart that failed to send, neither is on the server, and a swap deleted them for
+        // good. This tap's own change is already in the device list. A reply that is not
+        // a list is ignored.
+        if (Array.isArray(ids)) setLocalFavoriteIds((current) => Array.from(new Set([...current, ...ids])));
         void favoriteQuery.refetch();
         toast(currentlyFavorite ? "Removed from favorites" : "Saved to favorites", { id: "favorite", description: `${exercise.name} is ${currentlyFavorite ? "no longer" : "now"} on your shortlist.` });
       },
-      onError: () => toast("Saved on this device", { id: "favorite", description: "Your favorite is available locally and will sync when account storage is available." }),
+      onError: () => toast("Saved on this device", { id: "favorite", description: "Your account did not take the change; it is kept on this device." }),
     });
   };
   const importRoutine = (routine: ImportedRoutine) => {
@@ -1202,7 +1307,9 @@ export default function Home() {
   const athleteSync = useAthleteSync({
     sexForReference: athleteBaseline.sexForReference,
     birthYear: athleteBaseline.birthYear,
-    sportId: activeSportId,
+    // Only a sport the athlete chose. The browsing fallback (the first sport in the list,
+    // wrestling) was written as the sport of every general athlete's lifts (PS-14, B019).
+    sportId: hasSportContext ? sportId : undefined,
     sportContextMode,
     weightUnit: athleteBaseline.weightUnit,
     appSports: sportProfiles,
@@ -1259,15 +1366,29 @@ export default function Home() {
 	    if (!selectTrainingDay(index)) return;
 	    if (workspace !== "day-plan" && workspace !== "tracker" && workspace !== "review") navigateWorkspace("day-plan");
 	  };
-  const applyWeek = (week: number, snapshot: WeekSnapshot) => {
+  const applyWeek = (week: number, snapshot: WeekSnapshot, { navigate = true }: { navigate?: boolean } = {}) => {
     // A week remembers the day it was left on. Forcing every week back to Day 01 while
     // keeping the stack that was open is what made Week 2's Legs work appear under Push.
     const slot = resolveActiveSlot(splitDays, snapshot.activeDayIndex, splitDays[snapshot.activeDayIndex] || splitDays[0]);
     setActiveWeek(week);
     setDayStore(snapshot.days);
     adoptActiveDay(slot, loadDay(snapshot.days, slot.key));
-    navigateWorkspace("day-plan");
+    if (navigate) navigateWorkspace("day-plan");
   };
+  /**
+   * Home's actions open the day Home named. The tracker and Plan read the inspected day, so
+   * that day becomes the one Home resolved; Home to Plan is the one direction the next workout
+   * may move the inspected day, never the other way (Sep 28 regression brief §4).
+   */
+  const openPlannedWorkout = (week: number, index: number, target: "tracker" | "day-plan") => {
+    if (week !== activeWeek && planWeeks[week]) {
+      setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot() }));
+      applyWeek(week, { ...planWeeks[week], activeDayIndex: index }, { navigate: false });
+    } else selectTrainingDay(index);
+    navigateWorkspace(target);
+  };
+  /** An explicit choice to train the day being shown, stamped so a later finish of it can end it. */
+  const chooseDayToTrain = (slot: DaySlot) => setTrainChoice({ week: activeWeek, index: slot.index, day: slot.day, madeAt: new Date().toISOString() });
   const selectWeek = (week: number) => {
     if (week === activeWeek) return;
     const snapshot = planWeeks[week];
@@ -1324,14 +1445,39 @@ export default function Home() {
     if (typeof window !== "undefined" && window.history.state?.overlay !== "exercise") window.history.pushState({ workspace, overlay: "exercise" }, "", window.location.href);
   };
   const closeInspector = () => {
-    if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") { window.history.back(); return; }
+    if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") { overlayClosingRef.current = true; window.history.back(); return; }
     setInspectedExercise(null);
   };
-  // The overlay is the topmost transient surface, so Escape closes it and
-  // nothing else; the list, filters and scroll it opened over are untouched.
+  /**
+   * Leaving the overlay for another screen: the overlay's own history entry
+   * becomes that screen's, so one Back returns to where it was opened and
+   * nothing is left for a later Back to swallow. history.back() followed by
+   * pushState would race: the queued back is either cancelled by the push or
+   * applied after it.
+   */
+  const leaveInspectorFor = (next: Workspace) => {
+    if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") {
+      const url = new URL(window.location.href);
+      // Same screen: navigateWorkspace will not push, so popping the overlay entry is safe.
+      if (url.searchParams.get("workspace") === next) { closeInspector(); navigateWorkspace(next); return; }
+      url.searchParams.set("workspace", next);
+      window.history.replaceState({ workspace: next }, "", url);
+    }
+    setInspectedExercise(null);
+    // The URL already names `next`, so this only resets context and scrolls.
+    navigateWorkspace(next);
+  };
+  // Escape closes the overlay and nothing else; the list, filters and scroll it
+  // opened over are untouched. A layer opened over it (search, with Cmd/Ctrl+K)
+  // keeps its own Escape, so one press closes that layer and not this one too.
+  const inspectorLayerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!inspectedExercise) return;
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") closeInspector(); };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      if (isKeyForAnotherLayer(event, inspectorLayerRef.current)) return;
+      closeInspector();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [inspectedExercise]);
@@ -1396,6 +1542,9 @@ export default function Home() {
     // Landing an athlete who searched "shoulder pain" at the top of a long
     // profile and leaving them to scroll is the same as not having found it.
     let anchor = "";
+    // An exercise opens over the catalog, so its overlay entry goes on top of
+    // the catalog's: Back then closes the overlay and leaves the catalog.
+    let pendingInspect: Exercise | null = null;
     if (result.type === "destination") {
       const [workspaceId, anchorId = ""] = result.id.split("#");
       target = workspaceId as Workspace;
@@ -1406,7 +1555,7 @@ export default function Home() {
     } else if (result.type === "exercise") {
       const exercise = exercises.find((item) => String(item.id) === result.id);
       if (!exercise) return;
-      inspectExercise(exercise);
+      pendingInspect = exercise;
       target = "catalog";
     } else if (result.type === "sport") {
       // Opening a sport from search is reading, not adopting. This used to call
@@ -1429,17 +1578,21 @@ export default function Home() {
     if (!target) return;
     const origin = workspace;
     navigateWorkspace(target, { keepScroll: Boolean(anchor) });
+    if (pendingInspect) inspectExercise(pendingInspect);
     // Focus, not just scroll: §11 requires focus to land near the object the
     // athlete came for, and a scrolled page leaves a keyboard or screen-reader
     // user still at the top of it.
     if (anchor) revealWorkspaceAnchor(anchor);
     // Nothing to return to when the result opens the screen already on display.
-    if (target !== origin) setSearchReturn({ workspace: origin, label: navItems.find((item) => item.id === origin)?.label || "where you were" });
+    if (target !== origin) setSearchReturn({ workspace: origin, label: workspaceTitles[origin] });
   };
   const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, sportContextMode: selectedMode, focus, constraint, reportedSignals, stackMode, baseline }: AthleteQuizSelection) => {
     setGoal(selectedGoal);
     setTrainingDays(selectedDays);
     setAthleteBaseline(baseline);
+    // The quiz weight is a measurement taken today. Record it now rather than waiting for the
+    // next launch's seed, so a lift finished in this first session is saved with it.
+    if (baseline.bodyWeight && baseline.bodyWeight > 0) saveBodyWeightLog(recordBodyWeight(loadBodyWeightLog(), baseline.bodyWeight, baseline.weightUnit, new Date(), "onboarding"));
     setSportContextMode(selectedMode);
     setCapacityFocus({ focus, constraint, reportedSignals });
     if (selectedMode === "sport") chooseSport(selectedSportId); else setSportId("");
@@ -1466,6 +1619,7 @@ export default function Home() {
     setDayStore(emptyDayStore());
     setPlanWeeks({});
     setActiveWeek(1);
+    setTrainChoice(null);
     setOnboardingComplete(false);
   };
   const requestRebuildPlan = () => setPendingDestructiveAction({
@@ -1497,7 +1651,7 @@ export default function Home() {
 
   const activePrimaryDestination = primaryDestinationForWorkspace(workspace);
   const contextualWorkspaceTabs = activePrimaryDestination === "secondary" ? [] : contextualWorkspaces[activePrimaryDestination];
-  const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;
+  const activeContextTabId = contextTabIdForWorkspace(workspace);
   /**
    * The header names the place only when the tab row underneath it does not.
    *
@@ -1515,10 +1669,7 @@ export default function Home() {
    * at an anchor inside a page you were already on, which is why pressing one could
    * look like nothing had happened except the page moving under you.
    */
-  const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => {
-    navigateWorkspace(tab.workspace);
-    setActiveContextTab(tab.id);
-  };
+  const navigateContextualWorkspace = (tab: ContextualWorkspaceTab) => navigateWorkspace(tab.workspace);
 
   if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">Checking secure account access…</div>;
   if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen onAuthenticated={() => { void refresh(); }} loading={loading} />;
@@ -1562,9 +1713,12 @@ export default function Home() {
             type="button"
             onClick={() => navigateWorkspace("profile")}
             aria-label="Profile and settings"
+            aria-describedby={sessionLapsed ? "topbar-session-status" : undefined}
             aria-current={workspace === "profile" ? "page" : undefined}
             className="topbar-profile-button"
+            data-alert={sessionLapsed || undefined}
           ><UserRound className="h-5 w-5" aria-hidden="true" /></button>
+          {sessionLapsed && <span id="topbar-session-status" className="sr-only">Signed out of your account</span>}
         </div>
       </header>
       {/* Local tabs only where a destination has sibling pages; Home and Profile
@@ -1577,22 +1731,25 @@ export default function Home() {
       />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
               The tracker renders it only before a session starts; mid-workout
               the day cannot change under the sets being logged. */}
           <summary><em>{trackerDayPickerOpen ? "Close" : "Change day"}</em><ChevronDown className="h-4 w-4" aria-hidden /></summary>
-          <div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => { openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div>
+          <div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => { chooseDayToTrain(slot); openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div>
         </details>} /></section>}
-        {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} recentIds={recentExerciseIds} onClearRecent={clearRecentExercises} comparePendingName={comparePending?.name} onCancelCompare={() => setComparePending(null)} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} selectedActionLabel={selectedMovement.label} onChangeAction={() => navigateWorkspace("movement")} connectionForExercise={(exercise) => getExerciseActionConnection(exercise, enrichedSelectedMovement)} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
-        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn}
+        {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} recentIds={recentExerciseIds} onClearRecent={clearRecentExercises} comparePendingName={comparePending?.name} onCancelCompare={() => setComparePending(null)} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} selectedActionLabel={selectedMovement.label} onChangeAction={() => navigateWorkspace("movement")} connectionForExercise={connectionForExercise} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
+        {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} accountSignedIn={isAuthenticated && !sessionLapsed} sessionLapsed={sessionLapsed} accountFocusRequest={accountFocusRequest}
           guides={<div className="about-me-guides"><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><p>Restarting onboarding deletes every saved training day and starts setup again; it asks first.</p><SupabaseResearchLibraryPanel /></div>}
           launchVideo={<div className="launch-setting" aria-label="Launch video"><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={(event) => { emitInteractionFeedback(12); setIntroOpener(event.currentTarget); setIntroPreviewOpen(true); }}>Preview intro video</button></div>}
           launchVideoEnabled={launchExperienceEnabled}
           buildStamp={buildStampLabel()} />}
-        {workspace === "command" && <TodayActionPanel stagedExerciseCount={customWorkout.length} focusMuscles={homeFocusMuscles} planDays={homePlanDays} activeDayIndex={activeSlot.index} onChooseDay={openTrainingDay} onOpenProgress={() => navigateWorkspace("progress")} trainingDays={trainingDays} activeDayLabel={activeDayLabel} live={liveSession} planHasDays={daySlots.some((slot) => dayExerciseCount(dayStore, slot.key) > 0)} planReady={planHydrated && profileHydrated} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
+        {/* A plan changed on this device and on the account since they last matched. Syncing
+            stops until the athlete says which to keep; nothing is overwritten on their behalf. */}
+        {planSync.conflict && <div className="plan-sync-conflict" role="alert"><p><strong>Your plan changed on another device.</strong> This device and your account both have edits since they last matched, so neither was replaced.</p><div><button type="button" onClick={() => planSync.resolveConflict("device")}>Keep this device's plan</button><button type="button" onClick={() => planSync.resolveConflict("account")}>Use the account's plan</button></div></div>}
+        {workspace === "command" && <TodayActionPanel plan={homePlan} onOpenWorkout={openPlannedWorkout} onOpenProgress={() => navigateWorkspace("progress")} goal={goal} live={liveSession} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
-        {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} /></>}
+        {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} /></>}
         {/* Home, after the first viewport: what this app helps you do, as three
             named doors with one line each, and then one insight about the sport
             action the plan is built around, with the top of its ranking. */}
@@ -1602,16 +1759,17 @@ export default function Home() {
           <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("movement")}><Move3d className="h-5 w-5" aria-hidden="true" /><span><strong>Explore muscles &amp; movements</strong><small>See how sport actions involve your muscles</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("strength")}><Dumbbell className="h-5 w-5" aria-hidden="true" /><span><strong>View strength progress</strong><small>Inspect your recorded lifts and muscle ranks</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
         </section>}
-        {workspace === "command" && hasSportContext && <section className="home-focus" aria-label="Movement focus">
-          <div className="home-section-head"><p className="metric-label">Movement focus</p><button type="button" className="home-link" onClick={() => navigateWorkspace("recommended")}>All matches <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
-          <h2>{selectedMovement.label}</h2>
-          <p className="home-focus-meta">{selectedMovement.family} · {focusMuscleCount} {focusMuscleCount === 1 ? "muscle" : "muscles"} involved · the action your plan is built around</p>
-          {/* The top of the same ranking Matches shows in full, with the tier the
-              catalog model assigns - not a grade invented for the row. */}
-          <ol className="home-priority-rows" aria-label="Top exercise matches">{movementRecommendations.slice(0, 3).map((result, index) => <li key={result.exercise.id}><button type="button" className="home-priority-row" onClick={() => inspectExercise(result.exercise)} aria-label={`View ${result.exercise.name} details`}><span className="home-priority-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span className="home-priority-copy"><strong>{result.exercise.name}</strong><small>{result.exercise.movement} · {result.exercise.primaryMuscles.slice(0, 2).map((muscle) => muscleLabels[muscle] || muscle).join(" · ")}</small></span><GradeStamp grade={result.exercise.muscleGrade} compact /><ChevronRight className="h-4 w-4" aria-hidden="true" /></button></li>)}</ol>
-          <button type="button" className="home-link" onClick={() => { setActiveMuscle(null); navigateWorkspace("body"); }}>Explore in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+        {/* Home previews the sport action; it is not a second training editor. The ranked
+            exercises, their grades and add controls live in Matches and Body Lab (Sep 28
+            regression brief §3). The link opens the Movement Atlas on the athlete's own action,
+            with any browse, search or family filter left over from an earlier visit cleared. */}
+        {workspace === "command" && hasSportContext && <section className="home-focus" aria-label="Sport focus">
+          <p className="metric-label">Sport focus</p>
+          <h2>{movementDisplayLabel(selectedMovement.label)}</h2>
+          <p className="home-focus-meta">{selectedMovement.bodyActions}</p>
+          <button type="button" className="home-link" onClick={() => { setSportBrowse(followProfileSport); setAtlasQuery(""); setAtlasFamily("All"); navigateWorkspace("movement"); }}>Explore this movement <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
         </section>}
-        {workspace === "command" && !hasSportContext && <section className="home-focus" aria-label="Movement focus"><p className="metric-label">Movement focus</p><h2>No sport chosen</h2><p className="home-focus-meta">Choose a sport in Training preferences to see the action your plan is built around and the exercises ranked for it.</p><button type="button" className="home-link" onClick={() => navigateWorkspace("profile")}>Training preferences <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></section>}
+        {workspace === "command" && !hasSportContext && <section className="home-focus" aria-label="Sport focus"><p className="metric-label">Sport focus</p><h2>No sport chosen</h2><p className="home-focus-meta">Choose a sport to see the action your plan is built around.</p><button type="button" className="home-link" onClick={() => navigateWorkspace("profile")}>Training preferences <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></section>}
 
         {workspace === "recommended" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="Sport recommendations" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {/* Matches, one column: the sport and the action as controls, the
@@ -1633,7 +1791,7 @@ export default function Home() {
               so the block runs full width. */}
           <div className="matches-context">
             <p className="metric-label">Movement context</p>
-            <label className="matches-action"><span className="sr-only">Sport action</span><select value={selectedMovement.id} onChange={(event) => setMovementId(event.target.value)}>{sportMovements.map((movement) => <option key={movement.id} value={movement.id}>{movement.label}</option>)}</select><ChevronDown className="h-5 w-5" aria-hidden="true" /></label>
+            <label className="matches-action"><span className="sr-only">Sport action</span><select value={selectedMovement.id} onChange={(event) => setMovementId(event.target.value)}>{sportMovements.map((movement) => <option key={movement.id} value={movement.id}>{movementDisplayLabel(movement.label)}</option>)}</select><ChevronDown className="h-5 w-5" aria-hidden="true" /></label>
             <button type="button" className="matches-link" onClick={() => navigateWorkspace("movement")}>Change movement <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
           </div>
           <div className="matches-lens">
@@ -1644,20 +1802,20 @@ export default function Home() {
                 <ChevronDown className="h-5 w-5" aria-hidden="true" />
               </summary>
               <div>
-                <p className="matches-lens-note">{sportProgrammingContext.priorities.length ? `Ranking these matches on ${sportProgrammingContext.priorities.join(", ")}` : "Ranking these matches on movement and muscle fit alone"} — drawn from {selectedSport.label}, {sportProgrammingContext.modifierLabel.toLowerCase()}.</p>
+                <p className="matches-lens-note">{sportProgrammingContext.priorities.length ? `Your sport's priorities: ${sportProgrammingContext.priorities.join(", ")}` : "No sport priorities for this profile"} — from {selectedSport.label}, {sportProgrammingContext.modifierLabel.toLowerCase()}. They shape your plan's drafts, not this list.</p>
                 <p className="matches-lens-heading">How matching works</p>
-                <p>The score is how well an exercise fits these qualities, 0 to 100, from its catalog profile. The tag beside it is the catalog's tier for the exercise itself; neither is a rank of you.</p>
+                <p>The match number (50 to 99) counts how many of this action's movements and muscles an exercise shares, from its catalog profile. It is not a rank of you, and the priorities above do not change it.</p>
                 <p>{sportProgrammingContext.modalityBoundary}</p><p>{sportProgrammingContext.exerciseRole}</p><p>{sportProgrammingContext.programmingBoundary}</p>
               </div>
             </details>
           </div>
           <div className="matches-count">
             <h2>{movementRecommendations.length} {movementRecommendations.length === 1 ? "match" : "matches"}</h2>
-            <p>Exercises supporting {selectedMovement.label.toLowerCase()}, {sportProgrammingContext.priorities.length ? "ranked on the qualities above" : `ranked for ${selectedSport.label}`}.</p>
+            <p>Exercises that share the most with {movementDisplayLabel(selectedMovement.label).toLowerCase()}, most shared first.</p>
           </div>
           {movementRecommendations.length
             ? <div className="matches-list">{movementRecommendations.map((result, index) => <RecommendationRow destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} key={result.exercise.id} result={result} index={index} onAdd={() => addExercise(result.exercise)} onInspect={() => inspectExercise(result.exercise)} />)}</div>
-            : <p className="matches-empty">Nothing in the catalog matches {selectedMovement.label.toLowerCase()} closely enough to rank. Explore the movement to see what it asks of the body, or choose another action.</p>}
+            : <p className="matches-empty">Nothing in the catalog matches {movementDisplayLabel(selectedMovement.label).toLowerCase()} closely enough to rank. Explore the movement to see what it asks of the body, or choose another action.</p>}
           <details className="matches-disclosure">
             <summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Research context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary>
             <div><SportEvidencePanel sportId={activeSportId} exercises={exercises} onAdd={addExercise} onInspect={inspectExercise} /></div>
@@ -1666,7 +1824,7 @@ export default function Home() {
               Matches - and behind its own line, since it reads the whole day
               against the action and runs to several screens. */}
           <details className="matches-disclosure">
-            <summary><Layers3 className="h-5 w-5" aria-hidden="true" /><span>Movement intelligence<small>How your day covers {selectedMovement.label.toLowerCase()}</small></span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary>
+            <summary><Layers3 className="h-5 w-5" aria-hidden="true" /><span>Movement intelligence<small>How your day covers {movementDisplayLabel(selectedMovement.label).toLowerCase()}</small></span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary>
             <div><MovementIntelligencePanel movement={enrichedSelectedMovement} fallback={selectedMovement} workout={customWorkout} onAdd={addExercise} onInspect={inspectExercise} /></div>
           </details>
           <AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} />
@@ -1683,7 +1841,7 @@ export default function Home() {
             slots={daySlots}
             activeIndex={activeDayIndex}
             exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)}
-            trainingStateFor={(index) => dayTrainingStates[`Week ${activeWeek} · ${daySlots[index]?.ordinal} · ${daySlots[index]?.day}`] || null}
+            trainingStateFor={(index) => dayTrainingStates[`${daySlots[index]?.ordinal} · ${daySlots[index]?.day}`] || null}
             onChooseDay={openTrainingDay}
           />
           <div className="day-design-main">
@@ -1696,34 +1854,41 @@ export default function Home() {
             </p>}
             <div className={`day-plan-list${reorderingDay ? " is-reordering" : ""}`}>
               {customWorkout.length
-                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>)
-                : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" /><strong>Nothing in this day yet.</strong><p>Add exercises from the catalog, or paste a stack.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button></div>}
+                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>)
+                /* An empty day has one thing to do, said once, with the day it is about. It had
+                   two equal Add exercises buttons (this one and the action row's), a profile
+                   prompt and a 0/100 gauge before anything was in it (Sep 28 regression brief §8). */
+                : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" aria-hidden="true" /><strong>{activeSlot.day} is empty</strong><p>Week {activeWeek} · {activeSlot.ordinal}. Add the exercises you want on this day; its coverage against the {activeSplitDay.toLowerCase()} targets appears once one is in.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" /> Add exercises</button><button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" aria-hidden="true" /> Or import a plan</button></div>}
             </div>
-            {/* Below the day's own work, not between the heading and its rows. */}
-            <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />
+            {/* Below the day's own work, not between the heading and its rows. A declared focus
+                shows even on an empty day; the optional "name it in your profile" prompt waits
+                until the day has something in it. */}
+            {(customWorkout.length > 0 || capacityFocus.focus) && <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />}
             {/* One row, in the order they are reached for: build it, then run it,
                 then the two things you rarely need. It was five buttons under a
-                "Build it, run it, print it" heading that named all three. */}
-            <div className="day-plan-actions">
+                "Build it, run it, print it" heading that named all three. Only on a
+                day with work in it: on an empty one it repeated Add and held two
+                disabled buttons. */}
+            {customWorkout.length > 0 && <div className="day-plan-actions">
               <button type="button" className="day-action-add" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" /> Add exercises</button>
               {customWorkout.length > 1 && <button type="button" className="day-action-reorder" aria-pressed={reorderingDay} onClick={() => setReorderingDay((value) => !value)}><ArrowUpDown className="h-4 w-4" aria-hidden="true" /> {reorderingDay ? "Done reordering" : "Reorder"}</button>}
-              <button type="button" className="day-action-session" onClick={() => navigateWorkspace("tracker")} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
+              <button type="button" className="day-action-session" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
               <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan</button>
               <PrintWorkoutButton disabled={!customWorkout.length} />
-            </div>
-            <DayExercisePicker sheetOpen={pickerSheetOpen} destination={`Week ${activeWeek} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={prescriptions} onAdd={addExercise} onReplace={replaceExercise} onInspect={inspectExercise} />
+            </div>}
+            <DayExercisePicker equipmentProfile={athleteBaseline.equipment} sheetOpen={pickerSheetOpen} destination={`Week ${activeWeek} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={dayPrescriptions} onAdd={addExercise} onReplace={replaceExercise} onInspect={inspectExercise} />
             {/* The generator is one row until it is wanted. Open, it is the panel
                 it always was; closed, it was 636px of controls for a thing you do
                 once a week at most. */}
             <details className="day-plan-draft">
-              <summary><span><BrainCircuit className="h-4 w-4" aria-hidden="true" /><strong>Smart Draft</strong><small>Build a replacement session</small></span><ChevronRight className="h-4 w-4" aria-hidden="true" /></summary>
+              <summary><span><BrainCircuit className="h-4 w-4" aria-hidden="true" /><strong>Smart Draft</strong><small>{customWorkout.length ? "Build a replacement session" : "Build a session for this day"}</small></span><ChevronRight className="h-4 w-4" aria-hidden="true" /></summary>
               <SessionDraftPanel dayLabel={`${activeSlot.ordinal} · ${activeSplitDay}`} minutes={gymMinutes} budget={gymTimeBudget} loadout={activeLoadout} exerciseCount={draftedLoadout.length} estimatedMinutes={draftedLoadoutMinutes} replacingCount={customWorkout.length} onMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} onLoadout={setActiveLoadout} onDraft={loadDraft} />
             </details>
             <p className="day-review-pointer">Warm-up, programming detail and the week's volume are on <button type="button" onClick={() => navigateContextualWorkspace({ id: "review", label: "Review", workspace: "review" })}>Review</button>.</p>
-            <PrintableWorkoutSheet workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} sport={selectedSport.label} dayLabel={activeDayLabel} />
+            <PrintableWorkoutSheet workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} sport={selectedSport.label} dayLabel={activeDayLabel} />
           </div>
         </section>}
-        {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} nextStep={<>
+        {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} nextStep={<>
           {/* The one thing to do with a muscle: find its exercises. The label
               names the selected muscle; with nothing selected it says so and
               offers the action's leading muscle, rather than pretending. */}
@@ -1736,7 +1901,7 @@ export default function Home() {
               <h1>Review your week</h1>
               <p>Week {activeWeek} · {trainingDays} planned days · {activeSlot.ordinal} open · checks the planned workload, not what you have completed</p>
             </div>
-            <button type="button" className="day-review-open" onClick={() => navigateWorkspace("tracker")} disabled={!customWorkout.length}>{liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"} <ArrowUpRight className="h-4 w-4" /></button>
+            <button type="button" className="day-review-open" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}>{liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"} <ArrowUpRight className="h-4 w-4" /></button>
           </div>
           {/* Everything here reads the plan rather than changing it, in the order
               it is wanted: what to do before the session, where the week's volume
@@ -1747,9 +1912,9 @@ export default function Home() {
             {/* Spacing is not a part of the volume map. It was rendered inside it,
                 so "how are my sessions spaced" lived underneath a chart answering
                 a different question. */}
-            <RecoverySpacingPanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} onOpenDay={(dayName) => { const index = daySlots.findIndex((slot) => slot.day === dayName); if (index >= 0) openTrainingDay(index); }} />
-            <ProgrammingGuidePanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} />
-            <WorkoutHealthPanel workout={customWorkout} prescriptions={prescriptions} settings={exerciseSettings} goal={goal} />
+            <RecoverySpacingPanel plan={weeklyPlan} prescriptions={weeklyPrescriptions} goal={goal} onOpenDay={(dayKey) => { const index = daySlots.findIndex((slot) => slot.key === dayKey); if (index < 0) return; /* Opens it: openTrainingDay stays on Review by design, so "Open" only moved a marker (Sep 28 regression brief §9). */ selectTrainingDay(index); navigateWorkspace("day-plan"); }} />
+            <ProgrammingGuidePanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} />
+            <WorkoutHealthPanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} equipmentSummary={equipmentProfileSummary(athleteBaseline.equipment)} />
             <ImportedPlanContext items={activeImportedContext} />
           </div>
         </section>}
@@ -1773,7 +1938,7 @@ export default function Home() {
         catalog's plus performs, on the same day the strip names. */}
     {introPreviewOpen && <Suspense fallback={null}><IntroPreview returnTo={introOpener} onClose={() => setIntroPreviewOpen(false)} /></Suspense>}
     {comparePair && <Suspense fallback={null}><ExerciseCompareSheet pair={comparePair} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} onAdd={addExercise} onClose={() => setComparePair(null)} onInspect={(exercise) => { setComparePair(null); inspectExercise(exercise); }} /></Suspense>}
-    {inspectedExercise && <div className="fixed inset-0 z-50 exercise-intelligence" role="dialog" aria-modal="true" aria-labelledby="exercise-intelligence-title">
+    {inspectedExercise && <div className="fixed inset-0 z-50 exercise-intelligence" ref={inspectorLayerRef} role="dialog" aria-modal="true" aria-labelledby="exercise-intelligence-title">
       <div className="exercise-intelligence-sheet">
         <div className="exercise-intelligence-bar">
           <img src={sportsGenomeAssets.circularBadge} alt="" className="exercise-intelligence-logo" />
@@ -1795,14 +1960,14 @@ export default function Home() {
             <AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} showInspector={false} nextStep={<dl className="exercise-intelligence-roles"><div><dt>Primary</dt><dd>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div><div><dt>Supporting</dt><dd>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div>{inspectedExercise.qualities.length > 0 && <div><dt>Qualities</dt><dd>{inspectedExercise.qualities.join(" · ")}</dd></div>}</dl>} />
             {/* The one thing the retired Genome page offered that this overlay did
                 not: a way from the exercise's leading muscle into Body Lab. */}
-            {inspectedExercise.primaryMuscles[0] && <button type="button" className="exercise-intelligence-explore" onClick={() => { const muscle = inspectedExercise.primaryMuscles[0]!; closeInspector(); setActiveMuscle(muscle); navigateWorkspace("body"); }}>Explore {muscleLabels[inspectedExercise.primaryMuscles[0]] || inspectedExercise.primaryMuscles[0]} in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+            {inspectedExercise.primaryMuscles[0] && <button type="button" className="exercise-intelligence-explore" onClick={() => { const muscle = inspectedExercise.primaryMuscles[0]!; setActiveMuscle(muscle); leaveInspectorFor("body"); }}>Explore {muscleLabels[inspectedExercise.primaryMuscles[0]] || inspectedExercise.primaryMuscles[0]} in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </section>
           <ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} compactHead />
-          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => { setInspectedExercise(null); navigateWorkspace("movement"); }} />
+          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => leaveInspectorFor("movement")} />
           <details className="exercise-intelligence-disclosure"><summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Evidence context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary><div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /></div></details>
         </div>
-        <div className="exercise-intelligence-actions">
-          <button type="button" className="exercise-intelligence-add" onClick={() => { addExercise(inspectedExercise); setInspectedExercise(null); }}>Add to Week {activeWeek} · {activeSlot.day} <Plus className="h-5 w-5" aria-hidden="true" /></button>
+        <div ref={feedbackSurfaceRef} className="exercise-intelligence-actions">
+          <button type="button" className="exercise-intelligence-add" onClick={() => { addExercise(inspectedExercise); closeInspector(); }}>Add to Week {activeWeek} · {activeSlot.day} <Plus className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className={`exercise-intelligence-favorite ${favoriteIds.has(inspectedExercise.id) ? "is-on" : ""}`} onClick={() => toggleFavorite(inspectedExercise)} aria-pressed={favoriteIds.has(inspectedExercise.id)} aria-label={`${favoriteIds.has(inspectedExercise.id) ? "Remove" : "Save"} ${inspectedExercise.name} ${favoriteIds.has(inspectedExercise.id) ? "from" : "to"} favorites`}><Heart className="h-5 w-5" fill={favoriteIds.has(inspectedExercise.id) ? "currentColor" : "none"} /></button>
         </div>
       </div>

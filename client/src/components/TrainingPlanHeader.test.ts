@@ -44,11 +44,29 @@ describe("choosing a week and a day", () => {
     for (const day of ["Push", "Pull", "Legs"]) expect(markup).toContain(day);
   });
 
-  it("marks the current week and the current day as the selected tab", () => {
+  it("marks the current week and the current day", () => {
     const markup = render();
     expect(markup).toContain("training-plan-week-active");
     expect(markup).toContain("training-plan-day-active");
-    expect(markup.match(/aria-selected="true"/g), "one week and one day").toHaveLength(2);
+    expect(markup.match(/aria-selected="true"/g), "the day tab").toHaveLength(1);
+    expect(markup.match(/aria-current="true"/g), "the week button").toHaveLength(1);
+    expect(markup).toMatch(/<button[^>]*aria-current="true"[^>]*>Week 1<small>/);
+  });
+
+  /**
+   * A tab shows a place and never acts. The Week 2 pill builds a whole week when
+   * pressed, so it cannot be announced as a tab: the weeks are a group of
+   * buttons, and only the days are tabs.
+   */
+  it("a week that has to be generated is a button, not a tab that acts on selection", () => {
+    const markup = render();
+    expect(markup.match(/role="tablist"/g), "the days only").toHaveLength(1);
+    expect(markup.match(/role="tab"/g), "one tab per day").toHaveLength(slots.length);
+    expect(markup).toContain('class="training-plan-weeks" role="group" aria-label="Training week"');
+    const generate = markup.match(/<button[^>]*>Week 2<small>Generate/)?.[0];
+    expect(generate).toBeDefined();
+    expect(generate).not.toContain("role=");
+    expect(generate).not.toContain("aria-selected");
   });
 
   /**
@@ -85,7 +103,17 @@ describe("choosing a week and a day", () => {
     expect(markup).toContain("training-plan-day-live");
     expect(markup).toContain("Training now");
     expect(markup).toContain("training-plan-day-trained");
-    expect(markup).toContain("Trained");
+    // "Done this week", not "Trained": the state is scoped to the calendar week, the same rule
+    // Home's strip reads (intentional change, Sep 28 regression brief §5).
+    expect(markup).toContain("Done this week");
+  });
+
+  // "04 /" was a design-mock section number shown to athletes, like the
+  // "01 / PROGRAM BIAS / EDITABLE" tag athlete-baseline-quiz.css removed from onboarding.
+  it("names the page in plain words, with no mock section number", () => {
+    const markup = render();
+    expect(markup).toContain("Saved training days");
+    expect(markup).not.toMatch(/\b0\d \//);
   });
 
   it("renders nothing rather than a header for a week with no days", () => {

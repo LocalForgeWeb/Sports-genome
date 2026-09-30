@@ -109,6 +109,31 @@ describe("placing a value on a curve", () => {
   it("will not place a value against a single anchor", () => {
     expect(placeOnCurve([{ percentile: 50, value: 1 }], 1)).toMatchObject({ reason: "insufficient_anchors" });
   });
+
+  it("takes the middle of the percentiles when several anchors share the value", () => {
+    // As `get_beta_strength_percentile_v1_core`: the 40th and 60th both sit at 1.0.
+    expect(placeOnCurve([{ percentile: 40, value: 1 }, { percentile: 60, value: 1 }, { percentile: 90, value: 2 }], 1)).toEqual({ percentile: 50 });
+  });
+
+  it("places the same whatever order the anchors arrive in (rows come back unordered)", () => {
+    const [p5, p25, p50, p75, p95] = curve.anchors;
+    for (const anchors of [[...curve.anchors].reverse(), [p50, p5, p95, p25, p75]]) {
+      expect(placeOnCurve(anchors, 1.125)).toEqual({ percentile: 62.5 });
+      expect(placeOnCurve(anchors, 0.2)).toEqual({ reason: "below_lowest_anchor", censoredAt: 5 });
+      expect(placeOnCurve(anchors, 2.4)).toEqual({ reason: "above_highest_anchor", censoredAt: 95 });
+    }
+  });
+
+  it("ignores an anchor that is not a finite number", () => {
+    // Without the 5th, the 50th is the lowest anchor left.
+    expect(placeOnCurve([{ percentile: 5, value: NaN }, { percentile: 50, value: 1 }, { percentile: 95, value: 2 }], 0.8)).toEqual({ reason: "below_lowest_anchor", censoredAt: 50 });
+    // Without the middle anchor, 1.25 is halfway between the 5th at 0.5 and the 95th at 2.0.
+    expect(placeOnCurve([{ percentile: 5, value: 0.5 }, { percentile: Infinity, value: 1 }, { percentile: 95, value: 2 }], 1.25)).toEqual({ percentile: 50 });
+  });
+
+  it("counts two anchors on one percentile as insufficient", () => {
+    expect(placeOnCurve([{ percentile: 50, value: 1 }, { percentile: 50, value: 2 }], 1.5)).toEqual({ reason: "insufficient_anchors", censoredAt: 0 });
+  });
 });
 
 describe("the beta percentile route end to end", () => {

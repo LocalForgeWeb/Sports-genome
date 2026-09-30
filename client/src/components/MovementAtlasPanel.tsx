@@ -5,6 +5,7 @@ import type { SportMovementProfile, SportProfile } from "@/lib/sportMovementData
 import { sportEvidenceCoverage } from "@/lib/evidenceCoverage";
 import { buildMovementReasoning, getSportModifiers } from "@/lib/hierarchicalSportModel";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { movementDisplayLabel } from "@/lib/movementLabel";
 
 export function filterAtlasMovements(movements: SportMovementProfile[], query: string, family: string) {
   const normalized = query.trim().toLowerCase();
@@ -66,7 +67,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
 
     <div className="atlas-selected">
       <p className="metric-label">{shortFamilyLabel(selectedMovement.family)}</p>
-      <h2>{selectedMovement.label}</h2>
+      <h2>{movementDisplayLabel(selectedMovement.label)}</h2>
       <div className="atlas-stepper" role="group" aria-label="Step through actions">
         <button type="button" onClick={() => step(previous)} disabled={!previous} aria-label="Previous action"><ChevronLeft className="h-5 w-5" aria-hidden="true" /></button>
         <span aria-live="polite">{position >= 0 ? <><b>{String(position + 1).padStart(2, "0")}</b> / {String(visible.length).padStart(2, "0")}</> : <>Not in this list</>}</span>
@@ -95,7 +96,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
         <div className="atlas-list-meta"><span>{visible.length} {visible.length === 1 ? "movement" : "movements"}</span><label>Sort<select aria-label="Sort movements" value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}><option value="recommended">Recommended</option><option value="a-z">A–Z</option><option value="family">Movement family</option></select></label></div>
       </div>
       {shownActions.length
-        ? <><ol className="atlas-actions">{shownActions.map((movement) => <li key={movement.id}><button type="button" onClick={() => { emitInteractionFeedback(); onMovement(movement); }} aria-pressed={movement.id === selectedMovement.id} className="atlas-action-item"><i className="atlas-action-marker" aria-hidden="true" /><strong>{movement.label}</strong><ChevronRight className="h-4 w-4" aria-hidden="true" /></button></li>)}</ol>{visible.length > 7 && <button type="button" className="atlas-show-more" onClick={() => { emitInteractionFeedback(); setShowAllActions((value) => !value); }}>{showAllActions ? "Show fewer actions" : `Show all ${visible.length} actions`}<ChevronDown className={`h-4 w-4 ${showAllActions ? "rotate-180" : ""}`} aria-hidden="true" /></button>}</>
+        ? <><ol className="atlas-actions">{shownActions.map((movement) => <li key={movement.id}><button type="button" onClick={() => { emitInteractionFeedback(); onMovement(movement); }} aria-pressed={movement.id === selectedMovement.id} className="atlas-action-item"><i className="atlas-action-marker" aria-hidden="true" /><strong>{movementDisplayLabel(movement.label)}</strong><ChevronRight className="h-4 w-4" aria-hidden="true" /></button></li>)}</ol>{visible.length > 7 && <button type="button" className="atlas-show-more" onClick={() => { emitInteractionFeedback(); setShowAllActions((value) => !value); }}>{showAllActions ? "Show fewer actions" : `Show all ${visible.length} actions`}<ChevronDown className={`h-4 w-4 ${showAllActions ? "rotate-180" : ""}`} aria-hidden="true" /></button>}</>
         : <div className="atlas-empty"><strong>No actions match this filter.</strong><p>Clear the filter or try a broader muscle or action term.</p></div>}
     </section>
 

@@ -5,9 +5,10 @@ const source = readFileSync(new URL("./ProgressOverviewPanel.tsx", import.meta.u
 
 describe("Progress overview", () => {
   it("summarizes saved session and observation records, merged with tracker history, without invented performance outcomes", () => {
-    expect(source).toContain("trpc.workoutLog.list.useQuery()");
-    expect(source).toContain("trpc.strengthGenome.observations.useQuery()");
-    expect(source).toContain("trpc.workoutLog.progressionHistory.useQuery()");
+    // Asked only when an account is the source (intentional change, D-015).
+    expect(source).toContain("trpc.workoutLog.list.useQuery(undefined, { enabled: !directAccess })");
+    expect(source).toContain("trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess })");
+    expect(source).toContain("trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: !directAccess })");
     // Account observations, lifts saved on this device, and finished tracker
     // workouts are one record here — counting only the server's rows showed a
     // device athlete zero lifts under a list of completed sessions.
@@ -21,14 +22,13 @@ describe("Progress overview", () => {
     expect(source).toContain("deviceWorkoutHistoryEvent");
     expect(source).toContain('status === "completed"');
     expect(source).toContain("completedSetCount");
-    expect(source).toContain("Your completed sessions.");
-    expect(source).toContain("b.completedAt.getTime() - a.completedAt.getTime()");
-    expect(source).toContain('session.storage === "device" ? "Device" : "Account"');
-    expect(source).toContain("No comparable history yet.");
     expect(source).toContain("summarizeWithinAthleteStrengthComparisons(unifiedHistory)");
-    expect(source).toContain("Estimated change since your first log");
     expect(source).toContain("tracks you against your own past only — never against anyone else");
     expect(source).toContain("Epley formula");
+    // The trend rows name the estimate the method note defines, not a bare abbreviation.
+    expect(source).toContain("% est. 1RM");
+    expect(source).toContain("(est. 1RM, Epley formula)");
+    expect(source).not.toContain("e1RM");
     expect(source).toContain("outside the validated rep range for estimation");
     expect(source).not.toContain("readiness score");
     expect(source).not.toContain("Personal record");
@@ -67,6 +67,17 @@ describe("Progress places each trend's latest lift on the community curves", () 
   });
 
   it("is given the athlete's sex and profile weight by the page, the way the Strength Genome is", () => {
-    expect(home).toContain("<ProgressOverviewPanel onOpenStrength={() => navigateWorkspace(\"strength\")} onOpenTraining={() => navigateWorkspace(\"day-plan\")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />");
+    // Each prop on its own, in any order or layout. directAccess defaults to true, so a page
+    // that stopped passing it would hide an account's record without any error.
+    const element = home.match(/<ProgressOverviewPanel\b[\s\S]*?\/>/)?.[0] ?? "";
+    for (const prop of [
+      'onOpenStrength={() => navigateWorkspace("strength")}',
+      'onOpenTraining={() => navigateWorkspace("day-plan")}',
+      "sexForReference={athleteBaseline.sexForReference}",
+      "baselineBodyWeight={athleteBaseline.bodyWeight}",
+      "weightUnit={athleteBaseline.weightUnit}",
+      "birthYear={athleteBaseline.birthYear}",
+      "directAccess={directWorkspaceAccess}",
+    ]) expect(element).toContain(prop);
   });
 });

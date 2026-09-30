@@ -110,6 +110,38 @@ describe("Typing a bodyweight in About Me", () => {
     fireEvent.change(weight(), { target: { value: "145.5" } });
     expect(onBaseline).toHaveBeenLastCalledWith({ ...base, bodyWeight: 145.5 });
   });
+
+  it("reads a decimal comma as the decimal point", () => {
+    const { onBaseline, weight } = draw(base);
+    fireEvent.change(weight(), { target: { value: "72,5" } });
+    expect(weight().value).toBe("72.5");
+    expect(onBaseline).toHaveBeenLastCalledWith({ ...base, bodyWeight: 72.5 });
+  });
+
+  /* The unit is how the weight is shown. Switching it used to keep the number, so 180 lb was
+     saved as 180 kg and logged as a new weigh-in every later lift was read against. */
+  it("converts the saved weight when the unit is switched", () => {
+    const { onBaseline, weight, rerender } = draw({ ...base, bodyWeight: 180, weightUnit: "lb" });
+    fireEvent.change(screen.getByRole("combobox", { name: "Weight unit" }), { target: { value: "kg" } });
+    expect(onBaseline).toHaveBeenLastCalledWith({ ...base, weightUnit: "kg", bodyWeight: 81.6 });
+    rerender({ ...base, weightUnit: "kg", bodyWeight: 81.6 });
+    expect(weight().value).toBe("81.6");
+  });
+
+  it("switches the unit alone when no weight is saved", () => {
+    const { onBaseline } = draw(base);
+    fireEvent.change(screen.getByRole("combobox", { name: "Weight unit" }), { target: { value: "kg" } });
+    expect(onBaseline).toHaveBeenLastCalledWith({ ...base, weightUnit: "kg", bodyWeight: undefined });
+  });
+
+  /* "Bodyweight" is the equipment chip for training with no load; the measurement is two words,
+     as it is everywhere else the app asks for it. */
+  it("names the weight field as a measurement, not the equipment category", () => {
+    const { weight } = draw(base);
+    const label = screen.getByText("Body weight (optional)");
+    expect(screen.queryByText("Bodyweight (optional)")).toBeNull();
+    expect(label.closest("label")?.contains(weight())).toBe(true);
+  });
 });
 
 describe("What counts as a year", () => {

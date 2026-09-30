@@ -1,5 +1,7 @@
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { forInsert, toAthleteStrengthEntry, type AthleteSnapshot, type RecordedLift } from "@/lib/athleteStrengthEntry";
+import { workoutObservationId } from "@/lib/workoutStrengthRecord";
+import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 
 /**
  * The outbox between a logged lift and `public.athlete_strength_entries`.
@@ -48,8 +50,24 @@ function writeJson(key: string, value: unknown): boolean {
   }
 }
 
-export const loadSyncQueue = (): QueuedLift[] => readJson<QueuedLift[]>(strengthSyncQueueKey, []).filter((item) => item?.key);
-export const loadSyncedKeys = (): string[] => readJson<string[]>(strengthSyncedKey, []);
+const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
+// Both loaders check the shape the way the body-weight and workout logs do: a stored
+// object or number would otherwise throw on every launch, and nothing rewrites it.
+// A queued entry needs its lift and the athlete it was read against: a flush reads
+// both, and one that throws stops every other lift in the queue from being sent.
+export function loadSyncQueue(): QueuedLift[] {
+  const parsed = readJson<unknown>(strengthSyncQueueKey, []);
+  return Array.isArray(parsed)
+    ? parsed.filter((item): item is QueuedLift =>
+      isObject(item) && typeof item.key === "string" && item.key.length > 0 && isObject(item.lift) && isObject(item.athlete))
+    : [];
+}
+
+export function loadSyncedKeys(): string[] {
+  const parsed = readJson<unknown>(strengthSyncedKey, []);
+  return Array.isArray(parsed) ? parsed.filter((key): key is string => typeof key === "string") : [];
+}
 
 /**
  * Adds lifts that are neither queued nor already sent. Pure, so the decision of
@@ -64,6 +82,20 @@ export function enqueueLifts(
   return [...queue, ...candidates.filter((item) => item.key && !known.has(item.key))];
 }
 
+/**
+ * Drops the lifts of a workout the athlete removed that have not been sent yet.
+ * Removing a workout deletes it from this device; a lift still waiting here would
+ * otherwise reach the account on the next flush, which is the mis-typed 225-for-22.5
+ * the removal exists to take back. Lifts already sent are not touched.
+ */
+export function removeQueuedLiftsForSession(
+  queue: readonly QueuedLift[],
+  session: Pick<DeviceWorkoutSession, "id" | "exercises">,
+): QueuedLift[] {
+  const removed = new Set(session.exercises.map((exercise) => workoutObservationId(session.id, exercise.id)));
+  return queue.filter((item) => !removed.has(item.key));
+}
+
 export function saveSyncQueue(queue: readonly QueuedLift[]): boolean {
   const ok = writeJson(strengthSyncQueueKey, queue);
   if (ok && typeof window !== "undefined") window.dispatchEvent(new Event(strengthSyncEvent));
@@ -73,13 +105,24 @@ export function saveSyncQueue(queue: readonly QueuedLift[]): boolean {
 export type FlushResult = { sent: number; remaining: number; skipped: number; reason?: "no_session" | "not_configured" | "offline" | "rejected" };
 
 /**
+ * Whether sending the rows one at a time can get past a batch PostgREST turned down with this
+ * status. One row can cause a 400 (a bad value, a failed check, a missing field) or a 409 (a
+ * duplicate, a missing reference), and a 413 is the batch being too large to take whole. An
+ * expired session (401), a refused policy (403) or an outage (5xx) turns down every row alike.
+ */
+const worthRetryingRowByRow = (status: number) => status === 400 || status === 409 || status === 413;
+
+/**
  * Sends what is queued, one row per lift, and keeps anything that did not land.
  *
  * `resolveExerciseUuid` is injected rather than fetched here so the caller owns
  * the mapping cache, and so this can be tested against a known map. A lift whose
- * exercise has no Supabase uuid is dropped from the queue rather than retried
- * forever — `exercise_id` is a foreign key, and no amount of retrying will
- * invent a row in `public.exercises`.
+ * exercise has no Supabase uuid yet stays queued and is not marked sent: the
+ * mapping is read from the database, and while that read failed (SB-06) every
+ * lift was dropped as unmappable and lost. It is sent once its mapping resolves.
+ *
+ * A row the database rejects stays queued the same way, and no longer holds back
+ * the rows queued around it: those are sent one at a time and land on their own.
  */
 export async function flushSyncQueue(
   userId: string | null,
@@ -94,27 +137,70 @@ export async function flushSyncQueue(
 
   const rows: { key: string; payload: Record<string, unknown> }[] = [];
   const unmappable: string[] = [];
+  const unsendable: string[] = [];
   for (const item of queue) {
-    const row = toAthleteStrengthEntry(item.lift, item.athlete, resolveExerciseUuid(item.lift.catalogExerciseId));
+    const exerciseUuid = resolveExerciseUuid(item.lift.catalogExerciseId);
+    // A lift whose exercise cannot be mapped yet waits for the mapping. It used to be dropped
+    // and marked synced forever, so every lift was lost while the mapping read failed (SB-06,
+    // PS-18). A lift that can never form a row (no date, no reps and no load) still leaves.
+    if (!exerciseUuid) { unmappable.push(item.key); continue; }
+    const row = toAthleteStrengthEntry(item.lift, item.athlete, exerciseUuid);
     if (row) rows.push({ key: item.key, payload: forInsert(row) });
-    else unmappable.push(item.key);
+    else unsendable.push(item.key);
   }
 
   if (!rows.length) {
-    saveSyncQueue([]);
-    return { sent: 0, remaining: 0, skipped: unmappable.length };
+    if (unsendable.length) saveSyncQueue(queue.filter((item) => !unsendable.includes(item.key)));
+    return { sent: 0, remaining: queue.length - unsendable.length, skipped: unmappable.length + unsendable.length };
   }
 
+  // postgrest-js hands back a dropped connection as status 0 rather than throwing, so that is
+  // what tells "offline" from a row the database turned down.
+  const landed = new Set<string>();
+  let batchRejected = false;
+  let batchStatus = 0;
   try {
-    const { error } = await supabase.from("athlete_strength_entries").insert(rows.map((row) => row.payload));
-    if (error) return { sent: 0, remaining: queue.length, skipped: 0, reason: "rejected" };
+    const { error, status } = await supabase.from("athlete_strength_entries").insert(rows.map((row) => row.payload));
+    if (error && status === 0) return { sent: 0, remaining: queue.length, skipped: 0, reason: "offline" };
+    batchStatus = status;
+    if (error) batchRejected = true;
+    else rows.forEach((row) => landed.add(row.key));
   } catch {
     return { sent: 0, remaining: queue.length, skipped: 0, reason: "offline" };
   }
 
-  const landed = new Set(rows.map((row) => row.key));
-  const alreadySent = loadSyncedKeys().concat(rows.map((row) => row.key), unmappable);
+  // One row the database turns down fails the whole batch, and it used to hold back every lift
+  // queued with it on every later flush. The rows go again one at a time, so the good ones land;
+  // a row still turned down stays queued, unmarked, to be tried again later.
+  // Only a rejection that one row can cause earns that retry. An expired session, a refused policy
+  // or an outage turns every row down alike, and sending each alone would cost one more request
+  // per lift on every flush for nothing.
+  // Each row is checked against the stored queue before it goes: a workout removed while these
+  // requests run prunes its lifts from storage, and `rows` is the copy taken before the first
+  // send. A pruned lift is neither sent nor counted as turned down.
+  let dropped = false;
+  let withdrawn = 0;
+  if (batchRejected && rows.length > 1 && worthRetryingRowByRow(batchStatus)) {
+    for (const row of rows) {
+      if (!loadSyncQueue().some((item) => item.key === row.key)) { withdrawn += 1; continue; }
+      try {
+        const { error, status } = await supabase.from("athlete_strength_entries").insert([row.payload]);
+        if (error && status === 0) { dropped = true; break; }
+        if (!error) landed.add(row.key);
+      } catch {
+        dropped = true;
+        break;
+      }
+    }
+  }
+
+  const alreadySent = loadSyncedKeys().concat(Array.from(landed), unsendable);
   writeJson(strengthSyncedKey, Array.from(new Set(alreadySent)).slice(-5000));
-  saveSyncQueue(queue.filter((item) => !landed.has(item.key) && !unmappable.includes(item.key)));
-  return { sent: rows.length, remaining: 0, skipped: unmappable.length };
+  // The queue is read again rather than filtered from the copy taken before the insert. The
+  // insert can take seconds on a gym network, and a workout removed in that time prunes its
+  // lifts from storage; writing the old copy back would restore them and send them later.
+  const remaining = loadSyncQueue().filter((item) => !landed.has(item.key) && !unsendable.includes(item.key));
+  saveSyncQueue(remaining);
+  const reason = landed.size + withdrawn < rows.length ? (dropped ? "offline" : "rejected") : undefined;
+  return { sent: landed.size, remaining: remaining.length, skipped: unmappable.length + unsendable.length, reason };
 }

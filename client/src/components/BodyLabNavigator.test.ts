@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { movementDisplayLabel } from "@/lib/movementLabel";
 import React, { createElement } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -28,7 +29,8 @@ describe("the Body Lab head", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Muscle map");
     const context = document.querySelector(".body-lab-selection-context")!.textContent;
     expect(context).toContain(sport.label);
-    expect(context).toContain(movements[1].label);
+    // Sentence case from the data (Sep 28 regression brief §10), the same in the options.
+    expect(context).toContain(movementDisplayLabel(movements[1].label));
   });
 
   it("keeps the pickers behind Change, and puts them away again", () => {
@@ -48,9 +50,23 @@ describe("the Body Lab head", () => {
     fireEvent.click(screen.getByRole("button", { name: /change/i }));
     fireEvent.change(document.querySelectorAll("select")[1], { target: { value: movements[3].id } });
     expect(onMovement).toHaveBeenLastCalledWith(movements[3]);
+    // Intentional change, Sep 28 regression brief §10: choosing an action closes the controls,
+    // so the map comes back into place; stepping keeps them open.
+    expect(document.querySelector("select")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /change/i }));
     fireEvent.click(screen.getByRole("button", { name: /next sport action/i }));
     expect(onMovement).toHaveBeenLastCalledWith(movements[2]);
+    expect(document.querySelectorAll("select")).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`All ${movements.length}`) }));
     expect(onOpenAtlas).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes on Escape, and names every option in sentence case", () => {
+    mount();
+    fireEvent.click(screen.getByRole("button", { name: /change/i }));
+    const options = Array.from(document.querySelectorAll("select")[1].querySelectorAll("option"), (option) => option.textContent);
+    expect(options).toEqual(movements.map((movement) => movementDisplayLabel(movement.label)));
+    fireEvent.keyDown(document.querySelectorAll("select")[1], { key: "Escape" });
+    expect(document.querySelector("select")).toBeNull();
   });
 });

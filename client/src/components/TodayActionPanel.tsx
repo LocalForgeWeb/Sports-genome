@@ -1,6 +1,6 @@
 import { plural } from "@/lib/plural";
 import React, { useMemo } from "react";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Circle, CircleArrowRight, CircleCheck, CirclePlay, type LucideIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import type { LiveSession } from "@/lib/liveSession";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
@@ -11,9 +11,11 @@ import type { TrainingSession } from "@/lib/trainingWeekSummary";
 import { useAthleteRecord } from "@/lib/athleteRecord";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
-import { roleMapForLists } from "@/lib/anatomyRegions";
-import { sideForSelection } from "@/lib/anatomySide";
-import { muscleLabels } from "@/components/AnatomyMap";
+import { dayExerciseCount, emptyDayStore, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { resolveNextWorkout, slotOfDayLabel, slotsDoneThisWeek, trainingWeekFor, type NextWorkoutChoice } from "@/lib/nextWorkout";
+import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
+import { parseSetCount } from "@/lib/sessionVolume";
+import { focusFrames, focusSummary, workoutFocus } from "@/lib/workoutFocus";
 
 /**
  * Home's first viewport, in the order a newcomer needs it:
@@ -50,18 +52,26 @@ function greetingFor(name: string | undefined, hour: number): string {
   return name?.trim() ? `${time}, ${name.trim()}` : time;
 }
 
-export type TodayActionPanelProps = {
-  stagedExerciseCount: number;
-  trainingDays: number;
-  activeDayLabel: string;
-  live?: LiveSession | null;
-  /** Whether any day of the plan holds exercises, so an empty selected day is told apart from no plan. */
-  planHasDays?: boolean;
+/** What Home reads to decide the next workout; never the day Plan happens to be showing (nextWorkout.ts). */
+export type TodayPlan = {
   /** False while the saved plan is still being read: the module holds its shape and says nothing it could be wrong about. */
-  planReady?: boolean;
+  ready: boolean;
+  slots: readonly DaySlot[];
+  /** Every saved plan week, with the day being edited written into its own week. */
+  weeks: Readonly<Record<number, WeeklyDayStore>>;
+  choice: NextWorkoutChoice | null;
+};
+
+export type TodayActionPanelProps = {
+  plan: TodayPlan;
+  live?: LiveSession | null;
   athleteName?: string;
   directAccess?: boolean;
   weightUnit?: DisplayWeightUnit;
+  /** The training goal, for set counts a day has not set (the Plan's own fallback). */
+  goal?: TrainingGoal;
+  /** Opens a plan day: the tracker ready to start it, or Plan to edit it. */
+  onOpenWorkout: (week: number, index: number, target: "tracker" | "day-plan") => void;
   onOpenTraining: () => void;
   onOpenTracker?: () => void;
   onOpenStrength: () => void;
@@ -70,23 +80,23 @@ export type TodayActionPanelProps = {
   birthYear?: number;
   /** For tests: the hour used to pick the greeting. */
   hour?: number;
-  /** Primary muscle keys of the next workout's exercises; drawn as the workout-focus schematic. */
-  focusMuscles?: readonly string[];
-  /** The plan's days in order, for the week strip; states come from saved sessions, never from the count. */
-  planDays?: readonly { index: number; name: string; label: string; exerciseCount: number }[];
-  activeDayIndex?: number;
-  onChooseDay?: (index: number) => void;
   /** Where a completed workout's record lives. */
   onOpenProgress?: () => void;
 };
 
 export type PlanDayState = "live" | "trained" | "next" | "planned";
-const planDayWord: Record<PlanDayState, string> = { live: "under way", trained: "completed this week", next: "next up", planned: "planned" };
+const planDayWord: Record<PlanDayState, string> = { live: "under way", trained: "done this week", next: "next up", planned: "planned" };
+/** One icon shape per state, so a day reads the same without colour: done, under way, next, still to come. */
+const planDayIcon: Record<PlanDayState, LucideIcon> = { trained: CircleCheck, live: CirclePlay, next: CircleArrowRight, planned: Circle };
+const noWeek = emptyDayStore();
 
-export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayLabel, live, planHasDays, planReady = true, athleteName, directAccess = true, weightUnit = "lb", onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, focusMuscles = [], planDays = [], activeDayIndex, onChooseDay, onOpenProgress }: TodayActionPanelProps) {
-  const sessions = trpc.workoutLog.list.useQuery();
-  const observations = trpc.strengthGenome.observations.useQuery();
-  const trackedSets = trpc.workoutLog.progressionHistory.useQuery();
+export function TodayActionPanel({ plan, live, athleteName, directAccess = true, weightUnit = "lb", goal = "Athleticism", onOpenWorkout, onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, onOpenProgress }: TodayActionPanelProps) {
+  // Account-only routes, asked only when an account is the source. On the device stores they
+  // were refused as unauthorised on every Home open, and each refusal told an athlete who
+  // had never signed in that their sign-in had expired (B233).
+  const sessions = trpc.workoutLog.list.useQuery(undefined, { enabled: !directAccess });
+  const observations = trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess });
+  const trackedSets = trpc.workoutLog.progressionHistory.useQuery(undefined, { enabled: !directAccess });
   const referenceRows = trpc.strengthGenome.referenceRows.useQuery(undefined, { staleTime: 60 * 60 * 1000, refetchOnWindowFocus: false });
   const accountObservations = observations.data || [];
   const accountSessions = (sessions.data || []) as TrainingSession[];
@@ -100,29 +110,47 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
   // One definition for every count (B155, B265): the record, which already reads the
   // account's lifts and sessions when the account is the source. The account branch used to
   // count typed lifts only, and a different set of sessions, from Progress.
-  const completedThisWeek = record.completedThisWeek;
   const liftsLogged = record.liftsLogged;
-  const hasStagedWorkout = stagedExerciseCount > 0;
-  const nextSession = splitDayLabel(activeDayLabel);
 
   /**
-   * Which plan days have a finished workout this week: the record's own list, from the
-   * same sessions and the same week its "completed this week" count reads, so the strip
-   * and the fraction cannot disagree. A day is marked from its own saved workout, never
-   * from its position in the plan; a finish with nothing logged is not a workout.
+   * The next workout, resolved once; the title, count, focus figure, actions and the strip all
+   * read this one result, so they cannot describe different days (Sep 28 regression brief §4).
+   * The week trained from is an explicit choice's, else the latest session's, else Week 1.
    */
-  const trainedThisWeek = useMemo(() => new Set(record.completedDayLabelsThisWeek), [record.completedDayLabelsThisWeek]);
-  /** The next workout already has a finished session this week: its record is the primary action. */
-  const nextCompleted = !live && hasStagedWorkout && trainedThisWeek.has(activeDayLabel);
+  const weekNumbers = useMemo(() => Object.keys(plan.weeks).map(Number), [plan.weeks]);
+  const trainingWeek = useMemo(() => trainingWeekFor({ choice: plan.choice, latestSessionDayLabel: record.latestSessionDayLabel, weeks: weekNumbers }), [plan.choice, record.latestSessionDayLabel, weekNumbers]);
+  const weekStore = plan.weeks[trainingWeek] ?? noWeek;
+  const next = useMemo(() => resolveNextWorkout({ ready: plan.ready, week: trainingWeek, slots: plan.slots, store: weekStore, completions: record.completionsThisWeek, choice: plan.choice }), [plan.ready, trainingWeek, plan.slots, weekStore, record.completionsThisWeek, plan.choice]);
+  const nextWorkout = next.kind === "workout" || next.kind === "weekComplete" ? next : null;
+  const nextExercises = useMemo(() => nextWorkout ? weekStore.plan[nextWorkout.slot.key] ?? [] : [], [nextWorkout, weekStore]);
 
-  /** The workout-focus schematic: the next workout's primary muscles, in one warm accent, never rank colours. */
-  const focusRoles = useMemo(() => roleMapForLists(focusMuscles, []), [focusMuscles]);
-  const focusKeys = useMemo(() => Object.keys(focusRoles), [focusRoles]);
-  const focusSide = useMemo(() => sideForSelection("front", focusKeys), [focusKeys]);
-  const focusNames = useMemo(() => Array.from(new Set(focusMuscles.map((muscle) => muscleLabels[muscle] || muscle))).slice(0, 4).join(", "), [focusMuscles]);
-  const showFocus = hasStagedWorkout && !live && focusKeys.length > 0;
-  const stateForDay = (day: { index: number; label: string }): PlanDayState =>
-    live?.dayLabel === day.label ? "live" : trainedThisWeek.has(day.label) ? "trained" : day.index === activeDayIndex ? "next" : "planned";
+  /**
+   * The week, in plan slots: done this calendar week (by slot, whichever plan week the session
+   * was started from), under way, next, or still to come. The fraction counts the same slots, so
+   * its number always equals the checked chips; sessions beyond them are said separately.
+   */
+  const doneSlots = useMemo(() => slotsDoneThisWeek(record.completionsThisWeek), [record.completionsThisWeek]);
+  const liveSlot = live ? slotOfDayLabel(live.dayLabel) : null;
+  const planDays = useMemo(() => plan.slots.map((slot) => ({ slot, key: `${slot.ordinal} · ${slot.day}`, exerciseCount: dayExerciseCount(weekStore, slot.key) })), [plan.slots, weekStore]);
+  const plannedDone = planDays.filter((day) => doneSlots.has(day.key)).length;
+  const unbuiltDays = planDays.filter((day) => !day.exerciseCount).length;
+  const moreThisWeek = Math.max(0, record.completedThisWeek - plannedDone);
+  const stateForDay = (day: { slot: DaySlot; key: string }): PlanDayState =>
+    liveSlot === day.key ? "live" : doneSlots.has(day.key) ? "trained" : !live && next.kind === "workout" && next.slot.index === day.slot.index ? "next" : "planned";
+
+  /**
+   * Workout focus: where the next workout's direct work lands, ranked by its sets (the day's own
+   * prescriptions, else the goal default the Plan shows), with one figure turned and cropped to
+   * that work. Planned focus only: never a rank, readiness or measured activation (§6).
+   */
+  const focus = useMemo(() => {
+    if (!nextWorkout) return null;
+    const prescriptions = weekStore.prescriptions[nextWorkout.slot.key] ?? {};
+    return workoutFocus(nextExercises, (exercise, index) => parseSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)));
+  }, [nextWorkout, nextExercises, weekStore, goal]);
+  const focusLine = focusSummary(focus);
+  const focusFigure = next.kind === "workout" && !live ? focus?.figure ?? null : null;
+  const focusCaption = focus && focusFigure ? `Planned workout focus, ${focusFigure.side} view: ${focus.regions.map((region) => region.label).join(", ")}. From the exercises' primary muscles; not a strength rank, recovery readiness or measured activation.` : "";
 
   const trackedChanges = useMemo(
     () =>
@@ -160,8 +188,8 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
    * thing a first-time user tripped over.
    */
   const priority = useMemo(
-    () => selectHomePriority({ collectableGate, hasConfirmedChange: leadingChange !== null, trackedChangeCount: trackedChanges.length, stagedExerciseCount, observationCount: liftsLogged }),
-    [collectableGate, leadingChange, trackedChanges.length, stagedExerciseCount, liftsLogged]
+    () => selectHomePriority({ collectableGate, hasConfirmedChange: leadingChange !== null, trackedChangeCount: trackedChanges.length, stagedExerciseCount: next.kind === "workout" ? next.exerciseCount : 0, observationCount: liftsLogged }),
+    [collectableGate, leadingChange, trackedChanges.length, next, liftsLogged]
   );
   const recordPrompt = priority.id.startsWith("gate:") ? priority : null;
 
@@ -186,56 +214,51 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
             <button type="button" onClick={() => (onOpenTracker || onOpenTraining)()} className="today-action-secondary">View workout details <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
           </div>
         </div>
-      : hasStagedWorkout
-        ? <div className={`today-action-primary${showFocus ? " today-action-with-focus" : ""}`}>
+      : next.kind === "loading"
+        ? <div className="today-action-primary today-action-loading" role="status" aria-label="Loading your plan">
+            <div>
+              <p className="metric-label">Your next workout</p>
+              <span className="today-action-loading-title" />
+              <span style={{ width: "40%" }} />
+            </div>
+            <span className="today-action-loading-cta" />
+          </div>
+      : next.kind === "workout"
+        ? <div className={`today-action-primary${focusFigure ? " today-action-with-focus" : ""}`}>
             <div className="today-action-copy">
-              <p className="metric-label">{nextCompleted ? "Completed this week" : "Your next workout"}</p>
-              <h2>{nextSession.name}</h2>
-              {nextSession.position && <p className="today-action-position">{nextSession.position}</p>}
+              <p className="metric-label">Your next workout</p>
+              <h2>{next.slot.day}</h2>
+              <p className="today-action-position">Week {next.week} · {next.slot.ordinal}</p>
               <i className="today-action-rule" aria-hidden="true" />
-              <p className="today-action-count">{stagedExerciseCount} {stagedExerciseCount === 1 ? "exercise" : "exercises"}{focusNames ? ` · ${focusNames}` : ""}</p>
+              <p className="today-action-count">{next.exerciseCount} {next.exerciseCount === 1 ? "exercise" : "exercises"}</p>
+              {focusLine && <p className="today-action-focus-line"><span>Workout focus</span> {focusLine}</p>}
             </div>
             {/* The schematic is planned involvement - the exercises' primary muscles -
                 drawn in the action colour so it cannot be read as a Strength rank. */}
-            {showFocus && <figure className="home-focus">
-              <AnatomyFigure view={focusSide} roles={focusRoles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={`Workout focus: ${focusNames}`} />
-              <figcaption>Workout focus</figcaption>
+            {focusFigure && <figure className="today-action-focus">
+              <AnatomyFigure view={focusFigure.side} frame={focusFrames[focusFigure.side][focusFigure.frame]} roles={focusFigure.roles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={focusCaption} />
+              <figcaption>Planned focus</figcaption>
             </figure>}
             <div className="today-action-actions">
-              {nextCompleted
-                ? <>
-                    <button type="button" onClick={() => (onOpenProgress || onOpenStrength)()} className="today-action-cta">View workout summary <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-                    <button type="button" onClick={() => (onOpenTracker || onOpenTraining)()} className="today-action-secondary">Open {nextSession.name} again <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-                  </>
-                : <>
-                    {/* The plan carries no dates, so this is the next planned workout, opened at its
-                        ready view; nothing starts until the athlete starts it there. */}
-                    <button type="button" onClick={() => (onOpenTracker || onOpenTraining)()} className="today-action-cta">Open next workout <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-                    <button type="button" onClick={onOpenTraining} className="today-action-secondary">Edit plan <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-                  </>}
+              {/* The plan carries no dates, so this is the next planned workout, opened at its
+                  ready view; nothing starts until the athlete starts it there. */}
+              <button type="button" onClick={() => onOpenWorkout(next.week, next.slot.index, "tracker")} className="today-action-cta">Open next workout <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+              <button type="button" onClick={() => onOpenWorkout(next.week, next.slot.index, "day-plan")} className="today-action-secondary">Edit plan <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
             </div>
           </div>
-        : !planReady
-          ? <div className="today-action-primary today-action-loading" role="status" aria-label="Loading your plan">
-              <div>
-                <p className="metric-label">Your next workout</p>
-                <span className="today-action-loading-title" />
-                <span style={{ width: "40%" }} />
-              </div>
-              <span className="today-action-loading-cta" />
+      : next.kind === "weekComplete"
+        ? <div className="today-action-primary">
+            <div className="today-action-copy">
+              <p className="metric-label">Completed this week</p>
+              <h2>Every built workout done</h2>
+              <i className="today-action-rule" aria-hidden="true" />
+              <p className="today-action-count">{unbuiltDays ? `Every day you have built is done; ${plural(unbuiltDays, "day")} not built yet.` : "Every planned workout is done."} The week starts again on Monday.</p>
             </div>
-        : planHasDays
-          ? <div className="today-action-primary today-action-empty">
-              <div>
-                <p className="metric-label">Your next workout</p>
-                <h2>Choose your next workout</h2>
-                <p className="today-action-count">{activeDayLabel} is empty. Pick a day that has exercises, or add some to this one.</p>
-              </div>
-              <div className="today-action-actions">
-                <button type="button" onClick={onOpenTraining} className="today-action-cta">Open training plan <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-                {onOpenCatalog && <button type="button" onClick={onOpenCatalog} className="today-action-secondary">Explore exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
-              </div>
+            <div className="today-action-actions">
+              <button type="button" onClick={() => (onOpenProgress || onOpenStrength)()} className="today-action-cta">View workout summary <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+              <button type="button" onClick={() => onOpenWorkout(next.week, next.slot.index, "tracker")} className="today-action-secondary">Open {next.slot.day} again <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
             </div>
+          </div>
           : <div className="today-action-primary today-action-empty">
               <div>
                 <p className="metric-label">Your next workout</p>
@@ -253,13 +276,14 @@ export function TodayActionPanel({ stagedExerciseCount, trainingDays, activeDayL
         number here, not a verdict. */}
     <section className="home-week" aria-label="Your week">
       <div className="home-section-head"><p className="metric-label">Your week</p><button type="button" className="home-link" onClick={onOpenTraining}>View plan <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
-      {/* One segment per planned session, in plan order: completed, under way, next, or
-          still to come - each from that day's own saved session, and said in words as
-          well as shape. No weekdays are claimed; the plan has none. */}
-      {planDays.length > 0 && <ol className="home-week-strip" aria-label="Planned sessions this week, in plan order">
-        {planDays.map((day) => { const state = stateForDay(day); const name = `${day.name}, ${planDayWord[state]}${day.exerciseCount ? "" : ", empty"}`; const inner = <><i aria-hidden="true" /><span>{day.name}</span></>; return <li key={day.label} data-state={state}>{onChooseDay ? <button type="button" aria-label={name} aria-current={state === "next" ? "true" : undefined} onClick={() => onChooseDay(day.index)}>{inner}</button> : <span role="img" aria-label={name}>{inner}</span>}</li>; })}
+      {/* A summary, not a second day picker: one entry per plan day, in plan order - done this
+          week, under way, next, or still to come - said in words and shape, never by colour
+          alone. "View plan" is the way in; the entries do not change the next workout. No
+          weekdays are claimed; the plan has none. */}
+      {next.kind !== "loading" && next.kind !== "none" && planDays.length > 0 && <ol className="home-week-strip" aria-label="Planned workouts this week, in plan order">
+        {planDays.map((day) => { const state = stateForDay(day); const Icon = planDayIcon[state]; const tag = state === "next" ? "Next" : state === "live" ? "Now" : null; return <li key={day.key} data-state={state} data-empty={day.exerciseCount ? undefined : ""} aria-current={tag ? "step" : undefined}><span className="home-week-chip"><Icon className="home-week-icon" aria-hidden="true" /><span>{day.slot.day}</span>{tag && <em className="home-week-tag">{tag}</em>}<small className="sr-only">, {planDayWord[state]}{day.exerciseCount ? "" : ", not built yet"}</small></span></li>; })}
       </ol>}
-      <p className="home-week-line" aria-label={`${completedThisWeek} of ${trainingDays} planned ${trainingDays === 1 ? "workout" : "workouts"} completed this week`}><b className="stat-figure today-action-figure-accent" aria-hidden="true">{completedThisWeek}</b><span>of <b>{trainingDays}</b> planned {trainingDays === 1 ? "workout" : "workouts"} completed this week</span></p>
+      <p className="home-week-line"><b className="stat-figure today-action-figure-accent">{plannedDone}</b> <span>of <b>{plan.slots.length}</b> planned {plan.slots.length === 1 ? "workout" : "workouts"} done this week{moreThisWeek > 0 ? ` · ${moreThisWeek} more ${moreThisWeek === 1 ? "session" : "sessions"} this week` : ""}</span></p>
       <button type="button" className="home-week-record" onClick={onOpenStrength} aria-label={`${lifetimeLine}, all time. View strength progress`}>{lifetimeLine}<small>all time</small></button>
     </section>
 

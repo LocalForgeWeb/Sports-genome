@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ feedback: vi.fn(), mutate: vi.fn(), invalidate: vi.fn().mockResolvedValue(undefined) }));
@@ -75,7 +75,7 @@ describe("the last step to a percentile is taken where the percentile would be",
     vi.stubGlobal("scrollTo", vi.fn());
   });
 
-  afterEach(() => { document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
+  afterEach(() => { cleanup(); document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
 
   it("answers the gate in place instead of naming a field on another screen", () => {
     // "Add the sex to compare against in About Me" is true and unreachable: the field is
@@ -85,8 +85,9 @@ describe("the last step to a percentile is taken where the percentile would be",
 
     expect(screen.getByText(/Choose the group to compare against/)).toBeTruthy();
     expect(screen.queryByText(/in About Me and this lift gets a percentile/)).toBeNull();
-    // The groups are the curves' own: people who lift, not competitors.
-    expect(screen.getByRole("option", { name: "Men who lift" })).toBeTruthy();
+    // The groups are the curves' own: people who lift, not competitors. The map asks too, so
+    // look inside the sheet.
+    expect(within(screen.getByRole("group", { name: /record$/ })).getByRole("option", { name: "Men who lift" })).toBeTruthy();
     expect(screen.queryByRole("option", { name: /competitors/ })).toBeNull();
 
     fireEvent.change(screen.getByLabelText("Group to compare this lift against"), { target: { value: "male" } });
@@ -149,5 +150,46 @@ describe("the last step to a percentile is taken where the percentile would be",
     expect(screen.getByText(/split into men and women who lift/)).toBeTruthy();
     expect(screen.queryByLabelText("Group to compare this lift against")).toBeNull();
     expect(screen.queryByText(/Choose the group to compare against/)).toBeNull();
+  });
+});
+
+describe("the map asks for the group its ranks compare against, in place", () => {
+  beforeEach(() => {
+    mocks.feedback.mockReset();
+    localStorage.setItem(deviceStrengthObservationKey, JSON.stringify(benchPress));
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { callback(0); return 1; });
+    vi.stubGlobal("cancelAnimationFrame", vi.fn());
+    vi.stubGlobal("scrollTo", vi.fn());
+  });
+
+  afterEach(() => { cleanup(); document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
+
+  function renderMap(props: Record<string, unknown>) {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb", ...props }));
+  }
+
+  it("answers on the map instead of sending the athlete to About Me", () => {
+    const onRankProfile = vi.fn();
+    renderMap({ onRankProfile });
+
+    expect(screen.queryByText(/set it in About Me/)).toBeNull();
+    expect(screen.getByText(/this map ranks the muscle groups your lifts train/)).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Group to rank your lifts against"), { target: { value: "female" } });
+    expect(onRankProfile).toHaveBeenCalledWith({ sexForReference: "female" });
+  });
+
+  it("still names About Me when there is no way to answer here", () => {
+    renderMap({});
+
+    expect(screen.getByText(/set it in About Me/)).toBeTruthy();
+    expect(screen.queryByLabelText("Group to rank your lifts against")).toBeNull();
+  });
+
+  it("does not ask the map's question again for an answer it already has", () => {
+    renderMap({ sexForReference: "unspecified", onRankProfile: vi.fn() });
+
+    expect(screen.queryByLabelText("Group to rank your lifts against")).toBeNull();
+    expect(screen.queryByText(/set it in About Me/)).toBeNull();
+    expect(screen.getByText(/for the group you chose this map shows where lifts are on record/)).toBeTruthy();
   });
 });

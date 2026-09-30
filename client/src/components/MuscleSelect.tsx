@@ -33,6 +33,7 @@ export function MuscleSelect({ muscles, value, labelFor, onChange, allLabel = "A
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const listId = useId();
@@ -76,14 +77,19 @@ export function MuscleSelect({ muscles, value, labelFor, onChange, allLabel = "A
     listRef.current?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`)?.scrollIntoView?.({ block: "nearest" });
   }, [activeIndex, open]);
 
+  // Closing unmounts the focused search field, so focus goes back to the trigger
+  // rather than falling to the top of the document.
   const commit = (option: Option) => {
     onChange(option.key);
     setOpen(false);
     setQuery("");
+    triggerRef.current?.focus?.();
   };
 
   const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Escape") { setOpen(false); setQuery(""); return; }
+    // Escape closes this list only. The add-exercises sheet around it also closes
+    // on Escape, and one key press should not take the athlete out of both.
+    if (event.key === "Escape") { event.stopPropagation(); setOpen(false); setQuery(""); triggerRef.current?.focus?.(); return; }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       if (!matches.length) return;
@@ -97,11 +103,12 @@ export function MuscleSelect({ muscles, value, labelFor, onChange, allLabel = "A
 
   return <div className="athlete-sport-select muscle-select" ref={rootRef}>
     <button
+      ref={triggerRef}
       type="button"
       className={`athlete-sport-trigger ${value !== "all" ? "is-chosen" : ""}`}
       aria-haspopup="listbox"
       aria-expanded={open}
-      aria-controls={open ? listId : undefined}
+      aria-controls={open && matches.length ? listId : undefined}
       aria-label="Filter day exercises by muscle group"
       onClick={() => setOpen((current) => !current)}
     >
@@ -118,7 +125,11 @@ export function MuscleSelect({ muscles, value, labelFor, onChange, allLabel = "A
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search muscles"
           aria-label="Search muscles"
-          aria-controls={listId}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={matches.length > 0}
+          aria-controls={matches.length ? listId : undefined}
+          aria-activedescendant={matches.length ? `${listId}-option-${activeIndex}` : undefined}
           autoComplete="off"
         />
         {query && <button type="button" onClick={() => { setQuery(""); searchRef.current?.focus(); }} aria-label="Clear search"><X className="h-4 w-4" /></button>}
@@ -129,6 +140,7 @@ export function MuscleSelect({ muscles, value, labelFor, onChange, allLabel = "A
           <button
             type="button"
             role="option"
+            id={`${listId}-option-${index}`}
             data-index={index}
             aria-selected={option.key === value}
             className={`athlete-sport-option ${index === activeIndex ? "is-active" : ""} ${option.key === value ? "is-selected" : ""}`}

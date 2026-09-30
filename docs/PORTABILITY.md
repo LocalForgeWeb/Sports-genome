@@ -46,7 +46,7 @@ The shared `client/src/lib/sportsGenomeAssets.ts` map is the application’s can
 | Manus storage proxy route | Removed | All active asset references point directly to Supabase. |
 | Manus OAuth routes, SDK, and client OAuth utility | Removed | Current email/password and WebAuthn/passkey flow remains standard Express/tRPC code. |
 | Manus system notification router | Removed | Unused template endpoint. |
-| Manus environment abstraction | Removed | Active MySQL user-admin comparison reads the standard `OWNER_OPEN_ID` process environment variable directly. |
+| Manus environment abstraction | Removed | The `OWNER_OPEN_ID` admin promotion and the unused admin procedure went with it; no route reads a role. |
 
 ## Deployment architecture
 

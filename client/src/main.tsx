@@ -1,31 +1,24 @@
 import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { installSessionNotice, isUnauthorized, sessionNotice } from "@/lib/sessionNotice";
 import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import "./index.css";
 
 /**
- * A sign-in that has lapsed is said once, in words, and never costs the athlete
- * anything: the device record stays, and About me is where to sign in again.
- * Every other failure is handled where it happens, beside the control.
+ * A lapsed sign-in is said once, when it happens, by lib/sessionNotice.ts; it is the only
+ * source of that notice. Every other failure is handled where it happens, beside the control.
  */
-let expiryNoticeAt = 0;
-const noticeExpiry = (error: unknown) => {
-  const code = (error as { data?: { code?: string } } | null)?.data?.code;
-  if (code !== "UNAUTHORIZED" || Date.now() - expiryNoticeAt < 60_000) return;
-  expiryNoticeAt = Date.now();
-  toast("Your sign-in has expired", { id: "session-expired", description: "Everything stays saved on this device. Sign in again from About me to sync." });
-};
-const isExpiry = (error: unknown) => (error as { data?: { code?: string } } | null)?.data?.code === "UNAUTHORIZED";
+const onError = (error: unknown) => sessionNotice()?.onError(error);
 const queryClient = new QueryClient({
-  queryCache: new QueryCache({ onError: noticeExpiry }),
-  mutationCache: new MutationCache({ onError: noticeExpiry }),
+  queryCache: new QueryCache({ onError }),
+  mutationCache: new MutationCache({ onError }),
   // A lapsed sign-in does not get better on the third try; say so at once.
-  defaultOptions: { queries: { retry: (count, error) => !isExpiry(error) && count < 3 } },
+  defaultOptions: { queries: { retry: (count, error) => !isUnauthorized(error) && count < 3 } },
 });
+installSessionNotice(queryClient);
 
 const trpcClient = trpc.createClient({
   links: [

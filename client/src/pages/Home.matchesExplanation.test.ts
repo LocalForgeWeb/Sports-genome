@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
-const recommendations = source.slice(source.indexOf("function RecommendationRow"), source.indexOf("function Onboarding"));
+const recommendations = source.slice(source.indexOf("function RecommendationRow"), source.indexOf("export default function Home"));
 
 describe("recommendation explanation depth", () => {
   // "Insight explanation depth contract": "Do not expose raw model attribution
@@ -19,18 +19,25 @@ describe("recommendation explanation depth", () => {
       .forEach((token) => expect(recommendations, `${token} is athlete-facing schema`).not.toContain(token));
   });
 
-  it("states what the exercise was matched to, once, in a readable line", () => {
+  it("states what this exercise shares with the action, in a readable line of its own", () => {
+    // Intentional change, Sep 28 regression brief §11: the line named the sport's qualities,
+    // identical on every row. It now names this row's own matched signals and muscles, after
+    // the exercise's own rationale, which was computed and never shown.
     expect(recommendations).toContain('className="recommendation-trace"');
-    expect(recommendations).toContain("Matched to");
-    expect(recommendations).toContain("to build");
-    // The sport action and the qualities are the two facts worth carrying.
+    expect(recommendations).toContain('<p className="recommendation-rationale">{result.rationale}</p>');
+    expect(recommendations).toContain("result.matchedSignals.map((signal) => movementSignalLabels[signal])");
+    expect(recommendations).toContain("result.matchedMuscles.map(muscleWords)");
     expect(recommendations).toContain("result.hierarchy.movement");
-    expect(recommendations).toContain("result.hierarchy.physicalQualities.slice(0, 2)");
+    expect(recommendations).not.toContain("result.hierarchy.physicalQualities");
   });
 
   it("names the ranking priorities once for the page, not once per row", () => {
     expect(source).toContain('className="matches-lens"');
-    expect(source).toContain("Ranking these matches on");
+    // Intentional change, Sep 28 regression brief §11: the list is not ranked on them (the
+    // match counts shared movements and muscles), so they are named as the sport's priorities.
+    expect(source).not.toContain("Ranking these matches on");
+    expect(source).toContain("Your sport's priorities:");
+    expect(source).toContain("The match number (50 to 99) counts how many of this action's movements and muscles an exercise shares");
     expect(source).toContain("sportProgrammingContext.priorities.map");
     // The three constant policy sentences are still available, one level deeper.
     expect(source).toContain('className="matches-lens-method"');
@@ -53,7 +60,8 @@ describe("recommendation explanation depth", () => {
     // stylesheet also hides the webkit one - so six working controls down the
     // page rendered as bare headings. The stylesheet already laid the summary
     // out `space-between` for a right-hand element the markup never supplied.
-    expect(recommendations).toContain('<summary>Why this match?<ChevronDown');
+    // Each row's summary has its own accessible name (Sep 28 regression brief §11).
+    expect(recommendations).toContain('<summary aria-label={`Why ${name} matches`}>Why this match?<ChevronDown');
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(css).toContain(".recommendation-why[open] summary svg { transform: rotate(180deg); }");
   });

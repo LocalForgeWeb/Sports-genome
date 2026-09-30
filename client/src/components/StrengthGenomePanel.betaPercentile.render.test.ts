@@ -143,4 +143,16 @@ describe("a logged lift gets a percentile from the community curves", () => {
     openBiceps({ baselineBodyWeight: 176 });
     expect(screen.getByText(/Add the sex to compare against in About Me/)).toBeTruthy();
   });
+
+  /**
+   * EN-16: the scale lists National and World Stage, but a muscle score tops out near 94.9
+   * (anchors stop at the 95th percentile, and no lift passes its whole signal to a muscle).
+   * The legend says so rather than offering bands a muscle cannot reach.
+   */
+  it("says muscle groups cannot reach the top two bands yet", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    const note = document.querySelector("[data-muscle-rank-ceiling]");
+    expect(note?.textContent).toMatch(/no muscle group can reach National or World Stage/);
+    expect(note?.textContent).toMatch(/only steady are not ranked/);
+  });
 });

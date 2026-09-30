@@ -10,7 +10,9 @@ describe("Today action panel", () => {
     expect(source).toContain("useAthleteRecord({ directAccess, weightUnit, accountObservations, accountSessions })");
     // The account branch no longer counts typed lifts only (Backend V1 B155, B265).
     expect(source).not.toContain("overview.data?.observationCount");
-    expect(source).toContain("trpc.workoutLog.list.useQuery()");
+    // Asked only when an account is the source (intentional change, D-015): on the device
+    // stores the refusal raised a false "sign-in has expired".
+    expect(source).toContain("trpc.workoutLog.list.useQuery(undefined, { enabled: !directAccess })");
     expect(source).not.toContain("Session readiness");
     expect(source).not.toContain("coach-set planning marker");
   });
@@ -20,10 +22,13 @@ describe("Today action panel", () => {
    * beside it is labelled as lifetime. None is a readiness score.
    */
   it("keeps the week fraction and the lifetime record on their own, stated scopes", () => {
-    expect(source).toContain('aria-label={`${completedThisWeek} of ${trainingDays} planned ${trainingDays === 1 ? "workout" : "workouts"} completed this week`}');
+    // The fraction counts plan days done this week, the same slots the strip checks, so the number
+    // always equals the checked entries; sessions beyond them are said separately (intentional
+    // change, Sep 28 regression brief §5). It is plain text, read as written, not an aria-label.
+    expect(source).toContain("planned {plan.slots.length === 1 ? \"workout\" : \"workouts\"} done this week");
+    expect(source).toContain("const plannedDone = planDays.filter((day) => doneSlots.has(day.key)).length;");
+    expect(source).toContain("const moreThisWeek = Math.max(0, record.completedThisWeek - plannedDone);");
     expect(source).toContain("<small>all time</small>");
-    // The week count is the record's, the same one Progress reads, on the device and the account alike.
-    expect(source).toContain("const completedThisWeek = record.completedThisWeek;");
     expect(source).not.toContain("today-rhythm-planned");
   });
 
@@ -38,24 +43,29 @@ describe("Today action panel", () => {
   });
 
   it("makes Open next workout and Edit plan refer to the same day", () => {
-    // Both read the one active day label; the primary action opens the Workout
-    // prestart and never starts a workout, Edit opens Plan.
-    expect(source).toContain('className="today-action-cta">Open next workout');
-    expect(source).toContain('onClick={onOpenTraining} className="today-action-secondary">Edit plan');
-    expect(home).toContain('onOpenTracker={() => navigateWorkspace("tracker")}');
+    // Both open the day Home resolved: the primary action the Workout prestart (it never starts
+    // a workout), Edit that day in Plan.
+    expect(source).toContain('onClick={() => onOpenWorkout(next.week, next.slot.index, "tracker")} className="today-action-cta">Open next workout');
+    expect(source).toContain('onClick={() => onOpenWorkout(next.week, next.slot.index, "day-plan")} className="today-action-secondary">Edit plan');
+    expect(home).toContain("onOpenWorkout={openPlannedWorkout}");
     expect(home).toContain('onOpenTraining={() => navigateWorkspace("day-plan")}');
   });
 
-  it("tells an empty selected day apart from no plan at all", () => {
-    expect(source).toContain("Choose your next workout");
-    expect(source).toContain("Open training plan");
+  /**
+   * The next workout is Home's own (nextWorkout.ts), so there is no "empty selected day" state:
+   * viewing an empty day in Plan cannot become Home's next workout (Sep 28 regression brief §4).
+   */
+  it("tells loading, no plan and a plan apart, and has no empty-selected-day state", () => {
+    expect(source).not.toContain("Choose your next workout");
+    expect(source).toContain('aria-label="Loading your plan"');
     expect(source).toContain("Build training around your goals");
     expect(source).toContain("Build your first workout");
-    expect(home).toContain("planHasDays={daySlots.some((slot) => dayExerciseCount(dayStore, slot.key) > 0)}");
+    expect(source).toContain("resolveNextWorkout({ ready: plan.ready, week: trainingWeek, slots: plan.slots, store: weekStore, completions: record.completionsThisWeek, choice: plan.choice })");
+    expect(home).not.toContain("activeDayIndex={activeSlot.index} onChooseDay");
   });
 
   it("mounts at Home with direct Training plan, Strength Genome and Exercises actions", () => {
-    expect(home).toContain("<TodayActionPanel stagedExerciseCount={customWorkout.length}");
+    expect(home).toContain("<TodayActionPanel plan={homePlan}");
     expect(home).toContain('onOpenTraining={() => navigateWorkspace("day-plan")}');
     expect(home).toContain('onOpenStrength={() => navigateWorkspace("strength")}');
     expect(home).toContain('onOpenCatalog={() => navigateWorkspace("catalog")}');

@@ -42,11 +42,11 @@ const empty = render([], true);
 describe("Training Day exercise finder disclosure", () => {
   it("keeps Stack Analysis on the day and the catalog behind one clear control", () => {
     expect(source).toContain("<RateStackPanel");
-    expect(source).toContain('className="day-exercise-open-catalog"');
-    // The day's own "Add exercises" control opens the sheet, so the row under the
-    // analysis appears only when it carries the gap the analysis named.
-    expect(day).toContain("Find exercises for ");
-    expect(day).toContain("Sorted to close ");
+    // Intentional change, Sep 28 regression brief §8: the coverage summary's one fix action
+    // carries the gap; the white "Find exercises for" card under it repeated it.
+    expect(source).not.toContain('className="day-exercise-open-catalog"');
+    expect(day).toContain("Furthest behind");
+    expect(day).toMatch(/aria-label="Find [^"]+ exercises, \d+ pts under target"/);
   });
 
   /**
@@ -71,6 +71,20 @@ describe("Training Day exercise finder disclosure", () => {
     expect(source).toContain('setScope("all")');
     expect(source).toContain("onInspect(exercise)");
     expect(source).toContain("onAdd(exercise)");
+  });
+
+  /**
+   * The search box was named only by its placeholder, and phones offered
+   * autocorrect ("RDL" became a word) and a generic return key.
+   */
+  it("names the search field and asks phones for a search keyboard without autocorrect", () => {
+    const searchInput = built.match(/<input[^>]*placeholder="Search Push exercises"[^>]*>/)?.[0] ?? "";
+    expect(searchInput).not.toBe("");
+    expect(searchInput).toContain('aria-label="Search Push exercises"');
+    expect(searchInput).toMatch(/enterKeyHint="search"/i);
+    expect(searchInput).toMatch(/autoComplete="off"/i);
+    expect(searchInput).toMatch(/autoCorrect="off"/i);
+    expect(searchInput).toMatch(/spellCheck="false"/i);
   });
 
   it("prioritizes direct muscle matches and makes the number of matching catalog options visible before an athlete scans results", () => {

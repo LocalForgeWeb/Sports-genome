@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import type { DaySlot } from "@/lib/trainingDayPlan";
+import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
 
 /**
  * Where a plus button on this screen puts an exercise.
@@ -25,8 +26,9 @@ export function AddDestinationStrip({ week, slots, activeIndex, exerciseCountFor
    * Opened and closed by this component, not by the element's own toggle: the
    * native `toggle` event is delivered asynchronously, so a choice made right
    * after opening could land before the open state did and fail to close it.
+   * Toasts are lifted clear of it, open or closed (lib/feedbackClearance.ts).
    */
-  return <details className="add-destination" open={open}>
+  return <details ref={feedbackSurfaceRef} className="add-destination" open={open}>
     <summary onClick={(event) => { event.preventDefault(); setOpen((current) => !current); }}>
       <CalendarDays className="h-5 w-5" aria-hidden="true" />
       <span>Adding to <b>Week {week} · {active.day}</b></span>

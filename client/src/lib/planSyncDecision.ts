@@ -49,3 +49,53 @@ export function choosePlan(device: PlanCandidate, server: PlanCandidate): PlanCh
   if (Math.abs(deviceAt - serverAt) <= sameEditToleranceMs) return { use: "device", reason: "same" };
   return deviceAt > serverAt ? { use: "device", reason: "newer" } : { use: "server", reason: "newer" };
 }
+
+/**
+ * The device's own record of its last agreement with the account: the revision it last
+ * synced from, and a fingerprint of the plan as it was then. Without it the device could
+ * not tell "I changed" from "the account changed", and every difference was settled by
+ * timestamps the device never kept - the account's copy always won (PS-04, SV-04).
+ */
+export type PlanSyncBase = { revision: number | null; syncedHash: string | null };
+
+export type Reconciliation =
+  | { use: "neither" }
+  | { use: "same" }
+  | { use: "device"; reason: "only-copy" | "account-unchanged" }
+  | { use: "server"; reason: "only-copy" | "device-unchanged" }
+  | { use: "conflict" };
+
+/** A short, stable fingerprint of a plan document (FNV-1a, 32-bit). */
+export function planFingerprint(planJson: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < planJson.length; index += 1) {
+    hash ^= planJson.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
+}
+
+/**
+ * A three-way decision between this device, the account, and the point they last agreed.
+ *
+ * - Only one side has a plan: that one.
+ * - Same content: nothing to do.
+ * - The account has not moved since this device last synced: this device's edits win.
+ * - This device has not changed since it last synced: the account's copy wins.
+ * - Both changed, or this device has no record of ever agreeing: a conflict, for the athlete
+ *   to settle. Neither copy is replaced without asking.
+ */
+export function reconcilePlans(device: { planJson: string | null }, server: { planJson: string | null; revision: number | null }, base: PlanSyncBase | null): Reconciliation {
+  const hasDevice = Boolean(device.planJson);
+  const hasServer = Boolean(server.planJson);
+  if (!hasDevice && !hasServer) return { use: "neither" };
+  if (!hasDevice) return { use: "server", reason: "only-copy" };
+  if (!hasServer) return { use: "device", reason: "only-copy" };
+  if (device.planJson === server.planJson) return { use: "same" };
+  if (!base || base.revision === null) return { use: "conflict" };
+  const deviceChanged = base.syncedHash !== planFingerprint(device.planJson!);
+  const accountChanged = server.revision !== base.revision;
+  if (!accountChanged) return { use: "device", reason: "account-unchanged" };
+  if (!deviceChanged) return { use: "server", reason: "device-unchanged" };
+  return { use: "conflict" };
+}

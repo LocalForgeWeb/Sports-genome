@@ -96,6 +96,17 @@ describe("Sports Genome semantic colour architecture", () => {
     expect(contrast(tokenValue("--sg-info-strong"), tokenValue("--sg-surface-light-sunken")), "link on the sunken light surface").toBeGreaterThanOrEqual(4.5);
   });
 
+  it("gives the movement confidence badge one readable neutral colour, never a state hue per level", () => {
+    // "Confidence does not reuse score magnitude colour": the word says the level, so
+    // no level borrows the positive / caution / critical hues that carry quality.
+    const movement = readFileSync(new URL("./movement-intelligence.css", import.meta.url), "utf8");
+    expect(movement).not.toMatch(/\.confidence-(high|moderate|limited)[^{]*\{[^}]*\bcolor\s*:/);
+    expect(movement).toMatch(/\.confidence-badge \{[^}]*\bcolor: var\(--sg-text-muted-on-dark\)/);
+    // Small uppercase text on the lighter end of the head's gradient still reads at AA.
+    expect(contrast(tokenValue("--sg-text-muted-on-dark"), tokenValue("--sg-surface-overlay"))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(tokenValue("--sg-text-muted-on-dark"), tokenValue("--sg-surface-panel"))).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("collapses motion durations under the OS reduced-motion preference", () => {
     // "Motion and state-transition contract": reduced motion must preserve all
     // information with instant state changes.

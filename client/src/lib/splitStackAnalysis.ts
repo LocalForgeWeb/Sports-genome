@@ -4,11 +4,28 @@ import { logicCalibration } from "@/lib/evidenceTraceability";
 import { trainsMuscle } from "@/lib/muscleVocabulary";
 
 export type SplitMuscleRequirement = { muscle: string; role: "primary" | "support"; target: number };
-export type StackMuscleScore = SplitMuscleRequirement & { score: number; state: "gap" | "ready" | "high" };
+export type StackMuscleScore = SplitMuscleRequirement & {
+  /** Capped at the display maximum, for bar geometry only. */
+  score: number;
+  /**
+   * The uncapped sum. The band, the delta to target and `state` read this, so a muscle three
+   * primaries deep is "Heavy +88", not "Covered +20" beside a state of "high" (TR-11).
+   */
+  rawScore?: number;
+  state: "gap" | "ready" | "high";
+};
 export type StackSuggestion = { muscle: string; candidate: Exercise; replaceExercise?: Exercise; swapCue?: string };
 
 /** Fixed catalog-tag weights are used only to compare plan coverage consistently. They are not EMG, force, fatigue, or individual-response measures. */
 export const splitStackModelBoundary = `Coverage values are catalog-planning indices: a primary-muscle tag contributes ${logicCalibration.exposure.splitPrimaryTagWeight} points and a supporting-muscle tag contributes ${logicCalibration.exposure.splitSupportTagWeight} points before the display cap. Split targets organize a balanced day; none of these values measure activation, recovery, or an individual optimum.`;
+
+/**
+ * The revision of the split targets below (B109). Every analysis carries it, so a result read
+ * later says which targets it was graded against, and a changed target cannot pass for changed
+ * training. `splitStackAnalysis.revision.test.ts` fingerprints the targets: editing one without
+ * a new revision fails there.
+ */
+export const COVERAGE_TARGET_REVISION = "split_targets_v1" as const;
 
 const requirements: Record<TrainingSplit, SplitMuscleRequirement[]> = {
   Push: [{ muscle: "chest", role: "primary", target: 90 }, { muscle: "frontDelts", role: "primary", target: 75 }, { muscle: "triceps", role: "primary", target: 70 }, { muscle: "sideDelts", role: "support", target: 45 }, { muscle: "serratusAnterior", role: "support", target: 35 }],
@@ -28,10 +45,12 @@ const requirements: Record<TrainingSplit, SplitMuscleRequirement[]> = {
  * `upperBack` - so this returned nothing for every exercise ever added, and that
  * shortfall could not be closed by any amount of the right work.
  */
-const involvement = (exercise: Exercise, muscle: string) => {
+export const coveragePoints = (exercise: Exercise, muscle: string) => involvement(exercise, muscle);
+
+function involvement(exercise: Exercise, muscle: string) {
   const role = trainsMuscle(exercise, muscle);
   return role === "primary" ? logicCalibration.exposure.splitPrimaryTagWeight : role === "secondary" ? logicCalibration.exposure.splitSupportTagWeight : 0;
-};
+}
 
 export function getSplitRequirements(split: TrainingSplit) { return requirements[split]; }
 
@@ -39,7 +58,7 @@ export function analyzeSplitStack(workout: Exercise[], catalog: Exercise[], spli
   const ratings: StackMuscleScore[] = requirements[split].map((requirement) => {
     const rawScore = workout.reduce((sum, exercise) => sum + involvement(exercise, requirement.muscle), 0);
     const score = Math.min(logicCalibration.exerciseGenome.relativeScaleMaximum, rawScore);
-    return { ...requirement, score, state: rawScore < requirement.target * logicCalibration.exposure.splitCoverageGapRatio ? "gap" : rawScore > requirement.target + logicCalibration.exposure.splitCoverageHighOffset ? "high" : "ready" };
+    return { ...requirement, score, rawScore, state: rawScore < requirement.target * logicCalibration.exposure.splitCoverageGapRatio ? "gap" : rawScore > requirement.target + logicCalibration.exposure.splitCoverageHighOffset ? "high" : "ready" };
   });
   const gaps = ratings.filter((rating) => rating.state === "gap");
   const high = ratings.find((rating) => rating.state === "high");
@@ -52,5 +71,5 @@ export function analyzeSplitStack(workout: Exercise[], catalog: Exercise[], spli
     return candidate ? [{ muscle: gap.muscle, candidate, replaceExercise, swapCue: replaceExercise ? `Replace ${replaceExercise.name} if total volume is fixed.` : undefined }] : [];
   });
   const score = ratings.length ? Math.round(ratings.reduce((sum, rating) => sum + Math.min(logicCalibration.exerciseGenome.relativeScaleMaximum, (rating.score / rating.target) * logicCalibration.exerciseGenome.relativeScaleMaximum), 0) / ratings.length) : 0;
-  return { score, ratings, gaps, suggestions, boundary: splitStackModelBoundary };
+  return { score, ratings, gaps, suggestions, boundary: splitStackModelBoundary, targetRevision: COVERAGE_TARGET_REVISION };
 }
