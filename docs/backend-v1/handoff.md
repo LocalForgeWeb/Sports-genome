@@ -1,6 +1,6 @@
 # Backend V1 handoff
 
-Final state of the Backend V1 assignment and what V2 inherits (brief §18, B284–B298). Written 28 September 2026. Read this first; everything it cites is in `docs/backend-v1/`.
+Final state of the Backend V1 assignment and what V2 inherits (brief §18, B284–B298). Written 28 September 2026; updated 29 September after the Sep 28 regression repair (#82). Read this first; everything it cites is in `docs/backend-v1/`. The release-gate verdicts are in `gates.md`.
 
 ## Where things stand
 
@@ -11,12 +11,12 @@ Final state of the Backend V1 assignment and what V2 inherits (brief §18, B284�
 3. **Sign-in is not in the build** (`directWorkspaceAccess = true`). Account paths are proven against mocks only (MySQL was unreachable). Before sign-in ships, history must become per-account (D-012) and account deletion/export must exist (SV-09).
 4. **Payments are deferred by the owner** (D-001). Gate C is out of scope, not failed.
 
-What works and was verified in the running app or production: strength placement (one estimator, pinned to the database; best lift per exercise; age at the lift), load conventions (per dumbbell, bodyweight by reps), muscle ranks (no stabilizer echoes, ceiling disclosed), a single Training Day coverage model with a versioned target set, recommendations constrained by equipment and read from the action, account-scoped device records with three-way plan sync, and a device store that no longer fires account-only requests or a false "sign-in has expired" message.
+What works and was verified in the running app or production: strength placement (one estimator, pinned to the database; best lift per exercise; age at the lift), load conventions (per dumbbell, bodyweight by reps), muscle ranks (no stabilizer echoes, ceiling disclosed), a single Training Day coverage model with a versioned target set, recommendations constrained by equipment and read from the action, account-scoped device records with three-way plan sync, and a device store that no longer fires account-only requests or a false "sign-in has expired" message. (Batch 10 first claimed this with four calls still reachable, in About me, the favourite toggle and Strength's Set focus; closed on 29 September, see the D-015 correction.)
 
 | | |
 |---|---|
 | Repository / branch | `LocalForgeWeb/Sports-genome`, work branch `claude/training-day-navigation-workouts-83ro2c` (restarted from `main` after each merge) |
-| `main` | See the last checkpoint in `verification.md` (batch 10) |
+| `main` | 8be0ef3 (#82, the Sep 28 regression repair); production deployment `dpl_Hx5yP4QzysDJdrHHSqnMKap2crkG` READY |
 | Production | Vercel project `sports-genome` (team `local-b96d`), `sports-genome-mauve.vercel.app`; every batch deployed READY |
 | Supabase | `qiccnqkypbhlwpmjcsri`, read-only throughout; nothing applied |
 | Status | `status.md`: 298 requirements, every one with a status; 30 `deferred (owner)` (payments) |
@@ -26,7 +26,7 @@ What works and was verified in the running app or production: strength placement
 ```sh
 npm ci
 npx tsc --noEmit                   # exit 0
-npx vitest run                     # all pass except 5 live-Supabase tests that need network + credentials:
+npx vitest run                     # at 8be0ef3: 2,539 passed, 1 skipped; the 5 failures are live-Supabase tests that need network + credentials:
                                    #   server/supabaseEvidenceConnection (x2), supabaseEvidenceRls,
                                    #   supabasePublicAssets, supabaseStorageConnection
 npm run build                      # client + server bundles
@@ -52,6 +52,8 @@ node scripts/perf/measure-api.cjs https://<deployment> 10
 | 8 | #75 | Supabase hardening migrations prepared and proven locally, **not applied**; unmappable lifts stay queued | D-013 |
 | 9 | #76 | Female `lb_10rm` references readable; stabilizer-only muscles unranked; muscle ceiling disclosed; coverage target revision | D-014 |
 | 10 | #77 | Performance measured (client flows, request counts); account-only queries off on the device store (false "sign-in has expired") | D-015, `performance.md` |
+| — | #78–#81 | Parallel work merged to `main` from another session: honest errors, focus and Escape, safer local data (#78); Home's squeezed column and content behind the clock (#79); clearer Home and Strength, safer sync, rate-limited sign-in, dead code removed (#80); week-strip icons (#81) | Their PRs |
+| — | #82 | Sep 28 regression repair: Home owns its next workout; one sign-in notice per lapse and every protected call gated; the empty day and a compact coverage summary; Review and Matches labels; role colours apart from ranks. Merged with #78–#81, one design kept per overlap | `docs/regression-sep28/README.md`, D-015 correction |
 
 ## Intentional behaviour changes (B290)
 
@@ -68,6 +70,11 @@ V2 must not read these as regressions. Each rewrote the tests that pinned the ol
 | D-012 | A conflicting account plan was adopted and re-pushed over the other device | Syncing stops; the athlete chooses |
 | D-014 | Stabilizer-only muscles were ranked (e.g. infraspinatus 53.91 from a P80 bench) | Not ranked; the legend states National/World Stage are unreachable for muscles |
 | D-015 | Home and Progress asked account-only routes on the device store and showed "Your sign-in has expired" | Not asked without an account; no false message |
+| #82 | Home's "next workout" was the Plan's active day, so browsing Plan changed it | Home resolves it itself (`lib/nextWorkout.ts`): an explicit Change-day choice, else the first built day not trained this week |
+| #82 | The sign-in notice fired on any refusal, once a minute | Once per lapse, only after `auth.me` held an account; close button, action, lasting status |
+| #82 | An empty day showed a 0/100 gauge; the Plan showed every coverage bar | "Not available yet"; the Plan shows the index, one sentence, the furthest gap; the bars live in the analysis |
+| #82 | The coverage band above target was "Heavy" and shared Session volume's colours | "Well past" (catalog-tag points, not sets); Session volume has its own colours. Thresholds unchanged |
+| #82 | Supporting role colour was gold (the State rank's), primary near National's red | Teal and orange, ≥ ΔE00 19 from every rank (tested) |
 
 ## Versions and compatibility map (B287, B288)
 
@@ -100,6 +107,7 @@ V2 must not read these as regressions. Each rewrote the tests that pinned the ol
 | 7 | Muscle-rank ceiling: re-map bands or change the aggregation | B076 | D-014 |
 | 8 | Set count / dose in coverage (a model change) | EN-11, B092 | D-010 |
 | 9 | Payments | Gate C | D-001 |
+| 10 | After a real session lapse and a reload, the account-scoped plan and profile stay on the device but unread (`auth.me` answers null, and this build has no sign-in). Reading them without an account weakens the shared-device isolation of PS-01/B173 | Returning signed-in athletes | `docs/regression-sep28/README.md` § Open issues |
 
 ## Remaining defects (B285, B291)
 
@@ -124,7 +132,8 @@ Stable IDs from the discovery inventory (`inventory/*.md`, which has file and li
 | SV-17 | P2 | Hard deletes, no tombstones; listing caps truncate Progress/Strength inputs silently | inventory/server.md | Tombstones (B172); paginate | MySQL |
 | SV-19 | P2 | Isolation tests are mocks; the one live RLS test covers one table | inventory/server.md | Run the prepared `before/after` as CI against a Supabase branch | Owner (#4) |
 | SV-20, PS-24 | P2 | Dead auth/profile plumbing; the MySQL user row persisted on the device and never read | inventory | Remove after consumers migrate (B294) | — |
-| PS-20 | P2 | Priorities are MySQL-only; "Set focus" does nothing on the device store | Tap "Set focus" in Strength on the device store | Device-store priorities or hide the control | — |
+| PS-20 | P2 | Priorities are MySQL-only | Resolved as "hide the control": "Set focus" is not offered on the device store (#80, #82); `protectedCalls.test.ts` fails on an ungated protected call | Device-store priorities, if wanted | — |
+| REG-1 | P1 | The Sep 28 repair was verified in Chromium only: the native action picker's system menu, the notice's close button on touch, and the status area under `viewport-fit=cover` are untested on iOS Safari | `docs/regression-sep28/README.md` § Open issues | Check on an iPhone (Safari and home-screen app) | iOS device |
 | PS-21 | P2 | Destructive load fallbacks (malformed plan overwritten, unknown sport discarded) | `Home.tsx` load paths | Quarantine key + versioned migrators (B177) | — |
 | B088 | P2 | Coverage colours show while ranks load (status line added; whether it misleads is unverified) | Open Strength with lifts on a slow network | Neutral pending state | — |
 | Perf-1 | P2 | First open parses ~2.5 MB of JS, including all sports' movement data for athletes with no sport | `performance.md` | Lazy-load `movement-data` | — |

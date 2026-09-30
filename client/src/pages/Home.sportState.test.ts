@@ -70,7 +70,9 @@ describe("Home sport state safeguards", () => {
     // the only thing that touches a saved day.
     expect(source).toContain("const openTrainingDay = (index: number) => {");
     // Closing the chooser after a pick is disclosure state, not a save.
-    expect(source).toContain("onClick={() => { openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }}");
+    // Picking a day here is also the athlete's explicit choice of what to train next, which Home
+    // then shows (Sep 28 regression brief §4); it still saves nothing.
+    expect(source).toContain("onClick={() => { chooseDayToTrain(slot); openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }}");
     expect(source).not.toContain("const chooseTrackerDay =");
   });
 });

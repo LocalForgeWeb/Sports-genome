@@ -1,29 +1,24 @@
 import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
-import { expiryNotice, isExpiryError, shouldNoticeExpiry } from "@/lib/sessionExpiryNotice";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { installSessionNotice, isUnauthorized, sessionNotice } from "@/lib/sessionNotice";
 import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import "./index.css";
 
 /**
- * A sign-in that has lapsed is said once, in words, and only to an athlete who was
- * signed in this visit (see sessionExpiryNotice); it never costs the athlete
- * anything: the device record stays. Every other failure is handled where it
- * happens, beside the control.
+ * A lapsed sign-in is said once, when it happens, by lib/sessionNotice.ts; it is the only
+ * source of that notice. Every other failure is handled where it happens, beside the control.
  */
-const noticeExpiry = (error: unknown) => {
-  if (!shouldNoticeExpiry(error)) return;
-  toast(expiryNotice.title, { id: "session-expired", description: expiryNotice.description });
-};
+const onError = (error: unknown) => sessionNotice()?.onError(error);
 const queryClient = new QueryClient({
-  queryCache: new QueryCache({ onError: noticeExpiry }),
-  mutationCache: new MutationCache({ onError: noticeExpiry }),
+  queryCache: new QueryCache({ onError }),
+  mutationCache: new MutationCache({ onError }),
   // A lapsed sign-in does not get better on the third try; say so at once.
-  defaultOptions: { queries: { retry: (count, error) => !isExpiryError(error) && count < 3 } },
+  defaultOptions: { queries: { retry: (count, error) => !isUnauthorized(error) && count < 3 } },
 });
+installSessionNotice(queryClient);
 
 const trpcClient = trpc.createClient({
   links: [

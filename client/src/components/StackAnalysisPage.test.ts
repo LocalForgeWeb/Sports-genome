@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { StackAnalysisPage, resolveStackMuscleSelection } from "./StackAnalysisPage";
 import { analyzeSplitStack } from "@/lib/splitStackAnalysis";
+import { buildCoverageBars, summarizeCoverage } from "@/lib/stackCoverageVisual";
+import { muscleLabels } from "@/components/AnatomyMap";
 import { exercises } from "@/lib/exerciseCatalog";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
@@ -40,28 +42,31 @@ describe("Stack Analysis selected muscle", () => {
   });
 
   it("keeps the default analysis target-first while retaining optional non-target involvement as supporting context", () => {
-    expect(component).toContain('import { analyzeSplitStack, getSplitRequirements, type StackSuggestion } from "@/lib/splitStackAnalysis"');
+    expect(component).toContain('import { analyzeSplitStack, COVERAGE_TARGET_REVISION, getSplitRequirements, splitStackModelBoundary, type StackSuggestion } from "@/lib/splitStackAnalysis"');
     // One coverage model on this page (Backend V1 TR-01, B115): without the panel's ratings it
     // computes the same analysis, never a coverage score from relative involvement.
-    expect(component).toContain("const computed = ratings ?? analyzeSplitStack(workout, catalog, split).ratings;");
+    expect(component).toContain("const coverageRatings = useMemo(() => ratings ?? analyzeSplitStack(workout, catalog, split).ratings");
     expect(component).toContain("const targetAnalysis = useMemo(() => wholeStackAnalysis.filter");
     expect(component).toContain("const supportingAnalysis = useMemo(() => wholeStackAnalysis.filter");
-    expect(component).toContain("Target coverage is calculated from this split’s intended muscles only.");
+    // Intentional change, Sep 28 regression brief §8: the scope is said once, in the
+    // methodology disclosure and beside the supporting figures it qualifies.
+    expect(component).toContain("How coverage is calculated");
     expect(component).toContain("Supporting involvement");
-    expect(component).toContain("Supporting muscles are not included in the {split.toLowerCase()} target grade");
+    expect(component).toContain("Not {split.toLowerCase()} targets, so not in the coverage index.");
     expect(component).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });
 
   it("never shows a bare score without the scale it is measured on", () => {
     // Asserted against the rendered surface rather than the source spelling, so
     // a rewrite of the markup cannot quietly drop the denominator.
-    expect(markup).toContain("relative contribution, /100");
+    expect(markup).toContain("contribution index, 0–100");
     expect(markup).toContain("/100");
+    expect(markup).toContain("coverage index");
     // Relative involvement is a share of the day's most-worked muscle, and says so; "coverage"
     // is reserved for the graded target model (TR-01, TR-02).
-    expect(markup).toMatch(/\d+% relative involvement/);
+    expect(markup).toMatch(/\d+% of the day(&#x27;|')s most-worked muscle/);
     expect(markup).not.toMatch(/\d+% coverage/);
-    expect(markup).toContain("Target coverage is calculated from this split");
+    expect(markup).toContain("How coverage is calculated");
     expect(markup).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });
 
@@ -92,7 +97,8 @@ describe("Stack Analysis selected muscle", () => {
     expect(component).toContain('className="stack-analysis-row-copy"');
     expect(component).toContain('className="stack-analysis-row-score"');
     expect(styles).toContain(".stack-analysis-row { display: grid;");
-    expect(styles).toContain("grid-template-columns: auto minmax(0, 1fr) auto auto");
+    // No ordinal column: the rows were numbered 01, 02... in an order that was not the gaps'.
+    expect(styles).toContain("grid-template-columns: minmax(0, 1fr) auto auto");
     expect(styles).toContain(".stack-analysis-row-copy { min-width: 0;");
   });
 
@@ -136,11 +142,57 @@ describe("Stack Analysis selected muscle", () => {
 
   it("carries the figure each tip fired on, so it can be checked against the bars", () => {
     const tips = markup.match(/stack-tip stack-tip-\w+/g) || [];
-    if (tips.length) expect(markup).toMatch(/\d+ points under target|direct sets|supporting set|% of this split/);
+    if (tips.length) expect(markup).toMatch(/\d+ pts under target|direct sets|supporting set|% of this split/);
   });
 
   it("never claims a sport demand the register does not list", () => {
     // getSportDemandModel scores all 24 keys; most are model-estimated filler.
     expect(markup).not.toContain("Aerobic capacity");
+  });
+
+  /** Sep 28 regression brief §8: the split targets moved in from the Plan, in the Plan's order. */
+  it("lists every split target, in the Plan summary's order, with units on each delta", () => {
+    const analysis = analyzeSplitStack(workout, exercises, "Push");
+    const bars = buildCoverageBars(analysis.ratings);
+    const summary = summarizeCoverage(bars, (muscle) => muscleLabels[muscle] || muscle);
+    const met = bars.filter((bar) => bar.deltaToTarget >= 0).sort((left, right) => left.deltaToTarget - right.deltaToTarget);
+    const expected = summary.shortfalls.concat(met).map((bar) => muscleLabels[bar.muscle] || bar.muscle);
+    const list = markup.slice(markup.indexOf('class="stack-analysis-list"'), markup.indexOf('class="stack-analysis-legend"'));
+    const shown = Array.from(list.matchAll(/<div class="stack-analysis-row-copy"><strong>([^<]+)<\/strong>/g), (match) => match[1]);
+    expect(shown).toEqual(expected);
+    // No rank-like ordinals, and every delta says points and a direction.
+    expect(list).not.toMatch(/>0\d</);
+    expect(list).toMatch(/pts (under|over)|on target/);
+    expect(list).not.toMatch(/>[+−-]\d+</);
+    // The split-target role and the genome role are named apart.
+    expect(list).toMatch(/(Primary|Support) target · (prime mover in|supporting in|not trained in this day)/);
+  });
+
+  it("names its tallies and scale, and says 'well past' rather than 'heavy' for coverage", () => {
+    expect(markup).toContain("stack-analysis-tallies");
+    expect(markup).toMatch(/in coverage points on one scale from 0 to \d+/);
+    const list = markup.slice(markup.indexOf('class="stack-analysis-list"'), markup.indexOf('class="stack-analysis-legend"'));
+    expect(list).not.toMatch(/Heavy/);
+  });
+
+  it("describes the map's roles as a training day's, not a sporting action's", () => {
+    expect(markup).not.toContain("selected sporting action");
+    expect(markup).toContain("Prime mover: a prime mover in at least one exercise in this day.");
+    expect(markup).toContain("Prime mover in this day");
+    expect(markup).not.toContain("Confidence labels");
+    // The atlas's dark surface, so its labels are legible on this page.
+    expect(markup).toContain('class="stack-analysis-map-frame destination-body"');
+    expect(styles).toContain(".stack-analysis-map-disclosure > summary");
+  });
+
+  it("says the methodology once, including what 100 does not mean", () => {
+    expect(markup.match(/How coverage is calculated/g)).toHaveLength(1);
+    expect(markup).toContain("Set counts are not counted.");
+    expect(markup).toContain("It does not mean the workload is optimal or that you are recovered.");
+    expect(markup).not.toContain("Recommendation scope");
+  });
+
+  it("shows supporting work as sets performed, with what the reading counted", () => {
+    expect(markup).toMatch(/supporting sets? \(counted as [\d.]+\)|direct sets?/);
   });
 });

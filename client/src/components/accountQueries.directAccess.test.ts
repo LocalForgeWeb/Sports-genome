@@ -25,6 +25,7 @@ vi.mock("@/lib/trpc", () => {
 
 import { TodayActionPanel } from "./TodayActionPanel";
 import { ProgressOverviewPanel } from "./ProgressOverviewPanel";
+import { todayPlan } from "./todayPlanFixture";
 
 const accountOnly = ["list", "observations", "progressionHistory"];
 
@@ -33,7 +34,7 @@ describe("account-only queries on the device stores", () => {
   afterEach(() => { document.body.innerHTML = ""; });
 
   it("Home does not ask them without an account, and does with one", () => {
-    const props = { stagedExerciseCount: 0, trainingDays: 4, activeDayLabel: "Week 1 · Push", onOpenTraining: () => {}, onOpenStrength: () => {}, hour: 9 };
+    const props = { plan: todayPlan({}), onOpenWorkout: () => {}, onOpenTraining: () => {}, onOpenStrength: () => {}, hour: 9 };
     render(React.createElement(TodayActionPanel, { ...props, directAccess: true }));
     for (const name of accountOnly) expect(asked.get(name)?.enabled, name).toBe(false);
     asked.clear();

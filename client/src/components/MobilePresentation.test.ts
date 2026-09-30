@@ -100,11 +100,12 @@ describe("mobile athlete presentation", () => {
   it("keeps recommendation cards decision-first on phones while retaining full reasoning behind one disclosure", () => {
     // One disclosure per card, and it now carries the marker that says so: the
     // stylesheet hides the webkit one and `display: flex` suppresses Chrome's.
-    expect(home).toContain('<details className="recommendation-why"><summary>Why this match?');
-    expect(home).toContain('<summary>Why this match?<ChevronDown');
-    expect(home).toContain('aria-label={`Inspect ${result.exercise.name}`}');
-    // The score names itself, so it and the tier stamp beside it read as two facts.
-    expect(home).toContain('aria-label={`Match score ${score} for ${result.exercise.name}: open details`}');
+    // Intentional change, Sep 28 regression brief §11: each summary names its exercise, and
+    // the number names its scale.
+    expect(home).toContain('<details className="recommendation-why"><summary aria-label={`Why ${name} matches`}>Why this match?');
+    expect(home).toContain('>Why this match?<ChevronDown');
+    expect(home).toContain('aria-label={`Inspect ${name}`}');
+    expect(home).toContain('aria-label={`Match ${score} of 99 for ${name}: open details`}');
     expect(appStyles).toContain('.recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) 44px auto 44px;');
     expect(appStyles).toContain('.recommendation-score { display: grid; }');
     expect(appStyles).toContain('.recommendation-add { width: 44px; height: 44px; }');

@@ -103,6 +103,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
         state: regionRank ? `${regionRank.rank.shortName} · ${ordinal(displayPercentile(regionRank.representative.percentile))}` : "Not scored",
         active: Boolean(regionRank),
         rankId: regionRank?.rank.id,
+        unscored: !regionRank,
         highlighted: Boolean(activeBand && regionRank?.rank.id === activeBand),
       };
     }

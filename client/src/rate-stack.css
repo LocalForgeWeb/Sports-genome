@@ -498,3 +498,7 @@
   .rate-stack-rows { gap: .5rem; }
   .rate-stack-trigger { padding: .78rem var(--sg-space-3); }
 }
+
+/* Sep 28 regression brief §8: an empty day's coverage is a plain pending line, not a score. */
+.rate-stack-panel-pending { padding: var(--sg-space-4); }
+.rate-stack-panel-pending .rate-stack-headline { margin: .35rem 0 0; }

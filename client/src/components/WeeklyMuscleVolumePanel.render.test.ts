@@ -65,4 +65,15 @@ describe("weekly muscle volume rows", () => {
     const rows = document.querySelectorAll(".weekly-volume-list > article").length;
     if (rows < 4) expect(document.querySelector(".weekly-volume-more")).toBeNull();
   });
+
+  /** Sep 28 regression brief §9: labels only; every number is as it was. */
+  it("says the supporting figure is a contribution already weighted, and what the status is based on", () => {
+    draw({ "1-Push": pick(4), "2-Pull": pick(4) });
+    const row = document.querySelector(".weekly-volume-list article small")!.textContent!;
+    expect(row).toMatch(/^[\d.]+ direct \+ [\d.]+ supporting contribution$/);
+    expect(document.body.textContent).toContain("Supporting contribution: each supporting set adds 0.5, already applied");
+    expect(document.body.textContent).toContain("Status: planned direct sets a week (Building <6 · Established 6–11 · High exposure 12+)");
+    expect(document.querySelector(".weekly-volume-status")!.textContent).toMatch(/· [\d.]+ direct$/);
+    expect(document.querySelector(".weekly-volume-days")!.textContent).toContain("By day (attributed)");
+  });
 });

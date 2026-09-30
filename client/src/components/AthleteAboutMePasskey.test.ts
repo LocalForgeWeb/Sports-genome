@@ -92,9 +92,10 @@ describe("AthleteAboutMePanel passkey management", () => {
 
     expect(mocks.toastError).not.toHaveBeenCalled();
     expect(mocks.toast).toHaveBeenCalledTimes(1);
-    expect(mocks.toast).toHaveBeenCalledWith("Your sign-in has expired", {
+    // The shared words (lib/sessionExpiryNotice.ts), after what this refusal cost.
+    expect(mocks.toast).toHaveBeenCalledWith("You're signed out of your account", {
       id: "session-expired",
-      description: "That passkey is still enrolled. Everything stays saved on this device.",
+      description: "That passkey is still enrolled. Changes you make are kept on this device.",
     });
   });
 

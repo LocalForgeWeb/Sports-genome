@@ -8,9 +8,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * took the whole workspace down to the error screen.
  */
 const me = vi.hoisted(() => ({ current: undefined as undefined | null | { id: number; name: string } }));
+const setMe = vi.hoisted(() => ({ calls: [] as unknown[][] }));
 vi.mock("@/lib/trpc", () => ({
   trpc: {
-    useUtils: () => ({ auth: { me: { setData: vi.fn(), invalidate: vi.fn() } } }),
+    useUtils: () => ({ auth: { me: { setData: (...args: unknown[]) => { setMe.calls.push(args); }, invalidate: vi.fn() } } }),
     auth: {
       me: { useQuery: () => ({ data: me.current, error: null, isLoading: false, refetch: vi.fn() }) },
       logout: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false, error: null }) },
@@ -18,10 +19,9 @@ vi.mock("@/lib/trpc", () => ({
   },
 }));
 
-import { resetSessionExpiryNoticeForTests, shouldNoticeExpiry } from "@/lib/sessionExpiryNotice";
 import { useAuth } from "./useAuth";
 
-beforeEach(() => { window.localStorage.clear(); me.current = { id: 7, name: "Sam" }; resetSessionExpiryNoticeForTests(); });
+beforeEach(() => { window.localStorage.clear(); me.current = { id: 7, name: "Sam" }; setMe.calls = []; });
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe("useAuth and device storage", () => {
@@ -44,23 +44,15 @@ describe("useAuth and device storage", () => {
   });
 });
 
-describe("useAuth and the sign-in expiry notice", () => {
-  const refused = { data: { code: "UNAUTHORIZED" } };
-
-  it("lets a later refusal read as a lapse once the account has answered", () => {
-    renderHook(() => useAuth());
-    expect(shouldNoticeExpiry(refused, 1_000)).toBe(true);
-  });
-
-  it("keeps quiet on a device with no account", () => {
-    me.current = null;
-    renderHook(() => useAuth());
-    expect(shouldNoticeExpiry(refused, 1_000)).toBe(false);
-  });
-
-  it("keeps quiet after the athlete signs out", async () => {
+/**
+ * The sign-in notice (lib/sessionNotice.ts) reads auth.me from the query cache: a refusal is
+ * a lapse only while it holds an account. Signing out has to leave it answering null, so a
+ * refusal afterwards is not called one (Sep 28 regression brief §7).
+ */
+describe("useAuth and the sign-in notice", () => {
+  it("leaves auth.me answering null after the athlete signs out", async () => {
     const { result } = renderHook(() => useAuth());
     await act(async () => { await result.current.logout(); });
-    expect(shouldNoticeExpiry(refused, 1_000)).toBe(false);
+    expect(setMe.calls.at(-1)).toEqual([undefined, null]);
   });
 });

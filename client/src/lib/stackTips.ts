@@ -12,9 +12,9 @@
  * reading the third, which is the one that mattered.
  */
 
-import type { CoverageBar } from "@/lib/stackCoverageVisual";
+import { formatCoverageDelta, type CoverageBar } from "@/lib/stackCoverageVisual";
 import type { DemandCoverage } from "@/lib/stackQualityCoverage";
-import type { MuscleSessionVolume } from "@/lib/sessionVolume";
+import { supportingSetsText, type MuscleSessionVolume } from "@/lib/sessionVolume";
 
 export type StackTip = {
   id: string;
@@ -42,8 +42,8 @@ export function buildStackTips({ shortfalls, volumes, absentDemands, suggestionC
       id: `gap-${worst.muscle}`,
       kind: "gap",
       text: suggestionCount > 0
-        ? `${muscleName(worst.muscle)} is ${Math.abs(worst.deltaToTarget)} points under target — the furthest behind. ${suggestionCount} suggested pick${suggestionCount === 1 ? "" : "s"} below add${suggestionCount === 1 ? "s" : ""} direct work for the gaps.`
-        : `${muscleName(worst.muscle)} is ${Math.abs(worst.deltaToTarget)} points under target — the furthest behind in this split.`,
+        ? `${muscleName(worst.muscle)} is ${formatCoverageDelta(worst.deltaToTarget)} — the furthest behind. ${suggestionCount} suggested pick${suggestionCount === 1 ? "" : "s"} below add${suggestionCount === 1 ? "s" : ""} direct work for the gaps.`
+        : `${muscleName(worst.muscle)} is ${formatCoverageDelta(worst.deltaToTarget)} — the furthest behind in this split.`,
     });
   }
 
@@ -62,7 +62,7 @@ export function buildStackTips({ shortfalls, volumes, absentDemands, suggestionC
     tips.push({
       id: `volume-indirect-${indirect.muscle}`,
       kind: "volume",
-      text: `${muscleName(indirect.muscle)} is a target of this split but gets only ${indirect.supportSets} supporting set${indirect.supportSets === 1 ? "" : "s"} here, no direct work.`,
+      text: `${muscleName(indirect.muscle)} is a target of this split but gets only ${supportingSetsText(indirect.supportSetsPerformed ?? indirect.supportSets, indirect.supportSets)} here, no direct work.`,
     });
   }
 

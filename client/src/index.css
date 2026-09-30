@@ -2132,6 +2132,10 @@ details:not([open]) > *:not(summary) {
 /* The score column is sized to its content, not the 36px the phone rule gives
    it: "match", the label that makes the number a fact, ran under the stamp. */
 .matches-list .recommendation-row-main { grid-template-columns: 26px minmax(0, 1fr) auto auto 44px; gap: .6rem; }
+.recommendation-rationale { margin: .6rem 0 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.recommendation-why .recommendation-trace { margin-top: .5rem; border-top: 0; padding-top: 0; font-size: var(--sg-text-xs); }
+.recommendation-facets > p { margin: 0 0 .35rem; color: #f1c36d; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.recommendation-facets > p small { margin-left: .35rem; color: var(--sg-text-faint-on-dark); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .matches-list .recommendation-score strong { color: var(--sg-link-on-dark); font-size: 1.6rem; font-weight: 800; }
 .matches-list .recommendation-score small { margin-top: .1rem; color: var(--sg-text-subtle-on-dark); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .matches-list .recommendation-add { border: 2px solid var(--sg-action); border-radius: 999px; color: var(--sg-action); }
@@ -3156,8 +3160,7 @@ details:not([open]) > *:not(summary) {
 
 .home-focus { display: grid; justify-items: start; gap: .3rem; padding: .2rem 0 1rem; border-bottom: 1px solid var(--sg-divider-on-dark); color: var(--sg-text-on-dark); }
 .home-focus .metric-label { color: var(--sg-text-subtle-on-dark); }
-.home-focus h2 { margin-top: .2rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.8rem, 7vw, 2.4rem); font-weight: 800; line-height: .95; text-transform: uppercase; }
-.home-focus h2::first-letter { text-transform: uppercase; }
+.home-focus h2 { margin-top: .2rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.8rem, 7vw, 2.4rem); font-weight: 800; line-height: 1; }
 .home-focus-meta { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
 .home-focus-meta::first-letter { text-transform: uppercase; }
 .home-link { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
@@ -3165,15 +3168,6 @@ details:not([open]) > *:not(summary) {
 .home-priority { display: grid; padding-bottom: .5rem; border-bottom: 1px solid var(--sg-divider-on-dark); color: var(--sg-text-on-dark); }
 .home-section-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .home-section-head .metric-label { color: var(--sg-text-subtle-on-dark); }
-.home-priority-rows { margin: 0; padding: 0; list-style: none; }
-.home-priority-rows > li + li { border-top: 1px solid var(--sg-divider-on-dark); }
-.home-priority-row { display: flex; width: 100%; min-height: 64px; align-items: center; gap: .9rem; padding: .75rem 0; color: inherit; text-align: left; }
-.home-priority-row:hover strong, .home-priority-row:focus-visible strong { color: var(--sg-focus-on-dark); }
-.home-priority-index { flex: 0 0 2rem; color: var(--sg-link-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.3rem; font-weight: 800; line-height: 1; }
-.home-priority-copy { display: grid; min-width: 0; flex: 1; gap: .2rem; }
-.home-priority-copy strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.2; }
-.home-priority-copy small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
-.home-priority-row > svg { flex: 0 0 auto; color: var(--sg-text-subtle-on-dark); }
 /* Two entries side by side where they fit; one under the other on the narrowest
    phones and under enlarged text, where "Training preferences" beside its icons
    would otherwise run past the edge. */
@@ -3542,6 +3536,10 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .topbar-utilities .universal-search-trigger { position: relative; }
 .topbar-utilities .universal-search-trigger svg, .topbar-utilities .topbar-profile-button svg { width: 1.25rem; height: 1.25rem; }
 .topbar-profile-button[aria-current="page"], [data-theme="dark"] .topbar-profile-button[aria-current="page"] { border-color: var(--sg-action); background: rgb(228 81 46 / .1); color: var(--sg-action); }
+/* Signed in, then refused (lib/sessionNotice.ts): a small, non-blocking mark on the way to
+   About me's Account & sync, for as long as that lasts. The toast says it once; this stays. */
+.topbar-profile-button[data-alert] { position: relative; }
+.topbar-profile-button[data-alert]::after { content: ""; position: absolute; top: .35rem; right: .35rem; width: .55rem; height: .55rem; border: 2px solid var(--sg-surface-deep); border-radius: 50%; background: var(--sg-action); }
 /* The tabs: sentence case, one weight, one orange underline for the current
    page on every destination, and four Train labels that fit a 360pt phone. */
 .workspace-top-switcher-shell::after { right: 2px; }
@@ -3590,8 +3588,6 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .home-explore-row strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.2; }
 .home-explore-row small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
 .home-explore-row:hover strong { color: var(--sg-focus-on-dark); }
-.home-focus .home-section-head { width: 100%; }
-.home-focus .home-priority-rows { width: 100%; margin-top: .35rem; border-top: 1px solid var(--sg-divider-on-dark); }
 
 /* ── Context and feedback ───────────────────────────────────────────────────
    The day being edited, said in words when a different workout is running;
@@ -3643,14 +3639,13 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 /* The rest of the 200% reflow: rows that must wrap, and fields that must not
    dictate their column's width. */
 .home-section-head { flex-wrap: wrap; }
-.home-priority-row, .home-priority-row > * { min-width: 0; }
 .rate-stack-panel :is(summary, button) { flex-wrap: wrap; }
 .rate-stack-panel :is(summary, button) > * { min-width: 0; }
 .rate-stack-panel :is(small, i) { white-space: normal; }
 .atlas-tools > *, .atlas-search, .atlas-family-row { min-width: 0; }
 .atlas-search input { min-width: 0; width: 100%; flex: 1 1 0; }
 .home-focus > *, .day-exercise-picker > *, .day-exercise-picker :is(summary, button) > * { min-width: 0; }
-.home-priority-row :is(span, small, strong), .day-exercise-picker small { white-space: normal; }
+.day-exercise-picker small { white-space: normal; }
 .atlas-family-row { flex-wrap: wrap; }
 .atlas-tools > label { min-width: 0; }
 .atlas-tools select { min-width: 0; width: 100%; max-width: 100%; }
@@ -3759,10 +3754,12 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .toaster [data-sonner-toast][data-styled="true"] [data-title] { color: var(--sg-text-on-dark); font-weight: 700; }
 .toaster [data-sonner-toast][data-styled="true"] [data-button] { background: var(--sg-action-fill); color: #fff; font-weight: 700; }
 .toaster [data-sonner-toast][data-styled="true"] [data-cancel] { background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); font-weight: 700; }
-[data-sonner-toaster][data-y-position="bottom"] { bottom: calc(env(safe-area-inset-bottom, 0px) + 5.6rem + var(--sg-feedback-lift, 0px)) !important; }
-body:has(.session-resume-bar) { --sg-feedback-lift: var(--sg-resume-height); }
-body:has(.add-destination):has(.session-resume-bar) { --sg-feedback-lift: calc(var(--sg-resume-height) + 3.4rem); }
-body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 3.4rem; }
+/* The one rule for where toasts sit: above the bottom navigation, and above whatever else pins
+   controls to the bottom of the screen. Those surfaces register in lib/feedbackClearance.ts,
+   which sets --sg-feedback-clear to the height of the highest one on screen. */
+[data-sonner-toaster][data-y-position="bottom"] { bottom: max(calc(env(safe-area-inset-bottom, 0px) + 5.6rem), var(--sg-feedback-clear, 0px)) !important; }
+/* The sign-in notice's close button: on the surface's own tokens, and a 24px target. */
+.toaster [data-sonner-toast][data-styled="true"] [data-close-button] { width: 1.5rem; height: 1.5rem; border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
 /* U03: the Add exercises sheet in the app's own surface. */
 .day-picker-sheet { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
 .day-picker-sheet-head { border-bottom-color: var(--sg-divider-on-dark); }
@@ -3843,10 +3840,18 @@ body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 
 .today-action-primary .today-action-cta { width: 100%; justify-content: center; }
 .today-action-primary .today-action-secondary { justify-self: start; }
 .today-action-primary p.today-action-count { font-size: var(--sg-text-base); }
+/* The hero's workout-focus figure. It used to share the class "home-focus" with Home's sport
+   section, so these rules squeezed that section into a 101px right-hand column and hid it below
+   360px (Sep 28 regression brief §3); the figure now has a class of its own. Cropped to the
+   work (lib/workoutFocus.ts), so it is sized by height. */
 .today-action-focus { grid-area: figure; display: grid; justify-items: center; align-self: center; gap: .3rem; width: clamp(5rem, 26vw, 7.5rem); margin: 0; justify-self: end; }
-.today-action-focus .anatomy-figure { width: 100%; height: auto; --anatomy-shell: #2c3a4f; --anatomy-structural: #26334a; --anatomy-muscle: #33425a; --anatomy-line: #0a182b; --anatomy-primary-1: #f4915f; --anatomy-primary-2: #c9471f; --anatomy-supporting-1: #33425a; --anatomy-supporting-2: #33425a; }
+.today-action-focus .anatomy-figure { width: auto; max-width: 100%; height: 8.125rem; --anatomy-shell: #2c3a4f; --anatomy-structural: #26334a; --anatomy-muscle: #33425a; --anatomy-line: #0a182b; --anatomy-primary-1: #f4915f; --anatomy-primary-2: #c9471f; --anatomy-supporting-1: #33425a; --anatomy-supporting-2: #33425a; }
 .today-action-focus .anatomy-figure .anatomy-linework > path { stroke-width: 1.1; stroke-opacity: .85; }
 .today-action-focus figcaption { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+/* The focus summary under the count: a label and the ranked regions, wrapping at word
+   boundaries in the copy column (Sep 28 regression brief §6). */
+.today-action-focus-line { margin-top: .35rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.today-action-focus-line span { display: block; margin-bottom: .1rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 @media (max-width: 359px) { .today-action-with-focus { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "actions"; } .today-action-focus { display: none; } }
 .home-week-strip { display: flex; flex-wrap: wrap; gap: .4rem; margin: .1rem 0 .35rem; padding: 0; list-style: none; }
 .home-week-strip li { flex: 1 1 4.2rem; min-width: 0; }
@@ -3877,3 +3882,8 @@ body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 
 .home-week-strip li > * > span { white-space: nowrap; overflow-wrap: normal; }
 /* The state word beside the icon, so "completed" and "under way" never rest on hue alone. */
 .home-week-strip li > * > small { flex: 0 0 auto; color: inherit; font-size: var(--sg-text-xs); font-weight: 700; white-space: nowrap; }
+/* The current day's word, as a small filled tag ("Next") or an outline one ("Now"); the other
+   states carry their word for screen readers only (Sep 28 regression brief §5). */
+.home-week-strip .home-week-tag { margin-left: .1rem; padding: .05rem .35rem; border-radius: 999px; background: var(--sg-action); color: #fff; font-size: var(--sg-text-xs); font-style: normal; font-weight: 800; letter-spacing: var(--sg-tracking-open); text-transform: uppercase; }
+.home-week-strip li[data-state="live"] .home-week-tag { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; color: var(--sg-action); }
+.home-week-strip li[data-empty] > * > span:first-of-type { opacity: .7; }

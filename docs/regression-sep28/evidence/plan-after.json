@@ -1,0 +1,150 @@
+{
+ "empty": [
+  {
+   "width": 320,
+   "addButtons": 1,
+   "emptyText": "Upper is empty Week 1 · Day 04. Add the exercises you want on this day; its coverage against the upper targets appears once one is in. ADD EXERCISES OR IMPORT A PLAN",
+   "dial": false,
+   "per100": false,
+   "profilePrompt": false,
+   "actionsRow": false,
+   "saved": false,
+   "coverage": "UPPER COVERAGE Not available yet It appears after the first exercise, measured against the 6 upper targets.",
+   "emptyToCoverageEnd": 467,
+   "scrollW": 320,
+   "clientW": 320
+  },
+  {
+   "width": 375,
+   "addButtons": 1,
+   "emptyText": "Upper is empty Week 1 · Day 04. Add the exercises you want on this day; its coverage against the upper targets appears once one is in. ADD EXERCISES OR IMPORT A PLAN",
+   "dial": false,
+   "per100": false,
+   "profilePrompt": false,
+   "actionsRow": false,
+   "saved": false,
+   "coverage": "UPPER COVERAGE Not available yet It appears after the first exercise, measured against the 6 upper targets.",
+   "emptyToCoverageEnd": 450,
+   "scrollW": 375,
+   "clientW": 375
+  },
+  {
+   "width": 390,
+   "addButtons": 1,
+   "emptyText": "Upper is empty Week 1 · Day 04. Add the exercises you want on this day; its coverage against the upper targets appears once one is in. ADD EXERCISES OR IMPORT A PLAN",
+   "dial": false,
+   "per100": false,
+   "profilePrompt": false,
+   "actionsRow": false,
+   "saved": false,
+   "coverage": "UPPER COVERAGE Not available yet It appears after the first exercise, measured against the 6 upper targets.",
+   "emptyToCoverageEnd": 450,
+   "scrollW": 390,
+   "clientW": 390
+  },
+  {
+   "width": 430,
+   "addButtons": 1,
+   "emptyText": "Upper is empty Week 1 · Day 04. Add the exercises you want on this day; its coverage against the upper targets appears once one is in. ADD EXERCISES OR IMPORT A PLAN",
+   "dial": false,
+   "per100": false,
+   "profilePrompt": false,
+   "actionsRow": false,
+   "saved": false,
+   "coverage": "UPPER COVERAGE Not available yet It appears after the first exercise, measured against the 6 upper targets.",
+   "emptyToCoverageEnd": 450,
+   "scrollW": 430,
+   "clientW": 430
+  }
+ ],
+ "journey": {
+  "behindSheetAfterFirst": {
+   "rows": 1,
+   "identity": "UPPER Week 1 · Day 04 · 1 exercise SAVED",
+   "coverage": "33 /100 UPPER COVERAGE INDEX 6 targets under. Latissimus dorsi is furthest behind, 60 pts under target. Out of 100, from catalog muscle tags. Not workload or recovery. FURTHEST BEHIND Latissimus dorsi 60 PTS UNDER 5 more targets under VIEW ANALYSIS 2 suggested fixes"
+  },
+  "summary": "74 /100 UPPER COVERAGE INDEX 5 targets under. Anterior deltoid is furthest behind, 21 pts under target. Out of 100, from catalog muscle tags. Not workload or recovery. FURTHEST BEHIND Anterior deltoid 21 PTS UNDER 4 more targets under VIEW ANALYSIS 2 suggested fixes",
+  "planScore": "74 /100",
+  "worst": "Anterior deltoid",
+  "summaryHeight": 333,
+  "findCard": 0,
+  "analysisBadge": "74 /100 COVERAGE INDEX",
+  "analysisFirstRow": "Anterior deltoid",
+  "analysisRows": [
+   "Anterior deltoid Support target · supporting in 1 exercise ↓ SHORT 21 pts under",
+   "Triceps brachii Support target · supporting in 1 exercise ↓ SHORT 21 pts under",
+   "Biceps brachii Support target · supporting in 1 exercise ↓ SHORT 21 pts under",
+   "Pectoralis major Primary target · prime mover in 1 exercise ◦ CLOSE 4 pts under",
+   "Latissimus dorsi Primary target · prime mover in 1 exercise ◦ CLOSE 4 pts under",
+   "Posterior deltoid Support target · prime mover in 1 exercise ✓ COVERED 35 pts over"
+  ],
+  "afterPick": {
+   "overlayOpen": true,
+   "badge": "90 /100 COVERAGE INDEX",
+   "firstRow": "Biceps brachii"
+  },
+  "afterClose": {
+   "overlayOpen": false,
+   "planScore": "90 /100",
+   "rows": 4,
+   "reorder": 1,
+   "actions": "ADD EXERCISES REORDER OPEN WORKOUT IMPORT PLAN PRINT SHEET"
+  },
+  "errors": []
+ },
+ "full": {
+  "summary": "100 /100 UPPER COVERAGE INDEX All 6 targets reached; 3 well past target. Out of 100, from catalog muscle tags. Not workload or recovery. VIEW ANALYSIS every upper target, body map and per-exercise breakdown",
+  "analysis": {
+   "rows": [
+    "Anterior deltoid Support target · supporting in 2 exercises ✓ COVERED 3 pts over",
+    "Triceps brachii Support target · supporting in 2 exercises ✓ COVERED 3 pts over",
+    "Biceps brachii Support target · supporting in 2 exercises ✓ COVERED 3 pts over",
+    "Pectoralis major Primary target · prime mover in 2 exercises ↑ WELL PAST 52 pts over",
+    "Latissimus dorsi Primary target · prime mover in 2 exercises ↑ WELL PAST 52 pts over",
+    "Posterior deltoid Support target · prime mover in 1 exercise ↑ WELL PAST 59 pts over"
+   ],
+   "heavyInRows": false,
+   "rowDeltasWithUnit": true,
+   "coverageFills": [
+    "rgb(128, 214, 152)",
+    "rgb(94, 171, 238)"
+   ],
+   "volumeFills": [
+    "rgb(179, 157, 219)"
+   ],
+   "demands": [
+    "Maximal strength ✓ 4 EXERCISES 72% of upper-fit catalog exercises carry it",
+    "Grip endurance ✓ 2 EXERCISES 38% of upper-fit catalog exercises carry it",
+    "Trunk bracing ✓ 2 EXERCISES 29% of upper-fit catalog exercises carry it"
+   ],
+   "volume": [
+    "Pectoralis major 8 sets ✓ SOLID",
+    "Upper back 6 sets ✓ SOLID",
+    "Latissimus dorsi 6 sets ✓ SOLID",
+    "Posterior deltoid 3 sets ↓ LIGHT"
+   ],
+   "mapTabs": [
+    {
+     "t": "Front",
+     "c": 15.34
+    },
+    {
+     "t": "Back",
+     "c": 10.8
+    }
+   ],
+   "mapMethodContrast": 15.34,
+   "mapMethodText": "How muscle roles are classified Prime mover: a prime mover in at least one exercise in this day. Supporting: a synergist or stabilizer only. From the catalog's muscle classifications; not activation, ",
+   "gridlineX": 213,
+   "fiftyX": 213,
+   "trackMid": 213,
+   "methodCount": 1,
+   "badge": "100 /100 COVERAGE INDEX",
+   "overflow": {
+    "sw": 390,
+    "osw": 390,
+    "ocw": 390
+   }
+  }
+ }
+}

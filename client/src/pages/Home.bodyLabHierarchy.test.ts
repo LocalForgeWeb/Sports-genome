@@ -18,7 +18,7 @@ describe("Body Lab workspace hierarchy", () => {
     // The page's name, then the sport and action as one line with Change; the
     // pickers open only when the athlete means to change something.
     expect(navigator).toContain("<h1>Muscle map</h1>");
-    expect(navigator).toContain('className="body-lab-selection-action">{selectedMovement.label}</span>');
+    expect(navigator).toContain('className="body-lab-selection-action">{movementDisplayLabel(selectedMovement.label)}</span>');
     expect(navigator).toContain('className="body-lab-selection-change"');
     expect(navigator).toContain("{changing && <div");
     expect(navigator).toContain("<span>Sport</span>");

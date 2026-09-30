@@ -42,6 +42,6 @@ describe("the tracker's day chooser is a disclosure", () => {
     // first paint, so the chooser opened for an empty render has to close again
     // when the staged day arrives.
     expect(source).toContain('if (workspace === "tracker") setTrackerDayPickerOpen(!customWorkout.length);');
-    expect(source).toContain("onClick={() => { openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }}");
+    expect(source).toContain("onClick={() => { chooseDayToTrain(slot); openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }}");
   });
 });

@@ -103,7 +103,9 @@ describe("choosing a week and a day", () => {
     expect(markup).toContain("training-plan-day-live");
     expect(markup).toContain("Training now");
     expect(markup).toContain("training-plan-day-trained");
-    expect(markup).toContain("Trained");
+    // "Done this week", not "Trained": the state is scoped to the calendar week, the same rule
+    // Home's strip reads (intentional change, Sep 28 regression brief §5).
+    expect(markup).toContain("Done this week");
   });
 
   // "04 /" was a design-mock section number shown to athletes, like the

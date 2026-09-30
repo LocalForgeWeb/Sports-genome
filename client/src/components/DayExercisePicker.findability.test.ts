@@ -35,8 +35,11 @@ describe("Adding an exercise is findable on the Training Day", () => {
   });
 
   it("gives the empty day a control instead of telling the reader to look below", () => {
-    expect(home).toContain("Nothing in this day yet.");
-    expect(home).toContain("Add exercises from the catalog, or paste a stack.");
+    // Intentional change, Sep 28 regression brief §8: the empty card names the day and its
+    // week, and offers Import itself, since the action row is not shown on an empty day.
+    expect(home).toContain("<strong>{activeSlot.day} is empty</strong>");
+    expect(home).toContain("Week {activeWeek} · {activeSlot.ordinal}. Add the exercises you want on this day");
+    expect(home).toContain("Or import a plan");
     expect(home).not.toContain("Search, filter, and add below.");
     expect(home).not.toContain("Search, filter, and add exercises below.");
     const empty = order('className="day-plan-empty"');
@@ -78,8 +81,10 @@ describe("Adding an exercise is findable on the Training Day", () => {
     expect(picker.match(/\{pickerBody\}/g)?.length).toBe(1);
     expect(picker).not.toContain("{!sheetOpen && pickerBody}");
     expect(picker).not.toContain('<details className="day-exercise-disclosure"');
-    // What is left on the page is the door, and it opens the same sheet.
-    expect(picker).toContain('className="day-exercise-open-catalog"');
+    // The door is the day's own Add exercises and the coverage summary's fix action, both
+    // opening the same sheet. Intentional change, Sep 28 regression brief §8: the separate
+    // white "Find exercises for" card repeated the fix action and is gone.
+    expect(picker).not.toContain('className="day-exercise-open-catalog"');
     expect(home).toContain("onOpenSheet={() => setPickerSheetOpen(true)}");
   });
 

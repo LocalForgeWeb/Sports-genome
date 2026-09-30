@@ -1182,3 +1182,6 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
   color: var(--sg-text-on-dark);
   background: rgb(255 255 255 / .06);
 }
+/* Sep 28 regression brief §8: the empty day's one primary action, and Import as a quiet text
+   link under it, not a second filled button. */
+.day-plan-empty button.day-plan-link { min-height: 2.75rem; border: 0; background: none; padding: 0 .1rem; color: var(--sg-link-on-dark); }

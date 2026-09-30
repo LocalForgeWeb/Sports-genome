@@ -150,3 +150,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: merge batch 10; then the September 28 regression repair brief (Home layout, next-workout ownership, strip icons, notices, Plan hierarchy).
 Access/decision blockers: production server latency unmeasured (no route from the shell; Observability Plus); others as before.
 ```
+
+```text
+Current branch/commit and environment: batch 10 merged as #77; parallel PRs #78-#81 merged to main from another session; the Sep 28 regression repair merged as #82 (main 8be0ef3, production dpl_Hx5yP4QzysDJdrHHSqnMKap2crkG READY). Wrap-up records on claude/training-day-navigation-workouts-83ro2c.
+Requirements completed and evidence: B284-B298 verified (handoff.md, gates.md); B281, B282 evidence extended. Gate verdicts in gates.md: A fail (blocked on applying the prepared Supabase migrations), B and D partly unverified, C deferred (owner), E pass.
+Current confirmed failure/root cause: the Sep 28 regressions and their causes are recorded in docs/regression-sep28/README.md (Home's shared home-focus class; Home's next workout was the Plan's active day; a timer-gated notice fired on any refusal; four protected calls still reachable on the device store).
+Files/migrations changed but not verified: none; no database change. The prepared Supabase migrations remain NOT applied.
+Tests run and actual results: at 8be0ef3 - tsc 0; vitest 2539 pass, 1 skip, 5 fail (the same live-Supabase tests); build OK. Browser: the Sep 28 brief's mandatory journeys in Chromium at 320-430 px and 125% text (docs/regression-sep28/evidence/*.json). Not exercised: iOS/WebKit, MySQL, account-backed journeys.
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: the owner applies the prepared Supabase migrations (handoff decision 1), then the paired client upsert ships; then REG-1 on an iPhone.
+Access/decision blockers: applying the migrations (owner, B009); iOS shell on main (D-003); MySQL unreachable; sign-in not in the build; owner decision 10 (records after a real lapse).
+```

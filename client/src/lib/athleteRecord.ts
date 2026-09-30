@@ -39,6 +39,10 @@ export type AthleteRecordSummary = {
   completedThisWeek: number;
   /** The day labels of those finished workouts ("Week 1 · Day 01 · Push"), so a plan day can be marked from its own record. */
   completedDayLabelsThisWeek: readonly string[];
+  /** The same finished workouts with when each finished, so a choice made after one can be told apart (nextWorkout.ts). */
+  completionsThisWeek: readonly { dayLabel: string; at: string }[];
+  /** The plan day of the most recently started workout, running or finished, at any date. */
+  latestSessionDayLabel: string | null;
   setsThisWeek: number;
   /** Where the record lives, said in words for the screens that name it. */
   storage: "device" | "account";
@@ -96,11 +100,15 @@ export function summarizeAthleteRecord(sources: AthleteRecordSources): AthleteRe
   const week = summarizeTrainingWeek(sessions, 0, sources.now);
   // The same sessions and the same week the count reads, listed by the plan day they were for.
   const weekStart = startOfTrainingWeek(sources.now ?? new Date());
-  const completedDayLabelsThisWeek = Array.from(new Set(sessions.flatMap((session) => {
+  const completionsThisWeek = sessions.flatMap((session) => {
     if (session.status !== "completed" || !session.dayLabel) return [];
     const marker = new Date(session.completedAt ?? session.startedAt);
-    return !Number.isNaN(marker.getTime()) && marker >= weekStart ? [session.dayLabel] : [];
-  })));
+    return !Number.isNaN(marker.getTime()) && marker >= weekStart ? [{ dayLabel: session.dayLabel, at: marker.toISOString() }] : [];
+  });
+  const completedDayLabelsThisWeek = Array.from(new Set(completionsThisWeek.map((completion) => completion.dayLabel)));
+  const latestSession = sessions
+    .filter((session) => session.dayLabel && !Number.isNaN(new Date(session.startedAt).getTime()))
+    .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())[0];
   return {
     liftsLogged: lifts.length,
     liftsFromWorkouts: fromWorkouts,
@@ -109,6 +117,8 @@ export function summarizeAthleteRecord(sources: AthleteRecordSources): AthleteRe
     workoutsRecorded: sessions.filter((session) => session.status === "completed").length,
     completedThisWeek: week.completedThisWeek,
     completedDayLabelsThisWeek,
+    completionsThisWeek,
+    latestSessionDayLabel: latestSession?.dayLabel ?? null,
     setsThisWeek: week.setsThisWeek,
     storage: sources.directAccess ? "device" : "account",
   };

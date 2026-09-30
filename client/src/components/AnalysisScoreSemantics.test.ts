@@ -13,13 +13,14 @@ describe("analysis score semantics", () => {
     expect(anatomy).toContain("a qualitative role in this action, not measured activation, force");
     expect(genome).toContain("Estimated ${entry.contribution}/100 involvement");
     expect(genome).toContain("planning comparison, not a direct performance measurement");
-    // The denominator moved from a per-row string into the group heading and a
-    // <small>, but a score is still never shown without the scale it is on.
-    expect(stack).toContain("relative contribution, /100");
-    expect(stack).toContain("<small>/100</small>");
-    expect(stack).toContain("{selected.involvement}%");
-    expect(stack).toContain("Target coverage is calculated from this split’s intended muscles only.");
-    expect(stack).toContain("Supporting muscles are not included in the {split.toLowerCase()} target grade");
+    // A score is still never shown without the scale it is on. Intentional change, Sep 28
+    // regression brief §8: the contribution index no longer borrows the coverage badge's
+    // "/100", each percentage names its denominator, and the methodology is said once.
+    expect(stack).toContain("contribution index, 0–100");
+    expect(stack).toContain("<small>/100</small><em>coverage index</em>");
+    expect(stack).toContain("{selected.involvement}% of the day's most-worked muscle");
+    expect(stack).toContain("How coverage is calculated");
+    expect(stack).toContain("Not {split.toLowerCase()} targets, so not in the coverage index.");
     expect(stack).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });
 });

@@ -54,9 +54,10 @@ describe("AthleteAboutMePanel passkey enrolment failures", () => {
     fireEvent.click(screen.getByRole("button", { name: /Enable Face ID \/ passkey/ }));
 
     await waitFor(() => expect(mocks.toast).toHaveBeenCalledTimes(1));
-    expect(mocks.toast).toHaveBeenCalledWith("Your sign-in has expired", {
+    // The shared words (lib/sessionExpiryNotice.ts), after what this refusal cost.
+    expect(mocks.toast).toHaveBeenCalledWith("You're signed out of your account", {
       id: "session-expired",
-      description: "No passkey was added. Everything stays saved on this device.",
+      description: "No passkey was added. Changes you make are kept on this device.",
     });
     expect(mocks.toastError).not.toHaveBeenCalled();
     expect(mocks.startRegistration).not.toHaveBeenCalled();

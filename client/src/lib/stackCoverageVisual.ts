@@ -35,8 +35,25 @@ export const coverageBandCopy: Record<CoverageBand, { label: string; glyph: stri
   short: { label: "Short", glyph: "↓", meaning: "Well below the split's target for this muscle." },
   near: { label: "Close", glyph: "◦", meaning: "Under target, but within reach of it." },
   covered: { label: "Covered", glyph: "✓", meaning: "At or past the split's target." },
-  heavy: { label: "Heavy", glyph: "↑", meaning: "Well past target - volume that could move elsewhere." },
+  /**
+   * Not "Heavy": that is a word for sets, and Session volume on the same page used it, with
+   * the same colours, for direct sets per session. The same muscle read "heavy" here and
+   * "light" there (Sep 28 regression brief §8). This band is coverage points, which count
+   * catalog muscle tags, not sets. The key stays "heavy" for the CSS and the thresholds.
+   */
+  heavy: { label: "Well past", glyph: "↑", meaning: `More than ${logicCalibration.exposure.splitCoverageHighOffset} coverage points past target (catalog-tag points, not sets).` },
 };
+
+/**
+ * One wording for a coverage delta everywhere it is shown: the Plan's fix action, the
+ * analysis rows, the picker's gap chips, the headline and the tips. It was "21 short",
+ * "−21" and "-60" on three surfaces, with no unit on any of them.
+ */
+export function formatCoverageDelta(delta: number, { short = false }: { short?: boolean } = {}): string {
+  if (delta === 0) return "on target";
+  const points = `${Math.abs(delta)} pts ${delta > 0 ? "over" : "under"}`;
+  return short ? points : `${points} target`;
+}
 
 /** The band for one target, read off the same score the bar draws. */
 export function bandForCoverage(score: number, target: number): CoverageBand {
@@ -103,12 +120,12 @@ export function summarizeCoverage(bars: readonly CoverageBar[], muscleName: (mus
   const headline = !bars.length
     ? "No split targets to measure."
     : shortfalls.length === 0 && counts.heavy === 0
-      ? "Every target in this split is covered."
+      ? `${bars.length === 1 ? "The target is" : `All ${bars.length} targets`} reached.`
       : shortfalls.length === 0
-        ? `All targets covered; ${counts.heavy} carrying heavy volume.`
+        ? `${bars.length === 1 ? "The target is" : `All ${bars.length} targets`} reached; ${counts.heavy} well past target.`
         : shortfalls.length === 1
-          ? `${muscleName(shortfalls[0].muscle)} is the one gap, ${Math.abs(shortfalls[0].deltaToTarget)} points short.`
-          : `${shortfalls.length} targets under. ${muscleName(shortfalls[0].muscle)} is furthest behind, ${Math.abs(shortfalls[0].deltaToTarget)} points short.`;
+          ? `${muscleName(shortfalls[0].muscle)} is the one gap, ${formatCoverageDelta(shortfalls[0].deltaToTarget)}.`
+          : `${shortfalls.length} targets under. ${muscleName(shortfalls[0].muscle)} is furthest behind, ${formatCoverageDelta(shortfalls[0].deltaToTarget)}.`;
 
   return { ...counts, headline, shortfalls };
 }

@@ -10,6 +10,20 @@
  * simultaneously for confidence, magnitude and focus" an anti-pattern.
  */
 
+/* The role palette, once, where the figure, its legend and its row dots all read it (Sep 28
+   regression brief §10). Supporting was the State rank's gold (ΔE00 4) and its row dot
+   Prospect's slate (3.8); primary sat 14-17 from National's crimson. Both now sit at least 15
+   from every rank colour (anatomyRoleColors.test.ts), so a role is never read as a rank.
+   The ranks themselves are unchanged. */
+:root {
+  --sg-role-primary-1: #ff7a2f;
+  --sg-role-primary-2: #e8662a;
+  --sg-role-supporting-1: #2fc4c9;
+  --sg-role-supporting-2: #1f9aa3;
+  /* The figure's resting muscle on the dark Body Lab ground, for the legend's Neutral swatch. */
+  --sg-role-neutral-on-dark: #6f7d90;
+}
+
 /* Defaults suit a light surface, because this figure renders on one: the
    exercise inspector draws it inside `.light-panel`. Body Lab renders the same
    component on the dark destination ground and flips these in one place, beside
@@ -21,10 +35,10 @@
   --anatomy-line: #8b99ad;
   --anatomy-selection: #16324f;
 
-  --anatomy-supporting-1: #e9be55;
-  --anatomy-supporting-2: #c08f24;
-  --anatomy-primary-1: #ec5f4a;
-  --anatomy-primary-2: #bb2114;
+  --anatomy-supporting-1: var(--sg-role-supporting-1);
+  --anatomy-supporting-2: var(--sg-role-supporting-2);
+  --anatomy-primary-1: var(--sg-role-primary-1);
+  --anatomy-primary-2: var(--sg-role-primary-2);
 
   display: block;
   height: 100%;
@@ -38,6 +52,10 @@
    Sized by height it would overflow the card sideways exactly as the single
    figure once overflowed it downwards. */
 .anatomy-figure[data-view="both"] { width: 100%; height: auto; max-height: 100%; }
+
+/* A cropped figure (Home's workout focus) keeps its drawing inside the crop; the default
+   overflow: visible would paint the rest of the body around it. */
+.anatomy-figure[data-frame] { overflow: hidden; }
 
 /* The filled body under everything. Joints the muscle layer does not cover —
    knees, shins — are body here rather than holes showing the page through. */
