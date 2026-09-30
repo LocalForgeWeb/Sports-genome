@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import { createSupabaseStrengthProfileClient, scoreMuscleProfile } from "./supabaseStrengthProfile";
+import { liveMuscleAggregation as live } from "./fixtures/liveMuscleAggregation";
 
 const index = [
   { id: "03c880ed-4138-4217-92c2-28fff50845d1", name: "Barbell Bench Press", canonical_name: "barbell_bench_press__catalog_1" },
   { id: "1c710af1-7799-4cab-a79c-4cbac4048ba4", name: "Preacher Curl", canonical_name: "preacher_curl__catalog_126" },
 ];
+/** The aggregation runs in-process since D-016, over the database's own mapping rows. */
+const catalog = { exercises: index, muscles: live.muscles };
 
 const exerciseScore = (exerciseId: string, percentile: number, name: string) => ({
   status: "ok",
@@ -37,42 +40,50 @@ function fakeClient() {
       estimated_only: [],
       failures: [],
     })),
-    aggregate: vi.fn(async () => ({ status: "ok", scoring_version: "strength_beta_v1", muscles: [] })),
+    getMuscles: vi.fn(),
+    getMuscleMappings: vi.fn(async (ids: readonly string[]) => live.mappings.filter((row) => ids.includes(row.exercise_id))),
     adjustForAge: vi.fn(databaseAdjustment),
   };
 }
+
+/** What the sternocostal pec's one lift entered the aggregation at. */
+const aggregatedBench = (result: Awaited<ReturnType<typeof scoreMuscleProfile>>) => {
+  if (result.status === "unavailable") throw new Error("expected a profile");
+  return result.muscles.find((m) => m.canonicalName === "pectoralis_major_sternocostal")?.evidence[0];
+};
 
 const bench = (ageYears: number | null, bodyMassKg = 65.77) => ({ exerciseName: "Barbell Bench Press", catalogExerciseId: 1, bodyMassKg, loadKg: 81.65, repetitions: 1, ageYears });
 
 describe("Muscle ranks read each lift at the age it was lifted at", () => {
   it("sends the database's own age adjustment the lift's age, and aggregates what comes back", async () => {
     const client = fakeClient();
-    const result = await scoreMuscleProfile(client, index, { sex: "male", lifts: [bench(16)] });
+    const result = await scoreMuscleProfile(client, catalog, { sex: "male", lifts: [bench(16)] });
     expect(client.adjustForAge).toHaveBeenCalledWith(index[0].id, 65.8, "male", 16, expect.objectContaining({ exercise_id: index[0].id }));
-    expect(client.aggregate).toHaveBeenCalledWith([{ exercise_id: index[0].id, percentile: 69.6, confidence: 0.82 }]);
+    expect(client.getMuscleMappings).toHaveBeenCalledWith([index[0].id]);
+    expect(aggregatedBench(result)).toMatchObject({ exerciseName: "Barbell Bench Press", exercisePercentile: 69.6 });
     expect(result.status !== "unavailable" && result.ageAdjustment).toEqual({ applied: 1, outsideTable: 0, noAge: 0 });
   });
 
   /** Before a birth year is given nothing is scaled, and nothing extra is asked of the database. */
   it("leaves a lift with no age exactly as scored", async () => {
     const client = fakeClient();
-    const result = await scoreMuscleProfile(client, index, { sex: "male", lifts: [bench(null)] });
+    const result = await scoreMuscleProfile(client, catalog, { sex: "male", lifts: [bench(null)] });
     expect(client.adjustForAge).not.toHaveBeenCalled();
-    expect(client.aggregate).toHaveBeenCalledWith([{ exercise_id: index[0].id, percentile: 48.97, confidence: 0.82 }]);
+    expect(aggregatedBench(result)).toMatchObject({ exercisePercentile: 48.97 });
     expect(result.status !== "unavailable" && result.ageAdjustment).toEqual({ applied: 0, outsideTable: 0, noAge: 1 });
   });
 
   it("counts a lift made before 15 as outside the table and keeps its unadjusted score", async () => {
     const client = fakeClient();
-    const result = await scoreMuscleProfile(client, index, { sex: "male", lifts: [bench(14)] });
-    expect(client.aggregate).toHaveBeenCalledWith([{ exercise_id: index[0].id, percentile: 48.97, confidence: 0.82 }]);
+    const result = await scoreMuscleProfile(client, catalog, { sex: "male", lifts: [bench(14)] });
+    expect(aggregatedBench(result)).toMatchObject({ exercisePercentile: 48.97 });
     expect(result.status !== "unavailable" && result.ageAdjustment).toEqual({ applied: 0, outsideTable: 1, noAge: 0 });
   });
 
   /** One call scores one weight at one age, so a birthday between two lifts splits them. */
   it("scores lifts at different ages separately even at the same body weight", async () => {
     const client = fakeClient();
-    await scoreMuscleProfile(client, index, { sex: "male", lifts: [bench(15), bench(16), bench(16)] });
+    await scoreMuscleProfile(client, catalog, { sex: "male", lifts: [bench(15), bench(16), bench(16)] });
     expect(client.scoreProfile).toHaveBeenCalledTimes(2);
     expect(client.adjustForAge.mock.calls.map((call) => call[3]).sort()).toEqual([15, 16, 16]);
   });

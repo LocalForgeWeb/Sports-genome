@@ -467,9 +467,10 @@ export const appRouter = router({
    * One lift is described the same way whether it arrives alone or in a list.
    */
   /**
-   * Per-muscle percentiles for Body Lab's Strength/Rank mode, scored and aggregated by the
-   * database. Each lift carries the body weight saved with it; the server groups by that
-   * weight so a later weight change never re-reads an old lift.
+   * Per-muscle percentiles for Body Lab's Strength/Rank mode, scored by the database and
+   * aggregated here (`server/muscleAggregation.ts`, D-016). Each lift carries the body weight
+   * saved with it; the server groups by that weight so a later weight change never re-reads
+   * an old lift.
    */
   strengthProfile: router({
     muscleRanks: costlyPublicProcedure
@@ -485,8 +486,8 @@ export const appRouter = router({
           /** Age on the day of this lift, so a birth year given later re-reads every earlier lift. */
           ageYears: z.number().min(0).max(120).nullable().optional(),
         // Each distinct saved weight and age at the lift is one scoring call, each scored lift with an
-        // age one adjustment call, plus one aggregation: 30 lifts bound a request to 61 Supabase calls,
-        // run at most four at a time. The client sends at most 30 - each exercise's strongest lifts - duplicates removed.
+        // age one adjustment call, plus one read of the muscle mappings: 30 lifts bound a request to 61
+        // Supabase calls, run at most four at a time. The client sends at most 30 - each exercise's strongest lifts - duplicates removed.
         })).max(30),
       }))
       .query(({ input }) => getMuscleProfile(input)),

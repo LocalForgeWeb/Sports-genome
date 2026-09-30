@@ -1,6 +1,7 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import { loadConventionFor } from "../shared/loadConventions";
 import { mapWithConcurrency, withTimeout } from "./boundedCache";
+import { aggregateMuscleStrength, type MappingRow, type MuscleRow } from "./muscleAggregation";
 import {
   MUSCLE_CONFIDENCE_CALIBRATION_VERSION,
   RANK_SCHEME_VERSION,
@@ -11,13 +12,18 @@ import {
 /**
  * Per-muscle strength percentiles for Body Lab's Strength/Rank mode.
  *
- * The canonical path is `score_strength_profile_v1`, which scores each lift and hands the
- * results to `aggregate_muscle_strength_v1`. That function takes one body weight for every
- * lift, and the app's rule is that a lift is read against the weight saved with it - change
- * your weight today and last month's bench does not move. So lifts are grouped by that saved
- * weight, each group is scored by the profile function exactly as written, and the scored
- * exercises from every group are aggregated once. The scoring and the aggregation are both the
+ * The canonical path is `score_strength_profile_v1`, which scores each lift. That function
+ * takes one body weight for every lift, and the app's rule is that a lift is read against the
+ * weight saved with it - change your weight today and last month's bench does not move. So
+ * lifts are grouped by that saved weight, each group is scored by the profile function exactly
+ * as written, and the scored exercises from every group are aggregated once. The scoring is the
  * database's; only the body weight is threaded per lift.
+ *
+ * The aggregation used to be the database's `aggregate_muscle_strength_v1` too. It now runs
+ * here (`muscleAggregation.ts`): that function transcribed and pinned to its outputs, plus one
+ * rule it lacks - a lift counts for more the more of its work the muscle does, so a fly speaks
+ * louder for the chest than a press the shoulders and triceps share (D-016). The rows it joins
+ * (`exercise_muscle_mappings`, `muscles`, `exercises`) are read from the same database.
  *
  * Age is threaded the same way. `score_strength_profile_v1` takes no age, so lifts are grouped by
  * saved weight and age at the lift, and each scored exercise in a group with an age goes
@@ -82,7 +88,7 @@ export type MuscleProfileResult =
        * whose recorded method is not the one that ran (EN-04). Several are joined with "+".
        */
       scoringVersion: string;
-      /** The muscle aggregation's own version and method. */
+      /** The muscle aggregation's own version and method: `sg_muscle_aggregate_v2:directness_…` (D-016). */
       aggregationVersion: string;
       /** One observation per exercise enters the aggregation: the best placed, whatever its confidence. */
       selectionRule: typeof MUSCLE_EVIDENCE_SELECTION_RULE;
@@ -95,7 +101,7 @@ export type MuscleProfileResult =
        * results alike - so a partial profile can be inspected rather than silently thinned.
        */
       unranked: ProfileFailure[];
-      /** Muscles the aggregation returned that failed validation and were not drawn. */
+      /** Muscles the aggregation returned that failed validation and were not drawn. Always 0 now that the aggregation runs here; kept for the response shape. */
       rejectedMuscles: number;
       /** How many scored lifts had their comparison scaled for age, and why the rest did not. */
       ageAdjustment: AgeAdjustmentSummary;
@@ -110,7 +116,10 @@ export type AgeAdjustmentSummary = {
   noAge: number;
 };
 
-type ExerciseRow = { id: string; name: string; canonical_name: string };
+type ExerciseRow = { id: string; name: string; canonical_name: string; movement_pattern?: string | null };
+
+/** What the route reads once and keeps: the catalog's exercises and the muscle list. */
+export type ProfileCatalog = { exercises: readonly ExerciseRow[]; muscles: readonly MuscleRow[] };
 
 /** Supabase calls one request may have in flight at each level of the route. */
 const UPSTREAM_CONCURRENCY = 4;
@@ -162,6 +171,8 @@ export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<
     exerciseName: typeof item.exercise_name === "string" ? item.exercise_name : "Logged lift",
     role: typeof item.role === "string" ? item.role : null,
     exercisePercentile: numberOf(item.exercise_percentile),
+    directness: numberOf(item.directness),
+    weightShare: numberOf(item.weight_share),
   }));
   const groups = new Map<string, ReferenceGroup>();
   evidenceRows.forEach((item) => {
@@ -202,19 +213,36 @@ export function createSupabaseStrengthProfileClient({ url, serviceRoleKey, fetch
     return response.json() as Promise<unknown>;
   };
 
+  const rows = async (table: string, params: Record<string, string>, what: string) => {
+    const requestUrl = new URL(`/rest/v1/${table}`, baseUrl);
+    Object.entries(params).forEach(([key, value]) => requestUrl.searchParams.set(key, value));
+    const response = await fetchImplementation(requestUrl, withTimeout({ headers: supabaseServiceHeaders(serviceRoleKey) }));
+    if (!response.ok) throw new Error(`Supabase ${what} failed (${response.status})`);
+    const body = await response.json() as unknown;
+    return Array.isArray(body) ? body as Record<string, unknown>[] : [];
+  };
+
   return {
     async getExerciseIndex(): Promise<ExerciseRow[]> {
-      const requestUrl = new URL("/rest/v1/exercises", baseUrl);
-      requestUrl.searchParams.set("select", "id,name,canonical_name");
-      requestUrl.searchParams.set("canonical_name", "like.*__catalog_*");
-      const response = await fetchImplementation(requestUrl, withTimeout({ headers: supabaseServiceHeaders(serviceRoleKey) }));
-      if (!response.ok) throw new Error(`Supabase exercise index failed (${response.status})`);
-      const rows = await response.json() as unknown;
-      return Array.isArray(rows) ? rows.filter((row): row is ExerciseRow => typeof row?.id === "string" && typeof row?.canonical_name === "string") : [];
+      const index = await rows("exercises", { select: "id,name,canonical_name,movement_pattern", canonical_name: "like.*__catalog_*" }, "exercise index");
+      return index.filter((row): row is ExerciseRow => typeof row?.id === "string" && typeof row?.canonical_name === "string");
+    },
+    /** The 58 muscles the mappings point at: name, canonical name and grouping. */
+    async getMuscles(): Promise<MuscleRow[]> {
+      const muscles = await rows("muscles", { select: "id,name,canonical_name,region,muscle_group" }, "muscle list");
+      return muscles.filter((row): row is MuscleRow => typeof row?.id === "string" && typeof row?.canonical_name === "string" && typeof row?.name === "string");
+    },
+    /** The exercise-muscle mappings the aggregation joins, for the exercises with evidence only. */
+    async getMuscleMappings(exerciseIds: readonly string[]): Promise<MappingRow[]> {
+      if (exerciseIds.length === 0) return [];
+      const mappings = await rows("exercise_muscle_mappings", {
+        select: "exercise_id,muscle_id,role,contribution_weight,confidence_score",
+        exercise_id: `in.(${exerciseIds.join(",")})`,
+      }, "muscle mappings");
+      return mappings.filter((row): row is MappingRow => typeof row?.exercise_id === "string" && typeof row?.muscle_id === "string");
     },
     scoreProfile: (bodyweightKg: number, sex: "male" | "female", observations: unknown[]) =>
       rpc("score_strength_profile_v1", { p_bodyweight_kg: bodyweightKg, p_sex: sex, p_observations: observations }),
-    aggregate: (compact: unknown[]) => rpc("aggregate_muscle_strength_v1", { p_exercise_scores: compact }),
     adjustForAge: (exerciseId: string, bodyweightKg: number, sex: "male" | "female", ageYears: number, score: unknown) =>
       rpc("apply_strengthlevel_age_adjustment_v1", { p_exercise_id: exerciseId, p_bodyweight_kg: bodyweightKg, p_sex: sex, p_age_years: ageYears, p_score: score }),
   };
@@ -223,10 +251,11 @@ export function createSupabaseStrengthProfileClient({ url, serviceRoleKey, fetch
 type ProfileClient = ReturnType<typeof createSupabaseStrengthProfileClient>;
 
 /** The whole route, with the client injected so it can be exercised without a network. */
-export async function scoreMuscleProfile(client: ProfileClient, index: readonly ExerciseRow[], request: MuscleProfileRequest): Promise<MuscleProfileResult> {
+export async function scoreMuscleProfile(client: ProfileClient, catalog: ProfileCatalog, request: MuscleProfileRequest): Promise<MuscleProfileResult> {
   if (!request.sex) return { status: "unavailable", reason: "sex_required" };
   if (request.lifts.length === 0) return { status: "unavailable", reason: "no_lifts" };
   const sex = request.sex;
+  const index = catalog.exercises;
 
   const failures: ProfileFailure[] = [];
   // Grouped by weight to the tenth of a kilogram, which is finer than any scale an athlete
@@ -311,27 +340,29 @@ export async function scoreMuscleProfile(client: ProfileClient, index: readonly 
   }
 
   const evidence = bestObservationPerExercise(compact);
-  const aggregate = evidence.length ? await client.aggregate(evidence) as Record<string, unknown> : { status: "no_evidence", scoring_version: "strength_beta_v1", muscles: [] };
-  const rawMuscles = Array.isArray(aggregate?.muscles) ? aggregate.muscles : [];
-  const muscles = rawMuscles.map((raw) => validateMuscle(raw, referenceByExerciseId)).filter((m): m is NonNullable<typeof m> => m !== null);
+  // The mappings for the exercises with evidence, read once per request; the muscle list and
+  // the exercise index come with the catalog. Then the aggregation runs here (D-016).
+  const mappings = evidence.length ? await client.getMuscleMappings(evidence.map((item) => item.exercise_id)) : [];
+  const aggregate = aggregateMuscleStrength(evidence, { mappings, muscles: catalog.muscles, exercises: index });
+  const muscles = aggregate.muscles.map((raw) => validateMuscle(raw, referenceByExerciseId)).filter((m): m is NonNullable<typeof m> => m !== null);
 
   return {
     status: profileStatus(scored, estimatedOnly, failed),
     scoringVersion: scoringVersions.size ? Array.from(scoringVersions).sort().join("+") : "unknown",
-    aggregationVersion: `${typeof aggregate?.scoring_version === "string" ? aggregate.scoring_version : "unknown"}:${typeof aggregate?.aggregation_method === "string" ? aggregate.aggregation_method : "unknown"}`,
+    aggregationVersion: `${aggregate.scoring_version}:${aggregate.aggregation_method}`,
     selectionRule: MUSCLE_EVIDENCE_SELECTION_RULE,
     rankSchemeVersion: RANK_SCHEME_VERSION,
     confidenceCalibrationVersion: MUSCLE_CONFIDENCE_CALIBRATION_VERSION,
     muscles,
     counts: { scored, estimatedOnly, failed },
     unranked: failures,
-    rejectedMuscles: rawMuscles.length - muscles.length,
+    rejectedMuscles: aggregate.muscles.length - muscles.length,
     ageAdjustment,
   };
 }
 
-const INDEX_TTL_MS = 5 * 60 * 1000;
-const indexCache: { expiresAt: number; value: ExerciseRow[] } = { expiresAt: 0, value: [] };
+const CATALOG_TTL_MS = 5 * 60 * 1000;
+const catalogCache: { expiresAt: number; value: ProfileCatalog } = { expiresAt: 0, value: { exercises: [], muscles: [] } };
 
 function runtimeClient() {
   const url = process.env.VITE_SUPABASE_URL?.trim();
@@ -343,11 +374,12 @@ export async function getMuscleProfile(request: MuscleProfileRequest): Promise<M
   const client = runtimeClient();
   if (!client) return { status: "unavailable", reason: "not_configured" };
   try {
-    if (indexCache.expiresAt <= Date.now()) {
-      indexCache.value = await client.getExerciseIndex();
-      indexCache.expiresAt = Date.now() + INDEX_TTL_MS;
+    if (catalogCache.expiresAt <= Date.now()) {
+      const [exercises, muscles] = await Promise.all([client.getExerciseIndex(), client.getMuscles()]);
+      catalogCache.value = { exercises, muscles };
+      catalogCache.expiresAt = Date.now() + CATALOG_TTL_MS;
     }
-    return await scoreMuscleProfile(client, indexCache.value, request);
+    return await scoreMuscleProfile(client, catalogCache.value, request);
   } catch (error) {
     console.warn("[Supabase strength profile] unavailable", { message: error instanceof Error ? error.message : "Unknown error" });
     return { status: "unavailable", reason: "service_error" };
@@ -355,4 +387,4 @@ export async function getMuscleProfile(request: MuscleProfileRequest): Promise<M
 }
 
 /** Test seam. */
-export function resetStrengthProfileCache() { indexCache.expiresAt = 0; indexCache.value = []; }
+export function resetStrengthProfileCache() { catalogCache.expiresAt = 0; catalogCache.value = { exercises: [], muscles: [] }; }
