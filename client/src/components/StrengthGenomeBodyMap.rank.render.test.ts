@@ -13,7 +13,7 @@ import { RankCard, UnscoredRankCard, displayPercentile } from "./CapabilityRank"
 const communityGroup = { label: "Self-selected Strength Level community lifters (not general population)", sex: "male" as const };
 const muscle = (canonicalName: string, name: string, percentile: number, confidence01: number, evidenceCount = 1): MuscleScore => ({
   muscleId: `m-${canonicalName}`, canonicalName, name, percentile, confidence01, evidenceCount, movementPatternCount: evidenceCount,
-  evidence: [{ exerciseName: "Preacher Curl", role: "primary", exercisePercentile: 33.86 }], referenceGroups: [communityGroup],
+  evidence: [{ exerciseName: "Preacher Curl", role: "primary", exercisePercentile: 33.86, directness: 0.426, weightShare: 1 }], referenceGroups: [communityGroup],
 });
 
 /** From the live aggregation: bench, lat pulldown and preacher curl for an 80 kg man. */
@@ -130,6 +130,29 @@ describe("The rank card", () => {
     expect(screen.getByText("National Circuit")).toBeTruthy();
     expect(screen.getByText("About 96th percentile")).toBeTruthy();
     expect(screen.getByText("Low confidence")).toBeTruthy();
+  });
+
+  /** D-016: with more than one lift, each says what it carried, and the card says why they differ. */
+  it("shows each lift's share of the rank and why the most direct lift counts most", () => {
+    const chest = regionRanksFromMuscles([{
+      ...muscle("pectoralis_major_sternocostal", "Pectoralis major — sternocostal head", 80.4, 0.815, 3),
+      evidence: [
+        { exerciseName: "Pec Deck Fly", role: "primary", exercisePercentile: 86, directness: 0.467, weightShare: 0.699 },
+        { exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 60, directness: 0.242, weightShare: 0.194 },
+        { exerciseName: "Incline Barbell Bench Press", role: "primary", exercisePercentile: 67, directness: 0.242, weightShare: 0.107 },
+      ],
+    }]).get("chest")!;
+    const { container } = render(React.createElement(RankCard, { regionRank: chest }));
+    const lifts = within(screen.getByRole("list", { name: "Lifts behind this rank" })).getAllByRole("listitem").map((item) => item.textContent);
+    expect(lifts[0]).toBe("Pec Deck Fly · primary · 86th percentile on its own · 70% of this rank");
+    expect(lifts[1]).toBe("Barbell Bench Press · primary · 60th percentile on its own · 19% of this rank");
+    expect(container.querySelector("[data-rank-directness]")?.textContent).toContain("The most direct lift counts most.");
+  });
+
+  it("says nothing about shares for a rank drawn from one lift", () => {
+    const { container } = render(React.createElement(RankCard, { regionRank: live.get("lats")! }));
+    expect(container.textContent).not.toContain("of this rank");
+    expect(container.querySelector("[data-rank-directness]")).toBeNull();
   });
 
   it("says a rank is not a credential and that percentiles are not equal steps", () => {

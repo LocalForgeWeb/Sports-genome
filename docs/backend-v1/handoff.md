@@ -16,7 +16,7 @@ What works and was verified in the running app or production: strength placement
 | | |
 |---|---|
 | Repository / branch | `LocalForgeWeb/Sports-genome`, work branch `claude/training-day-navigation-workouts-83ro2c` (restarted from `main` after each merge) |
-| `main` | 8be0ef3 (#82, the Sep 28 regression repair); production deployment `dpl_Hx5yP4QzysDJdrHHSqnMKap2crkG` READY |
+| `main` | 47a528e (#83, the wrap-up records); #84 adds muscle-rank directness (D-016). Production is deployed READY after each merge |
 | Production | Vercel project `sports-genome` (team `local-b96d`), `sports-genome-mauve.vercel.app`; every batch deployed READY |
 | Supabase | `qiccnqkypbhlwpmjcsri`, read-only throughout; nothing applied |
 | Status | `status.md`: 298 requirements, every one with a status; 30 `deferred (owner)` (payments) |
@@ -53,6 +53,7 @@ node scripts/perf/measure-api.cjs https://<deployment> 10
 | 9 | #76 | Female `lb_10rm` references readable; stabilizer-only muscles unranked; muscle ceiling disclosed; coverage target revision | D-014 |
 | 10 | #77 | Performance measured (client flows, request counts); account-only queries off on the device store (false "sign-in has expired") | D-015, `performance.md` |
 | — | #78–#81 | Parallel work merged to `main` from another session: honest errors, focus and Escape, safer local data (#78); Home's squeezed column and content behind the clock (#79); clearer Home and Strength, safer sync, rate-limited sign-in, dead code removed (#80); week-strip icons (#81) | Their PRs |
+| D-016 | #84 | Muscle ranks weigh each lift by how directly it reads the muscle: the aggregation runs on the server, transcribed from `aggregate_muscle_strength_v1` and pinned to its recorded outputs, plus directness (the muscle's share of the lift's mover contribution). Chest from fly 86 / bench 60 / incline 67: 77.12 → 80.43; the presses-more-confident case 66.71 → 79.76 | `decisions.md` D-016, `server/muscleAggregation.ts` |
 | — | #82 | Sep 28 regression repair: Home owns its next workout; one sign-in notice per lapse and every protected call gated; the empty day and a compact coverage summary; Review and Matches labels; role colours apart from ranks. Merged with #78–#81, one design kept per overlap | `docs/regression-sep28/README.md`, D-015 correction |
 
 ## Intentional behaviour changes (B290)
@@ -75,6 +76,7 @@ V2 must not read these as regressions. Each rewrote the tests that pinned the ol
 | #82 | An empty day showed a 0/100 gauge; the Plan showed every coverage bar | "Not available yet"; the Plan shows the index, one sentence, the furthest gap; the bars live in the analysis |
 | #82 | The coverage band above target was "Heavy" and shared Session volume's colours | "Well past" (catalog-tag points, not sets); Session volume has its own colours. Thresholds unchanged |
 | #82 | Supporting role colour was gold (the State rank's), primary near National's red | Teal and orange, ≥ ΔE00 19 from every rank (tested) |
+| D-016 | A fly and a bench press weighed the same for the chest; the more confident set led its movement pattern and the other decayed to 0.55 | The most direct lift leads and counts most (its share of the lift's mover contribution); confidence unchanged; single-lift and equal-directness ranks unchanged |
 
 ## Versions and compatibility map (B287, B288)
 
@@ -83,7 +85,7 @@ V2 must not read these as regressions. Each rewrote the tests that pinned the ol
 | Strength scoring | `strength_beta_v2` (reported per score; joined with "+" when a response mixes versions) | `shared/strengthPercentile.ts`, `server/supabaseStrengthProfile.ts` | Curve placement or estimator changes |
 | Estimator | `strengthlevel_compatible_v1` (Strength Level curves), `sports_genome_generic_v1` (others) | same | Only with the database's estimator |
 | Muscle evidence selection | `best_percentile_per_exercise_v1` | `server/supabaseStrengthProfile.ts` | Selection rule changes |
-| Muscle aggregation | database `aggregate_muscle_strength_v1` (unchanged) | Supabase | Research side |
+| Muscle aggregation | `sg_muscle_aggregate_v2` / `directness_weighted_latent_evidence_with_redundancy_decay` (reported as `aggregationVersion`); the database's `aggregate_muscle_strength_v1` transcribed and pinned to its outputs, plus directness (D-016). The database function is unchanged and no longer called | `server/muscleAggregation.ts`, fixture `server/fixtures/liveMuscleAggregation.ts` | Any weight, transfer, decay or rounding change; re-record the fixture if the database function changes |
 | Muscle confidence calibration | `muscle_aggregate_structural_v1` (provisional) | `shared/capabilityRank.ts` | Calibrated replacement |
 | Rank scheme / palette | `sg_capability_rank_v1` / `sg_rank_palette_v2` (unchanged) | `shared/capabilityRank.ts` | Band edges or colours |
 | Coverage targets | `split_targets_v1` (returned as `targetRevision`) | `client/src/lib/splitStackAnalysis.ts` | Any target edit (a fingerprint test fails otherwise) |
@@ -119,7 +121,7 @@ Stable IDs from the discovery inventory (`inventory/*.md`, which has file and li
 | SV-09 | P0 (iOS) | No account deletion or export (App Store 5.1.1(v)) | No account deletion or export route in `server/routers.ts` (only per-record deletes) | Build deletion/export over MySQL, Supabase and device stores | Sign-in, iOS |
 | PS-02, SV-06 | P0 before sign-in | History, typed lifts, body-weight log and the sync queue are device-level, not per account | `Home.accountSwitch.test.ts` covers only the scoped records | Scope them per account with a guest-import step | Owner (#3) |
 | SV-05 | P1 | MySQL workout writes are not idempotent: `start` has no operation id and two inserts without a transaction; `complete` returns NOT_FOUND on retry | Read `server/routers.ts` `workoutLog.start/complete`; needs MySQL | Operation ids + a transaction; `complete` idempotent | MySQL access |
-| EN-17 | P2 | Aggregation coefficients unsourced; the server supplies confidence 0.5 when missing | `server/supabaseStrengthProfile.ts` (`?? 0.5`) | Record each coefficient's source; refuse when missing | Research side |
+| EN-17 | P2 | Aggregation coefficients unsourced (now transcribed into `server/muscleAggregation.ts`, still the database's numbers; directness adds none); the server supplies confidence 0.5 when missing | `server/muscleAggregation.ts`, `server/supabaseStrengthProfile.ts` (`?? 0.5`) | Record each coefficient's source; refuse when missing | Research side |
 | EN-21 | P2 | Dormant e1RM paths remain (progression Epley without a cap in unmounted components) | `WorkoutExecutionPanel.tsx`, `ProgressionReviewPanel` (not mounted; still "3 × 8–12") | Delete or route through the shared estimator before re-mounting | — |
 | EN-20 | P2 | Several age-at-test computations with different semantics | inventory/engines.md §6 | One helper | — |
 | EN-22 | P2 | Client muscle-effect dimensions are exercise-level heuristics; the database `muscle_effect_v1_*` engine is unused | inventory/engines.md | Decide which engine is canonical (B089–B107) | Product |

@@ -177,3 +177,41 @@ Each decision names what was chosen, what else was possible, the evidence, and w
 **Touches.** B169, B231, B232, B233, B282.
 
 **Correction (29 September 2026, Sep 28 regression repair §7).** The decision above held for Home and Progress but overstated the result. Four more account-only calls were still reachable on the device store, each refused and each raising the notice: `auth.passkeys` (asked on every About me open), `auth.passkeyRegistrationOptions` (Security → Enable Face ID / passkey), `favorites.set` (saving a favourite) and `strengthGenome.setPriority` (Strength region sheet → Set focus). The notice itself fired on any refusal, held back only by a 60-second window, so it returned on each About me visit, refocus and reload once the minute passed. Now: those four are called only with an account session (Set focus is not offered on the device store, which has no store for a focus); the notice fires only when auth.me held a user and a protected call is then refused, once per lapse, with a close button and one action (`client/src/lib/sessionNotice.ts`); and `client/src/lib/protectedCalls.test.ts` reads every protectedProcedure from `server/routers.ts` and fails on an ungated protected query or a protected mutation in an unreviewed file. `scripts/perf/measure-client.cjs` now reads the same list (it had 7 of 26).
+
+## D-016 — A lift counts for more the more of its work the muscle does (30 September 2026) — intentional behavior change
+
+**Finding.** The owner's chest rank read Regional from three primary lifts: pec deck fly 86th, barbell bench press 60th, incline bench press 67th. The database aggregation (`aggregate_muscle_strength_v1`) weighs a lift for a muscle by its role, the mapping's confidence, the set's own confidence and the square root of its contribution weight. The fly (0.98) and the presses (0.95) are all "primary", so nothing told a lift the sternocostal pec does nearly half of (fly: 0.98 of 2.10 mover weight) from one it shares with the anterior deltoid and three heads of the triceps (bench: 0.95 of 3.93). All three are "Horizontal push", and within one movement pattern the heaviest-weighted lift leads while the rest decay by 0.55 per rank; the weight is mostly the set's confidence, which the scorer gives to lower-rep sets. Reproduced with the live function: at equal confidences the fly leads and the chest reads 77.12; with the presses the more confident sets (0.82 and 0.80 against 0.70) the fly falls to rank 3 at 0.30 of its weight and the chest reads 66.71.
+
+**Decision.**
+1. The aggregation runs on the server (`server/muscleAggregation.ts`): `aggregate_muscle_strength_v1` transcribed step for step and held to its recorded outputs by `muscleAggregation.parity.test.ts`, over the database's own rows for nine exercises and eight input sets (`server/fixtures/liveMuscleAggregation.ts`, recorded 30 September 2026 by a read-only query). With directness off it reproduces every muscle, every evidence row and every number to the rounding the database reports. The mappings, the muscle list and the exercise index are read from the same database; one mappings read per request replaces the aggregation call, and the muscle list is cached with the exercise index.
+2. **Directness.** For each exercise-muscle mapping: the muscle's contribution weight as a share of the exercise's mover contribution (its primary and secondary mappings; a stabilizer mapping adds its own weight to the sum, so a share is never above 1). It multiplies the evidence weight, and it orders the lifts within a movement pattern, so the most direct, best-supported lift takes rank 1 and the rest decay. It is the database's own contribution weights in a ratio: no new coefficient (B006, EN-17).
+3. **Unchanged.** The percentile each lift brings (the role transfer is the database's). The confidence, computed from the undirected weights, so no Low, Moderate or High label moves for this and the `muscle_aggregate_structural_v1` thresholds keep their meaning. A rank drawn from lifts of equal directness - one lift, or two presses - is identical: the factor cancels in the weighted mean and the order within the pattern does not change.
+4. Version `sg_muscle_aggregate_v2`, method `directness_weighted_latent_evidence_with_redundancy_decay`, reported as `aggregationVersion` (B287). The "Why this rank?" sheet lists each lift's share of the rank and says why the most direct lift counts most; How ranks work says it in one sentence.
+
+**Before / after (B274).** Live database rows and inputs; sternocostal pec unless another muscle is named; confidence identical in every row.
+
+| Lifts (percentile, confidence) | Muscle | Before | After | Shares after |
+|---|---|---|---|---|
+| Fly 86, bench 60, incline 67, all 0.8 (the owner's sheet) | pec sternocostal | 77.12 | 80.43 | fly 70%, bench 19%, incline 11% |
+| same | pec clavicular | 65.96 | 77.61 | fly 64%, bench 23%, incline 13% |
+| Fly 86 (0.70), bench 60 (0.82), incline 67 (0.80) | pec sternocostal | 66.71 | 79.76 | fly 67%, bench 22%, incline 12% |
+| Fly 55, bench 80, incline 75, all 0.8 | pec sternocostal | 66.44 | 62.71 | fly 70%, bench 19%, incline 11% |
+| Bench 99.5 (0.9), fly 40 (0.5) | pec sternocostal | 96.61 | 77.54 | fly 67%, bench 33% |
+| Preacher curl 33.86, lat pulldown 55.17, bench 68.75, all 0.8 | biceps brachii | 41.16 | 37.27 | curl 83%, pulldown 17% |
+| Squat 72 (0.78), leg extension 40 (0.7), RDL 65 (0.8), pull-up 45 (0.6), pulldown 58 (0.75) | vastus lateralis | 56.78 | 54.03 | extension 57%, squat 43% |
+| same | gluteus maximus | 67.49 | 67.29 | RDL 56%, squat 44% |
+| any of the above | anterior deltoid, triceps heads | within 0.8 of before | | the presses remain the more direct lifts for them |
+| Bench 60, incline 67 (two presses, all 0.8) | every muscle | unchanged | | |
+| Fly 86 alone | every muscle | unchanged | | |
+
+The rule moves a rank down as readily as up: a weak isolation lift now speaks over a strong compound one (bench at the 99th with a fly at the 40th: 96.61 → 77.54; a preacher curl at the 34th over a pulldown at the 55th: biceps 41.16 → 37.27). That is the rule, not a defect: the premise is that the isolation lift is the direct measurement and the compound one can be carried by other muscles. The owner's own case lands at 79.76, below State; nothing was set to put it over (B275).
+
+**Alternatives.**
+- Changing the database function: a migration outside this assignment's authorization (B009), and the ranks would have waited on it. The transcription is pinned to the function, so a SQL twin with the same rule can be prepared for the research side whenever it wants one; nothing in the app depends on it.
+- Scaling the observation confidence sent to the database by directness: the same weights, but confidence would then mean two things, and the reported confidence would move.
+- A compound lift as a floor for its movers (the muscle performed at least at that level): that makes a rank the best of its transferred percentiles and drops the blending altogether. Kept for V2 if the bench-99-with-fly-40 case turns out to be common.
+- An isolation/compound flag: the catalog has none, it would be a new judgement per exercise, and the mapping's own weights already say how shared a lift is.
+
+**Not a regression.** Numbers on the Strength map change for any muscle read through lifts of unequal directness; single-lift and equal-directness ranks are identical. Tests pinning the database aggregation's label and the `aggregate` call (`server/supabaseStrengthProfile.test.ts`) were rewritten with the reason inline (B290).
+
+**Touches.** B006, B082, B084, B085, B087, B274, B275, B287, B290; EN-17.
