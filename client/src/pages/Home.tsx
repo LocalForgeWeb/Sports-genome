@@ -53,6 +53,7 @@ import { loadBodyWeightLog, recordBodyWeight, saveBodyWeightLog, seedBodyWeightL
 import { useAthleteSync } from "@/lib/useAthleteSync";
 const ProgressOverviewPanel = lazy(() => import("@/components/ProgressOverviewPanel").then((module) => ({ default: module.ProgressOverviewPanel })));
 import { TodayActionPanel } from "@/components/TodayActionPanel";
+import { ExercisePhotos } from "@/components/ExercisePhotos";
 import { EquipmentConstraintStrip } from "@/components/EquipmentConstraintStrip";
 import { ModifierEvidenceDisclosure } from "@/components/ModifierEvidenceDisclosure";
 import { SportEvidencePanel } from "@/components/SportEvidencePanel";
@@ -1782,6 +1783,8 @@ export default function Home() {
         <div className="exercise-intelligence-body">
           <h1 id="exercise-intelligence-title">{inspectedExercise.name}</h1>
           <p className="exercise-intelligence-meta"><GradeStamp grade={inspectedExercise.muscleGrade} compact /><span>{inspectedExercise.movement}</span>{inspectedExercise.category && <span>{inspectedExercise.category}</span>}</p>
+          {/* The movement, photographed at its start and finish, before the model of it. */}
+          <ExercisePhotos exerciseId={inspectedExercise.id} exerciseName={inspectedExercise.name} />
           {/* Compare, as a quiet line rather than a second big button: the first
               choice waits here; the second opens the comparison. */}
           <button type="button" className="exercise-intelligence-compare" onClick={() => compareWith(inspectedExercise)}>{comparePending && comparePending.id !== inspectedExercise.id ? `Compare with ${comparePending.name}` : comparePending?.id === inspectedExercise.id ? "Comparing this · open another exercise" : "Compare with another exercise"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>

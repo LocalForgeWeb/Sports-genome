@@ -4194,3 +4194,19 @@ body:has(.add-destination):not(:has(.session-resume-bar)) { --sg-feedback-lift: 
 .home-week-strip li > * { align-items: center; padding: .4rem .6rem; }
 .home-week-strip li > * > i { margin-top: 0; }
 .home-week-strip li > * > span { white-space: nowrap; overflow-wrap: normal; }
+
+/* Exercise photographs — the movement at its start and finish, in the app's frame. */
+.exercise-photos { margin: 0; }
+.exercise-photos-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.exercise-photos[data-frames="1"] .exercise-photos-strip { grid-template-columns: minmax(0, 20rem); }
+.exercise-photo { position: relative; display: block; overflow: hidden; border: 1px solid var(--sg-control-border-on-dark); background: var(--sg-surface-raised); }
+.exercise-photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #0b1a30; }
+.exercise-photo small { position: absolute; left: .5rem; bottom: .5rem; border-radius: 999px; background: rgb(7 24 46 / .78); padding: .15rem .55rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.exercise-photos figcaption { margin-top: .35rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
+/* The catalog row's thumbnail: one frame, a fixed square, never wider than the name deserves. */
+/* Three columns only when a thumbnail is present; the component sheet's two-column rule
+   stays for exercises without a photograph. `:has` outranks that rule by specificity. */
+.catalog-discovery-card .catalog-discovery-card-copy:has(.exercise-photo-thumb) { grid-template-columns: auto minmax(0, 1fr) auto; }
+.exercise-photo-thumb { display: block; width: 3.5rem; height: 3.5rem; flex: 0 0 auto; overflow: hidden; border: 1px solid var(--sg-control-border-on-dark); background: var(--sg-surface-raised); align-self: start; }
+.exercise-photo-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 359px) { .exercise-photo-thumb { display: none; } .catalog-discovery-card .catalog-discovery-card-copy:has(.exercise-photo-thumb) { grid-template-columns: minmax(0, 1fr) auto; } }
