@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { CalendarDays, ChevronDown } from "lucide-react";
 import type { DaySlot } from "@/lib/trainingDayPlan";
 import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
 
@@ -11,6 +11,10 @@ import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
  * a day named nowhere on the screen. The strip names the day, and Change opens
  * the same day choice Plan offers - the week stays the one Plan has open,
  * because generating or switching a week is Plan's job.
+ *
+ * One line and no card (Sep 30 brief, section 5): never wrapped. When the line is
+ * short of room, "Adding to" gives way before the day does. It rides above the dock while the list scrolls and comes
+ * to rest below the last row, so it never covers that row or the dock.
  */
 export function AddDestinationStrip({ week, slots, activeIndex, exerciseCountFor, onChoose }: {
   week: number;
@@ -31,8 +35,8 @@ export function AddDestinationStrip({ week, slots, activeIndex, exerciseCountFor
   return <details ref={feedbackSurfaceRef} className="add-destination" open={open}>
     <summary onClick={(event) => { event.preventDefault(); setOpen((current) => !current); }}>
       <CalendarDays className="h-5 w-5" aria-hidden="true" />
-      <span>Adding to <b>Week {week} · {active.day}</b></span>
-      <em>{open ? "Close" : "Change"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></em>
+      <span><span className="add-destination-lead">Adding to</span> <b>Week {week} · {active.day}</b></span>
+      <em>{open ? "Close" : "Change"} <ChevronDown className="h-4 w-4" aria-hidden="true" /></em>
     </summary>
     <div className="add-destination-options" role="group" aria-label="Day to add to">
       {slots.map((slot) => {
