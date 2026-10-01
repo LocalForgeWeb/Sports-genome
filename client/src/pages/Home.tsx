@@ -2098,7 +2098,10 @@ export default function Home() {
         </div>
         <div className="exercise-intelligence-body">
           <h1 id="exercise-intelligence-title">{inspectedExercise.name}</h1>
-          <p className="exercise-intelligence-meta"><GradeStamp grade={inspectedExercise.muscleGrade} compact /><span>{inspectedExercise.movement}</span>{inspectedExercise.category && <span>{inspectedExercise.category}</span>}</p>
+          {/* The catalog's letter is shown here only, named and explained: it is a general
+              catalog label, and on a list beside a movement it read as that movement's grade. */}
+          <p className="exercise-intelligence-meta"><span className="exercise-intelligence-tier"><span aria-hidden="true">Catalog tier</span><GradeStamp grade={inspectedExercise.muscleGrade} label="Catalog tier" compact /></span><span>{inspectedExercise.movement}</span>{inspectedExercise.category && <span>{inspectedExercise.category}</span>}</p>
+          <p className="exercise-intelligence-tier-note">Catalog tier {inspectedExercise.muscleGrade} is a general label from the exercise catalog, not how closely this exercise matches a movement.</p>
           {/* Compare, as a quiet line rather than a second big button: the first
               choice waits here; the second opens the comparison. */}
           <button type="button" className="exercise-intelligence-compare" onClick={() => compareWith(inspectedExercise)}>{comparePending && comparePending.id !== inspectedExercise.id ? `Compare with ${comparePending.name}` : comparePending?.id === inspectedExercise.id ? "Comparing this · open another exercise" : "Compare with another exercise"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>

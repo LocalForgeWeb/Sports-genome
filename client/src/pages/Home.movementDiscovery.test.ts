@@ -283,6 +283,21 @@ describe("Exercise details over a movement's catalog", () => {
     expect(props.visibleCount).toBe(72);
   }, 60000);
 
+  it("names the catalog tier in the details, and says it is not a movement match", async () => {
+    // Sep 30 brief §5: the letter is off the rows; the details are its one place, named and explained.
+    window.history.replaceState({}, "", `/${BRIDGE_ADDRESS}`);
+    render(createElement(Home));
+    const props = await catalog();
+    const hipThrust = exercises.find((exercise) => exercise.name === "Barbell Hip Thrust")!;
+    expect(document.querySelector(".catalog-discovery-tier")).toBeNull();
+    await act(async () => { props.onInspect(hipThrust); });
+    const note = await waitFor(() => { const node = document.querySelector(".exercise-intelligence-tier-note"); if (!node) throw new Error("Overlay not ready"); return node; }, { timeout: 15000 });
+    expect(note.textContent).toBe(`Catalog tier ${hipThrust.muscleGrade} is a general label from the exercise catalog, not how closely this exercise matches a movement.`);
+    const stamp = document.querySelector(".exercise-intelligence-tier [role='img']")!;
+    expect(stamp.getAttribute("aria-label")).toBe(`Catalog tier ${hipThrust.muscleGrade}`);
+    expect(stamp.textContent).toBe(hipThrust.muscleGrade);
+  }, 60000);
+
   it("does not pick a Body Lab muscle when an exercise is opened", async () => {
     window.history.replaceState({}, "", "/?workspace=catalog");
     render(createElement(Home));

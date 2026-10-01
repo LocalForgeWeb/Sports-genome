@@ -3222,6 +3222,8 @@ details:not([open]) > *:not(summary) {
 .exercise-intelligence-body > h1 { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.2rem, 9vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
 .exercise-intelligence-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-top: -.5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
 .exercise-intelligence-meta span::first-letter { text-transform: uppercase; }
+.exercise-intelligence-tier { display: inline-flex; align-items: center; gap: .4rem; }
+.exercise-intelligence-tier-note { margin: .35rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
 .exercise-intelligence-muscles .anatomy-atlas-pro { border: 0; background: transparent; box-shadow: none; padding: 0; color: var(--sg-text-on-dark); }
 .exercise-intelligence-muscles .atlas-body-chart-wrap { border: 0; background: transparent; padding: 0; }
 .exercise-intelligence-muscles .atlas-body-chart { height: clamp(16rem, 44vh, 24rem); }
