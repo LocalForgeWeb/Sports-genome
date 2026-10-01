@@ -64,7 +64,8 @@ describe("holdPageBehind", () => {
 
     expect(document.body.style.position).toBe("fixed");
     expect(document.body.style.top).toBe("-420px");
-    expect(document.body.style.overflow).toBe("hidden");
+    // Sep 30 review: overflow is left to the layers that lock it; the pin holds the page still.
+    expect(document.body.style.overflow).toBe("auto");
 
     release();
     release();
@@ -73,6 +74,21 @@ describe("holdPageBehind", () => {
     expect(document.body.style.overflow).toBe("auto");
     expect(scrollTo).toHaveBeenCalledTimes(1);
     expect(scrollTo).toHaveBeenCalledWith(0, 420);
+  });
+
+  it("lets a layer opened over the hold lock overflow and put back the page's own value", () => {
+    vi.stubGlobal("scrollTo", vi.fn());
+    const { layer } = buildPage();
+    const release = holdPageBehind(layer);
+    // Search opens over the sheet and locks overflow, saving the value it finds.
+    const savedBySearch = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    // A result that leaves the page unmounts the sheet: its hold is released first (a layout
+    // cleanup), then search puts back what it saved (a passive cleanup).
+    release();
+    document.body.style.overflow = savedBySearch;
+    expect(document.body.style.overflow).toBe("");
+    expect(document.body.style.position).toBe("");
   });
 
   it("leaves alone what was inert before it, so another layer's hold is not undone", () => {

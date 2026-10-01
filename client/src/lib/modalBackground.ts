@@ -14,6 +14,12 @@
  * The body is pinned at its scroll offset, the way the add-exercises sheet does
  * it: iOS ignores `overflow: hidden` on the body. Release puts the offset back,
  * undoes only what this call did, and is safe to call twice.
+ *
+ * `overflow` is left alone: the pin already holds the page still, and a layer
+ * opened over the sheet (search) saves and restores `overflow` itself. Had the
+ * hold set it too, that layer would save the hold's "hidden", and restore it
+ * after the hold was released when a result left the page, which could then
+ * never scroll.
  */
 export function holdPageBehind(layer: Element, keep: readonly (Element | null)[] = []): () => void {
   const madeInert: Element[] = [];
@@ -26,13 +32,12 @@ export function holdPageBehind(layer: Element, keep: readonly (Element | null)[]
   }
   const body = document.body;
   const scrollY = window.scrollY;
-  const previous = { position: body.style.position, top: body.style.top, left: body.style.left, right: body.style.right, width: body.style.width, overflow: body.style.overflow };
+  const previous = { position: body.style.position, top: body.style.top, left: body.style.left, right: body.style.right, width: body.style.width };
   body.style.position = "fixed";
   body.style.top = `-${scrollY}px`;
   body.style.left = "0";
   body.style.right = "0";
   body.style.width = "100%";
-  body.style.overflow = "hidden";
   let held = true;
   return () => {
     if (!held) return;
