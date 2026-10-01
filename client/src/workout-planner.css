@@ -428,8 +428,9 @@
   transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease);
 }
 
+/* The value inside a control: body face, like the rest of the chip (Sep 30 §8). */
 .day-picker-gap i {
-  font-family: var(--sg-font-display);
+  font-family: "DM Sans", sans-serif;
   font-size: var(--sg-text-xs);
   font-style: normal;
   font-weight: 700;
