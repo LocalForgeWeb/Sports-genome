@@ -49,7 +49,8 @@ describe("Stack Analysis selected muscle", () => {
     expect(component).toContain("const supportingAnalysis = useMemo(() => wholeStackAnalysis.filter");
     // Intentional change, Sep 28 regression brief §8: the scope is said once, in the
     // methodology disclosure and beside the supporting figures it qualifies.
-    expect(component).toContain("How coverage is calculated");
+    // Intentional change, Sep 30 brief §7: the disclosure explains all three measures, not only coverage.
+    expect(component).toContain("How these figures are calculated");
     expect(component).toContain("Supporting involvement");
     expect(component).toContain("Not {split.toLowerCase()} targets, so not in the coverage index.");
     expect(component).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
@@ -67,7 +68,8 @@ describe("Stack Analysis selected muscle", () => {
     expect(markup).toMatch(/\d+% of [^<]+ involvement, the day(&#x27;|')s highest|Highest relative involvement in this day/);
     expect(markup).not.toContain("most-worked");
     expect(markup).not.toMatch(/\d+% coverage/);
-    expect(markup).toContain("How coverage is calculated");
+    // Intentional change, Sep 30 brief §7: the methodology covers workload and breakdown too.
+    expect(markup).toContain("How these figures are calculated");
     expect(markup).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });
 
@@ -192,7 +194,9 @@ describe("Stack Analysis selected muscle", () => {
   });
 
   it("says the methodology once, including what 100 does not mean", () => {
-    expect(markup.match(/How coverage is calculated/g)).toHaveLength(1);
+    // Intentional change, Sep 30 brief §7: renamed, since it explains all three measures.
+    expect(markup.match(/How these figures are calculated/g)).toHaveLength(1);
+    expect(markup).not.toContain("How coverage is calculated");
     expect(markup).toContain("Set counts are not counted.");
     expect(markup).toContain("It does not mean the workload is optimal or that you are recovered.");
     expect(markup).not.toContain("Recommendation scope");
@@ -225,7 +229,8 @@ describe("Training Day analysis layout rules", () => {
     expect(styles).toMatch(/@container analysis-workload \(max-width: 14em\) \{[^@]*grid-template-areas: "name sets" "reading reading" "track track" "supporting supporting";/);
   });
 
-  it("keeps the summary strip's inset on its first fact", () => {    // The strip has a background and radius; without its padding the icon sat on the rounded edge.
+  it("keeps the summary strip's inset on its first fact", () => {
+    // The strip has a background and radius; without its padding the icon sat on the rounded edge.
     expect(styles).not.toMatch(/\.stack-analysis-summary > div:first-child \{[^}]*padding-left: 0/);
   });
 

@@ -100,6 +100,16 @@ describe("Training Day analysis, Sep 30 brief §7", () => {
     expect(document.activeElement).toBe(pectoralis);
   });
 
+  it("titles the page and its methodology for all three measures, with the muscle under Muscle breakdown", () => {
+    renderPage();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Push analysis");
+    expect(screen.getByText("How these figures are calculated").tagName).toBe("SUMMARY");
+    fireEvent.click(screen.getByRole("button", { name: /^Pectoralis major, Primary target/ }));
+    // An h2 put the muscle beside Coverage, Workload and Muscle breakdown in the outline.
+    expect(within(section("Muscle breakdown")).getByRole("heading", { level: 3, name: "Pectoralis major" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { level: 2, name: "Pectoralis major" })).toBeNull();
+  });
+
   it("keeps Workload and Muscle breakdown together in one column, apart from Coverage", () => {
     renderPage();
     const aside = section("Workload").parentElement!;
