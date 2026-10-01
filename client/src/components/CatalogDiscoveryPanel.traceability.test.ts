@@ -33,7 +33,7 @@ describe("Catalog Discovery traceability presentation", () => {
     // every row beside one, so it moved to the exercise's details, named and explained.
     expect(screen.queryByLabelText(/Catalog tag/)).toBeNull();
     expect(document.querySelector(".catalog-discovery-tier")).toBeNull();
-    expect(Array.from(document.querySelectorAll(".catalog-discovery-card *")).some((node) => node.textContent === "A")).toBe(false);
+    expect(Array.from(document.querySelectorAll(".catalog-discovery-row *")).some((node) => node.textContent === "A")).toBe(false);
     expect(document.body.textContent).not.toMatch(/percentile|rank(ed|ing)?\b|top \d/i);
   });
 
@@ -66,7 +66,7 @@ describe("Catalog Discovery traceability presentation", () => {
     expect(component).toContain('emitInteractionFeedback(); onToggleFavorite(exercise);');
     // Sep 30: the add goes through one guard that drops a second tap, and it still sounds.
     expect(component).toContain("emitInteractionFeedback();\n    onAdd(exercise);");
-    expect(styles).toContain('.catalog-discovery-card-copy:active');
+    expect(styles).toContain('.catalog-discovery-row-copy:active');
     expect(styles).toContain('transform: scale(.97);');
   });
 });
@@ -109,13 +109,13 @@ describe("catalog rows on a phone", () => {
   });
 
   it("draws rows with dividers, not as cards inside a panel", () => {
-    // The app-wide surface rules key on "-card" in a class name; the rows undo them.
-    expect(styles).toContain(".catalog-discovery .catalog-discovery-card, .catalog-discovery .catalog-discovery-card-copy { border-radius: 0; box-shadow: none; transform: none; }");
-    expect(styles).toMatch(/\.catalog-discovery-card \{[^}]*border-bottom: 1px solid var\(--sg-divider-on-dark\)/);
+    // Renamed from "-card": the app-wide surface rules key on it, and its entrance rise replayed on every row mount. The button radius is still squared here.
+    expect(styles).toContain(".catalog-discovery .catalog-discovery-row, .catalog-discovery .catalog-discovery-row-copy { border-radius: 0; box-shadow: none; transform: none; }");
+    expect(styles).toMatch(/\.catalog-discovery-row \{[^}]*border-bottom: 1px solid var\(--sg-divider-on-dark\)/);
     // No outer gradient panel and no per-row elevation from the global sheet.
     expect(globalStyles).not.toContain(".destination-body .catalog-discovery {");
     expect(globalStyles).not.toMatch(/\.destination-body \.catalog-discovery[ ,{]/);
-    expect(globalStyles).not.toMatch(/\.catalog-discovery-card(:hover)? \{/);
-    expect(globalStyles).not.toMatch(/,\s*\.catalog-discovery-card(:hover)?\s*\{/);
+    expect(globalStyles).not.toMatch(/\.catalog-discovery-row(:hover)? \{/);
+    expect(globalStyles).not.toMatch(/,\s*\.catalog-discovery-row(:hover)?\s*\{/);
   });
 });

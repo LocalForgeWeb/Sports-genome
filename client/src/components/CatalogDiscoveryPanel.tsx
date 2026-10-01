@@ -181,8 +181,8 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
     const added = Boolean(addedIds?.has(exercise.id));
     const connection = visibleConnections.get(exercise.id);
     const reasonId = `catalog-row-reason-${exercise.id}`;
-    return <article key={exercise.id} className={`catalog-discovery-card${added ? " is-added" : ""}${added && addedHere.current.has(exercise.id) ? " is-added-now" : ""}`}>
-      <button type="button" onClick={() => { emitInteractionFeedback(); onInspect(exercise); }} className="catalog-discovery-card-copy" aria-label={`Inspect ${exercise.name}`} aria-describedby={reason ? reasonId : undefined}>
+    return <article key={exercise.id} className={`catalog-discovery-row${added ? " is-added" : ""}${added && addedHere.current.has(exercise.id) ? " is-added-now" : ""}`}>
+      <button type="button" onClick={() => { emitInteractionFeedback(); onInspect(exercise); }} className="catalog-discovery-row-copy" aria-label={`Inspect ${exercise.name}`} aria-describedby={reason ? reasonId : undefined}>
         <span className="catalog-discovery-identity">
           <strong>{exercise.name}</strong>
           {reason ? <span className="catalog-row-reason" id={reasonId}>{reason}</span> : null}

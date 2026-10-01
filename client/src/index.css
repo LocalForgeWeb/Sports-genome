@@ -1301,7 +1301,7 @@ select {
 .catalog-discovery-controls summary small,
 .catalog-discovery-controls label,
 .catalog-filter-reset,
-.catalog-discovery-card-copy small,
+.catalog-discovery-row-copy small,
 .catalog-discovery-empty {
   color: var(--sg-text-muted-on-dark);
 }

@@ -50,9 +50,9 @@ function Owned({ context, initial = defaultCatalogFilters, onAdd, onShowAllExerc
 const heading = () => screen.getByRole("heading", { level: 1 }).textContent;
 const count = () => document.querySelector(".catalog-results-count")?.textContent ?? null;
 const mainList = () => document.querySelector<HTMLElement>(".catalog-discovery > .catalog-discovery-list");
-const rowNames = (root: ParentNode | null) => Array.from(root?.querySelectorAll(".catalog-discovery-card strong") ?? []).map((node) => node.textContent);
+const rowNames = (root: ParentNode | null) => Array.from(root?.querySelectorAll(".catalog-discovery-row strong") ?? []).map((node) => node.textContent);
 const reasonOf = (name: string) => {
-  const row = Array.from(document.querySelectorAll(".catalog-discovery-card")).find((node) => node.querySelector("strong")?.textContent === name);
+  const row = Array.from(document.querySelectorAll(".catalog-discovery-row")).find((node) => node.querySelector("strong")?.textContent === name);
   return row?.querySelector(".catalog-row-reason")?.textContent ?? null;
 };
 
@@ -90,12 +90,12 @@ describe("movement mode", () => {
     expect(rowNames(list)).toEqual([...support.specific, ...support.related].map((row) => row.exercise.name));
     expect(reasonOf("Barbell Hip Thrust")).toBe("Named in the Bridge movement record: hip thrust");
     expect(reasonOf("Conventional Deadlift")).toBe("Same hip hinge pattern as Romanian Deadlift");
-    for (const row of list.querySelectorAll(".catalog-discovery-card")) expect(row.querySelector(".catalog-row-reason")?.textContent).toBeTruthy();
+    for (const row of list.querySelectorAll(".catalog-discovery-row")) expect(row.querySelector(".catalog-row-reason")?.textContent).toBeTruthy();
     // The reason is read with the row's details button.
     const inspect = screen.getByRole("button", { name: "Inspect Barbell Hip Thrust" });
     expect(document.getElementById(inspect.getAttribute("aria-describedby")!)?.textContent).toBe("Named in the Bridge movement record: hip thrust");
     // No catalog letter on any row.
-    expect(Array.from(document.querySelectorAll(".catalog-discovery-card *")).some((node) => /^(SS|S|A|B|C|D|F)$/.test(node.textContent ?? ""))).toBe(false);
+    expect(Array.from(document.querySelectorAll(".catalog-discovery-row *")).some((node) => /^(SS|S|A|B|C|D|F)$/.test(node.textContent ?? ""))).toBe(false);
   });
 
   it("keeps muscle support in its own closed section, never among or counted with the matches", () => {
@@ -274,6 +274,13 @@ describe("the whole catalog", () => {
 });
 
 describe("row controls", () => {
+  it("gives the rows no \"-card\" class, so the app-wide card rules and their entrance rise never reach them", () => {
+    mount(BRIDGE);
+    const panel = document.querySelector(".catalog-discovery")!;
+    expect(panel.querySelectorAll(".catalog-discovery-row").length).toBeGreaterThan(0);
+    expect(panel.querySelectorAll('[class*="-card"]')).toHaveLength(0);
+  });
+
   it("names the add and the favorite by the exercise and the day, and keeps the favorite's name when saved", () => {
     const { onAdd, onToggleFavorite } = mount(BRIDGE, { favoriteIds: new Set([hipThrust.id]) });
     const add = screen.getByRole("button", { name: "Add Barbell Hip Thrust to Week 1, Push" });
@@ -290,7 +297,7 @@ describe("row controls", () => {
     const { onAdd } = mount(BRIDGE, { addedIds: new Set([hipThrust.id]) });
     const added = screen.getByRole("button", { name: "Barbell Hip Thrust is already in Week 1, Push" });
     expect(added.getAttribute("aria-disabled")).toBe("true");
-    expect(added.closest(".catalog-discovery-card")?.classList.contains("is-added")).toBe(true);
+    expect(added.closest(".catalog-discovery-row")?.classList.contains("is-added")).toBe(true);
     fireEvent.click(added);
     expect(onAdd).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Add Barbell Hip Thrust to Week 1, Push" })).toBeNull();
@@ -309,7 +316,7 @@ describe("row controls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add Barbell Hip Thrust to Week 1, Push" }));
     // The day now holds it: the row says so, briefly marks it, and a second tap writes nothing.
     const added = screen.getByRole("button", { name: "Barbell Hip Thrust is already in Week 1, Push" });
-    expect(added.closest(".catalog-discovery-card")?.classList.contains("is-added-now")).toBe(true);
+    expect(added.closest(".catalog-discovery-row")?.classList.contains("is-added-now")).toBe(true);
     fireEvent.click(added);
     expect(write).toHaveBeenCalledTimes(1);
   });
