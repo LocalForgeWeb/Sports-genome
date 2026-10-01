@@ -1,6 +1,8 @@
 import type { Exercise } from "./exerciseCatalog";
 import type { ExerciseActionConnection } from "./movementProgramAnalysis";
+import type { MovementSupport, SupportRow } from "./movementSupport";
 import { searchExercises } from "./exerciseSearch";
+import { catalogMuscleKeyFor } from "./recordMuscleKeys";
 
 export type CatalogFilters = {
   query: string;
@@ -12,6 +14,9 @@ export type CatalogFilters = {
   favoritesOnly: boolean;
 };
 
+/** How many rows the catalog shows at first, and adds with each "Browse more". */
+export const catalogPageSize = 36;
+
 export const defaultCatalogFilters: CatalogFilters = {
   query: "",
   category: "all",
@@ -22,14 +27,28 @@ export const defaultCatalogFilters: CatalogFilters = {
   favoritesOnly: false,
 };
 
+/**
+ * "direct" keeps the movement-specific exercises (named in the action's record);
+ * "supporting" keeps the related-pattern and muscle-support ones. Both read the
+ * movement support tiers through the connection.
+ */
 export function filterCatalogByActionLink(
   exerciseList: Exercise[],
   actionLink: CatalogFilters["actionLink"],
   connectionForExercise?: (exercise: Exercise) => ExerciseActionConnection,
 ) {
   if (actionLink === "all" || !connectionForExercise) return exerciseList;
-  const requiredLabel = actionLink === "direct" ? "Direct support" : "Supporting link";
-  return exerciseList.filter((exercise) => connectionForExercise(exercise).label === requiredLabel);
+  const keep: ExerciseActionConnection["label"][] = actionLink === "direct" ? ["Movement-specific"] : ["Related pattern", "Muscle support"];
+  return exerciseList.filter((exercise) => keep.includes(connectionForExercise(exercise).label));
+}
+
+/** The structural refinements, one exercise at a time: category, pattern, equipment, muscle and favorites. */
+function passesStructuralFilters(exercise: Exercise, filters: CatalogFilters, favoriteIds: ReadonlySet<number>) {
+  return (filters.category === "all" || exercise.category === filters.category)
+    && (filters.movement === "all" || exercise.movement === filters.movement)
+    && (filters.equipment === "all" || exercise.equipment === filters.equipment)
+    && (filters.muscle === "all" || exercise.primaryMuscles.includes(filters.muscle) || exercise.secondaryMuscles.includes(filters.muscle))
+    && (!filters.favoritesOnly || favoriteIds.has(exercise.id));
 }
 
 /**
@@ -38,13 +57,51 @@ export function filterCatalogByActionLink(
  * query the catalog keeps its own order.
  */
 export function filterCatalogExercises(exerciseList: Exercise[], filters: CatalogFilters, favoriteIds: Set<number>) {
-  const pool = exerciseList.filter((exercise) =>
-    (filters.category === "all" || exercise.category === filters.category)
-      && (filters.movement === "all" || exercise.movement === filters.movement)
-      && (filters.equipment === "all" || exercise.equipment === filters.equipment)
-      && (filters.muscle === "all" || exercise.primaryMuscles.includes(filters.muscle) || exercise.secondaryMuscles.includes(filters.muscle))
-      && (!filters.favoritesOnly || favoriteIds.has(exercise.id)));
+  const pool = exerciseList.filter((exercise) => passesStructuralFilters(exercise, filters, favoriteIds));
   return searchExercises(pool, filters.query);
+}
+
+/**
+ * The athlete's refinements (equipment and the other filters, the search text,
+ * favorites) applied inside each movement support tier. A refinement only ever
+ * removes rows: nothing moves between tiers, nothing is added, and each tier keeps
+ * its own order (a search does not re-rank a tier). The action-link filter does not
+ * apply here; the tiers are that answer. `status` still describes the record, so
+ * "every match filtered away" (no rows left, status "ok") stays distinct from "no
+ * named matches" in the data.
+ */
+export function refineMovementSupport(support: MovementSupport, filters: CatalogFilters, favoriteIds: ReadonlySet<number>): MovementSupport {
+  const query = filters.query.trim();
+  const refine = (rows: SupportRow[]) => {
+    const pool = rows.filter((row) => passesStructuralFilters(row.exercise, filters, favoriteIds));
+    if (!query) return pool;
+    const found = new Set(searchExercises(pool.map((row) => row.exercise), query).map((exercise) => exercise.id));
+    return pool.filter((row) => found.has(row.exercise.id));
+  };
+  return { ...support, specific: refine(support.specific), related: refine(support.related), muscle: refine(support.muscle) };
+}
+
+/**
+ * Muscle mode's base list: the exercises that train the chosen muscle, as a primary
+ * or a supporting muscle (the rule the Muscle filter uses), primary ones first and
+ * each group in catalog order. The refinements then narrow it like any other list.
+ *
+ * `muscleId` is the body-map key the athlete picked. Five of those name regions the
+ * catalog never tags; they are read through the catalog key for the same tissue
+ * (catalogMuscleKeyFor: soleus -> calves), and one with no such key (peroneals)
+ * has no list.
+ */
+export function muscleModeExercises(exerciseList: Exercise[], muscleId: string): Exercise[] {
+  const key = catalogMuscleKeyFor(muscleId);
+  if (!key) return [];
+  const primary = exerciseList.filter((exercise) => exercise.primaryMuscles.includes(key));
+  const supporting = exerciseList.filter((exercise) => !exercise.primaryMuscles.includes(key) && exercise.secondaryMuscles.includes(key));
+  return [...primary, ...supporting];
+}
+
+/** The add destination as a control says it aloud: "Week 1 · Push" is read "Week 1, Push". */
+export function spokenDestination(label: string): string {
+  return label.split(" · ").join(", ");
 }
 
 export function catalogFilterOptions(exerciseList: Exercise[]) {

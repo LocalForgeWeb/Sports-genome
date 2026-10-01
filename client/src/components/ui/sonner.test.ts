@@ -65,9 +65,9 @@ describe("the toast has a surface of its own", () => {
     expect(source).not.toMatch(/mobileOffset=/);
     expect(styles).toContain('[data-sonner-toaster][data-y-position="bottom"] { bottom: max(calc(env(safe-area-inset-bottom, 0px) + 5.6rem), var(--sg-feedback-clear, 0px)) !important; }');
     expect(styles).not.toContain("--sg-feedback-lift");
-    // The same 4.375rem the record sheet sits on, so the two agree about how
-    // tall the bar is.
-    expect(styles).toContain("bottom: calc(4.375rem + env(safe-area-inset-bottom, 0px));");
+    // Intentional change, Sep 30 brief §6: the record sheet no longer sits on the bar at
+    // 4.375rem but covers it as a modal (bottom: 0); toasts clear its footer as a registered surface.
+    expect(styles).toMatch(/\.strength-region-sheet \{[^}]*bottom: 0;/);
   });
 
   it("keeps the description a step below the title rather than level with it", () => {

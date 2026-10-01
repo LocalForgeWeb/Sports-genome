@@ -130,3 +130,28 @@ describe("the closed sheet does no work for rows nobody can see", () => {
     expect(document.querySelectorAll(".day-picker-result").length).toBeGreaterThan(0);
   });
 });
+
+/**
+ * Sep 30 brief §5: an Add says where it adds. "Add X to this day" named no day,
+ * while the catalog's plus said "Week 1, Pull"; both now name the day the same way.
+ */
+describe("each Add names the day it adds to", () => {
+  beforeEach(() => {
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn() }));
+    vi.stubGlobal("scrollTo", vi.fn());
+  });
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.body.removeAttribute("style"); });
+
+  it("reads 'Add X to Week 1, Pull', and 'X is already in Week 1, Pull' once it is there", () => {
+    const view = render(createElement(DayExercisePicker, { ...props(true), destination: "Week 1 · Pull" }));
+    const adds = view.getAllByRole("button", { name: /^Add .+ to Week 1, Pull$/ });
+    expect(adds.length).toBeGreaterThan(0);
+    expect(view.queryAllByRole("button", { name: /this day/ })).toEqual([]);
+    const first = exercises.find((exercise) => adds[0].getAttribute("aria-label") === `Add ${exercise.name} to Week 1, Pull`)!;
+    expect(first).toBeTruthy();
+
+    view.rerender(createElement(DayExercisePicker, { ...props(true), destination: "Week 1 · Pull", activeWorkout: [first] }));
+    const added = view.getByRole("button", { name: `${first.name} is already in Week 1, Pull` });
+    expect((added as HTMLButtonElement).disabled).toBe(true);
+  });
+});

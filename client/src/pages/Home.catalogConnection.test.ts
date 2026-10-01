@@ -10,14 +10,18 @@ const globalStyles = readFileSync(resolve(import.meta.dirname, "../index.css"), 
 describe("canonical connected exercise catalog", () => {
   it("uses Catalog Discovery with the selected sport-action connection helper", () => {
     expect(homeSource).toContain("connectionForExercise={connectionForExercise}");
-    // One cached lookup per selected action, so a keystroke or an unrelated render reuses it.
-    expect(homeSource).toContain("createActionConnectionLookup(enrichedSelectedMovement), [enrichedSelectedMovement]");
-    expect(homeSource).toContain("selectedActionLabel={selectedMovement.label}");
+    // One cached lookup per action in context, so a keystroke or an unrelated render reuses it.
+    // Sep 30: in movement mode that action is the discovery movement, not the athlete's own.
+    expect(homeSource).toContain("createActionConnectionLookup(enrichedContextMovement), [enrichedContextMovement]");
+    expect(homeSource).toContain("selectedActionLabel={contextMovement.label}");
     expect(catalogSource).toContain("catalog-action-link");
     expect(catalogSource).toContain("connection.label");
     expect(catalogSource).toContain("All action links");
-    expect(catalogSource).toContain("Direct support");
-    expect(catalogSource).toContain("Supporting link");
+    // Sep 30: the action-link filter reads the movement support tiers, so it is worded with the tier names.
+    expect(catalogSource).toContain('direct: "Movement-specific"');
+    expect(catalogSource).toContain('supporting: "Related or muscle support"');
+    expect(catalogSource).not.toContain("Direct support");
+    expect(catalogSource).not.toContain("Supporting link");
     expect(catalogSource).not.toContain("Any sport fit");
     expect(catalogSource).not.toContain("A-grade or higher");
   });
@@ -25,7 +29,9 @@ describe("canonical connected exercise catalog", () => {
   it("mounts the exercise overlay with the same selected action the catalog is measured against", () => {
     // The Genome page folded into this overlay: one place per exercise, not two.
     expect(homeSource).not.toContain("<ExerciseGenomeWorkspace");
-    expect(homeSource).toContain("<SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement}");
+    // Sep 30: fed the movement the catalog was opened for (movement mode), else the athlete's own.
+    expect(homeSource).toContain("<SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={contextMovement} enrichedSelectedMovement={enrichedContextMovement}");
+    expect(homeSource).toContain("sportMovement: contextMovement }");
     expect(homeSource).toContain('if (value === "genome") return "catalog";');
   });
 
@@ -36,10 +42,13 @@ describe("canonical connected exercise catalog", () => {
     // because the suffix never fit - so it is stated once in the header instead.
     expect(catalogSource).toContain("{connection.label}</b>");
     expect(catalogSource).not.toContain("${selectedActionLabel}`");
-    expect(catalogSource).toContain("Action links below are measured against");
+    // Sep 30: one short line under the count in the whole-catalog and muscle lists; movement mode has its context row instead.
+    expect(catalogSource).toContain("Action links are measured against");
 	    expect(catalogSource).toContain('connection && connection.label !== "Not mapped"');
-    expect(catalogStyles).toContain(".catalog-action-link-direct-support");
-    expect(catalogStyles).toContain(".catalog-action-link-supporting-link");
+    // Sep 30: the row classes follow the tier names; muscle support keeps the neutral base pill.
+    expect(catalogStyles).toContain(".catalog-action-link-movement-specific");
+    expect(catalogStyles).toContain(".catalog-action-link-related-pattern");
+    expect(catalogStyles).not.toContain(".catalog-action-link-direct-support");
 	    expect(catalogStyles).not.toContain(".catalog-action-link-not-mapped");
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
     // inline-block plus overflow/text-overflow so the label truncates inside the

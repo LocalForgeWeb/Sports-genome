@@ -87,7 +87,8 @@ describe("the last step to a percentile is taken where the percentile would be",
     expect(screen.queryByText(/in About Me and this lift gets a percentile/)).toBeNull();
     // The groups are the curves' own: people who lift, not competitors. The map asks too, so
     // look inside the sheet.
-    expect(within(screen.getByRole("group", { name: /record$/ })).getByRole("option", { name: "Men who lift" })).toBeTruthy();
+    // The sheet is named by its title now (Sep 30 §6), not "Chest record".
+    expect(within(screen.getByRole("group", { name: "Chest" })).getByRole("option", { name: "Men who lift" })).toBeTruthy();
     expect(screen.queryByRole("option", { name: /competitors/ })).toBeNull();
 
     fireEvent.change(screen.getByLabelText("Group to compare this lift against"), { target: { value: "male" } });
@@ -97,13 +98,16 @@ describe("the last step to a percentile is taken where the percentile would be",
   it("places the lift once the group is known, against people who lift", () => {
     openChest({ sexForReference: "male", birthYear: 1998, onRankProfile: vi.fn() });
 
-    expect(screen.getByText("Where this sits")).toBeTruthy();
+    // The row is named for what it holds (Sep 30 §6), was "Where this sits".
+    expect(screen.getByText("Comparison rank for this lift")).toBeTruthy();
     expect(screen.getByText("44th percentile")).toBeTruthy();
     expect(screen.getByText(/among men who lift this lift/)).toBeTruthy();
     // Intentional change (B065): never ranked against powerlifting competitors from a gym log.
     expect(screen.queryByText("Where this ranks")).toBeNull();
     expect(screen.queryByText(/powerlifting competitors/)).toBeNull();
-    expect(screen.queryByText(/your body weight on that day — for your own context, not a rank/)).toBeNull();
+    // The ratio is now its own fact beside the rank (Sep 30 §6), never inside the rank's row.
+    const ratio = screen.getByText(/your body weight on that day — for your own context, not a rank/);
+    expect(ratio.closest("[data-lift-row]")?.getAttribute("data-lift-row")).toBe("ratio");
   });
 
   it("offers the birth year once there is a percentile, as the optional age adjustment", () => {

@@ -55,12 +55,23 @@ describe("Progress counts agree with the words beside them", () => {
     expect(container.querySelector(".progress-excluded")?.textContent).toBe("2 logged sets outside the validated rep range for estimation are recorded but not used for this trend.");
   });
 
+  // Sep 30 §6: Progress and the Strength record name a change from one table, and neither calls it confirmed.
+  it("names a 25% estimated change a larger change, never a confirmed one", () => {
+    const tens = (id: number, observedAt: string, loadKg: string) => ({ ...twentyReps(id, observedAt), exerciseName: "Pec Deck Fly", loadKg, repetitions: 10 });
+    fixtures.observations = [tens(31, "2026-09-01T10:00:00Z", "40"), tens(32, "2026-09-28T10:00:00Z", "50")];
+    const { container } = renderPanel();
+    expect(container.querySelector(".progress-trend-rows strong")?.textContent).toBe("+25% est. 1RM");
+    expect(container.querySelector(".progress-trend-rows small")?.textContent).toBe("Larger change (15% or more) · 2 logs");
+    expect(container.textContent).not.toMatch(/confirmed/i);
+  });
+
   it("names the trend's unit in words the method note defines", () => {
     const fives = (id: number, observedAt: string, loadKg: string) => ({ ...twentyReps(id, observedAt), loadKg, repetitions: 5 });
     fixtures.observations = [fives(21, "2026-09-01T10:00:00Z", "60"), fives(22, "2026-09-08T10:00:00Z", "66")];
     const { container } = renderPanel();
     expect(container.querySelector(".progress-trend-rows strong")?.textContent).toMatch(/^\+\d+% est\. 1RM$/);
-    expect(container.querySelector(".progress-method-note")?.textContent).toContain("estimated one-rep max (est. 1RM, Epley formula)");
+    // Names the estimator in use, not Epley alone, which was retired (EN-03; Sep 30 §6).
+    expect(container.querySelector(".progress-method-note")?.textContent).toContain("estimated one-rep max (est. 1RM: Brzycki below 8 reps, Epley above 10, a blend between)");
     expect(container.textContent).not.toContain("e1RM");
   });
 });

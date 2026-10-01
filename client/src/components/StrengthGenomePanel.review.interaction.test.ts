@@ -64,7 +64,8 @@ describe("Strength Genome direct Review workflow", () => {
     expect(screen.getByText(/0\.44× your body weight on that day — for your own context, not a rank\./)).toBeTruthy();
     // A preacher curl is not one of the three lifts the published reference
     // covers, so this says so plainly rather than explaining a study protocol.
-    expect(screen.getByText("No ranking for this lift yet")).toBeTruthy();
+    // Renamed from "No ranking for this lift yet" (Sep 30 §6).
+    expect(screen.getByText("No comparison rank available for this lift")).toBeTruthy();
   });
 
   it("hands focus back to the Review button when Escape closes the record", () => {
@@ -130,7 +131,8 @@ describe("Strength Genome direct Review workflow", () => {
     render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
     fireEvent.click(screen.getByRole("button", { name: "Review" }));
     expect(screen.queryByRole("button", { name: "Set focus" })).toBeNull();
-    expect(screen.getByRole("button", { name: "Review training" })).toBeTruthy();
+    // Renamed from "Review training" (Sep 30 §6): the action names where it goes.
+    expect(screen.getByRole("button", { name: "Open Plan to add biceps work" })).toBeTruthy();
     expect(screen.getByText("Want to train this?")).toBeTruthy();
   });
 

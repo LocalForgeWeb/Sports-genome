@@ -21,7 +21,8 @@ describe("mobile athlete presentation", () => {
   });
 
   it("renders catalog rows as ranked tappable cards and preserves the phone single-column layout", () => {
-    expect(catalog).toContain('className="catalog-discovery-tier"');
+    // Sep 30 brief §5: the catalog's tier letter is off the rows; it is shown, explained, in the details only.
+    expect(catalog).not.toContain("catalog-discovery-tier");
     expect(catalog).toContain('aria-label={`Inspect ${exercise.name}`}');
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
     // One main scroll: the search field scrolls with the page rather than
@@ -35,8 +36,8 @@ describe("mobile athlete presentation", () => {
     // stylesheet should keep laying it out.
     for (const styles of [mobileStyles, appStyles]) expect(styles).not.toContain("feature-guide-button");
     expect(mobileStyles).toContain(".genome-methodology");
-    // No header to make safe-area-aware any more; the tab row it left behind is the
-    // top of the page, and pads for the notch itself.
+    // The brand row and its top inset live in index.css, not here; this file keeps only
+    // the tab row's pin inside its sticky shell. (Comment corrected Sep 30: the header is back.)
     expect(mobileStyles).not.toContain(".apex-topbar");
     expect(mobileStyles).toContain(".workspace-top-switcher { top: 0;");
   });

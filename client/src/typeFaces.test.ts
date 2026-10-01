@@ -66,3 +66,21 @@ describe("the weights on screen are weights the fonts have", () => {
     expect(link).toContain("DM+Sans:opsz,wght@9..40,400..900");
   });
 });
+
+/**
+ * Sep 30 brief §8: the condensed display face is for headings and prominent values. A
+ * sentence or a control set in it at reading size reads as cramped, so these are in the
+ * body face: the Plan's coverage sentence, and the value inside a "Short in this day" chip.
+ */
+describe("sentences and controls are in the body face", () => {
+  const ruleBodies = (selector: string) => [...allCss.matchAll(/([^{}]*)\{([^}]*)\}/g)]
+    .filter(([, selectors]) => selectors.replace(/\/\*[\s\S]*?\*\//g, "").split(",").map((part) => part.trim()).includes(selector))
+    .map(([, , body]) => body);
+
+  it.each([".rate-stack-headline", ".day-picker-gap i"])("sets %s in DM Sans, not the display face", (selector) => {
+    const bodies = ruleBodies(selector);
+    expect(bodies.length, `${selector} has a rule`).toBeGreaterThan(0);
+    for (const body of bodies) expect(body).not.toMatch(/font-family:[^;]*(Barlow Condensed|--sg-font-display|--font-display)/);
+    expect(bodies.some((body) => /font-family:\s*"DM Sans"/.test(body))).toBe(true);
+  });
+});

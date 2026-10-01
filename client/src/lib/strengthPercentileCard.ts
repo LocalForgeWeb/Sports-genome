@@ -35,6 +35,10 @@ export function ordinal(value: number): string {
 export type StrengthPercentileCard = {
   headline: string;
   detail: string;
+  /** `detail` without the effort note, for a surface that keeps that note with its other caveats. */
+  placement: string;
+  /** The effort note on its own, or "" when there is none. */
+  effort: string;
 };
 
 const populationLabel: Record<"male" | "female", string> = {
@@ -59,9 +63,13 @@ export function strengthPercentileCard(
     : result.unit === "reps"
       ? `${Math.round(result.observedValue)} reps`
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
+  const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}`;
+  const effort = effortNote(result.estimate);
   return {
     headline: `${ordinal(result.percentile)} percentile`,
-    detail: `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}${effortNote(result.estimate)}`,
+    detail: `${placement}${effort}`,
+    placement,
+    effort: effort.trim(),
   };
 }
 
