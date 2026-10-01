@@ -2189,7 +2189,7 @@ details:not([open]) > *:not(summary) {
 .add-destination > summary > span { display: flex; flex: 1; min-width: 0; gap: .3em; line-height: var(--sg-leading-snug); white-space: nowrap; }
 .add-destination > summary > span > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .add-destination-lead { flex: 0 100 auto; }
-.add-destination > summary b { flex: 0 1 auto; font-weight: 700; }
+.add-destination > summary b { flex: 0 1 auto; font-weight: 700; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
 .add-destination > summary em { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .25rem; color: var(--sg-link-on-dark); font-style: normal; font-weight: 600; }
 .add-destination > summary em svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
 .add-destination[open] > summary em svg { transform: rotate(180deg); }

@@ -72,13 +72,18 @@ describe("the strip stays one line and out of the way", () => {
   const rule = (selector: string) => css.match(new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\{([^}]*)\\}`))?.[1] ?? "";
   const rem = (value: string) => parseFloat(value);
 
-  it("draws the day on a single line with the change control beside it", () => {
+  it("draws the day in full beside the change control: the lead gives way first, and the day wraps rather than being cut", () => {
     mount({ slots: [{ ...slots[1], day: "Sport Transfer and Conditioning" } as DaySlot, slots[0]], activeIndex: 0 });
     const summary = document.querySelector(".add-destination > summary")!;
     expect(Array.from(summary.children).map((node) => node.tagName)).toEqual(["svg", "SPAN", "EM"]);
     expect(summary.querySelector("span")!.textContent).toBe("Adding to Week 2 · Sport Transfer and Conditioning");
     expect(rule(".add-destination > summary > span")).toContain("white-space: nowrap");
     expect(rule(".add-destination > summary > span > *")).toContain("text-overflow: ellipsis");
+    // Verification at 320px: "Week 1 · Sport Transfer" was cut to "Week 1 · S…". The day must stay
+    // readable, so it wraps to a second line instead of taking the ellipsis.
+    const day = rule(".add-destination > summary b");
+    expect(day).toContain("white-space: normal");
+    expect(day).toContain("text-overflow: clip");
     // Short of room, "Adding to" gives way long before the day does (measured at 320px with 125% text).
     expect(summary.querySelector(".add-destination-lead")?.textContent).toBe("Adding to");
     expect(Number(rule(".add-destination-lead").match(/flex: 0 (\d+) auto/)?.[1])).toBeGreaterThan(Number(rule(".add-destination > summary b").match(/flex: 0 (\d+) auto/)?.[1]));
