@@ -299,6 +299,24 @@ describe("Exercise details over a movement's catalog", () => {
     expect(document.querySelector(".inspection-action-connection")?.textContent).not.toMatch(/reviewed/i);
   }, 60000);
 
+  it("shows no sport-action number in the exercise analysis, only the movement's tier", async () => {
+    // Sep 30 decisions: no number or grade for relevance. The analysis printed "35/100" for a hip thrust over Bridge under "Movement-specific".
+    window.history.replaceState({}, "", `/${BRIDGE_ADDRESS}`);
+    render(createElement(Home));
+    const props = await catalog();
+    const hipThrust = exercises.find((exercise) => exercise.name === "Barbell Hip Thrust")!;
+    await act(async () => { props.onInspect(hipThrust); });
+    const contextTab = await waitFor(() => { const button = Array.from(document.querySelectorAll<HTMLButtonElement>(".genome-tabbar button")).find((item) => item.textContent === "Context"); if (!button) throw new Error("Analysis not ready"); return button; }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(contextTab); });
+    const panel = document.querySelector(".genome-panel")!;
+    expect(panel.querySelector(".genome-action-connection")?.textContent).toContain("Bridge");
+    expect(panel.querySelector(".genome-action-connection-label")?.textContent).toBe("Movement-specific");
+    const text = panel.textContent ?? "";
+    expect(text).not.toMatch(/sport action[^.]*\d+\/100/i);
+    expect(text).not.toMatch(/mechanical match/i);
+    expect(text).not.toMatch(/How closely this matches/i);
+  }, 60000);
+
   it("names the catalog tier in the details, and says it is not a movement match", async () => {
     // Sep 30 brief §5: the letter is off the rows; the details are its one place, named and explained.
     window.history.replaceState({}, "", `/${BRIDGE_ADDRESS}`);

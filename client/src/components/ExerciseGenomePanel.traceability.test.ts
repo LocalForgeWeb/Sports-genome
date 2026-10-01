@@ -15,9 +15,10 @@ describe("Exercise Genome evidence-to-logic disclosure", () => {
   it("retains relative exercise-specific contribution, grade, and contextual score displays", () => {
     expect(component).toContain('<GradeStamp grade={entry.tier} label="Muscle involvement tier" compact />');
     expect(component).toContain("Estimated ${entry.contribution}/100 involvement");
-    expect(component).toContain("How closely this matches your sport action: {analysis.signals.sportActionMatch}/100");
+    // Sep 30 decisions: no number for relevance. The sport-action 0-100 came from another engine and contradicted the movement support tier, so it is gone.
+    expect(component).not.toContain("sportActionMatch");
+    expect(component).not.toContain("How closely this matches your sport action");
     expect(component).toContain("it is not a rating of your skill, performance, or strength");
-    expect(component).not.toContain("Sport-action match: {analysis.signals.sportActionMatch}/100");
     expect(component).toContain("planning comparison, not a direct performance measurement");
   });
 });
