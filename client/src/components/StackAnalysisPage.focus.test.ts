@@ -29,7 +29,6 @@ function props(onClose: () => void) {
     prescriptions: Object.fromEntries(workout.map((exercise, index) => [exercise.id, `${index + 3} x 8`])),
     onAddSuggestion: () => undefined,
     onClose,
-    onInspectExercise: () => undefined,
   };
 }
 

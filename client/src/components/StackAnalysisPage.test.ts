@@ -27,7 +27,6 @@ const markup = renderToStaticMarkup(
     prescriptions: Object.fromEntries(workout.map((exercise, index) => [exercise.id, `${index + 3} x 8`])),
     onAddSuggestion: () => undefined,
     onClose: () => undefined,
-    onInspectExercise: () => undefined,
   })
 );
 
@@ -62,9 +61,11 @@ describe("Stack Analysis selected muscle", () => {
     expect(markup).toContain("contribution index, 0–100");
     expect(markup).toContain("/100");
     expect(markup).toContain("coverage index");
-    // Relative involvement is a share of the day's most-worked muscle, and says so; "coverage"
-    // is reserved for the graded target model (TR-01, TR-02).
-    expect(markup).toMatch(/\d+% of the day(&#x27;|')s most-worked muscle/);
+    // Intentional change, Sep 30 brief §7: "% of the day's most-worked muscle" read as sets.
+    // Relative involvement names its reference muscle, or says it is the day's highest;
+    // "coverage" is still reserved for the graded target model (TR-01, TR-02).
+    expect(markup).toMatch(/\d+% of [^<]+ involvement, the day(&#x27;|')s highest|Highest relative involvement in this day/);
+    expect(markup).not.toContain("most-worked");
     expect(markup).not.toMatch(/\d+% coverage/);
     expect(markup).toContain("How coverage is calculated");
     expect(markup).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
@@ -98,7 +99,9 @@ describe("Stack Analysis selected muscle", () => {
     expect(component).toContain('className="stack-analysis-row-score"');
     expect(styles).toContain(".stack-analysis-row { display: grid;");
     // No ordinal column: the rows were numbered 01, 02... in an order that was not the gaps'.
-    expect(styles).toContain("grid-template-columns: minmax(0, 1fr) auto auto");
+    // Intentional change, Sep 30 brief §7: the chevron column is a fixed 1rem and the bar has
+    // its own grid row, so every row's track is the same length.
+    expect(styles).toContain('grid-template-columns: minmax(0, 1fr) auto 1rem; grid-template-areas: "copy score chevron" "bar bar chevron"');
     expect(styles).toContain(".stack-analysis-row-copy { min-width: 0;");
   });
 

@@ -79,7 +79,6 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
       onAddSuggestion={onAdd}
       onClose={() => setOpen(false)}
       onAddExercises={onAddExercises ? () => { setOpen(false); onAddExercises(); } : undefined}
-      onInspectExercise={() => undefined}
     />
   );
 

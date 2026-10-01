@@ -18,7 +18,9 @@ describe("analysis score semantics", () => {
     // "/100", each percentage names its denominator, and the methodology is said once.
     expect(stack).toContain("contribution index, 0–100");
     expect(stack).toContain("<small>/100</small><em>coverage index</em>");
-    expect(stack).toContain("{selected.involvement}% of the day's most-worked muscle");
+    // Intentional change, Sep 30 brief §7: the share names the day's highest muscle and its basis.
+    expect(stack).toContain("involvement, the day's highest");
+    expect(stack).toContain("Set counts are not included; see Workload for sets.");
     expect(stack).toContain("How coverage is calculated");
     expect(stack).toContain("Not {split.toLowerCase()} targets, so not in the coverage index.");
     expect(stack).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
