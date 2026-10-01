@@ -1,4 +1,5 @@
 import { getEnrichedMovement } from "@/lib/enrichedSportMovementDatabase";
+import { bodyMapKeysForRecordMuscle } from "@/lib/recordMuscleKeys";
 
 export type BodyLabRole = "Primary Mover" | "Synergist" | "Stabilizer" | "Supporting";
 export type BodyLabEvidenceConfidence = "Direct evidence" | "Strong indirect evidence" | "Biomechanical model" | "Movement model";
@@ -20,17 +21,6 @@ export type BodyLabRoleContext = {
   methodology: string;
 };
 
-const muscleAliases: Record<string, string[]> = {
-  chest: ["pectoralis major", "pectoralis minor", "chest"],
-  frontDelts: ["anterior deltoid"], sideDelts: ["lateral deltoid", "middle deltoid"], rearDelts: ["posterior deltoid"], shoulders: ["deltoid"],
-  triceps: ["triceps"], biceps: ["biceps"], brachialis: ["brachialis"], brachioradialis: ["brachioradialis"], forearms: ["forearm", "wrist", "finger flexor", "finger extensor"],
-  abs: ["rectus abdominis", "transversus abdominis", "abdominal wall", "abdominals"], obliques: ["oblique", "obliquus"], serratusAnterior: ["serratus"],
-  hipFlexors: ["iliopsoas", "hip flexor"], tfl: ["tensor fasciae latae", "tfl"], quads: ["quadriceps", "rectus femoris", "vastus"], adductors: ["adductor", "gracilis", "pectineus"],
-  abductors: ["gluteus medius", "gluteus minimus", "hip abductor"], glutes: ["gluteus maximus", "gluteal"], hamstrings: ["hamstring", "biceps femoris", "semitendinosus", "semimembranosus"],
-  calves: ["gastrocnemius", "plantar flexor"], soleus: ["soleus"], tibialis: ["tibialis"], peroneals: ["perone"],
-  lats: ["latissimus"], traps: ["trapezius"], rhomboids: ["rhomboid"], lowerBack: ["erector spinae", "multifidus", "lower back", "spinal erector"], rotatorCuff: ["rotator cuff", "infraspinatus", "supraspinatus", "teres minor", "subscapularis"],
-};
-
 const defaultRoleOrder: BodyLabRole[] = ["Primary Mover", "Synergist", "Stabilizer", "Supporting"];
 export const getBodyLabRoleOrder = (contractionRoles: string[], jointActions: string[] = []): BodyLabRole[] => {
   const mechanicsContext = [...contractionRoles, ...jointActions].join(" ").toLowerCase();
@@ -47,14 +37,10 @@ const confidenceFor = (value: string | undefined): BodyLabEvidenceConfidence => 
   return "Movement model";
 };
 
-const keysForName = (name: string) => {
-  if (name in muscleAliases) return [name];
-  const normalized = name.toLowerCase();
-  return Object.entries(muscleAliases).filter(([, aliases]) => aliases.some((alias) => normalized.includes(alias))).map(([key]) => key);
-};
-
+// The record's muscle names are read through recordMuscleKeys, the one shared alias
+// list, so the roles drawn here are the prime movers the movement support tiers match.
 const appendRole = (rolesByMuscle: Record<string, BodyLabRoleDetail>, name: string, role: BodyLabRole, detail: Omit<BodyLabRoleDetail, "roles">) => {
-  keysForName(name).forEach((key) => {
+  bodyMapKeysForRecordMuscle(name).forEach((key) => {
     const existing = rolesByMuscle[key];
     const roles = Array.from(new Set([...(existing?.roles || []), role])).sort((left, right) => detail.roleOrder.indexOf(left) - detail.roleOrder.indexOf(right));
     rolesByMuscle[key] = { ...detail, ...existing, roles };
