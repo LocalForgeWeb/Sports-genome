@@ -841,7 +841,9 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 }
 
 .day-capacity-note-empty > svg { margin-top: 0; color: var(--sg-text-subtle-on-dark); }
-.day-capacity-note-empty button { font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
+/* The sentence and its link wrap as two pieces, so the link's 44px target never
+   stretches the sentence's own line spacing. */
+.day-capacity-note-empty p { display: flex; flex-wrap: wrap; align-items: center; column-gap: .35rem; }
 
 .day-capacity-note-head {
   display: flex;
@@ -896,6 +898,8 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 
 .day-capacity-note button:hover { text-decoration: underline; text-underline-offset: 3px; }
 .day-capacity-note button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* The quiet prompt's link reads as words in the body face, not a caps label. */
+.day-capacity-note-empty button { font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
 
 .day-capacity-note-qualified { border-left-color: var(--sg-state-caution); }
 .day-capacity-note-qualified > svg { color: var(--sg-state-caution); }
