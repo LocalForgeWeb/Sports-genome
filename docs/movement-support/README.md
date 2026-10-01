@@ -9,7 +9,8 @@ reviewed them exercise by exercise.** The app says so: a match is "named in the 
 never "reviewed".
 
 The data sections below the method are generated. To regenerate them after a change to the
-catalog, the movement records, the synonym list or the broad patterns, run from the repo root:
+catalog, the movement records, the synonym list, the not-the-same list or the broad patterns, run
+from the repo root:
 
 ```
 npx tsx scripts/movement-support-report.ts
@@ -38,7 +39,9 @@ correction and are not part of this model.
    dropped, hyphens and other punctuation read as spaces, a simple plural made singular, spaces
    collapsed. A short list of exact same-exercise synonyms (below) covers names the record and the
    catalog write differently, such as "rear-foot-elevated split squat" for the Bulgarian Split
-   Squat. Order: the record's own order of named exercises, then catalog id.
+   Squat. A second short list, Not the same exercise, removes pairs the rule would match although
+   the catalog exercise is a different one ("row" in Cable Upright Row). Order: the record's own
+   order of named exercises, then catalog id.
    Why it appears: "Named in the Bridge movement record: hip thrust".
 2. **Related pattern.** Not movement-specific; the exercise's catalog `movement` pattern is the
    pattern of a movement-specific exercise; that pattern is not one of the broad patterns (below);
@@ -79,6 +82,13 @@ name and one specific variant of it ("medicine-ball rotational throw" and the ca
 Medicine-Ball Rotational Wall Throw) do not belong; those stay unmatched and are listed for review.
 The list, with each reason, is under Reference lists.
 
+The opposite case has its own list, `NOT_THE_SAME_EXERCISE`: a catalog exercise whose name contains
+a phrase the record names but which is a different exercise (a handstand push-up for "push-up", a
+split-squat jump for "split squat"). Each entry names the record phrase, the catalog id and why. The
+name rule skips that pair only; the exercise can still be related pattern or muscle support on its
+own pattern and muscles. The entries were read by hand from the phrases that reach the most
+catalog names (Phrases the name rule stretches, at the end); the table is under Reference lists.
+
 ### Muscles
 
 The record names muscles in anatomical language ("obliquus externus abdominis", "triceps surae").
@@ -115,7 +125,7 @@ This list replaced three that disagreed. What changed as a result:
 ### Where it lives
 
 - `client/src/lib/movementSupport.ts`: the normalizer and matcher, `SAME_EXERCISE_SYNONYMS`,
-  `BROAD_PATTERNS`, `classifyExerciseForMovement`, `getMovementSupport` (one result per movement,
+  `NOT_THE_SAME_EXERCISE`, `BROAD_PATTERNS`, `classifyExerciseForMovement`, `getMovementSupport` (one result per movement,
   kept), `movementMatchCount`. Re-exported from `movementProgramAnalysis.ts`.
 - `client/src/lib/catalogDiscovery.ts`: `refineMovementSupport`, the refinements inside each tier.
 - `client/src/lib/movementProgramAnalysis.ts`: `getExerciseActionConnection` and
@@ -684,7 +694,7 @@ This list replaced three that disagreed. What changed as a result:
 | Skiing | 21 | 18 | 2 | 1 |
 | Olympic weightlifting | 21 | 19 | 1 | 1 |
 
-Movement-specific matches per movement that has any: median 4, range 1 to 37.
+Movement-specific matches per movement that has any: median 4, range 1 to 36.
 
 Record names nothing in the catalog:
 
@@ -960,6 +970,19 @@ No enriched record:
 | neutral-grip pulldown | neutral-grip lat pulldown | A pulldown is the lat pulldown; the catalog writes the muscle into the name. | Neutral-Grip Lat Pulldown (59) |
 | barbell back squat | back squat | The back squat is a barbell lift; the catalog leaves the barbell implied. | Back Squat (161); High-Bar Back Squat (162) |
 
+### Not the same exercise
+
+Catalog exercises whose name contains a phrase a record names but which are a different exercise. The name rule skips these pairs; the exercise can still be related pattern or muscle support on its own data.
+
+| Record phrase | Catalog exercise | Why it is a different exercise | Records naming the phrase |
+|---|---|---|---:|
+| leg press | Leg-Press Calf Raise (223) | A leg-press calf raise is a calf raise done on the leg-press machine with the knees held straight; it is not the leg press. | 3 |
+| row | Cable Upright Row (317) | An upright row pulls the bar up the front of the body to the chest for the shoulders and traps; a row pulls toward the trunk. | 5 |
+| push-up | Handstand Push-Up (120) | A handstand push-up is an overhead press done upside down, a vertical push, not the horizontal push-up. | 7 |
+| split squat | Split-Squat Jump (294) | A split-squat jump is a plyometric jump from the split stance, not the loaded split squat. | 100 |
+| cable press | Cable Press-Out (310) | A cable press-out is an anti-rotation press for the trunk, like the Pallof press, not a cable chest or shoulder press. | 7 |
+| plank | Side Plank Hip Adduction (397) | A side plank with hip adduction works the adductors from a side plank, in the manner of a Copenhagen plank; it is not the plank named. | 1 |
+
 ### Broad patterns
 
 | Catalog pattern | Exercises |
@@ -1009,10 +1032,10 @@ The tiers read `movement` (pattern) and `primaryMuscles`, so these change result
 
 ### Phrases the name rule stretches
 
-A phrase matches every catalog name that contains it as whole words, so short or generic phrases reach variants the record may not mean. Phrases reaching five or more exercises:
+A phrase matches every catalog name that contains it as whole words, so short or generic phrases reach variants the record may not mean. Phrases reaching five or more exercises (after the Not the same exercise list):
 
-- "row" (5 movements) reaches 30: Barbell Bent-Over Row; Pendlay Row; Underhand Barbell Row; Dumbbell Row; Chest-Supported Dumbbell Row; Seal Row; Meadows Row; T-Bar Row; Chest-Supported T-Bar Row; Machine High Row; Machine Low Row; Seated Cable Row; Wide-Grip Cable Row; Single-Arm Cable Row; Inverted Row; Feet-Elevated Inverted Row; Ring Row; Landmine Row; Meadows Landmine Row; Landmine T-Bar Row; Cable Upright Row; Cable Rear-Delt Row; Cable Single-Arm Bent-Over Row; Chest-Supported Cable Row; Low Cable Row; Rope Cable Row; Cable High Row; Cable Rotational Row; Chest-Supported Landmine Row; Offset Landmine Row.
-- "push-up" (7 movements) reaches 17: Standard Push-Up; Wide-Grip Push-Up; Diamond Push-Up; Decline Push-Up; Incline Push-Up; Archer Push-Up; Plyometric Push-Up; Clap Push-Up; Explosive Depth Push-Up; Deficit Push-Up; Ring Push-Up; Weighted Push-Up; Spiderman Push-Up; Typewriter Push-Up; Handstand Push-Up; Explosive Medicine-Ball Push-Up; Cable Resisted Push-Up.
+- "row" (5 movements) reaches 29: Barbell Bent-Over Row; Pendlay Row; Underhand Barbell Row; Dumbbell Row; Chest-Supported Dumbbell Row; Seal Row; Meadows Row; T-Bar Row; Chest-Supported T-Bar Row; Machine High Row; Machine Low Row; Seated Cable Row; Wide-Grip Cable Row; Single-Arm Cable Row; Inverted Row; Feet-Elevated Inverted Row; Ring Row; Landmine Row; Meadows Landmine Row; Landmine T-Bar Row; Cable Rear-Delt Row; Cable Single-Arm Bent-Over Row; Chest-Supported Cable Row; Low Cable Row; Rope Cable Row; Cable High Row; Cable Rotational Row; Chest-Supported Landmine Row; Offset Landmine Row.
+- "push-up" (7 movements) reaches 16: Standard Push-Up; Wide-Grip Push-Up; Diamond Push-Up; Decline Push-Up; Incline Push-Up; Archer Push-Up; Plyometric Push-Up; Clap Push-Up; Explosive Depth Push-Up; Deficit Push-Up; Ring Push-Up; Weighted Push-Up; Spiderman Push-Up; Typewriter Push-Up; Explosive Medicine-Ball Push-Up; Cable Resisted Push-Up.
 - "deadlifts" (3 movements) reaches 11: Conventional Deadlift; Romanian Deadlift; Romanian Deadlift; Stiff-Leg Deadlift; Single-Leg Romanian Deadlift; Dumbbell Romanian Deadlift; B-Stance Romanian Deadlift; Landmine Romanian Deadlift; Landmine Single-Leg Romanian Deadlift; Cable Deadlift; Cable Single-Leg Deadlift.
 - "bench press" (2 movements) reaches 10: Barbell Bench Press; Incline Barbell Bench Press; Decline Barbell Bench Press; Dumbbell Bench Press; Incline Dumbbell Bench Press; Decline Dumbbell Bench Press; Alternating Dumbbell Bench Press; Single-Arm Dumbbell Bench Press; Smith Machine Bench Press; Close-Grip Bench Press.
 - "pull-up" (3 movements) reaches 9: Pull-Up; Neutral-Grip Pull-Up; Wide-Grip Pull-Up; Weighted Pull-Up; Commando Pull-Up; Archer Pull-Up; L-Sit Pull-Up; Towel Pull-Up; Scapular Pull-Up.
@@ -1025,8 +1048,7 @@ A phrase matches every catalog name that contains it as whole words, so short or
 - "step-up" (8 movements) reaches 5: Step-Up; Peterson Step-Up; Explosive Step-Up; Cable Step-Up; Cable Lateral Step-Up.
 - "hip thrust" (17 movements) reaches 5: Barbell Hip Thrust; Smith Machine Hip Thrust; Dumbbell Hip Thrust; Single-Leg Hip Thrust; Cable Hip Thrust.
 - "hamstring curl" (5 movements) reaches 5: Nordic Hamstring Curl; Stability-Ball Hamstring Curl; Slider Hamstring Curl; Cable Hamstring Curl; Assisted Nordic Hamstring Curl.
-- "plank" (1 movement) reaches 5: Copenhagen Plank; RKC Plank; Side Plank; Weighted Plank; Side Plank Hip Adduction.
 
-Matches that are a different exercise from the one named: "leg press" reaches Leg-Press Calf Raise; "row" reaches Cable Upright Row; "push-up" reaches Handstand Push-Up; "split squat" reaches Split-Squat Jump; "cable press" reaches Cable Press-Out; "plank" reaches Side Plank Hip Adduction.
+Names containing a phrase that are a different exercise from the one named, and so are skipped by the name rule (Not the same exercise, under Reference lists): "leg press" in Leg-Press Calf Raise; "row" in Cable Upright Row; "push-up" in Handstand Push-Up; "split squat" in Split-Squat Jump; "cable press" in Cable Press-Out; "plank" in Side Plank Hip Adduction.
 
 <!-- generated:end -->

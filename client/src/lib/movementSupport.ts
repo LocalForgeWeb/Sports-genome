@@ -10,7 +10,8 @@
  *
  *   Movement-specific  the exercise's name contains, as a run of whole words, an
  *                      exercise the record names ("Barbell Hip Thrust" for "hip
- *                      thrust"), or an exact same-exercise synonym of one.
+ *                      thrust"), or an exact same-exercise synonym of one, unless
+ *                      the pair is listed in NOT_THE_SAME_EXERCISE.
  *   Related pattern    not movement-specific; its catalog `movement` pattern is the
  *                      pattern of a movement-specific exercise, that pattern is not
  *                      one of the BROAD_PATTERNS, and it trains a prime mover.
@@ -118,6 +119,30 @@ export const SAME_EXERCISE_SYNONYMS: readonly { phrase: string; sameAs: string; 
 ];
 
 /**
+ * The other direction: catalog exercises whose name contains a phrase a record
+ * names, but which are a different exercise from the one named ("row" is in
+ * "Cable Upright Row"). The name rule alone would call them movement-specific.
+ * A listed pair is skipped by the name match only, so the exercise falls to
+ * related pattern or muscle support on its own pattern and muscles, or to
+ * nothing. Read by hand from the phrases that reach the most catalog names
+ * (docs/movement-support/README.md, "Phrases the name rule stretches").
+ */
+export const NOT_THE_SAME_EXERCISE: readonly { phrase: string; catalogId: number; why: string }[] = [
+  { phrase: "leg press", catalogId: 223, why: "A leg-press calf raise is a calf raise done on the leg-press machine with the knees held straight; it is not the leg press." },
+  { phrase: "row", catalogId: 317, why: "An upright row pulls the bar up the front of the body to the chest for the shoulders and traps; a row pulls toward the trunk." },
+  { phrase: "push-up", catalogId: 120, why: "A handstand push-up is an overhead press done upside down, a vertical push, not the horizontal push-up." },
+  { phrase: "split squat", catalogId: 294, why: "A split-squat jump is a plyometric jump from the split stance, not the loaded split squat." },
+  { phrase: "cable press", catalogId: 310, why: "A cable press-out is an anti-rotation press for the trunk, like the Pallof press, not a cable chest or shoulder press." },
+  { phrase: "plank", catalogId: 397, why: "A side plank with hip adduction works the adductors from a side plank, in the manner of a Copenhagen plank; it is not the plank named." },
+];
+
+/** True when the catalog exercise is listed in NOT_THE_SAME_EXERCISE for this record phrase. */
+export function isNotTheSameExercise(phrase: string, exerciseId: number): boolean {
+  const normalized = normalizeExercisePhrase(phrase);
+  return NOT_THE_SAME_EXERCISE.some((entry) => entry.catalogId === exerciseId && normalizeExercisePhrase(entry.phrase) === normalized);
+}
+
+/**
  * Catalog `movement` patterns too broad to relate two exercises on their own.
  *
  * Rule: a pattern is broad when it labels more than 15 of the 400 catalog exercises
@@ -144,7 +169,7 @@ export const BROAD_PATTERNS: readonly string[] = [
   "Elbow extension",
 ];
 
-type NamedPhrase = { text: string; matchers: string[]; synonym?: string };
+type NamedPhrase = { text: string; matchers: string[]; synonym?: string; notTheSame: ReadonlySet<number> };
 type PrimeMover = { name: string; keys: string[] };
 
 type MovementContext = {
@@ -179,12 +204,16 @@ function namedPhrasesOf(record: EnrichedSportMovement): NamedPhrase[] {
     if (!normalized || seen.has(normalized)) continue;
     seen.add(normalized);
     const synonym = SAME_EXERCISE_SYNONYMS.find((entry) => normalizeExercisePhrase(entry.phrase) === normalized);
-    phrases.push({ text, matchers: synonym ? [normalized, normalizeExercisePhrase(synonym.sameAs)] : [normalized], synonym: synonym?.sameAs });
+    const notTheSame = new Set(NOT_THE_SAME_EXERCISE.filter((entry) => normalizeExercisePhrase(entry.phrase) === normalized).map((entry) => entry.catalogId));
+    phrases.push({ text, matchers: synonym ? [normalized, normalizeExercisePhrase(synonym.sameAs)] : [normalized], synonym: synonym?.sameAs, notTheSame });
   }
   return phrases;
 }
 
 const containsNormalized = (normalizedName: string, normalizedPhrase: string) => ` ${normalizedName} `.includes(` ${normalizedPhrase} `);
+
+/** The record phrase names this exercise: its name contains the phrase (or a synonym), and the pair is not listed as a different exercise. */
+const phraseNames = (phrase: NamedPhrase, exercise: Exercise) => !phrase.notTheSame.has(exercise.id) && phrase.matchers.some((matcher) => containsNormalized(normalizedNameOf(exercise), matcher));
 
 const normalizedNames = new WeakMap<Exercise, string>();
 function normalizedNameOf(exercise: Exercise): string {
@@ -197,8 +226,7 @@ function normalizedNameOf(exercise: Exercise): string {
 }
 
 function phraseIndexFor(exercise: Exercise, phrases: NamedPhrase[]): number {
-  const name = normalizedNameOf(exercise);
-  return phrases.findIndex((phrase) => phrase.matchers.some((matcher) => containsNormalized(name, matcher)));
+  return phrases.findIndex((phrase) => phraseNames(phrase, exercise));
 }
 
 function contextFor(record: EnrichedSportMovement): MovementContext {
@@ -267,7 +295,7 @@ export function catalogSupportForRecord(record: EnrichedSportMovement): CatalogT
     // Muscle support follows the record's own prime-mover order, so an exercise tagged with many muscles is not lifted by its breadth.
     muscle: rows.filter((row) => row.tier === "muscle").sort((left, right) => firstPrimeMover(left) - firstPrimeMover(right) || left.exercise.id - right.exercise.id),
     unmatchedPhrases: context.phrases
-      .filter((phrase) => !catalogExercises.some((exercise) => phrase.matchers.some((matcher) => containsNormalized(normalizedNameOf(exercise), matcher))))
+      .filter((phrase) => !catalogExercises.some((exercise) => phraseNames(phrase, exercise)))
       .map((phrase) => phrase.text),
     primeMoverKeys: Array.from(new Set(context.primeMovers.flatMap((mover) => mover.keys))),
   };

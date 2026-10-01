@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { exercises, type Exercise } from "./exerciseCatalog";
-import { getEnrichedMovement } from "./enrichedSportMovementDatabase";
+import { enrichedSportMovements, getEnrichedMovement } from "./enrichedSportMovementDatabase";
 import {
   BROAD_PATTERN_MIN_EXERCISES,
   BROAD_PATTERNS,
+  NOT_THE_SAME_EXERCISE,
   SAME_EXERCISE_SYNONYMS,
   classifyExerciseForMovement,
   getMovementSupport,
+  isNotTheSameExercise,
   movementMatchCount,
   nameContainsPhrase,
   normalizeExercisePhrase,
@@ -46,6 +48,39 @@ describe("phrase normalizer and contiguous-phrase matcher", () => {
       // An entry the plain matcher already resolves is not a synonym, just noise.
       expect(exercises.some((exercise) => nameContainsPhrase(exercise.name, entry.phrase))).toBe(false);
     }
+  });
+});
+
+describe("NOT_THE_SAME_EXERCISE", () => {
+  const recordsNaming = (phrase: string) => enrichedSportMovements.filter((record) => record.recommendedExercises.some((text) => normalizeExercisePhrase(text) === normalizeExercisePhrase(phrase)));
+
+  it("lists only pairs the name rule would match, each with its reason, and each moves the exercise out of movement-specific", () => {
+    expect(NOT_THE_SAME_EXERCISE.length).toBeGreaterThan(0);
+    for (const entry of NOT_THE_SAME_EXERCISE) {
+      const exercise = exercises.find((item) => item.id === entry.catalogId);
+      expect(exercise, `${entry.phrase} -> ${entry.catalogId}`).toBeTruthy();
+      expect(entry.why.length).toBeGreaterThan(20);
+      // Without the list the plain name rule would match this pair; otherwise the entry is noise.
+      expect(nameContainsPhrase(exercise!.name, entry.phrase)).toBe(true);
+      expect(isNotTheSameExercise(entry.phrase, entry.catalogId)).toBe(true);
+      const records = recordsNaming(entry.phrase);
+      expect(records.length, entry.phrase).toBeGreaterThan(0);
+      const rows = records.map((record) => classifyExerciseForMovement(exercise!, record));
+      // No record places it by that phrase any more, and at least one placement changed.
+      expect(rows.every((row) => !row?.phrase || normalizeExercisePhrase(row.phrase) !== normalizeExercisePhrase(entry.phrase))).toBe(true);
+      expect(rows.some((row) => row?.tier !== "specific")).toBe(true);
+    }
+  });
+
+  it("keeps the row a record names but drops the upright row from it, which still meets the record's other exercises", () => {
+    const record = getEnrichedMovement("mma", "mma-17")!;
+    const uprightRow = exercises.find((exercise) => exercise.id === 317)!;
+    expect(uprightRow.name).toBe("Cable Upright Row");
+    expect(classifyExerciseForMovement(uprightRow, record)?.tier).not.toBe("specific");
+    const support = getMovementSupport("mma", "mma-17");
+    expect(ids(support.specific)).not.toContain(317);
+    expect(names(support.specific)).toContain("Seated Cable Row");
+    expect(support.unmatchedPhrases).not.toContain("row");
   });
 });
 

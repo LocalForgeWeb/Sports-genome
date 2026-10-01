@@ -6,14 +6,14 @@
  *
  * Everything between the "generated" markers in the README is replaced; the method
  * text above them is written by hand. Run it after changing the catalog, the movement
- * records, the synonym list or BROAD_PATTERNS, and commit the result.
+ * records, the synonym list, NOT_THE_SAME_EXERCISE or BROAD_PATTERNS, and commit the result.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { exercises, type Exercise } from "../client/src/lib/exerciseCatalog";
 import { enrichedSportMovements, getEnrichedMovement } from "../client/src/lib/enrichedSportMovementDatabase";
 import { sportMovementProfiles, sportProfiles } from "../client/src/lib/sportMovementDatabase";
-import { BROAD_PATTERNS, SAME_EXERCISE_SYNONYMS, getMovementSupport, movementMatchCount, nameContainsPhrase, normalizeExercisePhrase, type MovementSupport, type SupportRow } from "../client/src/lib/movementSupport";
+import { BROAD_PATTERNS, NOT_THE_SAME_EXERCISE, SAME_EXERCISE_SYNONYMS, getMovementSupport, isNotTheSameExercise, movementMatchCount, nameContainsPhrase, normalizeExercisePhrase, type MovementSupport, type SupportRow } from "../client/src/lib/movementSupport";
 import { catalogKeysForRecordMuscle } from "../client/src/lib/recordMuscleKeys";
 
 const README = resolve(import.meta.dirname, "../docs/movement-support/README.md");
@@ -128,6 +128,14 @@ function referenceSection(): string {
     "|---|---|---|---|",
     ...SAME_EXERCISE_SYNONYMS.map((entry) => `| ${entry.phrase} | ${entry.sameAs} | ${cell(entry.why)} | ${exercises.filter((exercise) => nameContainsPhrase(exercise.name, entry.sameAs)).map((exercise) => `${exercise.name} (${exercise.id})`).join("; ")} |`),
     "",
+    "### Not the same exercise",
+    "",
+    "Catalog exercises whose name contains a phrase a record names but which are a different exercise. The name rule skips these pairs; the exercise can still be related pattern or muscle support on its own data.",
+    "",
+    "| Record phrase | Catalog exercise | Why it is a different exercise | Records naming the phrase |",
+    "|---|---|---|---:|",
+    ...NOT_THE_SAME_EXERCISE.map((entry) => `| ${entry.phrase} | ${cell(byId.get(entry.catalogId)?.name ?? "missing")} (${entry.catalogId}) | ${cell(entry.why)} | ${enrichedSportMovements.filter((record) => record.recommendedExercises.some((text) => normalizeExercisePhrase(text) === normalizeExercisePhrase(entry.phrase))).length} |`),
+    "",
     "### Broad patterns",
     "",
     "| Catalog pattern | Exercises |",
@@ -194,21 +202,20 @@ function deficienciesSection(supports: MovementSupport[]): string {
   if (unreachable.size) lines.push(`- Prime-mover keys that no catalog exercise has as a primary muscle, so they never relate an exercise: ${Array.from(unreachable).map(([key, count]) => `\`${key}\` (a prime mover in ${count} movements)`).join(", ")}. Bridge's erector spinae is one: it maps to \`lowerBack\`, which the catalog only ever tags as a secondary muscle.`);
   lines.push("");
 
-  lines.push("### Phrases the name rule stretches", "", "A phrase matches every catalog name that contains it as whole words, so short or generic phrases reach variants the record may not mean. Phrases reaching five or more exercises:", "");
+  lines.push("### Phrases the name rule stretches", "", "A phrase matches every catalog name that contains it as whole words, so short or generic phrases reach variants the record may not mean. Phrases reaching five or more exercises (after the Not the same exercise list):", "");
   const phrases = new Map<string, { text: string; movements: number }>();
   enrichedSportMovements.forEach((record) => record.recommendedExercises.forEach((text) => {
     const key = normalizeExercisePhrase(text);
     phrases.set(key, { text: phrases.get(key)?.text ?? text, movements: (phrases.get(key)?.movements ?? 0) + 1 });
   }));
   Array.from(phrases.values())
-    .map((entry) => ({ ...entry, hits: exercises.filter((exercise) => nameContainsPhrase(exercise.name, entry.text)) }))
+    .map((entry) => ({ ...entry, hits: exercises.filter((exercise) => nameContainsPhrase(exercise.name, entry.text) && !isNotTheSameExercise(entry.text, exercise.id)) }))
     .filter((entry) => entry.hits.length >= 5)
     .sort((left, right) => right.hits.length - left.hits.length)
     .forEach((entry) => lines.push(`- "${entry.text}" (${entry.movements} movement${entry.movements === 1 ? "" : "s"}) reaches ${entry.hits.length}: ${entry.hits.map((exercise) => exercise.name).join("; ")}.`));
-  // Read by hand from the lists above; each is re-checked so a catalog change drops it.
-  const differentExercise: [string, string][] = [["leg press", "Leg-Press Calf Raise"], ["row", "Cable Upright Row"], ["push-up", "Handstand Push-Up"], ["split squat", "Split-Squat Jump"], ["cable press", "Cable Press-Out"], ["plank", "Side Plank Hip Adduction"]];
-  const stillTrue = differentExercise.filter(([phrase, name]) => phrases.has(normalizeExercisePhrase(phrase)) && exercises.some((exercise) => exercise.name === name && nameContainsPhrase(exercise.name, phrase)));
-  if (stillTrue.length) lines.push("", `Matches that are a different exercise from the one named: ${stillTrue.map(([phrase, name]) => `"${phrase}" reaches ${name}`).join("; ")}.`);
+  // The pairs read by hand as a different exercise; listed, they are no longer matched by name.
+  const listed = NOT_THE_SAME_EXERCISE.filter((entry) => phrases.has(normalizeExercisePhrase(entry.phrase)) && byId.has(entry.catalogId));
+  if (listed.length) lines.push("", `Names containing a phrase that are a different exercise from the one named, and so are skipped by the name rule (Not the same exercise, under Reference lists): ${listed.map((entry) => `"${entry.phrase}" in ${byId.get(entry.catalogId)!.name}`).join("; ")}.`);
   lines.push("");
   return lines.join("\n");
 }
