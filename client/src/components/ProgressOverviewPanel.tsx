@@ -4,7 +4,8 @@ import { ArrowUpRight, Info } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
-import { summarizeWithinAthleteStrengthComparisons, type ChangeState } from "@/lib/withinAthleteStrengthChange";
+import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
+import { changeStateLabel, changeTone } from "@/lib/changeStateCopy";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, removeDeviceWorkoutSession, saveDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations } from "@/lib/deviceStrengthObservations";
@@ -14,13 +15,6 @@ import { bodyWeightLogEvent, currentBodyWeightKg, loadBodyWeightLog } from "@/li
 import { displayWeightToKilograms, type DisplayWeightUnit } from "@/lib/weightUnits";
 import { liftsToPlace, percentileSexFor, summarizeProgressPercentiles, trendKey } from "@/lib/progressPercentiles";
 import type { SexForReference } from "@/components/AthleteBaselineQuiz";
-
-const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
-  insufficient_history: { label: "Not enough history yet", tone: "#9fb2c6" },
-  stable: { label: "Stable", tone: "#9fb2c6" },
-  directional_signal_emerging: { label: "Starting to move", tone: "#f2c14d" },
-  meaningful_change_supported: { label: "Confirmed change", tone: "#4fae6c" },
-};
 
 type RecordedSessionCard = {
   id: string;
@@ -208,7 +202,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
     <section className="progress-comparison-card" aria-label="Strength progress">
       <div className="progress-section-head"><div><p className="metric-label">Strength progress</p><h2>{comparableStrengthChanges.length ? "Estimated change since your first log" : "No comparable history yet."}</h2></div></div>
       {comparableStrengthChanges.length > 0
-        ? <ol className="progress-trend-rows">{comparableStrengthChanges.slice(0, 4).map((change) => { const placement = placements.cards.get(trendKey(change)); return <li key={trendKey(change)} className="progress-session-card"><p>{change.exerciseName}</p><strong style={{ color: changeStateCopy[change.changeState].tone }}>{change.observationCount < 2 ? "Baseline" : `${change.relativeChangePercent >= 0 ? "+" : ""}${change.relativeChangePercent.toFixed(0)}% est. 1RM`}</strong><small>{changeStateCopy[change.changeState].label} · {change.observationCount} {change.observationCount === 1 ? "log" : "logs"}</small>{placement && <em className="progress-percentile"><b>{placement.headline}</b> {placement.detail}{placement.bodyMassSource === "profile" ? " Read against your profile weight." : ""}</em>}</li>; })}</ol>
+        ? <ol className="progress-trend-rows">{comparableStrengthChanges.slice(0, 4).map((change) => { const placement = placements.cards.get(trendKey(change)); return <li key={trendKey(change)} className="progress-session-card"><p>{change.exerciseName}</p><strong style={{ color: changeTone(change) }}>{change.observationCount < 2 ? "Baseline" : `${change.relativeChangePercent >= 0 ? "+" : ""}${change.relativeChangePercent.toFixed(0)}% est. 1RM`}</strong><small>{changeStateLabel[change.changeState]} · {change.observationCount} {change.observationCount === 1 ? "log" : "logs"}</small>{placement && <em className="progress-percentile"><b>{placement.headline}</b> {placement.detail}{placement.bodyMassSource === "profile" ? " Read against your profile weight." : ""}</em>}</li>; })}</ol>
         : <p className="progress-empty-copy">{loggedObservations.length ? "Log the same lift again and its change starts tracking here." : "Log a lift in the Strength Genome to start a trend."}</p>}
       {placements.gap && <p className="progress-percentile-gap">{placements.gap}</p>}
       {/* A request that failed says so and can be tried again. Only while nothing was ever placed:
@@ -216,7 +210,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
       {percentiles.isError && !percentiles.data && liftsForPercentile.length > 0 && <p className="progress-percentile-gap" role="status">Where these lifts sit against community curves could not be read just now. Your change tracking above does not need it. <button type="button" className="progress-text-action" disabled={percentiles.isFetching} onClick={() => void percentiles.refetch()}>{percentiles.isFetching ? "Trying again…" : "Try again"}</button></p>}
       {excludedStrengthSets.length > 0 && <p className="progress-excluded">{plural(excludedSetCount, "logged set")} outside the validated rep range for estimation {excludedSetCount === 1 ? "is" : "are"} recorded but not used for this trend.</p>}
       <button type="button" onClick={onOpenStrength} className="progress-text-action">Open Strength Genome <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
-      <details className="progress-method"><summary onClick={() => setShowComparisonDetails((current) => !current)} aria-expanded={showComparisonDetails}><Info className="h-5 w-5" aria-hidden="true" /><span>How it works</span></summary><div className="progress-method-note">This pulls together your logged lifts and your completed sets, converting different rep counts to a comparable estimated one-rep max (est. 1RM, Epley formula). Stable means the change is small enough that it could just be day-to-day variation; a confirmed change is big enough to be real. The change tracks you against your own past only — never against anyone else. Where a lift sits is a separate reading: your latest log of it placed on sex- and bodyweight-matched community curves, the same placement the Strength Genome shows for that lift.</div></details>
+      <details className="progress-method"><summary onClick={() => setShowComparisonDetails((current) => !current)} aria-expanded={showComparisonDetails}><Info className="h-5 w-5" aria-hidden="true" /><span>How it works</span></summary><div className="progress-method-note">This pulls together your logged lifts and your completed sets, converting different rep counts to a comparable estimated one-rep max (est. 1RM: Brzycki below 8 reps, Epley above 10, a blend between). The change compares your first and latest logs of each lift. Under 6% is within normal variation for the estimate, 6–15% is an early change and 15% or more is a larger change: the size of the change in your estimate, not proof of it. The change tracks you against your own past only — never against anyone else. Where a lift sits is a separate reading: your latest log of it placed on sex- and bodyweight-matched community curves, the same placement the Strength Genome shows for that lift.</div></details>
     </section>
     {pendingRemoval && <ConfirmDialog {...pendingRemoval} onCancel={() => setPendingRemoval(null)} />}
   </section>;
