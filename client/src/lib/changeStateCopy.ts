@@ -19,6 +19,21 @@ export const changeStateLabel: Record<ChangeState, string> = {
 };
 
 /**
+ * The same names with the direction in them, for a change shown on its own, as on Home: a 25%
+ * gain is a "Larger gain (15% or more)" there and a "Larger change (15% or more)" in the
+ * Strength record and Progress, never "Confirmed gain". The direction is in the words as well
+ * as the colour.
+ */
+export function directedChangeStateLabel(change: Pick<WithinAthleteStrengthChange, "changeState" | "relativeChangePercent">): string {
+  const gain = change.relativeChangePercent >= 0;
+  switch (change.changeState) {
+    case "directional_signal_emerging": return gain ? "Early gain (6–15%)" : "Early decline (6–15%)";
+    case "meaningful_change_supported": return gain ? "Larger gain (15% or more)" : "Larger decline (15% or more)";
+    default: return changeStateLabel[change.changeState];
+  }
+}
+
+/**
  * The colour of a change: by direction, not by size. A 20% drop is a larger change, and it is
  * not good news, so it is not drawn in the colour of a gain.
  */

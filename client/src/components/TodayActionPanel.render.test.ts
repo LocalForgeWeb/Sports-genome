@@ -168,22 +168,25 @@ describe("Today action panel: the one insight", () => {
     mocks.staged = 0;
   });
 
-  it("headlines a confirmed change with its direction and its boundary", () => {
+  it("headlines a larger change with its direction and its boundary", () => {
     mocks.observations = [observation(1, 100, "2026-01-05T12:00:00.000Z"), observation(2, 145, "2026-06-05T12:00:00.000Z")];
     renderPanel({ directAccess: false });
     expect(screen.getByText("Where you are now")).toBeTruthy();
     expect(screen.getByText("Back Squat")).toBeTruthy();
     expect(screen.getByText(/^\+\d+%$/)).toBeTruthy();
-    expect(screen.getByText("Confirmed gain")).toBeTruthy();
+    // Sep 30 §6: named from the shared change-state table, never "Confirmed".
+    expect(screen.getByText("Larger gain (15% or more)")).toBeTruthy();
     expect(screen.getByText(/not a rank against other people/)).toBeTruthy();
   });
 
-  it("reads a confirmed decline as a decline, in the losing colour, never amplified", () => {
+  it("reads a larger decline as a decline, in the losing colour, never amplified", () => {
     mocks.observations = [observation(1, 145, "2026-01-05T12:00:00.000Z"), observation(2, 100, "2026-06-05T12:00:00.000Z")];
     const { container } = renderPanel({ directAccess: false });
-    expect(screen.getByText("Confirmed decline")).toBeTruthy();
+    // Sep 30 §6: named from the shared change-state table, never "Confirmed".
+    expect(screen.getByText("Larger decline (15% or more)")).toBeTruthy();
     expect(screen.getByText(/^-\d+%$/)).toBeTruthy();
-    expect(screen.queryByText("Confirmed gain")).toBeNull();
+    expect(screen.queryByText("Larger gain (15% or more)")).toBeNull();
+    expect(container.textContent).not.toMatch(/confirmed/i);
     expect(container.querySelector('[data-sg-change="loss"]')).toBeTruthy();
     expect(container.querySelector('[data-sg-change-intensity="pronounced"]')).toBeNull();
   });
