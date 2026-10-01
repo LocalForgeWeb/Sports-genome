@@ -97,6 +97,8 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
   const reference = referenceGroupText(regionRank);
   const next = RANKS.find((candidate) => candidate.sortOrder === rank.sortOrder + 1);
   const others = muscles.filter((muscle) => muscle.muscleId !== representative.muscleId);
+  /** With one lift the share is 100% and the weighting has nothing to explain. */
+  const shared = representative.evidence.length > 1;
   return (
     <section className="rank-card" aria-label={`${rank.fullName} rank`}>
       <span className="rank-emblem-slot"><RankIcon rankId={rank.id} size={64} /></span>
@@ -121,10 +123,16 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
             <ul aria-label="Lifts behind this rank">
               {representative.evidence.map((item, index) => (
                 <li key={`${item.exerciseName}-${index}`}>
-                  {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{item.exercisePercentile != null ? ` · ${ordinal(displayPercentile(item.exercisePercentile))} percentile on its own` : ""}
+                  {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{item.exercisePercentile != null ? ` · ${ordinal(displayPercentile(item.exercisePercentile))} percentile on its own` : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
                 </li>
               ))}
             </ul>
+          )}
+          {shared && (
+            /* D-016: directness. The share above is what each lift carried; this is why they differ. */
+            <p data-rank-directness>
+              The most direct lift counts most. A lift this muscle does most of the work in says more about it than one it shares with several other muscles, where a weaker one can hold the load back.
+            </p>
           )}
           {others.length > 0 && (
             <>

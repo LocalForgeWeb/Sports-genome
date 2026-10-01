@@ -45,7 +45,7 @@ function deltaE(one: string, two: string) {
 }
 
 const ranks = ["prospect", "jv", "varsity", "regional", "state", "national", "world-stage"].map((rank) => [rank, token(rankCss, `--sg-rank-${rank}-color`)!] as const);
-const roles = ["--sg-role-primary-1", "--sg-role-primary-2", "--sg-role-supporting-1", "--sg-role-supporting-2"].map((name) => [name, token(figureCss, name)!] as const);
+const roles = ["--sg-role-primary-1", "--sg-role-primary-2", "--sg-role-supporting-1", "--sg-role-supporting-2", "--sg-role-stabilizing-1", "--sg-role-stabilizing-2"].map((name) => [name, token(figureCss, name)!] as const);
 
 describe("role colours and rank colours", () => {
   it("measures a known pair the way the diagnosis did", () => {
@@ -61,12 +61,23 @@ describe("role colours and rank colours", () => {
     }
   });
 
+  it("keeps the three role fills apart from one another", () => {
+    // Stabilizing shared supporting's teal, so "2 stabilizing" in the count line
+    // pointed at nothing the body drew. Each state now has its own hue family.
+    const [primary, supporting, stabilizing] = ["primary", "supporting", "stabilizing"].map((role) => token(figureCss, `--sg-role-${role}-1`)!);
+    expect(deltaE(primary, supporting)).toBeGreaterThanOrEqual(30);
+    expect(deltaE(primary, stabilizing)).toBeGreaterThanOrEqual(30);
+    expect(deltaE(supporting, stabilizing)).toBeGreaterThanOrEqual(30);
+  });
+
   it("has one owner: the figure, the legend and the row dots all read the tokens", () => {
     expect(figureCss).toContain("--anatomy-supporting-1: var(--sg-role-supporting-1);");
+    expect(figureCss).toContain("--anatomy-stabilizing-1: var(--sg-role-stabilizing-1);");
     expect(figureCss).toContain("--anatomy-primary-1: var(--sg-role-primary-1);");
     expect(mapSource).toContain("linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))");
     expect(mapSource).toContain("linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))");
-    expect(mapSource).toContain('region.role === "Primary" ? "var(--sg-role-primary-1)" : "var(--sg-role-supporting-1)"');
+    expect(mapSource).toContain("linear-gradient(180deg,var(--sg-role-stabilizing-1),var(--sg-role-stabilizing-2))");
+    expect(mapSource).toContain('Primary: "var(--sg-role-primary-1)", Stabilizer: "var(--sg-role-stabilizing-1)", Synergist: "var(--sg-role-supporting-1)"');
     expect(mapSource).not.toMatch(/#e9be55|#c08f24|#d5ad43|#7791a8/i);
   });
 });

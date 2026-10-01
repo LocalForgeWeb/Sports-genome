@@ -18,9 +18,9 @@ On 27 September 2026 the owner (Gabe Naim) directed: skip Section 12 (B196–B22
 
 <!-- summary:start -->
 298 requirements.
-- `pending`: 121
+- `pending`: 119
 - `implementing`: 58
-- `verified`: 80
+- `verified`: 82
 - `blocked`: 9
 - `deferred (owner)`: 30
 <!-- summary:end -->
@@ -185,12 +185,12 @@ _No requirement IDs in this section._
 
 | ID | Requirement | Status | Evidence / note |
 |---|---|---|---|
-| B082 | Document the mapping from eligible exercise performances to each region. | pending |  |
+| B082 | Document the mapping from eligible exercise performances to each region. | verified | contracts.md § Muscle ranks on the map documents the path lift -> exercise percentile (database) -> mapping (role transfer, weight, directness, redundancy decay) -> muscle -> region representative; D-016. Pinned by server/muscleAggregation.parity.test.ts (the database's recorded outputs) and muscleAggregation.test.ts. |
 | B083 | Prevent repeated copies of the same lift or tightly correlated variants from falsely creating independent evidence. | implementing | Identical lifts sent once; one observation per exercise reaches the aggregation; correlated variants decay by movement pattern in the database (0.55). Variant-level correlation (e.g. two bench variants) not yet reviewed. |
-| B084 | Keep primary muscle contribution, stabilization, and normative comparability distinct. | implementing | Stabilizer-only muscles are no longer ranked (isStabilizerOnly, capabilityRank.test.ts; live trace bench P80 -> serratus 55.11, infraspinatus 53.91). Primary vs secondary contribution weighting remains the DB aggregation's (EN-17 coefficients unsourced). |
-| B085 | Define region aggregation and confidence rules rather than averaging unrelated exercise percentiles by default. | implementing | Region = best-evidenced muscle, never a blend; stabilizer-only muscles excluded (contracts § Muscle ranks on the map). Aggregation coefficients themselves are the database's and unsourced (EN-17). |
+| B084 | Keep primary muscle contribution, stabilization, and normative comparability distinct. | implementing | Stabilizer-only muscles are not ranked (isStabilizerOnly). Primary and secondary contribution stay the database's role transfer and weights, transcribed to server/muscleAggregation.ts and pinned by parity; directness (D-016) reads each lift by the muscle's share of its mover contribution, which is the mapping's own numbers in a ratio (no new coefficient). Sources of the base coefficients remain unrecorded (EN-17). |
+| B085 | Define region aggregation and confidence rules rather than averaging unrelated exercise percentiles by default. | implementing | Region = best-evidenced muscle, never a blend; stabilizer-only muscles excluded; the muscle aggregation is on the server as sg_muscle_aggregate_v2 (D-016): role- and directness-weighted latent mean with movement-pattern redundancy decay, confidence from the undirected weights (contracts § Muscle ranks on the map). Base coefficients are the database's and unsourced (EN-17). |
 | B086 | Preserve left/right asymmetry when supported; do not generate a weaker-side score from missing side data. | pending |  |
-| B087 | Explain which observations drive a region result and which regions lack enough evidence. | pending |  |
+| B087 | Explain which observations drive a region result and which regions lack enough evidence. | verified | Why this rank? lists every lift behind the drawn muscle with role, own percentile and share of the rank, and says why the most direct lift counts most (CapabilityRank.tsx; StrengthGenomeBodyMap.rank.render.test.ts). Regions without a percentile are drawn Not scored with the reason (UnscoredRankCard); unranked lifts are listed by reason (unranked). |
 | B088 | Keep coverage-of-records and rank strength as separate outputs, eliminating misleading loading-state color changes. | pending |  |
 
 ## 6. Muscle Effect engine: prescription and execution

@@ -94,10 +94,17 @@ describe("selecting a muscle", () => {
   });
 
   it("names its state for a screen reader rather than leaving it to colour", () => {
-    const { container } = draw({ roles: { chest: "primary", triceps: "supporting" }, selectedKeys: ["chest"] });
+    const { container } = draw({ roles: { chest: "primary", biceps: "supporting", abs: "stabilizing" }, selectedKeys: ["chest"] });
     const chest = container.querySelector('.anatomy-hit[aria-label^="chest"]')!;
     expect(chest.getAttribute("aria-label")).toBe("chest, primary role, selected");
     expect(chest.getAttribute("aria-pressed")).toBe("true");
+    expect(container.querySelector('.anatomy-hit[aria-label^="biceps"]')?.getAttribute("aria-label")).toBe("biceps, supporting role");
+    expect(container.querySelector('.anatomy-hit[aria-label^="abs"]')?.getAttribute("aria-label")).toBe("abs, stabilizing role");
+    // Each state has a fill of its own; stabilizing no longer borrows supporting's.
+    const fillOf = (key: string) => (container.querySelector(`.anatomy-muscle[data-muscle="${key}"] path`) as SVGPathElement).style.fill;
+    expect(fillOf("abs")).toContain("-stabilizing");
+    expect(fillOf("biceps")).toContain("-supporting");
+    expect(fillOf("abs")).not.toBe(fillOf("biceps"));
     const quads = container.querySelector('.anatomy-hit[aria-label^="quads"]')!;
     expect(quads.getAttribute("aria-label")).toBe("quads, not involved");
   });

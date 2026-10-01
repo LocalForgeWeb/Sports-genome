@@ -56,7 +56,7 @@ Calculation and data contracts, mapped to the code that implements them (brief �
 - **Muscle ranks: best historical.** The client sends each exercise's strongest lifts by age-adjusted e1RM (relative to body mass, and absolute), whenever logged (`muscleRankLiftSelection`). The server scores them all and passes the aggregation one per exercise: the highest percentile, keeping that observation's own confidence (`bestObservationPerExercise`, rule `best_percentile_per_exercise_v1`). Adding a weaker lift can never lower a rank.
 - **A finished workout:** its strongest set by e1RM, one observation per exercise.
 - **The single-lift card and Progress:** the lift being looked at, or a trend's latest lift. Neither is a best-of.
-- **Duplicates:** identical lifts are sent once. Correlated variants are handled by the database aggregation's movement-pattern redundancy decay (0.55 per additional exercise in the same pattern).
+- **Duplicates:** identical lifts are sent once. Correlated variants are handled by the aggregation's movement-pattern redundancy decay (0.55 per additional exercise in the same pattern); since D-016 the most direct lift leads the pattern.
 
 ## Load conventions (B025, B049, B050, B052, EN-07, EN-09)
 
@@ -88,11 +88,15 @@ No weighted-bodyweight curve exists for any catalog pull-up, chin-up or dip (`sc
 | Picker order | Search relevance, then the shortfall points a candidate would close (for each gap, its contribution capped at that gap), then the previous tiers. |
 | Set counts | One resolver: the athlete's prescription, else `getGoalPrescription(goal, position in the day)`. Home hands the resolved map to every surface. |
 
-## Muscle ranks on the map (B076, B084, EN-16)
+## Muscle ranks on the map (B076, B082, B084, B087, EN-16, D-016)
 
-**Code.** `shared/capabilityRank.ts` (`regionRanksFromMuscles`, `isStabilizerOnly`), `components/StrengthGenomePanel.tsx` (How ranks work). **Pinned by** `client/src/lib/capabilityRank.test.ts`, `StrengthGenomePanel.betaPercentile.render.test.ts`.
+**Code.** `server/muscleAggregation.ts` (`aggregateMuscleStrength`, `directnessOf`), `server/supabaseStrengthProfile.ts`, `shared/capabilityRank.ts` (`regionRanksFromMuscles`, `isStabilizerOnly`), `components/CapabilityRank.tsx` (Why this rank?), `components/StrengthGenomePanel.tsx` (How ranks work). **Pinned by** `server/muscleAggregation.parity.test.ts` (the database's recorded outputs), `server/muscleAggregation.test.ts`, `client/src/lib/capabilityRank.test.ts`, `StrengthGenomeBodyMap.rank.render.test.ts`, `StrengthGenomePanel.betaPercentile.render.test.ts`.
 
-- A muscle score is `aggregate_muscle_strength_v1`'s role-weighted latent, not a reference percentile. It is drawn on the same seven bands as a lift, and the legend says it sits a little below the lifts behind it.
+- **The path.** A lift is scored by the database (`score_strength_profile_v1`, age-adjusted where a birth year exists) into an exercise percentile with a confidence. The server keeps one per exercise (best placed) and aggregates on its own (`sg_muscle_aggregate_v2`): each exercise-muscle mapping turns the percentile into a latent, scales it by the role transfer (primary `0.70+0.30·cw`, secondary `0.25+0.60·cw` ≤ 0.80, stabilizer `0.05+0.35·cw` ≤ 0.35), and weighs it by `mapping confidence × set confidence × √cw × role (1 / 0.75 / 0.35) × directness`; within one movement pattern the heaviest lift leads and the rest decay by 0.55 per rank; the muscle is the weighted mean, mapped back to a percentile. The region is drawn with its best-evidenced muscle.
+- **Directness (D-016).** A mapping's contribution weight as a share of the exercise's mover contribution (primary + secondary; a stabilizer adds its own weight to the sum). A pec deck fly reads the sternocostal pec at 0.467, a bench press at 0.242, so the fly leads the chest's horizontal pushes whatever set was the more confident. The database's own weights in a ratio; no coefficient was added. Confidence is computed from the undirected weights, exactly as the database does, so labels do not move for this.
+- **Transcription.** With directness off, `aggregateMuscleStrength` reproduces `aggregate_muscle_strength_v1` for every muscle, evidence row and number (`server/fixtures/liveMuscleAggregation.ts`, recorded 30 September 2026). The database function is unchanged and no longer called by the app.
+- A muscle score is that role-weighted latent, not a reference percentile. It is drawn on the same seven bands as a lift, and the legend says it sits a little below the lifts behind it.
+- **Why this rank?** lists every lift behind the drawn muscle with its role, its own percentile and, when there is more than one, its share of the rank, and says why the most direct lift counts most (B087).
 - **Ceiling.** Curve anchors stop at P95 and the largest primary contribution weight is 0.98, so no muscle scores above about 94.9 (trace: bench 140 kg at 65.77 kg scored 95.00, its muscle 94.79). National and World Stage are unreachable for a muscle group, and the legend says so. Re-mapping the bands or the aggregation is an owner decision (D-014).
 - **Stabilizer-only muscles are not ranked.** A stabilizer passes at most 0.35 of the lift through, so its score is the lift's echo pulled toward 50 (bench at P80: serratus 55.11, subscapularis 54.15, infraspinatus 53.91). A muscle whose every contributing lift has role `stabilizer` is left off the map; the region is drawn from a muscle a lift moves, or shows Not scored.
 

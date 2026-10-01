@@ -161,3 +161,14 @@ Open transactions/jobs or rollout state, if any: none.
 Next concrete action: the owner applies the prepared Supabase migrations (handoff decision 1), then the paired client upsert ships; then REG-1 on an iPhone.
 Access/decision blockers: applying the migrations (owner, B009); iOS shell on main (D-003); MySQL unreachable; sign-in not in the build; owner decision 10 (records after a real lapse).
 ```
+
+```text
+Current branch/commit and environment: main 47a528e (#83); D-016 (muscle-rank directness) on claude/training-day-navigation-workouts-83ro2c, for #84.
+Requirements completed and evidence: B082 and B087 verified; B084 and B085 evidence extended (status.md). Decision D-016 with before/after deltas from live database rows; contracts § Muscle ranks on the map rewritten around the path and the directness rule.
+Current confirmed failure/root cause: the chest rank drew a fly at the 86th and presses at the 60th and 67th at the same weight per lift; the more confident set led the movement pattern and the others decayed to 0.55 and 0.30. Reproduced with the live aggregate_muscle_strength_v1: 77.12 at equal confidences, 66.71 with the presses the more confident sets.
+Files/migrations changed but not verified: none; no database change. The aggregation now runs on the server; the database function is unchanged and no longer called by the app.
+Tests run and actual results: server/muscleAggregation.parity.test.ts (11: the transcription reproduces the database's recorded outputs for eight input sets, every muscle and evidence row); server/muscleAggregation.test.ts (11: the rule); server/supabaseStrengthProfile.test.ts rewritten to the in-process aggregation; StrengthGenomeBodyMap.rank.render.test.ts (+2: shares and the directness sentence). tsc 0. Full vitest and build: recorded in handoff.md with the merge.
+Open transactions/jobs or rollout state, if any: none.
+Next concrete action: merge #84, confirm the production deployment READY and probe strengthProfile.muscleRanks for aggregationVersion sg_muscle_aggregate_v2.
+Access/decision blockers: as before.
+```

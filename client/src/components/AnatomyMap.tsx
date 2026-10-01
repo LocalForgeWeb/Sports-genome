@@ -37,7 +37,10 @@ function useWideCanvas() {
 // Categorical role states, never a magnitude. The Body Lab contract keeps
 // exercise-target involvement on a dedicated categorical encoding rather than
 // reusing a rank scale, so these three select colour and nothing else.
-const anatomyRoleRenderState = { neutral: "neutral", supporting: "supporting", primary: "primary" } as const;
+const anatomyRoleRenderState = { neutral: "neutral", supporting: "supporting", stabilizing: "stabilizing", primary: "primary" } as const;
+
+/** The fill the figure paints a row's role in, so the dot beside the row is the same colour. */
+const roleFill: Record<Role, string> = { Primary: "var(--sg-role-primary-1)", Stabilizer: "var(--sg-role-stabilizing-1)", Synergist: "var(--sg-role-supporting-1)" };
 
 const labels: Record<string, string> = {
   // Rows render `muscleLabels[key] || key`, so any catalog key missing here
@@ -93,8 +96,8 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
     setSelectedPart("");
   }, [externalKey]);
 
-  /* Which regions are involved, and in what categorical role. */
-  const roles = useMemo<Record<string, AnatomyRole>>(() => roleMapForLists(primary, secondary), [primary, secondary]);
+  /* Which regions are involved, as the two lists say: primary or supporting. */
+  const listRoles = useMemo(() => roleMapForLists(primary, secondary), [primary, secondary]);
 
   /**
    * A region's role record, found under the region's own key or under whichever
@@ -109,16 +112,32 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
     return match ? roleDetails?.[match] : undefined;
   }, [roleDetails, primary, secondary]);
 
+  /** The role a region is shown in: the list's answer, refined by the record's own role words. */
+  const displayRole = useCallback((key: string): Role => {
+    if (listRoles[key] === "primary") return "Primary";
+    const detailRoles = detailFor(key)?.roles || [];
+    if (detailRoles.includes("Primary Mover")) return "Primary";
+    if (detailRoles.includes("Stabilizer")) return "Stabilizer";
+    return "Synergist";
+  }, [listRoles, detailFor]);
+
+  /**
+   * What the figure paints, in three categorical states. A stabilizer used to
+   * share the supporting fill, so the count line could say "2 stabilizing" over
+   * a body that drew no such thing; now each row's colour is its own.
+   */
+  const roles = useMemo<Record<string, AnatomyRole>>(() => {
+    const map: Record<string, AnatomyRole> = {};
+    Object.keys(listRoles).forEach((key) => {
+      const role = displayRole(key);
+      map[key] = role === "Primary" ? anatomyRoleRenderState.primary : role === "Stabilizer" ? anatomyRoleRenderState.stabilizing : anatomyRoleRenderState.supporting;
+    });
+    return map;
+  }, [listRoles, displayRole]);
+
   /* Ranked muscles for the strip */
   const ranked = useMemo(() => {
     const entries: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[] = [];
-    const displayRole = (key: string): Role => {
-      if (roles[key] === "primary") return "Primary";
-      const detailRoles = detailFor(key)?.roles || [];
-      if (detailRoles.includes("Primary Mover")) return "Primary";
-      if (detailRoles.includes("Stabilizer")) return "Stabilizer";
-      return "Synergist";
-    };
     Object.keys(roles).forEach(key => {
       const detail = detailFor(key);
       entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: detail?.roles, confidence: detail?.confidence || "Movement model" });
@@ -132,7 +151,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
     // Every region the action's record gives a role, so the count is the count.
     // It was capped at eight, which Home's "N muscles involved" then disagreed with.
     return entries.sort((a, b) => orderFor(a) - orderFor(b));
-  }, [roles, detailFor]);
+  }, [roles, detailFor, displayRole]);
   /**
    * Every region the figure draws, in words.
    *
@@ -205,7 +224,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
    * has no role to show.
    */
   const selectedRole: Role | null = selectedKey
-    ? (roles[selectedKey] === "primary" ? "Primary" : roles[selectedKey] === "supporting" ? "Synergist" : null)
+    ? (roles[selectedKey] === "primary" ? "Primary" : roles[selectedKey] === "stabilizing" ? "Stabilizer" : roles[selectedKey] === "supporting" ? "Synergist" : null)
     : null;
   const selectedRoleDetail = selectedKey ? detailFor(selectedKey) : undefined;
   const selectedMechanics = selectedKey ? getAnatomyMechanicsEvidence(selectedKey) : null;
@@ -273,14 +292,14 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
             </div>}
           </div>}
 
-          {/* Qualitative role legend. The figure paints three states - a
-              stabilizing role shares the supporting fill - and the legend says
-              exactly that, so a colour never claims a distinction the paint
-              does not draw. The rows below carry the finer role. */}
+          {/* Qualitative role legend: one entry per state the figure paints, so
+              a colour never claims a distinction the paint does not draw. A
+              training day's roles come from the catalog, which records no
+              stabilizers, so that legend keeps to the two states it can show. */}
           <div className="atlas-heat-legend-pro">
             {/* Swatches carry the figure's own fills, gradients included, so the
                 legend cannot drift from what the body is actually painted. */}
-            <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))" }} /><span>{trainingDay ? "Prime mover in this day" : "Primary role"}</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))" }} /><span>{trainingDay ? "Supporting in this day" : "Supporting or stabilizing role"}</span><i className="atlas-swatch" style={{ background: "var(--sg-role-neutral-on-dark)" }} /><span>Neutral</span></>
+            <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))" }} /><span>{trainingDay ? "Prime mover in this day" : "Primary role"}</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))" }} /><span>{trainingDay ? "Supporting in this day" : "Supporting role"}</span>{(!trainingDay || roleCounts.stabilizing > 0) && <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-stabilizing-1),var(--sg-role-stabilizing-2))" }} /><span>{trainingDay ? "Stabilizing in this day" : "Stabilizing role"}</span></>}<i className="atlas-swatch" style={{ background: "var(--sg-role-neutral-on-dark)" }} /><span>Neutral</span></>
           </div>
         </div>
 
@@ -355,9 +374,8 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
         <section className="atlas-ranking" aria-label="Key muscle roles">
           <div className="atlas-ranking-head"><h2>{ranked.length} {ranked.length === 1 ? "muscle" : "muscles"} involved</h2><span>{([[trainingDay ? "prime movers" : "primary", roleCounts.primary], ["stabilizing", roleCounts.stabilizing], ["supporting", roleCounts.supporting]] as const).filter(([, n]) => n > 0).map(([word, n]) => `${n} ${word}`).join(" · ")}</span></div>
           <ol className="atlas-role-rows">
-            {visibleRanked.map((region) => <li key={region.key}><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}>{/* The figure's own two role colours: it paints stabilizing and supporting alike, so the
-                dots do too (the text tag carries the finer role). They were three literals, one
-                of them the State rank's gold and one Prospect's slate. */}<i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "var(--sg-role-primary-1)" : "var(--sg-role-supporting-1)" }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong>{rowNote(region) && <small>{rowNote(region)}</small>}</span><em className={`atlas-role-tag atlas-role-tag-${region.role.toLowerCase()}`}>{trainingDay && region.role === "Primary" ? "Prime mover" : roleWord[region.role]}</em><ChevronRight className="h-4 w-4" /></button></li>)}
+            {visibleRanked.map((region) => <li key={region.key}><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}>{/* The figure's own role colours, read from the same tokens it paints with. They were three
+                literals, one of them the State rank's gold and one Prospect's slate. */}<i className="atlas-rank-dot" style={{ background: roleFill[region.role] }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong>{rowNote(region) && <small>{rowNote(region)}</small>}</span><em className={`atlas-role-tag atlas-role-tag-${region.role.toLowerCase()}`}>{trainingDay && region.role === "Primary" ? "Prime mover" : roleWord[region.role]}</em><ChevronRight className="h-4 w-4" /></button></li>)}
             {/* The rest of the body, named rather than only drawn. The action's
                 record lists no role for these - which is missing data, not a
                 finding that the muscle sits out - and they stay reachable

@@ -190,7 +190,7 @@ describe("Drawing a region from its muscles", () => {
   it("does not rank a muscle the lifts only steady", () => {
     const steadied = (canonicalName: string, percentile: number, roles: string[]) => ({
       ...muscle(canonicalName, percentile, 0.3, roles.length),
-      evidence: roles.map((role) => ({ exerciseName: "Bench Press", role, exercisePercentile: 80 })),
+      evidence: roles.map((role) => ({ exerciseName: "Bench Press", role, exercisePercentile: 80, directness: 0.242, weightShare: 1 / roles.length })),
     });
     const regions = regionRanksFromMuscles([
       steadied("infraspinatus", 53.91, ["stabilizer"]),

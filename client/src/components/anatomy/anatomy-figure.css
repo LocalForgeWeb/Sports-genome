@@ -20,6 +20,11 @@
   --sg-role-primary-2: #e8662a;
   --sg-role-supporting-1: #2fc4c9;
   --sg-role-supporting-2: #1f9aa3;
+  /* Stabilizing had no fill of its own and borrowed supporting's teal, so the legend read
+     "supporting or stabilizing" for one colour. A lime, a third hue family beside the orange
+     and the teal: 20 from the State gold and 25 from JV green, so it is still never a rank. */
+  --sg-role-stabilizing-1: #e4ef5a;
+  --sg-role-stabilizing-2: #bfd02e;
   /* The figure's resting muscle on the dark Body Lab ground, for the legend's Neutral swatch. */
   --sg-role-neutral-on-dark: #6f7d90;
 }
@@ -37,6 +42,8 @@
 
   --anatomy-supporting-1: var(--sg-role-supporting-1);
   --anatomy-supporting-2: var(--sg-role-supporting-2);
+  --anatomy-stabilizing-1: var(--sg-role-stabilizing-1);
+  --anatomy-stabilizing-2: var(--sg-role-stabilizing-2);
   --anatomy-primary-1: var(--sg-role-primary-1);
   --anatomy-primary-2: var(--sg-role-primary-2);
 
