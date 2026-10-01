@@ -83,6 +83,23 @@ describe("Training Day analysis, Sep 30 brief §7", () => {
     expect(screen.getByRole("button", { name: /^Pectoralis major, Primary target/ }).className).toContain("stack-analysis-row-active");
   });
 
+  it("opens Inspect from the map without moving the figure or focus, directly below the map", () => {
+    renderPage();
+    const breakdown = section("Muscle breakdown");
+    const map = breakdown.querySelector<HTMLDetailsElement>(".stack-analysis-map-disclosure")!;
+    // The map comes first, so the summary a map tap opens sits right under the figure.
+    expect(map.compareDocumentPosition(inspect()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const pectoralis = Array.from(map.querySelectorAll<HTMLButtonElement>(".atlas-role-rows button"))
+      .find((button) => button.textContent?.startsWith("Pectoralis major"))!;
+    pectoralis.focus();
+    fireEvent.click(pectoralis);
+    expect(inspect().open).toBe(true);
+    expect(summaryText()).toBe("Inspect Pectoralis major77% of Triceps brachii's involvement, the day's highest");
+    // Scrolling to Inspect from the map pushed the figure off-screen on every tap, and moved focus off it.
+    expect(scrolled).toEqual([]);
+    expect(document.activeElement).toBe(pectoralis);
+  });
+
   it("keeps Workload and Muscle breakdown together in one column, apart from Coverage", () => {
     renderPage();
     const aside = section("Workload").parentElement!;

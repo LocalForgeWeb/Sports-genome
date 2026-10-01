@@ -284,6 +284,15 @@ export function StackAnalysisPage({ workout, split, dayLabel, targetIndex, sugge
     setInspectOpen(true);
     setInspectRequest((count) => count + 1);
   };
+  /**
+   * The figure only selects. Inspect opens directly under the map, and the figure and focus stay
+   * put. When a map tap also scrolled to Inspect and focused it, every tap pushed the figure
+   * off-screen, so comparing a second muscle meant scrolling back past the detail.
+   */
+  const showFromMap = (muscle: string) => {
+    setSelectedMuscle(muscle);
+    setInspectOpen(true);
+  };
   useEffect(() => {
     const details = inspectRef.current;
     if (!inspectRequest || !details) return;
@@ -384,6 +393,9 @@ export function StackAnalysisPage({ workout, split, dayLabel, targetIndex, sugge
               <SessionVolume volumes={sessionVolumes} muscleName={muscleName} />
               <section className="stack-analysis-breakdown" aria-labelledby="stack-analysis-breakdown-title">
                 <div className="stack-analysis-section-head"><p className="metric-label">Relative involvement</p><h2 id="stack-analysis-breakdown-title">Muscle breakdown</h2><p className="stack-analysis-basis">From exercise roles in the catalog genome, as a share of the day's highest muscle. Not sets.</p></div>
+                {/* The map comes before Inspect, so a muscle picked on the figure opens its summary directly below the figure. */}
+                <details className="stack-analysis-map-disclosure"><summary><span><MapIcon className="h-4 w-4" /> View split target map</span><small>Qualitative</small></summary>{/* destination-body: the atlas's dark surface is defined for Body Lab; without it the
+    map drew as a white panel with near-invisible labels on this dark page. */}<div className="stack-analysis-map-frame destination-body"><AnatomyMap primary={primary} secondary={secondary} muscleScores={muscleScores} showInspector={false} onSelect={(muscle) => (targetAnalysis.some((item) => item.muscle === muscle) ? showFromMap(muscle) : setSelectedMuscle(muscle))} roleSource="training-day" roleMethodology={trainingDayRoleMethodology} /></div></details>
                 {selected && (
                   <details ref={inspectRef} className="stack-analysis-detail-disclosure" open={inspectOpen} onToggle={(event) => setInspectOpen(event.currentTarget.open)}>
                     {/* Two lines: the action, then its figure. Side by side they squeezed the action
@@ -398,8 +410,6 @@ export function StackAnalysisPage({ workout, split, dayLabel, targetIndex, sugge
                     </section>
                   </details>
                 )}
-                <details className="stack-analysis-map-disclosure"><summary><span><MapIcon className="h-4 w-4" /> View split target map</span><small>Qualitative</small></summary>{/* destination-body: the atlas's dark surface is defined for Body Lab; without it the
-    map drew as a white panel with near-invisible labels on this dark page. */}<div className="stack-analysis-map-frame destination-body"><AnatomyMap primary={primary} secondary={secondary} muscleScores={muscleScores} showInspector={false} onSelect={(muscle) => (targetAnalysis.some((item) => item.muscle === muscle) ? inspectMuscle(muscle) : setSelectedMuscle(muscle))} roleSource="training-day" roleMethodology={trainingDayRoleMethodology} /></div></details>
                 {supportingAnalysis.length > 0 && <details className="stack-analysis-supporting"><summary><span>Supporting involvement</span><small>{plural(supportingAnalysis.length, "group")}</small></summary><p>Not {split.toLowerCase()} targets, so not in the coverage index. Each figure is a share of {highestMuscle ? `${possessive(muscleName(highestMuscle.muscle))} involvement, the day's highest` : "the day's highest muscle"}.</p><div>{supportingAnalysis.map((item) => <span key={item.muscle}>{muscleName(item.muscle)} <b>{item.involvement}%</b></span>)}</div></details>}
               </section>
             </div>
