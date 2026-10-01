@@ -201,11 +201,11 @@ function RankProvenanceList({ entries, unplaced, muscleName, weightUnit }: { ent
   return <div className="rank-provenance" data-rank-provenance>
     <p className="rank-provenance-label">{entries.length === 1 ? "From this exercise" : `Blended from ${entries.length} exercises`}</p>
     <ul>{entries.map((entry) => <li key={entry.exerciseName}>
-      <p><strong>{entry.exerciseName}</strong>{` · ${ordinal(displayPercentile(entry.exercisePercentile))} percentile on its own`}{entry.role ? ` · ${entry.role}` : ""}</p>
+      <p><strong>{entry.exerciseName}</strong>{` · ${ordinal(displayPercentile(entry.exercisePercentile))} percentile on its own`}{entry.role ? ` · ${entry.role}` : ""}{entries.length > 1 && entry.weightShare !== null ? ` · ${Math.round(entry.weightShare * 100)}% of this rank` : ""}</p>
       {entry.lifts.length > 1 && <p className="rank-provenance-best">Best of {entry.lifts.length} lifts:</p>}
       {entry.lifts.map((lift, index) => <p key={`${lift.observationId ?? "lift"}-${index}`} className="rank-provenance-lift">{rankLiftLine(lift, weightUnit)}</p>)}
     </li>)}</ul>
-    {entries.length > 1 && <p>Each is weighted by how much it relies on {muscleName.toLowerCase()}.</p>}
+    {entries.length > 1 && <p>The most direct lift counts most: one where {muscleName.toLowerCase()} does most of the work says more about it than one it shares with several other muscles.</p>}
     {unplaced.length > 0 && <p data-rank-not-counted>Not counted: {unplaced.map((item) => `${item.exerciseName} (${unrankedReasonCopy[item.reason] ?? "could not be scored"})`).join(", ")}.</p>}
   </div>;
 }

@@ -205,6 +205,21 @@ describe("Which lifts a rank came from, traced on this device (Sep 30 §6)", () 
     expect(entry.lifts.map((lift) => lift.observationId)).toEqual(["light", "heavy"]);
   });
 
+  it("orders the exercises by the share of the rank each carried, and keeps that share (D-016)", () => {
+    const { sources } = muscleRankLiftSelection([bench, pecDeck("device-pec-1", 40, "2026-09-01T12:00:00.000Z")], history, 90);
+    const entries = rankProvenance([
+      { exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 86, directness: 0.24, weightShare: 0.35 },
+      { exerciseName: "Pec Deck Fly", role: "primary", exercisePercentile: 60, directness: 0.9, weightShare: 0.65 },
+    ], sources);
+    // The more direct lift carried more of the rank, so it leads although it placed lower on its own.
+    expect(entries.map((entry) => [entry.exerciseName, entry.weightShare])).toEqual([["Pec Deck Fly", 0.65], ["Barbell Bench Press", 0.35]]);
+    // Without shares from the route the order falls back to placement.
+    expect(rankProvenance([
+      { exerciseName: "Pec Deck Fly", role: "primary", exercisePercentile: 60 },
+      { exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 86 },
+    ], sources).map((entry) => [entry.exerciseName, entry.weightShare])).toEqual([["Barbell Bench Press", null], ["Pec Deck Fly", null]]);
+  });
+
   it("matches by catalog id first and by name otherwise", () => {
     const { sources } = muscleRankLiftSelection([{ ...bench, exerciseName: "barbell bench press" }], history, 90);
     expect(rankProvenance([{ exerciseName: "Barbell Bench Press", role: null, exercisePercentile: 50 }], sources)[0].lifts).toHaveLength(1);

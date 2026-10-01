@@ -185,6 +185,11 @@ export type RankProvenance = {
   /** Where the exercise placed on its own; the muscle's rank weighs these. */
   exercisePercentile: number;
   /**
+   * The share of the muscle's rank this exercise carried (D-016: a lift counts for more the more
+   * directly it reads the muscle), or null when the route did not say.
+   */
+  weightShare: number | null;
+  /**
    * The lifts of this exercise that were sent, strongest first. The server keeps whichever
    * of them places best and does not say which, so more than one is "best of N lifts", not
    * a claim about one of them.
@@ -213,9 +218,11 @@ export function rankProvenance(evidence: readonly MuscleEvidence[], sources: rea
     named.add(name);
     const catalogId = catalogExerciseIdForName(item.exerciseName) ?? null;
     const lifts = sources.filter((source) => (catalogId !== null && source.catalogExerciseId === catalogId) || comparableExerciseName(source.exerciseName) === name);
-    entries.push({ exerciseName: item.exerciseName, role: item.role, exercisePercentile: item.exercisePercentile, lifts });
+    const weightShare = typeof item.weightShare === "number" && Number.isFinite(item.weightShare) ? item.weightShare : null;
+    entries.push({ exerciseName: item.exerciseName, role: item.role, exercisePercentile: item.exercisePercentile, weightShare, lifts });
   }
-  return entries.sort((a, b) => b.exercisePercentile - a.exercisePercentile);
+  // The exercise that carried most of the rank first; by placement when the route gave no shares.
+  return entries.sort((a, b) => (b.weightShare ?? -1) - (a.weightShare ?? -1) || b.exercisePercentile - a.exercisePercentile);
 }
 
 /**
