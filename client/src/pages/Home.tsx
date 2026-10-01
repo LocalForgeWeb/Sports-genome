@@ -1393,8 +1393,9 @@ export default function Home() {
     const snapshot = planWeeks[week];
     if (!snapshot) return;
     setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot() }));
+    // No toast: switching weeks changes nothing, and the selected pill and the plan's
+    // identity line (a polite status region) already say which week is open (Sep 30 brief §8).
     applyWeek(week, snapshot);
-    toast(`Week ${week} loaded`, { description: "Its saved training days and prescriptions are ready to edit." });
   };
   const generateWeek = () => {
     const nextWeek = nextWeekToGenerate(Object.keys(planWeeks).map(Number), activeWeek);
@@ -1859,10 +1860,10 @@ export default function Home() {
                    prompt and a 0/100 gauge before anything was in it (Sep 28 regression brief §8). */
                 : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" aria-hidden="true" /><strong>{activeSlot.day} is empty</strong><p>Week {activeWeek} · {activeSlot.ordinal}. Add the exercises you want on this day; its coverage against the {activeSplitDay.toLowerCase()} targets appears once one is in.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" /> Add exercises</button><button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" aria-hidden="true" /> Or import a plan</button></div>}
             </div>
-            {/* Below the day's own work, not between the heading and its rows. A declared focus
-                shows even on an empty day; the optional "name it in your profile" prompt waits
-                until the day has something in it. */}
-            {(customWorkout.length > 0 || capacityFocus.focus) && <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />}
+            {/* A declared focus is what the athlete said about their body, so it stays with the
+                day's rows, even on an empty day. The generic "name it in your profile" prompt is
+                not about this day: it sits after the day's actions (below). */}
+            {capacityFocus.focus && <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />}
             {/* One row, in the order they are reached for: build it, then run it,
                 then the two things you rarely need. It was five buttons under a
                 "Build it, run it, print it" heading that named all three. Only on a
@@ -1875,6 +1876,9 @@ export default function Home() {
               <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan</button>
               <PrintWorkoutButton disabled={!customWorkout.length} />
             </div>}
+            {/* The optional profile prompt, as one quiet line after Add/Reorder/Open so it never
+                separates a workout from its actions, and only on a day with work in it (Sep 30 §8). */}
+            {customWorkout.length > 0 && !capacityFocus.focus && <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />}
             <DayExercisePicker equipmentProfile={athleteBaseline.equipment} sheetOpen={pickerSheetOpen} destination={`Week ${activeWeek} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={dayPrescriptions} onAdd={addExercise} onReplace={replaceExercise} onInspect={inspectExercise} />
             {/* The generator is one row until it is wanted. Open, it is the panel
                 it always was; closed, it was 636px of controls for a thing you do

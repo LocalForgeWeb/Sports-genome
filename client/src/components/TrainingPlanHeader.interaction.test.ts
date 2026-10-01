@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TrainingPlanHeader } from "./TrainingPlanHeader";
 import type { DaySlot } from "@/lib/trainingDayPlan";
@@ -45,5 +45,35 @@ describe("the week row is a group of buttons", () => {
     fireEvent.click(locked);
     expect(onGenerateWeek).toHaveBeenCalledTimes(1);
     expect(onSelectWeek).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * Sep 30 brief §8: a week switch raises no "Week N loaded" toast, so the identity line is
+ * what confirms it, to a screen reader as well: a polite status that names the open week.
+ */
+describe("the identity line confirms the week and day being shown", () => {
+  afterEach(() => { cleanup(); });
+
+  it("is a polite status region that follows the selected week", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const props = {
+      weeks: [{ week: 1, ready: true, savedDays: 2 }, { week: 2, ready: true, savedDays: 1 }, { week: 3, ready: false, savedDays: 0 }],
+      activeWeek: 1,
+      onSelectWeek: () => undefined,
+      onGenerateWeek: () => undefined,
+      nextWeekToGenerate: 3,
+      slots,
+      activeIndex: 0,
+      exerciseCountFor: () => 2,
+      onChooseDay: () => undefined,
+    };
+    const view = render(React.createElement(TrainingPlanHeader, props));
+    const status = screen.getByRole("status");
+    expect(status.getAttribute("aria-live")).toBe("polite");
+    expect(status.textContent).toBe("Week 1 · Day 01 · 2 exercises");
+
+    view.rerender(React.createElement(TrainingPlanHeader, { ...props, activeWeek: 2, activeIndex: 1 }));
+    expect(screen.getByRole("status").textContent).toBe("Week 2 · Day 02 · 2 exercises");
   });
 });

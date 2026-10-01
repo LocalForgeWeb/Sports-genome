@@ -95,7 +95,9 @@ export function TrainingPlanHeader({
     <div className="training-plan-identity">
       <div>
         <h2>{active.day}</h2>
-        <p>Week {activeWeek} · {active.ordinal} · {count ? `${count} exercise${count === 1 ? "" : "s"}` : "Empty"}</p>
+        {/* The confirmation of a week or day switch: announced politely here, instead
+            of a "Week N loaded" toast covering the rows it just loaded. */}
+        <p role="status" aria-live="polite">Week {activeWeek} · {active.ordinal} · {count ? `${count} exercise${count === 1 ? "" : "s"}` : "Empty"}</p>
       </div>
       {/* A status, not a control. Every edit is already written to this day. Not said of an
           empty day, where "Empty · Saved" read as if nothing were a saved plan. */}
