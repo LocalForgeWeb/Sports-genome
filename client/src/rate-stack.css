@@ -95,10 +95,12 @@
 
 .rate-stack-eyebrow svg { color: var(--sg-info); }
 
+/* A sentence ("2 targets under. Lateral deltoid is furthest behind..."), so it is set
+   in the body face; the condensed face is for headings and prominent values (Sep 30 §8). */
 .rate-stack-headline {
   margin: .3rem 0 0;
   color: var(--sg-text-on-dark);
-  font-family: var(--sg-font-display);
+  font-family: "DM Sans", sans-serif;
   font-size: var(--sg-text-lg);
   font-weight: 700;
   line-height: var(--sg-leading-snug);

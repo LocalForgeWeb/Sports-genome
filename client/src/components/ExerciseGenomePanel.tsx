@@ -1,6 +1,6 @@
 /** Gym Optimizer Exercise Genome: progressive analysis with teachable muscle and mechanics terminology. */
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Activity, BrainCircuit, ChartNoAxesCombined, CircleGauge, Dna, Info, Scale, ShieldAlert, Sparkles } from "lucide-react";
+import { Activity, BrainCircuit, ChartNoAxesCombined, CircleGauge, Dna, Info, Scale, ShieldAlert, Sparkles, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { analyzeExerciseContext, getExerciseGenome, getWorkoutGenome, type GenomeContext, type GenomeDimension } from "@/lib/exerciseGenome";
 import { mechanicsEvidenceSources } from "@/lib/muscleTargetingModel";
@@ -97,7 +97,7 @@ function GenomeLearnOverlay({ term, onClose }: { term: LearnKey; onClose: () => 
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
-  return <div ref={layerRef} className="genome-learn-overlay" role="dialog" aria-modal="true" aria-label={`${genomeTermInfo[term].label} explained`}><div className="genome-learn-card"><button ref={closeRef} type="button" onClick={onClose} aria-label="Close term explanation" className="genome-learn-close">×</button><p className="metric-label">Genome term explained</p><h4>{genomeTermInfo[term].label}</h4><p><strong>What it means.</strong> {genomeTermInfo[term].meaning}</p><p><strong>What the model weighs.</strong> {genomeTermInfo[term].inputs}</p>{term in labels && <p><strong>What changes with context.</strong> The fingerprint index is a standardized catalog comparison. Its planning value changes with the athlete's goal and how distinct the exercise is from the current stack; those inputs feed Contextual fit rather than turning the fingerprint into a direct athlete measurement.</p>}<p><strong>How to read the number.</strong> {genomeTermInfo[term].read}</p><div className="genome-learn-boundary">This is a planning estimate used to compare exercises — not a lab measurement, a medical assessment, or a universal recommendation.</div></div></div>;
+  return <div ref={layerRef} className="genome-learn-overlay" role="dialog" aria-modal="true" aria-label={`${genomeTermInfo[term].label} explained`}><div className="genome-learn-card"><button ref={closeRef} type="button" onClick={onClose} aria-label="Close term explanation" className="genome-learn-close"><X className="h-4 w-4" aria-hidden="true" /></button><p className="metric-label">Genome term explained</p><h4>{genomeTermInfo[term].label}</h4><p><strong>What it means.</strong> {genomeTermInfo[term].meaning}</p><p><strong>What the model weighs.</strong> {genomeTermInfo[term].inputs}</p>{term in labels && <p><strong>What changes with context.</strong> The fingerprint index is a standardized catalog comparison. Its planning value changes with the athlete's goal and how distinct the exercise is from the current stack; those inputs feed Contextual fit rather than turning the fingerprint into a direct athlete measurement.</p>}<p><strong>How to read the number.</strong> {genomeTermInfo[term].read}</p><div className="genome-learn-boundary">This is a planning estimate used to compare exercises — not a lab measurement, a medical assessment, or a universal recommendation.</div></div></div>;
 }
 
 /** The four the summary shows; the full fingerprint keeps all eight behind a line. */

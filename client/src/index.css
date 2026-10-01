@@ -172,6 +172,11 @@
   --sg-space-4: 1rem;
   --sg-space-5: 1.5rem;
   --sg-space-6: 2rem;
+  /* The phone page gutter (Sep 30 brief §8): 16px at 320, 20px from about 445px.
+     Applied at <=640px to the content, the brand row, the tab row and the sheets
+     (the "Phone gutters" block near the compare sheet). Not --sg-space-4, which a
+     later legacy :root redefines to 1.5rem. */
+  --sg-gutter: clamp(16px, 4.5vw, 20px);
 
   /* -- Motion. The "Motion and state-transition contract" allows motion only
         where it clarifies change, and requires the OS reduced-motion
@@ -1854,7 +1859,7 @@ details:not([open]) > *:not(summary) {
    that 44pt is the design target rather than WCAG's 24px minimum.
 
    Block controls and disclosures grow to the floor. */
-.apex-content :is(button, summary):not(.local-search-scope > button):not(.atlas-reset-pro):not(.genome-term-button):not([class*="chip"]):not(.day-picker-empty button) {
+.apex-content :is(button, summary):not(.local-search-scope > button):not(.atlas-reset-pro):not(.genome-term-button):not([class*="chip"]):not(.day-picker-empty button):not(.day-capacity-note-empty button) {
   min-height: 2.75rem;
 }
 
@@ -3800,6 +3805,25 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .exercise-compare-actions button { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: .4rem; border-radius: 12px; background: var(--sg-action-fill); padding: .5rem .8rem; color: #fff; font-size: var(--sg-text-sm); font-weight: 800; text-align: center; overflow-wrap: anywhere; }
 .exercise-compare-actions p { grid-column: 1 / -1; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); text-align: center; }
 @media (max-width: 400px) { .exercise-compare-columns, .exercise-compare-rows > div { grid-template-columns: 5.2rem minmax(0, 1fr) minmax(0, 1fr); } }
+/* Phone gutters (Sep 30 brief §8). The content was 12px from the edge while the sheets
+   used 16px and 18.4px; now the content (mobile-navigation.css), the brand row, the tab
+   row, the search-return bar and the sheets share one inline gutter, so their left edges
+   line up. Only the inline sides change: top and bottom padding, and each edge's
+   safe-area inset, stay where they were, so nothing is padded twice. It sits after the
+   sheet rules it replaces. */
+@media (max-width: 640px) {
+  .apex-topbar, .search-return-bar { padding-inline: var(--sg-gutter); }
+  /* The tabs share the row's width with their labels centred, so it is the tab edges
+     (and the current tab's underline) that start on the content's line. */
+  .workspace-top-switcher-shell .workspace-top-switcher { padding-inline: var(--sg-gutter); scroll-padding-inline: var(--sg-gutter); }
+  .exercise-intelligence-bar, .exercise-intelligence-body, .exercise-intelligence-actions,
+  .exercise-compare-bar, .exercise-compare-body, .exercise-compare-actions,
+  .day-picker-sheet-head, .day-picker-sheet .day-exercise-picker-content, .day-picker-sheet-foot,
+  .genome-learn-card { padding-inline: var(--sg-gutter); }
+  /* The Plan's coverage wrapper has no box of its own, so it takes no second gutter:
+     the coverage card lines up with the day's rows. */
+  .day-exercise-picker { padding-inline: 0; }
+}
 /* The quiet compare entry in the exercise overlay and the pending line in the catalog. */
 .exercise-intelligence-compare { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; margin-top: .25rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
 .catalog-compare-pending { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem .8rem; margin: .6rem 0 0; border-left: 3px solid var(--sg-info); padding: .4rem 0 .4rem .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); }

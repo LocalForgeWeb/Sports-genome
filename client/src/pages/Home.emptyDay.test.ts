@@ -24,7 +24,10 @@ describe("the empty Plan day", () => {
   });
 
   it("keeps the optional profile prompt off an empty day, but not a declared focus", () => {
-    expect(section).toContain("{(customWorkout.length > 0 || capacityFocus.focus) && <DayCapacityNote");
+    // Intentional change, Sep 30 brief §8: the one guard became two render sites, the declared
+    // focus beside the rows and the generic prompt after the action row (Home.planLayout.test.ts).
+    expect(section).toContain("{capacityFocus.focus && <DayCapacityNote");
+    expect(section).toContain("{customWorkout.length > 0 && !capacityFocus.focus && <DayCapacityNote");
   });
 
   it("does not call an empty day saved, or a first session a replacement", () => {

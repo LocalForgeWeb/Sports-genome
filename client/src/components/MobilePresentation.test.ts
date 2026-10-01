@@ -36,8 +36,8 @@ describe("mobile athlete presentation", () => {
     // stylesheet should keep laying it out.
     for (const styles of [mobileStyles, appStyles]) expect(styles).not.toContain("feature-guide-button");
     expect(mobileStyles).toContain(".genome-methodology");
-    // No header to make safe-area-aware any more; the tab row it left behind is the
-    // top of the page, and pads for the notch itself.
+    // The brand row and its top inset live in index.css, not here; this file keeps only
+    // the tab row's pin inside its sticky shell. (Comment corrected Sep 30: the header is back.)
     expect(mobileStyles).not.toContain(".apex-topbar");
     expect(mobileStyles).toContain(".workspace-top-switcher { top: 0;");
   });
