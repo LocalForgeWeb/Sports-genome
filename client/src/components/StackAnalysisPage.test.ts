@@ -228,4 +228,11 @@ describe("Training Day analysis layout rules", () => {
   it("keeps the summary strip's inset on its first fact", () => {    // The strip has a background and radius; without its padding the icon sat on the rounded edge.
     expect(styles).not.toMatch(/\.stack-analysis-summary > div:first-child \{[^}]*padding-left: 0/);
   });
+
+  it("stacks Workload and Muscle breakdown in one column beside Coverage, without shrinking Workload on phones", () => {
+    expect(styles).toContain(".stack-analysis-aside { display: grid; min-width: 0; order: 2; align-content: start; gap: 1rem; }");
+    // align-self: start in the phone's flex column made Workload narrower than its neighbours.
+    expect(styles).not.toContain(".stack-analysis-workload { align-self: start; }");
+    expect(styles).toContain("@media (min-width: 761px) { .stack-analysis-rank { align-self: start; } }");
+  });
 });

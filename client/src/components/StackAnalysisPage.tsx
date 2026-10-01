@@ -377,27 +377,32 @@ export function StackAnalysisPage({ workout, split, dayLabel, targetIndex, sugge
               <p className="stack-analysis-legend"><span className="stack-analysis-legend-target" aria-hidden="true" /> marks each {split.toLowerCase()} target; the bar is what this day reached, in coverage points on one scale from 0 to {coverageScale}.</p>
               {qualityCoverage && <QualityCoverage analysis={qualityCoverage} split={split} />}
             </section>
-            <SessionVolume volumes={sessionVolumes} muscleName={muscleName} />
-            <section className="stack-analysis-breakdown" aria-labelledby="stack-analysis-breakdown-title">
-              <div className="stack-analysis-section-head"><p className="metric-label">Relative involvement</p><h2 id="stack-analysis-breakdown-title">Muscle breakdown</h2><p className="stack-analysis-basis">From exercise roles in the catalog genome, as a share of the day's highest muscle. Not sets.</p></div>
-              {selected && (
-                <details ref={inspectRef} className="stack-analysis-detail-disclosure" open={inspectOpen} onToggle={(event) => setInspectOpen(event.currentTarget.open)}>
-                  {/* Two lines: the action, then its figure. Side by side they squeezed the action
-                      into a 132px column three lines tall, with no sign it opened (Sep 30 brief §7). */}
-                  <summary><span className="stack-analysis-inspect-action">Inspect {muscleName(selected.muscle)}</span><small className="stack-analysis-inspect-metric">{describeRelativeInvolvement(selected, highestMuscle, muscleName)}</small><ChevronDown className="stack-analysis-inspect-chevron h-4 w-4" aria-hidden="true" /></summary>
-                  <section className="stack-analysis-detail">
-                    <div className="stack-analysis-detail-head"><div><p className="metric-label">Selected {split.toLowerCase()} target / stack breakdown</p><h2>{muscleName(selected.muscle)}</h2><p>{selected.primaryExercises ? `${plural(selected.primaryExercises, "exercise")} ${selected.primaryExercises === 1 ? "uses" : "use"} this target muscle as a prime mover.` : "This target muscle works in a supporting role across the selected stack."}</p></div><span>{selected.involvement}%<small>relative involvement</small></span></div>
-                    <p className="stack-analysis-basis stack-analysis-detail-basis">{relativeInvolvementBasis}</p>
-                    <LoadingProfile metrics={selected} />
-                    {/* Static rows: each was a button whose handler did nothing (Sep 30 brief §7). */}
-                    <div className="stack-analysis-contributions"><p className="metric-label stack-analysis-contribution-heading">Where this comes from<span>contribution index, 0–100, before role weighting</span></p>{selected.contributions.map((contribution, index) => <article key={`${contribution.exerciseId}-${contribution.role}-${index}`}><div className="contribution-row"><span className="contribution-copy"><strong>{contribution.exerciseName}</strong><small>{contribution.movement} · {contribution.role}</small></span><ProfileSpark metrics={contribution} /><span className="contribution-score">{contribution.involvement}</span></div></article>)}</div>
-                  </section>
-                </details>
-              )}
-              <details className="stack-analysis-map-disclosure"><summary><span><MapIcon className="h-4 w-4" /> View split target map</span><small>Qualitative</small></summary>{/* destination-body: the atlas's dark surface is defined for Body Lab; without it the
+            {/* One column beside Coverage on wide screens: Workload, then Muscle breakdown directly
+                under it. Muscle breakdown spanned the full width below Coverage, which left about
+                800px of empty column beside Coverage at 1280px. */}
+            <div className="stack-analysis-aside">
+              <SessionVolume volumes={sessionVolumes} muscleName={muscleName} />
+              <section className="stack-analysis-breakdown" aria-labelledby="stack-analysis-breakdown-title">
+                <div className="stack-analysis-section-head"><p className="metric-label">Relative involvement</p><h2 id="stack-analysis-breakdown-title">Muscle breakdown</h2><p className="stack-analysis-basis">From exercise roles in the catalog genome, as a share of the day's highest muscle. Not sets.</p></div>
+                {selected && (
+                  <details ref={inspectRef} className="stack-analysis-detail-disclosure" open={inspectOpen} onToggle={(event) => setInspectOpen(event.currentTarget.open)}>
+                    {/* Two lines: the action, then its figure. Side by side they squeezed the action
+                        into a 132px column three lines tall, with no sign it opened (Sep 30 brief §7). */}
+                    <summary><span className="stack-analysis-inspect-action">Inspect {muscleName(selected.muscle)}</span><small className="stack-analysis-inspect-metric">{describeRelativeInvolvement(selected, highestMuscle, muscleName)}</small><ChevronDown className="stack-analysis-inspect-chevron h-4 w-4" aria-hidden="true" /></summary>
+                    <section className="stack-analysis-detail">
+                      <div className="stack-analysis-detail-head"><div><p className="metric-label">Selected {split.toLowerCase()} target / stack breakdown</p><h2>{muscleName(selected.muscle)}</h2><p>{selected.primaryExercises ? `${plural(selected.primaryExercises, "exercise")} ${selected.primaryExercises === 1 ? "uses" : "use"} this target muscle as a prime mover.` : "This target muscle works in a supporting role across the selected stack."}</p></div><span>{selected.involvement}%<small>relative involvement</small></span></div>
+                      <p className="stack-analysis-basis stack-analysis-detail-basis">{relativeInvolvementBasis}</p>
+                      <LoadingProfile metrics={selected} />
+                      {/* Static rows: each was a button whose handler did nothing (Sep 30 brief §7). */}
+                      <div className="stack-analysis-contributions"><p className="metric-label stack-analysis-contribution-heading">Where this comes from<span>contribution index, 0–100, before role weighting</span></p>{selected.contributions.map((contribution, index) => <article key={`${contribution.exerciseId}-${contribution.role}-${index}`}><div className="contribution-row"><span className="contribution-copy"><strong>{contribution.exerciseName}</strong><small>{contribution.movement} · {contribution.role}</small></span><ProfileSpark metrics={contribution} /><span className="contribution-score">{contribution.involvement}</span></div></article>)}</div>
+                    </section>
+                  </details>
+                )}
+                <details className="stack-analysis-map-disclosure"><summary><span><MapIcon className="h-4 w-4" /> View split target map</span><small>Qualitative</small></summary>{/* destination-body: the atlas's dark surface is defined for Body Lab; without it the
     map drew as a white panel with near-invisible labels on this dark page. */}<div className="stack-analysis-map-frame destination-body"><AnatomyMap primary={primary} secondary={secondary} muscleScores={muscleScores} showInspector={false} onSelect={(muscle) => (targetAnalysis.some((item) => item.muscle === muscle) ? inspectMuscle(muscle) : setSelectedMuscle(muscle))} roleSource="training-day" roleMethodology={trainingDayRoleMethodology} /></div></details>
-              {supportingAnalysis.length > 0 && <details className="stack-analysis-supporting"><summary><span>Supporting involvement</span><small>{plural(supportingAnalysis.length, "group")}</small></summary><p>Not {split.toLowerCase()} targets, so not in the coverage index. Each figure is a share of {highestMuscle ? `${possessive(muscleName(highestMuscle.muscle))} involvement, the day's highest` : "the day's highest muscle"}.</p><div>{supportingAnalysis.map((item) => <span key={item.muscle}>{muscleName(item.muscle)} <b>{item.involvement}%</b></span>)}</div></details>}
-            </section>
+                {supportingAnalysis.length > 0 && <details className="stack-analysis-supporting"><summary><span>Supporting involvement</span><small>{plural(supportingAnalysis.length, "group")}</small></summary><p>Not {split.toLowerCase()} targets, so not in the coverage index. Each figure is a share of {highestMuscle ? `${possessive(muscleName(highestMuscle.muscle))} involvement, the day's highest` : "the day's highest muscle"}.</p><div>{supportingAnalysis.map((item) => <span key={item.muscle}>{muscleName(item.muscle)} <b>{item.involvement}%</b></span>)}</div></details>}
+              </section>
+            </div>
             {/* The methodology, once, behind one disclosure. It was said in six places across the
                 Plan and this page, twice in full (Sep 28 regression brief §8). */}
             <details className="stack-analysis-method"><summary>How coverage is calculated</summary><div><p>{boundary}</p><p>The coverage index is the average, over the {coverageRows.length} {split.toLowerCase()} targets, of how much of its target each reaches, counting at most 100 per target. Set counts are not counted. Target set: {COVERAGE_TARGET_REVISION}.</p><p>Reaching every target means this day's catalog tags cover the split. It does not mean the workload is optimal or that you are recovered.</p><p>Best next picks use split-compatible catalog muscle tags. They are not activation measurements, individual outcome predictions, or sport-skill transfer evidence.</p><p>Workload counts the sets in your prescriptions: direct sets in full, supporting sets at half a set each.</p><p>Muscle breakdown weighs each exercise's role in the catalog genome (prime mover ×{primaryRoleWeight}, synergist ×{synergistRoleWeight}, stabilizer ×{stabilizerRoleWeight}) and shows each muscle as a share of the day's highest; it does not count sets. The body map uses the same primary, synergist and stabilizer classifications. This supports training-plan comparison and does not diagnose, measure electromyography, or guarantee an individual response.</p></div></details>

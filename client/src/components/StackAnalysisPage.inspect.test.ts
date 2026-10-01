@@ -83,6 +83,14 @@ describe("Training Day analysis, Sep 30 brief §7", () => {
     expect(screen.getByRole("button", { name: /^Pectoralis major, Primary target/ }).className).toContain("stack-analysis-row-active");
   });
 
+  it("keeps Workload and Muscle breakdown together in one column, apart from Coverage", () => {
+    renderPage();
+    const aside = section("Workload").parentElement!;
+    expect(aside.className).toBe("stack-analysis-aside");
+    expect(section("Muscle breakdown").parentElement).toBe(aside);
+    expect(aside.contains(section("Coverage"))).toBe(false);
+  });
+
   it("keeps the overhead press once for anterior deltoid, as a prime mover, in Where this comes from", () => {
     renderPage();
     fireEvent.click(screen.getByRole("button", { name: /^Anterior deltoid, Primary target/ }));
