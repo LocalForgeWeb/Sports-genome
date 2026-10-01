@@ -154,7 +154,12 @@ function getAdaptationProfile(fingerprint: Record<GenomeDimension, number>): Exe
 
 function getMuscleProfile(exercise: Exercise, fingerprint: Record<GenomeDimension, number>) {
   const calibration = logicCalibration.exerciseGenome;
-  const profile = [...exercise.primaryMuscles.map((muscle) => ({ muscle, role: "Prime mover" as const })), ...exercise.secondaryMuscles.map((muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
+  // A muscle the catalog lists as both primary and secondary counts once, as a prime mover,
+  // the way session volume and coverage already read it. 17 catalog rows do this (every
+  // overhead press for front delts, the grip moves for forearms), and the second entry
+  // added a synergist share on top of the prime mover's (Sep 30 brief §7).
+  const primary = new Set(exercise.primaryMuscles);
+  const profile = [...Array.from(primary, (muscle) => ({ muscle, role: "Prime mover" as const })), ...Array.from(new Set(exercise.secondaryMuscles.filter((muscle) => !primary.has(muscle))), (muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
   return profile.map(({ muscle, role }) => {
     const targeting = buildMuscleTargetingEstimate(exercise, muscle, role);
     const contribution = targeting.score;
