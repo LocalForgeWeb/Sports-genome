@@ -1,4 +1,5 @@
 import "@/capability-rank.css";
+import type { ReactNode } from "react";
 import { RANKS, confidenceLabel, rankForPercentile, rankColorToken, rankRangeLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
 import { RankIcon } from "@/components/RankIcon";
 import { ordinal } from "@/lib/strengthPercentileCard";
@@ -86,8 +87,12 @@ export function RankLegend({ activeBand, onBand, regionLabelsByRank }: { activeB
  * in. Estimated is the only state shown because it is the only one this build can support:
  * confirming a rank needs a calibrated error model or repeat comparable lifts, and neither is
  * wired yet, so nothing here claims or celebrates a confirmed rank.
+ *
+ * `provenance` is the record's account of the dated lifts behind the rank, shown as a fact
+ * under the rank rather than folded away. Given it, "Why this rank?" keeps the method and drops
+ * its own list of exercises, which the provenance already names with more detail.
  */
-export function RankCard({ regionRank }: { regionRank: RegionRank }) {
+export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; provenance?: ReactNode }) {
   const { rank, representative, confidence, muscles } = regionRank;
   const reference = referenceGroupText(regionRank);
   const next = RANKS.find((candidate) => candidate.sortOrder === rank.sortOrder + 1);
@@ -105,13 +110,14 @@ export function RankCard({ regionRank }: { regionRank: RegionRank }) {
           <li>Estimated</li>
           <li>{confidenceLabel[confidence]}</li>
         </ul>
+        {provenance}
         <details>
           <summary>Why this rank?</summary>
           <p>
             Drawn from {representative.name.toLowerCase()}, the muscle in this group with the most evidence behind it:
             {" "}{representative.evidenceCount} {representative.evidenceCount === 1 ? "lift" : "lifts"} across {representative.movementPatternCount} {representative.movementPatternCount === 1 ? "movement" : "movements"}.
           </p>
-          {representative.evidence.length > 0 && (
+          {!provenance && representative.evidence.length > 0 && (
             <ul aria-label="Lifts behind this rank">
               {representative.evidence.map((item, index) => (
                 <li key={`${item.exerciseName}-${index}`}>
@@ -147,6 +153,18 @@ export function RankCard({ regionRank }: { regionRank: RegionRank }) {
         </details>
       </div>
     </section>
+  );
+}
+
+/**
+ * Ranks on their way. Plain, with no hatch and no badge: a group still being ranked has lost
+ * nothing, and must not read as one that has no rank.
+ */
+export function PendingRankCard({ offline = false }: { offline?: boolean }) {
+  return (
+    <p className="rank-pending-note" role="status">
+      {offline ? "Waiting for a connection to rank your lifts." : "Ranking your lifts…"}
+    </p>
   );
 }
 
