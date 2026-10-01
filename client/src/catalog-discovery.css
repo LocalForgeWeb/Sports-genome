@@ -7,17 +7,17 @@
 .catalog-experience-surface { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
 .catalog-discovery { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 0; color: var(--sg-text-on-dark); }
 .catalog-discovery-heading { min-width: 0; }
-.catalog-discovery-heading h1 { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.75rem, 7vw, 2.6rem); font-weight: 800; line-height: .95; text-transform: uppercase; }
+.catalog-discovery-heading h1 { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.5rem, 7vw, 2.6rem); font-weight: 800; line-height: .95; text-transform: uppercase; }
 
 /* Movement and muscle mode: what the list is for, under the title. The sport
    and movement are the base of the page, not a chip that can be taken off. */
-.catalog-discovery-context { display: grid; gap: .15rem; }
-.catalog-context-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 1rem; }
+.catalog-discovery-context { display: grid; gap: 0; }
+/* The sport and movement, Back and Show all on one line where they fit, wrapping in that order where they do not. */
+.catalog-context-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1.25rem; }
 .catalog-context-line { min-width: 0; margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; line-height: var(--sg-leading-snug); }
 .catalog-context-explain { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
-/* How matches work and Show all exercises share a line; opened, the explanation takes the full width under its own toggle, which stays put. */
+/* Muscle mode's Show all exercises, under its explanation. */
 .catalog-context-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0 1.25rem; }
-.catalog-context-actions .catalog-discovery-how[open] { flex: 1 1 100%; }
 .catalog-context-head button, .catalog-context-actions > button { display: inline-flex; min-height: 44px; align-items: center; gap: .3rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
 .catalog-discovery-how > summary { display: inline-flex; min-height: 44px; align-items: center; gap: .3rem; cursor: pointer; list-style: none; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
 .catalog-discovery-how > summary::-webkit-details-marker { display: none; }
@@ -39,7 +39,8 @@
 .catalog-discovery-refine { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .catalog-discovery-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
 .catalog-discovery-chips:empty { display: none; }
-.catalog-discovery-chips button, .catalog-favorites-toggle, .catalog-discovery-controls > summary { display: inline-flex; min-height: 40px; align-items: center; gap: .35rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; background: rgb(164 200 232 / .12); padding: 0 .85rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
+/* .75rem a side keeps Filters and Favorites on one line at 320px with 125% text. */
+.catalog-discovery-chips button, .catalog-favorites-toggle, .catalog-discovery-controls > summary { display: inline-flex; min-height: 40px; align-items: center; gap: .35rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; background: rgb(164 200 232 / .12); padding: 0 .75rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
 .catalog-discovery-chips button svg { color: var(--sg-text-subtle-on-dark); }
 .catalog-favorites-toggle { background: transparent; }
 .catalog-favorites-toggle b { display: inline-grid; min-width: 1.3rem; height: 1.3rem; place-items: center; border-radius: 999px; background: rgb(164 200 232 / .18); color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 700; }

@@ -64,7 +64,11 @@ describe("movement mode", () => {
     expect(heading()).toBe("Exercises for Bridge");
     const context = document.querySelector<HTMLElement>(".catalog-discovery-context")!;
     expect(context.querySelector(".catalog-context-line")?.textContent).toBe("Wrestling · Bridge");
-    expect(context.querySelector(".catalog-context-explain")?.textContent).toBe("Exercises named in the Bridge movement record, then exercises with the same pattern.");
+    // Compact at narrow widths (Sep 30 brief §5, §9): no sentence restating the list, which the count and
+    // tier headings say; Back and Show all share the context line.
+    expect(context.querySelector(".catalog-context-explain")).toBeNull();
+    const head = context.querySelector<HTMLElement>(".catalog-context-head")!;
+    expect(Array.from(head.querySelectorAll("button")).map((button) => button.textContent)).toEqual([" Back to Bridge", "Show all exercises"]);
     const how = context.querySelector<HTMLDetailsElement>("details.catalog-discovery-how")!;
     expect(how.querySelector("summary")?.textContent).toBe("How matches work ");
     expect(how.open).toBe(false);

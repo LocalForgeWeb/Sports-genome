@@ -219,24 +219,25 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       <h1>{title}</h1>
     </header>
     {support ? <div className="catalog-discovery-context">
+      {/* Compact: the sport and movement with both ways off the page on one wrapping
+          line, then the method behind its toggle. No sentence repeats what the list
+          holds: the count and the tier headings under it say that. At 320px with
+          125% text this block was 276px tall and pushed the first row under the strip. */}
       <div className="catalog-context-head">
         <p className="catalog-context-line">{support.sportLabel} · {movementName}</p>
         {onBackToMovement && <button type="button" className="catalog-context-back" onClick={() => { emitInteractionFeedback(); onBackToMovement(); }}><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {movementName}</button>}
-      </div>
-      <p className="catalog-context-explain">{support.status === "ok" ? `Exercises named in the ${movementName} movement record, then exercises with the same pattern.` : "Explore exercises that support this movement."}</p>
-      <div className="catalog-context-actions">
-        <details className="catalog-discovery-how" key={discoveryKey(discovery)}>
-          <summary>How matches work <ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-          <div>
-            <p><b>{supportTierLabel.specific}:</b> the exercise is named in the {movementName} movement record. It is matched by exercise name to the movement record.</p>
-            <p><b>{supportTierLabel.related}:</b> the same catalog pattern as a movement-specific exercise, and it trains one of {movementName}'s prime movers as a primary muscle.</p>
-            <p><b>{supportTierLabel.muscle}:</b> it trains a prime mover of {movementName} but is not specific to the movement. It is listed separately and never counted as a match.</p>
-            <p>Equipment, the other filters, search and Favorites only narrow these groups; they never add exercises. The catalog tier in an exercise's details is a general catalog label, not a movement match.</p>
-            {support.record ? <p>The {movementName} record is rated {support.record.confidence} confidence, from {plural(support.record.sourceCount, "source", "sources")}.</p> : <p>There is no movement record for {movementName} yet.</p>}
-          </div>
-        </details>
         {onShowAllExercises && <button type="button" className="catalog-context-all" onClick={() => { emitInteractionFeedback(); onShowAllExercises(); }}>Show all exercises</button>}
       </div>
+      <details className="catalog-discovery-how" key={discoveryKey(discovery)}>
+        <summary>How matches work <ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
+        <div>
+          <p><b>{supportTierLabel.specific}:</b> the exercise is named in the {movementName} movement record. It is matched by exercise name to the movement record.</p>
+          <p><b>{supportTierLabel.related}:</b> the same catalog pattern as a movement-specific exercise, and it trains one of {movementName}'s prime movers as a primary muscle.</p>
+          <p><b>{supportTierLabel.muscle}:</b> it trains a prime mover of {movementName} but is not specific to the movement. It is listed separately and never counted as a match.</p>
+          <p>Equipment, the other filters, search and Favorites only narrow these groups; they never add exercises. The catalog tier in an exercise's details is a general catalog label, not a movement match.</p>
+          {support.record ? <p>The {movementName} record is rated {support.record.confidence} confidence, from {plural(support.record.sourceCount, "source", "sources")}.</p> : <p>There is no movement record for {movementName} yet.</p>}
+        </div>
+      </details>
     </div> : muscleId ? <div className="catalog-discovery-context">
       <p className="catalog-context-explain">{muscleFolded ? `The catalog tags ${muscleName} work under ${catalogMuscleName}: these train ${catalogMuscleName} as a primary or supporting muscle, primary first.` : `Exercises that train ${muscleName} as a primary or supporting muscle, primary first.`}</p>
       {onShowAllExercises && <div className="catalog-context-actions"><button type="button" className="catalog-context-all" onClick={() => { emitInteractionFeedback(); onShowAllExercises(); }}>Show all exercises</button></div>}
