@@ -879,7 +879,7 @@ select {
 .destination-body .strength-reference-unavailable { background: rgb(242 193 77 / .09); }
 
 .apex-content.destination-body { background: radial-gradient(circle at 12% 10%, #d8edff 0, var(--sg-surface-light-sunken) 30%, #cbdff4 100%); }
-.destination-body .atlas-sport-picker, .destination-body .movement-selector, .destination-body .body-lab-v2 > .view-header, .destination-body .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, var(--sg-surface-overlay), var(--sg-surface-panel)); color: var(--sg-text-on-dark); box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
+.destination-body .atlas-sport-picker, .destination-body .movement-selector, .destination-body .body-lab-v2 > .view-header { border-color: #90b8de; background: linear-gradient(135deg, var(--sg-surface-overlay), var(--sg-surface-panel)); color: var(--sg-text-on-dark); box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
 .destination-body .atlas-sport-picker *, .destination-body .movement-selector h1, .destination-body .body-lab-v2 > .view-header h1 { color: inherit; }
 
 .apex-content.destination-progress { background: radial-gradient(circle at 88% 0, #1d4c84 0, var(--sg-surface-panel) 36%, var(--sg-surface-deep) 100%); color: var(--sg-text-on-dark); }
@@ -1313,7 +1313,6 @@ select {
 }
 
 .catalog-discovery-controls select,
-.catalog-favorites-filter,
 .catalog-filter-reset,
 .catalog-serratus-filter,
 .catalog-load-more {
@@ -1435,16 +1434,14 @@ select {
 }
 
 .destination-body .atlas-focus-card,
-.stack-analysis-row,
-.catalog-discovery-card {
+.stack-analysis-row {
   box-shadow: var(--sg-elevation-1);
   transition: box-shadow var(--sg-motion-base) var(--sg-ease),
               border-color var(--sg-motion-base) var(--sg-ease);
 }
 
 .destination-body .atlas-focus-card:hover,
-.stack-analysis-row:hover,
-.catalog-discovery-card:hover {
+.stack-analysis-row:hover {
   box-shadow: var(--sg-elevation-3);
 }
 
@@ -3636,7 +3633,6 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .apex-content :is(h1, h2, h3, .metric-label, .stat-figure, .home-week-line) { overflow-wrap: anywhere; }
 .matches-head > div { min-width: 0; }
 
-.catalog-discovery-tabs { flex-wrap: wrap; }
 .programming-guide-disclosure > summary, .programming-guide-summary-signal { flex-wrap: wrap; }
 /* The rest of the 200% reflow: rows that must wrap, and fields that must not
    dictate their column's width. */
@@ -3677,7 +3673,7 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
    last set reads as an offer until it is touched (LIFT-09); the next station is
    quiet supporting text (LIFT-01); paragraphs keep a reading width on a wide
    screen (LAY-06). */
-.live-rest-clock, .live-set-prescription, .session-progress, .stat-figure, .strength-profile-metrics, .home-week-line, .custom-row-identity em, .live-set-entry input, .session-set-row input, .progress-facts, .recommendation-score, .catalog-discovery-heading > span, .training-plan-day small { font-variant-numeric: tabular-nums; }
+.live-rest-clock, .live-set-prescription, .session-progress, .stat-figure, .strength-profile-metrics, .home-week-line, .custom-row-identity em, .live-set-entry input, .session-set-row input, .progress-facts, .recommendation-score, .catalog-results-count, .training-plan-day small { font-variant-numeric: tabular-nums; }
 :is(.apex-content, .exercise-intelligence) button:not(:disabled):not(.workspace-top-switcher button):not(.mobile-bottom-nav button):not(.training-plan-day) { transition: transform var(--sg-motion-fast) var(--sg-ease), opacity var(--sg-motion-fast) var(--sg-ease); }
 :is(.apex-content, .exercise-intelligence) button:not(:disabled):not(.workspace-top-switcher button):not(.mobile-bottom-nav button):not(.training-plan-day):active { transform: scale(.985); opacity: .92; }
 :is(.apex-content, .exercise-intelligence) button:disabled { cursor: not-allowed; opacity: .5; }

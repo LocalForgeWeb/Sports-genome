@@ -21,7 +21,8 @@ describe("mobile athlete presentation", () => {
   });
 
   it("renders catalog rows as ranked tappable cards and preserves the phone single-column layout", () => {
-    expect(catalog).toContain('className="catalog-discovery-tier"');
+    // Sep 30 brief §5: the catalog's tier letter is off the rows; it is shown, explained, in the details only.
+    expect(catalog).not.toContain("catalog-discovery-tier");
     expect(catalog).toContain('aria-label={`Inspect ${exercise.name}`}');
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
     // One main scroll: the search field scrolls with the page rather than

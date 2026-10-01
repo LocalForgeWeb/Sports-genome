@@ -42,7 +42,8 @@ describe("canonical connected exercise catalog", () => {
     // because the suffix never fit - so it is stated once in the header instead.
     expect(catalogSource).toContain("{connection.label}</b>");
     expect(catalogSource).not.toContain("${selectedActionLabel}`");
-    expect(catalogSource).toContain("Action links below are measured against");
+    // Sep 30: one short line under the count in the whole-catalog and muscle lists; movement mode has its context row instead.
+    expect(catalogSource).toContain("Action links are measured against");
 	    expect(catalogSource).toContain('connection && connection.label !== "Not mapped"');
     // Sep 30: the row classes follow the tier names; muscle support keeps the neutral base pill.
     expect(catalogStyles).toContain(".catalog-action-link-movement-specific");
