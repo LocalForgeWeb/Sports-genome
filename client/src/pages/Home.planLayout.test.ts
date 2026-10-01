@@ -76,8 +76,10 @@ describe("switching weeks on the Plan", () => {
     expect(toasts.some((entry) => /loaded/i.test(entry.title))).toBe(false);
     expect(toasts).toEqual([]);
     expect(weeks.getByRole("button", { name: /^Week 2/ }).getAttribute("aria-current")).toBe("true");
-    const identity = screen.getAllByRole("status").find((node) => /^Week \d · Day 01/.test(node.textContent || ""));
-    expect(identity?.textContent).toMatch(/^Week 2 · Day 01 · 1 exercise$/);
+    // The status names the week and day only; the count sits beside it, outside the live region.
+    const identity = screen.getAllByRole("status").find((node) => /^Week \d · Day 01$/.test(node.textContent || ""));
+    expect(identity?.textContent).toBe("Week 2 · Day 01");
+    expect(identity?.parentElement?.textContent).toBe("Week 2 · Day 01 · 1 exercise");
   });
 
   it("still confirms generating a week, which changes the plan", async () => {
