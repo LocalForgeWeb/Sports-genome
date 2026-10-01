@@ -95,7 +95,10 @@ describe("Back from a search result", () => {
     await tick();
 
     expect(window.location.search).toBe("?workspace=body");
-    expect(screen.getByRole("button", { name: /Back to Training plan$/ })).toBeTruthy();
+    const back = screen.getByRole("button", { name: /Back to Training plan$/ });
     expect(screen.queryByText(/Back to Training Days/)).toBeNull();
+    // Sep 30 brief §8: a lucide arrow, not a "←" character, in front of the words.
+    expect(back.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
+    expect(back.textContent).toBe(" Back to Training plan");
   });
 });

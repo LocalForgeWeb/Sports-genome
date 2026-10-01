@@ -9,7 +9,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { directWorkspaceAccess } from "@/lib/accountAccess";
 import { sessionNotice, useSessionLapsed } from "@/lib/sessionNotice";
 import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
-import { Activity, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
+import { Activity, ArrowLeft, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { UniversalSearch } from "@/components/UniversalSearch";
@@ -1729,7 +1729,7 @@ export default function Home() {
         label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}
         onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)}
       />}
-      {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
+      {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
