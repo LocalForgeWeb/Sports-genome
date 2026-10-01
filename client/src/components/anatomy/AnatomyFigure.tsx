@@ -163,6 +163,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     const role = roles[key];
     if (role === "primary") return `url(#${uid}-primary)`;
     if (role === "supporting") return `url(#${uid}-supporting)`;
+    if (role === "stabilizing") return `url(#${uid}-stabilizing)`;
     return undefined;
   };
 
@@ -172,7 +173,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     const described = describeFor?.(key);
     if (described) return `${described}${isSelected(key) ? ", selected" : ""}`;
     const role = roles[key] ?? "neutral";
-    const roleWord = role === "primary" ? "primary role" : role === "supporting" ? "supporting role" : "not involved";
+    const roleWord = role === "primary" ? "primary role" : role === "supporting" ? "supporting role" : role === "stabilizing" ? "stabilizing role" : "not involved";
     return `${labelFor(key)}, ${roleWord}${isSelected(key) ? ", selected" : ""}`;
   };
 
@@ -208,6 +209,10 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
         <linearGradient id={`${uid}-supporting`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="var(--anatomy-supporting-1)" />
           <stop offset="100%" stopColor="var(--anatomy-supporting-2)" />
+        </linearGradient>
+        <linearGradient id={`${uid}-stabilizing`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--anatomy-stabilizing-1)" />
+          <stop offset="100%" stopColor="var(--anatomy-stabilizing-2)" />
         </linearGradient>
         <linearGradient id={`${uid}-primary`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="var(--anatomy-primary-1)" />

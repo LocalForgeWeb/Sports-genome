@@ -16,7 +16,13 @@ import { anatomyViews, type AnatomyView } from "@/components/anatomy/figureGeome
  * it is stated here rather than inferred.
  */
 
-export type AnatomyRole = "primary" | "supporting" | "neutral";
+/**
+ * The categorical states the figure paints. "stabilizing" is a muscle whose
+ * record says it holds position rather than assists the movement; the figure
+ * used to paint it in the supporting fill, so the legend had to say "supporting
+ * or stabilizing" for one colour. It now has a fill of its own.
+ */
+export type AnatomyRole = "primary" | "supporting" | "stabilizing" | "neutral";
 
 /**
  * Input keys that colour regions drawn under a different key.

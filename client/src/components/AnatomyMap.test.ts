@@ -121,9 +121,11 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain("View all ");
     expect(markup).toContain(" muscle roles");
     expect(markup).toContain("How muscle roles are classified");
-    // The legend says what the paint draws: three states, and that the
-    // supporting fill is also the stabilizing one.
-    expect(markup).toContain("Supporting or stabilizing role");
+    // The legend says what the paint draws: one entry per painted state, with
+    // stabilizing no longer folded into supporting's colour.
+    expect(markup).toContain("Supporting role");
+    expect(markup).toContain("Stabilizing role");
+    expect(markup).not.toContain("Supporting or stabilizing role");
     expect(markup).toContain("Primary role");
     expect(markup).toContain("Neutral");
   });
@@ -159,6 +161,12 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(ranking.indexOf("External oblique")).toBeLessThan(ranking.indexOf("Hamstrings"));
     expect(ranking).toContain(">Stabilizer<");
     expect(ranking).toContain(">Supporting<");
+    // The figure paints the stabilizer in its own state, not the supporting one,
+    // and the row's dot is that same fill.
+    // (The obliques are on the front view this renders; the glutes and hamstrings are drawn on the back.)
+    expect(markup).toMatch(/data-muscle="obliques" data-role="stabilizing"/);
+    expect(ranking).toContain("background:var(--sg-role-stabilizing-1)");
+    expect(ranking).toContain("background:var(--sg-role-supporting-1)");
     // A muscle with no role recorded is missing data, never "not used".
     expect(markup).not.toContain("Not used here");
     expect(markup).not.toContain("Stabilizer · Strong indirect evidence");
