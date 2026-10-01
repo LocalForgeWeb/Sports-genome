@@ -21,17 +21,20 @@ import type { NormsReferenceRow } from "@shared/normsReference";
 import { studyGroupLabel } from "@/lib/studyGroupLabel";
 import { getRegistryReferenceForObservation, registryConnectionNotice, registryUnavailableExplanation, type RegistryConnectionState, type RegistryReferenceProfile } from "@/lib/registryReference";
 import type { SexForReference } from "@/components/AthleteBaselineQuiz";
-import { summarizeWithinAthleteStrengthComparisons, type ChangeState, type ComparableStrengthObservation, type WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
+import { summarizeWithinAthleteStrengthComparisons, type WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
+import { changeStateLabel, changeTone } from "@/lib/changeStateCopy";
+import { estimateOneRepMaxKg, maxValidEstimationReps } from "@shared/oneRepMaxEstimation";
+import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { deviceWorkoutHistoryEvent, loadDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { strengthRegionIdsForExerciseName, workoutStrengthObservations, compareRegionRecordRelevance } from "@/lib/workoutStrengthRecord";
-import { bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
-import { catalogExerciseIdForName, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
+import { bodyWeightEntryAt, bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
+import { catalogExerciseIdForName, ordinal, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
 import { regionRanksFromMuscles, type RegionRank } from "@shared/capabilityRank";
-import { RankCard, UnscoredRankCard } from "@/components/CapabilityRank";
+import { PendingRankCard, RankCard, UnscoredRankCard, displayPercentile } from "@/components/CapabilityRank";
 import { RankIcon } from "@/components/RankIcon";
 import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
-import { muscleRankLiftSelection, type ProfileWeightLift } from "@/lib/muscleRankLifts";
+import { muscleRankLiftSelection, previousRanksForSameGroup, rankProvenance, type MuscleRankLiftSource, type ProfileWeightLift, type RankProvenance } from "@/lib/muscleRankLifts";
 import { ageAtLift } from "@/lib/normsCohort";
 import { countCoveredRegions } from "@/lib/athleteRecord";
 import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
@@ -40,13 +43,6 @@ import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { decimalEntryText } from "@/lib/numericEntry";
 import { parseBirthYear } from "@/lib/birthYear";
 import { localDateKey } from "@/lib/localDate";
-
-const changeStateCopy: Record<ChangeState, { label: string; tone: string }> = {
-  insufficient_history: { label: "Not enough history yet", tone: "#9eb3cb" },
-  stable: { label: "Stable", tone: "#9eb3cb" },
-  directional_signal_emerging: { label: "Starting to move", tone: "#f2c14d" },
-  meaningful_change_supported: { label: "Confirmed change", tone: "#5bc07a" },
-};
 
 function normalizedName(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -64,7 +60,7 @@ type MeasurementType =
 
 type ObservationDataQuality = "SELF_REPORTED" | "STANDARDIZED" | "VERIFIED" | "UNCERTAIN";
 
-type StrengthObservationRecord = { id: string | number; exerciseName: string; observedAt: Date | string; measurementType: string; loadKg?: number | null; repetitions?: number | null; bodyMassKgAtTest?: number | null; equipment?: string | null; romStandard?: string | null; dataQuality?: string | null; referenceContextJson?: string | null;
+type StrengthObservationRecord = { id: string | number; exerciseName: string; observedAt: Date | string; measurementType: string; loadKg?: number | null; repetitions?: number | null; bodyMassKgAtTest?: number | null; equipment?: string | null; romStandard?: string | null; dataQuality?: string | null; referenceContextJson?: string | null; laterality?: string | null;
   /** Present when the entry was carried across from a finished workout rather than typed into the log form. */
   source?: "workout"; sessionLabel?: string; setCount?: number };
 
@@ -150,18 +146,85 @@ export function StrengthObservationReviewButton({ observation, onReview, describ
   return <button type="button" onClick={() => { emitInteractionFeedback(); onReview(observation); }} className="strength-observation-review" aria-describedby={describedBy}>Review</button>;
 }
 
-export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, onLogLift, registryOffline = false, onSelectRegion, headingIds }: { regionRank?: RegionRank | null; /** Switches the record to another muscle group from its own header; on a phone the figure behind the sheet cannot be tapped. */ onSelectRegion?: (region: StrengthRegionDefinition) => void; /** Ids for the title and the selected-lift line, so the sheet around the record can be named by them. */ headingIds?: { title: string; lift: string }; rankMode?: boolean; /** The research library could not be reached, so no comparison is a fact about the library, not the lift. */ registryOffline?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; /** Saves the weight of a device-held lift's day; true only when a lift took it and the device kept it. */ onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => boolean; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
+/** "Sep 1", with the year only when it is not this year's: the short dates inside the record's lines. */
+function shortDate(value: Date | string): string {
+  const date = new Date(value);
+  return date.toLocaleDateString(undefined, date.getFullYear() === new Date().getFullYear() ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" });
+}
+
+/** An estimated 1RM, to the whole unit: it is an estimate, and a decimal would claim more than it knows. */
+function estimatedWeight(kg: number, unit: DisplayWeightUnit): string {
+  return `${Math.round(kilogramsToDisplayWeight(kg, unit))} ${unit}`;
+}
+
+/**
+ * Why a lift has no comparison rank, in the athlete's words, for every reason the route gives.
+ * The two the athlete can act on keep their existing sentences; the rest say what is missing
+ * rather than leaving the row to say only that something is.
+ */
+function liftComparisonGapReason(result: Extract<StrengthPercentileResult, { status: "unavailable" }>, exerciseName: string): string | null {
+  switch (result.reason) {
+    case "sex_required":
+    case "body_mass_required":
+      return strengthPercentileGapCopy[result.reason] ?? null;
+    case "no_curve_for_exercise": return `No comparison data for ${exerciseName} yet.`;
+    case "source_role_not_permitted": return `The only comparison data for ${exerciseName} is not approved for ranking.`;
+    case "load_required": return "No weight was logged with this lift, so there is nothing to compare.";
+    case "repetitions_out_of_range": return "This set has too many reps to estimate a one-rep max from, so it cannot be compared.";
+    case "insufficient_anchors": return `The comparison data for ${exerciseName} is too thin to place a lift on.`;
+    case "curve_is_not_one_rep_max": return `The comparison data for ${exerciseName} is not a one-rep max, so a working set cannot be placed on it.`;
+    case "below_lowest_anchor": return `This lift is below ${result.censoredAt != null ? `the ${ordinal(result.censoredAt)} percentile, ` : ""}the lowest point the comparison data covers.`;
+    case "above_highest_anchor": return `This lift is above ${result.censoredAt != null ? `the ${ordinal(result.censoredAt)} percentile, ` : ""}the highest point the comparison data covers.`;
+    default: return null;
+  }
+}
+
+/** One lift sent to the rank, as the provenance line names it: what, when, and what it was read against. */
+function rankLiftLine(lift: MuscleRankLiftSource, weightUnit: DisplayWeightUnit): string {
+  const lifted = lift.repsOnly ? plural(lift.repetitions, "rep") : `${formatDisplayWeight(lift.loadKg, weightUnit)} × ${lift.repetitions}`;
+  const basis = lift.repsOnly ? "compared on reps"
+    : lift.bodyMassKg == null || lift.bodyMassSource === null ? null
+    : `read against ${formatDisplayWeight(lift.bodyMassKg, weightUnit)}, ${bodyMassSourceNote[lift.bodyMassSource]}`;
+  return [lifted, shortDate(lift.observedAt), basis].filter(Boolean).join(" · ");
+}
+
+/**
+ * Which lifts produced a region's rank, with each lift's date, load and reps and the body weight
+ * it was read against. The comparison group is named on the rank above it. Traced on this
+ * device from the lifts that were sent (lib/muscleRankLifts), so when an exercise sent more than
+ * one lift the line says "best of N" rather than naming one the server never identified.
+ */
+function RankProvenanceList({ entries, unplaced, muscleName, weightUnit }: { entries: readonly RankProvenance[]; unplaced: readonly string[]; muscleName: string; weightUnit: DisplayWeightUnit }) {
+  return <div className="rank-provenance" data-rank-provenance>
+    <p className="rank-provenance-label">{entries.length === 1 ? "From this exercise" : `Blended from ${entries.length} exercises`}</p>
+    <ul>{entries.map((entry) => <li key={entry.exerciseName}>
+      <p><strong>{entry.exerciseName}</strong>{` · ${ordinal(displayPercentile(entry.exercisePercentile))} percentile on its own`}{entry.role ? ` · ${entry.role}` : ""}</p>
+      {entry.lifts.length > 1 && <p className="rank-provenance-best">Best of {entry.lifts.length} lifts:</p>}
+      {entry.lifts.map((lift, index) => <p key={`${lift.observationId ?? "lift"}-${index}`} className="rank-provenance-lift">{rankLiftLine(lift, weightUnit)}</p>)}
+    </li>)}</ul>
+    {entries.length > 1 && <p>Each is weighted by how much it relies on {muscleName.toLowerCase()}.</p>}
+    {unplaced.length > 0 && <p>Not counted: {unplaced.join(", ")}, which {unplaced.length === 1 ? "has" : "have"} no comparison rank.</p>}
+  </div>;
+}
+
+export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, rankPending = null, ranksUpdating = false, rankProvenance: provenance = [], onLogLift, registryOffline = false, onSelectRegion, headingIds }: { regionRank?: RegionRank | null; /** Switches the record to another muscle group from its own header; on a phone the figure behind the sheet cannot be tapped. */ onSelectRegion?: (region: StrengthRegionDefinition) => void; /** Ids for the title and the selected-lift line, so the sheet around the record can be named by them. */ headingIds?: { title: string; lift: string }; rankMode?: boolean; /** Ranks are on their way and none has arrived yet: the rank section says so instead of looking unscored. */ rankPending?: "ranking" | "offline" | null; /** The ranks shown are the previous answer while new ones load. */ ranksUpdating?: boolean; /** The exercises and dated lifts behind this region's rank, strongest first (lib/muscleRankLifts). */ rankProvenance?: readonly RankProvenance[]; /** The research library could not be reached, so no comparison is a fact about the library, not the lift. */ registryOffline?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; /** Saves the weight of a device-held lift's day; true only when a lift took it and the device kept it. */ onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => boolean; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
   const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => compareRegionRecordRelevance(region.id, a, b)), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
   const [bodyMassEntry, setBodyMassEntry] = useState("");
   const [bodyMassSaveError, setBodyMassSaveError] = useState<string | null>(null);
+  /**
+   * The lift on show, decided in this render rather than corrected by an effect afterwards, so
+   * the sheet never paints one lift and then another. The athlete's own pick wins; until they
+   * pick, the lift behind the region's rank, so the rank above and the lift below agree; then
+   * the most relevant lift for the region.
+   */
   const [selectedRecordId, setSelectedRecordId] = useState(initialRecordId);
-  useEffect(() => {
-    setSelectedRecordId((current) => records.some((record) => String(record.id) === current) ? current : String(records[0]?.id || ""));
-  }, [records]);
+  const isRecord = (id: string | null | undefined): id is string => id != null && records.some((record) => String(record.id) === id);
+  const rankSourceRecordId = provenance.flatMap((entry) => entry.lifts.map((lift) => lift.observationId)).find(isRecord) ?? null;
+  const shownRecordId = isRecord(selectedRecordId) ? selectedRecordId : rankSourceRecordId ?? String(records[0]?.id ?? "");
   const setObservationBodyMass = trpc.strengthGenome.setObservationBodyMass.useMutation({ onSuccess: async () => { emitInteractionFeedback([10, 30, 10]); setBodyMassSaveError(null); setBodyMassEntry(""); toast.success("Body weight for this lift saved. Your recorded ratio is ready."); await Promise.all([utils.strengthGenome.observations.invalidate(), utils.strengthGenome.overview.invalidate()]); }, onError: () => { setBodyMassSaveError("Body weight was not saved. Your entry is still here—check your connection and try again."); toast.error("Could not save the body weight for this lift. Check your connection and try again."); } });
-  const latestRecord = selectStrengthRegionRecord(records, selectedRecordId);
+  const latestRecord = selectStrengthRegionRecord(records, shownRecordId);
   /**
    * Offering today's weight for a lift from three months ago is offering the
    * wrong number, which is why this used to carry a warning telling the athlete
@@ -194,23 +257,17 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const effectiveBodyMassKg = bodyMassSource === "recorded" ? Number(latestRecord!.bodyMassKgAtTest)
     : bodyMassSource === null ? undefined
     : offeredBodyMass;
-  const bodyMassRatio = latestRecord?.loadKg != null && effectiveBodyMassKg != null && effectiveBodyMassKg > 0
-    ? latestRecord.loadKg / effectiveBodyMassKg
-    : null;
-  useEffect(() => {
+  // The form starts from the weight on offer for the lift on show, set in the same render the
+  // lift changes in rather than one frame later.
+  const entryKey = `${latestRecord?.id ?? ""}|${offeredBodyMass ?? ""}|${weightUnit}`;
+  const [entryFor, setEntryFor] = useState<string | null>(null);
+  if (entryFor !== entryKey) {
+    setEntryFor(entryKey);
     setBodyMassEntry(offeredBodyMass === undefined ? "" : String(Number(kilogramsToDisplayWeight(offeredBodyMass, weightUnit).toFixed(1))));
-  }, [offeredBodyMass, weightUnit, latestRecord?.id]);
+    setBodyMassSaveError(null);
+  }
   const piperReference = latestRecord ? getPiperReferenceForObservation(latestRecord) : null;
   const powerliftingReference = latestRecord ? getPowerliftingReferenceForObservation(latestRecord, powerliftingNorms) : null;
-  /**
-   * Where this lift ranks, from what the athlete already has.
-   *
-   * The declaration-gated route above answers "does this match the study's
-   * population exactly?", and for a gym log the answer is always no - so the
-   * screen used to explain the protocol instead of giving a number that was
-   * sitting in the table the whole time. This ranks the lift and names the
-   * population it is ranked against.
-   */
   /*
    * No competitor rank for gym logs. A squat, bench or deadlift logged in the gym was
    * ranked against drug-tested, unequipped powerlifting competitors (van den Hoek 2024),
@@ -246,6 +303,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       ? athleteProfile.sexForReference
       : null;
   const measuredOneRm = latestRecord?.measurementType === "MEASURED_1RM";
+  const percentileAsked = Boolean(latestRecord?.loadKg);
   const betaPercentile = trpc.strengthPercentile.forLift.useQuery(
     {
       catalogExerciseId: latestRecord ? catalogExerciseIdForName(latestRecord.exerciseName) ?? null : null,
@@ -259,7 +317,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       ageYears: latestRecord ? ageAtLift(athleteProfile?.birthYear ?? undefined, latestRecord.observedAt) ?? null : null,
     },
     // Nothing to place without a load, and the route would only answer `load_required`.
-    { enabled: Boolean(latestRecord?.loadKg), staleTime: 5 * 60 * 1000, retry: false }
+    { enabled: percentileAsked, staleTime: 5 * 60 * 1000, retry: false }
   );
   const percentileCard = betaPercentile.data && percentileSex
     ? strengthPercentileCard(betaPercentile.data, { sex: percentileSex, bodyMassKg: effectiveBodyMassKg })
@@ -279,7 +337,49 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
    */
   const needsGroup = !hasOutsideComparison && betaPercentile.data?.status === "unavailable" && betaPercentile.data.reason === "sex_required";
   const groupWithoutCurve = needsGroup && Boolean(athleteProfile?.sexForReference) && percentileSex === null;
-  const strengthTrend = latestRecord ? strengthChanges.find((change) => normalizedName(change.exerciseName) === normalizedName(latestRecord.exerciseName)) : undefined;
+  // A lift whose comparison has not come back is "checking", never "no rank": a switch of lift
+  // used to show the unranked copy until the answer arrived, then jump. Undefined fields (a test
+  // double with data alone) read as settled.
+  const comparisonChecking = !hasOutsideComparison && percentileAsked && betaPercentile.data === undefined && betaPercentile.isPending === true;
+  const comparisonWaiting = comparisonChecking && betaPercentile.fetchStatus === "paused";
+  /**
+   * Everything the lift section says, derived in one place from the lift on show, so switching
+   * lifts swaps every value and sentence in the same render: the comparison, the progress line,
+   * the ratio and the notes.
+   */
+  const lift = latestRecord ? (() => {
+    // The trend for this exercise and side: groups are kept by name and laterality.
+    const trend = strengthChanges.find((change) => normalizedName(change.exerciseName) === normalizedName(latestRecord.exerciseName) && change.laterality === (latestRecord.laterality || "BILATERAL"));
+    const loadKg = latestRecord.loadKg == null ? null : Number(latestRecord.loadKg);
+    const reps = latestRecord.measurementType === "MEASURED_1RM" ? 1 : latestRecord.repetitions == null ? null : Number(latestRecord.repetitions);
+    const singleEstimateKg = loadKg != null && loadKg > 0 && reps != null && ["MEASURED_1RM", "MULTI_REP"].includes(latestRecord.measurementType)
+      ? (latestRecord.measurementType === "MEASURED_1RM" ? loadKg : estimateOneRepMaxKg(loadKg, reps))
+      : null;
+    const noEstimateReason = loadKg == null || !(loadKg > 0) ? "No weight was logged with this lift, so there is no estimated 1RM to follow."
+      : !["MEASURED_1RM", "MULTI_REP"].includes(latestRecord.measurementType) ? "This kind of test is not turned into an estimated 1RM, so it has no progress line."
+      : reps == null || !(reps >= 1) ? "No reps were logged with this lift, so there is no estimated 1RM to follow."
+      : `Sets of more than ${maxValidEstimationReps} reps are not turned into an estimated 1RM, so this one has no progress line.`;
+    const ratio = loadKg != null && effectiveBodyMassKg != null && effectiveBodyMassKg > 0 ? loadKg / effectiveBodyMassKg : null;
+    const weightLoggedOn = bodyMassSource === "dated" ? bodyWeightEntryAt(bodyWeightHistory, latestRecord.observedAt)?.observedAt : undefined;
+    const weightSource = bodyMassSource === null || effectiveBodyMassKg == null ? null
+      : bodyMassSource === "recorded" ? `${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}, recorded with this lift.`
+      : bodyMassSource === "dated" ? `${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}, from your weight log${weightLoggedOn ? ` on ${shortDate(weightLoggedOn)}` : ""}.`
+      : `${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}, your current profile weight. This ratio moves if you change it.`;
+    const betaReason = !percentileAsked ? "No weight was logged with this lift, so there is nothing to compare."
+      : betaPercentile.isError === true && betaPercentile.data === undefined ? "The comparison could not be checked just now."
+      : betaPercentile.data?.status === "unavailable" && betaPercentile.data.reason !== "sex_required" ? liftComparisonGapReason(betaPercentile.data, latestRecord.exerciseName)
+      : null;
+    const studyReason = registryGateExplanation ?? registryOfflineReason;
+    // The reason on the row, and whatever is left over for About this data, never both.
+    const comparisonReason = needsGroup ? null : betaReason ?? studyReason ?? "No comparison data covers this lift yet.";
+    const comparison = hasOutsideComparison ? "study" as const
+      : comparisonChecking ? "checking" as const
+      : showPercentile ? "ranked" as const
+      : "unranked" as const;
+    // Unknown (and so unsaid) when the rank's lifts could not be traced on this device.
+    const inRegionRank = regionRank && provenance.length ? provenance.some((entry) => entry.lifts.some((source) => source.observationId === String(latestRecord.id))) : null;
+    return { record: latestRecord, trend, singleEstimateKg, noEstimateReason, ratio, weightSource, comparison, comparisonReason, studyNote: studyReason !== comparisonReason ? studyReason : null, inRegionRank };
+  })() : null;
   useEffect(() => {
     if ((!registryMatch && piperReference?.status !== "matched") || !matchedReferenceRef.current) return;
     const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -288,6 +388,14 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const parsedBodyMassEntry = Number(bodyMassEntry);
   const fallbackIdBase = useId();
   const ids = headingIds ?? { title: `${fallbackIdBase}-title`, lift: `${fallbackIdBase}-lift` };
+  const rankTitleId = `${fallbackIdBase}-rank-title`;
+  const liftTitleId = `${fallbackIdBase}-lift-title`;
+  // A typed lift's record can take the weight of its day: to fill a gap, or to correct a
+  // borrowed weight. A workout's lift lives in the workout log, which has no field for it.
+  const bodyMassForm = latestRecord && bodyMassSource !== "recorded" && latestRecord.source !== "workout"
+    ? <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { if (!onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest)) { setBodyMassSaveError("Body weight was not saved on this device. Your entry is still here."); return; } setBodyMassSaveError(null); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Body weight for this lift saved on this device. Your recorded ratio is ready."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body weight for this lift…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>
+    : null;
+  const unplacedInRank = regionRank ? Array.from(new Set(regionRank.representative.evidence.filter((item) => item.exercisePercentile == null).map((item) => item.exerciseName))) : [];
   return <section className="strength-region-record-detail" aria-label={`${region.label} recorded strength context`}>
     {/* The header stays put while the record scrolls: what this is (the muscle group,
         and the lift on show with its date), the way out, and the way to another group. */}
@@ -296,32 +404,79 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       <button type="button" onClick={() => { emitInteractionFeedback(); onClose(); }} className="strength-region-close" aria-label={`Close ${region.label} detail`}><X className="h-4 w-4" aria-hidden="true" /></button>
       {onSelectRegion && <label className="strength-region-switch"><span>Muscle group</span><select aria-label="Muscle group to show" data-strength-region-select value={region.id} onChange={(event) => { const next = strengthRegionDefinitions.find((candidate) => candidate.id === event.target.value); if (!next) return; emitInteractionFeedback(); onSelectRegion(next); }}>{regionAreas.map((area) => <optgroup key={area} label={area}>{strengthRegionDefinitions.filter((candidate) => candidate.bodyArea === area).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.label}</option>)}</optgroup>)}</select></label>}
     </header>
-    {/* The one scroll region on a phone; on a wide screen it simply runs in the page. */}
+    {/* The one scroll region on a phone; on a wide screen it simply runs in the page. Two
+        sections that never borrow from each other: the region's rank, which alone carries the
+        rank colour and the emblem, and the lift on show, whose own comparison and progress are
+        plain facts. */}
     <div className="strength-region-record-body">
-    {rankMode && (regionRank ? <RankCard regionRank={regionRank} /> : <UnscoredRankCard hasRecords={records.length > 0} />)}
-    {latestRecord ? <>
-      <article className="strength-region-record-card">
-        {records.length > 1 ? <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Which lift to show" value={selectedRecordId || String(latestRecord.id)} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label> : <span className="strength-region-test-name">{latestRecord.exerciseName}</span>}
-        {strengthTrend ? <article className="strength-reference-matched strength-reference-primary strength-rating-card" style={{ borderColor: changeStateCopy[strengthTrend.changeState].tone }}>
-          <p className="metric-label">Your rating on this lift</p>
-          <strong className="strength-body-mass-ratio" style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{strengthTrend.relativeChangePercent >= 0 ? "+" : ""}{strengthTrend.relativeChangePercent.toFixed(0)}%</strong>
-          <span className="strength-rating-state" style={{ color: changeStateCopy[strengthTrend.changeState].tone }}>{changeStateCopy[strengthTrend.changeState].label}</span>
-          <p>Change in your estimated one-rep max across {strengthTrend.observationCount} logs since {strengthTrend.firstPoint.observedAt.toLocaleDateString()}.</p>
-        </article> : <p className="strength-rating-empty">Log this lift once more and your progress rating shows up here.</p>}
-        {bodyMassRatio != null && !showPercentile && <p className="strength-region-ratio-inline">{bodyMassRatio.toFixed(2)}× {bodyMassWeightPhrase[bodyMassSource!]} — for your own context, not a rank.</p>}
-        {registryMatch ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that study group</p><strong>{registryMatch.percentileBandLabel}</strong><p>{registryMatch.unit === "x_bodyweight" ? `${registryMatch.observedValue.toFixed(2)}× body weight` : `${registryMatch.observedValue.toFixed(1)} ${registryMatch.unit}`}{studyGroupLabel(registryMatch.populationDefinition) ? ` · ${studyGroupLabel(registryMatch.populationDefinition)}` : ""}{registryMatch.sampleSize ? ` · ${registryMatch.sampleSize.toLocaleString()} people` : ""}. This exact test only.</p>{registryMatch.sourceUrl && <a href={registryMatch.sourceUrl} target="_blank" rel="noreferrer">View the source study</a>}</article> : powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that competition group</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body weight · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : null}
-        {showPercentile && percentileCard && <article className="strength-reference-matched strength-reference-primary strength-rank-card"><p className="metric-label">Where this sits</p><strong>{percentileCard.headline}</strong><p>{percentileCard.detail}{bodyMassSource !== null && bodyMassSource !== "recorded" ? ` Read against ${bodyMassWeightPhrase[bodyMassSource]}.` : ""}</p></article>}
-        {!hasOutsideComparison && !showPercentile && percentileGap && !needsGroup && <p className="strength-rank-needs">{percentileGap}</p>}
-        {needsGroup && (groupWithoutCurve
-          ? <p className="strength-rank-needs">{communityGroupWithoutCurveCopy}</p>
-          : <ComparisonGate need="group" onProfile={onRankProfile} fallback={percentileGap} />)}
-        {showPercentile && !athleteProfile?.birthYear && <ComparisonGate need="birthYear" onProfile={onRankProfile} />}
-        {/* A lift from a finished workout lives in the workout log, which keeps the weight of its day and has no field to add one afterwards; its record says what it is read against instead of offering a form that would store nothing. */}
-        {bodyMassSource !== "recorded" && latestRecord.source === "workout" && <p className="strength-workout-body-mass" data-workout-body-mass-note>This lift is from a workout, so it is read against the body weight saved for that day, or your profile weight when none was saved.</p>}
-        {bodyMassSource !== "recorded" && latestRecord.source !== "workout" && <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { if (!onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest)) { setBodyMassSaveError("Body weight was not saved on this device. Your entry is still here."); return; } setBodyMassSaveError(null); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Body weight for this lift saved on this device. Your recorded ratio is ready."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body weight for this lift…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>}
-        <details className="strength-region-boundary"><summary>{hasOutsideComparison || showPercentile ? "About this comparison" : "No ranking for this lift yet"}</summary>{(registryGateExplanation ?? registryOfflineReason) && <p className="strength-region-gate-reason">{registryGateExplanation ?? registryOfflineReason}</p>}<p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Rankings come from published research, which so far covers the barbell squat, bench press and deadlift. Your rating above is measured from your own logs."}</p></details>
+    {(rankMode || rankPending) && <section className="strength-record-section strength-region-rank-section" aria-labelledby={rankTitleId}>
+      <h3 id={rankTitleId} className="strength-record-section-title">{region.label} rank</h3>
+      {!rankMode ? <PendingRankCard offline={rankPending === "offline"} />
+        : regionRank ? <RankCard regionRank={regionRank} provenance={provenance.length ? <RankProvenanceList entries={provenance} unplaced={unplacedInRank} muscleName={regionRank.representative.name} weightUnit={weightUnit} /> : undefined} />
+        : <UnscoredRankCard hasRecords={records.length > 0} />}
+      {rankMode && ranksUpdating && <p className="rank-updating-note" role="status">Updating ranks…</p>}
+    </section>}
+    {latestRecord && lift ? <>
+      <section className="strength-region-record-card strength-record-section" aria-labelledby={liftTitleId}>
+        <h3 id={liftTitleId} className="strength-record-section-title">{latestRecord.exerciseName}</h3>
         <span className="strength-region-test-meta">{latestRecord.loadKg != null ? formatDisplayWeight(latestRecord.loadKg, weightUnit) : "No load"}{latestRecord.repetitions ? ` · ${plural(latestRecord.repetitions, "rep")}` : ""} · {new Date(latestRecord.observedAt).toLocaleDateString()}{/* The weight this lift was read against, said out loud: it was saved with the lift and does not move when the profile weight changes. */}{effectiveBodyMassKg != null ? ` · at ${formatDisplayWeight(effectiveBodyMassKg, weightUnit)}` : ""}{latestRecord.source === "workout" ? ` · top set of ${latestRecord.setCount} from ${latestRecord.sessionLabel || "a workout"}` : ""}</span>
-      </article>
+        {records.length > 1 && <label className="strength-region-record-picker"><span>Which lift</span><select aria-label="Which lift to show" value={shownRecordId} onChange={(event) => setSelectedRecordId(event.target.value)}>{records.map((record) => <option key={record.id} value={String(record.id)}>{record.exerciseName} · {new Date(record.observedAt).toLocaleDateString()}</option>)}</select></label>}
+        <dl className="strength-lift-rows">
+          {/* Always on screen, so an unranked lift says so in its own row instead of sitting
+              under the region's percentile as if that number were its own. */}
+          <div className="strength-lift-row" data-lift-row="comparison">
+            <dt>Comparison rank for this lift</dt>
+            <dd>
+              {lift.comparison === "checking" ? <p className="strength-lift-value is-pending" role="status">{comparisonWaiting ? "Waiting for a connection to check the comparison." : "Checking comparison…"}</p>
+                : lift.comparison === "ranked" && percentileCard ? <>
+                  <p className="strength-lift-value">{percentileCard.headline}</p>
+                  <p>{percentileCard.placement}{bodyMassSource !== null && bodyMassSource !== "recorded" ? ` Read against ${bodyMassWeightPhrase[bodyMassSource]}.` : ""}</p>
+                  {!athleteProfile?.birthYear && <ComparisonGate need="birthYear" onProfile={onRankProfile} />}
+                </>
+                : lift.comparison === "study" ? (registryMatch ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that study group</p><strong>{registryMatch.percentileBandLabel}</strong><p>{registryMatch.unit === "x_bodyweight" ? `${registryMatch.observedValue.toFixed(2)}× body weight` : `${registryMatch.observedValue.toFixed(1)} ${registryMatch.unit}`}{studyGroupLabel(registryMatch.populationDefinition) ? ` · ${studyGroupLabel(registryMatch.populationDefinition)}` : ""}{registryMatch.sampleSize ? ` · ${registryMatch.sampleSize.toLocaleString()} people` : ""}. This exact test only.</p>{registryMatch.sourceUrl && <a href={registryMatch.sourceUrl} target="_blank" rel="noreferrer">View the source study</a>}</article> : powerliftingReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Compared to that competition group</p><strong>{powerliftingReference.percentileBandLabel}</strong><p>{powerliftingReference.relativeStrength.toFixed(2)}× body weight · {powerliftingReference.sourceLabel}. Exact competition context only.</p><a href={powerliftingReference.sourceUrl} target="_blank" rel="noreferrer">View van den Hoek et al. 2024 source</a></article> : piperReference?.status === "matched" ? <article ref={matchedReferenceRef} className="strength-reference-matched strength-reference-primary"><p className="metric-label">Source-sample rank range</p><strong>{piperReference.comparison}</strong><p>{piperReference.sourceLabel} · {piperReference.bodyMassBand}. This is the primary result for this exact matched test only.</p><a href="https://doi.org/10.47206/ijsc.v1i1.40" target="_blank" rel="noreferrer">View Piper et al. 2021 source</a></article> : null)
+                : <>
+                  <p className="strength-lift-value is-quiet">No comparison rank available for this lift</p>
+                  {needsGroup ? (groupWithoutCurve
+                    ? <p className="strength-rank-needs">{communityGroupWithoutCurveCopy}</p>
+                    : <ComparisonGate need="group" onProfile={onRankProfile} fallback={percentileGap} />)
+                    : lift.comparisonReason && <p className="strength-lift-reason">{lift.comparisonReason}</p>}
+                </>}
+              {lift.inRegionRank !== null && <p className="strength-lift-in-rank">{lift.inRegionRank ? `Counts toward the ${region.label} rank.` : `Not part of the ${region.label} rank.`}</p>}
+            </dd>
+          </div>
+          {/* The athlete against their own past, never against anyone else, and never called a rank. */}
+          <div className="strength-lift-row" data-lift-row="progress">
+            <dt>Your progress on this lift</dt>
+            <dd>
+              {lift.trend ? <>
+                <p className="strength-lift-value"><span>Estimated 1RM change</span> <strong style={{ color: changeTone(lift.trend) }}>{lift.trend.relativeChangePercent >= 0 ? "+" : ""}{lift.trend.relativeChangePercent.toFixed(0)}%</strong></p>
+                <p className="strength-lift-state">{changeStateLabel[lift.trend.changeState]}</p>
+                <p className="strength-lift-points">{estimatedWeight(lift.trend.firstPoint.estimatedOneRmKg, weightUnit)} ({shortDate(lift.trend.firstPoint.observedAt)}) → {estimatedWeight(lift.trend.latestPoint.estimatedOneRmKg, weightUnit)} ({shortDate(lift.trend.latestPoint.observedAt)}) · {plural(lift.trend.observationCount, "log")}</p>
+              </> : lift.singleEstimateKg != null
+                ? <p>One log so far: estimated 1RM {estimatedWeight(lift.singleEstimateKg, weightUnit)} on {shortDate(latestRecord.observedAt)}. Log it again to see your progress.</p>
+                : <p>{lift.noEstimateReason}</p>}
+            </dd>
+          </div>
+          {latestRecord.loadKg != null && <div className="strength-lift-row" data-lift-row="ratio">
+            <dt>Body-weight ratio</dt>
+            <dd>
+              {lift.ratio != null && bodyMassSource !== null
+                ? <><p>{`Load lifted: ${lift.ratio.toFixed(2)}× ${bodyMassWeightPhrase[bodyMassSource]} — for your own context, not a rank.`}</p>{lift.weightSource && <p className="strength-lift-source">{lift.weightSource}</p>}</>
+                : <p>{latestRecord.source === "workout" ? "No body weight was saved for that workout day, so there is no ratio." : "No body weight to read this lift against yet."}</p>}
+              {bodyMassSource === null && bodyMassForm}
+            </dd>
+          </div>}
+        </dl>
+        <details className="strength-region-boundary strength-lift-about"><summary>About this data</summary>
+          <p>{hasOutsideComparison ? "This matches one specific study, for this exact test only — not a general claim about how strong you are." : showPercentile ? "Placed against lifting data from people of the same sex, on this exercise. It is a comparison on this lift alone, not a general claim about how strong you are." : "Comparisons come from community lifting data, split by sex and body weight, and from reviewed studies for a few exact tests. Your progress is measured from your own logs only."}</p>
+          {lift.studyNote && <p className="strength-region-gate-reason">{lift.studyNote}</p>}
+          {lift.comparison === "ranked" && percentileCard?.effort && <p>{percentileCard.effort}</p>}
+          <p>Estimated 1RM change compares your first and latest logs of this lift, each turned into an estimated one-rep max. Under 6% is within the estimate's normal variation.</p>
+          {/* A lift from a finished workout lives in the workout log, which keeps the weight of its day and has no field to add one afterwards; its record says what it is read against instead of offering a form that would store nothing. */}
+          {bodyMassSource !== "recorded" && latestRecord.source === "workout" && <p className="strength-workout-body-mass" data-workout-body-mass-note>{bodyMassSource === null ? "This lift is from a workout, and no body weight was saved for that day." : "This lift is from a workout, so it is read against the body weight saved for that day, or your profile weight when none was saved."}</p>}
+          {bodyMassSource !== null && bodyMassForm}
+        </details>
+      </section>
     </> : <div className="strength-region-record-empty"><p>Nothing logged for this muscle group yet.</p><p>Log a lift that trains it and your progress will show up here.</p>{onLogLift && <button type="button" onClick={() => { emitInteractionFeedback(); onLogLift(); }}>Log a lift for {region.label.toLowerCase()} <Plus className="h-4 w-4" aria-hidden="true" /></button>}</div>}
     </div>
   </section>;
@@ -378,11 +533,11 @@ const bodyMassWeightPhrase: Record<"recorded" | "dated" | "profile", string> = {
   profile: "your profile weight",
 };
 
-/** The same provenance, as a short aside inside the rank card's own sentence. */
+/** The same provenance, as a short aside on a lift behind a rank: "read against 80 kg, …". */
 const bodyMassSourceNote: Record<"recorded" | "dated" | "profile", string> = {
-  recorded: "recorded with this lift",
-  dated: "from what you weighed that week",
-  profile: "from your profile weight",
+  recorded: "recorded with the lift",
+  dated: "from your weight log",
+  profile: "your current profile weight",
 };
 
 /** What the rank still needs, asked where the rank would have been. */
@@ -762,9 +917,12 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     [activeObservations, bodyWeightHistory, baselineBodyWeight, weightUnit, birthYear]
   );
   const rankLifts = rankSelection.lifts;
+  // A new lift, a saved weight or a birth year changes the request. The previous ranks stay
+  // drawn under "Updating ranks…" until the new ones arrive, rather than the map dropping back
+  // to coverage as if every rank had been lost; a change of comparison group keeps none.
   const muscleRanks = trpc.strengthProfile.muscleRanks.useQuery(
     { sex: rankSex, lifts: rankLifts },
-    { enabled: rankSex !== null && rankLifts.length > 0, staleTime: 5 * 60 * 1000, retry: false }
+    { enabled: rankSex !== null && rankLifts.length > 0, staleTime: 5 * 60 * 1000, retry: false, placeholderData: previousRanksForSameGroup(rankSex) }
   );
   // A failed rank request says so and can be tried again. The server answers a
   // database outage as "unavailable: service_error" rather than as an error, so
@@ -776,7 +934,17 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const rankProfile = muscleRanks.data && muscleRanks.data.status !== "unavailable" ? muscleRanks.data : null;
   const ranksFailed = ranksWanted && rankProfile === null && (muscleRanks.isError || (muscleRanks.data?.status === "unavailable" && muscleRanks.data.reason === "service_error"));
   const ranksOffline = ranksWanted && muscleRanks.isPending && muscleRanks.fetchStatus === "paused";
+  // The ranks on screen are the previous answer, kept while the new request runs.
+  const ranksUpdating = ranksWanted && rankProfile !== null && muscleRanks.isPlaceholderData === true;
+  // Loading, not unscored: nothing has been ranked yet and the first answer is on its way.
+  const ranksFirstLoading = ranksWanted && rankProfile === null && !ranksFailed && muscleRanks.isPending === true;
   const regionRanks = useMemo(() => (rankProfile ? regionRanksFromMuscles(rankProfile.muscles) : null), [rankProfile]);
+  // The lifts behind the open region's rank, traced from what was sent (lib/muscleRankLifts).
+  const sheetRegionRank = sheetRegion ? regionRanks?.get(sheetRegion.id) ?? null : null;
+  const sheetRankProvenance = useMemo(
+    () => (sheetRegionRank ? rankProvenance(sheetRegionRank.representative.evidence, rankSelection.sources) : []),
+    [sheetRegionRank, rankSelection.sources],
+  );
   const unrankedLifts = useMemo(() => {
     const counts = new Map<string, { exerciseName: string; reason: string; count: number }>();
     (rankProfile?.unranked ?? []).forEach((item) => {
@@ -787,13 +955,17 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   }, [rankProfile]);
   // While the ranks are being computed the map shows coverage, which is true
   // and says so in its own legend; the line below says ranks are on the way so
-  // the coverage colours are not read as ranks.
-  const rankNotice = ranksFailed
+  // the coverage colours are not read as ranks. One status line at a time; the
+  // limitations of ranks already drawn go in the data notes below it.
+  const rankStatus = ranksFailed
     ? <p className="rank-profile-partial" role="status">Ranks could not be worked out just now, so the map shows where lifts are on record. <button type="button" className="rank-profile-retry" disabled={muscleRanks.isFetching} onClick={() => { emitInteractionFeedback(); void muscleRanks.refetch(); }}>{muscleRanks.isFetching ? "Trying again…" : "Try again"}</button></p>
     : ranksOffline
     ? <p className="rank-profile-partial" role="status">Waiting for a connection to rank your lifts. Until then the map shows where lifts are on record.</p>
     : rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending
     ? <p className="rank-profile-partial" role="status">Ranking your lifts… the map shows where lifts are on record until the ranks arrive.</p>
+    : ranksUpdating
+    // The colours stay; this says they are about to be replaced.
+    ? <p className="rank-profile-partial rank-updating-note" role="status" data-rank-updating>Updating ranks…</p>
     : rankSex === null && rankLifts.length > 0
     // Intersex and Prefer not to say are complete answers, so they are not asked again.
     ? sexForReference
@@ -801,12 +973,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       : onRankProfile
       ? <ComparisonGate need="group" scope="map" onProfile={onRankProfile} />
       : <p className="rank-profile-partial">Ranks on this map need the sex to compare against — set it in About Me.</p>
-    : unrankedLifts.length > 0
-      ? <details className="rank-profile-partial">
-          <summary>{rankProfile!.unranked.length} {rankProfile!.unranked.length === 1 ? "lift is" : "lifts are"} not in these ranks</summary>
-          <ul>{unrankedLifts.map((item) => <li key={`${item.exerciseName}-${item.reason}`}>{item.exerciseName}{item.count > 1 ? ` ×${item.count}` : ""} — {unrankedReasonCopy[item.reason] ?? "could not be scored"}</li>)}</ul>
-        </details>
-      : null;
+    : null;
   /**
    * What age did to the ranks. The map's colours already include it; this says so, and says
    * which lifts it could not reach, rather than leaving a birth year that seemed to do nothing.
@@ -818,29 +985,59 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       ? `${ageSummary.outsideTable} ${ageSummary.outsideTable === 1 ? "lift was" : "lifts were"} made at an age the published age adjustment does not cover (15 to 90), so ${ageSummary.outsideTable === 1 ? "it is" : "they are"} compared without one.`
       : null,
   ].filter(Boolean) : [];
-  const ageNotice = ageSentences.length ? <p className="rank-profile-partial" data-rank-age-note>{ageSentences.join(" ")}</p> : null;
   // A lift is read against the weight saved with it; where the profile weight stood in, say so,
-  // and name the lifts, so the athlete knows which records to open. Several are listed the way
-  // the lifts left out of the ranks are. Only a lift logged by hand can take the weight of its
-  // day in its record, so only those are sent there; a lift from a workout is named, and marked,
-  // without an action its record does not offer.
+  // and name the lifts, so the athlete knows which records to open. Only a lift logged by hand
+  // can take the weight of its day in its record, so only those are sent there; a lift from a
+  // workout is named, and marked, without an action its record does not offer. Those lifts
+  // read the profile weight as it is now, so editing it moves their ranks - said outright.
   const profileWeightLifts = rankSelection.profileWeightLifts;
   const handLoggedProfileWeightCount = profileWeightLifts.filter((lift) => !lift.fromWorkout).length;
   const profileWeightRows = Array.from(profileWeightLifts.reduce((rows, lift) => {
     const key = `${lift.exerciseName}|${lift.fromWorkout}`;
     return rows.set(key, { ...lift, count: (rows.get(key)?.count ?? 0) + 1 });
   }, new Map<string, ProfileWeightLift & { count: number }>()).values());
-  const bodyMassNotice = !rankProfile || profileWeightLifts.length === 0
-    ? null
-    : profileWeightLifts.length === 1
-    ? <p className="rank-profile-partial" data-rank-body-mass-note>{profileWeightLifts[0].fromWorkout
-        ? `Your ${profileWeightLifts[0].exerciseName} lift from a workout has no body weight saved for its day, so it is read against your profile weight.`
-        : `Your ${profileWeightLifts[0].exerciseName} lift has no body weight saved for its day, so it is read against your profile weight. Open its record to save what you weighed that day.`}</p>
-    : <details className="rank-profile-partial" data-rank-body-mass-note>
-        <summary>{profileWeightLifts.length} lifts are read against your profile weight</summary>
-        <p>{`They have no body weight saved for their day.${handLoggedProfileWeightCount === 0 ? "" : handLoggedProfileWeightCount === profileWeightLifts.length ? " Open each one's record to save what you weighed that day." : " For each lift you logged by hand, open its record to save what you weighed that day."}`}</p>
-        <ul>{profileWeightRows.map((row) => <li key={`${row.exerciseName}|${row.fromWorkout}`}>{row.exerciseName}{row.count > 1 ? ` ×${row.count}` : ""}{row.fromWorkout ? " — from a workout" : ""}</li>)}</ul>
-      </details>;
+  const unrankedCount = rankProfile?.unranked.length ?? 0;
+  /**
+   * Every limitation of the ranks on the map, in one disclosure: lifts left out and why, lifts
+   * read against the profile weight, and what age did. Each keeps its own count and its own
+   * explanation, and the counts stay in the summary line, so closing it hides no limitation.
+   */
+  const dataNotes = !rankProfile ? [] : [
+    unrankedLifts.length > 0 ? {
+      key: "unranked",
+      count: `${unrankedCount} not in these ranks`,
+      body: <div className="rank-data-note" data-rank-unranked-note>
+        <p><b>{unrankedCount} {unrankedCount === 1 ? "lift is" : "lifts are"} not in these ranks</b></p>
+        <ul>{unrankedLifts.map((item) => <li key={`${item.exerciseName}-${item.reason}`}>{item.exerciseName}{item.count > 1 ? ` ×${item.count}` : ""} — {unrankedReasonCopy[item.reason] ?? "could not be scored"}</li>)}</ul>
+      </div>,
+    } : null,
+    profileWeightLifts.length > 0 ? {
+      key: "profile-weight",
+      count: `${profileWeightLifts.length} on your profile weight`,
+      body: <div className="rank-data-note" data-rank-body-mass-note>
+        <p><b>{profileWeightLifts.length === 1 ? "1 lift uses" : `${profileWeightLifts.length} lifts use`} your current profile weight and will move if you change it</b></p>
+        {profileWeightLifts.length === 1
+          ? <p>{profileWeightLifts[0].fromWorkout
+              ? `Your ${profileWeightLifts[0].exerciseName} lift from a workout has no body weight saved for its day.`
+              : `Your ${profileWeightLifts[0].exerciseName} lift has no body weight saved for its day. Open its record to save what you weighed that day.`}</p>
+          : <>
+              <p>{`They have no body weight saved for their day.${handLoggedProfileWeightCount === 0 ? "" : handLoggedProfileWeightCount === profileWeightLifts.length ? " Open each one's record to save what you weighed that day." : " For each lift you logged by hand, open its record to save what you weighed that day."}`}</p>
+              <ul>{profileWeightRows.map((row) => <li key={`${row.exerciseName}|${row.fromWorkout}`}>{row.exerciseName}{row.count > 1 ? ` ×${row.count}` : ""}{row.fromWorkout ? " — from a workout" : ""}</li>)}</ul>
+            </>}
+      </div>,
+    } : null,
+    ageSentences.length > 0 ? {
+      key: "age",
+      count: ageSummary && ageSummary.outsideTable > 0 ? `${ageSummary.outsideTable} outside the age adjustment` : "adjusted for age",
+      body: <div className="rank-data-note" data-rank-age-note><p>{ageSentences.join(" ")}</p></div>,
+    } : null,
+  ].filter((note): note is { key: string; count: string; body: React.JSX.Element } => note !== null);
+  const dataNotesDisclosure = dataNotes.length
+    ? <details className="rank-profile-partial rank-data-notes" data-rank-data-notes>
+        <summary><span>Data notes</span><small>{dataNotes.map((note) => note.count).join(" · ")}</small></summary>
+        {dataNotes.map((note) => <React.Fragment key={note.key}>{note.body}</React.Fragment>)}
+      </details>
+    : null;
   // Covered means "you have recorded work here", never a rank or a score. A
   // locally recorded lift counts in both access modes, so the server overview can
   // only add regions, never take one away that this device can see.
@@ -1071,11 +1268,11 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
       </div>
     </section>
 
-    <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankNotice || ageNotice || bodyMassNotice ? <>{rankNotice}{ageNotice}{bodyMassNotice}</> : null} ranksPending={rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
+    <StrengthGenomeBodyMap regionRanks={regionRanks} rankNotice={rankStatus || dataNotesDisclosure ? <>{rankStatus}{dataNotesDisclosure}</> : null} ranksPending={rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending} regions={strengthRegionDefinitions.map((region) => ({ ...region, state: regionOverview(region.id)?.state === "OBSERVED_TEST_CONTEXT" ? "OBSERVED_TEST_CONTEXT" as const : "INSUFFICIENT_DATA" as const }))} activePriorityIds={activePriorityIds} selectedRegionId={selectedRegion?.id} onSelect={(region) => { setSelectedRegion(region || null); if (!region) setSelectedObservationId(""); }} />
     {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
     {/* The scrim takes the tap that dismisses a phone sheet; a wide screen keeps the record in the page with none. */}
     {sheetRegion && phoneSheet && <div ref={sheetScrimRef} className={`strength-region-scrim${sheetLeaving ? " is-leaving" : ""}`} aria-hidden="true" onClick={() => { if (!sheetLeaving) closeRegionRecord(); }} />}
-    {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role={phoneSheet ? "dialog" : "group"} aria-modal={phoneSheet || undefined} aria-labelledby={sheetHeadingIds.title} aria-describedby={sheetHeadingIds.lift} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} headingIds={sheetHeadingIds} onSelectRegion={selectSheetRegion} regionRank={regionRanks?.get(sheetRegion.id) ?? null} rankMode={regionRanks !== null} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={closeRegionRecord} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} registryOffline={registryOfflineNotice !== null} />
+    {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role={phoneSheet ? "dialog" : "group"} aria-modal={phoneSheet || undefined} aria-labelledby={sheetHeadingIds.title} aria-describedby={sheetHeadingIds.lift} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} headingIds={sheetHeadingIds} onSelectRegion={selectSheetRegion} regionRank={sheetRegionRank} rankMode={regionRanks !== null} rankPending={ranksFirstLoading ? (ranksOffline ? "offline" : "ranking") : null} ranksUpdating={ranksUpdating} rankProvenance={sheetRankProvenance} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={closeRegionRecord} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} registryOffline={registryOfflineNotice !== null} />
       {/* Focus is kept only with an account's priorities, which direct access never
           reads, so on a device-only record the row offers training alone. The training
           action says where it goes: Train → Plan, on the day the plan has open. Toasts

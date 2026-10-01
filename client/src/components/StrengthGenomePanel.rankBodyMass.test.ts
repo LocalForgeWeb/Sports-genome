@@ -71,16 +71,20 @@ describe("the rank map says when a lift is read against the profile weight", () 
   /** Opens a lift's record the way the athlete does, from its row in the recent lifts. */
   const openRecord = (observationId: string) => fireEvent.click(document.querySelector(`[aria-describedby="strength-recent-${observationId}"]`)!);
 
+  // Now one item in the map's Data notes (Sep 30 §6), which also says the profile weight is live.
   it("names the lift saved without a body weight, and how to fix it", () => {
     renderWith([bench]);
     const notice = document.querySelector("[data-rank-body-mass-note]");
-    expect(notice?.textContent).toBe("Your Barbell Bench Press lift has no body weight saved for its day, so it is read against your profile weight. Open its record to save what you weighed that day.");
+    expect(notice?.querySelector("b")?.textContent).toBe("1 lift uses your current profile weight and will move if you change it");
+    expect(notice?.querySelector("p:not(:first-child)")?.textContent).toBe("Your Barbell Bench Press lift has no body weight saved for its day. Open its record to save what you weighed that day.");
+    expect(document.querySelector("[data-rank-data-notes] summary")?.textContent).toContain("1 on your profile weight");
   });
 
   it("lists each lift saved without a body weight when there are several", () => {
     renderWith([bench, { ...bench, id: "device-squat", exerciseName: "Back Squat", observedAt: "2026-09-10T12:00:00.000Z", loadKg: 120 }, { ...bench, id: "device-curl", exerciseName: "Preacher Curl", loadKg: 30, bodyMassKgAtTest: 80 }]);
     const notice = document.querySelector("[data-rank-body-mass-note]")!;
-    expect(notice.querySelector("summary")?.textContent).toBe("2 lifts are read against your profile weight");
+    // Its heading in the Data notes, was the summary of its own disclosure (Sep 30 §6).
+    expect(notice.querySelector("b")?.textContent).toBe("2 lifts use your current profile weight and will move if you change it");
     expect(Array.from(notice.querySelectorAll("li"), (item) => item.textContent)).toEqual(["Barbell Bench Press", "Back Squat"]);
     expect(notice.textContent).toContain("Open each one's record to save what you weighed that day.");
   });
@@ -97,7 +101,8 @@ describe("the rank map says when a lift is read against the profile weight", () 
   it("names a workout lift without sending the athlete to a record that cannot take a weight", () => {
     renderWith([], [squatWorkout]);
     const notice = document.querySelector("[data-rank-body-mass-note]");
-    expect(notice?.textContent).toBe("Your Back Squat lift from a workout has no body weight saved for its day, so it is read against your profile weight.");
+    // One item in the Data notes now (Sep 30 §6): its heading says what the profile weight means.
+    expect(notice?.querySelector("p:not(:first-child)")?.textContent).toBe("Your Back Squat lift from a workout has no body weight saved for its day.");
     expect(notice?.textContent).not.toContain("Open its record");
     openRecord("workout-session-1-squat");
     expect(document.querySelector(".strength-recorded-measurement")).toBeNull();
@@ -110,9 +115,10 @@ describe("the rank map says when a lift is read against the profile weight", () 
   it("sends only the lifts logged by hand to their records when workout lifts are listed too", () => {
     renderWith([bench], [squatWorkout]);
     const notice = document.querySelector("[data-rank-body-mass-note]")!;
-    expect(notice.querySelector("summary")?.textContent).toBe("2 lifts are read against your profile weight");
+    // Its heading in the Data notes, was the summary of its own disclosure (Sep 30 §6).
+    expect(notice.querySelector("b")?.textContent).toBe("2 lifts use your current profile weight and will move if you change it");
     expect(Array.from(notice.querySelectorAll("li"), (item) => item.textContent)).toEqual(["Barbell Bench Press", "Back Squat — from a workout"]);
-    expect(notice.querySelector("p")?.textContent).toBe("They have no body weight saved for their day. For each lift you logged by hand, open its record to save what you weighed that day.");
+    expect(notice.querySelector("p:not(:first-child)")?.textContent).toBe("They have no body weight saved for their day. For each lift you logged by hand, open its record to save what you weighed that day.");
     expect(notice.textContent).not.toContain("Open each one's record");
   });
 

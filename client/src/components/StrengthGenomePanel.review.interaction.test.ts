@@ -64,7 +64,8 @@ describe("Strength Genome direct Review workflow", () => {
     expect(screen.getByText(/0\.44× your body weight on that day — for your own context, not a rank\./)).toBeTruthy();
     // A preacher curl is not one of the three lifts the published reference
     // covers, so this says so plainly rather than explaining a study protocol.
-    expect(screen.getByText("No ranking for this lift yet")).toBeTruthy();
+    // Renamed from "No ranking for this lift yet" (Sep 30 §6).
+    expect(screen.getByText("No comparison rank available for this lift")).toBeTruthy();
   });
 
   it("hands focus back to the Review button when Escape closes the record", () => {

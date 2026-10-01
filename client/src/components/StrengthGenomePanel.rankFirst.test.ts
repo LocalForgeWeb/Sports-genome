@@ -17,15 +17,24 @@ describe("Strength Genome rank-first presentation", () => {
     expect(panel).toContain("Save this body weight");
   });
 
-  it("places an exact source-sample rank ahead of the optional manual body-weight entry, and a within-athlete rating ahead of both", () => {
-    const ratingPosition = panel.indexOf("Your rating on this lift");
-    const rankPosition = panel.indexOf("Source-sample rank range");
-    const measurementPosition = panel.indexOf('className="strength-recorded-measurement"');
-    expect(ratingPosition).toBeGreaterThan(-1);
-    expect(rankPosition).toBeGreaterThan(ratingPosition);
-    expect(measurementPosition).toBeGreaterThan(rankPosition);
-    expect(panel).toContain("No ranking for this lift yet");
+  // Reordered on purpose (Sep 30 §6): the lift's comparison rank comes first in its own row,
+  // personal progress is a separate row and never called a rating, the ratio is its own fact,
+  // and the body-weight correction sits in the one About this data disclosure.
+  it("lists the lift's comparison rank, then its progress, then its ratio, then About this data", () => {
+    const comparisonPosition = panel.indexOf("<dt>Comparison rank for this lift</dt>");
+    const studyPosition = panel.indexOf("Source-sample rank range");
+    const progressPosition = panel.indexOf("<dt>Your progress on this lift</dt>");
+    const ratioPosition = panel.indexOf("<dt>Body-weight ratio</dt>");
+    const aboutPosition = panel.indexOf("<summary>About this data</summary>");
+    expect(comparisonPosition).toBeGreaterThan(-1);
+    expect(studyPosition).toBeGreaterThan(comparisonPosition);
+    expect(progressPosition).toBeGreaterThan(studyPosition);
+    expect(ratioPosition).toBeGreaterThan(progressPosition);
+    expect(aboutPosition).toBeGreaterThan(ratioPosition);
+    expect(panel).toContain("No comparison rank available for this lift");
     expect(panel).toContain("for your own context, not a rank.");
+    expect(panel).not.toContain("Your rating on this lift");
+    expect(panel).not.toContain("Confirmed change");
   });
 
   it("removes record-context color legend language and keeps the map as a test selector", () => {

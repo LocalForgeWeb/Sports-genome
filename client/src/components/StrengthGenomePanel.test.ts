@@ -47,9 +47,10 @@ describe("Strength Genome panel", () => {
     expect(source).not.toContain("rankAgainstPowerliftingNorms");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("No ranking for this lift yet");
+    // Renamed (Sep 30 §6): an unranked lift says so in its own visible row, and the row is named for what it is.
+    expect(source).toContain("No comparison rank available for this lift");
     expect(source).toContain("Compared to that competition group");
-    expect(source).toContain("Where this sits");
+    expect(source).toContain("Comparison rank for this lift");
     expect(source).not.toContain("Where this ranks");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
@@ -155,7 +156,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('getPiperReferenceForObservation');
     expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
-    expect(source).toContain("No ranking for this lift yet");
+    // Renamed (Sep 30 §6): was "No ranking for this lift yet", inside a disclosure summary.
+    expect(source).toContain("No comparison rank available for this lift");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("Compared to that competition group");
     expect(source).toContain("Nothing logged for this muscle group yet.");

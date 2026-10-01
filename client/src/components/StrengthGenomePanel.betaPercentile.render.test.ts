@@ -100,7 +100,8 @@ describe("a logged lift gets a percentile from the community curves", () => {
   it("shows the placement where the record used to say there was no ranking", () => {
     openBiceps({ sexForReference: "male", baselineBodyWeight: 176 });
     expect(screen.getByText("63rd percentile")).toBeTruthy();
-    expect(screen.queryByText(/No ranking for this lift yet/)).toBeNull();
+    // Renamed from "No ranking for this lift yet" (Sep 30 §6).
+    expect(screen.queryByText(/No comparison rank available/)).toBeNull();
   });
 
   /**
@@ -131,7 +132,9 @@ describe("a logged lift gets a percentile from the community curves", () => {
     // percentile bands in general, which is not a placement of this lift.
     const record = screen.getByRole("region", { name: "Biceps recorded strength context" });
     expect(within(record).queryByText(/percentile/)).toBeNull();
-    expect(within(record).getByText(/No ranking for this lift yet/)).toBeTruthy();
+    // Renamed and moved into a visible row with its reason (Sep 30 §6).
+    expect(within(record).getByText("No comparison rank available for this lift")).toBeTruthy();
+    expect(within(record).getByText("No comparison data for Cable Curl yet.")).toBeTruthy();
   });
 
   /**

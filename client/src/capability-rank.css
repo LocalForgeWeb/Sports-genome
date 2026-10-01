@@ -131,6 +131,24 @@
 .rank-unscored-card strong { display: block; margin-bottom: .2rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .rank-profile-partial { margin: .5rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-snug); }
 .rank-profile-partial summary { color: #9fc8f4; cursor: pointer; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; min-height: 2.75rem; display: flex; align-items: center; }
+/* The lifts behind a region's rank, as facts under it: exercise, where it placed, and each
+   dated lift with what it was read against. */
+.rank-provenance { display: grid; gap: .3rem; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.rank-provenance p { margin: 0; }
+.rank-provenance ul { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.rank-provenance strong { color: var(--sg-text-on-dark); }
+.rank-provenance-label { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.rank-provenance-lift { padding-left: .7rem; border-left: 2px solid rgb(195 215 234 / .28); }
+/* Loading and updating are said in words, without the hatch that means unscored. */
+.rank-pending-note, .rank-updating-note { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; line-height: var(--sg-leading-snug); }
+/* Data notes: one disclosure under the map, its counts kept in the summary line. */
+.rank-data-notes summary { flex-wrap: wrap; gap: .1rem .6rem; }
+.rank-data-notes summary small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: 0; text-transform: none; }
+.rank-data-note { margin-top: .5rem; }
+.rank-data-note p { margin: 0; }
+.rank-data-note p + p { margin-top: .2rem; }
+.rank-data-note b { color: var(--sg-text-on-dark); }
+.rank-data-note ul { margin: .3rem 0 0; padding-left: 1.1rem; }
 .rank-profile-retry { min-height: 2.75rem; padding: 0 .25rem; border: 0; background: none; color: #9fc8f4; font: inherit; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; cursor: pointer; }
 .rank-profile-retry:disabled { opacity: .6; cursor: default; }
 
