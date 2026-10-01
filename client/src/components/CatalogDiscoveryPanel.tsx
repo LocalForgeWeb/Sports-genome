@@ -2,11 +2,13 @@ import { useMemo, useState } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { ArrowRight, Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import { catalogFilterOptions, defaultCatalogFilters, type CatalogFilters, filterCatalogByActionLink, filterCatalogExercises } from "@/lib/catalogDiscovery";
+import { catalogFilterOptions, catalogPageSize, defaultCatalogFilters, type CatalogFilters, filterCatalogByActionLink, filterCatalogExercises } from "@/lib/catalogDiscovery";
 import { suggestExerciseNames } from "@/lib/exerciseSearch";
 import { muscleLabels } from "@/components/AnatomyMap";
 import type { ExerciseActionConnection } from "@/lib/movementProgramAnalysis";
 import { sharedConnectionSummary } from "@/lib/movementProgramAnalysis";
+import type { ExerciseDiscoveryContext } from "@/lib/exerciseDiscovery";
+import type { MovementSupport } from "@/lib/movementSupport";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { labelTellsRowsApart } from "@/lib/pickerRowFacts";
 import "@/catalog-discovery.css";
@@ -31,9 +33,26 @@ type CatalogDiscoveryPanelProps = {
   /** Where the action the links are measured against is changed: the Movement Atlas. */
   onChangeAction?: () => void;
   connectionForExercise?: (exercise: Exercise) => ExerciseActionConnection;
+  /**
+   * How many rows are loaded, when the page that owns the catalog keeps it: then
+   * Back from an exercise's details, or from a screen it led to, returns to the
+   * same rows. Left out, the panel keeps its own count.
+   */
+  visibleCount?: number;
+  onVisibleCountChange?: (count: number) => void;
+  /** How the catalog was entered: movement, muscle or the whole catalog (lib/exerciseDiscovery). */
+  discovery?: ExerciseDiscoveryContext;
+  /** In movement mode, that movement's support tiers before any refinement (lib/movementSupport). */
+  movementSupport?: MovementSupport;
+  /** Movement mode: back to the movement the catalog was opened from. */
+  onBackToMovement?: () => void;
+  /** Leaves movement or muscle mode for the whole catalog. */
+  onShowAllExercises?: () => void;
+  /** Opens muscle mode for one muscle, on an explicit tap (the missing-data action names the movement's first prime mover). */
+  onBrowseMuscle?: (muscleId: string) => void;
 };
 
-const visiblePerPage = 36;
+const visiblePerPage = catalogPageSize;
 
 /** The filters an athlete can take off one at a time, with the word each chip shows. */
 const chipKeys = ["category", "movement", "equipment", "muscle", "actionLink"] as const;
@@ -47,8 +66,13 @@ const actionLinkLabel: Record<CatalogFilters["actionLink"], string> = { all: "Al
  * details, the catalog's tag, and favorite and add as two separate targets that
  * never open the row. The bordered grid of 36 cards is gone.
  */
-export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, recentIds = [], onClearRecent, comparePendingName, onCancelCompare, destinationLabel, selectedActionLabel, onChangeAction, connectionForExercise }: CatalogDiscoveryPanelProps) {
-  const [visibleCount, setVisibleCount] = useState(visiblePerPage);
+export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFiltersChange, onToggleFavorite, onInspect, onAdd, recentIds = [], onClearRecent, comparePendingName, onCancelCompare, destinationLabel, selectedActionLabel, onChangeAction, connectionForExercise, visibleCount: keptVisibleCount, onVisibleCountChange }: CatalogDiscoveryPanelProps) {
+  const [ownVisibleCount, setOwnVisibleCount] = useState(visiblePerPage);
+  const visibleCount = keptVisibleCount ?? ownVisibleCount;
+  const setVisibleCount = (next: number | ((count: number) => number)) => {
+    const count = typeof next === "function" ? next(visibleCount) : next;
+    if (onVisibleCountChange) onVisibleCountChange(count); else setOwnVisibleCount(count);
+  };
   const options = useMemo(() => catalogFilterOptions(exercises), [exercises]);
   const baseResults = useMemo(() => filterCatalogExercises(exercises, filters, favoriteIds), [exercises, filters, favoriteIds]);
   const results = useMemo(() => filterCatalogByActionLink(baseResults, filters.actionLink, connectionForExercise), [baseResults, connectionForExercise, filters.actionLink]);

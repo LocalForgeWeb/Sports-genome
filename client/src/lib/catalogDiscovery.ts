@@ -13,6 +13,9 @@ export type CatalogFilters = {
   favoritesOnly: boolean;
 };
 
+/** How many rows the catalog shows at first, and adds with each "Browse more". */
+export const catalogPageSize = 36;
+
 export const defaultCatalogFilters: CatalogFilters = {
   query: "",
   category: "all",
