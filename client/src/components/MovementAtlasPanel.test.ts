@@ -27,7 +27,9 @@ describe("Movement Atlas database interaction", () => {
     expect(source).toContain("Filters");
   });
   it("renders compact sport controls, full-row action selection, the retained analysis fields, and the Body Lab handoff", () => {
-    const markup = renderToStaticMarkup(createElement(MovementAtlasPanel, { sportName: "Track & Field", sportId: "track-and-field", sports: sportProfiles, movements: track, selectedMovement: selected, query: "sprint", family: "All", onQuery: vi.fn(), onFamily: vi.fn(), onSport: vi.fn(), onMovement: vi.fn(), onOpenBody: vi.fn() }));
+    const markup = renderToStaticMarkup(createElement(MovementAtlasPanel, { sportName: "Track & Field", sportId: "track-and-field", sports: sportProfiles, movements: track, selectedMovement: selected, query: "sprint", family: "All", onQuery: vi.fn(), onFamily: vi.fn(), onSport: vi.fn(), onMovement: vi.fn(), onOpenBody: vi.fn(), onFindExercises: vi.fn() }));
+    // Sep 30: the action's exercises come first; the Body Lab handoff stays as the second action.
+    expect(markup).toContain(`Find exercises for ${movementDisplayLabel(selected.label)}`); expect(markup).toContain("Explore exercises that support this movement.");
     expect(markup).toContain("Choose sport"); expect(markup).toContain("General profile"); expect(markup).toContain("movements"); expect(markup).toContain(movementDisplayLabel(selected.label)); expect(markup).toContain("Physiological demand"); expect(markup).toContain("Programming context"); expect(markup).toContain("Explore involved muscles");
   });
   it("keeps qualitative evidence language and deliberate visual press feedback without ranking or activation claims", () => {

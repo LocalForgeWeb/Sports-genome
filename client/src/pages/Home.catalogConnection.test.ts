@@ -10,9 +10,10 @@ const globalStyles = readFileSync(resolve(import.meta.dirname, "../index.css"), 
 describe("canonical connected exercise catalog", () => {
   it("uses Catalog Discovery with the selected sport-action connection helper", () => {
     expect(homeSource).toContain("connectionForExercise={connectionForExercise}");
-    // One cached lookup per selected action, so a keystroke or an unrelated render reuses it.
-    expect(homeSource).toContain("createActionConnectionLookup(enrichedSelectedMovement), [enrichedSelectedMovement]");
-    expect(homeSource).toContain("selectedActionLabel={selectedMovement.label}");
+    // One cached lookup per action in context, so a keystroke or an unrelated render reuses it.
+    // Sep 30: in movement mode that action is the discovery movement, not the athlete's own.
+    expect(homeSource).toContain("createActionConnectionLookup(enrichedContextMovement), [enrichedContextMovement]");
+    expect(homeSource).toContain("selectedActionLabel={contextMovement.label}");
     expect(catalogSource).toContain("catalog-action-link");
     expect(catalogSource).toContain("connection.label");
     expect(catalogSource).toContain("All action links");
@@ -28,7 +29,9 @@ describe("canonical connected exercise catalog", () => {
   it("mounts the exercise overlay with the same selected action the catalog is measured against", () => {
     // The Genome page folded into this overlay: one place per exercise, not two.
     expect(homeSource).not.toContain("<ExerciseGenomeWorkspace");
-    expect(homeSource).toContain("<SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement}");
+    // Sep 30: fed the movement the catalog was opened for (movement mode), else the athlete's own.
+    expect(homeSource).toContain("<SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={contextMovement} enrichedSelectedMovement={enrichedContextMovement}");
+    expect(homeSource).toContain("sportMovement: contextMovement }");
     expect(homeSource).toContain('if (value === "genome") return "catalog";');
   });
 

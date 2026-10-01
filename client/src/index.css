@@ -3117,6 +3117,8 @@ details:not([open]) > *:not(summary) {
 .destination-body .atlas-inspector-detail > summary { color: var(--sg-link-on-dark); }
 .destination-body .body-lab-next-step { min-width: 0; }
 .destination-body .body-lab-next-step > button { white-space: normal; }
+/* Browsing the selected muscle is the second action, drawn as one. */
+.destination-body .body-lab-next-step > .body-lab-next-step-secondary { min-height: 44px; border-color: var(--sg-control-border-on-dark); background: transparent; box-shadow: none; color: var(--sg-text-on-dark); }
 
 /* ── Home ─────────────────────────────────────────────────────────────────────
  *

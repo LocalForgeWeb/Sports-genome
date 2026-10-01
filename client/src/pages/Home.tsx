@@ -62,7 +62,9 @@ import { SportBrowseNotice } from "@/components/SportBrowseNotice";
 import { HierarchyPlanningDisclosure } from "@/components/HierarchyPlanningDisclosure";
 import { defaultEquipmentProfile, equipmentProfileSummary, filterStackForEquipment } from "@/lib/equipmentProfile";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
-import { defaultCatalogFilters, type CatalogFilters } from "@/lib/catalogDiscovery";
+import { catalogPageSize, defaultCatalogFilters, type CatalogFilters } from "@/lib/catalogDiscovery";
+import { allExercisesDiscovery, discoveryFromParams, discoveryKey, discoveryMovementProfile, discoveryTitle, validDiscovery, writeDiscoveryParams, type ExerciseDiscoveryContext } from "@/lib/exerciseDiscovery";
+import { getMovementSupport } from "@/lib/movementSupport";
 import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, isTrainingGoal, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { createActionConnectionLookup, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { getBodyLabRoleContext } from "@/lib/bodyLabRoleContext";
@@ -237,6 +239,39 @@ export function workspaceFromLocation(value: string | null): Workspace {
   return workspaceIds.includes(value as Workspace) ? value as Workspace : "command";
 }
 
+/** The muscles a muscle-mode catalog may be opened on: every muscle the app has a name for. */
+const discoveryMuscleKeys: ReadonlySet<string> = new Set(Object.keys(muscleLabels));
+
+/** The catalog's mode as an address states it, validated; any other page has none. */
+function discoveryFromLocation(): ExerciseDiscoveryContext {
+  const params = new URLSearchParams(window.location.search);
+  return workspaceFromLocation(params.get("workspace")) === "catalog" ? discoveryFromParams(params, discoveryMuscleKeys) : allExercisesDiscovery;
+}
+
+/**
+ * Rewrites the current entry's address to what is on screen, if it says anything
+ * else: the discovery parameters as validated (lib/exerciseDiscovery), none at all
+ * off the catalog. The workspace parameter and history state are kept.
+ */
+function replaceWithCanonicalAddress(workspace: Workspace) {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  writeDiscoveryParams(url.searchParams, workspace === "catalog" ? discoveryFromLocation() : allExercisesDiscovery);
+  if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
+}
+
+/**
+ * A page's address: its workspace and, on the catalog, the discovery context. A page
+ * that is not the catalog carries no discovery parameters; anything else in the query
+ * is left as it is.
+ */
+function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("workspace", next);
+  writeDiscoveryParams(url.searchParams, next === "catalog" ? discovery : allExercisesDiscovery);
+  return url;
+}
+
 function prescriptionFor(index: number, goal: Goal) {
   return getGoalPrescription(goal, index);
 }
@@ -308,6 +343,25 @@ export default function Home() {
   const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [catalogFilters, setCatalogFilters] = useState<CatalogFilters>(defaultCatalogFilters);
+  /**
+   * How the catalog was entered: for a movement, for a muscle, or the whole catalog
+   * (lib/exerciseDiscovery). Read from the address at load and on Back and Forward,
+   * and written to it by navigateWorkspace, so a reload or a Back lands on the same
+   * mode with the same inputs. The refinements above belong to it, and so does how
+   * many rows are loaded.
+   */
+  const [discovery, setDiscovery] = useState<ExerciseDiscoveryContext>(() => typeof window === "undefined" ? allExercisesDiscovery : discoveryFromLocation());
+  const [catalogVisibleCount, setCatalogVisibleCount] = useState(catalogPageSize);
+  /** Where "Find exercises for ..." was pressed - the muscle map or the Movement explorer - so the way back goes there. */
+  const [discoveryOrigin, setDiscoveryOrigin] = useState<"body" | "movement">("movement");
+  /*
+   * The catalog state as of the last render, for handlers that outlive it (popstate
+   * is bound once), and the refinements each context was left with, so a Back to a
+   * context gets its own filters back and never another movement's.
+   */
+  const catalogStateRef = useRef({ discovery, filters: catalogFilters, visibleCount: catalogVisibleCount });
+  catalogStateRef.current = { discovery, filters: catalogFilters, visibleCount: catalogVisibleCount };
+  const catalogMemoryRef = useRef(new Map<string, { filters: CatalogFilters; visibleCount: number }>());
   const [localFavoriteIds, setLocalFavoriteIds] = useState<number[]>([]);
   const [atlasQuery, setAtlasQuery] = useState("");
   const [atlasFamily, setAtlasFamily] = useState("All");
@@ -379,7 +433,8 @@ export default function Home() {
   // Reorder is a mode for the whole list, not twelve arrow boxes beside six rows.
   const [reorderingDay, setReorderingDay] = useState(false);
   const [loggerScrollRequest, setLoggerScrollRequest] = useState(0);
-  const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string } | null>(null);
+  /** The page a search result was opened from; for the catalog, with the mode it was in, so the return lands on that mode. */
+  const [searchReturn, setSearchReturn] = useState<{ workspace: Workspace; label: string; discovery?: ExerciseDiscoveryContext } | null>(null);
   // Set while the exercise overlay closes itself through history.back(): that
   // popstate is the overlay going away, not the athlete pressing Back, so the
   // search return bar underneath stays.
@@ -444,8 +499,20 @@ export default function Home() {
   const referenceMovement = referenceMovements.find((movement) => movement.id === referenceMovementId(movementId, sportBrowse)) || findSportMovement(browseSportId);
   const browseSportLabel = sportProfiles.find((profile) => profile.id === browseSportId)?.label || browseSportId;
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
-  /** The catalog's action links, each worked out once for the selected action rather than on every render. */
-  const connectionForExercise = useMemo(() => createActionConnectionLookup(enrichedSelectedMovement), [enrichedSelectedMovement]);
+  /**
+   * The movement the catalog is showing exercises for, in movement mode. It can be a
+   * browsed sport's, and it is not the athlete's own action unless they opened that
+   * one: the catalog and the exercise details opened over it read this movement,
+   * every other screen reads the athlete's.
+   */
+  const discoveryMovement = useMemo(() => discoveryMovementProfile(discovery), [discovery]);
+  const inMovementDiscovery = workspace === "catalog" && discoveryMovement !== null;
+  const contextMovement = inMovementDiscovery ? discoveryMovement : selectedMovement;
+  const enrichedContextMovement = inMovementDiscovery ? lookupEnrichedMovement(discoveryMovement.sportId, discoveryMovement.id) : enrichedSelectedMovement;
+  /** The catalog's action links, each worked out once for the action in context rather than on every render. */
+  const connectionForExercise = useMemo(() => createActionConnectionLookup(enrichedContextMovement), [enrichedContextMovement]);
+  /** Movement mode's tiers, before refinements; worked out once per movement (lib/movementSupport). */
+  const movementSupport = useMemo(() => discovery.mode === "movement" ? getMovementSupport(discovery.sportId, discovery.movementId) : undefined, [discovery]);
   const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment), [selectedMovement, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment]);
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
@@ -875,7 +942,10 @@ export default function Home() {
   // A new action is a new map; whatever was selected on the old one is not
   // selected on this one. It used to pick the action's first muscle here, which
   // is how a page nobody had touched came to say "Selected muscle: Pectoralis".
-  useEffect(() => { setActiveMuscle(null); }, [selectedMovement.id]);
+  // Keyed on the action the Body Lab is showing, browsed sport included: keyed on
+  // the athlete's own action, a muscle picked on one browsed action stayed picked
+  // on the next, and "Browse ... exercises" offered it there.
+  useEffect(() => { setActiveMuscle(null); }, [browseSportId, referenceMovement.id]);
 
 
   /**
@@ -947,7 +1017,35 @@ export default function Home() {
    * athlete who searched "shoulder pain" arrives focused on the right card
    * looking at the top of the page.
    */
-  const navigateWorkspace = (next: Workspace, { keepScroll = false }: { keepScroll?: boolean } = {}) => {
+  /**
+   * Changes what the catalog is showing. A fresh entry starts with no refinements and
+   * at the first page of rows; a return to a context (Back, Forward, the search
+   * return) gets back the refinements and loaded rows that context was left with.
+   * Filters chosen for one movement therefore never narrow another's results.
+   * Reads and writes only refs and state setters, so the popstate handler, bound
+   * once, can call it.
+   */
+  const switchDiscovery = (next: ExerciseDiscoveryContext, { fresh }: { fresh: boolean }) => {
+    const current = catalogStateRef.current;
+    const memory = catalogMemoryRef.current;
+    memory.set(discoveryKey(current.discovery), { filters: current.filters, visibleCount: current.visibleCount });
+    const remembered = fresh ? undefined : memory.get(discoveryKey(next));
+    const filters = remembered?.filters ?? defaultCatalogFilters;
+    const visibleCount = remembered?.visibleCount ?? catalogPageSize;
+    setDiscovery(next);
+    setCatalogFilters(filters);
+    setCatalogVisibleCount(visibleCount);
+    catalogStateRef.current = { discovery: next, filters, visibleCount };
+  };
+  /**
+   * `discovery` names the catalog's mode for a navigation to the catalog. Without
+   * one, choosing the catalog while on it keeps its mode (the page returns to its
+   * top, as any page does), and arriving from another page - a tab, the dock, Home,
+   * search - is a fresh entry into the whole catalog. `fresh` (the default when no
+   * mode is named) clears the refinements; a named mode without it gets back the
+   * ones it was left with.
+   */
+  const navigateWorkspace = (next: Workspace, { keepScroll = false, discovery: requested, fresh }: { keepScroll?: boolean; discovery?: ExerciseDiscoveryContext; fresh?: boolean } = {}) => {
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
     /**
@@ -960,16 +1058,49 @@ export default function Home() {
      * sport with no memory of having asked for it.
      */
     if (primaryDestinationForWorkspace(next) !== "body") setSportBrowse(followProfileSport);
+    let catalogDiscovery = catalogStateRef.current.discovery;
+    if (next === "catalog" && (requested || workspace !== "catalog")) {
+      catalogDiscovery = requested ?? allExercisesDiscovery;
+      switchDiscovery(catalogDiscovery, { fresh: fresh ?? !requested });
+    }
     // The active day no longer needs correcting on arrival: it is resolved from the split
     // on every render, so it cannot be pointing at a day this week does not have.
     setWorkspaceState(next);
     if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("workspace") !== next) {
-      url.searchParams.set("workspace", next);
+    // A new entry whenever the address changes: another page, or the catalog in another mode.
+    const url = urlForWorkspace(next, catalogDiscovery);
+    if (url.search !== window.location.search) {
       window.history.pushState({ workspace: next }, "", url);
     }
     if (!keepScroll) window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+  };
+  /**
+   * The one way into the catalog with a purpose: a movement ("Find exercises for
+   * Bridge"), a muscle the athlete picked ("Browse Gluteal complex exercises"), or the
+   * whole catalog. It sets the context, clears the refinements, starts at the top,
+   * and adds a history entry, so Back returns to where it was pressed. The day an add
+   * goes to is Plan's open day and is not touched.
+   */
+  const openDiscovery = (context: ExerciseDiscoveryContext) => {
+    const next = validDiscovery(context, discoveryMuscleKeys);
+    if (next.mode === "movement") setDiscoveryOrigin(workspace === "body" ? "body" : "movement");
+    navigateWorkspace("catalog", { discovery: next, fresh: true });
+  };
+  /**
+   * Puts a movement on the Movement explorer and the Body Lab without adopting a
+   * sport: another sport's movement travels on the browse overlay, and one in the
+   * athlete's own sport is selected the way the Movement explorer selects it.
+   */
+  const showReferenceMovement = (movement: Pick<SportMovementProfile, "id" | "sportId">) => {
+    const browse = browseAction(movement, activeSportId);
+    setSportBrowse(browse);
+    if (!browse.sportId) setMovementId(movement.id);
+  };
+  /** "Back to Bridge": the movement the catalog was opened for, on the page it was opened from. */
+  const returnToDiscoveryMovement = () => {
+    if (!discoveryMovement) return;
+    showReferenceMovement(discoveryMovement);
+    navigateWorkspace(discoveryOrigin);
   };
   /** Tapping the destination you are already in returns that page to the top; it does not swap to the destination's first page. */
   const dockTarget = (item: { id: PrimaryDestination; defaultWorkspace?: Workspace }): Workspace => (item.id === activePrimaryDestination ? workspace : item.defaultWorkspace!);
@@ -1006,13 +1137,22 @@ export default function Home() {
       // The same rule an in-app navigation applies (navigateWorkspace): a sport being browsed
       // does not outlive Body Lab. Back used to keep it, so a later "Explore this movement"
       // opened another sport. (The local tab row follows the workspace on its own.)
-      const next = workspaceFromLocation(new URLSearchParams(window.location.search).get("workspace"));
+      const params = new URLSearchParams(window.location.search);
+      const next = workspaceFromLocation(params.get("workspace"));
       if (primaryDestinationForWorkspace(next) !== "body") setSportBrowse(followProfileSport);
+      // The catalog's mode comes back with its entry, checked again: an entry naming a
+      // movement or muscle that does not resolve opens the whole catalog, never a mix.
+      if (next === "catalog") switchDiscovery(discoveryFromParams(params, discoveryMuscleKeys), { fresh: false });
+      replaceWithCanonicalAddress(next);
       setWorkspaceState(next);
     };
     window.addEventListener("popstate", restoreWorkspace);
     return () => window.removeEventListener("popstate", restoreWorkspace);
   }, []);
+  // An address that arrived with discovery parameters it cannot use (a hand-edited
+  // link, a movement since renamed) is corrected in place, so the address bar and a
+  // later reload say what is on screen.
+  useEffect(() => { replaceWithCanonicalAddress(workspace); }, []);
   /**
    * The sign-in notice's "Account & sync" action lands here: About me, with that group
    * open. The notice lives outside React (lib/sessionNotice.ts), so it is handed a function
@@ -1440,7 +1580,10 @@ export default function Home() {
     if (typeof document !== "undefined" && !inspectedExercise) inspectorReturnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     recordRecentExercise(exercise.id);
     setInspectedExercise(exercise);
-    setActiveMuscle(exercise.primaryMuscles[0] || "obliques");
+    // Looking at an exercise is not choosing a muscle. This used to set the Body Lab's
+    // selection to the exercise's first muscle, so after a look at a bench press the
+    // muscle map offered pectoralis major exercises for Bridge. "Explore ... in Body
+    // Lab" in the overlay is the way to take a muscle there.
     if (typeof window !== "undefined" && window.history.state?.overlay !== "exercise") window.history.pushState({ workspace, overlay: "exercise" }, "", window.location.href);
   };
   const closeInspector = () => {
@@ -1456,11 +1599,10 @@ export default function Home() {
    */
   const leaveInspectorFor = (next: Workspace) => {
     if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") {
-      const url = new URL(window.location.href);
       // Same screen: navigateWorkspace will not push, so popping the overlay entry is safe.
-      if (url.searchParams.get("workspace") === next) { closeInspector(); navigateWorkspace(next); return; }
-      url.searchParams.set("workspace", next);
-      window.history.replaceState({ workspace: next }, "", url);
+      if (new URL(window.location.href).searchParams.get("workspace") === next) { closeInspector(); navigateWorkspace(next); return; }
+      // The catalog's discovery parameters stay with the catalog's own entry below.
+      window.history.replaceState({ workspace: next }, "", urlForWorkspace(next, discovery));
     }
     setInspectedExercise(null);
     // The URL already names `next`, so this only resets context and scrolls.
@@ -1576,6 +1718,7 @@ export default function Home() {
     }
     if (!target) return;
     const origin = workspace;
+    const originDiscovery = discovery;
     navigateWorkspace(target, { keepScroll: Boolean(anchor) });
     if (pendingInspect) inspectExercise(pendingInspect);
     // Focus, not just scroll: §11 requires focus to land near the object the
@@ -1583,7 +1726,7 @@ export default function Home() {
     // user still at the top of it.
     if (anchor) revealWorkspaceAnchor(anchor);
     // Nothing to return to when the result opens the screen already on display.
-    if (target !== origin) setSearchReturn({ workspace: origin, label: workspaceTitles[origin] });
+    if (target !== origin) setSearchReturn(origin === "catalog" ? { workspace: origin, label: discoveryTitle(originDiscovery, muscleLabels), discovery: originDiscovery } : { workspace: origin, label: workspaceTitles[origin] });
   };
   const completeOnboarding = ({ goal: selectedGoal, trainingDays: selectedDays, sportId: selectedSportId, sportContextMode: selectedMode, focus, constraint, reportedSignals, stackMode, baseline }: AthleteQuizSelection) => {
     setGoal(selectedGoal);
@@ -1728,7 +1871,7 @@ export default function Home() {
         label={`${primaryDestinations.find((item) => item.id === activePrimaryDestination)?.label} workspace pages`}
         onSelect={(tab) => navigateContextualWorkspace(contextualWorkspaceTabs.find((item) => item.id === tab.id)!)}
       />}
-      {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace)}>&larr; Back to {searchReturn.label}</button></div>}
+      {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace, { discovery: searchReturn.discovery })}>&larr; Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
         {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
@@ -1737,7 +1880,7 @@ export default function Home() {
           <summary><em>{trackerDayPickerOpen ? "Close" : "Change day"}</em><ChevronDown className="h-4 w-4" aria-hidden /></summary>
           <div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => { chooseDayToTrain(slot); openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div>
         </details>} /></section>}
-        {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} recentIds={recentExerciseIds} onClearRecent={clearRecentExercises} comparePendingName={comparePending?.name} onCancelCompare={() => setComparePending(null)} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} selectedActionLabel={selectedMovement.label} onChangeAction={() => navigateWorkspace("movement")} connectionForExercise={connectionForExercise} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
+        {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} recentIds={recentExerciseIds} onClearRecent={clearRecentExercises} comparePendingName={comparePending?.name} onCancelCompare={() => setComparePending(null)} onFiltersChange={setCatalogFilters} visibleCount={catalogVisibleCount} onVisibleCountChange={setCatalogVisibleCount} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} selectedActionLabel={contextMovement.label} onChangeAction={inMovementDiscovery ? returnToDiscoveryMovement : () => navigateWorkspace("movement")} connectionForExercise={connectionForExercise} discovery={discovery} movementSupport={movementSupport} onBackToMovement={returnToDiscoveryMovement} onShowAllExercises={() => openDiscovery(allExercisesDiscovery)} onBrowseMuscle={(muscleId) => openDiscovery({ mode: "muscle", muscleId })} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} accountSignedIn={isAuthenticated && !sessionLapsed} sessionLapsed={sessionLapsed} accountFocusRequest={accountFocusRequest}
           guides={<div className="about-me-guides"><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><p>Restarting onboarding deletes every saved training day and starts setup again; it asks first.</p><SupabaseResearchLibraryPanel /></div>}
           launchVideo={<div className="launch-setting" aria-label="Launch video"><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={(event) => { emitInteractionFeedback(12); setIntroOpener(event.currentTarget); setIntroPreviewOpen(true); }}>Preview intro video</button></div>}
@@ -1748,13 +1891,13 @@ export default function Home() {
         {planSync.conflict && <div className="plan-sync-conflict" role="alert"><p><strong>Your plan changed on another device.</strong> This device and your account both have edits since they last matched, so neither was replaced.</p><div><button type="button" onClick={() => planSync.resolveConflict("device")}>Keep this device's plan</button><button type="button" onClick={() => planSync.resolveConflict("account")}>Use the account's plan</button></div></div>}
         {workspace === "command" && <TodayActionPanel plan={homePlan} onOpenWorkout={openPlannedWorkout} onOpenProgress={() => navigateWorkspace("progress")} goal={goal} live={liveSession} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
-        {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} /></>}
+        {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} onFindExercises={() => openDiscovery({ mode: "movement", sportId: referenceMovement.sportId, movementId: referenceMovement.id })} /></>}
         {/* Home, after the first viewport: what this app helps you do, as three
             named doors with one line each, and then one insight about the sport
             action the plan is built around, with the top of its ranking. */}
         {workspace === "command" && <section className="home-explore" aria-labelledby="home-explore-heading">
           <p className="metric-label" id="home-explore-heading">Explore Sports Genome</p>
-          <button type="button" className="home-explore-row" onClick={() => { setCatalogFilters(defaultCatalogFilters); navigateWorkspace("catalog"); }}><Search className="h-5 w-5" aria-hidden="true" /><span><strong>Find exercises</strong><small>Search by exercise, muscle or equipment</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" className="home-explore-row" onClick={() => openDiscovery(allExercisesDiscovery)}><Search className="h-5 w-5" aria-hidden="true" /><span><strong>Find exercises</strong><small>Search by exercise, muscle or equipment</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("movement")}><Move3d className="h-5 w-5" aria-hidden="true" /><span><strong>Explore muscles &amp; movements</strong><small>See how sport actions involve your muscles</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("strength")}><Dumbbell className="h-5 w-5" aria-hidden="true" /><span><strong>View strength progress</strong><small>Inspect your recorded lifts and muscle ranks</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
         </section>}
@@ -1888,10 +2031,17 @@ export default function Home() {
           </div>
         </section>}
         {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} nextStep={<>
-          {/* The one thing to do with a muscle: find its exercises. The label
-              names the selected muscle; with nothing selected it says so and
-              offers the action's leading muscle, rather than pretending. */}
-          {(() => { const target = activeMuscle || getMovementMuscles(referenceMovement)[0] || ""; const name = muscleLabels[target] || target; return <div className="body-lab-next-step">{!activeMuscle && <span>Choose a muscle above, or start with what {referenceMovement.label.toLowerCase()} uses most.</span>}<button type="button" onClick={() => { setCatalogFilters({ ...defaultCatalogFilters, muscle: target }); navigateWorkspace("catalog"); }}>Find {name.toLowerCase()} exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>; })()}
+          {/* Two ways on, and each says which it is. The movement's own: the exercises
+              that support the action on the map, whatever muscle is picked. And, only
+              once the athlete has picked one, that muscle's exercises. There was one
+              button, named after a muscle; with nothing picked it named the first
+              muscle a text list found in the action's notes - "shoulders" for Bridge -
+              and opened the catalog filtered to it. */}
+          <div className="body-lab-next-step">
+            <span>Explore exercises that support this movement.</span>
+            <button type="button" onClick={() => openDiscovery({ mode: "movement", sportId: referenceMovement.sportId, movementId: referenceMovement.id })}>Find exercises for {movementDisplayLabel(referenceMovement.label)} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+            {activeMuscle && <button type="button" className="body-lab-next-step-secondary" onClick={() => openDiscovery({ mode: "muscle", muscleId: activeMuscle })}>Browse {muscleLabels[activeMuscle] || activeMuscle} exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+          </div>
           {capacityOfferForSelection && <div className="body-lab-capacity-step"><Target className="h-4 w-4" aria-hidden="true" /><div><p>Want {capacityOfferForSelection.name.toLowerCase()} to hold up better, or is something going on there?</p>{capacityOfferForSelection.relation === "region" && <small>{capacityOfferForSelection.name} is the area {(muscleLabels[activeMuscle!] || activeMuscle!).toLowerCase()} sits in — the closest target Sports Genome has for it.</small>}</div><button type="button" onClick={() => { adoptCapacityTarget(capacityOfferForSelection.targetKey); navigateWorkspace("profile", { keepScroll: true }); revealWorkspaceAnchor("targeted-capacity"); }}>Set it as a target <ArrowUpRight className="h-4 w-4" /></button></div>}
         </>} /></section>}
         {workspace === "review" && <section className="day-review-workspace">
@@ -1952,15 +2102,18 @@ export default function Home() {
           <button type="button" className="exercise-intelligence-compare" onClick={() => compareWith(inspectedExercise)}>{comparePending && comparePending.id !== inspectedExercise.id ? `Compare with ${comparePending.name}` : comparePending?.id === inspectedExercise.id ? "Comparing this · open another exercise" : "Compare with another exercise"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
           {/* The muscles, on the real figure: primary and supporting as the
               figure's own paint, the lists as its rows, the turn control on a
-              phone. Tapping a muscle carries into Body Lab's selection. */}
+              phone. A tap marks the muscle on this figure only; it used to become
+              Body Lab's selection without a word. The button below takes it there. */}
           <section className="exercise-intelligence-muscles" aria-label="Muscle involvement">
-            <AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={setActiveMuscle} showInspector={false} nextStep={<dl className="exercise-intelligence-roles"><div><dt>Primary</dt><dd>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div><div><dt>Supporting</dt><dd>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div>{inspectedExercise.qualities.length > 0 && <div><dt>Qualities</dt><dd>{inspectedExercise.qualities.join(" · ")}</dd></div>}</dl>} />
+            <AnatomyMap primary={inspectedExercise.primaryMuscles} secondary={inspectedExercise.secondaryMuscles} onSelect={() => {}} showInspector={false} nextStep={<dl className="exercise-intelligence-roles"><div><dt>Primary</dt><dd>{inspectedExercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div><div><dt>Supporting</dt><dd>{inspectedExercise.secondaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(" · ") || "None recorded"}</dd></div>{inspectedExercise.qualities.length > 0 && <div><dt>Qualities</dt><dd>{inspectedExercise.qualities.join(" · ")}</dd></div>}</dl>} />
             {/* The one thing the retired Genome page offered that this overlay did
                 not: a way from the exercise's leading muscle into Body Lab. */}
             {inspectedExercise.primaryMuscles[0] && <button type="button" className="exercise-intelligence-explore" onClick={() => { const muscle = inspectedExercise.primaryMuscles[0]!; setActiveMuscle(muscle); leaveInspectorFor("body"); }}>Explore {muscleLabels[inspectedExercise.primaryMuscles[0]] || inspectedExercise.primaryMuscles[0]} in Body Lab <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </section>
-          <ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: selectedMovement }} compactHead />
-          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={selectedMovement} enrichedSelectedMovement={enrichedSelectedMovement} onOpenAction={() => leaveInspectorFor("movement")} />
+          {/* Read against the movement the catalog is showing exercises for, when it
+              was opened for one; otherwise against the athlete's own action. */}
+          <ExerciseGenomePanel exercise={inspectedExercise} context={{ goal, currentWorkout: customWorkout, sportMovement: contextMovement }} compactHead />
+          <SelectedActionConnectionCard exercise={inspectedExercise} selectedMovement={contextMovement} enrichedSelectedMovement={enrichedContextMovement} onOpenAction={() => { if (inMovementDiscovery) showReferenceMovement(discoveryMovement); leaveInspectorFor("movement"); }} />
           <details className="exercise-intelligence-disclosure"><summary><BookOpen className="h-5 w-5" aria-hidden="true" /><span>Evidence context</span><ChevronDown className="h-5 w-5" aria-hidden="true" /></summary><div><CatalogExerciseEvidenceCard exercise={inspectedExercise} /></div></details>
         </div>
         <div ref={feedbackSurfaceRef} className="exercise-intelligence-actions">
