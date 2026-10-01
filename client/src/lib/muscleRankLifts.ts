@@ -219,6 +219,22 @@ export function rankProvenance(evidence: readonly MuscleEvidence[], sources: rea
 }
 
 /**
+ * Whether one record's lift is behind a region's rank, as far as this device can tell.
+ *
+ * - `{ considered: n }`: the lift was sent for one of the rank's exercises. With n = 1 it counts;
+ *   with more, the server kept the best of the n and does not say which, so it was considered.
+ * - `false`: every exercise behind the rank is traced to the lifts sent, and this is not one.
+ * - `null`: that cannot be said. Nothing is traced, or an exercise behind the rank could not be
+ *   matched to any lift sent, and this record could be the one behind it.
+ */
+export function liftPartInRank(provenance: readonly RankProvenance[], observationId: string): { considered: number } | false | null {
+  const entry = provenance.find((item) => item.lifts.some((lift) => lift.observationId === observationId));
+  if (entry) return { considered: entry.lifts.length };
+  if (!provenance.length || provenance.some((item) => item.lifts.length === 0)) return null;
+  return false;
+}
+
+/**
  * What the muscle-rank query keeps on screen while new ranks load: the previous answer, so the
  * map keeps its colours under "Updating ranks…" instead of dropping back to coverage - but only
  * when that answer was for the same comparison group. Ranks read against men are no stand-in

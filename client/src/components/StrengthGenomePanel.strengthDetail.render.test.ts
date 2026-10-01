@@ -54,9 +54,11 @@ const bench = { id: "device-bench", exerciseName: "Barbell Bench Press", observe
 const pecDeckFirst = { id: "device-pec-1", exerciseName: "Pec Deck Fly", observedAt: "2026-09-01T12:00:00.000Z", measurementType: "MULTI_REP", loadKg: 40, repetitions: 10 };
 const pecDeckLatest = { id: "device-pec-2", exerciseName: "Pec Deck Fly", observedAt: "2026-09-28T12:00:00.000Z", measurementType: "MULTI_REP", loadKg: 50, repetitions: 10 };
 
+// As the route answers: a muscle is aggregated only from exercises that placed, so Pec Deck,
+// with no comparison curve, is in `unranked` and never in the evidence.
 const chestMuscle = {
-  muscleId: "m1", canonicalName: "pectoralis_major_sternocostal", name: "Pectoralis major (sternal)", percentile: 84.2, confidence01: 0.62, evidenceCount: 2, movementPatternCount: 1,
-  evidence: [{ exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 86 }, { exerciseName: "Pec Deck Fly", role: "primary", exercisePercentile: null }],
+  muscleId: "m1", canonicalName: "pectoralis_major_sternocostal", name: "Pectoralis major (sternal)", percentile: 84.2, confidence01: 0.62, evidenceCount: 1, movementPatternCount: 1,
+  evidence: [{ exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 86 }],
   referenceGroups: [{ label: "Strength Level lifters", sex: "male" }],
 };
 const scored = { status: "ok", muscles: [chestMuscle], unranked: [{ exerciseName: "Pec Deck Fly", reason: "missing_percentile" }], ageAdjustment: { applied: 0, outsideTable: 0, noAge: 1 } };
@@ -139,8 +141,9 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     expect(liftLine).toMatch(/^100 kg × 5 · Sep 12(, 2026)? · read against 80 kg, recorded with the lift$/);
     // One lift was sent for the bench, so there is no "best of".
     expect(provenance.textContent).not.toMatch(/Best of/);
-    // The lift the rank could not place is named as not counted, not passed off as a source.
-    expect(provenance.textContent).toContain("Not counted: Pec Deck Fly, which has no comparison rank.");
+    // The region's lift the ranks left out is named as not counted, with the route's reason.
+    // Read from `unranked` now: the route never puts an unplaced exercise in a muscle's evidence.
+    expect(provenance.querySelector("[data-rank-not-counted]")?.textContent).toBe("Not counted: Pec Deck Fly (no comparison group for this lift yet).");
   });
 
   it("opens on the lift that produced the rank, not the most relevant unranked one", () => {
@@ -151,6 +154,28 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     const lift = liftSection(record, "Barbell Bench Press");
     expect(within(row(lift, "comparison")).getByText("63rd percentile")).toBeTruthy();
     expect(row(lift, "comparison").textContent).toContain("Counts toward the Chest rank.");
+  });
+
+  it("says each lift sent for an exercise was considered when more than one was, since only the best counts", () => {
+    // The best relative and the best absolute bench are different lifts, so both are sent.
+    const light = { ...bench, id: "device-bench-light", loadKg: 90, bodyMassKgAtTest: 70 };
+    const heavy = { ...bench, id: "device-bench-heavy", loadKg: 100, bodyMassKgAtTest: 95, observedAt: "2026-08-01T12:00:00.000Z" };
+    renderPanel([light, heavy]);
+    const record = openChest();
+    expect(within(rankSection(record)).getByText("Best of 2 lifts:")).toBeTruthy();
+    const line = "One of 2 lifts considered for the Chest rank; the best of them counts.";
+    expect(row(liftSection(record, "Barbell Bench Press"), "comparison").textContent).toContain(line);
+    fireEvent.change(within(record).getByLabelText("Which lift to show"), { target: { value: "device-bench-heavy" } });
+    expect(row(liftSection(record, "Barbell Bench Press"), "comparison").textContent).toContain(line);
+    expect(record.textContent).not.toContain("Counts toward the Chest rank.");
+  });
+
+  it("says nothing about a lift's part in the rank when the rank's exercises cannot be traced to the lifts sent", () => {
+    mocks.ranks.mockReturnValue(settled({ ...scored, muscles: [{ ...chestMuscle, evidence: [{ exerciseName: "Machine Chest Press", role: "primary", exercisePercentile: 86 }] }] }));
+    renderPanel([bench, pecDeckFirst, pecDeckLatest]);
+    const record = openChest();
+    expect(within(rankSection(record)).getByText("84th percentile")).toBeTruthy();
+    expect(record.textContent).not.toMatch(/Counts toward|Not part of|considered for the Chest rank/);
   });
 
   it("shows an unranked lift's own row and its estimated progress, never as a rating or a confirmed change", () => {

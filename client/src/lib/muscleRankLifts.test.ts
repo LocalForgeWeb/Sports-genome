@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MUSCLE_RANK_LIFT_LIMIT, liftBodyMass, muscleRankLiftSelection, previousRanksForSameGroup, rankProvenance } from "./muscleRankLifts";
+import { MUSCLE_RANK_LIFT_LIMIT, liftBodyMass, liftPartInRank, muscleRankLiftSelection, previousRanksForSameGroup, rankProvenance } from "./muscleRankLifts";
 import type { BodyWeightEntry } from "./bodyWeightLog";
 
 const history: BodyWeightEntry[] = [{ bodyMassKg: 82, enteredUnit: "kg", observedAt: "2026-08-01T00:00:00.000Z" }];
@@ -208,6 +208,37 @@ describe("Which lifts a rank came from, traced on this device (Sep 30 §6)", () 
   it("matches by catalog id first and by name otherwise", () => {
     const { sources } = muscleRankLiftSelection([{ ...bench, exerciseName: "barbell bench press" }], history, 90);
     expect(rankProvenance([{ exerciseName: "Barbell Bench Press", role: null, exercisePercentile: 50 }], sources)[0].lifts).toHaveLength(1);
+  });
+});
+
+describe("Whether one record's lift is behind a rank", () => {
+  const bench = { id: "device-bench", exerciseName: "Barbell Bench Press", loadKg: 100, repetitions: 5, bodyMassKgAtTest: 80, observedAt: "2026-09-12T12:00:00.000Z" };
+  const pecDeck = { id: "device-pec", exerciseName: "Pec Deck Fly", loadKg: 40, repetitions: 10, observedAt: "2026-09-01T12:00:00.000Z" };
+  const benchRank = [{ exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 86 }];
+
+  it("counts the one lift sent for an exercise, and says another lift is not part of it", () => {
+    const provenance = rankProvenance(benchRank, muscleRankLiftSelection([bench, pecDeck], history, 90).sources);
+    expect(liftPartInRank(provenance, "device-bench")).toEqual({ considered: 1 });
+    expect(liftPartInRank(provenance, "device-pec")).toBe(false);
+  });
+
+  it("says each of several lifts sent for one exercise was considered, since the server keeps only the best", () => {
+    const provenance = rankProvenance(benchRank, muscleRankLiftSelection([
+      { ...bench, id: "light", loadKg: 90, bodyMassKgAtTest: 70 },
+      { ...bench, id: "heavy", loadKg: 100, bodyMassKgAtTest: 95, observedAt: "2026-08-01T12:00:00.000Z" },
+    ], history, 90).sources);
+    expect(liftPartInRank(provenance, "light")).toEqual({ considered: 2 });
+    expect(liftPartInRank(provenance, "heavy")).toEqual({ considered: 2 });
+  });
+
+  it("says nothing when an exercise behind the rank cannot be traced to a lift sent, or nothing is traced", () => {
+    const { sources } = muscleRankLiftSelection([bench, pecDeck], history, 90);
+    // The rank names an exercise none of the sent lifts matches: this lift could be behind it.
+    const untraced = rankProvenance([...benchRank, { exerciseName: "Machine Chest Press", role: "primary", exercisePercentile: 60 }], sources);
+    expect(liftPartInRank(untraced, "device-bench")).toEqual({ considered: 1 });
+    expect(liftPartInRank(untraced, "device-pec")).toBeNull();
+    expect(liftPartInRank(rankProvenance([{ exerciseName: "Machine Chest Press", role: "primary", exercisePercentile: 60 }], sources), "device-bench")).toBeNull();
+    expect(liftPartInRank([], "device-bench")).toBeNull();
   });
 });
 
