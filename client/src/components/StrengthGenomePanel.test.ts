@@ -62,7 +62,8 @@ describe("Strength Genome panel", () => {
     // until they retype it. The dated log only looks backwards, so a weight
     // entered today matches no lift logged before today - which is every lift
     // an athlete records first, and every one of them used to land here.
-    expect(source).toContain("This lift is already read against what you weighed that week.");
+    // Sep 30 review: the log's entry can be months before the lift, so no "that week".
+    expect(source).toContain("This lift is already read against the last weight in your log on or before that day.");
     expect(source).toContain("This lift is already read against your profile weight.");
     expect(source).toContain('bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"');
     expect(source).toContain("Save this body weight");

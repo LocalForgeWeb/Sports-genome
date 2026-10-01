@@ -231,8 +231,8 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   /**
    * Offering today's weight for a lift from three months ago is offering the
    * wrong number, which is why this used to carry a warning telling the athlete
-   * to check it themselves. The weight log knows what they weighed that week, so
-   * the field offers that instead and says which day it came from.
+   * to check it themselves. The weight log knows the last weight logged on or
+   * before that day, so the field offers that instead and says which day it came from.
    */
   const weightOnRecordDay = latestRecord ? bodyWeightKgAt(bodyWeightHistory, latestRecord.observedAt) : undefined;
   const offeredBodyMass = weightOnRecordDay ?? (baselineBodyWeight != null ? displayWeightToKilograms(baselineBodyWeight, weightUnit) : undefined);
@@ -353,6 +353,9 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   const lift = latestRecord ? (() => {
     // The trend for this exercise and side: groups are kept by name and laterality.
     const trend = strengthChanges.find((change) => normalizedName(change.exerciseName) === normalizedName(latestRecord.exerciseName) && change.laterality === (latestRecord.laterality || "BILATERAL"));
+    // Every log of this lift on the same side, whether or not it can be estimated: a trend needs
+    // two that can, so a lift logged twice can still have none, and is not "one log so far".
+    const logCount = records.filter((record) => normalizedName(record.exerciseName) === normalizedName(latestRecord.exerciseName) && (record.laterality || "BILATERAL") === (latestRecord.laterality || "BILATERAL")).length;
     const loadKg = latestRecord.loadKg == null ? null : Number(latestRecord.loadKg);
     const reps = latestRecord.measurementType === "MEASURED_1RM" ? 1 : latestRecord.repetitions == null ? null : Number(latestRecord.repetitions);
     const singleEstimateKg = loadKg != null && loadKg > 0 && reps != null && ["MEASURED_1RM", "MULTI_REP"].includes(latestRecord.measurementType)
@@ -382,7 +385,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
     // Unknown (and so unsaid) when the rank's lifts could not be traced on this device, and
     // unsaid while the rank is being worked out again: it is about to change.
     const inRegionRank = regionRank && !ranksUpdating ? liftPartInRank(provenance, String(latestRecord.id)) : null;
-    return { record: latestRecord, trend, singleEstimateKg, noEstimateReason, ratio, weightSource, comparison, comparisonReason, studyNote: studyReason !== comparisonReason ? studyReason : null, inRegionRank };
+    return { record: latestRecord, trend, logCount, singleEstimateKg, noEstimateReason, ratio, weightSource, comparison, comparisonReason, studyNote: studyReason !== comparisonReason ? studyReason : null, inRegionRank };
   })() : null;
   useEffect(() => {
     if ((!registryMatch && piperReference?.status !== "matched") || !matchedReferenceRef.current) return;
@@ -397,7 +400,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
   // A typed lift's record can take the weight of its day: to fill a gap, or to correct a
   // borrowed weight. A workout's lift lives in the workout log, which has no field for it.
   const bodyMassForm = latestRecord && bodyMassSource !== "recorded" && latestRecord.source !== "workout"
-    ? <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { if (!onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest)) { setBodyMassSaveError("Body weight was not saved on this device. Your entry is still here."); return; } setBodyMassSaveError(null); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Body weight for this lift saved on this device. Your recorded ratio is ready."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against what you weighed that week. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body weight for this lift…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>
+    ? <details className="strength-recorded-measurement"><summary>{bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"}</summary><form className="strength-ratio-entry" onSubmit={(event) => { event.preventDefault(); if (!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0) return; const bodyMassKgAtTest = displayWeightToKilograms(parsedBodyMassEntry, weightUnit); if (directAccess) { if (!onSetDeviceBodyMass(String(latestRecord.id), bodyMassKgAtTest)) { setBodyMassSaveError("Body weight was not saved on this device. Your entry is still here."); return; } setBodyMassSaveError(null); setBodyMassEntry(""); emitInteractionFeedback([10, 30, 10]); toast.success("Body weight for this lift saved on this device. Your recorded ratio is ready."); return; } setBodyMassSaveError(null); setObservationBodyMass.mutate({ observationId: Number(latestRecord.id), bodyMassKgAtTest }); }}><label><span>{`Body weight on ${new Date(latestRecord.observedAt).toLocaleDateString()} (${weightUnit})`}</span><input aria-label={`Body weight on the day of this lift, in ${weightUnitLabel(weightUnit)}`} inputMode="decimal" value={bodyMassEntry} onChange={(event) => { setBodyMassSaveError(null); setBodyMassEntry(decimalEntryText(event.target.value)); }} placeholder={weightUnit === "lb" ? "e.g. 180" : "e.g. 82"} /></label><button type="submit" aria-busy={!directAccess && setObservationBodyMass.isPending} disabled={!Number.isFinite(parsedBodyMassEntry) || parsedBodyMassEntry <= 0 || (!directAccess && setObservationBodyMass.isPending)}>{!directAccess && setObservationBodyMass.isPending ? "Saving" : "Save this body weight"}</button>{offeredBodyMass !== undefined && <small>{offeredIsDated ? "This lift is already read against the last weight in your log on or before that day. Save a different number only if you know it was different that day." : "This lift is already read against your profile weight. Save the weight you were that day if you know it was different."}</small>}{!directAccess && setObservationBodyMass.isPending && <p className="strength-ratio-status" role="status">Saving body weight for this lift…</p>}{bodyMassSaveError && <p className="strength-ratio-error" role="alert">{bodyMassSaveError}</p>}</form></details>
     : null;
   return <section className="strength-region-record-detail" aria-label={`${region.label} recorded strength context`}>
     {/* The header stays put while the record scrolls: what this is (the muscle group,
@@ -458,7 +461,9 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
                 <p className="strength-lift-state">{changeStateLabel[lift.trend.changeState]}</p>
                 <p className="strength-lift-points">{estimatedWeight(lift.trend.firstPoint.estimatedOneRmKg, weightUnit)} ({shortDate(lift.trend.firstPoint.observedAt)}) → {estimatedWeight(lift.trend.latestPoint.estimatedOneRmKg, weightUnit)} ({shortDate(lift.trend.latestPoint.observedAt)}) · {plural(lift.trend.observationCount, "log")}</p>
               </> : lift.singleEstimateKg != null
-                ? <p>One log so far: estimated 1RM {estimatedWeight(lift.singleEstimateKg, weightUnit)} on {shortDate(latestRecord.observedAt)}. Log it again to see your progress.</p>
+                ? lift.logCount > 1
+                  ? <p>Only one of your {lift.logCount} logs of this lift can be turned into an estimated 1RM (sets over {maxValidEstimationReps} reps, or without a weight, are not), so there is no progress line yet. This one: estimated 1RM {estimatedWeight(lift.singleEstimateKg, weightUnit)} on {shortDate(latestRecord.observedAt)}.</p>
+                  : <p>One log so far: estimated 1RM {estimatedWeight(lift.singleEstimateKg, weightUnit)} on {shortDate(latestRecord.observedAt)}. Log it again to see your progress.</p>
                 : <p>{lift.noEstimateReason}</p>}
             </dd>
           </div>
@@ -534,7 +539,9 @@ function ageFromBirthYear(birthYear?: number): number | undefined {
  */
 const bodyMassWeightPhrase: Record<"recorded" | "dated" | "profile", string> = {
   recorded: "your body weight on that day",
-  dated: "what you weighed that week",
+  // The last entry on or before the lift, which can be months earlier: the source line under
+  // the ratio gives its date, so this claims no week.
+  dated: "your logged weight",
   profile: "your profile weight",
 };
 

@@ -47,6 +47,7 @@ vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: mocks.fee
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 import { deviceStrengthObservationEvent, deviceStrengthObservationKey } from "@/lib/deviceStrengthObservations";
+import { bodyWeightLogKey } from "@/lib/bodyWeightLog";
 import { StrengthGenomePanel } from "./StrengthGenomePanel";
 
 /** The recording's case: a Bench-driven Chest rank, and two Pec Deck logs (40 x 10, then 50 x 10). */
@@ -225,6 +226,27 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     expect(row(liftSection(record, "Pec Deck Fly"), "progress").textContent).toContain("+25%");
     // The region's rank does not move with the lift.
     expect(within(rankSection(record)).getByText("84th percentile")).toBeTruthy();
+  });
+
+  it("does not call a lift logged twice 'one log so far' when only one of its logs can be estimated", () => {
+    // 25 x 20 is past the reps an estimated 1RM is read from, so there is no trend to show.
+    const pecDeckHighReps = { ...pecDeckLatest, loadKg: 25, repetitions: 20 };
+    renderPanel([bench, pecDeckFirst, pecDeckHighReps]);
+    const record = openChest();
+    fireEvent.change(within(record).getByLabelText("Which lift to show"), { target: { value: "device-pec-1" } });
+    const progress = row(liftSection(record, "Pec Deck Fly"), "progress");
+    expect(progress.textContent).toMatch(/^Your progress on this liftOnly one of your 2 logs of this lift can be turned into an estimated 1RM \(sets over 15 reps, or without a weight, are not\), so there is no progress line yet\. This one: estimated 1RM 53 kg on Sep 1(, 2026)?\.$/);
+    expect(progress.textContent).not.toMatch(/One log so far/);
+  });
+
+  it("names a weight from the log by its date, never as what was weighed that week", () => {
+    // The log's last entry before the lift is six weeks older than it.
+    localStorage.setItem(bodyWeightLogKey, JSON.stringify([{ bodyMassKg: 82, enteredUnit: "kg", observedAt: "2026-08-01T12:00:00.000Z", source: "athlete_entry" }]));
+    renderPanel([{ ...bench, bodyMassKgAtTest: undefined }]);
+    const ratio = row(liftSection(openChest(), "Barbell Bench Press"), "ratio");
+    expect(within(ratio).getByText("Load lifted: 1.22× your logged weight — for your own context, not a rank.")).toBeTruthy();
+    expect(within(ratio).getByText(/^82 kg, from your weight log on Aug 1(, 2026)?\.$/)).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/that week/);
   });
 
   it("says it is checking the lift's comparison while it loads, not that the lift has none", () => {
