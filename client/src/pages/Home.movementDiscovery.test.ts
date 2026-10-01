@@ -267,7 +267,8 @@ describe("Exercise details over a movement's catalog", () => {
     const hipThrust = exercises.find((exercise) => exercise.name === "Barbell Hip Thrust")!;
     await act(async () => { props.onInspect(hipThrust); });
     const action = await waitFor(() => { const node = document.querySelector(".inspection-action-connection-action"); if (!node) throw new Error("Overlay not ready"); return node; }, { timeout: 15000 });
-    expect(action.textContent).toBe("bridge");
+    // The movement is named as the catalog's title and context row name it (it read "bridge", the raw record label).
+    expect(action.textContent).toBe("Bridge");
     expect(document.querySelector(".inspection-action-connection-label")?.textContent).toBe("Movement-specific");
 
     await act(async () => { fireEvent.click(document.querySelector(".inspection-action-connection-open")!); });
@@ -281,6 +282,21 @@ describe("Exercise details over a movement's catalog", () => {
     expect(props.discovery).toEqual(BRIDGE);
     expect(props.filters.equipment).toBe("Barbell");
     expect(props.visibleCount).toBe(72);
+  }, 60000);
+
+  it("says how the match was made, behind a closed disclosure, with the record's confidence and sources", async () => {
+    // Sep 30 brief §4: the exercise details explain the mapping and its source; the method stays behind a disclosure.
+    window.history.replaceState({}, "", `/${BRIDGE_ADDRESS}`);
+    render(createElement(Home));
+    const props = await catalog();
+    const hipThrust = exercises.find((exercise) => exercise.name === "Barbell Hip Thrust")!;
+    await act(async () => { props.onInspect(hipThrust); });
+    const how = await waitFor(() => { const node = document.querySelector<HTMLDetailsElement>(".inspection-action-connection-how"); if (!node) throw new Error("Overlay not ready"); return node; }, { timeout: 15000 });
+    expect(how.open).toBe(false);
+    expect(how.querySelector("summary")?.textContent).toBe("How this match was made ");
+    await act(async () => { fireEvent.click(how.querySelector("summary")!); });
+    expect(how.querySelector("p")?.textContent).toBe("Matched by exercise name to the Bridge movement record (hip thrust). Record rated moderate confidence, from 3 sources.");
+    expect(document.querySelector(".inspection-action-connection")?.textContent).not.toMatch(/reviewed/i);
   }, 60000);
 
   it("names the catalog tier in the details, and says it is not a movement match", async () => {

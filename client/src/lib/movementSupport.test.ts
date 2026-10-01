@@ -12,6 +12,7 @@ import {
   movementMatchCount,
   nameContainsPhrase,
   normalizeExercisePhrase,
+  supportMatchMethod,
   type SupportTier,
 } from "./movementSupport";
 
@@ -154,6 +155,18 @@ describe("movement support for Wrestling · Bridge", () => {
       expect(row.reason).not.toMatch(/%|\bgrade\b|reviewed/i);
     }
     expect(support.record).toEqual({ confidence: "moderate", sourceCount: 3 });
+  });
+
+  it("says how each tier was reached, with the record's confidence and sources, and never calls it reviewed", () => {
+    const record = getEnrichedMovement("wrestling", "wrestling-19")!;
+    const byName = (name: string) => exercises.find((exercise) => exercise.name === name)!;
+    expect(supportMatchMethod(byName("Barbell Hip Thrust"), record)).toBe("Matched by exercise name to the Bridge movement record (hip thrust). Record rated moderate confidence, from 3 sources.");
+    expect(supportMatchMethod(byName("Good Morning"), record)).toBe("Not named in the Bridge movement record. It has the same hip hinge pattern as Romanian Deadlift, which the record names, and trains gluteus maximus and hamstrings, prime movers in Bridge. Record rated moderate confidence, from 3 sources.");
+    expect(supportMatchMethod(byName("Back Squat"), record)).toBe("Not named in the Bridge movement record, and its pattern does not relate it to an exercise the record names. It trains gluteus maximus, a prime mover in Bridge. Record rated moderate confidence, from 3 sources.");
+    expect(supportMatchMethod(byName("Barbell Bench Press"), record)).toBeNull();
+    const step = getEnrichedMovement("wrestling", "wrestling-1")!;
+    expect(supportMatchMethod(byName("Bulgarian Split Squat"), step)).toMatch(/^Matched by exercise name to the Penetration step movement record \(rear-foot-elevated split squat, the same exercise as the Bulgarian split squat\)\. /);
+    for (const name of ["Barbell Hip Thrust", "Good Morning", "Back Squat"]) expect(supportMatchMethod(byName(name), record)).not.toMatch(/reviewed|%|\/100/i);
   });
 
   it("is worked out once per movement", () => {

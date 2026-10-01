@@ -3283,6 +3283,12 @@ details:not([open]) > *:not(summary) {
 .inspection-action-connection-action { margin-top: .2rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.6rem, 6vw, 2rem); font-weight: 800; line-height: .95; text-transform: uppercase; }
 .inspection-action-connection-detail { margin-top: .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .inspection-action-connection-open { display: inline-flex; min-height: 44px; align-items: center; gap: .3rem; margin-top: .25rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+/* How this match was made: one closed line under the reason; opened, the rule and the record's confidence in plain words. */
+.inspection-action-connection-how > summary { display: inline-flex; min-height: 44px; align-items: center; gap: .3rem; cursor: pointer; list-style: none; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
+.inspection-action-connection-how > summary::-webkit-details-marker { display: none; }
+.inspection-action-connection-how > summary svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.inspection-action-connection-how[open] > summary svg { transform: rotate(180deg); }
+.inspection-action-connection-how > p { margin: 0 0 .25rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .exercise-intelligence-disclosure { border-top: 1px solid var(--sg-divider-on-dark); border-bottom: 1px solid var(--sg-divider-on-dark); }
 .exercise-intelligence-disclosure > summary { display: flex; min-height: 3.6rem; align-items: center; gap: 1rem; padding: .5rem 0; cursor: pointer; list-style: none; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
 .exercise-intelligence-disclosure > summary::-webkit-details-marker { display: none; }

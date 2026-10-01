@@ -40,6 +40,8 @@ export type SupportRow = {
   reason: string;
   /** Movement-specific rows: the record's phrase the name contains, as the record writes it. */
   phrase?: string;
+  /** Movement-specific rows matched through SAME_EXERCISE_SYNONYMS: the catalog's name for the phrase. */
+  sameAs?: string;
   /** Related-pattern rows: the movement-specific exercise whose pattern this one shares. */
   anchorExerciseId?: number;
   /** The record's prime movers (as the record names them) that this exercise trains as a primary muscle. */
@@ -261,8 +263,9 @@ export function classifyExerciseForMovement(exercise: Exercise, record: Enriched
   const phraseIndex = phraseIndexFor(exercise, context.phrases);
   if (phraseIndex >= 0) {
     const phrase = context.phrases[phraseIndex];
-    const synonymNote = phrase.synonym && !containsNormalized(normalizedNameOf(exercise), phrase.matchers[0]) ? ` (the same exercise as the ${phrase.synonym})` : "";
-    return { exercise, tier: "specific", reason: `Named in the ${context.movementLabel} movement record: ${phrase.text}${synonymNote}`, phrase: phrase.text, sharedPrimeMovers };
+    const sameAs = phrase.synonym && !containsNormalized(normalizedNameOf(exercise), phrase.matchers[0]) ? phrase.synonym : undefined;
+    const synonymNote = sameAs ? ` (the same exercise as the ${sameAs})` : "";
+    return { exercise, tier: "specific", reason: `Named in the ${context.movementLabel} movement record: ${phrase.text}${synonymNote}`, phrase: phrase.text, ...(sameAs ? { sameAs } : {}), sharedPrimeMovers };
   }
   if (!sharedPrimeMovers.length) return null;
   const anchor = context.anchors.get(exercise.movement);
@@ -271,6 +274,30 @@ export function classifyExerciseForMovement(exercise: Exercise, record: Enriched
   }
   const subject = sharedPrimeMovers.length === 1 ? `${sharedPrimeMovers[0]}, a prime mover` : `${joinNames(sharedPrimeMovers)}, prime movers`;
   return { exercise, tier: "muscle", reason: `Trains ${subject} in ${context.movementLabel}; not specific to the movement.`, sharedPrimeMovers };
+}
+
+/**
+ * How one exercise's tier was reached, for "How this match was made" in the
+ * exercise details: the rule that placed it, in plain words, then the record's
+ * confidence and source count. Null when the exercise is in no tier. It never
+ * says "reviewed": no person has checked these matches exercise by exercise.
+ */
+export function supportMatchMethod(exercise: Exercise, record: EnrichedSportMovement): string | null {
+  const row = classifyExerciseForMovement(exercise, record);
+  if (!row) return null;
+  const movement = contextFor(record).movementLabel;
+  const movers = row.sharedPrimeMovers.length === 1 ? `${row.sharedPrimeMovers[0]}, a prime mover` : `${joinNames(row.sharedPrimeMovers)}, prime movers`;
+  let how: string;
+  if (row.tier === "specific") {
+    how = `Matched by exercise name to the ${movement} movement record (${row.phrase}${row.sameAs ? `, the same exercise as the ${row.sameAs}` : ""}).`;
+  } else if (row.tier === "related") {
+    const anchor = catalogExercises.find((candidate) => candidate.id === row.anchorExerciseId);
+    how = `Not named in the ${movement} movement record. It has the same ${exercise.movement.toLowerCase()} pattern as ${anchor?.name ?? "a movement-specific exercise"}, which the record names, and trains ${movers} in ${movement}.`;
+  } else {
+    how = `Not named in the ${movement} movement record, and its pattern does not relate it to an exercise the record names. It trains ${movers} in ${movement}.`;
+  }
+  const sources = record.sources.length;
+  return `${how} Record rated ${record.evidenceConfidence} confidence, from ${sources} ${sources === 1 ? "source" : "sources"}.`;
 }
 
 type CatalogTiers = Pick<MovementSupport, "specific" | "related" | "muscle" | "unmatchedPhrases" | "primeMoverKeys">;
