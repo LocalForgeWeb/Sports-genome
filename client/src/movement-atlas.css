@@ -39,6 +39,12 @@
 .atlas-why p { margin-top: .4rem; max-width: 42rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
 .atlas-trace { display: inline-flex; min-height: 52px; align-items: center; gap: .55rem; justify-self: start; border: 1px solid #f1714f; border-radius: 12px; background: var(--sg-action-fill); padding: 0 1.5rem; color: #fff; font-size: 1.05rem; font-weight: 700; box-shadow: 0 10px 22px rgb(228 81 46 / .24); }
 .atlas-trace:active { transform: scale(.98); }
+/* The action's next steps: the exercises that support it first, its muscles second. A long action name wraps inside its button. */
+.atlas-next-step { display: grid; justify-items: start; gap: .6rem; }
+.atlas-next-step p { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
+.atlas-next-step .atlas-trace { max-width: 100%; padding-top: .6rem; padding-bottom: .6rem; text-align: left; white-space: normal; }
+.atlas-next-step .atlas-trace svg { flex: none; }
+.atlas-trace-secondary { min-height: 44px; border-color: var(--sg-control-border-on-dark); background: transparent; box-shadow: none; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); }
 
 .atlas-explore { display: grid; gap: .6rem; padding-top: .6rem; border-top: 1px solid var(--sg-divider-on-dark); }
 .atlas-tools { display: grid; gap: .5rem; }

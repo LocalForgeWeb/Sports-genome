@@ -24,8 +24,13 @@ function shortFamilyLabel(family: string) {
 /**
  * The Movement Atlas, one column: the sport, the selected action with its
  * position in the list and a way to step through it, what the record says the
- * body does, why it matters (the record's own transfer cue), the way into Body
- * Lab, then the actions to explore and the demand model behind a line.
+ * body does, why it matters (the record's own transfer cue), the way to the
+ * exercises that support the action and, second, the way into Body Lab, then
+ * the actions to explore and the demand model behind a line.
+ *
+ * "Find exercises for {action}" is the page's main action. Its only action used
+ * to be "Explore involved muscles", so the way from an action to exercises ran
+ * through a muscle and arrived at a muscle-filtered catalog.
  *
  * It was a display headline in a gradient band, a tools card, a scrolling list
  * card and a "focus card" of the selected action - the action named in the
@@ -36,7 +41,7 @@ function shortFamilyLabel(family: string) {
  * (docs/design-handoff/missing-illustrations.md), so nothing stands in for it:
  * a generated pose is not a coaching diagram.
  */
-export function MovementAtlasPanel({ sportName, sportId, sports, movements, selectedMovement, query, family, onQuery, onFamily, onSport, onMovement, onOpenBody }: { sportName: string; sportId: string; sports: SportProfile[]; movements: SportMovementProfile[]; selectedMovement: SportMovementProfile; query: string; family: string; onQuery: (value: string) => void; onFamily: (value: string) => void; onSport: (sportId: string) => void; onMovement: (movement: SportMovementProfile) => void; onOpenBody: () => void }) {
+export function MovementAtlasPanel({ sportName, sportId, sports, movements, selectedMovement, query, family, onQuery, onFamily, onSport, onMovement, onOpenBody, onFindExercises }: { sportName: string; sportId: string; sports: SportProfile[]; movements: SportMovementProfile[]; selectedMovement: SportMovementProfile; query: string; family: string; onQuery: (value: string) => void; onFamily: (value: string) => void; onSport: (sportId: string) => void; onMovement: (movement: SportMovementProfile) => void; onOpenBody: () => void; /** Opens the catalog in movement mode for the action on screen. */ onFindExercises: () => void }) {
   const [showAllFamilies, setShowAllFamilies] = useState(false);
   const [showAllActions, setShowAllActions] = useState(false);
   const [modifierId, setModifierId] = useState("");
@@ -85,7 +90,11 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
       <h3>Why it matters</h3>
       <p>{selectedMovement.gymTransferCue}</p>
     </section>
-    <button type="button" className="atlas-trace" onClick={() => { emitInteractionFeedback(); onOpenBody(); }}>Explore involved muscles <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+    <div className="atlas-next-step">
+      <p>Explore exercises that support this movement.</p>
+      <button type="button" className="atlas-trace" onClick={() => { emitInteractionFeedback(); onFindExercises(); }}>Find exercises for {movementDisplayLabel(selectedMovement.label)} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+      <button type="button" className="atlas-trace atlas-trace-secondary" onClick={() => { emitInteractionFeedback(); onOpenBody(); }}>Explore involved muscles <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
+    </div>
 
     <section className="atlas-explore" aria-label="Sport actions">
       <h3>Explore actions</h3>

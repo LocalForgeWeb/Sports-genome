@@ -10,6 +10,16 @@ describe("Body Lab movement-specific role context", () => {
     expect(context.rolesByMuscle.glutes.confidence).toBe("Biomechanical model");
   });
 
+  it("reads record muscle names with the shared table, so the calf's triceps surae is drawn as the calf, not the arm", () => {
+    // Sep 30: Body Lab and the movement support tiers now read one alias table; the
+    // old bare "triceps" alias drew basketball takeoffs as triceps-driven.
+    const context = getBodyLabRoleContext("basketball", "basketball-7", [], []);
+    expect(context.rolesByMuscle.calves.roles).toContain("Primary Mover");
+    expect(context.rolesByMuscle.soleus.roles).toContain("Primary Mover");
+    expect(context.rolesByMuscle.triceps).toBeUndefined();
+    expect(getBodyLabRoleContext("wrestling", "wrestling-19", [], []).primary).toEqual(expect.arrayContaining(["glutes", "hamstrings", "lowerBack", "obliques"]));
+  });
+
   it("falls back to the movement model when a record has no enriched evidence", () => {
     const context = getBodyLabRoleContext("test", "missing", ["quads"], ["abs"]);
     expect(context.rolesByMuscle.quads.roles).toEqual(["Primary Mover"]);
