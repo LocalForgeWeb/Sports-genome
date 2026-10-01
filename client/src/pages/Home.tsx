@@ -62,7 +62,7 @@ import { SportBrowseNotice } from "@/components/SportBrowseNotice";
 import { HierarchyPlanningDisclosure } from "@/components/HierarchyPlanningDisclosure";
 import { defaultEquipmentProfile, equipmentProfileSummary, filterStackForEquipment } from "@/lib/equipmentProfile";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
-import { catalogPageSize, defaultCatalogFilters, type CatalogFilters } from "@/lib/catalogDiscovery";
+import { catalogPageSize, defaultCatalogFilters, muscleModeExercises, type CatalogFilters } from "@/lib/catalogDiscovery";
 import { allExercisesDiscovery, discoveryFromParams, discoveryKey, discoveryMovementProfile, discoveryTitle, validDiscovery, writeDiscoveryParams, type ExerciseDiscoveryContext } from "@/lib/exerciseDiscovery";
 import { getMovementSupport } from "@/lib/movementSupport";
 import { getExerciseSettings, getGoalPrescription, getWorkoutDiagnostics, isTrainingGoal, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
@@ -513,6 +513,8 @@ export default function Home() {
   const connectionForExercise = useMemo(() => createActionConnectionLookup(enrichedContextMovement), [enrichedContextMovement]);
   /** Movement mode's tiers, before refinements; worked out once per movement (lib/movementSupport). */
   const movementSupport = useMemo(() => discovery.mode === "movement" ? getMovementSupport(discovery.sportId, discovery.movementId) : undefined, [discovery]);
+  /** "Browse {Muscle} exercises" is offered only for a picked muscle the catalog has exercises for (soleus reads as the calves; the peroneals have none). */
+  const activeMuscleBrowsable = useMemo(() => Boolean(activeMuscle && muscleModeExercises(exercises, activeMuscle).length), [activeMuscle]);
   /** Catalog ids already in the day a plus adds to: their catalog rows show as added and do not add again. */
   const addedCatalogIds = useMemo(() => new Set(customWorkout.map(catalogExerciseIdFor)), [customWorkout]);
   const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment), [selectedMovement, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment]);
@@ -2042,7 +2044,7 @@ export default function Home() {
           <div className="body-lab-next-step">
             <span>Explore exercises that support this movement.</span>
             <button type="button" onClick={() => openDiscovery({ mode: "movement", sportId: referenceMovement.sportId, movementId: referenceMovement.id })}>Find exercises for {movementDisplayLabel(referenceMovement.label)} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>
-            {activeMuscle && <button type="button" className="body-lab-next-step-secondary" onClick={() => openDiscovery({ mode: "muscle", muscleId: activeMuscle })}>Browse {muscleLabels[activeMuscle] || activeMuscle} exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
+            {activeMuscle && activeMuscleBrowsable && <button type="button" className="body-lab-next-step-secondary" onClick={() => openDiscovery({ mode: "muscle", muscleId: activeMuscle })}>Browse {muscleLabels[activeMuscle] || activeMuscle} exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
           </div>
           {capacityOfferForSelection && <div className="body-lab-capacity-step"><Target className="h-4 w-4" aria-hidden="true" /><div><p>Want {capacityOfferForSelection.name.toLowerCase()} to hold up better, or is something going on there?</p>{capacityOfferForSelection.relation === "region" && <small>{capacityOfferForSelection.name} is the area {(muscleLabels[activeMuscle!] || activeMuscle!).toLowerCase()} sits in — the closest target Sports Genome has for it.</small>}</div><button type="button" onClick={() => { adoptCapacityTarget(capacityOfferForSelection.targetKey); navigateWorkspace("profile", { keepScroll: true }); revealWorkspaceAnchor("targeted-capacity"); }}>Set it as a target <ArrowUpRight className="h-4 w-4" /></button></div>}
         </>} /></section>}

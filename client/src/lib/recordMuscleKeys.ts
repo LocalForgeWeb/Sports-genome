@@ -85,11 +85,20 @@ export function bodyMapKeysForRecordMuscle(name: string): string[] {
     .map(([key]) => key);
 }
 
+/**
+ * The catalog key a body-map key is matched and browsed under: the key itself,
+ * or, for a region the figure draws but the catalog never tags, the key that tags
+ * the same tissue (soleus -> calves). Null when the catalog has none (peroneals).
+ * Muscle mode reads it too, so "Browse Soleus exercises" lists the calf work.
+ */
+export function catalogMuscleKeyFor(key: string): string | null {
+  return key in catalogKeyForMapOnlyKey ? catalogKeyForMapOnlyKey[key] : key;
+}
+
 /** Catalog muscle keys (the vocabulary of `exercise.primaryMuscles`) for one record muscle name. */
 export function catalogKeysForRecordMuscle(name: string): string[] {
   const keys = bodyMapKeysForRecordMuscle(name).flatMap((key) => {
-    if (!(key in catalogKeyForMapOnlyKey)) return [key];
-    const folded = catalogKeyForMapOnlyKey[key];
+    const folded = catalogMuscleKeyFor(key);
     return folded ? [folded] : [];
   });
   return Array.from(new Set(keys));

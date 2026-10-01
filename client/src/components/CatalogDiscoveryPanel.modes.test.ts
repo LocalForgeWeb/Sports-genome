@@ -207,6 +207,26 @@ describe("muscle mode", () => {
     expect(onShowAllExercises).toHaveBeenCalledTimes(1);
   });
 
+  it("lists a region the catalog never tags under the key for the same tissue, and says so", () => {
+    mount({ mode: "muscle", muscleId: "soleus" });
+    const base = muscleModeExercises(exercises, "calves");
+    expect(base.length).toBeGreaterThan(0);
+    expect(heading()).toBe("Soleus exercises");
+    expect(document.querySelector(".catalog-context-explain")?.textContent).toBe("The catalog tags Soleus work under Gastrocnemius: these train Gastrocnemius as a primary or supporting muscle, primary first.");
+    expect(count()).toBe(`${base.length} Soleus exercises`);
+    expect(rowNames(mainList())).toEqual(base.slice(0, 36).map((exercise) => exercise.name));
+    expect(reasonOf(base[0].name)).toBe("Trains Gastrocnemius as a primary muscle");
+  });
+
+  it("says when no catalog exercise carries the muscle, not that filters removed them, and offers the whole catalog", () => {
+    const { onShowAllExercises } = mount({ mode: "muscle", muscleId: "peroneals" });
+    const empty = document.querySelector<HTMLElement>(".catalog-discovery-empty")!;
+    expect(empty.querySelector("strong")?.textContent).toBe("No catalog exercise is tagged with Peroneus longus/brevis yet.");
+    expect(empty.textContent).not.toMatch(/filter/i);
+    fireEvent.click(within(empty).getByRole("button", { name: "Open the full catalog" }));
+    expect(onShowAllExercises).toHaveBeenCalledTimes(1);
+  });
+
   it("does not measure a muscle's list against the athlete's own action", () => {
     // A movement, a muscle and a training day are separate selections (brief §3).
     let index = 0;

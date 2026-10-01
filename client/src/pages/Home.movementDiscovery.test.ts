@@ -146,6 +146,25 @@ describe("Bridge to its exercises", () => {
     expect(props.filters).toEqual(defaultCatalogFilters);
   }, 60000);
 
+  it("browses a muscle the catalog tags under another key: Penetration step, Soleus, Browse", async () => {
+    // Soleus is a Penetration step prime mover; the catalog tags its work as the calves, and the list was empty.
+    seedProfile("wrestling-1");
+    await openBodyLab();
+    await waitFor(() => expect(findForMovement().textContent).toBe("Find exercises for Penetration step "));
+    const soleus = roleRow("Soleus");
+    expect(soleus).toBeTruthy();
+    await act(async () => { fireEvent.click(soleus!); });
+    expect(browseMuscle()?.textContent).toBe("Browse Soleus exercises ");
+    await act(async () => { fireEvent.click(browseMuscle()!); });
+    const props = await catalog();
+    expect(window.location.search).toBe("?workspace=catalog&discover=muscle&muscle=soleus");
+    expect(props.discovery).toEqual({ mode: "muscle", muscleId: "soleus" });
+    expect(document.querySelector(".catalog-discovery h1")?.textContent).toBe("Soleus exercises");
+    expect(document.querySelector(".catalog-context-explain")?.textContent).toContain("The catalog tags Soleus work under Gastrocnemius");
+    expect(document.querySelectorAll(".catalog-discovery > .catalog-discovery-list > *").length).toBeGreaterThan(0);
+    expect(document.querySelector(".catalog-discovery-empty")).toBeNull();
+  }, 60000);
+
   it("starts a new movement with no refinements, and Back returns each movement with its own", async () => {
     await openBodyLab();
     await act(async () => { fireEvent.click(findForMovement()); });

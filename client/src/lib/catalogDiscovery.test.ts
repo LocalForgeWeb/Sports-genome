@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
 import { defaultCatalogFilters, filterCatalogByActionLink, filterCatalogExercises, muscleModeExercises, refineMovementSupport, spokenDestination } from "./catalogDiscovery";
 import { getMovementSupport, type MovementSupport } from "./movementSupport";
+import { recordMuscleAliases } from "./recordMuscleKeys";
 
 describe("catalog discovery filters", () => {
   it("finds cable exercises by text and equipment without losing relevant results", () => {
@@ -103,6 +104,17 @@ describe("muscle mode's base list", () => {
 
   it("is empty for a muscle no exercise trains", () => {
     expect(muscleModeExercises(exercises, "not-a-muscle")).toEqual([]);
+  });
+
+  it("lists a region the body map draws but the catalog never tags under the key for the same tissue", () => {
+    // Soleus, a Penetration step prime mover, opened an empty list: no catalog exercise carries the key.
+    const soleus = muscleModeExercises(exercises, "soleus");
+    expect(soleus.length).toBeGreaterThan(0);
+    expect(soleus.map((exercise) => exercise.id)).toEqual(muscleModeExercises(exercises, "calves").map((exercise) => exercise.id));
+    expect(muscleModeExercises(exercises, "peroneals")).toEqual([]);
+    // Every body-map muscle has a list, except the one the catalog has no key for.
+    const empty = Object.keys(recordMuscleAliases).filter((key) => muscleModeExercises(exercises, key).length === 0);
+    expect(empty).toEqual(["peroneals"]);
   });
 });
 

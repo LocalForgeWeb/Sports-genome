@@ -11,6 +11,7 @@ import { allExercisesDiscovery, discoveryKey, type ExerciseDiscoveryContext } fr
 import { movementMatchCount, supportTierLabel, type MovementSupport, type SupportRow } from "@/lib/movementSupport";
 import { movementDisplayLabel } from "@/lib/movementLabel";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { catalogMuscleKeyFor } from "@/lib/recordMuscleKeys";
 import { labelTellsRowsApart } from "@/lib/pickerRowFacts";
 import "@/catalog-discovery.css";
 
@@ -94,6 +95,12 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
   const support = discovery.mode === "movement" ? movementSupport : undefined;
   const muscleId = discovery.mode === "muscle" ? discovery.muscleId : null;
   const muscleName = muscleId ? (muscleLabels[muscleId] || muscleId) : "";
+  // The catalog key the muscle's exercises carry. A region the figure draws but the
+  // catalog never tags (soleus) reads through the key for the same tissue (calves);
+  // one with no such key (peroneals) has none, and the list says so.
+  const catalogMuscleId = muscleId ? catalogMuscleKeyFor(muscleId) : null;
+  const catalogMuscleName = catalogMuscleId ? (muscleLabels[catalogMuscleId] || catalogMuscleId) : "";
+  const muscleFolded = Boolean(muscleId && catalogMuscleId && catalogMuscleId !== muscleId);
   const movementName = support?.movementLabel ?? "";
   const title = support ? `Exercises for ${movementName}` : muscleId ? `${muscleName} exercises` : "Exercise catalog";
 
@@ -167,7 +174,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
     onAdd(exercise);
   };
 
-  const muscleReason = (exercise: Exercise) => (exercise.primaryMuscles.includes(muscleId ?? "") ? `Trains ${muscleName} as a primary muscle` : `Trains ${muscleName} as a supporting muscle`);
+  const muscleReason = (exercise: Exercise) => (exercise.primaryMuscles.includes(catalogMuscleId ?? "") ? `Trains ${catalogMuscleName} as a primary muscle` : `Trains ${catalogMuscleName} as a supporting muscle`);
 
   const renderRow = (exercise: Exercise, reason?: string) => {
     const isFavorite = favoriteIds.has(exercise.id);
@@ -231,7 +238,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
         {onShowAllExercises && <button type="button" className="catalog-context-all" onClick={() => { emitInteractionFeedback(); onShowAllExercises(); }}>Show all exercises</button>}
       </div>
     </div> : muscleId ? <div className="catalog-discovery-context">
-      <p className="catalog-context-explain">Exercises that train {muscleName} as a primary or supporting muscle, primary first.</p>
+      <p className="catalog-context-explain">{muscleFolded ? `The catalog tags ${muscleName} work under ${catalogMuscleName}: these train ${catalogMuscleName} as a primary or supporting muscle, primary first.` : `Exercises that train ${muscleName} as a primary or supporting muscle, primary first.`}</p>
       {onShowAllExercises && <div className="catalog-context-actions"><button type="button" className="catalog-context-all" onClick={() => { emitInteractionFeedback(); onShowAllExercises(); }}>Show all exercises</button></div>}
     </div> : null}
     <div className="catalog-discovery-search"><Search className="h-4 w-4" aria-hidden="true" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder={`Search ${discovery.mode === "all" ? "exercises" : "these exercises"}`} aria-label="Search exercises" /></div>
@@ -288,6 +295,11 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
     </> : <>
       {results.length ? <div className="catalog-discovery-list">
         {visibleResults.map((exercise) => renderRow(exercise, muscleId ? muscleReason(exercise) : undefined))}
+      </div> : muscleId && muscleBase.length === 0 ? <div className="catalog-discovery-empty catalog-muscle-missing">
+        {/* Not a filter problem: no catalog exercise carries this muscle at all. */}
+        <strong>No catalog exercise is tagged with {muscleName} yet.</strong>
+        <p>The catalog lists the muscles each exercise trains, and none lists {muscleName}.</p>
+        {onShowAllExercises ? <div><button type="button" onClick={() => { emitInteractionFeedback(); onShowAllExercises(); }}>Open the full catalog</button></div> : null}
       </div> : <div className="catalog-discovery-empty"><strong>{filters.favoritesOnly && favoriteIds.size === 0 ? "No saved favorites yet." : filters.query ? `Nothing matches "${filters.query}"${activeFilterCount ? " with these filters" : ""}.` : "No exercises match these filters."}</strong><p>{filters.favoritesOnly && favoriteIds.size === 0 ? "Use the heart on any exercise to save a personal shortlist." : activeFilterCount ? "Take a filter off, or try a broader movement, equipment or muscle term." : "Try a broader movement, equipment or muscle term."}</p><div>{suggestions.map((name) => <button type="button" key={name} onClick={() => update("query", name)}>Try “{name}”</button>)}{activeChips.map((chip) => <button type="button" key={chip.key} onClick={() => update(chip.key, "all" as never)}>Remove the {chip.label} filter</button>)}{activeFilterCount > 1 && <button type="button" onClick={clearFiltersKeepQuery}>Clear all filters</button>}{filters.query && <button type="button" onClick={() => update("query", "")}>Clear search</button>}{filters.favoritesOnly && <button type="button" onClick={() => update("favoritesOnly", false)}>Turn off Favorites</button>}</div></div>}
       {results.length > visibleResults.length ? <button type="button" className="catalog-load-more" onClick={() => { emitInteractionFeedback(); setVisibleCount((count) => count + visiblePerPage); }}>Browse {Math.min(visiblePerPage, results.length - visibleResults.length)} more exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button> : null}
     </>}

@@ -2,6 +2,7 @@ import type { Exercise } from "./exerciseCatalog";
 import type { ExerciseActionConnection } from "./movementProgramAnalysis";
 import type { MovementSupport, SupportRow } from "./movementSupport";
 import { searchExercises } from "./exerciseSearch";
+import { catalogMuscleKeyFor } from "./recordMuscleKeys";
 
 export type CatalogFilters = {
   query: string;
@@ -84,10 +85,17 @@ export function refineMovementSupport(support: MovementSupport, filters: Catalog
  * Muscle mode's base list: the exercises that train the chosen muscle, as a primary
  * or a supporting muscle (the rule the Muscle filter uses), primary ones first and
  * each group in catalog order. The refinements then narrow it like any other list.
+ *
+ * `muscleId` is the body-map key the athlete picked. Five of those name regions the
+ * catalog never tags; they are read through the catalog key for the same tissue
+ * (catalogMuscleKeyFor: soleus -> calves), and one with no such key (peroneals)
+ * has no list.
  */
 export function muscleModeExercises(exerciseList: Exercise[], muscleId: string): Exercise[] {
-  const primary = exerciseList.filter((exercise) => exercise.primaryMuscles.includes(muscleId));
-  const supporting = exerciseList.filter((exercise) => !exercise.primaryMuscles.includes(muscleId) && exercise.secondaryMuscles.includes(muscleId));
+  const key = catalogMuscleKeyFor(muscleId);
+  if (!key) return [];
+  const primary = exerciseList.filter((exercise) => exercise.primaryMuscles.includes(key));
+  const supporting = exerciseList.filter((exercise) => !exercise.primaryMuscles.includes(key) && exercise.secondaryMuscles.includes(key));
   return [...primary, ...supporting];
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
-import { bodyMapKeysForRecordMuscle, catalogKeysForRecordMuscle, recordMuscleAliases } from "./recordMuscleKeys";
+import { bodyMapKeysForRecordMuscle, catalogKeysForRecordMuscle, catalogMuscleKeyFor, recordMuscleAliases } from "./recordMuscleKeys";
 
 describe("one table from record muscle names to muscle keys", () => {
   it("reads the Latin oblique names the records use, so Bridge's oblique prime mover reaches the catalog", () => {
@@ -23,6 +23,15 @@ describe("one table from record muscle names to muscle keys", () => {
     expect(bodyMapKeysForRecordMuscle("rhomboid major")).toEqual(["rhomboids"]);
     expect(catalogKeysForRecordMuscle("rhomboid major")).toEqual(["upperBack"]);
     expect(catalogKeysForRecordMuscle("peroneus longus")).toEqual([]);
+  });
+
+  it("names the catalog key a body-map key is browsed under: itself, the key for the same tissue, or none", () => {
+    expect(catalogMuscleKeyFor("glutes")).toBe("glutes");
+    expect(catalogMuscleKeyFor("soleus")).toBe("calves");
+    expect(catalogMuscleKeyFor("brachioradialis")).toBe("forearms");
+    expect(catalogMuscleKeyFor("tfl")).toBe("abductors");
+    expect(catalogMuscleKeyFor("rhomboids")).toBe("upperBack");
+    expect(catalogMuscleKeyFor("peroneals")).toBeNull();
   });
 
   it("reads the named forearm and hip flexor muscles grip and sprint records list as prime movers", () => {
