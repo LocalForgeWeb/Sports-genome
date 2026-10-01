@@ -207,7 +207,7 @@ function RankProvenanceList({ entries, unplaced, muscleName, weightUnit }: { ent
   </div>;
 }
 
-export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, rankPending = null, ranksUpdating = false, rankProvenance: provenance = [], onLogLift, registryOffline = false, onSelectRegion, headingIds }: { regionRank?: RegionRank | null; /** Switches the record to another muscle group from its own header; on a phone the figure behind the sheet cannot be tapped. */ onSelectRegion?: (region: StrengthRegionDefinition) => void; /** Ids for the title and the selected-lift line, so the sheet around the record can be named by them. */ headingIds?: { title: string; lift: string }; rankMode?: boolean; /** Ranks are on their way and none has arrived yet: the rank section says so instead of looking unscored. */ rankPending?: "ranking" | "offline" | null; /** The ranks shown are the previous answer while new ones load. */ ranksUpdating?: boolean; /** The exercises and dated lifts behind this region's rank, strongest first (lib/muscleRankLifts). */ rankProvenance?: readonly RankProvenance[]; /** The research library could not be reached, so no comparison is a fact about the library, not the lift. */ registryOffline?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; /** Saves the weight of a device-held lift's day; true only when a lift took it and the device kept it. */ onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => boolean; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
+export function StrengthRegionRecordDetail({ region, observations, onClose, weightUnit, baselineBodyWeight, directAccess, onSetDeviceBodyMass, initialRecordId = "", powerliftingNorms = [], strengthChanges = [], referenceRows = [], athleteProfile = null, bodyWeightHistory = [], onRankProfile, regionRank = null, rankMode = false, rankPending = null, ranksUpdating = null, rankProvenance: provenance = [], onLogLift, registryOffline = false, onSelectRegion, headingIds }: { regionRank?: RegionRank | null; /** Switches the record to another muscle group from its own header; on a phone the figure behind the sheet cannot be tapped. */ onSelectRegion?: (region: StrengthRegionDefinition) => void; /** Ids for the title and the selected-lift line, so the sheet around the record can be named by them. */ headingIds?: { title: string; lift: string }; rankMode?: boolean; /** Ranks are on their way and none has arrived yet: the rank section says so instead of looking unscored. */ rankPending?: "ranking" | "offline" | null; /** The ranks shown are the previous answer while new ones load, or while the new request waits for a connection. */ ranksUpdating?: "updating" | "offline" | null; /** The exercises and dated lifts behind this region's rank, strongest first (lib/muscleRankLifts). */ rankProvenance?: readonly RankProvenance[]; /** The research library could not be reached, so no comparison is a fact about the library, not the lift. */ registryOffline?: boolean; /** Opens the lift log on this page, for a region with nothing recorded yet. */ onLogLift?: () => void; region: StrengthRegionDefinition; observations: StrengthObservationRecord[]; onClose: () => void; weightUnit: DisplayWeightUnit; baselineBodyWeight?: number; directAccess: boolean; /** Saves the weight of a device-held lift's day; true only when a lift took it and the device kept it. */ onSetDeviceBodyMass: (observationId: string, bodyMassKgAtTest: number) => boolean; initialRecordId?: string; powerliftingNorms?: readonly PowerliftingNormRow[]; strengthChanges?: readonly WithinAthleteStrengthChange[]; referenceRows?: readonly NormsReferenceRow[]; athleteProfile?: RegistryReferenceProfile; bodyWeightHistory?: readonly BodyWeightEntry[]; onRankProfile?: (patch: RankProfilePatch) => void }) {
   const records = useMemo(() => observations.filter((observation) => strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)).sort((a, b) => compareRegionRecordRelevance(region.id, a, b)), [observations, region.id]);
   const utils = trpc.useUtils();
   const matchedReferenceRef = useRef<HTMLElement>(null);
@@ -376,8 +376,9 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       : comparisonChecking ? "checking" as const
       : showPercentile ? "ranked" as const
       : "unranked" as const;
-    // Unknown (and so unsaid) when the rank's lifts could not be traced on this device.
-    const inRegionRank = regionRank && provenance.length ? provenance.some((entry) => entry.lifts.some((source) => source.observationId === String(latestRecord.id))) : null;
+    // Unknown (and so unsaid) when the rank's lifts could not be traced on this device, and
+    // unsaid while the rank is being worked out again: it is about to change.
+    const inRegionRank = regionRank && provenance.length && !ranksUpdating ?provenance.some((entry) => entry.lifts.some((source) => source.observationId === String(latestRecord.id))) : null;
     return { record: latestRecord, trend, singleEstimateKg, noEstimateReason, ratio, weightSource, comparison, comparisonReason, studyNote: studyReason !== comparisonReason ? studyReason : null, inRegionRank };
   })() : null;
   useEffect(() => {
@@ -414,7 +415,7 @@ export function StrengthRegionRecordDetail({ region, observations, onClose, weig
       {!rankMode ? <PendingRankCard offline={rankPending === "offline"} />
         : regionRank ? <RankCard regionRank={regionRank} provenance={provenance.length ? <RankProvenanceList entries={provenance} unplaced={unplacedInRank} muscleName={regionRank.representative.name} weightUnit={weightUnit} /> : undefined} />
         : <UnscoredRankCard hasRecords={records.length > 0} />}
-      {rankMode && ranksUpdating && <p className="rank-updating-note" role="status">Updating ranks…</p>}
+      {rankMode && ranksUpdating && <p className="rank-updating-note" role="status">{ranksUpdating === "offline" ? "Waiting for a connection to update ranks. This is your previous rank." : "Updating ranks…"}</p>}
     </section>}
     {latestRecord && lift ? <>
       <section className="strength-region-record-card strength-record-section" aria-labelledby={liftTitleId}>
@@ -917,12 +918,15 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     [activeObservations, bodyWeightHistory, baselineBodyWeight, weightUnit, birthYear]
   );
   const rankLifts = rankSelection.lifts;
+  const ranksWanted = rankSex !== null && rankLifts.length > 0;
   // A new lift, a saved weight or a birth year changes the request. The previous ranks stay
   // drawn under "Updating ranks…" until the new ones arrive, rather than the map dropping back
-  // to coverage as if every rank had been lost; a change of comparison group keeps none.
+  // to coverage as if every rank had been lost; a change of comparison group keeps none. With
+  // nothing left to rank there is no new answer coming, so nothing is kept: TanStack hands a
+  // disabled query its placeholder too, and the last lift's ranks would stay drawn for good.
   const muscleRanks = trpc.strengthProfile.muscleRanks.useQuery(
     { sex: rankSex, lifts: rankLifts },
-    { enabled: rankSex !== null && rankLifts.length > 0, staleTime: 5 * 60 * 1000, retry: false, placeholderData: previousRanksForSameGroup(rankSex) }
+    { enabled: ranksWanted, staleTime: 5 * 60 * 1000, retry: false, placeholderData: ranksWanted ? previousRanksForSameGroup(rankSex) : undefined }
   );
   // A failed rank request says so and can be tried again. The server answers a
   // database outage as "unavailable: service_error" rather than as an error, so
@@ -930,20 +934,31 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // Offline, the request waits for a connection and says that instead. Both
   // speak only while no ranks are drawn: a background refetch that fails, or
   // waits offline, keeps the ranks already on the map, and they still stand.
-  const ranksWanted = rankSex !== null && rankLifts.length > 0;
-  const rankProfile = muscleRanks.data && muscleRanks.data.status !== "unavailable" ? muscleRanks.data : null;
+  const rankProfile = ranksWanted && muscleRanks.data && muscleRanks.data.status !== "unavailable" ? muscleRanks.data : null;
   const ranksFailed = ranksWanted && rankProfile === null && (muscleRanks.isError || (muscleRanks.data?.status === "unavailable" && muscleRanks.data.reason === "service_error"));
   const ranksOffline = ranksWanted && muscleRanks.isPending && muscleRanks.fetchStatus === "paused";
   // The ranks on screen are the previous answer, kept while the new request runs.
   const ranksUpdating = ranksWanted && rankProfile !== null && muscleRanks.isPlaceholderData === true;
+  // Kept, and the new request is waiting for a connection: a placeholder reads as a success,
+  // so `ranksOffline` never sees this, and "Updating ranks…" would claim work that is not under way.
+  const ranksUpdateOffline = ranksUpdating && muscleRanks.fetchStatus === "paused";
+  /**
+   * The lifts that produced the ranks on screen. While the previous answer stands in for a new
+   * request, its provenance and notes are read from the lifts it was worked out from, not from
+   * the ones just changed: otherwise a weight saved a moment ago, or a lift just logged, would be
+   * named under a rank that never saw it.
+   */
+  const [answeredSelection, setAnsweredSelection] = useState(rankSelection);
+  if (muscleRanks.data !== undefined && muscleRanks.isPlaceholderData !== true && answeredSelection !== rankSelection) setAnsweredSelection(rankSelection);
+  const rankBasis = ranksUpdating ? answeredSelection : rankSelection;
   // Loading, not unscored: nothing has been ranked yet and the first answer is on its way.
   const ranksFirstLoading = ranksWanted && rankProfile === null && !ranksFailed && muscleRanks.isPending === true;
   const regionRanks = useMemo(() => (rankProfile ? regionRanksFromMuscles(rankProfile.muscles) : null), [rankProfile]);
   // The lifts behind the open region's rank, traced from what was sent (lib/muscleRankLifts).
   const sheetRegionRank = sheetRegion ? regionRanks?.get(sheetRegion.id) ?? null : null;
   const sheetRankProvenance = useMemo(
-    () => (sheetRegionRank ? rankProvenance(sheetRegionRank.representative.evidence, rankSelection.sources) : []),
-    [sheetRegionRank, rankSelection.sources],
+    () => (sheetRegionRank ? rankProvenance(sheetRegionRank.representative.evidence, rankBasis.sources) : []),
+    [sheetRegionRank, rankBasis.sources],
   );
   const unrankedLifts = useMemo(() => {
     const counts = new Map<string, { exerciseName: string; reason: string; count: number }>();
@@ -963,6 +978,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     ? <p className="rank-profile-partial" role="status">Waiting for a connection to rank your lifts. Until then the map shows where lifts are on record.</p>
     : rankSex !== null && rankLifts.length > 0 && muscleRanks.isPending
     ? <p className="rank-profile-partial" role="status">Ranking your lifts… the map shows where lifts are on record until the ranks arrive.</p>
+    : ranksUpdateOffline
+    ? <p className="rank-profile-partial rank-updating-note" role="status" data-rank-updating>Waiting for a connection to update ranks. The colours are your previous ranks.</p>
     : ranksUpdating
     // The colours stay; this says they are about to be replaced.
     ? <p className="rank-profile-partial rank-updating-note" role="status" data-rank-updating>Updating ranks…</p>
@@ -990,7 +1007,8 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   // can take the weight of its day in its record, so only those are sent there; a lift from a
   // workout is named, and marked, without an action its record does not offer. Those lifts
   // read the profile weight as it is now, so editing it moves their ranks - said outright.
-  const profileWeightLifts = rankSelection.profileWeightLifts;
+  // Counted from the lifts behind the ranks on screen, like the lifts left out beside it.
+  const profileWeightLifts = rankBasis.profileWeightLifts;
   const handLoggedProfileWeightCount = profileWeightLifts.filter((lift) => !lift.fromWorkout).length;
   const profileWeightRows = Array.from(profileWeightLifts.reduce((rows, lift) => {
     const key = `${lift.exerciseName}|${lift.fromWorkout}`;
@@ -1272,7 +1290,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
     {pendingObservationRemoval && <ConfirmDialog {...pendingObservationRemoval} onCancel={() => setPendingObservationRemoval(null)} />}
     {/* The scrim takes the tap that dismisses a phone sheet; a wide screen keeps the record in the page with none. */}
     {sheetRegion && phoneSheet && <div ref={sheetScrimRef} className={`strength-region-scrim${sheetLeaving ? " is-leaving" : ""}`} aria-hidden="true" onClick={() => { if (!sheetLeaving) closeRegionRecord(); }} />}
-    {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role={phoneSheet ? "dialog" : "group"} aria-modal={phoneSheet || undefined} aria-labelledby={sheetHeadingIds.title} aria-describedby={sheetHeadingIds.lift} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} headingIds={sheetHeadingIds} onSelectRegion={selectSheetRegion} regionRank={sheetRegionRank} rankMode={regionRanks !== null} rankPending={ranksFirstLoading ? (ranksOffline ? "offline" : "ranking") : null} ranksUpdating={ranksUpdating} rankProvenance={sheetRankProvenance} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={closeRegionRecord} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} registryOffline={registryOfflineNotice !== null} />
+    {sheetRegion && <div ref={regionDetailRef} className={`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`} role={phoneSheet ? "dialog" : "group"} aria-modal={phoneSheet || undefined} aria-labelledby={sheetHeadingIds.title} aria-describedby={sheetHeadingIds.lift} aria-hidden={sheetLeaving || undefined}><StrengthRegionRecordDetail key={`${sheetRegion.id}-${selectedObservationId}`} headingIds={sheetHeadingIds} onSelectRegion={selectSheetRegion} regionRank={sheetRegionRank} rankMode={regionRanks !== null} rankPending={ranksFirstLoading ? (ranksOffline ? "offline" : "ranking") : null} ranksUpdating={ranksUpdateOffline ? "offline" : ranksUpdating ? "updating" : null} rankProvenance={sheetRankProvenance} region={sheetRegion} observations={activeObservations as StrengthObservationRecord[]} onClose={closeRegionRecord} onLogLift={() => { setSelectedRegion(null); setSelectedObservationId(""); setLogOpen(true); window.requestAnimationFrame(() => { logFormRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); logFormRef.current?.querySelector<HTMLInputElement>('input[aria-label="Search and choose a catalog exercise"]')?.focus({ preventScroll: true }); }); }} weightUnit={weightUnit} baselineBodyWeight={baselineBodyWeight} directAccess={directAccess} onSetDeviceBodyMass={setDeviceBodyMass} initialRecordId={selectedObservationId} powerliftingNorms={powerliftingNorms} strengthChanges={comparableStrengthChanges} referenceRows={referenceRows} athleteProfile={athleteProfile} bodyWeightHistory={bodyWeightHistory} onRankProfile={onRankProfile} registryOffline={registryOfflineNotice !== null} />
       {/* Focus is kept only with an account's priorities, which direct access never
           reads, so on a device-only record the row offers training alone. The training
           action says where it goes: Train → Plan, on the day the plan has open. Toasts

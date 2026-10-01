@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
@@ -10,6 +10,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  */
 
 type QueryResult = { data?: unknown; isPending?: boolean; isFetching?: boolean; fetchStatus?: string; isPlaceholderData?: boolean; isError?: boolean };
+type RankInput = { sex: string | null; lifts: { exerciseName: string; bodyMassKg: number | null }[] };
+type RankOptions = { enabled?: boolean; placeholderData?: unknown };
 
 const mocks = vi.hoisted(() => ({
   feedback: vi.fn(),
@@ -17,14 +19,14 @@ const mocks = vi.hoisted(() => ({
   invalidate: vi.fn().mockResolvedValue(undefined),
   // Each answers for its own request, set per case.
   forLift: vi.fn<(input: { exerciseName: string | null }) => QueryResult>(),
-  ranks: vi.fn<(input: { lifts: { exerciseName: string; bodyMassKg: number | null }[] }) => QueryResult>(),
+  ranks: vi.fn<(input: RankInput, options?: RankOptions) => QueryResult>(),
 }));
 
 vi.mock("@/lib/trpc", () => ({
   trpc: {
     useUtils: () => ({ strengthGenome: { overview: { invalidate: mocks.invalidate }, observations: { invalidate: mocks.invalidate }, priorities: { invalidate: mocks.invalidate } } }),
     strengthPercentile: { forLift: { useQuery: (input: { exerciseName: string | null }) => mocks.forLift(input) } },
-    strengthProfile: { muscleRanks: { useQuery: (input: { lifts: { exerciseName: string; bodyMassKg: number | null }[] }) => mocks.ranks(input) } },
+    strengthProfile: { muscleRanks: { useQuery: (input: RankInput, options?: RankOptions) => mocks.ranks(input, options) } },
     researchEvidence: { supabaseInventory: { useQuery: () => ({ data: { status: "unavailable" } }) } },
     repair: { deleteStrengthObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) } },
     strengthGenome: {
@@ -44,7 +46,7 @@ vi.mock("@/lib/trpc", () => ({
 vi.mock("@/lib/interactionFeedback", () => ({ emitInteractionFeedback: mocks.feedback }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-import { deviceStrengthObservationKey } from "@/lib/deviceStrengthObservations";
+import { deviceStrengthObservationEvent, deviceStrengthObservationKey } from "@/lib/deviceStrengthObservations";
 import { StrengthGenomePanel } from "./StrengthGenomePanel";
 
 /** The recording's case: a Bench-driven Chest rank, and two Pec Deck logs (40 x 10, then 50 x 10). */
@@ -69,6 +71,34 @@ const benchPlaced = {
 };
 const answerByLift = (input: { exerciseName: string | null }): QueryResult =>
   settled(input.exerciseName === "Pec Deck Fly" ? { status: "unavailable", reason: "no_curve_for_exercise" } : benchPlaced);
+
+/**
+ * The rank query the way TanStack v5 runs it when the request changes: the answer for the request
+ * it last settled, and for any other request whatever the placeholderData option makes of that
+ * answer - handed to a disabled query too - until `answer()` lets the current request settle.
+ */
+function rankQuery(answerFor: (input: RankInput) => unknown = () => scored) {
+  let last: { key: string; input: RankInput; data: unknown } | null = null;
+  let answerNext = true;
+  const query = (input: RankInput, options?: RankOptions): QueryResult => {
+    const key = JSON.stringify(input);
+    const enabled = options?.enabled !== false;
+    if (last?.key === key) return settled(last.data);
+    if (answerNext && enabled) {
+      answerNext = false;
+      last = { key, input, data: answerFor(input) };
+      return settled(last.data);
+    }
+    const placeholder = typeof options?.placeholderData === "function"
+      ? (options.placeholderData as (previous: unknown, query: { queryKey: unknown[] }) => unknown)(last?.data, { queryKey: [["strengthProfile", "muscleRanks"], { input: last?.input, type: "query" }] })
+      : options?.placeholderData;
+    const fetchStatus = enabled ? "fetching" : "idle";
+    return placeholder === undefined
+      ? { data: undefined, isPending: true, isFetching: enabled, fetchStatus, isPlaceholderData: false }
+      : { data: placeholder, isPending: false, isFetching: enabled, fetchStatus, isPlaceholderData: true };
+  };
+  return { query, answer: () => { answerNext = true; } };
+}
 
 function renderPanel(observations: object[], props: Record<string, unknown> = {}) {
   localStorage.setItem(deviceStrengthObservationKey, JSON.stringify(observations));
@@ -234,6 +264,66 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     const rank = rankSection(openChest());
     expect(within(rank).getByText("84th percentile")).toBeTruthy();
     expect(within(rank).getByText("Updating ranks…")).toBeTruthy();
+  });
+
+  it("lets the ranks go when the last lift that could be ranked is removed, instead of keeping them drawn", () => {
+    const ranks = rankQuery();
+    mocks.ranks.mockImplementation(ranks.query);
+    renderPanel([bench]);
+    openChest();
+    expect(document.querySelector(".strength-body-map")?.getAttribute("data-mode")).toBe("rank");
+
+    localStorage.setItem(deviceStrengthObservationKey, "[]");
+    act(() => { window.dispatchEvent(new Event(deviceStrengthObservationEvent)); });
+
+    // Nothing is left to rank, so no answer is coming: the map goes back to coverage and the
+    // record has no rank for a lift that no longer exists.
+    expect(document.querySelector(".strength-body-map")?.getAttribute("data-mode")).toBe("coverage");
+    const record = screen.getByRole("region", { name: "Chest recorded strength context" });
+    expect(within(record).queryByRole("region", { name: "Chest rank" })).toBeNull();
+    expect(record.querySelector(".rank-card")).toBeNull();
+    expect(document.querySelector("[data-rank-updating]")).toBeNull();
+  });
+
+  it("keeps naming the lifts behind the ranks on screen while new ones load, not the lifts just changed", () => {
+    const ranks = rankQuery();
+    mocks.ranks.mockImplementation(ranks.query);
+    const { rerenderWith } = renderPanel([{ ...bench, bodyMassKgAtTest: undefined }]);
+    const record = openChest();
+    const provenanceLine = () => record.querySelector("[data-rank-provenance] .rank-provenance-lift")?.textContent ?? "";
+    const notesSummary = () => document.querySelector("[data-rank-data-notes] summary")?.textContent ?? "";
+    expect(provenanceLine()).toMatch(/ · read against 80 kg, your current profile weight$/);
+
+    // "Not your weight that day?": saving 85 kg for the bench changes what is sent.
+    const lift = liftSection(record, "Barbell Bench Press");
+    fireEvent.change(within(lift).getByLabelText("Body weight on the day of this lift, in kilograms"), { target: { value: "85" } });
+    fireEvent.click(within(lift).getByRole("button", { name: "Save this body weight" }));
+    expect(mocks.ranks.mock.calls.at(-1)?.[0].lifts.map((sent) => sent.bodyMassKg)).toEqual([85]);
+
+    // The rank on screen is still the one worked out against 80 kg, and says so.
+    expect(within(rankSection(record)).getByText("Updating ranks…")).toBeTruthy();
+    expect(provenanceLine()).toMatch(/ · read against 80 kg, your current profile weight$/);
+    expect(notesSummary()).toContain("1 on your profile weight");
+    expect(row(lift, "comparison").textContent).not.toMatch(/Counts toward|Not part of/);
+
+    // The new answer arrives, and only now is the rank read against the saved weight.
+    ranks.answer();
+    rerenderWith({});
+    expect(within(rankSection(record)).queryByText("Updating ranks…")).toBeNull();
+    expect(provenanceLine()).toMatch(/ · read against 85 kg, recorded with the lift$/);
+    expect(notesSummary()).not.toContain("profile weight");
+    expect(row(lift, "comparison").textContent).toContain("Counts toward the Chest rank.");
+  });
+
+  it("says it is waiting for a connection when kept ranks cannot be updated offline", () => {
+    mocks.ranks.mockReturnValue({ ...settled(scored), fetchStatus: "paused", isPlaceholderData: true });
+    renderPanel([bench, pecDeckFirst, pecDeckLatest]);
+    expect(document.querySelector(".strength-body-map")?.getAttribute("data-mode")).toBe("rank");
+    expect(document.querySelector("[data-rank-updating]")?.textContent).toBe("Waiting for a connection to update ranks. The colours are your previous ranks.");
+    const rank = rankSection(openChest());
+    expect(within(rank).getByText("84th percentile")).toBeTruthy();
+    expect(within(rank).getByText("Waiting for a connection to update ranks. This is your previous rank.")).toBeTruthy();
+    expect(within(rank).queryByText("Updating ranks…")).toBeNull();
   });
 
   it("puts every limitation of the map's ranks in one Data notes disclosure, with its counts in view", () => {
