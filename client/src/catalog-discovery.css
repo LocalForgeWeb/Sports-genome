@@ -81,8 +81,8 @@
 .catalog-load-more:hover { text-decoration: underline; }
 
 .catalog-action-link { display: inline-block; width: fit-content; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; margin-top: .3rem; border: 1px solid rgb(151 194 234 / .45); border-radius: 999px; padding: .2rem .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-snug); text-transform: uppercase; white-space: nowrap; }
-.catalog-action-link-direct-support { border-color: #e56e4a; background: rgb(228 81 46 / .17); color: #ffc8b8; }
-.catalog-action-link-supporting-link { border-color: #d4ad4d; background: rgb(242 193 77 / .12); color: #f9dd90; }
+.catalog-action-link-movement-specific { border-color: #e56e4a; background: rgb(228 81 46 / .17); color: #ffc8b8; }
+.catalog-action-link-related-pattern { border-color: #d4ad4d; background: rgb(242 193 77 / .12); color: #f9dd90; }
 
 @media (max-width: 640px) {
   .catalog-discovery-search span { display: none; }

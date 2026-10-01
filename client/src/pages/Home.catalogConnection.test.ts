@@ -16,8 +16,11 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogSource).toContain("catalog-action-link");
     expect(catalogSource).toContain("connection.label");
     expect(catalogSource).toContain("All action links");
-    expect(catalogSource).toContain("Direct support");
-    expect(catalogSource).toContain("Supporting link");
+    // Sep 30: the action-link filter reads the movement support tiers, so it is worded with the tier names.
+    expect(catalogSource).toContain('direct: "Movement-specific"');
+    expect(catalogSource).toContain('supporting: "Related or muscle support"');
+    expect(catalogSource).not.toContain("Direct support");
+    expect(catalogSource).not.toContain("Supporting link");
     expect(catalogSource).not.toContain("Any sport fit");
     expect(catalogSource).not.toContain("A-grade or higher");
   });
@@ -38,8 +41,10 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogSource).not.toContain("${selectedActionLabel}`");
     expect(catalogSource).toContain("Action links below are measured against");
 	    expect(catalogSource).toContain('connection && connection.label !== "Not mapped"');
-    expect(catalogStyles).toContain(".catalog-action-link-direct-support");
-    expect(catalogStyles).toContain(".catalog-action-link-supporting-link");
+    // Sep 30: the row classes follow the tier names; muscle support keeps the neutral base pill.
+    expect(catalogStyles).toContain(".catalog-action-link-movement-specific");
+    expect(catalogStyles).toContain(".catalog-action-link-related-pattern");
+    expect(catalogStyles).not.toContain(".catalog-action-link-direct-support");
 	    expect(catalogStyles).not.toContain(".catalog-action-link-not-mapped");
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
     // inline-block plus overflow/text-overflow so the label truncates inside the

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
-import { defaultCatalogFilters, filterCatalogByActionLink, filterCatalogExercises } from "./catalogDiscovery";
+import { defaultCatalogFilters, filterCatalogByActionLink, filterCatalogExercises, refineMovementSupport } from "./catalogDiscovery";
+import { getMovementSupport, type MovementSupport } from "./movementSupport";
 
 describe("catalog discovery filters", () => {
   it("finds cable exercises by text and equipment without losing relevant results", () => {
@@ -26,11 +27,63 @@ describe("catalog discovery filters", () => {
     expect(results.map((exercise) => exercise.name)).toEqual(expect.arrayContaining(["Cable Serratus Punch", "Scapular Wall Slide"]));
   });
 
-  it("filters selected-action exercise results by direct or supporting links without using retired sport grades", () => {
-    const sample = exercises.slice(0, 3);
-    const connectionForExercise = (exercise: (typeof sample)[number]) => ({ label: exercise.id === sample[0].id ? "Direct support" : exercise.id === sample[1].id ? "Supporting link" : "Not mapped", detail: "test" }) as const;
+  it("filters selected-action exercise results by movement support tier without using retired sport grades", () => {
+    // Sep 30: "direct" is the movement-specific tier; "supporting" is related pattern or muscle support.
+    const sample = exercises.slice(0, 4);
+    const labels = ["Movement-specific", "Related pattern", "Muscle support", "Not mapped"] as const;
+    const connectionForExercise = (exercise: (typeof sample)[number]) => ({ label: labels[sample.indexOf(exercise)], detail: "test" });
     expect(filterCatalogByActionLink(sample, "direct", connectionForExercise).map((exercise) => exercise.id)).toEqual([sample[0].id]);
-    expect(filterCatalogByActionLink(sample, "supporting", connectionForExercise).map((exercise) => exercise.id)).toEqual([sample[1].id]);
+    expect(filterCatalogByActionLink(sample, "supporting", connectionForExercise).map((exercise) => exercise.id)).toEqual([sample[1].id, sample[2].id]);
     expect(filterCatalogByActionLink(sample, "all", connectionForExercise).map((exercise) => exercise.id)).toEqual(sample.map((exercise) => exercise.id));
+  });
+});
+
+describe("refinements inside the movement support tiers", () => {
+  const bridge = () => getMovementSupport("wrestling", "wrestling-19");
+  const rowIds = (support: MovementSupport, tier: "specific" | "related" | "muscle") => support[tier].map((row) => row.exercise.id);
+
+  it("narrows each tier by equipment and keeps the tier's own order", () => {
+    const refined = refineMovementSupport(bridge(), { ...defaultCatalogFilters, equipment: "Landmine" }, new Set());
+    expect(refined.specific.map((row) => row.exercise.name)).toEqual(["Landmine Romanian Deadlift", "Landmine Single-Leg Romanian Deadlift"]);
+    expect(refined.specific.every((row) => row.reason === "Named in the Bridge movement record: Romanian deadlift")).toBe(true);
+    expect(refined.status).toBe("ok");
+    expect(refined.movementLabel).toBe("Bridge");
+  });
+
+  it("finds by search text only among a tier's own rows, without re-ranking them", () => {
+    const refined = refineMovementSupport(bridge(), { ...defaultCatalogFilters, query: "thrust" }, new Set());
+    expect(refined.specific.map((row) => row.exercise.name)).toEqual(["Barbell Hip Thrust", "Smith Machine Hip Thrust", "Dumbbell Hip Thrust", "Single-Leg Hip Thrust", "Cable Hip Thrust"]);
+    expect(refined.related).toEqual([]);
+  });
+
+  it("keeps favorites only when asked", () => {
+    const favorites = new Set([210, 41, 161, 1]);
+    const refined = refineMovementSupport(bridge(), { ...defaultCatalogFilters, favoritesOnly: true }, favorites);
+    expect(rowIds(refined, "specific")).toEqual([210]);
+    expect(rowIds(refined, "related")).toEqual([41]);
+    expect(rowIds(refined, "muscle")).toEqual([161]);
+  });
+
+  it("never adds a candidate or moves one between tiers, whatever the refinement", () => {
+    const support = bridge();
+    const refinements = [
+      defaultCatalogFilters,
+      { ...defaultCatalogFilters, equipment: "Cable" },
+      { ...defaultCatalogFilters, query: "romanian" },
+      { ...defaultCatalogFilters, query: "bench press" },
+      { ...defaultCatalogFilters, favoritesOnly: true },
+      { ...defaultCatalogFilters, equipment: "Barbell", query: "squat" },
+    ];
+    for (const filters of refinements) {
+      const refined = refineMovementSupport(support, filters, new Set([1, 41, 206]));
+      for (const tier of ["specific", "related", "muscle"] as const) {
+        const before = rowIds(support, tier);
+        const after = rowIds(refined, tier);
+        expect(after.every((id) => before.includes(id))).toBe(true);
+        expect(after).toEqual(before.filter((id) => after.includes(id)));
+      }
+    }
+    // "bench press" is in the catalog but not in Bridge's tiers: the search does not reach outside them.
+    expect(rowIds(refineMovementSupport(support, { ...defaultCatalogFilters, query: "bench press" }, new Set()), "specific")).toEqual([]);
   });
 });

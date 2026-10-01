@@ -5,9 +5,10 @@ import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { getExerciseActionConnection } from "@/lib/movementProgramAnalysis";
 
 /**
- * The selected sport action, and what this exercise is to it. A "Supporting
- * link" is a shared assisting or stabilizing demand, not demonstrated transfer,
- * and the copy says so. `onOpenAction` is the way to the action itself.
+ * The selected sport action, and what this exercise is to it: its movement
+ * support tier (movement-specific, related pattern or muscle support) and the
+ * reason. None of the three is demonstrated transfer, and the copy says so.
+ * `onOpenAction` is the way to the action itself.
  */
 export function SelectedActionConnectionCard({ exercise, selectedMovement, enrichedSelectedMovement, onOpenAction }: { exercise: Exercise; selectedMovement: SportMovementProfile; enrichedSelectedMovement?: EnrichedSportMovement; onOpenAction?: () => void }) {
   const connection = getExerciseActionConnection(exercise, enrichedSelectedMovement);

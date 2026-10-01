@@ -62,8 +62,6 @@ export const logicCalibration = {
     closelySimilarQualityOverlap: 0.55,
     sameMovementMuscleOverlap: 0.5,
     reviewQualityOverlap: 0.6,
-    minimumMatchWordLength: 4,
-    minimumMatchWords: 2,
   },
   workoutRedundancy: {
     likelyDuplicateDisplayOrder: 0,

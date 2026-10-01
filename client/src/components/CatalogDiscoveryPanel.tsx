@@ -37,7 +37,7 @@ const visiblePerPage = 36;
 
 /** The filters an athlete can take off one at a time, with the word each chip shows. */
 const chipKeys = ["category", "movement", "equipment", "muscle", "actionLink"] as const;
-const actionLinkLabel: Record<CatalogFilters["actionLink"], string> = { all: "All action links", direct: "Direct support", supporting: "Supporting link" };
+const actionLinkLabel: Record<CatalogFilters["actionLink"], string> = { all: "All action links", direct: "Movement-specific", supporting: "Related or muscle support" };
 
 /**
  * The catalog, one column: title and honest counts, search, the action the
@@ -114,7 +114,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
           <label><span>Movement</span><select value={filters.movement} onChange={(event) => update("movement", event.target.value)}><option value="all">All movements</option>{options.movements.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
           <label><span>Equipment</span><select value={filters.equipment} onChange={(event) => update("equipment", event.target.value)}><option value="all">All equipment</option>{options.equipment.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
           <label><span>Muscle</span><select value={filters.muscle} onChange={(event) => update("muscle", event.target.value)}><option value="all">All muscles</option>{options.muscles.map((value) => <option key={value} value={value}>{muscleLabels[value] || value}</option>)}</select></label>
-          {connectionForExercise ? <label><span>Action link</span><select value={filters.actionLink} onChange={(event) => update("actionLink", event.target.value as CatalogFilters["actionLink"])}><option value="all">All action links</option><option value="direct">Direct support</option><option value="supporting">Supporting link</option></select></label> : null}
+          {connectionForExercise ? <label><span>Action link</span><select value={filters.actionLink} onChange={(event) => update("actionLink", event.target.value as CatalogFilters["actionLink"])}><option value="all">All action links</option><option value="direct">{actionLinkLabel.direct}</option><option value="supporting">{actionLinkLabel.supporting}</option></select></label> : null}
           <button type="button" onClick={() => { emitInteractionFeedback(); setVisibleCount(visiblePerPage); onFiltersChange({ ...defaultCatalogFilters, muscle: "serratusAnterior" }); }} className={`catalog-serratus-filter ${filters.muscle === "serratusAnterior" ? "catalog-serratus-filter-on" : ""}`} aria-pressed={filters.muscle === "serratusAnterior"}><Target className="h-3.5 w-3.5" aria-hidden="true" /> Serratus anterior</button>
           {(activeFilterCount || filters.query) ? <button type="button" onClick={reset} className="catalog-filter-reset"><X className="h-3.5 w-3.5" aria-hidden="true" /> Clear filters</button> : null}
         </div>
