@@ -87,7 +87,8 @@ describe("the last step to a percentile is taken where the percentile would be",
     expect(screen.queryByText(/in About Me and this lift gets a percentile/)).toBeNull();
     // The groups are the curves' own: people who lift, not competitors. The map asks too, so
     // look inside the sheet.
-    expect(within(screen.getByRole("group", { name: /record$/ })).getByRole("option", { name: "Men who lift" })).toBeTruthy();
+    // The sheet is named by its title now (Sep 30 §6), not "Chest record".
+    expect(within(screen.getByRole("group", { name: "Chest" })).getByRole("option", { name: "Men who lift" })).toBeTruthy();
     expect(screen.queryByRole("option", { name: /competitors/ })).toBeNull();
 
     fireEvent.change(screen.getByLabelText("Group to compare this lift against"), { target: { value: "male" } });

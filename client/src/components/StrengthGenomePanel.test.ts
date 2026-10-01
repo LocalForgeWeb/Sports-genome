@@ -22,7 +22,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Variation");
     expect(source).toContain("Assistance used");
     expect(source).toContain("All optional. They just help you compare like with like later on.");
-    expect(source).toContain("Review training");
+    // Was "Review training"; the footer action now names its destination (Sep 30 §6).
+    expect(source).toContain("Open Plan <ArrowRight");
     expect(source).toContain("It will not change today&apos;s workout on its own.");
     expect(source).toContain("onClick={() => { emitInteractionFeedback(); onOpenTraining(); }}");
   });

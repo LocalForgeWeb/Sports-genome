@@ -1059,7 +1059,7 @@ select {
 
 .strength-region-record-detail { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(135deg, var(--sg-surface-overlay), var(--sg-surface-deep)); padding: clamp(1rem, 3vw, 1.5rem); color: var(--sg-text-on-dark); }.strength-region-record-detail h2 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.55rem, 4vw, 2.25rem); font-weight: 800; line-height: .9; text-transform: uppercase; }.strength-region-record-detail h2 em { color: var(--sg-focus-on-dark); }.strength-region-record-list { display: grid; gap: .5rem; margin-top: 1rem; }.strength-region-record-list article { display: grid; gap: .2rem; border-left: 2px solid var(--sg-focus-on-dark); background: rgb(255 255 255 / .06); padding: .7rem .8rem; }.strength-region-record-list strong { color: #fff; font-size: var(--sg-text-md); }.strength-region-record-list span, .strength-region-record-empty { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.strength-region-record-empty { margin-top: .85rem; }.strength-region-reference-boundary { margin-top: 1rem; border-left: 2px solid var(--sg-action); padding-left: .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.strength-region-reference-boundary strong { color: #ffd2c4; }
 .strength-body-mass-ratio { display: inline-flex; width: fit-content; align-items: baseline; gap: .35rem; margin-top: .35rem; color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; line-height: 1; }.strength-body-mass-ratio small, .strength-body-mass-missing { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-body-mass-missing { display: block; margin-top: .35rem; }
-.strength-region-record-detail { border-top: 1px solid rgb(164 200 232 / .3); }.strength-region-record-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }.strength-region-record-heading h2 { margin: .2rem 0 0; }.strength-region-close { display: grid; place-items: center; flex: 0 0 2.75rem; min-height: 2.75rem; border: 1px solid rgb(195 215 234 / .35); color: var(--sg-text-on-dark); }.strength-region-record-card { display: grid; gap: .35rem; margin-top: 1rem; border: 1px solid rgb(91 156 241 / .45); background: linear-gradient(135deg, rgb(45 108 205 / .28), rgb(255 255 255 / .04)); padding: .9rem; }.strength-region-record-picker { display: grid; gap: .3rem; margin-bottom: .15rem; }.strength-region-record-picker > span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-record-picker select { min-height: 2.7rem; width: 100%; border: 1px solid rgb(195 215 234 / .3); background: var(--sg-surface-raised); color: #fff; padding: 0 .7rem; outline: none; }.strength-region-record-picker select:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-region-test-name { color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 800; }.strength-region-record-card .strength-body-mass-ratio { margin: .1rem 0 0; font-size: clamp(2rem, 8vw, 2.65rem); }.strength-ratio-label, .strength-region-test-meta { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-test-meta { border-top: 1px solid rgb(195 215 234 / .16); margin-top: .3rem; padding-top: .55rem; letter-spacing: var(--sg-tracking-open); }.strength-ratio-pending { color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.55rem; text-transform: uppercase; }.strength-region-boundary { margin-top: .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.strength-region-boundary summary { color: #9fc8f4; cursor: pointer; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-boundary p { margin-top: .45rem; }.strength-region-focus-row, .strength-observation-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid rgb(164 200 232 / .3); background: var(--sg-surface-raised); padding: .85rem 1rem; color: var(--sg-text-muted-on-dark); }.strength-region-focus-row p, .strength-observation-summary { margin: 0; font-size: var(--sg-text-sm); line-height: var(--sg-leading-snug); }.strength-region-focus-row p strong, .strength-observation-summary strong { color: #fff; }.strength-region-focus-row div { display: flex; gap: .5rem; }.strength-focus-primary, .strength-focus-secondary { min-height: 2.75rem; padding: 0 .75rem; border: 1px solid rgb(195 215 234 / .35); color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-focus-primary { background: var(--sg-action-fill); border-color: var(--sg-action); }.strength-focus-primary.is-active { background: var(--sg-focus-on-dark); border-color: var(--sg-focus-on-dark); color: var(--sg-text-on-light); }.strength-observation-summary { border-top-color: rgb(164 200 232 / .2); color: var(--sg-text-subtle-on-dark); }.strength-observation-summary span { text-align: right; }
+.strength-region-record-detail { border-top: 1px solid rgb(164 200 232 / .3); }.strength-region-record-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: .6rem 1rem; }.strength-region-record-heading h2 { margin: .2rem 0 0; }.strength-region-record-lift { margin: .35rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; line-height: var(--sg-leading-snug); overflow-wrap: anywhere; }.strength-region-switch { grid-column: 1 / -1; display: flex; align-items: center; gap: .6rem; }.strength-region-switch > span { flex: 0 0 auto; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-switch select { flex: 1 1 auto; min-width: 0; min-height: 2.75rem; border: 1px solid rgb(195 215 234 / .3); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); padding: 0 .7rem; outline: none; }.strength-region-switch select:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-focus-primary, .strength-focus-secondary { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; white-space: nowrap; }.strength-region-focus-row { flex-wrap: wrap; }.strength-region-focus-row > p { flex: 1 1 12rem; }.strength-region-focus-row > div { margin-left: auto; }.strength-region-close { display: grid; place-items: center; flex: 0 0 2.75rem; min-height: 2.75rem; border: 1px solid rgb(195 215 234 / .35); color: var(--sg-text-on-dark); }.strength-region-record-card { display: grid; gap: .35rem; margin-top: 1rem; border: 1px solid rgb(91 156 241 / .45); background: linear-gradient(135deg, rgb(45 108 205 / .28), rgb(255 255 255 / .04)); padding: .9rem; }.strength-region-record-picker { display: grid; gap: .3rem; margin-bottom: .15rem; }.strength-region-record-picker > span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-record-picker select { min-height: 2.7rem; width: 100%; border: 1px solid rgb(195 215 234 / .3); background: var(--sg-surface-raised); color: #fff; padding: 0 .7rem; outline: none; }.strength-region-record-picker select:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-region-test-name { color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 800; }.strength-region-record-card .strength-body-mass-ratio { margin: .1rem 0 0; font-size: clamp(2rem, 8vw, 2.65rem); }.strength-ratio-label, .strength-region-test-meta { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-test-meta { border-top: 1px solid rgb(195 215 234 / .16); margin-top: .3rem; padding-top: .55rem; letter-spacing: var(--sg-tracking-open); }.strength-ratio-pending { color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.55rem; text-transform: uppercase; }.strength-region-boundary { margin-top: .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.strength-region-boundary summary { color: #9fc8f4; cursor: pointer; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-boundary p { margin-top: .45rem; }.strength-region-focus-row, .strength-observation-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid rgb(164 200 232 / .3); background: var(--sg-surface-raised); padding: .85rem 1rem; color: var(--sg-text-muted-on-dark); }.strength-region-focus-row p, .strength-observation-summary { margin: 0; font-size: var(--sg-text-sm); line-height: var(--sg-leading-snug); }.strength-region-focus-row p strong, .strength-observation-summary strong { color: #fff; }.strength-region-focus-row div { display: flex; gap: .5rem; }.strength-focus-primary, .strength-focus-secondary { min-height: 2.75rem; padding: 0 .75rem; border: 1px solid rgb(195 215 234 / .35); color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-focus-primary { background: var(--sg-action-fill); border-color: var(--sg-action); }.strength-focus-primary.is-active { background: var(--sg-focus-on-dark); border-color: var(--sg-focus-on-dark); color: var(--sg-text-on-light); }.strength-observation-summary { border-top-color: rgb(164 200 232 / .2); color: var(--sg-text-subtle-on-dark); }.strength-observation-summary span { text-align: right; }
 .strength-ratio-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .55rem; align-items: end; margin-top: .25rem; }.strength-ratio-entry label { display: grid; gap: .3rem; }.strength-ratio-entry label span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-ratio-entry input { min-height: 2.7rem; border: 1px solid rgb(195 215 234 / .3); background: rgb(255 255 255 / .08); color: #fff; padding: 0 .7rem; outline: none; }.strength-ratio-entry input:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-ratio-entry button { min-height: 2.7rem; padding: 0 .7rem; background: var(--sg-focus-on-dark); color: var(--sg-text-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-ratio-entry button:disabled { cursor: not-allowed; opacity: .55; }
 
 /* Explore is the discovery lab: cool layered blue panels, not a white document canvas. */
@@ -2336,29 +2336,42 @@ details:not([open]) > *:not(summary) {
 #targeted-capacity:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 3px; }
 /* Tapping a muscle used to scroll the page roughly 700px to reach a record that
    renders after the figure - so the muscle the athlete had just tapped was
-   pushed off the top of the screen, and the page settled on a stranded sliver of
-   the map's own background under the header. Below the dock's breakpoint the
-   record is pinned above the bottom bar instead and the page never moves: the
-   figure stays exactly where it was, still tappable, so choosing another muscle
-   swaps the record in place. */
+   pushed off the top of the screen. Below the dock's breakpoint the record is a
+   modal bottom sheet instead and the page never moves. It was a panel pinned
+   above the bottom bar with the page still live behind it: the page scrolled
+   under it, a tap on the bar left the screen, and its title scrolled away with
+   the record (Sep 30 brief §6). Now a scrim covers the page and the bar, the
+   page is inert behind it (StrengthGenomePanel), and the sheet is three parts: a
+   header that stays put, one scrolling body, and the action row. */
 @media (max-width: 1023px) {
+  .strength-region-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgb(6 23 45 / .72);
+    animation: sg-region-scrim-in var(--sg-motion-slow) var(--sg-ease) both;
+  }
+  .strength-region-scrim.is-leaving {
+    animation: sg-region-scrim-out var(--sg-motion-slow) var(--sg-ease) both;
+    pointer-events: none;
+  }
   .strength-region-sheet {
     position: fixed;
-    z-index: 45;
+    z-index: 71;
     right: 0;
-    /* Flush to the top edge of the bottom bar (its four 4.1rem targets plus its
-       border), so the two read as one stacked assembly rather than leaving a
-       strip of the page showing between them. */
-    bottom: calc(4.375rem + env(safe-area-inset-bottom, 0px));
+    /* Over the bottom bar, not above it: the bar sits under the scrim, out of reach. */
+    bottom: 0;
     left: 0;
-    /* The panel's own stack spacing would otherwise offset the pinned box from
-       the bar by its bottom margin. */
+    /* The panel's own stack spacing would otherwise offset the sheet from the
+       bottom edge by its bottom margin. */
     margin: 0;
     display: flex;
     flex-direction: column;
-    max-height: min(62vh, 30rem);
+    max-height: min(88vh, 46rem);
+    max-height: min(88dvh, 46rem);
     overflow: hidden;
     border-top: 1px solid rgb(164 200 232 / .45);
+    border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0;
     background: var(--sg-surface-deep);
     box-shadow: 0 -16px 38px rgb(4 20 40 / .45);
     /* A real slide from the bottom edge, not a 12px nudge: the sheet covers the
@@ -2374,16 +2387,35 @@ details:not([open]) > *:not(summary) {
     animation: sg-region-sheet-fall var(--sg-motion-slow) var(--sg-ease) both;
     pointer-events: none;
   }
-  /* The record scrolls; the two optional actions stay pinned as the sheet's own
-     bottom bar, so a tall record can never cut a button in half. */
+  /* The header stays put and the body is the one thing that scrolls; the two
+     optional actions stay pinned as the sheet's own bottom bar, so a tall record
+     can never cut a button in half. */
   .strength-region-sheet .strength-region-record-detail {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 0;
+    padding: 0;
+  }
+  .strength-region-sheet .strength-region-record-heading {
+    flex: 0 0 auto;
+    padding: 1rem var(--sg-gutter, 1rem) .75rem;
+    border-bottom: 1px solid var(--sg-divider-on-dark);
+  }
+  .strength-region-sheet .strength-region-record-body {
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    border-top: 0;
+    padding: 0 var(--sg-gutter, 1rem) 1rem;
   }
-  .strength-region-sheet .strength-region-focus-row { flex: 0 0 auto; }
+  /* The safe area is padded once, here, on the sheet's bottom edge. */
+  .strength-region-sheet .strength-region-focus-row {
+    flex: 0 0 auto;
+    padding: .85rem var(--sg-gutter, 1rem) calc(.85rem + env(safe-area-inset-bottom, 0px));
+  }
   /* The record no longer occupies page flow here, so the flow needs no room for it. */
   .apex-content.destination-body:has(.strength-region-record-detail) { padding-bottom: calc(5.8rem + env(safe-area-inset-bottom, 0px)); }
 }
@@ -2396,6 +2428,16 @@ details:not([open]) > *:not(summary) {
 @keyframes sg-region-sheet-fall {
   from { transform: translateY(0); opacity: 1; }
   to { transform: translateY(100%); opacity: 0; }
+}
+
+@keyframes sg-region-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sg-region-scrim-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* Above the sheet's breakpoint the record sits in the page flow, where sliding

@@ -51,7 +51,8 @@ const offlineReason = /The research library is not reachable right now/;
 function openBenchRecord() {
   render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb", sexForReference: "male" }));
   fireEvent.click(screen.getByRole("button", { name: "Review" }));
-  return screen.getByRole("group", { name: /record$/ });
+  // The sheet is named by its title now (Sep 30 §6), not "Chest record".
+  return screen.getByRole("group", { name: "Chest" });
 }
 
 describe("a research library that cannot be reached", () => {

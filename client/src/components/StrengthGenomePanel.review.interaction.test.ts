@@ -130,7 +130,8 @@ describe("Strength Genome direct Review workflow", () => {
     render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
     fireEvent.click(screen.getByRole("button", { name: "Review" }));
     expect(screen.queryByRole("button", { name: "Set focus" })).toBeNull();
-    expect(screen.getByRole("button", { name: "Review training" })).toBeTruthy();
+    // Renamed from "Review training" (Sep 30 §6): the action names where it goes.
+    expect(screen.getByRole("button", { name: "Open Plan to add biceps work" })).toBeTruthy();
     expect(screen.getByText("Want to train this?")).toBeTruthy();
   });
 
