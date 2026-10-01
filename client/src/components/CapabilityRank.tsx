@@ -117,7 +117,7 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
           <summary>Why this rank?</summary>
           <p>
             Drawn from {representative.name.toLowerCase()}, the muscle in this group with the most evidence behind it:
-            {" "}{representative.evidenceCount} {representative.evidenceCount === 1 ? "lift" : "lifts"} across {representative.movementPatternCount} {representative.movementPatternCount === 1 ? "movement" : "movements"}.
+            {" "}{representative.evidenceCount} {representative.evidenceCount === 1 ? "exercise" : "exercises"} across {representative.movementPatternCount} {representative.movementPatternCount === 1 ? "movement" : "movements"}.
           </p>
           {!provenance && representative.evidence.length > 0 && (
             <ul aria-label="Lifts behind this rank">
@@ -128,8 +128,9 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
               ))}
             </ul>
           )}
-          {shared && (
-            /* D-016: directness. The share above is what each lift carried; this is why they differ. */
+          {shared && !provenance && (
+            /* D-016: directness. The share above is what each lift carried; this is why they differ.
+               Left out beside the sheet's provenance, which already says it with the shares. */
             <p data-rank-directness>
               The most direct lift counts most. A lift this muscle does most of the work in says more about it than one it shares with several other muscles, where a weaker one can hold the load back.
             </p>

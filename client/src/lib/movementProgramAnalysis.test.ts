@@ -51,7 +51,20 @@ describe("selected action exercise connections", () => {
   it("does not imply a connection where the record contains none", () => {
     const connection = getExerciseActionConnection(exercise("Lateral deltoid isolation", ["sideDelts"]), movement);
     expect(connection.label).toBe("Not mapped");
-    expect(connection.detail).toContain("Not named in the action's movement record");
+    // Names the movement and states the rule actually applied (primary muscles only).
+    expect(connection.detail).toMatch(/^Not named in the .+ movement record, and none of its primary muscles is a prime mover of it\.$/);
+  });
+
+  it("says when a prime mover is trained only as a supporting muscle, never that it trains none", () => {
+    // Cross-lane review: "trains none of the action's prime movers" was false for exercises
+    // that list a prime mover as a secondary muscle, on the same screen that lists it as Supporting.
+    const record = getEnrichedMovement("wrestling", "wrestling-4");
+    const row = catalogExercises.find((entry) => entry.id === 379)!;
+    expect(row.secondaryMuscles).toContain("glutes");
+    const connection = getExerciseActionConnection(row, record);
+    expect(connection.label).toBe("Not mapped");
+    expect(connection.detail).toContain("only as a supporting muscle, which the movement tiers do not count");
+    expect(connection.detail).not.toContain("trains none");
   });
 
   it("agrees with the movement support tiers for every catalog exercise", () => {

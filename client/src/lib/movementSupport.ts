@@ -277,6 +277,22 @@ export function classifyExerciseForMovement(exercise: Exercise, record: Enriched
 }
 
 /**
+ * Why an exercise is in no tier, in words that match the rule applied. The tiers count
+ * a prime mover only when the exercise lists it as a primary muscle, so an exercise that
+ * trains one only as a supporting muscle is said to do exactly that, never to train none.
+ */
+export function unmappedSupportDetail(exercise: Exercise, record: EnrichedSportMovement): string {
+  const context = contextFor(record);
+  const supportingOnly = context.primeMovers
+    .filter((mover) => mover.keys.some((key) => exercise.secondaryMuscles.includes(key) && !exercise.primaryMuscles.includes(key)))
+    .map((mover) => mover.name);
+  const base = `Not named in the ${context.movementLabel} movement record, and none of its primary muscles is a prime mover of it.`;
+  if (!supportingOnly.length) return base;
+  const subject = supportingOnly.length === 1 ? supportingOnly[0] : joinNames(supportingOnly);
+  return `${base} It trains ${subject} only as a supporting muscle, which the movement tiers do not count.`;
+}
+
+/**
  * How one exercise's tier was reached, for "How this match was made" in the
  * exercise details: the rule that placed it, in plain words, then the record's
  * confidence and source count. Null when the exercise is in no tier. It never

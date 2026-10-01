@@ -5,7 +5,7 @@ import { getEnrichedMovement, type EnrichedSportMovement } from "@/lib/enrichedS
 import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { logicCalibration } from "@/lib/evidenceTraceability";
 import { catalogKeysForRecordMuscle } from "@/lib/recordMuscleKeys";
-import { catalogSupportForRecord, classifyExerciseForMovement, supportTierLabel } from "@/lib/movementSupport";
+import { catalogSupportForRecord, classifyExerciseForMovement, supportTierLabel, unmappedSupportDetail } from "@/lib/movementSupport";
 
 // The movement support model lives in movementSupport; it is re-exported here so
 // this stays the one place the app asks how an exercise relates to a sport movement.
@@ -139,7 +139,7 @@ export function sharedConnectionSummary(label: ExerciseActionConnection["label"]
 export function getExerciseActionConnection(exercise: Exercise, movement?: EnrichedSportMovement): ExerciseActionConnection {
   if (!movement) return { label: "Not mapped", detail: "No enriched record is available for the selected action." };
   const row = classifyExerciseForMovement(exercise, movement);
-  if (!row) return { label: "Not mapped", detail: "Not named in the action's movement record, and it trains none of the action's prime movers." };
+  if (!row) return { label: "Not mapped", detail: unmappedSupportDetail(exercise, movement) };
   return { label: supportTierLabel[row.tier], detail: row.reason.endsWith(".") ? row.reason : `${row.reason}.` };
 }
 

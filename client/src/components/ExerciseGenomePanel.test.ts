@@ -38,7 +38,8 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
 
   it("uses the shared selected-action mapping helper and clearly bounds the connection claim", () => {
     expect(source).toContain("getExerciseActionConnection(exercise, enrichedMovement)");
-    expect(source).toContain("Your selected sport action");
+    // "In view", not "selected": in movement discovery it can be a browsed sport's action.
+    expect(source).toContain("Sport action in view");
     expect(source).toContain("It is not proof that training it improves your skill on the field");
   });
 

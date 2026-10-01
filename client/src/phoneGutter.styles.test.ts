@@ -91,4 +91,11 @@ describe("the phone gutter", () => {
     expect(gutterRules).not.toMatch(/safe-area-inset/);
     expect(gutterRules).not.toMatch(/padding(?:-top|-bottom)?:\s*[^;]*var\(--sg-gutter\)/);
   });
+
+  it("lines the analysis overlay up with the same gutter on phones", () => {
+    // Its header text started at 16px and its sections at 11px while the page behind sat on the gutter.
+    const analysis = readFileSync(new URL("./stack-analysis.css", import.meta.url), "utf8");
+    expect(analysis).toContain(".stack-analysis-head { padding: max(.85rem, env(safe-area-inset-top, 0px)) var(--sg-gutter) .85rem; }");
+    expect(analysis).toContain(".stack-analysis-main { display: flex; flex-direction: column; gap: .65rem; padding: .7rem var(--sg-gutter); }");
+  });
 });
