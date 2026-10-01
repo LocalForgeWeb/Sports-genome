@@ -239,6 +239,9 @@ export function workspaceFromLocation(value: string | null): Workspace {
   return workspaceIds.includes(value as Workspace) ? value as Workspace : "command";
 }
 
+/** The page a movement-mode catalog entry was opened from, as that history entry records it; "movement" when it says nothing. */
+const discoveryOriginOf = (state: unknown): "body" | "movement" => ((state as { discoveryOrigin?: unknown } | null)?.discoveryOrigin === "body" ? "body" : "movement");
+
 /** The muscles a muscle-mode catalog may be opened on: every muscle the app has a name for. */
 const discoveryMuscleKeys: ReadonlySet<string> = new Set(Object.keys(muscleLabels));
 
@@ -352,8 +355,13 @@ export default function Home() {
    */
   const [discovery, setDiscovery] = useState<ExerciseDiscoveryContext>(() => typeof window === "undefined" ? allExercisesDiscovery : discoveryFromLocation());
   const [catalogVisibleCount, setCatalogVisibleCount] = useState(catalogPageSize);
-  /** Where "Find exercises for ..." was pressed - the muscle map or the Movement explorer - so the way back goes there. */
-  const [discoveryOrigin, setDiscoveryOrigin] = useState<"body" | "movement">("movement");
+  /**
+   * Where "Find exercises for ..." was pressed - the muscle map or the Movement
+   * explorer - so the way back goes there. It is kept on the catalog entry's own
+   * history state, so Back, Forward or a reload to an earlier movement returns to
+   * the page that one was opened from, not the latest.
+   */
+  const [discoveryOrigin, setDiscoveryOrigin] = useState<"body" | "movement">(() => typeof window === "undefined" ? "movement" : discoveryOriginOf(window.history.state));
   /*
    * The catalog state as of the last render, for handlers that outlive it (popstate
    * is bound once), and the refinements each context was left with, so a Back to a
@@ -1087,8 +1095,12 @@ export default function Home() {
    */
   const openDiscovery = (context: ExerciseDiscoveryContext) => {
     const next = validDiscovery(context, discoveryMuscleKeys);
-    if (next.mode === "movement") setDiscoveryOrigin(workspace === "body" ? "body" : "movement");
     navigateWorkspace("catalog", { discovery: next, fresh: true });
+    if (next.mode !== "movement") return;
+    const origin = workspace === "body" ? "body" : "movement";
+    setDiscoveryOrigin(origin);
+    // On the entry just pushed (or the current one, when the address did not change).
+    if (typeof window !== "undefined") window.history.replaceState({ ...window.history.state, discoveryOrigin: origin }, "", window.location.href);
   };
   /**
    * Puts a movement on the Movement explorer and the Body Lab without adopting a
@@ -1146,7 +1158,10 @@ export default function Home() {
       if (primaryDestinationForWorkspace(next) !== "body") setSportBrowse(followProfileSport);
       // The catalog's mode comes back with its entry, checked again: an entry naming a
       // movement or muscle that does not resolve opens the whole catalog, never a mix.
-      if (next === "catalog") switchDiscovery(discoveryFromParams(params, discoveryMuscleKeys), { fresh: false });
+      if (next === "catalog") {
+        switchDiscovery(discoveryFromParams(params, discoveryMuscleKeys), { fresh: false });
+        setDiscoveryOrigin(discoveryOriginOf(window.history.state));
+      }
       replaceWithCanonicalAddress(next);
       setWorkspaceState(next);
     };
@@ -1588,7 +1603,7 @@ export default function Home() {
     // selection to the exercise's first muscle, so after a look at a bench press the
     // muscle map offered pectoralis major exercises for Bridge. "Explore ... in Body
     // Lab" in the overlay is the way to take a muscle there.
-    if (typeof window !== "undefined" && window.history.state?.overlay !== "exercise") window.history.pushState({ workspace, overlay: "exercise" }, "", window.location.href);
+    if (typeof window !== "undefined" && window.history.state?.overlay !== "exercise") window.history.pushState({ ...window.history.state, workspace, overlay: "exercise" }, "", window.location.href);
   };
   const closeInspector = () => {
     if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") { overlayClosingRef.current = true; window.history.back(); return; }

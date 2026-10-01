@@ -219,6 +219,37 @@ describe("Bridge to its exercises", () => {
     expect(props.discovery).toEqual({ mode: "movement", sportId: "soccer", movementId: "soccer-2" });
   }, 60000);
 
+  it("returns each movement's results to the page that entry was opened from, after Back and after a reload", async () => {
+    // One origin used to serve every entry: the latest Find decided where an earlier entry's "Back to Bridge" went.
+    await openBodyLab();
+    await act(async () => { fireEvent.click(findForMovement()); });
+    await catalog();
+    await act(async () => { fireEvent.click(tab("Movements")); });
+    const find = await waitFor(() => { const button = Array.from(document.querySelectorAll<HTMLButtonElement>(".atlas-next-step button")).find((item) => item.textContent?.startsWith("Find exercises for Bridge")); if (!button) throw new Error("Movement explorer not ready"); return button; }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(find); });
+    await catalog();
+
+    // Back twice: past the Movement explorer to the entry opened from Body Lab.
+    await back();
+    await back();
+    expect(window.location.search).toBe(BRIDGE_ADDRESS);
+    let props = await catalog();
+    await act(async () => { props.onBackToMovement(); });
+    expect(window.location.search).toBe("?workspace=body");
+
+    // Back to that entry again, then a reload: the entry still knows its page.
+    await act(async () => { window.history.back(); });
+    await tick();
+    expect(window.location.search).toBe(BRIDGE_ADDRESS);
+    cleanup();
+    captured.props = null;
+    render(createElement(Home));
+    props = await catalog();
+    expect(props.discovery).toEqual(BRIDGE);
+    await act(async () => { props.onBackToMovement(); });
+    expect(window.location.search).toBe("?workspace=body");
+  }, 60000);
+
   it("returns from Find exercises to the page it was opened from", async () => {
     window.history.replaceState({}, "", "/?workspace=movement");
     render(createElement(Home));
