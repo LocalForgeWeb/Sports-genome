@@ -107,7 +107,10 @@ describe("Stack Analysis selected muscle", () => {
 
   it("keeps the two summary facts on one row at phone width", () => {
     // Sized to content at every width; no phone rule pushes the second fact onto its own row.
-    expect(styles).toContain(".stack-analysis-summary { grid-template-columns: repeat(2, max-content); }");
+    // Intentional change, Sep 30 brief §7/§9: plain max-content could not shrink, so "4 of 5
+    // targets trained" ran off a 320px screen at 125% text; the columns shrink and wrap now.
+    expect(styles).toContain(".stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, max-content)); max-width: 100%; }");
+    expect(styles).toContain(".stack-analysis-summary > div { min-width: 0; }");
     expect(styles).not.toMatch(/\.stack-analysis-summary > div:last-child \{[^}]*grid-column/);
     expect(styles).not.toContain(".stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }");
   });
@@ -197,5 +200,32 @@ describe("Stack Analysis selected muscle", () => {
 
   it("shows supporting work as sets performed, with what the reading counted", () => {
     expect(markup).toMatch(/supporting sets? \(counted as [\d.]+\)|direct sets?/);
+  });
+});
+
+/**
+ * Sep 30 brief §7, layout: label, number and status aligned predictably, and no label squeezed into
+ * a sliver. jsdom has no layout, so these pin the rules that do it; Chromium measurements are in the
+ * lane report.
+ */
+describe("Training Day analysis layout rules", () => {
+  it("shares one set of Workload columns across every row", () => {
+    // A grid per row put "0 direct" 37px left of the other counts beside "Indirect only".
+    expect(styles).toContain(".session-volume-rows { grid-template-columns: minmax(0, 1fr) auto auto; column-gap: .6rem; }");
+    const row = styles.match(/\.session-volume-row \{[^}]*\}/)?.[0] ?? "";
+    expect(row).toContain("grid-column: 1 / -1;");
+    expect(row).toContain("grid-template-columns: subgrid;");
+  });
+
+  it("gives the score or status its own line when the section is narrow for its text size", () => {
+    // In ems of the section itself, so 125% text at 320px narrows it and 100% text does not.
+    expect(styles).toContain(".stack-analysis-list { container: analysis-coverage / inline-size; }");
+    expect(styles).toMatch(/@container analysis-coverage \(max-width: 16em\) \{\s*\.stack-analysis-row \{ grid-template-columns: minmax\(0, 1fr\) 1rem; grid-template-areas: "copy chevron" "score chevron" "bar chevron"; \}/);
+    expect(styles).toContain(".session-volume { container: analysis-workload / inline-size; }");
+    expect(styles).toMatch(/@container analysis-workload \(max-width: 14em\) \{[^@]*grid-template-areas: "name sets" "reading reading" "track track" "supporting supporting";/);
+  });
+
+  it("keeps the summary strip's inset on its first fact", () => {    // The strip has a background and radius; without its padding the icon sat on the rounded edge.
+    expect(styles).not.toMatch(/\.stack-analysis-summary > div:first-child \{[^}]*padding-left: 0/);
   });
 });

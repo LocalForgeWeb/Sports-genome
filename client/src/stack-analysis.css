@@ -237,8 +237,11 @@
 
 /* The summary strip reserves three equal columns but only ever fills two, so it
    rendered a dead cell - and at narrow widths the two wrapped onto separate rows
-   with an empty half beside each. Sizing to content removes both. */
-.stack-analysis-summary { grid-template-columns: repeat(2, max-content); }
+   with an empty half beside each. Sizing to content removes both. The columns may
+   shrink below their content, so a long fact wraps inside its cell: plain
+   max-content ran "4 of 5 targets trained" 9px off a 320px screen at 125% text. */
+.stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, max-content)); max-width: 100%; }
+.stack-analysis-summary > div { min-width: 0; }
 .stack-analysis-summary > div:last-child { border-right: 0; }
 
 /* ==========================================================================
@@ -325,10 +328,17 @@
 /* One layout at every width: name, direct count and status on the first line,
    the bar the full row width so every track is one length, and the supporting
    sets under it. The status sat in a fixed column in tracked capitals and
-   "INDIRECT ONLY" wrapped; names were cut to "Rectus abdomi..." (Sep 30 brief §7). */
+   "INDIRECT ONLY" wrapped; names were cut to "Rectus abdomi..." (Sep 30 brief §7).
+   The list owns the columns and every row is a subgrid of them, so each count and
+   each status sits in one column sized by its widest row. With a grid per row,
+   "0 direct" sat 37px left of the other counts beside the longer "Indirect only". */
+.session-volume-rows { grid-template-columns: minmax(0, 1fr) auto auto; column-gap: .6rem; }
 .session-volume-row {
   display: grid;
+  grid-column: 1 / -1;
+  /* The first line is the fallback where subgrid is not supported. */
   grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: subgrid;
   grid-template-areas: "name sets reading" "track track track" "supporting supporting supporting";
   align-items: baseline;
   gap: .25rem .6rem;
@@ -373,7 +383,7 @@
 .session-volume-reading {
   display: inline-flex;
   grid-area: reading;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   gap: .25rem;
   color: var(--sg-text-subtle-on-dark);
@@ -452,7 +462,6 @@
 .stack-analysis-section-head h2 { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.7rem; line-height: .9; text-transform: uppercase; }
 .stack-analysis-basis { margin: .4rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
 .stack-analysis-rank .stack-analysis-summary { margin-top: var(--sg-space-3); border-top: 1px solid rgb(164 200 232 / .22); }
-.stack-analysis-rank .stack-analysis-summary > div:first-child { padding-left: 0; }
 .stack-analysis-rank .quality-coverage { margin-top: var(--sg-space-4); padding: var(--sg-space-4) 0 0; }
 .stack-analysis-workload { align-self: start; }
 .stack-analysis-breakdown { order: 3; overflow: hidden; }
@@ -467,3 +476,19 @@
 .stack-analysis-inspect-chevron { grid-area: chevron; color: var(--sg-text-muted-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
 .stack-analysis-detail-disclosure[open] .stack-analysis-inspect-chevron { transform: rotate(180deg); }
 .stack-analysis-detail-basis { margin-top: var(--sg-space-3); }
+
+/* Narrow for the text size, not for the screen. Each query is in ems of its own
+   section, so 125% text at 320px narrows the layout, and a wider phone at 100%
+   keeps the side-by-side rows. Beside a nowrap score the name column shrank to
+   70px, and names and role lines broke into slivers (Sep 30 brief §7). Below these
+   widths the score or status takes its own line under the name. */
+.stack-analysis-list { container: analysis-coverage / inline-size; }
+@container analysis-coverage (max-width: 16em) {
+  .stack-analysis-row { grid-template-columns: minmax(0, 1fr) 1rem; grid-template-areas: "copy chevron" "score chevron" "bar chevron"; }
+  .stack-analysis-row-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .5rem; }
+}
+.session-volume { container: analysis-workload / inline-size; }
+@container analysis-workload (max-width: 14em) {
+  .session-volume-rows { grid-template-columns: minmax(0, 1fr) auto; }
+  .session-volume-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-columns: subgrid; grid-template-areas: "name sets" "reading reading" "track track" "supporting supporting"; }
+}
