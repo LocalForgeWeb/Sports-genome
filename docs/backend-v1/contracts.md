@@ -84,7 +84,7 @@ No weighted-bodyweight curve exists for any catalog pull-up, chin-up or dip (`sc
 | Shortfall / surplus | `rawScore − target`, shown as the row's delta and band. The bar's length alone is capped. |
 | Day score | The mean over targets of `min(100, score / target × 100)`. Each target's share is capped before averaging, so a surplus on one muscle cannot make up for a gap on another. |
 | One snapshot | The panel, its full analysis and the picker all read `analyzeSplitStack`. The full analysis receives the panel's ratings, or computes the same analysis; it never grades coverage from relative involvement. |
-| Relative involvement | The exercise-genome share of the day's most-worked muscle (`analyzeWholeStackMuscles`). Shown as "relative involvement", never as coverage or a gap. |
+| Relative involvement | The exercise-genome share of the day's highest muscle on the same basis: contribution × role weight (prime mover 1, synergist 0.65, stabilizer 0.4), summed over the day's exercises, with no set counts (`analyzeWholeStackMuscles`). A muscle the catalog lists as both primary and secondary counts once, as primary. Shown as "relative involvement" in Muscle breakdown, naming the reference muscle; never as coverage, a gap or workload. |
 | Picker order | Search relevance, then the shortfall points a candidate would close (for each gap, its contribution capped at that gap), then the previous tiers. |
 | Set counts | One resolver: the athlete's prescription, else `getGoalPrescription(goal, position in the day)`. Home hands the resolved map to every surface. |
 

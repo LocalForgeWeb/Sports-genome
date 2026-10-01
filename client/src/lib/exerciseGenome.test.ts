@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
-import { analyzeExerciseContext, buildExerciseGenome } from "./exerciseGenome";
+import { analyzeExerciseContext, buildExerciseGenome, exerciseGenomes } from "./exerciseGenome";
 import { sportMovementProfiles } from "./sportMovementDatabase";
 
 describe("Exercise Genome multi-signal model", () => {
@@ -113,5 +113,19 @@ describe("Exercise Genome multi-signal model", () => {
     expect(hamstrings?.why).toContain("Key mechanics inputs");
     expect(hamstrings?.why).toContain("not a measured force");
     expect(hamstrings?.targeting.mechanicsFactors).toHaveLength(10);
+  });
+
+  /** Sep 30 brief §7: a muscle listed as both primary and secondary counted twice in relative involvement. */
+  it("lists each muscle once in every genome muscle profile, as a prime mover when the catalog says primary", () => {
+    for (const genome of Object.values(exerciseGenomes)) {
+      const muscles = genome.muscleProfile.map((entry) => entry.muscle);
+      expect(new Set(muscles).size, `exercise ${genome.exerciseId} lists a muscle twice`).toBe(muscles.length);
+    }
+    // Barbell Overhead Press (id 101): the catalog lists frontDelts as primary and again as secondary.
+    const overheadPress = exercises.find((item) => item.id === 101)!;
+    expect(overheadPress.primaryMuscles).toContain("frontDelts");
+    expect(overheadPress.secondaryMuscles).toContain("frontDelts");
+    const frontDelts = buildExerciseGenome(overheadPress).muscleProfile.filter((entry) => entry.muscle === "frontDelts");
+    expect(frontDelts.map((entry) => entry.role)).toEqual(["Prime mover"]);
   });
 });
