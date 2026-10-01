@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
-import { defaultCatalogFilters, filterCatalogByActionLink, filterCatalogExercises, refineMovementSupport } from "./catalogDiscovery";
+import { defaultCatalogFilters, filterCatalogByActionLink, filterCatalogExercises, muscleModeExercises, refineMovementSupport, spokenDestination } from "./catalogDiscovery";
 import { getMovementSupport, type MovementSupport } from "./movementSupport";
 
 describe("catalog discovery filters", () => {
@@ -85,5 +85,31 @@ describe("refinements inside the movement support tiers", () => {
     }
     // "bench press" is in the catalog but not in Bridge's tiers: the search does not reach outside them.
     expect(rowIds(refineMovementSupport(support, { ...defaultCatalogFilters, query: "bench press" }, new Set()), "specific")).toEqual([]);
+  });
+});
+
+describe("muscle mode's base list", () => {
+  it("holds every exercise that trains the muscle, primary ones first, each group in catalog order", () => {
+    const list = muscleModeExercises(exercises, "glutes");
+    const primary = exercises.filter((exercise) => exercise.primaryMuscles.includes("glutes"));
+    const supporting = exercises.filter((exercise) => !exercise.primaryMuscles.includes("glutes") && exercise.secondaryMuscles.includes("glutes"));
+    expect(primary.length).toBeGreaterThan(0);
+    expect(supporting.length).toBeGreaterThan(0);
+    expect(list.map((exercise) => exercise.id)).toEqual([...primary, ...supporting].map((exercise) => exercise.id));
+    // The same set the Muscle filter keeps, only ordered by role.
+    const filtered = filterCatalogExercises(exercises, { ...defaultCatalogFilters, muscle: "glutes" }, new Set());
+    expect(new Set(list.map((exercise) => exercise.id))).toEqual(new Set(filtered.map((exercise) => exercise.id)));
+  });
+
+  it("is empty for a muscle no exercise trains", () => {
+    expect(muscleModeExercises(exercises, "not-a-muscle")).toEqual([]);
+  });
+});
+
+describe("the add destination, spoken", () => {
+  it("reads the strip's middle dot as a pause", () => {
+    expect(spokenDestination("Week 1 · Push")).toBe("Week 1, Push");
+    expect(spokenDestination("Week 2 · Sport Transfer")).toBe("Week 2, Sport Transfer");
+    expect(spokenDestination("Push")).toBe("Push");
   });
 });

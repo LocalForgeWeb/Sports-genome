@@ -80,6 +80,22 @@ export function refineMovementSupport(support: MovementSupport, filters: Catalog
   return { ...support, specific: refine(support.specific), related: refine(support.related), muscle: refine(support.muscle) };
 }
 
+/**
+ * Muscle mode's base list: the exercises that train the chosen muscle, as a primary
+ * or a supporting muscle (the rule the Muscle filter uses), primary ones first and
+ * each group in catalog order. The refinements then narrow it like any other list.
+ */
+export function muscleModeExercises(exerciseList: Exercise[], muscleId: string): Exercise[] {
+  const primary = exerciseList.filter((exercise) => exercise.primaryMuscles.includes(muscleId));
+  const supporting = exerciseList.filter((exercise) => !exercise.primaryMuscles.includes(muscleId) && exercise.secondaryMuscles.includes(muscleId));
+  return [...primary, ...supporting];
+}
+
+/** The add destination as a control says it aloud: "Week 1 · Push" is read "Week 1, Push". */
+export function spokenDestination(label: string): string {
+  return label.split(" · ").join(", ");
+}
+
 export function catalogFilterOptions(exerciseList: Exercise[]) {
   const unique = (values: string[]) => Array.from(new Set(values)).sort((a, b) => a.localeCompare(b));
   return {
