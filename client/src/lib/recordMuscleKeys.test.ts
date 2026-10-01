@@ -25,6 +25,13 @@ describe("one table from record muscle names to muscle keys", () => {
     expect(catalogKeysForRecordMuscle("peroneus longus")).toEqual([]);
   });
 
+  it("reads the named forearm and hip flexor muscles grip and sprint records list as prime movers", () => {
+    expect(catalogKeysForRecordMuscle("flexor digitorum profundus")).toEqual(["forearms"]);
+    expect(catalogKeysForRecordMuscle("extensor carpi radialis longus/brevis")).toEqual(["forearms"]);
+    expect(catalogKeysForRecordMuscle("pronator teres")).toEqual(["forearms"]);
+    expect(catalogKeysForRecordMuscle("psoas major")).toEqual(["hipFlexors"]);
+  });
+
   it("reads hyphenated names and passes keys through", () => {
     expect(bodyMapKeysForRecordMuscle("rotator-cuff muscles")).toEqual(["rotatorCuff"]);
     expect(bodyMapKeysForRecordMuscle("quads")).toEqual(["quads"]);
