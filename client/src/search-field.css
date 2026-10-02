@@ -1,0 +1,60 @@
+/* Search field (components/SearchField.tsx): the label is the control.
+ *
+ * It owns the ground, border, radius and the one focus ring; the input inside is
+ * text, placeholder and caret only. The input rules carry three classes so no
+ * screen's `:is(input):focus-visible` outline (two classes and an element) or the
+ * global `input:focus-visible` ring can draw a second box inside the field. */
+.sg-search-field {
+  display: flex;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  gap: .6rem;
+  border: 1px solid var(--sg-control-border-on-dark);
+  border-radius: 12px;
+  background: rgb(255 255 255 / .05);
+  padding: 0 .9rem;
+  color: var(--sg-text-subtle-on-dark);
+  cursor: text;
+  transition: border-color var(--sg-motion-fast) var(--sg-ease), box-shadow var(--sg-motion-fast) var(--sg-ease), background-color var(--sg-motion-fast) var(--sg-ease);
+}
+.sg-search-field:hover { border-color: rgb(164 200 232 / .5); }
+/* Focused: the same outline, brighter and blue, with a soft halo. Measured 6.1:1 against the sheet. */
+.sg-search-field:focus-within { border-color: #5aa9ff; background: rgb(255 255 255 / .07); box-shadow: 0 0 0 3px rgb(90 169 255 / .28); }
+.sg-search-field-icon { width: 1rem; height: 1rem; flex: 0 0 auto; }
+.sg-search-field:focus-within .sg-search-field-icon { color: #9cc9ff; }
+
+.sg-search-field .sg-search-input,
+.sg-search-field .sg-search-input:focus,
+.sg-search-field .sg-search-input:focus-visible {
+  min-width: 0;
+  height: 46px;
+  flex: 1 1 auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  padding: 0;
+  color: var(--sg-text-on-dark);
+  /* 16px: iOS Safari zooms the page into any field set smaller. */
+  font-size: var(--sg-text-lg);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.sg-search-field .sg-search-input::placeholder { color: var(--sg-text-subtle-on-dark); opacity: 1; }
+/* Safari and Chrome draw their own decoration and clear button on type="search". */
+.sg-search-field .sg-search-input::-webkit-search-decoration,
+.sg-search-field .sg-search-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+/* On white sheets and cards. */
+.sg-search-field[data-tone="light"] { border-color: #b9cde0; background: #fff; color: var(--sg-text-subtle-on-light); }
+.sg-search-field[data-tone="light"]:hover { border-color: #8fb0cf; }
+.sg-search-field[data-tone="light"]:focus-within { border-color: var(--sg-focus-ring); background: #fff; box-shadow: 0 0 0 3px rgb(59 134 219 / .22); }
+.sg-search-field[data-tone="light"]:focus-within .sg-search-field-icon { color: var(--sg-focus-ring); }
+.sg-search-field[data-tone="light"] .sg-search-input { color: var(--sg-text-on-light); }
+.sg-search-field[data-tone="light"] .sg-search-input::placeholder { color: var(--sg-text-subtle-on-light); }
+
+/* Windows High Contrast and forced colours draw no box-shadow: keep a real outline there. */
+@media (forced-colors: active) { .sg-search-field:focus-within { outline: 2px solid Highlight; outline-offset: 1px; } }

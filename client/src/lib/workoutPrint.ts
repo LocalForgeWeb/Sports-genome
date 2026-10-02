@@ -7,7 +7,10 @@ export type PrintableWorkoutRow = { order: number; name: string; prescription: s
 /** Whether one set's target is a duration rather than a count of repetitions. */
 const isTimedTarget = (target: string) => /\b(?:s|sec|secs|second|seconds|min|mins|minute|minutes)\b/i.test(target);
 
-export function getPrintableTrackingLines(prescription: string) {
+/** One line to fill in at the gym: which set or round, what it asks for when the sets differ, and whether it is timed. */
+export type TrackingSet = { label: string; target: string | null; timed: boolean };
+
+export function getTrackingSets(prescription: string): TrackingSet[] {
   const { sets, varied } = parsePrescription(prescription, "1 × 1");
   /*
    * Decided per set, not once for the whole prescription. A varied plan can mix
@@ -20,14 +23,16 @@ export function getPrintableTrackingLines(prescription: string) {
     // A sheet carried to the gym has to say what each set asks for. It only
     // needs saying per line when the sets differ; otherwise the row's own
     // prescription already covers all of them.
-    const target = varied ? ` (${set.reps})` : "";
+    const target = varied ? set.reps : null;
     // A set that names its own unit decides for itself; one that names none
     // follows the prescription, which is how "3 × 30/20/10 sec" stays timed.
     const timed = isTimedTarget(set.reps) || (!/\d/.test(set.reps) ? anyTimed : anyTimed && !varied);
-    return timed
-      ? `Round ${index + 1}${target}: time / quality __________________`
-      : `Set ${index + 1}${target}: load / reps __________________`;
+    return { label: `${timed ? "Round" : "Set"} ${index + 1}`, target, timed };
   });
+}
+
+export function getPrintableTrackingLines(prescription: string) {
+  return getTrackingSets(prescription).map(({ label, target, timed }) => `${label}${target ? ` (${target})` : ""}: ${timed ? "time / quality" : "load / reps"} __________________`);
 }
 
 export function getPrintableWorkoutRows(workout: Exercise[], prescriptions: Record<number, string>, settings: Record<number, ExerciseSettings>) {

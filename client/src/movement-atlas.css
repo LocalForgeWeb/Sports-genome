@@ -48,9 +48,6 @@
 
 .atlas-explore { display: grid; gap: .6rem; padding-top: .6rem; border-top: 1px solid var(--sg-divider-on-dark); }
 .atlas-tools { display: grid; gap: .5rem; }
-.atlas-search { display: flex; align-items: center; gap: .55rem; min-height: 44px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: rgb(255 255 255 / .05); padding: 0 .8rem; color: var(--sg-text-subtle-on-dark); }
-.atlas-search input { min-width: 0; width: 100%; height: 42px; border: 0; background: transparent; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); outline: 0; }
-.atlas-search:focus-within { border-color: var(--sg-focus-on-dark); }
 .atlas-family-row { display: flex; flex-wrap: wrap; gap: .4rem; }
 .atlas-family-row button { min-height: 38px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; background: rgb(255 255 255 / .05); padding: .35rem .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; line-height: var(--sg-leading-snug); }
 .atlas-family-row button[aria-pressed="true"] { border-color: var(--sg-action); background: rgb(228 81 46 / .16); color: #ffb29d; }

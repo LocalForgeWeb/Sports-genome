@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Search, SlidersHorizontal } from "lucide-react";
+import { SearchField } from "@/components/SearchField";
+import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import type { SportMovementProfile, SportProfile } from "@/lib/sportMovementDatabase";
 import { sportEvidenceCoverage } from "@/lib/evidenceCoverage";
 import { buildMovementReasoning, getSportModifiers } from "@/lib/hierarchicalSportModel";
@@ -99,7 +100,7 @@ export function MovementAtlasPanel({ sportName, sportId, sports, movements, sele
     <section className="atlas-explore" aria-label="Sport actions">
       <h3>Explore actions</h3>
       <div className="atlas-tools">
-        <label className="atlas-search"><Search className="h-4 w-4" aria-hidden="true" /><input value={query} onChange={(event) => { onQuery(event.target.value); setShowAllActions(false); }} placeholder="Search an action or muscle" aria-label="Search sport actions" /></label>
+        <SearchField className="atlas-search" value={query} onChange={(event) => { onQuery(event.target.value); setShowAllActions(false); }} placeholder="Search an action or muscle" aria-label="Search sport actions" />
         <LocalSearchScope scope={`Searching ${movements.length} ${sportName} actions.`} query={query} />
         <div className="atlas-family-row"><button type="button" onClick={() => { emitInteractionFeedback(); onFamily("All"); }} aria-pressed={family === "All"}>All</button>{shownFamilies.map((item) => <button type="button" key={item} onClick={() => { emitInteractionFeedback(); onFamily(item); }} aria-pressed={family === item}>{shortFamilyLabel(item)}</button>)}{families.length > 4 && <button type="button" className="atlas-more-filter" onClick={() => { emitInteractionFeedback(); setShowAllFamilies((value) => !value); }}><SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />{showAllFamilies ? "Less" : "Filters"}</button>}</div>
         <div className="atlas-list-meta"><span>{visible.length} {visible.length === 1 ? "movement" : "movements"}</span><label>Sort<select aria-label="Sort movements" value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}><option value="recommended">Recommended</option><option value="a-z">A–Z</option><option value="family">Movement family</option></select></label></div>

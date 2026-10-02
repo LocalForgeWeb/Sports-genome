@@ -310,7 +310,8 @@ describe("workspace side navigation", () => {
   it("keeps every Training Day action reachable, without a second copy of any of them", () => {
     expect(source).toContain('className="day-action-add"');
     expect(source).toContain('label: "Workout", workspace: "tracker"');
-    expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
+    // Oct 2 brief §5: the day leaves the app through one Share action (PDF, note, summary) rather than the browser's print.
+    expect(source).toContain('className="day-action-share" onClick={openShare}');
     expect(source).toContain("Import plan");
     // Starting the workout opens the destination that owns it rather than a
     // logger rendered a second time inside the plan.

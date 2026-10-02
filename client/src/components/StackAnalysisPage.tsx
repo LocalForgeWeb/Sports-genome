@@ -354,7 +354,7 @@ export function StackAnalysisPage({ workout, split, dayLabel, targetIndex, sugge
   // ancestor turns `position: fixed` into a box inside itself, which is how this
   // full-height surface came to draw as a small inset scroller under the panel.
   const page = (
-    <div ref={overlayRef} className="stack-analysis-overlay" role="dialog" aria-modal="true" aria-label="Training Day stack analysis">
+    <div ref={overlayRef} className="stack-analysis-overlay sg-surface-dark" role="dialog" aria-modal="true" aria-label="Training Day stack analysis">
       <section className="stack-analysis-page">
         {/* "{split} coverage" titled a page that also measures sets and relative involvement (Sep 30 brief §7). */}
         <header className="stack-analysis-head"><div><p className="metric-label">Training Day</p><h1>{split} analysis</h1><p>{dayLabel}</p></div><button ref={closeRef} type="button" onClick={onClose} aria-label="Close stack analysis"><X className="h-5 w-5" aria-hidden="true" /> Close</button></header>

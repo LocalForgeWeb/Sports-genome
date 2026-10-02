@@ -560,7 +560,11 @@ select {
 .genome-grid { display: grid; gap: 18px; padding: 18px; } .genome-fingerprint { max-width: 260px; margin: 0 auto; } .genome-fingerprint svg { width: 100%; max-width: 220px; display: block; margin: 0 auto; }
 .genome-fingerprint-bars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; align-content: center; }
 .genome-meter { min-width: 0; } .genome-meter > div { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); } .genome-meter strong { color: #183555; font-size: var(--sg-text-xs); }
-.genome-term-button { display: inline-flex; align-items: center; gap: 5px; color: #315b85; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-align: left; text-decoration: underline dotted #8eb2da; text-underline-offset: 3px; }.genome-term-button:hover { color: var(--sg-action); }.genome-radar-label { fill: #3b6289; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-open); }.genome-learn-overlay { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; background: rgb(8 26 52 / .62); padding: 18px; backdrop-filter: blur(8px); }.genome-learn-card { position: relative; width: min(560px, 100%); border: 1px solid #c7dced; border-radius: 18px; background: var(--sg-surface-light); box-shadow: 0 28px 80px rgb(3 21 45 / .35); padding: 24px; }.genome-learn-card h4 { margin-top: 7px; color: var(--sg-text-on-light); font-family: "Barlow Condensed", sans-serif; font-size: 34px; font-weight: 800; line-height: .95; text-transform: uppercase; }.genome-learn-card > p { margin-top: 15px; color: #486680; font-size: var(--sg-text-md); line-height: var(--sg-leading-loose); }.genome-learn-card > p strong { color: #173d66; }.genome-learn-close { position: absolute; top: 13px; right: 13px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #c9dbea; border-radius: 50%; color: #3e648b; font-size: 20px; }.genome-learn-close:hover { border-color: var(--sg-action); color: var(--sg-action); }.genome-learn-boundary { margin-top: 17px; border-left: 3px solid var(--sg-action); background: var(--sg-surface-light); padding: 11px; color: #8c4d3e; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+.genome-term-button { display: inline-flex; align-items: center; gap: 5px; color: #315b85; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-align: left; text-decoration: underline dotted #8eb2da; text-underline-offset: 3px; }.genome-term-button:hover { color: var(--sg-action); }.genome-radar-label { fill: #3b6289; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-open); }.genome-learn-overlay { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; background: rgb(8 26 52 / .62); padding: 18px; backdrop-filter: blur(8px); }.genome-learn-card { position: relative; width: min(560px, 100%); border: 1px solid #c7dced; border-radius: 18px; background: var(--sg-surface-light); box-shadow: 0 28px 80px rgb(3 21 45 / .35); padding: 24px; }.genome-learn-card h4 { margin-top: 7px; color: var(--sg-text-on-light); font-family: "Barlow Condensed", sans-serif; font-size: 34px; font-weight: 800; line-height: .95; text-transform: uppercase; }/* Term explanation (Oct 2 brief §2): an opaque light card in the modal layer. Labels differ by weight, never by fading. */
+.genome-learn-eyebrow { margin: 0; color: var(--sg-info-strong); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.genome-learn-parts { display: grid; gap: 14px; margin: 16px 0 0; }
+.genome-learn-parts dt { color: var(--sg-text-on-light); font-size: var(--sg-text-base); font-weight: 800; }
+.genome-learn-parts dd { margin: 3px 0 0; color: var(--sg-text-muted-on-light); font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }.genome-learn-close { position: absolute; top: 13px; right: 13px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #c9dbea; border-radius: 50%; color: #3e648b; font-size: 20px; }.genome-learn-close:hover { border-color: var(--sg-action); color: var(--sg-action); }.genome-learn-boundary { margin: 18px 0 0; border-left: 3px solid var(--sg-action); background: #fff4ef; padding: 11px 12px; color: #8a3a22; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .genome-meter-track { display: block; height: 5px; margin-top: 6px; overflow: hidden; background: #dce6f1; } .genome-meter-track i { display: block; height: 100%; background: var(--sg-info-strong); } .genome-meter-warm i { background: #d9793e; } .genome-meter-ink i { background: var(--sg-surface-raised); }
 .genome-quicknote { display: flex; gap: 10px; border-left: 3px solid var(--sg-info-strong); background: var(--sg-surface-light-sunken); padding: 13px; }
 .genome-muscle-stack { display: grid; gap: 1px; background: #d8e3ef; } .genome-muscle-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 14px; background: #fff; padding: 15px 18px; }
@@ -2971,10 +2975,6 @@ details:not([open]) > *:not(summary) {
  * assistance row's label 5.08:1 to 3.31:1 when their surface went dark. */
 [data-theme="dark"] .local-search-scope { color: var(--sg-text-muted-on-dark); }
 [data-theme="dark"] .local-search-scope button { color: var(--sg-link-on-dark); }
-/* Not inside the picker sheet, whose ground stays light in both themes: the
-   sheet restates that line's ink itself, in workout-planner.css. */
-[data-theme="dark"] .day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }
-[data-theme="dark"] .day-picker-sheet .local-search-scope button { color: var(--sg-info-strong); }
 [data-theme="dark"] .movement-assistance-content em { color: var(--sg-focus-on-dark); }
 
 /* The muscle filter's dark treatment. Its light surfaces are restated in
@@ -3722,7 +3722,6 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .rate-stack-panel :is(summary, button) > * { min-width: 0; }
 .rate-stack-panel :is(small, i) { white-space: normal; }
 .atlas-tools > *, .atlas-search, .atlas-family-row { min-width: 0; }
-.atlas-search input { min-width: 0; width: 100%; flex: 1 1 0; }
 .home-focus > *, .day-exercise-picker > *, .day-exercise-picker :is(summary, button) > * { min-width: 0; }
 .day-exercise-picker small { white-space: normal; }
 .atlas-family-row { flex-wrap: wrap; }
@@ -3858,14 +3857,7 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 [data-sonner-toaster][data-y-position="bottom"] { bottom: max(calc(env(safe-area-inset-bottom, 0px) + 5.6rem), var(--sg-feedback-clear, 0px)) !important; }
 /* The sign-in notice's close button: on the surface's own tokens, and a 24px target. */
 .toaster [data-sonner-toast][data-styled="true"] [data-close-button] { width: 1.5rem; height: 1.5rem; border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
-/* U03: the Add exercises sheet in the app's own surface. */
-.day-picker-sheet { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-deep); color: var(--sg-text-on-dark); }
-.day-picker-sheet-head { border-bottom-color: var(--sg-divider-on-dark); }
-.day-picker-sheet-head h2 { color: var(--sg-text-on-dark); }
-.day-picker-sheet-head p, .day-picker-sheet-head .metric-label { color: var(--sg-text-muted-on-dark); }
-.day-picker-sheet-head button { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
-.day-picker-sheet-foot { border-top-color: var(--sg-divider-on-dark); background: var(--sg-surface-raised); }
-.day-picker-sheet-foot span { color: var(--sg-text-muted-on-dark); }
+/* U03: the Add exercises sheet's dark design is in add-exercises.css, in one place. */
 /* U04: the layers in order — picker (70) under analysis (80) under exercise detail (95) under compare (96). */
 .exercise-intelligence { z-index: 95 !important; }
 .exercise-compare { z-index: 96 !important; }
@@ -3898,37 +3890,9 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .strength-body-chart[data-mode="pending"] .anatomy-figure { --anatomy-primary-1: #7f9ec4; --anatomy-primary-2: #4d6a92; }
 .strength-map-legend[data-mode="coverage"] .strength-map-legend-on i { background: linear-gradient(#6db3ff, #2861cc); }
 .strength-map-legend[data-mode="pending"] .strength-map-legend-on i { background: linear-gradient(#7f9ec4, #4d6a92); }
-
-/* Walkthrough U03/U06 — the picker's rows and controls in the app's own surface. The
-   sheet went dark but its search, selects and result cards were still the light
-   panel's white boxes, one outlined card per option. Rows on one surface with
-   separators, controls on the raised tone, the name first and the fit line last. */
-.day-picker-sheet .day-picker-tools label, .day-picker-sheet .day-picker-tools select, .day-picker-sheet .day-picker-scope { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
-.day-picker-sheet .day-picker-tools input { color: var(--sg-text-on-dark); }
-.day-picker-sheet .day-picker-tools input::placeholder { color: var(--sg-text-subtle-on-dark); }
-.day-picker-sheet .day-picker-scope button { color: var(--sg-text-muted-on-dark); }
-.day-picker-sheet .day-picker-scope-active { background: var(--sg-action-fill); color: #fff !important; }
-.day-picker-sheet .day-picker-result-count, .day-picker-sheet .day-picker-empty, .day-picker-sheet .day-picker-serratus-cue { color: var(--sg-text-muted-on-dark); }
-.day-picker-sheet .day-picker-result-count strong { color: var(--sg-text-on-dark); }
-.day-picker-sheet .day-picker-results { display: block; margin-top: .9rem; border-top: 1px solid var(--sg-divider-on-dark); }
-.day-picker-sheet .day-picker-result { border: 0; border-bottom: 1px solid var(--sg-divider-on-dark); background: transparent; }
-.day-picker-sheet .day-picker-result > button:first-child { padding: .8rem .35rem .8rem 0; }
-.day-picker-sheet .day-picker-result strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); white-space: normal; }
-.day-picker-sheet .day-picker-result small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
-.day-picker-sheet .day-picker-result em { color: var(--sg-text-subtle-on-dark); font-weight: 600; letter-spacing: 0; text-transform: none; }
-.day-picker-sheet .day-picker-fills-tag, .day-picker-sheet .day-picker-supports-tag { display: inline-block; margin-top: .3rem; font-size: var(--sg-text-sm); }
-.day-picker-sheet .day-picker-result > button:last-child { min-width: 3.6rem; border-left: 1px solid var(--sg-divider-on-dark); color: var(--sg-action); }
-.day-picker-sheet .day-picker-result > button:last-child:hover:not(:disabled) { background: rgb(255 255 255 / .06); }
-.day-picker-sheet .day-picker-result > button:last-child:disabled { background: transparent; color: var(--sg-text-subtle-on-dark); }
-.day-picker-sheet .day-picker-more { color: var(--sg-text-on-dark); border-color: var(--sg-control-border-on-dark); }
 /* D01, the region rows: a recorded region's thumbnail follows the map's coverage colour. */
 .strength-body-map[data-mode="coverage"] .region-thumb[data-active="true"] .region-thumb-muscle { fill: #4a94e6; }
 .strength-body-map[data-mode="pending"] .region-thumb[data-active="true"] .region-thumb-muscle { fill: #7f9ec4; }
-/* The muscle picker inside the sheet, on the same surface whatever the app theme. */
-.day-picker-sheet .muscle-select .athlete-sport-trigger, .day-picker-sheet .muscle-select .athlete-sport-panel { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); }
-.day-picker-sheet .muscle-select .athlete-sport-trigger strong, .day-picker-sheet .muscle-select .athlete-sport-option strong, .day-picker-sheet .muscle-select .athlete-sport-search input { color: var(--sg-text-on-dark); }
-.day-picker-sheet .muscle-select .athlete-sport-option small, .day-picker-sheet .muscle-select .athlete-sport-empty, .day-picker-sheet .muscle-select .athlete-sport-trigger-chevron { color: var(--sg-text-muted-on-dark); }
-.day-picker-sheet .muscle-select .athlete-sport-option.is-active { background: rgb(255 255 255 / .08); }
 
 /* Next update — Home: one dominant next action, a workout-focus schematic, a week strip. */
 .today-action-primary { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "actions"; align-items: start; column-gap: 1rem; }

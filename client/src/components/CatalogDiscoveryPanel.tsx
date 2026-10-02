@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
-import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react";
+import { SearchField } from "@/components/SearchField";
+import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Heart, Plus, SlidersHorizontal, Target, X } from "lucide-react";
 import { ExerciseMedia } from "@/components/ExerciseMedia";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { catalogFilterOptions, catalogPageSize, defaultCatalogFilters, type CatalogFilters, filterCatalogByActionLink, filterCatalogExercises, muscleModeExercises, refineMovementSupport, spokenDestination } from "@/lib/catalogDiscovery";
@@ -244,7 +245,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
       <p className="catalog-context-explain">{muscleFolded ? `The catalog tags ${muscleName} work under ${catalogMuscleName}: these train ${catalogMuscleName} as a primary or supporting muscle, primary first.` : `Exercises that train ${muscleName} as a primary or supporting muscle, primary first.`}</p>
       {onShowAllExercises && <div className="catalog-context-actions"><button type="button" className="catalog-context-all" onClick={() => { emitInteractionFeedback(); onShowAllExercises(); }}>Show all exercises</button></div>}
     </div> : null}
-    <div className="catalog-discovery-search"><Search className="h-4 w-4" aria-hidden="true" /><input value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder={`Search ${discovery.mode === "all" ? "exercises" : "these exercises"}`} aria-label="Search exercises" /></div>
+    <SearchField className="catalog-discovery-search" value={filters.query} onChange={(event) => update("query", event.target.value)} placeholder={`Search ${discovery.mode === "all" ? "exercises" : "these exercises"}`} aria-label="Search exercises" />
     {comparePendingName && <p className="catalog-compare-pending" role="status"><span>Comparing <b>{comparePendingName}</b> · open another exercise and choose Compare.</span>{onCancelCompare && <button type="button" onClick={() => { emitInteractionFeedback(); onCancelCompare(); }}>Cancel</button>}</p>}
     {/* The scope line earns its place once there is a query to broaden. */}
     {filters.query.trim() ? <LocalSearchScope scope={support ? `Searching the exercises listed for ${movementName}.` : muscleId ? `Searching the ${muscleBase.length} ${muscleName} exercises.` : `Searching the ${exercises.length} exercises in this catalog.`} query={filters.query} /> : null}
