@@ -60,6 +60,25 @@ describe("Share workout", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it("ignores a second tap while the system sheet is still open", async () => {
+    let finish: () => void = () => undefined;
+    share.mockImplementationOnce(() => new Promise<void>((resolve) => { finish = resolve; }));
+    await open();
+    const button = screen.getByRole("button", { name: /Share workout/ });
+    await act(async () => { fireEvent.click(button); fireEvent.click(button); });
+    expect(share).toHaveBeenCalledTimes(1);
+    await act(async () => { finish(); });
+  });
+
+  it("keeps Tab inside the sheet, even from the sheet itself where focus starts", async () => {
+    await open();
+    const dialog = screen.getByRole("dialog", { name: "Share workout" });
+    dialog.focus();
+    fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(document.activeElement).not.toBe(dialog);
+  });
+
   it("treats a dismissed share sheet as a choice: it stays open and reports nothing", async () => {
     share.mockRejectedValueOnce(new DOMException("Share canceled", "AbortError"));
     const onClose = await open();

@@ -141,7 +141,7 @@ The 4 remaining flags are:
 
 **Tests:**
 - `tsc` is clean and the build passes.
-- vitest: 2,813 passed, 1 skipped, 5 failed. All five need the Supabase network, which this sandbox refuses; they fail the same way on `main`.
+- vitest: 2,820 passed, 1 skipped, 5 failed. All five need the Supabase network, which this sandbox refuses; they fail the same way on `main`.
 - New tests:
   - `workoutExport.test.ts`: the rows' values, file name, the ≤3-line note, the summary format;
   - `workoutPdf.test.ts`: xref validity, metadata, page counts, no split blocks, order, footer, no browser artifacts, wrapping, encoding;
@@ -149,7 +149,26 @@ The 4 remaining flags are:
   - `surfaces.styles.test.ts`: the contract, the portal, stamp ink ≥4.5:1, one focus treatment, the print CSS, the keyboard inset.
 - The three Add Exercises tests that pinned the old light sheet were rewritten to hold the dark design. The print-button test now checks Share.
 
-## 4. Not verified here
+## 4. Code review, and what it changed
+
+An independent review of the first commit built eight extra PDFs and opened them in strict pypdf and MuPDF. All opened with no errors, warnings or repair, and every xref offset and stream length was exact. It also found these defects, now fixed and covered by tests:
+
+- **Collateral CSS loss (serious).** Deleting the old Add Exercises block from `index.css` also took five unrelated blocks that sat between its first and last lines:
+  - the layer order (Exercise Intelligence 95, compare 96);
+  - the sticky analysis header;
+  - every intro-preview rule;
+  - the Today loading skeleton;
+  - the blue Strength-coverage colours.
+
+  They are restored verbatim from the parent commit. A rule-by-rule comparison of every edited stylesheet confirms that nothing else was lost.
+- **The term explanation under Exercise Intelligence.** Once the layer order was back, the body-level term card (z-index 90) sat under the sheet (95). It is now 96. The acceptance runs check that it is on top.
+- **Share sheet focus trap.** Shift+Tab from the sheet container could leave the sheet. Focus now wraps from anywhere.
+- **Double tap on Share** while the system sheet was open showed a false error. It is now ignored.
+- **Very long exercise.** A typed "60 × 1" drew set lines past the footer. An exercise now shows at most 12 set lines plus "+N more sets", and coach notes are capped at 8 lines, so one exercise always fits a page.
+- **Search under the share sheet.** ⌘K opened search underneath the share sheet and Exercise Intelligence. Search is now above every sheet (98).
+- **Printing with a sheet open.** Print CSS now resets the body position a sheet pins while open, so the print is not shifted.
+
+## 5. Not verified here
 
 - **A real iPhone.** Only Chromium mobile emulation was used. Still to check on a device:
   - the native iOS share sheet and how Messages shows the PDF;

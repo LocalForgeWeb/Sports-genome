@@ -66,3 +66,12 @@
 
 /* The term card scrolls on a phone; its Close stays at the top of it instead of scrolling away. */
 .genome-learn-card .genome-learn-close { position: sticky; top: 0; z-index: 1; float: right; margin: -4px -4px 0 10px; background: #fff; }
+
+/* The term explanation is opened from Exercise Intelligence (95) and now renders at <body>, so it
+   sits above it in the same layer order rather than inside its stacking context. */
+.genome-learn-overlay { z-index: 96; }
+
+/* Search is the app-wide command layer: ⌘K opens it over any sheet - Add Exercises (70), analysis
+   (80), Exercise Intelligence (95), compare (96), Share (95) - rather than underneath, where its
+   field took focus out of sight. */
+.universal-search-scrim { z-index: 98; }

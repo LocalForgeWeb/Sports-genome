@@ -54,11 +54,18 @@ const META = { font: "regular" as const, size: 8.5, lead: 11 };
 const NOTE_TEXT = { font: "italic" as const, size: 8.5, lead: 11 };
 const SET_ROW = 21;
 
-function layoutBlock(exercise: WorkoutExportExercise): Block {
+/** More set lines than this become "+N more sets", and a note more than this many lines is cut: one exercise always fits a page. */
+const MAX_SET_LINES = 12;
+const MAX_NOTE_LINES = 8;
+
+function layoutBlock(source: WorkoutExportExercise): Block {
+  const hidden = Math.max(0, source.tracking.length - MAX_SET_LINES);
+  const exercise = hidden ? { ...source, tracking: source.tracking.slice(0, MAX_SET_LINES), notes: [`+${hidden} more sets, ${source.prescription}.`, source.notes].filter(Boolean).join(" ") } : source;
   const nameLines = wrapText(exercise.name, NAME.font, NAME.size, BODY_W);
   const meta = [exercise.movement, ...exercise.muscles].filter(Boolean).join(" · ");
   const metaLines = meta ? wrapText(meta, META.font, META.size, BODY_W) : [];
-  const noteLines = exercise.notes ? wrapText(`Coach note: ${exercise.notes}`, NOTE_TEXT.font, NOTE_TEXT.size, FULL_W) : [];
+  const allNote = exercise.notes ? wrapText(`${hidden ? "" : "Coach note: "}${exercise.notes}`, NOTE_TEXT.font, NOTE_TEXT.size, FULL_W) : [];
+  const noteLines = allNote.length > MAX_NOTE_LINES ? [...allNote.slice(0, MAX_NOTE_LINES - 1), `${allNote[MAX_NOTE_LINES - 1].replace(/\s+\S*$/, "")}…`] : allNote;
   const setRows = Math.ceil(exercise.tracking.length / 2);
   const dose = [exercise.prescription, exercise.rpe, exercise.rest].map(fitDose);
   const doseHeight = Math.max(...dose.map((cell) => cell.lines.length * (cell.size + 3)));

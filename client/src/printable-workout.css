@@ -5,7 +5,7 @@
  * printed as empty navy pages (Oct 2 brief §10). Shared PDFs are drawn by lib/workoutPdf. */
 @media print {
   @page { size: letter portrait; margin: .45in; }
-  html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; color: #102947 !important; }
+  html, body { position: static !important; top: auto !important; height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; color: #102947 !important; }
   body > :not(.printable-workout-sheet) { display: none !important; }
   .printable-workout-sheet { display: block !important; position: static; width: 100%; background: #fff; color: #102947; font-family: Arial, Helvetica, sans-serif; }
   .printable-workout-sheet header { border-bottom: 2px solid #0b2240; padding-bottom: 14px; }

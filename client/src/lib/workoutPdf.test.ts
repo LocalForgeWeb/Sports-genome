@@ -92,6 +92,14 @@ describe("the workout PDF", () => {
     expect(all).not.toMatch(/\d{1,2}\/\d{1,2}\/\d{2},/); // a browser's "10/2/26, 9:02 PM"
   });
 
+  it("never lets one exercise outgrow a page, however many sets were typed", () => {
+    const list = pages(buildWorkoutPdf(plan(pull.slice(0, 1), { prescription: "60 × 1", notes: "word ".repeat(400) })));
+    expect(list).toHaveLength(1);
+    expect((list[0].match(/\| Set \d+ \|/g) || []).length).toBe(12);
+    expect(list[0]).toContain("+48 more sets, 60 \u00d7 1.");
+    expect(list[0]).toContain("Page 1 of 1");
+  });
+
   it("wraps a long name inside its column instead of running under the prescription", () => {
     const name = "Rope Face Pull with External Rotation and a Two-Second Pause at Full Retraction";
     const lines = wrapText(name, "bold", 12.5, 380 - 74 - 14);

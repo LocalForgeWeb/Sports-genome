@@ -45,8 +45,11 @@ export function WorkoutShareSheet({ plan, weightUnit, onClose }: { plan: Workout
       if (!focusable.length) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      const active = document.activeElement as HTMLElement | null;
+      // From the sheet itself (where focus starts while the PDF is made), from outside it, or off either end: wrap.
+      const outside = !active || active === layerRef.current || !layerRef.current.contains(active);
+      if (event.shiftKey && (outside || active === first)) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (outside || active === last)) { event.preventDefault(); first.focus(); }
     };
     window.addEventListener("keydown", onKey, true);
     const { overflow } = document.body.style;
@@ -65,9 +68,12 @@ export function WorkoutShareSheet({ plan, weightUnit, onClose }: { plan: Workout
   const message = shareMessage(plan, { attached: true });
   const shown = plan.exercises.slice(0, 3);
 
+  const sharing = useRef(false);
   const share = async () => {
-    if (!file) return;
-    const outcome = await shareWorkoutPdf(plan, file);
+    // A second tap while the system sheet is still up would make it reject ("InvalidStateError").
+    if (!file || sharing.current) return;
+    sharing.current = true;
+    const outcome = await shareWorkoutPdf(plan, file).finally(() => { sharing.current = false; });
     if (outcome === "shared") { setStatus("Shared."); onClose(); }
     else if (outcome === "saved") { setStatus(`Saved ${file.name}. Attach it to your message.`); toast.success("PDF saved", { description: `${file.name} — attach it to your message.` }); }
     else if (outcome === "failed") setStatus("Sharing didn't open. Save the PDF instead.");

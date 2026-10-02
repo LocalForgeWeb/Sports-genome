@@ -97,8 +97,33 @@ describe("browser printing", () => {
   it("takes the app out of the flow instead of hiding it in place", () => {
     expect(print).toContain("body > :not(.printable-workout-sheet) { display: none !important; }");
     expect(print).not.toContain("visibility: hidden");
-    expect(print).toMatch(/html, body \{ height: auto !important; min-height: 0 !important;[^}]*background: #fff !important;/);
+    // Including a sheet's scroll lock (position: fixed; top: -Ypx), which would shift and clip the print.
+    expect(print).toMatch(/html, body \{ position: static !important; top: auto !important; height: auto !important; min-height: 0 !important;[^}]*background: #fff !important;/);
     expect(read("components/PrintableWorkoutSheet.tsx")).toContain(", document.body);");
+  });
+});
+
+/** Layers: search (⌘K) opens above any sheet, never underneath one where its field takes focus unseen. */
+describe("layer order", () => {
+  it("puts search above the share sheet, Exercise Intelligence and compare", () => {
+    const z = (css: string, selector: string) => Number(css.match(new RegExp(`\\${selector} \\{[^}]*z-index: (\\d+)`))?.[1]);
+    const index = read("index.css");
+    expect(z(surfaces, ".universal-search-scrim")).toBeGreaterThan(z(share, ".workout-share-scrim"));
+    expect(z(surfaces, ".universal-search-scrim")).toBeGreaterThan(z(index, ".exercise-compare"));
+  });
+
+  it("opens a term explanation above the Exercise Intelligence sheet it comes from", () => {
+    const z = (css: string, selector: string) => Number(css.match(new RegExp(`\\${selector} \\{[^}]*z-index: (\\d+)`))?.[1]);
+    expect(z(surfaces, ".genome-learn-overlay")).toBeGreaterThan(z(read("index.css"), ".exercise-intelligence"));
+  });
+
+  it("keeps the layer rules that sit beside the Add Exercises styles in index.css", () => {
+    const index = read("index.css");
+    expect(index).toContain(".exercise-intelligence { z-index: 95 !important; }");
+    expect(index).toContain(".stack-analysis-head { position: sticky; top: 0; z-index: 2; }");
+    expect(index).toContain(".intro-preview { position: fixed; inset: 0; z-index: 97;");
+    expect(index).toContain(".today-action-loading { min-height: 15rem; }");
+    expect(index).toContain('.strength-body-chart[data-mode="coverage"] .anatomy-figure');
   });
 });
 
