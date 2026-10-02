@@ -4,8 +4,11 @@ import { ageAtLift } from "@/lib/normsCohort";
 import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
 import { strengthLevelAgeFactor } from "@shared/strengthPercentile";
 import { loadConventionFor } from "@shared/loadConventions";
+import type { MuscleEvidence } from "@shared/capabilityRank";
 
 export type RankableObservation = {
+  /** The record the lift was read from, so a rank can name the lift behind it. */
+  id?: string | number;
   exerciseName: string;
   loadKg?: number | string | null;
   repetitions?: number | string | null;
@@ -47,6 +50,25 @@ export type LiftBodyMassSource = "recorded" | "dated" | "profile";
 export type ProfileWeightLift = { exerciseName: string; fromWorkout: boolean };
 
 /**
+ * Where one sent lift came from: the record, its date, what was lifted and the body weight it
+ * was read against. One per sent lift, in the same order. It stays on this device: the route
+ * is sent the lifts alone, and a rank is traced back to its lifts here.
+ */
+export type MuscleRankLiftSource = {
+  observationId: string | null;
+  exerciseName: string;
+  catalogExerciseId: number | null;
+  observedAt: string;
+  loadKg: number;
+  repetitions: number;
+  /** Sent as its best set of reps, without load (a pull-up, a dip). */
+  repsOnly: boolean;
+  bodyMassKg: number | null;
+  bodyMassSource: LiftBodyMassSource | null;
+  fromWorkout: boolean;
+};
+
+/**
  * The body weight a lift is read against, in the same order the record detail uses: the
  * weight saved with the lift, then what the weight log says for that day, then the profile
  * weight. The first is the rule - a later weight change must not re-read an old lift - and
@@ -84,8 +106,8 @@ export function liftBodyMass(observation: RankableObservation, history: readonly
  * records to complete, and send the athlete only to the ones that can take a weight. It rides
  * beside the lifts, not on them: the lifts travel in the request URL.
  */
-export function muscleRankLiftSelection(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): { lifts: MuscleRankLift[]; profileWeightLifts: ProfileWeightLift[] } {
-  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null; repsOnly: boolean; bodyMassSource: LiftBodyMassSource | null; fromWorkout: boolean };
+export function muscleRankLiftSelection(observations: readonly RankableObservation[], history: readonly BodyWeightEntry[], profileBodyMassKg: number | null | undefined, birthYear?: number | null): { lifts: MuscleRankLift[]; profileWeightLifts: ProfileWeightLift[]; sources: MuscleRankLiftSource[] } {
+  type Candidate = { lift: MuscleRankLift; observedAt: number; adjustedKg: number; relative: number | null; repsOnly: boolean; bodyMassSource: LiftBodyMassSource | null; fromWorkout: boolean; observationId: string | null; observedOn: string };
   const byExercise = new Map<string, Candidate[]>();
   for (const observation of observations) {
     const catalogExerciseId = catalogExerciseIdForName(observation.exerciseName) ?? null;
@@ -113,7 +135,8 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
     const adjustedKg = repsOnly ? repetitions : e1rmKg! / (factor.status === "ok" ? factor.factor : 1);
     const key = String(lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase());
     const list = byExercise.get(key) ?? [];
-    list.push({ lift, observedAt: new Date(observation.observedAt).getTime() || 0, adjustedKg, relative: !repsOnly && lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null, repsOnly, bodyMassSource: bodyMass?.source ?? null, fromWorkout: observation.source === "workout" });
+    const observedAt = new Date(observation.observedAt);
+    list.push({ lift, observedAt: observedAt.getTime() || 0, adjustedKg, relative: !repsOnly && lift.bodyMassKg ? adjustedKg / lift.bodyMassKg : null, repsOnly, bodyMassSource: bodyMass?.source ?? null, fromWorkout: observation.source === "workout", observationId: observation.id == null ? null : String(observation.id), observedOn: Number.isNaN(observedAt.getTime()) ? String(observation.observedAt) : observedAt.toISOString() });
     byExercise.set(key, list);
   }
 
@@ -139,15 +162,95 @@ export function muscleRankLiftSelection(observations: readonly RankableObservati
 
   const lifts: MuscleRankLift[] = [];
   const profileWeightLifts: ProfileWeightLift[] = [];
+  const sources: MuscleRankLiftSource[] = [];
   const seen = new Set<string>();
-  for (const { lift, bodyMassSource, fromWorkout } of [...leaders, ...runnersUp]) {
+  for (const { lift, bodyMassSource, fromWorkout, repsOnly, observationId, observedOn } of [...leaders, ...runnersUp]) {
     // The same lift twice tells the aggregation nothing new, and costs URL.
     const key = `${lift.catalogExerciseId ?? lift.exerciseName.trim().toLowerCase()}|${lift.loadKg}|${lift.repetitions}|${lift.bodyMassKg}|${lift.ageYears}`;
     if (seen.has(key)) continue;
     seen.add(key);
     lifts.push(lift);
+    sources.push({ observationId, exerciseName: lift.exerciseName, catalogExerciseId: lift.catalogExerciseId, observedAt: observedOn, loadKg: lift.loadKg, repetitions: lift.repetitions, repsOnly, bodyMassKg: lift.bodyMassKg, bodyMassSource, fromWorkout });
     if (bodyMassSource === "profile") profileWeightLifts.push({ exerciseName: lift.exerciseName, fromWorkout });
     if (lifts.length === MUSCLE_RANK_LIFT_LIMIT) break;
   }
-  return { lifts, profileWeightLifts };
+  return { lifts, profileWeightLifts, sources };
+}
+
+/** One exercise behind a muscle's rank, and the lifts of it that were sent to be ranked. */
+export type RankProvenance = {
+  /** As the rank names it. */
+  exerciseName: string;
+  role: string | null;
+  /** Where the exercise placed on its own; the muscle's rank weighs these. */
+  exercisePercentile: number;
+  /**
+   * The share of the muscle's rank this exercise carried (D-016: a lift counts for more the more
+   * directly it reads the muscle), or null when the route did not say.
+   */
+  weightShare: number | null;
+  /**
+   * The lifts of this exercise that were sent, strongest first. The server keeps whichever
+   * of them places best and does not say which, so more than one is "best of N lifts", not
+   * a claim about one of them.
+   */
+  lifts: MuscleRankLiftSource[];
+};
+
+const comparableExerciseName = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+/**
+ * Which lifts produced a rank, traced on this device.
+ *
+ * A muscle's evidence names its exercises and where each placed, but not the dated lifts: the
+ * route is sent load, reps and body weight, never a record id or a date. Every lift sent is
+ * known here, so each exercise with a placement is matched back to the lifts sent for it, by
+ * catalog id first and by name otherwise. Exercises the rank could not place are left out:
+ * they are not behind it. The strongest placement leads.
+ */
+export function rankProvenance(evidence: readonly MuscleEvidence[], sources: readonly MuscleRankLiftSource[]): RankProvenance[] {
+  const entries: RankProvenance[] = [];
+  const named = new Set<string>();
+  for (const item of evidence) {
+    if (item.exercisePercentile == null || !Number.isFinite(item.exercisePercentile)) continue;
+    const name = comparableExerciseName(item.exerciseName);
+    if (named.has(name)) continue;
+    named.add(name);
+    const catalogId = catalogExerciseIdForName(item.exerciseName) ?? null;
+    const lifts = sources.filter((source) => (catalogId !== null && source.catalogExerciseId === catalogId) || comparableExerciseName(source.exerciseName) === name);
+    const weightShare = typeof item.weightShare === "number" && Number.isFinite(item.weightShare) ? item.weightShare : null;
+    entries.push({ exerciseName: item.exerciseName, role: item.role, exercisePercentile: item.exercisePercentile, weightShare, lifts });
+  }
+  // The exercise that carried most of the rank first; by placement when the route gave no shares.
+  return entries.sort((a, b) => (b.weightShare ?? -1) - (a.weightShare ?? -1) || b.exercisePercentile - a.exercisePercentile);
+}
+
+/**
+ * Whether one record's lift is behind a region's rank, as far as this device can tell.
+ *
+ * - `{ considered: n }`: the lift was sent for one of the rank's exercises. With n = 1 it counts;
+ *   with more, the server kept the best of the n and does not say which, so it was considered.
+ * - `false`: every exercise behind the rank is traced to the lifts sent, and this is not one.
+ * - `null`: that cannot be said. Nothing is traced, or an exercise behind the rank could not be
+ *   matched to any lift sent, and this record could be the one behind it.
+ */
+export function liftPartInRank(provenance: readonly RankProvenance[], observationId: string): { considered: number } | false | null {
+  const entry = provenance.find((item) => item.lifts.some((lift) => lift.observationId === observationId));
+  if (entry) return { considered: entry.lifts.length };
+  if (!provenance.length || provenance.some((item) => item.lifts.length === 0)) return null;
+  return false;
+}
+
+/**
+ * What the muscle-rank query keeps on screen while new ranks load: the previous answer, so the
+ * map keeps its colours under "Updating ranks…" instead of dropping back to coverage - but only
+ * when that answer was for the same comparison group. Ranks read against men are no stand-in
+ * for ranks against women. Reads the group from the previous query's key, which tRPC writes as
+ * `[path, { input }]`.
+ */
+export function previousRanksForSameGroup(sex: "male" | "female" | null) {
+  return <T>(previous: T | undefined, previousQuery?: { queryKey: readonly unknown[] }): T | undefined => {
+    const key = previousQuery?.queryKey?.[1] as { input?: { sex?: unknown } } | undefined;
+    return key?.input?.sex === sex ? previous : undefined;
+  };
 }

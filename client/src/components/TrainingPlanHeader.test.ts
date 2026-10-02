@@ -26,6 +26,11 @@ const render = (over: Partial<Parameters<typeof TrainingPlanHeader>[0]> = {}) =>
     ...over,
   }));
 
+// The identity line's text as read. Its week and day sit in a status span of their own
+// (Sep 30 §8: the count is not announced), so the line is no longer one run of markup.
+const identity = (markup: string) =>
+  markup.match(/<div class="training-plan-identity"><div><h2>[^<]*<\/h2><p>(.*?)<\/p>/)?.[1].replace(/<[^>]+>/g, "");
+
 /**
  * Five blocks and roughly 900px used to stand between the top of the Training Day
  * and its first exercise: a hero, a week generator with three cards, a day header
@@ -83,7 +88,7 @@ describe("choosing a week and a day", () => {
 
   it("states the day once, with the count and the fact that it is already saved", () => {
     const markup = render();
-    expect(markup).toContain("Week 1 · Day 02 · 6 exercises");
+    expect(identity(markup)).toBe("Week 1 · Day 02 · 6 exercises");
     // A status, not a button: every edit is written through to its day, and the
     // two Save buttons were telling an athlete to do what had already happened.
     expect(markup).toContain("training-plan-saved");
@@ -91,7 +96,7 @@ describe("choosing a week and a day", () => {
   });
 
   it("says a day is empty rather than saying nothing about it", () => {
-    expect(render({ activeIndex: 0 })).toContain("Week 1 · Day 01 · Empty");
+    expect(identity(render({ activeIndex: 0 }))).toBe("Week 1 · Day 01 · Empty");
   });
 
   /**

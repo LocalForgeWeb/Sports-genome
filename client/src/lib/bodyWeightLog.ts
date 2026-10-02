@@ -98,10 +98,15 @@ export function recordBodyWeight(
  * number that was not true yet.
  */
 export function bodyWeightKgAt(entries: readonly BodyWeightEntry[], when: Date | string): number | undefined {
+  return bodyWeightEntryAt(entries, when)?.bodyMassKg;
+}
+
+/** The entry `bodyWeightKgAt` reads, so a record can say which day the weight was logged. */
+export function bodyWeightEntryAt(entries: readonly BodyWeightEntry[], when: Date | string): BodyWeightEntry | undefined {
   const at = new Date(when).getTime();
   if (!Number.isFinite(at)) return undefined;
   const inEffect = sortedByDate(entries).filter((entry) => new Date(entry.observedAt).getTime() <= at);
-  return inEffect.length ? inEffect[inEffect.length - 1].bodyMassKg : undefined;
+  return inEffect[inEffect.length - 1];
 }
 
 /** The athlete's weight right now, for prefilling a new entry. */

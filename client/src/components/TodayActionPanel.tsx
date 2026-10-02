@@ -6,6 +6,7 @@ import type { LiveSession } from "@/lib/liveSession";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
 import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
 import { confirmedChangeEmphasis, leadingConfirmedChange, selectHomePriority } from "@/lib/homeStateSummary";
+import { directedChangeStateLabel } from "@/lib/changeStateCopy";
 import { getRegistryReferenceForObservation, type RegistryReferenceProfile } from "@/lib/registryReference";
 import type { TrainingSession } from "@/lib/trainingWeekSummary";
 import { useAthleteRecord } from "@/lib/athleteRecord";
@@ -288,15 +289,16 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
       <button type="button" className="home-week-record" onClick={onOpenStrength} aria-label={`${lifetimeLine}, all time. View strength progress`}>{lifetimeLine}<small>all time</small></button>
     </section>
 
-    {/* One insight, only where there is one: a change the model confirms, or the
-        one measurement that would complete a comparison. */}
+    {/* One insight, only where there is one: a larger change (15% or more), named from the
+        same table as the Strength record and Progress, or the one measurement that would
+        complete a comparison. */}
     {leadingChange
       ? <section className="today-action-state" aria-label="Where you are now">
           <p className="metric-label">Where you are now</p>
           <p className="today-action-state-headline" data-sg-change={changeEmphasis?.direction} data-sg-change-intensity={changeEmphasis?.intensity}>
             <strong>{leadingChange.exerciseName}</strong>
             <span className="today-action-state-delta">{leadingChange.relativeChangePercent >= 0 ? "+" : ""}{leadingChange.relativeChangePercent.toFixed(0)}%</span>
-            <span className="today-action-state-tag">{changeEmphasis?.direction === "loss" ? "Confirmed decline" : "Confirmed gain"}</span>
+            <span className="today-action-state-tag">{directedChangeStateLabel(leadingChange)}</span>
           </p>
           <small>Across {leadingChange.observationCount} logs since {leadingChange.firstPoint.observedAt.toLocaleDateString()}. Your own logs only — not a rank against other people.</small>
           <button type="button" className="home-link" onClick={onOpenStrength}>View strength progress <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>

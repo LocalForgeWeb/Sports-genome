@@ -24,10 +24,12 @@ describe("Progress overview", () => {
     expect(source).toContain("completedSetCount");
     expect(source).toContain("summarizeWithinAthleteStrengthComparisons(unifiedHistory)");
     expect(source).toContain("tracks you against your own past only — never against anyone else");
-    expect(source).toContain("Epley formula");
+    // The method note names the estimator actually used (Epley alone was retired, EN-03) and the
+    // change bands it shares with the Strength record (Sep 30 §6), never "confirmed".
+    expect(source).toContain("(est. 1RM: Brzycki below 8 reps, Epley above 10, a blend between)");
     // The trend rows name the estimate the method note defines, not a bare abbreviation.
     expect(source).toContain("% est. 1RM");
-    expect(source).toContain("(est. 1RM, Epley formula)");
+    expect(source).not.toContain("confirmed change");
     expect(source).not.toContain("e1RM");
     expect(source).toContain("outside the validated rep range for estimation");
     expect(source).not.toContain("readiness score");

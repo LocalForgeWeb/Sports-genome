@@ -1,0 +1,290 @@
+{
+ "movement-320": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "muscle-320": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "strength-320": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "analysis-320": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "plan-320": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 23,
+  "errors": []
+ },
+ "movement-375": {
+  "iw": 375,
+  "sw": 375,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "muscle-375": {
+  "iw": 375,
+  "sw": 375,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "strength-375": {
+  "iw": 375,
+  "sw": 375,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "analysis-375": {
+  "iw": 375,
+  "sw": 375,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "plan-375": {
+  "iw": 375,
+  "sw": 375,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 23,
+  "errors": []
+ },
+ "movement-390": {
+  "iw": 390,
+  "sw": 390,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "muscle-390": {
+  "iw": 390,
+  "sw": 390,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "strength-390": {
+  "iw": 390,
+  "sw": 390,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "analysis-390": {
+  "iw": 390,
+  "sw": 390,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "plan-390": {
+  "iw": 390,
+  "sw": 390,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 23,
+  "errors": []
+ },
+ "movement-430": {
+  "iw": 430,
+  "sw": 430,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 84,
+  "errors": []
+ },
+ "muscle-430": {
+  "iw": 430,
+  "sw": 430,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "strength-430": {
+  "iw": 430,
+  "sw": 430,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "analysis-430": {
+  "iw": 430,
+  "sw": 430,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "plan-430": {
+  "iw": 430,
+  "sw": 430,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 23,
+  "errors": []
+ },
+ "movement-820": {
+  "iw": 820,
+  "sw": 820,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "muscle-820": {
+  "iw": 820,
+  "sw": 820,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 85,
+  "errors": []
+ },
+ "strength-820": {
+  "iw": 820,
+  "sw": 820,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "analysis-820": {
+  "iw": 820,
+  "sw": 820,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "plan-820": {
+  "iw": 820,
+  "sw": 820,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 23,
+  "errors": []
+ },
+ "movement-320-125": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 106,
+  "errors": []
+ },
+ "analysis-320-125": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "muscle-320-125": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 106,
+  "errors": []
+ },
+ "strength-320-125": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": null,
+  "lastClear": null,
+  "clearance": null,
+  "errors": []
+ },
+ "plan-320-125": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 29,
+  "errors": []
+ },
+ "longname-320-125": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 106,
+  "errors": []
+ },
+ "longname-320": {
+  "iw": 320,
+  "sw": 320,
+  "overflowX": false,
+  "offenders": [],
+  "lastClear": true,
+  "clearance": 84,
+  "errors": []
+ }
+}

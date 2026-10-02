@@ -27,7 +27,6 @@ const markup = renderToStaticMarkup(
     prescriptions: Object.fromEntries(workout.map((exercise, index) => [exercise.id, `${index + 3} x 8`])),
     onAddSuggestion: () => undefined,
     onClose: () => undefined,
-    onInspectExercise: () => undefined,
   })
 );
 
@@ -50,7 +49,8 @@ describe("Stack Analysis selected muscle", () => {
     expect(component).toContain("const supportingAnalysis = useMemo(() => wholeStackAnalysis.filter");
     // Intentional change, Sep 28 regression brief §8: the scope is said once, in the
     // methodology disclosure and beside the supporting figures it qualifies.
-    expect(component).toContain("How coverage is calculated");
+    // Intentional change, Sep 30 brief §7: the disclosure explains all three measures, not only coverage.
+    expect(component).toContain("How these figures are calculated");
     expect(component).toContain("Supporting involvement");
     expect(component).toContain("Not {split.toLowerCase()} targets, so not in the coverage index.");
     expect(component).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
@@ -62,11 +62,14 @@ describe("Stack Analysis selected muscle", () => {
     expect(markup).toContain("contribution index, 0–100");
     expect(markup).toContain("/100");
     expect(markup).toContain("coverage index");
-    // Relative involvement is a share of the day's most-worked muscle, and says so; "coverage"
-    // is reserved for the graded target model (TR-01, TR-02).
-    expect(markup).toMatch(/\d+% of the day(&#x27;|')s most-worked muscle/);
+    // Intentional change, Sep 30 brief §7: "% of the day's most-worked muscle" read as sets.
+    // Relative involvement names its reference muscle, or says it is the day's highest;
+    // "coverage" is still reserved for the graded target model (TR-01, TR-02).
+    expect(markup).toMatch(/\d+% of [^<]+ involvement, the day(&#x27;|')s highest|Highest relative involvement in this day/);
+    expect(markup).not.toContain("most-worked");
     expect(markup).not.toMatch(/\d+% coverage/);
-    expect(markup).toContain("How coverage is calculated");
+    // Intentional change, Sep 30 brief §7: the methodology covers workload and breakdown too.
+    expect(markup).toContain("How these figures are calculated");
     expect(markup).toContain("does not diagnose, measure electromyography, or guarantee an individual response");
   });
 
@@ -98,13 +101,18 @@ describe("Stack Analysis selected muscle", () => {
     expect(component).toContain('className="stack-analysis-row-score"');
     expect(styles).toContain(".stack-analysis-row { display: grid;");
     // No ordinal column: the rows were numbered 01, 02... in an order that was not the gaps'.
-    expect(styles).toContain("grid-template-columns: minmax(0, 1fr) auto auto");
+    // Intentional change, Sep 30 brief §7: the chevron column is a fixed 1rem and the bar has
+    // its own grid row, so every row's track is the same length.
+    expect(styles).toContain('grid-template-columns: minmax(0, 1fr) auto 1rem; grid-template-areas: "copy score chevron" "bar bar chevron"');
     expect(styles).toContain(".stack-analysis-row-copy { min-width: 0;");
   });
 
   it("keeps the two summary facts on one row at phone width", () => {
     // Sized to content at every width; no phone rule pushes the second fact onto its own row.
-    expect(styles).toContain(".stack-analysis-summary { grid-template-columns: repeat(2, max-content); }");
+    // Intentional change, Sep 30 brief §7/§9: plain max-content could not shrink, so "4 of 5
+    // targets trained" ran off a 320px screen at 125% text; the columns shrink and wrap now.
+    expect(styles).toContain(".stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, max-content)); max-width: 100%; }");
+    expect(styles).toContain(".stack-analysis-summary > div { min-width: 0; }");
     expect(styles).not.toMatch(/\.stack-analysis-summary > div:last-child \{[^}]*grid-column/);
     expect(styles).not.toContain(".stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }");
   });
@@ -186,7 +194,9 @@ describe("Stack Analysis selected muscle", () => {
   });
 
   it("says the methodology once, including what 100 does not mean", () => {
-    expect(markup.match(/How coverage is calculated/g)).toHaveLength(1);
+    // Intentional change, Sep 30 brief §7: renamed, since it explains all three measures.
+    expect(markup.match(/How these figures are calculated/g)).toHaveLength(1);
+    expect(markup).not.toContain("How coverage is calculated");
     expect(markup).toContain("Set counts are not counted.");
     expect(markup).toContain("It does not mean the workload is optimal or that you are recovered.");
     expect(markup).not.toContain("Recommendation scope");
@@ -194,5 +204,40 @@ describe("Stack Analysis selected muscle", () => {
 
   it("shows supporting work as sets performed, with what the reading counted", () => {
     expect(markup).toMatch(/supporting sets? \(counted as [\d.]+\)|direct sets?/);
+  });
+});
+
+/**
+ * Sep 30 brief §7, layout: label, number and status aligned predictably, and no label squeezed into
+ * a sliver. jsdom has no layout, so these pin the rules that do it; Chromium measurements are in the
+ * lane report.
+ */
+describe("Training Day analysis layout rules", () => {
+  it("shares one set of Workload columns across every row", () => {
+    // A grid per row put "0 direct" 37px left of the other counts beside "Indirect only".
+    expect(styles).toContain(".session-volume-rows { grid-template-columns: minmax(0, 1fr) auto auto; column-gap: .6rem; }");
+    const row = styles.match(/\.session-volume-row \{[^}]*\}/)?.[0] ?? "";
+    expect(row).toContain("grid-column: 1 / -1;");
+    expect(row).toContain("grid-template-columns: subgrid;");
+  });
+
+  it("gives the score or status its own line when the section is narrow for its text size", () => {
+    // In ems of the section itself, so 125% text at 320px narrows it and 100% text does not.
+    expect(styles).toContain(".stack-analysis-list { container: analysis-coverage / inline-size; }");
+    expect(styles).toMatch(/@container analysis-coverage \(max-width: 16em\) \{\s*\.stack-analysis-row \{ grid-template-columns: minmax\(0, 1fr\) 1rem; grid-template-areas: "copy chevron" "score chevron" "bar chevron"; \}/);
+    expect(styles).toContain(".session-volume { container: analysis-workload / inline-size; }");
+    expect(styles).toMatch(/@container analysis-workload \(max-width: 14em\) \{[^@]*grid-template-areas: "name sets" "reading reading" "track track" "supporting supporting";/);
+  });
+
+  it("keeps the summary strip's inset on its first fact", () => {
+    // The strip has a background and radius; without its padding the icon sat on the rounded edge.
+    expect(styles).not.toMatch(/\.stack-analysis-summary > div:first-child \{[^}]*padding-left: 0/);
+  });
+
+  it("stacks Workload and Muscle breakdown in one column beside Coverage, without shrinking Workload on phones", () => {
+    expect(styles).toContain(".stack-analysis-aside { display: grid; min-width: 0; order: 2; align-content: start; gap: 1rem; }");
+    // align-self: start in the phone's flex column made Workload narrower than its neighbours.
+    expect(styles).not.toContain(".stack-analysis-workload { align-self: start; }");
+    expect(styles).toContain("@media (min-width: 761px) { .stack-analysis-rank { align-self: start; } }");
   });
 });

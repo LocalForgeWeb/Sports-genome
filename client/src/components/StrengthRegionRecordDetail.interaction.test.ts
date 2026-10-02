@@ -154,7 +154,8 @@ describe("Strength region body-mass completion", () => {
     // The picker itself names the selected test, so assert the displayed record actually
     // switched rather than looking for a duplicate name beneath it.
     expect(picker.value).toBe("102");
-    expect(screen.getByText(/Machine Preacher Curl/)).toBeTruthy();
+    // The header names the selected lift now (Sep 30 §6), so that line is where the switch shows.
+    expect(document.querySelector(".strength-region-record-lift")?.textContent).toMatch(/^Machine Preacher Curl · /);
     expect(screen.getByText(/88\.2 lb/)).toBeTruthy();
 
     expect(screen.getByRole("button", { name: "Close Biceps detail" }).className).toContain("strength-region-close");

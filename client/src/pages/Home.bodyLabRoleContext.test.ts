@@ -73,7 +73,8 @@ describe("Body Lab muscle roles", () => {
     const callsBefore = roleContext.mock.calls.length;
     await act(async () => { fireEvent.click(firstRow); });
     expect(document.querySelector(".atlas-role-rows .atlas-role-row.is-selected")).not.toBeNull();
-    expect(document.querySelector(".body-lab-next-step")?.textContent).not.toContain("Choose a muscle above");
+    // Sep 30: a picked muscle adds its own "Browse ... exercises" action beside the movement's (the "Choose a muscle above" prompt is gone).
+    expect(document.querySelector(".body-lab-next-step-secondary")?.textContent).toMatch(/^Browse .+ exercises/);
     expect(roleContext.mock.calls.length).toBe(callsBefore);
 
     // Browsing another sport is a change of sport, so the roles are worked out for it.

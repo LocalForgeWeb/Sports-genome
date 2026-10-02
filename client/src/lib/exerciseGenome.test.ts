@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
-import { analyzeExerciseContext, buildExerciseGenome } from "./exerciseGenome";
+import { analyzeExerciseContext, buildExerciseGenome, exerciseGenomes } from "./exerciseGenome";
+import { sportMovementProfiles } from "./sportMovementDatabase";
 
 describe("Exercise Genome multi-signal model", () => {
   const exercise = exercises.find((item) => item.name === "Cable Serratus Punch") || exercises[0];
@@ -11,10 +12,24 @@ describe("Exercise Genome multi-signal model", () => {
     expect(genome.adaptation.rationale).toContain("standardized exercise model");
   });
 
-  it("keeps goal, stack, sport-action, and recovery signals separate from the summary grade", () => {
+  it("keeps goal, stack, and recovery signals separate from the summary grade", () => {
     const analysis = analyzeExerciseContext(exercise, { goal: "Athleticism", currentWorkout: [exercise] });
-    expect(Object.keys(analysis.signals).sort()).toEqual(["goalAlignment", "recoveryManageability", "sportActionMatch", "stackDistinctness"]);
-    expect(analysis.strengths).toHaveLength(4);
+    // The sport-action signal is gone (Sep 30 decisions: no number for movement relevance; the tier says it).
+    expect(Object.keys(analysis.signals).sort()).toEqual(["goalAlignment", "recoveryManageability", "stackDistinctness"]);
+    expect(analysis.strengths).toHaveLength(3);
+  });
+
+  it("gives the same fit and grade whatever sport action is in view, and no sport-action number", () => {
+    const bridge = sportMovementProfiles.find((movement) => movement.sportId === "wrestling" && movement.id === "wrestling-19")!;
+    const throwing = sportMovementProfiles.find((movement) => movement.sportId === "baseball" && movement.id === "baseball-4")!;
+    const hipThrust = exercises.find((item) => item.name === "Barbell Hip Thrust")!;
+    const without = analyzeExerciseContext(hipThrust, { goal: "Max strength", currentWorkout: [] });
+    for (const sportMovement of [bridge, throwing]) {
+      const analysis = analyzeExerciseContext(hipThrust, { goal: "Max strength", currentWorkout: [], sportMovement });
+      expect(analysis.contextualScore).toBe(without.contextualScore);
+      expect(analysis.grade).toBe(without.grade);
+      expect(analysis.strengths.join(" ")).not.toMatch(/sport action/i);
+    }
   });
 
   it("differentiates cable mechanics by the exercise setup instead of using a universal cable profile", () => {
@@ -98,5 +113,19 @@ describe("Exercise Genome multi-signal model", () => {
     expect(hamstrings?.why).toContain("Key mechanics inputs");
     expect(hamstrings?.why).toContain("not a measured force");
     expect(hamstrings?.targeting.mechanicsFactors).toHaveLength(10);
+  });
+
+  /** Sep 30 brief §7: a muscle listed as both primary and secondary counted twice in relative involvement. */
+  it("lists each muscle once in every genome muscle profile, as a prime mover when the catalog says primary", () => {
+    for (const genome of Object.values(exerciseGenomes)) {
+      const muscles = genome.muscleProfile.map((entry) => entry.muscle);
+      expect(new Set(muscles).size, `exercise ${genome.exerciseId} lists a muscle twice`).toBe(muscles.length);
+    }
+    // Barbell Overhead Press (id 101): the catalog lists frontDelts as primary and again as secondary.
+    const overheadPress = exercises.find((item) => item.id === 101)!;
+    expect(overheadPress.primaryMuscles).toContain("frontDelts");
+    expect(overheadPress.secondaryMuscles).toContain("frontDelts");
+    const frontDelts = buildExerciseGenome(overheadPress).muscleProfile.filter((entry) => entry.muscle === "frontDelts");
+    expect(frontDelts.map((entry) => entry.role)).toEqual(["Prime mover"]);
   });
 });

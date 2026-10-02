@@ -22,7 +22,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Variation");
     expect(source).toContain("Assistance used");
     expect(source).toContain("All optional. They just help you compare like with like later on.");
-    expect(source).toContain("Review training");
+    // Was "Review training"; the footer action now names its destination (Sep 30 §6).
+    expect(source).toContain("Open Plan <ArrowRight");
     expect(source).toContain("It will not change today&apos;s workout on its own.");
     expect(source).toContain("onClick={() => { emitInteractionFeedback(); onOpenTraining(); }}");
   });
@@ -46,9 +47,10 @@ describe("Strength Genome panel", () => {
     expect(source).not.toContain("rankAgainstPowerliftingNorms");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("No ranking for this lift yet");
+    // Renamed (Sep 30 §6): an unranked lift says so in its own visible row, and the row is named for what it is.
+    expect(source).toContain("No comparison rank available for this lift");
     expect(source).toContain("Compared to that competition group");
-    expect(source).toContain("Where this sits");
+    expect(source).toContain("Comparison rank for this lift");
     expect(source).not.toContain("Where this ranks");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
@@ -60,7 +62,8 @@ describe("Strength Genome panel", () => {
     // until they retype it. The dated log only looks backwards, so a weight
     // entered today matches no lift logged before today - which is every lift
     // an athlete records first, and every one of them used to land here.
-    expect(source).toContain("This lift is already read against what you weighed that week.");
+    // Sep 30 review: the log's entry can be months before the lift, so no "that week".
+    expect(source).toContain("This lift is already read against the last weight in your log on or before that day.");
     expect(source).toContain("This lift is already read against your profile weight.");
     expect(source).toContain('bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"');
     expect(source).toContain("Save this body weight");
@@ -154,7 +157,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('getPiperReferenceForObservation');
     expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
-    expect(source).toContain("No ranking for this lift yet");
+    // Renamed (Sep 30 §6): was "No ranking for this lift yet", inside a disclosure summary.
+    expect(source).toContain("No comparison rank available for this lift");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("Compared to that competition group");
     expect(source).toContain("Nothing logged for this muscle group yet.");

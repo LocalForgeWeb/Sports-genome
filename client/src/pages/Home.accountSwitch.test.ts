@@ -135,8 +135,10 @@ describe("Changing account on one device", () => {
     await settle();
     await settle();
     // The server has never seen the claimed shortlist, so its reply to this heart names this exercise alone.
-    const [heart] = screen.getAllByRole("button", { name: /^Save .+ to favorites$/ });
+    // Sep 30: a heart keeps the name "Save X to favorites" and says saved with aria-pressed, so the unsaved one is picked by its state.
+    const heart = screen.getAllByRole("button", { name: /^Save .+ to favorites$/ }).find((button) => button.getAttribute("aria-pressed") === "false")!;
     const saved = exercises.find((exercise) => heart.getAttribute("aria-label") === `Save ${exercise.name} to favorites`)!;
+    expect(shortlist).not.toContain(saved.id);
     mutateSpy.mockImplementation((input: unknown, options?: { onSuccess?: (ids: number[]) => void }) => {
       if (input && typeof input === "object" && "favorited" in input) options?.onSuccess?.([saved.id]);
     });

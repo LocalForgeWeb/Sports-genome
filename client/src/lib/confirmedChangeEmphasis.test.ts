@@ -60,8 +60,9 @@ describe("signed change is coloured by direction", () => {
   });
 
   it("names the direction in the badge, so colour is not the only cue", () => {
-    expect(panel).toContain('"Confirmed decline"');
-    expect(panel).toContain('"Confirmed gain"');
+    // Sep 30 §6: the badge reads the shared change-state table ("Larger gain/decline"), never "Confirmed".
+    expect(panel).toContain("{directedChangeStateLabel(leadingChange)}");
+    expect(panel).not.toContain('"Confirmed');
   });
 
   it("marks the element the emphasis applies to", () => {

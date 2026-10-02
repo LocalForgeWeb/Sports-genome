@@ -6,30 +6,30 @@ Delivered as code on `main` and `claude/repo-access-il8zy5`. Evidence is in `doc
 
 **Cause.** The Body Lab's primary button was a muscle search: it opened the catalog with `filters.muscle` set to the inspected muscle, or, with nothing inspected, to the *first* muscle the action's muscle resolver returned (`getMovementMuscles(referenceMovement)[0]`), which for Hand fighting is `chest`. The action itself never reached the catalog. Separately, the catalog measured its "action links" against the profile's selected action (`selectedMovement`), not the action Body Lab was showing, so a browsed action left the catalog still describing Bridge.
 
-**Fix.** Discovery has its own context, kept apart from the inspected muscle and the add destination (`client/src/lib/movementDiscovery.ts`, `DiscoveryContext`: movement by `sportId` + `movementId`, muscle by id, or all). The Body Lab's primary action is now "Find exercises for {action}", opening movement mode with the browsed sport and action ids (`openMovementDiscovery(browseSportId, referenceMovement.id)` in `client/src/pages/Home.tsx`); the instruction above it reads "Explore exercises that support {action}". A muscle tap opens the muscle's detail, which carries its own "Browse {muscle} exercises" action into muscle mode (`AnatomyMap` `onBrowseMuscle`). Entering movement mode clears an inherited muscle filter and keeps the equipment refinement. Results are derived synchronously from the context's ids (`useMemo` keyed on the context), so a change of action cannot be overtaken by an earlier action's result. The rows are headed "Muscle demands · {action}" so the action survives a scroll past its selector, and the list toggle now says "View all 26 muscles on the map · 13 with no role recorded": 13 is the action's record, 26 is every region the figure draws.
+**Fix.** Two sessions corrected this in parallel. The discovery context that shipped is the one merged to `main` as #85 (`client/src/lib/exerciseDiscovery.ts`: movement by `sportId` + `movementId`, muscle by id, or all, carried in the address so Back, Forward and reload keep it; `client/src/lib/movementSupport.ts`: the movement's tiers from its own record). The Body Lab's primary action is "Find exercises for {Movement}", opening movement mode with the browsed sport and action ids (`openDiscovery({ mode: "movement", sportId: referenceMovement.sportId, movementId: referenceMovement.id })` in `client/src/pages/Home.tsx`); the line above it reads "Explore exercises that support this movement." A muscle tap opens the muscle's detail, which now carries its own "Browse {muscle} exercises" action into muscle mode (`AnatomyMap` `onBrowseMuscle`, added here), beside the secondary button #85 placed under the rows. A fresh movement entry starts with no refinements; each discovery keeps its own filters and page. Results are derived synchronously from the context's ids, so a change of action cannot be overtaken by an earlier action's result. Added here as well: the rows are headed "Muscle demands · {action}" so the action survives a scroll past its selector, and the list toggle says "View all 26 muscles on the map · 13 with no role recorded": 13 is the action's record, 26 is every region the figure draws. My own parallel implementation of the same context (`movementDiscovery.ts`) was dropped in favour of #85's at merge.
 
 ## 2. Changed code
 
-- `client/src/lib/movementDiscovery.ts` (new): context type, `discoverMovementExercises`, `movementResultSet`, the contiguous-phrase name matcher.
-- `client/src/components/CatalogDiscoveryPanel.tsx`: movement, muscle and all modes; scope heading, counts, tiers, reasons, explicit "All exercises" tab, unmapped notice, muscle-only disclosure; recomposed rows.
+- Discovery modes, tiers, address state and the catalog panel's modes: #85 on `main` (`exerciseDiscovery.ts`, `movementSupport.ts`, `CatalogDiscoveryPanel.tsx`, `Home.tsx`).
+- `client/src/components/CatalogDiscoveryPanel.tsx`: the row's photograph through the one media component.
 - `client/src/components/AnatomyMap.tsx`: `subjectLabel`, `onBrowseMuscle`, the counts toggle wording.
-- `client/src/pages/Home.tsx`: `discovery` state, `openMovementDiscovery` / `openMuscleDiscovery`, the Body Lab CTA, catalog props, detail media.
+- `client/src/pages/Home.tsx`: the muscle map's subject label and in-detail browse action; detail media.
 - `client/src/components/ExerciseMedia.tsx` + `client/src/exercise-media.css` (new): the one media component (replaces `ExercisePhotos.tsx`), thumb and detail variants.
 - `client/src/lib/exercisePhotos.ts`, `client/src/data/exercisePhotos.json`, `scripts/exercise-photos/{curate,dimensions}.mjs`: media record with intrinsic size and focal point; 17 wrong-variation aliases rejected.
 - `client/src/components/ExercisePrescriptionRow.tsx`, `DeviceWorkoutTracker.tsx`, `mobile-training-card.css`, `workout-planner.css`: thumbnails in plan rows, workout prestart rows and the full-session list; collapsed photos on the live set card.
 - `client/src/components/anatomy/AnatomyFigure.tsx` + `anatomy-figure.css`: `compact` rendering variant. `TodayActionPanel.tsx`, `index.css`: Home hero column and figure.
 - `catalog-discovery.css`: rows, tiers, reasons, the action link as wrapping text.
-- Tests: `movementDiscovery.test.ts`, `CatalogDiscoveryPanel.discovery.test.ts`, `ExerciseMedia.test.ts`, `Home.bodyLabDiscovery.test.ts`; pins updated in six existing suites.
+- Tests: `ExerciseMedia.test.ts`, `Home.bodyLabMuscleDetail.test.ts`; pins updated in the Home figure and media suites. #85's `Home.movementDiscovery.test.ts` and `CatalogDiscoveryPanel.modes.test.ts` cover the modes.
 
 ## 3. Selection criteria for movement results, and data gaps
 
-For a sport action the catalog lists, in this order and never mixed:
+For a sport action the catalog lists, in this order and never mixed (`movementSupport.ts`, #85):
 
-1. **Named in its movement record** — the enriched record's `recommendedExercises` phrases, matched as consecutive words of the exercise name with a small alias table ("cable row" → Seated Cable Row, not Cable Upright Row; "farmer carry" → Farmer's Walk). Reason: `Named in the hand fighting record as "cable row".`
-2. **Train the demands its record describes** — the exercise trains at least one movement signal the sport profile's body actions describe (the same `getMovementSignals` / `exerciseMatchesSignal` the Matches ranking uses). Reason: `Trains its pulling, grip demand · works latissimus dorsi, deltoids.`
-3. **Share a muscle only** — listed as exactly that, behind one line, with "Not a movement match." A shared pectoralis alone never qualifies a bench press.
+1. **Movement-specific** — the exercise is named in the movement record (`recommendedExercises`), matched by name with a reviewed same-exercise synonym table and a not-the-same list.
+2. **Related pattern** — the same catalog pattern as a movement-specific exercise, and it trains one of the record's prime movers as a primary muscle.
+3. **Muscle support** — trains a prime mover but is not specific to the movement; a separate closed section, never counted as a match. A shared pectoralis alone never qualifies a bench press.
 
-For Hand fighting: 25 named, 154 demand, 109 muscle-only; the default set is 179; no bench press is in it. Gaps: the demand tier is deliberately broad (a conditioning signal from "repeated" admits battle ropes); the named tier depends on how the record phrases its exercises, so an action whose record names nothing the catalog spells the same way has an empty first tier. An action the library has no record or profile for gets an explicit "No movement mapping" notice with its muscles offered, never the catalog listed as matches. No transfer score is shown or computed.
+Every row says why it appears; "How matches work" states the method and the record's confidence and source count. Gaps: an action whose record names nothing the catalog spells the same way reports "no named matches" honestly and offers its muscles; no transfer score is shown or computed.
 
 ## 4. Screenshots (all 390 px unless named)
 
@@ -55,6 +55,7 @@ For Hand fighting: 25 named, 154 demand, 109 muscle-only; the default set is 179
 
 ## 6. Decisions worth knowing
 
+- **Two parallel corrections.** #85 landed on `main` with the discovery modes while this update was in progress; this update keeps #85's discovery and adds on top of it. The acceptance probe was re-run against the merged build.
 - **Thumbnails are 3:2, not square.** The source photographs are 3:2 with the model centred; a square would centre-crop a third of every one, which §2 forbids. The frame follows the photograph; portrait frames are shown whole inside it. Per-image focal points are carried with the record for the day a different frame is wanted.
 - **Home paints primary muscles only** and says so under the figure; supporting muscles are not drawn, matching the focus line.
 - **Thumbnails fetch the source files**: the source publishes one size per photograph, so there is no smaller rendition to serve; the files are lazy-loaded and cached by the CDN.

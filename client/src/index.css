@@ -172,6 +172,11 @@
   --sg-space-4: 1rem;
   --sg-space-5: 1.5rem;
   --sg-space-6: 2rem;
+  /* The phone page gutter (Sep 30 brief §8): 16px at 320, 20px from about 445px.
+     Applied at <=640px to the content, the brand row, the tab row and the sheets
+     (the "Phone gutters" block near the compare sheet). Not --sg-space-4, which a
+     later legacy :root redefines to 1.5rem. */
+  --sg-gutter: clamp(16px, 4.5vw, 20px);
 
   /* -- Motion. The "Motion and state-transition contract" allows motion only
         where it clarifies change, and requires the OS reduced-motion
@@ -690,17 +695,17 @@ select {
 
 .genome-action-connection { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 1rem; margin: 1rem 0; border: 1px solid var(--sg-divider-on-light); border-left: 3px solid var(--sg-info-strong); border-radius: .85rem; background: var(--sg-surface-light-sunken); padding: .95rem 1rem; }
 .genome-action-connection-label { display: inline-flex; align-items: center; min-height: 1.65rem; border-radius: 999px; padding: .2rem .55rem; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: 1; text-transform: uppercase; }
-.genome-action-connection-direct-support { background: #fff0ea; color: #b64126; }
-.genome-action-connection-supporting-link { background: #fff8e5; color: #87600c; }
-.genome-action-connection-not-mapped { background: var(--sg-surface-light-sunken); color: #506d84; }
+.genome-action-connection-movement-specific { background: #fff0ea; color: #b64126; }
+.genome-action-connection-related-pattern { background: #fff8e5; color: #87600c; }
+.genome-action-connection-muscle-support, .genome-action-connection-not-mapped { background: var(--sg-surface-light-sunken); color: #506d84; }
 @media (max-width: 640px) { .genome-action-connection { grid-template-columns: 1fr; gap: .65rem; padding: .85rem; } }
 
 .inspection-action-connection-float { position: fixed; z-index: 51; right: 1rem; bottom: 1rem; width: min(672px, calc(100vw - 2rem)); }
 .inspection-action-connection { display: grid; grid-template-columns: minmax(0, .65fr) minmax(0, 1.35fr); gap: 1rem; border: 1px solid #2c5682; border-left: 3px solid var(--sg-focus-on-dark); border-radius: .9rem; background: rgb(11 34 64 / .97); box-shadow: 0 18px 44px rgb(5 20 40 / .42); padding: .95rem 1rem; }
 .inspection-action-connection-label { display: inline-flex; min-height: 1.7rem; align-items: center; border-radius: 999px; padding: .2rem .55rem; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: 1; text-transform: uppercase; }
-.inspection-action-connection-direct-support { background: rgb(228 81 46 / .26); color: #ffbdab; }
-.inspection-action-connection-supporting-link { background: rgb(242 193 77 / .22); color: #ffe19b; }
-.inspection-action-connection-not-mapped { background: rgb(174 202 225 / .15); color: var(--sg-text-muted-on-dark); }
+.inspection-action-connection-movement-specific { background: rgb(228 81 46 / .26); color: #ffbdab; }
+.inspection-action-connection-related-pattern { background: rgb(242 193 77 / .22); color: #ffe19b; }
+.inspection-action-connection-muscle-support, .inspection-action-connection-not-mapped { background: rgb(174 202 225 / .15); color: var(--sg-text-muted-on-dark); }
 @media (max-width: 1023px) { .inspection-action-connection-float { right: .85rem; bottom: calc(5.35rem + env(safe-area-inset-bottom, 0px)); left: .85rem; width: auto; } .inspection-action-connection { grid-template-columns: 1fr; gap: .7rem; padding: .85rem; } }
 
 .today-action-panel { overflow: hidden; border: 1px solid #1f507d; border-radius: 1rem; background: var(--sg-surface-raised); box-shadow: 0 14px 32px rgb(9 34 64 / .2); }
@@ -879,7 +884,7 @@ select {
 .destination-body .strength-reference-unavailable { background: rgb(242 193 77 / .09); }
 
 .apex-content.destination-body { background: radial-gradient(circle at 12% 10%, #d8edff 0, var(--sg-surface-light-sunken) 30%, #cbdff4 100%); }
-.destination-body .atlas-sport-picker, .destination-body .movement-selector, .destination-body .body-lab-v2 > .view-header, .destination-body .catalog-discovery { border-color: #90b8de; background: linear-gradient(135deg, var(--sg-surface-overlay), var(--sg-surface-panel)); color: var(--sg-text-on-dark); box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
+.destination-body .atlas-sport-picker, .destination-body .movement-selector, .destination-body .body-lab-v2 > .view-header { border-color: #90b8de; background: linear-gradient(135deg, var(--sg-surface-overlay), var(--sg-surface-panel)); color: var(--sg-text-on-dark); box-shadow: 0 16px 34px rgb(8 38 73 / .16); }
 .destination-body .atlas-sport-picker *, .destination-body .movement-selector h1, .destination-body .body-lab-v2 > .view-header h1 { color: inherit; }
 
 .apex-content.destination-progress { background: radial-gradient(circle at 88% 0, #1d4c84 0, var(--sg-surface-panel) 36%, var(--sg-surface-deep) 100%); color: var(--sg-text-on-dark); }
@@ -1059,7 +1064,7 @@ select {
 
 .strength-region-record-detail { border: 1px solid rgb(164 200 232 / .3); background: linear-gradient(135deg, var(--sg-surface-overlay), var(--sg-surface-deep)); padding: clamp(1rem, 3vw, 1.5rem); color: var(--sg-text-on-dark); }.strength-region-record-detail h2 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.55rem, 4vw, 2.25rem); font-weight: 800; line-height: .9; text-transform: uppercase; }.strength-region-record-detail h2 em { color: var(--sg-focus-on-dark); }.strength-region-record-list { display: grid; gap: .5rem; margin-top: 1rem; }.strength-region-record-list article { display: grid; gap: .2rem; border-left: 2px solid var(--sg-focus-on-dark); background: rgb(255 255 255 / .06); padding: .7rem .8rem; }.strength-region-record-list strong { color: #fff; font-size: var(--sg-text-md); }.strength-region-record-list span, .strength-region-record-empty { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.strength-region-record-empty { margin-top: .85rem; }.strength-region-reference-boundary { margin-top: 1rem; border-left: 2px solid var(--sg-action); padding-left: .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.strength-region-reference-boundary strong { color: #ffd2c4; }
 .strength-body-mass-ratio { display: inline-flex; width: fit-content; align-items: baseline; gap: .35rem; margin-top: .35rem; color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; line-height: 1; }.strength-body-mass-ratio small, .strength-body-mass-missing { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-body-mass-missing { display: block; margin-top: .35rem; }
-.strength-region-record-detail { border-top: 1px solid rgb(164 200 232 / .3); }.strength-region-record-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }.strength-region-record-heading h2 { margin: .2rem 0 0; }.strength-region-close { display: grid; place-items: center; flex: 0 0 2.75rem; min-height: 2.75rem; border: 1px solid rgb(195 215 234 / .35); color: var(--sg-text-on-dark); }.strength-region-record-card { display: grid; gap: .35rem; margin-top: 1rem; border: 1px solid rgb(91 156 241 / .45); background: linear-gradient(135deg, rgb(45 108 205 / .28), rgb(255 255 255 / .04)); padding: .9rem; }.strength-region-record-picker { display: grid; gap: .3rem; margin-bottom: .15rem; }.strength-region-record-picker > span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-record-picker select { min-height: 2.7rem; width: 100%; border: 1px solid rgb(195 215 234 / .3); background: var(--sg-surface-raised); color: #fff; padding: 0 .7rem; outline: none; }.strength-region-record-picker select:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-region-test-name { color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 800; }.strength-region-record-card .strength-body-mass-ratio { margin: .1rem 0 0; font-size: clamp(2rem, 8vw, 2.65rem); }.strength-ratio-label, .strength-region-test-meta { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-test-meta { border-top: 1px solid rgb(195 215 234 / .16); margin-top: .3rem; padding-top: .55rem; letter-spacing: var(--sg-tracking-open); }.strength-ratio-pending { color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.55rem; text-transform: uppercase; }.strength-region-boundary { margin-top: .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.strength-region-boundary summary { color: #9fc8f4; cursor: pointer; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-boundary p { margin-top: .45rem; }.strength-region-focus-row, .strength-observation-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid rgb(164 200 232 / .3); background: var(--sg-surface-raised); padding: .85rem 1rem; color: var(--sg-text-muted-on-dark); }.strength-region-focus-row p, .strength-observation-summary { margin: 0; font-size: var(--sg-text-sm); line-height: var(--sg-leading-snug); }.strength-region-focus-row p strong, .strength-observation-summary strong { color: #fff; }.strength-region-focus-row div { display: flex; gap: .5rem; }.strength-focus-primary, .strength-focus-secondary { min-height: 2.75rem; padding: 0 .75rem; border: 1px solid rgb(195 215 234 / .35); color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-focus-primary { background: var(--sg-action-fill); border-color: var(--sg-action); }.strength-focus-primary.is-active { background: var(--sg-focus-on-dark); border-color: var(--sg-focus-on-dark); color: var(--sg-text-on-light); }.strength-observation-summary { border-top-color: rgb(164 200 232 / .2); color: var(--sg-text-subtle-on-dark); }.strength-observation-summary span { text-align: right; }
+.strength-region-record-detail { border-top: 1px solid rgb(164 200 232 / .3); }.strength-region-record-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: .6rem 1rem; }.strength-region-record-heading h2 { margin: .2rem 0 0; }.strength-region-record-lift { margin: .35rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; line-height: var(--sg-leading-snug); overflow-wrap: anywhere; }.strength-region-switch { grid-column: 1 / -1; display: flex; align-items: center; gap: .6rem; }.strength-region-switch > span { flex: 0 0 auto; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-switch select { flex: 1 1 auto; min-width: 0; min-height: 2.75rem; border: 1px solid rgb(195 215 234 / .3); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); padding: 0 .7rem; outline: none; }.strength-region-switch select:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-focus-primary, .strength-focus-secondary { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; white-space: nowrap; }.strength-region-focus-row { flex-wrap: wrap; }.strength-region-focus-row > p { flex: 1 1 12rem; }.strength-region-focus-row > div { margin-left: auto; }.strength-region-close { display: grid; place-items: center; flex: 0 0 2.75rem; min-height: 2.75rem; border: 1px solid rgb(195 215 234 / .35); color: var(--sg-text-on-dark); }.strength-region-record-card { display: grid; gap: .35rem; margin-top: 1rem; border: 1px solid rgb(91 156 241 / .45); background: linear-gradient(135deg, rgb(45 108 205 / .28), rgb(255 255 255 / .04)); padding: .9rem; }.strength-region-record-picker { display: grid; gap: .3rem; margin-bottom: .15rem; }.strength-region-record-picker > span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-record-picker select { min-height: 2.7rem; width: 100%; border: 1px solid rgb(195 215 234 / .3); background: var(--sg-surface-raised); color: #fff; padding: 0 .7rem; outline: none; }.strength-region-record-picker select:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-region-test-name { color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 800; }.strength-region-record-card .strength-body-mass-ratio { margin: .1rem 0 0; font-size: clamp(2rem, 8vw, 2.65rem); }.strength-ratio-label, .strength-region-test-meta { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-test-meta { border-top: 1px solid rgb(195 215 234 / .16); margin-top: .3rem; padding-top: .55rem; letter-spacing: var(--sg-tracking-open); }.strength-ratio-pending { color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.55rem; text-transform: uppercase; }.strength-region-boundary { margin-top: .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.strength-region-boundary summary { color: #9fc8f4; cursor: pointer; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-region-boundary p { margin-top: .45rem; }.strength-region-focus-row, .strength-observation-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid rgb(164 200 232 / .3); background: var(--sg-surface-raised); padding: .85rem 1rem; color: var(--sg-text-muted-on-dark); }.strength-region-focus-row p, .strength-observation-summary { margin: 0; font-size: var(--sg-text-sm); line-height: var(--sg-leading-snug); }.strength-region-focus-row p strong, .strength-observation-summary strong { color: #fff; }.strength-region-focus-row div { display: flex; gap: .5rem; }.strength-focus-primary, .strength-focus-secondary { min-height: 2.75rem; padding: 0 .75rem; border: 1px solid rgb(195 215 234 / .35); color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-focus-primary { background: var(--sg-action-fill); border-color: var(--sg-action); }.strength-focus-primary.is-active { background: var(--sg-focus-on-dark); border-color: var(--sg-focus-on-dark); color: var(--sg-text-on-light); }.strength-observation-summary { border-top-color: rgb(164 200 232 / .2); color: var(--sg-text-subtle-on-dark); }.strength-observation-summary span { text-align: right; }
 .strength-ratio-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .55rem; align-items: end; margin-top: .25rem; }.strength-ratio-entry label { display: grid; gap: .3rem; }.strength-ratio-entry label span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-ratio-entry input { min-height: 2.7rem; border: 1px solid rgb(195 215 234 / .3); background: rgb(255 255 255 / .08); color: #fff; padding: 0 .7rem; outline: none; }.strength-ratio-entry input:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .18); }.strength-ratio-entry button { min-height: 2.7rem; padding: 0 .7rem; background: var(--sg-focus-on-dark); color: var(--sg-text-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.strength-ratio-entry button:disabled { cursor: not-allowed; opacity: .55; }
 
 /* Explore is the discovery lab: cool layered blue panels, not a white document canvas. */
@@ -1116,11 +1121,29 @@ select {
 .strength-reference-matched strong { display: block; margin-top: .25rem; color: var(--sg-focus-on-dark); font-family: "Barlow Condensed", sans-serif; font-size: 1.15rem; line-height: var(--sg-leading-tight); text-transform: uppercase; }
 .strength-reference-matched p:not(.metric-label) { margin-top: .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
 .strength-reference-matched a { display: inline-block; margin-top: .55rem; color: #fff; font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-decoration: underline; text-underline-offset: 3px; text-transform: uppercase; }
-.strength-rating-card { margin-top: .6rem; }
-.strength-rating-state { display: block; margin-top: -.15rem; font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.strength-rating-empty { margin-top: .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
-.strength-region-ratio-inline { margin-top: .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
 .strength-workout-body-mass { margin-top: .6rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+/* The record reads as two sections (Sep 30 brief §6): the region's rank, then the lift on
+   show. Each is a heading, then rows of one fact each - a label, one main value, the lines that
+   support it - then one disclosure for the rest. Rows are divided by hairlines, not boxed. */
+.strength-record-section { display: grid; gap: .45rem; margin-top: 1rem; }
+.strength-record-section + .strength-record-section { border-top: 1px solid var(--sg-divider-on-dark); padding-top: 1rem; }
+.strength-record-section-title { margin: 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-weight: 800; line-height: var(--sg-leading-tight); text-transform: uppercase; overflow-wrap: anywhere; }
+.strength-record-section-title + .strength-region-test-meta { margin-top: 0; border-top: 0; padding-top: 0; }
+.strength-lift-rows { display: grid; margin: .2rem 0 0; }
+.strength-lift-row { display: grid; gap: .3rem; border-top: 1px solid rgb(195 215 234 / .16); padding: .75rem 0; }
+.strength-lift-row dt { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.strength-lift-row dd { display: grid; gap: .3rem; margin: 0; min-width: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.strength-lift-row dd p { margin: 0; }
+.strength-lift-row dd .strength-reference-matched, .strength-lift-row dd .strength-rank-gate, .strength-lift-row dd .strength-rank-needs, .strength-lift-row dd .strength-recorded-measurement { margin-top: 0; }
+/* The lift's own value is plain type: only the region's rank carries rank colour and an emblem,
+   so an unranked lift never borrows the authority of the percentile above it. */
+.strength-lift-value { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .5rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; line-height: var(--sg-leading-snug); }
+.strength-lift-value > span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.strength-lift-value > strong { font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; font-weight: 800; line-height: 1; }
+.strength-lift-value.is-quiet { font-size: var(--sg-text-md); }
+.strength-lift-value.is-pending { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-md); font-weight: 600; }
+.strength-lift-state { color: var(--sg-text-on-dark); font-weight: 700; }
+.strength-lift-in-rank, .strength-lift-source { font-size: var(--sg-text-xs); }
 .strength-piper-capture { margin-top: 1rem; border: 1px solid rgb(242 193 77 / .35); border-radius: .8rem; background: rgb(7 23 43 / .56); padding: .8rem .9rem; color: #dceafd; }
 .strength-piper-capture summary { cursor: pointer; color: var(--sg-focus-on-dark); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .strength-piper-capture > p { margin: .65rem 0 0; color: #afc4db; font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
@@ -1301,7 +1324,7 @@ select {
 .catalog-discovery-controls summary small,
 .catalog-discovery-controls label,
 .catalog-filter-reset,
-.catalog-discovery-card-copy small,
+.catalog-discovery-row-copy small,
 .catalog-discovery-empty {
   color: var(--sg-text-muted-on-dark);
 }
@@ -1313,7 +1336,6 @@ select {
 }
 
 .catalog-discovery-controls select,
-.catalog-favorites-filter,
 .catalog-filter-reset,
 .catalog-serratus-filter,
 .catalog-load-more {
@@ -1435,16 +1457,14 @@ select {
 }
 
 .destination-body .atlas-focus-card,
-.stack-analysis-row,
-.catalog-discovery-card {
+.stack-analysis-row {
   box-shadow: var(--sg-elevation-1);
   transition: box-shadow var(--sg-motion-base) var(--sg-ease),
               border-color var(--sg-motion-base) var(--sg-ease);
 }
 
 .destination-body .atlas-focus-card:hover,
-.stack-analysis-row:hover,
-.catalog-discovery-card:hover {
+.stack-analysis-row:hover {
   box-shadow: var(--sg-elevation-3);
 }
 
@@ -1839,7 +1859,7 @@ details:not([open]) > *:not(summary) {
    that 44pt is the design target rather than WCAG's 24px minimum.
 
    Block controls and disclosures grow to the floor. */
-.apex-content :is(button, summary):not(.local-search-scope > button):not(.atlas-reset-pro):not(.genome-term-button):not([class*="chip"]):not(.day-picker-empty button) {
+.apex-content :is(button, summary):not(.local-search-scope > button):not(.atlas-reset-pro):not(.genome-term-button):not([class*="chip"]):not(.day-picker-empty button):not(.day-capacity-note-empty button) {
   min-height: 2.75rem;
 }
 
@@ -2156,16 +2176,24 @@ details:not([open]) > *:not(summary) {
 .matches-disclosure > div { padding: 0 0 1rem; }
 
 /* Where a plus puts an exercise. It rides at the foot of the screen while the
-   list scrolls, above the dock, and settles into the flow at the end. */
-.add-destination { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .5rem); border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: linear-gradient(135deg, rgb(24 60 99 / .98), rgb(12 38 70 / .98)); box-shadow: 0 -10px 26px rgb(4 20 40 / .3); backdrop-filter: blur(16px); color: var(--sg-text-on-dark); }
+   list scrolls, above the dock, and settles into the flow at the end, so it never
+   covers the last row or the dock. One flat line (Sep 30 brief, section 5): no
+   gradient or lifted shadow, so it does not read as one more card over the list;
+   the hairline is the edge of a control. Short of room, the line is cut with an
+   ellipsis rather than wrapped, "Adding to" first and the day last. */
+.add-destination { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .5rem); border: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-sm); background: rgb(8 31 59 / .97); backdrop-filter: blur(16px); color: var(--sg-text-on-dark); }
 @media (min-width: 1024px) { .add-destination { bottom: calc(4.375rem + 1.25rem + .5rem); } }
-.add-destination > summary { display: flex; min-height: 3.5rem; align-items: center; gap: .8rem; padding: .5rem .9rem; cursor: pointer; list-style: none; font-size: var(--sg-text-lg); }
+.add-destination > summary { display: flex; min-height: 2.75rem; align-items: center; gap: .6rem; padding: .3rem .75rem; cursor: pointer; list-style: none; font-size: var(--sg-text-base); }
 .add-destination > summary::-webkit-details-marker { display: none; }
 .add-destination > summary > svg { flex: 0 0 auto; color: #9cc4ea; }
-.add-destination > summary > span { flex: 1; min-width: 0; line-height: 1.3; }
-.add-destination > summary b { font-weight: 700; }
+.add-destination > summary > span { display: flex; flex: 1; min-width: 0; gap: .3em; line-height: var(--sg-leading-snug); white-space: nowrap; }
+.add-destination > summary > span > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.add-destination-lead { flex: 0 100 auto; }
+.add-destination > summary b { flex: 0 1 auto; font-weight: 700; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
 .add-destination > summary em { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .25rem; color: var(--sg-link-on-dark); font-style: normal; font-weight: 600; }
-.add-destination-options { display: flex; flex-wrap: wrap; gap: .5rem; padding: 0 .9rem .9rem; }
+.add-destination > summary em svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.add-destination[open] > summary em svg { transform: rotate(180deg); }
+.add-destination-options { display: flex; flex-wrap: wrap; gap: .5rem; padding: 0 .75rem .75rem; }
 .add-destination-options button { display: grid; min-height: 2.75rem; gap: .1rem; border: 1px solid rgb(164 200 232 / .5); background: rgb(255 255 255 / .08); padding: .45rem .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-align: left; text-transform: uppercase; }
 .add-destination-options button small { color: var(--sg-text-muted-on-dark); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .add-destination-options button[aria-pressed="true"] { border-color: var(--sg-action); box-shadow: inset 0 -3px 0 var(--sg-focus-on-dark); }
@@ -2272,18 +2300,6 @@ details:not([open]) > *:not(summary) {
  */
 .more-workspace-build { margin-top: 1.25rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-variant-numeric: tabular-nums; letter-spacing: var(--sg-tracking-open); }
 
-/**
- * Where a lift ranks.
- *
- * The rank is what the athlete opened the screen for, so it carries the same
- * weight as the matched-study card it sits in place of, with the affirmative
- * accent rather than the informational blue - the number is the finding, not a
- * footnote about it. The population line underneath is deliberately part of the
- * card: a percentile shown without the group it ranks against is the misleading
- * version, and separating them invites reading only the first line.
- */
-.strength-rank-card { border-left: 3px solid var(--sg-focus-on-dark); }
-.strength-rank-card strong { color: var(--sg-focus-on-dark); }
 /* Asks for the one field that would produce a rank. */
 .strength-rank-needs { margin-top: .75rem; border-left: 2px solid var(--sg-link-on-dark); padding-left: .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
 /* The ask and the control that answers it, in the place the rank would be.
@@ -2336,29 +2352,42 @@ details:not([open]) > *:not(summary) {
 #targeted-capacity:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 3px; }
 /* Tapping a muscle used to scroll the page roughly 700px to reach a record that
    renders after the figure - so the muscle the athlete had just tapped was
-   pushed off the top of the screen, and the page settled on a stranded sliver of
-   the map's own background under the header. Below the dock's breakpoint the
-   record is pinned above the bottom bar instead and the page never moves: the
-   figure stays exactly where it was, still tappable, so choosing another muscle
-   swaps the record in place. */
+   pushed off the top of the screen. Below the dock's breakpoint the record is a
+   modal bottom sheet instead and the page never moves. It was a panel pinned
+   above the bottom bar with the page still live behind it: the page scrolled
+   under it, a tap on the bar left the screen, and its title scrolled away with
+   the record (Sep 30 brief §6). Now a scrim covers the page and the bar, the
+   page is inert behind it (StrengthGenomePanel), and the sheet is three parts: a
+   header that stays put, one scrolling body, and the action row. */
 @media (max-width: 1023px) {
+  .strength-region-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgb(6 23 45 / .72);
+    animation: sg-region-scrim-in var(--sg-motion-slow) var(--sg-ease) both;
+  }
+  .strength-region-scrim.is-leaving {
+    animation: sg-region-scrim-out var(--sg-motion-slow) var(--sg-ease) both;
+    pointer-events: none;
+  }
   .strength-region-sheet {
     position: fixed;
-    z-index: 45;
+    z-index: 71;
     right: 0;
-    /* Flush to the top edge of the bottom bar (its four 4.1rem targets plus its
-       border), so the two read as one stacked assembly rather than leaving a
-       strip of the page showing between them. */
-    bottom: calc(4.375rem + env(safe-area-inset-bottom, 0px));
+    /* Over the bottom bar, not above it: the bar sits under the scrim, out of reach. */
+    bottom: 0;
     left: 0;
-    /* The panel's own stack spacing would otherwise offset the pinned box from
-       the bar by its bottom margin. */
+    /* The panel's own stack spacing would otherwise offset the sheet from the
+       bottom edge by its bottom margin. */
     margin: 0;
     display: flex;
     flex-direction: column;
-    max-height: min(62vh, 30rem);
+    max-height: min(88vh, 46rem);
+    max-height: min(88dvh, 46rem);
     overflow: hidden;
     border-top: 1px solid rgb(164 200 232 / .45);
+    border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0;
     background: var(--sg-surface-deep);
     box-shadow: 0 -16px 38px rgb(4 20 40 / .45);
     /* A real slide from the bottom edge, not a 12px nudge: the sheet covers the
@@ -2374,16 +2403,35 @@ details:not([open]) > *:not(summary) {
     animation: sg-region-sheet-fall var(--sg-motion-slow) var(--sg-ease) both;
     pointer-events: none;
   }
-  /* The record scrolls; the two optional actions stay pinned as the sheet's own
-     bottom bar, so a tall record can never cut a button in half. */
+  /* The header stays put and the body is the one thing that scrolls; the two
+     optional actions stay pinned as the sheet's own bottom bar, so a tall record
+     can never cut a button in half. */
   .strength-region-sheet .strength-region-record-detail {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 0;
+    padding: 0;
+  }
+  .strength-region-sheet .strength-region-record-heading {
+    flex: 0 0 auto;
+    padding: 1rem var(--sg-gutter, 1rem) .75rem;
+    border-bottom: 1px solid var(--sg-divider-on-dark);
+  }
+  .strength-region-sheet .strength-region-record-body {
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    border-top: 0;
+    padding: 0 var(--sg-gutter, 1rem) 1rem;
   }
-  .strength-region-sheet .strength-region-focus-row { flex: 0 0 auto; }
+  /* The safe area is padded once, here, on the sheet's bottom edge. */
+  .strength-region-sheet .strength-region-focus-row {
+    flex: 0 0 auto;
+    padding: .85rem var(--sg-gutter, 1rem) calc(.85rem + env(safe-area-inset-bottom, 0px));
+  }
   /* The record no longer occupies page flow here, so the flow needs no room for it. */
   .apex-content.destination-body:has(.strength-region-record-detail) { padding-bottom: calc(5.8rem + env(safe-area-inset-bottom, 0px)); }
 }
@@ -2397,6 +2445,27 @@ details:not([open]) > *:not(summary) {
   from { transform: translateY(0); opacity: 1; }
   to { transform: translateY(100%); opacity: 0; }
 }
+
+@keyframes sg-region-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sg-region-scrim-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* One container, not four nested boxes (Sep 30 brief §6). Inside the record sheet the rank,
+   the lift and a matched study lose their own borders, grounds and shadows; the sections and
+   rows divide by hairlines instead. Scoped to the sheet, so these surfaces keep their cards
+   anywhere else. */
+.strength-region-sheet .rank-card,
+.strength-region-sheet .strength-reference-matched { margin-top: 0; border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0; }
+/* The lift section keeps only the hairline that divides it from the rank above. */
+.strength-region-sheet .strength-region-record-card { margin-top: 1rem; border: 0; border-top: 1px solid var(--sg-divider-on-dark); border-radius: 0; background: none; box-shadow: none; padding: 1rem 0 0; }
+.strength-region-sheet .strength-region-record-card:first-child { margin-top: .25rem; border-top: 0; padding-top: 0; }
+.strength-region-sheet .rank-unscored-card { margin-top: 0; }
 
 /* Above the sheet's breakpoint the record sits in the page flow, where sliding
    it down the screen would drag it over the content below. It fades instead,
@@ -3118,6 +3187,8 @@ details:not([open]) > *:not(summary) {
 .destination-body .atlas-inspector-detail > summary { color: var(--sg-link-on-dark); }
 .destination-body .body-lab-next-step { min-width: 0; }
 .destination-body .body-lab-next-step > button { white-space: normal; }
+/* Browsing the selected muscle is the second action, drawn as one. */
+.destination-body .body-lab-next-step > .body-lab-next-step-secondary { min-height: 44px; border-color: var(--sg-control-border-on-dark); background: transparent; box-shadow: none; color: var(--sg-text-on-dark); }
 
 /* ── Home ─────────────────────────────────────────────────────────────────────
  *
@@ -3216,6 +3287,8 @@ details:not([open]) > *:not(summary) {
 .exercise-intelligence-body > h1 { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.2rem, 9vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
 .exercise-intelligence-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-top: -.5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
 .exercise-intelligence-meta span::first-letter { text-transform: uppercase; }
+.exercise-intelligence-tier { display: inline-flex; align-items: center; gap: .4rem; }
+.exercise-intelligence-tier-note { margin: .35rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
 .exercise-intelligence-muscles .anatomy-atlas-pro { border: 0; background: transparent; box-shadow: none; padding: 0; color: var(--sg-text-on-dark); }
 .exercise-intelligence-muscles .atlas-body-chart-wrap { border: 0; background: transparent; padding: 0; }
 .exercise-intelligence-muscles .atlas-body-chart { height: clamp(16rem, 44vh, 24rem); }
@@ -3275,6 +3348,12 @@ details:not([open]) > *:not(summary) {
 .inspection-action-connection-action { margin-top: .2rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.6rem, 6vw, 2rem); font-weight: 800; line-height: .95; text-transform: uppercase; }
 .inspection-action-connection-detail { margin-top: .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .inspection-action-connection-open { display: inline-flex; min-height: 44px; align-items: center; gap: .3rem; margin-top: .25rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+/* How this match was made: one closed line under the reason; opened, the rule and the record's confidence in plain words. */
+.inspection-action-connection-how > summary { display: inline-flex; min-height: 44px; align-items: center; gap: .3rem; cursor: pointer; list-style: none; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
+.inspection-action-connection-how > summary::-webkit-details-marker { display: none; }
+.inspection-action-connection-how > summary svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.inspection-action-connection-how[open] > summary svg { transform: rotate(180deg); }
+.inspection-action-connection-how > p { margin: 0 0 .25rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 .exercise-intelligence-disclosure { border-top: 1px solid var(--sg-divider-on-dark); border-bottom: 1px solid var(--sg-divider-on-dark); }
 .exercise-intelligence-disclosure > summary { display: flex; min-height: 3.6rem; align-items: center; gap: 1rem; padding: .5rem 0; cursor: pointer; list-style: none; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
 .exercise-intelligence-disclosure > summary::-webkit-details-marker { display: none; }
@@ -3635,7 +3714,6 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .apex-content :is(h1, h2, h3, .metric-label, .stat-figure, .home-week-line) { overflow-wrap: anywhere; }
 .matches-head > div { min-width: 0; }
 
-.catalog-discovery-tabs { flex-wrap: wrap; }
 .programming-guide-disclosure > summary, .programming-guide-summary-signal { flex-wrap: wrap; }
 /* The rest of the 200% reflow: rows that must wrap, and fields that must not
    dictate their column's width. */
@@ -3676,7 +3754,7 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
    last set reads as an offer until it is touched (LIFT-09); the next station is
    quiet supporting text (LIFT-01); paragraphs keep a reading width on a wide
    screen (LAY-06). */
-.live-rest-clock, .live-set-prescription, .session-progress, .stat-figure, .strength-profile-metrics, .home-week-line, .custom-row-identity em, .live-set-entry input, .session-set-row input, .progress-facts, .recommendation-score, .catalog-discovery-heading > span, .training-plan-day small { font-variant-numeric: tabular-nums; }
+.live-rest-clock, .live-set-prescription, .session-progress, .stat-figure, .strength-profile-metrics, .home-week-line, .custom-row-identity em, .live-set-entry input, .session-set-row input, .progress-facts, .recommendation-score, .catalog-results-count, .training-plan-day small { font-variant-numeric: tabular-nums; }
 :is(.apex-content, .exercise-intelligence) button:not(:disabled):not(.workspace-top-switcher button):not(.mobile-bottom-nav button):not(.training-plan-day) { transition: transform var(--sg-motion-fast) var(--sg-ease), opacity var(--sg-motion-fast) var(--sg-ease); }
 :is(.apex-content, .exercise-intelligence) button:not(:disabled):not(.workspace-top-switcher button):not(.mobile-bottom-nav button):not(.training-plan-day):active { transform: scale(.985); opacity: .92; }
 :is(.apex-content, .exercise-intelligence) button:disabled { cursor: not-allowed; opacity: .5; }
@@ -3728,6 +3806,25 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .exercise-compare-actions button { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: .4rem; border-radius: 12px; background: var(--sg-action-fill); padding: .5rem .8rem; color: #fff; font-size: var(--sg-text-sm); font-weight: 800; text-align: center; overflow-wrap: anywhere; }
 .exercise-compare-actions p { grid-column: 1 / -1; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); text-align: center; }
 @media (max-width: 400px) { .exercise-compare-columns, .exercise-compare-rows > div { grid-template-columns: 5.2rem minmax(0, 1fr) minmax(0, 1fr); } }
+/* Phone gutters (Sep 30 brief §8). The content was 12px from the edge while the sheets
+   used 16px and 18.4px; now the content (mobile-navigation.css), the brand row, the tab
+   row, the search-return bar and the sheets share one inline gutter, so their left edges
+   line up. Only the inline sides change: top and bottom padding, and each edge's
+   safe-area inset, stay where they were, so nothing is padded twice. It sits after the
+   sheet rules it replaces. */
+@media (max-width: 640px) {
+  .apex-topbar, .search-return-bar { padding-inline: var(--sg-gutter); }
+  /* The tabs share the row's width with their labels centred, so it is the tab edges
+     (and the current tab's underline) that start on the content's line. */
+  .workspace-top-switcher-shell .workspace-top-switcher { padding-inline: var(--sg-gutter); scroll-padding-inline: var(--sg-gutter); }
+  .exercise-intelligence-bar, .exercise-intelligence-body, .exercise-intelligence-actions,
+  .exercise-compare-bar, .exercise-compare-body, .exercise-compare-actions,
+  .day-picker-sheet-head, .day-picker-sheet .day-exercise-picker-content, .day-picker-sheet-foot,
+  .genome-learn-card { padding-inline: var(--sg-gutter); }
+  /* The Plan's coverage wrapper has no box of its own, so it takes no second gutter:
+     the coverage card lines up with the day's rows. */
+  .day-exercise-picker { padding-inline: 0; }
+}
 /* The quiet compare entry in the exercise overlay and the pending line in the catalog. */
 .exercise-intelligence-compare { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; margin-top: .25rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
 .catalog-compare-pending { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem .8rem; margin: .6rem 0 0; border-left: 3px solid var(--sg-info); padding: .4rem 0 .4rem .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); }
@@ -3899,7 +3996,6 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 /* The action the rows are the demands of, restated over them. */
 .atlas-ranking-subject { margin: 0 0 .25rem; }
 .destination-body .atlas-ranking-subject { color: var(--sg-text-subtle-on-dark); }
-.destination-body .body-lab-next-step > span { color: var(--sg-text-on-dark); font-weight: 600; }
 
 /* Home's workout focus: a deliberate right-hand column, 120px wide and up to 176px tall on
    a 390px layout, aligned with the heading and metadata; the focus line and the CTA sit

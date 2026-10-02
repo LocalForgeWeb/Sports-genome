@@ -3,7 +3,7 @@ import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
 import { defaultAnatomySide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
 import { roleMapForLists, sourceValuesForRegion, viewsForRegion, regionPartName, regionParts, partFromPathId, type AnatomyRole } from "@/lib/anatomyRegions";
 import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, X } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
@@ -332,7 +332,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                   <h3>{selectedLabel}</h3>
                   {selectedPartName && <p className="atlas-inspector-part">{selectedPartName}</p>}
                 </div>
-                <button onClick={() => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); onSelect(""); }} aria-label="Clear muscle selection">×</button>
+                <button onClick={() => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); onSelect(""); }} aria-label="Clear muscle selection"><X className="h-4 w-4" aria-hidden="true" /></button>
               </div>
 
               {selectedParts.length > 1 && <div className="atlas-part-picker atlas-desktop-only" role="group" aria-label={`${selectedLabel} heads`}>

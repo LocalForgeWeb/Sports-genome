@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TrainingPlanHeader } from "./TrainingPlanHeader";
 import type { DaySlot } from "@/lib/trainingDayPlan";
@@ -45,5 +45,58 @@ describe("the week row is a group of buttons", () => {
     fireEvent.click(locked);
     expect(onGenerateWeek).toHaveBeenCalledTimes(1);
     expect(onSelectWeek).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * Sep 30 brief §8: a week switch raises no "Week N loaded" toast, so the identity line is
+ * what confirms it, to a screen reader as well: a polite status that names the open week
+ * and day. Only those are live. The exercise count sits beside the status, not in it,
+ * because an add or a removal already has its toast and the sheet's own footer; a third
+ * announcement of the same change was noise.
+ */
+describe("the identity line confirms the week and day being shown", () => {
+  afterEach(() => { cleanup(); });
+
+  const props = {
+    weeks: [{ week: 1, ready: true, savedDays: 2 }, { week: 2, ready: true, savedDays: 1 }, { week: 3, ready: false, savedDays: 0 }],
+    activeWeek: 1,
+    onSelectWeek: () => undefined,
+    onGenerateWeek: () => undefined,
+    nextWeekToGenerate: 3,
+    slots,
+    activeIndex: 0,
+    exerciseCountFor: () => 2,
+    onChooseDay: () => undefined,
+  };
+
+  it("is a polite status region that follows the selected week and day", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const view = render(React.createElement(TrainingPlanHeader, props));
+    const status = screen.getByRole("status");
+    expect(status.getAttribute("aria-live")).toBe("polite");
+    expect(status.textContent).toBe("Week 1 · Day 01");
+    // The visible line still reads as one: the count follows the status, outside it.
+    expect(status.parentElement!.textContent).toBe("Week 1 · Day 01 · 2 exercises");
+
+    view.rerender(React.createElement(TrainingPlanHeader, { ...props, activeWeek: 2, activeIndex: 1 }));
+    // The same node, so a screen reader hears the change rather than a new region appearing.
+    expect(screen.getByRole("status")).toBe(status);
+    expect(status.textContent).toBe("Week 2 · Day 02");
+  });
+
+  it("leaves the status unchanged when only the day's exercise count changes", () => {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    const view = render(React.createElement(TrainingPlanHeader, props));
+    const status = screen.getByRole("status");
+
+    view.rerender(React.createElement(TrainingPlanHeader, { ...props, exerciseCountFor: () => 3 }));
+    expect(screen.getByRole("status")).toBe(status);
+    expect(status.textContent).toBe("Week 1 · Day 01");
+    expect(status.parentElement!.textContent).toBe("Week 1 · Day 01 · 3 exercises");
+
+    view.rerender(React.createElement(TrainingPlanHeader, { ...props, exerciseCountFor: () => 0 }));
+    expect(status.textContent).toBe("Week 1 · Day 01");
+    expect(status.parentElement!.textContent).toBe("Week 1 · Day 01 · Empty");
   });
 });
