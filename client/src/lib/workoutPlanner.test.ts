@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getGoalPrescription, getProgrammingTarget } from "./workoutPlanner";
+import { getGoalPrescription, getProgrammingTarget, isTrainingGoal } from "./workoutPlanner";
 import { trainingEvidence } from "./trainingEvidence";
 
 describe("evidence-bounded programming guidance", () => {
@@ -18,5 +18,12 @@ describe("evidence-bounded programming guidance", () => {
   it("derives the default hypertrophy prescription from the source-linked broad loading anchor", () => {
     expect(getGoalPrescription("Muscle growth", 0)).toBe(`3 × ${trainingEvidence.hypertrophy.workingRepetitions[0]}–${trainingEvidence.hypertrophy.workingRepetitions[1]}`);
     expect(getProgrammingTarget("Max strength").restCue).toContain(`${trainingEvidence.strength.trainedRestFloorSeconds / 60} minutes`);
+  });
+});
+
+describe("reading a saved goal back", () => {
+  it("accepts the four goals and nothing else, including keys every object has", () => {
+    for (const goal of ["Athleticism", "Muscle growth", "Max strength", "Capacity"]) expect(isTrainingGoal(goal)).toBe(true);
+    for (const value of ["Strength", "constructor", "toString", "__proto__", "", undefined, null, 3]) expect(isTrainingGoal(value)).toBe(false);
   });
 });

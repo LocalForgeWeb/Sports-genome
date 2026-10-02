@@ -22,7 +22,8 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("Variation");
     expect(source).toContain("Assistance used");
     expect(source).toContain("All optional. They just help you compare like with like later on.");
-    expect(source).toContain("Review training");
+    // Was "Review training"; the footer action now names its destination (Sep 30 §6).
+    expect(source).toContain("Open Plan <ArrowRight");
     expect(source).toContain("It will not change today&apos;s workout on its own.");
     expect(source).toContain("onClick={() => { emitInteractionFeedback(); onOpenTraining(); }}");
   });
@@ -42,12 +43,15 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("strengthRegionIdsForExerciseName(observation.exerciseName).includes(region.id)");
     expect(source).toContain("Your record");
     // Replaced by the rank itself; the population still travels with the number.
-    expect(source).toContain("{powerliftingRank.population}");
+    // A gym log is never ranked against competitive powerlifters (B065); that table answers only a declared competitor.
+    expect(source).not.toContain("rankAgainstPowerliftingNorms");
     expect(source).toContain("latestRecord.bodyMassKgAtTest");
     expect(source).toContain("Source-sample rank range");
-    expect(source).toContain("No ranking for this lift yet");
+    // Renamed (Sep 30 §6): an unranked lift says so in its own visible row, and the row is named for what it is.
+    expect(source).toContain("No comparison rank available for this lift");
     expect(source).toContain("Compared to that competition group");
-    expect(source).toContain("Where this ranks");
+    expect(source).toContain("Comparison rank for this lift");
+    expect(source).not.toContain("Where this ranks");
     expect(source).toContain("emitInteractionFeedback");
     expect(source).toContain("setObservationBodyMass");
     // The body-mass field prefers the weight in effect on the lift's own day,
@@ -58,7 +62,8 @@ describe("Strength Genome panel", () => {
     // until they retype it. The dated log only looks backwards, so a weight
     // entered today matches no lift logged before today - which is every lift
     // an athlete records first, and every one of them used to land here.
-    expect(source).toContain("This lift is already read against what you weighed that week.");
+    // Sep 30 review: the log's entry can be months before the lift, so no "that week".
+    expect(source).toContain("This lift is already read against the last weight in your log on or before that day.");
     expect(source).toContain("This lift is already read against your profile weight.");
     expect(source).toContain('bodyMassSource === null ? "Add test body weight" : "Not your weight that day?"');
     expect(source).toContain("Save this body weight");
@@ -66,10 +71,10 @@ describe("Strength Genome panel", () => {
     expect(source).toContain("displayWeightToKilograms(parsedLoad, weightUnit)");
     expect(source).toContain("displayWeightToKilograms(parsedBodyMass, weightUnit)");
     expect(source).toContain("formatDisplayWeight(latestRecord.loadKg, weightUnit)");
-    expect(source).toContain("Test body mass saved. Your recorded ratio is ready.");
-    expect(source).toContain("Could not save test body mass. Check your connection and try again.");
     expect(source).toContain("setBodyMassSaveError");
-    expect(source).toContain("Body mass was not saved. Your entry is still here");
+    // The record sheet says "body weight" throughout, like the button beside it.
+    expect(source).not.toContain("Saving body mass");
+    expect(source).not.toContain("× body mass");
     expect(source).toContain('role="status"');
     expect(source).toContain('role="alert"');
     expect(source).toContain('aria-busy={!directAccess && setObservationBodyMass.isPending}');
@@ -79,10 +84,11 @@ describe("Strength Genome panel", () => {
     expect(source).toContain('className="strength-profile-status"');
     expect(source).toContain('className="strength-profile-reference-summary"');
     expect(source).toContain('className="strength-profile-reference-details"');
-    expect(source).toContain('className={`strength-profile-coverage-ring');
-    // The coverage figure states its own boundary on screen rather than only to a
-    // screen reader, and the ring beside it is decoration for a number the
-    // definition list already carries.
+    // Two distinct metrics, named on screen, and the boundary said beside them:
+    // coverage is regions with a record, never a rank or a score.
+    expect(source).toContain('className="strength-profile-metrics"');
+    expect(source).toContain("regions covered");
+    expect(source).toContain("Coverage tracks logged regions, not rank.");
     expect(source).toContain("Covered means you have lifts recorded there. It is not a rank or a score.");
     expect(source).toContain('setSelectedRegion(null); setSelectedObservationId("");');
     expect(source).not.toContain('/manus-storage/');
@@ -104,7 +110,7 @@ describe("Strength Genome panel", () => {
   it("keeps the default profile status concise while leaving source-match limits available on demand", () => {
     expect(source).toContain('className="strength-profile-reference-summary"');
     expect(source).toContain('className="strength-profile-reference-details"');
-    expect(source).toContain("How comparison works");
+    expect(source).toContain("How ranks work");
   });
 
   it("requires catalog exercise selection and routes common curl names to biceps context", () => {
@@ -127,8 +133,9 @@ describe("Strength Genome panel", () => {
     ];
     expect(selectStrengthRegionRecord(records, "second")).toEqual(records[1]);
     expect(selectStrengthRegionRecord(records, "missing")).toEqual(records[0]);
-    expect(source).toContain('aria-label="Choose recorded test"');
+    expect(source).toContain('aria-label="Which lift to show"');
     expect(source).toContain("setSelectedRecordId(event.target.value)");
+    expect(source).not.toContain('"Remove this test?"');
   });
 
   it("falls back to the newest dated test rather than whichever record happens to sit first", () => {
@@ -146,11 +153,12 @@ describe("Strength Genome panel", () => {
 
   it("switches between a region's recorded tests via the test picker instead of a separate raw history list, and shows qualified percentile routes plus the missing-reference state", () => {
     expect(source).not.toContain('className="strength-region-history"');
-    expect(source).toContain('aria-label="Choose recorded test"');
+    expect(source).toContain('aria-label="Which lift to show"');
     expect(source).toContain('getPiperReferenceForObservation');
     expect(source).toContain('getPowerliftingReferenceForObservation');
     expect(source).not.toContain('getStrengthReferencePresentation');
-    expect(source).toContain("No ranking for this lift yet");
+    // Renamed (Sep 30 §6): was "No ranking for this lift yet", inside a disclosure summary.
+    expect(source).toContain("No comparison rank available for this lift");
     expect(source).toContain("Source-sample rank range");
     expect(source).toContain("Compared to that competition group");
     expect(source).toContain("Nothing logged for this muscle group yet.");
@@ -179,7 +187,7 @@ describe("Strength Genome panel", () => {
     // cut in half by a tall record.
     expect(source).toContain('`strength-region-sheet${sheetLeaving ? " is-leaving" : ""}`');
     const sheet = source.slice(source.indexOf("`strength-region-sheet${"));
-    expect(sheet.indexOf('strength-region-focus-row')).toBeLessThan(sheet.indexOf('\n      <div className="strength-observation-summary"'));
+    expect(sheet.indexOf('strength-region-focus-row')).toBeLessThan(sheet.indexOf('\n    </div>}'));
     expect(source).toContain('if (event.key !== "Escape") return;');
   });
 

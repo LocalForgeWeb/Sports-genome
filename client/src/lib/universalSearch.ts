@@ -2,6 +2,8 @@ import { exercises, type Exercise } from "./exerciseCatalog";
 import { sportProfiles, sportMovementProfiles } from "./sportMovementDatabase";
 import { muscleLabels } from "@/components/AnatomyMap";
 import { strengthRegionDefinitions } from "../../../shared/strengthGenomeDefinitions";
+import { EXERCISE_ALIASES, normalizeSearchText, withinEditDistance } from "./exerciseSearch";
+import { capacityTargetSearchTerms } from "./capacityTargets";
 
 /**
  * Universal search, per the philosophy's "Universal search and retrieval
@@ -70,40 +72,10 @@ const ALIASES: Record<string, string[]> = {
   rotatorCuff: ["rotator cuff", "cuff"],
 };
 
-const EXERCISE_ALIASES: Record<string, string[]> = {
-  "Barbell Bench Press": ["bench", "bench press", "flat bench", "bp"],
-  "Barbell Overhead Press": ["ohp", "overhead press", "military press", "press"],
-  "Back Squat": ["squat", "back squat"],
-  "Barbell Back Squat": ["squat", "back squat"],
-  "Conventional Deadlift": ["deadlift", "dl", "conventional"],
-  "Romanian Deadlift": ["rdl", "romanian"],
-  "Barbell Hip Thrust": ["hip thrust", "thrust"],
-  "Lat Pulldown": ["pulldown", "lat pull"],
-  "Pull-Up": ["pullup", "pull up", "chin up"],
-  "Barbell Curl": ["curl", "bicep curl"],
-};
-
-function normalize(value: string): string {
-  return value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
-}
-
-/** Damerau-style bounded edit distance: enough for the contract's "tolerant spelling". */
-function withinEditDistance(a: string, b: string, max: number): boolean {
-  if (Math.abs(a.length - b.length) > max) return false;
-  let previous = Array.from({ length: b.length + 1 }, (_, i) => i);
-  for (let i = 1; i <= a.length; i++) {
-    const current = [i];
-    let best = i;
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost);
-      best = Math.min(best, current[j]);
-    }
-    if (best > max) return false;
-    previous = current;
-  }
-  return previous[b.length] <= max;
-}
+// The exercise aliases, the normaliser and the edit-distance live with the
+// exercise matcher now, so the picker, the finder, the lift log and this search
+// all understand a typed name the same way.
+function normalize(value: string): string { return normalizeSearchText(value); }
 
 type Candidate = {
   type: SearchResultType;
@@ -134,10 +106,24 @@ function scoreCandidate(candidate: Candidate, query: string): { score: number; m
   });
 
   if (!found.length && query.length >= 4) {
-    // Tolerant spelling, last resort so it can never outrank a real match.
-    const words = canonical.split(" ");
-    if (withinEditDistance(canonical, query, query.length >= 8 ? 2 : 1)) consider(200, "fuzzy");
-    else if (words.some((word) => word.length >= 4 && withinEditDistance(word, query, 1))) consider(150, "fuzzy");
+    /**
+     * Tolerant spelling, last resort so it can never outrank a real match.
+     *
+     * Over every term, not only the canonical one. The contract asks for
+     * "canonical names, curated aliases/abbreviations and tolerant spelling"
+     * without making the third apply to the first alone, and for a candidate
+     * whose whole value is its aliases - the targeted-capacity entry is found by
+     * "injury" and "rehab", never by its own name - canonical-only tolerance
+     * meant a typo in the only word that would have matched found nothing.
+     * Aliases score below the canonical form, as they do at every other match
+     * kind here.
+     */
+    candidate.terms.forEach((term, index) => {
+      const isCanonical = index === 0;
+      const words = term.split(" ");
+      if (withinEditDistance(term, query, query.length >= 8 ? 2 : 1)) consider(isCanonical ? 200 : 180, "fuzzy");
+      else if (words.some((word: string) => word.length >= 4 && withinEditDistance(word, query, 1))) consider(isCanonical ? 150 : 130, "fuzzy");
+    });
   }
 
   if (!found.length) return null;
@@ -200,18 +186,38 @@ function metricCandidates(): Candidate[] {
 
 /** Destinations keep search an accelerator to places, not a replacement for nav. */
 const DESTINATIONS: Candidate[] = [
-  { type: "destination", id: "day-plan", label: "Training day", context: "Train", terms: ["training day", "today", "workout"] },
-  { type: "destination", id: "tracker", label: "Workout tracker", context: "Train", terms: ["workout tracker", "tracker", "log sets"] },
+  // Each place is named as its page names itself, and filed where its page sits; the
+  // names it went by before stay as terms, so an old search still lands.
   // "Builder" was a second copy of Training Day and is gone; the words people search
   // for are kept here so the old name still finds the page that now owns the job.
-  { type: "destination", id: "day-plan", label: "Build a workout", context: "Train", terms: ["workout builder", "builder", "build a workout", "plan"] },
-  { type: "destination", id: "review", label: "Review this day", context: "Train", terms: ["review", "stack review", "prep", "warm up", "warmup", "programming", "volume"] },
+  { type: "destination", id: "day-plan", label: "Training plan", context: "Train", terms: ["training plan", "training day", "today", "plan", "workout builder", "builder", "build a workout"] },
+  { type: "destination", id: "tracker", label: "Workout", context: "Train", terms: ["workout", "workout tracker", "tracker", "session", "log sets"] },
+  { type: "destination", id: "review", label: "Review your week", context: "Train", terms: ["review your week", "review", "review this day", "stack review", "prep", "warm up", "warmup", "programming", "volume"] },
   { type: "destination", id: "progress", label: "Progress", context: "Progress", terms: ["progress", "history"] },
-  { type: "destination", id: "strength", label: "Strength Genome", context: "Body Lab", terms: ["strength genome", "strength", "lifts"] },
+  { type: "destination", id: "strength", label: "Strength Genome", context: "Progress", terms: ["strength genome", "strength", "lifts"] },
   { type: "destination", id: "catalog", label: "Exercise catalog", context: "Body Lab", terms: ["exercise catalog", "catalog", "exercises"] },
-  { type: "destination", id: "body", label: "Body Lab", context: "Body Lab", terms: ["body lab", "body map", "anatomy"] },
-  { type: "destination", id: "movement", label: "Movement atlas", context: "Body Lab", terms: ["movement atlas", "movements", "actions"] },
+  { type: "destination", id: "body", label: "Muscle map", context: "Body Lab", terms: ["muscle map", "body lab", "body map", "anatomy"] },
+  { type: "destination", id: "movement", label: "Movement explorer", context: "Body Lab", terms: ["movement explorer", "movement atlas", "movements", "actions"] },
   { type: "destination", id: "profile", label: "About me", context: "Profile", terms: ["about me", "profile", "settings", "account"] },
+  /**
+   * The contract's §11 "named/search/list path with the same authority as any
+   * spatial tap" for targeted capacity, which otherwise had no way in but
+   * scrolling the profile.
+   *
+   * The label is what we say and the terms are what people type, and those are
+   * held to different rules. `trainable-gaps-not-athlete-identities` forbids
+   * trait language in the label - no "weak points", no "injuries" - while a
+   * search that only matched our own wording would only work for people who
+   * already knew where this was. The terms live with the feature, in
+   * lib/capacityTargets, next to the rule that separates them.
+   */
+  {
+    type: "destination",
+    id: "profile#targeted-capacity",
+    label: "Something you want stronger",
+    context: "Profile · set a target, and say if anything is going on there",
+    terms: capacityTargetSearchTerms,
+  },
 ];
 
 let cachedCandidates: Candidate[] | null = null;

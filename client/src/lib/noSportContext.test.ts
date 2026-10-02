@@ -51,12 +51,15 @@ describe("what the Body Lab shows when no sport is chosen", () => {
   it("gates the role context on the sport the athlete actually chose", () => {
     // `activeSportId` is never empty, so it must not be the gate. `hasSportContext`
     // is, and its own comment in Home.tsx says so.
-    expect(home).toContain("const bodyLabRoleContext = hasSportContext");
-    expect(home).toContain(": noSportActionRoleContext;");
+    expect(home).toContain("if (!showsSportAction) return noSportActionRoleContext;");
+    expect(home).toContain("noSportActionRoleContext");
   });
 
   it("shows no sport-action navigator when there is no sport action", () => {
-    expect(home).toContain("const showsSportAction = hasSportContext || browsingOtherSport;");
+    // An action is on screen only when the athlete has a sport of their own, or
+    // has opened one here. Browsing a sport is not the same as opening an action,
+    // which is what "it shouldn't be pre-selected" asks for.
+    expect(home).toContain("const showsSportAction = hasSportContext || Boolean(sportBrowse.movementId);");
     expect(home).toContain("{showsSportAction && <BodyLabNavigator");
     expect(home).toContain("{!showsSportAction && <BodyLabPickSport");
   });
@@ -65,8 +68,8 @@ describe("what the Body Lab shows when no sport is chosen", () => {
     // It used to read "Train what penetration step uses most" to an athlete who had
     // never chosen wrestling. Without an action there is no muscle to seed from, so
     // the line only appears once the athlete taps one.
-    expect(home).toContain('(showsSportAction ? getMovementMuscles(referenceMovement)[0] : "")');
-    expect(home).toContain("if (!target) return null;");
+    expect(home).toContain('{showsSportAction ? "Explore exercises that support this movement."');
+    expect(home).toContain("{showsSportAction && <button type=\"button\" onClick={() => openDiscovery({ mode: \"movement\"");
   });
 
   it("leaves the body map itself reachable, because it needs no sport", () => {

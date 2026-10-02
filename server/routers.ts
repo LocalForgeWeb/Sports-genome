@@ -1,4 +1,4 @@
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, costlyPublicProcedure, authPublicProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -37,7 +37,8 @@ import {
 } from "./supabaseEvidence";
 import { getSupabaseSportProfile } from "./supabaseSportProfile";
 import { getResilienceTargetCatalog } from "./supabaseResilience";
-import { getStrengthPercentile } from "./supabaseStrengthCurves";
+import { getStrengthPercentile, getStrengthPercentiles } from "./supabaseStrengthCurves";
+import { getMuscleProfile } from "./supabaseStrengthProfile";
 import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
 import { getPublicNormsReference } from "./normsRegistry";
@@ -49,6 +50,7 @@ import {
   type RepairOutcome,
 } from "./dataIntegrityRepair";
 import {
+  athleteStrengthProfileInputSchema,
   getAthleteStrengthProfile,
   upsertAthleteStrengthProfile,
 } from "./athleteStrengthProfile";
@@ -59,6 +61,7 @@ import {
   setStrengthObservationBodyMass,
   setStrengthPriority,
 } from "./strengthGenome";
+import { strengthRegionDefinitions } from "../shared/strengthGenomeDefinitions";
 
 /**
  * One answer for "not yours" and "does not exist".
@@ -75,10 +78,30 @@ function answer(outcome: RepairOutcome) {
   throw new TRPCError({ code: "NOT_FOUND", message: "That record is not available on this account." });
 }
 
+/**
+ * One lift, as the beta percentile route reads it. Any of the three identifiers names the
+ * lift: the catalog id is exact, because the research side wrote it into each curve's
+ * canonical name; the name is the fallback for the handful of curves that carry no id.
+ */
+const strengthPercentileLiftInput = z.object({
+  // A curve id is a UUID from the curve index; anything else would only miss and fill the cache.
+  exerciseId: z.guid().nullish(),
+  catalogExerciseId: z.number().int().positive().nullish(),
+  exerciseName: z.string().trim().min(1).max(255).nullish(),
+  sex: z.enum(["male", "female"]).nullable(),
+  bodyMassKg: z.number().positive().max(500).nullable().optional(),
+  measuredOneRmKg: z.number().positive().max(1000).nullable().optional(),
+  loadKg: z.number().positive().max(1000).nullable().optional(),
+  repetitions: z.number().int().min(1).max(100).nullable().optional(),
+  repsInReserve: z.number().int().min(0).max(10).nullable().optional(),
+  /** Age on the day of the lift. The engine applies the published age table from 15 to 90. */
+  ageYears: z.number().min(0).max(120).nullable().optional(),
+});
+
 export const appRouter = router({
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    register: publicProcedure
+    register: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
@@ -88,7 +111,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) =>
         registerEmailAccount(input, ctx.req, ctx.res)
       ),
-    signIn: publicProcedure
+    signIn: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
@@ -114,16 +137,16 @@ export const appRouter = router({
       .mutation(({ ctx, input }) =>
         removeAccountPasskey(ctx.user.id, input.passkeyId)
       ),
-    passkeyAuthenticationOptions: publicProcedure
+    passkeyAuthenticationOptions: authPublicProcedure
       .input(z.object({ email: z.string().trim().email().max(320) }))
       .mutation(({ ctx, input }) =>
         beginPasskeyAuthentication(input.email, ctx.req)
       ),
-    passkeyAuthenticationVerify: publicProcedure
+    passkeyAuthenticationVerify: authPublicProcedure
       .input(
         z.object({
           email: z.string().trim().email().max(320),
-          response: z.object({ id: z.string() }).passthrough(),
+          response: z.object({ id: z.string().min(1).max(1400) }).passthrough(),
         })
       )
       .mutation(({ ctx, input }) =>
@@ -147,7 +170,7 @@ export const appRouter = router({
       getSupabaseEvidenceInventory()
     ),
     supabaseLibrary: publicProcedure.query(() => getSupabaseResearchLibrary()),
-    supabaseExercise: publicProcedure
+    supabaseExercise: costlyPublicProcedure
       .input(z.object({ catalogExerciseId: z.number().int().positive() }))
       .query(({ input }) =>
         getSupabaseExerciseEvidence(input.catalogExerciseId)
@@ -335,17 +358,33 @@ export const appRouter = router({
       listActiveStrengthPriorities(ctx.user.id)
     ),
     setPriority: protectedProcedure
-      .input(z.object({ regionId: z.string().trim().min(1).max(80), active: z.boolean(), note: z.string().trim().max(280).optional() }))
+      .input(z.object({
+        // An unknown region is bad input (BAD_REQUEST), refused before the procedure runs.
+        regionId: z.string().trim().min(1).max(80).refine(id => strengthRegionDefinitions.some(region => region.id === id), "Unknown Strength Genome region"),
+        active: z.boolean(),
+        note: z.string().trim().max(280).optional(),
+      }))
       .mutation(({ ctx, input }) => setStrengthPriority(ctx.user.id, input.regionId, input.active, input.note)),
     setObservationBodyMass: protectedProcedure
       .input(z.object({ observationId: z.number().int().positive(), bodyMassKgAtTest: z.number().positive().max(1000) }))
-      .mutation(({ ctx, input }) => setStrengthObservationBodyMass(ctx.user.id, input.observationId, input.bodyMassKgAtTest)),
+      .mutation(async ({ ctx, input }) => {
+        const saved = await setStrengthObservationBodyMass(ctx.user.id, input.observationId, input.bodyMassKgAtTest);
+        // The same sentence as answer(): a missing id and another account's id read alike.
+        if (!saved) throw new TRPCError({ code: "NOT_FOUND", message: "That record is not available on this account." });
+        return saved;
+      }),
     addObservation: protectedProcedure
       .input(
         z.object({
           catalogExerciseId: z.number().int().positive().optional(),
           exerciseName: z.string().trim().min(1).max(255),
-          observedAt: z.date(),
+          // Inside what a TIMESTAMP column holds (1970 to 2038), and not days
+          // ahead: a typo year is a clear BAD_REQUEST, not a failed insert. Two
+          // days of slack covers a UTC date read at local noon.
+          observedAt: z.date().refine(
+            (date) => date.getTime() >= Date.UTC(1970, 0, 2) && date.getTime() < Date.UTC(2038, 0, 1) && date.getTime() <= Date.now() + 2 * 86_400_000,
+            { message: "Enter the date the lift happened." }
+          ),
           measurementType: z.enum([
             "MEASURED_1RM",
             "MULTI_REP",
@@ -398,22 +437,12 @@ export const appRouter = router({
     referenceRows: publicProcedure.query(() => getPublicNormsReference()),
     profile: protectedProcedure.query(({ ctx }) => getAthleteStrengthProfile(ctx.user.id)),
     setProfile: protectedProcedure
-      .input(
-        z.object({
-          dateOfBirth: z
-            .string()
-            .regex(/^\d{4}-\d{2}-\d{2}$/)
-            .optional(),
-          sexForReference: z
-            .enum(["female", "male", "intersex", "unspecified"])
-            .optional(),
-        })
-      )
+      .input(athleteStrengthProfileInputSchema)
       .mutation(({ ctx, input }) => upsertAthleteStrengthProfile(ctx.user.id, input)),
   }),
 
   sportsGenome: router({
-    profile: publicProcedure
+    profile: costlyPublicProcedure
       .input(z.object({ sportId: z.string().trim().min(1).max(80) }))
       .query(({ input }) => getSupabaseSportProfile(input.sportId)),
   }),
@@ -430,30 +459,50 @@ export const appRouter = router({
   /**
    * Where a lift sits against sex- and bodyweight-matched community curves.
    *
-   * This is the beta route (`strength_beta_v1`), kept separate from the research-grade
+   * This is the beta route (`strength_beta_v2`), kept separate from the research-grade
    * reference path in normsResolution: that one reports a band between published cut points
    * from a directly measured lift, this one interpolates a community curve from an estimated
    * 1RM. Every result names its route, so the two can never be read as the same number.
+   *
+   * One lift is described the same way whether it arrives alone or in a list.
    */
-  strengthPercentile: router({
-    forLift: publicProcedure
-      .input(
-        z.object({
-          // Any of the three identifies the lift. The catalog id is exact, because the research
-          // side wrote it into each curve's canonical name; the name is the fallback for the
-          // handful of curves that carry no id.
-          exerciseId: z.string().trim().min(1).max(80).nullish(),
+  /**
+   * Per-muscle percentiles for Body Lab's Strength/Rank mode, scored by the database and
+   * aggregated here (`server/muscleAggregation.ts`, D-016). Each lift carries the body weight
+   * saved with it; the server groups by that weight so a later weight change never re-reads
+   * an old lift.
+   */
+  strengthProfile: router({
+    muscleRanks: costlyPublicProcedure
+      .input(z.object({
+        sex: z.enum(["male", "female"]).nullable(),
+        lifts: z.array(z.object({
           catalogExerciseId: z.number().int().positive().nullish(),
-          exerciseName: z.string().trim().min(1).max(255).nullish(),
-          sex: z.enum(["male", "female"]).nullable(),
-          bodyMassKg: z.number().positive().max(500).nullable().optional(),
-          measuredOneRmKg: z.number().positive().max(1000).nullable().optional(),
-          loadKg: z.number().positive().max(1000).nullable().optional(),
-          repetitions: z.number().int().min(1).max(100).nullable().optional(),
-          repsInReserve: z.number().int().min(0).max(10).nullable().optional(),
-        })
-      )
+          exerciseName: z.string().trim().min(1).max(255),
+          /** 0 for a bodyweight movement done without added load; those are scored on reps. */
+          loadKg: z.number().min(0).max(1000),
+          repetitions: z.number().int().min(1).max(100),
+          bodyMassKg: z.number().positive().max(500).nullable(),
+          /** Age on the day of this lift, so a birth year given later re-reads every earlier lift. */
+          ageYears: z.number().min(0).max(120).nullable().optional(),
+        // Each distinct saved weight and age at the lift is one scoring call, each scored lift with an
+        // age one adjustment call, plus one read of the muscle mappings: 30 lifts bound a request to 61
+        // Supabase calls, run at most four at a time. The client sends at most 30 - each exercise's strongest lifts - duplicates removed.
+        })).max(30),
+      }))
+      .query(({ input }) => getMuscleProfile(input)),
+  }),
+  strengthPercentile: router({
+    forLift: costlyPublicProcedure
+      .input(strengthPercentileLiftInput)
       .query(({ input }) => getStrengthPercentile(input)),
+    /**
+     * Several lifts in one request, answered in order. The Progress section places every
+     * lift it shows a trend for; asking one at a time was a request per card.
+     */
+    forLifts: costlyPublicProcedure
+      .input(z.object({ lifts: z.array(strengthPercentileLiftInput).max(24) }))
+      .query(({ input }) => getStrengthPercentiles(input.lifts)),
   }),
 
   /**

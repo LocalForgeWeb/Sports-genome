@@ -1,3 +1,6 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
+import { BoundedCache, withTimeout } from "./boundedCache";
+import { comparableName, numberOrNull, textOrNull } from "./rowValues";
 import {
   curvePlacement,
   resolveStrengthPercentile,
@@ -34,6 +37,7 @@ type CurveRow = {
   confidence_cap?: unknown;
   percentile?: unknown;
   value?: unknown;
+  source_study_id?: unknown;
 };
 
 /** One line of the exercise index: enough to go from a logged lift to a curve. */
@@ -44,7 +48,11 @@ export type CurveExerciseRow = {
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
-const curveCache = new Map<string, { expiresAt: number; value: StrengthCurve | null }>();
+// Bounded: the key comes from the caller (exercise id and sex).
+const curveCache = new BoundedCache<string, StrengthCurve | null>(500, CACHE_TTL_MS);
+// Fetches in flight, so lifts that miss the cache at once share one request. An entry lives only
+// until its fetch settles, which keeps the map as small as the number of requests running.
+const pendingCurves = new Map<string, Promise<StrengthCurve | null>>();
 
 const normMethods: StrengthNormMethod[] = [
   "direct_community_relative_1rm_percentile",
@@ -56,17 +64,7 @@ const normMethods: StrengthNormMethod[] = [
 
 const curveUnits: StrengthCurveUnit[] = ["x_bodyweight", "kg", "lb", "lb_1rm", "reps"];
 
-const CURVE_SELECT = "exercise_id,sex,normalization_method,unit,source_role,confidence_cap,percentile,value";
-
-function numberOrNull(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string" && value.trim() && Number.isFinite(Number(value))) return Number(value);
-  return null;
-}
-
-function textOrNull(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
+const CURVE_SELECT = "exercise_id,sex,normalization_method,unit,source_role,confidence_cap,percentile,value,source_study_id";
 
 /**
  * Turns anchor rows into one curve.
@@ -85,6 +83,7 @@ export function assembleCurve(rows: readonly CurveRow[], exerciseId: string, sex
       percentile: numberOrNull(row.percentile),
       value: numberOrNull(row.value),
       sex: textOrNull(row.sex),
+      source: textOrNull(row.source_study_id),
     }))
     .filter(row =>
       row.method !== null &&
@@ -128,8 +127,13 @@ export function assembleCurve(rows: readonly CurveRow[], exerciseId: string, sex
   const chosen = ladders.sort((first, second) => rank(first) - rank(second) || second.length - first.length)[0];
 
   const caps = chosen.map(row => row.cap).filter((cap): cap is number => cap !== null);
+  // One source for the whole ladder, or none: an age table applies to the study it came from,
+  // and a ladder that mixed sources could not say which study's table to use.
+  const sources = new Set(chosen.map(row => row.source));
+  const sourceStudyId = sources.size === 1 ? chosen[0].source : null;
   return {
     exerciseId,
+    sourceStudyId,
     sex,
     normalizationMethod: chosen[0].method as StrengthNormMethod,
     unit: chosen[0].unit as StrengthCurveUnit,
@@ -152,10 +156,6 @@ export function catalogIdFromCanonicalName(canonicalName: string): number | null
   if (!match) return null;
   const parsed = Number(match[1]);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
-}
-
-function comparableName(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 /**
@@ -186,11 +186,7 @@ export function createSupabaseStrengthCurveClient({
   fetchImplementation = fetch,
 }: SupabaseStrengthCurveClientConfig) {
   const baseUrl = url.replace(/\/+$/, "");
-  const headers = {
-    Accept: "application/json",
-    apikey: serviceRoleKey,
-    Authorization: `Bearer ${serviceRoleKey}`,
-  };
+  const headers = supabaseServiceHeaders(serviceRoleKey);
 
   return {
     async getCurve(exerciseId: string, sex: "male" | "female"): Promise<StrengthCurve | null> {
@@ -199,7 +195,7 @@ export function createSupabaseStrengthCurveClient({
       requestUrl.searchParams.set("exercise_id", `eq.${exerciseId}`);
       requestUrl.searchParams.set("sex", `eq.${sex}`);
       requestUrl.searchParams.set("order", "percentile.asc");
-      const response = await fetchImplementation(requestUrl, { headers });
+      const response = await fetchImplementation(requestUrl, withTimeout({ headers }));
       if (!response.ok) throw new Error(`Supabase strength curve request failed (${response.status})`);
       const rows = (await response.json()) as CurveRow[];
       return assembleCurve(rows, exerciseId, sex);
@@ -214,7 +210,7 @@ export function createSupabaseStrengthCurveClient({
     async getExerciseIndex(): Promise<CurveExerciseRow[]> {
       const requestUrl = new URL("/rest/v1/app_strength_beta_curves_v1", baseUrl);
       requestUrl.searchParams.set("select", "exercise_id,exercise_canonical_name,exercise_name");
-      const response = await fetchImplementation(requestUrl, { headers });
+      const response = await fetchImplementation(requestUrl, withTimeout({ headers }));
       if (!response.ok) throw new Error(`Supabase strength curve index request failed (${response.status})`);
       const rows = (await response.json()) as Record<string, unknown>[];
       const seen = new Map<string, CurveExerciseRow>();
@@ -245,40 +241,58 @@ function getRuntimeClient() {
 export async function getStrengthCurve(exerciseId: string, sex: "male" | "female"): Promise<StrengthCurve | null> {
   const key = `${exerciseId}:${sex}`;
   const cached = curveCache.get(key);
-  if (cached && cached.expiresAt > Date.now()) return cached.value;
+  if (cached !== undefined) return cached;
   const client = getRuntimeClient();
   if (!client) return null;
-  try {
-    const value = await client.getCurve(exerciseId, sex);
-    curveCache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
-    return value;
-  } catch (error) {
-    console.warn("[Supabase strength curve] lookup unavailable", {
-      exerciseId,
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
-    return null;
-  }
+  const pending = pendingCurves.get(key);
+  if (pending) return pending;
+  const request = (async () => {
+    try {
+      const value = await client.getCurve(exerciseId, sex);
+      curveCache.set(key, value);
+      return value;
+    } catch (error) {
+      console.warn("[Supabase strength curve] lookup unavailable", {
+        exerciseId,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+      return null;
+    } finally {
+      pendingCurves.delete(key);
+    }
+  })();
+  pendingCurves.set(key, request);
+  return request;
 }
 
 const indexCache: { expiresAt: number; value: CurveExerciseRow[] } = { expiresAt: 0, value: [] };
+// The index fetch in flight, shared the same way. It never rejects, and a failure is not cached,
+// so the next request after an outage tries again.
+let pendingIndex: Promise<CurveExerciseRow[]> | null = null;
 
 /** The exercise index, cached like the curves themselves; an outage returns an empty index. */
 export async function getCurveExerciseIndex(): Promise<CurveExerciseRow[]> {
   if (indexCache.expiresAt > Date.now()) return indexCache.value;
   const client = getRuntimeClient();
   if (!client) return [];
-  try {
-    const value = await client.getExerciseIndex();
-    indexCache.expiresAt = Date.now() + CACHE_TTL_MS;
-    indexCache.value = value;
-    return value;
-  } catch (error) {
-    console.warn("[Supabase strength curve] index unavailable", {
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
-    return [];
-  }
+  if (pendingIndex) return pendingIndex;
+  const request = (async () => {
+    try {
+      const value = await client.getExerciseIndex();
+      indexCache.expiresAt = Date.now() + CACHE_TTL_MS;
+      indexCache.value = value;
+      return value;
+    } catch (error) {
+      console.warn("[Supabase strength curve] index unavailable", {
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+      return [];
+    } finally {
+      pendingIndex = null;
+    }
+  })();
+  pendingIndex = request;
+  return request;
 }
 
 export type StrengthPercentileRequest = {
@@ -289,6 +303,8 @@ export type StrengthPercentileRequest = {
   exerciseName?: string | null;
   sex: "male" | "female" | null;
   bodyMassKg?: number | null;
+  /** Age on the day of the lift, from the birth year the athlete has given, whenever given. */
+  ageYears?: number | null;
 } & OneRepMaxInput;
 
 /**
@@ -303,12 +319,26 @@ export async function getStrengthPercentile(request: StrengthPercentileRequest):
     || (await getCurveExerciseIndex().then(index => findCurveExercise(index, request)?.exerciseId));
   if (!exerciseId) return { status: "unavailable", reason: "no_curve_for_exercise" };
   const curve = await getStrengthCurve(exerciseId, request.sex);
-  return resolveStrengthPercentile(curve, request, { sex: request.sex, bodyMassKg: request.bodyMassKg ?? null });
+  return resolveStrengthPercentile(curve, request, { sex: request.sex, bodyMassKg: request.bodyMassKg ?? null, ageYears: request.ageYears ?? null });
+}
+
+/**
+ * The same route for a list of lifts, answered in the order asked.
+ *
+ * The Progress section reads every lift the athlete has a trend for, and one round trip per
+ * lift was N requests for one screen. The exercise index and each curve are cached, and lifts
+ * that miss the cache at once share one fetch, so the only cost per extra lift is the
+ * resolution itself.
+ */
+export async function getStrengthPercentiles(requests: readonly StrengthPercentileRequest[]): Promise<StrengthPercentileResult[]> {
+  return Promise.all(requests.map(request => getStrengthPercentile(request)));
 }
 
 /** Test seam: the module-level caches would otherwise leak between cases. */
 export function resetStrengthCurveCache() {
   curveCache.clear();
+  pendingCurves.clear();
   indexCache.expiresAt = 0;
   indexCache.value = [];
+  pendingIndex = null;
 }

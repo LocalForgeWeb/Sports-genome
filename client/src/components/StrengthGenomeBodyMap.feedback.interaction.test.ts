@@ -70,7 +70,7 @@ describe("Strength Genome map interaction feedback", () => {
     // page. So exactly one region carries tabindex 0.
     const tabbable = document.querySelectorAll('.anatomy-hit[tabindex="0"]');
     expect(tabbable.length).toBe(1);
-    expect(muscle.getAttribute("aria-label")).toBe("Biceps, primary role");
+    expect(muscle.getAttribute("aria-label")).toBe("Biceps, lifts on record");
 
     fireEvent.keyDown(muscle, { key: "Enter" });
     expect(feedback.emit).toHaveBeenCalledTimes(1);

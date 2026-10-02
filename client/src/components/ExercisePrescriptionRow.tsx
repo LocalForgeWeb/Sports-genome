@@ -4,6 +4,7 @@ import { Check, ChevronDown, Copy, Info, Minus, Plus, Undo2, X } from "lucide-re
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { muscleLabels } from "@/components/AnatomyMap";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
+import type { ExerciseProgress } from "@/lib/liveSession";
 import {
   displayPrescription,
   formatPrescription,
@@ -37,7 +38,7 @@ import "../mobile-training-card.css";
  * top set followed by back-offs is just as ordinary, and used to be impossible
  * to write - so "Vary by set" turns the single field into one field per set.
  */
-export function ExercisePrescriptionRow({ exercise, index, prescription, settings, onPrescription, onSettings, onInspect, onRemove }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void }) {
+export function ExercisePrescriptionRow({ exercise, index, prescription, settings, progress, onPrescription, onSettings, onInspect, onRemove, onApplyRestToDay, dayRestMismatch = 0 }: { exercise: Exercise; index: number; prescription: string; settings: ExerciseSettings; progress?: ExerciseProgress | null; onPrescription: (value: string) => void; onSettings: (patch: Partial<ExerciseSettings>) => void; onInspect: () => void; onRemove: () => void; /** Applies this row's rest to every other exercise in the day (brief 11C); the count says how many differ. */ onApplyRestToDay?: (rest: string) => void; dayRestMismatch?: number }) {
   /**
    * The editor's model is the list of sets, not the string.
    *
@@ -79,7 +80,11 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
   const setCountNow = plan.sets.length;
   const rpes = Array.from(new Set([settings.rpe, "RPE 6", "RPE 7", "RPE 8", "RPE 9"]));
   const rests = Array.from(new Set([settings.rest, "60 sec", "90 sec", "120 sec", "180 sec"]));
-  const summaryLine = [displayPrescription(prescription), settings.rpe, settings.rest].filter(Boolean).join(" · ");
+  // Each part of the line is one unbreakable group - the spaces inside "90 sec"
+  // and "RPE 7" are no-break spaces - so a unit never lands on a line of its own,
+  // while the line as a whole still wraps between its parts.
+  const summaryParts = [displayPrescription(prescription), settings.rpe, settings.rest].filter((part): part is string => Boolean(part));
+  const summaryLine = summaryParts.map((part) => part.replace(/ /g, "\u00a0")).join(" · ");
   const muscles = exercise.primaryMuscles.map((muscle) => muscleLabels[muscle] || muscle).join(", ");
   const setsLabelId = `sets-label-${exercise.id}`;
   const listLabelId = `sets-list-${exercise.id}`;
@@ -97,16 +102,39 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
     commit(withSetCount(plan, next));
   };
 
-  return <details className={`custom-prescription ${settings.completed ? "custom-prescription-complete" : ""}`}>
+  /**
+   * What the live session has done to this exercise, when one is running.
+   *
+   * The plan and the workout were two pictures of the same day that never
+   * referred to each other: you could log four sets of Box Jump and come back to
+   * a row that still read exactly as it had before you started. The row is the
+   * thing an athlete scans to answer "where am I", so it answers.
+   */
+  const live = progress
+    ? progress.state === "skipped"
+      ? { tone: "skipped", text: "Skipped" }
+      : progress.state === "done"
+        ? { tone: "done", text: `Done ${progress.completed}/${progress.planned}` }
+        : progress.state === "current"
+          ? { tone: "current", text: progress.completed > 0 ? `Now · ${progress.completed}/${progress.planned}` : "Now" }
+          : progress.completed > 0
+            ? { tone: "todo", text: `${progress.completed}/${progress.planned}` }
+            : null
+    : null;
+
+  return <details className={`custom-prescription ${settings.completed ? "custom-prescription-complete" : ""}${live ? ` custom-prescription-live-${live.tone}` : ""}`}>
     <summary className="custom-row">
       <span className="custom-row-index">{String(index + 1).padStart(2, "0")}</span>
       <span className="custom-row-identity">
-        <strong>{exercise.name}</strong>
+        <strong>{exercise.name}{live && <b className={`custom-row-live custom-row-live-${live.tone}`}>{live.text}</b>}</strong>
         <em>{summaryLine}</em>
         <small>{exercise.movement} · {muscles}</small>
       </span>
       <span className="custom-row-state">
         {settings.completed && <span className="custom-row-done" aria-label="Marked complete"><Check className="h-3.5 w-3.5" /></span>}
+        {/* The chevron opens the editor; it says so, because on its own it
+            read as "go somewhere". */}
+        <span className="custom-row-edit-label">Edit sets &amp; reps</span>
         <ChevronDown className="custom-row-chevron h-4 w-4" aria-hidden="true" />
       </span>
     </summary>
@@ -167,7 +195,7 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
 
       <div className="prescription-field prescription-field-pair">
         <label className="metric-label">Effort<select value={settings.rpe} onChange={(event) => onSettings({ rpe: event.target.value })} aria-label={`${exercise.name} effort`}>{rpes.map((value) => <option key={value}>{value}</option>)}</select></label>
-        <label className="metric-label">Rest<select value={settings.rest} onChange={(event) => onSettings({ rest: event.target.value })} aria-label={`${exercise.name} rest`}>{rests.map((value) => <option key={value}>{value}</option>)}</select></label>
+        <label className="metric-label">Rest<select value={settings.rest} onChange={(event) => onSettings({ rest: event.target.value })} aria-label={`${exercise.name} rest`}>{rests.map((value) => <option key={value}>{value}</option>)}</select></label>{onApplyRestToDay && dayRestMismatch > 0 && <button type="button" className="prescription-rest-all" onClick={() => onApplyRestToDay(settings.rest)}>Use {settings.rest} for the other {dayRestMismatch === 1 ? "exercise" : `${dayRestMismatch} exercises`} in this day</button>}
       </div>
 
       <details className="prescription-note"><summary>Coach note <ChevronDown className="h-3.5 w-3.5" /></summary><textarea value={settings.notes} onChange={(event) => onSettings({ notes: event.target.value })} placeholder="Technique cue, load, or substitution reason" /></details>

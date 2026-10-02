@@ -7549,17 +7549,12 @@ export const baseExercises: Exercise[] = [
     "name": "Leg Extension",
     "sourceGroup": "Quads",
     "category": "Knee dominant",
-    "equipment": "Free weights",
+    "equipment": "Machine",
     "movement": "Squat / knee dominant",
     "primaryMuscles": [
-      "quads",
-      "glutes"
+      "quads"
     ],
-    "secondaryMuscles": [
-      "adductors",
-      "calves",
-      "abs"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
       "strength",
       "hypertrophy",
@@ -9644,11 +9639,11 @@ export const baseExercises: Exercise[] = [
     "equipment": "Bodyweight",
     "movement": "Trunk flexion / anti-extension",
     "primaryMuscles": [
-      "abs"
+      "adductors"
     ],
     "secondaryMuscles": [
       "obliques",
-      "hipFlexors"
+      "abs"
     ],
     "qualities": [
       "strength",

@@ -1,0 +1,110 @@
+{
+ "before:upper-empty": {
+  "volume": [
+   "Pectoralis major=28(28/0)",
+   "Rectus abdominis=20.5(0/20.5)",
+   "Latissimus dorsi=17(17/0)",
+   "Quadriceps=17(17/0)",
+   "Upper back=17(17/0)",
+   "Anterior deltoids=14(0/14)",
+   "Triceps brachii=14(0/14)",
+   "Gluteal muscles=13(13/0)"
+  ],
+  "total": "179",
+  "recovery": []
+ },
+ "before:week2": {
+  "volume": [
+   "Pectoralis major=51(51/0)",
+   "Anterior deltoids=25.5(0/25.5)",
+   "Rectus abdominis=25.5(0/25.5)",
+   "Triceps brachii=25.5(0/25.5)",
+   "Latissimus dorsi=17(17/0)",
+   "Quadriceps=17(17/0)",
+   "Upper back=17(17/0)",
+   "Gluteal muscles=13(13/0)"
+  ],
+  "total": "230",
+  "recovery": [
+   "17/17",
+   "8.5/8.5",
+   "8.5/8.5"
+  ]
+ },
+ "before:pull-pull": {
+  "volume": [
+   "Pectoralis major=51(51/0)",
+   "Latissimus dorsi=34(34/0)",
+   "Upper back=34(34/0)",
+   "Anterior deltoids=25.5(0/25.5)",
+   "Triceps brachii=25.5(0/25.5)",
+   "Rectus abdominis=19(0/19)",
+   "Biceps brachii=17(0/17)",
+   "Forearms=17(0/17)"
+  ],
+  "total": "240",
+  "recovery": [
+   "17/17",
+   "17/17",
+   "8.5/8.5",
+   "8.5/8.5",
+   "17/17",
+   "8.5/8.5",
+   "8.5/8.5"
+  ]
+ },
+ "after:upper-empty": {
+  "volume": [
+   "Pectoralis major=28(28/0)",
+   "Rectus abdominis=20.5(0/20.5)",
+   "Latissimus dorsi=17(17/0)",
+   "Quadriceps=17(17/0)",
+   "Upper back=17(17/0)",
+   "Anterior deltoids=14(0/14)",
+   "Triceps brachii=14(0/14)",
+   "Gluteal muscles=13(13/0)"
+  ],
+  "total": "179",
+  "recovery": []
+ },
+ "after:week2": {
+  "volume": [
+   "Pectoralis major=51(51/0)",
+   "Anterior deltoids=25.5(0/25.5)",
+   "Rectus abdominis=25.5(0/25.5)",
+   "Triceps brachii=25.5(0/25.5)",
+   "Latissimus dorsi=17(17/0)",
+   "Quadriceps=17(17/0)",
+   "Upper back=17(17/0)",
+   "Gluteal muscles=13(13/0)"
+  ],
+  "total": "230",
+  "recovery": [
+   "17/17",
+   "8.5/8.5",
+   "8.5/8.5"
+  ]
+ },
+ "after:pull-pull": {
+  "volume": [
+   "Pectoralis major=51(51/0)",
+   "Latissimus dorsi=34(34/0)",
+   "Upper back=34(34/0)",
+   "Anterior deltoids=25.5(0/25.5)",
+   "Triceps brachii=25.5(0/25.5)",
+   "Rectus abdominis=19(0/19)",
+   "Biceps brachii=17(0/17)",
+   "Forearms=17(0/17)"
+  ],
+  "total": "240",
+  "recovery": [
+   "17/17",
+   "17/17",
+   "8.5/8.5",
+   "8.5/8.5",
+   "17/17",
+   "8.5/8.5",
+   "8.5/8.5"
+  ]
+ }
+}

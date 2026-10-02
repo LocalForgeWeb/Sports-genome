@@ -1,6 +1,13 @@
+import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightUnit } from "./weightUnits";
+
 export type DeviceSetLog = {
   weight: string;
   reps: string;
+  /**
+   * The unit `weight` was typed in, stamped when the weight is written. Sets logged
+   * before units were recorded have none and read through their session's unit.
+   */
+  unit?: DisplayWeightUnit;
   /** Box height, for the jumps and step-ups where that is the real variable. */
   height?: string;
   completed: boolean;
@@ -43,21 +50,79 @@ export type DeviceWorkoutSession = {
    * every one of them had been measured against.
    */
   bodyMassKgAtCompletion?: number;
+  /**
+   * The unit this session's weights are entered in, fixed when it starts. A later change
+   * of the profile's unit does not reach it: a set typed as 100 lb stays 100 lb.
+   */
+  weightUnit?: DisplayWeightUnit;
+  /**
+   * True when `weightUnit` was not recorded at the time but assigned once, from the
+   * profile's unit, to history logged before units were stored (decision D-005).
+   */
+  weightUnitInferred?: boolean;
 };
+
+const isWeightUnit = (value: unknown): value is DisplayWeightUnit => value === "lb" || value === "kg";
+
+/** Keeps a set's unit only when it is one the app knows. */
+function normalizeSet(set: DeviceSetLog): DeviceSetLog {
+  const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) };
+  if (isWeightUnit(set.unit)) normalized.unit = set.unit;
+  return normalized;
+}
+
+/** The unit a set's weight was entered in: its own stamp, then its session's, then the caller's fallback. */
+export function setWeightUnit(set: Pick<DeviceSetLog, "unit">, session: Pick<DeviceWorkoutSession, "weightUnit">, fallback: DisplayWeightUnit): DisplayWeightUnit {
+  return set.unit ?? session.weightUnit ?? fallback;
+}
+
+/** A set's weight in kilograms, converted exactly from the unit it was entered in. Undefined when no positive weight was entered. */
+export function setWeightKg(set: Pick<DeviceSetLog, "weight" | "unit">, session: Pick<DeviceWorkoutSession, "weightUnit">, fallback: DisplayWeightUnit): number | undefined {
+  const value = Number(String(set.weight || "").trim());
+  if (!Number.isFinite(value) || value <= 0) return undefined;
+  return displayWeightToKilograms(value, setWeightUnit(set, session, fallback));
+}
+
+/**
+ * Gives every session logged before units were stored a unit, once.
+ *
+ * Nothing recorded which unit those weights were typed in, and every screen has been
+ * reading them in the profile's unit of the day. They are assigned that unit now and
+ * marked as inferred, so they read exactly as they did before this change - and a
+ * later switch between lb and kg can no longer turn 225 lb into 225 kg.
+ */
+export function stampLegacyWeightUnits(sessions: DeviceWorkoutSession[], unit: DisplayWeightUnit): { sessions: DeviceWorkoutSession[]; stamped: number } {
+  let stamped = 0;
+  const next = sessions.map((session) => {
+    if (isWeightUnit(session.weightUnit)) return session;
+    stamped += 1;
+    return { ...session, weightUnit: unit, weightUnitInferred: true };
+  });
+  return { sessions: next, stamped };
+}
 
 export const deviceWorkoutHistoryKey = "sports-genome-device-workout-history-v1";
 export const deviceWorkoutHistoryEvent = "sports-genome:device-workout-history";
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+/**
+ * A null entry used to throw at any level, so the whole history loaded as empty and the next
+ * checkpoint wrote that over every workout; a string, number or array was read as a junk
+ * object. Entries that are not objects are now skipped at each level. Anything that is an
+ * object is kept as it is, whatever its status: dropping it here would erase it on the next save.
+ */
 export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey) || "[]");
-    return Array.isArray(parsed) ? parsed.map((session) => ({
+    return Array.isArray(parsed) ? parsed.filter(isRecord).map((session) => ({
       ...session,
-      exercises: Array.isArray(session.exercises) ? session.exercises.map((exercise: DeviceWorkoutExercise) => ({
+      exercises: Array.isArray(session.exercises) ? session.exercises.filter(isRecord).map((exercise) => ({
         ...exercise,
-        sets: Array.isArray(exercise.sets) ? exercise.sets.map((set: DeviceSetLog) => ({ weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) })) : [],
+        sets: Array.isArray(exercise.sets) ? exercise.sets.filter(isRecord).map((set) => normalizeSet(set as DeviceSetLog)) : [],
       })) : [],
+      weightUnit: isWeightUnit(session.weightUnit) ? session.weightUnit : undefined,
     })) as DeviceWorkoutSession[] : [];
   } catch {
     return [];
@@ -74,7 +139,7 @@ export function loadDeviceWorkoutSessions(): DeviceWorkoutSession[] {
  */
 export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[]): boolean {
   if (typeof window === "undefined") return false;
-  const normalized = sessions.map((session) => ({ ...session, exercises: session.exercises.map((exercise) => ({ ...exercise, sets: exercise.sets.map((set) => ({ weight: set.weight, reps: set.reps, height: set.height || "", completed: set.completed, skipped: Boolean(set.skipped) })) })) }));
+  const normalized = sessions.map((session) => ({ ...session, exercises: session.exercises.map((exercise) => ({ ...exercise, sets: exercise.sets.map(normalizeSet) })) }));
   try {
     window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify(normalized));
   } catch {
@@ -82,6 +147,16 @@ export function saveDeviceWorkoutSessions(sessions: DeviceWorkoutSession[]): boo
   }
   window.dispatchEvent(new Event(deviceWorkoutHistoryEvent));
   return true;
+}
+
+/**
+ * Takes back a finished workout recorded on this device, the way a typed lift can be
+ * (removeDeviceStrengthObservation): a test run, a weight typed ten times too heavy or a
+ * workout finished by accident would otherwise count forever. Only a finished session
+ * can go, so the running one is never lost; the change reaches only this device.
+ */
+export function removeDeviceWorkoutSession(sessions: DeviceWorkoutSession[], sessionId: string): DeviceWorkoutSession[] {
+  return sessions.filter((session) => !(session.id === sessionId && session.status === "completed"));
 }
 
 /**
@@ -118,6 +193,23 @@ export function countDraftSets(session: DeviceWorkoutSession): number {
 
 export function countCompletedSets(session: DeviceWorkoutSession): number {
   return session.exercises.reduce((total, exercise) => total + exercise.sets.filter((set) => set.completed).length, 0);
+}
+
+/**
+ * The shared definitions every count on Home, Progress and Strength reads
+ * (Backend V1 B155, B156; docs/backend-v1/contracts.md § Counts).
+ *
+ * A completed set is one the athlete marked done and did not skip. A completed workout is a
+ * finished session holding at least one completed set: finishing with nothing logged is not
+ * a workout, and a planned set is never a completed one. A logged lift is one per exercise
+ * per completed workout (its heaviest completed set with at least one rep) plus each typed test.
+ */
+export function isCompletedSet(set: Pick<DeviceSetLog, "completed" | "skipped">): boolean {
+  return set.completed && !set.skipped;
+}
+
+export function isCompletedWorkout(session: Pick<DeviceWorkoutSession, "status" | "exercises">): boolean {
+  return session.status === "completed" && session.exercises.some((exercise) => exercise.sets.some(isCompletedSet));
 }
 
 export function countPlannedSets(session: DeviceWorkoutSession): number {
@@ -178,21 +270,26 @@ export function finalizeSession(
  * Shown only where it helps the immediate decision, which the glance contract
  * limits previous performance to.
  */
-export function lastCompletedSetFor(exerciseName: string, sessions: DeviceWorkoutSession[]): DeviceSetLog | null {
+export function lastCompletedSetFor(exerciseName: string, sessions: DeviceWorkoutSession[], fallbackUnit: DisplayWeightUnit = "lb"): DeviceSetLog | null {
   const finished = sessions
     .filter((session) => session.status === "completed")
     .sort((a, b) => String(b.completedAt || b.startedAt).localeCompare(String(a.completedAt || a.startedAt)));
   for (const session of finished) {
     const exercise = session.exercises.find((item) => item.exerciseName === exerciseName);
     const last = exercise?.sets.filter((set) => set.completed && (set.weight.trim() || (set.height || "").trim()) && set.reps.trim()).pop();
-    if (last) return last;
+    // The unit travels with the set, so whoever shows it can convert rather than guess.
+    if (last) return { ...last, unit: setWeightUnit(last, session, fallbackUnit) };
   }
   return null;
 }
 
-/** Whether a session is currently running on this device. */
-export function hasActiveDeviceSession(): boolean {
-  return loadDeviceWorkoutSessions().some((session) => session.status === "active");
+/** A weight typed in one unit, written as it would be typed in another: exact conversion, rounded to 0.01 only for the box. */
+export function weightInUnit(weight: string, from: DisplayWeightUnit, to: DisplayWeightUnit): string {
+  if (from === to || !weight.trim()) return weight;
+  const value = Number(weight.trim());
+  if (!Number.isFinite(value)) return weight;
+  const converted = kilogramsToDisplayWeight(displayWeightToKilograms(value, from), to);
+  return String(Math.round(converted * 100) / 100);
 }
 
 /**
@@ -208,15 +305,17 @@ export function carriedEntryFor(
   exercise: DeviceWorkoutExercise,
   setIndex: number,
   history: DeviceWorkoutSession[],
+  entryUnit: DisplayWeightUnit = "lb",
 ): { weight: string; reps: string; height: string; source: "session" | "history" } | null {
   for (let index = setIndex - 1; index >= 0; index--) {
     const set = exercise.sets[index];
     if (set.completed && (set.weight.trim() || set.reps.trim() || (set.height || "").trim())) {
-      return { weight: set.weight, reps: set.reps, height: set.height || "", source: "session" };
+      return { weight: weightInUnit(set.weight, set.unit ?? entryUnit, entryUnit), reps: set.reps, height: set.height || "", source: "session" };
     }
   }
-  const previous = lastCompletedSetFor(exercise.exerciseName, history);
-  return previous ? { weight: previous.weight, reps: previous.reps, height: previous.height || "", source: "history" } : null;
+  // A set from a session logged in the other unit is offered in this session's unit.
+  const previous = lastCompletedSetFor(exercise.exerciseName, history, entryUnit);
+  return previous ? { weight: weightInUnit(previous.weight, previous.unit ?? entryUnit, entryUnit), reps: previous.reps, height: previous.height || "", source: "history" } : null;
 }
 
 

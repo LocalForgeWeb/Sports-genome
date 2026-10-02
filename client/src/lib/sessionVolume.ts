@@ -28,6 +28,12 @@ export type MuscleSessionVolume = {
   directSets: number;
   /** Supporting work at the register's half-set convention. */
   supportSets: number;
+  /**
+   * The same supporting work as performed sets, for display only. "4 supporting sets" was
+   * already halved from 8 and read as 4 sets done (Sep 28 regression brief §8); readings and
+   * everything Review uses still read the weighted `supportSets`.
+   */
+  supportSetsPerformed?: number;
   reading: VolumeReading;
   /** Sessions per week at this session's volume to clear the established mark. */
   sessionsForEstablished: number | null;
@@ -66,6 +72,7 @@ export function getSessionMuscleVolume(
 ): MuscleSessionVolume[] {
   const direct = new Map<string, number>();
   const support = new Map<string, number>();
+  const performed = new Map<string, number>();
 
   workout.forEach((exercise, index) => {
     const sets = setsFor(exercise, index);
@@ -73,7 +80,10 @@ export function getSessionMuscleVolume(
     primary.forEach((muscle) => direct.set(muscle, (direct.get(muscle) || 0) + sets));
     exercise.secondaryMuscles
       .filter((muscle) => !primary.has(muscle))
-      .forEach((muscle) => support.set(muscle, (support.get(muscle) || 0) + sets * logicCalibration.exposure.secondarySetConvention));
+      .forEach((muscle) => {
+        support.set(muscle, (support.get(muscle) || 0) + sets * logicCalibration.exposure.secondarySetConvention);
+        performed.set(muscle, (performed.get(muscle) || 0) + sets);
+      });
   });
 
   const muscles = new Set(Array.from(direct.keys()).concat(Array.from(support.keys())));
@@ -81,17 +91,23 @@ export function getSessionMuscleVolume(
     .map((muscle) => {
       const directSets = Number((direct.get(muscle) || 0).toFixed(1));
       const supportSets = Number((support.get(muscle) || 0).toFixed(1));
+      const supportSetsPerformed = performed.get(muscle) || 0;
       const reading = readVolume(directSets, supportSets);
       const sessionsForEstablished = directSets > 0
         ? Math.ceil(logicCalibration.exposure.lowDirectSetBand / directSets)
         : null;
-      return { muscle, directSets, supportSets, reading, sessionsForEstablished, note: noteFor(reading, directSets, supportSets, sessionsForEstablished) };
+      return { muscle, directSets, supportSets, supportSetsPerformed, reading, sessionsForEstablished, note: noteFor(reading, directSets, supportSets, sessionsForEstablished, supportSetsPerformed) };
     })
     .sort((left, right) => right.directSets - left.directSets || right.supportSets - left.supportSets || left.muscle.localeCompare(right.muscle));
 }
 
-function noteFor(reading: VolumeReading, directSets: number, supportSets: number, sessions: number | null): string {
-  if (reading === "indirect-only") return `${supportSets} supporting set${supportSets === 1 ? "" : "s"}, no direct work.`;
+/** "8 supporting sets (counted as 4)": what was done, then what the reading used. */
+export function supportingSetsText(performed: number, weighted: number): string {
+  return `${performed} supporting set${performed === 1 ? "" : "s"}${performed === weighted ? "" : ` (counted as ${weighted})`}`;
+}
+
+function noteFor(reading: VolumeReading, directSets: number, supportSets: number, sessions: number | null, supportSetsPerformed = supportSets): string {
+  if (reading === "indirect-only") return `${supportingSetsText(supportSetsPerformed, supportSets)}, no direct work.`;
   if (reading === "none") return "Nothing in this session.";
   if (reading === "heavy") return `${directSets} direct sets in one session - the register's high-exposure mark for a whole week.`;
   if (reading === "solid") return `${directSets} direct sets clears the ${logicCalibration.exposure.lowDirectSetBand}-set mark in this session alone.`;

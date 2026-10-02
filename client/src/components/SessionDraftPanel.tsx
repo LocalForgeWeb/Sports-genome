@@ -7,7 +7,7 @@ import { loadoutTemplateRules, type TrainingLoadout } from "@/lib/loadoutTemplat
  * Draft a session for the day you are on, inline, with the two inputs that decide
  * what comes out.
  *
- * This replaces a floating "Session Planner" dock that sat over the page on a
+ * This replaces a floating "Workout planner" dock that sat over the page on a
  * fixed layer. It overlapped whatever was underneath it - on a phone its own
  * open/close tab covered the heading of the panel behind it - and it carried a
  * second copy of the training-day picker, so the app asked "which day?" in two
@@ -36,7 +36,7 @@ export function SessionDraftPanel({ dayLabel, minutes, budget, loadout, exercise
   onDraft: () => void;
 }) {
   const overBudget = estimatedMinutes > minutes;
-  return <section className="session-draft-panel" aria-label="Draft a session">
+  return <section className="session-draft-panel" aria-label="Draft a workout">
     <div className="session-draft-head">
       <div>
         <p className="metric-label">Smart draft</p>
@@ -87,7 +87,7 @@ export function SessionDraftPanel({ dayLabel, minutes, budget, loadout, exercise
           {replacingCount > 0 && ` Drafting replaces the ${replacingCount} exercise${replacingCount === 1 ? "" : "s"} already in this day.`}
         </small>
       </div>
-      <button type="button" onClick={onDraft} className="session-draft-button">Draft this session</button>
+      <button type="button" onClick={onDraft} className="session-draft-button">Draft this workout</button>
     </div>
   </section>;
 }

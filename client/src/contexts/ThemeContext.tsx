@@ -15,8 +15,6 @@ interface ThemeContextType {
   /** What that choice paints right now. */
   theme: ResolvedTheme;
   setPreference: (preference: ThemePreference) => void;
-  /** Kept for the component showcase, which had only two states to move between. */
-  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -69,13 +67,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    setPreference(theme === "dark" ? "light" : "dark");
-  }, [setPreference, theme]);
-
   const value = useMemo(
-    () => ({ preference, theme, setPreference, toggleTheme }),
-    [preference, theme, setPreference, toggleTheme],
+    () => ({ preference, theme, setPreference }),
+    [preference, theme, setPreference],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

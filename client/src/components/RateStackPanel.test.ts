@@ -12,7 +12,7 @@ vi.mock("../rate-stack.css", () => ({}));
 
 const push = exercises.filter((exercise) => exercise.primaryMuscles.includes("chest")).slice(0, 2);
 
-function render(workout = push) {
+function render(workout = push, props: Record<string, unknown> = {}) {
   return renderToStaticMarkup(
     createElement(RateStackPanel, {
       workout,
@@ -20,92 +20,63 @@ function render(workout = push) {
       split: "Push",
       onAdd: vi.fn(),
       onReplace: vi.fn(),
+      ...props,
     })
   );
 }
 
 /**
- * The panel used to render its analysis as one number and discard the per-muscle
- * ratings entirely. These assertions are about the number never being alone
- * again.
+ * The Plan's coverage summary (Sep 28 regression brief §8). It is four things: the coverage
+ * index with its scale named, one sentence, the one gap worth closing first, and "View
+ * analysis". The bars, tallies, legend and methodology moved into the analysis and are
+ * tested there (StackAnalysisPage.coverageRows.test.ts); these assertions used to pin them
+ * here. An empty day shows no index at all.
  */
-describe("RateStackPanel coverage visuals", () => {
-  it("draws a gauge for the overall score", () => {
+describe("RateStackPanel coverage summary", () => {
+  it("draws a gauge for the overall score, and names what it is", () => {
     const markup = render();
     expect(markup).toContain("rate-stack-dial-value");
     expect(markup).toContain("stroke-dasharray");
+    expect(markup).toContain("Push coverage index");
+    expect(markup).toContain("Out of 100, from catalog muscle tags. Not workload or recovery.");
   });
 
-  it("plots a bar for every split target, not just the overall score", () => {
-    const markup = render();
-    // Push has five requirements: chest, frontDelts, triceps, sideDelts, serratusAnterior.
-    expect(markup.match(/rate-stack-row-track/g)).toHaveLength(5);
-  });
-
-  it("marks each muscle's target on its bar", () => {
-    // Without the mark a fill is an uninterpretable number: 56 of what?
-    const markup = render();
-    expect(markup.match(/rate-stack-row-target/g)).toHaveLength(5);
-  });
-
-  it("states the shortfall in points next to the bar", () => {
-    const markup = render();
-    expect(markup).toMatch(/rate-stack-row-delta[^>]*>(−|\+)\d+/);
-  });
-
-  it("separates primary targets from support targets", () => {
-    const markup = render();
-    expect(markup).toContain("Primary targets");
-    expect(markup).toContain("Support targets");
-  });
-
-  it("leads with a sentence naming the worst gap", () => {
+  it("says one thing about the day, with the unit on its number", () => {
     const markup = render();
     expect(markup).toContain("rate-stack-headline");
-    expect(markup).toMatch(/points short|is covered|carrying heavy volume/);
+    expect(markup).toMatch(/pts under target|targets? (is )?reached/);
   });
 
-  it("labels each band with a word and a glyph, never colour alone", () => {
+  it("offers the furthest gap as the one search that closes it", () => {
+    const markup = render(push, { onFixMuscle: vi.fn() });
+    expect(markup).toContain("Furthest behind");
+    expect(markup.match(/<button type="button"[^>]*aria-label="Find /g)).toHaveLength(1);
+    expect(markup).toMatch(/aria-label="Find [^"]+ exercises, \d+ pts under target"/);
+  });
+
+  it("does not offer the gap as a button where nothing can act on it", () => {
+    expect(render()).toContain("rate-stack-fix-static");
+  });
+
+  it("keeps the bars, tallies and methodology out of the Plan", () => {
     const markup = render();
-    for (const word of ["Short", "Covered", "Heavy"]) {
-      if (markup.includes(`rate-stack-row-band`) && markup.includes(word)) {
-        expect(markup).toContain(word);
-      }
+    for (const detail of ["rate-stack-row-track", "rate-stack-tally", "rate-stack-legend", "rate-stack-detail", "rate-stack-boundary", "What this score measures"]) {
+      expect(markup, detail).not.toContain(detail);
     }
-    // At least one band glyph reaches the markup.
-    expect(markup).toMatch(/↓|✓|↑/);
+    // This was false: set counts do not enter the coverage model (contracts.md, EN-11).
+    expect(markup).not.toContain("modeled from the day's prescriptions");
   });
 
-  it("names the one mark nothing else labels, and nothing the bars do not draw", () => {
-    // The bar carries its own number, its own word and its own aria-label. The
-    // target tick is the only thing on the chart with no name of its own, so it
-    // is the only thing the legend has to explain. The swatch that used to sit
-    // beside it showed a three-stop gradient describing a continuous scale the
-    // bars never used — a key to a chart that does not exist.
-    const markup = render();
-    expect(markup).toContain("rate-stack-legend-target");
-    expect(markup).toContain("reached");
-    expect(markup).not.toContain("rate-stack-legend-fill");
+  it("keeps the full analysis one tap away", () => {
+    expect(render()).toContain("View analysis");
   });
 
-  it("gives each row an accessible description of coverage against target", () => {
-    const markup = render();
-    expect(markup).toMatch(/aria-label="[^"]*coverage points (below|above)[^"]*target/);
-  });
-
-  it("keeps the full analysis reachable", () => {
-    expect(render()).toContain("Open full analysis");
-  });
-
-  it("says what to do instead of rendering empty bars for an empty stack", () => {
+  it("shows an empty day no index, no gauge and no promise of fixes", () => {
     const markup = render([]);
-    expect(markup).toContain("Add an exercise");
-    expect(markup).not.toContain("rate-stack-row-track");
-  });
-
-  it("still shows the gauge and the scope note with an empty stack", () => {
-    const markup = render([]);
-    expect(markup).toContain("rate-stack-dial-value");
-    expect(markup).toContain("What this score measures");
+    expect(markup).toContain("Not available yet");
+    expect(markup).toContain("It appears after the first exercise");
+    for (const absent of ["rate-stack-dial", "/100", "rate-stack-boundary", "rate-stack-trigger", "suggested fix", "rate-stack-fix"]) {
+      expect(markup, absent).not.toContain(absent);
+    }
   });
 });

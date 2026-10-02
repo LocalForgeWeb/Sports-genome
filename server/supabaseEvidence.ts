@@ -1,3 +1,5 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
+import { BoundedCache, withTimeout } from "./boundedCache";
 import type {
   SupabaseEvidenceCoverageLevel,
   SupabaseEvidenceInventory,
@@ -57,10 +59,8 @@ type SupabaseStudyLibraryRow = {
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
-const evidenceCache = new Map<
-  number,
-  { expiresAt: number; value: SupabaseExerciseEvidence }
->();
+// Bounded: the key is whatever catalog id the caller sends.
+const evidenceCache = new BoundedCache<number, SupabaseExerciseEvidence>(1000, CACHE_TTL_MS);
 let inventoryCache:
   | { expiresAt: number; value: SupabaseEvidenceInventory }
   | undefined;
@@ -238,14 +238,9 @@ export function createSupabaseEvidenceClient({
     for (const [key, value] of Object.entries(params)) {
       requestUrl.searchParams.set(key, value);
     }
-    const response = await fetchImplementation(requestUrl, {
-      headers: {
-        Accept: "application/json",
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-        Prefer: "count=exact",
-      },
-    });
+    const response = await fetchImplementation(requestUrl, withTimeout({
+      headers: supabaseServiceHeaders(serviceRoleKey, { Prefer: "count=exact" }),
+    }));
     if (!response.ok) {
       throw new Error(`Supabase ${table} request failed (${response.status})`);
     }
@@ -383,15 +378,12 @@ export async function getSupabaseExerciseEvidence(
   catalogExerciseId: number
 ): Promise<SupabaseExerciseEvidence> {
   const cached = evidenceCache.get(catalogExerciseId);
-  if (cached && cached.expiresAt > Date.now()) return cached.value;
+  if (cached) return cached;
   const client = getRuntimeClient();
   if (!client) return unavailableEvidence(catalogExerciseId, "unavailable");
   try {
     const value = await client.getExerciseEvidence(catalogExerciseId);
-    evidenceCache.set(catalogExerciseId, {
-      value,
-      expiresAt: Date.now() + CACHE_TTL_MS,
-    });
+    evidenceCache.set(catalogExerciseId, value);
     return value;
   } catch (error) {
     console.warn("[Supabase evidence] exercise lookup unavailable", {

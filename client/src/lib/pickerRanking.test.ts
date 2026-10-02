@@ -93,3 +93,17 @@ describe("rankPickerResults", () => {
     expect(ranked.every((result) => result.fillsGap === null && result.supportsGap === null)).toBe(true);
   });
 });
+
+describe("a typed name outranks the day's gaps", () => {
+  it("puts the best search match first and lets the gap order settle ties", () => {
+    const rdl = exercise("Romanian Deadlift", ["hamstrings"]);
+    const chestFiller = exercise("Bench Press", ["chest"]);
+    const rdlVariant = exercise("Dumbbell Romanian Deadlift", ["hamstrings"], ["chest"]);
+    // Without relevance the chest filler leads, because chest is a gap.
+    expect(rankPickerResults([rdl, chestFiller, rdlVariant], gaps).map((r) => r.exercise.name)[0]).toBe("Bench Press");
+    // With it, the two Romanian deadlifts lead in score order, and the filler follows.
+    const relevance = new Map([[rdl.id, 1000], [rdlVariant.id, 500]]);
+    expect(rankPickerResults([rdl, chestFiller, rdlVariant], gaps, relevance).map((r) => r.exercise.name))
+      .toEqual(["Romanian Deadlift", "Dumbbell Romanian Deadlift", "Bench Press"]);
+  });
+});

@@ -1,7 +1,9 @@
+import { rankPaint } from "./rankPaint";
 import React from "react";
 import { useId, useMemo, useRef, useState } from "react";
 import { anatomyViewBox, anatomyViews, type AnatomyMuscle, type AnatomyView } from "./figureGeometry";
 import type { AnatomyRole } from "@/lib/anatomyRegions";
+import type { RankId } from "@shared/capabilityRank";
 import "./anatomy-figure.css";
 
 /**
@@ -78,9 +80,31 @@ export type AnatomyFigureProps = {
   onSelect: (regionKey: string, pathId?: string) => void;
   labelFor: (regionKey: string) => string;
   onHover?: (regionKey: string | null) => void;
+  /**
+   * Strength/Rank encoding. When given, the figure is drawn by capability rank instead of
+   * exercise role: a ranked key takes its rank's flat fill, and a key marked "unscored" is drawn
+   * recessive and hatched, outside the ordered scale. A key absent from the map is not part of
+   * any rankable region - the feet, say - and stays neutral anatomy: hatching it would claim a
+   * measurement the model does not even attempt. Roles are ignored.
+   */
+  rankFor?: Readonly<Record<string, RankId | "unscored">>;
+  /** Replaces the role wording in each region's accessible name. */
+  describeFor?: (regionKey: string) => string | undefined;
+  /**
+   * False draws the figure as a picture: no hit layer, no tab stop, one accessible
+   * name from `caption`. Home's workout-focus schematic is read, not tapped.
+   */
+  interactive?: boolean;
+  caption?: string;
+  /**
+   * A crop of a single view, in the figure's own viewBox units: Home's workout focus shows the
+   * upper or lower body when that is where the work is, rather than a whole body at thumbnail
+   * size. The content is clipped to it.
+   */
+  frame?: { x: number; y: number; width: number; height: number };
 };
 
-export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover }: AnatomyFigureProps) {
+export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption, frame }: AnatomyFigureProps) {
   const uid = useId();
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
@@ -132,17 +156,24 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     document.getElementById(`${uid}-hit-${next.key}`)?.focus?.();
   };
 
-  const fillFor = (role?: AnatomyRole) => {
+  const rankEncoding = rankFor !== undefined;
+
+  const fillFor = (key: string) => {
+    if (rankEncoding) return rankPaint(rankFor[key], `${uid}-unscored`);
+    const role = roles[key];
     if (role === "primary") return `url(#${uid}-primary)`;
     if (role === "supporting") return `url(#${uid}-supporting)`;
+    if (role === "stabilizing") return `url(#${uid}-stabilizing)`;
     return undefined;
   };
 
   const clipFor = (half: string | null) => (half ? `url(#${uid}-${half})` : undefined);
 
   const describe = (key: string) => {
+    const described = describeFor?.(key);
+    if (described) return `${described}${isSelected(key) ? ", selected" : ""}`;
     const role = roles[key] ?? "neutral";
-    const roleWord = role === "primary" ? "primary role" : role === "supporting" ? "supporting role" : "not involved";
+    const roleWord = role === "primary" ? "primary role" : role === "supporting" ? "supporting role" : role === "stabilizing" ? "stabilizing role" : "not involved";
     return `${labelFor(key)}, ${roleWord}${isSelected(key) ? ", selected" : ""}`;
   };
 
@@ -157,9 +188,11 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     <svg
       className="anatomy-figure"
       data-view={view}
-      viewBox={`0 0 ${canvasWidth} ${height}`}
-      role="group"
-      aria-label={`${viewName} muscle map. ${composed.length} selectable regions.`}
+      data-encoding={rankEncoding ? "rank" : undefined}
+      viewBox={frame && view !== "both" ? `${frame.x} ${frame.y} ${frame.width} ${frame.height}` : `0 0 ${canvasWidth} ${height}`}
+      data-frame={frame && view !== "both" ? "" : undefined}
+      role={interactive ? "group" : "img"}
+      aria-label={interactive ? `${viewName} muscle map. ${composed.length} selectable regions.` : caption ?? `${viewName} muscle map`}
       onPointerLeave={() => setHover("")}
     >
       <defs>
@@ -177,10 +210,23 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
           <stop offset="0%" stopColor="var(--anatomy-supporting-1)" />
           <stop offset="100%" stopColor="var(--anatomy-supporting-2)" />
         </linearGradient>
+        <linearGradient id={`${uid}-stabilizing`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--anatomy-stabilizing-1)" />
+          <stop offset="100%" stopColor="var(--anatomy-stabilizing-2)" />
+        </linearGradient>
         <linearGradient id={`${uid}-primary`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="var(--anatomy-primary-1)" />
           <stop offset="100%" stopColor="var(--anatomy-primary-2)" />
         </linearGradient>
+        {/* Not scored: hatched, about 7px apart at the figure's usual size, so the cue that
+            says "nothing measured here" is texture rather than a lightness that could be
+            mistaken for a step on the rank scale. */}
+        {rankEncoding && (
+          <pattern id={`${uid}-unscored`} patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(45)">
+            <rect width="16" height="16" fill="var(--sg-rank-unavailable-fill)" />
+            <rect width="1.5" height="16" fill="var(--sg-rank-unavailable-hatch)" />
+          </pattern>
+        )}
       </defs>
 
       {panels.map((panel) => (
@@ -192,13 +238,15 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
             <path key={piece.id} className="anatomy-structural" d={piece.d} />
           ))}
           {panel.figure.muscles.map((muscle) => {
-            const paint = fillFor(roles[muscle.key]);
+            const paint = fillFor(muscle.key);
             return (
               <g
                 key={muscle.key}
                 className="anatomy-muscle"
                 data-muscle={muscle.key}
-                data-role={roles[muscle.key] ?? "neutral"}
+                data-role={rankEncoding ? undefined : roles[muscle.key] ?? "neutral"}
+                data-rank={rankEncoding && rankFor[muscle.key] && rankFor[muscle.key] !== "unscored" ? rankFor[muscle.key] : undefined}
+                data-unscored={rankEncoding && rankFor[muscle.key] === "unscored" ? "true" : undefined}
                 data-selected={isSelected(muscle.key) ? "true" : undefined}
                 data-focused={focusedKey === muscle.key ? "true" : undefined}
               >
@@ -255,7 +303,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
             );
           }))}
 
-      <g className="anatomy-hit-layer">
+      {interactive && <g className="anatomy-hit-layer">
         {composed.map((muscle) => (
           <g
             key={muscle.key}
@@ -303,7 +351,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
             ))}
           </g>
         ))}
-      </g>
+      </g>}
     </svg>
   );
 }

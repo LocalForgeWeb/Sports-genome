@@ -89,9 +89,15 @@ describe("Strength Genome definitions", () => {
   it("never shows a percentile without naming the population it ranks against", async () => {
     const { readFileSync } = await import("node:fs");
     const panelSource = readFileSync(new URL("../components/StrengthGenomePanel.tsx", import.meta.url), "utf8");
-    expect(panelSource).toContain("powerliftingRank.percentileBandLabel");
-    // The population travels in the same card as the number, not a footnote.
-    expect(panelSource).toContain("{powerliftingRank.population}");
+    // The competition rank that ranked every gym lift against competitors is gone
+    // (Backend V1 B065); the percentile shown is the community one, and its card
+    // carries the group in the same line as the number, not a footnote.
+    expect(panelSource).not.toContain("powerliftingRank.percentileBandLabel");
+    // The record now shows the placement without its effort note, which moved to About this
+    // data (Sep 30 §6); the group still travels on the line under the number.
+    expect(panelSource).toMatch(/\{percentileCard\.headline\}<\/p>\s*<p>\{percentileCard\.placement\}/);
+    const cardSource = readFileSync(new URL("./strengthPercentileCard.ts", import.meta.url), "utf8");
+    expect(cardSource).toMatch(/placement = `\$\{placedAs\} · among \$\{populationLabel\[context\.sex\]\}/);
     expect(panelSource).toContain("Log your first lift and your progress starts tracking from there.");
     // Still no invented ladder of the app's own devising.
     expect(panelSource).not.toContain("Your percentile");

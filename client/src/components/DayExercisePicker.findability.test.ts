@@ -35,25 +35,69 @@ describe("Adding an exercise is findable on the Training Day", () => {
   });
 
   it("gives the empty day a control instead of telling the reader to look below", () => {
-    expect(home).toContain("Nothing in this day yet.");
-    expect(home).toContain("Add exercises from the catalog, or paste a stack.");
+    // Intentional change, Sep 28 regression brief §8: the empty card names the day and its
+    // week, and offers Import itself, since the action row is not shown on an empty day.
+    expect(home).toContain("<strong>{activeSlot.day} is empty</strong>");
+    expect(home).toContain("Week {activeWeek} · {activeSlot.ordinal}. Add the exercises you want on this day");
+    expect(home).toContain("Or import a plan");
     expect(home).not.toContain("Search, filter, and add below.");
     expect(home).not.toContain("Search, filter, and add exercises below.");
     const empty = order('className="day-plan-empty"');
-    expect(home.indexOf("setPickerOpenSignal", empty)).toBeLessThan(home.indexOf("</div>", empty) + 400);
+    expect(home.indexOf("setPickerSheetOpen(true)", empty)).toBeLessThan(home.indexOf("</div>", empty) + 400);
   });
 
-  it("arrives expanded, in view, and ready to type", () => {
-    expect(picker).toContain("openSignal?: number;");
-    expect(picker).toContain("setPickerOpen(true);");
-    expect(picker).toContain('sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })');
+  /**
+   * Pressing it used to scroll the page down to the panel, which is not opening: the page
+   * moved under the athlete and left them to work out that the thing they asked for was
+   * now somewhere below.
+   */
+  it("opens a sheet over the day rather than scrolling the page to a panel", () => {
+    expect(picker).toContain("sheetOpen?: boolean;");
+    expect(picker).toContain('<div className="day-picker-sheet-scrim"');
+    expect(picker).toContain('role="dialog" aria-modal="true"');
+    expect(picker).not.toContain("scrollIntoView");
+    expect(home).toContain("setPickerSheetOpen(true)");
+  });
+
+  it("puts the cursor in the search field, because searching is what it is for", () => {
     expect(picker).toContain("searchRef.current?.focus()");
+    expect(picker).toContain("}, [sheetOpen]);");
   });
 
-  it("re-opens on a second ask rather than latching once", () => {
-    // A boolean would stay true after the athlete closed the picker, so the next ask would
-    // do nothing. The counter makes every ask a fresh one.
-    expect(home).toContain("setPickerOpenSignal((value) => value + 1)");
-    expect(picker).toContain("}, [openSignal]);");
+  it("closes the way every other layer over this page closes", () => {
+    expect(picker).toContain('if (event.key === "Escape") onCloseSheet();');
+    expect(picker).toContain('aria-label="Close add exercises"');
+    // Clicking the scrim itself, not a click that bubbled up from inside the sheet.
+    expect(picker).toContain("if (event.target === event.currentTarget) onCloseSheet?.()");
+    expect(home).toContain("onCloseSheet={() => setPickerSheetOpen(false)}");
+  });
+
+  /**
+   * It rendered in both places at once. The inline disclosure was 3,300px of the
+   * Training Day's 6,400 - the largest block on a page whose job is to show the
+   * day you are building, and a second copy of a surface that already had a door.
+   */
+  it("renders the catalog in the sheet and nowhere else", () => {
+    expect(picker.match(/\{pickerBody\}/g)?.length).toBe(1);
+    expect(picker).not.toContain("{!sheetOpen && pickerBody}");
+    expect(picker).not.toContain('<details className="day-exercise-disclosure"');
+    // The door is the day's own Add exercises and the coverage summary's fix action, both
+    // opening the same sheet. Intentional change, Sep 28 regression brief §8: the separate
+    // white "Find exercises for" card repeated the fix action and is gone.
+    expect(picker).not.toContain('className="day-exercise-open-catalog"');
+    expect(home).toContain("onOpenSheet={() => setPickerSheetOpen(true)}");
+  });
+
+  /**
+   * The coverage read-out named a muscle as the day's worst shortfall and then
+   * offered nothing to do about it but open a modal that named it again.
+   */
+  it("makes a named shortfall open the catalog already filtered to it", () => {
+    expect(picker).toContain("onFixMuscle={(target) => { setMuscle(muscleFilterKey(target)); setQuery(\"\"); onOpenSheet?.(); }}");
+  });
+
+  it("scrolls its results, not the sheet, so the way out stays on screen", () => {
+    expect(styles).toContain(".day-picker-sheet .day-exercise-picker-content { min-height: 0; flex: 1 1 auto; overflow-y: auto;");
+    expect(styles).toContain(".day-picker-sheet-foot");
   });
 });

@@ -25,17 +25,15 @@ const renderPanel = (exercises: Exercise[]) => render(React.createElement(Catalo
 describe("Catalog Discovery traceability presentation", () => {
   afterEach(() => { document.body.innerHTML = ""; });
 
-  it("derives its visible catalog total and labels configured grades without implying a population rank", () => {
-    expect(component).toContain("`All ${exercises.length} exercises`");
+  it("derives its visible catalog total and puts no grade letter on a row", () => {
     expect(component).not.toContain("All 400 exercises");
-    renderPanel([sample()]);
-    // The grade reads as a catalog label, never as a rank among other athletes.
-    // It is shown as the bare letter so it stops crushing the exercise name into
-    // "Incline Ba...", but the full phrasing has to survive for anyone reading
-    // the card by its accessible name or hovering it.
-    const tag = screen.getByLabelText("Catalog tag A");
-    expect(tag.textContent).toBe("A");
-    expect(tag.getAttribute("title")).toContain("a label from the exercise catalog");
+    renderPanel([sample(), sample({ id: 2, name: "Decline Barbell Bench Press" })]);
+    expect(document.querySelector(".catalog-results-count")?.textContent).toBe("2 exercises");
+    // Sep 30 brief §5: the catalog letter rated nothing about a movement, yet sat on
+    // every row beside one, so it moved to the exercise's details, named and explained.
+    expect(screen.queryByLabelText(/Catalog tag/)).toBeNull();
+    expect(document.querySelector(".catalog-discovery-tier")).toBeNull();
+    expect(Array.from(document.querySelectorAll(".catalog-discovery-row *")).some((node) => node.textContent === "A")).toBe(false);
     expect(document.body.textContent).not.toMatch(/percentile|rank(ed|ing)?\b|top \d/i);
   });
 
@@ -48,11 +46,15 @@ describe("Catalog Discovery traceability presentation", () => {
   });
 
   it("leads with a concise discovery header while keeping search and exercise actions available", () => {
-    expect(component).toContain("Exercise catalog");
-    expect(component).toContain("Find an exercise");
-    expect(component).toContain("{exercises.length} options");
-    expect(component).toContain('aria-label="Search exercises"');
-    expect(component).toContain("Filter & sort");
+    // One heading, the page's name; the tab above already says Exercises. Sep 30: the
+    // title follows the mode (lib/exerciseDiscovery), and "Filter & sort" is "Filters"
+    // because it never offered a sort.
+    renderPanel([sample()]);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Exercise catalog");
+    expect(document.body.textContent).not.toContain("Find an exercise");
+    expect(screen.getByRole("textbox", { name: "Search exercises" })).toBeTruthy();
+    expect(document.querySelector(".catalog-discovery-controls > summary")?.textContent).toBe(" Filters");
+    expect(component).not.toContain("Filter & sort");
     expect(component).toContain("onToggleFavorite(exercise)");
     expect(component).toContain("onAdd(exercise)");
   });
@@ -62,8 +64,9 @@ describe("Catalog Discovery traceability presentation", () => {
     expect(component).toContain('if (key !== "query") emitInteractionFeedback();');
     expect(component).toContain('emitInteractionFeedback(); onInspect(exercise);');
     expect(component).toContain('emitInteractionFeedback(); onToggleFavorite(exercise);');
-    expect(component).toContain('emitInteractionFeedback(); onAdd(exercise);');
-    expect(styles).toContain('.catalog-discovery-card-copy:active');
+    // Sep 30: the add goes through one guard that drops a second tap, and it still sounds.
+    expect(component).toContain("emitInteractionFeedback();\n    onAdd(exercise);");
+    expect(styles).toContain('.catalog-discovery-row-copy:active');
     expect(styles).toContain('transform: scale(.97);');
   });
 });
@@ -78,12 +81,41 @@ describe("catalog action-link badge", () => {
     // its place. Same rule as the Genome selector, same helper.
     expect(panel).toContain("labelTellsRowsApart");
     expect(panel).toContain("{connectionTellsCardsApart && connection && connection.label !== \"Not mapped\"");
-    // Judged against the cards actually on screen, not the whole result set.
-    expect(panel).toContain("visibleResults.map((exercise) => visibleConnections.get(exercise.id)?.label ?? \"Not mapped\")");
+    // Judged against the cards actually on screen, not the whole result set. Sep 30:
+    // those are the whole catalog's rows; a movement or muscle row says why it appears instead.
+    expect(panel).toContain("const linkRows = showsActionLinks ? visibleResults : [];");
+    expect(panel).toContain("linkRows.map((exercise) => visibleConnections.get(exercise.id)?.label ?? \"Not mapped\")");
   });
 
   it("states the shared link once instead of dropping it", () => {
-    expect(panel).toContain("sharedConnectionSummary(label, visibleResults.length)");
-    expect(panel).toContain("Action links below are measured against <b>{selectedActionLabel}</b>.{sharedConnection");
+    expect(panel).toContain("sharedConnectionSummary(label, linkRows.length)");
+    // Sep 30: said under the count, with the action's display label.
+    expect(panel).toContain("Action links are measured against <b>{movementDisplayLabel(selectedActionLabel)}</b>.{sharedConnection");
+  });
+});
+
+describe("catalog rows on a phone", () => {
+  const globalStyles = readFileSync(resolve(process.cwd(), "client/src/index.css"), "utf8");
+  const withoutComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  it("keeps every hover style behind (hover: hover), so a tap leaves nothing lit", () => {
+    // Measured before Sep 30: the plus stayed orange after a tap on a phone - a stuck
+    // :hover that read as an added state.
+    const css = withoutComments(styles);
+    const gate = css.indexOf("@media (hover: hover) {");
+    expect(gate).toBeGreaterThan(-1);
+    expect(css.slice(0, gate)).not.toContain(":hover");
+    expect(css.slice(gate).match(/:hover/g)?.length).toBeGreaterThan(0);
+  });
+
+  it("draws rows with dividers, not as cards inside a panel", () => {
+    // Renamed from "-card": the app-wide surface rules key on it, and its entrance rise replayed on every row mount. The button radius is still squared here.
+    expect(styles).toContain(".catalog-discovery .catalog-discovery-row, .catalog-discovery .catalog-discovery-row-copy { border-radius: 0; box-shadow: none; transform: none; }");
+    expect(styles).toMatch(/\.catalog-discovery-row \{[^}]*border-bottom: 1px solid var\(--sg-divider-on-dark\)/);
+    // No outer gradient panel and no per-row elevation from the global sheet.
+    expect(globalStyles).not.toContain(".destination-body .catalog-discovery {");
+    expect(globalStyles).not.toMatch(/\.destination-body \.catalog-discovery[ ,{]/);
+    expect(globalStyles).not.toMatch(/\.catalog-discovery-row(:hover)? \{/);
+    expect(globalStyles).not.toMatch(/,\s*\.catalog-discovery-row(:hover)?\s*\{/);
   });
 });

@@ -60,7 +60,7 @@ describe("Training Day prescription card layout above the phone breakpoint", () 
 describe("mobile Training Day card action layout", () => {
   it("keeps ordering controls compactly within the card header and clear of the disclosure chevron", () => {
     expect(stylesheet).toContain(".day-orderable-exercise .day-order-controls { position: absolute !important; top: .7rem; right: .7rem;");
-    expect(stylesheet).toContain("width: 34px; min-width: 34px; height: 44px");
+    expect(stylesheet).toContain("width: 44px; min-width: 44px; height: 44px");
     // The reorder arrows are absolutely positioned over the row, so the summary
     // reserves their width. Measured at 390px and 1366px: without it the chevron
     // renders underneath them and the row looks like it does not open.

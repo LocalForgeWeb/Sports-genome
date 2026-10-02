@@ -13,14 +13,29 @@ in the repository holds their values, and nothing should.
 | Setting | What stops working without it | Value |
 | --- | --- | --- |
 | `VITE_SUPABASE_URL` | Every research-backed surface: the approved norms registry, the evidence library, the sport profile. The API answers, but with empty results. | `https://qiccnqkypbhlwpmjcsri.supabase.co` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Same as above — the registry reads behind the service role, because `app_reference_eligibility` and the norms tables are not browser-readable and should not be. | Supabase → project `qiccnqkypbhlwpmjcsri` → Settings → API → `service_role` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Same as above — the registry reads behind the service role, because `app_reference_eligibility` and the norms tables are not browser-readable and should not be. It also turns off **targeted capacity**: `resilience.targetCatalog` answers `unavailable`, so the "something you want stronger / anything going on there right now" step in onboarding and the same card in the profile collapse to a boundary sentence with nothing selectable. The 26 rows in `app_resilience_target_catalog_v1` are there and correct; nothing can read them. | Supabase → project `qiccnqkypbhlwpmjcsri` → Project Settings → API Keys. Either key shape works: a new **secret** key (`sb_secret_...`, created under "Secret keys") or the legacy `service_role` JWT under "Legacy API keys". Not the publishable/`anon` key — see below. |
 | `DATABASE_URL` | Accounts and anything saved to one: workout sessions, saved tests, favourites, priorities. Device-local records still work. | The MySQL connection string |
-| `OWNER_OPEN_ID` | Owner-only routes. | The owner's open id |
 
 `VITE_SUPABASE_URL` is read by the server (`server/normsRegistry.ts` and the other
 Supabase adapters), despite the `VITE_` prefix. The prefix is historical; it is not a
 browser-exposed value in any code path that matters, and the service-role key never
 leaves the function.
+
+## Which Supabase key, and why not the public one
+
+`SUPABASE_SERVICE_ROLE_KEY` holds whichever of the two server-side key shapes the project
+was given. `server/supabaseServiceHeaders.ts` decides the headers from the shape, because
+the two are not interchangeable at the wire level: a legacy `service_role` key is a JWT and
+travels in `Authorization: Bearer` as well as `apikey`, while a `sb_secret_...` key is opaque
+and Supabase's gateway rejects it as a bearer token — it only translates the `apikey` header.
+Sending both unconditionally worked until the day a secret key arrived, and then failed with
+a 401 naming neither the key nor the header.
+
+The publishable (`anon`) key cannot stand in for either. `strength_norms` and
+`strength_norm_source_policy` grant `SELECT` to `authenticated` and `service_role` only, and
+`app_strength_beta_curves_v1` is `security_invoker = true`, so the view runs with the caller's
+permissions and an anon caller reads nothing. That is deliberate: it is what keeps the norms
+tables off the browser.
 
 `VITE_ANALYTICS_ENDPOINT` and `VITE_ANALYTICS_WEBSITE_ID` are optional. The analytics
 tag is emitted only when both are set, so leaving them unset ships no tag at all
@@ -51,6 +66,19 @@ credential quoted by a transport error is redacted before it is returned.
 An empty registry is never an error state for an athlete: every observation resolves to
 an explicit "no comparison available", and the workspace says the library is offline
 rather than implying the lift failed a gate.
+
+Targeted capacity has no status route of its own; read its catalog directly. A healthy
+answer is `"status":"connected"` with a non-empty `targets` array.
+
+```
+GET /api/trpc/resilience.targetCatalog
+{"result":{"data":{"json":{"status":"unavailable","targets":[],"boundary":"…"}}}}
+```
+
+`unavailable` here means the same thing as `unconfigured` above and has the same single
+cause in practice: the service-role key is not set on the deployment. It is not a
+failure of the Supabase data — check `select count(*) from app_resilience_target_catalog_v1`
+before looking anywhere else.
 
 ## Why the API had to be bundled
 

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { StrengthPercentileResult } from "@shared/strengthPercentile";
 
@@ -23,6 +23,8 @@ vi.mock("@/lib/trpc", () => ({
         },
       },
     },
+    // The muscle-rank route: no answer here keeps the map in the coverage view these tests describe.
+    strengthProfile: { muscleRanks: { useQuery: () => ({ data: undefined }) } },
     researchEvidence: { supabaseInventory: { useQuery: () => ({ data: { status: "unavailable" } }) } },
     repair: { deleteStrengthObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) } },
     strengthGenome: {
@@ -98,7 +100,8 @@ describe("a logged lift gets a percentile from the community curves", () => {
   it("shows the placement where the record used to say there was no ranking", () => {
     openBiceps({ sexForReference: "male", baselineBodyWeight: 176 });
     expect(screen.getByText("63rd percentile")).toBeTruthy();
-    expect(screen.queryByText(/No ranking for this lift yet/)).toBeNull();
+    // Renamed from "No ranking for this lift yet" (Sep 30 §6).
+    expect(screen.queryByText(/No comparison rank available/)).toBeNull();
   });
 
   /**
@@ -125,8 +128,13 @@ describe("a logged lift gets a percentile from the community curves", () => {
   it("says nothing about a placement that did not happen", () => {
     mocks.percentile.mockReturnValue({ status: "unavailable", reason: "no_curve_for_exercise" });
     openBiceps({ sexForReference: "male", baselineBodyWeight: 176 });
-    expect(screen.queryByText(/percentile/)).toBeNull();
-    expect(screen.getByText(/No ranking for this lift yet/)).toBeTruthy();
+    // Scoped to the record: the How ranks work disclosure below names the
+    // percentile bands in general, which is not a placement of this lift.
+    const record = screen.getByRole("region", { name: "Biceps recorded strength context" });
+    expect(within(record).queryByText(/percentile/)).toBeNull();
+    // Renamed and moved into a visible row with its reason (Sep 30 §6).
+    expect(within(record).getByText("No comparison rank available for this lift")).toBeTruthy();
+    expect(within(record).getByText("No comparison data for Cable Curl yet.")).toBeTruthy();
   });
 
   /**
@@ -137,5 +145,17 @@ describe("a logged lift gets a percentile from the community curves", () => {
     mocks.percentile.mockReturnValue({ status: "unavailable", reason: "sex_required" });
     openBiceps({ baselineBodyWeight: 176 });
     expect(screen.getByText(/Add the sex to compare against in About Me/)).toBeTruthy();
+  });
+
+  /**
+   * EN-16: the scale lists National and World Stage, but a muscle score tops out near 94.9
+   * (anchors stop at the 95th percentile, and no lift passes its whole signal to a muscle).
+   * The legend says so rather than offering bands a muscle cannot reach.
+   */
+  it("says muscle groups cannot reach the top two bands yet", () => {
+    render(React.createElement(StrengthGenomePanel, { directAccess: true, weightUnit: "lb" }));
+    const note = document.querySelector("[data-muscle-rank-ceiling]");
+    expect(note?.textContent).toMatch(/no muscle group can reach National or World Stage/);
+    expect(note?.textContent).toMatch(/only steady are not ranked/);
   });
 });

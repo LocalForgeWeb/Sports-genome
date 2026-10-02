@@ -1,3 +1,6 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
+import { BoundedCache, withTimeout } from "./boundedCache";
+import { numberOrNull, textOrNull } from "./rowValues";
 import type {
   SupabaseSportExerciseRecommendation,
   SupabaseSportMovementDemand,
@@ -49,25 +52,11 @@ type RecommendationRow = {
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
-const profileCache = new Map<
-  string,
-  { expiresAt: number; value: SupabaseSportProfile }
->();
+// Bounded: the key is whatever sport id the caller sends.
+const profileCache = new BoundedCache<string, SupabaseSportProfile>(200, CACHE_TTL_MS);
 
 const CONNECTED_BOUNDARY =
   "Sport demand and recommendation records describe population-level evidence from the Sports Genome research registry. They add reasoning context here and do not replace the local exercise catalog, athlete-specific mechanics, or existing recommendation scoring.";
-
-function textOrNull(value: unknown): string | null {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
-}
-
-function numberOrNull(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string" && value.trim() && Number.isFinite(Number(value))) {
-    return Number(value);
-  }
-  return null;
-}
 
 function integerOrNull(value: unknown): number | null {
   const parsed = numberOrNull(value);
@@ -117,13 +106,9 @@ export function createSupabaseSportProfileClient({
     for (const [key, value] of Object.entries(params)) {
       requestUrl.searchParams.set(key, value);
     }
-    const response = await fetchImplementation(requestUrl, {
-      headers: {
-        Accept: "application/json",
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-      },
-    });
+    const response = await fetchImplementation(requestUrl, withTimeout({
+      headers: supabaseServiceHeaders(serviceRoleKey),
+    }));
     if (!response.ok) {
       throw new Error(`Supabase ${table} request failed (${response.status})`);
     }
@@ -247,12 +232,12 @@ export async function getSupabaseSportProfile(
   sportId: string
 ): Promise<SupabaseSportProfile> {
   const cached = profileCache.get(sportId);
-  if (cached && cached.expiresAt > Date.now()) return cached.value;
+  if (cached) return cached;
   const client = getRuntimeClient();
   if (!client) return unavailableProfile(sportId, "unavailable");
   try {
     const value = await client.getSportProfile(sportId);
-    profileCache.set(sportId, { value, expiresAt: Date.now() + CACHE_TTL_MS });
+    profileCache.set(sportId, value);
     return value;
   } catch (error) {
     console.warn("[Supabase sport profile] lookup unavailable", {

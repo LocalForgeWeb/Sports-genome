@@ -38,7 +38,8 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
 
   it("uses the shared selected-action mapping helper and clearly bounds the connection claim", () => {
     expect(source).toContain("getExerciseActionConnection(exercise, enrichedMovement)");
-    expect(source).toContain("Your selected sport action");
+    // "In view", not "selected": in movement discovery it can be a browsed sport's action.
+    expect(source).toContain("Sport action in view");
     expect(source).toContain("It is not proof that training it improves your skill on the field");
   });
 
@@ -87,5 +88,15 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
       expect(markup).toContain(source);
       expect(markup).toContain(boundary);
     }
+  });
+
+  it("ships no styles for the retired Genome selector list", () => {
+    // The selector rows, their connection pills and the scope line were only
+    // emitted by the deleted ExerciseGenomeWorkspace; the panel renders none of
+    // them, so neither the rules nor the "staged migration" note about them stay.
+    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+    expect(css).not.toMatch(/\.genome-selector-/);
+    expect(css).not.toContain("prior inline Genome selector");
+    expect(source).not.toContain("genome-selector");
   });
 });

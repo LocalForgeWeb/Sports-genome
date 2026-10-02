@@ -143,8 +143,10 @@ describe("the chart selection carries the exact region", () => {
     const choose = map.slice(map.indexOf("const chooseRegion = useCallback"), map.indexOf("const chooseRegion = useCallback") + 260);
     expect(choose).toContain('setSelectedId(pathId ?? "")');
     expect(map).not.toContain("const reset =");
-    // Every list-driven selection and the clear button drop the id.
-    const listWrites = (map.match(/setSelectedKey\(region\.key\); setSelectedId\(""\)/g) || []).length;
+    // Every list-driven selection goes through one helper that drops the id,
+    // and the clear button drops it too.
+    expect(map).toContain('const pickRow = (key: string) => { setSelectedKey(key); setSelectedId(""); setSelectedPart("");');
+    const listWrites = (map.match(/onClick=\{\(\) => pickRow\(region\.key\)\}/g) || []).length;
     expect(listWrites).toBeGreaterThanOrEqual(2);
     expect(map).toContain('setSelectedKey(""); setSelectedId(""); setSelectedPart("")');
   });

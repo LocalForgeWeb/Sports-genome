@@ -124,9 +124,12 @@ export function UniversalSearch({ onOpenResult }: { onOpenResult: (result: Searc
       aria-label="Search Sports Genome"
       aria-haspopup="dialog"
       aria-expanded={open}
+      title="Search Sports Genome (⌘K or Ctrl+K)"
     >
       <Search className="h-4 w-4 shrink-0" aria-hidden />
       <span>Search</span>
+      {/* The shortcut, shown where there is a keyboard to use it (desktop widths, see index.css). */}
+      <kbd className="universal-search-kbd" aria-hidden="true">⌘K</kbd>
     </button>
 
     {/* Portalled to the body: the topbar carries a backdrop-filter, which makes

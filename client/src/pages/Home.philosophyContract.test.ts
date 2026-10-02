@@ -32,38 +32,40 @@ describe("Home answers state, priority, and next action", () => {
   // "home-state-priority-action" (strong, primary application): the first major
   // viewport communicates current state/trend, the highest-value priority, and the
   // next best action. Secondary content must not compete for first attention.
-  it("puts the state and next-action panel ahead of the hero and the decision grid", () => {
-    expect(order("<TodayActionPanel")).toBeLessThan(order("<CommandHero"));
+  it("puts the next-action panel ahead of the three doors, and those ahead of the one movement insight", () => {
+    expect(order("<TodayActionPanel")).toBeLessThan(order('className="home-explore"'));
+    expect(order('className="home-explore"')).toBeLessThan(order('className="home-focus"'));
+    // The three doors, each with a destination that exists.
+    expect(home).toContain("<strong>Find exercises</strong>");
+    expect(home).toContain("<strong>Explore muscles &amp; movements</strong>");
+    expect(home).toContain("<strong>View strength progress</strong>");
+    expect(home).not.toContain('className="home-priority"');
   });
 
   // Anti-pattern for the same principle: "surfacing low-value novelty above a
-  // high-value action". Sport/goal/day and gym-time selects are configuration, not
-  // state, so they sit after the decision content.
-  it("keeps plan-input configuration below the decision content", () => {
-    const inputs = order('className="home-input-disclosure"');
-    expect(order("<TodayActionPanel")).toBeLessThan(inputs);
-    expect(order("<CommandHero")).toBeLessThan(inputs);
+  // high-value action". Sport/goal/day and session-time controls are
+  // configuration, not state: they live on Profile, one owner, and Home carries
+  // an entry point to them after the decision content.
+  it("keeps plan-input configuration off Home, behind one entry point to Profile", () => {
+    expect(home).not.toContain('className="home-input-disclosure"');
+    expect(home).not.toContain('className="gym-time-budget-card"');
+    // The brand row's context line is the way in, and says so.
+    const entry = order('title="Edit training preferences"');
+    expect(home.slice(entry - 160, entry)).toContain('navigateWorkspace("profile")');
   });
 
-  // "overview-first-detail-on-demand": complexity stays reachable behind a labelled
-  // disclosure rather than being deleted - the same rule requires that manual
-  // complexity controls remain available.
-  it("keeps both input decks reachable inside the labelled disclosure", () => {
-    const disclosure = home.slice(
-      order('className="home-input-disclosure"'),
-      home.indexOf("</details>", order('className="home-input-disclosure"'))
-    );
-    expect(disclosure).toContain('className="home-preference-deck"');
-    expect(disclosure).toContain('className="gym-time-budget-card"');
-    expect(disclosure).toContain("<summary>");
-    expect(home).not.toContain('{workspace === "command" && <section className="home-preference-deck"');
-    expect(home).not.toContain('{workspace === "command" && <section className="gym-time-budget-card"');
+  // "overview-first-detail-on-demand": the controls are not deleted, they moved.
+  // Session time joins goal and days on Profile so every input still has an owner.
+  it("keeps every plan input reachable on Profile", () => {
+    expect(home).toContain("gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))}");
+    const profile = readFileSync(new URL("../components/AthleteAboutMePanel.tsx", import.meta.url), "utf8");
+    expect(profile).toContain("<legend>Workout length (minutes)</legend>");
+    expect(profile).toContain("gymTimeOptions.map((minutes) =>");
   });
 
-  it("gives the state layer a visible place above the next action", () => {
-    expect(panel.indexOf('className="today-action-state"')).toBeLessThan(
-      panel.indexOf('className="today-action-primary"')
-    );
+  it("gives the one insight a visible place below the next action and the week", () => {
+    expect(panel.indexOf('className="today-action-primary"')).toBeLessThan(panel.indexOf('className="home-week"'));
+    expect(panel.indexOf('className="home-week"')).toBeLessThan(panel.indexOf('className="today-action-state"'));
     expect(styles).toContain(".today-action-state {");
   });
 });
@@ -95,10 +97,10 @@ describe("Home does not narrate noise as progress", () => {
     expect(leadingConfirmedChange([])).toBeNull();
   });
 
-  it("keeps the unconfirmed copy free of a directional claim", () => {
-    expect(panel).toContain("No change yet is large enough to call a real one rather than normal variation.");
+  it("keeps the confirmed-change copy inside its boundary and says nothing below the threshold", () => {
     // The boundary the app states everywhere else travels with the headline.
     expect(panel).toContain("not a rank against other people");
+    expect(panel).toContain("{leadingChange\n      ? <section className=\"today-action-state\"");
   });
 });
 
@@ -189,13 +191,9 @@ describe("Home names one priority and gives it an action posture", () => {
     expect(second).toEqual(first);
   });
 
-  it("renders the priority between the state layer and the next action", () => {
-    expect(panel.indexOf('className="today-action-state"')).toBeLessThan(
-      panel.indexOf("today-action-priority")
-    );
-    expect(panel.indexOf("today-action-priority")).toBeLessThan(
-      panel.indexOf('className="today-action-primary"')
-    );
+  it("renders the record prompt below the next action, only for a gate the athlete can close", () => {
+    expect(panel.indexOf('className="today-action-primary"')).toBeLessThan(panel.indexOf('className="today-action-priority"'));
+    expect(panel).toContain('const recordPrompt = priority.id.startsWith("gate:") ? priority : null;');
     expect(styles).toContain(".today-action-priority {");
   });
 
@@ -205,16 +203,14 @@ describe("Home names one priority and gives it an action posture", () => {
     // level than the block that follows it.
     const levels = [...panel.matchAll(/<h([1-6])/g)].map(match => Number(match[1]));
     expect(levels.length).toBeGreaterThan(1);
-    levels.slice(1).forEach((level, index) => {
-      expect(level, `heading ${index + 2} does not jump backwards`).toBeLessThanOrEqual(levels[index] + 1);
-    });
-    expect(new Set(levels).size, "sibling blocks share one heading level").toBe(1);
+    // One h1 names the page; every block under it is an h2.
+    expect(levels[0]).toBe(1);
+    expect(new Set(levels.slice(1)), "sibling blocks share one heading level").toEqual(new Set([2]));
   });
 
-  it("states the posture in text rather than leaving colour to carry it", () => {
+  it("names the prompt in text rather than leaving colour to carry it", () => {
     // semantic-accessibility-equivalence: meaning must survive when colour is absent.
-    expect(panel).toContain("Where attention goes");
-    expect(panel).toContain('postureLabel[priority.posture]');
-    expect(panel).toContain('act: "Act", inspect: "Inspect", measure: "Measure"');
+    expect(panel).toContain("Next for your record");
+    expect(panel).toContain('aria-label="Next for your record"');
   });
 });

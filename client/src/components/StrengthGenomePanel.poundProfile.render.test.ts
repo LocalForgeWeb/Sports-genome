@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/trpc", () => ({
   trpc: {
     useUtils: () => ({ strengthGenome: { overview: { invalidate: mocks.invalidate }, observations: { invalidate: mocks.invalidate }, priorities: { invalidate: mocks.invalidate } } }),
+    // The muscle-rank route: no answer here keeps the map in the coverage view these tests describe.
+    strengthProfile: { muscleRanks: { useQuery: () => ({ data: undefined }) } },
     researchEvidence: { supabaseInventory: { useQuery: () => ({ data: { status: "unavailable" } }) } },
     // The repair router backs the "remove this test" control in the history list.
     repair: { deleteStrengthObservation: { useMutation: () => ({ mutate: mocks.mutate, isPending: false }) } },

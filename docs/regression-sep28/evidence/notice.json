@@ -1,0 +1,525 @@
+{
+ "device": {
+  "focusRowButtons": [
+   "Review training"
+  ],
+  "aboutMeGroups": [
+   "Equipment",
+   "Training priorities",
+   "Account & sync",
+   "Appearance",
+   "Security",
+   "Guides & research",
+   "Launch video"
+  ],
+  "accountSummary": "Saved on this device",
+  "favoriteToasts": [
+   "Saved to favorites"
+  ],
+  "favoriteStored": "[1]",
+  "protectedCalls": [],
+  "signInToasts": 0,
+  "dot": 0
+ },
+ "lapse": {
+  "beforeLapseSignInToasts": 0,
+  "notice": {
+   "title": "You're signed out of your account",
+   "description": "Changes you make are kept on this device. This version can't sign in again, so account sync has stopped.",
+   "action": "Account & sync",
+   "close": 1
+  },
+  "dot": 1,
+  "dotDescribed": "topbar-session-status",
+  "visibleAfterCloseTap": 0,
+  "signInToastShows": 1,
+  "refusedCalls": 6,
+  "accountSummary": "Signed out of your account",
+  "securityGroup": 1,
+  "action": {
+   "url": "?workspace=profile",
+   "open": true,
+   "inView": true,
+   "note": "You're signed out of your account. Changes you make are kept on this device. This version can't sign in again, so account sync has stopped."
+  },
+  "afterReloadSignInToasts": 0
+ },
+ "placement": [
+  {
+   "width": 320,
+   "catalog-closed": {
+    "toast": {
+     "top": 626,
+     "bottom": 698,
+     "title": "Saved to favorites",
+     "clear": "146px"
+    },
+    "strip": [
+     {
+      "label": "Adding to Week 1 · PushChange",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   },
+   "catalog-open": {
+    "toast": {
+     "top": 370,
+     "bottom": 458,
+     "title": "Saved to favorites",
+     "clear": "386px"
+    },
+    "strip": [
+     {
+      "label": "Adding to Week 1 · PushClose",
+      "toast": false
+     },
+     {
+      "label": "Day 01 · PushEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 02 · PullEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 03 · LegsEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 04 · UpperEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 05 · Sport TransferEmpty",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   },
+   "strength": {
+    "toast": {
+     "top": 536,
+     "bottom": 693,
+     "title": "You're signed out of your account",
+     "clear": "151px"
+    },
+    "row": [
+     {
+      "label": "Review training",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   }
+  },
+  {
+   "width": 375,
+   "catalog-closed": {
+    "toast": {
+     "top": 640,
+     "bottom": 712,
+     "title": "Saved to favorites",
+     "clear": "132px"
+    },
+    "strip": [
+     {
+      "label": "Adding to Week 1 · PushChange",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   },
+   "catalog-open": {
+    "toast": {
+     "top": 458,
+     "bottom": 530,
+     "title": "Saved to favorites",
+     "clear": "314px"
+    },
+    "strip": [
+     {
+      "label": "Adding to Week 1 · PushClose",
+      "toast": false
+     },
+     {
+      "label": "Day 01 · PushEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 02 · PullEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 03 · LegsEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 04 · UpperEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 05 · Sport TransferEmpty",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   },
+   "strength": {
+    "toast": {
+     "top": 552,
+     "bottom": 693,
+     "title": "You're signed out of your account",
+     "clear": "151px"
+    },
+    "row": [
+     {
+      "label": "Review training",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   }
+  },
+  {
+   "width": 390,
+   "catalog-closed": {
+    "toast": {
+     "top": 640,
+     "bottom": 712,
+     "title": "Saved to favorites",
+     "clear": "132px"
+    },
+    "strip": [
+     {
+      "label": "Adding to Week 1 · PushChange",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   },
+   "catalog-open": {
+    "toast": {
+     "top": 458,
+     "bottom": 530,
+     "title": "Saved to favorites",
+     "clear": "314px"
+    },
+    "strip": [
+     {
+      "label": "Adding to Week 1 · PushClose",
+      "toast": false
+     },
+     {
+      "label": "Day 01 · PushEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 02 · PullEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 03 · LegsEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 04 · UpperEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 05 · Sport TransferEmpty",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   },
+   "strength": {
+    "toast": {
+     "top": 552,
+     "bottom": 693,
+     "title": "You're signed out of your account",
+     "clear": "151px"
+    },
+    "row": [
+     {
+      "label": "Review training",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   }
+  },
+  {
+   "width": 430,
+   "catalog-closed": {
+    "toast": {
+     "top": 640,
+     "bottom": 712,
+     "title": "Saved to favorites",
+     "clear": "132px"
+    },
+    "strip": [
+     {
+      "label": "Adding to Week 1 · PushChange",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   },
+   "catalog-open": {
+    "toast": {
+     "top": 458,
+     "bottom": 530,
+     "title": "Saved to favorites",
+     "clear": "314px"
+    },
+    "strip": [
+     {
+      "label": "Adding to Week 1 · PushClose",
+      "toast": false
+     },
+     {
+      "label": "Day 01 · PushEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 02 · PullEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 03 · LegsEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 04 · UpperEmpty",
+      "toast": false
+     },
+     {
+      "label": "Day 05 · Sport TransferEmpty",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   },
+   "strength": {
+    "toast": {
+     "top": 569,
+     "bottom": 693,
+     "title": "You're signed out of your account",
+     "clear": "151px"
+    },
+    "row": [
+     {
+      "label": "Review training",
+      "toast": false
+     }
+    ],
+    "nav": [
+     {
+      "label": "Home",
+      "toast": false
+     },
+     {
+      "label": "Body Lab",
+      "toast": false
+     },
+     {
+      "label": "Train",
+      "toast": false
+     },
+     {
+      "label": "Progress",
+      "toast": false
+     }
+    ]
+   }
+  }
+ ]
+}

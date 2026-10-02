@@ -43,7 +43,10 @@ describe("the session draft is part of the page, not a layer over it", () => {
 
   it("does not use a broad custom-row selector that can hide active Training Day content", () => {
     expect(source).toContain('workspace === "day-plan"');
-    expect(source).toContain("<WorkoutExecutionPanel");
+    // The inline logger is gone - the Session destination owns the tracker, and
+    // rendering one inside the plan as well was the duplicate surface this file
+    // exists to keep out. What must not come back is the broad selector.
+    expect(source).toContain('onClick={() => navigateWorkspace("tracker")}');
     expect(styles).not.toContain("main > section:has(.custom-row) { display: none; }");
   });
 });
@@ -59,6 +62,20 @@ describe("the draft asks how long you have", () => {
     expect(source).toContain("onMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))}");
     // The chosen window is what sizes the draft.
     expect(source).toContain("buildVariedLoadout(pool, activeSplitDay === \"Sport Transfer\" ? sportSeed : [], activeLoadout, gymTimeBudget.recommendationLimit)");
+  });
+
+  it("ranks the sport once per setting, not again on every training-day switch", () => {
+    // Ranking the sport is the expensive part of a draft, and it does not read
+    // the open day or its loadout, so it lives in its own memo.
+    const seed = source.slice(source.indexOf("const draftSportSeed = useMemo("), source.indexOf("const draftedLoadout = useMemo("));
+    const seedDeps = seed.slice(seed.lastIndexOf("["));
+    expect(seed).toContain("getSportSession(");
+    expect(seedDeps).not.toContain("activeSplitDay");
+    expect(seedDeps).not.toContain("activeLoadout");
+    const draft = source.slice(source.indexOf("const draftedLoadout = useMemo("), source.indexOf("const draftedLoadoutMinutes"));
+    const draftDeps = draft.slice(draft.lastIndexOf("["));
+    expect(draft).not.toContain("getSportSession(");
+    expect(draftDeps).toContain("draftSportSeed");
   });
 
   it("states the cost of the draft before it is made, so the time control cannot be decorative", () => {

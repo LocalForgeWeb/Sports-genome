@@ -1,1 +1,33 @@
-.recovery-spacing-panel { margin-top: 1rem; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light-sunken); padding: 1rem; }.recovery-spacing-head { display: flex; justify-content: space-between; gap: 1rem; }.recovery-spacing-head h3 { margin-top: .2rem; color: var(--sg-text-on-light); font-family: var(--font-display, sans-serif); font-size: 1.45rem; line-height: 1; text-transform: uppercase; }.recovery-spacing-head p:not(.metric-label) { margin-top: .45rem; max-width: 34rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.recovery-spacing-head > svg { flex: 0 0 auto; color: var(--sg-info-strong); }.recovery-spacing-list { display: grid; gap: .6rem; margin-top: .9rem; }.recovery-spacing-list article { border-left: 3px solid #d5ad43; background: #fff; padding: .75rem; }.recovery-spacing-list article.recovery-spacing-priority { border-left-color: var(--sg-action); }.recovery-spacing-list strong, .recovery-spacing-list small { display: block; }.recovery-spacing-list strong { color: #183555; font-size: var(--sg-text-xs); }.recovery-spacing-list small { margin-top: .16rem; color: #8a5d1f; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.recovery-spacing-list p { margin-top: .45rem; color: var(--sg-text-muted-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.recovery-spacing-list em { display: block; margin-top: .45rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-style: normal; line-height: var(--sg-leading-body); }.recovery-spacing-clear { display: flex; gap: .45rem; align-items: flex-start; margin-top: .85rem; border: 1px solid #cddfc5; background: #f5fbf1; padding: .7rem; color: #486a4c; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.recovery-spacing-clear svg { flex: 0 0 auto; }.recovery-spacing-details { margin-top: .8rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.recovery-spacing-details summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; color: #31577c; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.recovery-spacing-details[open] summary svg { transform: rotate(180deg); }.recovery-spacing-details p { margin-top: .6rem; border-left: 2px solid #d5ad43; padding-left: .55rem; }@media (max-width: 640px) { .recovery-spacing-panel { padding: .85rem; } }
+/* Recovery spacing: two compact comparison rows on the app's dark surface.
+
+   This was a light panel - white articles, pale text - dropped onto Review's
+   navy ground, where the dark chrome overrides recoloured its headings to white
+   and left white on white. The component now draws for the surface it lives on. */
+.recovery-spacing-panel { margin-top: 1rem; border: 1px solid var(--sg-control-border-on-dark); background: var(--sg-surface-raised); padding: 1rem; color: var(--sg-text-on-dark); }
+.recovery-spacing-head { display: flex; justify-content: space-between; gap: 1rem; }
+.recovery-spacing-head h3 { margin-top: .2rem; color: var(--sg-text-on-dark); font-family: var(--font-display, sans-serif); font-size: 1.45rem; line-height: 1; text-transform: uppercase; }
+.recovery-spacing-head p:not(.metric-label) { margin-top: .45rem; max-width: 34rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.recovery-spacing-list { display: grid; margin-top: .6rem; border-top: 1px solid var(--sg-divider-on-dark); }
+.recovery-spacing-list article { display: grid; gap: .55rem; border-bottom: 1px solid var(--sg-divider-on-dark); padding: .8rem 0; }
+.recovery-spacing-row-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .4rem .9rem; }
+.recovery-spacing-row-head > div { display: grid; gap: .16rem; min-width: 0; }
+.recovery-spacing-list strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; line-height: var(--sg-leading-snug); }
+.recovery-spacing-list small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-snug); }
+/* One restrained accent, only where the shared exposure is heavy. */
+.recovery-spacing-priority strong::before { content: ""; display: inline-block; width: .5rem; height: .5rem; margin-right: .45rem; border-radius: 999px; background: var(--sg-state-caution); vertical-align: middle; }
+.recovery-spacing-row-head button { display: inline-flex; align-items: center; gap: .3rem; min-height: 2.25rem; border: 1px solid var(--sg-control-border-on-dark); padding: 0 .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.recovery-spacing-row-head button:hover { border-color: var(--sg-focus-on-dark); }
+.recovery-spacing-row-head button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.recovery-spacing-muscles { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.recovery-spacing-muscles li { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .2rem .8rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-snug); }
+.recovery-spacing-values { color: var(--sg-text-muted-on-dark); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.recovery-spacing-values b { color: var(--sg-text-on-dark); font-weight: 600; }
+.recovery-spacing-values i { margin: 0 .15rem; font-style: normal; color: var(--sg-text-subtle-on-dark); }
+.recovery-spacing-values small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
+.recovery-spacing-more { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
+.recovery-spacing-clear { margin: .7rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.recovery-spacing-details { margin-top: .8rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.recovery-spacing-details summary { display: flex; min-height: 2.75rem; cursor: pointer; align-items: center; justify-content: space-between; color: var(--sg-link-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.recovery-spacing-details[open] summary svg { transform: rotate(180deg); }
+.recovery-spacing-details p { margin-top: .4rem; }
+@media (max-width: 640px) { .recovery-spacing-panel { padding: .85rem; } }

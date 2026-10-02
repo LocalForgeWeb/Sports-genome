@@ -1,7 +1,10 @@
 import React from "react";
 import { useId, useMemo, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { anatomyViewBox, anatomyViews } from "./figureGeometry";
+import type { RankId } from "@shared/capabilityRank";
+import { rankPaint } from "./rankPaint";
+import { RankIcon } from "@/components/RankIcon";
 import "./anatomy-region-grid.css";
 
 /**
@@ -27,6 +30,12 @@ export type AnatomyRegionRow = {
   state: string;
   /** Whether the figure is highlighting this region. Drives tone, never rank. */
   active: boolean;
+  /** Strength/Rank mode: the region's rank, shown as an emblem and as the thumbnail's fill. */
+  rankId?: RankId;
+  /** Strength/Rank mode with no rank: hatched like the main map, not painted like Prospect. */
+  unscored?: boolean;
+  /** Picked out by a legend band, so "which of mine are Varsity" has an answer in the list. */
+  highlighted?: boolean;
 };
 
 /**
@@ -39,7 +48,8 @@ function thumbView(muscleKeys: readonly string[]): "front" | "back" {
   return count("back") > count("front") ? "back" : "front";
 }
 
-function RegionThumb({ muscleKeys, active, shellId }: { muscleKeys: readonly string[]; active: boolean; shellId: string }) {
+function RegionThumb({ muscleKeys, active, shellId, rankId, unscored }: { muscleKeys: readonly string[]; active: boolean; shellId: string; rankId?: RankId; unscored?: boolean }) {
+  const fill = rankPaint(rankId ?? (unscored ? "unscored" : undefined), `${shellId}-unscored`);
   const view = thumbView(muscleKeys);
   const paths = useMemo(
     () => anatomyViews[view].muscles.filter((muscle) => muscleKeys.includes(muscle.key)).flatMap((muscle) => muscle.paths),
@@ -54,7 +64,7 @@ function RegionThumb({ muscleKeys, active, shellId }: { muscleKeys: readonly str
       focusable="false"
     >
       <use href={`#${shellId}-${view}`} />
-      {paths.map((path) => <path key={path.id} className="region-thumb-muscle" d={path.d} />)}
+      {paths.map((path) => <path key={path.id} className="region-thumb-muscle" d={path.d} style={fill ? { fill } : undefined} data-rank={rankId} data-unscored={!rankId && unscored ? "true" : undefined} />)}
     </svg>
   );
 }
@@ -64,7 +74,7 @@ export function AnatomyRegionGrid({
   selectedId,
   onSelect,
   label,
-  initialVisible = 6,
+  initialVisible = 4,
 }: {
   rows: readonly AnatomyRegionRow[];
   selectedId?: string;
@@ -85,18 +95,17 @@ export function AnatomyRegionGrid({
     () => [...rows].sort((a, b) => Number(b.active) - Number(a.active)),
     [rows],
   );
-  const activeCount = ordered.filter((row) => row.active).length;
   /**
-   * Collapsed by default. Eighteen cards all reading "Nothing yet" is a wall
-   * rather than a menu, and the ones worth opening are the ones with something
-   * in them — so the list opens on those and never truncates them.
+   * Collapsed by default. Eighteen rows all reading "Nothing yet" is a wall
+   * rather than a menu, so the list opens on the few worth opening - the ones
+   * with something in them come first - and "View all" says how many there are.
    */
   const collapsible = ordered.length > initialVisible;
-  const visible = !collapsible || expanded ? ordered : ordered.slice(0, Math.max(initialVisible, activeCount));
+  const visible = !collapsible || expanded ? ordered : ordered.slice(0, initialVisible);
   const hidden = ordered.length - visible.length;
 
   return (
-    <div className="region-grid-block">
+    <div className="region-grid-block" data-encoding={rows.some((row) => row.rankId || row.unscored) ? "rank" : undefined}>
       {/* The two shells, drawn once and referenced by every thumbnail, so the
           grid costs one body outline rather than eighteen. */}
       <svg className="region-thumb-defs" aria-hidden="true" focusable="false">
@@ -106,6 +115,11 @@ export function AnatomyRegionGrid({
               {anatomyViews[view].shell.map((d, i) => <path key={i} className="region-thumb-shell" d={d} />)}
             </g>
           ))}
+          {/* The main map's unscored hatch, the same colours and pitch. */}
+          <pattern id={`${shellId}-unscored`} patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(45)">
+            <rect width="16" height="16" fill="var(--sg-rank-unavailable-fill)" />
+            <rect width="1.5" height="16" fill="var(--sg-rank-unavailable-hatch)" />
+          </pattern>
         </defs>
       </svg>
 
@@ -121,13 +135,24 @@ export function AnatomyRegionGrid({
             type="button"
             className="region-grid-card"
             data-active={row.active ? "true" : undefined}
+            data-highlighted={row.highlighted ? "true" : undefined}
             aria-label={`${row.label}, ${row.state}`}
             aria-pressed={selectedId === row.id}
             onClick={() => onSelect(row.id)}
           >
-            <RegionThumb muscleKeys={row.muscleKeys} active={row.active} shellId={shellId} />
+            <RegionThumb muscleKeys={row.muscleKeys} active={row.active} shellId={shellId} rankId={row.rankId} unscored={row.unscored} />
             <span className="region-grid-name">{row.label}</span>
-            <span className="region-grid-state">{row.state}</span>
+            {row.rankId ? (
+              // The badge spans two short lines - rank name over percentile - so it can be
+              // 28px, a size the approved artwork still reads at, without making the card any
+              // taller than its two lines already are. On one line the pair measured ~106px
+              // against a ~90px column on a phone and ran under the chevron.
+              <span className="region-grid-state region-grid-state-ranked">
+                <RankIcon rankId={row.rankId} size={28} className="region-grid-emblem" />
+                <span className="region-grid-rank">{row.state.split(" · ")[0]}</span>
+                {row.state.includes(" · ") && <span className="region-grid-percentile">{row.state.split(" · ").slice(1).join(" · ")}</span>}
+              </span>
+            ) : <span className="region-grid-state">{row.state}</span>}
             <ChevronRight className="region-grid-chevron h-4 w-4" aria-hidden="true" />
           </button>
         ))}
@@ -135,7 +160,7 @@ export function AnatomyRegionGrid({
 
       {collapsible && (hidden > 0 || expanded) && (
         <button type="button" className="region-grid-toggle" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
-          {expanded ? "Show fewer" : `Show all ${ordered.length} regions`}
+          {expanded ? "Show fewer regions" : `View all ${ordered.length} regions`}<ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
       )}
     </div>

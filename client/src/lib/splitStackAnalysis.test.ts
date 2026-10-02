@@ -44,13 +44,15 @@ describe("split stack analysis", () => {
  * one silent zero among seven splits reads as a gap, not as a bug.
  */
 describe("split targets the catalog can actually grade", () => {
-  it("names a muscle key that at least one exercise carries, for every split", () => {
+  it("names a target some exercise in the catalog can actually move", () => {
+    // Not "some exercise carries this exact tag": the Pull split asks for
+    // `rhomboids`, which no catalog row is tagged with, and the matcher resolves
+    // it through the muscle vocabulary instead. What has to hold is the thing an
+    // athlete sees - that the row can leave zero at all.
     for (const split of splitsWithRequirements) {
       for (const requirement of getSplitRequirements(split)) {
-        const carriers = exercises.filter(
-          (item) => item.primaryMuscles.includes(requirement.muscle) || item.secondaryMuscles.includes(requirement.muscle),
-        );
-        expect(carriers.length, `${split} target "${requirement.muscle}" is carried by no exercise, so it can never leave 0`).toBeGreaterThan(0);
+        const mover = exercises.find((item) => analyzeSplitStack([item], exercises, split).ratings.find((rating) => rating.muscle === requirement.muscle)!.score > 0);
+        expect(mover, `${split} target "${requirement.muscle}" cannot be moved off 0 by any of the ${exercises.length} exercises`).toBeDefined();
       }
     }
   });
@@ -74,11 +76,12 @@ describe("split targets the catalog can actually grade", () => {
     const tBarRow = exercises.find((item) => item.name === "T-Bar Row")!;
     expect(tBarRow.primaryMuscles, "the catalog's own name for the region").toContain("upperBack");
 
+    // The target keeps the anatomical name the athlete reads...
     const pull = getSplitRequirements("Pull");
-    expect(pull.map((requirement) => requirement.muscle)).toContain("upperBack");
-    expect(pull.map((requirement) => requirement.muscle), "not a key no exercise has").not.toContain("rhomboids");
+    expect(pull.map((requirement) => requirement.muscle)).toContain("rhomboids");
 
-    const rating = analyzeSplitStack([tBarRow], exercises, "Pull").ratings.find((item) => item.muscle === "upperBack")!;
+    // ...and a row's upperBack work still has to land on it.
+    const rating = analyzeSplitStack([tBarRow], exercises, "Pull").ratings.find((item) => item.muscle === "rhomboids")!;
     expect(rating.score).toBeGreaterThan(0);
     expect(rating.state, "one direct row clears the gap threshold").not.toBe("gap");
   });

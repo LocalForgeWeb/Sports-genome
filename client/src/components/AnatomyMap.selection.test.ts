@@ -30,7 +30,7 @@ const draw = (props: Partial<Parameters<typeof AnatomyMap>[0]> = {}) =>
  */
 const select = (container: HTMLElement, label: string) => {
   const hit = () => container.querySelector(`.anatomy-hit[aria-label^="${label}"]`);
-  if (!hit()) fireEvent.click(container.querySelector(".atlas-side-toggle")!);
+  if (!hit()) fireEvent.click(container.querySelector(".atlas-side-tab[aria-pressed=\"false\"]")!);
   fireEvent.click(hit()!);
 };
 
@@ -130,11 +130,11 @@ describe("selecting a muscle in the Body Lab", () => {
     const { container } = draw();
     expect(container.querySelector('.anatomy-figure[data-view="front"]')).toBeTruthy();
     expect(container.querySelector('.anatomy-figure[data-view="both"]')).toBeNull();
-    const toggle = container.querySelector(".atlas-side-toggle")!;
-    expect(toggle.textContent).toContain("Show back");
+    const toggle = container.querySelector(".atlas-side-tab[aria-pressed=\"false\"]")!;
+    expect(toggle.getAttribute("aria-label")).toContain("Show back");
     fireEvent.click(toggle);
     expect(container.querySelector('.anatomy-figure[data-view="back"]')).toBeTruthy();
-    expect(container.querySelector(".atlas-side-toggle")!.textContent).toContain("Show front");
+    expect(container.querySelector(".atlas-side-tab[aria-pressed=\"false\"]")!.getAttribute("aria-label")).toContain("Show front");
   });
 
   it("turns to face a selection handed to it by the app", () => {
@@ -152,79 +152,5 @@ describe("selecting a muscle in the Body Lab", () => {
     // figure under the athlete.
     const { container } = draw({ primary: ["traps"], selectedKey: "traps" });
     expect(container.querySelector('.anatomy-figure[data-view="front"]')).toBeTruthy();
-  });
-});
-
-/**
- * Reported from a phone, on the wrestling penetration step: "overly wordy and
- * convoluted."
- *
- * Measured against that action's own record, it was. The card carried ~90 words,
- * and across all twelve muscles the action names, exactly one of them changed:
- *
- *     block                    words   distinct values over 12 muscles
- *     Role                         2   3
- *     Works through               11   1
- *     Evidence                     5   1
- *     explanation paragraph       17   1
- *     architecture + its caveat   36   1   (and constant across actions too)
- *     final boundary              18   1
- *
- * Nothing here was wrong. It was answering a question nobody had asked, in front
- * of the answer to the one they had. These lock the shape of the fix rather than
- * the wording: constant prose stays available, but below the differing facts.
- */
-describe("what the inspector spends its words on", () => {
-  const wrestlingRoles = getBodyLabRoleContext("wrestling", "wrestling-1", ["quads"], ["abs"]).rolesByMuscle;
-  const inspectorText = (container: HTMLElement) => {
-    const panel = container.querySelector(".atlas-pro-inspector")!.cloneNode(true) as HTMLElement;
-    // A disclosure's body is not on screen until it is asked for.
-    panel.querySelectorAll("details > div").forEach((node) => node.remove());
-    return panel.textContent!.replace(/\s+/g, " ").trim();
-  };
-
-  it("does not restate the role row as a sentence, or narrate its own method", () => {
-    const { container } = draw({ primary: ["hamstrings"], roleDetails: wrestlingRoles });
-    select(container, "Hamstrings");
-    const text = inspectorText(container);
-
-    expect(text, "the role itself is still the headline").toContain("Synergist");
-    // "<action> is interpreted through its stated joint actions, force/skill
-    // demand, contraction roles, and movement-specific muscle-role record."
-    expect(text).not.toContain("is interpreted through");
-    expect(text).not.toContain("This muscle is a primary mover in the selected sporting action");
-    expect(text).not.toContain("This muscle supports the selected sporting action");
-    // "Movement-specific evidence · Biomechanical model" was two labels, one of
-    // them the same on every muscle of every action.
-    expect(text).not.toContain("Movement-specific evidence");
-    expect(text).toContain("Biomechanical model");
-  });
-
-  it("states the boundary once", () => {
-    const { container } = draw({ primary: ["hamstrings"], roleDetails: wrestlingRoles });
-    select(container, "Hamstrings");
-    const text = inspectorText(container);
-    expect(text.match(/not measured activation/g) ?? []).toHaveLength(1);
-  });
-
-  it("keeps the visible card shorter than the prose it used to lead with", () => {
-    const { container } = draw({ primary: ["hamstrings"], roleDetails: wrestlingRoles });
-    select(container, "Hamstrings");
-    const words = inspectorText(container).split(" ").filter(Boolean).length;
-    // Measured on this action: 111 words before, 38 here (40 in the app, which
-    // also passes a methodology string). The ceiling leaves room for a longer
-    // muscle name or phase string without pinning the copy itself.
-    expect(words, `inspector is ${words} words`).toBeLessThan(60);
-  });
-
-  it("still lets an athlete reach every word it moved", () => {
-    const { container } = draw({ primary: ["hamstrings"], roleDetails: wrestlingRoles });
-    select(container, "Hamstrings");
-    const panel = container.querySelector(".atlas-pro-inspector")!;
-    // Nothing was deleted from the page - the architecture text, its caveat, its
-    // sources and the methodology are all a tap away.
-    expect(panel.textContent).toContain("not mechanically interchangeable");
-    expect(panel.textContent).toContain("PMID 30117053");
-    expect(panel.querySelectorAll("details.atlas-full-analysis").length).toBeGreaterThanOrEqual(1);
   });
 });

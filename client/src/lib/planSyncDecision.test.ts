@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { choosePlan, sameEditToleranceMs } from "./planSyncDecision";
+import { choosePlan, planFingerprint, reconcilePlans, sameEditToleranceMs } from "./planSyncDecision";
 
 const at = (iso: string) => new Date(iso);
 const hook = readFileSync(join(process.cwd(), "client/src/lib/usePlanSync.ts"), "utf8");
@@ -93,12 +93,54 @@ describe("the sync keeps the device authoritative while editing", () => {
     expect(hook).toContain('setState("offline")');
   });
 
-  it("adopts the winner's revision after a conflict so the next push is clean", () => {
-    expect(hook).toContain("revisionRef.current = result.current.revision");
+  // Intentional change (Backend V1 SV-04, PS-05): adopting the winner's revision and pushing
+  // again 1.5 s later overwrote the other device's plan. A conflict now stops the push and
+  // waits for the athlete.
+  it("stops on a conflict instead of pushing over the other device", () => {
+    expect(hook).not.toContain("revisionRef.current = result.current.revision");
+    expect(hook).toContain('setState("conflict");');
+    expect(hook).toContain("if (!enabled || !pulledRef.current || !planJson || conflict) return;");
   });
 
-  it("sends the revision it last saw, so the server can detect a stale write", () => {
-    expect(hook).toContain("baseRevision: revisionRef.current");
+  it("sends the revision this device last agreed with, so the server can detect a stale write", () => {
+    expect(hook).toContain("void push(planJson, base?.revision ?? remote.data?.revision ?? null);");
+  });
+});
+
+describe("reconcilePlans: this device, the account, and where they last agreed (PS-04)", () => {
+  const plan = (label: string) => JSON.stringify({ version: 2, label });
+  const agreedOn = (json: string, revision: number) => ({ revision, syncedHash: planFingerprint(json) });
+
+  it("keeps this device's offline edits when the account has not moved", () => {
+    // It used to take any differing account copy, because the device kept no edit time.
+    expect(reconcilePlans({ planJson: plan("edited offline") }, { planJson: plan("synced"), revision: 4 }, agreedOn(plan("synced"), 4)))
+      .toEqual({ use: "device", reason: "account-unchanged" });
+  });
+
+  it("takes the account's copy when only the account changed", () => {
+    expect(reconcilePlans({ planJson: plan("synced") }, { planJson: plan("from the laptop"), revision: 5 }, agreedOn(plan("synced"), 4)))
+      .toEqual({ use: "server", reason: "device-unchanged" });
+  });
+
+  it("asks when both changed since they last agreed", () => {
+    expect(reconcilePlans({ planJson: plan("phone edit") }, { planJson: plan("laptop edit"), revision: 5 }, agreedOn(plan("synced"), 4)))
+      .toEqual({ use: "conflict" });
+  });
+
+  it("asks when this device has never agreed with the account and the copies differ", () => {
+    expect(reconcilePlans({ planJson: plan("this device") }, { planJson: plan("the account"), revision: 2 }, null)).toEqual({ use: "conflict" });
+  });
+
+  it("settles the easy cases without a base", () => {
+    expect(reconcilePlans({ planJson: null }, { planJson: plan("a"), revision: 1 }, null)).toEqual({ use: "server", reason: "only-copy" });
+    expect(reconcilePlans({ planJson: plan("a") }, { planJson: null, revision: null }, null)).toEqual({ use: "device", reason: "only-copy" });
+    expect(reconcilePlans({ planJson: plan("a") }, { planJson: plan("a"), revision: 3 }, null)).toEqual({ use: "same" });
+    expect(reconcilePlans({ planJson: null }, { planJson: null, revision: null }, null)).toEqual({ use: "neither" });
+  });
+
+  it("fingerprints a plan stably", () => {
+    expect(planFingerprint(plan("a"))).toBe(planFingerprint(plan("a")));
+    expect(planFingerprint(plan("a"))).not.toBe(planFingerprint(plan("b")));
   });
 });
 

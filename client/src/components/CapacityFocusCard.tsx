@@ -95,7 +95,12 @@ export function CapacityFocusCard({ catalog, value, onChange }: {
     onChange({ focus: value.focus, constraint: value.constraint, reportedSignals: nextSignals });
   };
 
-  return <section className="about-me-capacity" aria-labelledby="capacity-focus-heading">
+  /**
+   * `targeted-capacity` is the anchor search lands on, and the reason this
+   * section is programmatically focusable. Renaming it breaks the one named path
+   * into this feature that does not require knowing where it lives.
+   */
+  return <section id="targeted-capacity" tabIndex={-1} className="about-me-capacity" aria-labelledby="capacity-focus-heading">
     <div className="about-me-capacity-head">
       <div>
         <p className="metric-label">Targeted capacity / editable</p>

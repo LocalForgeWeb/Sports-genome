@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -108,6 +108,28 @@ describe("layout integrity", () => {
   it("retires the acid-lime accent across every stylesheet", () => {
     expect(allCss).not.toContain("#b8ff5b");
   });
+
+  it("imports only stylesheets that exist and keeps the retired Body Lab atlas out", () => {
+    const imports = [...css.matchAll(/@import\s+"\.\/([^"]+\.css)";/g)].map((m) => m[1]);
+    expect(imports.length).toBeGreaterThan(0);
+    imports.forEach((file) => expect(existsSync(join(SRC, file)), `${file} is on disk`).toBe(true));
+    // The dual-atlas board and its callouts were replaced by the anatomy-atlas-pro
+    // map; nothing renders them, so their rules must not come back.
+    expect(allCss).not.toContain(".dual-atlas");
+    expect(allCss).not.toContain(".atlas-callout");
+    expect(css).not.toContain("anatomy-fallback");
+    // The Exercise Genome overrides shared a line with that atlas and stay live.
+    expect(css).toContain(".genome-fingerprint-bars { grid-template-columns: 1fr; }");
+    expect(css).toContain(".genome-meter > div { font-size: var(--sg-text-xs)");
+  });
+
+  it("keeps the retired onboarding styles out of every stylesheet", () => {
+    // The onboarding was rebuilt on .pulse-* classes. These selectors styled
+    // markup that no longer exists, including invented ::before/::after labels
+    // a maintainer could mistake for live UI.
+    [".onboarding-", ".tutorial-card", ".frequency-card", ".stack-choice", "onboarding-enter"]
+      .forEach((selector) => expect(allCss).not.toContain(selector));
+  });
 });
 
 describe("athlete-facing labels", () => {
@@ -166,10 +188,12 @@ describe("the dark theme covers the chrome it sits in", () => {
     expect(planner, "the button keeps its own white label").toMatch(/\.day-plan-empty button \{[^}]*background: var\(--sg-action-fill\); color: #fff;/);
   });
 
-  it("keeps the Add controls legible once their rows go dark", () => {
-    // Both kept the light-mode link blue: the row's Add measured 2.79:1 and the
-    // disclosure's "Add exercises" 2.71:1 against the surfaces the theme gave them.
-    expect(css).toContain('[data-theme="dark"] .day-picker-result > button:last-child,');
+  it("keeps the Add controls legible on the surfaces the theme actually gives them", () => {
+    // The disclosure's "Add exercises" sits on the dark day page and kept the
+    // light-mode link blue there: 2.71:1. The picker's rows do not go dark at
+    // all any more - they render only in the sheet, which stays a light surface,
+    // and theming them for a dark ground put #f7fbff names on white at 1.04:1.
     expect(css).toContain('[data-theme="dark"] .day-exercise-disclosure-action { color: var(--sg-link-on-dark); }');
+    expect(css).not.toMatch(/\[data-theme="dark"\] \.day-picker-result\b/);
   });
 });

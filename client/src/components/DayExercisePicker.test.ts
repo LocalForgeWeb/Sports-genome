@@ -1,6 +1,7 @@
 import React, { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { DayExercisePicker } from "./DayExercisePicker";
 import { exercises } from "@/lib/exerciseCatalog";
@@ -14,35 +15,76 @@ const stack = ["Barbell Bench Press", "Seated Barbell Overhead Press"]
   .map((name) => exercises.find((exercise) => exercise.name === name))
   .filter((exercise): exercise is (typeof exercises)[number] => Boolean(exercise));
 
-const render = (activeWorkout: typeof stack) =>
+const render = (activeWorkout: typeof stack, sheetOpen = false) =>
   renderToStaticMarkup(
     createElement(DayExercisePicker, {
       exercises,
       activeWorkout,
       split: "Push" as const,
+      sheetOpen,
+      onOpenSheet: () => undefined,
+      onCloseSheet: () => undefined,
       onAdd: () => undefined,
       onReplace: () => undefined,
       onInspect: () => undefined,
     })
   );
 
-const built = render(stack);
-const empty = render([]);
+/**
+ * The catalog lives in the sheet now, and only there. It used to render inline in
+ * a disclosure as well - 3,300px of the Training Day's 6,400 - so these two
+ * renders are the day as you read it, and the catalog as you open it.
+ */
+const day = render(stack);
+const built = render(stack, true);
+const empty = render([], true);
 
 describe("Training Day exercise finder disclosure", () => {
-  it("keeps Stack Analysis separately reachable while hiding the full catalog toolset behind one clear finder control", () => {
+  it("keeps Stack Analysis on the day and the catalog behind one clear control", () => {
     expect(source).toContain("<RateStackPanel");
-    expect(source).toContain('<details className="day-exercise-disclosure"');
-    expect(built).toContain("Find an exercise");
-    expect(source).toContain("Search, filter, then add from the catalog");
+    // Intentional change, Sep 28 regression brief §8: the coverage summary's one fix action
+    // carries the gap; the white "Find exercises for" card under it repeated it.
+    expect(source).not.toContain('className="day-exercise-open-catalog"');
+    expect(day).toContain("Furthest behind");
+    expect(day).toMatch(/aria-label="Find [^"]+ exercises, \d+ pts under target"/);
+  });
+
+  /**
+   * Both surfaces were on the page at once: the sheet "Add exercises" opens, and
+   * the same tools, filters and 110 rows expanded inline underneath the day.
+   */
+  it("does not also render the catalog underneath the day", () => {
+    expect(day).not.toContain("day-picker-tools");
+    expect(day).not.toContain("day-picker-results");
+    expect(day).not.toContain("Add exercises directly");
+    expect(source).not.toContain('<details className="day-exercise-disclosure"');
   });
 
   it("retains split scope, muscle, equipment, inspection, and add behavior inside the disclosure", () => {
-    expect(source).toContain('aria-label="Filter day exercises by muscle group"');
+    // The muscle filter is a searchable listbox now rather than a native
+    // select, so its label travels with the component that renders it.
+    expect(source).toContain("<MuscleSelect muscles={muscleOptions}");
+    const muscleSelect = readFileSync(resolve(process.cwd(), "client/src/components/MuscleSelect.tsx"), "utf8");
+    expect(muscleSelect).toContain('aria-label="Filter day exercises by muscle group"');
+    expect(muscleSelect).toContain('aria-label="Search muscles"');
     expect(source).toContain('aria-label="Filter day exercises by equipment"');
     expect(source).toContain('setScope("all")');
     expect(source).toContain("onInspect(exercise)");
     expect(source).toContain("onAdd(exercise)");
+  });
+
+  /**
+   * The search box was named only by its placeholder, and phones offered
+   * autocorrect ("RDL" became a word) and a generic return key.
+   */
+  it("names the search field and asks phones for a search keyboard without autocorrect", () => {
+    const searchInput = built.match(/<input[^>]*placeholder="Search Push exercises"[^>]*>/)?.[0] ?? "";
+    expect(searchInput).not.toBe("");
+    expect(searchInput).toContain('aria-label="Search Push exercises"');
+    expect(searchInput).toMatch(/enterKeyHint="search"/i);
+    expect(searchInput).toMatch(/autoComplete="off"/i);
+    expect(searchInput).toMatch(/autoCorrect="off"/i);
+    expect(searchInput).toMatch(/spellCheck="false"/i);
   });
 
   it("prioritizes direct muscle matches and makes the number of matching catalog options visible before an athlete scans results", () => {
@@ -61,7 +103,7 @@ describe("Training Day exercise finder disclosure", () => {
    */
   it("orders the options by the shortfalls this day actually has", () => {
     expect(built).toMatch(/options · [^<]+ first/);
-    expect(source).toContain("rankPickerResults(results, gaps)");
+    expect(source).toContain("rankPickerResults(results.map((match) => match.exercise), gaps, relevance)");
   });
 
   /**
@@ -121,15 +163,20 @@ describe("Training Day exercise finder disclosure", () => {
     expect(built).toMatch(/options · [^<]+ first/);
   });
 
-  it("opens itself on an empty day, where adding is the only thing to do", () => {
-    // It was collapsed unconditionally, so the first exercise of a new day cost
-    // a scroll past the analysis and an expand before anything could be typed.
-    expect(empty).toContain("<details class=\"day-exercise-disclosure\" open");
-    expect(empty).toContain("Start with your first exercise");
+  /**
+   * This used to be a disclosure that opened itself on an empty day, because the
+   * first exercise of a new day otherwise cost a scroll past the analysis and an
+   * expand. The sheet replaces that: nothing is expanded on the page at all, and
+   * the empty day's own control opens it.
+   */
+  it("leaves an empty day to its own Add exercises control rather than a second invitation", () => {
+    expect(render([])).not.toContain("day-exercise-open-catalog");
+    expect(render([])).not.toContain("day-picker-results");
   });
 
-  it("stays closed once the day has exercises in it", () => {
-    expect(built).not.toContain("day-exercise-disclosure\" open");
+  it("puts the cursor in the search field when the sheet is what opened", () => {
+    expect(source).toContain("searchRef.current?.focus()");
+    expect(empty).toContain("day-picker-results");
   });
 
   it("does not enumerate every target as a gap on an empty day", () => {
@@ -139,5 +186,63 @@ describe("Training Day exercise finder disclosure", () => {
 
   it("drops the catalog id from the card, which led every row", () => {
     expect(source).not.toContain('String(exercise.id).padStart(3, "0")');
+  });
+});
+
+/**
+ * "reardelt fly", "trap bar" and "romanain" all returned "No exercises match".
+ * The box asked for an exact substring of the catalog's spelling; it now uses
+ * the shared matcher, ranks by how well a row answers the query before how well
+ * it fills a gap, labels a list of spelling guesses as guesses, and offers the
+ * nearest names instead of a dead end.
+ */
+describe("Training Day finder search tolerance", () => {
+  it("matches the way an athlete types and ranks relevance ahead of gaps", () => {
+    expect(source).toContain('import { matchesAreGuesses, rankExerciseMatches, suggestExerciseNames } from "@/lib/exerciseSearch";');
+    expect(source).toContain("rankPickerResults(results.map((match) => match.exercise), gaps, relevance)");
+  });
+
+  it("says when the results are the closest spellings rather than the thing typed", () => {
+    expect(source).toContain('{guessed && <span className="day-picker-result-guess">Nothing is spelled “{query.trim()}” — these are the closest.</span>}');
+  });
+
+  it("offers the nearest names when nothing matched, as taps that run the search", () => {
+    expect(source).toContain("suggestExerciseNames(candidates, query)");
+    expect(source).toContain('<button type="button" onClick={() => setQuery(name)}>{name}</button>');
+    expect(styles).toContain(".day-picker-empty button {");
+  });
+});
+
+/**
+ * On a phone in dark mode the sheet's exercise names were #f7fbff on a white
+ * card - 1.04:1 - because the rows were still themed for the dark Training Day
+ * page they used to sit on inline. The sheet is a light surface in both themes
+ * and is the only place the rows render, so the dark theme has nothing to say
+ * about them.
+ */
+describe("the picker sheet stays readable in dark mode", () => {
+  const theme = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+
+  it("never paints the rows, scope bar or show-more for a dark ground", () => {
+    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-result\b/);
+    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-scope\b/);
+    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-more\b/);
+  });
+
+  it("keeps the search-scope line in light ink inside the sheet, where its ground is light in both themes", () => {
+    // The shared component's default ink is for dark panels: 2.15:1 on the sheet, in light mode too.
+    expect(styles).toContain(".day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }");
+    expect(styles).toContain(".day-picker-sheet .local-search-scope button { color: var(--sg-info-strong); }");
+    expect(theme).toContain('[data-theme="dark"] .day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }');
+  });
+
+  it("lifts the row's movement line and the inactive scope button above 4.5:1", () => {
+    expect(styles).toContain(".day-picker-sheet .day-picker-result > button:first-child small { color: var(--sg-text-subtle-on-light); }");
+    expect(styles).toContain(".day-picker-sheet .day-picker-scope button:not(.day-picker-scope-active) { color: var(--sg-text-subtle-on-light); }");
+  });
+
+  it("keeps the sheet itself a light surface, so the ink above is the right ink", () => {
+    expect(styles).toMatch(/\.day-picker-sheet \{[^}]*background: var\(--sg-surface-light\)/);
+    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-sheet \{/);
   });
 });

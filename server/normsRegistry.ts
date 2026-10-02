@@ -1,3 +1,4 @@
+import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import type { NormsComparisonSex, NormsReferenceRow } from "../shared/normsReference";
 
 /**
@@ -108,11 +109,7 @@ export function createNormsRegistryClient({
       requestUrl.searchParams.set(key, value);
     }
     const response = await fetchImplementation(requestUrl, {
-      headers: {
-        Accept: "application/json",
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-      },
+      headers: supabaseServiceHeaders(serviceRoleKey),
     });
     if (!response.ok) {
       throw new Error(`Supabase ${path} request failed (${response.status})`);

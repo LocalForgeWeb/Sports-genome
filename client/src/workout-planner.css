@@ -23,7 +23,7 @@
 @media (max-width: 640px) { .movement-summary-strip { grid-template-columns: 1fr; }.movement-summary-strip > div { display: grid; gap: .2rem; }.movement-summary-strip span { flex: none; }.movement-summary-strip strong { margin: 0; white-space: normal; } }
 
 /* Weekly volume and import-confidence review: direct work stays distinct from supporting exposure. */
-.weekly-volume-panel { overflow: hidden; border: 1px solid #c7dcec; background: var(--sg-surface-light); color: #14395f; box-shadow: 0 14px 30px rgb(29 72 118 / .06); }.weekly-volume-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); background: linear-gradient(115deg, var(--sg-surface-light-sunken), var(--sg-surface-light)); }.weekly-volume-head h3 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.75rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.weekly-volume-head p:last-child { max-width: 450px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.weekly-volume-head > div:last-child { display: grid; grid-template-columns: auto auto; gap: .1rem .35rem; align-items: center; max-width: 124px; color: var(--sg-info-strong); }.weekly-volume-head > div:last-child svg { grid-row: span 2; }.weekly-volume-head > div:last-child strong { font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; line-height: .9; }.weekly-volume-head > div:last-child small { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-tight); text-transform: uppercase; }.weekly-volume-legend { display: flex; flex-wrap: wrap; gap: .7rem; padding: .65rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 700; }.weekly-volume-legend span { display: inline-flex; gap: .3rem; align-items: center; }.weekly-volume-legend i { width: 8px; height: 8px; }.weekly-volume-direct { background: var(--sg-action-fill); }.weekly-volume-support { background: #7caee0; }.weekly-volume-list { display: grid; gap: .8rem; padding: 1rem 1.15rem; }.weekly-volume-list article { min-width: 0; }.weekly-volume-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: .55rem; align-items: center; }.weekly-volume-row strong { display: block; color: #173a60; font-size: var(--sg-text-sm); }.weekly-volume-row small { display: block; margin-top: .14rem; color: #718aa1; font-size: var(--sg-text-xs); }.weekly-volume-row > b { color: #14395f; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.25rem; }.weekly-volume-status { border: 1px solid; padding: .17rem .28rem; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; white-space: nowrap; }.weekly-volume-status-empty { color: #7b8792; border-color: var(--sg-divider-on-light); }.weekly-volume-status-building { color: #2c6ea7; border-color: #a8c8e5; background: var(--sg-surface-light-sunken); }.weekly-volume-status-established { color: #8a6514; border-color: #e2c673; background: #fff9e7; }.weekly-volume-status-high { color: #bf4a31; border-color: #edaa97; background: #fff1ed; }.weekly-volume-track { position: relative; height: 6px; margin-top: .42rem; overflow: hidden; background: var(--sg-surface-light-sunken); }.weekly-volume-track i { position: absolute; inset: 0 auto 0 0; display: block; }.weekly-volume-bar-support { background: #8fc0ec; }.weekly-volume-bar-direct { z-index: 1; background: var(--sg-action-fill); }.weekly-volume-days { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }.weekly-volume-days span { border-left: 1px solid #c9d9e8; padding-left: .35rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.weekly-volume-days b { color: var(--sg-info-strong); }.weekly-volume-empty { display: flex; gap: .5rem; align-items: center; padding: 1.25rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.weekly-volume-details { border-top: 1px solid var(--sg-divider-on-light); }.weekly-volume-details summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; padding: .8rem 1.15rem; color: #2b67a0; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.weekly-volume-details summary::-webkit-details-marker { display: none; }.weekly-volume-details[open] summary svg { transform: rotate(180deg); }.weekly-volume-details p { border-top: 1px solid var(--sg-divider-on-light); padding: .8rem 1.15rem 1rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+.weekly-volume-panel { overflow: hidden; border: 1px solid #c7dcec; background: var(--sg-surface-light); color: #14395f; box-shadow: 0 14px 30px rgb(29 72 118 / .06); }.weekly-volume-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); background: linear-gradient(115deg, var(--sg-surface-light-sunken), var(--sg-surface-light)); }.weekly-volume-head h3 { margin-top: .25rem; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.75rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.weekly-volume-head p:last-child { max-width: 450px; margin-top: .55rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.weekly-volume-head > div:last-child { display: grid; grid-template-columns: auto auto; gap: .1rem .35rem; align-items: center; max-width: 124px; color: var(--sg-info-strong); }.weekly-volume-head > div:last-child svg { grid-row: span 2; }.weekly-volume-head > div:last-child strong { font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; line-height: .9; }.weekly-volume-head > div:last-child small { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-tight); text-transform: uppercase; }.weekly-volume-legend { display: flex; flex-wrap: wrap; gap: .7rem; padding: .65rem 1.15rem; border-bottom: 1px solid var(--sg-divider-on-light); color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 700; }.weekly-volume-legend span { display: inline-flex; gap: .3rem; align-items: center; }.weekly-volume-legend i { width: 8px; height: 8px; }.weekly-volume-direct { background: var(--sg-action-fill); }.weekly-volume-support { background: #7caee0; }.weekly-volume-list { display: grid; gap: .8rem; padding: 1rem 1.15rem; }.weekly-volume-list article { min-width: 0; }.weekly-volume-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: .55rem; align-items: center; }.weekly-volume-row strong { display: block; color: #173a60; font-size: var(--sg-text-sm); }.weekly-volume-row small { display: block; margin-top: .14rem; color: #718aa1; font-size: var(--sg-text-xs); }.weekly-volume-row > b { color: #14395f; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.25rem; }.weekly-volume-status { border: 1px solid; padding: .17rem .28rem; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; white-space: nowrap; }.weekly-volume-status-empty { color: #7b8792; border-color: var(--sg-divider-on-light); }.weekly-volume-status-building { color: #2c6ea7; border-color: #a8c8e5; background: var(--sg-surface-light-sunken); }.weekly-volume-status-established { color: #8a6514; border-color: #e2c673; background: #fff9e7; }.weekly-volume-status-high { color: #bf4a31; border-color: #edaa97; background: #fff1ed; }.weekly-volume-track { position: relative; height: 6px; margin-top: .42rem; overflow: hidden; background: var(--sg-surface-light-sunken); }.weekly-volume-track i { position: absolute; inset: 0 auto 0 0; display: block; }.weekly-volume-bar-support { background: #8fc0ec; }.weekly-volume-bar-direct { z-index: 1; background: var(--sg-action-fill); }.weekly-volume-days { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }.weekly-volume-days span { border-left: 1px solid #c9d9e8; padding-left: .35rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.weekly-volume-days b { color: var(--sg-info-strong); }.weekly-volume-empty { display: flex; gap: .5rem; align-items: center; padding: 1.25rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.weekly-volume-more { border-top: 1px solid var(--sg-divider-on-light); }.weekly-volume-more > summary { display: flex; cursor: pointer; align-items: center; gap: .55rem; list-style: none; padding: .8rem 1.15rem; color: #2b67a0; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.weekly-volume-more > summary::-webkit-details-marker { display: none; }.weekly-volume-more > summary:focus-visible { outline: 2px solid var(--sg-info-strong); outline-offset: -3px; }.weekly-volume-more > summary small { flex: 1 1 auto; overflow: hidden; color: var(--sg-text-subtle-on-light); font-weight: 600; letter-spacing: 0; text-overflow: ellipsis; text-transform: none; white-space: nowrap; }.weekly-volume-more > summary svg { flex: 0 0 auto; transition: transform var(--sg-motion-fast) var(--sg-ease); }.weekly-volume-more[open] > summary svg { transform: rotate(180deg); }.weekly-volume-more[open] > summary { border-bottom: 1px solid var(--sg-divider-on-light); }.weekly-volume-details { border-top: 1px solid var(--sg-divider-on-light); }.weekly-volume-details summary { display: flex; cursor: pointer; align-items: center; justify-content: space-between; gap: .75rem; padding: .8rem 1.15rem; color: #2b67a0; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.weekly-volume-details summary::-webkit-details-marker { display: none; }.weekly-volume-details[open] summary svg { transform: rotate(180deg); }.weekly-volume-details p { border-top: 1px solid var(--sg-divider-on-light); padding: .8rem 1.15rem 1rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
 .stack-import-row { align-items: flex-start; }.stack-import-row > div { min-width: 0; flex: 1; }.stack-import-row em { display: block; margin-top: .26rem; color: #5a82aa; font-size: var(--sg-text-xs); font-style: normal; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.stack-import-likely { border-left-color: #d3a738; }.stack-import-confirmed { border-left-color: var(--sg-info-strong); }.stack-import-context { border-left-color: #8db2d6; }.stack-import-context > span { background: var(--sg-surface-light-sunken); color: #467eb5; }.import-match-select { display: grid; flex: 0 1 160px; gap: .22rem; min-width: 130px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.import-match-select select { min-width: 0; border: 1px solid #bfd1e3; background: var(--sg-surface-light); padding: .28rem; color: #244f78; font-size: var(--sg-text-xs); font-weight: 700; outline: none; }.import-match-select select:focus { border-color: var(--sg-info-strong); box-shadow: 0 0 0 2px rgb(45 108 223 / .12); }
 @media (max-width: 640px) { .weekly-volume-head, .weekly-volume-legend, .weekly-volume-list, .weekly-volume-details summary, .weekly-volume-details p { padding-left: .9rem; padding-right: .9rem; }.weekly-volume-row { grid-template-columns: minmax(0, 1fr) auto; }.weekly-volume-row > b { grid-column: 2; grid-row: 1; }.weekly-volume-status { grid-column: 1; justify-self: start; }.stack-import-row { flex-wrap: wrap; }.import-match-select { width: 100%; flex-basis: 100%; } }
 
@@ -57,63 +57,23 @@
   .three-week-tabs button svg { width: .9rem; height: .9rem; }
   .three-week-tabs small { line-height: var(--sg-leading-tight); }
 }
-/* The day switcher: which day you are building, and every other day one tap away. It stays
-   on screen because "which day is this?" and "take me to another" are the same question. */
-.training-day-nav { border: 1px solid #b6d0e8; border-bottom: 0; background: linear-gradient(112deg, var(--sg-surface-raised) 0%, var(--sg-surface-panel) 72%, #174d80 100%); box-shadow: 0 14px 30px rgb(12 40 71 / .18); color: var(--sg-text-on-dark); }
-.training-day-nav-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .85rem; padding: .95rem 1.05rem; border-bottom: 1px solid rgb(255 255 255 / .13); }
-.training-day-nav-current { min-width: 0; }
-.training-day-nav-current .metric-label { color: #9ec4e8; }
-.training-day-nav-current h2 { margin-top: .26rem; color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; line-height: .86; text-transform: uppercase; }
-.training-day-nav-current h2 span { color: var(--sg-action); }
-.training-day-nav-state { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: .48rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
-.training-day-nav-autosave { display: inline-flex; align-items: center; gap: .28rem; border: 1px solid rgb(146 210 168 / .4); background: rgb(96 176 126 / .16); padding: .2rem .4rem; color: #a9e0bd; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.training-day-nav-cycle { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .3rem; border: 1px solid rgb(255 255 255 / .18); background: rgb(255 255 255 / .06); padding: .28rem; }
-.training-day-nav-cycle span { min-width: 92px; color: #cfe4f7; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-align: center; text-transform: uppercase; }
-.training-day-nav-cycle button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgb(255 255 255 / .16); color: #cfe4f7; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
-.training-day-nav-cycle button:hover:not(:disabled) { background: rgb(255 255 255 / .1); color: #fff; }
-.training-day-nav-cycle button:disabled { cursor: not-allowed; opacity: .32; }
-@media (max-width: 640px) {
-  /* The arrows go back under the title, and the "Day 05 of 05" counter comes back
-     with them. Both were squeezed onto one line to save height for the pinned day
-     strip; with the strip gone there is height to spend, and beside a title that
-     wraps to three lines the counter was forcing the wrap. The counter matters
-     more now than it did - a four-day week is Upper / Lower / Upper / Lower, so
-     position is the only thing that tells Day 03 from Day 01. */
-  /* First thing on the screen, because picking the day is the first thing an athlete does
-     here. The hero and the week generator are context and an occasional tool; making them
-     the two blocks you scroll past to reach the control you came for is what made this
-     screen feel hard to move around. */
-  .day-design-workspace > .training-day-nav { order: 1; }
-  .day-design-workspace > .day-design-hero { order: 2; }
-  .day-design-workspace > .three-week-planner { order: 3; }
-  .day-design-workspace > .day-design-grid { order: 4; }
-  .training-day-nav-head { flex-wrap: wrap; align-items: flex-start; gap: .6rem; padding: .7rem .8rem; }
-  .training-day-nav-current { flex: 1 1 100%; }
-  .training-day-nav-current h2 { font-size: 1.62rem; }
-  .training-day-nav-state { gap: .4rem; margin-top: .34rem; }
-  .training-day-nav-cycle span { min-width: 0; }
-  .training-day-nav-cycle button { width: 34px; height: 34px; }
-  /* The board is back on a phone. It was hidden because the pinned day strip
-     said the same thing in less room; with the strip gone this is the only
-     place that shows the other days and what is in them, and the header above
-     only says which one you are on. */
-}
 /* The tracker's day buttons say what is planned in each day, so choosing one is a decision
    rather than a guess followed by a bounce back. */
 .tracker-day-options button { display: grid; gap: .22rem; text-align: left; }
 .tracker-day-options button small { color: inherit; font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: 0; opacity: .72; text-transform: none; }
-.session-execution-strip { position: sticky; top: 86px; z-index: 12; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem; border: 1px solid var(--sg-action); background: var(--sg-surface-light); padding: .8rem .9rem; box-shadow: 0 12px 24px rgb(132 59 35 / .12); }.session-execution-strip > div { display: grid; gap: .15rem; }.session-execution-strip strong { color: #8e381f; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.session-execution-strip span { color: #7c6258; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.session-execution-strip button { background: var(--sg-action-fill); color: #fff; padding: .62rem .72rem; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.day-session-mode .day-programming-panel { border-color: var(--sg-action); box-shadow: 0 18px 32px rgb(228 81 46 / .13); }
-@media (max-width: 640px) { .session-execution-strip { top: 70px; align-items: stretch; }.session-execution-strip button { width: 100%; padding: .78rem; } }
 
 /* Account-scoped execution layer: planned work becomes durable set-by-set performance data. */
-.rail-account-control { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 10px 12px 0; padding: 9px 10px; border: 1px solid rgb(255 255 255 / .11); border-radius: 10px; background: rgb(255 255 255 / .05); color: #d9e8f7; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.rail-account-control button { color: #f5d26f; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.workout-execution-panel { margin-bottom: 18px; border: 1px solid #cbddee; border-left: 4px solid var(--sg-action); border-radius: 14px; background: linear-gradient(135deg, var(--sg-surface-light), var(--sg-surface-light-sunken)); box-shadow: 0 12px 28px rgb(27 88 148 / .1); padding: 16px; }.execution-head { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 13px; }.execution-head h3, .workout-auth-gate h3 { margin-top: 4px; color: var(--sg-text-on-light); font-family: "Barlow Condensed", sans-serif; font-size: 29px; font-weight: 800; line-height: .9; text-transform: uppercase; }.execution-head p:last-child, .workout-auth-gate p:last-child { max-width: 620px; margin-top: 7px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.execution-head > button, .workout-auth-gate > button { display: inline-flex; align-items: center; gap: 7px; border-radius: 9px; background: var(--sg-action-fill); padding: 11px 13px; color: #fff; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.execution-tools { display: flex; flex-wrap: wrap; gap: 8px; }.execution-tools label { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #cadced; background: #fff; padding: 0 8px; color: #4e7092; }.execution-tools select { height: 37px; background: transparent; font-size: var(--sg-text-xs); font-weight: 800; outline: none; }.execution-tools button { display: inline-flex; align-items: center; gap: 7px; border-radius: 9px; background: var(--sg-action-fill); padding: 10px 12px; color: #fff; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.session-exercise-list { display: grid; gap: 11px; margin-top: 16px; }.session-exercise { border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 12px; }.session-exercise > div:first-child { display: flex; align-items: start; gap: 10px; }.session-exercise > div:first-child > span { color: var(--sg-action); font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 800; }.session-exercise strong { display: block; color: #173b62; font-size: var(--sg-text-md); }.session-exercise small { display: block; margin-top: 3px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.session-set-list { display: grid; gap: 7px; margin-top: 11px; }.session-exercise { border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 12px; }.session-set-list { display: grid; gap: 7px; margin-top: 11px; }.session-set-row { display: grid; grid-template-columns: 52px minmax(86px, 1fr) minmax(65px, .7fr) auto; align-items: end; gap: 7px; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: 8px; }.session-set-row > strong { padding-bottom: 6px; color: #315d87; font-size: var(--sg-text-xs); }.session-set-row label { position: relative; display: grid; gap: 3px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.session-set-row input { width: 100%; height: 31px; border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 0 7px; color: #193e65; font-size: var(--sg-text-sm); font-weight: 700; outline: none; }.session-set-row em { position: absolute; right: 7px; bottom: 8px; color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); font-style: normal; }.session-set-row button { display: inline-flex; min-height: 31px; align-items: center; justify-content: center; gap: 4px; border: 1px solid #bfd3e8; background: #fff; padding: 0 8px; color: #2a5d91; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.session-set-complete { border-color: #e9a391; background: var(--sg-surface-light); }.session-set-complete button { border-color: var(--sg-action); background: var(--sg-action-fill); color: #fff; }.resume-workout { display: flex; width: 100%; align-items: center; gap: 8px; margin-top: 14px; border: 1px solid #a9c8e8; background: var(--sg-surface-light-sunken); padding: 10px; color: #255b93; font-size: var(--sg-text-xs); text-align: left; }.execution-history { margin-top: 16px; border-top: 1px solid var(--sg-divider-on-light); padding-top: 12px; }.execution-history > div:first-child { display: flex; align-items: center; justify-content: space-between; color: #315d88; }.execution-history > p { margin-top: 8px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.execution-history > div:last-child { display: grid; gap: 5px; margin-top: 9px; }.execution-history article { display: grid; grid-template-columns: 58px 1fr auto; gap: 8px; align-items: center; border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 8px; }.execution-history article span { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; }.execution-history article strong { color: #1b4169; font-size: var(--sg-text-xs); }.execution-history article small { color: #71899f; font-size: var(--sg-text-xs); text-align: right; }.workout-auth-gate { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 14px; }@media (max-width: 620px) { .session-set-row { grid-template-columns: 1fr 1fr; }.session-set-row > strong { grid-column: 1 / -1; padding-bottom: 0; }.session-set-row button { grid-column: 1 / -1; }.execution-history article { grid-template-columns: 1fr auto; }.execution-history article span { grid-column: 1 / -1; }.workout-auth-gate { align-items: stretch; }.workout-auth-gate > button { justify-content: center; } }
+.workout-execution-panel { margin-bottom: 18px; border: 1px solid #cbddee; border-left: 4px solid var(--sg-action); border-radius: 14px; background: linear-gradient(135deg, var(--sg-surface-light), var(--sg-surface-light-sunken)); box-shadow: 0 12px 28px rgb(27 88 148 / .1); padding: 16px; }.execution-head { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 13px; }.execution-head h3, .workout-auth-gate h3 { margin-top: 4px; color: var(--sg-text-on-light); font-family: "Barlow Condensed", sans-serif; font-size: 29px; font-weight: 800; line-height: .9; text-transform: uppercase; }.execution-head p:last-child, .workout-auth-gate p:last-child { max-width: 620px; margin-top: 7px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.execution-head > button, .workout-auth-gate > button { display: inline-flex; align-items: center; gap: 7px; border-radius: 9px; background: var(--sg-action-fill); padding: 11px 13px; color: #fff; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.execution-tools { display: flex; flex-wrap: wrap; gap: 8px; }.execution-tools label { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #cadced; background: #fff; padding: 0 8px; color: #4e7092; }.execution-tools select { height: 37px; background: transparent; font-size: var(--sg-text-xs); font-weight: 800; outline: none; }.execution-tools button { display: inline-flex; align-items: center; gap: 7px; border-radius: 9px; background: var(--sg-action-fill); padding: 10px 12px; color: #fff; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.session-exercise-list { display: grid; gap: 11px; margin-top: 16px; }.session-exercise { border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 12px; }.session-exercise > div:first-child { display: flex; align-items: start; gap: 10px; }.session-exercise > div:first-child > span { color: var(--sg-action); font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 800; }.session-exercise strong { display: block; color: #173b62; font-size: var(--sg-text-md); }.session-exercise small { display: block; margin-top: 3px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.session-set-list { display: grid; gap: 7px; margin-top: 11px; }.session-exercise { border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 12px; }.session-set-list { display: grid; gap: 7px; margin-top: 11px; }.session-set-row { display: grid; grid-template-columns: 52px minmax(86px, 1fr) minmax(65px, .7fr) auto; align-items: end; gap: 7px; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: 8px; }.session-set-row > strong { padding-bottom: 6px; color: #315d87; font-size: var(--sg-text-xs); }.session-set-row label { position: relative; display: grid; gap: 3px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.session-set-row input { width: 100%; height: 31px; border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 0 7px; color: #193e65; font-size: var(--sg-text-sm); font-weight: 700; outline: none; }.session-set-row em { position: absolute; right: 7px; bottom: 8px; color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); font-style: normal; }.session-set-row button { display: inline-flex; min-height: 31px; align-items: center; justify-content: center; gap: 4px; border: 1px solid #bfd3e8; background: #fff; padding: 0 8px; color: #2a5d91; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.session-set-complete { border-color: #e9a391; background: var(--sg-surface-light); }.session-set-complete button { border-color: var(--sg-action); background: var(--sg-action-fill); color: #fff; }.resume-workout { display: flex; width: 100%; align-items: center; gap: 8px; margin-top: 14px; border: 1px solid #a9c8e8; background: var(--sg-surface-light-sunken); padding: 10px; color: #255b93; font-size: var(--sg-text-xs); text-align: left; }.execution-history { margin-top: 16px; border-top: 1px solid var(--sg-divider-on-light); padding-top: 12px; }.execution-history > div:first-child { display: flex; align-items: center; justify-content: space-between; color: #315d88; }.execution-history > p { margin-top: 8px; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.execution-history > div:last-child { display: grid; gap: 5px; margin-top: 9px; }.execution-history article { display: grid; grid-template-columns: 58px 1fr auto; gap: 8px; align-items: center; border: 1px solid var(--sg-divider-on-light); background: #fff; padding: 8px; }.execution-history article span { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; }.execution-history article strong { color: #1b4169; font-size: var(--sg-text-xs); }.execution-history article small { color: #71899f; font-size: var(--sg-text-xs); text-align: right; }.workout-auth-gate { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 14px; }@media (max-width: 620px) { .session-set-row { grid-template-columns: 1fr 1fr; }.session-set-row > strong { grid-column: 1 / -1; padding-bottom: 0; }.session-set-row button { grid-column: 1 / -1; }.execution-history article { grid-template-columns: 1fr auto; }.execution-history article span { grid-column: 1 / -1; }.workout-auth-gate { align-items: stretch; }.workout-auth-gate > button { justify-content: center; } }
 
 .account-entry-shell { position: relative; min-height: 100vh; overflow: hidden; background: radial-gradient(circle at 78% 18%, #174d80 0, var(--sg-surface-raised) 35%, var(--sg-surface-deep) 77%); color: #fff; }.account-entry-grid { position: absolute; inset: 0; opacity: .3; background-image: linear-gradient(rgb(132 185 233 / .16) 1px, transparent 1px), linear-gradient(90deg, rgb(132 185 233 / .16) 1px, transparent 1px); background-size: 54px 54px; mask-image: linear-gradient(to bottom, black, transparent 78%); }.account-entry-brand { position: relative; z-index: 1; display: flex; align-items: center; gap: .65rem; padding: 2rem clamp(1.25rem, 6vw, 5rem); border-bottom: 1px solid rgb(255 255 255 / .12); }.account-entry-brand img { width: 42px; height: 42px; object-fit: contain; }.account-entry-brand strong { display: block; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.55rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.account-entry-brand span { display: block; margin-top: .26rem; color: #9ec0e0; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.account-entry-card { position: relative; z-index: 1; display: grid; gap: 1rem; max-width: 760px; margin: clamp(5rem, 15vh, 10rem) auto 0; padding: 2rem clamp(1.35rem, 5vw, 3.2rem); border: 1px solid rgb(196 226 255 / .28); background: linear-gradient(145deg, rgb(8 29 54 / .84), rgb(19 64 105 / .76)); box-shadow: 0 24px 72px rgb(0 0 0 / .26); backdrop-filter: blur(14px); }.account-entry-card h1 { color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(3.4rem, 8vw, 6.8rem); font-weight: 800; line-height: .78; text-transform: uppercase; }.account-entry-card h1 em { color: var(--sg-action); font-style: italic; }.account-entry-card > p { max-width: 560px; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-loose); }.account-entry-card button { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; width: fit-content; margin-top: .75rem; background: var(--sg-action-fill); padding: .86rem 1rem; color: #fff; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; box-shadow: 0 12px 24px rgb(228 81 46 / .22); }.account-entry-card button:disabled { opacity: .6; }.account-entry-card small { max-width: 560px; color: #9dc1df; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.account-entry-loading { display: grid; min-height: 100vh; place-items: center; background: var(--sg-surface-raised); color: #d3e6f7; font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 @media (max-width: 640px) { .account-entry-brand { padding: 1.25rem; }.account-entry-card { margin: 16vh 1rem 0; padding: 1.4rem; }.account-entry-card h1 { font-size: 3.7rem; }.account-entry-card button { width: 100%; } }
 
 /* Direct training-day building: catalog-first composition with lightweight ordering controls. */
-.day-orderable-exercise { position: relative; }.day-order-controls { position: absolute; z-index: 2; top: .65rem; right: .7rem; display: flex; gap: .2rem; }.day-order-controls button { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid rgb(255 255 255 / .16); color: #a9c0b5; }.day-order-controls button:hover:not(:disabled) { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }.day-order-controls button:disabled { cursor: not-allowed; opacity: .28; }
-.day-exercise-picker { display: grid; gap: .75rem; }.day-exercise-disclosure { border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); }.day-exercise-disclosure summary { display: flex; min-height: 58px; align-items: center; justify-content: space-between; gap: .8rem; cursor: pointer; list-style: none; padding: .75rem .9rem; color: #173f66; }.day-exercise-disclosure summary::-webkit-details-marker { display: none; }.day-exercise-disclosure summary:focus-visible { outline: 2px solid var(--sg-info-strong); outline-offset: -3px; }.day-exercise-disclosure summary p { margin: 0; }.day-exercise-disclosure summary strong, .day-exercise-disclosure summary small { display: block; }.day-exercise-disclosure summary strong { margin-top: .16rem; font-family: var(--font-display, sans-serif); font-size: 1.25rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.day-exercise-disclosure summary small { margin-top: .26rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.day-exercise-disclosure-action { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .3rem; color: var(--sg-info-strong); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.day-exercise-disclosure[open] .day-exercise-disclosure-action svg { transform: rotate(180deg); }.day-exercise-picker-content { border-top: 1px solid var(--sg-divider-on-light); padding: 1rem; }.day-exercise-picker-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; color: var(--sg-info-strong); }.day-exercise-picker-head h3 { margin-top: .22rem; color: #183b61; font-family: var(--font-display, sans-serif); font-size: 1.6rem; font-weight: 800; line-height: 1; text-transform: uppercase; }.day-exercise-picker-head p:last-child { max-width: 620px; margin-top: .38rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.day-picker-tools { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }.day-picker-tools label { display: flex; flex: 1; align-items: center; gap: .45rem; min-width: min(100%, 260px); border: 1px solid #c7d9e9; background: #fff; padding: 0 .6rem; color: #5d83a4; }.day-picker-tools input { width: 100%; min-width: 0; height: 35px; background: transparent; color: #1a4168; font-size: var(--sg-text-xs); outline: none; }.day-picker-tools select { border: 1px solid #c7d9e9; background: #fff; padding: 0 .5rem; color: #264f77; font-size: var(--sg-text-xs); font-weight: 700; }.day-picker-scope { display: flex; border: 1px solid #c7d9e9; background: #fff; }.day-picker-scope button { display: inline-flex; align-items: center; gap: .3rem; height: 35px; padding: 0 .55rem; color: #6685a2; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.day-picker-scope-active { background: var(--sg-surface-raised); color: #fff !important; }.day-picker-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: .45rem; margin-top: .9rem; }.day-picker-result { display: flex; align-items: stretch; border: 1px solid var(--sg-divider-on-light); background: #fff; }.day-picker-result > button:first-child { display: flex; flex: 1; gap: .5rem; min-width: 0; padding: .55rem; text-align: left; }.day-picker-result > button:first-child > span { color: var(--sg-text-subtle-on-dark); font-family: var(--font-display, sans-serif); font-size: 1.1rem; font-weight: 800; }.day-picker-result > button:first-child div { min-width: 0; }.day-picker-result strong, .day-picker-result small, .day-picker-result em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.day-picker-result strong { color: #173f66; font-size: var(--sg-text-xs); }.day-picker-result small { margin-top: .12rem; color: #6d88a1; font-size: var(--sg-text-xs); }.day-picker-result em { margin-top: .22rem; color: #a3692d; font-size: var(--sg-text-xs); font-style: normal; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.day-picker-result > button:last-child { min-width: 52px; border-left: 1px solid var(--sg-divider-on-light); color: var(--sg-info-strong); font-size: var(--sg-text-xs); font-weight: 800; text-transform: uppercase; }.day-picker-result > button:last-child:hover:not(:disabled) { background: var(--sg-surface-light-sunken); }.day-picker-result > button:last-child:disabled { background: var(--sg-surface-light-sunken); color: #9aaebd; }.day-picker-empty { margin-top: .8rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }
+.day-orderable-exercise { position: relative; }.day-order-controls { position: absolute; z-index: 2; top: .65rem; right: .7rem; display: flex; gap: .2rem; }.day-order-controls button { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid rgb(255 255 255 / .16); color: #a9c0b5; }.day-order-controls button:hover:not(:disabled) { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }.day-order-controls button:disabled { cursor: not-allowed; opacity: .28; }
+.day-exercise-picker { display: grid; gap: .75rem; }/* The way into the catalog. It was a disclosure that expanded the whole catalog
+   inline, below a day the athlete was reading; the catalog now opens as a sheet
+   over the page, so what stays here is the door, not a second copy of the room. */
+.day-exercise-open-catalog { display: flex; width: 100%; min-height: 58px; align-items: center; justify-content: space-between; gap: .8rem; border: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light); padding: .75rem .9rem; color: #173f66; text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease); }.day-exercise-open-catalog:hover { background: var(--sg-surface-light-sunken); }.day-exercise-open-catalog:focus-visible { outline: 2px solid var(--sg-info-strong); outline-offset: -3px; }.day-exercise-open-catalog > span:first-child { min-width: 0; }.day-exercise-open-catalog p { margin: 0; }.day-exercise-open-catalog strong, .day-exercise-open-catalog small { display: block; }.day-exercise-open-catalog strong { margin-top: .16rem; font-family: var(--font-display, sans-serif); font-size: 1.25rem; font-weight: 800; line-height: .9; text-transform: uppercase; }.day-exercise-open-catalog small { margin-top: .26rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }.day-exercise-disclosure-action { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .3rem; color: var(--sg-info-strong); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.day-exercise-picker-content { border-top: 1px solid var(--sg-divider-on-light); padding: 1rem; }.day-exercise-picker-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; color: var(--sg-info-strong); }.day-exercise-picker-head h3 { margin-top: .22rem; color: #183b61; font-family: var(--font-display, sans-serif); font-size: 1.6rem; font-weight: 800; line-height: 1; text-transform: uppercase; }.day-exercise-picker-head p:last-child { max-width: 620px; margin-top: .38rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.day-picker-tools { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }.day-picker-tools label { display: flex; flex: 1; align-items: center; gap: .45rem; min-width: min(100%, 260px); border: 1px solid #c7d9e9; background: #fff; padding: 0 .6rem; color: #5d83a4; }.day-picker-tools input { width: 100%; min-width: 0; height: 35px; background: transparent; color: #1a4168; font-size: var(--sg-text-xs); outline: none; }.day-picker-tools select { border: 1px solid #c7d9e9; background: #fff; padding: 0 .5rem; color: #264f77; font-size: var(--sg-text-xs); font-weight: 700; }.day-picker-scope { display: flex; border: 1px solid #c7d9e9; background: #fff; }.day-picker-scope button { display: inline-flex; align-items: center; gap: .3rem; height: 35px; padding: 0 .55rem; color: #6685a2; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.day-picker-scope-active { background: var(--sg-surface-raised); color: #fff !important; }.day-picker-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: .45rem; margin-top: .9rem; }.day-picker-result { display: flex; align-items: stretch; border: 1px solid var(--sg-divider-on-light); background: #fff; }.day-picker-result > button:first-child { display: flex; flex: 1; gap: .5rem; min-width: 0; padding: .55rem; text-align: left; }.day-picker-result > button:first-child > span { color: var(--sg-text-subtle-on-dark); font-family: var(--font-display, sans-serif); font-size: 1.1rem; font-weight: 800; }.day-picker-result > button:first-child div { min-width: 0; }.day-picker-result strong, .day-picker-result small, .day-picker-result em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.day-picker-result strong { color: #173f66; font-size: var(--sg-text-xs); }.day-picker-result small { margin-top: .12rem; color: #6d88a1; font-size: var(--sg-text-xs); }.day-picker-result em { margin-top: .22rem; color: #a3692d; font-size: var(--sg-text-xs); font-style: normal; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.day-picker-result > button:last-child { min-width: 52px; border-left: 1px solid var(--sg-divider-on-light); color: var(--sg-info-strong); font-size: var(--sg-text-xs); font-weight: 800; text-transform: uppercase; }.day-picker-result > button:last-child:hover:not(:disabled) { background: var(--sg-surface-light-sunken); }.day-picker-result > button:last-child:disabled { background: var(--sg-surface-light-sunken); color: #9aaebd; }.day-picker-empty { margin-top: .8rem; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }
 @media (max-width: 640px) { .day-order-controls { right: .5rem; }.day-picker-tools { display: grid; grid-template-columns: 1fr; }.day-picker-tools label { min-width: 0; }.day-picker-tools select { height: 35px; }.day-picker-scope { width: max-content; }.day-picker-results { grid-template-columns: 1fr; } }
 
 /* Tracker: app-grade execution flow. Actual work is the primary interaction; no perceived-effort field is requested. */
@@ -124,7 +84,7 @@
 .device-workout-tracker .execution-head > button:disabled:active { transform: none; }
 .device-workout-tracker .session-exercise-list { gap: .85rem; margin: 0; padding: .85rem; }.device-workout-tracker .session-exercise { overflow: hidden; border: 1px solid rgb(176 214 247 / .18); border-radius: 16px; background: rgb(7 26 49 / .72); padding: 0; box-shadow: 0 8px 20px rgb(0 0 0 / .12); }.device-workout-tracker .session-exercise > div:first-child { align-items: center; gap: .75rem; padding: .9rem .9rem .7rem; }.device-workout-tracker .session-exercise > div:first-child > span { min-width: 30px; color: #f1714f; font-size: 1.75rem; }.device-workout-tracker .session-exercise strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }.device-workout-tracker .session-exercise small { color: #a9c9e4; font-size: var(--sg-text-xs); }
 .device-workout-tracker .session-set-list { gap: .5rem; margin: 0; padding: 0 .7rem .7rem; }.device-workout-tracker .session-set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: .55rem; border: 1px solid rgb(176 214 247 / .16); border-radius: 12px; background: rgb(255 255 255 / .045); padding: .7rem; }.device-workout-tracker .session-set-row > strong { grid-column: 1 / -1; padding: 0; color: #bedcff; font-size: var(--sg-text-xs); letter-spacing: var(--sg-tracking-label); }.device-workout-tracker .session-set-row label { gap: .28rem; color: #a9c9e4; font-size: var(--sg-text-xs); }.device-workout-tracker .session-set-row input { height: 44px; border: 1px solid rgb(176 214 247 / .32); border-radius: 8px; background: var(--sg-surface-raised); padding: 0 .65rem; color: #fff; font-size: var(--sg-text-base); }.device-workout-tracker .session-set-row input:focus { border-color: var(--sg-focus-on-dark); box-shadow: 0 0 0 2px rgb(242 193 77 / .16); }.device-workout-tracker .session-set-row em { right: .65rem; bottom: .9rem; color: #91b4d2; font-size: var(--sg-text-xs); }.device-workout-tracker .session-set-row button { min-width: 68px; min-height: 44px; border: 1px solid var(--sg-action); border-radius: 8px; background: rgb(228 81 46 / .14); color: #ffb29d; font-size: var(--sg-text-xs); }.device-workout-tracker .session-set-row button:hover { background: rgb(228 81 46 / .24); }.device-workout-tracker .session-set-complete { border-color: rgb(242 193 77 / .48); background: rgb(242 193 77 / .09); }.device-workout-tracker .session-set-complete button { border-color: var(--sg-state-positive); background: var(--sg-state-positive); color: var(--sg-surface-deep); }
-@media (max-width: 640px) { .device-workout-tracker .execution-head { align-items: stretch; padding: 1rem; }.device-workout-tracker .execution-head p:last-child { display: none; }.device-workout-tracker .execution-head p.execution-head-instruction { display: block; }.device-workout-tracker .execution-head > button { justify-content: center; width: 100%; }.device-workout-tracker .session-exercise-list { padding: .7rem; }.device-workout-tracker .session-set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }.device-workout-tracker .session-set-row button { min-width: 58px; padding: 0 .35rem; }.device-workout-tracker .session-set-row button span { font-size: var(--sg-text-xs); } }
+@media (max-width: 640px) { .device-workout-tracker .execution-head { align-items: stretch; padding: 1rem; }.device-workout-tracker .execution-head p:last-child { display: none; }.device-workout-tracker .execution-head > button { justify-content: center; width: 100%; }.device-workout-tracker .session-exercise-list { padding: .7rem; }.device-workout-tracker .session-set-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }.device-workout-tracker .session-set-row button { min-width: 58px; padding: 0 .35rem; }.device-workout-tracker .session-set-row button span { font-size: var(--sg-text-xs); } }
 
 /* Phone hierarchy: prescribe first; reveal diagnostics and discovery only when the athlete asks for them. */
 @media (max-width: 640px) {
@@ -468,8 +428,9 @@
   transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease);
 }
 
+/* The value inside a control: body face, like the rest of the chip (Sep 30 §8). */
 .day-picker-gap i {
-  font-family: var(--sg-font-display);
+  font-family: "DM Sans", sans-serif;
   font-size: var(--sg-text-xs);
   font-style: normal;
   font-weight: 700;
@@ -521,30 +482,57 @@
 }
 
 /**
- * What the session holds, shown before you start it.
+ * Session, before it starts.
  *
- * The idle Tracker was a headline, a paragraph and a Start button, then roughly
- * seven hundred pixels of empty panel - the emptiest screen in the app, and the
- * one place where you commit to a session with no way to confirm you have the
- * right day staged. Everything here comes from data the panel was already
- * handed; nothing new is fetched or computed.
+ * The day is the title; where it sits in the plan and how much it is are the
+ * lines under it; one action follows. The prescription is rows to read,
+ * divided rather than boxed, and preparation and the session's own options
+ * each wait behind one line. Nothing here is a card: the page is the surface.
+ * The idle Tracker used to be a bordered panel inside a bordered panel, with a
+ * headline that promised readiness over a list in a third border.
  */
-.tracker-session-preview { padding: 1.15rem; }
-.tracker-session-preview-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; }
-.tracker-session-preview-head span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.tracker-session-preview-head small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }
-.tracker-session-preview-list { margin-top: .75rem; display: grid; gap: 1px; background: var(--sg-divider-on-dark); border: 1px solid var(--sg-divider-on-dark); border-radius: .6rem; overflow: hidden; }
-.tracker-session-preview-list li { display: flex; align-items: center; gap: .8rem; background: rgb(255 255 255 / .04); padding: .7rem .85rem; }
-.tracker-session-preview-index { flex: 0 0 auto; color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.15rem; font-weight: 800; line-height: 1; }
-.tracker-session-preview-name { display: grid; min-width: 0; flex: 1; gap: .15rem; }
-.tracker-session-preview-name strong { overflow: hidden; color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.tracker-session-preview-name small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
-/* The prescription, so "Ready to train" is checkable rather than a promise. */
-.tracker-session-preview-sets { flex: 0 0 auto; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .2rem .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; white-space: nowrap; }
-@media (max-width: 640px) {
-  .tracker-session-preview { padding: 1rem; }
-  .tracker-session-preview-list li { gap: .6rem; padding: .65rem .7rem; }
-}
+.session-prestart.device-workout-tracker, .destination-train .session-prestart.device-workout-tracker { margin: 0; overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 0 0 calc(var(--sg-space-6) + 3.5rem); }
+/* The radius every "-hero" gets would curve this one's bottom divider. */
+.session-prestart-hero { display: grid; gap: .3rem; justify-items: start; padding: .35rem 0 1.15rem; border-bottom: 1px solid var(--sg-divider-on-dark); border-radius: 0; }
+.session-prestart-day { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.8rem, 12.5vw, 3.6rem); font-weight: 800; line-height: .84; text-transform: uppercase; overflow-wrap: anywhere; }
+.session-prestart-position { margin-top: .5rem; color: var(--sg-text-on-dark); font-size: 1.35rem; font-weight: 600; line-height: 1.1; }
+.session-prestart-counts { margin-top: .2rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
+.session-prestart-done { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .35rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); }
+.session-prestart-actions { display: grid; justify-items: start; gap: .6rem; margin-top: 1rem; }
+.session-prestart-start { display: inline-flex; min-height: 52px; align-items: center; gap: .55rem; border: 1px solid #f1714f; border-radius: 12px; background: var(--sg-action-fill); padding: 0 1.5rem; color: #fff; font-size: 1.05rem; font-weight: 700; box-shadow: 0 10px 22px rgb(228 81 46 / .24); }
+.session-prestart-start:active { transform: scale(.98); }
+/* A bright primary action that cannot be pressed is a promise the screen does not keep. */
+.session-prestart-start:disabled { opacity: .4; box-shadow: none; cursor: not-allowed; transform: none; }
+.session-prestart-edit { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.session-prestart-edit:hover { text-decoration: underline; }
+.session-prestart-list { padding-top: 1.1rem; }
+.session-prestart-list > ol { margin: .35rem 0 0; padding: 0; list-style: none; }
+.session-prestart-list > ol > li { border-bottom: 1px solid var(--sg-divider-on-dark); }
+.session-prestart-row { display: flex; width: 100%; min-height: 64px; align-items: center; gap: 1rem; padding: .8rem 0; color: inherit; text-align: left; }
+button.session-prestart-row { cursor: pointer; }
+button.session-prestart-row:hover strong, button.session-prestart-row:focus-visible strong { color: var(--sg-focus-on-dark); }
+.session-prestart-index { flex: 0 0 2rem; color: #9cc4ea; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.3rem; font-weight: 800; line-height: 1; }
+.session-prestart-name { display: grid; min-width: 0; flex: 1; gap: .25rem; }
+.session-prestart-name strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.2; }
+.session-prestart-name small { color: #9cc4ea; font-size: var(--sg-text-base); }
+.session-prestart-row > svg { flex: 0 0 auto; color: var(--sg-text-subtle-on-dark); }
+.session-prestart-disclosure { border-bottom: 1px solid var(--sg-divider-on-dark); }
+.session-prestart-disclosure > summary { display: flex; min-height: 3.6rem; align-items: center; gap: 1rem; padding: .5rem 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; cursor: pointer; list-style: none; }
+.session-prestart-disclosure > summary::-webkit-details-marker { display: none; }
+.session-prestart-disclosure > summary > span { flex: 1; }
+.session-prestart-disclosure > summary > svg:first-child { color: #9cc4ea; }
+.session-prestart-disclosure > summary > svg:last-child { color: var(--sg-text-subtle-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.session-prestart-disclosure[open] > summary > svg:last-child { transform: rotate(90deg); }
+.session-prestart-disclosure-body { padding: 0 0 1.1rem; }
+/* The preparation panel is a card of its own elsewhere; here it is a section of this page. */
+.session-prestart-disclosure-body .warmup-panel { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.session-prestart-option { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; }
+.session-prestart-option strong { display: block; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.session-prestart-option small { display: block; margin-top: .2rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+.session-prestart-stepper { display: inline-flex; align-items: center; gap: .5rem; }
+.session-prestart-stepper button { min-width: 48px; min-height: 44px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: rgb(255 255 255 / .05); color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.session-prestart-stepper button:hover { border-color: var(--sg-focus-on-dark); }
+.session-prestart-stepper b { min-width: 3.4rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.5rem; font-weight: 800; text-align: center; }
 
 /**
  * The Coach Scan header, which had less room than its contents needed.
@@ -697,9 +685,6 @@
   .day-design-workspace .day-exercise-picker { scroll-margin-top: 22.5rem; }
 }
 
-/* One element now, so it takes the whole radius rather than the top half of it. */
-.training-day-nav { border-radius: var(--sg-radius-md); }
-
 /**
  * The live session's own measurements, at 393x852, mid-workout.
  *
@@ -749,6 +734,470 @@
  */
 .device-workout-tracker { padding-bottom: calc(var(--sg-space-6) + 3.5rem); }
 
+/* The muscle filter, in the picker's toolbar.
+   ---------------------------------------------------------------------------
+   It shares the listbox component the onboarding quiz uses, and that component
+   is written for the quiz's dark ground: near-white text on a 4.5%-white fill.
+   Dropped into this toolbar, which is white, the trigger's label measured
+   1.04:1 - the control's own name, invisible. So the surfaces are restated for
+   a light ground here, and the dark theme takes them back.
+
+   It also sits in a row of 35px controls and carries one line rather than two. */
+.day-picker-tools .muscle-select { max-width: none; margin-top: 0; flex: 1 1 100%; }
+.day-picker-tools .muscle-select .athlete-sport-trigger { min-height: 35px; padding: .3rem .55rem; border: 1px solid #c7d9e9; border-radius: 0; background: #fff; color: #264f77; }
+.day-picker-tools .muscle-select .athlete-sport-trigger:hover { border-color: var(--sg-info-strong); background: #fff; }
+.day-picker-tools .muscle-select .athlete-sport-trigger.is-chosen { border-color: var(--sg-action); background: #fff7f4; }
+.day-picker-tools .muscle-select .athlete-sport-trigger strong { color: #264f77; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-picker-tools .muscle-select .athlete-sport-trigger-chevron { color: #5d83a4; }
+.day-picker-tools .muscle-select .athlete-sport-panel { z-index: 20; border-color: #c7d9e9; border-radius: 0; background: #fff; box-shadow: 0 18px 38px rgb(12 40 71 / .22); }
+.day-picker-tools .muscle-select .athlete-sport-search { border-bottom-color: var(--sg-divider-on-light); color: var(--sg-text-subtle-on-light); }
+.day-picker-tools .muscle-select .athlete-sport-search input { color: var(--sg-text-on-light); font-size: var(--sg-text-sm); }
+.day-picker-tools .muscle-select .athlete-sport-search input::placeholder { color: var(--sg-text-subtle-on-light); }
+.day-picker-tools .muscle-select .athlete-sport-search > button { background: var(--sg-surface-light-sunken); color: var(--sg-text-subtle-on-light); }
+.day-picker-tools .muscle-select .athlete-sport-option { color: var(--sg-text-on-light); }
+.day-picker-tools .muscle-select .athlete-sport-option strong { color: #173f66; }
+.day-picker-tools .muscle-select .athlete-sport-option small { color: var(--sg-text-subtle-on-light); text-transform: none; letter-spacing: 0; }
+.day-picker-tools .muscle-select .athlete-sport-option.is-active { background: var(--sg-surface-light-sunken); }
+.day-picker-tools .muscle-select .athlete-sport-option.is-selected strong { color: var(--sg-action); }
+.day-picker-tools .muscle-select .athlete-sport-empty { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); }
+
+/* "Add exercises" opens here.
+ *
+ * It used to scroll the page down to the panel below, which is not opening: the athlete
+ * pressed a button and the page moved under them, leaving them to work out that the thing
+ * they asked for was now somewhere further down. The sheet arrives where they are looking
+ * and closes back to exactly where they were, so adding an exercise never costs them
+ * their place on the day. */
+.day-picker-sheet-scrim { position: fixed; inset: 0; z-index: 70; display: grid; align-items: end; justify-items: center; overflow-y: auto; overscroll-behavior: contain; background: rgb(6 23 45 / .72); padding: 0; -webkit-overflow-scrolling: touch; }
+/* A fixed height, not a maximum. The sheet is anchored to the bottom, so with a
+   maximum it grew and shrank with the results: typing "prea" took the list from
+   24 rows to 2, and the sheet's top edge - with the search box in it - slid
+   247px down the screen, then back up on the next letter. On a phone with the
+   keyboard up that read as the whole screen lurching under the thumb. The height
+   is the same however many rows there are; the list scrolls inside it. */
+.day-picker-sheet { display: flex; width: min(860px, 100%); height: min(92dvh, 900px); flex-direction: column; overflow: hidden; border: 1px solid var(--sg-divider-on-light); border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; background: var(--sg-surface-light); box-shadow: 0 -18px 50px rgb(3 21 45 / .38); }
+.day-picker-sheet-head { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--sg-divider-on-light); padding: 1rem 1.15rem; }
+.day-picker-sheet-head h2 { margin-top: .22rem; color: #183b61; font-family: var(--font-display, sans-serif); font-size: 1.85rem; font-weight: 800; line-height: .9; text-transform: uppercase; }
+.day-picker-sheet-head button { display: grid; width: 2.75rem; height: 2.75rem; flex: 0 0 auto; place-items: center; border: 1px solid var(--sg-divider-on-light); border-radius: 999px; color: #2a527f; }
+/* The sheet's own header already says what this is; the panel's heading is written for
+   the collapsed disclosure on the page, where nothing else introduces it. */
+.day-picker-sheet .day-exercise-picker-head { display: none; }
+/* The results scroll; the header and the way out do not. */
+.day-picker-sheet .day-exercise-picker-content { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; border-top: 0; }
+.day-picker-sheet-foot { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--sg-divider-on-light); background: var(--sg-surface-light-sunken); padding: .75rem 1.15rem calc(.75rem + env(safe-area-inset-bottom, 0px)); }
+.day-picker-sheet-foot span { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-picker-sheet-foot button { min-height: 2.75rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: 0 1.1rem; color: #fff; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+@media (min-width: 720px) { .day-picker-sheet-scrim { align-items: center; padding: 1.5rem; } .day-picker-sheet { border-radius: var(--sg-radius-md); } }
+
+/* The picker's search understands a typed name the way an athlete types it.
+   When every result is a spelling guess it says so above the list, and when
+   nothing matched at all the nearest names are offered as taps, not a dead end. */
+.day-picker-result-guess { display: block; margin-top: .25rem; color: var(--sg-text-subtle-on-light); font-weight: 400; letter-spacing: 0; text-transform: none; }
+/* Inline text in a sentence, so the 44px tap-target floor in index.css excludes
+   it by name, the way it excludes the other in-sentence links: at 44px each
+   suggestion opened a blank line mid-sentence. */
+.day-picker-empty button {
+  display: inline;
+  padding: 0;
+  color: var(--sg-info-strong);
+  font: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.day-picker-empty button:hover { color: var(--sg-text-on-light); }
+
+/* -- What you told us you are working on ---------------------------------- *
+
+   The target and its constraint were collected by onboarding and by the profile
+   and then read by nothing: an athlete who named a shoulder never saw it
+   mentioned again on any training screen. This states it on the day being built.
+   It reports; it does not adjust the plan, and it never names a condition. */
+
+.day-capacity-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .6rem;
+  align-items: start;
+  border: 1px solid var(--sg-control-border-on-dark);
+  border-left: 3px solid var(--sg-selected-on-dark);
+  background: rgb(255 255 255 / .04);
+  padding: .8rem .9rem;
+}
+
+.day-capacity-note > svg { margin-top: .1rem; color: var(--sg-selected-on-dark); }
+.day-capacity-note p { margin: 0; }
+
+/* The generic "name it in your profile" prompt is not about this day, so it is a
+   quiet line after the day's actions: no box, no rule, a sentence-case link (Sep 30 §8).
+   It keeps the note's top alignment: the icon sits on the first line of the sentence,
+   not centred against however many lines a narrow phone wraps it to. */
+.day-capacity-note-empty {
+  gap: .45rem;
+  border: 0;
+  background: none;
+  padding: .25rem 0;
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-sm);
+  line-height: var(--sg-leading-body);
+}
+
+/* Centred on the first line: half of what one line is taller than the 1rem icon. */
+.day-capacity-note-empty > svg { margin-top: calc((var(--sg-text-sm) * var(--sg-leading-body) - 1rem) / 2); color: var(--sg-text-subtle-on-dark); }
+
+.day-capacity-note-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .45rem;
+}
+
+.day-capacity-note-head strong {
+  color: var(--sg-text-on-dark);
+  font-family: var(--font-display, sans-serif);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: var(--sg-leading-tight);
+  text-transform: uppercase;
+}
+
+.day-capacity-note-head small {
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.day-capacity-note-state {
+  margin-top: .25rem !important;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-xs);
+  line-height: var(--sg-leading-body);
+}
+
+.day-capacity-note-posture,
+.day-capacity-note-offline {
+  margin-top: .3rem !important;
+  color: var(--sg-text-muted-on-dark);
+  font-size: var(--sg-text-xs);
+  line-height: var(--sg-leading-body);
+}
+
+.day-capacity-note button {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  min-height: 32px;
+  color: var(--sg-link-on-dark);
+  font-size: var(--sg-text-xs);
+  font-weight: 800;
+  letter-spacing: var(--sg-tracking-label);
+  text-transform: uppercase;
+}
+
+.day-capacity-note button:hover { text-decoration: underline; text-underline-offset: 3px; }
+.day-capacity-note button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* The quiet prompt's link reads as words in the body face, not a caps label, and runs
+   on after the sentence. It is inline text, so it keeps the line's own height (the tap
+   floor in index.css excludes it by name) and reaches 44px through its hit area. */
+.day-capacity-note-empty button { position: relative; min-height: 0; font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; vertical-align: baseline; }
+.day-capacity-note-empty button::after { content: ""; position: absolute; inset: calc((var(--sg-text-sm) * var(--sg-leading-body) - 2.75rem) / 2) -6px; }
+
+.day-capacity-note-qualified { border-left-color: var(--sg-state-caution); }
+.day-capacity-note-qualified > svg { color: var(--sg-state-caution); }
+.day-capacity-note-withhold { border-left-color: var(--sg-state-critical); background: rgb(226 86 74 / .08); }
+.day-capacity-note-withhold > svg { color: var(--sg-state-critical); }
+
+/* Ink on the sheet's white ground, in both themes. The search-scope line is a
+   shared component written for the dark panels it usually sits on, and on this
+   sheet it measured 2.15:1 - "Searching Pull-compatible exercises." was the
+   faintest line on a screen whose job is reading. The row's movement line
+   (3.69:1) and the inactive scope button (3.86:1) take the same subtle-on-light
+   token the sheet's other secondary lines already use, which measures 5.03:1. */
+.day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }
+.day-picker-sheet .local-search-scope button { color: var(--sg-info-strong); }
+.day-picker-sheet .day-picker-result > button:first-child small { color: var(--sg-text-subtle-on-light); }
+.day-picker-sheet .day-picker-scope button:not(.day-picker-scope-active) { color: var(--sg-text-subtle-on-light); }
+
+/* -- Training plan: week, day, and what that day is ------------------------ *
+
+   Five blocks and about 900px stood in front of the first exercise - a hero, a
+   week generator, a day header with arrows, a weekly board of five cards, and a
+   "Build it, run it, print it" card. Three of them named the same day, and
+   changing day meant scrolling past the one you were on to a grid below it.
+   Weeks are pills, days are tabs, and the day states itself once. */
+
+.training-plan-header { display: grid; gap: .8rem; }
+.training-plan-title h1 { margin-top: .2rem; font-family: var(--font-display, sans-serif); font-size: clamp(2.1rem, 8vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
+
+.training-plan-weeks { display: flex; flex-wrap: wrap; gap: .4rem; }
+.training-plan-week { display: inline-flex; flex-direction: column; align-items: flex-start; gap: .04rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .34rem .85rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
+.training-plan-week small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.training-plan-week:hover:not(:disabled) { background: rgb(255 255 255 / .06); }
+.training-plan-week:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.training-plan-week:disabled { opacity: .45; }
+.training-plan-week-active { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); color: var(--sg-text-on-dark); }
+.training-plan-week-active small { color: var(--sg-text-muted-on-dark); }
+
+/* The day row scrolls rather than wrapping: five names on one line is the whole
+   point, and a wrapped second line reads as a second group. */
+.training-plan-days { display: flex; gap: .15rem; overflow-x: auto; scroll-padding-inline: 1rem; scroll-snap-type: x proximity; overscroll-behavior-x: contain; border-bottom: 1px solid var(--sg-divider-on-dark); scrollbar-width: none; }
+.training-plan-days::-webkit-scrollbar { display: none; }
+.training-plan-day { display: inline-flex; flex: 0 0 auto; flex-direction: column; align-items: center; gap: .1rem; min-height: 2.75rem; border-bottom: 2px solid transparent; padding: .4rem .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; white-space: nowrap; }
+.training-plan-day small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.training-plan-day:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
+.training-plan-day-active { border-bottom-color: var(--sg-action); color: var(--sg-text-on-dark); }
+.training-plan-day-active small { color: var(--sg-text-muted-on-dark); }
+.training-plan-day-live small { color: var(--sg-action); font-weight: 800; }
+.training-plan-day-trained small { color: var(--sg-state-positive); font-weight: 800; }
+
+.training-plan-identity { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1rem; }
+.training-plan-identity h2 { font-family: var(--font-display, sans-serif); font-size: 1.9rem; font-weight: 800; line-height: .95; text-transform: uppercase; }
+.training-plan-identity p { margin-top: .2rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.training-plan-saved { display: inline-flex; align-items: center; gap: .3rem; color: var(--sg-state-positive); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+
+/* -- The day itself -------------------------------------------------------- */
+
+.day-plan-list { display: grid; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .03); }
+.day-plan-list > .day-orderable-exercise + .day-orderable-exercise { border-top: 1px solid var(--sg-divider-on-dark); }
+
+.day-plan-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.day-plan-actions .day-action-add { flex: 1 1 11rem; justify-content: center; }
+.day-plan-actions .day-action-session { flex: 1 1 11rem; justify-content: center; }
+.day-plan-link { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; padding: 0 .55rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-plan-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.day-plan-link:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+
+/* The draft generator, as one row until it is wanted. */
+.day-plan-draft { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .03); }
+.day-plan-draft > summary { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 3.25rem; cursor: pointer; list-style: none; padding: .6rem .9rem; color: var(--sg-text-on-dark); }
+.day-plan-draft > summary::-webkit-details-marker { display: none; }
+.day-plan-draft > summary:hover { background: rgb(255 255 255 / .04); }
+.day-plan-draft > summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
+.day-plan-draft > summary > span { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.day-plan-draft > summary svg { flex: 0 0 auto; color: var(--sg-link-on-dark); }
+.day-plan-draft > summary strong { font-size: var(--sg-text-sm); font-weight: 800; }
+.day-plan-draft > summary small { overflow: hidden; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); text-overflow: ellipsis; white-space: nowrap; }
+.day-plan-draft[open] > summary { border-bottom: 1px solid var(--sg-divider-on-dark); }
+.day-plan-draft[open] > summary > span > svg:first-child { color: var(--sg-action); }
+
+/* The action row's own buttons. They used to inherit from `.day-active-actions`,
+   the card that is gone; without a fill the primary action read as a floating
+   icon above a word. */
+.day-plan-actions .day-action-add,
+.day-plan-actions .day-action-session { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: 0 .95rem; color: var(--sg-action-on); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; transition: background var(--sg-motion-fast) var(--sg-ease); }
+.day-plan-actions .day-action-add:hover:not(:disabled) { background: var(--sg-action-strong); }
+.day-plan-actions .day-action-session { border-color: var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); color: var(--sg-text-on-dark); }
+.day-plan-actions .day-action-session:hover:not(:disabled) { background: rgb(255 255 255 / .12); }
+.day-plan-actions .day-action-add:focus-visible,
+.day-plan-actions .day-action-session:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.day-plan-actions .day-action-session:disabled { opacity: .45; }
+/* The print control ships its own light styling for the sheet it opens; on this
+   row it is a text action like Import, not a white pill among dark chrome. */
+.day-plan-actions .print-workout-button { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; border: 0; background: transparent; padding: 0 .55rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; box-shadow: none; }
+.day-plan-actions .print-workout-button:hover:not(:disabled) { background: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.day-plan-actions .print-workout-button:disabled { opacity: .45; }
+
+@media (max-width: 640px) {
+  .day-plan-actions .day-action-add,
+  .day-plan-actions .day-action-session { flex: 1 1 100%; justify-content: center; }
+}
+
+/* -- Review: one column of labelled sections ------------------------------- *
+
+   It was a two-column grid of five panels, each with its own display heading
+   competing with the page's, and the recovery-spacing check rendered *inside*
+   the volume map - so "how are my sessions spaced" sat underneath a chart
+   answering a different question. One column, in the order the answers are
+   wanted, and each panel's heading drops to a section label so the page has one
+   voice rather than six. */
+
+.day-review-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; }
+.day-review-head h1 { font-family: var(--font-display, sans-serif); font-size: clamp(2rem, 7.5vw, 2.9rem); font-weight: 800; line-height: .92; text-transform: uppercase; }
+.day-review-head p { margin-top: .35rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.day-review-open { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.9rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: 0 1rem; color: var(--sg-action-on); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-review-open:hover:not(:disabled) { background: var(--sg-action-strong); }
+.day-review-open:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.day-review-open:disabled { opacity: .45; }
+
+.day-review-stack { display: grid; gap: 1rem; }
+
+/* The panels keep their own layout; what they lose here is a display heading
+   each, which on one column read as six pages stacked rather than six sections
+   of one. */
+.day-review-stack .warmup-head h3,
+.day-review-stack .weekly-volume-head h3,
+.day-review-stack .recovery-spacing-head h3 { font-size: 1.15rem; letter-spacing: var(--sg-tracking-label); }
+.day-review-stack .warmup-head > div:first-child > p:last-child,
+.day-review-stack .weekly-volume-head p:last-child,
+.day-review-stack .recovery-spacing-head p:last-child { margin-top: .3rem; font-size: var(--sg-text-xs); }
+
+/* -- Review, flattened ----------------------------------------------------- *
+
+   Six bordered cards stacked on one column read as six pages, each with its own
+   frame, its own gradient and its own shadow, and the eye spent as much on the
+   boxes as on what was in them. On Review nothing is a card: a section is a
+   label, a line saying what it answers, the content, and a rule. The panels keep
+   every bit of their logic and lose only their frame. */
+
+.day-review-stack > * { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
+.day-review-stack > * + * { border-top: 1px solid var(--sg-divider-on-dark) !important; padding-top: var(--sg-space-4); }
+
+/* Each panel's head becomes the section label: small, flat, and with whatever it
+   already carried on the right (the drill estimate, the week's total) sitting
+   where the mockup puts the detail link. */
+.day-review-stack .warmup-head,
+.day-review-stack .weekly-volume-head,
+.day-review-stack .recovery-spacing-head { align-items: flex-start; border-bottom: 0; background: transparent; padding: 0 0 .7rem; }
+
+.day-review-stack .warmup-head h3,
+.day-review-stack .weekly-volume-head h3,
+.day-review-stack .recovery-spacing-head h3 { color: var(--sg-text-on-dark); font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-snug); text-transform: uppercase; }
+
+.day-review-stack .warmup-head .metric-label,
+.day-review-stack .weekly-volume-head .metric-label,
+.day-review-stack .recovery-spacing-head .metric-label { display: none; }
+
+.day-review-stack .warmup-head > div:first-child > p:last-child,
+.day-review-stack .weekly-volume-head p:last-child,
+.day-review-stack .recovery-spacing-head > div > p:last-child { margin-top: .25rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+
+.day-review-stack .warmup-focus,
+.day-review-stack .weekly-volume-legend,
+.day-review-stack .weekly-volume-list,
+.day-review-stack .warmup-drills,
+.day-review-stack .warmup-footer,
+.day-review-stack .recovery-spacing-list { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
+
+.day-review-stack .weekly-volume-legend { border-bottom: 0; padding-top: 0; }
+.day-review-stack .weekly-volume-list { padding-top: 0; }
+
+/* The volume rows: name, bar, number. The status chip moves under the name so
+   the bar and its figure line up down the column, which is the comparison the
+   section exists to make. */
+.day-review-stack .weekly-volume-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: .2rem; }
+.day-review-stack .weekly-volume-status { grid-row: 2; justify-self: start; }
+.day-review-stack .weekly-volume-row > b { grid-row: 1 / span 2; align-self: center; }
+
+.day-review-stack .warmup-drills-detail,
+.day-review-stack .warmup-library,
+.day-review-stack .weekly-volume-more,
+.day-review-stack .weekly-volume-details,
+.day-review-stack .recovery-spacing-details { border-top: 1px solid var(--sg-divider-on-dark); }
+.day-review-stack .warmup-drills-detail > summary,
+.day-review-stack .warmup-library summary,
+.day-review-stack .weekly-volume-more > summary,
+.day-review-stack .weekly-volume-details summary,
+.day-review-stack .recovery-spacing-details summary { padding-left: 0; padding-right: 0; }
+
+/* The two reference sections keep only their disclosure row, which is what the
+   mockup's "Programming guide" and "Full volume breakdown" footer rows are. */
+.day-review-stack .programming-guide-panel,
+.day-review-stack .workout-health-panel { padding-top: 0; }
+.day-review-stack .programming-guide-disclosure > summary,
+.day-review-stack .workout-health-disclosure > summary { padding-left: 0; padding-right: 0; }
+
+
+/* The last two boxes on Review. The spacing check kept its own card padding and
+   the programming guide kept a light gradient summary, so with everything else
+   flattened they read as the only two things still in frames. */
+.day-review-stack .recovery-spacing-panel { padding-top: var(--sg-space-4); padding-bottom: 0; }
+.day-review-stack .programming-guide-disclosure > summary { min-height: 3.25rem; background: transparent; }
+.day-review-stack .programming-guide-disclosure > summary h3 { color: var(--sg-text-on-dark); font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); }
+.day-review-stack .programming-guide-disclosure > summary p,
+.day-review-stack .programming-guide-disclosure > summary span,
+.day-review-stack .programming-guide-disclosure > summary strong { color: var(--sg-text-muted-on-dark); }
+.day-review-stack .workout-health-disclosure > summary { background: transparent; }
+.day-review-stack .workout-health-disclosure > summary h3 { font-family: inherit; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); }
+
+/* -- Next update: Review summaries and Reorder mode ---------------------------- */
+.day-plan-actions .day-action-reorder { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-plan-actions .day-action-reorder[aria-pressed="true"] { border-color: var(--sg-focus-on-dark); color: var(--sg-focus-on-dark); }
+.day-plan-actions .day-action-reorder:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* The planning guide summary: title, what the count counts, one action - not a
+   display-size "0 WORK SETS" competing with the goal. */
+.programming-guide-disclosure > summary p strong { font-weight: 700; }
+.day-review-stack .programming-guide-disclosure > summary p strong { color: var(--sg-text-on-dark); }
+.programming-guide-summary-signal { display: inline-flex; align-items: center; gap: .3rem; align-self: center; font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.day-review-stack .programming-guide-summary-signal span { color: var(--sg-link-on-dark); }
+.programming-guide-disclosure[open] > summary .programming-guide-summary-signal svg { transform: rotate(180deg); }
+/* Coach scan: the planned-load signal is a dot and a phrase in product language,
+   not an opaque pill, and the link says what it opens. */
+.health-signal { display: inline-flex; align-items: center; border: 0; padding: 0; font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; white-space: normal; }
+.health-signal i { display: inline-block; width: .5rem; height: .5rem; margin-right: .45rem; border-radius: 999px; background: currentColor; }
+.health-review-link { color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.workout-health-disclosure > summary > div:last-child { display: grid; justify-items: end; gap: .2rem; }
+
+/* -- Next update: the muscle volume map on the dark ground ------------------------
+   The panel was drawn for a light card and repainted piecemeal for Review; the
+   status labels were still white boxes and the legend and totals were dim. One
+   surface, rows on separators, the total and the name on one line, the status as
+   a dot and a word. */
+.weekly-volume-panel { border-color: var(--sg-control-border-on-dark); background: var(--sg-surface-raised); color: var(--sg-text-on-dark); box-shadow: none; }
+.weekly-volume-head { flex-wrap: wrap; border-bottom-color: var(--sg-divider-on-dark); background: transparent; }
+.weekly-volume-head h3 { color: var(--sg-text-on-dark); }
+.weekly-volume-head p:last-child { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.weekly-volume-scope { align-self: flex-start; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; white-space: nowrap; }
+.weekly-volume-legend { border-bottom-color: var(--sg-divider-on-dark); color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+.weekly-volume-legend i { width: 10px; height: 10px; }
+.weekly-volume-direct { background: var(--sg-action-fill); }
+.weekly-volume-support { background: #6fa3d9; }
+.weekly-volume-list { gap: 0; padding-top: 0; padding-bottom: 0; }
+.weekly-volume-list article { display: grid; gap: .35rem; border-bottom: 1px solid var(--sg-divider-on-dark); padding: .8rem 0; }
+.weekly-volume-list article:last-child { border-bottom: 0; }
+.weekly-volume-row { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: .6rem; }
+.weekly-volume-row strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.weekly-volume-row small { margin-top: .1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.weekly-volume-row > b { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.weekly-volume-track { position: relative; height: 8px; overflow: hidden; background: rgb(255 255 255 / .1); }
+.weekly-volume-track i { position: absolute; top: 0; bottom: 0; left: 0; display: block; }
+.weekly-volume-track .weekly-volume-bar-support { z-index: 0; background: #6fa3d9; }
+.weekly-volume-track .weekly-volume-bar-direct { z-index: 1; background: var(--sg-action-fill); }
+.weekly-volume-foot { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .25rem .8rem; margin: 0; }
+.weekly-volume-status { display: inline-flex; align-items: center; gap: .4rem; border: 0; background: transparent; padding: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.weekly-volume-status i { display: inline-block; width: .5rem; height: .5rem; border-radius: 999px; background: currentColor; }
+.weekly-volume-status-high { color: #ffb39c; }
+.weekly-volume-status-established { color: #f2d365; }
+.weekly-volume-status-building { color: #9fc8f4; }
+.weekly-volume-days { display: inline-flex; flex-wrap: wrap; gap: .2rem .7rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.weekly-volume-days b { color: var(--sg-text-on-dark); font-weight: 600; font-variant-numeric: tabular-nums; }
+.weekly-volume-total { margin: 0; padding: .7rem 1.15rem 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.weekly-volume-total b { color: var(--sg-text-on-dark); font-variant-numeric: tabular-nums; }
+.weekly-volume-more > summary { display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 2.75rem; cursor: pointer; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; list-style: none; }
+.weekly-volume-more > summary::-webkit-details-marker { display: none; }
+.weekly-volume-more > summary small { flex: 1 1 auto; min-width: 0; overflow: hidden; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); text-overflow: ellipsis; white-space: nowrap; }
+.weekly-volume-more > summary svg { flex: 0 0 auto; transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.weekly-volume-more[open] > summary svg { transform: rotate(180deg); }
+.weekly-volume-details summary { color: var(--sg-link-on-dark); }
+.weekly-volume-details p { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.day-review-stack .weekly-volume-total { padding-left: 0; padding-right: 0; }
+.day-review-stack .weekly-volume-row > b { grid-row: auto; }
+@media (max-width: 640px) { .weekly-volume-more > summary small { display: none; } }
+.day-review-stack .programming-guide-summary-signal, .day-review-stack .programming-guide-summary-signal span, .day-review-stack .health-review-link { font-size: var(--sg-text-sm); letter-spacing: 0; text-transform: none; }
+
+/* A plan that changed on this device and on the account: syncing waits for the athlete. */
+.plan-sync-conflict {
+  margin: 0 0 1rem;
+  border-left: 3px solid var(--sg-state-critical);
+  background: rgb(226 86 74 / .16);
+  padding: .75rem .9rem;
+  color: var(--sg-text-on-dark);
+  font-size: var(--sg-text-sm);
+  line-height: var(--sg-leading-body);
+}
+.plan-sync-conflict div { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .6rem; }
+.plan-sync-conflict button {
+  min-height: 44px;
+  border: 1px solid rgb(255 255 255 / .28);
+  border-radius: .6rem;
+  padding: .4rem .8rem;
+  color: var(--sg-text-on-dark);
+  background: rgb(255 255 255 / .06);
+}
+/* Sep 28 regression brief §8: the empty day's one primary action, and Import as a quiet text
+   link under it, not a second filled button. */
+.day-plan-empty button.day-plan-link { min-height: 2.75rem; border: 0; background: none; padding: 0 .1rem; color: var(--sg-link-on-dark); }
 /* The equipment mark sits on the text baseline beside the label it belongs to,
    never instead of it. `vertical-align` rather than flex: this <small> is a run of
    inline text and turning it into a flex row would break the "movement · equipment"

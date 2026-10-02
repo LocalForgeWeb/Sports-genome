@@ -1,6 +1,6 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation } from "./Home";
+import { contextTabIdForWorkspace, contextualWorkspaces, primaryDestinationForWorkspace, shouldRenderMetric, workspaceFromLocation, workspaceTitles } from "./Home";
 
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const tabsComponent = readFileSync(new URL("../components/WorkspaceTabs.tsx", import.meta.url), "utf8");
@@ -23,6 +23,11 @@ describe("workspace side navigation", () => {
     expect(workspaceFromLocation("tracker")).toBe("tracker");
     expect(workspaceFromLocation("not-a-workspace")).toBe("command");
     expect(workspaceFromLocation(null)).toBe("command");
+    for (const id of ["command", "profile", "progress", "strength", "day-plan", "review", "tracker", "recommended", "movement", "body", "catalog"]) expect(workspaceFromLocation(id)).toBe(id);
+    expect(workspaceFromLocation("genome")).toBe("catalog");
+    // Keys every object has are not pages.
+    expect(workspaceFromLocation("constructor")).toBe("command");
+    expect(workspaceFromLocation("__proto__")).toBe("command");
     expect(primaryDestinationForWorkspace("day-plan")).toBe("train");
     expect(primaryDestinationForWorkspace("recommended")).toBe("train");
     expect(primaryDestinationForWorkspace("catalog")).toBe("body");
@@ -32,13 +37,38 @@ describe("workspace side navigation", () => {
     expect(primaryDestinationForWorkspace("profile")).toBe("secondary");
   });
 
+  it("highlights the tab of the page on screen, whichever way the athlete got there", () => {
+    // Back from Review lands on Plan, and Plan is the tab that lights up.
+    expect(contextTabIdForWorkspace("day-plan")).toBe("day-plan");
+    expect(contextTabIdForWorkspace("review")).toBe("review");
+    expect(contextTabIdForWorkspace("strength")).toBe("strength");
+    expect(contextTabIdForWorkspace("catalog")).toBe("catalog");
+    expect(contextTabIdForWorkspace("profile")).toBeNull();
+    // Every page there is: workspaceTitles must name each one, so a new page is covered here too.
+    const workspaces = Object.keys(workspaceTitles) as (keyof typeof workspaceTitles)[];
+    for (const workspace of workspaces) {
+      const id = contextTabIdForWorkspace(workspace);
+      const destination = primaryDestinationForWorkspace(workspace);
+      if (destination === "secondary") {
+        expect(id).toBeNull();
+        continue;
+      }
+      // The lit tab sits in this page's own tab row, and it is the tab that opens this page.
+      const litTab = contextualWorkspaces[destination].find((tab) => tab.id === id);
+      expect(litTab?.workspace).toBe(workspace);
+    }
+  });
+
   it("uses bottom-only primary navigation and browser history-aware contextual navigation", () => {
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('const active = activePrimaryDestination === item.id;');
     expect(source).toContain('const dockTouchNavigationRef = useRef');
     expect(source).toContain('const navigateDockDestination = (next: Workspace, event: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) =>');
-    expect(source).toContain('onPointerUp={(event) => navigateDockDestination(item.defaultWorkspace!, event)}');
-    expect(source).toContain('onClick={(event) => navigateDockDestination(item.defaultWorkspace!, event)}');
+    // The destination you are already in returns its page to the top rather than
+    // swapping to its first page; any other destination opens at its first page.
+    expect(source).toContain('onPointerUp={(event) => navigateDockDestination(dockTarget(item), event)}');
+    expect(source).toContain('onClick={(event) => navigateDockDestination(dockTarget(item), event)}');
+    expect(source).toContain("item.id === activePrimaryDestination ? workspace : item.defaultWorkspace!");
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(source).toContain('window.history.pushState({ workspace: next }, "", url)');
     expect(source).toContain('window.addEventListener("popstate", restoreWorkspace)');
@@ -55,7 +85,10 @@ describe("workspace side navigation", () => {
   });
 
   it("keeps the email and passkey entry implementation available behind a reversible direct-workspace access switch", () => {
-    expect(source).toContain("const directWorkspaceAccess = true;");
+    // Intentional change, Sep 28 regression brief §7: the switch moved to lib/accountAccess.ts so
+    // the sign-in notice can tell whether "Sign in" is something this build offers.
+    expect(readFileSync(new URL("../lib/accountAccess.ts", import.meta.url), "utf8")).toContain("export const directWorkspaceAccess = true;");
+    expect(source).toContain('import { directWorkspaceAccess } from "@/lib/accountAccess";');
     expect(source).toContain('if (!directWorkspaceAccess && !isAuthenticated) return <EmailAuthScreen');
     expect(source).toContain('if (!directWorkspaceAccess && loading) return <div className="account-entry-loading">');
   });
@@ -65,9 +98,14 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('setRailOpen');
     expect(source).toContain('<div className="mobile-workspace-dock" aria-label="Primary workspace navigation">');
     expect(css).toContain('@media (min-width: 1024px) {\n  .apex-content { padding-bottom: 6.25rem; }');
+    // The starter kit's sidebar shell ("Page 1" / "Page 2") was never routed; it must not come back.
+    expect(existsSync(new URL("../components/DashboardLayout.tsx", import.meta.url))).toBe(false);
+    expect(existsSync(new URL("../components/ui/sidebar.tsx", import.meta.url))).toBe(false);
+    // No sidebar is rendered, so none of its rules may linger in the stylesheets.
+    for (const styles of [css, mobileStyles, trainingDayStyles]) expect(styles).not.toMatch(/\.apex-rail|\.rail-[a-z]/);
   });
 
-  it("colours the shell by destination and keeps a non-neon active state", () => {
+  it("colours the shell by destination and keeps the old Gym Optimizer brand out", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('shell-${activePrimaryDestination}');
     expect(source).toContain('destination-${activePrimaryDestination}');
@@ -75,22 +113,16 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.apex-content.destination-body');
     expect(css).toContain('.apex-content.destination-progress');
     expect(css).toContain('.apex-content.destination-secondary');
-    expect(source).toContain('workspace === "profile" && <section className="more-workspace"');
+    expect(source).toContain("guides={<div className=\"about-me-guides\">");
     expect(source).not.toContain('gym-optimizer-logo_32341cfa.png');
     expect(source).not.toContain('GYM<br />OPTIMIZER');
-    expect(css).toContain('background: linear-gradient(135deg, #1d5fae, #174785) !important;');
-    expect(css).toContain('box-shadow: inset 4px 0 var(--sg-gold)');
-    expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none; display: none; }');
   });
 
-  it("uses the supplied circular badge as a larger natural onboarding mark without changing title or progress controls", () => {
-    const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(source).toContain('src={sportsGenomeAssets.circularBadge} alt="Sports Genome circular badge" className="pulse-brand-badge"');
-    expect(source).toContain('<span className="font-display text-2xl font-bold uppercase tracking-wide text-white">Sports Genome</span>');
-    expect(source).toContain('<div className="pulse-progress"><span>STEP {step + 1} / 4</span>');
-    expect(css).toContain('.pulse-header .pulse-brand-badge { display: block !important; width: 54px; height: 54px;');
-    expect(css).toContain('border-radius: 999px;');
-    expect(css).toContain('.pulse-header > div:first-child::before, .pulse-header > div:first-child::after { content: none; display: none; }');
+  it("has one onboarding: the eleven-step quiz, with no retired four-step tour left in the shell", () => {
+    // A four-step "Pulse" tour sat in Home.tsx long after the quiz replaced it,
+    // never rendered, describing screens that no longer exist.
+    expect(source).not.toContain("function Onboarding(");
+    expect(source).toContain("<AthleteBaselineQuiz ");
   });
 
   it("uses the supplied circular badge in the active eleven-step onboarding header at a natural readable scale", () => {
@@ -110,15 +142,13 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain('label="Session readiness"');
     expect(source).not.toContain('value="82"');
     expect(source).not.toContain('detail="coach-set planning marker"');
-    expect(source).toContain('const activePlanStatus = customWorkout.length ? `${customWorkout.length} staged` : "Build a day";');
-    expect(source).toContain('const activePlanStatusDetail = customWorkout.length ? `${completedExerciseCount} marked complete in the active workspace` : "No exercises are staged in the current Training Day";');
   });
 
   it("uses a four-item mobile bottom bar (the philosophy's Home/Body Lab/Train/Progress contract) and moves contextual workspace controls to the top", () => {
     const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
     expect(source).toContain('className="mobile-workspace-dock"');
     expect(source).toContain('aria-label="Primary workspace navigation"');
-    expect(source).toContain('label: "Session", workspace: "tracker"');
+    expect(source).toContain('label: "Workout", workspace: "tracker"');
     expect(source).toContain('label: "Review", workspace: "review"');
     expect(source).toContain('navigateWorkspace("tracker")');
     expect(source).toContain('<DeviceWorkoutTracker');
@@ -128,7 +158,7 @@ describe("workspace side navigation", () => {
     expect(stackReviewSource).toContain('id="stack-review"');
     expect(source).toContain('aria-label="Primary mobile navigation"');
     expect(source).toContain('label: "Train"');
-    expect(source).toContain('label: "Body Lab"');
+    expect(source).toContain('label: "Muscles"');
     expect(source).toContain('label: "Progress"');
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('type PrimaryDestination = "home" | "train" | "body" | "progress" | "secondary";');
@@ -149,7 +179,9 @@ describe("workspace side navigation", () => {
     expect(source).not.toContain("scrollIntoView({ behavior: \"smooth\", block: \"start\" })");
     expect(source).toContain('const navigateContextualWorkspace = (tab: ContextualWorkspaceTab)');
     expect(source).toContain('aria-current={active ? "page" : undefined}');
-    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    // The highlighted tab is read from the page on screen, so Back cannot leave another tab lit.
+    expect(source).toContain("const activeContextTabId = contextTabIdForWorkspace(workspace);");
+    expect(source).not.toContain("setActiveContextTab");
     // Active-tab resolution moved into the row component with the markup.
     expect(source).toContain("activeId={activeContextTabId}");
     expect(tabsComponent).toContain("const active = tab.id === activeId;");
@@ -162,13 +194,22 @@ describe("workspace side navigation", () => {
     expect(css).toContain('env(safe-area-inset-bottom, 0px)');
     expect(css).toContain('.apex-content { padding-bottom: calc(5.8rem');
     expect(css).toContain('.mobile-workspace-dock { position: fixed;');
+    // The resume bar and the add-to-day strip ride on the dock, so they switch
+    // at the dock's own breakpoint (at 961px they floated 20px above a flush
+    // dock) and clear the home-indicator inset the dock pads for.
+    expect(css).toContain('@media (min-width: 1024px) { .session-resume-bar { bottom: calc(4.375rem + 1.25rem); } }');
+    // No rule may switch at the old 960/961px line, including the multi-line
+    // block that lifts the add strip over the resume bar while a workout is live.
+    expect(css).not.toMatch(/@media \((?:max|min)-width: 96[01]px\)/);
+    expect(css).toContain('body:has(.session-resume-bar) .add-destination { bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + var(--sg-resume-height) + .5rem); }');
+    expect(css).not.toContain('env(safe-area-inset-bottom, 0px) * 0');
+    expect(css).toContain('bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px));');
+    expect(css).toContain('.add-destination { position: sticky; z-index: 30; bottom: calc(var(--sg-dock-height, 4.375rem) + env(safe-area-inset-bottom, 0px) + .5rem);');
     expect(source).not.toContain('className="mobile-workspace-actions"');
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));');
     expect(css).toContain('min-height: 4.25rem;');
     expect(css).toContain('touch-action: manipulation;');
     expect(css).toContain('font-size: var(--sg-text-xs);');
-    expect(css).toContain('.rail-brand img { display: block !important; filter: none !important; }');
-    expect(css).toContain('.rail-brand::before, .rail-brand::after { content: none !important; display: none !important; }');
   });
 
   /**
@@ -196,15 +237,19 @@ describe("workspace side navigation", () => {
     expect(css).toContain('.workspace-top-switcher-shell { top: var(--sg-topbar-height); padding-top: 0; }');
     expect(css).toContain('.apex-topbar { position: sticky; top: 0;');
 
-    // The header names the place only where the tab row does not: on Home the two
-    // are the same word, one above the other, which is the duplication that got
-    // the header deleted in the first place.
-    expect(source).toContain("const topbarLabel = workspaceLabel.toLowerCase() === activeContextTabLabel.toLowerCase() ? \"\" : workspaceLabel;");
-    expect(source).toContain("{topbarLabel && <p className=\"metric-label\">{topbarLabel}</p>}");
+    // The utilities live in the brand row, so the tab row is the tabs alone and
+    // no destination is ever covered; single-page destinations get no row.
+    expect(source).toContain('className="topbar-utilities"');
+    expect(source).toContain("{contextualWorkspaceTabs.length > 1 && <WorkspaceTabs");
+    expect(source).not.toContain("actions={<>");
+    // Every page has one name, used for the browser tab as well.
+    expect(source).toContain("export const workspaceTitles: Record<Workspace, string>");
+    expect(source).toContain("document.title = `${workspaceTitles[workspace]} · Sports Genome`");
+    // The retired side-rail list and its second set of page names are gone, not kept in step.
+    expect(source).not.toMatch(/\bnavItems\b|\bnavGroups\b/);
 
-    // Rendered unconditionally: gated on `length > 1` it would skip Home, which has one
-    // page, and stranded Profile behind no route at all.
-    expect(source).not.toContain('contextualWorkspaceTabs.length > 1 && <WorkspaceTabs');
+    // Profile's route is the brand row's own button, so the tab row can be
+    // skipped on single-page destinations without stranding it.
     expect(source).toContain('<WorkspaceTabs');
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('className="topbar-profile-button"');
@@ -234,8 +279,10 @@ describe("workspace side navigation", () => {
 
   it("retains one explicit active contextual route for every Train and Body Lab tab", () => {
     // Train is four places in the order the work happens, each its own page.
-    ["Plan", "Review", "Session", "Matches", "Movement", "Body Lab", "Catalog", "Genome", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
-    expect(source).toContain('const activeContextTabId = activeContextTab ?? contextualWorkspaceTabs.find((tab) => tab.workspace === workspace)?.id ?? contextualWorkspaceTabs[0]?.id ?? null;');
+    ["Plan", "Review", "Workout", "Matches", "Movements", "Muscles", "Exercises", "Strength"].forEach((label) => expect(source).toContain(`label: "${label}"`));
+    // The highlighted tab is read from the page on screen, so Back cannot leave another tab lit.
+    expect(source).toContain("const activeContextTabId = contextTabIdForWorkspace(workspace);");
+    expect(source).not.toContain("setActiveContextTab");
     expect(source).toContain('aria-current={active ? "page" : undefined}');
     expect(tabsComponent).toContain('className={active ? "workspace-top-switcher-active" : ""}');
   });
@@ -245,30 +292,48 @@ describe("workspace side navigation", () => {
     expect(source).toContain('const BodyLabNavigator = lazy(() => import("@/components/BodyLabNavigator")');
     expect(source).toContain('const CatalogDiscoveryPanel = lazy(() => import("@/components/CatalogDiscoveryPanel")');
     expect(source).toContain('const StrengthGenomePanel = lazy(() => import("@/components/StrengthGenomePanel")');
-    expect(source).toContain('const ExerciseGenomeWorkspace = lazy(() => import("@/components/ExerciseGenomeWorkspace")');
-    expect(source).toContain('Preparing this workspace…');
+    // The panels a first paint of Home never needs arrive with their screens.
+    expect(source).toContain('const DeviceWorkoutTracker = lazy(() => import("@/components/DeviceWorkoutTracker")');
+    expect(source).toContain('const AthleteAboutMePanel = lazy(() => import("@/components/AthleteAboutMePanel")');
+    expect(source).toContain('const ProgressOverviewPanel = lazy(() => import("@/components/ProgressOverviewPanel")');
+    // While one arrives, the canvas shows the shape of what is coming, not a sentence.
+    expect(source).toContain('className="workspace-skeleton"');
+    expect(source).not.toContain('Preparing this workspace…');
   });
 
-  it("removes duplicate mobile Training Day shortcuts while keeping the Session destination reachable", () => {
-    expect(trainingDayStyles).toContain('.day-design-import { display: none; }');
-    // The same two shortcuts, hidden by name rather than by position: both have their own
-    // panel further down, and a positional rule hid whichever button came first — which is
-    // now the one for adding exercises.
-    expect(trainingDayStyles).toContain('.day-active-actions .day-action-session, .day-active-actions .day-action-draft { display: none; }');
-    expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
+  /**
+   * These two cases used to be about hiding things on a phone: a hero paragraph,
+   * a week-generator paragraph, and two shortcuts that each had their own panel
+   * further down. None of that is rendered any more, so there is nothing to
+   * hide - the duplicates are gone rather than display:none. What has to survive
+   * is that every one of those capabilities is still reachable.
+   */
+  it("keeps every Training Day action reachable, without a second copy of any of them", () => {
     expect(source).toContain('className="day-action-add"');
-    expect(source).toContain('label: "Session", workspace: "tracker"');
+    expect(source).toContain('label: "Workout", workspace: "tracker"');
     expect(source).toContain('PrintWorkoutButton disabled={!customWorkout.length}');
-    expect(source).toContain('Import this plan');
+    expect(source).toContain("Import plan");
+    // Starting the workout opens the destination that owns it rather than a
+    // logger rendered a second time inside the plan.
+    // Opening a day's workout from Plan is an explicit choice to train it, unless one is running.
+    expect(source).toContain('className="day-action-session" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }}');
+    expect(source).not.toContain("<WorkoutExecutionPanel");
+    expect(trainingDayStyles).not.toContain('.day-active-actions button:nth-child(');
   });
 
-  it("compresses Training Day’s mobile default without removing week-selection controls", () => {
-    expect(trainingDayStyles).toContain(".day-design-hero p:last-child { display: none; }");
-    expect(trainingDayStyles).toContain(".three-week-head p:last-child { display: none; }");
-    expect(trainingDayStyles).toContain(".three-week-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }");
-    expect(trainingDayStyles).toContain(".three-week-tabs button { min-height: 76px;");
-    expect(source).toContain("<ThreeWeekPlanner activeWeek={activeWeek}");
-    expect(source).toContain("<WeeklyPlanBoard days={splitDays}");
+  it("chooses a week and a day in one tap each, with no block between them and the day", () => {
+    // Five blocks and about 900px stood in front of the first exercise, three of
+    // them naming the same day. Weeks are pills and days are tabs now.
+    expect(source).toContain("<TrainingPlanHeader");
+    expect(source).toContain("onSelectWeek={selectWeek}");
+    expect(source).toContain("onGenerateWeek={generateWeek}");
+    expect(source).toContain("onChooseDay={openTrainingDay}");
+    expect(trainingDayStyles).toContain(".training-plan-weeks {");
+    expect(trainingDayStyles).toContain(".training-plan-days {");
+    // The blocks they replaced are gone, not merely unrendered.
+    expect(source).not.toContain("<ThreeWeekPlanner");
+    expect(source).not.toContain("<WeeklyPlanBoard");
+    expect(source).not.toContain("<TrainingDayNav");
   });
 
   it("keeps Movement Atlas mobile discovery concise while retaining every family filter", () => {
@@ -276,16 +341,16 @@ describe("workspace side navigation", () => {
     expect(atlasStyles).toContain(".atlas-improved-head > div:first-child > p:last-child { display: none; }");
     expect(atlasStyles).toContain(".atlas-family-row { flex-wrap: nowrap; overflow-x: auto;");
     expect(atlasStyles).toContain(".atlas-family-row button { flex: 0 0 auto; min-height: 38px; white-space: nowrap; }");
-    expect(source).toContain('id: "movement", label: "Movement"');
-    expect(source).toContain('id: "body", label: "Body Lab"');
-    expect(source).toContain('id: "catalog", label: "Catalog"');
+    expect(source).toContain('id: "movement", label: "Movements"');
+    expect(source).toContain('id: "body", label: "Muscles"');
+    expect(source).toContain('id: "catalog", label: "Exercises"');
   });
 
   it("keeps equipment editing and evidence details reachable on demand after Plan Context removal", () => {
     expect(source).not.toContain('<details className="plan-context">');
     expect(source).toContain('aria-label="Profile and settings"');
     expect(source).toContain('workspace === "profile" && <AthleteAboutMePanel');
-    expect(aboutMeSource).toContain("Available equipment");
+    expect(aboutMeSource).toContain("<strong>Equipment</strong>");
     // The Atlas now renders behind the browsing notice, so the workspace opens a
     // fragment rather than the panel directly — and only once a sport is chosen. Without
     // one, the gate takes its place rather than the Atlas defaulting to someone else's sport.

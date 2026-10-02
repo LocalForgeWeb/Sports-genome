@@ -3,7 +3,7 @@ import {
   brzyckiOneRepMaxKg,
   epleyOneRepMaxKg,
   estimateOneRepMax,
-  maxEffectiveReps,
+  maxRepetitions,
   placeOnCurve,
   resolveStrengthPercentile,
   strengthScoringVersion,
@@ -29,40 +29,64 @@ const curve: StrengthCurve = {
 
 const context = { sex: "male" as const, bodyMassKg: 80 };
 
-describe("e1RM under strength_beta_v1", () => {
+/**
+ * Every expected value below is what the database returned for the same set (recorded
+ * 28 September 2026): `estimate_e1rm_strengthlevel_v1` for the default estimator and
+ * `estimate_e1rm_v1` for the generic one. Intentional change (Backend V1 EN-03, D-007): the
+ * card used to average Epley and Brzycki up to 12 reps whatever the curve.
+ */
+describe("e1RM under strength_beta_v2", () => {
+  const e1rm = (input: Parameters<typeof estimateOneRepMax>[0], estimator?: Parameters<typeof estimateOneRepMax>[1]) => {
+    const estimate = estimateOneRepMax(input, estimator);
+    if ("reason" in estimate) throw new Error(`expected an estimate, got ${estimate.reason}`);
+    return estimate;
+  };
+
   it("passes a measured maximum through untouched", () => {
-    const estimate = estimateOneRepMax({ measuredOneRmKg: 140, loadKg: 100, repetitions: 5 });
-    expect(estimate).toMatchObject({ valueKg: 140, basis: "measured", confidence: 1 });
+    expect(e1rm({ measuredOneRmKg: 140, loadKg: 100, repetitions: 5 })).toMatchObject({ valueKg: 140, basis: "measured", confidence: 1, method: "measured_1rm" });
   });
 
-  it("averages Epley and Brzycki rather than picking one", () => {
-    const estimate = estimateOneRepMax({ loadKg: 100, repetitions: 5 });
-    const expected = (epleyOneRepMaxKg(100, 5) + brzyckiOneRepMaxKg(100, 5)) / 2;
-    expect(estimate).toMatchObject({ basis: "estimated" });
-    expect("valueKg" in estimate ? estimate.valueKg : 0).toBeCloseTo(expected, 2);
-    // The two formulas genuinely disagree here, which is why the version averages them.
-    expect(epleyOneRepMaxKg(100, 5)).not.toBeCloseTo(brzyckiOneRepMaxKg(100, 5), 2);
+  it.each([
+    [70, 5, 78.75, "brzycki_strengthlevel_compatible", 0.84],
+    [70, 8, 86.897, "brzycki_epley_linear_blend_strengthlevel_compatible", 0.8],
+    [70, 9, 90.5, "brzycki_epley_linear_blend_strengthlevel_compatible", 0.76],
+    [70, 10, 93.333, "brzycki_epley_linear_blend_strengthlevel_compatible", 0.76],
+    [60, 12, 84, "epley_strengthlevel_compatible", 0.7],
+    [60, 15, 90, "epley_strengthlevel_compatible", 0.6],
+    [81.6466266, 1, 81.647, "brzycki_strengthlevel_compatible", 0.87],
+    [81.6466266, 3, 86.449, "brzycki_strengthlevel_compatible", 0.87],
+  ])("reads %s kg x %s as the database does: %s kg by %s, confidence %s", (loadKg, repetitions, valueKg, method, confidence) => {
+    expect(e1rm({ loadKg, repetitions })).toMatchObject({ valueKg, method, confidence, estimator: "strengthlevel_compatible_v1", repsInReserve: null });
   });
 
-  it("counts reps in reserve toward effective reps", () => {
-    const threeWithTwoLeft = estimateOneRepMax({ loadKg: 100, repetitions: 3, repsInReserve: 2 });
-    const five = estimateOneRepMax({ loadKg: 100, repetitions: 5 });
-    expect(threeWithTwoLeft).toEqual(five);
+  it("uses the generic mean of Epley and Brzycki for a curve that is not Strength Level's", () => {
+    const five = e1rm({ loadKg: 100, repetitions: 5 }, "sports_genome_generic_v1");
+    expect(five.valueKg).toBeCloseTo((epleyOneRepMaxKg(100, 5) + brzyckiOneRepMaxKg(100, 5)) / 2, 3);
+    expect(five).toMatchObject({ method: "mean_epley_brzycki", confidence: 0.84 });
+    expect(e1rm({ loadKg: 100, repetitions: 1 }, "sports_genome_generic_v1")).toMatchObject({ valueKg: 100, method: "direct_1rm", confidence: 0.98 });
+  });
+
+  it("counts reps in reserve toward effective reps, and reported effort costs less confidence than unknown effort", () => {
+    const fiveWithTwoLeft = e1rm({ loadKg: 70, repetitions: 5, repsInReserve: 2 });
+    // The database's own answer for 70 x 5 @ 2 RIR.
+    expect(fiveWithTwoLeft).toMatchObject({ valueKg: 84, effectiveReps: 7, confidence: 0.83, repsInReserve: 2 });
+    const threeWithTwoLeft = e1rm({ loadKg: 100, repetitions: 3, repsInReserve: 2 });
+    const five = e1rm({ loadKg: 100, repetitions: 5 });
+    expect(threeWithTwoLeft.valueKg).toBe(five.valueKg);
+    expect(threeWithTwoLeft.confidence).toBeGreaterThan(five.confidence);
   });
 
   it("loses confidence as the set gets further from a single rep", () => {
-    const one = estimateOneRepMax({ loadKg: 100, repetitions: 1 });
-    const five = estimateOneRepMax({ loadKg: 100, repetitions: 5 });
-    const ten = estimateOneRepMax({ loadKg: 100, repetitions: 10 });
-    const confidence = (value: typeof one) => ("confidence" in value ? value.confidence : NaN);
-    expect(confidence(one)).toBe(1);
-    expect(confidence(five)).toBeLessThan(confidence(one));
-    expect(confidence(ten)).toBeLessThan(confidence(five));
+    const [one, five, ten] = [1, 5, 10].map((repetitions) => e1rm({ loadKg: 100, repetitions }).confidence);
+    expect(five).toBeLessThan(one);
+    expect(ten).toBeLessThan(five);
   });
 
-  it("refuses a set too far out to estimate from, counting reserve", () => {
-    expect(estimateOneRepMax({ loadKg: 100, repetitions: maxEffectiveReps + 1 })).toEqual({ reason: "repetitions_out_of_range" });
-    expect(estimateOneRepMax({ loadKg: 100, repetitions: 11, repsInReserve: 3 })).toEqual({ reason: "repetitions_out_of_range" });
+  it("refuses what the database refuses", () => {
+    expect(estimateOneRepMax({ loadKg: 100, repetitions: maxRepetitions + 1 })).toEqual({ reason: "repetitions_out_of_range" });
+    expect(estimateOneRepMax({ loadKg: 100, repetitions: 5, repsInReserve: 6 })).toEqual({ reason: "repetitions_out_of_range" });
+    expect(estimateOneRepMax({ loadKg: 100, repetitions: 15, repsInReserve: 5 })).toEqual({ reason: "repetitions_out_of_range" });
+    expect(estimateOneRepMax({ loadKg: 100, repetitions: 0 })).toEqual({ reason: "repetitions_out_of_range" });
     expect(estimateOneRepMax({ repetitions: 5 })).toEqual({ reason: "load_required" });
   });
 });
@@ -85,11 +109,36 @@ describe("placing a value on a curve", () => {
   it("will not place a value against a single anchor", () => {
     expect(placeOnCurve([{ percentile: 50, value: 1 }], 1)).toMatchObject({ reason: "insufficient_anchors" });
   });
+
+  it("takes the middle of the percentiles when several anchors share the value", () => {
+    // As `get_beta_strength_percentile_v1_core`: the 40th and 60th both sit at 1.0.
+    expect(placeOnCurve([{ percentile: 40, value: 1 }, { percentile: 60, value: 1 }, { percentile: 90, value: 2 }], 1)).toEqual({ percentile: 50 });
+  });
+
+  it("places the same whatever order the anchors arrive in (rows come back unordered)", () => {
+    const [p5, p25, p50, p75, p95] = curve.anchors;
+    for (const anchors of [[...curve.anchors].reverse(), [p50, p5, p95, p25, p75]]) {
+      expect(placeOnCurve(anchors, 1.125)).toEqual({ percentile: 62.5 });
+      expect(placeOnCurve(anchors, 0.2)).toEqual({ reason: "below_lowest_anchor", censoredAt: 5 });
+      expect(placeOnCurve(anchors, 2.4)).toEqual({ reason: "above_highest_anchor", censoredAt: 95 });
+    }
+  });
+
+  it("ignores an anchor that is not a finite number", () => {
+    // Without the 5th, the 50th is the lowest anchor left.
+    expect(placeOnCurve([{ percentile: 5, value: NaN }, { percentile: 50, value: 1 }, { percentile: 95, value: 2 }], 0.8)).toEqual({ reason: "below_lowest_anchor", censoredAt: 50 });
+    // Without the middle anchor, 1.25 is halfway between the 5th at 0.5 and the 95th at 2.0.
+    expect(placeOnCurve([{ percentile: 5, value: 0.5 }, { percentile: Infinity, value: 1 }, { percentile: 95, value: 2 }], 1.25)).toEqual({ percentile: 50 });
+  });
+
+  it("counts two anchors on one percentile as insufficient", () => {
+    expect(placeOnCurve([{ percentile: 50, value: 1 }, { percentile: 50, value: 2 }], 1.5)).toEqual({ reason: "insufficient_anchors", censoredAt: 0 });
+  });
 });
 
 describe("the beta percentile route end to end", () => {
   it("resolves a working set into a percentile with its version and provenance", () => {
-    // 100kg x 5 averages to ~112.6kg, which at 80kg bodyweight is ~1.41 relative.
+    // This curve is not Strength Level's, so the generic mean applies: 100kg x 5 is 114.58kg, ~1.43 relative at 80kg.
     const result = resolveStrengthPercentile(curve, { loadKg: 100, repetitions: 5 }, context);
     expect(result.status).toBe("resolved");
     if (result.status !== "resolved") return;
@@ -102,12 +151,14 @@ describe("the beta percentile route end to end", () => {
 
   it("holds confidence under the source's cap without touching the percentile", () => {
     // The measured input is the estimate's own value, so the two really are the same lift -
-    // any other number would be comparing two different placements on the curve.
-    const sameValue = estimateOneRepMax({ loadKg: 100, repetitions: 5 });
+    // any other number would be comparing two different placements on the curve. This curve
+    // is not Strength Level's, so it is read with the generic estimator; 12 reps keeps the
+    // estimate's own confidence (0.70) under the source's cap (0.82).
+    const sameValue = estimateOneRepMax({ loadKg: 70, repetitions: 12 }, "sports_genome_generic_v1");
     expect("valueKg" in sameValue).toBe(true);
     if (!("valueKg" in sameValue)) return;
     const measured = resolveStrengthPercentile(curve, { measuredOneRmKg: sameValue.valueKg }, context);
-    const estimated = resolveStrengthPercentile(curve, { loadKg: 100, repetitions: 5 }, context);
+    const estimated = resolveStrengthPercentile(curve, { loadKg: 70, repetitions: 12 }, context);
     expect(measured.status).toBe("resolved");
     expect(estimated.status).toBe("resolved");
     if (measured.status !== "resolved" || estimated.status !== "resolved") return;
@@ -166,7 +217,9 @@ describe("the beta percentile route end to end", () => {
       anchors: [{ percentile: 25, value: 135 }, { percentile: 50, value: 220.462 }, { percentile: 75, value: 315 }],
     };
     const result = resolveStrengthPercentile(pounds, { measuredOneRmKg: 100 }, { sex: "male", bodyMassKg: 80 });
-    expect(result).toMatchObject({ status: "resolved", percentile: 50 });
+    expect(result).toMatchObject({ status: "resolved" });
+    // 100 kg is 220.46226 lb, a hair above the 220.462 anchor; placed unrounded, as the database places it.
+    expect(result.status === "resolved" && result.percentile).toBeCloseTo(50, 3);
     if (result.status !== "resolved") return;
     expect(result.observedValue).toBeCloseTo(220.46, 1);
   });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bodyWeightKgAt, currentBodyWeightDisplay, recordBodyWeight, seedBodyWeightLog, type BodyWeightEntry } from "./bodyWeightLog";
+import { bodyWeightEntryAt, bodyWeightKgAt, currentBodyWeightDisplay, recordBodyWeight, seedBodyWeightLog, type BodyWeightEntry } from "./bodyWeightLog";
 
 const at = (day: string) => `${day}T12:00:00.000Z`;
 
@@ -53,5 +53,16 @@ describe("body weight is a dated measurement, not a setting", () => {
     expect(seeded[0].source).toBe("onboarding");
     // A log that already holds anything is left exactly as it is.
     expect(seedBodyWeightLog(seeded, 999, "lb", at("2026-07-10"))).toEqual(seeded);
+  });
+});
+
+describe("the entry a lift's weight came from", () => {
+  it("is the one the weight is read from, so a record can say which day it was logged", () => {
+    let log: BodyWeightEntry[] = [];
+    log = recordBodyWeight(log, 200, "lb", at("2026-01-10"));
+    log = recordBodyWeight(log, 180, "lb", at("2026-06-10"));
+    expect(bodyWeightEntryAt(log, at("2026-03-01"))?.observedAt).toBe(at("2026-01-10"));
+    expect(bodyWeightEntryAt(log, at("2026-03-01"))?.bodyMassKg).toBe(bodyWeightKgAt(log, at("2026-03-01")));
+    expect(bodyWeightEntryAt(log, at("2025-12-01"))).toBeUndefined();
   });
 });

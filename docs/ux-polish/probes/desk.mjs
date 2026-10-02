@@ -1,0 +1,13 @@
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { boot } from './home.mjs';
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const p = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
+await boot(p, { draft: true });
+const dock = (l) => p.locator('.mobile-bottom-nav button').filter({ hasText: l }).first().dispatchEvent('click');
+const tab = (l) => p.locator('.workspace-top-switcher button').filter({ hasText: l }).first().dispatchEvent('click');
+await p.waitForSelector('[data-sonner-toast]', { state: 'detached', timeout: 8000 }).catch(() => {});
+await dock('Body Lab'); await tab('Muscles'); await p.waitForTimeout(1000); await p.screenshot({ path: '/home/user/Sports-genome/docs/ux-polish/after/desktop-1280-muscles.png' });
+console.log('cols', await p.evaluate(() => getComputedStyle(document.querySelector('.atlas-pro-grid')).gridTemplateColumns));
+await tab('Exercises'); await p.waitForTimeout(800); await p.locator('.catalog-discovery-card-copy').first().dispatchEvent('click'); await p.waitForTimeout(900); await p.screenshot({ path: '/home/user/Sports-genome/docs/ux-polish/after/desktop-1280-overlay.png' });
+console.log('kbd', await p.evaluate(() => getComputedStyle(document.querySelector('.universal-search-kbd')).display));
+await browser.close();

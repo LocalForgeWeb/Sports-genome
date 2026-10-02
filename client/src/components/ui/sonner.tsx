@@ -27,16 +27,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
        */
       theme="dark"
       /**
-       * Centred, and clear of the navigation.
-       *
-       * Sonner's default is bottom-right with a 32px offset, which on a phone
-       * is a full-width slab at the very bottom of the screen - exactly where
-       * this app pins its four destinations. The mobile offset clears the bar
-       * (4.375rem of targets and border) plus the home-indicator inset, and
-       * leaves a gap so the two read as separate things.
+       * Centred. Sonner's default is bottom-right with a 32px offset, which on a
+       * phone is a full-width slab at the very bottom of the screen - exactly
+       * where this app pins its four destinations. How far above them a toast
+       * sits has one owner: the `[data-sonner-toaster]` rule in index.css, lifted
+       * clear of other bottom controls by lib/feedbackClearance.ts. (A
+       * `mobileOffset` here was overridden by that rule and did nothing.)
        */
       position="bottom-center"
-      mobileOffset={{ bottom: "calc(4.375rem + env(safe-area-inset-bottom, 0px) + .75rem)", left: ".75rem", right: ".75rem" }}
       className="toaster group"
       style={
         {

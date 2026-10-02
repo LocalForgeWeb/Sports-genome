@@ -1,16 +1,14 @@
 import { useMemo, useState } from "react";
-import { BarChart3, ChevronRight, Maximize2, Target } from "lucide-react";
+import { BarChart3, ChevronRight, Maximize2, Wrench } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import type { TrainingSplit } from "@/lib/splitAssignment";
 import { analyzeSplitStack } from "@/lib/splitStackAnalysis";
 import {
   buildCoverageBars,
-  coverageBandCopy,
   dialGeometry,
+  formatCoverageDelta,
   scoreBand,
   summarizeCoverage,
-  type CoverageBand,
-  type CoverageBar,
 } from "@/lib/stackCoverageVisual";
 import { StackAnalysisPage } from "@/components/StackAnalysisPage";
 import { muscleLabels } from "@/components/AnatomyMap";
@@ -43,61 +41,59 @@ function CoverageDial({ score }: { score: number }) {
 }
 
 /**
- * Coverage against the split's target for one muscle.
+ * How this day reads, as a summary; the detail is one tap away.
  *
- * The mark is the point of the whole row: a fill on its own says "56", which
- * means nothing without knowing the split wanted 90.
+ * It used to be one stage: a gauge, a sentence, a band tally, two group headings,
+ * every bar in the split, a legend, and a second disclosure explaining the score -
+ * around 600px of chart on a phone, above an exercise list, on a page you came to
+ * in order to edit a day. It was then three stages, with the bars behind a
+ * disclosure here and again, sorted differently, in the analysis.
+ *
+ * Now the Plan says four things (Sep 28 regression brief §8): the coverage index, one
+ * sentence about it, the one gap worth closing first as the search that closes it, and
+ * "View analysis". The bars, tallies, legend and methodology live in the analysis, once.
+ * An empty day has no index at all: a 0/100 gauge read as a scored failure before
+ * anything had been added.
  */
-function CoverageRow({ bar }: { bar: CoverageBar }) {
-  const band = coverageBandCopy[bar.band];
-  const delta = bar.deltaToTarget;
-  return (
-    <li
-      className={`rate-stack-row rate-stack-row-${bar.band}`}
-      aria-label={`${label(bar.muscle)}: ${delta < 0 ? `${Math.abs(delta)} coverage points below` : delta > 0 ? `${delta} coverage points above` : "exactly at"} the ${bar.role} target. ${band.label}.`}
-    >
-      <span className="rate-stack-row-name" title={label(bar.muscle)}>{label(bar.muscle)}</span>
-      <span className="rate-stack-row-track">
-        <i className="rate-stack-row-fill" style={{ width: `${bar.fillPercent}%` }} />
-        <b className="rate-stack-row-target" style={{ left: `${bar.targetPercent}%` }} aria-hidden="true" />
-      </span>
-      <span className="rate-stack-row-delta">
-        {delta === 0 ? "on target" : `${delta > 0 ? "+" : "−"}${Math.abs(delta)}`}
-      </span>
-      <span className="rate-stack-row-band" title={band.meaning}>
-        <i aria-hidden="true">{band.glyph}</i>
-        {band.label}
-      </span>
-    </li>
-  );
-}
-
-function BandTally({ band, count }: { band: CoverageBand; count: number }) {
-  if (!count) return null;
-  const copy = coverageBandCopy[band];
-  return (
-    <span className={`rate-stack-tally rate-stack-tally-${band}`} title={copy.meaning}>
-      <i aria-hidden="true">{copy.glyph}</i>
-      {count} {copy.label.toLowerCase()}
-    </span>
-  );
-}
-
-export function RateStackPanel({ workout, catalog, split, sportId, prescriptions, onAdd, onReplace: _onReplace }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; sportId?: string; prescriptions?: Record<number, string>; onAdd: (exercise: Exercise) => void; onReplace: (outgoing: Exercise, incoming: Exercise) => void; }) {
+export function RateStackPanel({ workout, catalog, split, sportId, prescriptions, onAdd, onReplace: _onReplace, onFixMuscle, dayLabel = "Active Training Day", onAddExercises }: { workout: Exercise[]; catalog: Exercise[]; split: TrainingSplit; sportId?: string; prescriptions?: Record<number, string>; onAdd: (exercise: Exercise) => void; onReplace: (outgoing: Exercise, incoming: Exercise) => void; onFixMuscle?: (muscle: string) => void; /** The day in the plan's words ("Week 1 · Day 05 · Legs"), named on the analysis surface. */ dayLabel?: string; /** Opens the day's exercise picker; the analysis offers it on a day emptied while it is open. */ onAddExercises?: () => void; }) {
   const [open, setOpen] = useState(false);
   const analysis = useMemo(() => analyzeSplitStack(workout, catalog, split), [catalog, split, workout]);
   const bars = useMemo(() => buildCoverageBars(analysis.ratings), [analysis.ratings]);
   const summary = useMemo(() => summarizeCoverage(bars, label), [bars]);
-  /**
-   * "5 targets under, Pectoralis major 90 points short" is arithmetically true of
-   * an empty day and reads as five failures before the athlete has added
-   * anything. A day with nothing in it gets told that instead.
-   */
-  const headline = workout.length === 0
-    ? `Nothing added yet — all ${bars.length} ${split.toLowerCase()} targets are open.`
-    : summary.headline;
-  const primary = bars.filter((bar) => bar.role === "primary");
-  const support = bars.filter((bar) => bar.role === "support");
+  const worst = summary.shortfalls[0];
+
+  // Still rendered on a day emptied while the analysis is open (an Undo), which then shows
+  // its own empty state rather than vanishing under the athlete.
+  const analysisPage = open && (
+    <StackAnalysisPage
+      workout={workout}
+      split={split}
+      ratings={analysis.ratings}
+      dayLabel={dayLabel}
+      targetIndex={analysis.score}
+      suggestions={analysis.suggestions}
+      catalog={catalog}
+      sportId={sportId}
+      prescriptions={prescriptions}
+      boundary={analysis.boundary}
+      onAddSuggestion={onAdd}
+      onClose={() => setOpen(false)}
+      onAddExercises={onAddExercises ? () => { setOpen(false); onAddExercises(); } : undefined}
+    />
+  );
+
+  if (workout.length === 0) {
+    return (
+      <section className="rate-stack-panel rate-stack-panel-pending">
+        <p className="rate-stack-eyebrow">
+          <BarChart3 className="h-3.5 w-3.5" /> {split} coverage
+        </p>
+        <p className="rate-stack-headline">Not available yet</p>
+        <p className="rate-stack-scope-note">It appears after the first exercise, measured against the {bars.length} {split.toLowerCase()} targets.</p>
+        {analysisPage}
+      </section>
+    );
+  }
 
   return (
     <section className="rate-stack-panel">
@@ -105,81 +101,38 @@ export function RateStackPanel({ workout, catalog, split, sportId, prescriptions
         <CoverageDial score={analysis.score} />
         <div className="rate-stack-head-copy">
           <p className="rate-stack-eyebrow">
-            <BarChart3 className="h-3.5 w-3.5" /> {split} coverage
+            <BarChart3 className="h-3.5 w-3.5" /> {split} coverage index
           </p>
-          <p className="rate-stack-headline">{headline}</p>
-          {workout.length > 0 && <p className="rate-stack-tallies">
-            <BandTally band="short" count={summary.short} />
-            <BandTally band="near" count={summary.near} />
-            <BandTally band="covered" count={summary.covered} />
-            <BandTally band="heavy" count={summary.heavy} />
-          </p>}
+          <p className="rate-stack-headline">{summary.headline}</p>
+          {/* The scale, named once and short: the methodology is in the analysis. */}
+          <p className="rate-stack-scope-note">Out of 100, from catalog muscle tags. Not workload or recovery.</p>
         </div>
       </header>
 
-      {workout.length === 0 ? (
-        <p className="rate-stack-empty">Add an exercise and the coverage bars fill in against each {split.toLowerCase()} target.</p>
-      ) : (
-        <div className="rate-stack-groups">
-          {primary.length > 0 && (
-            <div className="rate-stack-group">
-              <p className="rate-stack-group-label">
-                Primary targets <small>the split is built on these</small>
-              </p>
-              <ul className="rate-stack-rows">
-                {primary.map((bar) => <CoverageRow key={bar.muscle} bar={bar} />)}
-              </ul>
-            </div>
-          )}
-          {support.length > 0 && (
-            <div className="rate-stack-group">
-              <p className="rate-stack-group-label">
-                Support targets <small>lower targets, still counted</small>
-              </p>
-              <ul className="rate-stack-rows">
-                {support.map((bar) => <CoverageRow key={bar.muscle} bar={bar} />)}
-              </ul>
-            </div>
-          )}
-          <p className="rate-stack-legend">
-            <span className="rate-stack-legend-target" aria-hidden="true" /> marks the {split.toLowerCase()} target each bar is measured against; the bar itself is what this day reached.
-          </p>
-        </div>
-      )}
+      {/* The one gap worth closing first, as the search that closes it. */}
+      {worst && <div className="rate-stack-fix">
+        <p className="rate-stack-fix-label"><Wrench className="h-3.5 w-3.5" /> Furthest behind</p>
+        <ul className="rate-stack-fix-list">
+          <li>
+            {onFixMuscle
+              ? <button type="button" onClick={() => onFixMuscle(worst.muscle)} aria-label={`Find ${label(worst.muscle)} exercises, ${formatCoverageDelta(worst.deltaToTarget)}`}>
+                  <span>{label(worst.muscle)}</span><i>{formatCoverageDelta(worst.deltaToTarget, { short: true })}</i>
+                </button>
+              : <span className="rate-stack-fix-static"><span>{label(worst.muscle)}</span><i>{formatCoverageDelta(worst.deltaToTarget, { short: true })}</i></span>}
+          </li>
+          {summary.shortfalls.length > 1 && <li className="rate-stack-fix-more">{summary.shortfalls.length - 1} more {summary.shortfalls.length === 2 ? "target" : "targets"} under</li>}
+        </ul>
+      </div>}
 
-      <button onClick={() => setOpen(true)} className="rate-stack-trigger">
+      <button type="button" onClick={() => setOpen(true)} className="rate-stack-trigger">
         <span>
-          <Maximize2 className="h-4 w-4" /> Open full analysis
+          <Maximize2 className="h-4 w-4" /> View analysis
         </span>
-        <small>{analysis.suggestions.length ? `${analysis.suggestions.length} suggested fix${analysis.suggestions.length === 1 ? "" : "es"}` : "body map and per-exercise breakdown"}</small>
+        <small>{analysis.suggestions.length ? `${analysis.suggestions.length} suggested fix${analysis.suggestions.length === 1 ? "" : "es"}` : `every ${split.toLowerCase()} target, body map and per-exercise breakdown`}</small>
         <ChevronRight className="h-4 w-4" />
       </button>
 
-      <details className="rate-stack-scope">
-        <summary>
-          <Target className="h-3.5 w-3.5" /> What this score measures
-        </summary>
-        <div>
-          <p>This score looks at {split.toLowerCase()} targets only. Open the full analysis to inspect every muscle the stack involves.</p>
-          <p className="rate-stack-boundary">{analysis.boundary}</p>
-        </div>
-      </details>
-
-      {open && (
-        <StackAnalysisPage
-          workout={workout}
-          split={split}
-          dayLabel="Active Training Day"
-          targetIndex={analysis.score}
-          suggestions={analysis.suggestions}
-          catalog={catalog}
-          sportId={sportId}
-          prescriptions={prescriptions}
-          onAddSuggestion={onAdd}
-          onClose={() => setOpen(false)}
-          onInspectExercise={() => undefined}
-        />
-      )}
+      {analysisPage}
     </section>
   );
 }

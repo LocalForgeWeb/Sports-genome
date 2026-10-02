@@ -1,17 +1,31 @@
 import { trpc } from "@/lib/trpc";
 import { dismissBootSplash } from "@/lib/bootSplash";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { installSessionNotice, isUnauthorized, sessionNotice } from "@/lib/sessionNotice";
 import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import "./index.css";
 
-const queryClient = new QueryClient();
+/**
+ * A lapsed sign-in is said once, when it happens, by lib/sessionNotice.ts; it is the only
+ * source of that notice. Every other failure is handled where it happens, beside the control.
+ */
+const onError = (error: unknown) => sessionNotice()?.onError(error);
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({ onError }),
+  mutationCache: new MutationCache({ onError }),
+  // A lapsed sign-in does not get better on the third try; say so at once.
+  defaultOptions: { queries: { retry: (count, error) => !isUnauthorized(error) && count < 3 } },
+});
+installSessionNotice(queryClient);
 
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       url: "/api/trpc",
+      // The server refuses a batch of more than 10 (server/_core/apiHandler.ts); split instead.
+      maxItems: 10,
       transformer: superjson,
       fetch(input, init) {
         return globalThis.fetch(input, { ...(init ?? {}), credentials: "include" });

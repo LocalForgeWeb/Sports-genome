@@ -128,6 +128,20 @@ export function loadDay(store: WeeklyDayStore, key: string): DayRecord {
   };
 }
 
+/**
+ * One exercise moved one place earlier (-1) or later (+1) within a day, found by its own
+ * id rather than by position, so a move and its Undo name the same entry whatever else
+ * changed in between. Out-of-range moves return the day unchanged.
+ */
+export function moveWithin<T extends { id: number }>(workout: readonly T[], exerciseId: number, direction: -1 | 1): T[] {
+  const from = workout.findIndex((exercise) => exercise.id === exerciseId);
+  const to = from + direction;
+  if (from < 0 || to < 0 || to >= workout.length) return [...workout];
+  const next = [...workout];
+  [next[from], next[to]] = [next[to], next[from]];
+  return next;
+}
+
 export function clearDay(store: WeeklyDayStore, key: string): WeeklyDayStore {
   return commitDay(store, key, emptyDayRecord());
 }

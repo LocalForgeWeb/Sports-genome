@@ -4,13 +4,21 @@ import { describe, expect, it } from "vitest";
 const source = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 
 describe("Reversible-action and destructive-confirmation contract", () => {
-  it("gates the Tier C plan-destroying actions (restart onboarding, reset sport) behind a named confirmation instead of executing immediately", () => {
+  it("gates the Tier C plan-destroying action behind a named confirmation instead of executing immediately", () => {
     expect(source).toContain('import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";');
     expect(source).toContain("const [pendingDestructiveAction, setPendingDestructiveAction] = useState<ConfirmDialogRequest | null>(null);");
     expect(source).toContain("const requestRebuildPlan = () => setPendingDestructiveAction({");
     expect(source).not.toContain("onClick={rebuildPlan}");
     expect(source).toContain("onClick={requestRebuildPlan}");
-    expect(source).toContain("setPendingDestructiveAction({\n        title: \"Reset sport selection?\"");
+    /**
+     * "Reset sport selection" is not on this list any more, because it was never a Tier C
+     * action - it was an ordinary context change wearing one. Choosing not to train for a
+     * sport ran a reset that cleared onboarding and emptied every week, so the profile had
+     * no way to say it. The profile now switches context directly and destroys nothing;
+     * restarting onboarding is still the one plan-destroying action, and still confirmed.
+     */
+    expect(source).not.toContain('title: "Reset sport selection?"');
+    expect(source).toContain("const chooseSportContextMode = (mode: SportContextMode) => {");
     expect(source).toContain("{pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => { pendingDestructiveAction.onCancel?.(); setPendingDestructiveAction(null); }} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}");
   });
 

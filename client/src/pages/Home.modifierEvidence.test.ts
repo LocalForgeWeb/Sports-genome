@@ -78,22 +78,20 @@ describe("Home decision-first planning surfaces", () => {
     });
   }
 
-  it("renders the selected Exercise Genome primary-muscle handoff to Body Lab", async () => {
-    workspace = "genome";
-    const { default: Home } = await import("./Home");
+  it("lands an old Genome link on the Exercises page, where the overlay carries the muscle handoff", async () => {
+    workspace = "catalog";
+    const { default: Home, workspaceFromLocation } = await import("./Home");
+    expect(workspaceFromLocation("genome")).toBe("catalog");
     const markup = renderToStaticMarkup(createElement(Home));
-
     /**
-     * The workspace itself is lazy, so static markup carries the Suspense fallback
-     * rather than its content. This used to pass on the header echoing the workspace's
-     * `navItems` label - "Exercise Genome" - which said nothing about the workspace
-     * being reached. With the header gone, assert what the markup can actually prove:
-     * Body Lab is the destination and its Genome tab is the current page.
+     * The Genome page is gone: its per-exercise analysis, evidence and the
+     * handoff to Body Lab live in the exercise overlay, opened from Exercises.
+     * Static markup can prove the destination and the current tab.
      */
     expect(markup).toContain('class="apex-shell shell-body');
-    expect(markup).toContain("Genome");
-    expect(markup).toMatch(/aria-current="page"[^>]*>Genome</);
-    expect(readFileSync(new URL("./Home.tsx", import.meta.url), "utf8")).toContain("<ExerciseGenomeWorkspace");
-    expect(readFileSync(new URL("../components/ExerciseGenomeWorkspace.tsx", import.meta.url), "utf8")).toContain("Open leading muscle in Body Lab");
+    expect(markup).toMatch(/aria-current="page"[^>]*>Exercises</);
+    // The overlay's own handoff. Home's "Explore in Body Lab" link went with the Home movement
+    // list (Sep 28 regression brief §3); Home now links to the movement itself.
+    expect(readFileSync(new URL("./Home.tsx", import.meta.url), "utf8")).toContain('className="exercise-intelligence-explore"');
   });
 });

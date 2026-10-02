@@ -1,15 +1,15 @@
 .stack-analysis-overlay { position: fixed; z-index: 80; inset: 0; overflow-y: auto; overscroll-behavior: contain; background: rgb(2 12 28 / .78); }
-.stack-analysis-page { min-height: 100dvh; color: var(--sg-text-on-dark); background: var(--sg-surface-deep); padding-bottom: calc(5.8rem + env(safe-area-inset-bottom)); }
-.stack-analysis-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgb(164 200 232 / .24); background: linear-gradient(115deg, var(--sg-surface-deep), var(--sg-surface-overlay)); padding: clamp(1.15rem, 3vw, 2rem); }
+.stack-analysis-page { min-height: 100dvh; color: var(--sg-text-on-dark); background: var(--sg-surface-deep); padding-bottom: calc(var(--sg-space-6) + env(safe-area-inset-bottom)); }
+.stack-analysis-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgb(164 200 232 / .24); background: linear-gradient(115deg, var(--sg-surface-deep), var(--sg-surface-overlay)); padding: clamp(1.15rem, 3vw, 2rem); padding-top: max(clamp(1.15rem, 3vw, 2rem), env(safe-area-inset-top, 0px)); }
 .stack-analysis-head > div { min-width: 0; }.stack-analysis-head .metric-label { color: #9cc4ea; }.stack-analysis-head h1 { margin: .35rem 0 0; color: #fff; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 800; line-height: .92; text-transform: uppercase; }.stack-analysis-head h1 span { color: var(--sg-focus-on-dark); }.stack-analysis-head p:last-child { max-width: 36rem; margin: .6rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-md); line-height: var(--sg-leading-body); }.stack-analysis-head > button { display: grid; width: 2.75rem; min-width: 2.75rem; height: 2.75rem; place-items: center; border: 1px solid rgb(164 200 232 / .45); color: #fff; }.stack-analysis-head > button:focus-visible, .stack-analysis-page :is(button, summary):focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 3px; }
-.stack-analysis-main { display: grid; max-width: 74rem; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 1rem; margin: 0 auto; padding: clamp(1rem, 3vw, 1.5rem); background: var(--sg-surface-deep); }.stack-analysis-rank, .stack-analysis-body, .stack-analysis-suggestions, .stack-analysis-detail-disclosure { border: 1px solid rgb(164 200 232 / .22); background: var(--sg-surface-raised); }.stack-analysis-rank { order: 1; padding: clamp(1rem, 2.5vw, 1.5rem); }.stack-analysis-body { order: 2; }.stack-analysis-suggestions, .stack-analysis-detail-disclosure, .stack-analysis-boundary { grid-column: 1 / -1; }
+.stack-analysis-main { display: grid; max-width: 74rem; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 1rem; margin: 0 auto; padding: clamp(1rem, 3vw, 1.5rem); background: var(--sg-surface-deep); }.stack-analysis-rank, .stack-analysis-body, .stack-analysis-suggestions, .stack-analysis-breakdown { border: 1px solid rgb(164 200 232 / .22); background: var(--sg-surface-raised); }.stack-analysis-rank { order: 1; padding: clamp(1rem, 2.5vw, 1.5rem); }.stack-analysis-body { order: 2; }.stack-analysis-suggestions, .stack-analysis-boundary { grid-column: 1 / -1; }
 .stack-analysis-rank-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }.stack-analysis-rank-head .metric-label { color: #9cc4ea; }.stack-analysis-rank-head h2 { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.7rem; line-height: .9; text-transform: uppercase; }.stack-analysis-index-badge { display: inline-flex; align-items: baseline; border: 1px solid rgb(242 193 77 / .42); background: rgb(242 193 77 / .09); padding: .45rem .55rem; color: #ffe49a; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.45rem; line-height: 1; }.stack-analysis-index-badge small { font-size: var(--sg-text-xs); }.stack-analysis-hint { margin: .75rem 0 1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
-.stack-analysis-list { display: grid; gap: .5rem; }.stack-analysis-row { display: grid; width: 100%; min-height: 5.25rem; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: .7rem; border: 1px solid rgb(164 200 232 / .28); background: var(--sg-surface-panel); padding: .7rem; color: var(--sg-text-on-dark); text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease); }.stack-analysis-row:hover, .stack-analysis-row-active { border-color: var(--sg-focus-on-dark); background: var(--sg-surface-overlay); }.stack-analysis-row:active { transform: scale(.985); }.stack-analysis-row > span { color: var(--sg-text-muted-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.2rem; }.stack-analysis-row-copy { min-width: 0; }.stack-analysis-row-copy strong, .stack-analysis-row-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.stack-analysis-row-copy strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }.stack-analysis-row-copy small { margin-top: .18rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }.stack-analysis-row-copy i { display: block; width: 100%; height: .25rem; margin-top: .5rem; overflow: hidden; background: rgb(255 255 255 / .14); }.stack-analysis-row-copy i b { display: block; height: 100%; background: var(--sg-seq-4); }.stack-analysis-row-score { display: grid; justify-items: end; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-style: normal; line-height: .9; }.stack-analysis-row-score small { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.stack-analysis-row svg { color: var(--sg-text-muted-on-dark); }
+.stack-analysis-list { display: grid; gap: .5rem; }.stack-analysis-row { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr) auto 1rem; grid-template-areas: "copy score chevron" "bar bar chevron"; align-items: center; gap: .5rem .7rem; border: 1px solid rgb(164 200 232 / .28); background: var(--sg-surface-panel); padding: .7rem; color: var(--sg-text-on-dark); text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease), border-color var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease); }.stack-analysis-row:hover, .stack-analysis-row-active { border-color: var(--sg-focus-on-dark); background: var(--sg-surface-overlay); }.stack-analysis-row:active { transform: scale(.985); }.stack-analysis-row > span { color: var(--sg-text-muted-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.2rem; }.stack-analysis-row-copy { min-width: 0; grid-area: copy; }.stack-analysis-row-copy strong, .stack-analysis-row-copy small { display: block; overflow-wrap: break-word; }.stack-analysis-row-copy strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }.stack-analysis-row-copy small { margin-top: .18rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }.stack-analysis-row-bar { position: relative; display: block; grid-area: bar; height: .25rem; background: rgb(255 255 255 / .14); }.stack-analysis-row-bar b { display: block; height: 100%; background: var(--sg-seq-4); }.stack-analysis-row-score { display: grid; grid-area: score; justify-items: end; white-space: nowrap; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-style: normal; line-height: .9; }.stack-analysis-row-score small { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.stack-analysis-row svg { color: var(--sg-text-muted-on-dark); }.stack-analysis-row-chevron { grid-area: chevron; }
 .stack-analysis-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid rgb(164 200 232 / .22); }.stack-analysis-summary > div { display: flex; min-height: 3.25rem; align-items: center; gap: .45rem; border-right: 1px solid rgb(164 200 232 / .22); padding: .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); }.stack-analysis-summary > div:last-child { border-right: 0; }.stack-analysis-target-index { display: grid !important; gap: .1rem !important; }.stack-analysis-target-index strong { color: #ffe49a; }.stack-analysis-target-index small { color: #b8d4ef; font-size: var(--sg-text-xs); }
-.stack-analysis-map-disclosure, .stack-analysis-detail-disclosure { margin: 0; }.stack-analysis-map-disclosure summary, .stack-analysis-detail-disclosure summary { display: flex; min-height: 3.5rem; align-items: center; justify-content: space-between; gap: .75rem; padding: 0 1rem; color: var(--sg-text-on-dark); cursor: pointer; font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.stack-analysis-map-disclosure summary span { display: inline-flex; align-items: center; gap: .45rem; }.stack-analysis-map-disclosure summary small, .stack-analysis-detail-disclosure summary small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }.stack-analysis-map-frame { border-top: 1px solid rgb(164 200 232 / .22); padding: .75rem; }.stack-analysis-map-frame .anatomy-atlas-pro { margin: 0; }
+.stack-analysis-map-disclosure, .stack-analysis-detail-disclosure { margin: 0; }.stack-analysis-map-disclosure > summary { display: flex; min-height: 3.5rem; align-items: center; justify-content: space-between; gap: .75rem; padding: 0 1rem; color: var(--sg-text-on-dark); cursor: pointer; font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.stack-analysis-map-disclosure summary span { display: inline-flex; align-items: center; gap: .45rem; }.stack-analysis-map-disclosure summary small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }.stack-analysis-map-frame { border-top: 1px solid rgb(164 200 232 / .22); padding: .75rem; }.stack-analysis-map-frame .anatomy-atlas-pro { margin: 0; }
 .stack-analysis-next-picks { margin: .9rem 0 1rem; border-top: 1px solid rgb(164 200 232 / .22); border-bottom: 1px solid rgb(164 200 232 / .22); padding: .8rem 0; }.stack-analysis-next-picks-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }.stack-analysis-next-picks-head .metric-label { color: #ffe49a; }.stack-analysis-next-picks-head p:last-child { margin: .16rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-snug); }.stack-analysis-next-picks-head > small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); white-space: nowrap; }.stack-analysis-next-pick-list, .stack-analysis-more-picks > div { display: grid; gap: .45rem; margin-top: .65rem; }.stack-analysis-next-picks article { display: flex; min-height: 3.2rem; align-items: center; justify-content: space-between; gap: .65rem; border: 1px solid rgb(164 200 232 / .22); background: var(--sg-surface-panel); padding: .55rem .6rem; }.stack-analysis-next-picks strong, .stack-analysis-next-picks small, .stack-analysis-next-picks em { display: block; }.stack-analysis-next-picks strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-snug); }.stack-analysis-next-picks small { margin-top: .12rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-snug); }.stack-analysis-next-picks em { margin-top: .14rem; color: #ffe49a; font-size: var(--sg-text-xs); font-style: normal; line-height: var(--sg-leading-snug); }.stack-analysis-next-picks button { display: inline-flex; min-width: 3.4rem; min-height: 2.35rem; flex: 0 0 auto; align-items: center; justify-content: center; gap: .25rem; border: 1px solid var(--sg-focus-on-dark); background: rgb(242 193 77 / .08); color: #ffe49a; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.stack-analysis-more-picks { margin-top: .55rem; }.stack-analysis-more-picks summary, .stack-analysis-suggestion-boundary summary { color: var(--sg-text-muted-on-dark); cursor: pointer; font-size: var(--sg-text-xs); font-weight: 800; }.stack-analysis-suggestion-boundary { margin-top: .6rem; }.stack-analysis-suggestion-boundary p { margin: .45rem 0 0; border-left: 2px solid #d5ad43; padding-left: .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
-.stack-analysis-detail-disclosure { overflow: hidden; }.stack-analysis-detail-disclosure summary { border-bottom: 1px solid rgb(164 200 232 / .22); }.stack-analysis-detail { padding: clamp(1rem, 2.5vw, 1.5rem); }.stack-analysis-detail-head { display: flex; justify-content: space-between; gap: 1rem; }.stack-analysis-detail-head h2 { margin: .25rem 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.9rem; line-height: .9; text-transform: uppercase; }.stack-analysis-detail-head p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.stack-analysis-detail-head > span { color: #ffe49a; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.8rem; }.stack-analysis-contributions { display: grid; gap: .6rem; margin-top: 1rem; }.stack-analysis-contributions article { border-top: 1px solid rgb(164 200 232 / .22); padding-top: .6rem; }.stack-analysis-contributions article > button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .75rem; color: var(--sg-text-on-dark); text-align: left; }.stack-analysis-contributions strong, .stack-analysis-contributions small { display: block; }.stack-analysis-contributions small { margin-top: .15rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }.stack-analysis-contributions button > span { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.1rem; text-align: right; }.stack-analysis-contributions button > span small { color: var(--sg-text-muted-on-dark); font-family: var(--font-sans, sans-serif); font-size: var(--sg-text-xs); }.stack-analysis-boundary { margin: 0; border-left: 2px solid #d5ad43; background: var(--sg-surface-panel); padding: .8rem 1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.stack-analysis-empty { display: grid; min-height: 60vh; place-items: center; align-content: center; gap: .75rem; padding: 2rem; color: var(--sg-text-muted-on-dark); text-align: center; }.stack-analysis-empty h2 { margin: 0; color: var(--sg-text-on-dark); }
-@media (max-width: 760px) { .stack-analysis-head { padding: .85rem 1rem; }.stack-analysis-head h1 { font-size: 2rem; }.stack-analysis-head p:last-child { margin-top: .3rem; font-size: var(--sg-text-xs); }.stack-analysis-main { display: flex; flex-direction: column; gap: .65rem; padding: .7rem; }.stack-analysis-rank { order: 1; padding: .85rem; }.stack-analysis-body { order: 2; }.stack-analysis-detail-disclosure { order: 3; }.stack-analysis-boundary { order: 4; }.stack-analysis-hint { margin: .45rem 0 .55rem; font-size: var(--sg-text-xs); }.stack-analysis-next-picks { margin: .65rem 0 .7rem; padding: .65rem 0; }.stack-analysis-next-picks article { min-height: 3.1rem; }.stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }.stack-analysis-summary > div { min-height: 2.9rem; font-size: var(--sg-text-xs); }.stack-analysis-summary > div:last-child { grid-column: 1 / -1; border-top: 1px solid rgb(164 200 232 / .22); border-right: 0; }.stack-analysis-row { min-height: 4.65rem; grid-template-columns: 1.35rem minmax(0, 1fr) auto 1rem; gap: .5rem; padding: .55rem; }.stack-analysis-row-copy strong { font-size: var(--sg-text-md); }.stack-analysis-row-copy small { font-size: var(--sg-text-xs); }.stack-analysis-row-copy i { margin-top: .38rem; }.stack-analysis-row-score { font-size: 1.1rem; }.stack-analysis-supporting { margin-top: .65rem; }.stack-analysis-detail-head { align-items: flex-start; }.stack-analysis-detail-head h2 { font-size: 1.65rem; } }
+.stack-analysis-detail-disclosure { overflow: hidden; }.stack-analysis-detail-disclosure[open] > summary { border-bottom: 1px solid rgb(164 200 232 / .22); }.stack-analysis-detail { padding: clamp(1rem, 2.5vw, 1.5rem); }.stack-analysis-detail-head { display: flex; justify-content: space-between; gap: 1rem; }.stack-analysis-detail-head h3 { margin: .25rem 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.9rem; line-height: .9; text-transform: uppercase; }.stack-analysis-detail-head p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }.stack-analysis-detail-head > span { color: #ffe49a; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.8rem; }.stack-analysis-contributions { display: grid; gap: .6rem; margin-top: 1rem; }.stack-analysis-contributions article { border-top: 1px solid rgb(164 200 232 / .22); padding-top: .6rem; }.stack-analysis-contributions strong, .stack-analysis-contributions small { display: block; }.stack-analysis-contributions small { margin-top: .15rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }.stack-analysis-boundary { margin: 0; border-left: 2px solid #d5ad43; background: var(--sg-surface-panel); padding: .8rem 1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }.stack-analysis-empty { display: grid; min-height: 60vh; place-items: center; align-content: center; gap: .75rem; padding: 2rem; color: var(--sg-text-muted-on-dark); text-align: center; }.stack-analysis-empty h2 { margin: 0; color: var(--sg-text-on-dark); }
+@media (max-width: 760px) { .stack-analysis-head { padding: max(.85rem, env(safe-area-inset-top, 0px)) var(--sg-gutter) .85rem; }.stack-analysis-head h1 { font-size: 2rem; }.stack-analysis-head p:last-child { margin-top: .3rem; font-size: var(--sg-text-xs); }.stack-analysis-main { display: flex; flex-direction: column; gap: .65rem; padding: .7rem var(--sg-gutter); }.stack-analysis-rank { order: 1; padding: .85rem; }.stack-analysis-aside { gap: .65rem; }.stack-analysis-boundary { order: 4; }.stack-analysis-hint { margin: .45rem 0 .55rem; font-size: var(--sg-text-xs); }.stack-analysis-next-picks { margin: .65rem 0 .7rem; padding: .65rem 0; }.stack-analysis-next-picks article { min-height: 3.1rem; }.stack-analysis-summary > div { min-height: 2.9rem; font-size: var(--sg-text-xs); }.stack-analysis-row { gap: .45rem .5rem; padding: .55rem; }.stack-analysis-row-copy strong { font-size: var(--sg-text-md); }.stack-analysis-row-copy small { font-size: var(--sg-text-xs); }.stack-analysis-row-score { font-size: 1.1rem; }.stack-analysis-detail-head { align-items: flex-start; }.stack-analysis-detail-head h3 { font-size: 1.65rem; } }
 
 /* ==========================================================================
    Loading profile
@@ -46,6 +46,7 @@
 .loading-profile-shape-shortened { color: #f6d489; }
 
 .loading-profile-plot {
+  --lp-label: 5.5rem;
   position: relative;
   display: grid;
   gap: .3rem;
@@ -53,14 +54,15 @@
 
 /* One midpoint rule. More would be chart junk behind a mark this thin.
    Inset to the plot's bar column so it lines up with the tracks, not the labels. */
+/* Placed along the track itself (label column, gap, track, gap, value column). It was 50% of
+   the whole plot plus the label column, so at 390px it sat 60px right of its "50". */
 .loading-profile-gridline {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
+  left: calc(var(--lp-label) + .5rem + (100% - var(--lp-label) - 1rem - 2.2rem) * var(--tick, 50) / 100);
   z-index: 0;
   width: 1px;
-  margin-left: calc(5.5rem + .5rem);
   background: rgb(164 200 232 / .16);
   transform: translateX(-50%);
 }
@@ -69,7 +71,7 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr) 2.2rem;
+  grid-template-columns: var(--lp-label) minmax(0, 1fr) 2.2rem;
   align-items: center;
   gap: .5rem;
 }
@@ -105,8 +107,8 @@
 }
 
 .loading-profile-axis {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   margin: .4rem 0 0 calc(5.5rem + .5rem);
   padding-right: calc(2.2rem + .5rem);
   color: var(--sg-text-faint-on-dark);
@@ -119,33 +121,25 @@
 
    Was: three exercises x four bordered mini-bar boxes = twelve widgets carrying
    twelve numbers. Now one row each, with the same profile at row scale so the
-   shapes can be compared straight down the column.
+   shapes can be compared straight down the column. Static rows: they were
+   buttons whose handler did nothing, with an arrow promising a destination
+   (Sep 30 brief §7).
    ========================================================================== */
 
-.stack-analysis-contributions article > button {
+.contribution-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: var(--sg-space-3);
   padding: .55rem 0;
+  color: var(--sg-text-on-dark);
 }
 
 .contribution-copy { min-width: 0; }
 .contribution-copy strong,
-.contribution-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contribution-copy small { display: block; overflow-wrap: break-word; }
 .contribution-copy strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-md); line-height: var(--sg-leading-snug); }
 .contribution-copy small { margin-top: .16rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
-
-/* `.stack-analysis-contributions button > span` right-aligns and enlarges every
-   span in the row - it was written for the old score block and still matches the
-   new copy and spark. These reset what this row actually needs. */
-.stack-analysis-contributions article > button { text-align: left; }
-
-.stack-analysis-contributions .contribution-copy {
-  font-family: inherit;
-  font-size: inherit;
-  text-align: left;
-}
 
 .profile-spark {
   display: inline-flex;
@@ -200,7 +194,6 @@
 
 /* -- Coverage rows: the split's target, marked -------------------------- */
 
-.stack-analysis-row-copy i { position: relative; }
 
 .stack-analysis-row-fill {
   display: block;
@@ -231,11 +224,9 @@
 .stack-analysis-row-heavy .stack-analysis-row-score small { color: #a8d4fa; }
 
 @media (max-width: 640px) {
-  .loading-profile-row { grid-template-columns: 4.5rem minmax(0, 1fr) 2.2rem; }
-  .loading-profile-gridline { margin-left: calc(4.5rem + .5rem); }
+  .loading-profile-plot { --lp-label: 4.5rem; }
   .loading-profile-axis { margin-left: calc(4.5rem + .5rem); }
-  .stack-analysis-contributions article > button { grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--sg-space-2); }
-  .stack-analysis-contributions article > button > svg:last-child { display: none; }
+  .contribution-row { gap: var(--sg-space-2); }
 }
 
 /* The score block stacks a small caps label over a display-size number at
@@ -246,8 +237,11 @@
 
 /* The summary strip reserves three equal columns but only ever fills two, so it
    rendered a dead cell - and at narrow widths the two wrapped onto separate rows
-   with an empty half beside each. Sizing to content removes both. */
-.stack-analysis-summary { grid-template-columns: repeat(2, max-content); }
+   with an empty half beside each. Sizing to content removes both. The columns may
+   shrink below their content, so a long fact wraps inside its cell: plain
+   max-content ran "4 of 5 targets trained" 9px off a 320px screen at 125% text. */
+.stack-analysis-summary { grid-template-columns: repeat(2, minmax(0, max-content)); max-width: 100%; }
+.stack-analysis-summary > div { min-width: 0; }
 .stack-analysis-summary > div:last-child { border-right: 0; }
 
 /* ==========================================================================
@@ -279,32 +273,36 @@
 .session-volume { border-top: 1px solid rgb(164 200 232 / .22); padding: var(--sg-space-4); }
 
 .quality-rows,
-.session-volume-rows { display: grid; gap: .32rem; margin: .5rem 0 0; padding: 0; list-style: none; }
+.session-volume-rows { display: grid; gap: .55rem; margin: .5rem 0 0; padding: 0; list-style: none; }
 
+/* Name and count on one line, the catalog share under them, at every width. The
+   count sat in a fixed 5.5rem column in tracked capitals, so "4 EXERCISES" and
+   "NONE HERE" wrapped to two lines on every phone (Sep 30 brief §7). */
 .quality-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 6.5rem 7rem;
-  align-items: center;
-  gap: .5rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "name count" "share share";
+  align-items: baseline;
+  gap: .2rem .6rem;
 }
 
 .quality-row-name {
-  overflow: hidden;
+  grid-area: name;
   color: var(--sg-text-on-dark);
   font-size: var(--sg-text-xs);
   font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
 }
 
 .quality-row-count {
   display: inline-flex;
+  grid-area: count;
+  justify-content: flex-end;
   align-items: center;
   gap: .28rem;
   font-size: var(--sg-text-xs);
-  font-weight: 800;
-  letter-spacing: var(--sg-tracking-label);
-  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .quality-row-count i { font-style: normal; font-weight: 800; }
@@ -314,7 +312,7 @@
 
 /* The split's own catalog share, as context for an absent demand: a quality this
    split can barely serve is a different situation from one it serves well. */
-.quality-row-share { display: grid; gap: .16rem; }
+.quality-row-share { display: grid; grid-area: share; gap: .16rem; }
 .quality-row-share i { display: block; height: 4px; overflow: hidden; background: var(--sg-data-missing); }
 .quality-row-share b { display: block; height: 100%; background: var(--sg-seq-2); }
 .quality-row-share small { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); }
@@ -327,29 +325,53 @@
   line-height: var(--sg-leading-body);
 }
 
+/* One layout at every width: name, direct count and status on the first line,
+   the bar the full row width so every track is one length, and the supporting
+   sets under it. The status sat in a fixed column in tracked capitals and
+   "INDIRECT ONLY" wrapped; names were cut to "Rectus abdomi..." (Sep 30 brief §7).
+   The list owns the columns and every row is a subgrid of them, so each count and
+   each status sits in one column sized by its widest row. With a grid per row,
+   "0 direct" sat 37px left of the other counts beside the longer "Indirect only". */
+.session-volume-rows { grid-template-columns: minmax(0, 1fr) auto auto; column-gap: .6rem; }
 .session-volume-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 7rem 2rem 6rem;
-  align-items: center;
-  gap: .5rem;
+  grid-column: 1 / -1;
+  /* The first line is the fallback where subgrid is not supported. */
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: subgrid;
+  grid-template-areas: "name sets reading" "track track track" "supporting supporting supporting";
+  align-items: baseline;
+  gap: .25rem .6rem;
 }
 
 .session-volume-name {
-  overflow: hidden;
+  grid-area: name;
   color: var(--sg-text-on-dark);
   font-size: var(--sg-text-xs);
   font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+}
+
+.session-volume-supporting {
+  grid-area: supporting;
+  color: var(--sg-text-faint-on-dark);
+  font-size: var(--sg-text-xs);
 }
 
 /* Direct and supporting are two different things, so they are two segments of
    one bar rather than one total that hides the split. */
-.session-volume-track { display: flex; height: 10px; overflow: hidden; background: var(--sg-data-missing); }
-.session-volume-direct { display: block; background: var(--sg-seq-4); }
-.session-volume-support { display: block; background: var(--sg-seq-2); }
+.session-volume-track { display: flex; grid-area: track; align-self: center; height: 10px; overflow: hidden; background: var(--sg-data-missing); }
+/* Sets, not coverage points: its own hue. It shared the coverage bands' blue and green, so
+   the same muscle's "Light" and "Well past" looked like one quantity (Sep 28 regression
+   brief §8). The reading is carried by its word and glyph. */
+.session-volume { --sv-direct: #b39ddb; --sv-support: rgb(179 157 219 / .38); --sv-heavy: #dccbff; }
+.session-volume-direct { display: block; background: var(--sv-direct); }
+.session-volume-support { display: block; background: var(--sv-support); }
+.session-volume-sets small { color: var(--sg-text-faint-on-dark); font-family: var(--sg-font-sans, inherit); font-size: var(--sg-text-xs); font-weight: 600; }
 
 .session-volume-sets {
+  grid-area: sets;
+  white-space: nowrap;
   color: var(--sg-text-on-dark);
   font-family: var(--sg-font-display);
   font-size: var(--sg-text-md);
@@ -360,47 +382,119 @@
 
 .session-volume-reading {
   display: inline-flex;
+  grid-area: reading;
+  justify-content: flex-start;
   align-items: center;
   gap: .25rem;
   color: var(--sg-text-subtle-on-dark);
   font-size: var(--sg-text-xs);
-  font-weight: 800;
-  letter-spacing: var(--sg-tracking-label);
-  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .session-volume-reading i { font-style: normal; font-weight: 800; }
-.session-volume-heavy .session-volume-reading { color: #f6d489; }
-.session-volume-heavy .session-volume-direct { background: var(--sg-state-caution); }
+.session-volume-heavy .session-volume-reading { color: var(--sv-heavy); }
+.session-volume-heavy .session-volume-direct { background: var(--sv-heavy); }
 .session-volume-light .session-volume-reading { color: var(--sg-text-faint-on-dark); }
-.session-volume-solid .session-volume-reading { color: #9adfb0; }
-.session-volume-solid .session-volume-direct { background: var(--sg-state-positive); }
-.session-volume-indirect-only .session-volume-reading { color: #a8d4fa; }
+.session-volume-solid .session-volume-reading { color: var(--sg-text-on-dark); }
+.session-volume-indirect-only .session-volume-reading { color: var(--sg-text-muted-on-dark); }
 
 .session-volume-legend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .3rem;
+  gap: .3rem .75rem;
   margin: var(--sg-space-3) 0 0;
   color: var(--sg-text-faint-on-dark);
   font-size: var(--sg-text-xs);
 }
 
-.session-volume-legend span { display: inline-block; flex: 0 0 auto; width: 14px; height: 8px; }
-.session-volume-key-direct { background: var(--sg-seq-4); }
-.session-volume-key-support { margin-left: .45rem; background: var(--sg-seq-2); }
+/* Each swatch travels with its words when the legend wraps. */
+.session-volume-legend > span { display: inline-flex; align-items: center; gap: .3rem; }
+.session-volume-legend i { display: inline-block; flex: 0 0 auto; width: 14px; height: 8px; }
+.session-volume-key-direct { background: var(--sv-direct); }
+.session-volume-key-support { background: var(--sv-support); }
+.session-volume-scale { margin: .35rem 0 0; color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
 
-@media (max-width: 640px) {
-  .quality-row { grid-template-columns: minmax(0, 1fr) 5.5rem; grid-template-areas: "name count" "share share"; gap: .2rem .5rem; }
-  .quality-row-name { grid-area: name; }
-  .quality-row-count { grid-area: count; justify-content: flex-end; }
-  .quality-row-share { grid-area: share; }
-  .quality-rows { gap: .55rem; }
-  .session-volume-row { grid-template-columns: minmax(0, 1fr) 2rem 5.5rem; grid-template-areas: "name sets reading" "track track track"; gap: .2rem .45rem; }
-  .session-volume-name { grid-area: name; }
-  .session-volume-track { grid-area: track; }
-  .session-volume-sets { grid-area: sets; }
-  .session-volume-reading { grid-area: reading; justify-content: flex-end; }
-  .session-volume-rows { gap: .55rem; }
+
+/* -- Next update: the header's exit and the empty state ------------------------ */
+/* One clean text action beside the title, not an X with a loose label stacked under it in a square. */
+.stack-analysis-head > button { display: inline-flex; flex-direction: row; align-items: center; gap: .35rem; width: auto; min-width: 2.75rem; height: 2.75rem; border-radius: 999px; padding: 0 .9rem .0rem .7rem; font-size: var(--sg-text-sm); font-weight: 700; }
+/* Under the header, not centred in a void: what is missing, what to do, one action. */
+.stack-analysis-empty { min-height: auto; place-items: start; align-content: start; justify-items: start; gap: .6rem; max-width: 34rem; padding: 1.25rem 1rem 2rem; text-align: left; }
+.stack-analysis-empty svg { color: var(--sg-text-subtle-on-dark); }
+.stack-analysis-empty h2 { font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; line-height: 1; text-transform: uppercase; }
+.stack-analysis-empty p { margin: 0; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.stack-analysis-empty-action { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.9rem; margin-top: .35rem; border: 1px solid var(--sg-action); background: var(--sg-action-fill); padding: 0 1rem; color: #fff; font-size: var(--sg-text-sm); font-weight: 700; }
+.stack-analysis-empty-action:hover { background: var(--sg-action-strong); }
+.stack-analysis-empty-hint { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); }
+
+.loading-profile-axis span:last-child { text-align: right; }
+
+/* -- Sep 28 regression brief §8: the split targets, moved in from the Plan ------ */
+.stack-analysis-index-badge em { margin-left: .4rem; color: var(--sg-text-muted-on-dark); font-family: var(--sg-font-sans, sans-serif); font-size: var(--sg-text-xs); font-style: normal; font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.stack-analysis-tallies { display: flex; flex-wrap: wrap; gap: .35rem .6rem; margin: .85rem 0 .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; }
+.stack-analysis-tallies:empty { display: none; }
+.stack-analysis-tally { display: inline-flex; align-items: center; gap: .25rem; }
+.stack-analysis-tally i { font-style: normal; }
+.stack-analysis-tally-short { color: #f4a9a2; }
+.stack-analysis-tally-near { color: #f6d489; }
+.stack-analysis-tally-covered { color: #9adfb0; }
+.stack-analysis-tally-heavy { color: #a8d4fa; }
+.stack-analysis-row-untrained { cursor: default; }
+.stack-analysis-row-untrained:hover { border-color: rgb(164 200 232 / .28); background: var(--sg-surface-panel); }
+.stack-analysis-row-untrained:active { transform: none; }
+.stack-analysis-legend { display: flex; align-items: baseline; gap: .4rem; margin: .6rem 0 0; color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+.stack-analysis-legend-target { flex: 0 0 auto; display: inline-block; width: 2px; height: .8rem; background: var(--sg-text-on-dark); }
+.stack-analysis-detail-head > span small { display: block; color: var(--sg-text-faint-on-dark); font-family: var(--sg-font-sans, sans-serif); font-size: var(--sg-text-xs); font-weight: 600; text-align: right; }
+.stack-analysis-method { order: 4; grid-column: 1 / -1; border: 1px solid rgb(164 200 232 / .22); background: var(--sg-surface-panel); }
+.stack-analysis-method > summary { display: flex; min-height: 3rem; align-items: center; padding: 0 1rem; color: var(--sg-text-on-dark); cursor: pointer; font-size: var(--sg-text-sm); font-weight: 800; }
+.stack-analysis-method > div { display: grid; gap: .55rem; padding: 0 1rem 1rem; }
+.stack-analysis-method p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+
+/* -- Sep 30 brief §7: three named sections, a clear Inspect action ------------- */
+/* What stands out heads the page, above the three sections its figures come from. */
+.stack-analysis-main > .stack-tips { order: 0; grid-column: 1 / -1; margin: 0; }
+.stack-tip-basis { color: var(--sg-text-on-dark); font-weight: 700; }
+/* Each section says what it counts, under its title. */
+.stack-analysis-rank-head { flex-wrap: wrap; }
+.stack-analysis-section-head .metric-label { color: #9cc4ea; }
+.stack-analysis-section-head h2 { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.7rem; line-height: .9; text-transform: uppercase; }
+.stack-analysis-basis { margin: .4rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+.stack-analysis-rank .stack-analysis-summary { margin-top: var(--sg-space-3); border-top: 1px solid rgb(164 200 232 / .22); }
+.stack-analysis-rank .quality-coverage { margin-top: var(--sg-space-4); padding: var(--sg-space-4) 0 0; }
+.stack-analysis-breakdown { order: 3; overflow: hidden; }
+.stack-analysis-breakdown > .stack-analysis-section-head { padding: var(--sg-space-4); }
+/* Rows of one box: square, so the dividers run straight (`-disclosure` otherwise rounds them). */
+.stack-analysis-breakdown > details { border-top: 1px solid rgb(164 200 232 / .22); border-radius: 0; }
+/* Inspect: the action on one line, its figure on the next, and a chevron that says it opens. */
+.stack-analysis-detail-disclosure > summary { display: grid; min-height: 3.5rem; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "action chevron" "metric chevron"; align-items: center; gap: .15rem .75rem; padding: .7rem 1rem; color: var(--sg-text-on-dark); cursor: pointer; list-style: none; }
+.stack-analysis-detail-disclosure > summary::-webkit-details-marker { display: none; }
+.stack-analysis-inspect-action { grid-area: action; font-size: var(--sg-text-base); font-weight: 700; line-height: var(--sg-leading-snug); }
+.stack-analysis-inspect-metric { grid-area: metric; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; line-height: var(--sg-leading-snug); }
+.stack-analysis-inspect-chevron { grid-area: chevron; color: var(--sg-text-muted-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.stack-analysis-detail-disclosure[open] .stack-analysis-inspect-chevron { transform: rotate(180deg); }
+.stack-analysis-detail-basis { margin-top: var(--sg-space-3); }
+
+/* Workload and Muscle breakdown share one column. On wide screens it sits beside
+   Coverage, Muscle breakdown directly under Workload; on phones it is the next step
+   down the page. Muscle breakdown spanned the full width under Coverage, which left
+   an empty column about 800px tall beside it at 1280px. */
+.stack-analysis-aside { display: grid; min-width: 0; order: 2; align-content: start; gap: 1rem; }
+@media (min-width: 761px) { .stack-analysis-rank { align-self: start; } }
+
+/* Narrow for the text size, not for the screen. Each query is in ems of its own
+   section, so 125% text at 320px narrows the layout, and a wider phone at 100%
+   keeps the side-by-side rows. Beside a nowrap score the name column shrank to
+   70px, and names and role lines broke into slivers (Sep 30 brief §7). Below these
+   widths the score or status takes its own line under the name. */
+.stack-analysis-list { container: analysis-coverage / inline-size; }
+@container analysis-coverage (max-width: 16em) {
+  .stack-analysis-row { grid-template-columns: minmax(0, 1fr) 1rem; grid-template-areas: "copy chevron" "score chevron" "bar chevron"; }
+  .stack-analysis-row-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .5rem; }
+}
+.session-volume { container: analysis-workload / inline-size; }
+@container analysis-workload (max-width: 14em) {
+  .session-volume-rows { grid-template-columns: minmax(0, 1fr) auto; }
+  .session-volume-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-columns: subgrid; grid-template-areas: "name sets" "reading reading" "track track" "supporting supporting"; }
 }

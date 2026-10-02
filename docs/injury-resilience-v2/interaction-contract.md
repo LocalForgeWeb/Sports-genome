@@ -242,6 +242,65 @@ as the seed for every smart draft. The fallback expression remains as the machin
 nothing presents or derives from it while `hasSportContext` is false.
 
 **Still to come**, under `implement_vertical_slice` and `integrate_stack_and_program_builder`:
-focus areas and constraints are captured and carried through onboarding, but are not yet persisted
-to `athlete_focus_areas` / `athlete_training_constraints`, and Body Lab, Progress and the day
-planner have not yet been walked for sport claims.
+Progress and the day planner have not yet been walked for sport claims. Persistence of focus areas
+and constraints is no longer outstanding — see §16.
+
+---
+
+## 15. Implementation trace — reaching the feature at all
+
+Onboarding asked the two questions and the profile card kept them editable, and that was the whole
+of it: the answer was written to local storage and read by nothing, and the card itself could only
+be reached by scrolling the profile to it. Neither §12's surface assignments nor §11's named path
+were satisfied, which is the same thing an athlete means by "it isn't showing up".
+
+| Contract rule | Implementation |
+| --- | --- |
+| Workout Builder consumes it (§12, blocking) | `DayCapacityNote` on the Training Day states the declared target and its posture; it reports and never scores — synthesis stays on the server contract per §12's FIXED single-contract rule |
+| Body Lab exposes regional targets without implying diagnosis (§12, primary) | `.body-lab-capacity-step` on a selected region, from `capacityProposalFor` in `lib/capacityTargets.ts` |
+| Targets are not constraints (§3) | The region tap sets a focus area only; `adoptCapacityTarget` writes `proactive_none` and the card asks the second question separately. A constraint already reported elsewhere is never overwritten by a body-map tap |
+| Named/search/list path with the same authority as a spatial tap (§11) | The `profile#targeted-capacity` destination in `lib/universalSearch.ts`, found by the words athletes type — which live in `capacityTargetSearchTerms`, not in any label |
+| No trait language (§9, `trainable-gaps-not-athlete-identities`) | "weak point", "injury" and "sore" are search **terms**; the result's label is "Something you want stronger". `capacityFindability.test.ts` holds the split |
+| Focus returns near the triggering object (§11) | `revealWorkspaceAnchor` focuses `#targeted-capacity`; `navigateWorkspace(next, { keepScroll: true })` stops the workspace's own scroll-to-top from landing on top of it |
+| No new tab (§6, FIXED) | Nothing above adds a `Workspace`. Every path lands on a screen that already existed |
+| Insufficiency is a first-class result (§5.1) | Unchanged, and reached from these paths: adopting `groin_adductors` opens the card already saying no reviewed route covers it yet |
+
+**What still blocks it in production**, and is a deployment setting rather than code:
+`SUPABASE_SERVICE_ROLE_KEY` is unset on the Vercel project, so `resilience.targetCatalog` answers
+`unavailable` and there is nothing selectable to find. The Body Lab offer is suppressed in that
+state by design — an offer that opens an empty picker is worse than no offer — so the paths above
+light up when the key is set. See `deployment_environment.md`.
+
+---
+
+## 16. Implementation trace — the answers stop being device-local
+
+Migration `20260919030609_injury_resilience_v2_foundation` landed the eight relations the audit in
+§2 of the live-contract document recorded as absent. The app had not caught up: the two answers were
+still written to this device's local storage and nowhere else, so a reinstall or a second device
+lost them, and `athlete_profiles.sport_context_mode` kept its `undecided` default for every athlete
+including the ones who had chosen a sport.
+
+| Contract rule | Implementation |
+| --- | --- |
+| Focus areas and constraints are persisted (`model_context_focus_constraints`) | `lib/capacityContext.ts` writes both through the browser client under the owner-scoped RLS the migration added, and restores them on a device that has none of its own |
+| Effective-dated, user-editable, reversible (§3) | A changed answer closes the previous row — `status` `removed` / `superseded`, `effective_to` today — and inserts a new one. Nothing is updated in place and nothing is deleted, so what the athlete said before stays readable |
+| `proactive_none` is a reported state, not an absent one (§3) | "Nothing right now" is stored as its own row; the plan can tell it apart from never having been asked |
+| Reassessment windows are route-derived (§8) | `reconfirm_due_on` is left NULL rather than filled with an invented interval. The column has no default either, which says the same thing |
+| Three real modes, distinct rows (§2) | `upsertAthleteProfile` now writes `sport_context_mode`. Mode and `primary_sport_id` move as a pair, because `athlete_profiles_mode_sport_agreement_check` requires a sport in `sport` mode and forbids one otherwise, and a rejected upsert would take the whole profile row with it |
+| The device is what the athlete is looking at | Restore happens only when this device has no focus area, so an answer given a moment ago is never overwritten by an older one from the account |
+
+**One gap this leaves, recorded on the work item rather than hidden.** The reported
+high-consequence signals — severe or worsening, neurological or systemic, postoperative — have no
+column. `severity_or_irritability`, `clinician_restriction` and `user_reported_diagnosis` each mean
+something else, and writing a tick box into one of them would record it as something it is not. The
+ticks therefore stay on the device, and a `withhold` posture does not survive a reinstall; the
+athlete re-establishes it by answering again. `clinician_restricted` persists honestly, as a
+`constraint_type`.
+
+**Nothing to surface from the general route yet.** `resilience_recommendations_general` holds one
+row, `review_status = draft`, and the ingestion directive is explicit that "only approved rows reach
+the app". `app_resilience_target_catalog_v1` agrees: no target reports a `general` route. The
+insufficiency state is the correct output, and the client does not read
+`app_resilience_recommendations_v2` — per §12, synthesis belongs to `resilience_plan_v2`, which is
+still backlog.

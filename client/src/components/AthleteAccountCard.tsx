@@ -9,8 +9,10 @@ import { emitInteractionFeedback } from "@/lib/interactionFeedback";
  * to. Three separate things, deliberately not merged:
  *
  *  1. Whether their history is attached to an account at all.
- *  2. Adding an email, which is about being able to reach it from another
- *     device — it does not move a single row, because the id is already theirs.
+ *  2. Adding an email, which records who owns the account ahead of a sign-in
+ *     path. There is no sign-in on another device yet (the client never calls
+ *     signInWithOtp or a password sign-in), so the copy does not promise one. It
+ *     does not move a single row, because the id is already theirs.
  *  3. Whether their lifts may join the anonymous pool used to build norms. That
  *     column defaults to false and stays false until they answer here; an app
  *     that assumed yes would be answering a consent question on their behalf.
@@ -26,10 +28,12 @@ export function AthleteAccountCard({ identity, pending, optedIn, onOptIn }: {
 
   const statusCopy = identity.userId
     ? identity.anonymous
-      ? "Saved to an account on this device. Add an email to reach it from another one."
-      : "Saved to your account and reachable from any device you sign in on."
+      ? "Saved to an account on this device. You can attach an email to it; signing in on another device is not available in this build yet."
+      : "Saved to your account, with your email attached. Signing in on another device is not available in this build yet."
+    // "anonymous_sign_ins_disabled" means the Supabase project has Auth > Anonymous
+    // sign-ins off. Turning it on starts the sync, and the queued lifts upload then.
     : identity.reason === "anonymous_sign_ins_disabled"
-      ? "This project does not allow accounts to be created automatically yet, so your record is saved on this device only. Turning on anonymous sign-ins in Supabase starts the sync; nothing logged before then is lost."
+      ? "Accounts are not switched on for this app yet, so your record is saved on this device only. Nothing you log is lost: it uploads once they are."
       : identity.reason === "not_configured"
         ? "This build has no account service configured. Everything you log is saved on this device."
         : "Could not reach the account service. Everything you log is saved on this device and will sync when it is back.";
@@ -60,7 +64,7 @@ export function AthleteAccountCard({ identity, pending, optedIn, onOptIn }: {
         <input type="email" inputMode="email" value={email} placeholder="you@example.com" onChange={(event) => setEmail(event.target.value)} aria-label="Email address for this account" />
         <button type="button" onClick={linkEmail} disabled={!email.trim() || linking}>{linking ? "Adding" : "Add"}</button>
       </div>
-      <small>This adds a way back into the account you already have. Nothing you have logged moves.</small>
+      <small>This attaches an email to the account you already have. Nothing you have logged moves.</small>
     </label>}
 
     <div className="about-me-account-consent">

@@ -36,6 +36,21 @@ describe("the API is actually deployed", () => {
     expect(pattern.test("/progress"), "client routes still resolve to the SPA").toBe(true);
   });
 
+  it("refuses to be framed and to have its responses sniffed", () => {
+    const rule = (vercelConfig.headers || []).find((r: { source: string }) => r.source === "/(.*)");
+    expect(rule, "a catch-all headers rule exists").toBeTruthy();
+
+    // Exercise the rule the way Vercel does: it has to cover the app and the API alike.
+    const pattern = new RegExp("^" + rule.source + "$");
+    for (const path of ["/", "/progress", "/api/trpc/x"]) expect(pattern.test(path), path).toBe(true);
+
+    const headers = Object.fromEntries(rule.headers.map((h: { key: string; value: string }) => [h.key, h.value]));
+    expect(headers["X-Content-Type-Options"]).toBe("nosniff");
+    expect(headers["X-Frame-Options"]).toBe("DENY");
+    expect(headers["Content-Security-Policy"]).toBe("frame-ancestors 'none'");
+    expect(headers["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
+  });
+
   it("still ships the client from the vite build", () => {
     expect(vercelConfig.outputDirectory).toBe("dist/public");
   });
@@ -43,10 +58,14 @@ describe("the API is actually deployed", () => {
   it("defines the API as one catch-all function so /api/trpc keeps its mount path", () => {
     const source = read("server/_core/serverless.ts");
     // The router and context are imported, never redefined, so the deployed surface
-    // cannot drift from the one the dev server runs.
-    expect(source).toContain('from "../routers"');
-    expect(source).toContain('from "./context"');
-    expect(source).toContain('app.use(\n  "/api/trpc",');
+    // cannot drift from the one the dev server runs. Both entry points mount the one
+    // shared handler, which is where the router and context are imported.
+    const handler = read("server/_core/apiHandler.ts");
+    expect(source).toContain('from "./apiHandler"');
+    expect(read("server/_core/index.ts")).toContain('from "./apiHandler"');
+    expect(handler).toContain('from "../routers"');
+    expect(handler).toContain('from "./context"');
+    expect(source).toContain('app.use("/api/trpc", requireJsonMutations, trpcHandler());');
     expect(source).not.toContain("listen(");
   });
 

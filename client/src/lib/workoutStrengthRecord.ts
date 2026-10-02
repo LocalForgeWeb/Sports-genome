@@ -1,7 +1,9 @@
-import { displayWeightToKilograms, type DisplayWeightUnit } from "@/lib/weightUnits";
+import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { bodyWeightKgAt, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
-import type { DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { setWeightKg, setWeightUnit, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
+import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
 import { resolveStrengthObservationRoute, strengthRegionIdsForCatalogMuscles } from "../../../shared/strengthGenomeDefinitions";
 
 /**
@@ -25,11 +27,19 @@ export type WorkoutStrengthObservation = {
   observedAt: string;
   measurementType: "MULTI_REP";
   loadKg?: number;
+  /** The weight exactly as it was typed, and the unit it was typed in - what is sent to the account. */
+  reportedLoad?: number;
+  reportedUnit?: DisplayWeightUnit;
+  /**
+   * What the weight means for this exercise under the scoring policy - one dumbbell, the pair's
+   * bar, the stack, or load added to a bodyweight movement - sent with the lift (EN-07, EN-09).
+   */
+  loadSemantics: LoadConvention | "additional_load";
   repetitions?: number;
   /** Where the athlete saw this happen, so the record can say so. */
   sessionLabel: string;
   sessionId: string;
-  /** How many sets of this exercise the session recorded, of which this is the heaviest. */
+  /** How many sets of this exercise the session recorded, of which this is the strongest by estimated 1RM. */
   setCount: number;
   /**
    * The athlete's body mass on the day of this session, stamped here so a later
@@ -58,21 +68,76 @@ export function strengthRegionIdsForExerciseName(exerciseName: string): string[]
   return exercise ? strengthRegionIdsForCatalogMuscles(exercise.primaryMuscles) : [];
 }
 
+/**
+ * How centrally a logged exercise measures one region.
+ *
+ * A route's `regionIds` is written primary-first and always has been: a squat reads
+ * `["quadriceps", "glutes", "hamstrings"]`, a bench `["chest", "triceps", "shoulders"]`,
+ * a lat pulldown `["lats", "upper_back", "biceps"]`. So the position already says whether
+ * this region is what the test is about or something the test happens to involve, and the
+ * count says how thinly the lift is spread across regions. The catalog fallback lists
+ * primary muscles, which carries the same meaning.
+ *
+ * Lower is more direct, so these sort ascending. A lift that does not reach the region at
+ * all sorts last rather than first, which is what an unfound index would otherwise do.
+ */
+export type RegionRelevance = { position: number; breadth: number };
+
+export function regionRelevanceForExerciseName(exerciseName: string, regionId: string): RegionRelevance {
+  const regionIds = strengthRegionIdsForExerciseName(exerciseName);
+  const position = regionIds.indexOf(regionId);
+  return { position: position < 0 ? Number.MAX_SAFE_INTEGER : position, breadth: regionIds.length };
+}
+
+/**
+ * Which of an athlete's logged lifts speaks for a region, most direct first and most recent
+ * among equals.
+ *
+ * Recency alone put whatever was logged last in front of the region, so a lat pulldown -
+ * whose own boundary says it "does not directly measure lat, upper-back, or biceps force" -
+ * took the biceps record from a preacher curl, a targeted elbow-flexion test with a reviewed
+ * reference behind it. The athlete reads a number about their biceps that came from a back
+ * exercise, and the curl that should have answered is pushed down the list.
+ */
+export function compareRegionRecordRelevance(
+  regionId: string,
+  left: { exerciseName: string; observedAt: string | Date },
+  right: { exerciseName: string; observedAt: string | Date },
+): number {
+  const a = regionRelevanceForExerciseName(left.exerciseName, regionId);
+  const b = regionRelevanceForExerciseName(right.exerciseName, regionId);
+  if (a.position !== b.position) return a.position - b.position;
+  if (a.breadth !== b.breadth) return a.breadth - b.breadth;
+  return new Date(right.observedAt).getTime() - new Date(left.observedAt).getTime();
+}
+
+/**
+ * The id a finished session's exercise is recorded under, here and in the account outbox
+ * (strengthSyncQueue), so a workout taken back can be found in both.
+ */
+export function workoutObservationId(sessionId: string, exerciseId: string): string {
+  return `workout-${sessionId}-${exerciseId}`;
+}
+
 function numeric(value: string | undefined) {
   const parsed = Number(String(value || "").trim());
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 /**
- * One observation per exercise per finished session: the heaviest set that was
- * actually logged, tie-broken by reps. A session is a single training event, so
- * collapsing it this way keeps 33 logged sets from arriving as 33 entries in a
- * record meant to be read at a glance — while still recording every exercise
- * the athlete trained.
+ * One observation per exercise per finished session: the set with the highest estimated
+ * one-rep max, by the app's one estimator. A session is a single training event, so
+ * collapsing it this way keeps 33 logged sets from arriving as 33 entries in a record meant
+ * to be read at a glance — while still recording every exercise the athlete trained.
+ *
+ * It used to be the heaviest set, so a strong 100 x 10 lost to a lighter-effort 105 x 1 and
+ * the rank read the weaker performance (EN-02, D-007). Sets the estimator cannot read (past
+ * 15 reps, or no weight) are chosen only when no set can be read, heaviest then most reps.
  */
 export function workoutStrengthObservations(
   sessions: readonly DeviceWorkoutSession[],
-  weightUnit: DisplayWeightUnit = "lb",
+  /** Only for sets logged before units were stored and not yet stamped; every other set carries its own unit. */
+  fallbackUnit: DisplayWeightUnit = "lb",
   bodyWeightLog: readonly BodyWeightEntry[] = [],
 ): WorkoutStrengthObservation[] {
   const observations: WorkoutStrengthObservation[] = [];
@@ -83,23 +148,33 @@ export function workoutStrengthObservations(
     // both are frozen values, so a later weight change cannot reach a lift already recorded.
     const bodyMassKgAtTest = bodyWeightKgAt(bodyWeightLog, observedAt) ?? session.bodyMassKgAtCompletion;
     session.exercises.forEach((exercise) => {
+      // Each set is read in the unit it was typed in, and compared in kilograms, so a
+      // session that mixed units still finds its heaviest set.
       const logged = exercise.sets
         .filter((set) => set.completed && !set.skipped)
-        .map((set) => ({ weight: numeric(set.weight), reps: numeric(set.reps) }))
+        .map((set) => ({ weightKg: setWeightKg(set, session, fallbackUnit), weight: numeric(set.weight), unit: setWeightUnit(set, session, fallbackUnit), reps: numeric(set.reps) }))
         .filter((set) => set.reps !== undefined);
       if (!logged.length) return;
-      const best = logged.reduce((leader, set) => {
-        const leaderWeight = leader.weight ?? 0;
-        const setWeight = set.weight ?? 0;
+      const withE1rm = logged.map((set) => ({ ...set, e1rmKg: set.weightKg === undefined || set.reps === undefined ? null : estimateOneRepMaxKg(set.weightKg, set.reps) }));
+      const best = withE1rm.reduce((leader, set) => {
+        if ((set.e1rmKg !== null) !== (leader.e1rmKg !== null)) return set.e1rmKg !== null ? set : leader;
+        if (set.e1rmKg !== null && leader.e1rmKg !== null && set.e1rmKg !== leader.e1rmKg) return set.e1rmKg > leader.e1rmKg ? set : leader;
+        const leaderWeight = leader.weightKg ?? 0;
+        const setWeight = set.weightKg ?? 0;
         if (setWeight !== leaderWeight) return setWeight > leaderWeight ? set : leader;
         return (set.reps ?? 0) > (leader.reps ?? 0) ? set : leader;
       });
+      const convention = loadConventionFor(catalogByName.get(exercise.exerciseName.trim().toLowerCase())?.id);
       observations.push({
-        id: `workout-${session.id}-${exercise.id}`,
+        id: workoutObservationId(session.id, exercise.id),
         exerciseName: exercise.exerciseName,
         observedAt,
         measurementType: "MULTI_REP",
-        loadKg: best.weight === undefined ? undefined : displayWeightToKilograms(best.weight, weightUnit),
+        loadKg: best.weightKg,
+        reportedLoad: best.weightKg === undefined ? undefined : best.weight,
+        reportedUnit: best.weightKg === undefined ? undefined : best.unit,
+        // Weight on a movement scored by reps is load added to the body, not the whole load.
+        loadSemantics: convention === "bodyweight_reps" && best.weightKg !== undefined ? "additional_load" : convention,
         repetitions: best.reps,
         sessionLabel: session.dayLabel || session.title,
         sessionId: session.id,
@@ -110,9 +185,4 @@ export function workoutStrengthObservations(
     });
   });
   return observations.sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
-}
-
-/** Whether any observation in the record belongs to this region. */
-export function regionHasRecordedWork(regionId: string, exerciseNames: readonly string[]): boolean {
-  return exerciseNames.some((name) => strengthRegionIdsForExerciseName(name).includes(regionId));
 }

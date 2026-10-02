@@ -1,20 +1,46 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, type ReactNode } from "react";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
-import { defaultAnatomySide, oppositeSide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
+import { defaultAnatomySide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
 import { roleMapForLists, sourceValuesForRegion, viewsForRegion, regionPartName, regionParts, partFromPathId, type AnatomyRole } from "@/lib/anatomyRegions";
 import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
-import { ChevronDown, ChevronRight, RotateCw } from "lucide-react";
+import { ChevronDown, ChevronRight, X } from "lucide-react";
 import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
 
-type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; /** A selection made elsewhere in the app, which the figure should show. */ selectedKey?: string | null; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; showInspector?: boolean };
+type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; /** A selection made elsewhere in the app, which the figure should show. */ selectedKey?: string | null; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; /** Where the roles come from: a sporting action (Body Lab) or a training day's exercises (the Training Day analysis), which has no confidence labels and says "prime mover", not "primary role". */ roleSource?: "action" | "training-day"; showInspector?: boolean; /** What to do with the selection - the owner's exercise search - drawn after the muscle rows. */ nextStep?: ReactNode };
 type Role = "Primary" | "Synergist" | "Stabilizer";
+
+/** The word a row carries for its role. "Synergist" is the model's term; the athlete reads "Supporting". */
+const roleWord: Record<Role, string> = { Primary: "Primary", Stabilizer: "Stabilizer", Synergist: "Supporting" };
+
+/**
+ * Both bodies fit side by side from 720px, each at a size a finger can work
+ * with. Below that each would be half the width, and with it every tap target
+ * on the screen where tapping a muscle is the whole interaction - so a phone
+ * shows one body and a control to turn it around.
+ */
+const wideCanvasQuery = "(min-width: 720px)";
+function useWideCanvas() {
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia(wideCanvasQuery);
+    const update = () => setWide(query.matches);
+    update();
+    query.addEventListener?.("change", update);
+    return () => query.removeEventListener?.("change", update);
+  }, []);
+  return wide;
+}
 
 // Categorical role states, never a magnitude. The Body Lab contract keeps
 // exercise-target involvement on a dedicated categorical encoding rather than
 // reusing a rank scale, so these three select colour and nothing else.
-const anatomyRoleRenderState = { neutral: "neutral", supporting: "supporting", primary: "primary" } as const;
+const anatomyRoleRenderState = { neutral: "neutral", supporting: "supporting", stabilizing: "stabilizing", primary: "primary" } as const;
+
+/** The fill the figure paints a row's role in, so the dot beside the row is the same colour. */
+const roleFill: Record<Role, string> = { Primary: "var(--sg-role-primary-1)", Stabilizer: "var(--sg-role-stabilizing-1)", Synergist: "var(--sg-role-supporting-1)" };
 
 const labels: Record<string, string> = {
   // Rows render `muscleLabels[key] || key`, so any catalog key missing here
@@ -34,7 +60,8 @@ const labels: Record<string, string> = {
 
 const viewLabel = (view: "front" | "back") => (view === "front" ? "anterior" : "posterior");
 
-export function AnatomyMap({ primary, secondary, onSelect, selectedKey: externalKey, muscleScores, roleDetails, roleMethodology, showInspector = true }: AnatomyMapProps) {
+export function AnatomyMap({ primary, secondary, onSelect, selectedKey: externalKey, muscleScores, roleDetails, roleMethodology, roleSource = "action", showInspector = true, nextStep }: AnatomyMapProps) {
+  const trainingDay = roleSource === "training-day";
   const [selectedKey, setSelectedKey] = useState(externalKey ?? "");
   /**
    * The exact drawn region under the finger. The figure draws the pectoralis in
@@ -51,6 +78,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
   // picked rather than leaving it on the side pointing away.
   const [side, setSide] = useState<AnatomySide>(defaultAnatomySide);
   const [showAllRanked, setShowAllRanked] = useState(false);
+  const wide = useWideCanvas();
 
   // Follow the app's selection when it changes; a whole-muscle selection from
   // outside carries no head, so the ring covers the muscle. A tap on the figure
@@ -68,8 +96,8 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
     setSelectedPart("");
   }, [externalKey]);
 
-  /* Which regions are involved, and in what categorical role. */
-  const roles = useMemo<Record<string, AnatomyRole>>(() => roleMapForLists(primary, secondary), [primary, secondary]);
+  /* Which regions are involved, as the two lists say: primary or supporting. */
+  const listRoles = useMemo(() => roleMapForLists(primary, secondary), [primary, secondary]);
 
   /**
    * A region's role record, found under the region's own key or under whichever
@@ -84,16 +112,32 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
     return match ? roleDetails?.[match] : undefined;
   }, [roleDetails, primary, secondary]);
 
+  /** The role a region is shown in: the list's answer, refined by the record's own role words. */
+  const displayRole = useCallback((key: string): Role => {
+    if (listRoles[key] === "primary") return "Primary";
+    const detailRoles = detailFor(key)?.roles || [];
+    if (detailRoles.includes("Primary Mover")) return "Primary";
+    if (detailRoles.includes("Stabilizer")) return "Stabilizer";
+    return "Synergist";
+  }, [listRoles, detailFor]);
+
+  /**
+   * What the figure paints, in three categorical states. A stabilizer used to
+   * share the supporting fill, so the count line could say "2 stabilizing" over
+   * a body that drew no such thing; now each row's colour is its own.
+   */
+  const roles = useMemo<Record<string, AnatomyRole>>(() => {
+    const map: Record<string, AnatomyRole> = {};
+    Object.keys(listRoles).forEach((key) => {
+      const role = displayRole(key);
+      map[key] = role === "Primary" ? anatomyRoleRenderState.primary : role === "Stabilizer" ? anatomyRoleRenderState.stabilizing : anatomyRoleRenderState.supporting;
+    });
+    return map;
+  }, [listRoles, displayRole]);
+
   /* Ranked muscles for the strip */
   const ranked = useMemo(() => {
     const entries: { key: string; label: string; role: Role; roles?: string[]; confidence?: string }[] = [];
-    const displayRole = (key: string): Role => {
-      if (roles[key] === "primary") return "Primary";
-      const detailRoles = detailFor(key)?.roles || [];
-      if (detailRoles.includes("Primary Mover")) return "Primary";
-      if (detailRoles.includes("Stabilizer")) return "Stabilizer";
-      return "Synergist";
-    };
     Object.keys(roles).forEach(key => {
       const detail = detailFor(key);
       entries.push({ key, label: labels[key] || key, role: displayRole(key), roles: detail?.roles, confidence: detail?.confidence || "Movement model" });
@@ -104,8 +148,10 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
       const firstRole = detail?.roles[0];
       return firstRole ? (detail?.roleOrder.indexOf(firstRole) ?? fallbackOrder[entry.role]) : fallbackOrder[entry.role];
     };
-    return entries.sort((a, b) => orderFor(a) - orderFor(b)).slice(0, 8);
-  }, [roles, detailFor]);
+    // Every region the action's record gives a role, so the count is the count.
+    // It was capped at eight, which Home's "N muscles involved" then disagreed with.
+    return entries.sort((a, b) => orderFor(a) - orderFor(b));
+  }, [roles, detailFor, displayRole]);
   /**
    * Every region the figure draws, in words.
    *
@@ -125,14 +171,26 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
 
   const filteredRanked = ranked;
   const filteredUninvolved = uninvolved;
-  const visibleRanked = showAllRanked ? filteredRanked : filteredRanked.slice(0, 5);
+  /**
+   * The first four rows answer "what does this action use"; the rest of the
+   * involved muscles, and then the rest of the body, are the same list one tap
+   * longer - not a second page.
+   */
+  const visibleRanked = showAllRanked ? filteredRanked : filteredRanked.slice(0, 4);
   const hiddenRankedCount = Math.max(0, filteredRanked.length - visibleRanked.length) + (showAllRanked ? 0 : filteredUninvolved.length);
-  const roleSections: { role: Role; label: string; items: typeof visibleRanked }[] = [
-    { role: "Primary", label: "Primary movers", items: visibleRanked.filter((region) => region.role === "Primary") },
-    { role: "Stabilizer", label: "Stabilizers", items: visibleRanked.filter((region) => region.role === "Stabilizer") },
-    { role: "Synergist", label: "Supporting", items: visibleRanked.filter((region) => region.role === "Synergist") },
-  ];
-  const roleCounts = { primary: ranked.filter((region) => region.role === "Primary").length, stabilizer: ranked.filter((region) => region.role === "Stabilizer").length, supporting: ranked.filter((region) => region.role === "Synergist").length };
+  const roleCounts = { primary: ranked.filter((region) => region.role === "Primary").length, stabilizing: ranked.filter((region) => region.role === "Stabilizer").length, supporting: ranked.filter((region) => region.role === "Synergist").length };
+  /**
+   * A row's second line: the muscle's other recorded roles, when it has more
+   * than one. Nothing else - the phase context and the evidence grade are
+   * recorded per action, not per muscle, and printing them on every row
+   * repeated one sentence eight times. The record carries no per-muscle
+   * function list, so none is invented here.
+   */
+  const rowNote = (region: (typeof ranked)[number]) => {
+    const others = detailFor(region.key)?.roles.slice(1) ?? [];
+    return others.length ? `Also ${others.map((role) => role.toLowerCase()).join(" · ")}` : "";
+  };
+  const pickRow = (key: string) => { setSelectedKey(key); setSelectedId(""); setSelectedPart(""); onSelect(key); };
 
   const chooseRegion = useCallback((key: string, pathId?: string) => {
     setSelectedKey(key);
@@ -166,7 +224,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
    * has no role to show.
    */
   const selectedRole: Role | null = selectedKey
-    ? (roles[selectedKey] === "primary" ? "Primary" : roles[selectedKey] === "supporting" ? "Synergist" : null)
+    ? (roles[selectedKey] === "primary" ? "Primary" : roles[selectedKey] === "stabilizing" ? "Stabilizer" : roles[selectedKey] === "supporting" ? "Synergist" : null)
     : null;
   const selectedRoleDetail = selectedKey ? detailFor(selectedKey) : undefined;
   const selectedMechanics = selectedKey ? getAnatomyMechanicsEvidence(selectedKey) : null;
@@ -187,9 +245,9 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
       <div className="atlas-pro-grid">
         <div className="atlas-pro-canvas">
           <div className="atlas-body-chart-wrap">
-            <div className="atlas-body-chart">
+            <div className={`atlas-body-chart ${wide ? "atlas-body-chart-pair" : ""}`}>
               <AnatomyFigure
-                view={side}
+                view={wide ? "both" : side}
                 roles={roles}
                 selectedKeys={selectedKey ? [selectedKey] : []}
                 selectedPart={selectedPart || null}
@@ -198,7 +256,12 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                 onHover={(key) => setHoveredName(key ? (labels[key] || key) : "")}
               />
             </div>
-            <div className="atlas-view-captions"><span aria-hidden="true">{side === "front" ? "Anterior" : "Posterior"}</span><button type="button" className="atlas-side-toggle" aria-label={`${turnToSideLabel(side)} of the body`} onClick={() => setSide(oppositeSide(side))}><RotateCw className="h-3.5 w-3.5" aria-hidden="true" /> {turnToSideLabel(side)}</button></div>
+            {/* Both bodies on screen carry static captions; one body carries the
+                control that turns it, since that is the only route to the other
+                half. Never a "Front" toggle over two bodies already showing. */}
+            {wide
+              ? <div className="atlas-view-captions atlas-view-captions-pair" aria-hidden="true"><span>Front</span><span>Back</span></div>
+              : <div className="atlas-view-captions atlas-side-tabs" role="group" aria-label="Side of the body shown">{(["front", "back"] as const).map((candidate) => <button key={candidate} type="button" className="atlas-side-tab" aria-pressed={side === candidate} aria-label={side === candidate ? `${sideLabel(candidate)} of the body, shown` : `${turnToSideLabel(side)} of the body`} onClick={() => { if (side !== candidate) setSide(candidate); }}>{sideLabel(candidate)}</button>)}</div>}
             {hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}
           </div>
 
@@ -229,26 +292,25 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
             </div>}
           </div>}
 
-          {/* Qualitative role legend */}
+          {/* Qualitative role legend: one entry per state the figure paints, so
+              a colour never claims a distinction the paint does not draw. A
+              training day's roles come from the catalog, which records no
+              stabilizers, so that legend keeps to the two states it can show. */}
           <div className="atlas-heat-legend-pro">
             {/* Swatches carry the figure's own fills, gradients included, so the
                 legend cannot drift from what the body is actually painted. */}
-            <><i className="atlas-swatch" style={{ background: "#e8ecf4" }} /><span>Neutral</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#e9be55,#c08f24)" }} /><span>Supporting role</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,#ec5f4a,#bb2114)" }} /><span>Primary role</span></>
+            <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))" }} /><span>{trainingDay ? "Prime mover in this day" : "Primary role"}</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))" }} /><span>{trainingDay ? "Supporting in this day" : "Supporting role"}</span>{(!trainingDay || roleCounts.stabilizing > 0) && <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-stabilizing-1),var(--sg-role-stabilizing-2))" }} /><span>{trainingDay ? "Stabilizing in this day" : "Stabilizing role"}</span></>}<i className="atlas-swatch" style={{ background: "var(--sg-role-neutral-on-dark)" }} /><span>Neutral</span></>
           </div>
-          <details className="atlas-role-methodology">
-            <summary>How muscle roles are classified <ChevronDown className="h-4 w-4" /></summary>
-            <div>
-              <p>{roleMethodology || "Roles combine the selected sporting action’s reported prime movers, assisting muscles, stabilizers, and movement demands. They describe relevant contribution to that action rather than activation magnitude or force."}</p>
-              <p><strong>Confidence labels</strong> indicate whether the role comes from direct action-specific evidence, strong indirect evidence, biomechanics-informed context, or a low-confidence fallback. These labels do not diagnose individual technique or capacity.</p>
-            </div>
-          </details>
-
         </div>
 
         {/* Inspector */}
         {showInspector && <aside className={`atlas-pro-inspector ${selectedKey ? "is-open" : ""}`}>
           {selectedKey ? (
-            <>
+            /* Beside the body on a wide screen, open. Under it on a phone,
+               behind one line: measured at 390px the facts, mechanics and
+               sources ran to 600px between the muscle just tapped and the rows
+               that let you tap the next one. */
+            <details className="atlas-inspector-detail" open={wide}><summary>Why this role?<ChevronDown className="h-4 w-4" aria-hidden="true" /></summary><div className="atlas-inspector-detail-body">
               {/**
                 * Four stacked blocks, each a heading over a paragraph over a
                 * caveat, and the caveats said the same thing three times over:
@@ -267,7 +329,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                   <h3>{selectedLabel}</h3>
                   {selectedPartName && <p className="atlas-inspector-part">{selectedPartName}</p>}
                 </div>
-                <button onClick={() => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); }} aria-label="Clear muscle selection">×</button>
+                <button onClick={() => { setSelectedKey(""); setSelectedId(""); setSelectedPart(""); onSelect(""); }} aria-label="Clear muscle selection"><X className="h-4 w-4" aria-hidden="true" /></button>
               </div>
 
               {selectedParts.length > 1 && <div className="atlas-part-picker atlas-desktop-only" role="group" aria-label={`${selectedLabel} heads`}>
@@ -316,20 +378,40 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
               </div></details>}
 
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
-            </>
+            </div></details>
           ) : (
             <p className="atlas-inspector-empty-pro">Tap a muscle to see its role here.</p>
           )}
         </aside>}
+        {/* The muscles, as rows: name, what the record says beyond the role,
+            and the role itself as a tag. One list in the record's role order,
+            not three headed groups - the tag says the group. The selected row
+            is the figure's selection; picking either moves both. */}
         <section className="atlas-ranking" aria-label="Key muscle roles">
-          <div className="atlas-ranking-head"><p className="metric-label">Key muscle roles</p><strong>{ranked.length} muscles involved</strong><span>{([["primary", roleCounts.primary], ["stabilizer", roleCounts.stabilizer], ["supporting", roleCounts.supporting]] as const).filter(([, n]) => n > 0).map(([word, n]) => `${n} ${word}`).join(" · ")}</span></div>
-          {roleSections.filter((section) => section.items.length > 0).map((section) => <div className="atlas-role-section" key={section.role}><p>{section.label} <b>{ranked.filter((region) => region.role === section.role).length}</b></p>{section.items.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); setSelectedPart(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: region.role === "Primary" ? "#e4512e" : region.role === "Stabilizer" ? "#d5ad43" : "#7791a8" }} /><span>{region.label}</span>{(() => { const detail = region.roles?.[0]; const sectionWord = section.label.replace(/s$/, "").toLowerCase(); const note = detail && !detail.toLowerCase().startsWith(sectionWord) ? detail : ""; return note ? <em>{note}</em> : <em aria-hidden="true" />; })()}<ChevronRight className="h-4 w-4" /></button>)}</div>)}
-          {/* The rest of the body, named rather than only drawn. These carry no
-              role in this action, which is a fact worth stating — not a reason
-              to make them unreachable except by hitting a 12px shape. */}
-          {showAllRanked && filteredUninvolved.length > 0 && <div className="atlas-role-section atlas-role-section-inactive"><p>No role in this action <b>{filteredUninvolved.length}</b></p>{filteredUninvolved.map((region) => <button key={region.key} onClick={() => { setSelectedKey(region.key); setSelectedId(""); setSelectedPart(""); onSelect(region.key); }} className={selectedKey === region.key ? "is-selected" : ""} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span>{region.label}</span><em>Not used here</em><ChevronRight className="h-4 w-4" /></button>)}</div>}
-          {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `Show all ${filteredRanked.length + filteredUninvolved.length} muscles`}</button>}
+          <div className="atlas-ranking-head"><h2>{ranked.length} {ranked.length === 1 ? "muscle" : "muscles"} involved</h2><span>{([[trainingDay ? "prime movers" : "primary", roleCounts.primary], ["stabilizing", roleCounts.stabilizing], ["supporting", roleCounts.supporting]] as const).filter(([, n]) => n > 0).map(([word, n]) => `${n} ${word}`).join(" · ")}</span></div>
+          <ol className="atlas-role-rows">
+            {visibleRanked.map((region) => <li key={region.key}><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}>{/* The figure's own role colours, read from the same tokens it paints with. They were three
+                literals, one of them the State rank's gold and one Prospect's slate. */}<i className="atlas-rank-dot" style={{ background: roleFill[region.role] }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong>{rowNote(region) && <small>{rowNote(region)}</small>}</span><em className={`atlas-role-tag atlas-role-tag-${region.role.toLowerCase()}`}>{trainingDay && region.role === "Primary" ? "Prime mover" : roleWord[region.role]}</em><ChevronRight className="h-4 w-4" /></button></li>)}
+            {/* The rest of the body, named rather than only drawn. The action's
+                record lists no role for these - which is missing data, not a
+                finding that the muscle sits out - and they stay reachable
+                without hitting a 12px shape. */}
+            {showAllRanked && filteredUninvolved.map((region) => <li key={region.key} className="atlas-role-row-unrecorded"><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong></span><em className="atlas-role-tag atlas-role-tag-unrecorded">No role recorded</em><ChevronRight className="h-4 w-4" /></button></li>)}
+          </ol>
+          {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `View all ${filteredRanked.length + filteredUninvolved.length} mapped muscles`} <ChevronRight className="h-4 w-4" aria-hidden="true" /></button>}
         </section>
+        <div className="atlas-foot">
+          {nextStep}
+          <details className="atlas-role-methodology">
+            <summary>How muscle roles are classified <ChevronDown className="h-4 w-4" /></summary>
+            <div>
+              <p>{roleMethodology || "Roles combine the selected sporting action’s reported prime movers, assisting muscles, stabilizers, and movement demands. They describe relevant contribution to that action rather than activation magnitude or force."}</p>
+              {/* About a sporting action's evidence; a training day's roles come from the catalog. */}
+              {!trainingDay && <><p><strong>Confidence labels</strong> indicate whether the role comes from direct action-specific evidence, strong indirect evidence, biomechanics-informed context, or a low-confidence fallback. These labels do not diagnose individual technique or capacity.</p>
+              <p>A muscle with no role recorded for this action is missing from its record, not shown to sit out.</p></>}
+            </div>
+          </details>
+        </div>
       </div>
     </section>
   );

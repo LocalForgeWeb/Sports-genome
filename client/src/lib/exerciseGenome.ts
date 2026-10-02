@@ -2,7 +2,6 @@
 import { exercises, type Exercise, type Grade } from "@/lib/exerciseCatalog";
 import { getExerciseStudyCalibration, type ExerciseStudyCalibration } from "@/lib/exerciseStudyCalibration";
 import { buildMuscleTargetingEstimate, type MuscleTargetingEstimate } from "@/lib/muscleTargetingModel";
-import { getMovementMuscles, getMovementSignals } from "@/lib/movementRecommendations";
 import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { logicCalibration } from "@/lib/evidenceTraceability";
 
@@ -44,6 +43,7 @@ export interface ExerciseGenome {
 export interface GenomeContext {
   goal: string;
   currentWorkout: Exercise[];
+  /** The sport action in view. The panel shows its movement support tier (lib/movementSupport); no score here reads it. */
   sportMovement?: SportMovementProfile;
 }
 
@@ -52,8 +52,7 @@ export interface GenomeContextAnalysis {
   grade: Grade;
   marginalValue: number;
   redundancy: number;
-  sportTransfer: number;
-  signals: { goalAlignment: number; stackDistinctness: number; sportActionMatch: number; recoveryManageability: number };
+  signals: { goalAlignment: number; stackDistinctness: number; recoveryManageability: number };
   explanation: string;
   strengths: string[];
   limits: string[];
@@ -154,7 +153,12 @@ function getAdaptationProfile(fingerprint: Record<GenomeDimension, number>): Exe
 
 function getMuscleProfile(exercise: Exercise, fingerprint: Record<GenomeDimension, number>) {
   const calibration = logicCalibration.exerciseGenome;
-  const profile = [...exercise.primaryMuscles.map((muscle) => ({ muscle, role: "Prime mover" as const })), ...exercise.secondaryMuscles.map((muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
+  // A muscle the catalog lists as both primary and secondary counts once, as a prime mover,
+  // the way session volume and coverage already read it. 17 catalog rows do this (every
+  // overhead press for front delts, the grip moves for forearms), and the second entry
+  // added a synergist share on top of the prime mover's (Sep 30 brief §7).
+  const primary = new Set(exercise.primaryMuscles);
+  const profile = [...Array.from(primary, (muscle) => ({ muscle, role: "Prime mover" as const })), ...Array.from(new Set(exercise.secondaryMuscles.filter((muscle) => !primary.has(muscle))), (muscle) => ({ muscle, role: exercise.qualities.includes("bracing") && ["abs", "obliques", "lowerBack"].includes(muscle) ? "Stabilizer" as const : "Synergist" as const }))];
   return profile.map(({ muscle, role }) => {
     const targeting = buildMuscleTargetingEstimate(exercise, muscle, role);
     const contribution = targeting.score;
@@ -233,17 +237,20 @@ export function analyzeExerciseContext(exercise: Exercise, context: GenomeContex
   const peers = context.currentWorkout.filter((item) => item.id !== exercise.id);
   const redundancy = peers.length ? clamp(peers.reduce((sum, item) => sum + similarity(exercise, item), 0) / peers.length) : logicCalibration.exerciseGenome.emptyStackRedundancyBaseline;
   const marginalValue = clamp(logicCalibration.exerciseGenome.relativeScaleMaximum - redundancy + (genome.fingerprint.stability > logicCalibration.exerciseGenome.contextualGradeB ? logicCalibration.exerciseGenome.contextStabilityLift : 0));
-  const selectedMuscles = context.sportMovement ? getMovementMuscles(context.sportMovement) : [];
-  const selectedSignals = context.sportMovement ? getMovementSignals(context.sportMovement) : [];
-  const muscleMatch = selectedMuscles.length ? overlap([...exercise.primaryMuscles, ...exercise.secondaryMuscles], selectedMuscles) : logicCalibration.exerciseGenome.noSelectedSportMatchBaseline;
-  const signalText = genome.movementPatterns.join(" ").toLowerCase();
-  const signalMatch = selectedSignals.length ? selectedSignals.filter((signal) => signalText.includes(signal.replace("singleLeg", "unilateral")) || exercise.qualities.some((quality) => quality.toLowerCase().includes(signal.toLowerCase()))).length / selectedSignals.length : logicCalibration.exerciseGenome.noSelectedSportMatchBaseline;
-  const sportTransfer = clamp((muscleMatch * logicCalibration.exerciseGenome.sportMuscleMatchWeight + signalMatch * logicCalibration.exerciseGenome.sportSignalMatchWeight + (genome.fingerprint.stability / logicCalibration.exerciseGenome.relativeScaleMaximum) * logicCalibration.exerciseGenome.sportStabilityMatchWeight) * logicCalibration.exerciseGenome.relativeScaleMaximum);
+  /*
+   * The selected sport action is not an input. It used to be a third signal, a
+   * 0-100 "mechanical match" built from the Matches engine's text signals and
+   * muscle aliases, weighted into the contextual fit. Over Bridge it scored the
+   * Barbell Hip Thrust, which the Bridge record names, 35 and Landmine Rotation
+   * 48, beside a tier that said the opposite. How an exercise relates to a
+   * movement is now its movement support tier (lib/movementSupport), which has
+   * no number; goal and stack weigh what they did relative to each other.
+   */
   const recoveryManageability = clamp(logicCalibration.exerciseGenome.relativeScaleMaximum - (genome.fatigue.systemic * logicCalibration.exerciseGenome.systemicRecoveryCostWeight + genome.fatigue.technical * logicCalibration.exerciseGenome.technicalRecoveryCostWeight + genome.fatigue.axial * logicCalibration.exerciseGenome.axialRecoveryCostWeight));
-  const signals = { goalAlignment: genome.fingerprint[goalKey], stackDistinctness: marginalValue, sportActionMatch: sportTransfer, recoveryManageability };
-  const contextualScore = clamp(signals.goalAlignment * logicCalibration.exerciseGenome.contextualGoalWeight + signals.stackDistinctness * logicCalibration.exerciseGenome.contextualDistinctnessWeight + signals.sportActionMatch * logicCalibration.exerciseGenome.contextualSportWeight);
+  const signals = { goalAlignment: genome.fingerprint[goalKey], stackDistinctness: marginalValue, recoveryManageability };
+  const contextualScore = clamp(signals.goalAlignment * logicCalibration.exerciseGenome.contextualGoalWeight + signals.stackDistinctness * logicCalibration.exerciseGenome.contextualDistinctnessWeight);
   const goalLabel = goalKey === "sfr" ? "repeatable training value" : goalKey;
-  const strengths = [`${signals.goalAlignment}/100 ${goalLabel} alignment`, `${signals.sportActionMatch}/100 mechanical match for the selected sport action`, `${signals.stackDistinctness}/100 stack distinctness`, `${signals.recoveryManageability}/100 recovery manageability`];
+  const strengths = [`${signals.goalAlignment}/100 ${goalLabel} alignment`, `${signals.stackDistinctness}/100 stack distinctness`, `${signals.recoveryManageability}/100 recovery manageability`];
   const limits = [redundancy > logicCalibration.exerciseGenome.highRedundancyReview ? "Overlaps meaningfully with the current stack; its added value is reduced." : "Adds a relatively distinct exposure to the current stack.", genome.fatigue.systemic > logicCalibration.exerciseGenome.highFatigueReview ? "Higher systemic and technical cost may limit placement or volume." : "Fatigue profile is comparatively manageable for its intended adaptation."];
   /*
    * The verdict, not a re-reading of the panel. This was 40-odd words saying what
@@ -254,7 +261,7 @@ export function analyzeExerciseContext(exercise: Exercise, context: GenomeContex
   const explanation = redundancy > logicCalibration.exerciseGenome.highRedundancyReview
     ? `Best as a replacement for something similar, or to solve a specific gap.`
     : `Adds ${goalLabel} value without repeating the stack.`;
-  return { contextualScore, grade: gradeFor(contextualScore), marginalValue, redundancy, sportTransfer, signals, explanation, strengths, limits };
+  return { contextualScore, grade: gradeFor(contextualScore), marginalValue, redundancy, signals, explanation, strengths, limits };
 }
 
 export function getWorkoutGenome(workout: Exercise[]) {

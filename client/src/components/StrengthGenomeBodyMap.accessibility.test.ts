@@ -16,7 +16,11 @@ describe("Strength Genome body-map accessible region selection", () => {
     expect(source).toContain('state: region.state === "OBSERVED_TEST_CONTEXT" ? "On record" : "Nothing yet"');
     expect(source).toContain("selectedRegionId === region.id ? undefined : region");
     expect(source).toContain('aria-label="Clear selected strength region"');
-    expect(source).not.toContain("percentile");
+    // Coverage mode still never implies rank. That used to be checked by the word "percentile"
+    // never appearing in this file; the file now also draws Strength/Rank mode, so the guarantee
+    // is checked where it actually lives - by rendering coverage mode - in
+    // StrengthGenomeBodyMap.rank.render.test.ts.
+    expect(source).toContain("const rankMode = regionRanks !== null;");
     expect(source).not.toContain("strength-map-region-selector");
     // Every card is a full target, so nothing here depends on precision.
     expect(gridStyles).toContain("min-height: 3.5rem");

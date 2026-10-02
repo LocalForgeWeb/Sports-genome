@@ -1,0 +1,12 @@
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { readFileSync } from 'node:fs';
+const logo = readFileSync('logo.png');
+const profile = JSON.stringify({ version: 3, sportId: 'wrestling', sportContextMode: 'sport', goal: 'Max strength', trainingDays: 5, gymMinutes: 75, movementId: 'wrestling-1', baseline: { experience: 'Intermediate', weightUnit: 'lb', bodyWeight: 145, equipment: { gymAccess: 'Commercial gym', availableEquipment: ['Barbell', 'Dumbbells', 'Cable', 'Machine', 'Bodyweight', 'Bench', 'Free weights'] } } });
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const p = await browser.newPage({ viewport: { width: 390, height: 844 } });
+await p.route('**qiccnqkypbhlwpmjcsri.supabase.co/**', (r) => r.request().url().endsWith('.mp4') ? r.abort() : r.fulfill({ contentType: 'image/png', body: logo }));
+await p.route('**/api/trpc/**', (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify(new URL(route.request().url()).pathname.replace('/api/trpc/', '').split(',').map(() => ({ result: { data: { json: null } } }))) }));
+await p.goto('http://localhost:4173/?workspace=command'); await p.evaluate((profile) => { localStorage.clear(); localStorage.setItem('gym-optimizer-athlete-profile-v1', profile); localStorage.setItem('sports-genome-launch-experience-enabled-v1', 'off'); }, profile);
+await p.goto('http://localhost:4173/?workspace=day-plan'); await p.waitForTimeout(2500);
+console.log(await p.evaluate(() => { const el = document.querySelector('.rate-stack-panel'); if (!el) return 'no panel'; const hits = []; for (const sheet of document.styleSheets) { let rules; try { rules = sheet.cssRules; } catch { continue; } const walk = (list) => { for (const r of list) { if (r.cssRules && r.type !== 1) { walk(r.cssRules); continue; } if (r.selectorText && r.style && (r.style.transform || r.style.animation || r.style.animationName) && (() => { try { return el.matches(r.selectorText); } catch { return false; } })()) hits.push(r.selectorText.slice(0, 120) + ' => ' + (r.style.transform || 'anim:' + r.style.animationName)); } }; walk(rules); } return { computed: getComputedStyle(el).transform, animation: getComputedStyle(el).animationName, hits }; }));
+await browser.close();

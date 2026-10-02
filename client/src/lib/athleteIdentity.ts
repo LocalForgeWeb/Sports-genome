@@ -12,10 +12,11 @@ import type { SexForReference } from "@/components/AthleteBaselineQuiz";
  * launches, so the history is attached to an account from the very first lift
  * rather than from whenever they eventually decide to register.
  *
- * Adding an email later calls `updateUser` on that same id: the account gains a
- * way to sign in on another device, and not one row moves. That is the whole
- * reason for doing it in this order — registering first and back-filling later
- * is the version where early history gets orphaned.
+ * Adding an email later calls `updateUser` on that same id, which records who
+ * owns the account ahead of a sign-in path (none exists in the client yet), and
+ * not one row moves. That is the whole reason for doing it in this order —
+ * registering first and back-filling later is the version where early history
+ * gets orphaned.
  *
  * Every function here returns rather than throws. A failure to reach Supabase
  * is a normal condition — no network in a gym basement — and must never stop
@@ -69,6 +70,13 @@ export type AthleteProfileUpsert = {
   birthYear?: number;
   /** uuid from public.sports, resolved from the athlete's chosen sport. */
   primarySportId?: string;
+  /**
+   * Which of the three real states the athlete is in. The column exists and
+   * defaults to `undecided`, and nothing was writing it — so an athlete who had
+   * chosen wrestling was stored as never having answered, which is precisely the
+   * distinction `sport-optional-context-not-fake-sport` exists to keep.
+   */
+  sportContextMode?: "sport" | "general" | "undecided";
   /** The athlete's latest weight, used only to prefill a new entry. */
   defaultBodyWeightKg?: number;
   benchmarkPoolOptIn?: boolean;
@@ -95,7 +103,28 @@ export async function upsertAthleteProfile(userId: string, profile: AthleteProfi
     updated_at: new Date().toISOString(),
   };
   if (profile.birthYear) row.declared_age_years = new Date().getFullYear() - profile.birthYear;
-  if (profile.primarySportId) row.primary_sport_id = profile.primarySportId;
+  /**
+   * Mode and sport move together or not at all.
+   *
+   * `athlete_profiles_mode_sport_agreement_check` requires a sport in `sport`
+   * mode and forbids one in `general` or `undecided`. A partial write breaks it
+   * both ways: declaring `general` while a previous sport id is still on the row
+   * is rejected, and so is declaring `sport` before the sport uuid has resolved.
+   * A rejected upsert takes the whole row with it — sex, weight, everything — so
+   * the pair is either complete and consistent, or left alone for the next run.
+   */
+  if (profile.sportContextMode === "sport") {
+    if (profile.primarySportId) {
+      row.sport_context_mode = "sport";
+      row.primary_sport_id = profile.primarySportId;
+    }
+  } else if (profile.sportContextMode) {
+    row.sport_context_mode = profile.sportContextMode;
+    row.primary_sport_id = null;
+  } else if (profile.primarySportId) {
+    // No mode declared by the caller: the sport alone, as this has always done.
+    row.primary_sport_id = profile.primarySportId;
+  }
   if (profile.defaultBodyWeightKg && profile.defaultBodyWeightKg > 0) row.default_bodyweight_kg = Number(profile.defaultBodyWeightKg.toFixed(2));
   if (profile.benchmarkPoolOptIn !== undefined) row.benchmark_pool_opt_in = profile.benchmarkPoolOptIn;
 

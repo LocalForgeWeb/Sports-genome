@@ -1,42 +1,15 @@
 /** Gym Optimizer: deterministic movement coverage and redundancy analysis. */
-import { exercises, type Exercise } from "@/lib/exerciseCatalog";
+import type { Exercise } from "@/lib/exerciseCatalog";
 import { getMovementRecommendations } from "@/lib/movementRecommendations";
 import { getEnrichedMovement, type EnrichedSportMovement } from "@/lib/enrichedSportMovementDatabase";
 import type { SportMovementProfile } from "@/lib/sportMovementDatabase";
 import { logicCalibration } from "@/lib/evidenceTraceability";
+import { catalogKeysForRecordMuscle } from "@/lib/recordMuscleKeys";
+import { catalogSupportForRecord, classifyExerciseForMovement, supportTierLabel, unmappedSupportDetail } from "@/lib/movementSupport";
 
-const muscleAliases: Record<string, string[]> = {
-  chest: ["pectoralis major", "pectoralis minor"],
-  frontDelts: ["anterior deltoid"],
-  sideDelts: ["middle deltoid", "lateral deltoid"],
-  rearDelts: ["posterior deltoid"],
-  shoulders: ["deltoid"],
-  triceps: ["triceps brachii"],
-  biceps: ["biceps brachii"],
-  brachialis: ["brachialis"],
-  forearms: ["forearm", "finger flexor", "finger extensor", "wrist flexor", "wrist extensor"],
-  abs: ["rectus abdominis", "transversus abdominis"],
-  obliques: ["oblique"],
-  quads: ["quadriceps", "rectus femoris", "vastus"],
-  glutes: ["gluteus maximus", "gluteus medius", "gluteus minimus"],
-  hamstrings: ["hamstring", "biceps femoris", "semitendinosus", "semimembranosus"],
-  calves: ["gastrocnemius", "soleus", "plantar flexor"],
-  tibialis: ["tibialis anterior", "tibialis posterior"],
-  adductors: ["adductor", "gracilis", "pectineus"],
-  abductors: ["abductor", "gluteus medius", "gluteus minimus"],
-  lats: ["latissimus dorsi"],
-  upperBack: ["rhomboid", "middle trapezius", "lower trapezius", "upper trapezius", "scapular stabilizer"],
-  traps: ["trapezius"],
-  lowerBack: ["erector spinae", "multifidus", "spinal erector"],
-  rotatorCuff: ["rotator cuff", "infraspinatus", "teres minor", "subscapularis", "supraspinatus"],
-};
-
-const muscleTagsFor = (name: string) => {
-  const lower = name.toLowerCase();
-  return Object.entries(muscleAliases)
-    .filter(([, aliases]) => aliases.some((alias) => lower.includes(alias)))
-    .map(([tag]) => tag);
-};
+// The movement support model lives in movementSupport; it is re-exported here so
+// this stays the one place the app asks how an exercise relates to a sport movement.
+export * from "@/lib/movementSupport";
 
 const overlap = (left: string[], right: string[]) => {
   const a = new Set(left);
@@ -70,7 +43,7 @@ export type WorkoutMovementAnalysis = {
 
 function roleCoverage(names: string[], role: MuscleCoverage["role"], workout: Exercise[]): MuscleCoverage[] {
   return names.map((name) => {
-    const catalogTags = muscleTagsFor(name);
+    const catalogTags = catalogKeysForRecordMuscle(name);
     const coveredBy = workout.filter((exercise) => [...exercise.primaryMuscles, ...exercise.secondaryMuscles].some((muscle) => catalogTags.includes(muscle)));
     return { name, role, catalogTags, coveredBy };
   });
@@ -120,15 +93,12 @@ export function analyzeWorkoutForMovement(movement: EnrichedSportMovement, worko
 
 export type MovementAssistance = { exercise: Exercise; rationale: string; source: "Movement record" | "Catalog match" };
 
-const nameMatches = (exercise: Exercise, phrase: string) => {
-  const words = phrase.toLowerCase().split(/[^a-z]+/).filter((word) => word.length >= logicCalibration.movementProgramAnalysis.minimumMatchWordLength);
-  const name = exercise.name.toLowerCase();
-  const matched = words.filter((word) => name.includes(word));
-  return words.length >= logicCalibration.movementProgramAnalysis.minimumMatchWords && matched.length >= logicCalibration.movementProgramAnalysis.minimumMatchWords;
-};
-
+/**
+ * Gym support for an action: its movement-specific exercises (the ones its record
+ * names, from movementSupport) first, then the Matches engine's list to fill the rest.
+ */
 export function getMovementAssistance(movement: EnrichedSportMovement, fallback: SportMovementProfile, limit: number = logicCalibration.recommendation.assistanceLimit): MovementAssistance[] {
-  const direct = exercises.filter((exercise) => movement.recommendedExercises.some((name) => nameMatches(exercise, name))).map((exercise) => ({ exercise, rationale: `Listed for ${movement.recommendedExercisePatterns.join(" · ")} support.`, source: "Movement record" as const }));
+  const direct = catalogSupportForRecord(movement).specific.map((row) => ({ exercise: row.exercise, rationale: `${row.reason}.`, source: "Movement record" as const }));
   const catalog = getMovementRecommendations(fallback, logicCalibration.recommendation.assistanceFallbackLimit).map((result) => ({ exercise: result.exercise, rationale: result.rationale, source: "Catalog match" as const }));
   return [...direct, ...catalog].filter((entry, index, list) => list.findIndex((candidate) => candidate.exercise.id === entry.exercise.id) === index).slice(0, limit);
 }
@@ -138,7 +108,7 @@ export function lookupEnrichedMovement(sportId: string, movementId: string) {
 }
 
 export type ExerciseActionConnection = {
-  label: "Direct support" | "Supporting link" | "Not mapped";
+  label: "Movement-specific" | "Related pattern" | "Muscle support" | "Not mapped";
   detail: string;
 };
 
@@ -154,24 +124,39 @@ export type ExerciseActionConnection = {
  */
 export function sharedConnectionSummary(label: ExerciseActionConnection["label"], count: number): string {
   const subject = count === 1 ? "This one" : `All ${count}`;
-  if (label === "Direct support") return `${subject} ${count === 1 ? "is" : "are"} named in its movement record.`;
-  if (label === "Supporting link") return `${subject} share${count === 1 ? "s" : ""} a muscle demand with it.`;
+  if (label === "Movement-specific") return `${subject} ${count === 1 ? "is" : "are"} named in its movement record.`;
+  if (label === "Related pattern") return `${subject} share${count === 1 ? "s" : ""} a pattern with an exercise its record names.`;
+  if (label === "Muscle support") return `${subject} train${count === 1 ? "s" : ""} one of its prime movers, without a movement-specific link.`;
   return `${count === 1 ? "It has" : `None of the ${count} has`} a mapped link to it.`;
 }
 
+/**
+ * How one exercise relates to the selected action, read from the movement support
+ * tiers so the catalog rows, the exercise details and the genome panel say what the
+ * movement-mode list says. Sharing only an assisting or stabilizing muscle is no
+ * longer a link: it covered most of the catalog and told the athlete nothing.
+ */
 export function getExerciseActionConnection(exercise: Exercise, movement?: EnrichedSportMovement): ExerciseActionConnection {
   if (!movement) return { label: "Not mapped", detail: "No enriched record is available for the selected action." };
-  if (movement.recommendedExercises.some((name) => nameMatches(exercise, name))) {
-    return { label: "Direct support", detail: "Named in the selected action’s movement record." };
-  }
-  const exerciseMuscles = new Set([...exercise.primaryMuscles, ...exercise.secondaryMuscles]);
-  const primeTags = movement.primeMovers.flatMap(muscleTagsFor);
-  const supportingTags = [...movement.assistingMuscles, ...movement.stabilizers].flatMap(muscleTagsFor);
-  if (primeTags.some((tag) => exerciseMuscles.has(tag))) {
-    return { label: "Supporting link", detail: "Shares a listed prime-mover demand with the selected action." };
-  }
-  if (supportingTags.some((tag) => exerciseMuscles.has(tag))) {
-    return { label: "Supporting link", detail: "Shares an assisting or stabilizing demand with the selected action." };
-  }
-  return { label: "Not mapped", detail: "No direct movement-record or muscle-role link is currently mapped." };
+  const row = classifyExerciseForMovement(exercise, movement);
+  if (!row) return { label: "Not mapped", detail: unmappedSupportDetail(exercise, movement) };
+  return { label: supportTierLabel[row.tier], detail: row.reason.endsWith(".") ? row.reason : `${row.reason}.` };
+}
+
+/**
+ * The same connection, worked out once per exercise for one selected action.
+ *
+ * The catalog asks for it on every search keystroke and filter change, and the
+ * action-link filter asks for all 400 exercises at once. The answer depends only
+ * on the exercise and the action, so one lookup per action can keep it.
+ */
+export function createActionConnectionLookup(movement?: EnrichedSportMovement): (exercise: Exercise) => ExerciseActionConnection {
+  const cache = new Map<number, ExerciseActionConnection>();
+  return (exercise) => {
+    const cached = cache.get(exercise.id);
+    if (cached) return cached;
+    const connection = getExerciseActionConnection(exercise, movement);
+    cache.set(exercise.id, connection);
+    return connection;
+  };
 }

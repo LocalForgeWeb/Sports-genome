@@ -157,6 +157,66 @@ export type ResilienceTargetCatalog = {
   boundary: string;
 };
 
+export const connectedCatalogBoundary =
+  "These are selectable training targets, not diagnoses. A target listed without a reviewed evidence route can still be chosen; the plan will say what is missing rather than borrowing a recommendation from another population or sport.";
+
+export const unavailableCatalogBoundary =
+  "The target catalog is unavailable, so targeted capacity selection is off. Ordinary training and every other workspace are unaffected.";
+
+export function unavailableTargetCatalog(): ResilienceTargetCatalog {
+  return { status: "unavailable", targets: [], boundary: unavailableCatalogBoundary };
+}
+
+const targetTypeValues: ResilienceTargetType[] = ["body_region", "functional_task", "movement_pattern", "tissue_system"];
+const evidenceRouteValues: EvidenceRoute[] = ["general", "presentation_matched", "sport_specific"];
+
+function trimmedText(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+/**
+ * Unknown route names are dropped rather than passed through: an unrecognized
+ * route cannot be reasoned about, and treating it as usable is how a sport row
+ * leaks into a general-mode recommendation.
+ */
+function toEvidenceRoutes(value: unknown): EvidenceRoute[] {
+  if (!Array.isArray(value)) return [];
+  const routes = value
+    .map(entry => trimmedText(entry))
+    .filter((entry): entry is string => entry !== null && (evidenceRouteValues as string[]).includes(entry));
+  return routes.filter((route, index) => routes.indexOf(route) === index) as EvidenceRoute[];
+}
+
+/**
+ * One row of `app_resilience_target_catalog_v1` as a catalog entry, or null when
+ * it is not one.
+ *
+ * Shared because the catalog now has two readers — the server route behind the
+ * service role, and the browser client under the view's own row-level security —
+ * and a row must mean exactly the same thing whichever door it came through.
+ * A second copy of this parser is a second definition of what a target is.
+ */
+export function catalogEntryFromRow(row: Record<string, unknown>): ResilienceTargetCatalogEntry | null {
+  const targetId = trimmedText(row.target_id);
+  const targetKey = trimmedText(row.target_key);
+  const name = trimmedText(row.name);
+  const region = trimmedText(row.region);
+  const targetTypeText = trimmedText(row.target_type);
+  const targetType = targetTypeText && (targetTypeValues as string[]).includes(targetTypeText)
+    ? (targetTypeText as ResilienceTargetType)
+    : null;
+  if (!targetId || !targetKey || !name || !region || !targetType) return null;
+  return {
+    targetId,
+    targetKey,
+    name,
+    region,
+    targetType,
+    lateralitySupported: row.laterality_supported !== false,
+    supportedRoutes: toEvidenceRoutes(row.supported_routes),
+  };
+}
+
 export type AthleteFocusSelection = {
   targetKey: string;
   intent: FocusIntent;

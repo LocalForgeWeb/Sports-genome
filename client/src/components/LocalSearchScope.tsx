@@ -14,6 +14,6 @@ import { openUniversalSearch } from "@/lib/universalSearchBus";
 export function LocalSearchScope({ scope, query = "" }: { scope: string; query?: string }) {
   return <p className="local-search-scope">
     <span>{scope}</span>
-    <button type="button" onClick={() => openUniversalSearch(query)}>Search everything</button>
+    <button type="button" onClick={() => openUniversalSearch(query)}>Search the whole app instead</button>
   </p>;
 }

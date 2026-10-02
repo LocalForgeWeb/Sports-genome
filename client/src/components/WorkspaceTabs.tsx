@@ -24,7 +24,7 @@ export type WorkspaceTab = { id: string; label: string };
  */
 export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions, caption }: {
   tabs: readonly WorkspaceTab[];
-  activeId: string;
+  activeId: string | null;
   label: string;
   onSelect: (tab: WorkspaceTab) => void;
   actions?: ReactNode;
@@ -76,19 +76,17 @@ export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions, captio
     active?.scrollIntoView({ inline: "nearest", block: "nearest", behavior: "smooth" });
   }, [activeId]);
 
+  if (tabs.length <= 1 && !actions) return null;
+
   return (
     <div
       className="workspace-top-switcher-shell"
       data-overflow-start={edges.start ? "yes" : "no"}
       data-overflow-end={edges.end ? "yes" : "no"}
     >
-      {single ? (
-        <div className="workspace-top-title">
-          <strong>{tabs[0]?.label ?? label}</strong>
-          {caption && <span>{caption}</span>}
-        </div>
-      ) : (
-      <nav className="workspace-top-switcher" aria-label={label} ref={listRef as React.RefObject<HTMLElement>}>
+      {/* A destination with one page has nothing to switch between: Home
+          carried a lone "Home" tab under a bar that already said Home. */}
+      {tabs.length > 1 && <nav className="workspace-top-switcher" aria-label={label} ref={listRef as React.RefObject<HTMLElement>}>
         {tabs.map(tab => {
           const active = tab.id === activeId;
           return <button
@@ -99,8 +97,7 @@ export function WorkspaceTabs({ tabs, activeId, label, onSelect, actions, captio
             className={active ? "workspace-top-switcher-active" : ""}
           >{tab.label}</button>;
         })}
-      </nav>
-      )}
+      </nav>}
       {/* Outside the scrolling nav, so scrolling the tabs never carries the two
           controls off the edge with them. */}
       {actions && <div className="workspace-top-actions">{actions}</div>}

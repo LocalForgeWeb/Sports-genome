@@ -1,5 +1,5 @@
 import { exercises } from "@/lib/exerciseCatalog";
-import type { StrengthPercentileResult } from "@shared/strengthPercentile";
+import type { OneRepMaxEstimate, StrengthPercentileResult } from "@shared/strengthPercentile";
 
 /**
  * Turning a beta percentile into the one line an athlete reads.
@@ -35,6 +35,10 @@ export function ordinal(value: number): string {
 export type StrengthPercentileCard = {
   headline: string;
   detail: string;
+  /** `detail` without the effort note, for a surface that keeps that note with its other caveats. */
+  placement: string;
+  /** The effort note on its own, or "" when there is none. */
+  effort: string;
 };
 
 const populationLabel: Record<"male" | "female", string> = {
@@ -59,10 +63,44 @@ export function strengthPercentileCard(
     : result.unit === "reps"
       ? `${Math.round(result.observedValue)} reps`
       : `${Math.round(result.observedValue)} ${result.unit === "kg" ? "kg" : "lb"}`;
+  const placement = `${placedAs} · among ${populationLabel[context.sex]} this lift${ageAdjustmentNote(result.ageAdjustment)}`;
+  const effort = effortNote(result.estimate);
   return {
     headline: `${ordinal(result.percentile)} percentile`,
-    detail: `${placedAs} · among ${populationLabel[context.sex]} this lift.`,
+    detail: `${placement}${effort}`,
+    placement,
+    effort: effort.trim(),
   };
+}
+
+/**
+ * What an unrecorded effort did to the estimate (B059, B093, B253).
+ *
+ * Nothing records reps in reserve yet, so a working set is read the way the source
+ * calculator reads every set: as taken to failure. That is the lowest the estimate - and so
+ * the placement - can be, and the card says so rather than letting it pass for a known
+ * maximal effort. A single rep, a measured maximum, or a result cached before effort was
+ * reported (no field at all) gets no note.
+ */
+export function effortNote(estimate: Partial<Pick<OneRepMaxEstimate, "basis" | "effectiveReps" | "repsInReserve">> | undefined): string {
+  if (!estimate || estimate.basis !== "estimated" || estimate.repsInReserve !== null || (estimate.effectiveReps ?? 1) <= 1) return "";
+  return " Read as a set taken to failure, because effort was not recorded; if reps were left in reserve, the lift places higher.";
+}
+
+/**
+ * The end of the card's sentence, saying what age did to the comparison.
+ *
+ * Said only where it changed something or was asked for and could not be given: 25 to 40 is
+ * the table's own baseline, where the factor is 1 and "adjusted for age 30" would describe a
+ * change that did not happen. Optional on the result because a response cached from before
+ * age reached the route carries none.
+ */
+export function ageAdjustmentNote(age: Extract<StrengthPercentileResult, { status: "resolved" }>["ageAdjustment"] | undefined): string {
+  if (age?.status === "applied" && age.factor !== 1) return `, adjusted for age ${Math.round(age.ageYears)}.`;
+  if (age?.status === "not_applied" && age.reason === "outside_published_age_range" && age.ageYears !== null) {
+    return `. Not adjusted for age ${Math.round(age.ageYears)}: the published age adjustment covers 15 to 90.`;
+  }
+  return ".";
 }
 
 /**
