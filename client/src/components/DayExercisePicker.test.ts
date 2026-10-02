@@ -214,35 +214,37 @@ describe("Training Day finder search tolerance", () => {
 });
 
 /**
- * On a phone in dark mode the sheet's exercise names were #f7fbff on a white
- * card - 1.04:1 - because the rows were still themed for the dark Training Day
- * page they used to sit on inline. The sheet is a light surface in both themes
- * and is the only place the rows render, so the dark theme has nothing to say
- * about them.
+ * Oct 2 brief §1, §4: the sheet is ONE dark surface, in both themes. It used to be
+ * a light sheet (pinned by this block) that a later change repainted dark from
+ * index.css, so it ended up both: light-surface ink survived wherever the old rule
+ * was more specific, and its metadata read 3.5:1 navy-on-navy. Its look now lives
+ * in add-exercises.css alone, and nothing in the sheet uses ink meant for white.
  */
-describe("the picker sheet stays readable in dark mode", () => {
+describe("the picker sheet is one dark surface", () => {
   const theme = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+  const sheet = readFileSync(new URL("../add-exercises.css", import.meta.url), "utf8");
 
-  it("never paints the rows, scope bar or show-more for a dark ground", () => {
+  it("paints the sheet dark in its base rule and declares its ink with it", () => {
+    expect(styles).toMatch(/\.day-picker-sheet \{[^}]*background: var\(--sg-surface-deep\)[^}]*color: var\(--sg-text-on-dark\)/);
+    expect(source).toContain('<section className="day-picker-sheet sg-surface-dark" role="dialog"');
+  });
+
+  it("uses no ink meant for a light ground anywhere inside the sheet", () => {
+    for (const css of [styles, theme, sheet]) {
+      const inSheet = [...css.matchAll(/(^|\n)([^{}\n]*\.day-picker-sheet[^{]*)\{([^}]*)\}/g)].map((match) => match[2] + "{" + match[3]);
+      expect(inSheet.filter((rule) => /-on-light\)/.test(rule)), "a rule inside the sheet uses on-light ink").toEqual([]);
+    }
+  });
+
+  it("keeps the sheet's look in one stylesheet, not repainted from index.css", () => {
+    expect(theme).not.toMatch(/^\.day-picker-sheet \{/m);
+    expect(theme).not.toContain("[data-theme=\"dark\"] .day-picker-sheet");
+    expect(source).toContain('import "../add-exercises.css";');
+  });
+
+  it("never paints the rows, scope bar or show-more for a theme", () => {
     expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-result\b/);
     expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-scope\b/);
     expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-more\b/);
-  });
-
-  it("keeps the search-scope line in light ink inside the sheet, where its ground is light in both themes", () => {
-    // The shared component's default ink is for dark panels: 2.15:1 on the sheet, in light mode too.
-    expect(styles).toContain(".day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }");
-    expect(styles).toContain(".day-picker-sheet .local-search-scope button { color: var(--sg-info-strong); }");
-    expect(theme).toContain('[data-theme="dark"] .day-picker-sheet .local-search-scope { color: var(--sg-text-subtle-on-light); }');
-  });
-
-  it("lifts the row's movement line and the inactive scope button above 4.5:1", () => {
-    expect(styles).toContain(".day-picker-sheet .day-picker-result > button:first-child small { color: var(--sg-text-subtle-on-light); }");
-    expect(styles).toContain(".day-picker-sheet .day-picker-scope button:not(.day-picker-scope-active) { color: var(--sg-text-subtle-on-light); }");
-  });
-
-  it("keeps the sheet itself a light surface, so the ink above is the right ink", () => {
-    expect(styles).toMatch(/\.day-picker-sheet \{[^}]*background: var\(--sg-surface-light\)/);
-    expect(theme).not.toMatch(/\[data-theme="dark"\] \.day-picker-sheet \{/);
   });
 });

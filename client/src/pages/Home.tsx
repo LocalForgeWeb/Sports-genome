@@ -4,12 +4,13 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { clearRecentExercises, recordRecentExercise, useRecentExerciseIds } from "@/lib/recentExercises";
 const IntroPreview = lazy(() => import("@/components/IntroPreview").then((module) => ({ default: module.IntroPreview })));
 const ExerciseCompareSheet = lazy(() => import("@/components/ExerciseCompareSheet").then((module) => ({ default: module.ExerciseCompareSheet })));
+const WorkoutShareSheet = lazy(() => import("@/components/WorkoutShareSheet").then((module) => ({ default: module.WorkoutShareSheet })));
 import type React from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { directWorkspaceAccess } from "@/lib/accountAccess";
 import { sessionNotice, useSessionLapsed } from "@/lib/sessionNotice";
 import { feedbackSurfaceRef } from "@/lib/feedbackClearance";
-import { Activity, ArrowLeft, ArrowRight, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, ShieldCheck, SlidersHorizontal, Target, Trophy, UserRound, X, Zap, ArrowUpDown } from "lucide-react";
+import { Activity, ArrowLeft, ArrowRight, ArrowUpDown, ArrowUpRight, BarChart3, BookOpen, BrainCircuit, ChevronDown, ChevronRight, ChevronUp, ClipboardPaste, Dumbbell, Heart, Layers3, Move3d, Plus, Search, Settings2, Share, ShieldCheck, SlidersHorizontal, Target, Trophy, UserRound, X, Zap } from "lucide-react";
 import { AddDestinationStrip } from "@/components/AddDestinationStrip";
 import { AnatomyMap, muscleLabels } from "@/components/AnatomyMap";
 import { UniversalSearch } from "@/components/UniversalSearch";
@@ -36,7 +37,8 @@ import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
 import { PROGRESSION_APPROVAL_EVENT, SEGMENT_PRIORITY_APPROVAL_EVENT, SEGMENT_SUGGESTION_APPROVAL_EVENT } from "@/components/WorkoutExecutionPanel";
 const DeviceWorkoutTracker = lazy(() => import("@/components/DeviceWorkoutTracker").then((module) => ({ default: module.DeviceWorkoutTracker })));
 const DayExercisePicker = lazy(() => import("@/components/DayExercisePicker").then((module) => ({ default: module.DayExercisePicker })));
-import { PrintableWorkoutSheet, PrintWorkoutButton } from "@/components/PrintableWorkoutSheet";
+import { PrintableWorkoutSheet } from "@/components/PrintableWorkoutSheet";
+import { buildWorkoutExport, type WorkoutExport } from "@/lib/workoutExport";
 import type { AthleteBaseline, AthleteQuizSelection } from "@/components/AthleteBaselineQuiz";
 const AthleteBaselineQuiz = lazy(() => import("@/components/AthleteBaselineQuiz").then((module) => ({ default: module.AthleteBaselineQuiz })));
 import { SportContextGate } from "@/components/SportContextGate";
@@ -549,6 +551,19 @@ export default function Home() {
    * for the same unset exercise, so one day showed 14 planned sets and started a 12-set workout
    * (TR-05, B093, B114). Surfaces are handed this map, so their own fallbacks never fire here.
    */
+  /** The day as it leaves the app, captured when Share is pressed (lib/workoutExport): the rows' own values, in their order. */
+  const [sharePlan, setSharePlan] = useState<WorkoutExport | null>(null);
+  const openShare = () => setSharePlan(buildWorkoutExport({
+    workout: customWorkout,
+    week: activeWeek,
+    dayOrdinal: activeSlot.ordinal,
+    dayName: activeSlot.day,
+    sport: hasSportContext ? selectedSport.label : sportContextMode === "general" ? "General strength and resilience" : "",
+    goal,
+    prescriptionFor: (exercise, index) => prescriptions[exercise.id] || prescriptionFor(index, goal),
+    settingsFor: (exercise) => getExerciseSettings(exerciseSettings, exercise.id),
+    muscleLabel: (key) => muscleLabels[key] || key,
+  }));
   const dayPrescriptions = useMemo(
     () => Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal)])),
     [customWorkout, prescriptions, goal],
@@ -2037,7 +2052,7 @@ export default function Home() {
               {customWorkout.length > 1 && <button type="button" className="day-action-reorder" aria-pressed={reorderingDay} onClick={() => setReorderingDay((value) => !value)}><ArrowUpDown className="h-4 w-4" aria-hidden="true" /> {reorderingDay ? "Done reordering" : "Reorder"}</button>}
               <button type="button" className="day-action-session" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
               <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan</button>
-              <PrintWorkoutButton disabled={!customWorkout.length} />
+              <button type="button" className="day-action-share" onClick={openShare}><Share className="h-4 w-4" aria-hidden="true" /> Share</button>
             </div>}
             {/* The optional profile prompt, as one quiet line after Add/Reorder/Open so it never
                 separates a workout from its actions, and only on a day with work in it (Sep 30 §8). */}
@@ -2104,6 +2119,8 @@ export default function Home() {
       <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">{primaryDestinations.map((item) => { const Icon = item.icon; const active = activePrimaryDestination === item.id; return <button type="button" key={item.id} onPointerUp={(event) => navigateDockDestination(dockTarget(item), event)} onClick={(event) => navigateDockDestination(dockTarget(item), event)} aria-current={active ? "page" : undefined} className={active ? "mobile-bottom-nav-active" : ""}><Icon className="h-4 w-4" /><span>{item.label}</span></button>; })}</nav>
     </div>
 
+    {/* Share workout (Oct 2 brief §5): over the Training Day it was opened from, in the modal layer. */}
+    {sharePlan && <Suspense fallback={null}><WorkoutShareSheet plan={sharePlan} weightUnit={athleteBaseline.weightUnit === "kg" ? "kg" : "lb"} onClose={() => setSharePlan(null)} /></Suspense>}
     {/* Exercise Intelligence: one full-height overlay over whatever opened it,
         which stays mounted underneath with its list, filters and scroll. The
         bottom navigation is hidden while it is open (index.css), and Escape or
@@ -2111,7 +2128,7 @@ export default function Home() {
         catalog's plus performs, on the same day the strip names. */}
     {introPreviewOpen && <Suspense fallback={null}><IntroPreview returnTo={introOpener} onClose={() => setIntroPreviewOpen(false)} /></Suspense>}
     {comparePair && <Suspense fallback={null}><ExerciseCompareSheet pair={comparePair} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} onAdd={addExercise} onClose={() => setComparePair(null)} onInspect={(exercise) => { setComparePair(null); inspectExercise(exercise); }} /></Suspense>}
-    {inspectedExercise && <div className="fixed inset-0 z-50 exercise-intelligence" ref={inspectorLayerRef} role="dialog" aria-modal="true" aria-labelledby="exercise-intelligence-title">
+    {inspectedExercise && <div className="fixed inset-0 z-50 exercise-intelligence sg-surface-dark" ref={inspectorLayerRef} role="dialog" aria-modal="true" aria-labelledby="exercise-intelligence-title">
       <div className="exercise-intelligence-sheet">
         <div className="exercise-intelligence-bar">
           <img src={sportsGenomeAssets.circularBadge} alt="" className="exercise-intelligence-logo" />

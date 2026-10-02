@@ -1,5 +1,6 @@
 /** Gym Optimizer Exercise Genome: progressive analysis with teachable muscle and mechanics terminology. */
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Activity, BrainCircuit, ChartNoAxesCombined, CircleGauge, Dna, Info, Scale, ShieldAlert, Sparkles, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { analyzeExerciseContext, getExerciseGenome, getWorkoutGenome, type GenomeContext, type GenomeDimension } from "@/lib/exerciseGenome";
@@ -97,7 +98,21 @@ function GenomeLearnOverlay({ term, onClose }: { term: LearnKey; onClose: () => 
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
-  return <div ref={layerRef} className="genome-learn-overlay" role="dialog" aria-modal="true" aria-label={`${genomeTermInfo[term].label} explained`}><div className="genome-learn-card"><button ref={closeRef} type="button" onClick={onClose} aria-label="Close term explanation" className="genome-learn-close"><X className="h-4 w-4" aria-hidden="true" /></button><p className="metric-label">Genome term explained</p><h4>{genomeTermInfo[term].label}</h4><p><strong>What it means.</strong> {genomeTermInfo[term].meaning}</p><p><strong>What the model weighs.</strong> {genomeTermInfo[term].inputs}</p>{term in labels && <p><strong>What changes with context.</strong> The fingerprint index is a standardized catalog comparison. Its planning value changes with the athlete's goal and how distinct the exercise is from the current stack; those inputs feed Contextual fit rather than turning the fingerprint into a direct athlete measurement.</p>}<p><strong>How to read the number.</strong> {genomeTermInfo[term].read}</p><div className="genome-learn-boundary">This is a planning estimate used to compare exercises — not a lab measurement, a medical assessment, or a universal recommendation.</div></div></div>;
+  const info = genomeTermInfo[term];
+  const parts: { label: string; body: string }[] = [
+    { label: "What it means", body: info.meaning },
+    { label: "What the model weighs", body: info.inputs },
+    ...(term in labels ? [{ label: "What changes with context", body: "The fingerprint index is a standardized catalog comparison. Its planning value changes with the athlete's goal and how distinct the exercise is from the current stack; those inputs feed Contextual fit rather than turning the fingerprint into a direct athlete measurement." }] : []),
+    { label: "How to read the number", body: info.read },
+  ];
+  /*
+   * At the body, not inside the panel (Oct 2 brief §2). The card is a light surface,
+   * and inside the dark analysis sheet every heading and paragraph of it was
+   * repainted with the sheet's text colours - `.exercise-intelligence .genome-panel
+   * :is(h4, strong, p ...)` - so it read near-white on white (1.04:1). A modal lives
+   * in the modal layer; nothing in the page it covers can reach into it.
+   */
+  return createPortal(<div ref={layerRef} className="genome-learn-overlay" role="dialog" aria-modal="true" aria-label={`${info.label} explained`}><div className="genome-learn-card sg-surface-light"><button ref={closeRef} type="button" onClick={onClose} aria-label="Close term explanation" className="genome-learn-close"><X className="h-4 w-4" aria-hidden="true" /></button><p className="genome-learn-eyebrow">Genome term explained</p><h4>{info.label}</h4><dl className="genome-learn-parts">{parts.map((part) => <div key={part.label}><dt>{part.label}</dt><dd>{part.body}</dd></div>)}</dl><p className="genome-learn-boundary">This is a planning estimate used to compare exercises — not a lab measurement, a medical assessment, or a universal recommendation.</p></div></div>, document.body);
 }
 
 /** The four the summary shows; the full fingerprint keeps all eight behind a line. */

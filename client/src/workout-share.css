@@ -1,0 +1,57 @@
+/* Share workout (components/WorkoutShareSheet.tsx), Oct 2 brief §5.
+ * A bottom sheet on a phone, a dialog on a wide screen, on the app's own dark
+ * surface; the preview is the PDF's first page in miniature, so it is white. */
+.workout-share-scrim { position: fixed; inset: 0; z-index: 95; display: grid; align-items: end; justify-items: center; overflow-y: auto; overscroll-behavior: contain; background: rgb(4 16 32 / .72); -webkit-overflow-scrolling: touch; }
+.workout-share-sheet { display: grid; width: min(560px, 100%); max-height: min(92dvh, 860px); gap: 1rem; overflow-y: auto; border: 1px solid var(--sg-control-border-on-dark); border-bottom: 0; border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; background: var(--sg-surface-deep); padding: 1rem var(--sg-gutter, 1rem) calc(1rem + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -18px 50px rgb(3 21 45 / .45); }
+@media (min-width: 720px) { .workout-share-scrim { align-items: center; padding: 1.5rem; } .workout-share-sheet { border-bottom: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-md); padding-bottom: 1.25rem; } }
+@media (prefers-reduced-motion: no-preference) { .workout-share-sheet { animation: workout-share-in var(--sg-motion-base) var(--sg-ease) both; } }
+/* Slides in, never fades: a modal's surface and its text are opaque from the first frame (Oct 2 brief §2). */
+@keyframes workout-share-in { from { transform: translateY(16px); } to { transform: none; } }
+
+.workout-share-sheet:focus { outline: none; }
+.workout-share-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.workout-share-head .metric-label { color: var(--sg-text-subtle-on-dark); }
+.workout-share-head h2 { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.85rem; font-weight: 800; line-height: .95; text-transform: uppercase; }
+.workout-share-close { display: grid; width: 2.75rem; height: 2.75rem; flex: 0 0 auto; place-items: center; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; color: var(--sg-text-on-dark); }
+
+/* What is being sent. */
+.workout-share-preview { display: grid; grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr); align-items: start; gap: .9rem; }
+@media (max-width: 380px) { .workout-share-preview { grid-template-columns: minmax(0, 1fr); } .workout-share-page { max-width: 13rem; } }
+.workout-share-page { display: grid; gap: .2rem; border-radius: 6px; background: #fff; padding: .65rem .7rem .7rem; color: #102947; box-shadow: 0 10px 26px rgb(0 8 20 / .45); }
+.workout-share-page-brand { margin: 0; color: #0b2240; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.workout-share-page-brand span { display: block; color: #c9401c; }
+.workout-share-page-day { margin: .25rem 0 0; color: #0b2240; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; font-weight: 800; line-height: .9; text-transform: uppercase; overflow-wrap: anywhere; }
+.workout-share-page-facts { margin: 0 0 .25rem; border-bottom: 2px solid #d6461f; padding-bottom: .3rem; color: #355774; font-size: var(--sg-text-xs); font-weight: 700; }
+.workout-share-page ol { display: grid; gap: .3rem; margin: .1rem 0 0; padding: 0; list-style: none; }
+.workout-share-page li { display: grid; color: #102947; font-size: var(--sg-text-xs); font-weight: 700; line-height: 1.25; }
+.workout-share-page li b { color: #c9401c; }
+.workout-share-page li small { color: #5d7186; font-size: var(--sg-text-xs); font-weight: 400; }
+.workout-share-page-more { margin: .15rem 0 0; color: #5d7186; font-size: var(--sg-text-xs); }
+.workout-share-says { display: grid; gap: .45rem; min-width: 0; }
+.workout-share-says > p:first-child { display: flex; gap: .45rem; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.workout-share-says > p:first-child svg { flex: 0 0 auto; margin-top: .15rem; color: #9cc9ff; }
+.workout-share-says b { color: var(--sg-text-on-dark); font-weight: 700; overflow-wrap: anywhere; }
+.workout-share-note-label { margin: .2rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.workout-share-says blockquote { display: grid; gap: .1rem; margin: 0; border-left: 3px solid var(--sg-control-border-on-dark); padding: .1rem 0 .1rem .65rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+
+/* The three ways out, the default first. */
+.workout-share-actions { display: grid; gap: .5rem; }
+.workout-share-actions button { display: flex; width: 100%; min-height: 3.5rem; align-items: center; gap: .8rem; border-radius: 12px; padding: .65rem .9rem; text-align: left; }
+.workout-share-actions button span { display: grid; gap: .1rem; min-width: 0; }
+.workout-share-actions button b { font-size: var(--sg-text-lg); font-weight: 700; }
+.workout-share-actions button small { font-size: var(--sg-text-sm); line-height: 1.35; }
+/* One shade deeper than the action fill: its small second line is white type at 4.96:1 (3.73 on #e4512e). */
+.workout-share-primary { border: 1px solid #e4512e; background: #c9401c; color: #fff; }
+.workout-share-primary small { color: #fff; }
+.workout-share-option { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .04); color: var(--sg-text-on-dark); }
+.workout-share-option small { color: var(--sg-text-muted-on-dark); }
+.workout-share-option svg { color: #9cc9ff; }
+.workout-share-option:hover:not(:disabled) { border-color: rgb(164 200 232 / .55); background: rgb(255 255 255 / .07); }
+.workout-share-actions button:disabled { cursor: progress; opacity: .7; }
+.workout-share-actions button:focus-visible, .workout-share-close:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 2px; }
+.workout-share-status { min-height: 1.2em; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+
+/* The day's Share control, beside its other actions. */
+.day-plan-actions .day-action-share { display: inline-flex; min-height: 2.9rem; align-items: center; gap: .45rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-plan-actions .day-action-share:hover { border-color: rgb(164 200 232 / .55); background: rgb(255 255 255 / .1); }
+.day-plan-actions .day-action-share:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }

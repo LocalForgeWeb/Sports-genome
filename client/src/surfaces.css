@@ -1,0 +1,68 @@
+/* ── Surfaces own their ink (Oct 2 brief §1–2) ─────────────────────────────────
+ *
+ * The unreadable screens were not faded. Every one measured opacity 1 from the
+ * text to <html>; there was no filter or blend over them. They were repainted:
+ * a component built as a light surface (white card, #d8e3ef list ground) was
+ * placed on a dark sheet, and the sheet converted it with descendant rules that
+ * moved some of its paint and not the rest.
+ *
+ *  - The term explanation's white card sat inside `.genome-panel`, so
+ *    `.exercise-intelligence .genome-panel :is(h4, strong, p ...)` gave its
+ *    heading near-white ink on white (1.04:1). It now renders in the modal layer
+ *    (createPortal to <body>), out of reach of the page it covers.
+ *  - Muscle Genome's rows were made transparent for the dark sheet while the
+ *    stack behind them kept its light divider ground, so every row read pale
+ *    ink on #d8e3ef (1.14:1).
+ *  - Add Exercises was a light sheet repainted dark later in index.css; its light
+ *    ink survived wherever the old rule was more specific (3.5:1 metadata), and
+ *    the "light surfaces own their text colour" list kept handing its rows navy
+ *    ink and light-surface label colours.
+ *
+ * The contract: a surface that paints a background declares, with it, the text
+ * colour and the two inherited tokens its children read - `--sg-label-color` for
+ * eyebrow labels and `--sg-link-color` for links. Repaint one and the other two
+ * come along; nothing below it has to guess the ground.
+ */
+.sg-surface-dark { color: var(--sg-text-on-dark); --sg-label-color: var(--sg-text-subtle-on-dark); --sg-link-color: var(--sg-link-on-dark); }
+.sg-surface-light { color: var(--sg-text-on-light); --sg-label-color: var(--sg-text-subtle-on-light); --sg-link-color: var(--sg-info-strong); }
+/* A light card inside a dark surface keeps the light pair. */
+.sg-surface-dark .sg-surface-light { color: var(--sg-text-on-light); --sg-label-color: var(--sg-text-subtle-on-light); --sg-link-color: var(--sg-info-strong); }
+
+/* The light-surface components the dark sheets host, repainted: their ink follows the sheet. */
+.sg-surface-dark :is(.genome-panel, .genome-muscle-row, .genome-mechanic-block, .genome-stat, .genome-list, .day-picker-scope, .day-picker-result, .day-exercise-open-catalog) {
+  color: var(--sg-text-on-dark);
+  --sg-label-color: var(--sg-text-subtle-on-dark);
+  --sg-link-color: var(--sg-link-on-dark);
+}
+
+/* Muscle Genome on the dark sheet: dividers instead of a light ground showing through the gaps. */
+.exercise-intelligence .genome-muscle-stack { gap: 0; background: transparent; }
+.exercise-intelligence .genome-muscle-row { border-top: 1px solid var(--sg-divider-on-dark); padding-inline: 0; }
+.exercise-intelligence .genome-section-intro p { color: var(--sg-text-muted-on-dark); }
+/* Muscle names and the meter values are the information; the role and involvement terms are labels. */
+.exercise-intelligence .genome-muscle-row p.font-bold { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
+.exercise-intelligence .genome-meter strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
+.exercise-intelligence .genome-term-button { color: #b9d2ec; text-decoration-color: rgb(164 200 232 / .55); }
+.exercise-intelligence .genome-term-button:hover { color: #fff; }
+/* The context tier label: a chip on the dark sheet, not a light pill. */
+.exercise-intelligence .genome-action-connection-label { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); color: var(--sg-text-on-dark); }
+/* The analysis tab bar: the active tab in a lighter orange so it clears 4.5:1 on the sheet. */
+.exercise-intelligence .genome-tab-active { color: #ff9b7e; }
+
+/* ── The rest of the sweep: on-light ink left on dark grounds, and states too faint to read ── */
+/* Review's planning-guide line: the light rule `summary p:last-child` came later at equal specificity (3.54:1). */
+.day-review-stack .programming-guide-disclosure > summary p:last-child { color: var(--sg-text-muted-on-dark); }
+/* The catalog's rows and context links sit on the brightest part of the destination gradient (4.0–4.3:1). */
+.catalog-discovery .catalog-discovery-identity small { color: var(--sg-text-muted-on-dark); }
+.catalog-discovery .catalog-discovery-change { color: #c9e1ff; }
+.movement-atlas-improved .atlas-selected .metric-label { color: var(--sg-text-muted-on-dark); }
+/* A locked week is disabled, and should look it - but still say what it is. The app-wide
+   `:is(.apex-content, ...) button:disabled { opacity: .5 }` took it to 2.44:1. */
+.training-plan-weeks .training-plan-week:disabled { opacity: .72; }
+/* Review's warm-up timing line (4.46:1). */
+.warmup-head .warmup-time small { color: var(--sg-text-muted-on-dark); }
+/* "Next" is small white type: on the action orange it was 3.81:1; one shade deeper clears 4.5. */
+.home-week-strip .home-week-tag { background: #c9401c; }
+
+/* The term card scrolls on a phone; its Close stays at the top of it instead of scrolling away. */
+.genome-learn-card .genome-learn-close { position: sticky; top: 0; z-index: 1; float: right; margin: -4px -4px 0 10px; background: #fff; }

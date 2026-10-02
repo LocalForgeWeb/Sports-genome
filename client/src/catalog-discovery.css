@@ -27,11 +27,6 @@
 .catalog-discovery-how p { margin: 0; }
 .catalog-discovery-how b { color: var(--sg-text-on-dark); font-weight: 700; }
 
-/* The field is one of the few surfaces that earns an outline: it is an interaction boundary. */
-.catalog-discovery-search { display: flex; align-items: center; gap: .65rem; min-height: 48px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: rgb(255 255 255 / .05); padding: 0 .9rem; color: var(--sg-text-subtle-on-dark); }
-.catalog-discovery-search:focus-within { border-color: var(--sg-focus-on-dark); }
-.catalog-discovery-search input { min-width: 0; flex: 1; height: 46px; border: 0; background: transparent; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); outline: none; }
-.catalog-discovery-search input::placeholder { color: var(--sg-text-subtle-on-dark); }
 
 /* One wrapping row of refinements: Filters, the chips that are on, the
    Favorites toggle, Clear filters. Opened, Filters takes the row's first line

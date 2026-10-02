@@ -1,0 +1,102 @@
+/* Add Exercises (DayExercisePicker's sheet), Oct 2 brief §4: one dark design in one place.
+ *
+ * The sheet was built light and later repainted dark from index.css, so its rules
+ * lived in three files and the light ones still won wherever they were more
+ * specific. Everything about how it looks is here now; workout-planner.css keeps
+ * only its structure (scrim, fixed height, scrolling body, footer).
+ *
+ * Order on screen: title → Short in this day → search → Muscle group / Equipment
+ * → Pull fit | All catalog → count → rows → Done. */
+
+/* The open keyboard lifts the sheet rather than covering its results and Done. */
+.day-picker-sheet-scrim[data-keyboard="open"] { align-items: end; padding-bottom: var(--sg-keyboard-inset, 0px); }
+.day-picker-sheet-scrim[data-keyboard="open"] .day-picker-sheet { height: min(92dvh, 900px, calc(100dvh - var(--sg-keyboard-inset, 0px) - .5rem)); }
+
+.day-picker-sheet .day-exercise-picker-content { padding: 1rem var(--sg-gutter, 1rem) 1.25rem; }
+.day-picker-sheet-head { padding-inline: var(--sg-gutter, 1rem); }
+.day-picker-sheet-head .metric-label { color: var(--sg-text-subtle-on-dark); }
+.day-picker-sheet-foot { padding-inline: var(--sg-gutter, 1rem); }
+
+/* Short in this day: informative, not the loudest thing on the sheet. */
+.day-picker-sheet .day-picker-gaps { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 0 0 1rem; }
+.day-picker-sheet .day-picker-gaps-label { flex: 1 0 100%; margin-bottom: .1rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-picker-sheet .day-picker-gap { display: inline-flex; min-height: 36px; align-items: center; gap: .45rem; border: 1px solid rgb(255 138 102 / .4); border-radius: 999px; background: rgb(255 255 255 / .04); padding: 0 .75rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.day-picker-sheet .day-picker-gap i { color: #ff9b7e; font-family: "DM Sans", sans-serif; font-size: var(--sg-text-sm); font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; }
+.day-picker-sheet .day-picker-gap:hover { border-color: rgb(255 138 102 / .7); background: rgb(255 138 102 / .08); }
+.day-picker-sheet .day-picker-gap-active { border-color: #ff8a66; background: rgb(255 138 102 / .16); color: #fff; }
+.day-picker-sheet .day-picker-gap-active i { color: #ffd2c3; }
+.day-picker-sheet .day-picker-gap-clear { min-height: 36px; padding: 0 .4rem; color: var(--sg-link-on-dark); }
+
+/* Search and filters as one block: same radius, same border, one spacing. */
+.day-picker-sheet .day-picker-tools { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; margin: 0; }
+.day-picker-sheet .day-picker-filter-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.day-picker-sheet .day-picker-filter-row .muscle-select { min-width: 0; max-width: none; margin: 0; }
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger,
+.day-picker-sheet .day-picker-filter-row > select { width: 100%; min-width: 0; height: 44px; min-height: 44px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background-color: rgb(255 255 255 / .05); padding: 0 .75rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.day-picker-sheet .day-picker-filter-row > select { -webkit-appearance: none; appearance: none; padding-right: 2rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23acc0d6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .65rem center; }
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger strong { overflow: hidden; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; letter-spacing: 0; text-overflow: ellipsis; text-transform: none; white-space: nowrap; }
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger.is-chosen,
+.day-picker-sheet .day-picker-filter-row > select.is-chosen { border-color: #ff8a66; }
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger:hover,
+.day-picker-sheet .day-picker-filter-row > select:hover { border-color: rgb(164 200 232 / .5); }
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger:focus-visible,
+.day-picker-sheet .day-picker-filter-row > select:focus-visible { border-color: #5aa9ff; outline: none; box-shadow: 0 0 0 3px rgb(90 169 255 / .28); }
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger-chevron { color: var(--sg-text-subtle-on-dark); }
+/* The muscle list that opens from it. */
+.day-picker-sheet .muscle-select .athlete-sport-panel { border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: var(--sg-surface-raised); color: var(--sg-text-on-dark); box-shadow: 0 18px 38px rgb(0 8 20 / .5); }
+.day-picker-sheet .muscle-select .athlete-sport-search { border-bottom-color: var(--sg-divider-on-dark); color: var(--sg-text-subtle-on-dark); }
+.day-picker-sheet .muscle-select .athlete-sport-search input { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); }
+.day-picker-sheet .muscle-select .athlete-sport-search input::placeholder { color: var(--sg-text-subtle-on-dark); }
+.day-picker-sheet .muscle-select .athlete-sport-option { color: var(--sg-text-on-dark); }
+.day-picker-sheet .muscle-select .athlete-sport-option strong { color: var(--sg-text-on-dark); }
+.day-picker-sheet .muscle-select .athlete-sport-option small, .day-picker-sheet .muscle-select .athlete-sport-empty { color: var(--sg-text-muted-on-dark); }
+.day-picker-sheet .muscle-select .athlete-sport-option.is-active { background: rgb(255 255 255 / .08); }
+.day-picker-sheet .muscle-select .athlete-sport-option.is-selected strong { color: #ff9b7e; }
+
+/* Pull fit | All catalog: a two-part switch the full width of the filters. */
+.day-picker-sheet .day-picker-scope { display: grid; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: rgb(255 255 255 / .03); padding: 3px; }
+.day-picker-sheet .day-picker-scope button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: .35rem; border: 0; border-radius: 7px; background: transparent; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-picker-sheet .day-picker-scope button:hover:not(.day-picker-scope-active) { background: rgb(255 255 255 / .06); color: var(--sg-text-on-dark); }
+.day-picker-sheet .day-picker-scope .day-picker-scope-active { background: var(--sg-action-fill); color: #fff; }
+.day-picker-sheet .day-picker-scope button:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 1px; }
+
+.day-picker-sheet .local-search-scope { margin: .6rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.day-picker-sheet .local-search-scope button { color: var(--sg-link-on-dark); }
+
+/* The count, and what the list is ordered by. */
+.day-picker-sheet .day-picker-result-count { margin: 1rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.day-picker-sheet .day-picker-result-count strong { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: var(--sg-display-sm); font-weight: 800; line-height: 1; }
+.day-picker-sheet .day-picker-result-shared, .day-picker-sheet .day-picker-result-guess { display: block; margin-top: .2rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.day-picker-sheet .day-picker-empty, .day-picker-sheet .day-picker-serratus-cue { color: var(--sg-text-muted-on-dark); }
+.day-picker-sheet .day-picker-empty button { color: var(--sg-link-on-dark); }
+
+/* Rows: name and reason on the left, one Add control on the right, a divider between. */
+.day-picker-sheet .day-picker-results { display: block; margin-top: .75rem; border-top: 1px solid var(--sg-divider-on-dark); }
+.day-picker-sheet .day-picker-result { display: flex; align-items: center; gap: .75rem; border: 0; border-bottom: 1px solid var(--sg-divider-on-dark); border-radius: 0; background: transparent; color: var(--sg-text-on-dark); }
+.day-picker-sheet .day-picker-result-direct { border-left: 0; box-shadow: inset 3px 0 0 var(--sg-action); padding-left: .65rem; }
+.day-picker-sheet .day-picker-result > button:first-child { min-width: 0; flex: 1 1 auto; padding: .85rem 0; background: transparent; color: inherit; text-align: left; }
+.day-picker-sheet .day-picker-result > button:first-child > div { display: grid; gap: .2rem; }
+.day-picker-sheet .day-picker-result strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; }
+.day-picker-sheet .day-picker-result > button:first-child small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.day-picker-sheet .day-picker-result em { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); font-style: normal; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.day-picker-sheet .day-picker-fills-tag { color: #7fd7a0; font-size: var(--sg-text-sm); }
+.day-picker-sheet .day-picker-supports-tag { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.day-picker-sheet .day-picker-result > button:last-child { display: inline-flex; min-width: 5rem; min-height: 44px; flex: 0 0 auto; align-items: center; justify-content: center; gap: .3rem; border: 1px solid rgb(255 138 102 / .55); border-radius: 10px; background: transparent; padding: 0 .8rem; color: #ff9b7e; font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-picker-sheet .day-picker-result > button:last-child:hover:not(:disabled) { border-color: #ff8a66; background: rgb(255 138 102 / .1); color: #fff; }
+.day-picker-sheet .day-picker-result > button:last-child:disabled { border-color: var(--sg-divider-on-dark); background: transparent; color: var(--sg-text-muted-on-dark); cursor: default; }
+.day-picker-sheet .day-picker-result-fills > button:last-child { border-color: rgb(127 215 160 / .5); color: #7fd7a0; }
+.day-picker-sheet .day-picker-more { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; margin-top: .9rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: transparent; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+
+/* Done is always there; the list ends clear of it. */
+.day-picker-sheet .day-exercise-picker-content { scroll-padding-bottom: 1rem; }
+.day-picker-sheet-foot button { border-radius: 10px; }
+.day-picker-sheet-foot button:focus-visible, .day-picker-sheet-head button:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 2px; }
+/* "Added" is a finished state, not a faded control. */
+.day-picker-sheet .day-picker-result > button:last-child:disabled { opacity: 1; }
+/* The muscle filter's label gives way before its chevron does, and on the narrowest
+   phones the two filters stack rather than squeeze (at 320px the chevron was pushed
+   out of its box, onto the equipment filter). */
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger { display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger > span { min-width: 0; flex: 1 1 auto; overflow: hidden; text-align: left; }
+.day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger-chevron { width: 1rem; height: 1rem; flex: 0 0 auto; }
+@media (max-width: 359px) { .day-picker-sheet .day-picker-filter-row { grid-template-columns: minmax(0, 1fr); } }

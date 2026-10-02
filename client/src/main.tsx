@@ -6,6 +6,8 @@ import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import "./index.css";
+// After index.css: the surface contract restates ink for repainted components, so it must come later in the cascade.
+import "./surfaces.css";
 
 /**
  * A lapsed sign-in is said once, when it happens, by lib/sessionNotice.ts; it is the only

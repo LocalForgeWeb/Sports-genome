@@ -1,1 +1,29 @@
-.print-workout-button { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid #c6d9e8; background: #fff; padding: .56rem .7rem; color: #285b89; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.print-workout-button:disabled { opacity: .45; cursor: not-allowed; }.printable-workout-sheet { display: none; }@media print { @page { size: letter portrait; margin: .5in; } body * { visibility: hidden !important; } .printable-workout-sheet, .printable-workout-sheet * { visibility: visible !important; } .printable-workout-sheet { display: block !important; position: absolute; inset: 0; width: 100%; color: #111; font-family: Arial, sans-serif; } .printable-workout-sheet header { border-bottom: 2px solid #0b2240; padding-bottom: 14px; }.printable-workout-sheet header > p { margin: 0; color: #315f8d; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.printable-workout-sheet h1 { margin: 6px 0; color: var(--sg-text-on-light); font-size: 26px; text-transform: uppercase; }.printable-workout-sheet header div { display: flex; gap: 18px; color: #344b62; font-size: var(--sg-text-xs); }.printable-workout-sheet table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: var(--sg-text-xs); }.printable-workout-sheet th { border-bottom: 1px solid #0b2240; color: var(--sg-text-muted-on-light); padding: 7px 5px; font-size: var(--sg-text-xs); text-align: left; text-transform: uppercase; }.printable-workout-sheet td { border-bottom: 1px solid #ccd6df; padding: 9px 5px; vertical-align: top; }.printable-workout-sheet td strong, .printable-workout-sheet td small, .printable-workout-sheet td span { display: block; }.printable-workout-sheet td small { margin-top: 3px; color: #556a7e; font-size: var(--sg-text-xs); }.printable-workout-sheet .printable-exercise-note { color: #70491b; font-style: italic; }.printable-workout-sheet td span { margin-bottom: 3px; font-size: var(--sg-text-xs); }.printable-workout-sheet footer { margin-top: 18px; }.printable-workout-sheet footer > p { margin: 0; color: var(--sg-text-muted-on-light); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }.printable-workout-sheet footer > div { min-height: 88px; margin-top: 6px; border: 1px solid #b7c4d0; background: repeating-linear-gradient(transparent 0, transparent 20px, var(--sg-surface-light-sunken) 21px); }.printable-workout-sheet footer small { display: block; margin-top: 8px; color: #6b7680; font-size: var(--sg-text-xs); } }
+.printable-workout-sheet { display: none; }
+/* Browser printing (Cmd/Ctrl+P on the Training Day): the sheet, light, and nothing else.
+ * The sheet renders at <body> beside the app, so the app leaves the flow entirely
+ * (display:none) instead of being hidden in place - hidden in place, its full height
+ * printed as empty navy pages (Oct 2 brief §10). Shared PDFs are drawn by lib/workoutPdf. */
+@media print {
+  @page { size: letter portrait; margin: .45in; }
+  html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; color: #102947 !important; }
+  body > :not(.printable-workout-sheet) { display: none !important; }
+  .printable-workout-sheet { display: block !important; position: static; width: 100%; background: #fff; color: #102947; font-family: Arial, Helvetica, sans-serif; }
+  .printable-workout-sheet header { border-bottom: 2px solid #0b2240; padding-bottom: 14px; }
+  .printable-workout-sheet header > p { margin: 0; color: #c9401c; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+  .printable-workout-sheet h1 { margin: 6px 0; color: #0b2240; font-size: 26px; text-transform: uppercase; }
+  .printable-workout-sheet header div { display: flex; gap: 18px; color: #355774; font-size: var(--sg-text-xs); }
+  .printable-workout-sheet table { width: 100%; border-collapse: collapse; margin-top: 18px; background: #fff; font-size: var(--sg-text-xs); }
+  .printable-workout-sheet th { border-bottom: 1px solid #0b2240; background: #fff; color: #5d7186; padding: 7px 5px; font-size: var(--sg-text-xs); text-align: left; text-transform: uppercase; }
+  .printable-workout-sheet td { border-bottom: 1px solid #ccd6df; background: #fff; color: #102947; padding: 9px 5px; vertical-align: top; }
+  .printable-workout-sheet tr { break-inside: avoid; page-break-inside: avoid; }
+  .printable-workout-sheet td strong, .printable-workout-sheet td small, .printable-workout-sheet td span { display: block; }
+  .printable-workout-sheet td strong { color: #0b2240; }
+  .printable-workout-sheet td small { margin-top: 3px; color: #355774; font-size: var(--sg-text-xs); }
+  .printable-workout-sheet .printable-exercise-note { color: #70491b; font-style: italic; }
+  .printable-workout-sheet td span { margin-bottom: 3px; color: #355774; font-size: var(--sg-text-xs); }
+  .printable-workout-sheet footer { margin-top: 18px; break-inside: avoid; }
+  .printable-workout-sheet footer > p { margin: 0; color: #5d7186; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+  /* No ruled notes box: on an eight-exercise day it was the only thing on a second page. */
+  .printable-workout-sheet footer > p, .printable-workout-sheet footer > div { display: none; }
+  .printable-workout-sheet footer small { display: block; margin-top: 8px; color: #5d7186; font-size: var(--sg-text-xs); }
+}
