@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import mapping from "@/data/exercisePhotos.json";
 import { exercises } from "./exerciseCatalog";
-import { exercisePhotoBase, exercisePhotoCount, exercisePhotoFallbackBase, exercisePhotoSet, exercisePhotoSourceRef } from "./exercisePhotos";
+import { exercisePhotoBase, exercisePhotoCount, exercisePhotoFallbackBase, exercisePhotoSet, exercisePhotoSourceRef, framesInMovementOrder, reversedPhotoSources } from "./exercisePhotos";
 
 const entries = mapping as unknown as Record<string, [string, number]>;
 
@@ -40,6 +40,33 @@ describe("exercise photographs", () => {
     expect(set.fallbackUrls[0]).toBe(`${exercisePhotoFallbackBase}Barbell_Bench_Press_-_Medium_Grip/0.jpg`);
     expect(set.captions).toEqual(["Start", "Finish"]);
     expect(exercisePhotoBase).toContain(`@${exercisePhotoSourceRef}/`);
+  });
+
+  it("shows the start first where the source numbers the finish as frame 0", () => {
+    // Reported on Cable Lateral Raise: the source's frame 0 has the arm already raised.
+    const lateral = exercisePhotoSet(exercises.find((exercise) => exercise.name === "Cable Lateral Raise")!.id)!;
+    expect(lateral.source).toBe("Standing_Low-Pulley_Deltoid_Raise");
+    expect(lateral.urls).toEqual([
+      `${exercisePhotoBase}Standing_Low-Pulley_Deltoid_Raise/1.jpg`,
+      `${exercisePhotoBase}Standing_Low-Pulley_Deltoid_Raise/0.jpg`,
+    ]);
+    expect(lateral.fallbackUrls[0]).toBe(`${exercisePhotoFallbackBase}Standing_Low-Pulley_Deltoid_Raise/1.jpg`);
+    expect(lateral.captions).toEqual(["Start", "Finish"]);
+    // A pair checked and found in order keeps the source's numbering.
+    const dumbbell = exercisePhotoSet(exercises.find((exercise) => exercise.name === "Dumbbell Lateral Raise")!.id)!;
+    expect(dumbbell.urls[0]).toBe(`${exercisePhotoBase}Side_Lateral_Raise/0.jpg`);
+  });
+
+  it("lists only two-frame sources the catalog uses, each with the reason it is reversed", () => {
+    const used = new Map(Object.values(entries).map(([source, count]) => [source, count]));
+    expect(Object.keys(reversedPhotoSources).length).toBe(30);
+    for (const [source, why] of Object.entries(reversedPhotoSources)) {
+      expect(used.get(source), source).toBe(2);
+      expect(why.length, source).toBeGreaterThan(20);
+    }
+    expect(framesInMovementOrder("Standing_Low-Pulley_Deltoid_Raise", 2)).toEqual([1, 0]);
+    expect(framesInMovementOrder("Barbell_Deadlift", 2)).toEqual([0, 1]);
+    expect(framesInMovementOrder("Standing_Low-Pulley_Deltoid_Raise", 1)).toEqual([0]);
   });
 
   it("says nothing for an exercise the source does not photograph", () => {

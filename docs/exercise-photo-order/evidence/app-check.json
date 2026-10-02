@@ -1,0 +1,70 @@
+[
+ {
+  "name": "Cable Lateral Raise",
+  "source": "Standing_Low-Pulley_Deltoid_Raise",
+  "slots": [
+   {
+    "caption": "Start",
+    "frame": "1",
+    "loaded": true
+   },
+   {
+    "caption": "Finish",
+    "frame": "0",
+    "loaded": true
+   }
+  ],
+  "screenshot": "after-cable-lateral-raise-390.png"
+ },
+ {
+  "name": "Parallel-Bar Dip",
+  "source": "Parallel_Bar_Dip",
+  "slots": [
+   {
+    "caption": "Start",
+    "frame": "1",
+    "loaded": true
+   },
+   {
+    "caption": "Finish",
+    "frame": "0",
+    "loaded": true
+   }
+  ],
+  "screenshot": "after-parallel-bar-dip-390.png"
+ },
+ {
+  "name": "Smith Machine Bench Press",
+  "source": "Smith_Machine_Bench_Press",
+  "slots": [
+   {
+    "caption": "Start",
+    "frame": "1",
+    "loaded": true
+   },
+   {
+    "caption": "Finish",
+    "frame": "0",
+    "loaded": true
+   }
+  ],
+  "screenshot": "after-smith-machine-bench-press-390.png"
+ },
+ {
+  "name": "Dumbbell Lateral Raise",
+  "source": "Side_Lateral_Raise",
+  "slots": [
+   {
+    "caption": "Start",
+    "frame": "0",
+    "loaded": true
+   },
+   {
+    "caption": "Finish",
+    "frame": "1",
+    "loaded": true
+   }
+  ],
+  "screenshot": "after-dumbbell-lateral-raise-390.png"
+ }
+]

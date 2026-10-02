@@ -19,8 +19,16 @@
  * The files are served from the jsDelivr GitHub CDN, which caches the repository
  * at a pinned commit; nothing is fetched at build time and the bundle carries
  * only the map.
+ *
+ * The source's frame numbers are not always the movement's order: in 30 of its
+ * 207 pairs used here, frame 0 is where the movement finishes (a cable lateral
+ * raise with the arm already up, a dip at the bottom). Every pair was checked
+ * by eye against how the exercise starts, and the reversed ones are listed in
+ * `client/src/data/exercisePhotoOrder.json` with the reason; for those the app
+ * shows frame 1 first. The audit of all 207 is docs/exercise-photo-order/.
  */
 import mapping from "@/data/exercisePhotos.json";
+import reversedOrder from "@/data/exercisePhotoOrder.json";
 
 /** Pinned so a later change upstream cannot swap a photo out from under a name. */
 export const exercisePhotoSourceRef = "f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5";
@@ -40,7 +48,7 @@ export const exercisePhotoCredit = "Photos: Free Exercise DB, public domain";
 export type ExercisePhotoSet = {
   /** The source folder, e.g. "Barbell_Deadlift". */
   source: string;
-  /** Start and finish frames, in order; one frame for a hold. */
+  /** Start and finish frames, in the movement's order (not always the source's numbering); one frame for a hold. */
   urls: string[];
   fallbackUrls: string[];
   captions: string[];
@@ -60,11 +68,20 @@ const defaultSize = { width: 850, height: 567 };
 /** Per-photo focal points for the rare frame whose subject is off centre, by source id. */
 const focalBySource: Record<string, string> = {};
 
+/** Source pairs whose frame 0 is the finish, by source id, with why (exercisePhotoOrder.json). */
+export const reversedPhotoSources: Readonly<Record<string, string>> = reversedOrder;
+
+/** The source's frame numbers in the movement's order: start first, then finish. */
+export function framesInMovementOrder(source: string, count: number): number[] {
+  const frames = Array.from({ length: Math.max(1, Math.min(count, 2)) }, (_, index) => index);
+  return frames.length === 2 && reversedPhotoSources[source] ? [1, 0] : frames;
+}
+
 export function exercisePhotoSet(exerciseId: number): ExercisePhotoSet | null {
   const entry = entries[String(exerciseId)];
   if (!entry) return null;
   const [source, count, width = defaultSize.width, height = defaultSize.height] = entry;
-  const frames = Array.from({ length: Math.max(1, Math.min(count, 2)) }, (_, index) => index);
+  const frames = framesInMovementOrder(source, count);
   return {
     source,
     urls: frames.map((index) => `${exercisePhotoBase}${source}/${index}.jpg`),
