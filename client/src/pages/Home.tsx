@@ -55,7 +55,8 @@ import { loadBodyWeightLog, recordBodyWeight, saveBodyWeightLog, seedBodyWeightL
 import { useAthleteSync } from "@/lib/useAthleteSync";
 const ProgressOverviewPanel = lazy(() => import("@/components/ProgressOverviewPanel").then((module) => ({ default: module.ProgressOverviewPanel })));
 import { TodayActionPanel } from "@/components/TodayActionPanel";
-import { ExercisePhotos } from "@/components/ExercisePhotos";
+import { ExerciseMedia } from "@/components/ExerciseMedia";
+import { browseAllExercises, discoverMovementExercises, type DiscoveryContext } from "@/lib/movementDiscovery";
 import { EquipmentConstraintStrip } from "@/components/EquipmentConstraintStrip";
 import { ModifierEvidenceDisclosure } from "@/components/ModifierEvidenceDisclosure";
 import { SportEvidencePanel } from "@/components/SportEvidencePanel";
@@ -309,6 +310,14 @@ export default function Home() {
   const [inspectedExercise, setInspectedExercise] = useState<Exercise | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [catalogFilters, setCatalogFilters] = useState<CatalogFilters>(defaultCatalogFilters);
+  /**
+   * What the catalog is scoped to - one sport action, one muscle, or everything - kept apart
+   * from the inspected muscle (`activeMuscle`) and the add destination (`activeSlot`). The
+   * Body Lab's primary action used to write a muscle filter here, so "Hand fighting" opened
+   * "pectoralis major exercises" and the action itself never reached the catalog (October 1
+   * brief §6). Movement results are keyed by the action's own sport and movement ids.
+   */
+  const [discovery, setDiscovery] = useState<DiscoveryContext>(browseAllExercises);
   const [localFavoriteIds, setLocalFavoriteIds] = useState<number[]>([]);
   const [atlasQuery, setAtlasQuery] = useState("");
   const [atlasFamily, setAtlasFamily] = useState("All");
@@ -447,6 +456,24 @@ export default function Home() {
   const enrichedSelectedMovement = lookupEnrichedMovement(activeSportId, selectedMovement.id);
   /** The catalog's action links, each worked out once for the selected action rather than on every render. */
   const connectionForExercise = useMemo(() => createActionConnectionLookup(enrichedSelectedMovement), [enrichedSelectedMovement]);
+  /**
+   * The exercises for the action the catalog is scoped to, worked out once per sport and
+   * movement id. Synchronous and derived, so a change of action can never be overtaken by
+   * an earlier action's result: the list on screen is always this context's.
+   */
+  const movementDiscovery = useMemo(() => (discovery.mode === "movement" ? discoverMovementExercises(discovery.sportId, discovery.movementId, exercises) : null), [discovery]);
+  /** Opens the catalog scoped to one sport action, by its ids; a muscle filter inherited from before does not come along, equipment does. */
+  const openMovementDiscovery = (sportIdForAction: string, movementIdForAction: string) => {
+    setDiscovery({ mode: "movement", sportId: sportIdForAction, movementId: movementIdForAction });
+    setCatalogFilters((current) => ({ ...defaultCatalogFilters, equipment: current.equipment }));
+    navigateWorkspace("catalog");
+  };
+  /** Opens the catalog scoped to one muscle: the deliberate second action inside a muscle's detail. */
+  const openMuscleDiscovery = (muscle: string) => {
+    setDiscovery({ mode: "muscle", muscleId: muscle });
+    setCatalogFilters({ ...defaultCatalogFilters, muscle });
+    navigateWorkspace("catalog");
+  };
   const movementRecommendations = useMemo(() => getMovementRecommendations(selectedMovement, 6, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment), [selectedMovement, athleteBaseline.sportModifierId, registryEvidenceMap, athleteBaseline.equipment]);
   const sportProgrammingContext = useMemo(() => getSportProgrammingContext(activeSportId, athleteBaseline.sportModifierId), [activeSportId, athleteBaseline.sportModifierId]);
   const splitDays = useMemo(() => splitDaysForFrequency(trainingDays), [trainingDays]);
@@ -1738,7 +1765,7 @@ export default function Home() {
           <summary><em>{trackerDayPickerOpen ? "Close" : "Change day"}</em><ChevronDown className="h-4 w-4" aria-hidden /></summary>
           <div className="tracker-day-options">{daySlots.map((slot) => <button key={slot.key} type="button" onClick={() => { chooseDayToTrain(slot); openTrainingDay(slot.index); setTrackerDayPickerOpen(false); }} aria-pressed={slot.index === activeDayIndex}>{slot.ordinal} · {slot.day}<small>{dayExerciseCount(dayStore, slot.key) ? `${dayExerciseCount(dayStore, slot.key)} planned` : "Empty"}</small></button>)}</div>
         </details>} /></section>}
-        {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} recentIds={recentExerciseIds} onClearRecent={clearRecentExercises} comparePendingName={comparePending?.name} onCancelCompare={() => setComparePending(null)} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} selectedActionLabel={selectedMovement.label} onChangeAction={() => navigateWorkspace("movement")} connectionForExercise={connectionForExercise} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
+        {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} recentIds={recentExerciseIds} onClearRecent={clearRecentExercises} comparePendingName={comparePending?.name} onCancelCompare={() => setComparePending(null)} onFiltersChange={setCatalogFilters} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} selectedActionLabel={selectedMovement.label} onChangeAction={() => navigateWorkspace("movement")} connectionForExercise={connectionForExercise} discovery={discovery} onDiscoveryChange={setDiscovery} movement={movementDiscovery} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} accountSignedIn={isAuthenticated && !sessionLapsed} sessionLapsed={sessionLapsed} accountFocusRequest={accountFocusRequest}
           guides={<div className="about-me-guides"><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><p>Restarting onboarding deletes every saved training day and starts setup again; it asks first.</p><SupabaseResearchLibraryPanel /></div>}
           launchVideo={<div className="launch-setting" aria-label="Launch video"><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={(event) => { emitInteractionFeedback(12); setIntroOpener(event.currentTarget); setIntroPreviewOpen(true); }}>Preview intro video</button></div>}
@@ -1755,7 +1782,7 @@ export default function Home() {
             action the plan is built around, with the top of its ranking. */}
         {workspace === "command" && <section className="home-explore" aria-labelledby="home-explore-heading">
           <p className="metric-label" id="home-explore-heading">Explore Sports Genome</p>
-          <button type="button" className="home-explore-row" onClick={() => { setCatalogFilters(defaultCatalogFilters); navigateWorkspace("catalog"); }}><Search className="h-5 w-5" aria-hidden="true" /><span><strong>Find exercises</strong><small>Search by exercise, muscle or equipment</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
+          <button type="button" className="home-explore-row" onClick={() => { setDiscovery(browseAllExercises); setCatalogFilters(defaultCatalogFilters); navigateWorkspace("catalog"); }}><Search className="h-5 w-5" aria-hidden="true" /><span><strong>Find exercises</strong><small>Search by exercise, muscle or equipment</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("movement")}><Move3d className="h-5 w-5" aria-hidden="true" /><span><strong>Explore muscles &amp; movements</strong><small>See how sport actions involve your muscles</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
           <button type="button" className="home-explore-row" onClick={() => navigateWorkspace("strength")}><Dumbbell className="h-5 w-5" aria-hidden="true" /><span><strong>View strength progress</strong><small>Inspect your recorded lifts and muscle ranks</small></span><ChevronRight className="h-5 w-5" aria-hidden="true" /></button>
         </section>}
@@ -1888,11 +1915,11 @@ export default function Home() {
             <PrintableWorkoutSheet workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} sport={selectedSport.label} dayLabel={activeDayLabel} />
           </div>
         </section>}
-        {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} nextStep={<>
-          {/* The one thing to do with a muscle: find its exercises. The label
-              names the selected muscle; with nothing selected it says so and
-              offers the action's leading muscle, rather than pretending. */}
-          {(() => { const target = activeMuscle || getMovementMuscles(referenceMovement)[0] || ""; const name = muscleLabels[target] || target; return <div className="body-lab-next-step">{!activeMuscle && <span>Choose a muscle above, or start with what {referenceMovement.label.toLowerCase()} uses most.</span>}<button type="button" onClick={() => { setCatalogFilters({ ...defaultCatalogFilters, muscle: target }); navigateWorkspace("catalog"); }}>Find {name.toLowerCase()} exercises <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>; })()}
+        {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} subjectLabel={movementDisplayLabel(referenceMovement.label)} onBrowseMuscle={openMuscleDiscovery} nextStep={<>
+          {/* The page's primary action belongs to the sport action being explored, by its own
+              ids - never to the inspected muscle, and never to the action's first muscle. A
+              muscle's own search is inside its detail (AnatomyMap, onBrowseMuscle). */}
+          <div className="body-lab-next-step"><span>Explore exercises that support {movementDisplayLabel(referenceMovement.label).toLowerCase()}.</span><button type="button" onClick={() => openMovementDiscovery(browseSportId, referenceMovement.id)}>Find exercises for {movementDisplayLabel(referenceMovement.label).toLowerCase()} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
           {capacityOfferForSelection && <div className="body-lab-capacity-step"><Target className="h-4 w-4" aria-hidden="true" /><div><p>Want {capacityOfferForSelection.name.toLowerCase()} to hold up better, or is something going on there?</p>{capacityOfferForSelection.relation === "region" && <small>{capacityOfferForSelection.name} is the area {(muscleLabels[activeMuscle!] || activeMuscle!).toLowerCase()} sits in — the closest target Sports Genome has for it.</small>}</div><button type="button" onClick={() => { adoptCapacityTarget(capacityOfferForSelection.targetKey); navigateWorkspace("profile", { keepScroll: true }); revealWorkspaceAnchor("targeted-capacity"); }}>Set it as a target <ArrowUpRight className="h-4 w-4" /></button></div>}
         </>} /></section>}
         {workspace === "review" && <section className="day-review-workspace">
@@ -1949,7 +1976,7 @@ export default function Home() {
           <h1 id="exercise-intelligence-title">{inspectedExercise.name}</h1>
           <p className="exercise-intelligence-meta"><GradeStamp grade={inspectedExercise.muscleGrade} compact /><span>{inspectedExercise.movement}</span>{inspectedExercise.category && <span>{inspectedExercise.category}</span>}</p>
           {/* The movement, photographed at its start and finish, before the model of it. */}
-          <ExercisePhotos exerciseId={inspectedExercise.id} exerciseName={inspectedExercise.name} />
+          <ExerciseMedia exerciseId={inspectedExercise.id} exerciseName={inspectedExercise.name} equipment={inspectedExercise.equipment} variant="detail" />
           {/* Compare, as a quiet line rather than a second big button: the first
               choice waits here; the second opens the comparison. */}
           <button type="button" className="exercise-intelligence-compare" onClick={() => compareWith(inspectedExercise)}>{comparePending && comparePending.id !== inspectedExercise.id ? `Compare with ${comparePending.name}` : comparePending?.id === inspectedExercise.id ? "Comparing this · open another exercise" : "Compare with another exercise"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>

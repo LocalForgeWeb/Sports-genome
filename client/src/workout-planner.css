@@ -1185,3 +1185,16 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 /* Sep 28 regression brief §8: the empty day's one primary action, and Import as a quiet text
    link under it, not a second filled button. */
 .day-plan-empty button.day-plan-link { min-height: 2.75rem; border: 0; background: none; padding: 0 .1rem; color: var(--sg-link-on-dark); }
+
+/* -- October 1: photographs in the workout ---------------------------------
+   The queue row's thumbnail sits between the index and the name at the dense
+   size; the live card's photographs wait behind one line, so a set is never
+   logged by scrolling past a frame. */
+.device-workout-tracker .session-exercise > div:first-child .exercise-media-thumb { --exercise-media-thumb-width: 4.5rem; }
+.device-workout-tracker .session-prestart-row .exercise-media-thumb { --exercise-media-thumb-width: 4.5rem; align-self: center; }
+.live-set-media { margin-top: .6rem; border-top: 1px solid rgb(176 214 247 / .15); }
+.live-set-media > summary { display: flex; min-height: 44px; align-items: center; gap: .4rem; cursor: pointer; list-style: none; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
+.live-set-media > summary::-webkit-details-marker { display: none; }
+.live-set-media > summary > svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.live-set-media[open] > summary > svg { transform: rotate(90deg); }
+.live-set-media > .exercise-media { padding-bottom: .5rem; }

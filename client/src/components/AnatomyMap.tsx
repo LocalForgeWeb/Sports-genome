@@ -8,7 +8,7 @@ import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
 
-type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; /** A selection made elsewhere in the app, which the figure should show. */ selectedKey?: string | null; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; /** Where the roles come from: a sporting action (Body Lab) or a training day's exercises (the Training Day analysis), which has no confidence labels and says "prime mover", not "primary role". */ roleSource?: "action" | "training-day"; showInspector?: boolean; /** What to do with the selection - the owner's exercise search - drawn after the muscle rows. */ nextStep?: ReactNode };
+type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; /** A selection made elsewhere in the app, which the figure should show. */ selectedKey?: string | null; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; /** Where the roles come from: a sporting action (Body Lab) or a training day's exercises (the Training Day analysis), which has no confidence labels and says "prime mover", not "primary role". */ roleSource?: "action" | "training-day"; showInspector?: boolean; /** What to do with the selection - the owner's exercise search - drawn after the muscle rows. */ nextStep?: ReactNode; /** What the roles are the demands of ("Hand fighting"), restated over the rows so it survives a scroll past the selector. */ subjectLabel?: string; /** Opens the catalog scoped to the selected muscle: a deliberate second action inside the muscle's detail, never the page's primary one. */ onBrowseMuscle?: (muscle: string) => void };
 type Role = "Primary" | "Synergist" | "Stabilizer";
 
 /** The word a row carries for its role. "Synergist" is the model's term; the athlete reads "Supporting". */
@@ -60,7 +60,7 @@ const labels: Record<string, string> = {
 
 const viewLabel = (view: "front" | "back") => (view === "front" ? "anterior" : "posterior");
 
-export function AnatomyMap({ primary, secondary, onSelect, selectedKey: externalKey, muscleScores, roleDetails, roleMethodology, roleSource = "action", showInspector = true, nextStep }: AnatomyMapProps) {
+export function AnatomyMap({ primary, secondary, onSelect, selectedKey: externalKey, muscleScores, roleDetails, roleMethodology, roleSource = "action", showInspector = true, nextStep, subjectLabel, onBrowseMuscle }: AnatomyMapProps) {
   const trainingDay = roleSource === "training-day";
   const [selectedKey, setSelectedKey] = useState(externalKey ?? "");
   /**
@@ -290,6 +290,9 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
               <button type="button" aria-pressed={!selectedPart} onClick={() => { setSelectedPart(""); setSelectedId(""); }}>Whole muscle</button>
               {selectedParts.map((entry) => <button key={entry.part} type="button" aria-pressed={selectedPart === entry.part} onClick={() => setSelectedPart(entry.part)}>{entry.label}</button>)}
             </div>}
+            {/* The muscle's own exercise search lives with the muscle, as a second, explicit
+                action; the page's primary action stays the sport action's. */}
+            {onBrowseMuscle && <button type="button" className="atlas-selected-browse" onClick={() => onBrowseMuscle(selectedKey)}>Browse {selectedLabel.toLowerCase()} exercises <ChevronRight className="h-4 w-4" aria-hidden="true" /></button>}
           </div>}
 
           {/* Qualitative role legend: one entry per state the figure paints, so
@@ -362,6 +365,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
               <p className="atlas-inspector-boundary atlas-inspector-boundary-final">Colour shows a qualitative role in this action, not measured activation, force, or anything about your own capacity.</p>
 
               {roleMethodology && <details className="atlas-full-analysis"><summary>View methodology <ChevronDown className="h-4 w-4" /></summary><div><p>{roleMethodology}</p></div></details>}
+              {onBrowseMuscle && <button type="button" className="atlas-selected-browse atlas-desktop-only" onClick={() => onBrowseMuscle(selectedKey)}>Browse {selectedLabel.toLowerCase()} exercises <ChevronRight className="h-4 w-4" aria-hidden="true" /></button>}
             </div></details>
           ) : (
             <p className="atlas-inspector-empty-pro">Tap a muscle to see its role here.</p>
@@ -372,7 +376,7 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
             not three headed groups - the tag says the group. The selected row
             is the figure's selection; picking either moves both. */}
         <section className="atlas-ranking" aria-label="Key muscle roles">
-          <div className="atlas-ranking-head"><h2>{ranked.length} {ranked.length === 1 ? "muscle" : "muscles"} involved</h2><span>{([[trainingDay ? "prime movers" : "primary", roleCounts.primary], ["stabilizing", roleCounts.stabilizing], ["supporting", roleCounts.supporting]] as const).filter(([, n]) => n > 0).map(([word, n]) => `${n} ${word}`).join(" · ")}</span></div>
+          <div className="atlas-ranking-head">{subjectLabel && <p className="metric-label atlas-ranking-subject">Muscle demands · {subjectLabel}</p>}<h2>{ranked.length} {ranked.length === 1 ? "muscle" : "muscles"} involved</h2><span>{([[trainingDay ? "prime movers" : "primary", roleCounts.primary], ["stabilizing", roleCounts.stabilizing], ["supporting", roleCounts.supporting]] as const).filter(([, n]) => n > 0).map(([word, n]) => `${n} ${word}`).join(" · ")}</span></div>
           <ol className="atlas-role-rows">
             {visibleRanked.map((region) => <li key={region.key}><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}>{/* The figure's own role colours, read from the same tokens it paints with. They were three
                 literals, one of them the State rank's gold and one Prospect's slate. */}<i className="atlas-rank-dot" style={{ background: roleFill[region.role] }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong>{rowNote(region) && <small>{rowNote(region)}</small>}</span><em className={`atlas-role-tag atlas-role-tag-${region.role.toLowerCase()}`}>{trainingDay && region.role === "Primary" ? "Prime mover" : roleWord[region.role]}</em><ChevronRight className="h-4 w-4" /></button></li>)}
@@ -382,7 +386,9 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                 without hitting a 12px shape. */}
             {showAllRanked && filteredUninvolved.map((region) => <li key={region.key} className="atlas-role-row-unrecorded"><button type="button" onClick={() => pickRow(region.key)} className={`atlas-role-row ${selectedKey === region.key ? "is-selected" : ""}`} aria-pressed={selectedKey === region.key}><i className="atlas-rank-dot" style={{ background: "#c2ccd9" }} /><span className="atlas-role-row-copy"><strong>{region.label}</strong></span><em className="atlas-role-tag atlas-role-tag-unrecorded">No role recorded</em><ChevronRight className="h-4 w-4" /></button></li>)}
           </ol>
-          {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `View all ${filteredRanked.length + filteredUninvolved.length} mapped muscles`} <ChevronRight className="h-4 w-4" aria-hidden="true" /></button>}
+          {/* Two counts, two grains: "13 muscles involved" is the action's record; the figure
+              draws 26 regions, the other 13 with no role recorded. The toggle says both. */}
+          {(showAllRanked || hiddenRankedCount > 0) && <button type="button" className="atlas-ranking-toggle" aria-expanded={showAllRanked} onClick={() => setShowAllRanked(value => !value)}>{showAllRanked ? "Show fewer" : `View all ${filteredRanked.length + filteredUninvolved.length} muscles on the map${filteredUninvolved.length ? ` · ${filteredUninvolved.length} with no role recorded` : ""}`} <ChevronRight className="h-4 w-4" aria-hidden="true" /></button>}
         </section>
         <div className="atlas-foot">
           {nextStep}

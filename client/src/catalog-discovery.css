@@ -51,25 +51,50 @@
 .catalog-discovery-tabs button[aria-selected="true"] { border-bottom-color: var(--sg-action); color: #ff8a66; }
 .catalog-discovery-tabs button b { display: inline-grid; min-width: 1.3rem; height: 1.3rem; place-items: center; border-radius: 999px; background: rgb(164 200 232 / .18); color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 700; }
 
-/* The rows. Title, movement, muscles and View details open the exercise;
-   the heart and the plus are their own targets beside it. */
+/* The rows (October 1 brief §3). One row is three things in a fixed order:
+   the photograph with the name and its one-line identity beside it (one tap
+   target, opens the exercise), a short information area under them (muscles,
+   why it is listed, View details), and a predictable action column at the
+   right - the catalog's tag over the one add control. The heart sits in the
+   action column under the plus, quieter. The photograph is inset in the row's
+   own padding, never against the container edge, and the text column has the
+   majority of the width at phone size. */
 .catalog-discovery-list { display: grid; grid-template-columns: 1fr; }
-.catalog-discovery-card { display: flex; min-width: 0; align-items: stretch; border-bottom: 1px solid var(--sg-divider-on-dark); }
-.catalog-discovery-card-copy { display: grid; min-width: 0; flex: 1; grid-template-columns: minmax(0, 1fr) auto; gap: .75rem; padding: .9rem 0; text-align: left; transition: transform var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
-.catalog-discovery-identity { display: grid; min-width: 0; gap: .15rem; }
-.catalog-discovery-card-copy strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.2; }
+.catalog-discovery-card { display: grid; min-width: 0; gap: .35rem; border-bottom: 1px solid var(--sg-divider-on-dark); padding: .85rem 0; }
+.catalog-discovery-row { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) auto; column-gap: .6rem; align-items: start; }
+.catalog-discovery-card-copy { display: grid; min-width: 0; grid-template-columns: auto minmax(0, 1fr); column-gap: .8rem; align-items: start; text-align: left; transition: transform var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
+.catalog-discovery-identity { display: grid; min-width: 0; gap: .2rem; }
+.catalog-discovery-card-copy strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
 .catalog-discovery-card-copy:hover strong { color: var(--sg-focus-on-dark); }
-.catalog-discovery-card-copy small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
-.catalog-discovery-card-copy em { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-style: normal; }
-.catalog-discovery-details { display: inline-flex; align-items: center; gap: .25rem; margin-top: .2rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
-.catalog-discovery-tier { align-self: start; color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-weight: 800; line-height: 1; }
-.catalog-discovery-actions { display: grid; align-content: center; gap: .25rem; padding-left: .5rem; }
+.catalog-discovery-card-copy small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.catalog-discovery-card-copy em { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-style: normal; line-height: var(--sg-leading-snug); }
+.catalog-discovery-details { display: inline-flex; align-items: center; gap: .25rem; min-height: 1.75rem; margin-top: .1rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
+/* The tag over the add control, both in the one action column. */
+.catalog-discovery-tier { display: grid; justify-items: center; margin-bottom: .1rem; color: var(--sg-focus-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.35rem; font-weight: 800; line-height: 1; }
+.catalog-discovery-tier small { color: var(--sg-text-subtle-on-dark); font-family: var(--font-sans, inherit); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: 1.2; text-transform: uppercase; }
+.catalog-discovery-actions { display: grid; justify-items: center; align-content: start; gap: .15rem; }
 .catalog-discovery-actions button { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 999px; color: var(--sg-text-muted-on-dark); transition: background-color var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease), transform var(--sg-motion-fast) var(--sg-ease); }
-.catalog-discovery-actions button:last-child { border: 2px solid var(--sg-action); color: var(--sg-action); }
-.catalog-discovery-actions button:last-child:hover { background: var(--sg-action-fill); color: var(--sg-action-on); }
-.catalog-discovery-actions button:first-child:hover { color: var(--sg-text-on-dark); }
+/* One add control, sized to be sure under a thumb and no larger: 44px, outlined, never a filled block that outweighs the exercise. */
+.catalog-discovery-actions .catalog-discovery-add { order: -1; border: 1.5px solid var(--sg-action); color: var(--sg-action); }
+.catalog-discovery-actions .catalog-discovery-add:hover { background: var(--sg-action-fill); color: var(--sg-action-on); }
+.catalog-discovery-actions button:not(.catalog-discovery-add):hover { color: var(--sg-text-on-dark); }
 .catalog-discovery-actions button:active { transform: scale(.97); }
 .catalog-discovery-actions .catalog-favorite-on { color: #ff8a66; }
+.catalog-discovery-card[data-tier] .catalog-discovery-identity { gap: .25rem; }
+.catalog-discovery-tier-head { margin: .4rem 0 .35rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.catalog-discovery-card:not(:has(.catalog-discovery-tier-head)) .catalog-discovery-tier-head { display: none; }
+.catalog-match-reason { display: block; color: #c9d9ea; font-size: var(--sg-text-base); font-weight: 400; line-height: var(--sg-leading-snug); }
+.catalog-match-reason-named { color: #ffd1c4; }
+.catalog-match-reason-muscle { color: var(--sg-text-subtle-on-dark); }
+.catalog-discovery-scope-label { margin: 0; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.catalog-discovery-scope-line { margin: -.25rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.catalog-discovery-unmapped { display: grid; gap: .45rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; padding: .9rem 1rem; color: var(--sg-text-muted-on-dark); }
+.catalog-discovery-unmapped strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.catalog-discovery-unmapped p { margin: 0; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.catalog-discovery-unmapped > div { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .25rem; }
+.catalog-discovery-unmapped button { min-height: 44px; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
+.catalog-muscle-only-toggle { display: inline-flex; min-height: 48px; align-items: center; gap: .35rem; justify-self: start; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 600; text-align: left; }
+.catalog-muscle-only-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 .catalog-discovery-card-copy:active, .catalog-filter-reset:active, .catalog-serratus-filter:active, .catalog-discovery-empty button:active, .catalog-load-more:active { transform: scale(.97); }
 
 .catalog-discovery-empty { display: grid; justify-items: start; gap: .45rem; padding: 1.25rem 0; color: var(--sg-text-muted-on-dark); }
@@ -80,9 +105,21 @@
 .catalog-load-more { display: inline-flex; min-height: 48px; align-items: center; gap: .35rem; justify-self: start; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
 .catalog-load-more:hover { text-decoration: underline; }
 
-.catalog-action-link { display: inline-block; width: fit-content; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; margin-top: .3rem; border: 1px solid rgb(151 194 234 / .45); border-radius: 999px; padding: .2rem .5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-snug); text-transform: uppercase; white-space: nowrap; }
-.catalog-action-link-direct-support { border-color: #e56e4a; background: rgb(228 81 46 / .17); color: #ffc8b8; }
-.catalog-action-link-supporting-link { border-color: #d4ad4d; background: rgb(242 193 77 / .12); color: #f9dd90; }
+/* The link to the selected action, as a sentence that wraps: a short label in the link's
+   colour, then what the relationship actually is. It was a bare uppercase pill that
+   truncated to "SUPPORTING LINK · SHARE…" at phone width. */
+.catalog-action-link { display: block; margin-top: .15rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 400; line-height: var(--sg-leading-snug); }
+.catalog-action-link > span { font-weight: 700; }
+.catalog-action-link-direct-support > span { color: #ffc8b8; }
+.catalog-action-link-supporting-link > span { color: #f9dd90; }
+
+/* Under 360px the name keeps its width: the actions drop below the identity, in a
+   row, and the photograph narrows to 72px (exercise-media.css). */
+@media (max-width: 359px) {
+  .catalog-discovery-row { grid-template-columns: minmax(0, 1fr); row-gap: .25rem; }
+  .catalog-discovery-actions { grid-auto-flow: column; justify-content: start; align-items: center; gap: .5rem; padding-left: 5.3rem; }
+  .catalog-discovery-tier { margin: 0 .25rem 0 0; }
+}
 
 @media (max-width: 640px) {
   .catalog-discovery-search span { display: none; }
@@ -93,8 +130,10 @@
 }
 
 @supports selector(:has(*)) { .catalog-mode-active > section:has(.catalog-card) { display: none; } }
-/* A row, not a card: no elevation at rest or on hover. */
-.catalog-discovery-card, .catalog-discovery-card:hover { box-shadow: none; }
+/* A row, not a card: no elevation at rest or on hover. The row button's own class
+   matches the shell's "-card" elevation rule too, which drew a lit box around the text
+   inside every row; one surface, hairline dividers. */
+.catalog-discovery-card, .catalog-discovery-card:hover, .catalog-discovery-card-copy, .catalog-discovery-card-copy:hover { box-shadow: none; border-radius: 0; background: transparent; }
 
 /* Recently viewed: one quiet row of names, only while nothing is being searched (brief 11A). */
 .catalog-recent { display: grid; gap: .45rem; margin: .9rem 0 .2rem; }

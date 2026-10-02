@@ -167,7 +167,7 @@ describe("Home week strip and primary action", () => {
     expect(figure?.getAttribute("aria-label")).toMatch(/^Planned workout focus, front view: .*not a strength rank, recovery readiness or measured activation\.$/);
     expect(figure?.getAttribute("data-encoding")).toBeNull();
     expect(document.querySelector(".today-action-focus .anatomy-hit-layer")).toBeNull();
-    expect(screen.getByText("Planned focus")).toBeTruthy();
+    expect(screen.getByText("Primary muscles")).toBeTruthy();
     expect(document.querySelector(".today-action-focus-line")?.textContent).toBe("Workout focus Lats · Biceps");
   });
 

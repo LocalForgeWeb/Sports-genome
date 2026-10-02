@@ -97,6 +97,13 @@ export type AnatomyFigureProps = {
   interactive?: boolean;
   caption?: string;
   /**
+   * The compact rendering, for a figure drawn at thumbnail size (Home's workout focus):
+   * the source's fine linework is dropped and each muscle region keeps a light edge of
+   * its own, so the regions and their semantic keys are unchanged but the figure reads
+   * as shape and colour rather than as a tangle of hairlines.
+   */
+  compact?: boolean;
+  /**
    * A crop of a single view, in the figure's own viewBox units: Home's workout focus shows the
    * upper or lower body when that is where the work is, rather than a whole body at thumbnail
    * size. The content is clipped to it.
@@ -104,7 +111,7 @@ export type AnatomyFigureProps = {
   frame?: { x: number; y: number; width: number; height: number };
 };
 
-export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption, frame }: AnatomyFigureProps) {
+export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption, frame, compact = false }: AnatomyFigureProps) {
   const uid = useId();
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
@@ -191,6 +198,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
       data-encoding={rankEncoding ? "rank" : undefined}
       viewBox={frame && view !== "both" ? `${frame.x} ${frame.y} ${frame.width} ${frame.height}` : `0 0 ${canvasWidth} ${height}`}
       data-frame={frame && view !== "both" ? "" : undefined}
+      data-compact={compact ? "" : undefined}
       role={interactive ? "group" : "img"}
       aria-label={interactive ? `${viewName} muscle map. ${composed.length} selectable regions.` : caption ?? `${viewName} muscle map`}
       onPointerLeave={() => setHover("")}

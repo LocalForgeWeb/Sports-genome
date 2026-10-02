@@ -120,7 +120,8 @@ export function analyzeWorkoutForMovement(movement: EnrichedSportMovement, worko
 
 export type MovementAssistance = { exercise: Exercise; rationale: string; source: "Movement record" | "Catalog match" };
 
-const nameMatches = (exercise: Exercise, phrase: string) => {
+/** Whether a catalog exercise is the one a movement record names ("cable row" → Seated Cable Row). */
+export const nameMatches = (exercise: Exercise, phrase: string) => {
   const words = phrase.toLowerCase().split(/[^a-z]+/).filter((word) => word.length >= logicCalibration.movementProgramAnalysis.minimumMatchWordLength);
   const name = exercise.name.toLowerCase();
   const matched = words.filter((word) => name.includes(word));

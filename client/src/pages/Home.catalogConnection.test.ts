@@ -34,7 +34,8 @@ describe("canonical connected exercise catalog", () => {
     // is one fact about the whole grid. Repeating the action name on every card
     // made all 36 chips read "SUPPORTING LINK · PE..." - identical and truncated,
     // because the suffix never fit - so it is stated once in the header instead.
-    expect(catalogSource).toContain("{connection.label}</b>");
+    // October 1: the label stays, followed by what the relationship is, as text that wraps.
+    expect(catalogSource).toContain("<span>{connection.label}</span> · {connection.detail");
     expect(catalogSource).not.toContain("${selectedActionLabel}`");
     expect(catalogSource).toContain("Action links below are measured against");
 	    expect(catalogSource).toContain('connection && connection.label !== "Not mapped"');
@@ -42,9 +43,9 @@ describe("canonical connected exercise catalog", () => {
     expect(catalogStyles).toContain(".catalog-action-link-supporting-link");
 	    expect(catalogStyles).not.toContain(".catalog-action-link-not-mapped");
     expect(catalogStyles).toContain(".catalog-discovery-list { grid-template-columns: 1fr; }");
-    // inline-block plus overflow/text-overflow so the label truncates inside the
-    // pill; as inline-flex with only max-width it painted past the rounded border.
-    expect(catalogStyles).toContain(".catalog-action-link { display: inline-block; width: fit-content; max-width: 100%; overflow: hidden; text-overflow: ellipsis;");
+    // A sentence that wraps, not a pill that truncated to "SUPPORTING LINK · SHARE…" (October 1 brief §3).
+    expect(catalogStyles).toContain(".catalog-action-link { display: block;");
+    expect(catalogStyles).not.toContain("text-overflow: ellipsis");
   });
 
   it("keeps Movement Atlas labels readable after the Body Lab workspace applies its dark operational surface", () => {

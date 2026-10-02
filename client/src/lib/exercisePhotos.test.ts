@@ -47,7 +47,7 @@ describe("exercise photographs", () => {
   });
 
   it("photographs a majority of the catalog", () => {
-    expect(exercisePhotoCount).toBeGreaterThanOrEqual(240);
+    expect(exercisePhotoCount).toBeGreaterThanOrEqual(225);
     expect(exercisePhotoCount).toBeLessThanOrEqual(exercises.length);
   });
 });

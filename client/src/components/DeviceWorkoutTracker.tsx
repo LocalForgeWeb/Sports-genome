@@ -3,6 +3,8 @@ import { ArrowRight, Check, ChevronRight, Play, Save, Settings, SkipForward, Sli
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { WarmupPanel } from "@/components/WarmupPanel";
+import { ExerciseMedia } from "@/components/ExerciseMedia";
+import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession,
   deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
@@ -516,6 +518,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     });
   };
 
+  /** The catalog entry behind a session exercise, by the name the session stores. */
+  const catalogByName = useMemo(() => new Map(exerciseCatalog.map((exercise) => [exercise.name, exercise])), []);
   /** Explicit drill-down. Opening it does not move the active set, so the athlete keeps their place while checking or correcting earlier work. */
   const queue = useMemo(() => !activeSession ? null : (
       <details className="live-session-queue">
@@ -524,9 +528,14 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           <small>every exercise and set{drafts ? ` · ${drafts} typed, not logged` : ""}</small>
           <ChevronRight className="h-4 w-4" aria-hidden />
         </summary>
-        <div className="session-exercise-list">{activeSession.exercises.map((exercise, exerciseIndex) => { const queueFields = entryFieldsFor(exercise.exerciseName); const exerciseSkipped = isExerciseSkipped(exercise); return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""}`}>
-          <div>
+        <div className="session-exercise-list">{activeSession.exercises.map((exercise, exerciseIndex) => { const queueFields = entryFieldsFor(exercise.exerciseName); const exerciseSkipped = isExerciseSkipped(exercise); const catalogEntry = catalogByName.get(exercise.exerciseName); return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""}`}>
+          <div className="exercise-media-dense">
             <span>{String(exerciseIndex + 1).padStart(2, "0")}</span>
+            {/* The photograph confirms which exercise and variant this is; the catalog
+                entry is found by the session's own exercise name, the key every
+                surface matches on, and a name the catalog no longer has gets the
+                placeholder frame rather than a guess. */}
+            <ExerciseMedia exerciseId={catalogEntry?.id ?? -1} exerciseName={exercise.exerciseName} equipment={catalogEntry?.equipment} variant="thumb" />
             <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : exercise.plannedPrescription}</small></div>
             <button type="button" className="session-exercise-skip" onClick={() => toggleExerciseSkip(exerciseIndex)} aria-pressed={exerciseSkipped}>
               {exerciseSkipped ? <Undo2 className="h-3.5 w-3.5" /> : <SkipForward className="h-3.5 w-3.5" />}
@@ -551,7 +560,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           </div>)}</div>
         </article>; })}</div>
       </details>
-  ), [activeSession]);
+  ), [activeSession, catalogByName]);
 
   if (!activeSession) {
     const plannedSets = workout.reduce((total, exercise, index) => total + renderableSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)), 0);
@@ -616,6 +625,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           {workout.map((exercise, index) => {
             const row = <>
               <span className="session-prestart-index">{String(index + 1).padStart(2, "0")}</span>
+              <ExerciseMedia exerciseId={exercise.id} exerciseName={exercise.name} equipment={exercise.equipment} variant="thumb" />
               <span className="session-prestart-name">
                 <strong>{exercise.name}</strong>
                 <small>{prescriptions[exercise.id] || getGoalPrescription(goal, index)}</small>
@@ -718,6 +728,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       {carried && <p className="live-set-last">
         {carried.source === "session" ? "Last set" : "Last logged"}: {activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}
       </p>}
+      {/* The photographs of the current exercise, collapsed: a reference to open between sets,
+          never a frame the athlete must scroll past to log one. The set fields keep their values
+          either way; this is a disclosure, not a route. */}
+      {(() => { const catalogEntry = catalogByName.get(activeExercise.exerciseName); return catalogEntry && exercisePhotoSet(catalogEntry.id) ? <details className="live-set-media">
+        <summary>Show {activeExercise.exerciseName} photos <ChevronRight className="h-4 w-4" aria-hidden /></summary>
+        <ExerciseMedia exerciseId={catalogEntry.id} exerciseName={catalogEntry.name} equipment={catalogEntry.equipment} variant="detail" />
+      </details> : null; })()}
       <div className="live-set-entry" data-fields={activeEntryFields.length + 1}>
         {/* A value carried from the last set is an offer until the athlete touches
             the field: it is marked so it never passes for something already typed. */}
