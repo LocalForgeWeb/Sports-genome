@@ -3,6 +3,7 @@ import React from "react";
 import { Check, ChevronDown, Copy, Info, Minus, Plus, Undo2, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { muscleLabels } from "@/components/AnatomyMap";
+import { ExerciseMedia } from "@/components/ExerciseMedia";
 import type { ExerciseSettings } from "@/lib/workoutPlanner";
 import type { ExerciseProgress } from "@/lib/liveSession";
 import {
@@ -123,8 +124,11 @@ export function ExercisePrescriptionRow({ exercise, index, prescription, setting
     : null;
 
   return <details className={`custom-prescription ${settings.completed ? "custom-prescription-complete" : ""}${live ? ` custom-prescription-live-${live.tone}` : ""}`}>
-    <summary className="custom-row">
+    <summary className="custom-row exercise-media-dense">
       <span className="custom-row-index">{String(index + 1).padStart(2, "0")}</span>
+      {/* The photograph identifies the exercise at a glance; the prescription and the
+          reorder controls keep their width and their place (October 1 brief §4). */}
+      <ExerciseMedia exerciseId={exercise.id} exerciseName={exercise.name} equipment={exercise.equipment} variant="thumb" />
       <span className="custom-row-identity">
         <strong>{exercise.name}{live && <b className={`custom-row-live custom-row-live-${live.tone}`}>{live.text}</b>}</strong>
         <em>{summaryLine}</em>

@@ -141,6 +141,16 @@
   stroke-opacity: 0.45;
 }
 
+/* The compact variant (Home's workout focus, ~120px wide). At that size the
+   source's linework collapsed into a near-black tangle and the figure read as a
+   sticker. The linework goes; every muscle region keeps a light hairline edge of
+   its own, so region boundaries - and the keys behind them - are exactly the
+   large map's, drawn as shape and colour. Non-scaling, so the edge is one
+   screen pixel whatever the crop. */
+.anatomy-figure[data-compact] .anatomy-linework { display: none; }
+.anatomy-figure[data-compact] .anatomy-muscle > path { stroke: var(--anatomy-compact-edge, var(--anatomy-line)); stroke-width: .9; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.anatomy-figure[data-compact] .anatomy-shell, .anatomy-figure[data-compact] .anatomy-structural { stroke: var(--anatomy-compact-edge, var(--anatomy-line)); stroke-width: .6; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
 @media (prefers-reduced-motion: reduce) {
   .anatomy-muscle > path { transition: none; }
 }

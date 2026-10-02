@@ -55,7 +55,7 @@ import { loadBodyWeightLog, recordBodyWeight, saveBodyWeightLog, seedBodyWeightL
 import { useAthleteSync } from "@/lib/useAthleteSync";
 const ProgressOverviewPanel = lazy(() => import("@/components/ProgressOverviewPanel").then((module) => ({ default: module.ProgressOverviewPanel })));
 import { TodayActionPanel } from "@/components/TodayActionPanel";
-import { ExercisePhotos } from "@/components/ExercisePhotos";
+import { ExerciseMedia } from "@/components/ExerciseMedia";
 import { EquipmentConstraintStrip } from "@/components/EquipmentConstraintStrip";
 import { ModifierEvidenceDisclosure } from "@/components/ModifierEvidenceDisclosure";
 import { SportEvidencePanel } from "@/components/SportEvidencePanel";
@@ -2054,7 +2054,7 @@ export default function Home() {
             <PrintableWorkoutSheet workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} sport={selectedSport.label} dayLabel={activeDayLabel} />
           </div>
         </section>}
-        {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} nextStep={<>
+        {workspace === "body" && <section className="body-lab-v2 space-y-5"><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><BodyLabNavigator sports={sportProfiles} activeSportId={browseSportId} movements={referenceMovements} selectedMovement={referenceMovement} onSport={(id) => setSportBrowse(browseSport(id, activeSportId))} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); setActiveMuscle(null); }} onOpenAtlas={() => navigateWorkspace("movement")} /><AnatomyMap primary={referenceRoleContext.primary} secondary={referenceRoleContext.supporting} roleDetails={referenceRoleContext.rolesByMuscle} roleMethodology={referenceRoleContext.methodology} selectedKey={activeMuscle} onSelect={setActiveMuscle} subjectLabel={movementDisplayLabel(referenceMovement.label)} onBrowseMuscle={activeMuscleBrowsable ? (muscle) => openDiscovery({ mode: "muscle", muscleId: muscle }) : undefined} nextStep={<>
           {/* Two ways on, and each says which it is. The movement's own: the exercises
               that support the action on the map, whatever muscle is picked. And, only
               once the athlete has picked one, that muscle's exercises. There was one
@@ -2125,7 +2125,7 @@ export default function Home() {
           <p className="exercise-intelligence-meta"><span className="exercise-intelligence-tier"><span aria-hidden="true">Catalog tier</span><GradeStamp grade={inspectedExercise.muscleGrade} label="Catalog tier" compact /></span><span>{inspectedExercise.movement}</span>{inspectedExercise.category && <span>{inspectedExercise.category}</span>}</p>
           <p className="exercise-intelligence-tier-note">Catalog tier {inspectedExercise.muscleGrade} is a general label from the exercise catalog, not how closely this exercise matches a movement.</p>
           {/* The movement, photographed at its start and finish, before the model of it. */}
-          <ExercisePhotos exerciseId={inspectedExercise.id} exerciseName={inspectedExercise.name} />
+          <ExerciseMedia exerciseId={inspectedExercise.id} exerciseName={inspectedExercise.name} equipment={inspectedExercise.equipment} variant="detail" />
           {/* Compare, as a quiet line rather than a second big button: the first
               choice waits here; the second opens the comparison. */}
           <button type="button" className="exercise-intelligence-compare" onClick={() => compareWith(inspectedExercise)}>{comparePending && comparePending.id !== inspectedExercise.id ? `Compare with ${comparePending.name}` : comparePending?.id === inspectedExercise.id ? "Comparing this · open another exercise" : "Compare with another exercise"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>

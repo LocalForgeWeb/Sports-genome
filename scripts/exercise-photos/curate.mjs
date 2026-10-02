@@ -17,10 +17,22 @@ const curated = {
   387: 'Kettlebell Dead Clean', 388: 'One-Arm Kettlebell Snatch', 390: 'Kettlebell Turkish Get-Up (Lunge style)', 392: 'Lateral Bound', 399: 'Battling Ropes', 400: 'Battling Ropes',
 };
 const byAppName = { 'Pec Deck Fly': 'Butterfly', 'Dumbbell Fly': 'Dumbbell Flyes', 'Reverse Pec Deck': 'Reverse Machine Flyes', 'Pendlay Row': 'Bent Over Barbell Row', 'Chest-Supported Dumbbell Row': 'Dumbbell Incline Row', 'Seal Row': 'Incline Bench Pull', 'Machine Low Row': 'Leverage Iso Row', 'Ring Row': 'Suspended Row', 'Rope Face Pull with External Rotation': 'Face Pull', 'Back Squat': 'Barbell Squat', 'High-Bar Back Squat': 'Barbell Full Squat', 'Forward Lunge': 'Dumbbell Lunges', 'Stiff-Leg Deadlift': 'Stiff-Legged Barbell Deadlift', 'Hip Abduction Machine': 'Thigh Abductor', 'Stability-Ball Hamstring Curl': 'Ball Leg Curl', 'Single-Leg Hip Thrust': 'Single Leg Glute Bridge', 'Captain’s-Chair Leg Raise': 'Knee/Hip Raise On Parallel Bars', 'Farmer’s Carry': "Farmer's Walk", "Farmer's Carry": "Farmer's Walk" };
+// Plausible but incorrect variations (October 1 brief §2): the source photographs the
+// two-arm, unloaded, standing or floor version of these, and a photo of a different setup
+// teaches the wrong exercise. They show the placeholder frame instead.
+const rejected = {
+  9: 'alternating dumbbell press: the photo is the two-arm press', 17: 'single-arm cable chest press: the photo is two-arm', 34: 'explosive depth push-up starts on boxes; the photo is a floor plyo push-up',
+  35: 'deficit push-up uses handles; the photo is a floor push-up', 37: 'weighted push-up carries a plate; the photo does not', 55: 'wide-grip cable row uses a wide bar; the photo is the V-handle row',
+  71: 'weighted chin-up: no belt in the photo', 76: 'feet-elevated inverted row: feet on the floor in the photo', 93: 'single-arm rear-delt fly: the photo is two-arm',
+  114: 'leaning lateral raise: the photo is upright', 209: 'single-leg hip thrust is on a bench, loaded; the photo is a floor bridge', 248: 'weighted plank carries a plate; the photo does not',
+  281: 'kneeling chest pass: the photo is standing', 361: 'quadruped hip extension: the photo is a standing kickback', 362: 'donkey kick is quadruped; the photo is a standing kickback',
+  378: 'horizontal chop: the photo is a diagonal wood chop', 399: 'battle rope slams: the photo is alternating waves',
+};
 const normName = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[()\-\/,.:]/g, ' ').replace(/\s+/g, ' ').trim();
 const byNorm = new Map(db.map((e) => [normName(e.name), e]));
-const out = {}; const how = { curated: 0, exact: 0, none: 0 }; const missing = [];
+const out = {}; const how = { curated: 0, exact: 0, rejected: 0, none: 0 }; const missing = [];
 for (const ex of app) {
+  if (rejected[ex.id]) { how.rejected++; continue; }
   const name = curated[ex.id] ?? byAppName[ex.name]; let hit = null;
   if (name) { hit = byName.get(name); if (!hit) { missing.push(`${ex.id} ${ex.name} -> ${name}`); } else how.curated++; }
   else { hit = byNorm.get(normName(ex.name)) ?? null; if (hit) how.exact++; }

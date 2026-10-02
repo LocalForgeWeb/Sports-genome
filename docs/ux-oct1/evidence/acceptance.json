@@ -1,0 +1,967 @@
+[
+ {
+  "id": "M1 Hand fighting, no muscle selected: the CTA names the action and the rows say whose demands they are",
+  "pass": true,
+  "d": {
+   "bridge": "Bridge",
+   "hand": {
+    "action": "Hand fighting",
+    "subject": "Muscle demands · Hand fighting",
+    "ctaCopy": "Explore exercises that support this movement.",
+    "cta": "Find exercises for Hand fighting",
+    "involved": "13 muscles involved",
+    "toggle": "View all 26 muscles on the map · 13 with no role recorded"
+   }
+  }
+ },
+ {
+  "id": "M2 inspecting pectoralis major leaves the primary CTA on Hand fighting and offers a separate muscle browse",
+  "pass": true,
+  "d": {
+   "action": "Hand fighting",
+   "subject": "Muscle demands · Hand fighting",
+   "ctaCopy": "Explore exercises that support this movement.",
+   "cta": "Find exercises for Hand fighting",
+   "selected": "Pectoralis major",
+   "browse": "Browse pectoralis major exercises",
+   "involved": "13 muscles involved",
+   "toggle": "View all 26 muscles on the map · 13 with no role recorded"
+  }
+ },
+ {
+  "id": "M3 the CTA opens Hand fighting results with Wrestling as context: named tier first, reasons, no Bridge, no muscle chip",
+  "pass": true,
+  "d": {
+   "ws": "catalog",
+   "context": "Wrestling · Hand fighting",
+   "h1": "Exercises for Hand fighting",
+   "count": "25 movement matches",
+   "countDetail": "24 movement-specific · 1 related pattern",
+   "tiers": [
+    "Movement-specific",
+    "Related pattern"
+   ],
+   "first": [
+    {
+     "name": "Seated Cable Row",
+     "reason": "Named in the Hand fighting movement record: cable row",
+     "tier": "specific"
+    },
+    {
+     "name": "Wide-Grip Cable Row",
+     "reason": "Named in the Hand fighting movement record: cable row",
+     "tier": "specific"
+    },
+    {
+     "name": "Single-Arm Cable Row",
+     "reason": "Named in the Hand fighting movement record: cable row",
+     "tier": "specific"
+    }
+   ],
+   "chips": [],
+   "mentionsBridge": false,
+   "actionScope": null,
+   "showAll": true,
+   "muscleSupport": "Muscle support 64Not counted as matches",
+   "dest": "Adding to Week 1 · PushChange Day 01 · P",
+   "cards": 61
+  }
+ },
+ {
+  "id": "M3b the default set holds no bench press and does hold push-ups and rows",
+  "pass": true,
+  "d": {
+   "n": 25,
+   "bench": 0,
+   "pushups": 16,
+   "rows": 6
+  }
+ },
+ {
+  "id": "M6 open an exercise and return: Hand fighting scope and list position persist",
+  "pass": true,
+  "d": {
+   "detail": {
+    "open": true,
+    "name": "Low Cable Row",
+    "frames": 2
+   },
+   "y0": 900,
+   "y1": 900,
+   "h1": "Exercises for Hand fighting"
+  }
+ },
+ {
+  "id": "M7 adding a result from the Hand fighting results changes the chosen day only; Home's next workout is unchanged",
+  "pass": true,
+  "d": {
+   "stillHand": "Exercises for Hand fighting",
+   "added": "Added to Week 1 · PushSeated Cable Row is in that day now.UndoView workout",
+   "homeBefore": "Push",
+   "homeAfter": "Push"
+  }
+ },
+ {
+  "id": "M4 Browse pectoralis exercises enters muscle mode with a visible muscle heading",
+  "pass": true,
+  "d": {
+   "ws": "catalog",
+   "context": "Exercises that train Pectoralis major as a primary or supporting muscle, primary first.",
+   "h1": "Pectoralis major exercises",
+   "count": "97 Pectoralis major exercises",
+   "tiers": [],
+   "first": [
+    {
+     "name": "Barbell Bench Press",
+     "reason": "Trains Pectoralis major as a primary muscle"
+    },
+    {
+     "name": "Incline Barbell Bench Press",
+     "reason": "Trains Pectoralis major as a primary muscle"
+    },
+    {
+     "name": "Decline Barbell Bench Press",
+     "reason": "Trains Pectoralis major as a primary muscle"
+    }
+   ],
+   "chips": [],
+   "mentionsBridge": false,
+   "actionScope": null,
+   "showAll": true,
+   "muscleSupport": null,
+   "dest": "Adding to Week 1 · PushChange Day 01 · P",
+   "cards": 36
+  }
+ },
+ {
+  "id": "M5 visit Bridge, return to Hand fighting: no Bridge heading, reason or context remains",
+  "pass": true,
+  "d": {
+   "bridgeResults": "Exercises for Bridge",
+   "handAgain": {
+    "h1": "Exercises for Hand fighting",
+    "first": {
+     "name": "Seated Cable Row",
+     "reason": "Named in the Hand fighting movement record: cable row",
+     "tier": "specific"
+    }
+   }
+  }
+ },
+ {
+  "id": "M8 zero matches keeps the action and offers a way out",
+  "pass": true,
+  "d": {
+   "h1": "Exercises for Hand fighting",
+   "strong": "No Hand fighting matches with these filters.",
+   "buttons": [
+    "Clear filters"
+   ]
+  }
+ },
+ {
+  "id": "M9 All exercises is an explicit broader mode with its own count and context line",
+  "pass": true,
+  "d": {
+   "h1": "Exercise catalog",
+   "count": "400 exercises",
+   "actionScope": "Action links are measured against Hand fighting.Change action"
+  }
+ },
+ {
+  "id": "P1 catalog thumbnails: inset with the content gutter, 88x59, 10px radius, on-screen rows loaded (lazy attribute pinned in ExerciseMedia.test), text column has the majority of the width",
+  "pass": true,
+  "d": {
+   "odd": [],
+   "first": {
+    "name": "Barbell Bench Press",
+    "thumb": [
+     18,
+     88,
+     59
+    ],
+    "state": "photo",
+    "loaded": true,
+    "onScreen": true,
+    "textWidth": 207,
+    "radius": "10px"
+   },
+   "lazyOffscreen": 1,
+   "loadedN": 11
+  }
+ },
+ {
+  "id": "P2 bench variants carry distinct media",
+  "pass": true,
+  "d": {
+   "bench": "Barbell_Bench_Press_-_Medium_Grip/0.jpg",
+   "incline": "Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg",
+   "benchRow": {
+    "name": "Barbell Bench Press",
+    "thumb": [
+     18,
+     88,
+     59
+    ],
+    "state": "photo",
+    "loaded": true,
+    "onScreen": true,
+    "textWidth": 207,
+    "radius": "10px"
+   },
+   "inclineRow": {
+    "name": "Incline Barbell Bench Press",
+    "thumb": [
+     18,
+     88,
+     59
+    ],
+    "state": "photo",
+    "loaded": true,
+    "onScreen": true,
+    "textWidth": 207,
+    "radius": "10px"
+   }
+  }
+ },
+ {
+  "id": "P3 row actions: one add control and the heart at 44px with named targets; the row opens details (chevron); no grade on the row",
+  "pass": true,
+  "d": {
+   "sizes": [
+    [
+     44,
+     44,
+     "Save Barbell Bench Press to favorites"
+    ],
+    [
+     44,
+     44,
+     "Add Barbell Bench Press to Week 1, Push"
+    ]
+   ],
+   "tagOnRow": false,
+   "chevron": true,
+   "rowOpens": "Inspect Barbell Bench Press"
+  }
+ },
+ {
+  "id": "P4 favorite acts alone: no detail overlay opened",
+  "pass": true,
+  "d": {
+   "overlay": false,
+   "toast": "Saved to favoritesBarbell Bench Press is"
+  }
+ },
+ {
+  "id": "P5 media record per variant (reviewed by name below): cable flies, machines, single-arm",
+  "pass": true,
+  "d": {
+   "flies": {
+    "Cable Fly": "Cable_Crossover/0.jpg",
+    "Cable Incline Fly": "Incline_Cable_Flye/0.jpg",
+    "Cable Decline Fly": "placeholder",
+    "Cable Rear-Delt Fly": "Cable_Rear_Delt_Fly/0.jpg",
+    "Cable Reverse Fly Cross": "Cable_Rear_Delt_Fly/0.jpg",
+    "Single-Arm Cable Rear-Delt Fly": "placeholder"
+   },
+   "machines": {
+    "Machine Shrug": "Leverage_Shrug/0.jpg",
+    "Machine Crunch": "Ab_Crunch_Machine/0.jpg",
+    "Machine Low Row": "Leverage_Iso_Row/0.jpg",
+    "Machine High Row": "Leverage_High_Row/0.jpg",
+    "Machine Pullover": "placeholder"
+   },
+   "unilateral": {
+    "Single-Arm Cable Row": "Seated_One-arm_Cable_Pulley_Rows/0.jpg",
+    "Single-Arm Cable Fly": "Single-Arm_Cable_Crossover/0.jpg",
+    "Single-Arm Lat Pulldown": "One_Arm_Lat_Pulldown/0.jpg",
+    "Single-Arm Cable Pushdown": "Cable_One_Arm_Tricep_Extension/0.jpg",
+    "Single-Arm Cable Pressdown": "Cable_One_Arm_Tricep_Extension/0.jpg"
+   }
+  }
+ },
+ {
+  "id": "P6 detail shows start and finish at the photo's own shape with the credit and the technique boundary",
+  "pass": true,
+  "d": {
+   "name": "Barbell Bench Press",
+   "frames": [
+    {
+     "ok": true,
+     "alt": "Barbell Bench Press, start position",
+     "size": [
+      173,
+      116
+     ],
+     "ratio": "850 / 567"
+    },
+    {
+     "ok": true,
+     "alt": "Barbell Bench Press, finish position",
+     "size": [
+      173,
+      116
+     ],
+     "ratio": "850 / 567"
+    }
+   ],
+   "caption": "Photos: Free Exercise DB, public domain. The photographs identify the exercise; they are not a full technique demonstration."
+  }
+ },
+ {
+  "id": "P7 plan rows carry a 72px thumbnail; name and prescription keep their width",
+  "pass": true,
+  "d": [
+   {
+    "name": "Cable Standing Punch",
+    "thumb": [
+     72,
+     48
+    ],
+    "state": "placeholder",
+    "loaded": null,
+    "nameWidth": 209,
+    "summary": "4 × 3–5 · RPE 7 · 90 sec"
+   },
+   {
+    "name": "Cable Press-Out",
+    "thumb": [
+     72,
+     48
+    ],
+    "state": "placeholder",
+    "loaded": null,
+    "nameWidth": 209,
+    "summary": "4 × 3–5 · RPE 7 · 90 sec"
+   },
+   {
+    "name": "Half-Kneeling Cable Chest Press",
+    "thumb": [
+     72,
+     48
+    ],
+    "state": "placeholder",
+    "loaded": null,
+    "nameWidth": 209,
+    "summary": "3 × 6–8 · RPE 7 · 90 sec"
+   }
+  ]
+ },
+ {
+  "id": "P8 reorder controls still appear and work after photos",
+  "pass": true,
+  "d": {
+   "controls": 12,
+   "visible": true
+  }
+ },
+ {
+  "id": "P9 workout prestart rows carry the same thumbnail",
+  "pass": true,
+  "d": [
+   {
+    "name": "Cable Standing Punch",
+    "thumb": [
+     72,
+     48
+    ],
+    "state": "placeholder"
+   },
+   {
+    "name": "Cable Press-Out",
+    "thumb": [
+     72,
+     48
+    ],
+    "state": "placeholder"
+   },
+   {
+    "name": "Half-Kneeling Cable Chest Press",
+    "thumb": [
+     72,
+     48
+    ],
+    "state": "placeholder"
+   },
+   {
+    "name": "Barbell Overhead Press",
+    "thumb": [
+     72,
+     48
+    ],
+    "state": "photo"
+   }
+  ]
+ },
+ {
+  "id": "P10 live workout: media collapsed by default; opening and closing it keeps typed set values and the exercise",
+  "pass": true,
+  "d": {
+   "liveBefore": {
+    "name": "Barbell Overhead Press",
+    "media": true,
+    "open": false,
+    "values": [
+     "135",
+     "5"
+    ],
+    "firstFrameTop": null
+   },
+   "liveOpen": {
+    "open": true,
+    "frames": [
+     true,
+     true
+    ],
+    "values": [
+     "135",
+     "5"
+    ],
+    "logVisible": true
+   },
+   "liveClosed": {
+    "open": false,
+    "values": [
+     "135",
+     "5"
+    ],
+    "name": "Barbell Overhead Press"
+   }
+  }
+ },
+ {
+  "id": "P11 failed media: placeholder frames at the same size, no broken image icon, rows in place",
+  "pass": true,
+  "d": [
+   {
+    "state": "placeholder",
+    "img": false,
+    "icon": true,
+    "size": [
+     88,
+     59
+    ],
+    "nameTop": 382
+   },
+   {
+    "state": "placeholder",
+    "img": false,
+    "icon": true,
+    "size": [
+     88,
+     59
+    ],
+    "nameTop": 491
+   },
+   {
+    "state": "placeholder",
+    "img": false,
+    "icon": true,
+    "size": [
+     88,
+     59
+    ],
+    "nameTop": 600
+   }
+  ]
+ },
+ {
+  "id": "P12 slow media: text does not move when the photographs arrive",
+  "pass": true,
+  "d": {
+   "early": [
+    382,
+    491,
+    600,
+    709,
+    818,
+    927
+   ],
+   "late": {
+    "tops": [
+     382,
+     491,
+     600,
+     709,
+     818,
+     927
+    ],
+    "loaded": 6
+   }
+  }
+ },
+ {
+  "id": "H1 320px Home: figure in its column (120 wide, ≤176 tall), primary-only caption, CTA full width below, no overflow",
+  "pass": true,
+  "d": {
+   "home": {
+    "hero": "Push",
+    "position": "Week 1 · Day 01",
+    "cta": "Open next workout",
+    "focus": "Workout focus Chest · Shoulders · Triceps · +3 more",
+    "caption": "Primary muscles",
+    "figure": {
+     "w": 120,
+     "h": 176,
+     "view": "front",
+     "compact": true,
+     "linework": "none",
+     "painted": [
+      "chest",
+      "obliques",
+      "abs",
+      "sideDelts",
+      "frontDelts",
+      "traps"
+     ]
+    }
+   },
+   "layout": {
+    "copyW": 288,
+    "fig": [
+     16,
+     354,
+     120,
+     176
+    ],
+    "ctaW": 288,
+    "ctaBelowFig": true,
+    "lineBelowFig": false,
+    "strip": [
+     [
+      765,
+      122,
+      false
+     ],
+     [
+      765,
+      66,
+      false
+     ],
+     [
+      765,
+      72,
+      false
+     ],
+     [
+      815,
+      78,
+      false
+     ],
+     [
+      815,
+      126,
+      false
+     ]
+    ],
+    "overflowX": false
+   },
+   "planned": [
+    "PushNext, next up",
+    "Push",
+    "Pull, planned, not built yet",
+    "Pull",
+    "Legs, planned, not built yet",
+    "Legs",
+    "Upper, planned, not built yet",
+    "Upper",
+    "Sport Transfer, planned, not built yet",
+    "Sport Transfer"
+   ]
+  }
+ },
+ {
+  "id": "H1 375px Home: figure in its column (120 wide, ≤176 tall), primary-only caption, CTA full width below, no overflow",
+  "pass": true,
+  "d": {
+   "home": {
+    "hero": "Push",
+    "position": "Week 1 · Day 01",
+    "cta": "Open next workout",
+    "focus": "Workout focus Chest · Shoulders · Triceps · +3 more",
+    "caption": "Primary muscles",
+    "figure": {
+     "w": 120,
+     "h": 176,
+     "view": "front",
+     "compact": true,
+     "linework": "none",
+     "painted": [
+      "chest",
+      "obliques",
+      "abs",
+      "sideDelts",
+      "frontDelts",
+      "traps"
+     ]
+    }
+   },
+   "layout": {
+    "copyW": 205,
+    "fig": [
+     238,
+     160,
+     120,
+     176
+    ],
+    "ctaW": 341,
+    "ctaBelowFig": true,
+    "lineBelowFig": true,
+    "strip": [
+     [
+      571,
+      122,
+      false
+     ],
+     [
+      571,
+      66,
+      false
+     ],
+     [
+      571,
+      72,
+      false
+     ],
+     [
+      621,
+      78,
+      false
+     ],
+     [
+      621,
+      126,
+      false
+     ]
+    ],
+    "overflowX": false
+   },
+   "planned": [
+    "PushNext, next up",
+    "Push",
+    "Pull, planned, not built yet",
+    "Pull",
+    "Legs, planned, not built yet",
+    "Legs",
+    "Upper, planned, not built yet",
+    "Upper",
+    "Sport Transfer, planned, not built yet",
+    "Sport Transfer"
+   ]
+  }
+ },
+ {
+  "id": "H1 390px Home: figure in its column (120 wide, ≤176 tall), primary-only caption, CTA full width below, no overflow",
+  "pass": true,
+  "d": {
+   "home": {
+    "hero": "Push",
+    "position": "Week 1 · Day 01",
+    "cta": "Open next workout",
+    "focus": "Workout focus Chest · Shoulders · Triceps · +3 more",
+    "caption": "Primary muscles",
+    "figure": {
+     "w": 120,
+     "h": 176,
+     "view": "front",
+     "compact": true,
+     "linework": "none",
+     "painted": [
+      "chest",
+      "obliques",
+      "abs",
+      "sideDelts",
+      "frontDelts",
+      "traps"
+     ]
+    }
+   },
+   "layout": {
+    "copyW": 219,
+    "fig": [
+     252,
+     160,
+     120,
+     176
+    ],
+    "ctaW": 355,
+    "ctaBelowFig": true,
+    "lineBelowFig": true,
+    "strip": [
+     [
+      571,
+      122,
+      false
+     ],
+     [
+      571,
+      66,
+      false
+     ],
+     [
+      571,
+      72,
+      false
+     ],
+     [
+      621,
+      78,
+      false
+     ],
+     [
+      621,
+      126,
+      false
+     ]
+    ],
+    "overflowX": false
+   },
+   "planned": [
+    "PushNext, next up",
+    "Push",
+    "Pull, planned, not built yet",
+    "Pull",
+    "Legs, planned, not built yet",
+    "Legs",
+    "Upper, planned, not built yet",
+    "Upper",
+    "Sport Transfer, planned, not built yet",
+    "Sport Transfer"
+   ]
+  }
+ },
+ {
+  "id": "H2 390px: painted regions are the next workout's primary muscles (listed with the day's exercises below)",
+  "pass": true,
+  "d": {
+   "consistency": {
+    "focus": "Workout focus Chest · Shoulders · Triceps · +3 more",
+    "painted": [
+     "chest",
+     "obliques",
+     "abs",
+     "sideDelts",
+     "frontDelts",
+     "traps"
+    ],
+    "caption": "Planned workout focus, front view: Chest, Shoulders, Triceps, Abdominals, Obliques, Upper back. From the exercises' primary muscles; not a strength rank, recovery readiness or measured activation."
+   },
+   "nextDay": "Push",
+   "exercises": [
+    {
+     "name": "Cable Standing Punch",
+     "muscles": "Diagonal push · Pectoralis major, Triceps brachii"
+    },
+    {
+     "name": "Cable Press-Out",
+     "muscles": "Anti-rotation press · Rectus abdominis, External oblique"
+    },
+    {
+     "name": "Half-Kneeling Cable Chest Press",
+     "muscles": "Horizontal push · Pectoralis major"
+    },
+    {
+     "name": "Barbell Overhead Press",
+     "muscles": "Vertical push · Anterior deltoid, Lateral deltoid"
+    },
+    {
+     "name": "Scapular Wall Slide",
+     "muscles": "Scapular control · Serratus anterior, Trapezius"
+    },
+    {
+     "name": "Behind-the-Back Cable Lateral Raise",
+     "muscles": "Shoulder abduction · Lateral deltoid"
+    }
+   ]
+  }
+ },
+ {
+  "id": "H3 browsing another plan day and another sport action leaves Home's next workout and its figure unchanged",
+  "pass": true,
+  "d": {
+   "before": [
+    "Push",
+    "Workout focus Chest · Shoulders · Triceps · +3 more"
+   ],
+   "after": [
+    "Push",
+    "Workout focus Chest · Shoulders · Triceps · +3 more"
+   ]
+  }
+ },
+ {
+  "id": "H4 390px at 125% text: figure legible, CTA intact, no horizontal overflow",
+  "pass": true,
+  "d": {
+   "fig": [
+    150,
+    220
+   ],
+   "cta": 355,
+   "overflowX": false,
+   "h2": "Push"
+  }
+ },
+ {
+  "id": "H1 430px Home: figure in its column (120 wide, ≤176 tall), primary-only caption, CTA full width below, no overflow",
+  "pass": true,
+  "d": {
+   "home": {
+    "hero": "Push",
+    "position": "Week 1 · Day 01",
+    "cta": "Open next workout",
+    "focus": "Workout focus Chest · Shoulders · Triceps · +3 more",
+    "caption": "Primary muscles",
+    "figure": {
+     "w": 120,
+     "h": 176,
+     "view": "front",
+     "compact": true,
+     "linework": "none",
+     "painted": [
+      "chest",
+      "obliques",
+      "abs",
+      "sideDelts",
+      "frontDelts",
+      "traps"
+     ]
+    }
+   },
+   "layout": {
+    "copyW": 255,
+    "fig": [
+     291,
+     157,
+     120,
+     176
+    ],
+    "ctaW": 391,
+    "ctaBelowFig": true,
+    "lineBelowFig": true,
+    "strip": [
+     [
+      568,
+      122,
+      false
+     ],
+     [
+      568,
+      66,
+      false
+     ],
+     [
+      568,
+      72,
+      false
+     ],
+     [
+      568,
+      78,
+      false
+     ],
+     [
+      618,
+      126,
+      false
+     ]
+    ],
+    "overflowX": false
+   },
+   "planned": [
+    "PushNext, next up",
+    "Push",
+    "Pull, planned, not built yet",
+    "Pull",
+    "Legs, planned, not built yet",
+    "Legs",
+    "Upper, planned, not built yet",
+    "Upper",
+    "Sport Transfer, planned, not built yet",
+    "Sport Transfer"
+   ]
+  }
+ },
+ {
+  "id": "H5 no plan: no focus map, plan-building CTA",
+  "pass": true,
+  "d": {
+   "hero": "Build training around your goals",
+   "cta": "Build your first workout",
+   "figure": null
+  }
+ },
+ {
+  "id": "L1 scrolled catalog: the header stays at the top edge with a fixed status backdrop under the status area (env insets are 0 in this browser; structure checked)",
+  "pass": true,
+  "d": [
+   {
+    "y": 0,
+    "topbarTop": 0,
+    "topbarH": 68,
+    "switcherTop": 68,
+    "backdrop": false,
+    "backdropPos": "fixed",
+    "topElement": "header.apex-topbar"
+   },
+   {
+    "y": 400,
+    "topbarTop": -400,
+    "topbarH": 68,
+    "switcherTop": 0,
+    "backdrop": true,
+    "backdropPos": "fixed",
+    "topElement": "button."
+   },
+   {
+    "y": 1200,
+    "topbarTop": -1200,
+    "topbarH": 68,
+    "switcherTop": 0,
+    "backdrop": true,
+    "backdropPos": "fixed",
+    "topElement": "button."
+   },
+   {
+    "y": 3000,
+    "topbarTop": -3000,
+    "topbarH": 68,
+    "switcherTop": 0,
+    "backdrop": true,
+    "backdropPos": "fixed",
+    "topElement": "button."
+   }
+  ]
+ },
+ {
+  "id": "L2 no app element draws a narrow fixed handle at the left edge (the grey handle in the screenshots is not this app's)",
+  "pass": true,
+  "d": {
+   "edge": []
+  }
+ },
+ {
+  "id": "L3 the last row's add control and Browse more are reachable above the destination strip and the dock",
+  "pass": true,
+  "d": {
+   "lastAddReachable": true,
+   "addRect": [
+    583,
+    627
+   ],
+   "loadMoreReachable": true,
+   "dest": true
+  }
+ },
+ {
+  "id": "L4 320px catalog: actions move below, the name keeps the width, no overflow",
+  "pass": true,
+  "d": {
+   "nameW": 208,
+   "thumbW": 72,
+   "actionsBelow": true,
+   "overflowX": false
+  }
+ }
+]

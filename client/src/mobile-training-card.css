@@ -251,7 +251,7 @@
    The index is now a small secondary mark, the name has the width, each part of
    the prescription is an unbreakable group, and the arrows appear only while
    the list is in Reorder mode (`.day-plan-list.is-reordering`). */
-.custom-prescription > summary.custom-row { grid-template-columns: 1.5rem minmax(0, 1fr) auto; gap: .2rem .6rem; align-items: start; }
+.custom-prescription > summary.custom-row { grid-template-columns: 1.5rem auto minmax(0, 1fr) auto; gap: .2rem .6rem; align-items: start; }
 .day-plan-list:not(.is-reordering) .custom-prescription > summary.custom-row { padding-right: .9rem; }
 .custom-row-index { padding-top: .2rem; color: var(--sg-text-subtle-on-dark); font-family: inherit; font-size: var(--sg-text-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
 .custom-row-identity strong { font-size: var(--sg-text-md); line-height: var(--sg-leading-snug); }
@@ -259,7 +259,9 @@
 .day-plan-list:not(.is-reordering) .day-order-controls { display: none; }
 .day-plan-list.is-reordering .custom-row-state { visibility: hidden; }
 @media (max-width: 640px) {
-  .custom-prescription > summary.custom-row { grid-template-columns: 1.5rem minmax(0, 1fr); }
-  .custom-row-state { grid-column: 2; justify-self: start; min-height: 44px; margin-top: .1rem; }
+  .custom-prescription > summary.custom-row { grid-template-columns: 1.5rem auto minmax(0, 1fr); }
+  .custom-row-state { grid-column: 3; justify-self: start; min-height: 44px; margin-top: .1rem; }
   .custom-row-edit-label { display: inline; }
 }
+/* The plan row's photograph: the dense 72px frame, top-aligned with the name. */
+.custom-prescription > summary.custom-row .exercise-media-thumb { margin-top: .1rem; }

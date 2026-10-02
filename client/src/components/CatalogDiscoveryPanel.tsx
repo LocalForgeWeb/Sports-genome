@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Heart, Plus, Search, SlidersHorizontal, Target, X } from "lucide-react";
-import { ExercisePhotos } from "@/components/ExercisePhotos";
+import { ExerciseMedia } from "@/components/ExerciseMedia";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { catalogFilterOptions, catalogPageSize, defaultCatalogFilters, type CatalogFilters, filterCatalogByActionLink, filterCatalogExercises, muscleModeExercises, refineMovementSupport, spokenDestination } from "@/lib/catalogDiscovery";
 import { suggestExerciseNames } from "@/lib/exerciseSearch";
@@ -184,7 +184,7 @@ export function CatalogDiscoveryPanel({ exercises, filters, favoriteIds, onFilte
     const reasonId = `catalog-row-reason-${exercise.id}`;
     return <article key={exercise.id} className={`catalog-discovery-row${added ? " is-added" : ""}${added && addedHere.current.has(exercise.id) ? " is-added-now" : ""}`}>
       <button type="button" onClick={() => { emitInteractionFeedback(); onInspect(exercise); }} className="catalog-discovery-row-copy" aria-label={`Inspect ${exercise.name}`} aria-describedby={reason ? reasonId : undefined}>
-        <ExercisePhotos exerciseId={exercise.id} exerciseName={exercise.name} compact />
+        <ExerciseMedia exerciseId={exercise.id} exerciseName={exercise.name} equipment={exercise.equipment} variant="thumb" />
         <span className="catalog-discovery-identity">
           <strong>{exercise.name}</strong>
           {reason ? <span className="catalog-row-reason" id={reasonId}>{reason}</span> : null}

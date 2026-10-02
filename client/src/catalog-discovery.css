@@ -158,3 +158,18 @@
   .catalog-discovery-actions .catalog-favorite:hover { color: var(--sg-text-on-dark); }
   .catalog-recent-row button:hover { border-color: var(--sg-focus-on-dark); }
 }
+
+/* -- October 1: the photograph in the row ------------------------------------
+   The thumbnail (exercise-media.css) sits first in the row's button, top-aligned
+   with the name, inset with the content. On a phone the text column keeps the
+   majority of the width: the chevron that says "opens" is dropped under 420px
+   (the whole row is the target, named "Inspect …"), and under 360px the row's
+   button takes the full line so the actions wrap under the identity instead of
+   squeezing the name to a sliver. */
+.catalog-discovery-row-copy .exercise-media-thumb { margin-top: .1rem; }
+@media (max-width: 419px) { .catalog-row-chevron { display: none; } }
+@media (max-width: 359px) {
+  .catalog-discovery-row { flex-wrap: wrap; }
+  .catalog-discovery-row-copy { flex: 1 1 100%; padding-bottom: .25rem; }
+  .catalog-discovery-actions { grid-auto-flow: column; align-items: center; gap: .5rem; padding: 0 0 .5rem 5.1rem; }
+}

@@ -1,0 +1,830 @@
+{
+ "Ab_Crunch_Machine": {
+  "verdict": "in order",
+  "why": "frame 0 upright"
+ },
+ "Ab_Roller": {
+  "verdict": "in order",
+  "why": "frame 0 kneeling over the roller"
+ },
+ "Arnold_Dumbbell_Press": {
+  "verdict": "in order",
+  "why": "frame 0 dumbbells at the chest"
+ },
+ "Backward_Drag": {
+  "verdict": "in order",
+  "why": "both frames mid-drag"
+ },
+ "Backward_Medicine_Ball_Throw": {
+  "verdict": "in order",
+  "why": "frame 0 squat with the ball"
+ },
+ "Ball_Leg_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 legs extended"
+ },
+ "Band_Pull_Apart": {
+  "verdict": "in order",
+  "why": "frame 0 is the band in front at arm's length"
+ },
+ "Barbell_Ab_Rollout": {
+  "verdict": "reversed",
+  "why": "frame 0 is the piked top; the source starts in the push-up position"
+ },
+ "Barbell_Bench_Press_-_Medium_Grip": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended over the chest"
+ },
+ "Barbell_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 bar at the thighs"
+ },
+ "Barbell_Deadlift": {
+  "verdict": "in order",
+  "why": "frame 0 bar on the floor"
+ },
+ "Barbell_Full_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Barbell_Hip_Thrust": {
+  "verdict": "in order",
+  "why": "frame 0 hips down"
+ },
+ "Barbell_Incline_Bench_Press_-_Medium_Grip": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Barbell_Shrug": {
+  "verdict": "in order",
+  "why": "frame 0 shoulders down"
+ },
+ "Barbell_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Barbell_Walking_Lunge": {
+  "verdict": "in order",
+  "why": "frame 0 stepping in"
+ },
+ "Battling_Ropes": {
+  "verdict": "in order",
+  "why": "alternating"
+ },
+ "Bench_Dips": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Bent_Over_Barbell_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arms hanging"
+ },
+ "Butt_Lift_Bridge": {
+  "verdict": "in order",
+  "why": "frame 0 hips lower"
+ },
+ "Butterfly": {
+  "verdict": "reversed",
+  "why": "frame 0 is the handles together; the machine fly starts with the arms open"
+ },
+ "Cable_Chest_Press": {
+  "verdict": "in order",
+  "why": "frame 0 handles at the chest"
+ },
+ "Cable_Crossover": {
+  "verdict": "in order",
+  "why": "frame 0 arms open, where a cable fly starts"
+ },
+ "Cable_Crunch": {
+  "verdict": "in order",
+  "why": "frame 0 upright"
+ },
+ "Cable_Deadlifts": {
+  "verdict": "in order",
+  "why": "frame 0 squatted to the handles"
+ },
+ "Cable_Hammer_Curls_-_Rope_Attachment": {
+  "verdict": "in order",
+  "why": "frame 0 arms down"
+ },
+ "Cable_Hip_Adduction": {
+  "verdict": "in order",
+  "why": "frame 0 leg out"
+ },
+ "Cable_Internal_Rotation": {
+  "verdict": "in order",
+  "why": "frame 0 hand toward the pulley"
+ },
+ "Cable_One_Arm_Tricep_Extension": {
+  "verdict": "reversed",
+  "why": "frame 0 is the arm extended; the source starts with the elbow bent"
+ },
+ "Cable_Rear_Delt_Fly": {
+  "verdict": "in order",
+  "why": "frame 0 arms crossed in front"
+ },
+ "Cable_Rope_Overhead_Triceps_Extension": {
+  "verdict": "reversed",
+  "why": "frame 0 is the rope behind the head; the source starts with the arms extended overhead"
+ },
+ "Cable_Rope_Rear-Delt_Rows": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Cable_Shrugs": {
+  "verdict": "in order",
+  "why": "frame 0 shoulders down"
+ },
+ "Calf_Press_On_The_Leg_Press_Machine": {
+  "verdict": "in order",
+  "why": "frame 0 ankles neutral"
+ },
+ "Chin-Up": {
+  "verdict": "in order",
+  "why": "frame 0 hanging"
+ },
+ "Close-Grip_Barbell_Bench_Press": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bar on the chest; the press starts with the arms locked out"
+ },
+ "Close-Grip_Dumbbell_Press": {
+  "verdict": "in order",
+  "why": "frame 0 dumbbell held up"
+ },
+ "Concentration_Curls": {
+  "verdict": "in order",
+  "why": "frame 0 arm down"
+ },
+ "Cross_Body_Hammer_Curl": {
+  "verdict": "in order",
+  "why": "alternating arms, both frames mid-set"
+ },
+ "Dead_Bug": {
+  "verdict": "in order",
+  "why": "frame 0 both legs up"
+ },
+ "Decline_Barbell_Bench_Press": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bar lowered to the chest; the source starts with the arms locked out"
+ },
+ "Decline_Crunch": {
+  "verdict": "in order",
+  "why": "frame 0 lying back"
+ },
+ "Decline_Dumbbell_Bench_Press": {
+  "verdict": "reversed",
+  "why": "frame 0 is the dumbbells at the chest; the source starts them pressed up"
+ },
+ "Decline_Push-Up": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Depth_Jump_Leap": {
+  "verdict": "in order",
+  "why": "frame 0 on the box"
+ },
+ "Donkey_Calf_Raises": {
+  "verdict": "in order",
+  "why": "frame 0 heels down"
+ },
+ "Drag_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 bar at the thighs"
+ },
+ "Dumbbell_Alternate_Bicep_Curl": {
+  "verdict": "in order",
+  "why": "alternating arms, both frames mid-set"
+ },
+ "Dumbbell_Bench_Press": {
+  "verdict": "in order",
+  "why": "frame 0 dumbbells at the chest, where the source starts"
+ },
+ "Dumbbell_Bicep_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 arms down"
+ },
+ "Dumbbell_Floor_Press": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended, where the source starts"
+ },
+ "Dumbbell_Flyes": {
+  "verdict": "in order",
+  "why": "frame 0 dumbbells up"
+ },
+ "Dumbbell_Incline_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arms hanging"
+ },
+ "Dumbbell_Lunges": {
+  "verdict": "in order",
+  "why": "frame 0 stepping in"
+ },
+ "Dumbbell_One-Arm_Shoulder_Press": {
+  "verdict": "in order",
+  "why": "frame 0 at the shoulder"
+ },
+ "Dumbbell_One-Arm_Triceps_Extension": {
+  "verdict": "reversed",
+  "why": "frame 0 is the dumbbell behind the head; the source starts with the arm extended overhead"
+ },
+ "Dumbbell_Rear_Lunge": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Dumbbell_Shoulder_Press": {
+  "verdict": "in order",
+  "why": "frame 0 at the shoulders"
+ },
+ "Dumbbell_Shrug": {
+  "verdict": "in order",
+  "why": "frame 0 shoulders down"
+ },
+ "Dumbbell_Step_Ups": {
+  "verdict": "reversed",
+  "why": "frame 0 is standing on top of the bench; the step-up starts from the floor"
+ },
+ "External_Rotation_with_Cable": {
+  "verdict": "in order",
+  "why": "frame 0 hand across the torso"
+ },
+ "EZ-Bar_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 bar down"
+ },
+ "EZ-Bar_Skullcrusher": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Face_Pull": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Farmers_Walk": {
+  "verdict": "in order",
+  "why": "frame 0 picking up"
+ },
+ "Freehand_Jump_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 squat before the jump"
+ },
+ "Front_Barbell_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Front_Box_Jump": {
+  "verdict": "in order",
+  "why": "frame 0 crouch"
+ },
+ "Front_Cable_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 arm down"
+ },
+ "Front_Dumbbell_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 arms down"
+ },
+ "Front_Plate_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 plate down"
+ },
+ "Glute_Ham_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 is the bottom, where the source starts"
+ },
+ "Goblet_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Good_Morning": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Hack_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 legs straight"
+ },
+ "Hammer_Curls": {
+  "verdict": "in order",
+  "why": "frame 0 arms down"
+ },
+ "Handstand_Push-Ups": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Hanging_Leg_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 hanging, legs down"
+ },
+ "Hanging_Pike": {
+  "verdict": "in order",
+  "why": "frame 0 hanging, where the source starts"
+ },
+ "High_Cable_Curls": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended to the pulleys"
+ },
+ "Hyperextensions_Back_Extensions": {
+  "verdict": "in order",
+  "why": "frame 0 body straight, where the source starts"
+ },
+ "Incline_Bench_Pull": {
+  "verdict": "in order",
+  "why": "frame 0 arms hanging"
+ },
+ "Incline_Cable_Chest_Press": {
+  "verdict": "in order",
+  "why": "frame 0 handles at the chest"
+ },
+ "Incline_Cable_Flye": {
+  "verdict": "reversed",
+  "why": "frame 0 is the arms open; a bench fly starts with the hands together above the chest, as the source says"
+ },
+ "Incline_Dumbbell_Curl": {
+  "verdict": "in order",
+  "why": "alternating; neither frame shows both arms hanging"
+ },
+ "Incline_Dumbbell_Flyes": {
+  "verdict": "in order",
+  "why": "frame 0 dumbbells together above the chest"
+ },
+ "Incline_Dumbbell_Press": {
+  "verdict": "in order",
+  "why": "frame 0 dumbbells at the shoulders, where the source starts"
+ },
+ "Incline_Push-Up": {
+  "verdict": "reversed",
+  "why": "frame 0 is the chest at the box; the source starts with the arms straight"
+ },
+ "Inverted_Row": {
+  "verdict": "in order",
+  "why": "frame 0 hanging, arms extended"
+ },
+ "Jackknife_Sit-Up": {
+  "verdict": "in order",
+  "why": "frame 0 lying flat"
+ },
+ "JM_Press": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Kettlebell_Dead_Clean": {
+  "verdict": "in order",
+  "why": "frame 0 hinged over the bell"
+ },
+ "Kettlebell_One-Legged_Deadlift": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Kettlebell_Pistol_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Kettlebell_Turkish_Get-Up_Lunge_style": {
+  "verdict": "in order",
+  "why": "frame 0 lying with the bell pressed"
+ },
+ "Knee_Hip_Raise_On_Parallel_Bars": {
+  "verdict": "in order",
+  "why": "frame 0 legs hanging"
+ },
+ "Kneeling_High_Pulley_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Landmine_180s": {
+  "verdict": "in order",
+  "why": "side to side"
+ },
+ "Landmine_Linear_Jammer": {
+  "verdict": "in order",
+  "why": "frame 0 bar at the shoulders in the dip"
+ },
+ "Lateral_Bound": {
+  "verdict": "reversed",
+  "why": "frame 0 is the wide push-off; the source starts in a half squat, which is frame 1"
+ },
+ "Leg_Extensions": {
+  "verdict": "in order",
+  "why": "frame 0 knees bent"
+ },
+ "Leg_Press": {
+  "verdict": "in order",
+  "why": "frame 0 legs extended, where the source starts"
+ },
+ "Leverage_Chest_Press": {
+  "verdict": "in order",
+  "why": "frame 0 handles at the chest"
+ },
+ "Leverage_High_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Leverage_Incline_Chest_Press": {
+  "verdict": "in order",
+  "why": "frame 0 handles at the chest"
+ },
+ "Leverage_Iso_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Leverage_Shrug": {
+  "verdict": "in order",
+  "why": "the two frames are indistinguishable at this size"
+ },
+ "Low_Cable_Crossover": {
+  "verdict": "in order",
+  "why": "frame 0 hands low at the sides, where the source starts"
+ },
+ "Lying_Dumbbell_Tricep_Extension": {
+  "verdict": "reversed",
+  "why": "frame 0 is the dumbbells lowered by the ears; the source starts with the arms extended"
+ },
+ "Lying_Leg_Curls": {
+  "verdict": "in order",
+  "why": "frame 0 legs straight"
+ },
+ "Lying_Rear_Delt_Raise": {
+  "verdict": "reversed",
+  "why": "frame 0 is the arms raised; the raise starts with the arms hanging"
+ },
+ "Lying_T-Bar_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Machine_Preacher_Curls": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Machine_Shoulder_Military_Press": {
+  "verdict": "in order",
+  "why": "frame 0 handles at the shoulders"
+ },
+ "Machine_Triceps_Extension": {
+  "verdict": "in order",
+  "why": "frame 0 forearms folded toward the face, the more bent of the two"
+ },
+ "Medicine_Ball_Chest_Pass": {
+  "verdict": "in order",
+  "why": "frame 0 ball at the chest"
+ },
+ "Medicine_Ball_Scoop_Throw": {
+  "verdict": "in order",
+  "why": "frame 0 semisquat with the ball"
+ },
+ "Monster_Walk": {
+  "verdict": "in order",
+  "why": "both frames mid-walk"
+ },
+ "Natural_Glute_Ham_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 upright, where the source starts"
+ },
+ "One_Arm_Dumbbell_Bench_Press": {
+  "verdict": "reversed",
+  "why": "frame 0 is the dumbbell at the chest; the source starts it pressed up"
+ },
+ "One_Arm_Lat_Pulldown": {
+  "verdict": "in order",
+  "why": "frame 0 arm extended"
+ },
+ "One-Arm_Dumbbell_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arm hanging"
+ },
+ "One-Arm_Incline_Lateral_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 arm across the body"
+ },
+ "One-Arm_Kettlebell_Snatch": {
+  "verdict": "reversed",
+  "why": "frame 0 is standing with the bell hanging; the source starts hinged over the bell"
+ },
+ "One-Arm_Kettlebell_Swings": {
+  "verdict": "reversed",
+  "why": "frame 0 is the top of the swing; a swing starts hiking the bell from the hinge"
+ },
+ "One-Legged_Cable_Kickback": {
+  "verdict": "in order",
+  "why": "frame 0 leg down"
+ },
+ "Overhead_Slam": {
+  "verdict": "in order",
+  "why": "frame 0 ball raised before the slam"
+ },
+ "Pallof_Press": {
+  "verdict": "in order",
+  "why": "frame 0 handle at the chest"
+ },
+ "Palms-Down_Wrist_Curl_Over_A_Bench": {
+  "verdict": "in order",
+  "why": "frame 0 wrists down"
+ },
+ "Palms-Up_Barbell_Wrist_Curl_Over_A_Bench": {
+  "verdict": "in order",
+  "why": "frame 0 wrists down"
+ },
+ "Parallel_Bar_Dip": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bottom of the dip; the source starts with the arms locked out"
+ },
+ "Plank": {
+  "verdict": "in order",
+  "why": "frame 0 setting up, frame 1 the hold"
+ },
+ "Plate_Pinch": {
+  "verdict": "in order",
+  "why": "frame 0 picking up the plates"
+ },
+ "Plyo_Push-up": {
+  "verdict": "reversed",
+  "why": "frame 0 is the chest lowered; the source starts with the arms extended"
+ },
+ "Preacher_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended on the pad, where a curl starts (the source text starts it curled)"
+ },
+ "Prowler_Sprint": {
+  "verdict": "in order",
+  "why": "both frames mid-push"
+ },
+ "Pull_Through": {
+  "verdict": "in order",
+  "why": "frame 0 is the reach through the legs, where the source starts the hip extension"
+ },
+ "Pullups": {
+  "verdict": "in order",
+  "why": "frame 0 hanging"
+ },
+ "Push_Press": {
+  "verdict": "in order",
+  "why": "frame 0 standing with the bar at the shoulders, before the dip"
+ },
+ "Push-Up_Wide": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Push-Ups_-_Close_Triceps_Position": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Reverse_Barbell_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 bar at the thighs"
+ },
+ "Reverse_Crunch": {
+  "verdict": "in order",
+  "why": "frame 0 thighs vertical, where the source starts"
+ },
+ "Reverse_Grip_Bent-Over_Rows": {
+  "verdict": "in order",
+  "why": "frames nearly identical"
+ },
+ "Reverse_Grip_Triceps_Pushdown": {
+  "verdict": "in order",
+  "why": "frame 0 is the bar at the chest, elbows bent, where a pushdown starts"
+ },
+ "Reverse_Hyperextension": {
+  "verdict": "in order",
+  "why": "frame 0 legs hanging"
+ },
+ "Reverse_Machine_Flyes": {
+  "verdict": "in order",
+  "why": "frame 0 hands together in front"
+ },
+ "Ring_Dips": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bottom of the dip; the source starts with the arms locked out"
+ },
+ "Romanian_Deadlift": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bottom of the hinge; a Romanian deadlift starts standing (the source text starts it bent over)"
+ },
+ "Rope_Climb": {
+  "verdict": "in order",
+  "why": "both frames mid-climb"
+ },
+ "Scapular_Pull-Up": {
+  "verdict": "in order",
+  "why": "frame 0 hanging"
+ },
+ "Seated_Barbell_Military_Press": {
+  "verdict": "in order",
+  "why": "frame 0 is the bar at the shoulders, where an overhead press starts (the source text starts it locked out)"
+ },
+ "Seated_Bent-Over_Rear_Delt_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 arms hanging"
+ },
+ "Seated_Cable_Rows": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Seated_Calf_Raise": {
+  "verdict": "in order",
+  "why": "frames differ only slightly; no clear reversal"
+ },
+ "Seated_Dumbbell_Press": {
+  "verdict": "reversed",
+  "why": "frame 0 is the dumbbells locked out overhead; the press starts at the shoulders"
+ },
+ "Seated_Good_Mornings": {
+  "verdict": "in order",
+  "why": "frame 0 upright"
+ },
+ "Seated_Leg_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 legs extended"
+ },
+ "Seated_One-arm_Cable_Pulley_Rows": {
+  "verdict": "in order",
+  "why": "frame 0 arm extended"
+ },
+ "Side_Bridge": {
+  "verdict": "in order",
+  "why": "frame 0 on the floor before lifting"
+ },
+ "Side_Lateral_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 arms down"
+ },
+ "Single_Leg_Glute_Bridge": {
+  "verdict": "in order",
+  "why": "frame 0 hips down"
+ },
+ "Single-Arm_Cable_Crossover": {
+  "verdict": "in order",
+  "why": "frame 0 arm open to the side, where a cable fly starts"
+ },
+ "Single-Arm_Linear_Jammer": {
+  "verdict": "in order",
+  "why": "frame 0 bar at the shoulder"
+ },
+ "Single-Leg_Leg_Extension": {
+  "verdict": "in order",
+  "why": "frame 0 knee bent"
+ },
+ "Sled_Push": {
+  "verdict": "in order",
+  "why": "both frames mid-push"
+ },
+ "Smith_Machine_Bench_Press": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bar on the chest; the source starts with the arms extended"
+ },
+ "Smith_Machine_Calf_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 heels down"
+ },
+ "Smith_Machine_Hip_Raise": {
+  "verdict": "in order",
+  "why": "frames nearly identical"
+ },
+ "Smith_Machine_Incline_Bench_Press": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bar on the chest; the source starts with the arms extended"
+ },
+ "Smith_Machine_Overhead_Shoulder_Press": {
+  "verdict": "in order",
+  "why": "frame 0 is the bar at the shoulders, where an overhead press starts (the source text starts it locked out)"
+ },
+ "Smith_Machine_Squat": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bottom of the squat; the squat starts standing"
+ },
+ "Spider_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 arms hanging"
+ },
+ "Split_Jump": {
+  "verdict": "in order",
+  "why": "frame 0 lunge stance, where the source starts"
+ },
+ "Split_Squats": {
+  "verdict": "in order",
+  "why": "both frames are split stances"
+ },
+ "Standing_Biceps_Cable_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 arms down"
+ },
+ "Standing_Cable_Chest_Press": {
+  "verdict": "in order",
+  "why": "frame 0 elbows back, where the source starts"
+ },
+ "Standing_Cable_Wood_Chop": {
+  "verdict": "in order",
+  "why": "frame 0 arms up to the high pulley"
+ },
+ "Standing_Calf_Raises": {
+  "verdict": "in order",
+  "why": "frame 0 heels down"
+ },
+ "Standing_Dumbbell_Triceps_Extension": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended overhead"
+ },
+ "Standing_Leg_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 leg straight"
+ },
+ "Standing_Long_Jump": {
+  "verdict": "in order",
+  "why": "frame 0 crouch before the jump"
+ },
+ "Standing_Low-Pulley_Deltoid_Raise": {
+  "verdict": "reversed",
+  "why": "frame 0 is the arm raised to shoulder height; the raise starts with the arm down across the body (the case reported on Cable Lateral Raise)"
+ },
+ "Standing_Military_Press": {
+  "verdict": "in order",
+  "why": "frame 0 is the bar at the collarbone, where an overhead press starts (the source text starts it locked out)"
+ },
+ "Standing_Two-Arm_Overhead_Throw": {
+  "verdict": "in order",
+  "why": "frame 0 holding the ball before reaching back; frame 1 is the wind-up"
+ },
+ "Stiff-Legged_Barbell_Deadlift": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bottom of the hinge; the source starts standing"
+ },
+ "Stiff-Legged_Dumbbell_Deadlift": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Straight-Arm_Dumbbell_Pullover": {
+  "verdict": "in order",
+  "why": "frame 0 arms over the chest"
+ },
+ "Straight-Arm_Pulldown": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended in front"
+ },
+ "Suspended_Push-Up": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bottom of the push-up; the source starts with the arms extended"
+ },
+ "Suspended_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "T-Bar_Row_with_Handle": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Thigh_Abductor": {
+  "verdict": "in order",
+  "why": "frame 0 legs together"
+ },
+ "Thigh_Adductor": {
+  "verdict": "in order",
+  "why": "frame 0 legs apart"
+ },
+ "Triceps_Pushdown": {
+  "verdict": "in order",
+  "why": "frame 0 bar at the chest, elbows bent"
+ },
+ "Triceps_Pushdown_-_Rope_Attachment": {
+  "verdict": "in order",
+  "why": "frame 0 rope at the chest, elbows bent"
+ },
+ "Underhand_Cable_Pulldowns": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Upright_Cable_Row": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bar at the chin; the row starts with the bar at the thighs"
+ },
+ "V-Bar_Pulldown": {
+  "verdict": "reversed",
+  "why": "frame 0 is the bar pulled to the chest; the pulldown starts with the arms extended"
+ },
+ "Weighted_Pull_Ups": {
+  "verdict": "in order",
+  "why": "frame 0 hanging"
+ },
+ "Weighted_Sissy_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Wide-Grip_Lat_Pulldown": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended"
+ },
+ "Wide-Grip_Rear_Pull-Up": {
+  "verdict": "in order",
+  "why": "frame 0 hanging"
+ },
+ "Wrist_Roller": {
+  "verdict": "in order",
+  "why": "both frames mid-roll"
+ },
+ "Zercher_Squats": {
+  "verdict": "in order",
+  "why": "frame 0 standing"
+ },
+ "Zottman_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 arms down"
+ }
+}

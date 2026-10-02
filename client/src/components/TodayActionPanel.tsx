@@ -237,8 +237,9 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
             {/* The schematic is planned involvement - the exercises' primary muscles -
                 drawn in the action colour so it cannot be read as a Strength rank. */}
             {focusFigure && <figure className="today-action-focus">
-              <AnatomyFigure view={focusFigure.side} frame={focusFrames[focusFigure.side][focusFigure.frame]} roles={focusFigure.roles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={focusCaption} />
-              <figcaption>Planned focus</figcaption>
+              <AnatomyFigure view={focusFigure.side} frame={focusFrames[focusFigure.side][focusFigure.frame]} roles={focusFigure.roles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={focusCaption} compact />
+              {/* Only primary muscles are painted, and the caption says so. */}
+              <figcaption>Primary muscles</figcaption>
             </figure>}
             <div className="today-action-actions">
               {/* The plan carries no dates, so this is the next planned workout, opened at its

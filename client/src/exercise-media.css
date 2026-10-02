@@ -1,0 +1,35 @@
+/* Exercise media, one treatment everywhere it appears.
+
+   The source photographs are landscape (3:2) with the model centred, so every
+   frame here is that shape: nothing is cropped away to fit a square, and a row's
+   thumbnail shows the whole movement. Frames share one radius, one restrained
+   dark ground and at most a hairline edge; the photograph itself is left natural,
+   never tinted to the palette. The box is sized before the image arrives, so a
+   late or failed photo moves nothing. */
+.exercise-media { --exercise-media-radius: 10px; display: block; margin: 0; }
+
+/* The thumbnail: 88 x 59 CSS pixels beside a name, 72 x 48 in dense lists, inset in the
+   row's own padding, never against the container edge. */
+/* The box is sized by the frame's own width and height, never by the image: an image that
+   arrives late, or never, cannot move the row by a pixel. The image is laid over the box. */
+.exercise-media-thumb { position: relative; display: grid; flex: 0 0 auto; width: var(--exercise-media-thumb-width, 5.5rem); height: calc(var(--exercise-media-thumb-width, 5.5rem) * 2 / 3); place-items: center; overflow: hidden; border: 1px solid rgb(164 200 232 / .16); border-radius: var(--exercise-media-radius); background: #0b1a30; align-self: start; }
+.exercise-media-thumb img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+/* A portrait or square frame is shown whole, not cut to a strip of torso. */
+.exercise-media-thumb[data-orientation="portrait"] img, .exercise-media-thumb[data-orientation="square"] img { object-fit: contain; }
+/* Two portrait frames side by side would be twice the height of the sheet; they share a row at half width. */
+.exercise-media-detail .exercise-media-frame[data-orientation="portrait"] { max-height: 22rem; justify-self: center; width: auto; }
+.exercise-media-thumb[data-state="placeholder"] { background: linear-gradient(160deg, #15294a, #0b1a30); }
+.exercise-media-icon { width: 1.4rem; height: 1.4rem; color: #6f8dae; }
+.exercise-media-thumb[data-state="placeholder"] .exercise-media-icon { width: 1.3rem; height: 1.3rem; }
+.exercise-media-dense .exercise-media-thumb, .exercise-media-thumb[data-size="dense"] { --exercise-media-thumb-width: 4.5rem; }
+
+/* The detail strip: start and finish side by side at the photograph's own shape. */
+.exercise-media-detail .exercise-media-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.exercise-media-detail[data-frames="1"] .exercise-media-strip, .exercise-media-detail[data-state="placeholder"] .exercise-media-strip { grid-template-columns: minmax(0, 22rem); }
+.exercise-media-frame { position: relative; display: grid; place-items: center; aspect-ratio: 3 / 2; overflow: hidden; border: 1px solid rgb(164 200 232 / .16); border-radius: var(--exercise-media-radius); background: #0b1a30; }
+.exercise-media-frame img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+.exercise-media-frame[data-state="placeholder"] .exercise-media-icon, .exercise-media-detail[data-state="placeholder"] .exercise-media-icon { width: 2rem; height: 2rem; }
+.exercise-media-frame small { position: absolute; left: .5rem; bottom: .5rem; border-radius: 999px; background: rgb(7 24 46 / .78); padding: .15rem .55rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.exercise-media-detail figcaption { margin-top: .4rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+
+@media (max-width: 359px) { .exercise-media-thumb { --exercise-media-thumb-width: 4.5rem; } }
