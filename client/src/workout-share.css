@@ -50,8 +50,3 @@
 .workout-share-actions button:disabled { cursor: progress; opacity: .7; }
 .workout-share-actions button:focus-visible, .workout-share-close:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 2px; }
 .workout-share-status { min-height: 1.2em; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
-
-/* The day's Share control, beside its other actions. */
-.day-plan-actions .day-action-share { display: inline-flex; min-height: 2.9rem; align-items: center; gap: .45rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.day-plan-actions .day-action-share:hover { border-color: rgb(164 200 232 / .55); background: rgb(255 255 255 / .1); }
-.day-plan-actions .day-action-share:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }

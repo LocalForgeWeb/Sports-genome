@@ -984,6 +984,11 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .day-plan-actions .day-action-add:focus-visible,
 .day-plan-actions .day-action-session:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .day-plan-actions .day-action-session:disabled { opacity: .45; }
+/* Share (Oct 2 brief §5): a secondary action beside Reorder, styled here rather than with the
+   share sheet, which loads only when it opens - before that the button rendered unstyled. */
+.day-plan-actions .day-action-share { display: inline-flex; min-height: 2.9rem; align-items: center; gap: .45rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); padding: 0 .95rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-plan-actions .day-action-share:hover { border-color: rgb(164 200 232 / .55); background: rgb(255 255 255 / .12); }
+.day-plan-actions .day-action-share:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 /* The print control ships its own light styling for the sheet it opens; on this
    row it is a text action like Import, not a white pill among dark chrome. */
 .day-plan-actions .print-workout-button { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; border: 0; background: transparent; padding: 0 .55rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; box-shadow: none; }

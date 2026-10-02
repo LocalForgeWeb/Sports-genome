@@ -46,6 +46,11 @@ describe("surfaces own their ink", () => {
     expect(read("components/WorkoutShareSheet.tsx")).toContain('className="workout-share-sheet sg-surface-dark"');
   });
 
+  it("styles the day's Share button where it always loads, not with the lazily loaded sheet", () => {
+    expect(read("workout-planner.css")).toContain(".day-plan-actions .day-action-share {");
+    expect(share).not.toContain(".day-action-share");
+  });
+
   it("never fades a modal's surface in: the share sheet slides, its text opaque from the first frame", () => {
     const keyframes = share.match(/@keyframes workout-share-in \{[^}]*\}[^}]*\}/)?.[0] ?? "";
     expect(keyframes).toContain("translateY");
