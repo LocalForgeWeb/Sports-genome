@@ -31,7 +31,7 @@
 | Parallel_Bar_Dip | Parallel-Bar Dip | bottom of the dip |
 | Plyo_Push-up | Plyometric Push-Up, Clap Push-Up | chest lowered |
 | Ring_Dips | Ring Dip | bottom of the dip |
-| Romanian_Deadlift | Romanian Deadlift (both entries) | bottom of the hinge |
+| Romanian_Deadlift | Romanian Deadlift (both entries), Barbell Hip Hinge (October 3) | bottom of the hinge |
 | Seated_Dumbbell_Press | Seated Dumbbell Shoulder Press | locked out overhead |
 | Smith_Machine_Bench_Press | Smith Machine Bench Press | bar on the chest |
 | Smith_Machine_Incline_Bench_Press | Smith Machine Incline Press | bar on the chest |

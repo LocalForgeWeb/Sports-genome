@@ -1340,8 +1340,8 @@
  {
   "id": 254,
   "name": "Landmine Push Press",
-  "result": "photographed",
-  "source": "Single-Arm_Linear_Jammer",
+  "result": "no photo",
+  "source": null,
   "curator": {
    "proposed": "Single-Arm_Linear_Jammer",
    "confidence": "medium",
@@ -1364,7 +1364,8 @@
     "verdict": "confirm",
     "reason": "I viewed both frames. The implement is a barbell anchored in a landmine base at floor level, with a plate on the free end, so it is a real landmine. The lift is one-arm: one hand holds the bar end at the shoulder by the face, and the free hand stays as a fist at the chest in both frames, which fits the app's unilateral tag. The stance is staggered and standing. In frame 0 the knees are softly bent, and the hips sit about 10px lower than in frame 1, so there is a small dip. In frame 1 the legs are straight, the body extends and leans in along the bar's line, and the arm is locked out up and forward along the landmine arc. The path is the landmine press arc, not a fly or a raise. The source's own instructions describe an explosive press driven by full hip and knee extension, and that is exactly a landmine push press. The single-arm landmine jammer and the landmine push press are the same exercise under two names. The dip is subtle in the stills, but the leg-drive start and the extended press finish are both visible, so someone copying these frames would do a single-arm landmine push press. The app's 'horizontal push / chest' label is only a coarse classification and does not conflict. No stance or load in the name is contradicted."
    }
-  ]
+  ],
+  "finalReview": "Withdrawn after both reviewers confirmed it: enlarged, the frames show almost no dip, so the pair is the strict single-arm press that Landmine Press and Single-Arm Standing Landmine Press already show, not a push press."
  },
  {
   "id": 255,

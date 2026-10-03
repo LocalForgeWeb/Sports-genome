@@ -76,7 +76,7 @@ describe("exercise photographs", () => {
   });
 
   it("photographs a majority of the catalog", () => {
-    expect(exercisePhotoCount).toBeGreaterThanOrEqual(254);
+    expect(exercisePhotoCount).toBeGreaterThanOrEqual(253);
     expect(exercisePhotoCount).toBeLessThanOrEqual(exercises.length);
   });
 
@@ -109,6 +109,8 @@ describe("exercise photographs", () => {
     // A landmine press is a standing press, not the squat-to-press the two-handle jammer shows.
     expect(sourceOf("Landmine Press")).toBe("Single-Arm_Linear_Jammer");
     expect(sourceOf("Landmine Thruster")).toBe("Landmine_Linear_Jammer");
+    // Its frames barely dip, so they are the strict press: not a push press.
+    expect(sourceOf("Landmine Push Press")).toBeNull();
     // Refused by the re-match's reviewers: tall boxes read as an incline, a two-foot landing for a
     // single-leg stick, sprinting strides for a march.
     for (const name of ["Deficit Push-Up", "Depth Drop to Stick", "Sled March"]) expect(sourceOf(name), name).toBeNull();

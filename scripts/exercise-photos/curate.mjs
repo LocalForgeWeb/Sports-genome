@@ -1,5 +1,5 @@
 // Curated photo matches: app exercise id -> Free Exercise DB name. Reviewed by hand; a
-// fuzzy candidate not listed here is dropped, an exact name match is kept.
+// fuzzy candidate not listed here is dropped, an exact name match is kept unless `rejected` lists it.
 import { readFileSync, writeFileSync } from 'node:fs';
 const app = JSON.parse(readFileSync('app-exercises.json', 'utf8'));
 const db = JSON.parse(readFileSync('free-exercise-db.json', 'utf8')).filter((e) => e.images?.length);
@@ -19,14 +19,16 @@ const curated = {
   // frames, confirmed by two independent reviewers (set-up and movement), then checked again by eye.
   // Decisions for all 171, including the ones left without a photo: docs/exercise-photo-rematch/.
   13: 'Leverage Chest Press', 25: 'Svend Press', 26: 'Pushups', 39: 'Isometric Wipers', 66: 'Pullups', 86: 'Middle Back Shrug', 97: 'Dumbbell Lying Rear Lateral Raise',
-  178: 'Elevated Back Lunge', 204: 'Romanian Deadlift', 232: 'Hanging Leg Raise', 254: 'Single-Arm Linear Jammer', 255: 'Landmine Linear Jammer', 256: 'Bent Over One-Arm Long Bar Row',
+  178: 'Elevated Back Lunge', 204: 'Romanian Deadlift', 232: 'Hanging Leg Raise', 255: 'Landmine Linear Jammer', 256: 'Bent Over One-Arm Long Bar Row',
   258: 'T-Bar Row with Handle', 268: 'Landmine Linear Jammer', 283: 'Supine Two-Arm Overhead Throw', 295: 'Single Leg Push-off', 310: 'Pallof Press', 313: 'Cable Crossover',
   326: 'Kneeling High Pulley Row', 329: 'Shotgun Row', 377: 'Standing Cable Lift', 385: "Landmine 180's", 395: 'Linear Depth Jump',
 };
 const byAppName = { 'Pec Deck Fly': 'Butterfly', 'Dumbbell Fly': 'Dumbbell Flyes', 'Reverse Pec Deck': 'Reverse Machine Flyes', 'Pendlay Row': 'Bent Over Barbell Row', 'Chest-Supported Dumbbell Row': 'Dumbbell Incline Row', 'Seal Row': 'Incline Bench Pull', 'Machine Low Row': 'Leverage Iso Row', 'Ring Row': 'Suspended Row', 'Rope Face Pull with External Rotation': 'Face Pull', 'Back Squat': 'Barbell Squat', 'High-Bar Back Squat': 'Barbell Full Squat', 'Forward Lunge': 'Dumbbell Lunges', 'Stiff-Leg Deadlift': 'Stiff-Legged Barbell Deadlift', 'Hip Abduction Machine': 'Thigh Abductor', 'Stability-Ball Hamstring Curl': 'Ball Leg Curl', 'Single-Leg Hip Thrust': 'Single Leg Glute Bridge', 'Captain’s-Chair Leg Raise': 'Knee/Hip Raise On Parallel Bars', 'Farmer’s Carry': "Farmer's Walk", "Farmer's Carry": "Farmer's Walk" };
 // Plausible but incorrect variations (October 1 brief §2): the source photographs the
 // two-arm, unloaded, standing or floor version of these, and a photo of a different setup
-// teaches the wrong exercise. They show the placeholder frame instead.
+// teaches the wrong exercise. They show the placeholder frame instead. This table is checked
+// first, so it overrides `curated`, `byAppName` and an exact name match. 231 and 254 were added
+// on October 3: a bent-knee photo for a straight-leg raise, and a strict press for a push press.
 const rejected = {
   9: 'alternating dumbbell press: the photo is the two-arm press', 17: 'single-arm cable chest press: the photo is two-arm', 34: 'explosive depth push-up starts on boxes; the photo is a floor plyo push-up',
   35: 'deficit push-up uses handles; the photo is a floor push-up', 37: 'weighted push-up carries a plate; the photo does not', 55: 'wide-grip cable row uses a wide bar; the photo is the V-handle row',
@@ -34,6 +36,7 @@ const rejected = {
   114: 'leaning lateral raise: the photo is upright', 209: 'single-leg hip thrust is on a bench, loaded; the photo is a floor bridge', 248: 'weighted plank carries a plate; the photo does not',
   361: 'quadruped hip extension: the photo is a standing kickback', 362: 'donkey kick is quadruped; the photo is a standing kickback',
   378: 'horizontal chop: the photo is a diagonal wood chop', 399: 'battle rope slams: the photo is alternating waves',
+  254: 'landmine push press drives from a dip; the single-arm jammer photo is the strict press it shows for Landmine Press',
   231: 'hanging leg raise keeps the legs straight; the source photographs it with the knees bent, which is the Hanging Knee Raise (232) it now illustrates',
 };
 const normName = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[()\-\/,.:]/g, ' ').replace(/\s+/g, ' ').trim();
