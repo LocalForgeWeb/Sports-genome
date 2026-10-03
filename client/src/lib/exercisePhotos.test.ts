@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import mapping from "@/data/exercisePhotos.json";
 import { exercises } from "./exerciseCatalog";
@@ -74,7 +76,50 @@ describe("exercise photographs", () => {
   });
 
   it("photographs a majority of the catalog", () => {
-    expect(exercisePhotoCount).toBeGreaterThanOrEqual(225);
+    expect(exercisePhotoCount).toBeGreaterThanOrEqual(254);
     expect(exercisePhotoCount).toBeLessThanOrEqual(exercises.length);
+  });
+
+  // October 3: every unphotographed exercise was searched for in the source again;
+  // docs/exercise-photo-rematch/ has the decision for each.
+  const sourceOf = (name: string) => {
+    const exercise = exercises.find((candidate) => candidate.name === name);
+    expect(exercise, name).toBeDefined();
+    return exercisePhotoSet(exercise!.id)?.source ?? null;
+  };
+
+  it("photographs the exercises the re-match found under another name", () => {
+    const found: [string, string][] = [
+      ["Standard Push-Up", "Pushups"],
+      ["Pull-Up", "Pullups"],
+      ["Landmine Row", "Bent_Over_One-Arm_Long_Bar_Row"],
+      ["Cable Press-Out", "Pallof_Press"],
+      ["Cable Reverse Chop", "Standing_Cable_Lift"],
+      ["Hanging Knee Raise", "Hanging_Leg_Raise"],
+      // Each replaces a photo rejected on October 1: one arm, not two; kneeling, not standing.
+      ["Single-Arm Cable Rear-Delt Fly", "Bent_Over_Low-Pulley_Side_Lateral"],
+      ["Kneeling Medicine-Ball Chest Pass", "Chest_Push_multiple_response"],
+    ];
+    for (const [name, source] of found) expect(sourceOf(name), name).toBe(source);
+  });
+
+  it("keeps a photo that shows another variation off the exercise", () => {
+    // The source's Hanging_Leg_Raise is photographed with the knees bent: it is the knee raise.
+    expect(sourceOf("Hanging Leg Raise")).toBeNull();
+    // A landmine press is a standing press, not the squat-to-press the two-handle jammer shows.
+    expect(sourceOf("Landmine Press")).toBe("Single-Arm_Linear_Jammer");
+    expect(sourceOf("Landmine Thruster")).toBe("Landmine_Linear_Jammer");
+    // Refused by the re-match's reviewers: tall boxes read as an incline, a two-foot landing for a
+    // single-leg stick, sprinting strides for a march.
+    for (const name of ["Deficit Push-Up", "Depth Drop to Stick", "Sled March"]) expect(sourceOf(name), name).toBeNull();
+  });
+
+  it("has a frame-order verdict for every source pair the catalog shows", () => {
+    const audit = JSON.parse(readFileSync(resolve(process.cwd(), "docs/exercise-photo-order/audit.json"), "utf8")) as Record<string, { verdict: string }>;
+    for (const [source, count] of Object.values(entries)) {
+      if (count < 2) continue;
+      expect(audit[source]?.verdict, source).toMatch(/^(in order|reversed)$/);
+      expect(audit[source].verdict === "reversed", source).toBe(Boolean(reversedPhotoSources[source]));
+    }
   });
 });

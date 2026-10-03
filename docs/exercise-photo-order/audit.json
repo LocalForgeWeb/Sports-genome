@@ -79,6 +79,14 @@
   "verdict": "in order",
   "why": "frame 0 arms hanging"
  },
+ "Bent_Over_Low-Pulley_Side_Lateral": {
+  "verdict": "in order",
+  "why": "frame 0 arm hanging across the body; frame 1 arm raised out to the side"
+ },
+ "Bent_Over_One-Arm_Long_Bar_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arm hanging with the bar end low; frame 1 bar end pulled to the torso"
+ },
  "Butt_Lift_Bridge": {
   "verdict": "in order",
   "why": "frame 0 hips lower"
@@ -138,6 +146,10 @@
  "Calf_Press_On_The_Leg_Press_Machine": {
   "verdict": "in order",
   "why": "frame 0 ankles neutral"
+ },
+ "Chest_Push_multiple_response": {
+  "verdict": "in order",
+  "why": "frame 0 tall-kneeling with the ball at the chest; frame 1 the release"
  },
  "Chin-Up": {
   "verdict": "in order",
@@ -219,6 +231,10 @@
   "verdict": "in order",
   "why": "frame 0 stepping in"
  },
+ "Dumbbell_Lying_Rear_Lateral_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 arms hanging below the bench; frame 1 arms out in a T"
+ },
  "Dumbbell_One-Arm_Shoulder_Press": {
   "verdict": "in order",
   "why": "frame 0 at the shoulder"
@@ -242,6 +258,10 @@
  "Dumbbell_Step_Ups": {
   "verdict": "reversed",
   "why": "frame 0 is standing on top of the bench; the step-up starts from the floor"
+ },
+ "Elevated_Back_Lunge": {
+  "verdict": "in order",
+  "why": "frame 0 standing on the plate; frame 1 bottom of the reverse lunge"
  },
  "External_Rotation_with_Cable": {
   "verdict": "in order",
@@ -359,6 +379,10 @@
   "verdict": "in order",
   "why": "frame 0 hanging, arms extended"
  },
+ "Isometric_Wipers": {
+  "verdict": "in order",
+  "why": "side to side: both frames are the low traverse, over one hand then the other; neither is the straight-arm set-up, so the source order stands"
+ },
  "Jackknife_Sit-Up": {
   "verdict": "in order",
   "why": "frame 0 lying flat"
@@ -431,6 +455,10 @@
   "verdict": "in order",
   "why": "the two frames are indistinguishable at this size"
  },
+ "Linear_Depth_Jump": {
+  "verdict": "in order",
+  "why": "frame 0 standing on the box; frame 1 landed in front of it"
+ },
  "Low_Cable_Crossover": {
   "verdict": "in order",
   "why": "frame 0 hands low at the sides, where the source starts"
@@ -470,6 +498,10 @@
  "Medicine_Ball_Scoop_Throw": {
   "verdict": "in order",
   "why": "frame 0 semisquat with the ball"
+ },
+ "Middle_Back_Shrug": {
+  "verdict": "in order",
+  "why": "frame 0 arms hanging from the incline bench; frame 1 shoulders shrugged up and back"
  },
  "Monster_Walk": {
   "verdict": "in order",
@@ -567,6 +599,10 @@
   "verdict": "in order",
   "why": "frame 0 arms extended"
  },
+ "Pushups": {
+  "verdict": "in order",
+  "why": "frame 0 arms straight at the top; frame 1 chest near the floor"
+ },
  "Reverse_Barbell_Curl": {
   "verdict": "in order",
   "why": "frame 0 bar at the thighs"
@@ -639,6 +675,10 @@
   "verdict": "in order",
   "why": "frame 0 arm extended"
  },
+ "Shotgun_Row": {
+  "verdict": "in order",
+  "why": "frame 0 arm extended toward the low pulley; frame 1 handle pulled to the ribs"
+ },
  "Side_Bridge": {
   "verdict": "in order",
   "why": "frame 0 on the floor before lifting"
@@ -650,6 +690,10 @@
  "Single_Leg_Glute_Bridge": {
   "verdict": "in order",
   "why": "frame 0 hips down"
+ },
+ "Single_Leg_Push-off": {
+  "verdict": "in order",
+  "why": "frame 0 one foot on the box; frame 1 in the air off the box foot"
  },
  "Single-Arm_Cable_Crossover": {
   "verdict": "in order",
@@ -711,6 +755,10 @@
   "verdict": "in order",
   "why": "frame 0 elbows back, where the source starts"
  },
+ "Standing_Cable_Lift": {
+  "verdict": "in order",
+  "why": "frame 0 handle low by the hip; frame 1 lifted across the body overhead"
+ },
  "Standing_Cable_Wood_Chop": {
   "verdict": "in order",
   "why": "frame 0 arms up to the high pulley"
@@ -759,6 +807,10 @@
   "verdict": "in order",
   "why": "frame 0 arms extended in front"
  },
+ "Supine_Two-Arm_Overhead_Throw": {
+  "verdict": "in order",
+  "why": "frame 0 lying with the ball behind the head; frame 1 sitting up into the throw"
+ },
  "Suspended_Push-Up": {
   "verdict": "reversed",
   "why": "frame 0 is the bottom of the push-up; the source starts with the arms extended"
@@ -766,6 +818,10 @@
  "Suspended_Row": {
   "verdict": "in order",
   "why": "frame 0 arms extended"
+ },
+ "Svend_Press": {
+  "verdict": "in order",
+  "why": "frame 0 plates squeezed at the chest; frame 1 arms extended"
  },
  "T-Bar_Row_with_Handle": {
   "verdict": "in order",
