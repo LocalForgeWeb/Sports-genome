@@ -4,7 +4,9 @@
 
 **What was checked.** All 207 two-frame photo pairs the catalog uses (229 catalog exercises; several share a pair). Each pair was viewed enlarged beside the source's own instructions and judged by one question: which frame is the position the athlete is in when the rep begins? Rendering scripts: `probes/order.mjs` (app check and the corrected sheets); the enlarged review pages were generated in the session scratchpad from the pinned files.
 
-**Result.** 30 pairs were reversed, covering 35 catalog exercises. 177 pairs are in order. The full verdict for every pair, with a one-line reason, is `audit.json`. The reversed list with reasons is `client/src/data/exercisePhotoOrder.json`; `framesInMovementOrder` in `client/src/lib/exercisePhotos.ts` shows frame 1 first for those, everywhere a photo appears (detail Start/Finish, the live-set disclosure, and every thumbnail, which uses the start frame).
+**Result.** 30 pairs were reversed, covering 35 catalog exercises. 177 pairs are in order.
+
+**October 3.** The photo re-match (`../exercise-photo-rematch/`) brought 14 more source pairs into use. They were checked the same way and all 14 are in order (their verdicts are in `audit.json`, now 221 pairs). Barbell Hip Hinge joined the Romanian deadlift pair, which was already reversed, so 36 catalog exercises now show a reversed pair start-first. The full verdict for every pair, with a one-line reason, is `audit.json`. The reversed list with reasons is `client/src/data/exercisePhotoOrder.json`; `framesInMovementOrder` in `client/src/lib/exercisePhotos.ts` shows frame 1 first for those, everywhere a photo appears (detail Start/Finish, the live-set disclosure, and every thumbnail, which uses the start frame).
 
 | Source pair | Catalog exercises | Frame 0 showed |
 | --- | --- | --- |
@@ -29,7 +31,7 @@
 | Parallel_Bar_Dip | Parallel-Bar Dip | bottom of the dip |
 | Plyo_Push-up | Plyometric Push-Up, Clap Push-Up | chest lowered |
 | Ring_Dips | Ring Dip | bottom of the dip |
-| Romanian_Deadlift | Romanian Deadlift (both entries) | bottom of the hinge |
+| Romanian_Deadlift | Romanian Deadlift (both entries), Barbell Hip Hinge (October 3) | bottom of the hinge |
 | Seated_Dumbbell_Press | Seated Dumbbell Shoulder Press | locked out overhead |
 | Smith_Machine_Bench_Press | Smith Machine Bench Press | bar on the chest |
 | Smith_Machine_Incline_Bench_Press | Smith Machine Incline Press | bar on the chest |
