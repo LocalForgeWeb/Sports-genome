@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { hasSupabaseServiceAccess } from "./supabaseTestEnvironment";
 
-describe("Supabase Storage connection", () => {
+describe.skipIf(!hasSupabaseServiceAccess)("Supabase Storage connection", () => {
   it("authenticates a lightweight bucket metadata read with the server-only service key", async () => {
     const projectUrl = process.env.VITE_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
