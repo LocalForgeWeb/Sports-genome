@@ -17,6 +17,7 @@ import { resolveNextWorkout, slotOfDayLabel, slotsDoneThisWeek, trainingWeekFor,
 import { getGoalPrescription, type TrainingGoal } from "@/lib/workoutPlanner";
 import { parseSetCount } from "@/lib/sessionVolume";
 import { focusFrames, focusSummary, workoutFocus } from "@/lib/workoutFocus";
+import { dayFigureFor } from "@/lib/dayFigures";
 
 /**
  * Home's first viewport, in the order a newcomer needs it:
@@ -151,6 +152,12 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
   }, [nextWorkout, nextExercises, weekStore, goal]);
   const focusLine = focusSummary(focus);
   const focusFigure = next.kind === "workout" && !live ? focus?.figure ?? null : null;
+  /**
+   * The day's own figure artwork (lib/dayFigures), chosen by the day's name: the supplied
+   * front-and-back illustration with the day's muscles in orange. A day whose artwork has not
+   * been supplied keeps the planned-focus schematic below, which is drawn from the exercises.
+   */
+  const dayArt = next.kind === "workout" && !live ? dayFigureFor(next.slot.day) : null;
   const focusCaption = focus && focusFigure ? `Planned workout focus, ${focusFigure.side} view: ${focus.regions.map((region) => region.label).join(", ")}. From the exercises' primary muscles; not a strength rank, recovery readiness or measured activation.` : "";
 
   const trackedChanges = useMemo(
@@ -225,7 +232,7 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
             <span className="today-action-loading-cta" />
           </div>
       : next.kind === "workout"
-        ? <div className={`today-action-primary${focusFigure ? " today-action-with-focus" : ""}`}>
+        ? <div className={`today-action-primary${dayArt || focusFigure ? " today-action-with-focus" : ""}${dayArt ? " today-action-with-art" : ""}`}>
             <div className="today-action-copy">
               <p className="metric-label">Your next workout</p>
               <h2>{next.slot.day}</h2>
@@ -234,9 +241,16 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
               <p className="today-action-count">{next.exerciseCount} {next.exerciseCount === 1 ? "exercise" : "exercises"}</p>
               {focusLine && <p className="today-action-focus-line"><span>Workout focus</span> {focusLine}</p>}
             </div>
-            {/* The schematic is planned involvement - the exercises' primary muscles -
-                drawn in the action colour so it cannot be read as a Strength rank. */}
-            {focusFigure && <figure className="today-action-focus">
+            {/* The day's figure: its supplied artwork where there is one, captioned with the
+                muscles it highlights; otherwise the schematic of planned involvement - the
+                exercises' primary muscles - drawn in the action colour so it cannot be read as
+                a Strength rank. The focus line in the copy reads from the exercises either way. */}
+            {dayArt
+              ? <figure className="today-action-focus today-action-art">
+                  <img src={dayArt.src} width={dayArt.width} height={dayArt.height} alt={dayArt.alt} decoding="async" />
+                  <figcaption>{dayArt.muscles}</figcaption>
+                </figure>
+              : focusFigure && <figure className="today-action-focus">
               <AnatomyFigure view={focusFigure.side} frame={focusFrames[focusFigure.side][focusFigure.frame]} roles={focusFigure.roles} selectedKeys={[]} onSelect={() => undefined} labelFor={(key) => key} interactive={false} caption={focusCaption} compact />
               {/* Only primary muscles are painted, and the caption says so. */}
               <figcaption>Primary muscles</figcaption>

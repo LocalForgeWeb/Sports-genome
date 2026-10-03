@@ -4010,3 +4010,10 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 /* Narrow screens and large text: the figure stacks under the copy at the same size rather
    than shrinking or vanishing. */
 @media (max-width: 359px) { .today-action-with-focus { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "figure" "actions"; } .today-action-focus { display: grid; justify-self: start; } }
+/* The day's figure artwork (lib/dayFigures): a front and a back figure side by side, so it takes
+   a wider column than the single-view schematic - 152px on a 390px layout, the copy keeping
+   the rest. The file carries its own transparency and sits straight on the card. */
+.today-action-with-art { grid-template-columns: minmax(0, 1fr) 9.5rem; }
+.today-action-focus.today-action-art { width: 9.5rem; align-self: center; gap: .4rem; }
+.today-action-art img { display: block; width: 100%; height: auto; }
+@media (max-width: 359px) { .today-action-with-art { grid-template-columns: minmax(0, 1fr); } .today-action-focus.today-action-art { width: min(100%, 12rem); } }
