@@ -159,8 +159,29 @@ describe("Home week strip and primary action", () => {
     expect(document.querySelector(".home-week-line")?.textContent).toBe("2 of 3 planned workouts done this week · 1 more session this week");
   });
 
-  it("draws the workout focus as a picture in the action colour, never as a rank map", () => {
+  /** A day with its own figure artwork shows that, captioned with the muscles it highlights (lib/dayFigures). */
+  it("shows the Push day's figure artwork, and keeps the focus line from the exercises", () => {
     draw();
+    const art = document.querySelector(".today-action-primary.today-action-with-art .today-action-focus.today-action-art") as HTMLElement | null;
+    expect(art).toBeTruthy();
+    const img = art!.querySelector("img")!;
+    expect(img.getAttribute("src")).toBe("/day-figures/push.webp");
+    expect(img.getAttribute("alt")).toBe("Push day: chest, delts, triceps highlighted on a front and a back figure.");
+    expect([img.getAttribute("width"), img.getAttribute("height")]).toEqual(["720", "778"]);
+    expect(art!.querySelector("figcaption")?.textContent).toBe("Chest · delts · triceps");
+    expect(document.querySelector(".today-action-focus .anatomy-figure")).toBeNull();
+    expect(document.querySelector(".today-action-focus-line")?.textContent).toBe("Workout focus Lats · Biceps");
+  });
+
+  it("shows the artwork for its day even when the exercises name no drawable muscle", () => {
+    draw({ plan: todayPlan({ Push: 2 }, { split: ["Push", "Pull", "Legs"], primaryMuscles: ["serratusAnterior"] }) });
+    expect(document.querySelector(".today-action-art img")?.getAttribute("src")).toBe("/day-figures/push.webp");
+    expect(document.querySelector(".today-action-focus-line")?.textContent).toBe("Workout focus Chest");
+  });
+
+  /** A day without artwork (here Lower) keeps the planned-focus schematic, drawn from the exercises. */
+  it("draws the workout focus as a picture in the action colour, never as a rank map", () => {
+    draw({ plan: todayPlan({ Lower: 6, Pull: 5, Legs: 0 }, { split: ["Lower", "Pull", "Legs"], primaryMuscles: ["lats", "biceps"] }) });
     const figure = document.querySelector(".today-action-focus .anatomy-figure") as SVGElement | null;
     expect(figure).toBeTruthy();
     expect(figure?.getAttribute("role")).toBe("img");
@@ -173,7 +194,7 @@ describe("Home week strip and primary action", () => {
 
   /** Sep 28 regression brief §6: the figure faces and frames where the day's work is. */
   it("turns a pulling day to the back and crops it to the upper body", () => {
-    draw({ plan: todayPlan({ Push: 3 }, { split: ["Push", "Pull", "Legs"], primaryMuscles: ["lats", "upperBack"] }) });
+    draw({ plan: todayPlan({ Lower: 3 }, { split: ["Lower", "Pull", "Legs"], primaryMuscles: ["lats", "upperBack"] }) });
     const figure = document.querySelector(".today-action-focus .anatomy-figure")!;
     expect(figure.getAttribute("data-view")).toBe("back");
     expect(figure.getAttribute("data-frame")).toBe("");
@@ -181,13 +202,13 @@ describe("Home week strip and primary action", () => {
   });
 
   it("names the day's regions but draws no empty body when nothing it trains is drawn", () => {
-    draw({ plan: todayPlan({ Push: 2 }, { split: ["Push", "Pull", "Legs"], primaryMuscles: ["serratusAnterior"] }) });
+    draw({ plan: todayPlan({ Lower: 2 }, { split: ["Lower", "Pull", "Legs"], primaryMuscles: ["serratusAnterior"] }) });
     expect(document.querySelector(".today-action-focus")).toBeNull();
     expect(document.querySelector(".today-action-focus-line")?.textContent).toBe("Workout focus Chest");
   });
 
   it("shows no schematic when the workout names no muscles, and none for the live workout", () => {
-    draw({ plan: todayPlan({ Push: 6, Pull: 5 }, { split: ["Push", "Pull", "Legs"] }) });
+    draw({ plan: todayPlan({ Lower: 6, Pull: 5 }, { split: ["Lower", "Pull", "Legs"] }) });
     expect(document.querySelector(".today-action-focus")).toBeNull();
   });
 });
