@@ -3,6 +3,7 @@ import { plural } from "@/lib/plural";
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type UIEvent } from "react";
 import { clearRecentExercises, recordRecentExercise, useRecentExerciseIds } from "@/lib/recentExercises";
 const IntroPreview = lazy(() => import("@/components/IntroPreview").then((module) => ({ default: module.IntroPreview })));
+const SaveToPlanDialog = lazy(() => import("@/components/SaveToPlanDialog").then((module) => ({ default: module.SaveToPlanDialog })));
 const ExerciseCompareSheet = lazy(() => import("@/components/ExerciseCompareSheet").then((module) => ({ default: module.ExerciseCompareSheet })));
 const WorkoutShareSheet = lazy(() => import("@/components/WorkoutShareSheet").then((module) => ({ default: module.WorkoutShareSheet })));
 import type React from "react";
@@ -20,6 +21,10 @@ import { searchExercises } from "@/lib/exerciseSearch";
 import { GradeStamp } from "@/components/GradeStamp";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
 import { StackImportPanel, type ImportedRoutine, type ImportedRoutineContext } from "@/components/StackImportPanel";
+import { draftDaysFromSnapshot, writeIncomingDay, type IncomingDraftDay } from "@/lib/planImport";
+import { pendingSharedSave, rememberSavedShare, savedShare, setPendingSharedSave } from "@/lib/shareLinks";
+import type { ShareSource } from "@/lib/shareSnapshot";
+import type { SaveOutcome, SaveRequest, SaveWeekOption } from "@/components/SaveToPlanDialog";
 import { SessionDraftPanel } from "@/components/SessionDraftPanel";
 import type { SplitDay } from "@/lib/splitCycle";
 import type { TrainingLoadout as LoadoutMode } from "@/lib/loadoutTemplates";
@@ -81,7 +86,7 @@ import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { browseAction, browseMovement, browseSport, followProfileSport, isBrowsingOtherSport, referenceMovementId, referenceSportId, type SportBrowseState } from "@/lib/sportBrowsing";
 import { buildVariedLoadout } from "@/lib/loadoutTemplates";
 import { cycleSplitIndex, splitDaysForFrequency } from "@/lib/splitCycle";
-import { buildDaySlots, commitDay, dayExerciseCount, emptyDayRecord, emptyDayStore, loadDay, moveWithin, placeImportedDays, remapDaysForFrequency, resolveActiveSlot, sameSplit, slotForKey, visibleDayPlan, type DayRecord, type DaySettings, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
+import { buildDaySlots, commitDay, dayExerciseCount, emptyDayRecord, emptyDayStore, loadDay, moveWithin, remapDaysForFrequency, resolveActiveSlot, sameSplit, slotForKey, visibleDayPlan, type DayRecord, type DaySettings, type DaySlot, type WeeklyDayStore } from "@/lib/trainingDayPlan";
 import { toast } from "sonner";
 import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDialog";
 import { EmailAuthScreen } from "@/components/EmailAuthScreen";
@@ -555,7 +560,30 @@ export default function Home() {
    */
   /** The day as it leaves the app, captured when Share is pressed (lib/workoutExport): the rows' own values, in their order. */
   const [sharePlan, setSharePlan] = useState<WorkoutExport | null>(null);
-  const openShare = () => setSharePlan(buildWorkoutExport({
+  /** The week as the share composer offers it: every day, each row with the values it shows (lib/shareSnapshot). */
+  const [shareSource, setShareSource] = useState<ShareSource | null>(null);
+  const buildShareSource = (): ShareSource => {
+    const committed = commitDay(dayStore, draftDayKeyRef.current, activeDraft());
+    return {
+      week: activeWeek,
+      sport: hasSportContext ? selectedSport.label : sportContextMode === "general" ? "General strength and resilience" : "",
+      goal,
+      activeIndex: activeSlot.index,
+      days: daySlots.map((slot) => {
+        const record = loadDay(committed, slot.key);
+        return {
+          key: slot.key, index: slot.index, ordinal: slot.ordinal, label: slot.day,
+          exercises: record.workout.map((exercise, index) => {
+            const set = record.prescriptions[exercise.id];
+            const settings = getExerciseSettings(record.settings, exercise.id);
+            return { exercise, prescription: set || prescriptionFor(index, goal), prescriptionIsDefault: !set, rpe: settings.rpe, rest: settings.rest, notes: settings.notes };
+          }),
+        };
+      }),
+    };
+  };
+  const openShare = () => { setShareSource(buildShareSource()); openShareExport(); };
+  const openShareExport = () => setSharePlan(buildWorkoutExport({
     workout: customWorkout,
     week: activeWeek,
     dayOrdinal: activeSlot.ordinal,
@@ -1266,49 +1294,96 @@ export default function Home() {
       onError: () => toast("Saved on this device", { id: "favorite", description: "Your account did not take the change; it is kept on this device." }),
     });
   };
+  /**
+   * A workout from outside the plan - pasted, or saved from a shared link - goes through
+   * one dialog (SaveToPlanDialog) that names the week and day it lands on and whether it
+   * is added after what is there or replaces it, before anything changes. The paste used
+   * to replace the days it landed on and say so afterwards, and to give every exercise
+   * "RPE 7" and "90 sec" where the paste said nothing.
+   */
+  type PendingSave = { heading: string; sourceTitle: string; sourceLine: string; attribution?: string; days: IncomingDraftDay[]; scope: "day" | "week"; shareToken?: string };
+  const [pendingSave, setPendingSave] = useState<PendingSave | null>(null);
+  const countLine = (days: IncomingDraftDay[]) => {
+    const total = days.reduce((sum, day) => sum + day.items.length + day.unresolved.length, 0);
+    return `${days.length > 1 ? `${days.length} days · ` : ""}${total} exercise${total === 1 ? "" : "s"}`;
+  };
   const importRoutine = (routine: ImportedRoutine) => {
-    if (!planReadyForEdits()) return;
-    const importedDays = routine.days.filter((day) => day.items.length);
-    if (!importedDays.length) return;
-    // Each pasted day claims its own slot. Two days of the same family used to resolve to
-    // the same one and the second quietly replaced the first.
-    const { placements, unplacedLabels } = placeImportedDays(importedDays.map((day) => day.label), splitDays);
-    // Whatever is open right now is part of the week too, so it is written down before
-    // the paste lands rather than being the one day a paste can destroy.
-    let nextStore = commitDay(dayStore, draftDayKeyRef.current, activeDraft());
-    const overwrittenDayLabels: string[] = [];
-    let landingSlot: DaySlot | null = null;
-    let matchedCount = 0;
-    for (const placement of placements) {
-      const day = importedDays[placement.pastedIndex];
-      const slot = daySlots[placement.slotIndex];
-      const unique = day.items.filter((item, itemIndex) => day.items.findIndex((candidate) => candidate.exercise.id === item.exercise.id) === itemIndex);
-      const dayExercises = unique.map((item) => item.exercise);
-      if (dayExerciseCount(nextStore, slot.key)) overwrittenDayLabels.push(`${slot.ordinal} · ${slot.day}`);
-      nextStore = commitDay(nextStore, slot.key, {
-        workout: dayExercises,
-        prescriptions: Object.fromEntries(unique.map((item) => [item.exercise.id, item.prescription])),
-        settings: Object.fromEntries(unique.map((item) => [item.exercise.id, { rpe: item.rpe || "RPE 7", rest: item.rest || "90 sec", notes: item.notes || "", completed: false }])),
+    // A paste of a workout this app copied is read line for line, so a line it could not
+    // match is a real exercise to resolve; in any other paste it is stray text, already
+    // reported in the paste preview and left out.
+    const fromSportsGenome = routine.source === "sports-genome";
+    const days: IncomingDraftDay[] = routine.days
+      .filter((day) => day.items.length || (fromSportsGenome && day.unmatched.length))
+      .map((day, dayIndex) => ({
+        label: day.label,
         context: day.context,
-      });
-      matchedCount += dayExercises.length;
-      if (!landingSlot) landingSlot = slot;
-    }
-    setDayStore(nextStore);
-    if (landingSlot) adoptActiveDay(landingSlot, loadDay(nextStore, landingSlot.key));
-    navigateWorkspace("day-plan");
+        items: day.items.map((item) => ({ exercise: item.exercise, prescription: item.prescription, rpe: item.rpe, rest: item.rest, notes: item.notes })),
+        unresolved: fromSportsGenome ? day.unmatched.map((item, index) => ({ key: `${dayIndex}-${index}`, name: item.name || item.raw, prescription: item.prescription, rpe: item.rpe, rest: item.rest, notes: item.notes, candidates: item.candidates.map((candidate) => candidate.exercise) })) : [],
+      }));
+    if (!days.length) return;
     setImportOpen(false);
-    toast("Routine loaded", {
-      description: overwrittenDayLabels.length
-        ? `${placements.length}-day routine loaded with ${matchedCount} matched exercise${matchedCount === 1 ? "" : "s"}. Replaced your previously saved ${overwrittenDayLabels.join(", ")}.`
-        : `${placements.length}-day routine loaded with ${matchedCount} matched exercise${matchedCount === 1 ? "" : "s"}.`,
-    });
-    // A pasted day with nowhere to go is reported rather than dropped onto a day that
-    // already has work in it.
-    if (unplacedLabels.length) toast("Some pasted days did not fit this week", {
-      description: `You train ${splitDays.length} day${splitDays.length === 1 ? "" : "s"} a week, so ${unplacedLabels.join(", ")} ${unplacedLabels.length === 1 ? "was" : "were"} left out. Raise your days per week in About Me, then paste again to keep ${unplacedLabels.length === 1 ? "it" : "them"}.`,
+    setPendingSave({ heading: "Paste a workout", sourceTitle: routine.title || (days.length > 1 ? `${days.length}-day routine` : days[0].label), sourceLine: countLine(days), days, scope: days.length > 1 ? "week" : "day" });
+  };
+  /** Writes incoming days into the chosen week and days, in one state update per week. */
+  const saveIncomingDays = (request: SaveRequest, shareToken?: string): SaveOutcome => {
+    if (!planReadyForEdits({ quiet: true })) return { ok: false, message: "Your plan is still loading, so nothing was saved. Try again in a moment." };
+    const isActive = request.week === activeWeek;
+    // The open day is written down first, so a save into this week can never lose it.
+    let store = isActive ? commitDay(dayStore, draftDayKeyRef.current, activeDraft()) : (planWeeks[request.week]?.days ?? emptyDayStore());
+    const replaced = new Set<string>();
+    const landed: DaySlot[] = [];
+    const alreadyThere: string[] = [];
+    let added = 0;
+    for (const write of request.writes) {
+      const slot = daySlots[write.slotIndex];
+      if (!slot) continue;
+      // Replace clears a day once; a second workout sent to the same day is added after the first.
+      const mode = request.mode === "replace" && !replaced.has(slot.key) ? "replace" : "append";
+      if (mode === "replace") replaced.add(slot.key);
+      const outcome = writeIncomingDay(loadDay(store, slot.key), write.day, mode);
+      store = commitDay(store, slot.key, outcome.record);
+      added += outcome.added.length;
+      alreadyThere.push(...outcome.alreadyThere.map((exercise) => exercise.name));
+      if (!landed.some((entry) => entry.key === slot.key)) landed.push(slot);
+    }
+    if (!landed.length) return { ok: false, message: "Choose a day to save into." };
+    if (isActive) {
+      setDayStore(store);
+      const open = daySlots.find((slot) => slot.key === draftDayKeyRef.current) ?? activeSlot;
+      adoptActiveDay(open, loadDay(store, open.key));
+    } else {
+      setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot(), [request.week]: { days: store, activeDayIndex: current[request.week]?.activeDayIndex ?? landed[0].index } }));
+    }
+    const destination = `Week ${request.week} · ${landed.map((slot) => `${slot.ordinal} · ${slot.day}`).join(", ")}`;
+    if (shareToken) rememberSavedShare({ token: shareToken, savedAt: new Date().toISOString(), destination, week: request.week, slotIndex: landed[0].index });
+    return { ok: true, week: request.week, slotIndex: landed[0].index, destination, added, alreadyThere };
+  };
+  /** The weeks a save can land in: those that exist, and the next one the plan would create. */
+  const saveWeekOptions = (): SaveWeekOption[] => {
+    const generated = Object.keys(planWeeks).map(Number);
+    const next = nextWeekToGenerate(generated, activeWeek);
+    const weeks = Array.from(new Set([...visibleWeeks(generated, activeWeek), ...(next ? [next] : [])])).sort((left, right) => left - right);
+    const committed = commitDay(dayStore, draftDayKeyRef.current, activeDraft());
+    return weeks.map((week) => {
+      const store = week === activeWeek ? committed : planWeeks[week]?.days;
+      return { week, exists: week === activeWeek || Boolean(planWeeks[week]), current: week === activeWeek, dayCounts: Object.fromEntries(daySlots.map((slot) => [slot.key, store ? dayExerciseCount(store, slot.key) : 0])) };
     });
   };
+  /** A single day lands in this week; a week of days prefers a week with nothing planned, so the plan in use stays as it is. */
+  const defaultSaveWeek = (scope: "day" | "week", options: SaveWeekOption[]) => scope === "day" ? activeWeek : (options.find((option) => !option.current && Object.values(option.dayCounts).every((count) => count === 0))?.week ?? activeWeek);
+  const closePendingSave = () => { setPendingSave(null); setPendingSharedSave(null); };
+  // "Save a copy" on a shared link hands its workout over for the length of the visit; it opens
+  // here once the plan has been read - after onboarding, for someone new to the app.
+  useEffect(() => {
+    if (!onboardingComplete || !planHydrated || pendingSave) return;
+    const pending = pendingSharedSave();
+    if (!pending) return;
+    const days = draftDaysFromSnapshot(pending.snapshot);
+    setPendingSave({ heading: "Save a copy", sourceTitle: pending.snapshot.title, sourceLine: countLine(days), attribution: pending.snapshot.attribution, days, scope: pending.snapshot.scope, shareToken: pending.token });
+    navigateWorkspace("day-plan");
+    // Opened once per hand-over; closing the dialog clears it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onboardingComplete, planHydrated]);
   const removeExercise = (id: number) => {
     if (!planReadyForEdits()) return;
     const removedIndex = customWorkout.findIndex((exercise) => exercise.id === id);
@@ -2192,7 +2267,7 @@ export default function Home() {
     </div>
 
     {/* Share workout (Oct 2 brief §5): over the Training Day it was opened from, in the modal layer. */}
-    {sharePlan && <Suspense fallback={null}><WorkoutShareSheet plan={sharePlan} weightUnit={athleteBaseline.weightUnit === "kg" ? "kg" : "lb"} onClose={() => setSharePlan(null)} /></Suspense>}
+    {sharePlan && <Suspense fallback={null}><WorkoutShareSheet plan={sharePlan} source={shareSource} weightUnit={athleteBaseline.weightUnit === "kg" ? "kg" : "lb"} onClose={() => setSharePlan(null)} /></Suspense>}
     {/* Exercise Intelligence: one full-height overlay over whatever opened it,
         which stays mounted underneath with its list, filters and scroll. The
         bottom navigation is hidden while it is open (index.css), and Escape or
@@ -2251,6 +2326,7 @@ export default function Home() {
     </div>}
     {tutorialOpen && <FeatureTour onClose={() => setTutorialOpen(false)} onNavigate={(view) => navigateWorkspace(view as Workspace)} />}
     {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} />}
+    {pendingSave && (() => { const weeks = saveWeekOptions(); return <Suspense fallback={null}><SaveToPlanDialog heading={pendingSave.heading} sourceTitle={pendingSave.sourceTitle} sourceLine={pendingSave.sourceLine} attribution={pendingSave.attribution} days={pendingSave.days} slots={daySlots} weeks={weeks} defaultWeek={defaultSaveWeek(pendingSave.scope, weeks)} alreadySaved={pendingSave.shareToken ? savedShare(pendingSave.shareToken) : null} onSave={(request) => saveIncomingDays(request, pendingSave.shareToken)} onOpen={(week, slotIndex) => { closePendingSave(); openPlannedWorkout(week, slotIndex, "day-plan"); }} onClose={closePendingSave} /></Suspense>; })()}
     {pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => { pendingDestructiveAction.onCancel?.(); setPendingDestructiveAction(null); }} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}
   </div>;
 }

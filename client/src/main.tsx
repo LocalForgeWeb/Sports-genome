@@ -136,6 +136,8 @@ const elapsedBootMs = Number.isFinite(documentBootStartedAt) ? Math.max(0, Date.
  * and nothing to wait for - the chunk is already preloaded by then, so mounting is
  * close to immediate.
  */
-const returningLaunch = document.documentElement.dataset.sportsGenomeBootReturn === "yes";
+// No intro plays at all when the launch experience is off - which includes a shared workout's
+// link (index.html turns it off for /s/...) - so that is a returning launch here too.
+const returningLaunch = document.documentElement.dataset.sportsGenomeBootReturn === "yes" || document.documentElement.dataset.sportsGenomeBoot === "off";
 const workspaceMountDelayMs = returningLaunch ? 0 : Math.max(0, 1_580 - elapsedBootMs);
 window.setTimeout(() => { void mountWorkspace(); }, workspaceMountDelayMs);

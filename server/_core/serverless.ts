@@ -1,5 +1,6 @@
 import express, { type Request, type Response } from "express";
 import { requireJsonMutations, trpcHandler } from "./apiHandler";
+import { serveSharePage } from "../sharePage";
 
 /**
  * The API as a serverless request handler.
@@ -46,6 +47,18 @@ app.use((req, _res, next) => {
     req.url = `/api/trpc/${carried}${query ? `?${query}` : ""}`;
   }
   next();
+});
+
+/**
+ * A shared workout's page. `/s/<token>` is rewritten here (vercel.json) so its head can
+ * carry the workout's name for link previews; the page itself is the app, as anywhere.
+ */
+app.get("*", (req, res, next) => {
+  // The token arrives in the rewrite's query, or - if the platform hands over the original
+  // request path, as it can for the tRPC rewrite above - in the path itself.
+  const token = typeof req.query.__sharePage === "string" ? req.query.__sharePage : req.path.match(/^\/s\/([^/]+)\/?$/)?.[1];
+  if (typeof token !== "string") return next();
+  serveSharePage(token, req.headers, res).catch(next);
 });
 
 app.use("/api/trpc", requireJsonMutations, trpcHandler());

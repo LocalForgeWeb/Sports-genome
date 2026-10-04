@@ -1,0 +1,79 @@
+{
+  "base": "http://localhost:4180",
+  "ranAt": "2026-10-04T23:07:13.401Z",
+  "weekLink": "http://localhost:4180/s/Q0hCyJDjJBEfkDSCC7Jcdg",
+  "checks": [
+    {
+      "id": "W1",
+      "name": "The week can be chosen once two days are planned; its title names the days in order",
+      "ok": true,
+      "detail": "Week 1 · Push, Pull"
+    },
+    {
+      "id": "W2",
+      "name": "A lost answer says what happened and keeps what was entered",
+      "ok": true,
+      "detail": "The link couldn't be created. Check your connection and try again — what you entered is kept."
+    },
+    {
+      "id": "W3",
+      "name": "Try again returns the link the lost attempt made - one share, not two",
+      "ok": true,
+      "detail": "[{\"token\":\"Q0hCyJDjJBEfkDSCC7Jcdg\",\"reused\":false},{\"token\":\"Q0hCyJDjJBEfkDSCC7Jcdg\",\"reused\":true}]"
+    },
+    {
+      "id": "W4",
+      "name": "The week arrives as its days in order, with an overview to jump between them",
+      "ok": true,
+      "detail": "Day 1Push | Day 2Pull"
+    },
+    {
+      "id": "W5",
+      "name": "Editing the plan after sharing leaves the shared copy as it was",
+      "ok": true,
+      "detail": "Cable Single-Arm Bent-Over Row removed from the plan; link still has 12 exercises"
+    },
+    {
+      "id": "W6",
+      "name": "Publish updated version makes version 2 at a new link",
+      "ok": true,
+      "detail": "Version 2 published at a new link. The old link now points people to it."
+    },
+    {
+      "id": "W7",
+      "name": "The old link still shows what was shared, and points to the newer version",
+      "ok": true,
+      "detail": "The sender has shared a newer version of this. View the newer version"
+    },
+    {
+      "id": "W8",
+      "name": "The newer version has the edit",
+      "ok": true,
+      "detail": "11 exercises"
+    },
+    {
+      "id": "I1",
+      "name": "Another device can't turn the link off",
+      "ok": true,
+      "detail": "HTTP 403"
+    },
+    {
+      "id": "I2",
+      "name": "Nor learn anything about it from the management list",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "I3",
+      "name": "The public answer is the approved snapshot only - no secret, hash, request key or account",
+      "ok": true,
+      "detail": "createdAt,newerToken,snapshot,state,token,version / days,goal,schema,scope,sport,title,week / catalogId,equipment,movement,name,order,prescription,rest,rpe"
+    },
+    {
+      "id": "V1",
+      "name": "At 320, 375, 390 and 430 px, and with 150% text, nothing scrolls sideways and the header fits",
+      "ok": true,
+      "detail": "[{\"width\":320,\"zoom\":1,\"overflow\":0,\"headerFits\":true},{\"width\":375,\"zoom\":1,\"overflow\":0,\"headerFits\":true},{\"width\":390,\"zoom\":1,\"overflow\":0,\"headerFits\":true},{\"width\":430,\"zoom\":1,\"overflow\":0,\"headerFits\":true},{\"width\":390,\"zoom\":1.5,\"overflow\":0,\"headerFits\":true}]"
+    }
+  ]
+}

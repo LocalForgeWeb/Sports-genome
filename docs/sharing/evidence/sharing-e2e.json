@@ -1,0 +1,164 @@
+{
+  "base": "http://localhost:4180",
+  "ranAt": "2026-10-04T23:01:41.146Z",
+  "senderDay": "Training plan",
+  "link": "http://localhost:4180/s/ZCT3V9lf_D5SLlAlQl_rgQ",
+  "checks": [
+    {
+      "id": "S1",
+      "name": "Share opens the composer, nothing created yet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "S2",
+      "name": "This workout is chosen, titled from the day",
+      "ok": true,
+      "detail": "Push · Week 1"
+    },
+    {
+      "id": "S3",
+      "name": "Preview is the shared page in miniature (3 rows then \"+ N more\")",
+      "ok": true,
+      "detail": "3 rows"
+    },
+    {
+      "id": "S4",
+      "name": "Create link makes one link at /s/<token>",
+      "ok": true,
+      "detail": "http://localhost:4180/s/ZCT3V9lf_D5SLlAlQl_rgQ · 1 create call(s)"
+    },
+    {
+      "id": "S5",
+      "name": "Copy link copies it and says so",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "S6",
+      "name": "Copy as text gives one line per exercise with its prescription",
+      "ok": true,
+      "detail": "Push · Week 1 / Shared from Sports Genome · 6 exercises / By Coach Sam / Short rests. Same weights as last week. /  / Day 1 · Push"
+    },
+    {
+      "id": "S7",
+      "name": "Your shared links lists the new link as active",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "M1",
+      "name": "The link's page head names the workout (og:title, og:description, og:image) and is noindex",
+      "ok": true,
+      "detail": "Push · Week 1 — A workout · 6 exercises, shared by Coach Sam. View it or save a copy to your plan in Sports Genome."
+    },
+    {
+      "id": "R1",
+      "name": "Opens without an account: the workout first, in order, with who shared it",
+      "ok": true,
+      "detail": "PUSH · WEEK 1 · 6 rows"
+    },
+    {
+      "id": "R2",
+      "name": "Exercises appear in the order they were shared",
+      "ok": true,
+      "detail": "Cable Standing Punch, Cable Press-Out, Half-Kneeling Cable Chest Press, Barbell Overhead Press, Scapular Wall Slide, Behind-the-Back Cable Lateral Raise"
+    },
+    {
+      "id": "R3",
+      "name": "No launch intro on a shared link",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "R4",
+      "name": "Print layout: light sheet, no buttons, every exercise",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "P1",
+      "name": "Save a copy asks where it goes first: week, day, add or replace",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "P2",
+      "name": "Saved: says exactly where, and how many were added",
+      "ok": true,
+      "detail": "Saved to Week 1 · Day 01 · Push. 2 exercises added."
+    },
+    {
+      "id": "P3",
+      "name": "Added after the day's own exercises, which stay as they were, in the shared order",
+      "ok": true,
+      "detail": "Day 01 · Push — 4 planned · 4 rows → 6; already there: Cable Standing Punch, Cable Press-Out, Half-Kneeling Cable Chest Press, Barbell Overhead Press"
+    },
+    {
+      "id": "P4",
+      "name": "Each added exercise keeps the prescription it was shared with",
+      "ok": true,
+      "detail": "Cable Standing Punch: 4 × 3–5; Cable Press-Out: 4 × 3–5; Half-Kneeling Cable Chest Press: 3 × 6–8; Barbell Overhead Press: 3 × 6–8; Scapular Wall Slide: 3 × 6–8; Behind-the-Back Cable Lateral Raise: 3 × 6–8"
+    },
+    {
+      "id": "P5",
+      "name": "Opening the link again says where it was saved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "P6",
+      "name": "Saving again shows the earlier save first, with Open saved copy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C1",
+      "name": "The pasted copy is read line for line, every exercise matched with its prescription",
+      "ok": true,
+      "detail": "6 exercises"
+    },
+    {
+      "id": "C2",
+      "name": "Paste asks where it goes too, adding by default",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C3",
+      "name": "Replace asks again, naming the day and how many exercises go",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "C4",
+      "name": "After replace the day holds exactly the pasted workout, in order, with its prescriptions",
+      "ok": true,
+      "detail": "Cable Standing Punch, Cable Press-Out, Half-Kneeling Cable Chest Press, Barbell Overhead Press, Scapular Wall Slide, Behind-the-Back Cable Lateral Raise"
+    },
+    {
+      "id": "D1",
+      "name": "Turning off is confirmed, then reported",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "D2",
+      "name": "The recipient sees \"no longer available\", nothing of the workout",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "D3",
+      "name": "A turned-off link's preview says nothing of the workout",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "D4",
+      "name": "A link that never existed says so",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

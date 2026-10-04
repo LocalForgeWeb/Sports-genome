@@ -4,15 +4,17 @@ import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { exercises, type Exercise } from "@/lib/exerciseCatalog";
 import { isRoutineDayHeader, routineDayLabel } from "@/lib/routineDayHeader";
 import { formatPrescription, parsePrescription } from "@/lib/setPrescription";
+import { readSharedWorkoutText } from "@/lib/sharedWorkoutText";
 
 /** Kinetic Field Manual: parse once, inspect confidence, then load only user-confirmed exercise identity into the editable plan. */
 export type ImportConfidence = "exact" | "likely" | "confirmed" | "unmatched";
 export type ImportCandidate = { exercise: Exercise; score: number };
 export type ImportedRoutineItem = { exercise: Exercise; prescription: string; raw: string; rpe?: string; rest?: string; notes?: string; confidence: ImportConfidence; candidates: ImportCandidate[] };
 export type ImportedRoutineContext = { raw: string; kind: "warm-up" | "set instruction" | "plan note" };
-export type ImportedRoutineUnmatched = { raw: string; prescription: string; rpe?: string; rest?: string; notes?: string; candidates: ImportCandidate[] };
+export type ImportedRoutineUnmatched = { raw: string; name?: string; prescription: string; rpe?: string; rest?: string; notes?: string; candidates: ImportCandidate[] };
 export type ImportedRoutineDay = { label: string; items: ImportedRoutineItem[]; context: ImportedRoutineContext[]; unmatched: ImportedRoutineUnmatched[] };
-export type ImportedRoutine = { title?: string; days: ImportedRoutineDay[]; unmatched: string[] };
+/** `source` is "sports-genome" when the paste is a workout this app copied: its unmatched lines are real exercises, not stray text. */
+export type ImportedRoutine = { title?: string; days: ImportedRoutineDay[]; unmatched: string[]; source?: "sports-genome" | "general" };
 
 function normalize(value: string) { return value.toLowerCase().replace(/[–—|,()[\]{}]/g, " ").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim(); }
 const isDayHeader = isRoutineDayHeader;
@@ -56,13 +58,49 @@ function parseExerciseLine(raw: string) {
   const restMatch = compact.match(/(?:rest\s*[:@]?\s*)(\d+\s*(?:sec|seconds|s|min|minutes|m))/i);
   const name = normalize(match ? compact.slice(0, match.index) : compact).replace(/[-:]+$/, "").trim();
   // Normalised through the shared reader so an imported slash list is stored in
-  // exactly the form the editor writes, spacing and all.
-  const prescription = match ? formatPrescription(parsePrescription(`${match[1]} × ${match[2]}`).sets, /\//.test(match[2])) : "3 × 8–12";
+  // exactly the form the editor writes, spacing and all. A line with no sets and reps
+  // has none: it used to be given "3 × 8–12", a prescription nobody wrote.
+  const prescription = match ? formatPrescription(parsePrescription(`${match[1]} × ${match[2]}`).sets, /\//.test(match[2])) : "";
   const notes = compact.match(/\(([^)]+)\)/)?.[1] || compact.split(/\s+[·|]\s+/).slice(1).join(" · ") || "";
   return { raw, name, prescription, rpe: rpeMatch ? `RPE ${rpeMatch[1]}` : undefined, rest: restMatch ? restMatch[1].replace(/^\d+\s*s$/i, (value) => `${value.slice(0, -1)} sec`) : undefined, notes: notes && !/^(rpe|rest)/i.test(notes) ? notes : undefined };
 }
 
+/** A prescription as the editor writes it, or none. */
+function normalisedPrescription(value: string): string {
+  const trimmed = value.trim();
+  if (!/^\d+\s*(?:×|x)\s*\S/i.test(trimmed)) return "";
+  return formatPrescription(parsePrescription(trimmed).sets, /\//.test(trimmed));
+}
+
+/**
+ * A workout Sports Genome copied, read line for line: its days, its exercises in
+ * order by their catalog names, and each one's own prescription, RPE, rest and note.
+ * Nothing is guessed or filled in.
+ */
+function parseSharedRoutine(source: string, manualMatches: Record<string, number>): ImportedRoutine | null {
+  const shared = readSharedWorkoutText(source);
+  if (!shared) return null;
+  const unmatched: string[] = [];
+  const days = shared.days.map((day): ImportedRoutineDay => {
+    const items: ImportedRoutineItem[] = [];
+    const missing: ImportedRoutineUnmatched[] = [];
+    for (const line of day.lines) {
+      const candidates = candidateMatches(line.name);
+      const exact = exercises.find((exercise) => normalize(exercise.name) === normalize(line.name));
+      const manual = exercises.find((exercise) => exercise.id === manualMatches[line.raw]);
+      const entry = { prescription: normalisedPrescription(line.prescription), rpe: line.rpe, rest: line.rest, notes: line.notes };
+      const resolved = manual ?? exact;
+      if (resolved) items.push({ exercise: resolved, raw: line.raw, ...entry, confidence: manual ? "confirmed" : "exact", candidates });
+      else { missing.push({ raw: line.raw, name: line.name, ...entry, candidates }); unmatched.push(line.raw); }
+    }
+    return { label: day.label, items, context: [], unmatched: missing };
+  });
+  return { title: shared.title, days, unmatched, source: "sports-genome" };
+}
+
 export function parseRoutine(source: string, manualMatches: Record<string, number>): ImportedRoutine {
+  const shared = parseSharedRoutine(source, manualMatches);
+  if (shared) return shared;
   const days: ImportedRoutineDay[] = [];
   const unmatched: string[] = [];
   let title: string | undefined;
@@ -123,5 +161,5 @@ export function StackImportPanel({ onClose, onImport }: { onClose: () => void; o
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div className="routine-import-scrim fixed inset-0 z-[70] bg-[#06172d]/72 p-4 backdrop-blur-sm"><section ref={dialogRef} className="stack-import-modal routine-import-modal" role="dialog" aria-modal="true" aria-labelledby="routine-import-title"><div className="flex items-start justify-between gap-4"><div><p className="metric-label">Routine import</p><h3 id="routine-import-title">Paste the full plan.</h3><p className="mt-2 max-w-xl text-xs leading-5 text-[var(--sg-text-subtle-on-light)]">Use day headers, one exercise per line, and optional sets, reps, RPE, rest, or notes. Set headers, warm-ups, and plan instructions remain separate; ambiguous exercise names can be corrected before loading.</p></div><button ref={closeRef} type="button" onClick={onClose} aria-label="Close routine import" className="grid h-9 w-9 place-items-center rounded-full border border-[#c8d9ec] text-[#2a527f]"><X className="h-4 w-4" aria-hidden="true" /></button></div><div className="routine-import-body mt-5 grid gap-4 lg:grid-cols-[1fr_.95fr]"><label className="stack-import-input"><span>Paste routine</span><textarea value={source} onChange={(event) => { setSource(event.target.value); setManualMatches({}); }} placeholder="Day 1 — Push&#10;Barbell Bench Press — 3 x 8 @ RPE 8&#10;Set 1: 10 reps, controlled tempo&#10;..." /></label><div className="stack-import-preview"><div className="flex items-start justify-between gap-3"><div><p className="metric-label">Parsed preview</p><p className="mt-1 text-xs text-[#56708d]">{matched} matched exercise{matched === 1 ? "" : "s"} across {loadedDays.length} workout day{loadedDays.length === 1 ? "" : "s"}. {reviewCount ? `${reviewCount} match${reviewCount === 1 ? "" : "es"} need review.` : "All identities are ready."}</p></div><Layers3 className="h-5 w-5 text-[var(--sg-info-strong)]" /></div><div className="routine-preview-days">{routine.days.length ? routine.days.map((day, dayIndex) => <details key={`${day.label}-${dayIndex}`} className="routine-preview-day" open={dayIndex === 0}><summary><span><strong>{day.label}</strong><small>{day.items.length} matched · {day.context.length} saved as plan context · {day.unmatched.length} unresolved</small></span><CornerDownRight className="h-4 w-4" /></summary><div>{day.items.map((item, index) => <div key={`${item.raw}-${index}`} className={`stack-import-row stack-import-match stack-import-${item.confidence}`}><span><Check className="h-3.5 w-3.5" /></span><div><strong>{item.exercise.name}</strong><small>{item.prescription}{item.rpe ? ` · ${item.rpe}` : ""}{item.rest ? ` · ${item.rest} rest` : ""}</small><em>{confidenceLabel(item.confidence)}</em></div>{item.candidates.length > 1 && <label className="import-match-select"><span>Change</span><select value={item.exercise.id} onChange={(event) => chooseMatch(item.raw, event.target.value)} aria-label={`Confirm match for ${item.raw}`}>{item.candidates.map((candidate) => <option key={candidate.exercise.id} value={candidate.exercise.id}>{candidate.exercise.name}</option>)}</select></label>}</div>)}{day.context.map((item, index) => <div key={`${item.raw}-${index}`} className="stack-import-row stack-import-context"><span>↳</span><div><strong>{item.raw}</strong><small>{item.kind} saved separately from exercises.</small></div></div>)}{day.unmatched.map((item, index) => <div key={`${item.raw}-${index}`} className="stack-import-row stack-import-miss"><span><SlidersHorizontal className="h-3.5 w-3.5" /></span><div><strong>{item.raw}</strong><small>{item.candidates.length ? "Choose a catalog match or keep this line unresolved." : "No confident catalog match — keep this line for review."}</small></div>{item.candidates.length ? <label className="import-match-select"><span>Resolve</span><select value="" onChange={(event) => chooseMatch(item.raw, event.target.value)} aria-label={`Choose a catalog match for ${item.raw}`}><option value="">Choose exercise</option>{item.candidates.map((candidate) => <option key={candidate.exercise.id} value={candidate.exercise.id}>{candidate.exercise.name}</option>)}</select></label> : null}</div>)}</div></details>) : <div className="routine-preview-empty">Paste a workout routine to preview day labels, matched exercises, and programming details.</div>}</div></div></div><div className="mt-5 flex flex-wrap items-center justify-between gap-3"><button type="button" onClick={onClose} className="text-[11px] font-bold uppercase tracking-[.11em] text-[#58718e]">Cancel</button><div className="text-right"><p className="text-[11px] text-[var(--sg-text-subtle-on-light)]">{routine.unmatched.length ? `${routine.unmatched.length} line${routine.unmatched.length === 1 ? "" : "s"} remain unresolved and will not be added.` : "Exercises and plan context are separated."}</p><button type="button" disabled={!matched} onClick={() => onImport(routine)} className="stack-import-confirm"><ClipboardPaste className="h-4 w-4" /> Load {loadedDays.length > 1 ? `${loadedDays.length}-day routine` : "workout"}</button></div></div></section></div>;
+  return <div className="routine-import-scrim fixed inset-0 z-[70] bg-[#06172d]/72 p-4 backdrop-blur-sm"><section ref={dialogRef} className="stack-import-modal routine-import-modal" role="dialog" aria-modal="true" aria-labelledby="routine-import-title"><div className="flex items-start justify-between gap-4"><div><p className="metric-label">Routine import</p><h3 id="routine-import-title">Paste the full plan.</h3><p className="mt-2 max-w-xl text-xs leading-5 text-[var(--sg-text-subtle-on-light)]">Use day headers, one exercise per line, and optional sets, reps, RPE, rest, or notes. Set headers, warm-ups, and plan instructions remain separate; ambiguous exercise names can be corrected before loading.</p></div><button ref={closeRef} type="button" onClick={onClose} aria-label="Close routine import" className="grid h-9 w-9 place-items-center rounded-full border border-[#c8d9ec] text-[#2a527f]"><X className="h-4 w-4" aria-hidden="true" /></button></div><div className="routine-import-body mt-5 grid gap-4 lg:grid-cols-[1fr_.95fr]"><label className="stack-import-input"><span>Paste routine</span><textarea value={source} onChange={(event) => { setSource(event.target.value); setManualMatches({}); }} placeholder="Day 1 — Push&#10;Barbell Bench Press — 3 x 8 @ RPE 8&#10;Set 1: 10 reps, controlled tempo&#10;..." /></label><div className="stack-import-preview"><div className="flex items-start justify-between gap-3"><div><p className="metric-label">Parsed preview</p><p className="mt-1 text-xs text-[#56708d]">{matched} matched exercise{matched === 1 ? "" : "s"} across {loadedDays.length} workout day{loadedDays.length === 1 ? "" : "s"}. {reviewCount ? `${reviewCount} match${reviewCount === 1 ? "" : "es"} need review.` : "All identities are ready."}</p></div><Layers3 className="h-5 w-5 text-[var(--sg-info-strong)]" /></div><div className="routine-preview-days">{routine.days.length ? routine.days.map((day, dayIndex) => <details key={`${day.label}-${dayIndex}`} className="routine-preview-day" open={dayIndex === 0}><summary><span><strong>{day.label}</strong><small>{day.items.length} matched · {day.context.length} saved as plan context · {day.unmatched.length} unresolved</small></span><CornerDownRight className="h-4 w-4" /></summary><div>{day.items.map((item, index) => <div key={`${item.raw}-${index}`} className={`stack-import-row stack-import-match stack-import-${item.confidence}`}><span><Check className="h-3.5 w-3.5" /></span><div><strong>{item.exercise.name}</strong><small>{[item.prescription || "No sets given", item.rpe, item.rest ? `Rest ${item.rest}` : "", item.notes ? `Note: ${item.notes}` : ""].filter(Boolean).join(" · ")}</small><em>{confidenceLabel(item.confidence)}</em></div>{item.candidates.length > 1 && <label className="import-match-select"><span>Change</span><select value={item.exercise.id} onChange={(event) => chooseMatch(item.raw, event.target.value)} aria-label={`Confirm match for ${item.raw}`}>{item.candidates.map((candidate) => <option key={candidate.exercise.id} value={candidate.exercise.id}>{candidate.exercise.name}</option>)}</select></label>}</div>)}{day.context.map((item, index) => <div key={`${item.raw}-${index}`} className="stack-import-row stack-import-context"><span>↳</span><div><strong>{item.raw}</strong><small>{item.kind} saved separately from exercises.</small></div></div>)}{day.unmatched.map((item, index) => <div key={`${item.raw}-${index}`} className="stack-import-row stack-import-miss"><span><SlidersHorizontal className="h-3.5 w-3.5" /></span><div><strong>{item.raw}</strong><small>{item.candidates.length ? "Choose a catalog match or keep this line unresolved." : "No confident catalog match — keep this line for review."}</small></div>{item.candidates.length ? <label className="import-match-select"><span>Resolve</span><select value="" onChange={(event) => chooseMatch(item.raw, event.target.value)} aria-label={`Choose a catalog match for ${item.raw}`}><option value="">Choose exercise</option>{item.candidates.map((candidate) => <option key={candidate.exercise.id} value={candidate.exercise.id}>{candidate.exercise.name}</option>)}</select></label> : null}</div>)}</div></details>) : <div className="routine-preview-empty">Paste a workout routine to preview day labels, matched exercises, and programming details.</div>}</div></div></div><div className="mt-5 flex flex-wrap items-center justify-between gap-3"><button type="button" onClick={onClose} className="text-[11px] font-bold uppercase tracking-[.11em] text-[#58718e]">Cancel</button><div className="text-right"><p className="text-[11px] text-[var(--sg-text-subtle-on-light)]">{routine.unmatched.length ? `${routine.unmatched.length} line${routine.unmatched.length === 1 ? "" : "s"} remain unresolved and will not be added.` : "Exercises and plan context are separated."}</p><button type="button" disabled={!matched} onClick={() => onImport(routine)} className="stack-import-confirm"><ClipboardPaste className="h-4 w-4" /> Load {loadedDays.length > 1 ? `${loadedDays.length}-day routine` : "workout"}</button></div></div></section></div>;
 }
