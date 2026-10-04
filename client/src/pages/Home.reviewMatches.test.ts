@@ -14,7 +14,7 @@ describe("actions that name a day open that day", () => {
   });
 
   it("the add toast's 'View workout' opens the day that received the exercise", () => {
-    const add = home.slice(home.indexOf("const addExercise = (exercise: Exercise) => {"), home.indexOf("const toggleFavorite"));
+    const add = home.slice(home.indexOf("const addExercise = (exercise: Exercise"), home.indexOf("const toggleFavorite"));
     expect(add).toContain('action: { label: "View workout", onClick: () => { const slot = daySlots.find((item) => item.key === dayKey);');
     expect(add).toContain("setActiveSplitDayIndex(slot.index); setActiveSplitDay(slot.day);");
   });

@@ -106,7 +106,8 @@ describe("selecting a muscle", () => {
     expect(fillOf("biceps")).toContain("-supporting");
     expect(fillOf("abs")).not.toBe(fillOf("biceps"));
     const quads = container.querySelector('.anatomy-hit[aria-label^="quads"]')!;
-    expect(quads.getAttribute("aria-label")).toBe("quads, not involved");
+    // October 4: a region with no role is unrecorded, not shown to sit out.
+    expect(quads.getAttribute("aria-label")).toBe("quads, no role recorded");
   });
 
   it("marks selection with an outline as well as colour, since a primary muscle is already red", () => {

@@ -8,7 +8,7 @@ import { getAnatomyMechanicsEvidence } from "@/lib/anatomyMechanicsEvidence";
 import type { BodyLabRoleDetail } from "@/lib/bodyLabRoleContext";
 import "../anatomy-clean.css";
 
-type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; /** A selection made elsewhere in the app, which the figure should show. */ selectedKey?: string | null; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; /** Where the roles come from: a sporting action (Body Lab) or a training day's exercises (the Training Day analysis), which has no confidence labels and says "prime mover", not "primary role". */ roleSource?: "action" | "training-day"; showInspector?: boolean; /** What to do with the selection - the owner's exercise search - drawn after the muscle rows. */ nextStep?: ReactNode; /** What the roles are the demands of ("Hand fighting"), restated over the rows so it survives a scroll past the selector. */ subjectLabel?: string; /** Opens the catalog scoped to the selected muscle: a deliberate second action inside the muscle's detail, never the page's primary one. */ onBrowseMuscle?: (muscle: string) => void };
+type AnatomyMapProps = { primary: string[]; secondary: string[]; onSelect: (muscle: string) => void; /** A selection made elsewhere in the app, which the figure should show. */ selectedKey?: string | null; muscleScores?: Record<string, number>; roleDetails?: Record<string, BodyLabRoleDetail>; roleMethodology?: string; /** Where the roles come from: a sporting action (Body Lab), a training day's exercises (the Training Day analysis), which has no confidence labels and says "prime mover", not "primary role", or one exercise's catalog record (Exercise intelligence). */ roleSource?: "action" | "training-day" | "exercise"; showInspector?: boolean; /** What the figure shows, named directly above it ("Muscle roles · Barbell Bench Press"). */ figureTitle?: string; /** What to do with the selection - the owner's exercise search - drawn after the muscle rows. */ nextStep?: ReactNode; /** What the roles are the demands of ("Hand fighting"), restated over the rows so it survives a scroll past the selector. */ subjectLabel?: string; /** Opens the catalog scoped to the selected muscle: a deliberate second action inside the muscle's detail, never the page's primary one. */ onBrowseMuscle?: (muscle: string) => void };
 type Role = "Primary" | "Synergist" | "Stabilizer";
 
 /** The word a row carries for its role. "Synergist" is the model's term; the athlete reads "Supporting". */
@@ -60,8 +60,9 @@ const labels: Record<string, string> = {
 
 const viewLabel = (view: "front" | "back") => (view === "front" ? "anterior" : "posterior");
 
-export function AnatomyMap({ primary, secondary, onSelect, selectedKey: externalKey, muscleScores, roleDetails, roleMethodology, roleSource = "action", showInspector = true, nextStep, subjectLabel, onBrowseMuscle }: AnatomyMapProps) {
+export function AnatomyMap({ primary, secondary, onSelect, selectedKey: externalKey, muscleScores, roleDetails, roleMethodology, roleSource = "action", showInspector = true, nextStep, subjectLabel, onBrowseMuscle, figureTitle }: AnatomyMapProps) {
   const trainingDay = roleSource === "training-day";
+  const exerciseRecord = roleSource === "exercise";
   const [selectedKey, setSelectedKey] = useState(externalKey ?? "");
   /**
    * The exact drawn region under the finger. The figure draws the pectoralis in
@@ -244,7 +245,11 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
           already names the action; the legend already says what colour means. */}
       <div className="atlas-pro-grid">
         <div className="atlas-pro-canvas">
+          {figureTitle && <p className="atlas-figure-title">{figureTitle}</p>}
           <div className="atlas-body-chart-wrap">
+            {/* One body on a narrow screen, with the control that turns it above it, where
+                the two bodies' names sit when both are drawn. */}
+            {!wide && <div className="atlas-view-captions atlas-side-tabs" role="group" aria-label="Side of the body shown">{(["front", "back"] as const).map((candidate) => <button key={candidate} type="button" className="atlas-side-tab" aria-pressed={side === candidate} aria-label={side === candidate ? `${sideLabel(candidate)} of the body, shown` : `${turnToSideLabel(side)} of the body`} onClick={() => { if (side !== candidate) setSide(candidate); }}>{sideLabel(candidate)}</button>)}</div>}
             <div className={`atlas-body-chart ${wide ? "atlas-body-chart-pair" : ""}`}>
               <AnatomyFigure
                 view={wide ? "both" : side}
@@ -254,14 +259,13 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
                 onSelect={chooseRegion}
                 labelFor={(key) => labels[key] || key}
                 onHover={(key) => setHoveredName(key ? (labels[key] || key) : "")}
+                captions={wide}
               />
             </div>
-            {/* Both bodies on screen carry static captions; one body carries the
-                control that turns it, since that is the only route to the other
-                half. Never a "Front" toggle over two bodies already showing. */}
-            {wide
-              ? <div className="atlas-view-captions atlas-view-captions-pair" aria-hidden="true"><span>Front</span><span>Back</span></div>
-              : <div className="atlas-view-captions atlas-side-tabs" role="group" aria-label="Side of the body shown">{(["front", "back"] as const).map((candidate) => <button key={candidate} type="button" className="atlas-side-tab" aria-pressed={side === candidate} aria-label={side === candidate ? `${sideLabel(candidate)} of the body, shown` : `${turnToSideLabel(side)} of the body`} onClick={() => { if (side !== candidate) setSide(candidate); }}>{sideLabel(candidate)}</button>)}</div>}
+            {/* Both bodies on screen are named in the drawing, over each body; never a
+                "Front" toggle over two bodies already showing. Turned to the side a
+                selection is not drawn on, the selection is still held, and said. */}
+            {!wide && selectedKey && selectedViews.length > 0 && !selectedViews.includes(side) && <p className="atlas-side-note">{selectedLabel} is on the {sideLabel(selectedViews[0]).toLowerCase()} view.</p>}
             {hoveredName && <div className="atlas-hover-label">{hoveredName}</div>}
           </div>
 
@@ -299,11 +303,16 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
               a colour never claims a distinction the paint does not draw. A
               training day's roles come from the catalog, which records no
               stabilizers, so that legend keeps to the two states it can show. */}
-          <div className="atlas-heat-legend-pro">
-            {/* Swatches carry the figure's own fills, gradients included, so the
-                legend cannot drift from what the body is actually painted. */}
-            <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))" }} /><span>{trainingDay ? "Prime mover in this day" : "Primary role"}</span><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))" }} /><span>{trainingDay ? "Supporting in this day" : "Supporting role"}</span>{(!trainingDay || roleCounts.stabilizing > 0) && <><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-stabilizing-1),var(--sg-role-stabilizing-2))" }} /><span>{trainingDay ? "Stabilizing in this day" : "Stabilizing role"}</span></>}<i className="atlas-swatch" style={{ background: "var(--sg-role-neutral-on-dark)" }} /><span>Neutral</span></>
-          </div>
+          {/* Swatches carry the figure's own fills, gradients included, so the legend
+              cannot drift from what the body is actually painted. Items, so a swatch
+              never wraps away from its word; two columns on a phone. The neutral entry
+              says what neutral is: nothing recorded, never "not involved". */}
+          <ul className="atlas-heat-legend-pro" aria-label="Colour key">
+            <li><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-primary-1),var(--sg-role-primary-2))" }} />{trainingDay ? "Prime mover in this day" : "Primary"}</li>
+            <li><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-supporting-1),var(--sg-role-supporting-2))" }} />{trainingDay ? "Supporting in this day" : "Supporting"}</li>
+            {(roleSource === "action" || roleCounts.stabilizing > 0) && <li><i className="atlas-swatch" style={{ background: "linear-gradient(180deg,var(--sg-role-stabilizing-1),var(--sg-role-stabilizing-2))" }} />{trainingDay ? "Stabilizing in this day" : "Stabilizing"}</li>}
+            <li><i className="atlas-swatch atlas-swatch-neutral" style={{ background: "var(--sg-role-neutral-on-dark)" }} />{trainingDay ? "Not in this day" : "No role recorded"}</li>
+          </ul>
         </div>
 
         {/* Inspector */}
@@ -395,9 +404,9 @@ export function AnatomyMap({ primary, secondary, onSelect, selectedKey: external
           <details className="atlas-role-methodology">
             <summary>How muscle roles are classified <ChevronDown className="h-4 w-4" /></summary>
             <div>
-              <p>{roleMethodology || "Roles combine the selected sporting action’s reported prime movers, assisting muscles, stabilizers, and movement demands. They describe relevant contribution to that action rather than activation magnitude or force."}</p>
-              {/* About a sporting action's evidence; a training day's roles come from the catalog. */}
-              {!trainingDay && <><p><strong>Confidence labels</strong> indicate whether the role comes from direct action-specific evidence, strong indirect evidence, biomechanics-informed context, or a low-confidence fallback. These labels do not diagnose individual technique or capacity.</p>
+              <p>{roleMethodology || (exerciseRecord ? "Roles come from the exercise catalog: the muscles it lists as primary are drawn as primary, the ones it lists as secondary as supporting. They describe the exercise's intended contribution rather than activation magnitude or force. A muscle with no role recorded is not listed for this exercise." : "Roles combine the selected sporting action’s reported prime movers, assisting muscles, stabilizers, and movement demands. They describe relevant contribution to that action rather than activation magnitude or force.")}</p>
+              {/* About a sporting action's evidence; a training day's and an exercise's roles come from the catalog. */}
+              {!trainingDay && !exerciseRecord && <><p><strong>Confidence labels</strong> indicate whether the role comes from direct action-specific evidence, strong indirect evidence, biomechanics-informed context, or a low-confidence fallback. These labels do not diagnose individual technique or capacity.</p>
               <p>A muscle with no role recorded for this action is missing from its record, not shown to sit out.</p></>}
             </div>
           </details>

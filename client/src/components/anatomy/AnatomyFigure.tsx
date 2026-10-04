@@ -50,6 +50,14 @@ const HIT_HALO = 16;
  */
 const PANEL_GAP = 72;
 
+/**
+ * Room above the two bodies for their names, in viewBox units. "Front" and "Back"
+ * are drawn in the figure itself, centred over each body, so they cannot drift to
+ * the outer edges of a box the drawing is letterboxed in - which is what HTML
+ * captions in two equal columns under a height-limited figure did.
+ */
+const CAPTION_SPACE = 92;
+
 export type AnatomyView3 = "front" | "back" | "both";
 
 /**
@@ -109,9 +117,11 @@ export type AnatomyFigureProps = {
    * size. The content is clipped to it.
    */
   frame?: { x: number; y: number; width: number; height: number };
+  /** In `both` view, names each body above it ("Front", "Back"). */
+  captions?: boolean;
 };
 
-export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption, frame, compact = false }: AnatomyFigureProps) {
+export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption, frame, compact = false, captions = false }: AnatomyFigureProps) {
   const uid = useId();
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
@@ -180,7 +190,8 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     const described = describeFor?.(key);
     if (described) return `${described}${isSelected(key) ? ", selected" : ""}`;
     const role = roles[key] ?? "neutral";
-    const roleWord = role === "primary" ? "primary role" : role === "supporting" ? "supporting role" : role === "stabilizing" ? "stabilizing role" : "not involved";
+    // Neutral is the absence of a record, not a finding that the muscle sits out.
+    const roleWord = role === "primary" ? "primary role" : role === "supporting" ? "supporting role" : role === "stabilizing" ? "stabilizing role" : "no role recorded";
     return `${labelFor(key)}, ${roleWord}${isSelected(key) ? ", selected" : ""}`;
   };
 
@@ -190,13 +201,14 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
   // One mid serves both panels: the two source figures share a viewBox, and the
   // clip rects ride each panel's own transform into place.
   const mid = panels[0].figure.mid;
+  const captionTop = view === "both" && captions && !frame ? CAPTION_SPACE : 0;
 
   return (
     <svg
       className="anatomy-figure"
       data-view={view}
       data-encoding={rankEncoding ? "rank" : undefined}
-      viewBox={frame && view !== "both" ? `${frame.x} ${frame.y} ${frame.width} ${frame.height}` : `0 0 ${canvasWidth} ${height}`}
+      viewBox={frame && view !== "both" ? `${frame.x} ${frame.y} ${frame.width} ${frame.height}` : `0 ${-captionTop} ${canvasWidth} ${height + captionTop}`}
       data-frame={frame && view !== "both" ? "" : undefined}
       data-compact={compact ? "" : undefined}
       role={interactive ? "group" : "img"}
@@ -236,6 +248,10 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
           </pattern>
         )}
       </defs>
+
+      {captionTop > 0 && <g className="anatomy-captions" aria-hidden="true">
+        {panels.map((panel) => <text key={`caption-${panel.view}`} x={panel.dx + width / 2} y={-captionTop * 0.34} textAnchor="middle">{panel.view === "front" ? "Front" : "Back"}</text>)}
+      </g>}
 
       {panels.map((panel) => (
         <g key={`art-${panel.view}`} aria-hidden="true" transform={panel.dx ? `translate(${panel.dx},0)` : undefined}>

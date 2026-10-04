@@ -1,0 +1,189 @@
+/* ── Exercise analysis (October 4 redesign) ─────────────────────────────────────
+ *
+ * The four views inside the Exercise intelligence sheet. The sheet's shell (header,
+ * tabs, scroll body, footer) is in index.css, because it draws before this chunk
+ * loads. Everything here is on the sheet's deep navy and reads the sheet's tokens:
+ *
+ *   --ei-text      primary text            #EDF4FA
+ *   --ei-text-2    secondary text          #A9BED1
+ *   --ei-rule      hairline dividers
+ *   --ei-bar       one neutral hue for every magnitude bar and the radar
+ *
+ * Orange is the Add action and the selected tab, never a high score. Type is the
+ * reading scale's 14 and 16px steps, sentence case, no tracked capitals for labels
+ * a reader has to read.
+ */
+.ei-panel { --ei-gap: 1.5rem; display: grid; gap: var(--ei-gap); min-width: 0; color: var(--ei-text, var(--sg-text-on-dark)); }
+.ei-view { display: grid; gap: var(--ei-gap); min-width: 0; }
+.ei-panel-head h3 { margin: .25rem 0 0; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.75rem; font-weight: 800; line-height: 1; text-transform: uppercase; }
+.ei-eyebrow { margin: 0; color: var(--ei-text-2, var(--sg-text-muted-on-dark)); font-size: var(--sg-text-sm); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+
+/* Section headings: one size, sentence case, readable. */
+.ei-section { display: grid; gap: .75rem; min-width: 0; }
+.ei-section + .ei-section { border-top: 1px solid var(--ei-rule); padding-top: var(--ei-gap); }
+.ei-section-title { display: flex; align-items: center; gap: .25rem; margin: 0; color: var(--ei-text); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.375rem; font-weight: 700; line-height: 1.15; }
+.ei-section-head { display: grid; gap: .3rem; }
+.ei-section-head-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.ei-section-note, .ei-scale, .ei-group-reading { margin: 0; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.ei-section-note strong { color: var(--ei-text); font-weight: 600; }
+.ei-empty { margin: 0; border-left: 2px solid var(--ei-rule-strong); padding: .5rem 0 .5rem .75rem; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+
+/* A help control: a 44px target around an 16px icon, aligned with the label it explains. */
+.ei-help { position: relative; display: inline-grid; flex: 0 0 auto; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 999px; color: var(--ei-text-2); }
+.ei-help::after { content: ""; position: absolute; inset: -.5rem; }
+.ei-help:hover { color: var(--ei-text); background: rgb(255 255 255 / .06); }
+.ei-help:focus-visible, .ei-link:focus-visible, .ei-more:focus-visible, .ei-chart-toggle:focus-visible, .ei-disclosure > summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.ei-link { min-height: 2.75rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── At a glance ─────────────────────────────────────────────────────────────── */
+.ei-glance { display: grid; gap: .75rem; }
+.ei-glance-lead { margin: 0; max-width: 60ch; color: var(--ei-text); font-size: 1.125rem; line-height: 1.45; }
+.ei-glance-lines { display: grid; gap: 0; margin: 0; }
+.ei-glance-lines > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: .2rem; border-top: 1px solid var(--ei-rule); padding: .75rem 0; }
+.ei-glance-lines > div:last-child { border-bottom: 1px solid var(--ei-rule); }
+.ei-glance-lines dt { color: var(--ei-text); font-size: var(--sg-text-base); font-weight: 700; }
+.ei-glance-movement { color: var(--ei-text-2); font-weight: 600; }
+.ei-glance-lines dd { margin: 0; color: var(--ei-text-2); font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
+.ei-glance-lines .ei-link { min-height: 0; margin-left: .15rem; }
+.ei-tier-tag { display: inline-flex; align-items: center; margin-right: .5rem; border: 1px solid var(--ei-rule-strong); border-radius: 999px; padding: .05rem .55rem; color: var(--ei-text); font-size: var(--sg-text-sm); font-weight: 700; vertical-align: 1px; }
+@container ei-body (min-width: 640px) {
+  .ei-glance-lines > div { grid-template-columns: 11rem minmax(0, 1fr); gap: 1rem; }
+}
+
+/* The photographs inside the view: their own component, given the sheet's width. */
+.ei-media { min-width: 0; }
+
+/* ── Profile: rows first, radar as the overview ──────────────────────────────── */
+.ei-profile { display: grid; gap: 1rem; min-width: 0; container: ei-profile / inline-size; }
+.ei-profile-body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "rows" "toggle" "chart"; gap: 1rem; min-width: 0; }
+.ei-dimensions { grid-area: rows; display: grid; gap: 1.25rem; min-width: 0; }
+.ei-group { display: grid; gap: .1rem; min-width: 0; }
+.ei-group-title { display: flex; align-items: center; gap: .15rem; margin: 0; color: var(--ei-text); font-size: var(--sg-text-lg); font-weight: 700; line-height: 1.3; }
+.ei-group-reading { margin-bottom: .35rem; }
+
+.ei-row { display: grid; gap: .35rem; min-width: 0; padding: .55rem 0 .6rem; }
+.ei-row + .ei-row { border-top: 1px solid var(--ei-rule-faint); }
+.ei-row-head { display: flex; align-items: center; gap: .25rem; min-width: 0; min-height: 1.75rem; }
+.ei-row-label { min-width: 0; color: var(--ei-text); font-size: var(--sg-text-lg); line-height: 1.3; overflow-wrap: anywhere; }
+.ei-row-value { margin-left: auto; padding-left: .75rem; color: var(--ei-text); font-size: 1.125rem; font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.ei-row[data-unavailable] .ei-row-value { color: var(--ei-text-2); font-size: var(--sg-text-base); font-weight: 600; }
+.ei-bar { position: relative; display: block; height: .375rem; overflow: hidden; border-radius: 999px; background: var(--ei-track); }
+.ei-bar i { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--ei-bar); }
+.ei-row[data-unavailable] .ei-bar { background: repeating-linear-gradient(90deg, var(--ei-track) 0 6px, transparent 6px 10px); }
+
+.ei-more, .ei-chart-toggle { display: grid; justify-items: start; gap: .1rem; min-height: 2.75rem; border-top: 1px solid var(--ei-rule); border-radius: 0; padding: .65rem 0 0; color: var(--sg-link-on-dark); text-align: left; }
+.ei-more > span, .ei-chart-toggle { font-size: var(--sg-text-lg); font-weight: 600; }
+.ei-more > span, .ei-chart-toggle { display: inline-flex; align-items: center; gap: .35rem; }
+.ei-more small { color: var(--ei-text-2); font-size: var(--sg-text-base); font-weight: 400; line-height: var(--sg-leading-snug); }
+.ei-more[aria-expanded="true"] svg, .ei-chart-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.ei-chart-toggle { grid-area: toggle; }
+
+/* Narrow: four rows and the named rest; the chart behind its own line. */
+.ei-profile-body:not([data-all]) [data-later] { display: none; }
+.ei-profile-body:not([data-chart]) .ei-radar { display: none; }
+
+.ei-radar { grid-area: chart; display: grid; justify-items: center; gap: .5rem; margin: 0; min-width: 0; }
+.ei-radar-svg { display: block; width: 100%; max-width: 21rem; height: auto; overflow: visible; }
+.ei-radar figcaption { max-width: 21rem; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); text-align: center; }
+.ei-radar-ring { fill: none; stroke: var(--ei-grid); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ei-radar-edge { fill: rgb(255 255 255 / .02); stroke: var(--ei-grid-strong); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ei-radar-spoke { stroke: var(--ei-grid); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.ei-radar-shape { fill: var(--ei-bar); fill-opacity: .18; stroke: var(--ei-bar); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.ei-radar-point { fill: var(--ei-bar); }
+.ei-radar-label { fill: var(--ei-text-2); font-family: var(--font-sans, Inter, system-ui, sans-serif); font-weight: 600; }
+
+/* Wide enough for a ~320px chart and readable rows beside it: two columns, every row,
+   no toggles. Decided by the profile's own width, not the window's. */
+@container ei-profile (min-width: 680px) {
+  .ei-profile-body { grid-template-columns: minmax(18rem, 21rem) minmax(0, 1fr); grid-template-areas: "chart rows"; align-items: start; column-gap: 2rem; }
+  /* As specific as the narrow rules they undo. */
+  .ei-profile-body:not([data-all]) [data-later], .ei-profile-body [data-later] { display: grid; }
+  .ei-profile-body:not([data-chart]) .ei-radar, .ei-profile-body .ei-radar { display: grid; position: sticky; top: 1rem; }
+  .ei-more, .ei-chart-toggle { display: none; }
+}
+
+/* ── Disclosures: method and evidence, at the foot of what they explain ─────── */
+.ei-disclosure { border-top: 1px solid var(--ei-rule); border-bottom: 1px solid var(--ei-rule); }
+.ei-disclosure > summary { display: flex; min-height: 3.25rem; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; list-style: none; color: var(--ei-text); font-size: var(--sg-text-lg); font-weight: 600; }
+.ei-disclosure > summary::-webkit-details-marker { display: none; }
+.ei-disclosure > summary svg { flex: 0 0 auto; color: var(--ei-text-2); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.ei-disclosure[open] > summary svg { transform: rotate(180deg); }
+.ei-disclosure > div { display: grid; gap: .75rem; padding: 0 0 1rem; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.ei-disclosure p, .ei-disclosure ul { margin: 0; }
+.ei-disclosure ul { display: grid; gap: .5rem; padding-left: 1.1rem; list-style: disc; }
+.ei-disclosure strong { color: var(--ei-text); font-weight: 600; }
+.ei-disclosure a, .ei-research a { color: var(--sg-link-on-dark); text-decoration: underline; text-underline-offset: 2px; }
+.ei-research { display: grid; gap: .35rem; border-left: 2px solid var(--ei-bar); padding-left: .75rem; }
+
+/* ── Muscle by muscle ────────────────────────────────────────────────────────── */
+.ei-muscles { display: grid; min-width: 0; }
+.ei-muscle { display: grid; gap: .6rem; min-width: 0; border-top: 1px solid var(--ei-rule); padding: 1rem 0; }
+.ei-muscle:last-child { border-bottom: 1px solid var(--ei-rule); }
+.ei-muscle-head { display: flex; align-items: flex-start; gap: .75rem; min-width: 0; }
+.ei-muscle-head h3 { margin: 0; color: var(--ei-text); font-size: var(--sg-text-lg); font-weight: 700; line-height: 1.3; }
+.ei-muscle-role { display: flex; flex-wrap: wrap; align-items: center; gap: 0 .3rem; margin: .1rem 0 0; color: var(--ei-text-2); font-size: var(--sg-text-base); }
+.ei-muscle-why { margin: 0; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.ei-muscle-meters { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 1.5rem; }
+.ei-muscle-meters .ei-row-label { font-size: var(--sg-text-base); }
+.ei-muscle-meters .ei-row-value { font-size: var(--sg-text-lg); }
+@container ei-body (min-width: 560px) { .ei-muscle-meters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ei-muscle-meters .ei-row + .ei-row { border-top: 0; } }
+
+/* ── Mechanics ───────────────────────────────────────────────────────────────── */
+.ei-fact-block { display: grid; gap: .5rem; }
+.ei-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.ei-chips li { border: 1px solid var(--ei-rule-strong); border-radius: 8px; padding: .3rem .6rem; color: var(--ei-text); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.ei-chips-soft li { border-color: var(--ei-rule); color: var(--ei-text-2); }
+.ei-facts { display: grid; gap: 0; margin: 0; }
+.ei-facts > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: .1rem; border-top: 1px solid var(--ei-rule-faint); padding: .6rem 0; }
+.ei-facts dt { display: flex; align-items: center; gap: .15rem; color: var(--ei-text-2); font-size: var(--sg-text-base); font-weight: 600; }
+.ei-facts dd { margin: 0; color: var(--ei-text); font-size: var(--sg-text-lg); line-height: var(--sg-leading-snug); }
+@container ei-body (min-width: 560px) { .ei-facts > div { grid-template-columns: 13rem minmax(0, 1fr); align-items: center; gap: 1rem; } }
+.ei-curve { display: flex; height: 6.5rem; align-items: flex-end; gap: .5rem; border-bottom: 1px solid var(--ei-grid-strong); background: repeating-linear-gradient(0deg, transparent 0 25%, var(--ei-grid) 25% calc(25% + 1px)); }
+.ei-curve span { flex: 1; min-height: 2px; border-radius: 4px 4px 0 0; background: var(--ei-bar); opacity: .85; }
+.ei-curve-axis { display: flex; justify-content: space-between; color: var(--ei-text-2); font-size: var(--sg-text-sm); }
+
+/* ── Context ─────────────────────────────────────────────────────────────────── */
+.ei-sport-name { margin: 0; color: var(--ei-text); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.75rem; font-weight: 800; line-height: 1; text-transform: uppercase; }
+.ei-stats { display: grid; gap: 0; margin: 0; }
+.ei-stats > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: .1rem 1rem; border-top: 1px solid var(--ei-rule-faint); padding: .6rem 0; }
+.ei-stats dt { color: var(--ei-text); font-size: var(--sg-text-lg); }
+.ei-stats dd { display: contents; }
+.ei-stats dd strong { grid-column: 2; grid-row: 1; color: var(--ei-text); font-size: 1.125rem; font-variant-numeric: tabular-nums; font-weight: 700; }
+.ei-stats dd span { grid-column: 1 / -1; color: var(--ei-text-2); font-size: var(--sg-text-base); }
+.ei-lists { display: grid; gap: 1rem; }
+.ei-lists ul { display: grid; gap: .45rem; margin: .4rem 0 0; padding: 0; list-style: none; }
+.ei-lists li { display: flex; align-items: flex-start; gap: .5rem; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.ei-lists li svg { flex: 0 0 auto; margin-top: .1rem; color: var(--ei-bar); }
+@container ei-body (min-width: 640px) { .ei-lists { grid-template-columns: 1fr 1fr; } }
+.ei-confidence { margin: 0; color: var(--ei-text-2); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.ei-panel .exercise-intelligence-tier { display: inline-flex; align-items: center; gap: .5rem; margin: 0; color: var(--ei-text); font-size: var(--sg-text-lg); }
+.ei-panel .exercise-intelligence-tier-note { margin: 0; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+
+/* The sport card and the evidence disclosure are the page's components, given this view's rules. */
+.ei-panel .inspection-action-connection { border: 0; border-radius: 0; background: transparent; padding: 0; box-shadow: none; }
+.ei-panel .inspection-action-connection + .ei-section { border-top: 1px solid var(--ei-rule); padding-top: var(--ei-gap); }
+
+/* ── Anatomy inside the Muscle Genome view ───────────────────────────────────── */
+.exercise-intelligence-muscles { display: grid; gap: .5rem; min-width: 0; }
+.exercise-intelligence-muscles .anatomy-atlas-pro { border: 0; border-radius: 0; background: transparent; box-shadow: none; padding: 0; color: var(--ei-text); }
+.exercise-intelligence-muscles .atlas-pro-grid { grid-template-columns: minmax(0, 1fr); }
+.exercise-intelligence-muscles .atlas-body-chart { height: clamp(17rem, 46vh, 26rem); }
+.exercise-intelligence-muscles .atlas-ranking { border-top-color: var(--ei-rule); }
+.exercise-intelligence-muscles .atlas-ranking-head h2 { color: var(--ei-text); }
+.exercise-intelligence-muscles .atlas-ranking-head span { color: var(--ei-text-2); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row { border-bottom-color: var(--ei-rule); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row.is-selected { background: rgb(164 200 232 / .1); box-shadow: inset 3px 0 var(--ei-text-2); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row-copy strong { color: var(--ei-text); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row-copy small { color: var(--ei-text-2); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-role-row svg { color: var(--ei-text-2); }
+.exercise-intelligence-muscles .atlas-ranking .atlas-ranking-toggle { color: var(--sg-link-on-dark); }
+.exercise-intelligence-muscles .atlas-role-methodology { border: 0; border-top: 1px solid var(--ei-rule); background: transparent; color: var(--ei-text-2); }
+.exercise-intelligence-muscles .atlas-role-methodology summary { padding-inline: 0; color: var(--ei-text); font-size: var(--sg-text-lg); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.exercise-intelligence-muscles .atlas-role-methodology > div { border-top: 0; padding-inline: 0; }
+.exercise-intelligence-explore { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .35rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.exercise-intelligence-explore:hover { text-decoration: underline; }
+.exercise-intelligence-compare { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .35rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
+.exercise-intelligence-compare:hover { text-decoration: underline; }
+.exercise-intelligence-evidence { border-top: 1px solid var(--ei-rule); border-bottom: 1px solid var(--ei-rule); }
+
+@media (prefers-reduced-motion: reduce) { .ei-disclosure > summary svg { transition: none; } }

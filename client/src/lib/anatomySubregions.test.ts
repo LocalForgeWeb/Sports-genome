@@ -175,7 +175,8 @@ describe("the hover chip stays legible on both grounds", () => {
   });
 
   it("is given an opaque surface on the dark destination", () => {
-    const dark = css.slice(css.indexOf(".destination-body .anatomy-atlas-pro {"));
+    // One polarity flip serves Body Lab and the Exercise intelligence sheet (October 4).
+    const dark = css.slice(css.indexOf(".destination-body .anatomy-atlas-pro, .exercise-intelligence .anatomy-atlas-pro {"));
     const block = dark.slice(0, dark.indexOf("}"));
     expect(block).toContain("--sg-atlas-tooltip-surface");
     expect(block).toContain("--sg-atlas-tooltip-text: var(--sg-text-on-dark)");

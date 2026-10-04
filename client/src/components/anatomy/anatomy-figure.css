@@ -16,17 +16,22 @@
    from every rank colour (anatomyRoleColors.test.ts), so a role is never read as a rank.
    The ranks themselves are unchanged. */
 :root {
-  --sg-role-primary-1: #ff7a2f;
-  --sg-role-primary-2: #e8662a;
-  --sg-role-supporting-1: #2fc4c9;
-  --sg-role-supporting-2: #1f9aa3;
-  /* Stabilizing had no fill of its own and borrowed supporting's teal, so the legend read
-     "supporting or stabilizing" for one colour. A lime, a third hue family beside the orange
-     and the teal: 20 from the State gold and 25 from JV green, so it is still never a rank. */
-  --sg-role-stabilizing-1: #e4ef5a;
-  --sg-role-stabilizing-2: #bfd02e;
-  /* The figure's resting muscle on the dark Body Lab ground, for the legend's Neutral swatch. */
-  --sg-role-neutral-on-dark: #6f7d90;
+  /* October 4 (Exercise Intelligence and anatomy brief §9): the brief's starting palette,
+     measured before it was adopted. Primary #FF783D and supporting #25BCC3 are taken as
+     given (each ≥22 from every rank). */
+  --sg-role-primary-1: #ff783d;
+  --sg-role-primary-2: #f06c35;
+  --sg-role-supporting-1: #25bcc3;
+  --sg-role-supporting-2: #1e9ea6;
+  /* Stabilizing was a fluorescent lime. The brief's warm gold, #D8B65B, is ΔE00 4.1 from the
+     State rank's #DCAF3C - the same collision the Sep 28 brief removed - and every saturated
+     gold sits inside that radius. A pale champagne gold keeps the warmth and clears it: 15.4
+     from State, ≥30 from every rank but State, 31.5 from primary and 36.7 from supporting. */
+  --sg-role-stabilizing-1: #fce3a8;
+  --sg-role-stabilizing-2: #f4deaa;
+  /* The figure's resting muscle on the dark ground, and the legend's "No role recorded" swatch:
+     dark enough to be structure, not a fourth colour. */
+  --sg-role-neutral-on-dark: #34495f;
 }
 
 /* Defaults suit a light surface, because this figure renders on one: the
@@ -79,7 +84,9 @@
 .anatomy-linework > path {
   fill: none;
   stroke: var(--anatomy-line);
-  stroke-width: 2;
+  /* Fine internal boundaries where a surface asks for them (Body Lab and the exercise sheet,
+     October 4); elsewhere, such as the Strength map, the width it had. */
+  stroke-width: var(--anatomy-line-width, 2);
   stroke-linejoin: round;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
@@ -87,6 +94,13 @@
 }
 
 .anatomy-muscle[data-focused="true"] > path { fill: var(--anatomy-shell); }
+
+/* A slightly stronger outer silhouette than the internal lines. Drawn on the body under the
+   muscles, so only its outside edge shows; one stroke, never doubled where regions meet. */
+.anatomy-figure:not([data-compact]) .anatomy-shell { stroke: var(--anatomy-silhouette, none); stroke-width: 1.75; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+/* "Front" and "Back", centred over each body when both are drawn (AnatomyFigure `captions`). */
+.anatomy-captions text { fill: var(--anatomy-caption, currentColor); font-family: var(--font-sans, Inter, system-ui, sans-serif); font-size: 46px; font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 
 /**
  * Selection, in two strokes.

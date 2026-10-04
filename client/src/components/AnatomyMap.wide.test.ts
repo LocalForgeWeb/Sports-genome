@@ -24,8 +24,11 @@ describe("the body chart on a wide screen", () => {
     const { container } = draw();
     expect(container.querySelector('.anatomy-figure[data-view="both"]')).toBeTruthy();
     expect(container.querySelector(".atlas-side-tab")).toBeNull();
-    const captions = [...container.querySelectorAll(".atlas-view-captions-pair span")].map((node) => node.textContent);
+    // October 4: drawn in the figure, centred over each body, rather than in two HTML
+    // columns that drifted to the outer edges of a letterboxed drawing.
+    const captions = [...container.querySelectorAll(".anatomy-figure .anatomy-captions text")].map((node) => node.textContent);
     expect(captions).toEqual(["Front", "Back"]);
+    expect(container.querySelector(".anatomy-captions")?.getAttribute("aria-hidden")).toBe("true");
   });
 
   it("selects the same muscle from the figure and from its row", () => {
@@ -49,7 +52,7 @@ describe("the body chart on a phone", () => {
     const { container } = draw();
     expect(container.querySelector('.anatomy-figure[data-view="front"]')).toBeTruthy();
     expect(container.querySelector(".atlas-side-tab")).toBeTruthy();
-    expect(container.querySelector(".atlas-view-captions-pair")).toBeNull();
+    expect(container.querySelector(".anatomy-captions")).toBeNull();
   });
 
   it("says the rest of the body is unrecorded for this action, not unused", () => {

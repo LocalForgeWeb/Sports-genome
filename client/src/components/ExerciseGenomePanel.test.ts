@@ -56,10 +56,13 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
   it("renders evidence tier, causal mechanics input summary, and uncertainty in the Muscle Genome UI", async () => {
     const { ExerciseGenomePanel } = await import("./ExerciseGenomePanel");
     const seatedCurl = exercises.find((exercise) => exercise.name === "Seated Leg Curl") || exercises[0];
-    const markup = renderToStaticMarkup(createElement(ExerciseGenomePanel, {
+    // October 4: the muscle rows are the Muscle Genome view, and the evidence coverage is in
+    // "How this profile works" at the foot of the Fingerprint view, so both views are read.
+    const markup = ["muscles", "fingerprint"].map((tab) => renderToStaticMarkup(createElement(ExerciseGenomePanel, {
       exercise: seatedCurl,
       context: { goal: "Muscle growth", currentWorkout: [seatedCurl] },
-    }));
+      tab: tab as "muscles" | "fingerprint",
+    }))).join("");
 
     expect(markup).toContain("Direct longitudinal exercise evidence");
     expect(markup).toContain("Key mechanics inputs");
@@ -81,10 +84,11 @@ describe("Exercise Genome muscle-targeting disclosure", () => {
 
     for (const [name, source, boundary] of cases) {
       const exercise = exercises.find((item) => item.name === name) || exercises[0];
-      const markup = renderToStaticMarkup(createElement(ExerciseGenomePanel, {
+      const markup = ["muscles", "fingerprint"].map((tab) => renderToStaticMarkup(createElement(ExerciseGenomePanel, {
         exercise,
         context: { goal: "Muscle growth", currentWorkout: [exercise] },
-      }));
+        tab: tab as "muscles" | "fingerprint",
+      }))).join("");
       expect(markup).toContain(source);
       expect(markup).toContain(boundary);
     }

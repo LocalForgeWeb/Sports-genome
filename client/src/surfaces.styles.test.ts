@@ -35,8 +35,15 @@ describe("surfaces own their ink", () => {
     expect(panel).toContain(", document.body);");
   });
 
-  it("gives Muscle Genome dividers on the dark sheet instead of a light ground showing through", () => {
-    expect(surfaces).toContain(".exercise-intelligence .genome-muscle-stack { gap: 0; background: transparent; }");
+  it("draws the analysis for the dark sheet instead of repainting a light panel", () => {
+    // October 4: the analysis is built for the sheet's navy (exercise-intelligence.css), so the
+    // descendant repaints of a light panel that left pale ink on a light ground are gone.
+    const analysis = read("exercise-intelligence.css");
+    expect(read("components/ExerciseGenomePanel.tsx")).toContain('import "../exercise-intelligence.css";');
+    expect(analysis).toContain(".ei-muscle { display: grid;");
+    expect(analysis).toContain("border-top: 1px solid var(--ei-rule)");
+    expect(surfaces).not.toMatch(/^\.exercise-intelligence \.genome-/m);
+    expect(read("index.css")).not.toContain(".exercise-intelligence .genome-panel");
     expect(read("pages/Home.tsx")).toContain('className="fixed inset-0 z-50 exercise-intelligence sg-surface-dark"');
   });
 

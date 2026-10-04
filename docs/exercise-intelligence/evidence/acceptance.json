@@ -1,0 +1,1368 @@
+[
+  {
+    "id": "V1 320: no horizontal overflow, Close clear of the name, Add and Favorite reachable",
+    "pass": true,
+    "detail": {
+      "overflow": [
+        0,
+        0,
+        0
+      ],
+      "h1": {
+        "x": 16,
+        "y": 50,
+        "w": 288,
+        "h": 52,
+        "r": 304,
+        "b": 102
+      },
+      "close": {
+        "x": 270,
+        "y": 3,
+        "w": 44,
+        "h": 44,
+        "r": 314,
+        "b": 47
+      },
+      "add": {
+        "x": 16,
+        "y": 576,
+        "w": 226,
+        "h": 52,
+        "r": 242,
+        "b": 628
+      },
+      "fav": {
+        "x": 252,
+        "y": 576,
+        "w": 52,
+        "h": 52,
+        "r": 304,
+        "b": 628
+      }
+    }
+  },
+  {
+    "id": "V2 320: rows aligned, nothing past the edge, labels at reading size",
+    "pass": true,
+    "detail": {
+      "rows": 4,
+      "labelPx": 16,
+      "tabs": [
+        {
+          "text": "Fingerprint",
+          "h": 48,
+          "selected": "true"
+        },
+        {
+          "text": "Muscle Genome",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Mechanics",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Context",
+          "h": 48,
+          "selected": "false"
+        }
+      ]
+    }
+  },
+  {
+    "id": "V3 320: the last content ends above the footer",
+    "pass": true,
+    "detail": {
+      "lastBottom": 508,
+      "footerTop": 539
+    }
+  },
+  {
+    "id": "V4 320: all eight radar labels outside the plot, apart, unclipped",
+    "pass": true,
+    "detail": {
+      "width": 288,
+      "labelPx": 11.6,
+      "collisions": [],
+      "clipped": [],
+      "onPlot": [],
+      "labels": [
+        "Hypertrophy",
+        "Strength",
+        "Power",
+        "Stability",
+        "Mobility",
+        "Stimulus/fatigue",
+        "Skill",
+        "Practicality"
+      ]
+    }
+  },
+  {
+    "id": "V5 320: two columns only where the profile itself is at least 680px wide",
+    "pass": true,
+    "detail": {
+      "twoColumn": "\"rows\" \"toggle\" \"chart\"",
+      "profileWidth": 288
+    }
+  },
+  {
+    "id": "V1 375: no horizontal overflow, Close clear of the name, Add and Favorite reachable",
+    "pass": true,
+    "detail": {
+      "overflow": [
+        0,
+        0,
+        0
+      ],
+      "h1": {
+        "x": 17,
+        "y": 50,
+        "w": 341,
+        "h": 26,
+        "r": 358,
+        "b": 76
+      },
+      "close": {
+        "x": 324,
+        "y": 3,
+        "w": 44,
+        "h": 44,
+        "r": 368,
+        "b": 47
+      },
+      "add": {
+        "x": 17,
+        "y": 748,
+        "w": 280,
+        "h": 52,
+        "r": 297,
+        "b": 800
+      },
+      "fav": {
+        "x": 306,
+        "y": 748,
+        "w": 52,
+        "h": 52,
+        "r": 358,
+        "b": 800
+      }
+    }
+  },
+  {
+    "id": "V2 375: rows aligned, nothing past the edge, labels at reading size",
+    "pass": true,
+    "detail": {
+      "rows": 4,
+      "labelPx": 16,
+      "tabs": [
+        {
+          "text": "Fingerprint",
+          "h": 48,
+          "selected": "true"
+        },
+        {
+          "text": "Muscle Genome",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Mechanics",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Context",
+          "h": 48,
+          "selected": "false"
+        }
+      ]
+    }
+  },
+  {
+    "id": "V3 375: the last content ends above the footer",
+    "pass": true,
+    "detail": {
+      "lastBottom": 680,
+      "footerTop": 711
+    }
+  },
+  {
+    "id": "V4 375: all eight radar labels outside the plot, apart, unclipped",
+    "pass": true,
+    "detail": {
+      "width": 336,
+      "labelPx": 13.5,
+      "collisions": [],
+      "clipped": [],
+      "onPlot": [],
+      "labels": [
+        "Hypertrophy",
+        "Strength",
+        "Power",
+        "Stability",
+        "Mobility",
+        "Stimulus/fatigue",
+        "Skill",
+        "Practicality"
+      ]
+    }
+  },
+  {
+    "id": "V5 375: two columns only where the profile itself is at least 680px wide",
+    "pass": true,
+    "detail": {
+      "twoColumn": "\"rows\" \"toggle\" \"chart\"",
+      "profileWidth": 341
+    }
+  },
+  {
+    "id": "V1 390: no horizontal overflow, Close clear of the name, Add and Favorite reachable",
+    "pass": true,
+    "detail": {
+      "overflow": [
+        0,
+        0,
+        0
+      ],
+      "h1": {
+        "x": 18,
+        "y": 50,
+        "w": 355,
+        "h": 26,
+        "r": 372,
+        "b": 76
+      },
+      "close": {
+        "x": 338,
+        "y": 3,
+        "w": 44,
+        "h": 44,
+        "r": 382,
+        "b": 47
+      },
+      "add": {
+        "x": 18,
+        "y": 780,
+        "w": 293,
+        "h": 52,
+        "r": 311,
+        "b": 832
+      },
+      "fav": {
+        "x": 320,
+        "y": 780,
+        "w": 52,
+        "h": 52,
+        "r": 372,
+        "b": 832
+      }
+    }
+  },
+  {
+    "id": "V2 390: rows aligned, nothing past the edge, labels at reading size",
+    "pass": true,
+    "detail": {
+      "rows": 4,
+      "labelPx": 16,
+      "tabs": [
+        {
+          "text": "Fingerprint",
+          "h": 48,
+          "selected": "true"
+        },
+        {
+          "text": "Muscle Genome",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Mechanics",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Context",
+          "h": 48,
+          "selected": "false"
+        }
+      ]
+    }
+  },
+  {
+    "id": "V3 390: the last content ends above the footer",
+    "pass": true,
+    "detail": {
+      "lastBottom": 711,
+      "footerTop": 743
+    }
+  },
+  {
+    "id": "V4 390: all eight radar labels outside the plot, apart, unclipped",
+    "pass": true,
+    "detail": {
+      "width": 336,
+      "labelPx": 13.5,
+      "collisions": [],
+      "clipped": [],
+      "onPlot": [],
+      "labels": [
+        "Hypertrophy",
+        "Strength",
+        "Power",
+        "Stability",
+        "Mobility",
+        "Stimulus/fatigue",
+        "Skill",
+        "Practicality"
+      ]
+    }
+  },
+  {
+    "id": "V5 390: two columns only where the profile itself is at least 680px wide",
+    "pass": true,
+    "detail": {
+      "twoColumn": "\"rows\" \"toggle\" \"chart\"",
+      "profileWidth": 355
+    }
+  },
+  {
+    "id": "V1 430: no horizontal overflow, Close clear of the name, Add and Favorite reachable",
+    "pass": true,
+    "detail": {
+      "overflow": [
+        0,
+        0,
+        0
+      ],
+      "h1": {
+        "x": 19,
+        "y": 50,
+        "w": 391,
+        "h": 26,
+        "r": 411,
+        "b": 76
+      },
+      "close": {
+        "x": 376,
+        "y": 3,
+        "w": 44,
+        "h": 44,
+        "r": 420,
+        "b": 47
+      },
+      "add": {
+        "x": 19,
+        "y": 868,
+        "w": 330,
+        "h": 52,
+        "r": 349,
+        "b": 920
+      },
+      "fav": {
+        "x": 359,
+        "y": 868,
+        "w": 52,
+        "h": 52,
+        "r": 411,
+        "b": 920
+      }
+    }
+  },
+  {
+    "id": "V2 430: rows aligned, nothing past the edge, labels at reading size",
+    "pass": true,
+    "detail": {
+      "rows": 4,
+      "labelPx": 16,
+      "tabs": [
+        {
+          "text": "Fingerprint",
+          "h": 48,
+          "selected": "true"
+        },
+        {
+          "text": "Muscle Genome",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Mechanics",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Context",
+          "h": 48,
+          "selected": "false"
+        }
+      ]
+    }
+  },
+  {
+    "id": "V3 430: the last content ends above the footer",
+    "pass": true,
+    "detail": {
+      "lastBottom": 799,
+      "footerTop": 831
+    }
+  },
+  {
+    "id": "V4 430: all eight radar labels outside the plot, apart, unclipped",
+    "pass": true,
+    "detail": {
+      "width": 336,
+      "labelPx": 13.5,
+      "collisions": [],
+      "clipped": [],
+      "onPlot": [],
+      "labels": [
+        "Hypertrophy",
+        "Strength",
+        "Power",
+        "Stability",
+        "Mobility",
+        "Stimulus/fatigue",
+        "Skill",
+        "Practicality"
+      ]
+    }
+  },
+  {
+    "id": "V5 430: two columns only where the profile itself is at least 680px wide",
+    "pass": true,
+    "detail": {
+      "twoColumn": "\"rows\" \"toggle\" \"chart\"",
+      "profileWidth": 391
+    }
+  },
+  {
+    "id": "V1 768: no horizontal overflow, Close clear of the name, Add and Favorite reachable",
+    "pass": true,
+    "detail": {
+      "overflow": [
+        0,
+        0,
+        0
+      ],
+      "h1": {
+        "x": 45,
+        "y": 71,
+        "w": 678,
+        "h": 36,
+        "r": 723,
+        "b": 107
+      },
+      "close": {
+        "x": 689,
+        "y": 24,
+        "w": 44,
+        "h": 44,
+        "r": 733,
+        "b": 68
+      },
+      "add": {
+        "x": 421,
+        "y": 939,
+        "w": 240,
+        "h": 52,
+        "r": 661,
+        "b": 991
+      },
+      "fav": {
+        "x": 671,
+        "y": 939,
+        "w": 52,
+        "h": 52,
+        "r": 723,
+        "b": 991
+      }
+    }
+  },
+  {
+    "id": "V2 768: rows aligned, nothing past the edge, labels at reading size",
+    "pass": true,
+    "detail": {
+      "rows": 4,
+      "labelPx": 16,
+      "tabs": [
+        {
+          "text": "Fingerprint",
+          "h": 48,
+          "selected": "true"
+        },
+        {
+          "text": "Muscle Genome",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Mechanics",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Context",
+          "h": 48,
+          "selected": "false"
+        }
+      ]
+    }
+  },
+  {
+    "id": "V3 768: the last content ends above the footer",
+    "pass": true,
+    "detail": {
+      "lastBottom": 897,
+      "footerTop": 928
+    }
+  },
+  {
+    "id": "V4 768: all eight radar labels outside the plot, apart, unclipped",
+    "pass": true,
+    "detail": {
+      "width": 336,
+      "labelPx": 13.5,
+      "collisions": [],
+      "clipped": [],
+      "onPlot": [],
+      "labels": [
+        "Hypertrophy",
+        "Strength",
+        "Power",
+        "Stability",
+        "Mobility",
+        "Stimulus/fatigue",
+        "Skill",
+        "Practicality"
+      ]
+    }
+  },
+  {
+    "id": "V5 768: two columns only where the profile itself is at least 680px wide",
+    "pass": true,
+    "detail": {
+      "twoColumn": "\"rows\" \"toggle\" \"chart\"",
+      "profileWidth": 678
+    }
+  },
+  {
+    "id": "V1 800: no horizontal overflow, Close clear of the name, Add and Favorite reachable",
+    "pass": true,
+    "detail": {
+      "overflow": [
+        0,
+        0,
+        0
+      ],
+      "h1": {
+        "x": 45,
+        "y": 71,
+        "w": 710,
+        "h": 36,
+        "r": 755,
+        "b": 107
+      },
+      "close": {
+        "x": 721,
+        "y": 24,
+        "w": 44,
+        "h": 44,
+        "r": 765,
+        "b": 68
+      },
+      "add": {
+        "x": 453,
+        "y": 815,
+        "w": 240,
+        "h": 52,
+        "r": 693,
+        "b": 867
+      },
+      "fav": {
+        "x": 703,
+        "y": 815,
+        "w": 52,
+        "h": 52,
+        "r": 755,
+        "b": 867
+      }
+    }
+  },
+  {
+    "id": "V2 800: rows aligned, nothing past the edge, labels at reading size",
+    "pass": true,
+    "detail": {
+      "rows": 8,
+      "labelPx": 16,
+      "tabs": [
+        {
+          "text": "Fingerprint",
+          "h": 48,
+          "selected": "true"
+        },
+        {
+          "text": "Muscle Genome",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Mechanics",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Context",
+          "h": 48,
+          "selected": "false"
+        }
+      ]
+    }
+  },
+  {
+    "id": "V3 800: the last content ends above the footer",
+    "pass": true,
+    "detail": {
+      "lastBottom": 772,
+      "footerTop": 804
+    }
+  },
+  {
+    "id": "V4 800: all eight radar labels outside the plot, apart, unclipped",
+    "pass": true,
+    "detail": {
+      "width": 336,
+      "labelPx": 13.5,
+      "collisions": [],
+      "clipped": [],
+      "onPlot": [],
+      "labels": [
+        "Hypertrophy",
+        "Strength",
+        "Power",
+        "Stability",
+        "Mobility",
+        "Stimulus/fatigue",
+        "Skill",
+        "Practicality"
+      ]
+    }
+  },
+  {
+    "id": "V5 800: two columns only where the profile itself is at least 680px wide",
+    "pass": true,
+    "detail": {
+      "twoColumn": "\"chart rows\"",
+      "profileWidth": 710
+    }
+  },
+  {
+    "id": "V1 1024: no horizontal overflow, Close clear of the name, Add and Favorite reachable",
+    "pass": true,
+    "detail": {
+      "overflow": [
+        0,
+        0,
+        0
+      ],
+      "h1": {
+        "x": 77,
+        "y": 71,
+        "w": 870,
+        "h": 36,
+        "r": 947,
+        "b": 107
+      },
+      "close": {
+        "x": 913,
+        "y": 24,
+        "w": 44,
+        "h": 44,
+        "r": 957,
+        "b": 68
+      },
+      "add": {
+        "x": 645,
+        "y": 683,
+        "w": 240,
+        "h": 52,
+        "r": 885,
+        "b": 735
+      },
+      "fav": {
+        "x": 895,
+        "y": 683,
+        "w": 52,
+        "h": 52,
+        "r": 947,
+        "b": 735
+      }
+    }
+  },
+  {
+    "id": "V2 1024: rows aligned, nothing past the edge, labels at reading size",
+    "pass": true,
+    "detail": {
+      "rows": 8,
+      "labelPx": 16,
+      "tabs": [
+        {
+          "text": "Fingerprint",
+          "h": 48,
+          "selected": "true"
+        },
+        {
+          "text": "Muscle Genome",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Mechanics",
+          "h": 48,
+          "selected": "false"
+        },
+        {
+          "text": "Context",
+          "h": 48,
+          "selected": "false"
+        }
+      ]
+    }
+  },
+  {
+    "id": "V3 1024: the last content ends above the footer",
+    "pass": true,
+    "detail": {
+      "lastBottom": 640,
+      "footerTop": 672
+    }
+  },
+  {
+    "id": "V4 1024: all eight radar labels outside the plot, apart, unclipped",
+    "pass": true,
+    "detail": {
+      "width": 336,
+      "labelPx": 13.5,
+      "collisions": [],
+      "clipped": [],
+      "onPlot": [],
+      "labels": [
+        "Hypertrophy",
+        "Strength",
+        "Power",
+        "Stability",
+        "Mobility",
+        "Stimulus/fatigue",
+        "Skill",
+        "Practicality"
+      ]
+    }
+  },
+  {
+    "id": "V5 1024: two columns only where the profile itself is at least 680px wide",
+    "pass": true,
+    "detail": {
+      "twoColumn": "\"chart rows\"",
+      "profileWidth": 870
+    }
+  },
+  {
+    "id": "V6 390x568 text 100%: scrolls, controls reachable, nothing under the footer, no sideways scroll",
+    "pass": true,
+    "detail": {
+      "scroll": {
+        "scrollable": true,
+        "visible": 309
+      },
+      "add": {
+        "x": 18,
+        "y": 504,
+        "w": 293,
+        "h": 52,
+        "r": 311,
+        "b": 556
+      },
+      "footer": {
+        "x": 0,
+        "y": 467,
+        "w": 390,
+        "h": 101,
+        "r": 390,
+        "b": 568
+      },
+      "lastBottom": 435,
+      "overflow": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "V6 1024x600 text 100%: scrolls, controls reachable, nothing under the footer, no sideways scroll",
+    "pass": true,
+    "detail": {
+      "scroll": {
+        "scrollable": true,
+        "visible": 316
+      },
+      "add": {
+        "x": 645,
+        "y": 515,
+        "w": 240,
+        "h": 52,
+        "r": 885,
+        "b": 567
+      },
+      "footer": {
+        "x": 53,
+        "y": 504,
+        "w": 918,
+        "h": 75,
+        "r": 971,
+        "b": 579
+      },
+      "lastBottom": 472,
+      "overflow": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "V6 390x844 text 125%: scrolls, controls reachable, nothing under the footer, no sideways scroll",
+    "pass": true,
+    "detail": {
+      "scroll": {
+        "scrollable": true,
+        "visible": 585
+      },
+      "add": {
+        "x": 18,
+        "y": 780,
+        "w": 293,
+        "h": 52,
+        "r": 311,
+        "b": 832
+      },
+      "footer": {
+        "x": 0,
+        "y": 743,
+        "w": 390,
+        "h": 101,
+        "r": 390,
+        "b": 844
+      },
+      "lastBottom": 711,
+      "overflow": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "V6 320x640 text 125%: scrolls, controls reachable, nothing under the footer, no sideways scroll",
+    "pass": true,
+    "detail": {
+      "scroll": {
+        "scrollable": true,
+        "visible": 355
+      },
+      "add": {
+        "x": 16,
+        "y": 576,
+        "w": 226,
+        "h": 52,
+        "r": 242,
+        "b": 628
+      },
+      "footer": {
+        "x": 0,
+        "y": 539,
+        "w": 320,
+        "h": 101,
+        "r": 320,
+        "b": 640
+      },
+      "lastBottom": 508,
+      "overflow": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "V7 320: \"Rope Face Pull with External Rotation\" wraps at full size, clear of Close and the tabs",
+    "pass": true,
+    "detail": {
+      "h1": {
+        "x": 16,
+        "y": 50,
+        "w": 288,
+        "h": 78,
+        "r": 304,
+        "b": 128
+      },
+      "h1Px": 26,
+      "close": {
+        "x": 270,
+        "y": 3,
+        "w": 44,
+        "h": 44,
+        "r": 314,
+        "b": 47
+      },
+      "tabsTop": 162,
+      "glance": {
+        "r": 304,
+        "w": 288
+      }
+    }
+  },
+  {
+    "id": "V7 320: \"Single-Arm Dumbbell Triceps Extension\" wraps at full size, clear of Close and the tabs",
+    "pass": true,
+    "detail": {
+      "h1": {
+        "x": 16,
+        "y": 50,
+        "w": 288,
+        "h": 78,
+        "r": 304,
+        "b": 128
+      },
+      "h1Px": 26,
+      "close": {
+        "x": 270,
+        "y": 3,
+        "w": 44,
+        "h": 44,
+        "r": 314,
+        "b": 47
+      },
+      "tabsTop": 182,
+      "glance": {
+        "r": 304,
+        "w": 288
+      }
+    }
+  },
+  {
+    "id": "V7 320: \"Landmine Single-Leg Romanian Deadlift\" wraps at full size, clear of Close and the tabs",
+    "pass": true,
+    "detail": {
+      "h1": {
+        "x": 16,
+        "y": 50,
+        "w": 288,
+        "h": 78,
+        "r": 304,
+        "b": 128
+      },
+      "h1Px": 26,
+      "close": {
+        "x": 270,
+        "y": 3,
+        "w": 44,
+        "h": 44,
+        "r": 314,
+        "b": 47
+      },
+      "tabsTop": 162,
+      "glance": {
+        "r": 304,
+        "w": 288
+      }
+    }
+  },
+  {
+    "id": "B1 a second exercise changes the name, metadata, summary, all eight values and the anatomy together",
+    "pass": true,
+    "detail": {
+      "bench": {
+        "name": "Barbell Bench Press",
+        "glance": "Highest in strength expression (95) and stimulus-to-fatigue ratio (93); lowest in power expression (20).",
+        "values": [
+          "80",
+          "95",
+          "20",
+          "64",
+          "34",
+          "34",
+          "93",
+          "68"
+        ],
+        "meta": "BarbellHorizontal pushChest & push"
+      },
+      "rdl": {
+        "name": "Romanian Deadlift",
+        "glance": "Highest in strength expression (87) and stimulus-to-fatigue ratio (87); lowest in power expression (20).",
+        "values": [
+          "80",
+          "87",
+          "20",
+          "30",
+          "34",
+          "22",
+          "87",
+          "84"
+        ],
+        "meta": "Free weightsHip hingeBack & pull"
+      },
+      "benchPainted": [
+        "chest"
+      ],
+      "rdlPainted": [],
+      "tabAfterReopen": "Fingerprint"
+    }
+  },
+  {
+    "id": "B2 an exercise chosen from search over the sheet replaces the last one entirely (one panel, its own name and values)",
+    "pass": true,
+    "detail": {
+      "swapped": {
+        "name": "Back Squat",
+        "glance": "Highest in strength expression (87) and stimulus-to-fatigue ratio (85); lowest in power expression (20).",
+        "values": [
+          "80",
+          "87",
+          "20",
+          "50",
+          "42",
+          "37",
+          "85",
+          "84"
+        ],
+        "meta": "Free weightsSquat / knee dominantKnee dominant"
+      },
+      "views": 1
+    }
+  },
+  {
+    "id": "B3 the movement link names the movement in view and follows it when it changes",
+    "pass": true,
+    "detail": {
+      "hand": "Movement link · Hand fightingNo mapped link to Hand fighting in this catalog. Sport context",
+      "bridge": "Movement link · BridgeMovement-specificNamed in the Bridge movement record: hip thrust. Sport context"
+    }
+  },
+  {
+    "id": "B4 all 8 rows, the chart, the method and a help card open and close; Escape closes only the card, focus returns to its button, the exercise stays",
+    "pass": true,
+    "detail": {
+      "all": 8,
+      "chartShown": true,
+      "methodOpen": true,
+      "term": {
+        "dialog": "Hypertrophy potential explained",
+        "focus": "Close term explanation"
+      },
+      "afterTerm": {
+        "sheet": true,
+        "focus": "Learn about Hypertrophy potential"
+      },
+      "fewer": 4
+    }
+  },
+  {
+    "id": "B5 arrow keys move between the tabs; Tab never leaves the sheet",
+    "pass": true,
+    "detail": {
+      "arrowed": {
+        "selected": "Muscle Genome",
+        "focus": "Muscle Genome"
+      },
+      "escaped": 0
+    }
+  },
+  {
+    "id": "B6 Change day moves the destination without adding; Add saves to that day once, closes, and says where",
+    "pass": true,
+    "detail": {
+      "days": [
+        {
+          "text": "Day 01 · Push6 planned",
+          "pressed": "true"
+        },
+        {
+          "text": "Day 02 · PullEmpty",
+          "pressed": "false"
+        },
+        {
+          "text": "Day 03 · LegsEmpty",
+          "pressed": "false"
+        },
+        {
+          "text": "Day 04 · UpperEmpty",
+          "pressed": "false"
+        },
+        {
+          "text": "Day 05 · Sport TransferEmpty",
+          "pressed": "false"
+        }
+      ],
+      "target": {
+        "text": "Day 02 · PullEmpty",
+        "pressed": "false"
+      },
+      "dest": "Adding to Week 1 · PullChange day",
+      "toast": "Added to Week 1 · PullCable Lateral Raise is in that day now.UndoView workout",
+      "saved": {
+        "0-Push": 6,
+        "1-Pull": 1
+      },
+      "closed": true
+    }
+  },
+  {
+    "id": "B7 a refused add says so in the footer, keeps the sheet, offers Try again; the retry adds",
+    "pass": true,
+    "detail": {
+      "opened": true,
+      "refusal": {
+        "alert": "Your plan is still loading, so nothing was added. Try again in a moment.",
+        "button": "Try again ",
+        "open": true
+      },
+      "retried": {
+        "open": false,
+        "toast": "Added to Week 1 · PushCable Lateral Raise is in that day now.UndoView workout"
+      }
+    }
+  },
+  {
+    "id": "B8 Favorite shows its state and persists across close, reopen and reload, without adding",
+    "pass": true,
+    "detail": {
+      "on": "true",
+      "reopened": "true",
+      "reloaded": "true"
+    }
+  },
+  {
+    "id": "B9 close by button, Escape and Back: page held still and inert while open, then scroll and focus restored",
+    "pass": true,
+    "detail": {
+      "button": {
+        "y0": 500,
+        "yDuring": 500,
+        "held": {
+          "bodyPosition": "fixed",
+          "inert": true
+        },
+        "after": {
+          "open": false,
+          "y": 500,
+          "focus": "Inspect Leg Press",
+          "position": "",
+          "inert": 0
+        },
+        "label": "Inspect Leg Press"
+      },
+      "escape": {
+        "y0": 500,
+        "yDuring": 500,
+        "held": {
+          "bodyPosition": "fixed",
+          "inert": true
+        },
+        "after": {
+          "open": false,
+          "y": 500,
+          "focus": "Inspect Leg Press",
+          "position": "",
+          "inert": 0
+        },
+        "label": "Inspect Leg Press"
+      },
+      "back": {
+        "y0": 500,
+        "yDuring": 500,
+        "held": {
+          "bodyPosition": "fixed",
+          "inert": true
+        },
+        "after": {
+          "open": false,
+          "y": 500,
+          "focus": "Inspect Leg Press",
+          "position": "",
+          "inert": 0
+        },
+        "label": "Inspect Leg Press"
+      }
+    }
+  },
+  {
+    "id": "B10 Fingerprint (summary, photos, 8 rows), Muscle Genome (figure, muscle rows), Mechanics (curve, fatigue), Context (sport, fit, tier, evidence); each opens at its top",
+    "pass": true,
+    "detail": {
+      "Fingerprint": {
+        "label": "exercise-analysis-tab-fingerprint",
+        "scrollTop": 0,
+        "figure": false,
+        "muscles": 0,
+        "curve": false,
+        "fatigue": 8,
+        "sport": false,
+        "fit": false,
+        "evidence": false,
+        "rows": 8,
+        "glance": true,
+        "photos": 4
+      },
+      "Muscle Genome": {
+        "label": "exercise-analysis-tab-muscles",
+        "scrollTop": 0,
+        "figure": true,
+        "muscles": 4,
+        "curve": false,
+        "fatigue": 16,
+        "sport": false,
+        "fit": false,
+        "evidence": false,
+        "rows": 16,
+        "glance": false,
+        "photos": 0
+      },
+      "Mechanics": {
+        "label": "exercise-analysis-tab-mechanics",
+        "scrollTop": 0,
+        "figure": false,
+        "muscles": 0,
+        "curve": true,
+        "fatigue": 4,
+        "sport": false,
+        "fit": false,
+        "evidence": false,
+        "rows": 4,
+        "glance": false,
+        "photos": 0
+      },
+      "Context": {
+        "label": "exercise-analysis-tab-context",
+        "scrollTop": 0,
+        "figure": false,
+        "muscles": 0,
+        "curve": false,
+        "fatigue": 0,
+        "sport": true,
+        "fit": true,
+        "evidence": true,
+        "tier": "Catalog tier A is a general label from the exercise catalog, not how closely this exercise matches a movement.",
+        "rows": 0,
+        "glance": false,
+        "photos": 0
+      }
+    }
+  },
+  {
+    "id": "B11 anatomy: Front and Back centred above matching bodies, subject named above, legend readable with an accurate neutral label",
+    "pass": true,
+    "detail": {
+      "captions": [
+        {
+          "text": "Front",
+          "cx": 410,
+          "bottom": 270
+        },
+        {
+          "text": "Back",
+          "cx": 614,
+          "bottom": 270
+        }
+      ],
+      "bodies": [
+        {
+          "cx": 410,
+          "top": 276,
+          "h": 327
+        },
+        {
+          "cx": 614,
+          "top": 276,
+          "h": 327
+        }
+      ],
+      "legend": [
+        "Primary",
+        "Supporting",
+        "No role recorded"
+      ],
+      "legendPx": 14,
+      "title": "Muscle roles · Barbell Bench Press"
+    }
+  },
+  {
+    "id": "B12 text contrast on the sheet clears 4.5:1, and white on the Add fill",
+    "pass": true,
+    "detail": {
+      "bg": "rgb(9, 28, 48)",
+      "ratios": {
+        "title": 15.5,
+        "meta": 8.99,
+        "tabInactive": 8.99,
+        "tabActive": 15.5,
+        "legend": 9.23,
+        "destination": 8.99,
+        "change": 9.48,
+        "roleRow": 15.5
+      },
+      "add": 4.54
+    }
+  },
+  {
+    "id": "B13 Body Lab 390: navy ground, subdued thin boundaries, dark neutral, gold stabilizing, accurate legend, two-column legend and a Front/Back switch",
+    "pass": true,
+    "detail": {
+      "view": "front",
+      "muscle": "#34495f",
+      "line": "rgb(113, 134, 155)",
+      "lineWidth": "1.15px",
+      "wrapBg": "radial-gradient(70% 62% at 50% 44%, rgb(14, 39, 66), rgb(9, 28, 48) 72%)",
+      "legend": [
+        "Primary",
+        "Supporting",
+        "Stabilizing",
+        "No role recorded"
+      ],
+      "captions": [],
+      "sideTabs": [
+        "Front",
+        "Back"
+      ],
+      "stabilizingFill": "#fce3a8",
+      "legendColumns": "95.5781px 137.609px"
+    }
+  },
+  {
+    "id": "B13 Body Lab 1024: navy ground, subdued thin boundaries, dark neutral, gold stabilizing, accurate legend, names over both bodies",
+    "pass": true,
+    "detail": {
+      "view": "both",
+      "muscle": "#34495f",
+      "line": "rgb(113, 134, 155)",
+      "lineWidth": "1.15px",
+      "wrapBg": "radial-gradient(70% 62% at 50% 44%, rgb(14, 39, 66), rgb(9, 28, 48) 72%)",
+      "legend": [
+        "Primary",
+        "Supporting",
+        "Stabilizing",
+        "No role recorded"
+      ],
+      "captions": [
+        "Front",
+        "Back"
+      ],
+      "sideTabs": [],
+      "stabilizingFill": "#fce3a8",
+      "legendColumns": "none"
+    }
+  }
+]

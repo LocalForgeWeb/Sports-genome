@@ -70,7 +70,7 @@ describe("the phone gutter", () => {
     for (const earlier of [
       ".apex-topbar { min-height: 64px; padding: 8px 12px;",
       ".workspace-top-switcher-shell .workspace-top-switcher { min-height: 48px; padding: 0 .25rem; }",
-      ".exercise-intelligence-bar { display: flex;",
+      ".exercise-intelligence-bar { display: grid;",
       ".exercise-intelligence-actions { display: grid;",
       ".exercise-compare-bar { display: flex;",
       ".exercise-compare-actions { display: grid;",

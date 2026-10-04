@@ -122,12 +122,16 @@ describe("Body Lab architecture mechanics disclosure", () => {
     expect(markup).toContain(" muscle roles");
     expect(markup).toContain("How muscle roles are classified");
     // The legend says what the paint draws: one entry per painted state, with
-    // stabilizing no longer folded into supporting's colour.
-    expect(markup).toContain("Supporting role");
-    expect(markup).toContain("Stabilizing role");
+    // stabilizing no longer folded into supporting's colour. October 4: plain role
+    // names, and neutral named for what it is - no role recorded, never "neutral"
+    // or "not involved".
+    const legend = markup.slice(markup.indexOf('class="atlas-heat-legend-pro"'), markup.indexOf("</ul>", markup.indexOf('class="atlas-heat-legend-pro"')));
+    expect(legend).toContain("Supporting</li>");
+    expect(legend).toContain("Stabilizing</li>");
     expect(markup).not.toContain("Supporting or stabilizing role");
-    expect(markup).toContain("Primary role");
-    expect(markup).toContain("Neutral");
+    expect(legend).toContain("Primary</li>");
+    expect(legend).toContain("No role recorded</li>");
+    expect(legend).not.toContain("Neutral");
   });
 
   it("uses source-recorded action phase context instead of fabricating timing or force values", () => {

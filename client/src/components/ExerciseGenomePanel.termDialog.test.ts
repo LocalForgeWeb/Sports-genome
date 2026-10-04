@@ -50,7 +50,8 @@ describe("Exercise Genome term explanation", () => {
 
   it("gives focus back to a bar's term button after the close button is pressed", () => {
     const view = renderPanel();
-    const opener = view.getAllByRole("button", { name: /Hypertrophy potential/ }).find((node) => node.classList.contains("genome-term-button"));
+    // The help control beside the profile row (October 4: an icon with a name, not an underlined label).
+    const opener = view.getAllByRole("button", { name: /Hypertrophy potential/ }).find((node) => node.classList.contains("ei-help"));
     expect(opener).toBeTruthy();
     opener!.focus();
     fireEvent.click(opener!);
@@ -88,11 +89,30 @@ describe("Exercise Genome term explanation", () => {
   });
 
   it("says which analysis view is showing, and moves that when another is chosen", () => {
+    // October 4: the views are tabs in the ARIA pattern, each controlling its panel.
     const view = renderPanel();
-    expect(view.getByRole("button", { name: "Fingerprint", pressed: true })).toBeTruthy();
-    expect(view.getByRole("button", { name: "Context", pressed: false })).toBeTruthy();
-    fireEvent.click(view.getByRole("button", { name: "Context" }));
-    expect(view.getByRole("button", { name: "Context", pressed: true })).toBeTruthy();
-    expect(view.getByRole("button", { name: "Fingerprint", pressed: false })).toBeTruthy();
+    expect(view.getByRole("tab", { name: "Fingerprint", selected: true })).toBeTruthy();
+    expect(view.getByRole("tab", { name: "Context", selected: false })).toBeTruthy();
+    fireEvent.click(view.getByRole("tab", { name: "Context" }));
+    expect(view.getByRole("tab", { name: "Context", selected: true })).toBeTruthy();
+    expect(view.getByRole("tab", { name: "Fingerprint", selected: false })).toBeTruthy();
+    expect(view.getByRole("tabpanel", { name: "Context" })).toBeTruthy();
+  });
+
+  it("moves between the views with the arrow keys, Home and End, with one tab stop", () => {
+    const view = renderPanel();
+    const fingerprint = view.getByRole("tab", { name: "Fingerprint" });
+    expect(view.getAllByRole("tab").filter((tab) => tab.getAttribute("tabindex") === "0")).toEqual([fingerprint]);
+    fingerprint.focus();
+    fireEvent.keyDown(fingerprint, { key: "ArrowRight" });
+    expect(view.getByRole("tab", { name: "Muscle Genome", selected: true })).toBe(document.activeElement);
+    fireEvent.keyDown(document.activeElement!, { key: "End" });
+    expect(view.getByRole("tab", { name: "Context", selected: true })).toBe(document.activeElement);
+    fireEvent.keyDown(document.activeElement!, { key: "ArrowRight" });
+    expect(view.getByRole("tab", { name: "Fingerprint", selected: true })).toBe(document.activeElement);
+    fireEvent.keyDown(document.activeElement!, { key: "ArrowLeft" });
+    expect(view.getByRole("tab", { name: "Context", selected: true })).toBe(document.activeElement);
+    fireEvent.keyDown(document.activeElement!, { key: "Home" });
+    expect(view.getByRole("tab", { name: "Fingerprint", selected: true })).toBe(document.activeElement);
   });
 });
