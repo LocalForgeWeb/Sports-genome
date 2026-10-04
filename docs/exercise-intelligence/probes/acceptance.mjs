@@ -121,7 +121,6 @@ for (const [w, h, zoom] of [[390, 568, 1], [1024, 600, 1], [390, 844, 1.25], [32
     check(`V7 320: "${name}" wraps at full size, clear of Close and the tabs`, !a.h1HitsClose && a.h1.r <= 320 && a.h1.b <= tabsTop && h1Px >= 26 && a.pageOverflow <= 0 && a.sheetOverflow <= 0 && glance.r <= 320, { h1: a.h1, h1Px, close: a.close, tabsTop, glance });
     await p.locator('.exercise-intelligence-close').click(); await wait(p, 500);
   }
-  await p.screenshot({ path: `${out}/after-longname-320.png` }).catch(() => {});
   await ctx.close();
 }
 
