@@ -1,5 +1,6 @@
 import { HeartPulse, ShieldAlert, Target } from "lucide-react";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
+import { areaQuestion, constraintChoices } from "@/lib/areaQuestion";
 import {
   highConsequenceSignals,
   resolveConstraintPosture,
@@ -20,13 +21,8 @@ import {
  * Neither is inferred from the other, here or in the quiz.
  */
 
-const constraintOptions: { value: ConstraintType; label: string }[] = [
-  { value: "proactive_none", label: "Nothing right now" },
-  { value: "symptomatic", label: "It bothers me at the moment" },
-  { value: "recent_or_returning", label: "I am coming back from something there" },
-  { value: "prior_recurrent", label: "It has been a recurring issue" },
-  { value: "clinician_restricted", label: "A clinician has restricted what I do" },
-];
+// The same answers, in the same words, as the introduction's question (lib/areaQuestion.ts).
+const constraintOptions = constraintChoices;
 
 const lateralityOptions: { value: Laterality; label: string }[] = [
   { value: "bilateral", label: "Both sides" },
@@ -132,7 +128,7 @@ export function CapacityFocusCard({ catalog, value, onChange }: {
         </label>}
         {/* The second question only exists once there is something to ask it about. */}
         {selectedTarget && <label>
-          <span>Anything going on there right now?</span>
+          <span>{areaQuestion(selectedTarget, targetKey, selectedTarget.lateralitySupported ? laterality : "unspecified")}</span>
           <select value={constraintType} onChange={event => chooseConstraint(event.target.value as ConstraintType)}>
             {constraintOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>

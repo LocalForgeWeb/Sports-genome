@@ -39,7 +39,7 @@ describe("Targeted capacity stays editable after onboarding", () => {
 
 describe("The profile keeps the two questions separate", () => {
   it("asks what to build before asking how it feels", () => {
-    expect(card.indexOf("What do you want to build up?")).toBeLessThan(card.indexOf("Anything going on there right now?"));
+    expect(card.indexOf("What do you want to build up?")).toBeLessThan(card.indexOf("<span>{areaQuestion(selectedTarget, targetKey"));
   });
 
   it("only asks the second question once there is a target", () => {

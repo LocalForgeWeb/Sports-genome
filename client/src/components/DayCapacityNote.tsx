@@ -34,11 +34,12 @@ const lateralityCopy: Record<Laterality, string> = {
 
 /** The athlete's own words for what is going on there, echoed back, never restated as a finding. */
 const constraintCopy: Record<ConstraintType, string> = {
-  proactive_none: "Nothing reported going on there.",
-  symptomatic: "You said it bothers you at the moment.",
-  recent_or_returning: "You said you are coming back from something there.",
-  prior_recurrent: "You said it has been a recurring issue.",
-  clinician_restricted: "You said a clinician has restricted what you do.",
+  proactive_none: "You said it feels fine.",
+  symptomatic: "You said it is bothering you now.",
+  recent_or_returning: "You said you are returning after an issue there.",
+  prior_recurrent: "You said it is an issue that comes and goes.",
+  clinician_restricted: "You said a clinician has limited what you can do.",
+  unsure: "You weren't sure how to describe how it is.",
 };
 
 /** A stored key with no catalog to name it is still better read as words than as a key. */

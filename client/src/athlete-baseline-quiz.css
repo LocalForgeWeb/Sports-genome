@@ -19,6 +19,9 @@
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
+  /* clip, where supported: hidden would make the shell a scroll container of its own, and the
+     action bar below could never stick to the screen the athlete is actually scrolling. */
+  overflow-x: clip;
   display: flex;
   flex-direction: column;
   background: var(--sg-surface-deep, #071729);
@@ -38,15 +41,19 @@
   position: relative;
   z-index: 1;
   display: flex;
+  /* The count takes its own line rather than ever overlapping the wordmark. */
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 6px 16px;
   padding: 14px clamp(20px, 5vw, 56px) 12px;
 }
-.athlete-quiz-brand { display: flex; align-items: center; gap: 10px; font-family: "Barlow Condensed", sans-serif; font-size: 19px; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.athlete-quiz-brand { display: flex; min-width: 0; align-items: center; gap: 10px; white-space: nowrap; font-family: "Barlow Condensed", sans-serif; font-size: 19px; font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .athlete-quiz-brand img { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 999px; object-fit: cover; }
-.athlete-quiz-count { margin: 0; color: var(--sg-text-subtle-on-dark); font-family: "Barlow Condensed", sans-serif; font-size: 26px; font-weight: 800; line-height: 1; }
-.athlete-quiz-count i { color: var(--sg-text-faint-on-dark); font-size: var(--sg-text-lg); font-style: normal; }
+/* On the narrowest phones the wordmark and "Step 6 of 14" share 280px: the wordmark steps down rather than wrapping. */
+@media (max-width: 359px) { .athlete-quiz-brand { gap: 8px; font-size: 17px; } .athlete-quiz-brand img { width: 32px; height: 32px; flex-basis: 32px; } }
+/* "Step 6 of 14" in words, not a bare "6/14" - and a range ("of 11–14") until the answers decide it. */
+.athlete-quiz-count { margin: 0 0 0 auto; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1.2; white-space: nowrap; }
 
 /* Eleven questions feel finite when you can see them, and each segment filling
    is the small reward that a single percentage bar never gives. */
@@ -65,6 +72,8 @@
   transition: background-color var(--sg-motion-slow) var(--sg-ease-entrance);
 }
 .athlete-quiz-segments i.is-done { background: var(--sg-action); }
+/* A question that applies only on some answers: present, but not counted as certain. */
+.athlete-quiz-segments i.is-maybe { background: rgb(255 255 255 / .05); }
 
 .athlete-quiz-main { position: relative; z-index: 1; flex: 1; display: flex; padding: 22px clamp(20px, 5vw, 56px) 40px; }
 .athlete-quiz-stage {
@@ -92,6 +101,9 @@
   text-transform: uppercase;
 }
 .athlete-quiz-stage h1 em { color: var(--sg-text-subtle-on-dark); font-style: normal; }
+/* Moved to on each new question so it is read first; the ring shows only for keyboard use. */
+.athlete-quiz-stage h1:focus { outline: none; }
+.athlete-quiz-stage h1:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 4px; }
 .athlete-quiz-copy { max-width: 46ch; margin: 12px 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
 /* A field's hint keeps its line even while empty: text that arrives when the field
    blurs would otherwise push the buttons below it down mid-press. */
@@ -232,15 +244,46 @@
 
 /* ---- actions ------------------------------------------------------------- */
 .athlete-quiz-actions, .athlete-quiz-final-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 26px; }
+/*
+ * Back and Continue stay on screen. On a phone a question with descriptions runs past the
+ * fold, and Continue used to sit below all of it. Sticky rather than fixed: the bar is in the
+ * flow at the end of the question, so at the bottom of the page it rests under the last answer
+ * instead of covering it, and while scrolling it stays in reach.
+ */
+.athlete-quiz-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  flex-wrap: wrap;
+  padding: 14px 0 calc(14px + env(safe-area-inset-bottom, 0px));
+}
+.athlete-quiz-actions::before {
+  content: "";
+  position: absolute;
+  /* Past the bar's own bottom edge (into the page's empty bottom padding): measured at 320px,
+     a backdrop ending exactly at the edge left a few pixels of the answers showing beneath it. */
+  inset: 0 -100vw -40px;
+  z-index: -1;
+  /* A short fade in at the top edge, then solid: the hint and buttons never sit on the text scrolling under them. */
+  border-top: 1px solid rgb(255 255 255 / .08);
+  background: linear-gradient(to bottom, rgb(7 23 41 / .6), var(--sg-surface-deep, #071729) 10px);
+  pointer-events: none;
+}
+/* Keyboard focus on an answer never lands behind the bar. */
+html:has(.athlete-quiz-shell) { scroll-padding-bottom: 7rem; }
+.athlete-quiz-hint { flex: 1 0 100%; min-height: 1.25em; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: 1.25; text-align: right; }
+.athlete-quiz-hint:empty { min-height: 0; }
 .athlete-quiz-back, .athlete-quiz-skip {
   display: inline-flex; align-items: center; gap: 6px; min-height: 2.75rem; padding: 0 .5rem;
   color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
 }
+/* Back is a secondary button you can see, not a faint word. */
+.athlete-quiz-actions .athlete-quiz-back { min-height: 3rem; border: 1px solid var(--sg-control-border-on-dark, rgb(255 255 255 / .2)); border-radius: 12px; padding: 0 16px; }
 .athlete-quiz-back:disabled { opacity: .3; cursor: not-allowed; }
 .athlete-quiz-back:focus-visible, .athlete-quiz-skip:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .athlete-quiz-next {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 2.75rem; border-radius: 12px;
-  background: var(--sg-action-fill, #e4512e); padding: 0 18px; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 3rem; min-width: 10rem; border-radius: 12px;
+  background: var(--sg-action-fill, #e4512e); padding: 0 22px; color: #fff;
   font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase;
   transition: transform var(--sg-motion-fast) var(--sg-ease), filter var(--sg-motion-fast) var(--sg-ease);
 }
@@ -302,3 +345,43 @@
 .athlete-quiz-escalation strong { display: block; font-size: var(--sg-text-base); }
 .athlete-quiz-escalation p { margin: 6px 0 0; font-size: var(--sg-text-md); line-height: var(--sg-leading-body); }
 .athlete-quiz-escalation svg { flex: none; margin-top: 2px; }
+
+/* ---- How is your <area> feeling? ----------------------------------------
+ * The question names the area and stays one colour. It is a sentence a person reads, so it
+ * is set smaller than the quiz's two-line display headings: about 28-34px on a phone and
+ * 46px at most on a wide screen. Answers are compact rows with a radio on the left edge,
+ * aligned to the same column as the question and the actions. */
+.athlete-quiz-stage-focus-state { width: min(720px, 100%); }
+/* In rem, so a larger text setting makes the question larger too. 28px to 46px at the default size. */
+.athlete-quiz-stage-focus-state h1 { margin-top: 4px; font-size: clamp(1.75rem, 3.4vw + 1.0625rem, 2.875rem); line-height: 1.02; overflow-wrap: anywhere; }
+.athlete-quiz-stage-focus-state .athlete-quiz-copy { max-width: 60ch; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); }
+.athlete-quiz-select { margin: 22px 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.athlete-quiz-select span { font-weight: 400; }
+.athlete-radio-group { display: grid; gap: 12px; margin-top: 10px; }
+.athlete-radio {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border: 1px solid var(--sg-control-border-on-dark, rgb(255 255 255 / .16));
+  border-radius: 14px;
+  background: rgb(255 255 255 / .045);
+  padding: 14px 16px;
+  color: var(--sg-text-on-dark);
+  cursor: pointer;
+  transition: border-color var(--sg-motion-fast) var(--sg-ease), background-color var(--sg-motion-fast) var(--sg-ease);
+}
+.athlete-radio:hover { border-color: rgb(255 255 255 / .34); background: rgb(255 255 255 / .07); }
+/* The native radio does the work - keyboard, grouping, checked state - and the drawn mark shows it. */
+.athlete-radio input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.athlete-radio-mark { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; margin-top: 1px; border: 2px solid var(--sg-text-muted-on-dark); border-radius: 999px; }
+.athlete-radio-text { min-width: 0; flex: 1; }
+.athlete-radio strong { display: block; font-size: var(--sg-text-lg); font-weight: 700; line-height: var(--sg-leading-snug); overflow-wrap: anywhere; }
+.athlete-radio small { display: block; margin-top: 3px; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+/* Selected: a restrained orange edge and tint, and a filled mark - so it reads without colour too. */
+.athlete-radio-selected { border-color: var(--sg-action); background: rgb(228 81 46 / .1); }
+.athlete-radio-selected .athlete-radio-mark { border-color: var(--sg-action); background: radial-gradient(circle, var(--sg-action) 0 42%, transparent 46%); }
+.athlete-radio:has(input:focus-visible) { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.athlete-quiz-signals { margin-top: 6px; }
+.athlete-quiz-signals .athlete-quiz-option-list { max-width: none; margin-top: 10px; }
+.athlete-quiz-stage-focus-state .athlete-quiz-note { max-width: 60ch; }
