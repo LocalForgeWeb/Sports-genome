@@ -32,6 +32,15 @@
   /* The figure's resting muscle on the dark ground, and the legend's "No role recorded" swatch:
      dark enough to be structure, not a fourth colour. */
   --sg-role-neutral-on-dark: #34495f;
+  /* Exposure (Train → Review's week board): five steps of one muted sand hue, from a tone just
+     above the resting muscle to a pale warm grey. One hue, so the figure reads as more or less
+     of one thing; muted, so no step is read as a role (orange, teal, champagne) or a rank. A
+     region with nothing planned keeps the resting tone and is not a step. */
+  --sg-exposure-1: #574f46;
+  --sg-exposure-2: #776b5c;
+  --sg-exposure-3: #998872;
+  --sg-exposure-4: #bcab92;
+  --sg-exposure-5: #e3d8c4;
 }
 
 /* Defaults suit a light surface, because this figure renders on one: the
