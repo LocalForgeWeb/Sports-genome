@@ -1384,7 +1384,7 @@ export default function Home() {
     // Opened once per hand-over; closing the dialog clears it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onboardingComplete, planHydrated]);
-  const removeExercise = (id: number) => {
+  const removeExercise = (id: number, { fromSheet = false }: { fromSheet?: boolean } = {}) => {
     if (!planReadyForEdits()) return;
     const removedIndex = customWorkout.findIndex((exercise) => exercise.id === id);
     if (removedIndex === -1) return;
@@ -1393,16 +1393,24 @@ export default function Home() {
     const removedSettings = exerciseSettings[id];
     const dayKey = draftDayKeyRef.current;
     setCustomWorkout((current) => current.filter((exercise) => exercise.id !== id));
+    // Back into the day it came from, at the place it held, with its own prescription.
+    const undo = () => editDay(dayKey, (record) => record.workout.some((exercise) => exercise.id === id) ? record : {
+      ...record,
+      workout: [...record.workout.slice(0, removedIndex), removed, ...record.workout.slice(removedIndex)],
+      prescriptions: removedPrescription !== undefined ? { ...record.prescriptions, [id]: removedPrescription } : record.prescriptions,
+      settings: removedSettings !== undefined ? { ...record.settings, [id]: removedSettings } : record.settings,
+    });
+    if (fromSheet) {
+      // In Add Exercises it takes the place of that sheet's "Added to ..." notice, which would
+      // otherwise still say the exercise is in the day and still offer to undo the add.
+      // Sonner merges a notice into the one with its id, so the add's Undo is cleared by name.
+      toast(`Removed from Week ${activeWeek} · ${activeSlot.day}`, { id: "plan-add", description: `${removed.name} is out of that day now.`, action: { label: "Undo", onClick: undo }, cancel: undefined });
+      return;
+    }
     toast(`${removed.name} removed`, {
       action: {
         label: "Undo",
-        // Back into the day it came from, at the place it held, with its own prescription.
-        onClick: () => editDay(dayKey, (record) => record.workout.some((exercise) => exercise.id === id) ? record : {
-          ...record,
-          workout: [...record.workout.slice(0, removedIndex), removed, ...record.workout.slice(removedIndex)],
-          prescriptions: removedPrescription !== undefined ? { ...record.prescriptions, [id]: removedPrescription } : record.prescriptions,
-          settings: removedSettings !== undefined ? { ...record.settings, [id]: removedSettings } : record.settings,
-        }),
+        onClick: undo,
       },
     });
   };
@@ -2204,7 +2212,7 @@ export default function Home() {
             {/* The optional profile prompt, as one quiet line after Add/Reorder/Open so it never
                 separates a workout from its actions, and only on a day with work in it (Sep 30 §8). */}
             {customWorkout.length > 0 && !capacityFocus.focus && <DayCapacityNote capacity={capacityFocus} catalog={resilienceCatalog} onOpenProfile={() => navigateWorkspace("profile")} />}
-            <DayExercisePicker equipmentProfile={athleteBaseline.equipment} sheetOpen={pickerSheetOpen} destination={`Week ${activeWeek} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={dayPrescriptions} onAdd={addExercise} onReplace={replaceExercise} onInspect={inspectExercise} />
+            <DayExercisePicker equipmentProfile={athleteBaseline.equipment} sheetOpen={pickerSheetOpen} destination={`Week ${activeWeek} · ${activeSlot.day}`} dayLabel={activeDayLabel} onOpenSheet={() => setPickerSheetOpen(true)} onCloseSheet={() => setPickerSheetOpen(false)} exercises={exercises} activeWorkout={customWorkout} split={activeSplitDay} sportId={sportId} prescriptions={dayPrescriptions} onAdd={addExercise} onRemove={(entry) => removeExercise(entry.id, { fromSheet: true })} onReplace={replaceExercise} onInspect={inspectExercise} />
             {/* The generator is one row until it is wanted. Open, it is the panel
                 it always was; closed, it was 636px of controls for a thing you do
                 once a week at most. */}

@@ -100,3 +100,33 @@
 .day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger > span { min-width: 0; flex: 1 1 auto; overflow: hidden; text-align: left; }
 .day-picker-sheet .day-picker-filter-row .muscle-select .athlete-sport-trigger-chevron { width: 1rem; height: 1rem; flex: 0 0 auto; }
 @media (max-width: 359px) { .day-picker-sheet .day-picker-filter-row { grid-template-columns: minmax(0, 1fr); } }
+
+/* Taking one back out, without leaving the sheet. An exercise already in the day says so
+   under its name, and its control is Remove: the sheet's quiet outline, not the action
+   orange, so the rows still waiting to be added are the ones that call out. */
+.day-picker-sheet .day-picker-in-day { display: inline-flex; width: max-content; align-items: center; gap: .3rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.day-picker-sheet .day-picker-in-day svg { color: #7fd7a0; }
+.day-picker-sheet .day-picker-result > button.day-picker-remove:last-child { border-color: var(--sg-control-border-on-dark); color: var(--sg-text-on-dark); }
+.day-picker-sheet .day-picker-result > button.day-picker-remove:last-child:hover { border-color: rgb(255 154 140 / .7); background: rgb(255 120 100 / .1); color: #fff; }
+
+/* The day's own list, opened from the footer's count: everything in the day, in order,
+   each with Remove, whatever the search above is showing. */
+.day-picker-day-list { max-height: 45%; flex: 0 0 auto; overflow-y: auto; overscroll-behavior: contain; border-top: 1px solid var(--sg-divider-on-dark); background: var(--sg-surface-raised); padding: .75rem var(--sg-gutter, 1rem) .25rem; }
+.day-picker-day-list .metric-label { margin: 0 0 .2rem; color: var(--sg-text-subtle-on-dark); }
+.day-picker-day-list ol { margin: 0; padding: 0; list-style: none; }
+.day-picker-day-list li { display: flex; min-height: 3.25rem; align-items: center; gap: .75rem; border-bottom: 1px solid var(--sg-divider-on-dark); }
+.day-picker-day-list li:last-child { border-bottom: 0; }
+.day-picker-day-index { width: 1.6rem; flex: 0 0 auto; color: var(--sg-text-subtle-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: var(--sg-text-lg); font-weight: 800; font-variant-numeric: tabular-nums; }
+.day-picker-day-name { min-width: 0; flex: 1 1 auto; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.day-picker-day-list button { display: inline-flex; min-height: 44px; flex: 0 0 auto; align-items: center; gap: .3rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: transparent; padding: 0 .8rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.day-picker-day-list button:hover { border-color: rgb(255 154 140 / .7); background: rgb(255 120 100 / .1); color: #fff; }
+.day-picker-day-list button:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 2px; }
+.day-picker-day-empty { margin: .2rem 0 .75rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+
+/* The count that opens it reads as a control: outlined, with the way it opens. */
+.day-picker-sheet-foot .day-picker-day-toggle { display: inline-flex; min-width: 0; flex: 0 1 auto; align-items: center; gap: .45rem; border: 1px solid var(--sg-control-border-on-dark); background: transparent; padding: .35rem .75rem; text-align: left; }
+.day-picker-sheet-foot .day-picker-day-toggle span { color: var(--sg-text-on-dark); }
+.day-picker-sheet-foot .day-picker-day-toggle svg { flex: 0 0 auto; color: var(--sg-text-subtle-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.day-picker-sheet-foot .day-picker-day-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.day-picker-sheet-foot .day-picker-day-toggle:hover { border-color: rgb(164 200 232 / .5); }
+.day-picker-sheet-foot > button:last-child { flex: 0 0 auto; }
