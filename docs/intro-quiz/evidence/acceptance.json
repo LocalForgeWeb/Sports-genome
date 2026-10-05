@@ -1,0 +1,253 @@
+{
+  "ranAt": "2026-10-05T06:44:43.178Z",
+  "checks": [
+    {
+      "id": "Q1",
+      "name": "The question names the area and side",
+      "ok": true,
+      "detail": "HOW IS YOUR LEFT SHOULDER FEELING?"
+    },
+    {
+      "id": "Q2",
+      "name": "Progress reads \"Step 6 of 14\"",
+      "ok": true,
+      "detail": "Step 6 of 14"
+    },
+    {
+      "id": "Q3",
+      "name": "A new athlete sees no answer chosen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q4",
+      "name": "Continue is on screen without scrolling, held at the bottom",
+      "ok": true,
+      "detail": "top 782"
+    },
+    {
+      "id": "Q5",
+      "name": "Before an answer: Continue disabled, \"Choose one option to continue\" beside it",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q6",
+      "name": "Heading 28–34px on a phone, one colour",
+      "ok": true,
+      "detail": "30.26px, rgb(247, 251, 255)"
+    },
+    {
+      "id": "Q7",
+      "name": "No RIGHT NOW eyebrow; plain instruction and Select one",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q8",
+      "name": "The whole row selects; selected row has an orange edge and a filled mark",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q9",
+      "name": "Choosing does not advance; Continue becomes available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q10",
+      "name": "One answer at a time; changing it moves the selection",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q11",
+      "name": "Not sure is an answer, followed by the optional red-flag check",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q12",
+      "name": "At the bottom, the bar sits below the last content instead of covering it",
+      "ok": true,
+      "detail": "content ends 690, bar starts 716"
+    },
+    {
+      "id": "Q13",
+      "name": "Continue advances exactly one step, to the top of the next question, focused on it",
+      "ok": true,
+      "detail": "Step 7 of 14"
+    },
+    {
+      "id": "Q14",
+      "name": "Back returns to the question with the answer kept",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "Q15",
+      "name": "A double tap on Continue moves exactly one step",
+      "ok": true,
+      "detail": "Step 8 of 14"
+    },
+    {
+      "id": "Q16",
+      "name": "A different area is asked about afresh, nothing carried over",
+      "ok": true,
+      "detail": "HOW IS YOUR LEFT KNEE FEELING?"
+    },
+    {
+      "id": "L-desktop-1280",
+      "name": "desktop-1280: no sideways scroll, heading 40–48px, Continue and Back on screen, every answer reachable, one column",
+      "ok": true,
+      "detail": "How are your calves and Achilles feeling? · 46px · h 94 · gap 12 · left 280/280/280"
+    },
+    {
+      "id": "L-laptop-short-1280x640",
+      "name": "laptop-short-1280x640: no sideways scroll, heading 40–48px, Continue and Back on screen, every answer reachable, one column",
+      "ok": true,
+      "detail": "How are your calves and Achilles feeling? · 46px · h 94 · gap 12 · left 280/280/280"
+    },
+    {
+      "id": "L-phone-320",
+      "name": "phone-320: no sideways scroll, heading 28–34px, Continue and Back on screen, every answer reachable, one column",
+      "ok": true,
+      "detail": "How does overhead reaching and throwing feel on both sides? · 28px · h 143 · gap 12 · left 20/20/20"
+    },
+    {
+      "id": "L-phone-375",
+      "name": "phone-375: no sideways scroll, heading 28–34px, Continue and Back on screen, every answer reachable, one column",
+      "ok": true,
+      "detail": "How are your calves and Achilles feeling? · 29.75px · h 91 · gap 12 · left 20/20/20"
+    },
+    {
+      "id": "L-phone-430",
+      "name": "phone-430: no sideways scroll, heading 28–34px, Continue and Back on screen, every answer reachable, one column",
+      "ok": true,
+      "detail": "How are your calves and Achilles feeling? · 31.62px · h 65 · gap 12 · left 22/22/22"
+    },
+    {
+      "id": "L-phone-390-large-text",
+      "name": "phone-390-large-text: no sideways scroll, heading scaled with the text (≤48px), Continue and Back on screen, every answer reachable, one column",
+      "ok": true,
+      "detail": "How are your calves and Achilles feeling? · 39.2px · h 160 · gap 12 · left 20/20/20"
+    },
+    {
+      "id": "K1",
+      "name": "Tab reaches the answers, focus is visible, Space and arrow keys choose",
+      "ok": true,
+      "detail": "solid Feels fine → Bothering me now"
+    },
+    {
+      "id": "K2",
+      "name": "Enter on Continue moves one step and puts focus on the next question",
+      "ok": true,
+      "detail": "Step 7 of 14"
+    }
+  ],
+  "layouts": [
+    {
+      "name": "desktop-1280",
+      "overflow": 0,
+      "fontSize": 46,
+      "headingHeight": 94,
+      "continueVisible": true,
+      "backVisible": true,
+      "rowsMinHeight": 74.796875,
+      "rowGap": 12,
+      "columnLeft": [
+        280,
+        280,
+        280
+      ],
+      "text": "How are your calves and Achilles feeling?",
+      "reachable": true
+    },
+    {
+      "name": "laptop-short-1280x640",
+      "overflow": 0,
+      "fontSize": 46,
+      "headingHeight": 94,
+      "continueVisible": true,
+      "backVisible": true,
+      "rowsMinHeight": 74.796875,
+      "rowGap": 12,
+      "columnLeft": [
+        280,
+        280,
+        280
+      ],
+      "text": "How are your calves and Achilles feeling?",
+      "reachable": true
+    },
+    {
+      "name": "phone-320",
+      "overflow": 0,
+      "fontSize": 28,
+      "headingHeight": 143,
+      "continueVisible": true,
+      "backVisible": true,
+      "rowsMinHeight": 74.796875,
+      "rowGap": 12,
+      "columnLeft": [
+        20,
+        20,
+        20
+      ],
+      "text": "How does overhead reaching and throwing feel on both sides?",
+      "reachable": true
+    },
+    {
+      "name": "phone-375",
+      "overflow": 0,
+      "fontSize": 29.75,
+      "headingHeight": 91,
+      "continueVisible": true,
+      "backVisible": true,
+      "rowsMinHeight": 74.796875,
+      "rowGap": 12,
+      "columnLeft": [
+        20,
+        20,
+        20
+      ],
+      "text": "How are your calves and Achilles feeling?",
+      "reachable": true
+    },
+    {
+      "name": "phone-430",
+      "overflow": 0,
+      "fontSize": 31.62,
+      "headingHeight": 65,
+      "continueVisible": true,
+      "backVisible": true,
+      "rowsMinHeight": 74.796875,
+      "rowGap": 12,
+      "columnLeft": [
+        22,
+        22,
+        22
+      ],
+      "text": "How are your calves and Achilles feeling?",
+      "reachable": true
+    },
+    {
+      "name": "phone-390-large-text",
+      "overflow": 0,
+      "fontSize": 39.2,
+      "headingHeight": 160,
+      "continueVisible": true,
+      "backVisible": true,
+      "rowsMinHeight": 91.515625,
+      "rowGap": 12,
+      "columnLeft": [
+        20,
+        20,
+        20
+      ],
+      "text": "How are your calves and Achilles feeling?",
+      "reachable": true
+    }
+  ]
+}

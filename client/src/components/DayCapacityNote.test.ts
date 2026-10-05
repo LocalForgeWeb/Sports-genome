@@ -66,8 +66,8 @@ describe("what you told us you are working on reaches the day you build", () => 
   });
 
   it("echoes what the athlete reported rather than restating it as a finding", () => {
-    expect(render(focusOn("symptomatic"))).toContain("You said it bothers you at the moment");
-    expect(render(focusOn("prior_recurrent"))).toContain("You said it has been a recurring issue");
+    expect(render(focusOn("symptomatic"))).toContain("You said it is bothering you now");
+    expect(render(focusOn("prior_recurrent"))).toContain("You said it is an issue that comes and goes");
   });
 
   it("says plainly that a reported constraint does not silently change the day", () => {

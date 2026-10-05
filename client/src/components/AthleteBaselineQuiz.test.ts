@@ -2,7 +2,7 @@ import React, { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { AthleteBaselineQuiz, boundedQuizStep, convertBodyWeight, quizStepIds } from "./AthleteBaselineQuiz";
+import { AthleteBaselineQuiz, boundedQuizStep, convertBodyWeight, quizProgressLabel, quizStepIds, quizStepRange } from "./AthleteBaselineQuiz";
 
 (globalThis as typeof globalThis & { React?: typeof React }).React = React;
 
@@ -42,7 +42,8 @@ describe("Athlete Baseline quiz navigation", () => {
     expect(source).toContain('<span>Sports Genome</span>');
     expect(source).toContain('className="athlete-quiz-segments"');
     expect(source).toContain('aria-valuenow={step + 1}');
-    expect(source).toContain('aria-valuemax={totalSteps}');
+    expect(source).toContain('aria-valuemax={stepRange.max}');
+    expect(source).toContain('aria-valuetext={progressLabel}');
     expect(styles).toContain(".athlete-quiz-segments i.is-done { background: var(--sg-action); }");
   });
 
@@ -94,16 +95,18 @@ describe("Sport-optional onboarding", () => {
     expect(withFocus.indexOf("focus")).toBeLessThan(withFocus.indexOf("focus-state"));
   });
 
-  it("keeps the focus step optional and the constraint default proactive", () => {
+  it("keeps the focus step optional, and asks how the area is without answering for the athlete", () => {
     expect(quizStepIds("undecided", false)).toContain("focus");
     expect(source).toContain('focusTargetKey ? "Continue" : "Skip for now"');
-    expect(source).toContain('useState<ConstraintType>("proactive_none")');
+    // No answer until one is given: "Feels fine" is a claim about the athlete's body, not a default.
+    expect(source).toContain("useState<ConstraintType | null>(null)");
+    expect(source).not.toContain('useState<ConstraintType>("proactive_none")');
   });
 
   it("submits no sport id and no inferred constraint outside sport mode", () => {
     expect(source).toContain('sportId: mode === "sport" ? sportId : ""');
     // A constraint is only ever sent alongside a focus area the athlete chose.
-    expect(source).toContain('constraint: focusTargetKey ?');
+    expect(source).toContain("constraint: focusTargetKey && constraintType ?");
   });
 
   // requirement: scope_escalation_boundary - withhold without diagnosing.
@@ -115,13 +118,24 @@ describe("Sport-optional onboarding", () => {
   });
 
   it("counts the steps the athlete will actually see, not a fixed eleven", () => {
-    // The strip and the counter both read totalSteps, which is the live step list - a
-    // general-mode athlete answers two fewer questions and the progress must say so.
+    // The live step list decides the count - a general-mode athlete answers two fewer
+    // questions and the progress must say so.
     expect(source).toContain("const totalSteps = stepIds.length;");
-    expect(source).toContain("<p className=\"athlete-quiz-count\">{step + 1}<i>/{totalSteps}</i></p>");
-    expect(source).toContain("Array.from({ length: totalSteps }");
     expect(source).not.toMatch(/const totalSteps = \d+/);
     expect(quizStepIds("general", false).length).toBeLessThan(quizStepIds("sport", true).length);
+    expect(source).toContain('<p className="athlete-quiz-count">{progressLabel}</p>');
+  });
+
+  it("says the count in words, and as a range while the branches are still open", () => {
+    // Nothing decided yet: no sport and no area (11) up to sport and an area (14).
+    expect(quizProgressLabel(0, quizStepRange(null, false, false))).toBe("Step 1 of 11–14");
+    // Sport chosen, area not yet decided.
+    expect(quizProgressLabel(4, quizStepRange("sport", false, false))).toBe("Step 5 of 13–14");
+    // Sport and an area: the question in the Oct 4 screenshot.
+    expect(quizProgressLabel(5, quizStepRange("sport", true, true))).toBe("Step 6 of 14");
+    // Past the area step without choosing one: settled at 13.
+    expect(quizProgressLabel(5, quizStepRange("sport", false, true))).toBe("Step 6 of 13");
+    expect(quizStepRange("general", false, true)).toEqual({ min: 11, max: 11 });
   });
 
   it("states the insufficiency case rather than implying every target is covered", () => {
@@ -139,7 +153,8 @@ describe("Onboarding quiz choices for assistive tech", () => {
       const className = chunk.match(/className=\{?[`"]([\w-]+)/)?.[1];
       return className !== undefined && choiceClasses.includes(className);
     });
-    expect(choiceButtons.length).toBe(14);
+    // The area question's answers are native radios now (athlete-radio), so they are not counted here.
+    expect(choiceButtons.length).toBe(13);
     for (const chunk of choiceButtons) {
       const opening = chunk.slice(0, chunk.indexOf("className="));
       expect(opening, chunk.slice(0, 80)).toContain("aria-pressed=");

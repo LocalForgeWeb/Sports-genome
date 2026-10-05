@@ -27,7 +27,9 @@ export type ConstraintType =
   | "symptomatic"
   | "recent_or_returning"
   | "prior_recurrent"
-  | "clinician_restricted";
+  | "clinician_restricted"
+  /** The athlete could not say which of the others it is. A report, so it qualifies the plan like one. */
+  | "unsure";
 
 export type Laterality = "bilateral" | "left" | "right" | "unspecified";
 
@@ -248,7 +250,8 @@ export const highConsequenceSignals: { value: HighConsequenceSignal; label: stri
 /**
  * Screening stays proportional: a proactive target with nothing reported asks nothing further,
  * and only a reported high-consequence signal withholds. A constraint on its own qualifies the
- * plan; it does not escalate. Nothing here infers a condition from the answers.
+ * plan; it does not escalate - and "not sure" is a constraint, not a "nothing": it is never
+ * read as fine. Nothing here infers a condition from the answers.
  */
 export function resolveConstraintPosture(
   constraintType: ConstraintType,

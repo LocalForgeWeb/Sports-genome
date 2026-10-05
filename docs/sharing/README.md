@@ -112,6 +112,17 @@ How it saves:
   - **Layout.** 320 / 375 / 390 / 430 px and 150% text: no sideways scroll.
 - These are headless Chromium with phone-sized viewports, not phones or people.
 
+## Production check (after deploy `dpl_Eqwjtn6uWHtpCt2rYjmfMWRK4LEZ`, READY)
+
+Checked with server fetches against `sports-genome-local-b96d.vercel.app`, not a phone:
+
+- **Setup.** A test share, `ProdCheckToken20261004x`, was written into `public.workout_shares`.
+- **Link head.** `GET /s/<token>` returned 200 with `Cache-Control: no-store` and `X-Robots-Tag: noindex, nofollow`. The head carried the share's title, og:title/description/url/image and Twitter tags, plus the app's own scripts. This confirms that the Vercel rewrite, the function's `includeFiles` page template and the Supabase store all work in production.
+- **API.** `shares.get` returned the approved snapshot only.
+- **Turned off.** After the test share was turned off, `shares.get` returned `{"state":"disabled"}` and nothing else.
+- **Live app.** The table also holds one other active share, created through the live app by someone else, so creating a link works in production too.
+- **Cleanup.** Deleting the test row from this session timed out, so the row remains, turned off.
+
 ## Fixed along the way
 
 - **Retry key.** A retry after a failed create used a new request key, so it could have made a second link. Now one key covers each piece of content.
