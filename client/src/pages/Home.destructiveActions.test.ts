@@ -32,10 +32,17 @@ describe("Reversible-action and destructive-confirmation contract", () => {
   });
 
   it("gives the Tier A exercise-removal an immediate Undo toast rather than a blocking confirmation", () => {
-    expect(source).toContain("const removeExercise = (id: number) => {");
+    expect(source).toContain("const removeExercise = (id: number, { fromSheet = false }: { fromSheet?: boolean } = {}) => {");
     expect(source).not.toContain("const removeExercise = (id: number) => setCustomWorkout((current) => current.filter((exercise) => exercise.id !== id));");
     expect(source).toContain("toast(`${removed.name} removed`, {");
     expect(source).toContain('label: "Undo",');
+  });
+
+  it("lets Add Exercises take an exercise back out, with Undo, in place of its own Added notice", () => {
+    expect(source).toContain("onRemove={(entry) => removeExercise(entry.id, { fromSheet: true })}");
+    // Same notice id as the add, so "Added to ..." does not linger after the exercise is gone,
+    // and the add's own Undo is cleared rather than merged into the removal's notice.
+    expect(source).toContain("toast(`Removed from Week ${activeWeek} · ${activeSlot.day}`, { id: \"plan-add\", description: `${removed.name} is out of that day now.`, action: { label: \"Undo\", onClick: undo }, cancel: undefined });");
   });
 
   it("never lets a paste or a saved share overwrite saved training days without naming them first (Tier B)", () => {

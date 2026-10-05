@@ -65,7 +65,10 @@ describe("Adding an exercise is findable on the Training Day", () => {
   });
 
   it("closes the way every other layer over this page closes", () => {
-    expect(picker).toContain('if (event.key === "Escape") onCloseSheet();');
+    // Escape closes the sheet; with the day's list open over it, the list first.
+    expect(picker).toContain('if (event.key !== "Escape") return;');
+    expect(picker).toContain("if (dayListOpen) { setDayListOpen(false); dayToggleRef.current?.focus(); return; }");
+    expect(picker).toContain("      onCloseSheet();\n");
     expect(picker).toContain('aria-label="Close add exercises"');
     // Clicking the scrim itself, not a click that bubbled up from inside the sheet.
     expect(picker).toContain("if (event.target === event.currentTarget) onCloseSheet?.()");
