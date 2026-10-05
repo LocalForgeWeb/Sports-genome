@@ -1,0 +1,191 @@
+/* -- Train → Review (5 October 2026) ---------------------------------------- *
+
+   One page with two scopes. The head carries the title, the Week/Day control and
+   the actions; the Week board is a column of labelled sections on the dark Train
+   ground: sessions, two points, muscle exposure (figure and chart), movement
+   coverage, session overlap, suggested adjustments. Phones get one column with
+   the page gutter; from 900px the figure and the chart share a row.
+
+   Tokens only: type at --sg-text-sm and above (labels never below --sg-text-xs),
+   on-dark ink, the page gutter. Opacity encodes nothing. */
+
+.wr-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: .75rem 1rem; }
+.wr-head-title { min-width: 0; }
+.wr-head-title .metric-label { color: var(--sg-text-subtle-on-dark); }
+.wr-head h1 { margin-top: .3rem; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.9rem, 6.5vw, 2.7rem); font-weight: 800; line-height: .95; text-transform: uppercase; overflow-wrap: anywhere; }
+.wr-head-detail { margin-top: .35rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; line-height: var(--sg-leading-body); }
+.wr-head-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .6rem; }
+.wr-weeks { gap: .3rem; }
+
+/* Two-segment controls: the scope, the metric, the side of the body. A pill with one lit
+   segment, never tabs, because a segment changes what the page counts, not where you are. */
+.wr-scope, .wr-segment { display: inline-flex; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 2px; }
+.wr-scope button, .wr-segment button { display: inline-flex; align-items: center; min-height: 2.5rem; border-radius: 999px; padding: 0 .9rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; letter-spacing: 0; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
+.wr-scope button[aria-pressed="true"], .wr-segment button[aria-pressed="true"] { background: rgb(255 255 255 / .14); color: var(--sg-text-on-dark); }
+.wr-scope button:focus-visible, .wr-segment button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+
+.wr-button, .wr-primary { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.wr-button:hover { background: rgb(255 255 255 / .12); }
+.wr-primary { border-color: var(--sg-action); background: var(--sg-action-fill); color: var(--sg-action-on); }
+.wr-primary:hover { background: var(--sg-action-strong); }
+.wr-button:focus-visible, .wr-primary:focus-visible, .wr-link:focus-visible, .wr-chip:focus-visible, .wr-muscle:focus-visible, .wr-close:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.wr-link { display: inline-flex; align-items: center; gap: .3rem; min-height: 2.75rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; text-align: left; }
+.wr-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.wr-close { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 2.75rem; height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; color: var(--sg-text-on-dark); }
+
+/* -- The board ----------------------------------------------------------------- */
+.wr-board { display: grid; gap: 1.25rem; margin-top: 1rem; }
+.wr-section { display: grid; gap: .9rem; border-top: 1px solid var(--sg-divider-on-dark); padding-top: 1rem; }
+.wr-section-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .6rem 1rem; }
+.wr-section-head > div:first-child { min-width: 0; flex: 1 1 16rem; }
+/* A control beside the heading keeps its own width; it was stretching to the row's. */
+.wr-section-head > .wr-segment { flex: 0 0 auto; }
+.wr-section h2 { color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-snug); text-transform: uppercase; }
+.wr-section-head p { margin-top: .3rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.wr-note { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+
+/* Sessions in plan order: one chip each, scrolled rather than wrapped, so the week reads as
+   one row. An unbuilt slot is dashed and says "Not built"; it is never called rest. */
+.wr-strip { display: flex; gap: .4rem; margin: 0; padding: 0 0 .25rem; list-style: none; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+.wr-strip::-webkit-scrollbar { display: none; }
+.wr-strip li { flex: 0 0 auto; }
+.wr-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: .1rem; min-height: 2.9rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: .45rem; padding: .4rem .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease); }
+.wr-chip small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; white-space: nowrap; }
+button.wr-chip:hover { background: rgb(255 255 255 / .06); }
+.wr-chip[aria-pressed="true"] { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); }
+.wr-chip[data-state="empty"] { border-style: dashed; color: var(--sg-text-muted-on-dark); }
+
+.wr-points { display: grid; gap: .6rem; }
+.wr-point { display: grid; gap: .15rem; margin: 0; }
+.wr-point span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.wr-point[data-kind="review"] span { color: #ffb39c; }
+.wr-point b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; line-height: var(--sg-leading-body); }
+.wr-point .wr-link { justify-self: start; min-height: 2.5rem; }
+
+/* -- Muscle exposure ------------------------------------------------------------- */
+.wr-exposure-body { display: grid; gap: 1rem; }
+.wr-figure { display: grid; gap: .6rem; justify-items: center; }
+.wr-figure-side { justify-self: start; }
+.wr-figure .anatomy-figure { --anatomy-shell: #2c4056; --anatomy-muscle: var(--sg-role-neutral-on-dark); --anatomy-structural: #304559; --anatomy-line: #71869b; --anatomy-selection: #ffffff; --anatomy-caption: var(--sg-text-muted-on-dark); width: 100%; max-width: 20rem; height: auto; }
+.wr-figure .anatomy-figure[data-view="both"] { max-width: 100%; }
+.wr-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .9rem; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; line-height: var(--sg-leading-body); }
+.wr-legend > span { display: inline-flex; align-items: center; gap: .35rem; }
+.wr-legend i { display: inline-block; width: .9rem; height: .6rem; border: 1px solid rgb(255 255 255 / .18); }
+.wr-ramp { display: inline-flex; gap: 1px; }
+.wr-ramp i { width: .7rem; }
+.wr-swatch-neutral { background: var(--sg-role-neutral-on-dark); }
+.wr-swatch-unknown { background: repeating-linear-gradient(45deg, var(--sg-rank-unavailable-hatch, #6f7d90) 0 1px, var(--sg-rank-unavailable-fill, #2e3a49) 1px 5px); }
+.wr-swatch-direct { background: var(--sg-action-fill); }
+.wr-swatch-support { background: #6fa3d9; }
+.wr-legend-session { color: var(--sg-selected-on-dark); }
+
+.wr-chart { display: grid; gap: .5rem; min-width: 0; }
+.wr-muscles { display: grid; margin: 0; padding: 0; list-style: none; }
+.wr-muscle { display: grid; gap: .3rem; width: 100%; min-height: 2.9rem; border-bottom: 1px solid rgb(164 200 232 / .14); padding: .5rem 0; color: var(--sg-text-on-dark); text-align: left; }
+.wr-muscle-head { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
+.wr-muscle-name { font-size: var(--sg-text-md); font-weight: 700; }
+.wr-muscle-value { flex: 0 1 auto; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.wr-muscle[data-empty] .wr-muscle-value { color: var(--sg-text-subtle-on-dark); font-style: italic; }
+.wr-muscle[aria-pressed="true"] { background: rgb(255 255 255 / .07); box-shadow: inset 2px 0 0 var(--sg-selected-on-dark); padding-left: .5rem; padding-right: .3rem; }
+button.wr-muscle:hover { background: rgb(255 255 255 / .05); }
+.wr-track { position: relative; display: block; height: 8px; overflow: hidden; background: rgb(255 255 255 / .1); }
+.wr-track i { position: absolute; top: 0; bottom: 0; left: 0; display: block; }
+.wr-bar-direct { background: var(--sg-action-fill); }
+.wr-bar-support { background: #6fa3d9; }
+.wr-bar-a { background: var(--sg-action-fill); }
+.wr-bar-b { background: #6fa3d9; }
+.wr-viewall { justify-self: start; }
+
+/* A detail surface: the selected muscle by session, or the selected pair side by side. One at
+   a time, with a frame of its own because it is the one thing on the board that is opened. */
+.wr-detail { display: grid; gap: .8rem; border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .04); padding: .9rem; }
+.wr-detail header { display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; }
+.wr-detail header > div { min-width: 0; }
+.wr-detail h3 { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 800; }
+.wr-detail header p { margin-top: .25rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.wr-days { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.wr-day { display: grid; grid-template-columns: minmax(4.5rem, auto) minmax(0, 1fr); grid-template-areas: "name track" "value edit"; align-items: center; gap: .15rem .6rem; padding: .2rem 0; }
+.wr-day-name { grid-area: name; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.wr-day .wr-track { grid-area: track; }
+.wr-day-value { grid-area: value; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
+.wr-day .wr-link { grid-area: edit; justify-self: start; min-height: 2.5rem; }
+.wr-day[data-selected] { box-shadow: inset 2px 0 0 var(--sg-selected-on-dark); padding-left: .5rem; }
+@media (min-width: 560px) {
+  .wr-day { grid-template-columns: 6rem minmax(0, 1fr) auto auto; grid-template-areas: "name track value edit"; }
+  .wr-day-value { text-align: right; }
+}
+.wr-exercises { display: grid; margin: 0; padding: 0; list-style: none; }
+.wr-exercise { display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 2.75rem; border-top: 1px solid rgb(164 200 232 / .14); padding: .3rem 0; }
+.wr-exercise > span { display: grid; min-width: 0; gap: .1rem; }
+.wr-exercise b { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.wr-exercise small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); }
+.wr-exercise .wr-link { flex: 0 0 auto; }
+
+.wr-method summary { display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 2.75rem; cursor: pointer; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; list-style: none; }
+.wr-method summary::-webkit-details-marker { display: none; }
+.wr-method[open] summary svg { transform: rotate(180deg); }
+.wr-method p { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+
+/* -- Movement coverage ----------------------------------------------------------- */
+.wr-coverage { display: grid; margin: 0; padding: 0; list-style: none; }
+.wr-pattern { border-bottom: 1px solid rgb(164 200 232 / .14); }
+.wr-pattern-detail > summary { display: grid; grid-template-columns: minmax(0, 1fr); gap: .3rem; min-height: 2.75rem; padding: .45rem 0; cursor: pointer; list-style: none; }
+.wr-pattern-detail > summary::-webkit-details-marker { display: none; }
+.wr-pattern-detail > summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.wr-pattern-detail[open] > summary .wr-pattern-name { color: var(--sg-selected-on-dark); }
+.wr-pattern-detail > .wr-exercises { padding: 0 0 .5rem .75rem; }
+.wr-pattern-name { color: var(--sg-text-on-dark); font-size: var(--sg-text-md); font-weight: 700; }
+.wr-pattern-name small { margin-left: .35rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.wr-pattern-sessions { display: flex; flex-wrap: wrap; gap: .25rem; }
+.wr-pattern-sessions span { display: inline-flex; align-items: center; min-height: 1.5rem; border: 1px solid rgb(164 200 232 / .22); border-radius: 999px; padding: 0 .5rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 700; }
+.wr-pattern-sessions span[data-present] { border-color: transparent; background: rgb(255 255 255 / .16); color: var(--sg-text-on-dark); }
+@media (min-width: 560px) { .wr-pattern-detail > summary { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } }
+.wr-absent { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.wr-absent b { margin-right: .35rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.wr-absent small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
+
+/* -- Session overlap ------------------------------------------------------------- */
+.wr-pairs { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.wr-pair[data-heavy] small { color: #ffb39c; }
+.wr-shared { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.wr-shared-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: .25rem; }
+.wr-shared-name { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.wr-shared-bars { display: grid; gap: 2px; }
+.wr-shared-values { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
+.wr-shared-values b { margin-right: .2rem; color: var(--sg-text-on-dark); font-weight: 700; }
+.wr-shared-values b + b { margin-left: .6rem; }
+@media (min-width: 560px) { .wr-shared-row { grid-template-columns: 9rem minmax(0, 1fr) auto; align-items: center; gap: .6rem; } }
+.wr-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* -- Suggested adjustments ------------------------------------------------------- */
+.wr-findings { display: grid; gap: .9rem; margin: 0; padding: 0; list-style: none; }
+.wr-finding { display: grid; gap: .2rem; border-left: 2px solid var(--sg-action-fill); padding-left: .75rem; }
+.wr-finding strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; line-height: var(--sg-leading-body); }
+.wr-finding p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.wr-finding small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+.wr-finding .wr-link { justify-self: start; min-height: 2.5rem; }
+
+/* -- States ---------------------------------------------------------------------- */
+.wr-empty { display: grid; gap: .7rem; justify-items: start; padding: .5rem 0; }
+.wr-empty p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.wr-loading { gap: .6rem; }
+.wr-loading span { display: block; height: 12px; background: rgb(255 255 255 / .08); }
+.wr-loading span:nth-child(1) { width: 60%; }
+.wr-loading span:nth-child(2) { width: 100%; height: 2.9rem; }
+.wr-loading span:nth-child(3) { width: 85%; }
+.wr-loading span:nth-child(4) { width: 70%; }
+
+/* From 900px the figure and the chart share a row; the strip and the sections keep one column. */
+@media (min-width: 900px) {
+  .wr-board { gap: 1.5rem; }
+  .wr-exposure-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 1.5rem; align-items: start; }
+  .wr-figure .anatomy-figure { max-width: 100%; }
+}
+
+/* The Day scope keeps the panels it always had; its strip is the Week strip with buttons that
+   open a day (the marker only, never Home's next workout). */
+.wr-day-strip .wr-chip[aria-current="true"] { border-color: var(--sg-selected-on-dark); background: rgb(255 255 255 / .1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .wr-scope button, .wr-segment button, .wr-chip { transition: none; }
+}

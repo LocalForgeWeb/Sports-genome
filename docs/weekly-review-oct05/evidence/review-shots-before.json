@@ -1,0 +1,146 @@
+{
+ "full-320": {
+  "how": "tab",
+  "heading": [
+   "Review your week"
+  ],
+  "h2": [],
+  "h3": [
+   "Move with intent",
+   "Muscle volume map",
+   "Recovery spacing",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "pageHeight": 2305,
+  "overflow": false,
+  "reviewFound": true,
+  "errors": []
+ },
+ "full-375": {
+  "how": "tab",
+  "heading": [
+   "Review your week"
+  ],
+  "h2": [],
+  "h3": [
+   "Move with intent",
+   "Muscle volume map",
+   "Recovery spacing",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "pageHeight": 2112,
+  "overflow": false,
+  "reviewFound": true,
+  "errors": []
+ },
+ "full-390": {
+  "how": "tab",
+  "heading": [
+   "Review your week"
+  ],
+  "h2": [],
+  "h3": [
+   "Move with intent",
+   "Muscle volume map",
+   "Recovery spacing",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "pageHeight": 2094,
+  "overflow": false,
+  "reviewFound": true,
+  "errors": []
+ },
+ "full-430": {
+  "how": "tab",
+  "heading": [
+   "Review your week"
+  ],
+  "h2": [],
+  "h3": [
+   "Move with intent",
+   "Muscle volume map",
+   "Recovery spacing",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "pageHeight": 2056,
+  "overflow": false,
+  "reviewFound": true,
+  "errors": []
+ },
+ "full-desktop": {
+  "how": "tab",
+  "heading": [
+   "Review your week"
+  ],
+  "h2": [],
+  "h3": [
+   "Move with intent",
+   "Muscle volume map",
+   "Recovery spacing",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "pageHeight": 1748,
+  "overflow": false,
+  "reviewFound": true,
+  "errors": []
+ },
+ "full-390-text125": {
+  "how": "tab",
+  "heading": [
+   "Review your week"
+  ],
+  "h2": [],
+  "h3": [
+   "Move with intent",
+   "Muscle volume map",
+   "Recovery spacing",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "pageHeight": 2855,
+  "overflow": false,
+  "reviewFound": true,
+  "errors": []
+ },
+ "empty-390": {
+  "how": "tab",
+  "heading": [
+   "Review your week"
+  ],
+  "h2": [],
+  "h3": [
+   "Move with intent",
+   "Muscle volume map",
+   "Recovery spacing",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "pageHeight": 1409,
+  "overflow": false,
+  "reviewFound": true,
+  "errors": []
+ },
+ "partial-390": {
+  "how": "tab",
+  "heading": [
+   "Review your week"
+  ],
+  "h2": [],
+  "h3": [
+   "Move with intent",
+   "Muscle volume map",
+   "Recovery spacing",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "pageHeight": 1947,
+  "overflow": false,
+  "reviewFound": true,
+  "errors": []
+ }
+}

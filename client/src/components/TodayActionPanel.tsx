@@ -75,6 +75,8 @@ export type TodayActionPanelProps = {
   /** Opens a plan day: the tracker ready to start it, or Plan to edit it. */
   onOpenWorkout: (week: number, index: number, target: "tracker" | "day-plan") => void;
   onOpenTraining: () => void;
+  /** Opens Train → Review on the week, beside "View plan"; it changes nothing about the next workout. */
+  onOpenReview?: () => void;
   onOpenTracker?: () => void;
   onOpenStrength: () => void;
   onOpenCatalog?: () => void;
@@ -92,7 +94,7 @@ const planDayWord: Record<PlanDayState, string> = { live: "under way", trained: 
 const planDayIcon: Record<PlanDayState, LucideIcon> = { trained: CircleCheck, live: CirclePlay, next: CircleArrowRight, planned: Circle };
 const noWeek = emptyDayStore();
 
-export function TodayActionPanel({ plan, live, athleteName, directAccess = true, weightUnit = "lb", goal = "Athleticism", onOpenWorkout, onOpenTraining, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, onOpenProgress }: TodayActionPanelProps) {
+export function TodayActionPanel({ plan, live, athleteName, directAccess = true, weightUnit = "lb", goal = "Athleticism", onOpenWorkout, onOpenTraining, onOpenReview, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, onOpenProgress }: TodayActionPanelProps) {
   // Account-only routes, asked only when an account is the source. On the device stores they
   // were refused as unauthorised on every Home open, and each refusal told an athlete who
   // had never signed in that their sign-in had expired (B233).
@@ -291,7 +293,7 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
         lifetime record beside it, each labelled with its scope. Zero is a
         number here, not a verdict. */}
     <section className="home-week" aria-label="Your week">
-      <div className="home-section-head"><p className="metric-label">Your week</p><button type="button" className="home-link" onClick={onOpenTraining}>View plan <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></div>
+      <div className="home-section-head"><p className="metric-label">Your week</p><span className="home-section-links">{onOpenReview && <button type="button" className="home-link" onClick={onOpenReview}>Review week <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}<button type="button" className="home-link" onClick={onOpenTraining}>View plan <ArrowRight className="h-4 w-4" aria-hidden="true" /></button></span></div>
       {/* A summary, not a second day picker: one entry per plan day, in plan order - done this
           week, under way, next, or still to come - said in words and shape, never by colour
           alone. "View plan" is the way in; the entries do not change the next workout. No
