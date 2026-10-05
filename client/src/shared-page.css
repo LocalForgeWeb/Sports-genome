@@ -1,0 +1,66 @@
+/* A shared workout's own page (pages/SharedWorkoutPage.tsx): the app's navy, one column,
+ * the workout first. Print turns it into a plain light sheet: title, days, every exercise. */
+.sp-shell { min-height: 100dvh; background: #07182e; color: #edf4fa; }
+.sp-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgb(169 190 209 / .18); background: rgb(7 24 46 / .96); padding: calc(.5rem + env(safe-area-inset-top, 0px)) var(--sg-gutter, 1rem) .5rem; }
+.sp-brand { display: inline-flex; min-width: 0; min-height: 2.75rem; align-items: center; gap: .55rem; color: #edf4fa; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.25rem; font-weight: 800; line-height: 1; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
+.sp-brand img { width: 2.25rem; height: 2.25rem; flex: 0 0 auto; border-radius: 8px; }
+.sp-brand span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.sp-open-short { display: none; }
+/* A phone: the button says less so the name beside it fits; the narrowest keeps only the mark. */
+@media (max-width: 479px) { .sp-open-long { display: none; } .sp-open-short { display: inline; } }
+@media (max-width: 339px) { .sp-brand span { display: none; } }
+.sp-open { display: inline-flex; flex: 0 0 auto; min-height: 2.75rem; align-items: center; border: 1px solid rgb(169 190 209 / .4); border-radius: 999px; padding: 0 1rem; color: #edf4fa; font-size: var(--sg-text-base); font-weight: 600; text-decoration: none; white-space: nowrap; }
+.sp-brand:focus-visible, .sp-open:focus-visible, .sp-primary:focus-visible, .sp-secondary:focus-visible, .sp-newer a:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.sp-main { display: grid; gap: 1.25rem; width: min(760px, 100%); margin: 0 auto; padding: 1.5rem var(--sg-gutter, 1rem) calc(3rem + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 720px) { .sp-main { padding-top: 2.5rem; } }
+
+.sp-actions { display: grid; gap: .65rem; border-top: 1px solid rgb(169 190 209 / .2); border-bottom: 1px solid rgb(169 190 209 / .2); padding: 1rem 0; }
+.sp-primary, .sp-secondary { display: inline-flex; min-height: 3rem; align-items: center; justify-content: center; gap: .55rem; border-radius: 12px; padding: 0 1.25rem; font-size: var(--sg-text-lg); font-weight: 700; text-decoration: none; }
+/* The deeper orange: white type at 4.96:1. */
+.sp-primary { border: 1px solid #e4512e; background: #c9401c; color: #fff; }
+.sp-primary:disabled { cursor: progress; opacity: .75; }
+.sp-actions > .sp-primary { width: 100%; }
+@media (min-width: 560px) { .sp-actions > .sp-primary { justify-self: start; width: auto; min-width: 18rem; } }
+.sp-secondary { border: 1px solid rgb(169 190 209 / .4); background: rgb(255 255 255 / .04); color: #edf4fa; }
+.sp-secondary:hover { background: rgb(255 255 255 / .08); }
+.sp-explain, .sp-status { margin: 0; color: #a9bed1; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.sp-status:empty { display: none; }
+.sp-more { display: flex; flex-wrap: wrap; gap: .5rem; }
+.sp-more > * { flex: 1 1 11rem; }
+@media (min-width: 560px) { .sp-more > * { flex: 0 1 auto; } }
+.sp-newer, .sp-saved { display: flex; gap: .55rem; margin: 0; border-radius: 10px; padding: .65rem .8rem; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.sp-newer { border: 1px solid #f2c14d; background: rgb(242 193 77 / .08); }
+.sp-newer svg { flex: 0 0 auto; margin-top: .1rem; color: #f2c14d; }
+.sp-newer a { color: #96c4fa; font-weight: 700; }
+.sp-saved { border: 1px solid rgb(95 211 154 / .5); background: rgb(95 211 154 / .08); }
+.sp-saved svg { flex: 0 0 auto; margin-top: .1rem; color: #5fd39a; }
+
+.sp-state { display: grid; gap: .9rem; max-width: 36rem; padding-top: 1rem; }
+.sp-state h1 { margin: 0; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2rem, 7vw, 2.5rem); font-weight: 800; line-height: 1; text-transform: uppercase; }
+.sp-state-body p { margin: 0; color: #c4d4e4; font-size: var(--sg-text-lg); line-height: var(--sg-leading-body); }
+.sp-state-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+
+.sp-skeleton { display: grid; gap: .8rem; }
+.sp-skel-line, .sp-skel-block, .sp-skel-row { display: block; border-radius: 8px; background: rgb(169 190 209 / .12); }
+.sp-skel-line { height: 1rem; width: 70%; }
+.sp-skel-line.is-short { width: 35%; }
+.sp-skel-line.is-title { height: 2.5rem; width: 85%; }
+.sp-skel-block { height: 3rem; width: 100%; margin: .5rem 0; }
+.sp-skel-row { height: 4.25rem; width: 100%; }
+@media (prefers-reduced-motion: no-preference) { .sp-skel-line, .sp-skel-block, .sp-skel-row { animation: sp-pulse 1.4s var(--sg-ease) infinite; } }
+@keyframes sp-pulse { 50% { opacity: .55; } }
+
+.sp-print-source { display: none; }
+
+@media print {
+  @page { margin: 14mm; }
+  html, body, .sp-shell { background: #fff !important; color: #111 !important; }
+  .sp-bar, .sp-actions, .sw-details, .sw-overview, .sw-thumb { display: none !important; }
+  .sp-main { width: 100%; padding: 0; gap: .5rem; }
+  .sw-view { --sw-text: #111; --sw-text-2: #444; --sw-rule: #bbb; gap: .9rem; color: #111; }
+  .sw-title { font-size: 26pt; }
+  .sw-row { grid-template-columns: 1.5rem minmax(0, 1fr); padding: .4rem 0; break-inside: avoid; page-break-inside: avoid; }
+  .sw-day { break-inside: auto; }
+  .sw-day-title { break-after: avoid; page-break-after: avoid; }
+  .sp-print-source { display: block; margin: .75rem 0 0; color: #444; font-size: var(--sg-text-sm); }
+}

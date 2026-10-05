@@ -4,6 +4,7 @@ import { createServer } from "http";
 import net from "net";
 import { requireJsonMutations, trpcHandler } from "./apiHandler";
 import { serveStatic, setupVite } from "./vite";
+import { serveSharePage } from "../sharePage";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -36,6 +37,8 @@ async function startServer() {
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
+    // A shared workout's page, its head written for link previews (server/sharePage.ts).
+    app.get("/s/:token", (req, res, next) => { serveSharePage(req.params.token, req.headers, res).catch(next); });
     serveStatic(app);
   }
 

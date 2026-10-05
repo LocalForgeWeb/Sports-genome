@@ -306,6 +306,11 @@ describe("The catalog's mode in the address", () => {
 });
 
 describe("Exercise details over a movement's catalog", () => {
+  /** October 4: the sport context and the catalog record are in the sheet's Context view. */
+  const openContextView = async () => {
+    const tabButton = await waitFor(() => { const button = document.querySelector<HTMLButtonElement>("#exercise-analysis-tab-context"); if (!button) throw new Error("Overlay not ready"); return button; }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(tabButton); });
+  };
   it("reads the discovery movement, and Back from the movement it opens returns to the same results", async () => {
     // The athlete's own action is the penetration step; the catalog is open for Bridge.
     seedProfile("wrestling-1");
@@ -316,6 +321,7 @@ describe("Exercise details over a movement's catalog", () => {
     props = await catalog();
     const hipThrust = exercises.find((exercise) => exercise.name === "Barbell Hip Thrust")!;
     await act(async () => { props.onInspect(hipThrust); });
+    await openContextView();
     const action = await waitFor(() => { const node = document.querySelector(".inspection-action-connection-action"); if (!node) throw new Error("Overlay not ready"); return node; }, { timeout: 15000 });
     // The movement is named as the catalog's title and context row name it (it read "bridge", the raw record label).
     expect(action.textContent).toBe("Bridge");
@@ -341,6 +347,7 @@ describe("Exercise details over a movement's catalog", () => {
     const props = await catalog();
     const hipThrust = exercises.find((exercise) => exercise.name === "Barbell Hip Thrust")!;
     await act(async () => { props.onInspect(hipThrust); });
+    await openContextView();
     const how = await waitFor(() => { const node = document.querySelector<HTMLDetailsElement>(".inspection-action-connection-how"); if (!node) throw new Error("Overlay not ready"); return node; }, { timeout: 15000 });
     expect(how.open).toBe(false);
     expect(how.querySelector("summary")?.textContent).toBe("How this match was made ");
@@ -356,11 +363,18 @@ describe("Exercise details over a movement's catalog", () => {
     const props = await catalog();
     const hipThrust = exercises.find((exercise) => exercise.name === "Barbell Hip Thrust")!;
     await act(async () => { props.onInspect(hipThrust); });
-    const contextTab = await waitFor(() => { const button = Array.from(document.querySelectorAll<HTMLButtonElement>(".genome-tabbar button")).find((item) => item.textContent === "Context"); if (!button) throw new Error("Analysis not ready"); return button; }, { timeout: 15000 });
+    const contextTab = await waitFor(() => { const button = Array.from(document.querySelectorAll<HTMLButtonElement>(".ei-tabs [role='tab']")).find((item) => item.textContent === "Context"); if (!button) throw new Error("Analysis not ready"); return button; }, { timeout: 15000 });
+    // The At a glance line names the movement and its tier, with no number either.
+    const glance = await waitFor(() => { const node = document.querySelector(".ei-glance"); if (!node) throw new Error("Analysis not ready"); return node; }, { timeout: 15000 });
+    expect(glance.textContent).toContain("Movement link · Bridge");
+    expect(glance.textContent).toContain("Movement-specific");
+    expect(glance.textContent).not.toMatch(/\d+\/100/);
     await act(async () => { fireEvent.click(contextTab); });
-    const panel = document.querySelector(".genome-panel")!;
-    expect(panel.querySelector(".genome-action-connection")?.textContent).toContain("Bridge");
-    expect(panel.querySelector(".genome-action-connection-label")?.textContent).toBe("Movement-specific");
+    // One sport card in the Context view (October 4: the panel's own copy of it is gone).
+    const panel = document.querySelector(".ei-panel")!;
+    expect(panel.querySelectorAll(".inspection-action-connection")).toHaveLength(1);
+    expect(panel.querySelector(".inspection-action-connection")?.textContent).toContain("Bridge");
+    expect(panel.querySelector(".inspection-action-connection-label")?.textContent).toBe("Movement-specific");
     const text = panel.textContent ?? "";
     expect(text).not.toMatch(/sport action[^.]*\d+\/100/i);
     expect(text).not.toMatch(/mechanical match/i);
@@ -375,6 +389,7 @@ describe("Exercise details over a movement's catalog", () => {
     const hipThrust = exercises.find((exercise) => exercise.name === "Barbell Hip Thrust")!;
     expect(document.querySelector(".catalog-discovery-tier")).toBeNull();
     await act(async () => { props.onInspect(hipThrust); });
+    await openContextView();
     const note = await waitFor(() => { const node = document.querySelector(".exercise-intelligence-tier-note"); if (!node) throw new Error("Overlay not ready"); return node; }, { timeout: 15000 });
     expect(note.textContent).toBe(`Catalog tier ${hipThrust.muscleGrade} is a general label from the exercise catalog, not how closely this exercise matches a movement.`);
     const stamp = document.querySelector(".exercise-intelligence-tier [role='img']")!;

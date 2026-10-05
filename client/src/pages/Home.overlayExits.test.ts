@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
@@ -53,13 +53,22 @@ const plan = JSON.stringify({ version: 2, ...week, weeks: { "1": week }, activeW
 // history.back() is applied on a later task, and so is the popstate it fires.
 const tick = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
 
+/** The catalog row to open: exercises[0], which the open day holds, or another with a leading muscle. */
+function inspectDay(buttons: HTMLElement[], inDay: boolean) {
+  const exerciseFor = (button: HTMLElement) => exercises.find((item) => `Inspect ${item.name}` === button.getAttribute("aria-label"));
+  if (inDay) return buttons.find((button) => exerciseFor(button)?.id === exercises[0].id) ?? buttons[0];
+  return buttons.find((button) => { const exercise = exerciseFor(button); return exercise && exercise.id !== exercises[0].id && exercise.primaryMuscles.length; }) ?? buttons[0];
+}
+
 /** Renders the catalog and opens the overlay on an exercise that has a leading muscle. */
-async function openOverlayFromCatalog() {
+async function openOverlayFromCatalog({ inDay = false }: { inDay?: boolean } = {}) {
   window.history.replaceState({}, "", "/?workspace=catalog");
   render(createElement(Home));
   const inspectButtons = await screen.findAllByRole("button", { name: /^Inspect / }, { timeout: 15000 });
   await tick();
-  const withMuscle = inspectButtons.find((button) => exercises.find((exercise) => `Inspect ${exercise.name}` === button.getAttribute("aria-label"))?.primaryMuscles.length) ?? inspectButtons[0];
+  // One with a leading muscle that the open day does not already hold (the plan below has
+  // exercises[0]) - or, asked for, the one it does.
+  const withMuscle = inspectDay(inspectButtons, inDay);
   await act(async () => { fireEvent.click(withMuscle); });
   // The overlay's panels load on first open, so the dialog can arrive a moment later.
   await screen.findByRole("dialog", undefined, { timeout: 15000 });
@@ -76,7 +85,9 @@ afterEach(() => { cleanup(); });
 describe("Leaving the exercise overlay leaves nothing behind in history", () => {
   it("Explore in Body Lab closes the overlay, opens Body Lab, and one Back returns to the catalog", async () => {
     await openOverlayFromCatalog();
-    const explore = document.querySelector<HTMLButtonElement>(".exercise-intelligence-explore");
+    // The anatomy, and its way into Body Lab, are the Muscle Genome view (October 4).
+    await act(async () => { fireEvent.click(screen.getByRole("tab", { name: "Muscle Genome" })); });
+    const explore = await waitFor(() => { const node = document.querySelector<HTMLButtonElement>(".exercise-intelligence-explore"); if (!node) throw new Error("Muscle view not ready"); return node; }, { timeout: 15000 });
     expect(explore).toBeTruthy();
     await act(async () => { fireEvent.click(explore!); });
     await tick();
@@ -121,5 +132,61 @@ describe("Leaving the exercise overlay leaves nothing behind in history", () => 
     expect(document.querySelector(".exercise-intelligence")).toBeNull();
     expect(window.history.state?.overlay).toBeUndefined();
     expect(window.location.search).toBe("?workspace=catalog");
+  });
+});
+
+/**
+ * October 4 (Exercise Intelligence brief §7-8): the sheet is modal in fact, not only in
+ * name, it names the day an add goes to, and an exercise the day already holds cannot be
+ * added again by a second tap.
+ */
+describe("The exercise sheet's header, footer and modality", () => {
+  it("names the exercise in the fixed header on every view", async () => {
+    await openOverlayFromCatalog();
+    const title = document.getElementById("exercise-intelligence-title")!;
+    const name = title.textContent;
+    expect(name).toBeTruthy();
+    for (const view of ["Muscle Genome", "Mechanics", "Context", "Fingerprint"]) {
+      await act(async () => { fireEvent.click(screen.getByRole("tab", { name: view })); });
+      expect(screen.getByRole("tab", { name: view, selected: true })).toBeTruthy();
+      expect(document.getElementById("exercise-intelligence-title")?.textContent).toBe(name);
+      expect(screen.getByRole("dialog", { name: name! })).toBeTruthy();
+    }
+  });
+
+  it("names the destination, and changes it without adding anything", async () => {
+    await openOverlayFromCatalog();
+    const footer = document.querySelector(".exercise-intelligence-actions")!;
+    expect(footer.querySelector(".exercise-intelligence-destination")?.textContent).toContain("Adding to Week 1 · Push");
+    await act(async () => { fireEvent.click(within(footer as HTMLElement).getByRole("button", { name: "Change day" })); });
+    const days = within(footer as HTMLElement).getByRole("group", { name: "Day in Week 1 to add to" });
+    const other = within(days).getAllByRole("button").find((button) => button.getAttribute("aria-pressed") === "false")!;
+    const otherDay = other.textContent!.split(" · ")[1].replace(/(\d+ planned|Empty)$/, "");
+    await act(async () => { fireEvent.click(other); });
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(footer.querySelector(".exercise-intelligence-destination")?.textContent).toContain(`Week 1 · ${otherDay}`);
+    expect(window.history.state?.overlay).toBe("exercise");
+  });
+
+  it("does not offer to add an exercise the open day already holds", async () => {
+    await openOverlayFromCatalog({ inDay: true });
+    const add = document.querySelector<HTMLButtonElement>(".exercise-intelligence-add")!;
+    expect(add.getAttribute("aria-disabled")).toBe("true");
+    expect(add.textContent).toContain("Already added");
+    expect(document.querySelector(".exercise-intelligence-destination")?.textContent).toContain("Already in Week 1 · Push");
+    await act(async () => { fireEvent.click(add); });
+    await tick();
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
+  it("makes the page behind it inert while open, and gives it back on close", async () => {
+    await openOverlayFromCatalog();
+    const layer = document.querySelector(".exercise-intelligence")!;
+    const behind = document.querySelector(".catalog-experience-surface")!;
+    expect(behind.closest("[inert]")).toBeTruthy();
+    expect(layer.closest("[inert]")).toBeNull();
+    await act(async () => { fireEvent.click(document.querySelector(".exercise-intelligence-close")!); });
+    await tick();
+    expect(document.querySelector("[inert]")).toBeNull();
   });
 });

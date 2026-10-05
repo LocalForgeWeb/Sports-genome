@@ -2,17 +2,22 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
+import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { BootSplashLifecycle } from "./components/BootSplashLifecycle";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
+// A shared workout's page is its own chunk, loaded only when a link is opened.
+const SharedWorkoutPage = lazy(() => import("./pages/SharedWorkoutPage"));
+
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/s/:token"}>{(params) => <Suspense fallback={<div className="sp-loading-shell" style={{ minHeight: "100dvh", background: "#07182e" }} />}><SharedWorkoutPage params={params as { token: string }} /></Suspense>}</Route>
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

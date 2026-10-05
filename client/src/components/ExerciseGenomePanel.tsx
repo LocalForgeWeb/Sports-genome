@@ -1,41 +1,62 @@
-/** Gym Optimizer Exercise Genome: progressive analysis with teachable muscle and mechanics terminology. */
-import React, { useEffect, useMemo, useRef, useState } from "react";
+/**
+ * Exercise analysis: what the exercise's profile says, what it asks of the body,
+ * how it moves and how it fits the athlete's plan, in four views.
+ *
+ * October 4 redesign. The views used to sit under two methodology disclosures, in a
+ * light-panel component repainted for the dark sheet, with a radar whose labels ran
+ * into each other, four of eight scores beside it and "Fast read", one paragraph that
+ * joined workout fit, sport mapping and two caveats. Now the profile is a list of all
+ * eight scores, grouped by what higher means, with the radar as an overview; the
+ * summary is a sentence and two labelled lines; and the methodology is at the foot of
+ * the view it explains. No score is computed here: every number is the catalog
+ * model's (lib/exerciseGenome), shown as it is or shown as unavailable.
+ */
+import React, { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Activity, BrainCircuit, ChartNoAxesCombined, CircleGauge, Dna, Info, Scale, ShieldAlert, Sparkles, X } from "lucide-react";
+import { ChartNoAxesCombined, ChevronDown, Info, ShieldAlert, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
-import { analyzeExerciseContext, getExerciseGenome, getWorkoutGenome, type GenomeContext, type GenomeDimension } from "@/lib/exerciseGenome";
+import { analyzeExerciseContext, getExerciseGenome, getWorkoutGenome, goalDimensionFor, type ExerciseGenome, type GenomeContext, type GenomeDimension } from "@/lib/exerciseGenome";
 import { mechanicsEvidenceSources } from "@/lib/muscleTargetingModel";
 import { GradeStamp } from "@/components/GradeStamp";
 import { exerciseEvidenceCoverage } from "@/lib/evidenceCoverage";
-import { evidenceTraceability } from "@/lib/evidenceTraceability";
+import { evidenceTraceability, logicCalibration } from "@/lib/evidenceTraceability";
 import { getExerciseActionConnection, lookupEnrichedMovement } from "@/lib/movementProgramAnalysis";
 import { isKeyForAnotherLayer } from "@/lib/modalLayer";
 import { movementDisplayLabel } from "@/lib/movementLabel";
+import { ExerciseAnalysisTabs, genomePanelId, genomeTabId, type GenomeTab } from "@/components/ExerciseAnalysisTabs";
 import type { SupabaseExerciseEvidence } from "../../../shared/supabaseEvidence";
+import "../exercise-intelligence.css";
 
-type Tab = "fingerprint" | "muscles" | "mechanics" | "context";
 type LearnKey = GenomeDimension | "contextualFit" | "primeMover" | "synergist" | "stabilizer" | "contribution" | "mechanicalLoading" | "longLengthLoading" | "peakContraction" | "stabilizationDemand" | "movementPattern" | "jointAction" | "forceDirection" | "kineticChain" | "stance" | "resistanceCurve" | "resistanceBias" | "stickingRegion" | "localFatigue" | "systemicFatigue" | "axialFatigue" | "gripFatigue";
-
-const tabs: { id: Tab; label: string; icon: typeof Dna }[] = [
-  { id: "fingerprint", label: "Fingerprint", icon: Dna },
-  { id: "muscles", label: "Muscle Genome", icon: Activity },
-  { id: "mechanics", label: "Mechanics", icon: CircleGauge },
-  { id: "context", label: "Context", icon: BrainCircuit },
-];
 
 const labels: Record<GenomeDimension, string> = { hypertrophy: "Hypertrophy potential", strength: "Strength expression", power: "Power expression", stability: "Stability demand", mobility: "Mobility demand", sfr: "Stimulus-to-fatigue ratio", skill: "Technical skill demand", practicality: "Practicality" };
 
+/** The radar's axes, clockwise from the top. Fixed, so two exercises' shapes can be compared. */
+const dimensionOrder: GenomeDimension[] = ["hypertrophy", "strength", "power", "stability", "mobility", "sfr", "skill", "practicality"];
+
 /**
- * What each axis is called on the radar itself.
- *
- * The chart used to take the first word of the full label, which produced
- * "Stimulus-to-fatigue" - 106 units wide on a 120-unit chart - and left
- * "Practicality", "Technical", "Strength" and "Power" running off the viewBox
- * and clipped mid-word: the reader saw "racticality", "nnical" and "Pow". These
- * are the plot's tick marks, not its legend; the bars beside it carry the full
- * name and the number, so the axis only has to be recognisable.
+ * What each axis is called on the radar itself: the chart's tick marks, short enough
+ * to sit outside the plot at the size it is drawn. The full name and the number are
+ * in the rows beside it. "Fatigue" alone would have read as a cost, and this axis is
+ * the stimulus-to-fatigue ratio, where higher is the better trade-off, so it keeps
+ * both words, on two lines.
  */
-const radarLabels: Record<GenomeDimension, string> = { hypertrophy: "Hypertrophy", strength: "Strength", power: "Power", stability: "Stability", mobility: "Mobility", sfr: "Fatigue cost", skill: "Skill", practicality: "Practical" };
+const radarLabels: Record<GenomeDimension, string[]> = { hypertrophy: ["Hypertrophy"], strength: ["Strength"], power: ["Power"], stability: ["Stability"], mobility: ["Mobility"], sfr: ["Stimulus/", "fatigue"], skill: ["Skill"], practicality: ["Practicality"] };
+
+/**
+ * The eight dimensions are not one kind of quantity, so they are not one list. What
+ * the exercise can develop, what it asks of you and its trade-offs each say once what
+ * a higher number means, so a high demand never reads as a better exercise.
+ */
+const dimensionGroups: { id: string; title: string; reading: string; dimensions: GenomeDimension[] }[] = [
+  { id: "potential", title: "Training potential", reading: "What it can develop. Higher means more potential.", dimensions: ["hypertrophy", "strength", "power"] },
+  { id: "demand", title: "Demands", reading: "What it asks of you. Higher means it asks more, not that it is better.", dimensions: ["stability", "mobility", "skill"] },
+  { id: "tradeoff", title: "Trade-offs", reading: "Higher means more stimulus for the fatigue it costs, and easier to set up and run.", dimensions: ["sfr", "practicality"] },
+];
+
+/** On a narrow sheet the first four rows show and these wait behind "Show all 8 dimensions". */
+const laterDimensions = new Set<GenomeDimension>(["mobility", "skill", "sfr", "practicality"]);
+
 export const genomeTermInfo: Record<LearnKey, { label: string; meaning: string; inputs: string; read: string }> = {
   hypertrophy: { label: labels.hypertrophy, meaning: "How well an exercise can support muscular size work.", inputs: "Target-muscle loading potential, usable range of motion, controllable resistance, and the ability to accumulate productive sets.", read: "Higher values usually indicate a more practical tool for local muscular work; they do not predict individual growth." },
   strength: { label: labels.strength, meaning: "How suitable an exercise is for developing high force.", inputs: "External load potential, compound force expression, bracing demands, and progression potential.", read: "Higher values indicate force-development potential within this model, not a one-repetition-maximum guarantee." },
@@ -68,8 +89,32 @@ export const genomeTermInfo: Record<LearnKey, { label: string; meaning: string; 
   gripFatigue: { label: "Grip fatigue", meaning: "The expected fatigue cost to the hand and forearm gripping system.", inputs: "Handle demand, load, duration, forearm position, and whether the task limits work through grip.", read: "Higher values mean grip may become a limiting factor before the target muscles are fully challenged." },
 };
 
-function LearnButton({ label, onClick, className = "" }: { label: string; onClick: () => void; className?: string }) { return <button onClick={onClick} className={`genome-term-button ${className}`}>{label}<Info className="h-3 w-3" /></button>; }
-function Meter({ label, value, tone = "blue", onLearn }: { label: string; value: number; tone?: "blue" | "ink" | "warm"; onLearn?: () => void }) { return <div className="genome-meter"><div className="flex items-center justify-between gap-2">{onLearn ? <LearnButton label={label} onClick={onLearn} /> : <span>{label}</span>}<strong>{value}</strong></div><span className={`genome-meter-track genome-meter-${tone}`}><i style={{ width: `${value}%` }} /></span></div>; }
+/**
+ * A model value on its 0-100 scale, or nothing. A missing, non-numeric or
+ * out-of-range value is unavailable: it is never drawn as a zero, and never
+ * clamped into a number the model did not produce.
+ */
+export function profileScore(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100 ? Math.round(value) : null;
+}
+
+/** A help control: an icon with a name, opening the term's explanation. Tap and keyboard alike. */
+function HelpButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return <button type="button" className="ei-help" aria-label={`Learn about ${label}`} onClick={onClick}><Info className="h-4 w-4" aria-hidden="true" /></button>;
+}
+
+/** One score: its name, its help, its number and a bar beneath, aligned with every other row. */
+function ScoreRow({ label, value, onLearn, later = false }: { label: string; value: unknown; onLearn?: () => void; later?: boolean }) {
+  const score = profileScore(value);
+  return <div className="ei-row" data-later={later || undefined} data-unavailable={score === null || undefined}>
+    <div className="ei-row-head">
+      <span className="ei-row-label">{label}</span>
+      {onLearn && <HelpButton label={label} onClick={onLearn} />}
+      <span className="ei-row-value">{score === null ? "Not available" : score}</span>
+    </div>
+    <span className="ei-bar" aria-hidden="true">{score !== null && <i style={{ width: `${score}%` }} />}</span>
+  </div>;
+}
 
 /**
  * One term's explanation, over the panel. It takes focus when it opens and gives
@@ -115,8 +160,91 @@ function GenomeLearnOverlay({ term, onClose }: { term: LearnKey; onClose: () => 
   return createPortal(<div ref={layerRef} className="genome-learn-overlay" role="dialog" aria-modal="true" aria-label={`${info.label} explained`}><div className="genome-learn-card sg-surface-light"><button ref={closeRef} type="button" onClick={onClose} aria-label="Close term explanation" className="genome-learn-close"><X className="h-4 w-4" aria-hidden="true" /></button><p className="genome-learn-eyebrow">Genome term explained</p><h4>{info.label}</h4><dl className="genome-learn-parts">{parts.map((part) => <div key={part.label}><dt>{part.label}</dt><dd>{part.body}</dd></div>)}</dl><p className="genome-learn-boundary">This is a planning estimate used to compare exercises — not a lab measurement, a medical assessment, or a universal recommendation.</p></div></div>, document.body);
 }
 
-/** The four the summary shows; the full fingerprint keeps all eight behind a line. */
-const keyDimensions: GenomeDimension[] = ["hypertrophy", "strength", "power", "stability"];
+/*
+ * The radar, drawn for the size it is shown at (about 300-340 CSS px wide, so one
+ * unit is about a pixel). The labels sit outside the outer ring, each anchored away
+ * from the plot by its angle - start on the right, end on the left, centred top and
+ * bottom - with the viewBox wide enough for the longest label at the 45° positions.
+ */
+const chart = { width: 336, height: 264, cx: 168, cy: 130, radius: 94, labelGap: 12 };
+const rings = [25, 50, 75, 100];
+const axisAngle = (index: number) => (Math.PI * 2 * index) / dimensionOrder.length - Math.PI / 2;
+const plotPoint = (index: number, value: number) => { const angle = axisAngle(index); const r = chart.radius * (value / 100); return [chart.cx + Math.cos(angle) * r, chart.cy + Math.sin(angle) * r] as const; };
+const pointsAt = (values: number[]) => values.map((value, index) => plotPoint(index, value).map((n) => n.toFixed(1)).join(",")).join(" ");
+
+function ProfileRadar({ scores }: { scores: Record<GenomeDimension, number> }) {
+  const values = dimensionOrder.map((key) => scores[key]);
+  const description = `Profile chart, each dimension out of 100: ${dimensionOrder.map((key) => `${labels[key]} ${scores[key]}`).join(", ")}.`;
+  return <svg className="ei-radar-svg" viewBox={`0 0 ${chart.width} ${chart.height}`} role="img" aria-label={description}>
+    {rings.map((level) => <polygon key={level} className={level === 100 ? "ei-radar-edge" : "ei-radar-ring"} points={pointsAt(dimensionOrder.map(() => level))} />)}
+    {dimensionOrder.map((key, index) => { const [x, y] = plotPoint(index, 100); return <line key={key} className="ei-radar-spoke" x1={chart.cx} y1={chart.cy} x2={x} y2={y} />; })}
+    <polygon className="ei-radar-shape" points={pointsAt(values)} />
+    {values.map((value, index) => { const [x, y] = plotPoint(index, value); return <circle key={dimensionOrder[index]} className="ei-radar-point" cx={x} cy={y} r={3} />; })}
+    {dimensionOrder.map((key, index) => {
+      const angle = axisAngle(index);
+      const cos = Math.cos(angle), sin = Math.sin(angle);
+      const reach = chart.radius + chart.labelGap;
+      const x = chart.cx + cos * reach;
+      const lines = radarLabels[key];
+      const anchor = cos > 0.3 ? "start" : cos < -0.3 ? "end" : "middle";
+      // Above the plot the text grows upward from its baseline, below it downward, beside it centred.
+      const lineHeight = 15;
+      const firstBaseline = sin < -0.3 ? chart.cy + sin * reach - (lines.length - 1) * lineHeight - 2 : sin > 0.3 ? chart.cy + sin * reach + 12 : chart.cy + 5 - ((lines.length - 1) * lineHeight) / 2;
+      return <text key={key} className="ei-radar-label" x={x} y={firstBaseline} textAnchor={anchor} fontSize={13.5}>{lines.map((line, lineIndex) => <tspan key={line} x={x} dy={lineIndex === 0 ? 0 : lineHeight}>{line}</tspan>)}</text>;
+    })}
+  </svg>;
+}
+
+/** The catalog id an entry stands for: a planned entry can carry its own instance id. */
+const catalogIdOf = (exercise: Exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id;
+
+/** "Strength expression (95)": a dimension as the summary names it. */
+const named = (key: GenomeDimension, value: number) => `${labels[key].toLowerCase()} (${value})`;
+const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
+/**
+ * The profile in one sentence: its two highest scores and its lowest, by value
+ * alone. No threshold calls a score high or low - the model documents none for
+ * the fingerprint - so the sentence ranks and quotes, and says nothing more.
+ */
+export function profileSummary(genome: ExerciseGenome | undefined): string {
+  if (!genome) return "No analysis profile is recorded for this exercise in the catalog.";
+  const ranked = dimensionOrder
+    .map((key, order) => ({ key, order, value: profileScore(genome.fingerprint[key]) }))
+    .filter((entry): entry is { key: GenomeDimension; order: number; value: number } => entry.value !== null)
+    .sort((a, b) => b.value - a.value || a.order - b.order);
+  if (!ranked.length) return "This exercise's profile scores are not available.";
+  const [first, second] = ranked;
+  const lowest = ranked[ranked.length - 1];
+  const highest = second ? `${named(first.key, first.value)} and ${named(second.key, second.value)}` : named(first.key, first.value);
+  const showLowest = ranked.length > 2 && lowest.value < (second?.value ?? first.value);
+  return `Highest in ${highest}${showLowest ? `; lowest in ${named(lowest.key, lowest.value)}` : ""}.`;
+}
+
+/**
+ * Workout fit, from the comparison the model actually made. It compares the exercise
+ * with the other exercises in the day it would be added to; with nothing else there,
+ * there was no comparison, and it says so instead of claiming the exercise adds
+ * something "without repeating the stack".
+ */
+export function workoutFitSummary({ exercise, context, workoutLabel, redundancy }: { exercise: Exercise; context: GenomeContext; workoutLabel: string; redundancy: number | null }): string {
+  const inWorkout = context.currentWorkout.some((item) => catalogIdOf(item) === exercise.id);
+  const others = context.currentWorkout.filter((item) => catalogIdOf(item) !== exercise.id && getExerciseGenome(item));
+  const already = inWorkout ? `Already in ${workoutLabel}. ` : "";
+  if (!others.length || redundancy === null) return inWorkout ? `${already}Nothing else is in it yet, so there is nothing to compare it with.` : `Nothing is in ${workoutLabel} yet, so there is nothing to compare it with.`;
+  const count = `${others.length} other exercise${others.length === 1 ? "" : "s"}`;
+  const overlap = redundancy > logicCalibration.exerciseGenome.highRedundancyReview
+    ? `Overlaps with the ${count} in ${workoutLabel}: best as a replacement for something similar, or to fill a specific gap.`
+    : `Adds a relatively distinct exposure next to the ${count} in ${workoutLabel}.`;
+  return `${already}${overlap}`;
+}
+
+/** How the exercise stands to the sport movement in view, by name, in one line. */
+function movementLinkSummary(movementName: string | null, label: string, detail: string): { tier: string | null; text: string } {
+  if (!movementName) return { tier: null, text: "No sport movement is selected." };
+  if (label === "Not mapped") return { tier: null, text: `No mapped link to ${movementName} in this catalog.` };
+  return { tier: label, text: `${detail.replace(/\.$/, "")}.` };
+}
 
 /**
  * What the sport-action tier is and is not. It is the exercise's movement support
@@ -125,46 +253,180 @@ const keyDimensions: GenomeDimension[] = ["hypertrophy", "strength", "power", "s
  */
 const actionBoundary = "This says how the exercise relates to that action's movement record. It is not proof that training it improves your skill on the field.";
 
-export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compactHead = false }: { exercise: Exercise; context: GenomeContext; supabaseEvidence?: SupabaseExerciseEvidence; /** Inside the Exercise Intelligence overlay the name is the page title, so the head carries only the fit. */ compactHead?: boolean }) {
-  const [tab, setTab] = useState<Tab>("fingerprint");
+/** Content the sheet that hosts the panel puts into its views: photographs, the anatomy, the sport card, the evidence. */
+export type GenomePanelSlots = { media?: ReactNode; profileFoot?: ReactNode; muscles?: ReactNode; sport?: ReactNode; evidence?: ReactNode };
+
+export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compactHead = false, tab: controlledTab, onTabChange, workoutLabel = "this workout", slots = {} }: {
+  exercise: Exercise;
+  context: GenomeContext;
+  supabaseEvidence?: SupabaseExerciseEvidence;
+  /** Inside the Exercise Intelligence overlay the name is the sheet's title, so the panel carries none. */
+  compactHead?: boolean;
+  /** The view shown, when the host draws the tab list itself (the sheet does, in its fixed header). */
+  tab?: GenomeTab;
+  onTabChange?: (tab: GenomeTab) => void;
+  /** The day the current workout is, as the add destination names it ("Week 1 · Push"). */
+  workoutLabel?: string;
+  slots?: GenomePanelSlots;
+}) {
+  const [ownTab, setOwnTab] = useState<GenomeTab>("fingerprint");
+  const tab = controlledTab ?? ownTab;
+  const setTab = (next: GenomeTab) => { if (onTabChange) onTabChange(next); else setOwnTab(next); };
   const [learnedTerm, setLearnedTerm] = useState<LearnKey | null>(null);
-  const genome = useMemo(() => getExerciseGenome(exercise), [exercise]);
+  const [showAllDimensions, setShowAllDimensions] = useState(false);
+  const [showChart, setShowChart] = useState(false);
+  const genome = useMemo(() => getExerciseGenome(exercise) as ExerciseGenome | undefined, [exercise]);
   const evidenceCoverage = useMemo(() => exerciseEvidenceCoverage(exercise), [exercise]);
-  const baseAnalysis = useMemo(() => analyzeExerciseContext(exercise, context), [exercise, context]);
+  // The day's exercises the model can read. One the catalog does not hold has no profile to compare.
+  const modelContext = useMemo<GenomeContext>(() => ({ ...context, currentWorkout: context.currentWorkout.filter((item) => getExerciseGenome(item)) }), [context]);
+  const analysis = useMemo(() => (genome ? analyzeExerciseContext(exercise, modelContext) : null), [exercise, modelContext, genome]);
   const selectedActionConnection = useMemo(() => {
     const movement = context.sportMovement;
     const enrichedMovement = movement ? lookupEnrichedMovement(movement.sportId, movement.id) : undefined;
     return getExerciseActionConnection(exercise, enrichedMovement);
   }, [exercise, context.sportMovement]);
-  const analysis = useMemo(() => ({
-    ...baseAnalysis,
-    explanation: `${baseAnalysis.explanation} Sport action in view: ${selectedActionConnection.label} — ${selectedActionConnection.detail} ${actionBoundary}`,
-  }), [baseAnalysis, selectedActionConnection]);
-  const workoutGenome = useMemo(() => getWorkoutGenome(context.currentWorkout), [context.currentWorkout]);
-  const radarPoints = useMemo(() => Object.entries(genome.fingerprint).map(([key, value], index, all) => { const angle = (Math.PI * 2 * index) / all.length - Math.PI / 2; const radius = 46 * (value / 100); return `${60 + Math.cos(angle) * radius},${60 + Math.sin(angle) * radius}`; }).join(" "), [genome.fingerprint]);
-  const outerPoints = useMemo(() => Array.from({ length: 8 }, (_, index) => { const angle = (Math.PI * 2 * index) / 8 - Math.PI / 2; return `${60 + Math.cos(angle) * 46},${60 + Math.sin(angle) * 46}`; }).join(" "), []);
+  const workoutGenome = useMemo(() => getWorkoutGenome(modelContext.currentWorkout), [modelContext.currentWorkout]);
   const learn = (key: LearnKey) => () => setLearnedTerm(key);
-  const fatigueTerms: Record<string, LearnKey> = { local: "localFatigue", systemic: "systemicFatigue", axial: "axialFatigue", grip: "gripFatigue" };
   const muscleRoleTerms: Record<"Prime mover" | "Synergist" | "Stabilizer", LearnKey> = { "Prime mover": "primeMover", Synergist: "synergist", Stabilizer: "stabilizer" };
 
-  return <section className="genome-panel"><div className="genome-panel-head"><div><p className="metric-label">{compactHead ? "Exercise analysis" : "Exercise Genome / what this lift is good for"}</p>{!compactHead && <h3 className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[var(--sg-text-on-light)]">{exercise.name}</h3>}</div><div className="flex items-center gap-2"><span aria-hidden="true" className="text-[11px] font-bold uppercase tracking-[.12em] text-[#547292]">Contextual fit</span><GradeStamp grade={analysis.grade} label="Contextual fit" compact /></div></div><details className="genome-methodology"><summary>How to read this analysis</summary><div><p>Every 0–100 score below compares exercises against each other, based on how the movement works and how it is programmed. None of them measure force, muscle activation, or fatigue in your body.</p><p><strong>{evidenceCoverage.confidence} evidence coverage.</strong> {evidenceCoverage.sourceRange}. {evidenceCoverage.directScope} {evidenceCoverage.planningBoundary}</p>{supabaseEvidence?.status === "connected" && <section className="mt-3 border-l-2 border-[var(--sg-info-strong)] pl-3" aria-label="Connected research evidence record"><p className="metric-label">Connected research record</p><p className="mt-1 text-xs font-bold text-[#153b61]">{supabaseEvidence.coverageLabel}{supabaseEvidence.anchorMetric ? ` · ${supabaseEvidence.anchorMetric.replace(/_/g, " ")}` : ""}</p>{supabaseEvidence.source && <p className="mt-1 text-xs leading-5 text-[var(--sg-text-muted-on-light)]"><a href={supabaseEvidence.source.sourceUrl} target="_blank" rel="noreferrer" className="font-bold underline underline-offset-2">{supabaseEvidence.source.title}{supabaseEvidence.source.publicationYear ? ` (${supabaseEvidence.source.publicationYear})` : ""}</a>{supabaseEvidence.source.studyType ? ` · ${supabaseEvidence.source.studyType}` : ""}{supabaseEvidence.source.populationSummary ? ` · ${supabaseEvidence.source.populationSummary}` : ""}</p>}<p className="mt-1 text-[11px] leading-5 text-[#536b84]">{supabaseEvidence.normativeRecordCount ? `${supabaseEvidence.normativeRecordCount} source norm record${supabaseEvidence.normativeRecordCount === 1 ? "" : "s"}` : "No source norm record"}{supabaseEvidence.sourceOutcomeCount ? ` · ${supabaseEvidence.sourceOutcomeCount} recorded source outcome${supabaseEvidence.sourceOutcomeCount === 1 ? "" : "s"} indexed` : ""}. {supabaseEvidence.boundary}</p>{supabaseEvidence.sourceOutcomeMetrics.length > 0 && <p className="mt-1 text-[11px] leading-5 text-[#536b84]">Indexed outcome variables: {supabaseEvidence.sourceOutcomeMetrics.join(", ")}. Variables are source labels, not normalized personal measurements or scores.</p>}</section>}<p>Published research, planning estimates, app limits, and your own logged lifts are kept apart and labeled separately. A number never gets presented as a measurement just because it looks precise.</p><ul>{evidenceTraceability.filter((entry) => ["programming-anchors", "rpe-log-context", "relative-model-calibration"].includes(entry.id)).map((entry) => <li key={entry.id}><strong>{entry.kind}:</strong> {entry.rationale} {entry.sourceUrls?.map((url, index) => <a className="ml-1" key={url} href={url} target="_blank" rel="noreferrer">source {index + 1}</a>)}</li>)}</ul></div></details><details className="genome-methodology genome-mechanics-evidence"><summary>Mechanics evidence scope</summary><div><p>These sources explain how the movement generally works and where the estimates are uncertain. They do not measure your own muscle force, tendons, activation, injury risk, or performance.</p><ul>{mechanicsEvidenceSources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></div></details><div className="genome-tabbar" role="group" aria-label="Exercise analysis view">{tabs.map((item) => { const Icon = item.icon; return <button key={item.id} type="button" aria-pressed={tab === item.id} onClick={() => setTab(item.id)} className={`genome-tab ${tab === item.id ? "genome-tab-active" : ""}`}><Icon className="h-3.5 w-3.5" aria-hidden="true" />{item.label}</button>; })}</div>
-    {tab === "context" && <div className="genome-action-connection"><div><p className="metric-label">Sport action in view</p><p className="mt-1 text-sm font-bold text-[var(--sg-text-on-light)]">{context.sportMovement ? movementDisplayLabel(context.sportMovement.label) : "No selected action"}</p></div><div><span className={`genome-action-connection-label genome-action-connection-${selectedActionConnection.label.toLowerCase().replace(/\s+/g, "-")}`}>{selectedActionConnection.label}</span><p className="mt-2 text-xs leading-5 text-[#46627d]">{selectedActionConnection.detail} {actionBoundary}</p></div></div>}
-    {tab === "fingerprint" && <div className="genome-grid"><div className="genome-fingerprint"><svg viewBox="-18 -6 156 132" aria-label="Exercise Genome fingerprint chart with eight labeled dimensions"><circle cx="60" cy="60" r="46" fill="none" stroke="#d2dfed" strokeWidth=".75" /><circle cx="60" cy="60" r="30" fill="none" stroke="#e2eaf4" strokeWidth=".75" /><polygon points={outerPoints} fill="none" stroke="#b9cce5" strokeWidth=".75" /><polygon points={radarPoints} fill="rgb(45 108 223 / .25)" stroke="#2d6cdf" strokeWidth="2" />{Object.keys(genome.fingerprint).map((key, index, all) => { const dimension = key as GenomeDimension; const angle = (Math.PI * 2 * index) / all.length - Math.PI / 2; const x = 60 + Math.cos(angle) * 55; const y = 61 + Math.sin(angle) * 55; const openTerm = () => setLearnedTerm(dimension); return <g key={key} role="button" tabIndex={0} aria-label={`Learn about ${labels[dimension]}`} className="genome-radar-label-control" onClick={openTerm} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openTerm(); } }}><circle cx={x} cy={y - 2} r="8" fill="transparent" /><text x={x} y={y} textAnchor="middle" className="genome-radar-label">{radarLabels[dimension]}</text></g>; })}</svg>{/* A scale, drawn. This was twenty-six words explaining its own axis - two
-            sentences defining 0 and 100, and a third telling the reader to select
-            a chart label, which they are already styled and focusable as. The
-            sequential token ramp is what the app uses for ordered magnitude
-            everywhere else, so the key is the ramp with its ends named. */}
-        <div className="genome-scale-key" role="img" aria-label="Scale from 0, little relative demand, to 100, high relative demand">
-          <span>0 <em>low</em></span>
-          <i aria-hidden="true" />
-          <span>100 <em>high</em></span>
-        </div></div>{/* Four key dimensions beside the radar; the other four are
-            one line away as readable rows, so all eight are on the page without
-            eight bars under an eight-axis chart saying the same thing twice. */}
-        <div className="genome-fingerprint-bars">{keyDimensions.map((key) => <Meter key={key} label={labels[key]} value={genome.fingerprint[key]} onLearn={learn(key)} />)}
-          <details className="genome-fingerprint-all"><summary>View the other four dimensions</summary><dl aria-label="Remaining fingerprint dimensions, 0 to 100">{(Object.keys(genome.fingerprint) as GenomeDimension[]).filter((key) => !keyDimensions.includes(key)).map((key) => <div key={key}><dt><LearnButton label={labels[key]} onClick={learn(key)} /></dt><dd>{genome.fingerprint[key]}</dd></div>)}</dl></details></div><div className="genome-quicknote"><Sparkles className="h-4 w-4 text-[var(--sg-info-strong)]" /><div><p className="metric-label">Fast read</p><p className="mt-1 text-xs leading-5 text-[var(--sg-text-muted-on-light)]">{analysis.explanation}</p><div className="genome-reading-key"><span><strong>Demand</strong> what the exercise asks of you</span><span><strong>Potential</strong> the adaptation it may support</span><span><strong>Expression</strong> the current sport and stack context</span></div></div></div></div>}
-    {tab === "muscles" && <div className="genome-muscle-stack"><div className="genome-section-intro"><p>Every term below is tappable. Open one to see what the number means and what goes into it.</p></div>{genome.muscleProfile.map((entry) => <div className="genome-muscle-row" key={entry.muscle}><div className="flex min-w-0 items-start gap-3"><GradeStamp grade={entry.tier} label="Muscle involvement tier" compact /><div className="min-w-0"><p className="text-xs font-bold text-[var(--sg-text-on-light)]">{entry.anatomicalLabel}</p><div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1"><LearnButton label={entry.role} onClick={learn(muscleRoleTerms[entry.role])} /><LearnButton label={`Estimated ${entry.contribution}/100 involvement`} onClick={learn("contribution")} /></div><p className="mt-2 text-[11px] leading-5 text-[#536b84]">{entry.why}</p></div></div><div className="grid min-w-[185px] grid-cols-2 gap-x-3 gap-y-2"><Meter label="Mechanical loading" value={entry.mechanicalLoading} onLearn={learn("mechanicalLoading")} /><Meter label="Long-length challenge" value={entry.longLengthLoading} tone="warm" onLearn={learn("longLengthLoading")} /><Meter label="Peak contraction" value={entry.peakContraction} onLearn={learn("peakContraction")} /><Meter label="Stabilization demand" value={entry.stabilizationDemand} tone="ink" onLearn={learn("stabilizationDemand")} /></div></div>)}</div>}
-    {tab === "mechanics" && <div className="genome-mechanics"><div className="genome-mechanic-block"><LearnButton label="Movement pattern + joint action" onClick={learn("movementPattern")} className="metric-label" /><div className="mt-3 flex flex-wrap gap-2">{genome.movementPatterns.map((pattern) => <LearnButton key={pattern} label={pattern} onClick={learn("movementPattern")} className="genome-tag" />)}</div><div className="mt-4 flex flex-wrap gap-2">{genome.jointActions.map((action) => <LearnButton key={action} label={action} onClick={learn("jointAction")} className="genome-tag genome-tag-soft" />)}</div><div className="mt-4 flex flex-wrap gap-2 text-[11px] text-[#526b83]"><LearnButton label={`Force direction: ${genome.forceDirection}`} onClick={learn("forceDirection")} /><LearnButton label={`${genome.chain} chain`} onClick={learn("kineticChain")} /><LearnButton label={`${genome.stance.toLowerCase()} stance`} onClick={learn("stance")} /></div></div><div className="genome-mechanic-block"><LearnButton label="Resistance + fatigue curve" onClick={learn("resistanceCurve")} className="metric-label" /><div className="mt-4 genome-curve">{genome.resistanceProfile.curve.map((value, index) => <span key={index} style={{ height: `${value}%` }} />)}</div><div className="mt-3 grid grid-cols-2 gap-3 text-[11px] text-[#49637d]"><LearnButton label={`${genome.resistanceProfile.bias}-biased challenge profile`} onClick={learn("resistanceBias")} /><LearnButton label={`${genome.resistanceProfile.stickingRegion} likely sticking region`} onClick={learn("stickingRegion")} /></div><div className="mt-5 grid grid-cols-2 gap-3">{Object.entries(genome.fatigue).map(([key, value]) => <Meter key={key} label={`${key[0].toUpperCase()}${key.slice(1)} fatigue`} value={value} tone={key === "systemic" || key === "axial" ? "warm" : "ink"} onLearn={learn(fatigueTerms[key] || "localFatigue")} />)}</div></div></div>}
-    {tab === "context" && <div className="genome-context"><div className="grid gap-3 sm:grid-cols-4"><div className="genome-stat"><p className="metric-label">Contextual utility</p><p className="font-display text-5xl font-bold text-[var(--sg-text-on-light)]">{analysis.contextualScore}</p><p>summary, not a standalone verdict</p></div><div className="genome-stat"><p className="metric-label">Goal alignment</p><p className="font-display text-5xl font-bold text-[var(--sg-info-strong)]">{analysis.signals.goalAlignment}</p><p>relative match for your stated goal</p></div><div className="genome-stat"><p className="metric-label">Stack distinctness</p><p className="font-display text-5xl font-bold text-[var(--sg-info-strong)]">{analysis.signals.stackDistinctness}</p><p>what it adds beyond current work</p></div><div className="genome-stat"><p className="metric-label">Recovery manageability</p><p className="font-display text-5xl font-bold text-[#d06a38]">{analysis.signals.recoveryManageability}</p><p>relative cost from task fatigue signals</p></div></div><div className="genome-why"><Info className="h-4 w-4 text-[var(--sg-info-strong)]" /><div><LearnButton label="How contextual fit changes" onClick={learn("contextualFit")} className="metric-label" /><p className="mt-1 text-xs leading-5 text-[var(--sg-text-muted-on-light)]">Fingerprint values describe standardized exercise characteristics. Contextual fit adds your stated goal and current stack. The sport action is not scored: its match tier is above. It is a planning comparison, not a direct performance measurement.</p></div></div><div className="genome-why"><Info className="h-4 w-4 text-[var(--sg-info-strong)]" /><div><p className="metric-label">Adaptation opportunity</p><p className="mt-1 text-xs leading-5 text-[var(--sg-text-muted-on-light)]">Primary: <strong>{genome.adaptation.primary.join(" · ")}</strong> · Secondary: <strong>{genome.adaptation.secondary.join(" · ")}</strong>. {genome.adaptation.rationale}</p></div></div><div className="genome-why"><Info className="h-4 w-4 text-[var(--sg-info-strong)]" /><div><p className="metric-label">Why this planning comparison changes</p><p className="mt-1 text-xs leading-5 text-[var(--sg-text-muted-on-light)]">{analysis.explanation} Each number here comes from the exercise catalog — it is not a rating of your skill, performance, or strength.</p></div></div><div className="grid gap-3 md:grid-cols-2"><div className="genome-list"><p className="metric-label">What supports it</p>{analysis.strengths.map((item) => <p key={item}><ChartNoAxesCombined className="h-3.5 w-3.5" />{item}</p>)}</div><div className="genome-list genome-list-limits"><p className="metric-label">Trade-offs to consider</p>{analysis.limits.map((item) => <p key={item}><ShieldAlert className="h-3.5 w-3.5" />{item}</p>)}</div></div><div className="genome-stack-read"><div><p className="metric-label">Current Workout Genome</p><p className="mt-1 text-xs leading-5 text-[var(--sg-text-muted-on-light)]">{workoutGenome.redundancy > 62 ? "The current stack repeats similar exposure. This exercise needs a specific role to earn its place." : "The stack has room for differentiated stimulus if this exercise fills a useful objective."}</p></div><div className="flex flex-wrap gap-1.5">{workoutGenome.gaps.slice(0, 3).map((gap) => <span key={gap} className="genome-tag genome-tag-soft">Missing {gap}</span>)}</div></div><p className="mt-4 text-[11px] leading-4 text-[var(--sg-text-subtle-on-light)]">Confidence: {genome.evidence.confidence} · {genome.evidence.quality}. {genome.evidence.note}</p></div>}
-    {learnedTerm && <GenomeLearnOverlay term={learnedTerm} onClose={() => setLearnedTerm(null)} />}</section>;
+  const movementName = context.sportMovement ? movementDisplayLabel(context.sportMovement.label) : null;
+  const movementLink = movementLinkSummary(movementName, selectedActionConnection.label, selectedActionConnection.detail);
+  const workoutFit = workoutFitSummary({ exercise, context: modelContext, workoutLabel, redundancy: analysis && modelContext.currentWorkout.some((item) => catalogIdOf(item) !== exercise.id) ? analysis.redundancy : null });
+  const goalKey = goalDimensionFor(context.goal);
+  const goalScore = genome ? profileScore(genome.fingerprint[goalKey]) : null;
+  const scores = genome?.fingerprint;
+  const allScored = Boolean(scores && dimensionOrder.every((key) => profileScore(scores[key]) !== null));
+  const unavailableCount = scores ? dimensionOrder.filter((key) => profileScore(scores[key]) === null).length : dimensionOrder.length;
+  const laterNames = dimensionOrder.filter((key) => laterDimensions.has(key)).map((key) => labels[key].toLowerCase());
+
+  const panelProps = (id: GenomeTab) => ({ id: genomePanelId(id), role: "tabpanel", "aria-labelledby": genomeTabId(id), className: `ei-view ei-view-${id}` });
+
+  return <section className="ei-panel" aria-label={compactHead ? "Exercise analysis" : undefined}>
+    {!compactHead && <div className="ei-panel-head"><p className="ei-eyebrow">Exercise analysis</p><h3>{exercise.name}</h3></div>}
+    {controlledTab === undefined && <ExerciseAnalysisTabs tab={tab} onChange={setTab} />}
+
+    {tab === "fingerprint" && <div {...panelProps("fingerprint")}>
+      <section className="ei-glance" aria-labelledby="ei-glance-title">
+        <h2 id="ei-glance-title" className="ei-section-title">At a glance</h2>
+        <p className="ei-glance-lead">{profileSummary(genome)}</p>
+        <dl className="ei-glance-lines">
+          <div><dt>Workout fit</dt><dd>{workoutFit}{goalScore !== null && <> For your goal, {context.goal.toLowerCase()}, the profile reads {labels[goalKey].toLowerCase()}: {goalScore}.</>}</dd></div>
+          <div><dt>Movement link{movementName && <span className="ei-glance-movement"> · {movementName}</span>}</dt><dd>{movementLink.tier && <span className="ei-tier-tag">{movementLink.tier}</span>}{movementLink.text} <button type="button" className="ei-link" onClick={() => { setTab("context"); /* The link leaves with this view; focus goes to the tab it opened. */ requestAnimationFrame(() => document.getElementById(genomeTabId("context"))?.focus({ preventScroll: true })); }}>Sport context</button></dd></div>
+        </dl>
+      </section>
+      {slots.media && <div className="ei-media">{slots.media}</div>}
+      <section className="ei-profile" aria-labelledby="ei-profile-title">
+        <div className="ei-section-head">
+          <h2 id="ei-profile-title" className="ei-section-title">Profile</h2>
+          <p className="ei-scale">Each score is out of 100 and compares this exercise with the others in the catalog. They are not percentages.</p>
+        </div>
+        {!scores ? <p className="ei-empty">No profile scores are recorded for this exercise.</p> : <div className="ei-profile-body" data-all={showAllDimensions || undefined} data-chart={showChart || undefined}>
+          <div className="ei-dimensions">
+            {dimensionGroups.map((group) => <div key={group.id} className="ei-group" data-later={group.dimensions.every((key) => laterDimensions.has(key)) || undefined}>
+              <h3 className="ei-group-title">{group.title}</h3>
+              <p className="ei-group-reading">{group.reading}</p>
+              {group.dimensions.map((key) => <ScoreRow key={key} label={labels[key]} value={scores[key]} onLearn={learn(key)} later={laterDimensions.has(key)} />)}
+            </div>)}
+            <button type="button" className="ei-more" aria-expanded={showAllDimensions} onClick={() => setShowAllDimensions((open) => !open)}>
+              <span>{showAllDimensions ? "Show fewer dimensions" : "Show all 8 dimensions"}<ChevronDown className="h-4 w-4" aria-hidden="true" /></span>
+              {!showAllDimensions && <small>Also {laterNames.slice(0, -1).join(", ")} and {laterNames[laterNames.length - 1]}</small>}
+            </button>
+          </div>
+          <button type="button" className="ei-chart-toggle" aria-expanded={showChart} onClick={() => setShowChart((open) => !open)}>{showChart ? "Hide profile chart" : "Show profile chart"}<ChevronDown className="h-4 w-4" aria-hidden="true" /></button>
+          <figure className="ei-radar">
+            {allScored ? <ProfileRadar scores={scores} /> : <p className="ei-empty">The chart needs all eight scores; {unavailableCount} {unavailableCount === 1 ? "is" : "are"} not available for this exercise.</p>}
+            {allScored && <figcaption>Distance from the centre is the score: 0 at the centre, 100 at the outer edge, rings every 25.</figcaption>}
+          </figure>
+        </div>}
+      </section>
+      {slots.profileFoot}
+      <details className="ei-disclosure"><summary>How this profile works<ChevronDown className="h-4 w-4" aria-hidden="true" /></summary><div>
+        <p>Each profile score is out of 100. It compares exercises in this catalog with each other, from how the movement works and how it is usually programmed. None of them measures force, muscle activation or fatigue in your body. Training potential is what an exercise can develop; demands are what it asks of you; the trade-offs are its stimulus for the fatigue it costs, and how easy it is to run.</p>
+        <p><strong>{evidenceCoverage.confidence} evidence coverage.</strong> {evidenceCoverage.sourceRange}. {evidenceCoverage.directScope} {evidenceCoverage.planningBoundary}</p>
+        {supabaseEvidence?.status === "connected" && <section className="ei-research" aria-label="Connected research evidence record"><p className="ei-eyebrow">Connected research record</p><p>{supabaseEvidence.coverageLabel}{supabaseEvidence.anchorMetric ? ` · ${supabaseEvidence.anchorMetric.replace(/_/g, " ")}` : ""}</p>{supabaseEvidence.source && <p><a href={supabaseEvidence.source.sourceUrl} target="_blank" rel="noreferrer">{supabaseEvidence.source.title}{supabaseEvidence.source.publicationYear ? ` (${supabaseEvidence.source.publicationYear})` : ""}</a>{supabaseEvidence.source.studyType ? ` · ${supabaseEvidence.source.studyType}` : ""}{supabaseEvidence.source.populationSummary ? ` · ${supabaseEvidence.source.populationSummary}` : ""}</p>}<p>{supabaseEvidence.normativeRecordCount ? `${supabaseEvidence.normativeRecordCount} source norm record${supabaseEvidence.normativeRecordCount === 1 ? "" : "s"}` : "No source norm record"}{supabaseEvidence.sourceOutcomeCount ? ` · ${supabaseEvidence.sourceOutcomeCount} recorded source outcome${supabaseEvidence.sourceOutcomeCount === 1 ? "" : "s"} indexed` : ""}. {supabaseEvidence.boundary}</p>{supabaseEvidence.sourceOutcomeMetrics.length > 0 && <p>Indexed outcome variables: {supabaseEvidence.sourceOutcomeMetrics.join(", ")}. Variables are source labels, not normalized personal measurements or scores.</p>}</section>}
+        <p>Published research, planning estimates, app limits, and your own logged lifts are kept apart and labeled separately. A number never gets presented as a measurement just because it looks precise.</p>
+        <ul>{evidenceTraceability.filter((entry) => ["programming-anchors", "rpe-log-context", "relative-model-calibration"].includes(entry.id)).map((entry) => <li key={entry.id}><strong>{entry.kind}:</strong> {entry.rationale} {entry.sourceUrls?.map((url, index) => <a className="ml-1" key={url} href={url} target="_blank" rel="noreferrer">source {index + 1}</a>)}</li>)}</ul>
+      </div></details>
+    </div>}
+
+    {tab === "muscles" && <div {...panelProps("muscles")}>
+      {slots.muscles}
+      <section className="ei-section" aria-labelledby="ei-muscles-title">
+        <h2 id="ei-muscles-title" className="ei-section-title">Muscle by muscle</h2>
+        <p className="ei-section-note">Each muscle the catalog lists for this exercise, with the model's involvement and loading estimates out of 100.</p>
+        {!genome || genome.muscleProfile.length === 0 ? <p className="ei-empty">No muscles are recorded for this exercise.</p> : <div className="ei-muscles">{genome.muscleProfile.map((entry) => <article className="ei-muscle" key={entry.muscle}>
+          <div className="ei-muscle-head"><GradeStamp grade={entry.tier} label="Muscle involvement tier" compact /><div className="min-w-0"><h3>{entry.anatomicalLabel}</h3><p className="ei-muscle-role"><span>{entry.role}</span><HelpButton label={entry.role} onClick={learn(muscleRoleTerms[entry.role])} /><span aria-hidden="true">·</span><span>{`Estimated ${entry.contribution}/100 involvement`}</span><HelpButton label="Muscle-targeting rank" onClick={learn("contribution")} /></p></div></div>
+          <p className="ei-muscle-why">{entry.why}</p>
+          <div className="ei-muscle-meters"><ScoreRow label="Mechanical loading" value={entry.mechanicalLoading} onLearn={learn("mechanicalLoading")} /><ScoreRow label="Long-length challenge" value={entry.longLengthLoading} onLearn={learn("longLengthLoading")} /><ScoreRow label="Peak contraction" value={entry.peakContraction} onLearn={learn("peakContraction")} /><ScoreRow label="Stabilization demand" value={entry.stabilizationDemand} onLearn={learn("stabilizationDemand")} /></div>
+        </article>)}</div>}
+      </section>
+    </div>}
+
+    {tab === "mechanics" && <div {...panelProps("mechanics")}>
+      {!genome ? <p className="ei-empty">No mechanics are recorded for this exercise.</p> : <>
+        <section className="ei-section" aria-labelledby="ei-movement-title">
+          <h2 id="ei-movement-title" className="ei-section-title">How it moves</h2>
+          <div className="ei-fact-block"><h3 className="ei-group-title">Movement pattern<HelpButton label="Movement pattern" onClick={learn("movementPattern")} /></h3><ul className="ei-chips">{genome.movementPatterns.map((pattern) => <li key={pattern}>{pattern}</li>)}</ul></div>
+          <div className="ei-fact-block"><h3 className="ei-group-title">Joint actions<HelpButton label="Joint action" onClick={learn("jointAction")} /></h3><ul className="ei-chips ei-chips-soft">{genome.jointActions.map((action) => <li key={action}>{action}</li>)}</ul></div>
+          <dl className="ei-facts">
+            <div><dt>Force direction<HelpButton label="Force direction" onClick={learn("forceDirection")} /></dt><dd>{genome.forceDirection}</dd></div>
+            <div><dt>Kinetic chain<HelpButton label="Kinetic chain" onClick={learn("kineticChain")} /></dt><dd>{genome.chain} chain</dd></div>
+            <div><dt>Stance<HelpButton label="Stance" onClick={learn("stance")} /></dt><dd>{genome.stance}</dd></div>
+          </dl>
+        </section>
+        <section className="ei-section" aria-labelledby="ei-resistance-title">
+          <h2 id="ei-resistance-title" className="ei-section-title">Resistance profile<HelpButton label="Resistance curve" onClick={learn("resistanceCurve")} /></h2>
+          <p className="ei-section-note">Relative challenge across one repetition, start to finish.</p>
+          <div className="ei-curve" role="img" aria-label={`Relative challenge from the start to the end of the repetition: ${genome.resistanceProfile.curve.join(", ")}`}>{genome.resistanceProfile.curve.map((value, index) => <span key={index} style={{ height: `${profileScore(value) ?? 0}%` }} />)}</div>
+          <div className="ei-curve-axis" aria-hidden="true"><span>Start</span><span>Finish</span></div>
+          <dl className="ei-facts">
+            <div><dt>Challenge bias<HelpButton label="Resistance bias" onClick={learn("resistanceBias")} /></dt><dd>{genome.resistanceProfile.bias}</dd></div>
+            <div><dt>Likely sticking region<HelpButton label="Likely sticking region" onClick={learn("stickingRegion")} /></dt><dd>{genome.resistanceProfile.stickingRegion}</dd></div>
+          </dl>
+        </section>
+        <section className="ei-section" aria-labelledby="ei-fatigue-title">
+          <h2 id="ei-fatigue-title" className="ei-section-title">Fatigue cost</h2>
+          <p className="ei-group-reading">Out of 100. Higher means more fatigue in that area: a cost, not a benefit.</p>
+          <ScoreRow label="Local fatigue" value={genome.fatigue.local} onLearn={learn("localFatigue")} />
+          <ScoreRow label="Systemic fatigue" value={genome.fatigue.systemic} onLearn={learn("systemicFatigue")} />
+          <ScoreRow label="Axial fatigue" value={genome.fatigue.axial} onLearn={learn("axialFatigue")} />
+          <ScoreRow label="Grip fatigue" value={genome.fatigue.grip} onLearn={learn("gripFatigue")} />
+        </section>
+      </>}
+      <details className="ei-disclosure"><summary>Mechanics evidence scope<ChevronDown className="h-4 w-4" aria-hidden="true" /></summary><div><p>These sources explain how the movement generally works and where the estimates are uncertain. They do not measure your own muscle force, tendons, activation, injury risk, or performance.</p><ul>{mechanicsEvidenceSources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></div></details>
+    </div>}
+
+    {tab === "context" && <div {...panelProps("context")}>
+      {slots.sport ?? <section className="ei-section ei-sport" aria-label="Sport action in view"><p className="ei-eyebrow">Sport action in view</p><p className="ei-sport-name">{movementName ?? "No selected action"}</p><span className="ei-tier-tag">{selectedActionConnection.label}</span><p className="ei-section-note">{selectedActionConnection.detail} {actionBoundary}</p></section>}
+      {analysis && <section className="ei-section" aria-labelledby="ei-fit-title">
+        <div className="ei-section-head-row"><h2 id="ei-fit-title" className="ei-section-title">Contextual fit<HelpButton label="Contextual fit" onClick={learn("contextualFit")} /></h2><GradeStamp grade={analysis.grade} label="Contextual fit" compact /></div>
+        <p className="ei-section-note">How this exercise fits your goal ({context.goal}) and what it adds to {workoutLabel}. A planning comparison, not a direct performance measurement.</p>
+        <dl className="ei-stats">
+          <div><dt>Contextual utility</dt><dd><strong>{analysis.contextualScore}</strong><span>The summary behind the grade</span></dd></div>
+          <div><dt>Goal alignment</dt><dd><strong>{analysis.signals.goalAlignment}</strong><span>{labels[goalKey]} for your goal</span></dd></div>
+          <div><dt>Stack distinctness</dt><dd><strong>{analysis.signals.stackDistinctness}</strong><span>What it adds beyond {workoutLabel}</span></dd></div>
+          <div><dt>Recovery manageability</dt><dd><strong>{analysis.signals.recoveryManageability}</strong><span>Higher means an easier recovery cost</span></dd></div>
+        </dl>
+        <div className="ei-lists">
+          <div><h3 className="ei-group-title">What supports it</h3><ul>{analysis.strengths.map((item) => <li key={item}><ChartNoAxesCombined className="h-4 w-4" aria-hidden="true" />{item}</li>)}</ul></div>
+          <div><h3 className="ei-group-title">Trade-offs to consider</h3><ul>{analysis.limits.map((item) => <li key={item}><ShieldAlert className="h-4 w-4" aria-hidden="true" />{item}</li>)}</ul></div>
+        </div>
+      </section>}
+      {genome && <section className="ei-section" aria-labelledby="ei-workout-title">
+        <h2 id="ei-workout-title" className="ei-section-title">{capitalised(workoutLabel)}</h2>
+        <p className="ei-section-note">{modelContext.currentWorkout.length === 0 ? "Nothing is planned in it yet." : workoutGenome.redundancy > logicCalibration.exerciseGenome.highRedundancyReview ? "The current stack repeats similar exposure. This exercise needs a specific role to earn its place." : "The stack has room for differentiated stimulus if this exercise fills a useful objective."}</p>
+        {workoutGenome.gaps.length > 0 && <ul className="ei-chips ei-chips-soft" aria-label="Patterns the day does not train yet">{workoutGenome.gaps.slice(0, 3).map((gap) => <li key={gap}>Missing {gap}</li>)}</ul>}
+        <h3 className="ei-group-title">Adaptation opportunity</h3>
+        <p className="ei-section-note">Primary: <strong>{genome.adaptation.primary.join(" · ")}</strong> · Secondary: <strong>{genome.adaptation.secondary.join(" · ")}</strong>. {genome.adaptation.rationale}</p>
+      </section>}
+      <section className="ei-section" aria-labelledby="ei-catalog-title">
+        <h2 id="ei-catalog-title" className="ei-section-title">Catalog record</h2>
+        <p className="exercise-intelligence-tier"><span aria-hidden="true">Catalog tier</span><GradeStamp grade={exercise.muscleGrade} label="Catalog tier" compact /></p>
+        <p className="exercise-intelligence-tier-note">Catalog tier {exercise.muscleGrade} is a general label from the exercise catalog, not how closely this exercise matches a movement.</p>
+      </section>
+      {slots.evidence}
+      {genome && <p className="ei-confidence">Confidence: {genome.evidence.confidence} · {genome.evidence.quality}. {genome.evidence.note} Each number here comes from the exercise catalog — it is not a rating of your skill, performance, or strength.</p>}
+    </div>}
+    {learnedTerm && <GenomeLearnOverlay term={learnedTerm} onClose={() => setLearnedTerm(null)} />}
+  </section>;
 }

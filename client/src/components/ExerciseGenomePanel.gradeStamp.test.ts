@@ -22,9 +22,11 @@ describe("Exercise Genome grade stamps", () => {
   it("names the head stamp as the contextual fit and each muscle stamp as its involvement tier", () => {
     const view = render(createElement(ExerciseGenomePanel, { exercise, context, compactHead: true }));
     const { grade } = analyzeExerciseContext(exercise, context);
+    // October 4: the contextual fit is part of the Context view, not the panel's head.
+    fireEvent.click(view.getByRole("tab", { name: "Context" }));
     expect(view.getByRole("img", { name: `Contextual fit ${grade}` }).textContent).toBe(grade);
 
-    fireEvent.click(view.getByRole("button", { name: "Muscle Genome" }));
+    fireEvent.click(view.getByRole("tab", { name: "Muscle Genome" }));
     const tiers = getExerciseGenome(exercise).muscleProfile.map((entry) => entry.tier);
     expect(tiers.length).toBeGreaterThan(0);
     const stamps = view.getAllByRole("img", { name: /^Muscle involvement tier / });

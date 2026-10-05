@@ -23,11 +23,18 @@ export const COSTLY_ROUTE_LIMIT = { windowMs: 60_000, maxCalls: 120 } as const;
  */
 export const AUTH_ROUTE_LIMIT = { windowMs: 60_000, maxCalls: 20 } as const;
 
+/**
+ * Creating a shared workout stores a snapshot, so it has its own, smaller allowance per client:
+ * far above a person sharing a few workouts, well below a script filling the store.
+ */
+export const SHARE_CREATE_LIMIT = { windowMs: 60_000, maxCalls: 12 } as const;
+
 type CallWindows = Map<string, { startedAt: number; calls: number }>;
 
 const MAX_TRACKED_CLIENTS = 5000;
 const windows: CallWindows = new Map();
 const authWindows: CallWindows = new Map();
+const shareWindows: CallWindows = new Map();
 
 function takeCall(table: CallWindows, clientKey: string, now: number, limit: { windowMs: number; maxCalls: number }): boolean {
   const current = table.get(clientKey);
@@ -52,10 +59,16 @@ export function takeAuthCall(clientKey: string, now = Date.now(), limit = AUTH_R
   return takeCall(authWindows, clientKey, now, limit);
 }
 
-/** Forgets every count, in both allowances. */
+/** True when one more shared workout may be created from this client now. */
+export function takeShareCreate(clientKey: string, now = Date.now(), limit = SHARE_CREATE_LIMIT): boolean {
+  return takeCall(shareWindows, clientKey, now, limit);
+}
+
+/** Forgets every count, in all three allowances. */
 export function resetCostlyCallWindows(): void {
   windows.clear();
   authWindows.clear();
+  shareWindows.clear();
 }
 
 /** The address a request came from. `trust proxy` is set, so behind the platform this is the client's. */
@@ -73,4 +86,8 @@ export function assertCostlyCallAllowed(req: Parameters<typeof clientKeyOf>[0]):
 
 export function assertAuthCallAllowed(req: Parameters<typeof clientKeyOf>[0]): void {
   if (!takeAuthCall(clientKeyOf(req))) throw tooManyRequests();
+}
+
+export function assertShareCreateAllowed(req: Parameters<typeof clientKeyOf>[0]): void {
+  if (!takeShareCreate(clientKeyOf(req))) throw tooManyRequests();
 }

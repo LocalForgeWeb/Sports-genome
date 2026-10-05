@@ -38,10 +38,12 @@ describe("Reversible-action and destructive-confirmation contract", () => {
     expect(source).toContain('label: "Undo",');
   });
 
-  it("surfaces downstream impact when a pasted routine overwrites previously saved training days (Tier B)", () => {
-    // The day is named by position as well as split label, because a week can hold two
-    // days with the same label and "replaced your Upper" would not say which.
-    expect(source).toContain("if (dayExerciseCount(nextStore, slot.key)) overwrittenDayLabels.push(`${slot.ordinal} · ${slot.day}`);");
-    expect(source).toContain("Replaced your previously saved ${overwrittenDayLabels.join(\", \")}");
+  it("never lets a paste or a saved share overwrite saved training days without naming them first (Tier B)", () => {
+    const dialog = readFileSync(new URL("../components/SaveToPlanDialog.tsx", import.meta.url), "utf8");
+    // Adding after what is planned is the default; replacing is a choice, and is confirmed
+    // against a list of the days it would clear, named by position as well as label.
+    expect(dialog).toContain('useState<DayWriteMode>("append")');
+    expect(dialog).toContain("Replace what's planned?");
+    expect(source).toContain('const mode = request.mode === "replace" && !replaced.has(slot.key) ? "replace" : "append";');
   });
 });

@@ -3267,81 +3267,75 @@ details:not([open]) > *:not(summary) {
 .destination-body .atlas-action-item svg { color: var(--sg-text-subtle-on-dark); }
 .destination-body .atlas-details { border-color: var(--sg-divider-on-dark); }
 
-/* ── Exercise Intelligence ────────────────────────────────────────────────────
+/* ── Exercise Intelligence (October 4 redesign) ─────────────────────────────────
  *
- * One full-height overlay: the logo and Close on a bar that stays, the
- * exercise's name and tag, the body with its muscles painted, the analysis
- * tabs, the sport context, evidence behind a line, and Add / favorite in a
- * strip that stays reachable above the safe area. The global navigation is
- * hidden underneath it. It was a light sheet of bordered panels beside a
- * floating card that covered the page's foot.
+ * One dialog with four parts that never move: a header that names the exercise,
+ * the four analysis tabs under it, one scrolling body, and the Add strip at the foot.
+ * The header used to say only "Exercise intelligence" once the name had scrolled
+ * away, and the tabs sat halfway down the body, under two disclosures.
+ *
+ * A full-height sheet on a phone; from 720px a centred dialog up to 920px wide with
+ * 20px of the page around it. The body is the only scroller, and its width (not the
+ * window's) decides the analysis layout, through the `ei-body` container.
+ * The view's own rules are in exercise-intelligence.css, loaded with the analysis.
  */
-.exercise-intelligence { display: grid; background: rgb(4 16 32 / .72); backdrop-filter: blur(6px); }
-.exercise-intelligence-sheet { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; width: 100%; max-width: 760px; height: 100%; margin-left: auto; overflow: hidden; background: radial-gradient(circle at 82% 4%, #1d4c84 0, var(--sg-surface-raised) 34%, var(--sg-surface-deep) 76%); color: var(--sg-text-on-dark); box-shadow: -18px 0 42px rgb(1 12 28 / .35); --sg-label-color: var(--sg-text-subtle-on-dark); }
-.exercise-intelligence-bar { display: flex; align-items: center; gap: .75rem; padding: max(.6rem, env(safe-area-inset-top)) 1rem .6rem; border-bottom: 1px solid var(--sg-divider-on-dark); }
-.exercise-intelligence-logo { width: 40px; height: 40px; object-fit: contain; }
-.exercise-intelligence-bar .metric-label { flex: 1; color: var(--sg-text-muted-on-dark); }
-.exercise-intelligence-close { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 999px; color: var(--sg-text-on-dark); }
-.exercise-intelligence-close:hover { background: rgb(255 255 255 / .08); }
-.exercise-intelligence-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; overflow-y: auto; overscroll-behavior: contain; padding: 1rem 1rem 1.5rem; -webkit-overflow-scrolling: touch; }
-.exercise-intelligence-body > h1 { color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(2.2rem, 9vw, 3rem); font-weight: 800; line-height: .9; text-transform: uppercase; }
-.exercise-intelligence-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-top: -.5rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); }
-.exercise-intelligence-meta span::first-letter { text-transform: uppercase; }
-.exercise-intelligence-tier { display: inline-flex; align-items: center; gap: .4rem; }
-.exercise-intelligence-tier-note { margin: .35rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
-.exercise-intelligence-muscles .anatomy-atlas-pro { border: 0; background: transparent; box-shadow: none; padding: 0; color: var(--sg-text-on-dark); }
-.exercise-intelligence-muscles .atlas-body-chart-wrap { border: 0; background: transparent; padding: 0; }
-.exercise-intelligence-muscles .atlas-body-chart { height: clamp(16rem, 44vh, 24rem); }
-.exercise-intelligence-muscles .atlas-view-captions, .exercise-intelligence-muscles .atlas-heat-legend-pro, .exercise-intelligence-muscles .atlas-ranking-head span { color: var(--sg-text-muted-on-dark); }
-.exercise-intelligence-muscles .atlas-ranking { border-top-color: var(--sg-divider-on-dark); }
-.exercise-intelligence-muscles .atlas-ranking-head h2 { color: var(--sg-text-on-dark); }
-.exercise-intelligence-muscles .atlas-ranking .atlas-role-row { border-bottom-color: var(--sg-divider-on-dark); }
-.exercise-intelligence-muscles .atlas-ranking .atlas-role-row.is-selected { background: rgb(164 200 232 / .12); box-shadow: inset 3px 0 var(--sg-action); }
-.exercise-intelligence-muscles .atlas-ranking .atlas-role-row-copy strong { color: var(--sg-text-on-dark); }
-.exercise-intelligence-muscles .atlas-ranking .atlas-role-row-copy small { color: var(--sg-text-muted-on-dark); }
-.exercise-intelligence-muscles .atlas-ranking .atlas-role-row svg { color: var(--sg-text-subtle-on-dark); }
-.exercise-intelligence-muscles .atlas-role-tag-primary { color: #ff8a66; }
-.exercise-intelligence-muscles .atlas-role-tag-stabilizer { color: var(--sg-focus-on-dark); }
-.exercise-intelligence-muscles .atlas-role-tag-synergist { color: var(--sg-link-on-dark); }
-.exercise-intelligence-muscles .atlas-role-tag-unrecorded { color: var(--sg-text-subtle-on-dark); }
-.exercise-intelligence-muscles .atlas-ranking .atlas-ranking-toggle { color: var(--sg-link-on-dark); }
-.exercise-intelligence-muscles .atlas-role-methodology { border: 0; border-top: 1px solid var(--sg-divider-on-dark); background: transparent; color: var(--sg-text-muted-on-dark); }
-.exercise-intelligence-muscles .atlas-role-methodology summary { padding-left: 0; padding-right: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; letter-spacing: 0; text-transform: none; }
-.exercise-intelligence-muscles .atlas-role-methodology > div { border-top: 0; padding-left: 0; padding-right: 0; }
-.exercise-intelligence-muscles .atlas-selected-strip { border-left-color: var(--sg-action); background: rgb(164 200 232 / .1); color: var(--sg-text-on-dark); }
-.exercise-intelligence-muscles .atlas-selected-strip .metric-label, .exercise-intelligence-muscles .atlas-selected-role, .exercise-intelligence-muscles .atlas-selected-confidence, .exercise-intelligence-muscles .atlas-selected-where { color: var(--sg-text-muted-on-dark); }
-.exercise-intelligence-roles { display: grid; gap: 0; }
-.exercise-intelligence-roles > div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: .5rem; padding: .55rem 0; border-top: 1px solid var(--sg-divider-on-dark); }
-.exercise-intelligence-roles dt { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; align-self: center; }
-.exercise-intelligence-roles dd { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.exercise-intelligence { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); background: rgb(3 12 24 / .74); backdrop-filter: blur(6px); }
+.exercise-intelligence-sheet {
+  --ei-bg: #091c30;
+  --ei-text: #edf4fa;
+  --ei-text-2: #a9bed1;
+  --ei-rule: rgb(169 190 209 / .2);
+  --ei-rule-faint: rgb(169 190 209 / .1);
+  --ei-rule-strong: rgb(169 190 209 / .4);
+  --ei-bar: #5fb3e4;
+  --ei-track: rgb(169 190 209 / .14);
+  --ei-grid: rgb(169 190 209 / .16);
+  --ei-grid-strong: rgb(169 190 209 / .4);
+  --ei-gutter: 24px;
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; width: 100%; height: 100%; min-height: 0; min-width: 0; overflow: hidden; background: var(--ei-bg); color: var(--ei-text);
+}
+@media (min-width: 720px) {
+  .exercise-intelligence { place-items: center; padding: 20px; }
+  .exercise-intelligence-sheet { width: min(920px, 100%); height: 100%; max-height: 1080px; border: 1px solid var(--ei-rule); border-radius: 16px; box-shadow: 0 28px 70px rgb(0 0 0 / .45); }
+}
+@media (max-width: 640px) { .exercise-intelligence-sheet { --ei-gutter: var(--sg-gutter); } }
 
-/* The analysis panel, on the dark sheet: the same rules its dark theme uses. */
-.exercise-intelligence .genome-panel { margin-top: 0; border: 0; border-top: 1px solid var(--sg-divider-on-dark); border-radius: 0; background: transparent; box-shadow: none; color: var(--sg-text-on-dark); }
-.exercise-intelligence .genome-panel-head { padding: 1rem 0 .6rem; border-bottom: 0; }
-.exercise-intelligence .genome-panel :is(h1, h2, h3, h4, strong, dt, th, .metric-label) { color: var(--sg-text-on-dark); }
-.exercise-intelligence .genome-panel :is(p, small, span, dd, li, summary, td) { color: var(--sg-text-muted-on-dark); }
-.exercise-intelligence .genome-panel .genome-panel-head span { color: var(--sg-text-subtle-on-dark); }
-.exercise-intelligence .genome-methodology { border-color: var(--sg-divider-on-dark); background: transparent; }
-.exercise-intelligence .genome-tabbar { border-bottom-color: var(--sg-divider-on-dark); background: transparent; gap: 1.25rem; }
-.exercise-intelligence .genome-tab { padding: .7rem 0; background: transparent; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-lg); font-weight: 600; letter-spacing: 0; text-transform: none; box-shadow: none; border-bottom: 3px solid transparent; }
-.exercise-intelligence .genome-tab-active { background: transparent; color: #ff8a66; box-shadow: none; border-bottom-color: var(--sg-action); }
-.exercise-intelligence .genome-grid, .exercise-intelligence .genome-muscle-stack, .exercise-intelligence .genome-mechanics, .exercise-intelligence .genome-context { padding-left: 0; padding-right: 0; }
-.exercise-intelligence .genome-meter > div, .exercise-intelligence .genome-term-button { color: var(--sg-text-muted-on-dark); }
-.exercise-intelligence .genome-meter strong { color: var(--sg-text-on-dark); }
-.exercise-intelligence .genome-meter-track { background: rgb(255 255 255 / .12); }
-.exercise-intelligence .genome-radar-label { fill: var(--sg-text-muted-on-dark); }
-.exercise-intelligence .genome-quicknote, .exercise-intelligence .genome-muscle-row, .exercise-intelligence .genome-mechanic-block, .exercise-intelligence .genome-stat, .exercise-intelligence .genome-why, .exercise-intelligence .genome-list, .exercise-intelligence .genome-stack-read, .exercise-intelligence .genome-action-connection { border-color: var(--sg-divider-on-dark); background: transparent; }
-.exercise-intelligence .genome-tag { border-color: var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); color: var(--sg-text-on-dark); }
-.genome-fingerprint-all { grid-column: 1 / -1; }
-.genome-fingerprint-all > summary { display: inline-flex; min-height: 44px; align-items: center; cursor: pointer; list-style: none; color: var(--sg-link-color, var(--sg-info-strong)); font-size: var(--sg-text-base); font-weight: 600; }
-.genome-fingerprint-all > summary::-webkit-details-marker { display: none; }
-.genome-fingerprint-all dl { display: grid; margin: 0; }
-.genome-fingerprint-all dl > div { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .45rem 0; }
-.genome-fingerprint-all dl > div + div { border-top: 1px solid var(--sg-divider-on-light); }
-.genome-fingerprint-all dd { margin: 0; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.1rem; font-weight: 800; }
-.exercise-intelligence .genome-fingerprint-all dl > div + div { border-top-color: var(--sg-divider-on-dark); }
-.exercise-intelligence .genome-fingerprint-all dd { color: var(--sg-text-on-dark); }
-.exercise-intelligence .genome-fingerprint-all > summary { color: var(--sg-link-on-dark); }
+/* The header: the exercise first, the product's mark and label secondary, Close always here. */
+/* Row one: the mark, the product's label, Close. Row two: the name, the full width.
+   Row three: what the catalog records about it. */
+.exercise-intelligence-bar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: .6rem; padding: max(.6rem, env(safe-area-inset-top)) var(--ei-gutter) .6rem; background: var(--ei-bg); }
+.exercise-intelligence-identity { display: contents; }
+.exercise-intelligence-logo { grid-row: 1; grid-column: 1; width: 28px; height: 28px; border-radius: 999px; object-fit: contain; }
+.exercise-intelligence-eyebrow { grid-row: 1; grid-column: 2; margin: 0; color: var(--ei-text-2); font-size: var(--sg-text-sm); font-weight: 700; letter-spacing: var(--sg-tracking-label); line-height: 1.6; text-transform: uppercase; }
+.exercise-intelligence-bar h1 { grid-row: 2; grid-column: 1 / -1; margin: .2rem 0 0; color: var(--ei-text); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.625rem, 5.4vw, 2.25rem); font-weight: 800; line-height: 1; overflow-wrap: anywhere; text-transform: uppercase; }
+.exercise-intelligence-meta { grid-row: 3; grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .1rem 0; margin: .35rem 0 0; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.exercise-intelligence-meta span::first-letter { text-transform: uppercase; }
+/* The separator rides at the end of an item, so a wrapped line never starts with one. */
+.exercise-intelligence-meta span:not(:last-child)::after { content: "·"; margin: 0 .5rem; color: var(--ei-rule-strong); }
+.exercise-intelligence-close { grid-row: 1; grid-column: 3; display: grid; width: 44px; height: 44px; margin: -.4rem -.6rem 0 0; place-items: center; border-radius: 999px; color: var(--ei-text); }
+.exercise-intelligence-close:hover { background: rgb(255 255 255 / .08); }
+.exercise-intelligence-close:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* Scrolled: the name stays, smaller; the label and the metadata wait at the top. */
+.exercise-intelligence-sheet[data-scrolled] .exercise-intelligence-eyebrow, .exercise-intelligence-sheet[data-scrolled] .exercise-intelligence-meta { display: none; }
+.exercise-intelligence-sheet[data-scrolled] .exercise-intelligence-bar { padding-bottom: .5rem; }
+.exercise-intelligence-sheet[data-scrolled] .exercise-intelligence-bar h1 { grid-row: 1; grid-column: 2; margin: 0; font-size: 1.375rem; }
+@media (max-height: 560px) { .exercise-intelligence-eyebrow { display: none; } .exercise-intelligence-bar h1 { font-size: 1.5rem; } }
+
+/* The tabs: one row under the header, scrolling sideways on a narrow sheet. */
+.exercise-intelligence-tabs { border-bottom: 1px solid var(--ei-rule); background: var(--ei-bg); }
+.ei-tabs { display: flex; gap: 1.5rem; overflow-x: auto; padding-inline: var(--ei-gutter, 0); scroll-padding-inline: var(--ei-gutter, 0); scrollbar-width: none; }
+.ei-tabs::-webkit-scrollbar { display: none; }
+/* On a phone the row runs past the edge; the fade says there is more of it. */
+@media (max-width: 640px) { .ei-tabs { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 1rem), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 1rem), transparent); } }
+.ei-tab { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .4rem; min-height: 48px; margin-bottom: -1px; border-bottom: 3px solid transparent; color: var(--ei-text-2, var(--sg-text-muted-on-dark)); font-size: var(--sg-text-lg); font-weight: 600; white-space: nowrap; }
+.ei-tab:hover { color: var(--ei-text, var(--sg-text-on-dark)); }
+.ei-tab.is-active { border-bottom-color: var(--sg-action); color: var(--ei-text, var(--sg-text-on-dark)); }
+.ei-tab:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -3px; }
+
+/* The one scrolling region. Nothing is fixed over it, so its last line ends above the footer. */
+.exercise-intelligence-body { position: relative; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 1.25rem var(--ei-gutter) 2rem; -webkit-overflow-scrolling: touch; container: ei-body / inline-size; }
+.exercise-intelligence-body:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: -2px; }
+.exercise-intelligence-loading { margin: 0; color: var(--ei-text-2); font-size: var(--sg-text-base); }
 
 /* The sport context, inline where it belongs rather than floating over the page. */
 .exercise-intelligence .inspection-action-connection { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; border: 0; border-top: 1px solid var(--sg-divider-on-dark); border-radius: 0; background: transparent; padding: 1rem 0 0; box-shadow: none; }
@@ -3354,27 +3348,34 @@ details:not([open]) > *:not(summary) {
 .inspection-action-connection-how > summary svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
 .inspection-action-connection-how[open] > summary svg { transform: rotate(180deg); }
 .inspection-action-connection-how > p { margin: 0 0 .25rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
-.exercise-intelligence-disclosure { border-top: 1px solid var(--sg-divider-on-dark); border-bottom: 1px solid var(--sg-divider-on-dark); }
-.exercise-intelligence-disclosure > summary { display: flex; min-height: 3.6rem; align-items: center; gap: 1rem; padding: .5rem 0; cursor: pointer; list-style: none; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
-.exercise-intelligence-disclosure > summary::-webkit-details-marker { display: none; }
-.exercise-intelligence-disclosure > summary > span { flex: 1; }
-.exercise-intelligence-disclosure > summary > svg:first-child { color: #9cc4ea; }
-.exercise-intelligence-disclosure > summary > svg:last-child { color: var(--sg-text-subtle-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
-.exercise-intelligence-disclosure[open] > summary > svg:last-child { transform: rotate(180deg); }
-.exercise-intelligence-disclosure > div { padding: 0 0 1rem; }
-.exercise-intelligence-disclosure > div > section { margin-top: 0; }
-.exercise-intelligence-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .6rem; padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--sg-divider-on-dark); background: rgb(8 29 54 / .96); }
-.exercise-intelligence-add { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: .5rem; border: 1px solid #f1714f; border-radius: 12px; background: var(--sg-action-fill); padding: 0 1rem; color: #fff; font-size: var(--sg-text-lg); font-weight: 700; box-shadow: 0 10px 22px rgb(228 81 46 / .24); }
-.exercise-intelligence-add:active { transform: scale(.98); }
-.exercise-intelligence-favorite { display: grid; width: 52px; height: 52px; place-items: center; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; color: var(--sg-text-on-dark); }
-.exercise-intelligence-favorite.is-on { border-color: var(--sg-action); color: #ff8a66; }
+
+/* The footer: where an add goes (and a way to change it), the one orange action, Favorite beside it. */
+.exercise-intelligence-actions { display: grid; gap: .5rem; padding: .6rem var(--ei-gutter) calc(.75rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--ei-rule); background: var(--ei-bg); }
+.exercise-intelligence-action-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "dest dest" "add fav"; align-items: center; gap: .5rem .6rem; }
+.exercise-intelligence-destination { grid-area: dest; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .5rem; min-width: 0; margin: 0; color: var(--ei-text-2); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.exercise-intelligence-destination b { color: var(--ei-text); font-weight: 600; }
+.exercise-intelligence-change { position: relative; color: var(--sg-link-on-dark); font-size: var(--sg-text-base); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.exercise-intelligence-change::after { content: ""; position: absolute; inset: -.75rem -.5rem; }
+.exercise-intelligence-change:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.exercise-intelligence-days { display: flex; flex-wrap: wrap; gap: .4rem; }
+.exercise-intelligence-days button { display: grid; justify-items: start; min-height: 44px; border: 1px solid var(--ei-rule-strong); border-radius: 10px; padding: .35rem .65rem; color: var(--ei-text); font-size: var(--sg-text-base); font-weight: 600; text-align: left; }
+.exercise-intelligence-days button small { color: var(--ei-text-2); font-size: var(--sg-text-sm); font-weight: 400; }
+.exercise-intelligence-days button[aria-pressed="true"] { border-color: var(--ei-text-2); background: rgb(255 255 255 / .08); }
+.exercise-intelligence-days button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.exercise-intelligence-add-status { margin: 0; border-left: 3px solid #ff8a66; padding: .2rem 0 .2rem .6rem; color: var(--ei-text); font-size: var(--sg-text-base); line-height: var(--sg-leading-snug); }
+.exercise-intelligence-add { grid-area: add; display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: .5rem; border: 1px solid transparent; border-radius: 12px; background: var(--sg-action-fill); padding: 0 1.25rem; color: #fff; font-size: var(--sg-text-lg); font-weight: 700; }
+.exercise-intelligence-add:hover { filter: brightness(1.06); }
+.exercise-intelligence-add:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.exercise-intelligence-add[aria-disabled="true"] { border-color: var(--ei-rule-strong); background: transparent; color: var(--ei-text-2); cursor: default; filter: none; }
+.exercise-intelligence-favorite { grid-area: fav; display: grid; width: 52px; height: 52px; place-items: center; border: 1px solid var(--ei-rule-strong); border-radius: 12px; color: var(--ei-text); }
+.exercise-intelligence-favorite.is-on { border-color: rgb(255 138 102 / .7); color: #ff8a66; }
+.exercise-intelligence-favorite:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+@media (min-width: 720px) {
+  .exercise-intelligence-action-row { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "dest add fav"; }
+  .exercise-intelligence-add { min-width: 15rem; }
+}
 /* No global navigation inside the overlay; its own bar carries Close. */
 body:has(.exercise-intelligence) .mobile-bottom-nav, body:has(.exercise-intelligence) .mobile-workspace-dock, body:has(.exercise-intelligence) .session-resume-bar { display: none; }
-@media (min-width: 761px) { .exercise-intelligence { padding: 0; } }
-
-.exercise-intelligence .genome-reading-key > span { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); color: var(--sg-text-muted-on-dark); }
-.exercise-intelligence .genome-reading-key > span strong { color: var(--sg-text-on-dark); }
-.exercise-intelligence-disclosure, .exercise-intelligence .genome-methodology, .exercise-intelligence .genome-quicknote { border-radius: 0; }
 
 /* ── Progress ─────────────────────────────────────────────────────────────────
  *
@@ -3637,8 +3638,6 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 @media (max-width: 359px) {
   .apex-topbar .topbar-context-chips { display: none; }
 }
-.exercise-intelligence-explore { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; margin-top: .5rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-lg); font-weight: 600; }
-.exercise-intelligence-explore:hover { text-decoration: underline; }
 
 /* ── Home as a starting point ───────────────────────────────────────────────
    Where you are, one primary action, your week, three doors, one insight. */
@@ -3824,14 +3823,14 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
      the coverage card lines up with the day's rows. */
   .day-exercise-picker { padding-inline: 0; }
 }
-/* The quiet compare entry in the exercise overlay and the pending line in the catalog. */
-.exercise-intelligence-compare { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; margin-top: .25rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+/* The pending compare line in the catalog. (The overlay's compare entry is styled with the analysis, in exercise-intelligence.css.) */
 .catalog-compare-pending { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem .8rem; margin: .6rem 0 0; border-left: 3px solid var(--sg-info); padding: .4rem 0 .4rem .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); }
 .catalog-compare-pending button { min-height: 44px; color: var(--sg-link-on-dark); font-weight: 700; }
 /* A day-wide rest change names what it touches (brief 11C). */
 .prescription-rest-all { display: block; min-height: 44px; margin-top: .25rem; color: var(--sg-link-on-dark); font-size: var(--sg-text-sm); font-weight: 700; text-align: left; }
 /* One Front / Back control on both anatomy surfaces (VIS-14): two pressed tabs, the shown side underlined in the action colour. */
-.atlas-side-tabs { gap: 0 !important; justify-content: flex-start !important; }
+/* Centred over the single body it turns (October 4: the side names sit above the figure, as they do over two bodies). */
+.atlas-side-tabs { gap: 0 !important; justify-content: center !important; margin: 0 0 .35rem !important; }
 .atlas-side-tab, .strength-body-side-toggle { display: inline-flex; min-height: 44px; align-items: center; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 0 .85rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; letter-spacing: 0; text-transform: none; }
 .destination-body .atlas-side-tab { color: var(--sg-text-muted-on-dark); }
 .atlas-side-tab[aria-pressed="true"], .strength-body-side-toggle[aria-pressed="true"] { border-bottom-color: var(--sg-action); color: var(--sg-text-on-dark); }

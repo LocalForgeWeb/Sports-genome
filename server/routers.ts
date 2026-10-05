@@ -43,6 +43,8 @@ import { getPowerliftingNormsReference } from "./powerliftingNormsReference";
 import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStrengthObservationReferences } from "./normsResolution";
 import { getPublicNormsReference } from "./normsRegistry";
 import { getWorkoutPlan, maxPlanBytes, saveWorkoutPlan } from "./workoutPlanSync";
+import { createShare, disableShare, ownedShares, readShare, ShareError, tokenPattern } from "./workoutShares";
+import { assertShareCreateAllowed } from "./_core/rateLimit";
 import {
   correctWorkoutSet,
   deleteStrengthObservation,
@@ -97,6 +99,17 @@ const strengthPercentileLiftInput = z.object({
   /** Age on the day of the lift. The engine applies the published age table from 15 to 90. */
   ageYears: z.number().min(0).max(120).nullable().optional(),
 });
+
+/** A share failure as the API error it is, with a sentence a person can act on. */
+async function shareCall<T>(run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    if (!(error instanceof ShareError)) throw error;
+    const code = error.code === "unavailable" ? "SERVICE_UNAVAILABLE" : error.code === "forbidden" ? "FORBIDDEN" : error.code === "not-found" ? "NOT_FOUND" : error.code === "too-large" ? "PAYLOAD_TOO_LARGE" : "BAD_REQUEST";
+    throw new TRPCError({ code, message: error.code === "unavailable" ? "Sharing by link isn't available right now." : error.message });
+  }
+}
 
 export const appRouter = router({
   auth: router({
@@ -524,6 +537,33 @@ export const appRouter = router({
         })
       )
       .mutation(({ ctx, input }) => saveWorkoutPlan(ctx.user.id, input)),
+  }),
+  /**
+   * Shared workouts (server/workoutShares.ts): create a snapshot link, read one by its
+   * token, and - for the device holding a share's secret - list and turn shares off.
+   * Secrets travel only in POST bodies, never in a query string.
+   */
+  shares: router({
+    create: costlyPublicProcedure
+      .input(z.object({
+        requestKey: z.string().regex(/^[A-Za-z0-9_-]{16,64}$/),
+        manageSecret: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/),
+        snapshot: z.unknown(),
+        supersedes: z.object({ token: z.string().regex(tokenPattern), manageSecret: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/) }).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        assertShareCreateAllowed(ctx.req);
+        return shareCall(() => createShare(input));
+      }),
+    get: costlyPublicProcedure
+      .input(z.object({ token: z.string().max(80) }))
+      .query(({ input }) => shareCall(() => readShare(input.token))),
+    disable: costlyPublicProcedure
+      .input(z.object({ token: z.string().regex(tokenPattern), manageSecret: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/) }))
+      .mutation(({ input }) => shareCall(() => disableShare(input.token, input.manageSecret))),
+    mine: costlyPublicProcedure
+      .input(z.object({ items: z.array(z.object({ token: z.string().regex(tokenPattern), manageSecret: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/) })).max(50) }))
+      .mutation(({ input }) => shareCall(() => ownedShares(input.items))),
   }),
   favorites: router({
     list: protectedProcedure.query(({ ctx }) =>

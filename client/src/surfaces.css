@@ -35,19 +35,8 @@
   --sg-link-color: var(--sg-link-on-dark);
 }
 
-/* Muscle Genome on the dark sheet: dividers instead of a light ground showing through the gaps. */
-.exercise-intelligence .genome-muscle-stack { gap: 0; background: transparent; }
-.exercise-intelligence .genome-muscle-row { border-top: 1px solid var(--sg-divider-on-dark); padding-inline: 0; }
-.exercise-intelligence .genome-section-intro p { color: var(--sg-text-muted-on-dark); }
-/* Muscle names and the meter values are the information; the role and involvement terms are labels. */
-.exercise-intelligence .genome-muscle-row p.font-bold { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
-.exercise-intelligence .genome-meter strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
-.exercise-intelligence .genome-term-button { color: #b9d2ec; text-decoration-color: rgb(164 200 232 / .55); }
-.exercise-intelligence .genome-term-button:hover { color: #fff; }
-/* The context tier label: a chip on the dark sheet, not a light pill. */
-.exercise-intelligence .genome-action-connection-label { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .06); color: var(--sg-text-on-dark); }
-/* The analysis tab bar: the active tab in a lighter orange so it clears 4.5:1 on the sheet. */
-.exercise-intelligence .genome-tab-active { color: #ff9b7e; }
+/* The analysis inside Exercise Intelligence is drawn for the dark sheet from the start
+   (exercise-intelligence.css, October 4), so it needs no repainting here. */
 
 /* ── The rest of the sweep: on-light ink left on dark grounds, and states too faint to read ── */
 /* Review's planning-guide line: the light rule `summary p:last-child` came later at equal specificity (3.54:1). */

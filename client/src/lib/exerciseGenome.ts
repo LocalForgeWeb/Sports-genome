@@ -231,9 +231,12 @@ function similarity(first: Exercise, second: Exercise) {
   return clamp((muscle * logicCalibration.exerciseGenome.muscleSimilarityWeight + movement * logicCalibration.exerciseGenome.movementSimilarityWeight + profile * logicCalibration.exerciseGenome.resistanceProfileSimilarityWeight + qualities * logicCalibration.exerciseGenome.qualitySimilarityWeight) * logicCalibration.exerciseGenome.relativeScaleMaximum);
 }
 
+/** The fingerprint dimension a stated goal is read against: the goal alignment signal is that dimension's value. */
+export const goalDimensionFor = (goal: string): GenomeDimension => /muscle|hypertrophy/i.test(goal) ? "hypertrophy" : /strength/i.test(goal) ? "strength" : /capacity|endurance/i.test(goal) ? "sfr" : "power";
+
 export function analyzeExerciseContext(exercise: Exercise, context: GenomeContext): GenomeContextAnalysis {
   const genome = getExerciseGenome(exercise);
-  const goalKey: GenomeDimension = /muscle|hypertrophy/i.test(context.goal) ? "hypertrophy" : /strength/i.test(context.goal) ? "strength" : /capacity|endurance/i.test(context.goal) ? "sfr" : "power";
+  const goalKey = goalDimensionFor(context.goal);
   const peers = context.currentWorkout.filter((item) => item.id !== exercise.id);
   const redundancy = peers.length ? clamp(peers.reduce((sum, item) => sum + similarity(exercise, item), 0) / peers.length) : logicCalibration.exerciseGenome.emptyStackRedundancyBaseline;
   const marginalValue = clamp(logicCalibration.exerciseGenome.relativeScaleMaximum - redundancy + (genome.fingerprint.stability > logicCalibration.exerciseGenome.contextualGradeB ? logicCalibration.exerciseGenome.contextStabilityLift : 0));

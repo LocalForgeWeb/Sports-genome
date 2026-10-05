@@ -1,8 +1,8 @@
 /* Share workout (components/WorkoutShareSheet.tsx), Oct 2 brief §5.
  * A bottom sheet on a phone, a dialog on a wide screen, on the app's own dark
- * surface; the preview is the PDF's first page in miniature, so it is white. */
+ * surface. Its sections are the composer's: Content, Preview, Share. */
 .workout-share-scrim { position: fixed; inset: 0; z-index: 95; display: grid; align-items: end; justify-items: center; overflow-y: auto; overscroll-behavior: contain; background: rgb(4 16 32 / .72); -webkit-overflow-scrolling: touch; }
-.workout-share-sheet { display: grid; width: min(560px, 100%); max-height: min(92dvh, 860px); gap: 1rem; overflow-y: auto; border: 1px solid var(--sg-control-border-on-dark); border-bottom: 0; border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; background: var(--sg-surface-deep); padding: 1rem var(--sg-gutter, 1rem) calc(1rem + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -18px 50px rgb(3 21 45 / .45); }
+.workout-share-sheet { display: grid; width: min(620px, 100%); max-height: min(94dvh, 920px); gap: 1.25rem; overflow-y: auto; border: 1px solid var(--sg-control-border-on-dark); border-bottom: 0; border-radius: var(--sg-radius-md) var(--sg-radius-md) 0 0; background: var(--sg-surface-deep); padding: 1rem var(--sg-gutter, 1rem) calc(1rem + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -18px 50px rgb(3 21 45 / .45); }
 @media (min-width: 720px) { .workout-share-scrim { align-items: center; padding: 1.5rem; } .workout-share-sheet { border-bottom: 1px solid var(--sg-control-border-on-dark); border-radius: var(--sg-radius-md); padding-bottom: 1.25rem; } }
 @media (prefers-reduced-motion: no-preference) { .workout-share-sheet { animation: workout-share-in var(--sg-motion-base) var(--sg-ease) both; } }
 /* Slides in, never fades: a modal's surface and its text are opaque from the first frame (Oct 2 brief §2). */
@@ -14,39 +14,91 @@
 .workout-share-head h2 { margin: .2rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.85rem; font-weight: 800; line-height: .95; text-transform: uppercase; }
 .workout-share-close { display: grid; width: 2.75rem; height: 2.75rem; flex: 0 0 auto; place-items: center; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; color: var(--sg-text-on-dark); }
 
-/* What is being sent. */
-.workout-share-preview { display: grid; grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr); align-items: start; gap: .9rem; }
-@media (max-width: 380px) { .workout-share-preview { grid-template-columns: minmax(0, 1fr); } .workout-share-page { max-width: 13rem; } }
-.workout-share-page { display: grid; gap: .2rem; border-radius: 6px; background: #fff; padding: .65rem .7rem .7rem; color: #102947; box-shadow: 0 10px 26px rgb(0 8 20 / .45); }
-.workout-share-page-brand { margin: 0; color: #0b2240; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.workout-share-page-brand span { display: block; color: #c9401c; }
-.workout-share-page-day { margin: .25rem 0 0; color: #0b2240; font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: 1.6rem; font-weight: 800; line-height: .9; text-transform: uppercase; overflow-wrap: anywhere; }
-.workout-share-page-facts { margin: 0 0 .25rem; border-bottom: 2px solid #d6461f; padding-bottom: .3rem; color: #355774; font-size: var(--sg-text-xs); font-weight: 700; }
-.workout-share-page ol { display: grid; gap: .3rem; margin: .1rem 0 0; padding: 0; list-style: none; }
-.workout-share-page li { display: grid; color: #102947; font-size: var(--sg-text-xs); font-weight: 700; line-height: 1.25; }
-.workout-share-page li b { color: #c9401c; }
-.workout-share-page li small { color: #5d7186; font-size: var(--sg-text-xs); font-weight: 400; }
-.workout-share-page-more { margin: .15rem 0 0; color: #5d7186; font-size: var(--sg-text-xs); }
-.workout-share-says { display: grid; gap: .45rem; min-width: 0; }
-.workout-share-says > p:first-child { display: flex; gap: .45rem; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
-.workout-share-says > p:first-child svg { flex: 0 0 auto; margin-top: .15rem; color: #9cc9ff; }
-.workout-share-says b { color: var(--sg-text-on-dark); font-weight: 700; overflow-wrap: anywhere; }
-.workout-share-note-label { margin: .2rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.workout-share-says blockquote { display: grid; gap: .1rem; margin: 0; border-left: 3px solid var(--sg-control-border-on-dark); padding: .1rem 0 .1rem .65rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
-
-/* The three ways out, the default first. */
-.workout-share-actions { display: grid; gap: .5rem; }
-.workout-share-actions button { display: flex; width: 100%; min-height: 3.5rem; align-items: center; gap: .8rem; border-radius: 12px; padding: .65rem .9rem; text-align: left; }
-.workout-share-actions button span { display: grid; gap: .1rem; min-width: 0; }
-.workout-share-actions button b { font-size: var(--sg-text-lg); font-weight: 700; }
-.workout-share-actions button small { font-size: var(--sg-text-sm); line-height: 1.35; }
-/* One shade deeper than the action fill: its small second line is white type at 4.96:1 (3.73 on #e4512e). */
-.workout-share-primary { border: 1px solid #e4512e; background: #c9401c; color: #fff; }
-.workout-share-primary small { color: #fff; }
-.workout-share-option { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .04); color: var(--sg-text-on-dark); }
-.workout-share-option small { color: var(--sg-text-muted-on-dark); }
-.workout-share-option svg { color: #9cc9ff; }
-.workout-share-option:hover:not(:disabled) { border-color: rgb(164 200 232 / .55); background: rgb(255 255 255 / .07); }
-.workout-share-actions button:disabled { cursor: progress; opacity: .7; }
-.workout-share-actions button:focus-visible, .workout-share-close:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 2px; }
+.workout-share-close:focus-visible { outline: 2px solid #5aa9ff; outline-offset: 2px; }
 .workout-share-status { min-height: 1.2em; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+
+/* ── The composer (Oct 4 sharing brief): Content, Preview, Share, one after another ── */
+.share-section { display: grid; gap: .75rem; min-width: 0; border-top: 1px solid var(--sg-control-border-on-dark); padding-top: 1rem; }
+.share-section h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .6rem; margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; }
+.share-section h3 small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); font-weight: 400; }
+.share-scope { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .5rem; }
+.share-scope-option { position: relative; display: flex; gap: .65rem; min-height: 3.25rem; align-items: flex-start; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; padding: .65rem .8rem; color: var(--sg-text-on-dark); cursor: pointer; }
+.share-scope-option input { position: absolute; opacity: 0; pointer-events: none; }
+.share-scope-option::before { content: ""; flex: 0 0 auto; width: 1.15rem; height: 1.15rem; margin-top: .15rem; border: 2px solid var(--sg-text-muted-on-dark); border-radius: 999px; }
+.share-scope-option.is-on { border-color: var(--sg-text-on-dark); background: rgb(255 255 255 / .07); box-shadow: inset 0 0 0 1px var(--sg-text-on-dark); }
+.share-scope-option.is-on::before { border-color: var(--sg-text-on-dark); background: radial-gradient(circle, var(--sg-text-on-dark) 0 40%, transparent 45%); }
+.share-scope-option:has(input:disabled) { cursor: not-allowed; opacity: .6; }
+.share-scope-option:focus-within { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.share-scope-option span { display: grid; gap: .1rem; min-width: 0; }
+.share-scope-option b { font-size: var(--sg-text-lg); font-weight: 700; }
+.share-scope-option small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); overflow-wrap: anywhere; }
+.share-field { display: grid; gap: .35rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; }
+.share-field small { color: var(--sg-text-muted-on-dark); font-weight: 400; }
+.share-field input, .share-field textarea, .share-link-field input { width: 100%; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: rgb(255 255 255 / .05); padding: .55rem .75rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 400; }
+.share-field textarea { resize: vertical; line-height: var(--sg-leading-body); }
+.share-field input::placeholder, .share-field textarea::placeholder { color: var(--sg-text-subtle-on-dark); }
+.share-field input:disabled, .share-field textarea:disabled { opacity: .7; }
+.share-field input:focus-visible, .share-field textarea:focus-visible, .share-link-field input:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 1px; }
+.share-notes { display: grid; gap: .4rem; }
+.share-check { display: flex; gap: .6rem; min-height: 2.75rem; align-items: center; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; cursor: pointer; }
+.share-check input { width: 1.2rem; height: 1.2rem; accent-color: #9cc9ff; }
+.share-notes ul { display: grid; gap: .3rem; margin: 0; padding-left: 1.1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.share-notes ul b { color: var(--sg-text-on-dark); font-weight: 600; }
+.share-included, .share-access { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.share-preview-frame { min-width: 0; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: #0b2036; padding: 1rem; }
+.share-text-button { justify-self: start; min-height: 2.75rem; color: var(--sg-link-on-dark, #9cc9ff); font-size: var(--sg-text-base); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.share-primary, .share-secondary { display: inline-flex; min-height: 3rem; align-items: center; justify-content: center; gap: .55rem; border-radius: 12px; padding: 0 1.15rem; font-size: var(--sg-text-lg); font-weight: 700; text-decoration: none; }
+/* The deeper orange: white type at 4.96:1. */
+.share-primary { border: 1px solid #e4512e; background: #c9401c; color: #fff; }
+.share-primary:disabled { cursor: progress; opacity: .75; }
+.share-secondary { border: 1px solid var(--sg-control-border-on-dark); background: rgb(255 255 255 / .04); color: var(--sg-text-on-dark); }
+.share-secondary:hover, .share-option:hover:not(:disabled) { border-color: rgb(164 200 232 / .55); background: rgb(255 255 255 / .07); }
+.share-primary:focus-visible, .share-secondary:focus-visible, .share-text-button:focus-visible, .share-option:focus-visible, .share-other > summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.share-section > .share-primary { width: 100%; }
+.share-error { display: flex; gap: .5rem; margin: 0; border-left: 3px solid #ff8a66; padding: .25rem 0 .25rem .6rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.share-ready { display: grid; gap: .65rem; }
+.share-link-field input { font-family: var(--font-mono, ui-monospace, monospace); font-size: var(--sg-text-base); }
+.share-ready-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.share-ready-actions > * { flex: 1 1 10rem; }
+.share-other { border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; }
+.share-other > summary { display: flex; min-height: 3rem; align-items: center; padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; cursor: pointer; }
+.share-other > div { display: grid; gap: .5rem; padding: 0 .75rem .75rem; }
+.share-option { display: flex; width: 100%; min-height: 3.5rem; align-items: center; gap: .8rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: rgb(255 255 255 / .04); padding: .65rem .9rem; color: var(--sg-text-on-dark); text-align: left; }
+.share-option svg { flex: 0 0 auto; color: #9cc9ff; }
+.share-option span { display: grid; gap: .1rem; min-width: 0; }
+.share-option b { font-size: var(--sg-text-lg); font-weight: 700; }
+.share-option small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: 1.35; }
+.share-option:disabled { cursor: progress; opacity: .7; }
+.share-empty { display: grid; gap: .6rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); }
+.share-empty p { margin: 0; line-height: var(--sg-leading-body); }
+.share-empty p + p { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+.share-empty .share-secondary { justify-self: start; }
+
+/* ── Shared by you (SharedLinksManager): in the composer and in Profile ── */
+.shared-links { display: grid; gap: .7rem; min-width: 0; color: var(--sg-text-on-dark); }
+.shared-links-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.shared-links-head h2, .shared-links-head h3 { margin: 0; font-size: var(--sg-text-lg); font-weight: 700; }
+.shared-links-refresh { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; color: var(--sg-link-on-dark, #9cc9ff); font-size: var(--sg-text-base); font-weight: 600; }
+.shared-links-refresh:disabled { cursor: progress; opacity: .7; }
+.shared-links-note, .shared-links-empty, .shared-links-status { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.shared-links-warn { display: flex; gap: .5rem; margin: 0; border-left: 3px solid #ff8a66; padding: .2rem 0 .2rem .6rem; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.shared-links-warn svg { flex: 0 0 auto; margin-top: .2rem; color: #ff8a66; }
+.shared-links-list { display: grid; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--sg-control-border-on-dark); }
+.shared-link { display: grid; gap: .5rem; border-bottom: 1px solid var(--sg-control-border-on-dark); padding: .8rem 0; }
+.shared-link-main { display: grid; gap: .15rem; min-width: 0; }
+.shared-link-main b { font-size: var(--sg-text-lg); font-weight: 700; overflow-wrap: anywhere; }
+.shared-link-main small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); }
+.shared-link-state { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
+.shared-link[data-state="active"] .shared-link-state::before { content: ""; display: inline-block; width: .55rem; height: .55rem; margin-right: .45rem; border-radius: 999px; background: #5fd39a; }
+.shared-link[data-state="disabled"] .shared-link-state, .shared-link[data-state="missing"] .shared-link-state, .shared-link[data-state="forbidden"] .shared-link-state { color: var(--sg-text-muted-on-dark); }
+.shared-link-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.shared-link-action { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; padding: 0 .8rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; text-decoration: none; }
+.shared-link-action:hover:not(:disabled) { background: rgb(255 255 255 / .07); }
+.shared-link-action:disabled { cursor: progress; opacity: .7; }
+.shared-link-action.is-danger { border-color: rgb(255 138 102 / .6); color: #ffb39c; }
+.shared-link-action.is-danger-solid { border-color: #ff8a66; background: #8f2a14; color: #fff; }
+.shared-link-action:focus-visible, .shared-links-refresh:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.shared-link-confirm { display: grid; gap: .5rem; border: 1px solid #ff8a66; border-radius: 12px; padding: .7rem .8rem; }
+.shared-link-confirm p, .shared-link-hint { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.shared-link-hint { color: var(--sg-text-muted-on-dark); }
+.about-me-shared-links { padding: 0 0 1rem; }

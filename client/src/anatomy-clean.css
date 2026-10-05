@@ -67,8 +67,12 @@
 .atlas-pro-tooltip p{color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);line-height:var(--sg-leading-snug)}
 
 /* Heat legend */
-.atlas-heat-legend-pro{display:flex;align-items:center;justify-content:center;gap:.4rem;margin:.65rem auto 0;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-xs);font-weight:800}
-.atlas-swatch{display:inline-block;width:1.3rem;height:.5rem;border-radius:2px}
+/* The colour key: one item per state the figure paints, each a swatch with its word, readable size; two columns on a phone. */
+.atlas-heat-legend-pro{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem 1.25rem;margin:.75rem auto 0;padding:0;list-style:none;color:var(--sg-text-subtle-on-light);font-size:var(--sg-text-base);font-weight:600}
+.atlas-heat-legend-pro li{display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap}
+.atlas-swatch{display:inline-block;flex:0 0 auto;width:1.15rem;height:.75rem;border-radius:3px}
+.atlas-swatch-neutral{box-shadow:inset 0 0 0 1px rgb(169 190 209 / .5)}
+@media (max-width:520px){.atlas-heat-legend-pro{display:grid;grid-template-columns:repeat(2,max-content);justify-content:center;gap:.5rem 1.5rem}}
 .atlas-role-methodology{max-width:42rem;margin:.55rem auto 0;border:1px solid var(--sg-divider-on-light);background:var(--sg-surface-light);color:#3f5e73}
 .atlas-role-methodology summary{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:42px;padding:.55rem .7rem;cursor:pointer;color:#245b98;font-size:var(--sg-text-xs);font-weight:800;letter-spacing:var(--sg-tracking-label);text-transform:uppercase}
 .atlas-role-methodology>div{border-top:1px solid var(--sg-divider-on-light);padding:.6rem .7rem}
@@ -142,8 +146,7 @@
   .atlas-why-pro{margin-top:.8rem;padding-left:.65rem}
   .atlas-why-pro p:not(.metric-label){font-size:var(--sg-text-sm);line-height:var(--sg-leading-body)}
   .atlas-core-metrics{grid-template-columns:1fr}
-  .atlas-heat-legend-pro{gap:.25rem;font-size:var(--sg-text-xs);flex-wrap:wrap;justify-content:center}
-  .atlas-swatch{width:.9rem;height:.4rem}
+  .atlas-heat-legend-pro{font-size:var(--sg-text-base)}
   .atlas-role-methodology summary{min-height:44px;padding:.55rem .6rem;font-size:var(--sg-text-xs)}
   .atlas-role-methodology>div{padding:.6rem}
   .atlas-role-methodology p{font-size:var(--sg-text-xs)}
@@ -160,7 +163,7 @@
    dark destination ground, which left muscle names and role labels dark-on-dark.
    Redefining the light-surface tokens for this subtree flips the whole panel's
    polarity in one place rather than overriding each rule. */
-.destination-body .anatomy-atlas-pro {
+.destination-body .anatomy-atlas-pro, .exercise-intelligence .anatomy-atlas-pro {
   --sg-text-on-light: var(--sg-text-on-dark);
   --sg-text-muted-on-light: var(--sg-text-muted-on-dark);
   --sg-text-subtle-on-light: var(--sg-text-subtle-on-dark);
@@ -178,13 +181,28 @@
 /* The figure's own polarity, flipped in the same place and for the same reason.
    Its light-surface defaults are correct in the exercise inspector, which draws
    it inside a light panel; here the ground is dark. */
-.destination-body .anatomy-figure {
-  --anatomy-shell: #4c5a6e;
+.destination-body .anatomy-figure, .exercise-intelligence .anatomy-figure {
+  /* October 4: neutral tissue dark enough to be structure, boundaries a subdued blue-grey
+     rather than bright grey, a slightly lighter silhouette. Role fills are untouched by it. */
+  --anatomy-shell: #2c4056;
   --anatomy-muscle: var(--sg-role-neutral-on-dark);
-  --anatomy-structural: #5b6a7e;
-  --anatomy-line: #a9b6c8;
+  --anatomy-structural: #304559;
+  --anatomy-line: #71869b;
+  --anatomy-line-width: 1.15;
+  --anatomy-silhouette: #8799ad;
   --anatomy-selection: #ffffff;
+  --anatomy-caption: #a9bed1;
 }
+
+/* The figure's ground: deep navy with only a faint lift behind the bodies, not the
+   saturated destination blue competing with the paint. */
+.destination-body .atlas-body-chart-wrap, .exercise-intelligence .atlas-body-chart-wrap { border: 1px solid rgb(169 190 209 / .14); border-radius: 16px; background: radial-gradient(ellipse 70% 62% at 50% 44%, #0e2742 0%, #091c30 72%); padding: .75rem .5rem .6rem; }
+/* What the figure shows, named directly above it. */
+.atlas-figure-title { margin: 0 0 .5rem; color: var(--sg-text-on-light); font-size: var(--sg-text-lg); font-weight: 700; line-height: var(--sg-leading-snug); text-align: center; }
+.destination-body .atlas-figure-title, .exercise-intelligence .atlas-figure-title { color: #edf4fa; }
+/* A selection on the side the single body is not showing: still held, and said. */
+.atlas-side-note { margin: .35rem 0 0; color: var(--sg-text-muted-on-light); font-size: var(--sg-text-base); text-align: center; }
+.destination-body .atlas-side-note, .exercise-intelligence .atlas-side-note { color: #a9bed1; }
 
 /* The selection, restated where the athlete just tapped. */
 .atlas-selected-strip{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;margin-top:.75rem;border-left:3px solid var(--sg-action);background:var(--sg-surface-light-sunken);padding:.65rem .8rem}
@@ -252,7 +270,6 @@
 
 /* Body Lab rows and foot. Flat rows in the record's role order, each carrying its role as a tag, the selected one tonal; static captions when both bodies show; the next step and the method at the foot. Three headed groups and a "show all" in label caps used to do this. */
 .atlas-body-chart-pair svg{max-width:100%}
-.atlas-view-captions-pair{display:grid;grid-template-columns:1fr 1fr;justify-items:center}
 .atlas-ranking-head h2{margin:0;color:var(--sg-text-on-light);font-family:var(--font-display,"Barlow Condensed",sans-serif);font-size:clamp(1.7rem,7vw,2.2rem);font-weight:800;line-height:.95;text-transform:uppercase}
 .atlas-ranking-head span{font-size:var(--sg-text-base)}
 .atlas-role-rows{display:grid;margin:0;padding:0;list-style:none}
