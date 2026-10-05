@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { filterStackForEquipment, type AthleteEquipmentProfile } from "@/lib/equipmentProfile";
-import { Check, Dumbbell, Plus, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronUp, Dumbbell, Minus, Plus, SlidersHorizontal, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { matchesTrainingSplit, type TrainingSplit } from "@/lib/splitAssignment";
 import { muscleLabels } from "@/components/AnatomyMap";
@@ -32,6 +32,13 @@ type DayExercisePickerProps = {
    */
   equipmentProfile?: AthleteEquipmentProfile;
   onAdd: (exercise: Exercise) => void;
+  /**
+   * Takes one entry out of the day. Given, the sheet can undo its own adds where they
+   * happened: an exercise already in the day offers Remove instead of a dead "Added", and
+   * the footer's count opens the day's list, so an exercise can come out without leaving
+   * the sheet or finding it in the results first.
+   */
+  onRemove?: (entry: Exercise) => void;
   onReplace: (outgoing: Exercise, incoming: Exercise) => void;
   onInspect: (exercise: Exercise) => void;
   /**
@@ -66,15 +73,47 @@ export function sortDayExerciseResults(results: Exercise[], muscle: string) {
   });
 }
 
-export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, equipmentProfile, sheetOpen = false, destination, dayLabel, onOpenSheet, onCloseSheet, onAdd, onReplace, onInspect }: DayExercisePickerProps) {
+export function DayExercisePicker({ exercises, activeWorkout, split, sportId, prescriptions, equipmentProfile, sheetOpen = false, destination, dayLabel, onOpenSheet, onCloseSheet, onAdd, onRemove, onReplace, onInspect }: DayExercisePickerProps) {
   const searchRef = useRef<HTMLInputElement | null>(null);
   const suggestionCatalog = useMemo(() => equipmentProfile ? filterStackForEquipment(exercises, equipmentProfile) : exercises, [equipmentProfile, exercises]);
   const destinationLabel = destination ?? split;
   // The footer's count is the day as persisted, including what was there before the
-  // sheet opened; what this visit added is said separately rather than folded in.
-  const [countAtOpen, setCountAtOpen] = useState(activeWorkout.length);
-  useEffect(() => { if (sheetOpen) setCountAtOpen(activeWorkout.length); }, [sheetOpen]); // eslint-disable-line react-hooks/exhaustive-deps
-  const addedThisVisit = Math.max(0, activeWorkout.length - countAtOpen);
+  // sheet opened; what this visit added and took out is said separately rather than
+  // folded in. Counted by entry against the day as it opened, so adding one and removing
+  // another reads as both, not as no change.
+  const [entriesAtOpen, setEntriesAtOpen] = useState(() => new Set(activeWorkout.map((entry) => entry.id)));
+  useEffect(() => { if (sheetOpen) setEntriesAtOpen(new Set(activeWorkout.map((entry) => entry.id))); }, [sheetOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  const addedThisVisit = activeWorkout.filter((entry) => !entriesAtOpen.has(entry.id)).length;
+  const removedThisVisit = Array.from(entriesAtOpen).filter((id) => !activeWorkout.some((entry) => entry.id === id)).length;
+  const visitChanges = [addedThisVisit > 0 ? `${addedThisVisit} added` : "", removedThisVisit > 0 ? `${removedThisVisit} removed` : ""].filter(Boolean).join(", ");
+  const countLine = `${activeWorkout.length} in ${destinationLabel}${visitChanges ? ` · ${visitChanges} now` : ""}`;
+  // The day's own list, opened from that count.
+  const [dayListOpen, setDayListOpen] = useState(false);
+  useEffect(() => { if (!sheetOpen) setDayListOpen(false); }, [sheetOpen]);
+  const dayListRef = useRef<HTMLOListElement | null>(null);
+  const dayToggleRef = useRef<HTMLButtonElement | null>(null);
+  /**
+   * After a Remove in the day's list its row is gone, and focus would fall to the page.
+   * It goes to the row that took that place (or the one before it), and to the count
+   * once the list is empty, so removing several in a row is the same key each time.
+   */
+  const refocusDayList = useRef<{ index: number; length: number } | null>(null);
+  useEffect(() => {
+    const pending = refocusDayList.current;
+    // Only once that removal has landed: one refused (the plan still loading) moves nothing.
+    if (!pending || activeWorkout.length >= pending.length) return;
+    refocusDayList.current = null;
+    const { index } = pending;
+    const buttons = dayListRef.current?.querySelectorAll<HTMLButtonElement>("button");
+    if (buttons?.length) buttons[Math.min(index, buttons.length - 1)].focus();
+    else dayToggleRef.current?.focus();
+  }, [activeWorkout]);
+  const catalogIdOf = (entry: Exercise) => (entry as Exercise & { catalogExerciseId?: number }).catalogExerciseId || entry.id;
+  // A row stands for a catalog exercise; the entry it takes out is the latest one of it.
+  const removeCatalogExercise = (exercise: Exercise) => {
+    const entry = [...activeWorkout].reverse().find((item) => catalogIdOf(item) === exercise.id);
+    if (entry) onRemove?.(entry);
+  };
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"split" | "all">("split");
   const [equipment, setEquipment] = useState("all");
@@ -131,13 +170,18 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     };
   }, [sheetOpen]);
 
-  // Escape closes it, the way every other layer over this page closes.
+  // Escape closes it, the way every other layer over this page closes - the day's list
+  // first, when that is open over the results.
   useEffect(() => {
     if (!sheetOpen || !onCloseSheet) return;
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onCloseSheet(); };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (dayListOpen) { setDayListOpen(false); dayToggleRef.current?.focus(); return; }
+      onCloseSheet();
+    };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [sheetOpen, onCloseSheet]);
+  }, [sheetOpen, onCloseSheet, dayListOpen]);
 
   /**
    * The page underneath holds still while the sheet is up.
@@ -214,7 +258,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
     const alreadyNamed = [...sortedBy, ...shared.muscles];
     const showMuscleLine = muscleLineIsInformative(visibleExercises, alreadyNamed);
 
-    const existingCatalogIds = new Set(activeWorkout.map((exercise) => (exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id));
+    const existingCatalogIds = new Set(activeWorkout.map(catalogIdOf));
 
     return <>
   <div className="day-exercise-picker-content">
@@ -224,7 +268,7 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
         <LocalSearchScope scope={`Searching ${scope === "split" ? `${split}-compatible` : "all catalog"} exercises.`} query={query} />
         <p className="day-picker-result-count" aria-live="polite"><strong>{results.length}</strong> option{results.length === 1 ? "" : "s"}{gaps.length > 0 ? ` · ${gaps.map((gap) => muscleLabels[gap.muscle] || gap.muscle).slice(0, 2).join(" and ")} first` : muscle !== "all" ? ` · direct ${muscleLabels[muscle] || muscle} targets first` : scope === "split" ? ` · ${split}-compatible` : " · full catalog"}{guessed && <span className="day-picker-result-guess">Nothing is spelled “{query.trim()}” — these are the closest.</span>}{shared.muscles.length > 0 &&<span className="day-picker-result-shared">{shared.everyRow ? "All of these also work" : "Most of these also work"} {shared.muscles.map((muscleKey) => (muscleLabels[muscleKey] || muscleKey).toLowerCase()).join(" and ")}.</span>}</p>
         {muscle === "serratusAnterior" && <p className="day-picker-serratus-cue">Serratus anterior options are available: <strong>Cable Serratus Punch</strong> and <strong>Scapular Wall Slide</strong>. Both are permitted in the Push Day pool.</p>}
-        <div className="day-picker-results">{visibleRanked.map(({ exercise, fillsGap, supportsGap }) => { const added = existingCatalogIds.has(exercise.id); const directTarget = muscle !== "all" && exercise.primaryMuscles.includes(muscle); const extraMuscles = distinguishingMuscles(exercise, alreadyNamed); return <div key={exercise.id} className={`day-picker-result${directTarget ? " day-picker-result-direct" : ""}${showGapTag && fillsGap ? " day-picker-result-fills" : ""}`}><button onClick={() => onInspect(exercise)}><div><strong>{exercise.name}</strong><small>{exercise.movement} · {exercise.equipment}</small>{showMuscleLine && extraMuscles.length > 0 && <em>Also {extraMuscles.map((muscleKey) => muscleLabels[muscleKey] || muscleKey).join(" · ")}</em>}{showGapTag ? (fillsGap ? <b className="day-picker-fills-tag">Closes {muscleLabels[fillsGap.muscle] || fillsGap.muscle}</b> : supportsGap ? <b className="day-picker-supports-tag">Supports {muscleLabels[supportsGap.muscle] || supportsGap.muscle}</b> : null) : null}</div></button><button disabled={added} onClick={() => onAdd(exercise)} aria-label={added ? `${exercise.name} is already in ${spokenDestination(destinationLabel)}` : `Add ${exercise.name} to ${spokenDestination(destinationLabel)}`}>{added ? <><Check className="h-4 w-4" aria-hidden="true" /> Added</> : <><Plus className="h-4 w-4" aria-hidden="true" /> Add</>}</button></div>; })}</div>
+        <div className="day-picker-results">{visibleRanked.map(({ exercise, fillsGap, supportsGap }) => { const added = existingCatalogIds.has(exercise.id); const removable = added && Boolean(onRemove); const spoken = spokenDestination(destinationLabel); const directTarget = muscle !== "all" && exercise.primaryMuscles.includes(muscle); const extraMuscles = distinguishingMuscles(exercise, alreadyNamed); return <div key={exercise.id} className={`day-picker-result${directTarget ? " day-picker-result-direct" : ""}${showGapTag && fillsGap ? " day-picker-result-fills" : ""}${added ? " day-picker-result-added" : ""}`}><button onClick={() => onInspect(exercise)}><div><strong>{exercise.name}</strong><small>{exercise.movement} · {exercise.equipment}</small>{removable && <span className="day-picker-in-day"><Check className="h-3.5 w-3.5" aria-hidden="true" /> Added</span>}{showMuscleLine && extraMuscles.length > 0 && <em>Also {extraMuscles.map((muscleKey) => muscleLabels[muscleKey] || muscleKey).join(" · ")}</em>}{showGapTag ? (fillsGap ? <b className="day-picker-fills-tag">Closes {muscleLabels[fillsGap.muscle] || fillsGap.muscle}</b> : supportsGap ? <b className="day-picker-supports-tag">Supports {muscleLabels[supportsGap.muscle] || supportsGap.muscle}</b> : null) : null}</div></button>{/* One button whose job changes, so focus stays on it from Add to Remove and back. */}<button type="button" className={removable ? "day-picker-remove" : undefined} disabled={added && !removable} onClick={() => (removable ? removeCatalogExercise(exercise) : onAdd(exercise))} aria-label={removable ? `Remove ${exercise.name} from ${spoken}` : added ? `${exercise.name} is already in ${spoken}` : `Add ${exercise.name} to ${spoken}`}>{removable ? <><Minus className="h-4 w-4" aria-hidden="true" /> Remove</> : added ? <><Check className="h-4 w-4" aria-hidden="true" /> Added</> : <><Plus className="h-4 w-4" aria-hidden="true" /> Add</>}</button></div>; })}</div>
         {ranked.length > visibleRanked.length && <button type="button" className="day-picker-more" onClick={() => setResultLimit((current) => current + initialResultLimit)}>Show more options</button>}
         {!results.length && <p className="day-picker-empty">
           {searching
@@ -276,8 +320,16 @@ export function DayExercisePicker({ exercises, activeWorkout, split, sportId, pr
           <button type="button" onClick={() => onCloseSheet?.()} aria-label="Close add exercises"><X className="h-4 w-4" /></button>
         </header>
         {pickerBody}
+        {dayListOpen && onRemove && <div id="day-picker-day-list" className="day-picker-day-list" role="region" aria-label={`In ${destinationLabel}`}>
+          <p className="metric-label">In {destinationLabel}</p>
+          {activeWorkout.length
+            ? <ol ref={dayListRef}>{activeWorkout.map((entry, index) => <li key={entry.id}><span className="day-picker-day-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span className="day-picker-day-name">{entry.name}</span><button type="button" onClick={() => { refocusDayList.current = { index, length: activeWorkout.length }; onRemove(entry); }} aria-label={`Remove ${entry.name} from ${spokenDestination(destinationLabel)}`}><Minus className="h-4 w-4" aria-hidden="true" /> Remove</button></li>)}</ol>
+            : <p className="day-picker-day-empty">Nothing in this day yet.</p>}
+        </div>}
         <footer className="day-picker-sheet-foot">
-          <span aria-live="polite">{activeWorkout.length} in {destinationLabel}{addedThisVisit > 0 ? ` · ${addedThisVisit} added now` : ""}</span>
+          {onRemove
+            ? <button ref={dayToggleRef} type="button" className="day-picker-day-toggle" aria-expanded={dayListOpen} aria-controls="day-picker-day-list" onClick={() => setDayListOpen((open) => !open)}><span aria-live="polite">{countLine}</span><ChevronUp className="h-4 w-4" aria-hidden="true" /></button>
+            : <span aria-live="polite">{countLine}</span>}
           <button type="button" onClick={() => onCloseSheet?.()}>Done</button>
         </footer>
       </section>

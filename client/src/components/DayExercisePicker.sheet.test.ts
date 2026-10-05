@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React, { createElement } from "react";
-import { cleanup, fireEvent, render } from "@testing-library/react";
+import { cleanup, fireEvent, render, within } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -153,5 +153,115 @@ describe("each Add names the day it adds to", () => {
     view.rerender(createElement(DayExercisePicker, { ...props(true), destination: "Week 1 · Pull", activeWorkout: [first] }));
     const added = view.getByRole("button", { name: `${first.name} is already in Week 1, Pull` });
     expect((added as HTMLButtonElement).disabled).toBe(true);
+  });
+});
+
+/**
+ * Reported from a phone: an exercise added by mistake could not come back out of
+ * Add Exercises. Its row said "Added" on a dead button, and taking it out meant
+ * closing the sheet and finding it on the day. The row's control now takes it back
+ * out, and the footer's count opens the day's own list.
+ */
+describe("taking an exercise back out without leaving the sheet", () => {
+  beforeEach(() => {
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn() }));
+    vi.stubGlobal("scrollTo", vi.fn());
+  });
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.body.removeAttribute("style"); });
+
+  const pull = exercises.filter((exercise) => /pull/i.test(exercise.movement));
+  const open = (activeWorkout: typeof exercises, onRemove = vi.fn()) => ({ ...props(true), destination: "Week 1 · Pull", activeWorkout, onRemove });
+  // A row the sheet shows on an empty Pull day (it lists the first 24 by what the day needs).
+  const shownRow = () => {
+    const view = render(createElement(DayExercisePicker, open([])));
+    const label = view.getAllByRole("button", { name: /^Add .+ to Week 1, Pull$/ })[0].getAttribute("aria-label");
+    view.unmount();
+    return exercises.find((exercise) => label === `Add ${exercise.name} to Week 1, Pull`)!;
+  };
+
+  it("turns Added into Remove on a row already in the day, and the same button adds it again after", () => {
+    const first = shownRow();
+    const onRemove = vi.fn();
+    const view = render(createElement(DayExercisePicker, open([first], onRemove)));
+    const remove = view.getByRole("button", { name: `Remove ${first.name} from Week 1, Pull` }) as HTMLButtonElement;
+    expect(remove.disabled).toBe(false);
+    expect(remove.closest(".day-picker-result")?.querySelector(".day-picker-in-day")?.textContent).toContain("Added");
+    remove.focus();
+    fireEvent.click(remove);
+    expect(onRemove).toHaveBeenCalledWith(first);
+
+    // The day without it: one button whose job changed, still holding focus for a second thought.
+    view.rerender(createElement(DayExercisePicker, open([], onRemove)));
+    const add = view.getByRole("button", { name: `Add ${first.name} to Week 1, Pull` });
+    expect(add).toBe(remove);
+    expect(document.activeElement).toBe(add);
+  });
+
+  it("takes out the latest entry when the day holds the exercise twice", () => {
+    const first = shownRow();
+    const twice = { ...first, id: -42, catalogExerciseId: first.id } as typeof first;
+    const onRemove = vi.fn();
+    const view = render(createElement(DayExercisePicker, open([first, twice], onRemove)));
+    // Found by name: with it in the day twice, what the day needs (and so the order) changes.
+    fireEvent.change(view.getByPlaceholderText(/Search Pull exercises/), { target: { value: first.name } });
+    fireEvent.click(view.getByRole("button", { name: `Remove ${first.name} from Week 1, Pull` }));
+    expect(onRemove).toHaveBeenCalledWith(twice);
+  });
+
+  it("opens the day's list from the footer count, in order, each with Remove", () => {
+    const day = pull.slice(0, 3);
+    const onRemove = vi.fn();
+    const view = render(createElement(DayExercisePicker, open(day, onRemove)));
+    const toggle = view.getByRole("button", { name: /3 in Week 1 · Pull/ });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    const list = view.getByRole("region", { name: "In Week 1 · Pull" });
+    expect(Array.from(list.querySelectorAll(".day-picker-day-name"), (name) => name.textContent)).toEqual(day.map((exercise) => exercise.name));
+    fireEvent.click(within(list).getByRole("button", { name: `Remove ${day[1].name} from Week 1, Pull` }));
+    expect(onRemove).toHaveBeenCalledWith(day[1]);
+  });
+
+  it("keeps focus in the list as rows come out, and on the count once it is empty", () => {
+    const day = pull.slice(0, 2);
+    const onRemove = vi.fn();
+    const view = render(createElement(DayExercisePicker, open(day, onRemove)));
+    fireEvent.click(view.getByRole("button", { name: /2 in Week 1 · Pull/ }));
+    fireEvent.click(view.getByRole("button", { name: `Remove ${day[0].name} from Week 1, Pull` }));
+    view.rerender(createElement(DayExercisePicker, open([day[1]], onRemove)));
+    const list = view.getByRole("region", { name: "In Week 1 · Pull" });
+    expect(document.activeElement).toBe(within(list).getByRole("button", { name: `Remove ${day[1].name} from Week 1, Pull` }));
+
+    fireEvent.click(document.activeElement!);
+    view.rerender(createElement(DayExercisePicker, open([], onRemove)));
+    expect(view.getByText("Nothing in this day yet.")).toBeTruthy();
+    expect(document.activeElement).toBe(view.getByRole("button", { name: /0 in Week 1 · Pull/ }));
+  });
+
+  it("says what this visit added and took out, not only the difference", () => {
+    const [a, b, c] = pull;
+    const view = render(createElement(DayExercisePicker, open([a, b])));
+    view.rerender(createElement(DayExercisePicker, open([b, c])));
+    expect(view.getByRole("button", { name: "2 in Week 1 · Pull · 1 added, 1 removed now" })).toBeTruthy();
+  });
+
+  it("closes the day's list on Escape before it closes the sheet", () => {
+    const onCloseSheet = vi.fn();
+    const view = render(createElement(DayExercisePicker, { ...open(pull.slice(0, 1)), onCloseSheet }));
+    const toggle = view.getByRole("button", { name: /1 in Week 1 · Pull/ });
+    fireEvent.click(toggle);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(view.queryByRole("region", { name: "In Week 1 · Pull" })).toBeNull();
+    expect(document.activeElement).toBe(toggle);
+    expect(onCloseSheet).not.toHaveBeenCalled();
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onCloseSheet).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the old dead Added where nothing can remove (no onRemove given)", () => {
+    const first = shownRow();
+    const view = render(createElement(DayExercisePicker, { ...props(true), destination: "Week 1 · Pull", activeWorkout: [first] }));
+    expect((view.getByRole("button", { name: `${first.name} is already in Week 1, Pull` }) as HTMLButtonElement).disabled).toBe(true);
+    expect(view.queryByRole("button", { name: /in Week 1 · Pull/ })).toBeNull();
   });
 });

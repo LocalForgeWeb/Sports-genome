@@ -3,6 +3,39 @@ import { buildMovementReasoning, getSportDemandModel, getSportModifiers } from "
 import { sportMovementProfiles } from "./sportMovementDatabase";
 
 describe("hierarchical sport-to-program model", () => {
+  /**
+   * 5 October 2026: rotational power is a sport-level demand wherever the sport's own movement
+   * record is built on throws, strikes, swings, shots or kicks, and nowhere the record's
+   * rotation is a body roll or one event's alone. The Plan's analysis lists a stack against
+   * sport-level demands only, so this is what decides whether "Rotational power" is asked for.
+   */
+  it("lists rotational power at sport level for the sports whose actions rotate to produce force", () => {
+    const asks = (sportId: string) => getSportDemandModel(sportId).demands.find((item) => item.key === "rotationalPower")?.evidenceType;
+    for (const sportId of ["wrestling", "mma", "ice-hockey", "volleyball", "soccer", "baseball", "tennis", "boxing", "lacrosse", "golf"]) {
+      expect(asks(sportId), sportId).toBe("literature-derived");
+    }
+    for (const sportId of ["swimming", "rowing", "gymnastics", "skiing", "olympic-weightlifting", "basketball", "rugby", "brazilian-jiu-jitsu"]) {
+      expect(asks(sportId), sportId).toBe("model-estimated");
+    }
+    // Event- and role-scoped: lifted by the modifier, not asked of the whole sport.
+    expect(asks("track-and-field")).toBe("model-estimated");
+    expect(getSportDemandModel("track-and-field", "throws").demands.find((item) => item.key === "rotationalPower")?.evidenceType).toBe("expert-inference");
+    expect(asks("american-football")).toBe("model-estimated");
+    expect(getSportDemandModel("american-football", "qb").demands.find((item) => item.key === "rotationalPower")?.evidenceType).toBe("expert-inference");
+  });
+
+  it("keeps each sport's first four priorities where they were before rotational power joined its register", () => {
+    // Sport-level demands share one score and sort stably in the register's key order, so the
+    // added key cannot displace the priorities Home and the recommendations already show.
+    // These four-key lists were read from the register the day before the change.
+    const top = (sportId: string) => getSportDemandModel(sportId).demands.slice(0, 4).map((item) => item.key);
+    expect(top("wrestling")).toEqual(["aerobicCapacity", "anaerobicCapacity", "maxStrength", "power"]);
+    expect(top("mma")).toEqual(["anaerobicCapacity", "maxStrength", "power", "isometricStrength"]);
+    expect(top("ice-hockey")).toEqual(["anaerobicCapacity", "repeatSprint", "power", "deceleration"]);
+    expect(top("volleyball")).toEqual(["power", "deceleration", "plyometricAbility", "elasticStrength"]);
+    expect(top("soccer")).toEqual(["aerobicCapacity", "repeatSprint", "speed", "acceleration"]);
+  });
+
   it("provides the specified style modifiers without treating them as a separate sport", () => {
     expect(getSportModifiers("wrestling").map((item) => item.id)).toContain("greco-roman");
     const model = getSportDemandModel("wrestling", "greco-roman");
