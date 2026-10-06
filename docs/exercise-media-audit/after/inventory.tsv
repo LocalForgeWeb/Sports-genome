@@ -1,0 +1,401 @@
+id	name	equipment	status	source	note
+1	Barbell Bench Press	Barbell	verified	Barbell_Bench_Press_-_Medium_Grip	
+2	Incline Barbell Bench Press	Barbell	verified	Barbell_Incline_Bench_Press_-_Medium_Grip	
+3	Decline Barbell Bench Press	Barbell	verified	Decline_Barbell_Bench_Press	
+4	Dumbbell Bench Press	Dumbbells	verified	Dumbbell_Bench_Press	
+5	Incline Dumbbell Bench Press	Dumbbells	verified	Incline_Dumbbell_Press	
+6	Decline Dumbbell Bench Press	Dumbbells	verified	Decline_Dumbbell_Bench_Press	
+7	Dumbbell Floor Press	Dumbbells	verified	Dumbbell_Floor_Press	
+8	Dumbbell Squeeze Press	Dumbbells	verified	Close-Grip_Dumbbell_Press	
+9	Alternating Dumbbell Bench Press	Dumbbells	wrong_variant_withdrawn		rejected variation: alternating dumbbell press: the photo is the two-arm press
+10	Single-Arm Dumbbell Bench Press	Dumbbells	verified	One_Arm_Dumbbell_Bench_Press	
+11	Machine Chest Press	Machine	verified	Leverage_Chest_Press	
+12	Incline Machine Chest Press	Machine	verified	Leverage_Incline_Chest_Press	
+13	Plate-Loaded Chest Press	Free weights	verified	Leverage_Chest_Press	
+14	Smith Machine Bench Press	Machine	verified	Smith_Machine_Bench_Press	
+15	Smith Machine Incline Press	Machine	verified	Smith_Machine_Incline_Bench_Press	
+16	Cable Chest Press	Cable	verified	Cable_Chest_Press	
+17	Single-Arm Cable Chest Press	Cable	wrong_variant_withdrawn		rejected variation: single-arm cable chest press: the photo is two-arm
+18	Cable Fly	Cable	verified	Cable_Crossover	
+19	Low-to-High Cable Fly	Cable	verified	Low_Cable_Crossover	
+20	High-to-Low Cable Fly	Cable	verified	Cable_Crossover	
+21	Pec Deck Fly	Machine	verified	Butterfly	
+22	Dumbbell Fly	Dumbbells	verified	Dumbbell_Flyes	
+23	Incline Dumbbell Fly	Dumbbells	verified	Incline_Dumbbell_Flyes	
+24	Dumbbell Pullover	Dumbbells	verified	Straight-Arm_Dumbbell_Pullover	
+25	Plate Squeeze Press	Free weights	verified	Svend_Press	
+26	Standard Push-Up	Bodyweight	verified	Pushups	
+27	Wide-Grip Push-Up	Bodyweight	verified	Push-Up_Wide	
+28	Diamond Push-Up	Bodyweight	verified	Push-Ups_-_Close_Triceps_Position	
+29	Decline Push-Up	Bodyweight	verified	Decline_Push-Up	
+30	Incline Push-Up	Bodyweight	verified	Incline_Push-Up	
+31	Archer Push-Up	Bodyweight	missing		Isometric Wipers is a low side-to-side 'wiper' (typewriter) push-up, not an archer push-up. An archer rep starts at the top with both arms straight and wide, lowers toward one hand while the other arm stays straight, then presses back to lockout. The wiper pair never shows a straight-arm top. Its se
+32	Plyometric Push-Up	Bodyweight	verified	Plyo_Push-up	
+33	Clap Push-Up	Bodyweight	wrong_variant_withdrawn		rejected variation: clap push-up: the plyo push-up photo shows no clap
+34	Explosive Depth Push-Up	Bodyweight	wrong_variant_withdrawn		rejected variation: explosive depth push-up starts on boxes; the photo is a floor plyo push-up
+35	Deficit Push-Up	Bodyweight	wrong_variant_withdrawn		rejected variation: deficit push-up uses handles; the photo is a floor push-up
+36	Ring Push-Up	Bodyweight	verified	Suspended_Push-Up	
+37	Weighted Push-Up	Bodyweight	wrong_variant_withdrawn		rejected variation: weighted push-up carries a plate; the photo does not
+38	Spiderman Push-Up	Bodyweight	missing		This is the closest candidate, but it is a different exercise. The source's own instructions say to hold the bent-arm (90 degree) position and alternate knee-to-elbow, a low-plank crawl drill. A Spiderman push-up starts with the arms straight, brings the knee to the elbow while lowering, then presse
+39	Typewriter Push-Up	Bodyweight	verified	Isometric_Wipers	
+40	Parallel-Bar Dip	Bodyweight	verified	Parallel_Bar_Dip	
+41	Conventional Deadlift	Free weights	verified	Barbell_Deadlift	
+42	Romanian Deadlift	Free weights	verified	Romanian_Deadlift	
+43	Barbell Bent-Over Row	Barbell	verified	Bent_Over_Barbell_Row	
+44	Pendlay Row	Barbell	wrong_variant_withdrawn		rejected variation: pendlay row returns the bar to the floor; the photo is a hanging bent-over row
+45	Underhand Barbell Row	Barbell	verified	Reverse_Grip_Bent-Over_Rows	
+46	Dumbbell Row	Dumbbells	verified	One-Arm_Dumbbell_Row	
+47	Chest-Supported Dumbbell Row	Dumbbells	verified	Dumbbell_Incline_Row	
+48	Seal Row	Free weights	wrong_variant_withdrawn		rejected variation: seal row is prone on a flat raised bench; the photo is an incline bench pull
+49	Meadows Row	Free weights	missing		A Meadows row is a named variation of the one-arm landmine row. The lifter stands side-on to the bar in a staggered stance, braces the free forearm on the front knee, and grips the very end of the bar (the sleeve) overhand, rowing with the elbow flared. Both source photos show the standard one-arm l
+50	T-Bar Row	Free weights	verified	T-Bar_Row_with_Handle	
+51	Chest-Supported T-Bar Row	Free weights	verified	Lying_T-Bar_Row	
+52	Machine High Row	Machine	verified	Leverage_High_Row	
+53	Machine Low Row	Machine	verified	Leverage_Iso_Row	
+54	Seated Cable Row	Cable	verified	Seated_Cable_Rows	
+55	Wide-Grip Cable Row	Cable	wrong_variant_withdrawn		rejected variation: wide-grip cable row uses a wide bar; the photo is the V-handle row
+56	Single-Arm Cable Row	Cable	verified	Seated_One-arm_Cable_Pulley_Rows	
+57	Lat Pulldown	Free weights	verified	Wide-Grip_Lat_Pulldown	
+58	Wide-Grip Lat Pulldown	Free weights	verified	Wide-Grip_Lat_Pulldown	
+59	Neutral-Grip Lat Pulldown	Free weights	verified	V-Bar_Pulldown	
+60	Underhand Lat Pulldown	Free weights	verified	Underhand_Cable_Pulldowns	
+61	Single-Arm Lat Pulldown	Free weights	verified	One_Arm_Lat_Pulldown	
+62	Straight-Arm Cable Pulldown	Cable	verified	Straight-Arm_Pulldown	
+63	Cable Pullover	Cable	missing		The app lists 'Cable Pullover' (#63) separately from 'Straight-Arm Cable Pulldown' (#62), and #62 already uses the Straight-Arm_Pulldown photo. That suggests #63 is the classic lying cable pullover: supine on a flat bench, arms nearly straight, arcing from behind the head to over the chest. No sourc
+64	Machine Pullover	Machine	missing		A machine pullover is a seated, selectorized pullover machine where the arms or elbows press against pads that arc from overhead down to the torso. No source exercise uses that implement or movement. A dumbbell or barbell pullover is a different implement and a supine body position, and a machine ro
+65	Dumbbell Pullover	Dumbbells	verified	Straight-Arm_Dumbbell_Pullover	
+66	Pull-Up	Bodyweight	verified	Pullups	
+67	Chin-Up	Free weights	verified	Chin-Up	
+68	Neutral-Grip Pull-Up	Bodyweight	wrong_variant_withdrawn		rejected variation: neutral-grip pull-up: the photo is the pull-up photo, hands on the angled handles
+69	Wide-Grip Pull-Up	Bodyweight	verified	Wide-Grip_Rear_Pull-Up	Wide-Grip Pull-Up: the source is titled a rear (behind-the-neck) pull-up, but both frames show a front-facing wide-grip hang and pull; nothing behind the neck is shown. Checked at full size.
+70	Weighted Pull-Up	Bodyweight	verified	Weighted_Pull_Ups	
+71	Weighted Chin-Up	Free weights	wrong_variant_withdrawn		rejected variation: weighted chin-up: no belt in the photo
+72	Commando Pull-Up	Bodyweight	missing		In a commando pull-up the body is turned side-on to the bar, both hands grip the bar close together one in front of the other, and the head clears alternate sides of the bar. Mixed_Grip_Chin is facing the bar with shoulder-width hands, not side-on. V-Bar_Pullup uses a V-handle attachment and does no
+73	Archer Pull-Up	Bodyweight	missing		An archer pull-up keeps the non-working arm nearly straight and extended out to the side while the other arm pulls. In Side_To_Side_Chins both arms flex and the torso only leans to one side, which is a lateral-lean wide pull-up, not an archer. The standard Pullups photo is the base exercise, which t
+74	L-Sit Pull-Up	Bodyweight	missing		An L-sit pull-up holds both legs straight and horizontal (hips flexed to 90 degrees, knees locked) for the whole pull. Gorilla_Chin_Crunch uses bent knees tucked dynamically, so the trunk position and abdominal demand differ. Pullups has the legs hanging. Hanging_Leg_Raise and Hanging_Pike are leg r
+75	Inverted Row	Bodyweight	verified	Inverted_Row	
+76	Feet-Elevated Inverted Row	Bodyweight	wrong_variant_withdrawn		rejected variation: feet-elevated inverted row: feet on the floor in the photo
+77	Ring Row	Bodyweight	verified	Suspended_Row	
+78	Towel Pull-Up	Bodyweight	missing		A towel pull-up hangs from towels looped over the bar with BOTH hands gripping the towels, as a grip-strength variation. The only towel photo has one hand on the bar and only the other on a towel, so the attachment and grip demand differ, and it is a uneven one-arm progression rather than a two-hand
+79	Scapular Pull-Up	Bodyweight	verified	Scapular_Pull-Up	
+80	Rope Climb	Bodyweight	verified	Rope_Climb	
+81	Barbell Shrug	Barbell	verified	Barbell_Shrug	
+82	Dumbbell Shrug	Dumbbells	verified	Dumbbell_Shrug	
+83	Trap-Bar Shrug	Free weights	missing		The source has no trap-bar shrug. Trap_Bar_Deadlift uses the right implement but shows a deadlift (hips and knees extend from the floor), not scapular elevation. Barbell_Shrug, Dumbbell_Shrug, Cable_Shrugs and the machine shrugs show the right movement with the wrong implement. A barbell or dumbbell
+84	Cable Shrug	Cable	verified	Cable_Shrugs	
+85	Machine Shrug	Machine	verified	Leverage_Shrug	
+86	Incline Dumbbell Shrug	Dumbbells	verified	Middle_Back_Shrug	
+87	Face Pull	Free weights	verified	Face_Pull	
+88	Rope Face Pull with External Rotation	Free weights	verified	Face_Pull	Rope Face Pull with External Rotation shares the Face_Pull photo; the rope finish at the face is shown.
+89	Reverse Pec Deck	Machine	verified	Reverse_Machine_Flyes	
+90	Bent-Over Rear-Delt Fly	Free weights	verified	Seated_Bent-Over_Rear_Delt_Raise	
+91	Chest-Supported Rear-Delt Raise	Free weights	verified	Lying_Rear_Delt_Raise	
+92	Cable Rear-Delt Fly	Cable	verified	Cable_Rear_Delt_Fly	
+93	Single-Arm Cable Rear-Delt Fly	Cable	verified	Bent_Over_Low-Pulley_Side_Lateral	Single-Arm Cable Rear-Delt Fly: at full size one arm pulls and the other rests on the knee (the contact sheet first suggested two arms).
+94	Dumbbell Y-Raise	Dumbbells	missing		The source has no Y-raise. Scaption has the right implement and plane, but its range stops at about shoulder height (the source says until the arms are parallel to the ground), while a Y-raise finishes with the arms overhead in a Y. The app groups this exercise with rear delts and traps, which sugge
+95	Cable Y-Raise	Cable	missing		The source has no cable Y-raise. Both cable candidates stop at shoulder or eye height, in the frontal or sagittal plane, with no overhead Y finish. The dumbbell and barbell raises use the wrong implement.
+96	Prone Y-Raise	Free weights	missing		The prone position is right, but the movement is a barbell front raise with the arms parallel. A barbell cannot make a Y, so this is a prone I-raise, not a Y-raise. The other prone raises (Dumbbell_Lying_Rear_Lateral_Raise, Reverse_Flyes, Lying_Rear_Delt_Raise) finish in a T at shoulder level, not a
+97	Prone T-Raise	Free weights	verified	Dumbbell_Lying_Rear_Lateral_Raise	
+98	Prone W-Raise	Free weights	missing		A W-raise is done lying face down with the elbows bent about 90 degrees and tucked toward the ribs. The athlete squeezes the shoulder blades down and back and rotates the forearms up and out so the arms form a W. Every prone candidate is a straight-arm reverse fly to a T, which is a different arm pa
+99	Scapular Wall Slide	Bodyweight	missing		I searched for wall, slide, scap and scapula in names and instructions. No source exercise has the back or forearms against a wall while the arms slide overhead and back down. Scapular_Pull-Up (a hanging depression) and Upward_Stretch (a free-standing overhead stretch) are different movements. The s
+100	Band Pull-Apart	Band	verified	Band_Pull_Apart	
+101	Barbell Overhead Press	Barbell	verified	Standing_Military_Press	
+102	Seated Barbell Overhead Press	Barbell	verified	Seated_Barbell_Military_Press	
+103	Dumbbell Shoulder Press	Dumbbells	verified	Dumbbell_Shoulder_Press	
+104	Seated Dumbbell Shoulder Press	Dumbbells	verified	Seated_Dumbbell_Press	
+105	Arnold Press	Free weights	verified	Arnold_Dumbbell_Press	
+106	Machine Shoulder Press	Machine	verified	Machine_Shoulder_Military_Press	
+107	Smith Machine Shoulder Press	Machine	verified	Smith_Machine_Overhead_Shoulder_Press	
+108	Single-Arm Dumbbell Overhead Press	Dumbbells	verified	Dumbbell_One-Arm_Shoulder_Press	
+109	Z-Press	Free weights	missing		This is the only floor-seated press in the source. The standard Z-press is a two-hand press, usually with a barbell or a pair of dumbbells, done seated on the floor with the legs straight out in front and no support from the hands or a backrest. The photo is one arm with a kettlebell and straddled l
+110	Push Press	Free weights	verified	Push_Press	
+111	Dumbbell Lateral Raise	Dumbbells	verified	Side_Lateral_Raise	
+112	Cable Lateral Raise	Cable	verified	Standing_Low-Pulley_Deltoid_Raise	
+113	Machine Lateral Raise	Machine	missing		I checked every machine exercise for a lateral raise and searched the instructions for 'lateral raise machine' with no hits. The only lateral raises use dumbbells, cables or bands, which is the wrong implement for a machine exercise. The presses and the reverse fly are different movement patterns.
+114	Leaning Cable Lateral Raise	Cable	wrong_variant_withdrawn		rejected variation: leaning lateral raise: the photo is upright
+115	Behind-the-Back Cable Lateral Raise	Cable	missing		In this exercise the cable comes from a low pulley behind the body, with the handle held behind the back. None of the cable lateral photos show that. In the standing one, the cable crosses in front of the thighs, and the other two are bent-over rear-delt raises. 'Behind the back' in the instructions
+116	Incline Dumbbell Lateral Raise	Dumbbells	verified	One-Arm_Incline_Lateral_Raise	
+117	Dumbbell Front Raise	Dumbbells	verified	Front_Dumbbell_Raise	
+118	Cable Front Raise	Cable	verified	Front_Cable_Raise	
+119	Plate Front Raise	Free weights	verified	Front_Plate_Raise	
+120	Handstand Push-Up	Bodyweight	verified	Handstand_Push-Ups	
+121	Barbell Curl	Barbell	verified	Barbell_Curl	
+122	EZ-Bar Curl	Free weights	verified	EZ-Bar_Curl	
+123	Dumbbell Curl	Dumbbells	verified	Dumbbell_Bicep_Curl	
+124	Alternating Dumbbell Curl	Dumbbells	verified	Dumbbell_Alternate_Bicep_Curl	
+125	Incline Dumbbell Curl	Dumbbells	verified	Incline_Dumbbell_Curl	
+126	Preacher Curl	Free weights	verified	Preacher_Curl	
+127	Machine Preacher Curl	Machine	verified	Machine_Preacher_Curls	
+128	Cable Curl	Cable	verified	Standing_Biceps_Cable_Curl	
+129	Bayesian Cable Curl	Cable	missing		A Bayesian curl is done facing AWAY from a low/mid pulley with the working arm drawn behind the torso (shoulder extended) so the cable pulls from behind. No source photo shows that set-up: the one-arm cable curl has the cable in front/at the side with the upper arm vertical, and the overhead/high-pu
+130	Spider Curl	Free weights	verified	Spider_Curl	
+131	Concentration Curl	Free weights	verified	Concentration_Curls	
+132	Hammer Curl	Free weights	verified	Hammer_Curls	
+133	Cross-Body Hammer Curl	Free weights	verified	Cross_Body_Hammer_Curl	
+134	Rope Hammer Curl	Free weights	verified	Cable_Hammer_Curls_-_Rope_Attachment	
+135	Reverse Curl	Free weights	verified	Reverse_Barbell_Curl	
+136	Zottman Curl	Free weights	verified	Zottman_Curl	
+137	Drag Curl	Free weights	verified	Drag_Curl	
+138	Chin-Up Curl	Free weights	missing		The app lists 'Chin-Up' (#67) separately from 'Chin-Up Curl' (#138). #138 sits in the biceps group with the movement 'Elbow flexion', so it is a named variation, a bar curl done with bodyweight. The source has no such exercise; searches for bodyweight curl or 'curl yourself' found nothing. Using the
+139	Wrist Curl	Free weights	verified	Palms-Up_Barbell_Wrist_Curl_Over_A_Bench	
+140	Reverse Wrist Curl	Free weights	verified	Palms-Down_Wrist_Curl_Over_A_Bench	
+141	Wrist Roller	Free weights	verified	Wrist_Roller	
+142	Plate Pinch	Free weights	verified	Plate_Pinch	
+143	Dead Hang	Bodyweight	missing		A dead hang is a still, passive two-arm hang, so both frames should show the same hang. In every candidate only frame 0 is a hang, and frame 1 shows a different movement (scapular pull-up, pike, chin-up). Someone copying the pair would do that movement instead of hanging. One_Handed_Hang is one-arme
+144	Towel Dead Hang	Bodyweight	missing		A towel dead hang is a still hang with both hands gripping towels looped over the bar. One_Arm_Chin-Up has one hand on the bar and one on a towel, and its frame 1 is a pull-up, not a hang. No other source mentions a towel on a hanging exercise. Plain dead-hang frames (Scapular_Pull-Up, Hanging_Pike 
+145	Farmer Hold	Free weights	missing		Farmer Hold is a static grip hold: stand still holding heavy implements at your sides. Farmer's Walk is the loaded-carry version; its frame 1 clearly shows walking, so someone copying it would carry, not hold. The name 'Hold' is what sets the exercise apart from the walk, so this is the base exercis
+146	Close-Grip Bench Press	Free weights	verified	Close-Grip_Barbell_Bench_Press	
+147	JM Press	Free weights	verified	JM_Press	
+148	Skull Crusher	Barbell	verified	EZ-Bar_Skullcrusher	
+149	Dumbbell Skull Crusher	Dumbbells	verified	Lying_Dumbbell_Tricep_Extension	
+150	Cable Triceps Pushdown	Cable	verified	Triceps_Pushdown	
+151	Rope Triceps Pushdown	Free weights	verified	Triceps_Pushdown_-_Rope_Attachment	
+152	Reverse-Grip Pushdown	Free weights	verified	Reverse_Grip_Triceps_Pushdown	
+153	Single-Arm Cable Pushdown	Cable	verified	Cable_One_Arm_Tricep_Extension	
+154	Overhead Cable Triceps Extension	Cable	verified	Cable_Rope_Overhead_Triceps_Extension	
+155	Dumbbell Overhead Triceps Extension	Dumbbells	verified	Standing_Dumbbell_Triceps_Extension	
+156	Single-Arm Dumbbell Triceps Extension	Dumbbells	verified	Dumbbell_One-Arm_Triceps_Extension	
+157	Machine Triceps Extension	Machine	verified	Machine_Triceps_Extension	
+158	Bench Dip	Bodyweight	verified	Bench_Dips	
+159	Ring Dip	Bodyweight	verified	Ring_Dips	
+160	Bodyweight Triceps Extension	Free weights	missing		Body_Tricep_Press is exactly the movement (the standard bar 'bodyweight skull crusher'), but the photos show visible added load: chains over the shoulders. The rule says 'Bodyweight' must be unloaded, so it is a near miss and is rejected. A reviewer who accepts the chains could use it, and its frame
+161	Back Squat	Free weights	verified	Barbell_Squat	
+162	High-Bar Back Squat	Free weights	verified	Barbell_Full_Squat	
+163	Front Squat	Free weights	verified	Front_Barbell_Squat	
+164	Zercher Squat	Barbell	verified	Zercher_Squats	
+165	Goblet Squat	Free weights	verified	Goblet_Squat	
+166	Hack Squat	Free weights	verified	Hack_Squat	
+167	Pendulum Squat	Free weights	missing		A pendulum squat uses a dedicated machine whose shoulder-pad carriage swings on a pivot arc. The source has no such machine. The hack squat (linear sled), the lying machine squat (reclined press-style machine) and the barbell hack squat (barbell behind the legs) are different implements with a diffe
+168	Smith Machine Squat	Machine	verified	Smith_Machine_Squat	
+169	Leg Press	Machine	verified	Leg_Press	
+170	Single-Leg Leg Press	Machine	missing		Every leg-press photo in the source shows both legs pressing. The app exercise is single-leg, so a two-leg photo breaks the laterality rule. No source exercise shows a one-leg press (searched 'leg press', 'single', 'one leg'). Single-Leg_Leg_Extension is a different movement.
+171	Leg Extension	Machine	verified	Leg_Extensions	
+172	Single-Leg Leg Extension	Free weights	verified	Single-Leg_Leg_Extension	
+173	Bulgarian Split Squat	Free weights	wrong_variant_withdrawn		rejected variation: bulgarian split squat elevates the rear foot; the photo is a floor split squat
+174	Front-Foot-Elevated Split Squat	Free weights	missing		The split squats in the source all elevate the REAR foot (bench or strap) or keep both feet on the floor; none elevates the front foot. Elevated_Back_Lunge does show front foot on a plate at the bottom (frame 1). Its frame 0, though, is both feet together on the plate, so the athlete steps back into
+175	Reverse Lunge	Free weights	verified	Dumbbell_Rear_Lunge	
+176	Forward Lunge	Free weights	verified	Dumbbell_Lunges	
+177	Walking Lunge	Free weights	verified	Barbell_Walking_Lunge	
+178	Deficit Reverse Lunge	Free weights	verified	Elevated_Back_Lunge	
+179	Step-Up	Free weights	verified	Dumbbell_Step_Ups	
+180	Peterson Step-Up	Free weights	missing		In a Peterson step-up you stand on a low step with the working heel raised and the knee driven forward over the toes, then extend that knee to lift the body; it is a VMO-focused, short-range movement. All source step-ups are ordinary flat-foot step-ups (some with a knee drive). None shows the heel-r
+181	Cyclist Squat	Free weights	missing		A cyclist squat is a narrow-stance squat with the heels raised on a wedge or plates, which pushes the knees well forward to load the quads. No source exercise shows heel elevation; an instructions search for heels on, raised or elevated, wedges or plates under the feet found nothing for squats. Narr
+182	Sissy Squat	Free weights	verified	Weighted_Sissy_Squat	Sissy Squat: Weighted_Sissy_Squat shows the lean-back, heels-up sissy squat holding a plate.
+183	Spanish Squat	Free weights	missing		In a Spanish squat a heavy band loops behind both knees and is anchored in front, and the athlete sits back against it with near-vertical shins. The source has no such exercise; searches for 'spanish', band-behind-knee wording and the band/squat variants found none. Squats_-_With_Bands uses the band
+184	Pistol Squat	Bodyweight	verified	Kettlebell_Pistol_Squat	Pistol Squat: Kettlebell_Pistol_Squat holds a kettlebell as counterbalance.
+185	Assisted Pistol Squat	Bodyweight	missing		The source has no pistol squat assisted by a hand support (TRX, band, pole or door frame). The kettlebell pistol is an unassisted, loaded pistol. The Smith-machine pistol carries a barbell load and is machine-guided. Both are a different variation from a bodyweight assisted pistol. Single-Leg_High_B
+186	Romanian Deadlift	Free weights	verified	Romanian_Deadlift	
+187	Stiff-Leg Deadlift	Free weights	verified	Stiff-Legged_Barbell_Deadlift	
+188	Single-Leg Romanian Deadlift	Free weights	verified	Kettlebell_One-Legged_Deadlift	
+189	Dumbbell Romanian Deadlift	Dumbbells	verified	Stiff-Legged_Dumbbell_Deadlift	
+190	Good Morning	Barbell	verified	Good_Morning	
+191	Seated Good Morning	Barbell	verified	Seated_Good_Mornings	
+192	Nordic Hamstring Curl	Free weights	verified	Natural_Glute_Ham_Raise	
+193	Assisted Nordic Curl	Free weights	missing		The source has only the unassisted Nordic, and it is already used for app #192 Nordic Hamstring Curl (Natural_Glute_Ham_Raise). No source shows the assistance that defines this variation: no band around the chest, no box or partner helping, no hand push-off during the lowering. The partner in Floor_
+194	Lying Leg Curl	Free weights	verified	Lying_Leg_Curls	
+195	Seated Leg Curl	Free weights	verified	Seated_Leg_Curl	
+196	Standing Single-Leg Curl	Free weights	verified	Standing_Leg_Curl	
+197	Stability-Ball Hamstring Curl	Free weights	verified	Ball_Leg_Curl	
+198	Slider Hamstring Curl	Free weights	missing		A slider hamstring curl is done with the hips bridged off the floor. The heels slide out and back in while the hips stay extended, which is what loads the hamstrings (the same set-up as Ball_Leg_Curl, but on sliders). This source photo is a heel slide with the hips on the floor. There is no bridge o
+199	Glute-Ham Raise	Free weights	verified	Glute_Ham_Raise	
+200	45-Degree Back Extension	Free weights	verified	Hyperextensions_Back_Extensions	
+201	Reverse Hyperextension	Free weights	verified	Reverse_Hyperextension	
+202	Cable Pull-Through	Cable	verified	Pull_Through	
+203	Kettlebell Swing	Kettlebell	wrong_variant_withdrawn		rejected variation: kettlebell swing is two-handed; the photo is the one-arm swing
+204	Barbell Hip Hinge	Barbell	verified	Romanian_Deadlift	
+205	B-Stance Romanian Deadlift	Free weights	missing		In a B-stance RDL the feet are staggered: the back foot is back with only its toes on the floor as a kickstand, and most of the load is on the front leg. No source shows this. The kettlebell one-legged deadlift is a true single-leg RDL with the rear leg in the air (already used for app #188 Single-L
+206	Barbell Hip Thrust	Barbell	verified	Barbell_Hip_Thrust	
+207	Smith Machine Hip Thrust	Machine	verified	Smith_Machine_Hip_Raise	
+208	Dumbbell Hip Thrust	Dumbbells	missing		The app name specifies a dumbbell held on the hips with the upper back on a bench. No source shows a dumbbell hip thrust. Barbell_Hip_Thrust has the right position and movement but the wrong implement (barbell), and it is already used for app #206. Physioball_Hip_Bridge is unloaded and rests the bac
+209	Single-Leg Hip Thrust	Free weights	wrong_variant_withdrawn		rejected variation: single-leg hip thrust is on a bench, loaded; the photo is a floor bridge
+210	Glute Bridge	Free weights	verified	Butt_Lift_Bridge	
+211	Single-Leg Glute Bridge	Free weights	verified	Single_Leg_Glute_Bridge	
+212	Cable Glute Kickback	Cable	verified	One-Legged_Cable_Kickback	
+213	Machine Glute Kickback	Machine	missing		A machine glute kickback uses a dedicated selectorized or plate-loaded kickback machine: standing or kneeling against a chest or elbow pad, pushing a foot plate or lever back with one leg. No source shows one. The cable version is a different implement and is already app #212 Cable Glute Kickback. T
+214	Hip Abduction Machine	Machine	verified	Thigh_Abductor	
+215	Cable Hip Abduction	Cable	missing		The only cable hip-frontal-plane photo is Cable_Hip_Adduction. The cuffed leg starts out at the pulley and is drawn in across the body, so it shows adduction against the cable. Its instructions use the word 'abduct', but they describe adduction. Swapping the frames would not help: the cable pulls to
+216	Lateral Band Walk	Band	verified	Monster_Walk	Lateral Band Walk: Monster_Walk shows the banded wide stance; the direction of travel is not visible in a still.
+217	Copenhagen Plank	Bodyweight	missing		A Copenhagen plank needs the top leg resting on a bench or a partner's arm while the body is held in a side plank. Side_Bridge has both feet on the floor and no elevated top leg, so it is the base side plank. The source has no exercise named or instructed as a Copenhagen or adductor plank. The adduc
+218	Cable Hip Adduction	Cable	verified	Cable_Hip_Adduction	
+219	Hip Adduction Machine	Machine	verified	Thigh_Adductor	
+220	Cossack Squat	Free weights	missing		This is the only lateral squat or lunge in the source, and it is a back-loaded barbell side split squat (a stationary lateral lunge) to about parallel. A Cossack squat sinks to full depth on one leg, with the straight leg's heel down and toes pointing up, and it is normally done bodyweight or front/
+221	Standing Calf Raise	Free weights	verified	Standing_Calf_Raises	
+222	Seated Calf Raise	Free weights	verified	Seated_Calf_Raise	
+223	Leg-Press Calf Raise	Free weights	verified	Calf_Press_On_The_Leg_Press_Machine	
+224	Single-Leg Calf Raise	Free weights	missing		The source has no standing single-leg calf raise. The closest candidates each fail on one rule. Calf_Raise_On_A_Dumbbell is a nonstandard rolling calf raise on a dumbbell handle; its instructions never say one leg, and the free foot appears to rest on the floor, so copying it would not give a single
+225	Donkey Calf Raise	Free weights	verified	Donkey_Calf_Raises	
+226	Smith Machine Calf Raise	Machine	verified	Smith_Machine_Calf_Raise	
+227	Tibialis Raise	Free weights	missing		The source has no tibialis raise, bodyweight or wall-supported. Smith_Machine_Reverse_Calf_Raises is a Smith-machine set-up, so the implement is wrong, and the rear-view photos do not show the dorsiflexion at all. Rocking_Standing_Calf_Raise alternates a toe raise with a calf raise under a barbell. 
+228	Weighted Tibialis Raise	Free weights	missing		A weighted tibialis raise needs load on the forefoot, such as a tib bar, a plate or a dumbbell on the toes, or a band. No source shows that. In both candidates the load sits on the back, which goes through the heels and does not load dorsiflexion. The Smith source itself says the bar is only for bal
+229	Toe Walk	Bodyweight	missing		The source has no toe walk or tip-toe walking drill. A stationary calf raise is a different movement pattern, not locomotion. An instructions search for 'on your toes' and 'walk on' found no gait drill.
+230	Heel Walk	Bodyweight	missing		The source has no heel walk. The standing toe-raise photos (Smith_Machine_Reverse_Calf_Raises and frame 0 of Rocking_Standing_Calf_Raise) are stationary, loaded on the back, and in the rocking case alternate with a calf raise. They are not a walking drill.
+231	Hanging Leg Raise	Free weights	wrong_variant_withdrawn		rejected variation: hanging leg raise keeps the legs straight; the source photographs it with the knees bent, which is the Hanging Knee Raise (232) it now illustrates
+232	Hanging Knee Raise	Free weights	verified	Hanging_Leg_Raise	
+233	Captain’s-Chair Leg Raise	Machine	verified	Knee_Hip_Raise_On_Parallel_Bars	
+234	Toes-to-Bar	Free weights	verified	Hanging_Pike	
+235	L-Sit	Bodyweight	missing		There is no 'L-sit' or 'L sit' in names.txt or in any instruction text. The closest photos differ in body position and support: the captain's chair rests on the forearms with the back against a pad and bends the knees; Hanging_Pike hangs from a bar instead of pressing up on straight arms. Seated_Leg
+236	V-Up	Bodyweight	verified	Jackknife_Sit-Up	
+237	Ab-Wheel Rollout	Free weights	verified	Ab_Roller	
+238	Barbell Rollout	Barbell	verified	Barbell_Ab_Rollout	
+239	Cable Crunch	Cable	verified	Cable_Crunch	
+240	Machine Crunch	Machine	verified	Ab_Crunch_Machine	
+241	Decline Sit-Up	Free weights	verified	Decline_Crunch	
+242	Weighted Decline Sit-Up	Free weights	missing		No candidate shows a decline sit-up with a free weight held at the chest for the whole rep. Press_Sit-Up adds an overhead barbell press, so it is a different movement. The band version uses band resistance, not a free weight (different implement). Decline_Crunch is unloaded and only a partial crunch
+243	Reverse Crunch	Free weights	verified	Reverse_Crunch	
+244	Dead Bug	Free weights	verified	Dead_Bug	
+245	Hollow-Body Hold	Free weights	missing		The source has no hollow-body hold: no entry name or instruction mentions 'hollow', and searching the instructions found nothing. Cocoons is a dynamic tuck crunch, not a static hold with the shoulders and straight legs off the floor. Dead Bug keeps the back flat but has the arms vertical and the lim
+246	RKC Plank	Bodyweight	verified	Plank	RKC Plank: shares the Plank photo; the position is the same, the extra tension is not visible.
+247	Side Plank	Bodyweight	verified	Side_Bridge	
+248	Weighted Plank	Bodyweight	wrong_variant_withdrawn		rejected variation: weighted plank carries a plate; the photo does not
+249	Pallof Press	Free weights	verified	Pallof_Press	
+250	Cable Wood Chop	Cable	verified	Standing_Cable_Wood_Chop	
+251	Landmine Press	Landmine	verified	Single-Arm_Linear_Jammer	
+252	Half-Kneeling Landmine Press	Landmine	missing		The body position is wrong. The name requires half-kneeling, with one knee down and the opposite foot forward, and no source shows any kneeling landmine press. The single-arm press in Single-Arm_Linear_Jammer is standing and explosive, with hip and knee drive. Using the standing base exercise for th
+253	Single-Arm Standing Landmine Press	Landmine	verified	Single-Arm_Linear_Jammer	
+254	Landmine Push Press	Landmine	wrong_variant_withdrawn		rejected variation: landmine push press drives from a dip; the single-arm jammer photo is the strict press it shows for Landmine Press
+255	Landmine Squat-to-Press	Landmine	verified	Landmine_Linear_Jammer	
+256	Landmine Row	Landmine	verified	Bent_Over_One-Arm_Long_Bar_Row	
+257	Meadows Landmine Row	Landmine	missing		A Meadows row is a named variation. You stand perpendicular to the bar's end in a staggered stance, brace the non-working forearm on the front knee, grip the fat sleeve end overhand, and row with the elbow flared high toward the ceiling. None of the source photos show a perpendicular set-up, a stagg
+258	Landmine T-Bar Row	Landmine	verified	T-Bar_Row_with_Handle	
+259	Landmine Squat	Landmine	missing		The movement is wrong. Landmine_Linear_Jammer is a squat plus press: frame 1 shows the arms locked out, so anyone copying it would do a thruster, not a squat. No other landmine source is a squat. Non-landmine squats (barbell back squat, goblet squat) fail on the implement.
+260	Landmine Hack Squat	Landmine	missing		The implement and movement are wrong. Barbell_Hack_Squat is a free barbell held behind the legs, and Hack_Squat is a machine. Neither is a landmine. Landmine_Linear_Jammer faces the anchor and adds a press.
+261	Landmine Reverse Lunge	Landmine	missing		The implement is wrong. Every reverse lunge in the source uses dumbbells, a barbell or bodyweight (Dumbbell_Rear_Lunge, Barbell_Lunge, Elevated_Back_Lunge), none of them a landmine. No landmine source shows a lunge.
+262	Landmine Lateral Lunge	Landmine	missing		The implement and movement are wrong. Barbell_Side_Split_Squat is a back-loaded free barbell, not a landmine. No landmine source shows a lateral lunge.
+263	Landmine Romanian Deadlift	Landmine	missing		The movement does not match. The long bar row is a row with a static hinge, never standing up. Copying it would train a row, not a hip hinge. The side deadlift uses an un-anchored barbell and is a squat-style suitcase lift, not an RDL. No source shows a landmine hinge.
+264	Landmine Single-Leg Romanian Deadlift	Landmine	missing		The source has no landmine single-leg hinge. The kettlebell one-legged deadlift has the right pattern but the wrong implement: it uses a kettlebell, not a barbell anchored at one end. The long-bar rows are rows from a two-leg stance, not single-leg RDLs. The other landmine sources (180s, Linear Jamm
+265	Landmine Rotation	Landmine	verified	Landmine_180s	
+266	Landmine 180	Landmine	verified	Landmine_180s	
+267	Landmine Anti-Rotation Press	Landmine	missing		No source shows a landmine press that resists rotation. Landmine 180s is the opposite quality: the trunk deliberately rotates the bar 180 degrees and nothing is pressed. Both jammers are vertical or diagonal presses driven by the legs, one with a squat, and none shows the horizontal anti-rotation pr
+268	Landmine Thruster	Landmine	verified	Landmine_Linear_Jammer	
+269	Landmine Clean and Press	Landmine	missing		No source shows the clean phase that lifts the landmine from the floor or hang to the shoulder. Both jammers start with the bar already at the shoulders, so they show only the press (with leg drive). That is the base press for a named variation the source lacks. Clean_and_Press and One-Arm_Kettlebel
+270	Landmine Split Jerk	Landmine	missing		A split jerk needs the feet to split into a lunge catch under the locked-out bar. Neither landmine source shows a split. Their feet stay together or wide in both frames, so they are push presses or thrusters. Split_Jerk and One-Arm_Kettlebell_Split_Jerk show the split, but with a free barbell or a k
+271	Medicine-Ball Chest Pass	Medicine ball	verified	Medicine_Ball_Chest_Pass	
+272	Explosive Medicine-Ball Push-Up	Medicine ball	missing		The implement must be a medicine ball. The kettlebell crossover push-up has the same idea but the wrong implement (kettlebell handle grip versus hand on a ball). Drop_Push uses boxes. Plyo_Push-up and Clock_Push-Up are on the bare floor with no ball. Medicine-ball entries in the source (Chest Pass, 
+273	Medicine-Ball Overhead Slam	Medicine ball	verified	Overhead_Slam	
+274	Medicine-Ball Rotational Slam	Medicine ball	missing		A rotational slam is a two-hand slam that rotates the trunk and drives the ball into the floor beside the body, outside the foot. Both source slams are sagittal-plane overhead slams straight down in front, with no rotation, and one of them is single-arm. Medicine_Ball_Full_Twist is a back-to-back ha
+275	Medicine-Ball Side Throw	Medicine ball	missing		A side throw is a ballistic scoop toss released sideways from the hip, with the athlete standing side-on to a partner or wall. The Full Twist is a slow back-to-back hand-off in which the ball is never thrown. Torso_Rotation is a stability-ball rotation stretch. The remaining source throws (Scoop Thr
+276	Medicine-Ball Rotational Wall Throw	Medicine ball	missing		The app exercise needs a side-on stance and a throw driven by trunk rotation into a wall. No source exercise combines rotation with a throw. The wall chest push is a linear push from kneeling, and the twist photos involve no throw.
+277	Medicine-Ball Scoop Toss	Medicine ball	verified	Medicine_Ball_Scoop_Throw	
+278	Medicine-Ball Shot-Put Throw	Medicine ball	missing		A shot-put throw is a one-arm put of a medicine ball from the shoulder, driven by hip and trunk rotation. Heavy_Bag_Thrust uses a hanging heavy bag rather than a medicine ball, so nothing is released or thrown, which fails the implement rule. The chest-pass variants are two-handed and have no rotati
+279	Medicine-Ball Overhead Backward Throw	Medicine ball	verified	Backward_Medicine_Ball_Throw	
+280	Medicine-Ball Forward Overhead Throw	Medicine ball	verified	Standing_Two-Arm_Overhead_Throw	
+281	Kneeling Medicine-Ball Chest Pass	Medicine ball	verified	Chest_Push_multiple_response	
+282	Half-Kneeling Rotational Throw	Free weights	missing		The app exercise needs a half-kneeling stance, trunk rotation and a ball throw. No source exercise has all three: the kneeling ball photos are two-knee linear chest pushes, and the rotational photos are standing hand-offs or stretches with no throw. Base exercises do not count for this named variati
+283	Medicine-Ball Sit-Up Throw	Medicine ball	verified	Supine_Two-Arm_Overhead_Throw	
+284	Medicine-Ball Sprawl-to-Slam	Medicine ball	missing		A sprawl-to-slam joins a sprawl (dropping the hips and legs back to the floor, burpee-like) to a slam. Both source slams are standing-only, and nothing in the source shows a sprawl or burpee (keyword and instruction searches for sprawl or burpee find 0 hits). Using a plain slam would teach only half
+285	Medicine-Ball Slam-to-Sprint	Medicine ball	missing		The app exercise is a slam that leads straight into a sprint. The source slams stay in place with no sprint start. Chest_Push_with_Run_Release does have a run-out, but it is a chest push, not a slam. No source exercise combines a slam with a sprint, so a slam-only photo would leave out the sprint.
+286	Box Jump	Free weights	verified	Front_Box_Jump	
+287	Depth Jump	Free weights	verified	Depth_Jump_Leap	
+288	Broad Jump	Free weights	verified	Standing_Long_Jump	
+289	Weighted Box Jump	Free weights	missing		The only loaded box jump in the source starts seated from a bench, which is a separate named variation (Seated Box Jump), so its start position is wrong. The standing box jumps carry no load, and a 'Weighted' exercise needs a visible load. No source exercise shows a standing box jump with dumbbells 
+290	Lateral Bound	Free weights	verified	Lateral_Bound	
+291	Single-Leg Broad Jump	Free weights	missing		A single-leg broad jump is one maximal-distance horizontal jump off one leg. Standing_Long_Jump is the two-leg base exercise, so its laterality is wrong. Single-Leg_Hop_Progression is a different drill: repeated low hops over cones rather than a maximal-distance jump, and the photos do not clearly s
+292	Pogo Jump	Free weights	missing		A pogo jump is an in-place, two-leg bounce driven by stiff ankles with no implement and no obstacle. Rope_Jumping adds a jump rope, a different implement and a different exercise. The cone hops travel forward over obstacles with knee tuck, which is a different pattern. Searches for pogo and ankle ho
+293	Jump Squat	Free weights	verified	Freehand_Jump_Squat	
+294	Split-Squat Jump	Free weights	verified	Split_Jump	
+295	Explosive Step-Up	Free weights	verified	Single_Leg_Push-off	
+296	Heavy Sled Push	Sled	verified	Sled_Push	
+297	Backward Sled Drag	Sled	verified	Backward_Drag	
+298	Sled Sprint	Sled	verified	Prowler_Sprint	
+299	Farmer’s Walk	Free weights	verified	Farmers_Walk	
+300	Zercher Carry	Barbell	missing		The Zercher hold is correct, but the source shows a squat, not a loaded carry. Someone copying the frames would squat instead of walking. The other carries in the source (Rickshaw_Carry, Farmer's Walk, Yoke_Walk) use different implements and holds. No source exercise shows walking with a barbell in 
+301	Cable Press Around	Cable	missing		A cable press-around is a one-arm cable press that sweeps across and past the midline of the body. No source shows it. The cable chest presses are two-arm straight-line presses. Single-Arm_Cable_Crossover is a straight-arm fly from high pulleys. Around_The_Worlds is a dumbbell fly done in a circle. 
+302	Split-Stance Cable Chest Press	Cable	verified	Standing_Cable_Chest_Press	
+303	Half-Kneeling Cable Chest Press	Cable	missing		No source shows a cable chest press in a half-kneeling position. The available cable presses are standing, seated or on an incline bench, which is a body-position mismatch. They are also all two-arm, while the app describes this exercise as unilateral, trunk-controlled pressing. The only kneeling ca
+304	Cable Squeeze Press	Cable	missing		In a squeeze press the handles are held together and squeezed against each other for the whole press. Every source cable press starts with the handles wide at the sides of the chest and only draws them partly together at lockout, so it is a standard cable chest press, not a squeeze press. Svend_Pres
+305	Cable Incline Press	Cable	verified	Incline_Cable_Chest_Press	
+306	Cable Decline Press	Cable	missing		The app's exercise is a downward-angled (high-to-low, decline) cable press with a braced trunk (catalog cue: 'downward pressing control and bracing'). No source photo shows a cable press on a downward line or on a decline bench. Cable_Chest_Press only mentions 'at an incline or decline' in its text,
+307	Neutral-Grip Cable Chest Press	Cable	verified	Cable_Chest_Press	
+308	Single-Arm Cable Floor Press	Cable	missing		The app's exercise needs a cable, one arm and a supine floor position. The source's floor presses (Floor_Press, One_Arm_Floor_Press, Dumbbell_Floor_Press, One-Arm_Kettlebell_Floor_Press, Alternating_Floor_Press, Leg-Over_Floor_Press) all use a barbell, dumbbell or kettlebell, which is the wrong impl
+309	Cable Resisted Push-Up	Cable	missing		The implement and set-up are wrong for every candidate. The plain push-up has no cable load, so it is the base exercise without the named resistance. The cable presses are a different body position (upright or supine, not a prone push-up). Keyword searches for push, resist, cable and band found no r
+310	Cable Press-Out	Cable	verified	Pallof_Press	
+311	Single-Arm Cable Fly	Cable	verified	Single-Arm_Cable_Crossover	
+312	Cable Incline Fly	Cable	verified	Incline_Cable_Flye	
+313	Cable Decline Fly	Cable	verified	Cable_Crossover	
+314	Cable Reverse Fly Cross	Cable	verified	Cable_Rear_Delt_Fly	
+315	Cable Y Raise	Cable	missing		A cable Y raise brings the arms up at about 30 degrees off the midline, usually to overhead, so the body makes a Y. The cables typically come from low pulleys. No cable photo shows this. The cable photos are a front raise, a lateral raise and a bent-over rear-delt raise, all stopping at shoulder hei
+316	Cable Scaption Raise	Cable	missing		Scaption is a thumbs-up raise in the scapular plane, about 30 degrees forward of the side. Neither cable source shows it: one is a frontal-plane lateral raise with a pronated, cross-body grip and the other a sagittal-plane front raise. Someone copying either would do a lateral or front raise, not sc
+317	Cable Upright Row	Cable	verified	Upright_Cable_Row	
+318	Cable Rear-Delt Row	Cable	verified	Cable_Rope_Rear-Delt_Rows	
+319	Cable Cuban Rotation	Cable	missing		A Cuban rotation is external rotation with the upper arm raised to shoulder height (90/90 scarecrow), with the forearm rotating from pointing forward or down to vertical. The cable photo shows external rotation with the elbow at the side, which is a different position and loads different parts of th
+320	Cable 90/90 External Rotation	Cable	verified	External_Rotation_with_Cable	
+321	Cable 90/90 Internal Rotation	Cable	verified	Cable_Internal_Rotation	
+322	Cable Serratus Punch	Cable	missing		A serratus punch is a protraction-focused punch, usually one arm, that ends with the shoulder blade reaching forward past arm lockout. The only cable press photos are bilateral chest presses (standing, or seated for Cable_Chest_Press) that train pressing, not protraction. Laterality and movement emp
+323	Cable Standing Punch	Cable	missing		The app's exercise is a single-arm, rotational, standing cable punch (qualities: power, rotation, unilateral). No source shows a single-arm cable punch with trunk rotation. Standing_Cable_Chest_Press is two-arm and has no rotation. Pallof presses are anti-rotation two-hand press-outs. Heavy_Bag_Thru
+324	Cable Incline Press-Around	Cable	missing		A press-around is a single-arm cable press that sweeps across the body toward the midline. The app's version is on an upward (incline) line with anti-rotation demand. No source photo shows a single-arm press-around, incline or otherwise. The incline cable press and incline fly are two-arm and use a 
+325	Cable Front-Foot-Elevated Press	Cable	missing		The app's exercise needs a split stance with the front foot elevated on a step or plate while pressing a cable. No source shows that stance. Standing_Cable_Chest_Press's text only says the stance may be staggered, its photo does not show the feet at all, and nothing is elevated. A plain standing cab
+326	Kneeling Cable Lat Pulldown	Cable	verified	Kneeling_High_Pulley_Row	
+327	Wide-Grip Cable Lat Pulldown	Cable	verified	Wide-Grip_Lat_Pulldown	
+328	Cable Straight-Arm Pulldown	Cable	verified	Straight-Arm_Pulldown	
+329	Cable Single-Arm Bent-Over Row	Cable	verified	Shotgun_Row	
+330	Chest-Supported Cable Row	Cable	missing		The source has no cable row with the chest supported. The chest-supported rows that exist use a lever machine (Lying_T-Bar_Row), dumbbells (Dumbbell_Incline_Row) or barbells (Lying_Cambered_Barbell_Row, Straight_Bar_Bench_Mid_Rows), so the implement is wrong. The cable rows are all free-torso seated
+331	Low Cable Row	Cable	verified	Seated_Cable_Rows	
+332	Rope Cable Row	Cable	missing		A standard rope cable row pulls the rope to the lower chest or upper abdomen with the elbows travelling back along the torso, a lat and upper-back row. The only rope rows in the source are a rear-delt/high row to the neck with the arms abducted to 90 degrees, which takes the lats largely out of the 
+333	Cable High Row	Cable	verified	Kneeling_High_Pulley_Row	
+334	Cable Trap Raise	Cable	missing		A 'trap raise' as coaches use the term is a trap-3 or Y-raise: an arm raise diagonally overhead in line with the lower-trap fibres. The app's secondary muscles (rear delts, rotator cuff) support this reading. The cable shrug is a different movement (pure elevation with no arm raise), and the bent-ov
+335	Cable High Pull	Cable	missing		A high pull is an explosive pull driven by hip and knee extension, ending with the elbows high and wide. The app lists power and coordination, with glutes and quads as secondary muscles ('rapid whole-body arm-drive'). The only cable candidate is a strict, slow upright row with the torso held still a
+336	Cable Biceps Curl	Cable	verified	Standing_Biceps_Cable_Curl	
+337	Rope Hammer Cable Curl	Cable	verified	Cable_Hammer_Curls_-_Rope_Attachment	
+338	Incline Cable Curl	Cable	missing		Incline Cable Curl means lying back on an incline bench and curling from a low pulley (arms hanging behind the torso). The only lying cable curl is flat on the floor, which is a different body position and shoulder angle, and every incline curl in the source uses free weights. Body position and impl
+339	High Cable Curl	Cable	wrong_variant_withdrawn		rejected variation: high cable curl is standing between pulleys; the photo is lying on a bench
+340	Cable Concentration Curl	Cable	missing		The concentration-curl photos (seated, standing, barbell) all use free weights, which the rules rule out for a cable exercise. The only single-arm cable curl is a standing upright curl with no elbow-on-thigh brace, so it isn't a concentration curl. No source shows a cable concentration curl.
+341	Cable Spider Curl	Cable	missing		A spider curl has the chest supported and the arms hanging free and vertical, with no pad under the upper arms. The source spider curl uses an EZ bar, not a cable, and the cable preacher curl rests the upper arms on the preacher pad, which makes it a preacher curl. Neither is a cable spider curl.
+342	Cross-Body Cable Curl	Cable	missing		The only cross-body curl in the source uses a dumbbell, which isn't acceptable for a cable exercise. The single-arm cable curl goes straight up on the same side with a supinated grip, so it has neither the cross-body path nor the brachialis-focused neutral grip, and the rope hammer curl is two-arm a
+343	Cable Triceps Pressdown	Cable	verified	Triceps_Pushdown	
+344	Rope Cable Pressdown	Cable	verified	Triceps_Pushdown_-_Rope_Attachment	
+345	Reverse-Grip Cable Pressdown	Cable	verified	Reverse_Grip_Triceps_Pushdown	
+346	Single-Arm Cable Pressdown	Cable	verified	Cable_One_Arm_Tricep_Extension	
+347	Cross-Body Cable Triceps Extension	Cable	missing		No source exercise shows a cross-body cable triceps extension, where the handle is taken from the opposite side and the elbow extends across or away from the body. The closest one, the single-arm pushdown, moves in a straight line down at the side. Copying it would give a single-arm pushdown, which 
+348	Cable Triceps Kickback	Cable	missing		The implement is wrong: a dumbbell kickback is not a cable kickback. With dumbbells, gravity loads the arm in a different direction and there is no cable line. None of the cable triceps exercises use a bent-over posture with the upper arm parallel to the floor and the elbow extending backward. Searc
+349	Cable Overhead Triceps Extension	Cable	verified	Cable_Rope_Overhead_Triceps_Extension	
+350	Cable Wrist Extension	Cable	missing		Both cable wrist exercises use a supinated (palms-up) grip and train the wrist flexors. A wrist extension needs a palms-down grip and lifts the back of the hand. Copying these frames would train the opposite muscle group. The palms-down wrist curls in the source all use a dumbbell or barbell, which 
+351	Cable Belt Squat	Cable	missing		There is no cable belt squat in the source. Weighted_Squat is a belt squat, but the load is a plate hanging from a dip belt, not a low-pulley cable attached to a belt, so the implement is wrong. Cable_Deadlifts uses cables, but the load is held in the hands on two handles at the sides, with no belt.
+352	Cable Goblet Squat	Cable	missing		The source has no cable squat with a single handle held at the chest. Goblet_Squat uses a kettlebell (wrong implement). Cable_Deadlifts uses cables, but the handles hang at the sides (wrong hold and loading position). A keyword search for 'squat' among cable exercises returns 0 hits.
+353	Cable Front Squat	Cable	missing		The source has no cable squat with the handles or bar held in a front-rack position. Its only cable squatting movement (Cable_Deadlifts) holds the handles at the sides. Front squats in the source (Front_Barbell_Squat, Front_Squat_Clean_Grip, Front_Squats_With_Two_Kettlebells) use barbells or kettleb
+354	Cable Deadlift	Cable	verified	Cable_Deadlifts	
+355	Cable Good Morning	Cable	missing		A good morning loads the upper back or chest while the athlete hinges. Pull_Through has the load in straight arms passing between the legs, which is a different exercise and has its own name. Band_Good_Morning has the right pattern but uses a band, not a cable. Cable_Deadlifts is a squat-style deadl
+356	Cable Single-Leg Deadlift	Cable	missing		The single-leg hinge photo uses a kettlebell, which is the wrong implement for a cable exercise. Both cable hinge photos are two-leg, which is the wrong laterality. The source has no cable single-leg deadlift.
+357	Cable Step-Up	Cable	missing		Every step-up in the source is loaded with dumbbells, a barbell or bodyweight (Step-up_with_Knee_Raise). None uses a cable, and a dumbbell or barbell version of a cable exercise is not acceptable.
+358	Cable Lateral Step-Up	Cable	missing		The source has no cable exercise for the lower body that steps, lunges or squats. Searches for lunge, step and squat filtered to cable returned 0 hits, and a search of instructions mentioning cable or pulley turned up none either. Dumbbell_Step_Ups uses the wrong implement (dumbbells, not a cable) a
+359	Cable Skater Squat	Cable	missing		In a skater squat the free knee travels behind the body, and the lift is loaded with a cable. Kettlebell_Pistol_Squat has the free leg in front and uses a kettlebell, so the movement and the implement are both wrong. Smith_Machine_Pistol_Squat and One_Leg_Barbell_Squat (rear foot elevated) are also 
+360	Cable Hip Thrust	Cable	missing		A cable hip thrust is done on a bench with the shoulders supported and cable resistance at the hips. No source exercise is a cable thrust or bridge. Pull_Through has the same hip-extension aim, but the body position (standing) and the pattern differ. The barbell and band thrust or bridge versions us
+361	Cable Quadruped Hip Extension	Cable	wrong_variant_withdrawn		rejected variation: quadruped hip extension: the photo is a standing kickback
+362	Cable Donkey Kick	Cable	wrong_variant_withdrawn		rejected variation: donkey kick is quadruped; the photo is a standing kickback
+363	Cable Fire Hydrant	Cable	missing		A fire hydrant is quadruped hip abduction (the bent knee lifted out to the side) against cable resistance. The source has no cable quadruped abduction. The nearest photos differ in implement (bodyweight, machine), in direction (adduction), or in plane (extension). Hip_Circles_prone is a bodyweight s
+364	Cable Standing Hip Adduction	Cable	verified	Cable_Hip_Adduction	
+365	Cable Standing Hip Abduction	Cable	missing		The source has no cable hip abduction. The only cable hip exercise, Cable_Hip_Adduction, moves the opposite way: the cuffed leg next to the stack comes in across the body against the cable. Abduction needs the far leg moving out, away from the stack. Band_Hip_Adductions uses a band, not a cable. Thi
+366	Cable Hamstring Curl	Cable	missing		No source shows knee flexion against a cable. The only leg-and-ankle-cuff cable sources are the kickback (hip extension) and hip adduction. The curl sources are machines (Lying_Leg_Curls, Seated_Leg_Curl, Standing_Leg_Curl), a band (Seated_Band_Hamstring_Curl) or an exercise ball (Ball_Leg_Curl). Th
+367	Cable Standing Leg Curl	Cable	missing		Standing_Leg_Curl is the right movement but on a machine, not a cable, and the athlete is braced kneeling on the machine rather than standing free with an ankle cuff. One-Legged_Cable_Kickback is a cable and standing, but it shows hip extension with a straight knee, not a knee curl. Leg_Lift has no 
+368	Cable Leg Extension	Cable	missing		The source's knee-extension exercises are all on a machine. No cable, ankle-cuff or low-pulley knee extension exists in the source, and I found no other cable lower-body source after listing every cable exercise. Machine is not cable.
+369	Cable Calf Raise	Cable	missing		The implement is wrong for every candidate. A band, machine, Smith, barbell or dumbbell calf raise is not a cable calf raise, and the source has no cable-loaded plantarflexion photo.
+370	Cable Tibialis Raise	Cable	missing		The source has no cable dorsiflexion exercise. The only dorsiflexion entry is the Smith machine reverse calf raise, which uses a different implement (Smith bar on the back, not a cable pulling on the foot) and a different set-up, and its frames do not clearly show the toes lifting. The other tibiali
+371	Cable Reverse Lunge	Cable	missing		The movement pattern matches, but the implement does not. Dumbbell_Rear_Lunge uses dumbbells, not a cable, and the rules say a dumbbell version is not a cable exercise. Crossover_Reverse_Lunge is unloaded and adds a torso rotation. The source has no cable lunge.
+372	Cable Lateral Lunge	Cable	missing		The movement is a lateral lunge, but the load is a back-squat barbell, not a cable. The implement differs, so it is not a match. The source has no cable lateral lunge.
+373	Cable Crossover Step Lunge	Cable	missing		Only the name is similar. The source exercise is a mobility drill with no load and a straight-back step plus torso twist. It is not a diagonal crossover step resisted by a cable. Dumbbell_Rear_Lunge is a straight reverse lunge with dumbbells. The source has no cable or diagonal crossover lunge.
+374	Cable Forward March	Cable	missing		A cable forward march is marching forward under resistance from a cable attached to a belt or harness, with the stack behind the athlete. The source has no cable march or cable-resisted gait. The closest, the harness sled drag, uses a different implement (sled) and is a sprint, not a march. The band
+375	Cable Standing Knee Drive	Cable	missing		The band hip flexion photo has the right movement, but the app exercise names a cable, and the matching rules treat band and cable as different implements. The only cable photo with an ankle cuff (Cable Hip Adduction) is a frontal-plane adduction, not a knee drive. One-Legged Cable Kickback is hip e
+376	Cable Dead Bug	Cable	missing		The only dead bug in the source is bodyweight. The app exercise is a cable dead bug (cable tension pulling on the arms), and a bodyweight photo does not match the cable implement. There is no other dead bug entry.
+377	Cable Reverse Chop	Cable	verified	Standing_Cable_Lift	
+378	Cable Horizontal Chop	Cable	wrong_variant_withdrawn		rejected variation: horizontal chop: the photo is a diagonal wood chop
+379	Cable Rotational Row	Cable	missing		A cable rotational row is defined by deliberate trunk rotation during the pull: you turn toward the stack on the reach and rotate open as you row, and the obliques are prime movers. Shotgun Row is the nearest single-arm standing cable row, but its source instructions describe only shoulder retractio
+380	Cable Anti-Rotation Walkout	Cable	missing		An anti-rotation walkout means holding the cable handle in front of the chest and walking sideways away from the stack and back, resisting rotation while the tension rises. The only anti-rotation cable photos in the source are Pallof presses, a stationary press-out from the chest. That is a differen
+381	Alternating Landmine Press	Landmine	missing		Alternating means passing or switching the bar between hands rep by rep. No source shows that. The single-arm jammer is a one-arm press with the same hand in both frames, plus leg drive. The two-handle jammer is simultaneous and bilateral, with a squat. Per the laterality rule, neither shows an alte
+382	Tall-Kneeling Landmine Press	Landmine	missing		Body position must be tall-kneeling. Every landmine press photo in the source is standing with leg drive, so it fails on position. A search of all instructions for kneeling presses found only cable or bodyweight exercises (Kneeling Arm Drill, Kneeling Cable Triceps Extension), none of them landmine.
+383	Chest-Supported Landmine Row	Landmine	missing		The movement (a chest-supported two-arm T-bar row) is close, but the implement differs: the photo shows a dedicated T-bar row machine (source equipment 'machine', with its own frame, footplate and chest pad), not a landmine barbell set up with a bench. The rules list machine vs landmine as different
+384	Offset Landmine Row	Landmine	missing		'Offset' is the defining word of this variation: an asymmetric or offset set-up such as a staggered/offset stance or an offset grip, built for anti-rotation. That is distinct from the plain single-arm landmine row, which is already matched to #256 with these photos. The source photos show a square-s
+385	Landmine Full Contact Twist	Landmine	verified	Landmine_180s	
+386	Landmine Split Press	Landmine	missing		This is the closest candidate: a one-arm standing landmine press. But the app name specifies a split stance (one foot well forward, one back, often with the rear knee bent), and the photo shows a wide or near-parallel stance with only a small stagger. It is also a push press with leg drive rather th
+387	Kettlebell Clean	Kettlebell	verified	Kettlebell_Dead_Clean	
+388	Kettlebell Snatch	Kettlebell	verified	One-Arm_Kettlebell_Snatch	
+389	Kettlebell Clean and Press	Kettlebell	missing		A clean and press needs both phases visible: a clean from a hang or the floor to the rack, then a strict press overhead. No kettlebell source photographs both. The one-arm clean-and-jerk frames stop at the rack, so they only teach the clean (the app already has 'Kettlebell Clean' on Kettlebell_Dead_
+390	Turkish Get-Up	Kettlebell	verified	Kettlebell_Turkish_Get-Up_Lunge_style	
+391	Lateral Goblet Squat	Kettlebell	missing		The source has no lateral squat with a goblet-held kettlebell. Barbell_Side_Split_Squat has the lateral pattern, but the load is a barbell on the back, not a goblet kettlebell. Goblet_Squat has the right implement and hold, but it is a symmetric bilateral squat with no lateral weight shift.
+392	Skater Bound	Bodyweight	verified	Lateral_Bound	
+393	Single-Leg Box Jump	Plyometric box	missing		A single-leg box jump takes off from one leg on the floor and lands on top of the box. Single_Leg_Push-off starts with the foot on the box and lands back on it, so the athlete never jumps onto the box. That is a different drill. Front_Box_Jump is two-leg (wrong laterality). Box_Skip and Single-Leg_S
+394	Depth Drop to Stick	Plyometric box	missing		By name, a depth drop to stick means stepping off a box, landing and freezing in an athletic position. The two frames show exactly that: box, then landed position. They do not show the depth jump's rebound. The source is labelled 'Linear Depth Jump', but only its drop-and-land portion is photographe
+395	Drop Landing	Plyometric box	verified	Linear_Depth_Jump	Drop Landing: Linear_Depth_Jump frames show the step off and the landing, not the rebound.
+396	Assisted Nordic Hamstring Curl	Bodyweight	missing		Both are the standard, unassisted Nordic or natural glute-ham raise. Natural_Glute_Ham_Raise is already the app's photo for the base exercise (app id 192). Neither photo shows the assistance the name requires: no band supporting the torso, and no hands pushing off a box or the floor during the movem
+397	Side Plank Hip Adduction	Bodyweight	missing		The app exercise is a side-plank variant that loads the adductors, with the bottom leg lifted up to the top leg or the top leg supported on a bench. Side_Bridge shows only a basic side plank with no adduction. Side_Leg_Raises is a standing leg swing. No source shows a side plank with adduction.
+398	Sled March	Sled	missing		A sled march is a heavy sled push on high handles at a deliberate, marching tempo with knee drive. Implement (push sled), grip (high posts), body position (forward lean into the handles) and pattern (alternating-leg resisted gait) all match what the frames show. The only difference is tempo: the sou
+399	Battle Rope Slams	Battle ropes	wrong_variant_withdrawn		rejected variation: battle rope slams: the photo is alternating waves
+400	Battle Rope Alternating Waves	Battle ropes	verified	Battling_Ropes	

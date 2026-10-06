@@ -38,6 +38,11 @@ const rejected = {
   378: 'horizontal chop: the photo is a diagonal wood chop', 399: 'battle rope slams: the photo is alternating waves',
   254: 'landmine push press drives from a dip; the single-arm jammer photo is the strict press it shows for Landmine Press',
   231: 'hanging leg raise keeps the legs straight; the source photographs it with the knees bent, which is the Hanging Knee Raise (232) it now illustrates',
+  // Oct 6 visual review of every mapped frame (docs/exercise-media-audit/visual-review.json).
+  33: 'clap push-up: the plyo push-up photo shows no clap', 44: 'pendlay row returns the bar to the floor; the photo is a hanging bent-over row',
+  48: 'seal row is prone on a flat raised bench; the photo is an incline bench pull', 68: 'neutral-grip pull-up: the photo is the pull-up photo, hands on the angled handles',
+  173: 'bulgarian split squat elevates the rear foot; the photo is a floor split squat', 203: 'kettlebell swing is two-handed; the photo is the one-arm swing',
+  339: 'high cable curl is standing between pulleys; the photo is lying on a bench',
 };
 const normName = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[()\-\/,.:]/g, ' ').replace(/\s+/g, ' ').trim();
 const byNorm = new Map(db.map((e) => [normName(e.name), e]));

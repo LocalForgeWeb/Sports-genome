@@ -31,5 +31,10 @@
 .exercise-media-frame[data-state="placeholder"] .exercise-media-icon, .exercise-media-detail[data-state="placeholder"] .exercise-media-icon { width: 2rem; height: 2rem; }
 .exercise-media-frame small { position: absolute; left: .5rem; bottom: .5rem; border-radius: 999px; background: rgb(7 24 46 / .78); padding: .15rem .55rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .exercise-media-detail figcaption { margin-top: .4rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+/* A photo on its way: the reserved frame holds the equipment icon, quieter than a real placeholder. */
+.exercise-media[data-state="loading"] .exercise-media-icon, .exercise-media-frame[data-state="loading"] .exercise-media-icon { opacity: .45; }
+.exercise-media-retry { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; margin-left: .5rem; border: 1px solid rgb(164 200 232 / .3); border-radius: 999px; background: transparent; padding: 0 .9rem; color: var(--sg-text-on-dark); font: inherit; font-weight: 700; cursor: pointer; }
+.exercise-media-retry svg { width: 1rem; height: 1rem; }
+.exercise-media-retry:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
 @media (max-width: 359px) { .exercise-media-thumb { --exercise-media-thumb-width: 4.5rem; } }

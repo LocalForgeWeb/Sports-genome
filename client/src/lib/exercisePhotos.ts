@@ -16,12 +16,15 @@
  * from the files at the pinned commit). An exercise the source does not
  * photograph has no entry and shows a placeholder, never another exercise's photo.
  *
- * The files are served from the jsDelivr GitHub CDN, which caches the repository
- * at a pinned commit; nothing is fetched at build time and the bundle carries
- * only the map.
+ * The full frames are served from the jsDelivr GitHub CDN, which caches the
+ * repository at a pinned commit. A row's thumbnail is a same-origin copy of the
+ * start frame, scaled for an 88-pixel frame at 3x (`client/public/exercise-thumbs/`,
+ * made by `scripts/exercise-photos/thumbnails.mjs`; where each came from, with
+ * checksums, is docs/exercise-media-audit/sources.json), so a list of rows no
+ * longer downloads a 850-pixel photograph per row from a third party.
  *
- * The source's frame numbers are not always the movement's order: in 30 of its
- * 221 pairs used here, frame 0 is where the movement finishes (a cable lateral
+ * The source's frame numbers are not always the movement's order: in 30 of the
+ * 221 pairs audited (29 still in use), frame 0 is where the movement finishes (a cable lateral
  * raise with the arm already up, a dip at the bottom). Every pair was checked
  * by eye against how the exercise starts, and the reversed ones are listed in
  * `client/src/data/exercisePhotoOrder.json` with the reason; for those the app
@@ -37,6 +40,9 @@ export const exercisePhotoBase = `https://cdn.jsdelivr.net/gh/${exercisePhotoSou
 /** A second host for the same bytes, used when the CDN cannot be reached. */
 export const exercisePhotoFallbackBase = `https://raw.githubusercontent.com/${exercisePhotoSourceRepo}/${exercisePhotoSourceRef}/exercises/`;
 
+/** Same-origin thumbnails of the start frames, one per source folder. */
+export const exerciseThumbBase = `${import.meta.env?.BASE_URL ?? "/"}exercise-thumbs/`;
+
 export const exercisePhotoCredit = "Photos: Free Exercise DB, public domain";
 
 /**
@@ -51,6 +57,8 @@ export type ExercisePhotoSet = {
   /** Start and finish frames, in the movement's order (not always the source's numbering); one frame for a hold. */
   urls: string[];
   fallbackUrls: string[];
+  /** The start frame scaled for a row's thumbnail, served from this app's own origin. */
+  thumbUrl: string;
   captions: string[];
   /** Intrinsic pixel size of the frames, for reserving the box before the bytes arrive. */
   width: number;
@@ -86,6 +94,7 @@ export function exercisePhotoSet(exerciseId: number): ExercisePhotoSet | null {
     source,
     urls: frames.map((index) => `${exercisePhotoBase}${source}/${index}.jpg`),
     fallbackUrls: frames.map((index) => `${exercisePhotoFallbackBase}${source}/${index}.jpg`),
+    thumbUrl: `${exerciseThumbBase}${encodeURIComponent(source)}.jpg`,
     captions: frames.length === 1 ? ["Position"] : ["Start", "Finish"],
     width,
     height,

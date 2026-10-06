@@ -1,0 +1,18 @@
+{
+  "_about": "Oct 6 visual review: every mapped photograph was looked at, both frames, on contact sheets (scripts/exercise-photos/sheets.mjs). Only exercises with a finding are listed. wrong_variant = the photo shows a different exercise or variation and is withdrawn; note = shown as verified, with what a careful viewer should know.",
+  "33": { "verdict": "wrong_variant", "note": "Clap Push-Up: Plyo_Push-up shows no clap, and is the same photo as Plyo Push-Up (32)." },
+  "44": { "verdict": "wrong_variant", "note": "Pendlay Row: Bent_Over_Barbell_Row keeps the bar hanging; a Pendlay row returns it to the floor each rep." },
+  "48": { "verdict": "wrong_variant", "note": "Seal Row: Incline_Bench_Pull is on an incline bench; a seal row is prone on a flat, raised bench." },
+  "68": { "verdict": "wrong_variant", "note": "Neutral-Grip Pull-Up: the Pullups photo is the Pull-Up (66) photo, hands on the angled handles, not palms facing." },
+  "69": { "verdict": "verified", "note": "Wide-Grip Pull-Up: the source is titled a rear (behind-the-neck) pull-up, but both frames show a front-facing wide-grip hang and pull; nothing behind the neck is shown. Checked at full size." },
+  "93": { "verdict": "verified", "note": "Single-Arm Cable Rear-Delt Fly: at full size one arm pulls and the other rests on the knee (the contact sheet first suggested two arms)." },
+  "173": { "verdict": "wrong_variant", "note": "Bulgarian Split Squat: Split_Squats has the rear foot on the floor; the Bulgarian version elevates it." },
+  "203": { "verdict": "wrong_variant", "note": "Kettlebell Swing: One-Arm_Kettlebell_Swings is the single-arm swing; the catalog entry is the two-hand swing." },
+  "339": { "verdict": "wrong_variant", "note": "High Cable Curl: High_Cable_Curls is photographed lying on a bench, not the standing two-pulley curl." },
+  "88": { "verdict": "verified", "note": "Rope Face Pull with External Rotation shares the Face_Pull photo; the rope finish at the face is shown." },
+  "182": { "verdict": "verified", "note": "Sissy Squat: Weighted_Sissy_Squat shows the lean-back, heels-up sissy squat holding a plate." },
+  "184": { "verdict": "verified", "note": "Pistol Squat: Kettlebell_Pistol_Squat holds a kettlebell as counterbalance." },
+  "216": { "verdict": "verified", "note": "Lateral Band Walk: Monster_Walk shows the banded wide stance; the direction of travel is not visible in a still." },
+  "246": { "verdict": "verified", "note": "RKC Plank: shares the Plank photo; the position is the same, the extra tension is not visible." },
+  "395": { "verdict": "verified", "note": "Drop Landing: Linear_Depth_Jump frames show the step off and the landing, not the rebound." }
+}

@@ -1,0 +1,4376 @@
+{
+ "generatedBy": "scripts/exercise-photos/thumbnails.mjs",
+ "sourceRepo": "yuhonas/free-exercise-db",
+ "sourceRef": "f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5",
+ "sources": {
+  "Barbell_Bench_Press_-_Medium_Grip": {
+   "exerciseIds": [
+    1
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Bench_Press_-_Medium_Grip/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "44ba81b3ea124f625c555ae812b37263f82ae460749bbc9ebbeb55a6309f6663",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Bench_Press_-_Medium_Grip.jpg",
+   "thumbnailSha256": "9955901b74ff95eef39be9a95d6ff9b1672b99f025d71dabf04a2e8323168f88",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11424
+  },
+  "Barbell_Incline_Bench_Press_-_Medium_Grip": {
+   "exerciseIds": [
+    2
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4a306bb94d93afc0356252001b24e9f7defc13ab85e3c55fc3dbcb678247ffb9",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Incline_Bench_Press_-_Medium_Grip.jpg",
+   "thumbnailSha256": "580d87f44e8dd593cfd2beba267b967f40df89b6d18bea8caa6d72abe27cbce7",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11560
+  },
+  "Decline_Barbell_Bench_Press": {
+   "exerciseIds": [
+    3
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Decline_Barbell_Bench_Press/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "b6fcac67f252e3e360d9b3dec9d7ebdde3f05c3e1e0316de4a1b959722738d2c",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Decline_Barbell_Bench_Press.jpg",
+   "thumbnailSha256": "4c77c5a1d170076f0a5fddcd52ec329be60e32cf94366074a10dae9ed30d11af",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12598
+  },
+  "Dumbbell_Bench_Press": {
+   "exerciseIds": [
+    4
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Bench_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "06494fc5d679283ad7de10fd60149e543396bbd9ba65b0821937de317ce9e001",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Bench_Press.jpg",
+   "thumbnailSha256": "cd16c5aef7c868f7083b53bf2986df7ddb6f165af8cfddad6c13ea92ac702c19",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10183
+  },
+  "Incline_Dumbbell_Press": {
+   "exerciseIds": [
+    5
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Incline_Dumbbell_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "5128af58efedb66e5d3e2454c7a1e3c7f9353b573e97c8430e37cb638da8882e",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Incline_Dumbbell_Press.jpg",
+   "thumbnailSha256": "8df8b61d8b99ec04a11ffc6f6a57d70b503598c4987586bde6b452097388de5a",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9368
+  },
+  "Decline_Dumbbell_Bench_Press": {
+   "exerciseIds": [
+    6
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Decline_Dumbbell_Bench_Press/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "5b58e2173ecc01fcb2044867779897522f30372c96d1d579d962d3ccd13526c0",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Decline_Dumbbell_Bench_Press.jpg",
+   "thumbnailSha256": "fcd0741386253539fdc82831b63114c12512088b67e82170ef033809ec503055",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9258
+  },
+  "Dumbbell_Floor_Press": {
+   "exerciseIds": [
+    7
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Floor_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "799011d03523a432887b5d2b22fcde105144d0ff7449c6d6a664dad67508d51e",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Floor_Press.jpg",
+   "thumbnailSha256": "81f18a6ebb4d179d2528e69456c38346576c353b6a2de73d658d07f4bd54b77f",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9735
+  },
+  "Close-Grip_Dumbbell_Press": {
+   "exerciseIds": [
+    8
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Close-Grip_Dumbbell_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "5ed8de71ca7e37e9e6ea98eca171c96c23892474603779b684dd8cf76a1e277c",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Close-Grip_Dumbbell_Press.jpg",
+   "thumbnailSha256": "ce335024e989d85b304fa70bb41cb3b4b7e37ec5a4b7022d4185f8dcf1ea92ed",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8561
+  },
+  "One_Arm_Dumbbell_Bench_Press": {
+   "exerciseIds": [
+    10
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/One_Arm_Dumbbell_Bench_Press/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "52cd5303fd6347f1c2e5c125fcdc54519e4785beee8d5d08966d5c02398b7302",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/One_Arm_Dumbbell_Bench_Press.jpg",
+   "thumbnailSha256": "4686d762e79970d15a52796dd895e2cc36735b13c6e353bfb2cd21498a5cf693",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10647
+  },
+  "Leverage_Chest_Press": {
+   "exerciseIds": [
+    11,
+    13
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Chest_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "25764ce3cd65e6007b7b8603d658fe7c15f605353b6850aa40e26f078f2d1912",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Leverage_Chest_Press.jpg",
+   "thumbnailSha256": "e8990d491ce2622420eeffea547165f58dd1cc151ee8433a2a1a3c710356e6c9",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7263
+  },
+  "Leverage_Incline_Chest_Press": {
+   "exerciseIds": [
+    12
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Incline_Chest_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "aa5eb7b47f10eb379ce661d08ce0d93b8e35ea54bb4dfd31d90262f0e57e5b48",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Leverage_Incline_Chest_Press.jpg",
+   "thumbnailSha256": "5d578ed5ef7a7c2282314f6a092841b2610e2c78bc5bdb94e33dffa705af35e8",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10413
+  },
+  "Smith_Machine_Bench_Press": {
+   "exerciseIds": [
+    14
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Bench_Press/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "47eaab8799aa613c10067c29cf7be5f57f6fe9b8ee5ea9a3f4d55b19a427085f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Machine_Bench_Press.jpg",
+   "thumbnailSha256": "d16ada8a1ac10afb653257edf92f12f47f744b790d8b88f705f2f0fc81255af6",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10162
+  },
+  "Smith_Machine_Incline_Bench_Press": {
+   "exerciseIds": [
+    15
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Incline_Bench_Press/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "fbf2193e918bd4ab4615756b2e03e0dd733bcf21f262f81b1e80ccfbb75e8aa2",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Machine_Incline_Bench_Press.jpg",
+   "thumbnailSha256": "5860b3da0bc631011f9f331c2f9135056a8b20867ce6c6daadabeb9ef2061108",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10583
+  },
+  "Cable_Chest_Press": {
+   "exerciseIds": [
+    16,
+    307
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Chest_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "7d52bd9e516e132e32f6829ffbc319458285449f3f59fb00057d1675a7716cd5",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Chest_Press.jpg",
+   "thumbnailSha256": "cd5fc0776e403fdbaa6c3908f6060572f1e9e8e546d2ffdafa73c4f1fff27d6c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10871
+  },
+  "Cable_Crossover": {
+   "exerciseIds": [
+    18,
+    20,
+    313
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Crossover/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "a0d37cf03da0a31acb010620ed4203498fbe83b82e4af298cd28b7fe4435144b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Crossover.jpg",
+   "thumbnailSha256": "86eb43b56622de063e5c209164a1f6585c0d26d7fc52eac11b0497b3a74a56db",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10441
+  },
+  "Low_Cable_Crossover": {
+   "exerciseIds": [
+    19
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Low_Cable_Crossover/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "275181283b0ae4ce334326c9485a98b3e381170e5478b2c6dc67e70466a59a1e",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Low_Cable_Crossover.jpg",
+   "thumbnailSha256": "a9467a486fbb2af96adf10648f38f8c39043792904f7b67efb26604e1b350fba",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9120
+  },
+  "Butterfly": {
+   "exerciseIds": [
+    21
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Butterfly/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "7f471857324312b07e14f3fe73dd783d2ecd3a3ff15f9f52e9813390cda314db",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Butterfly.jpg",
+   "thumbnailSha256": "28f949a3767c293184d7d20faeecd8da7055bd9014fc441add9a77be468e8816",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11511
+  },
+  "Dumbbell_Flyes": {
+   "exerciseIds": [
+    22
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Flyes/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "215bef04ad13e1629033f6d7333aeb6c66e9174b8fd13ece559e22aa351448f4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Flyes.jpg",
+   "thumbnailSha256": "c7e62ac2ed845c76d6ae655e73c1f7e4947ec2451c68346a24e9568f621adf16",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9692
+  },
+  "Incline_Dumbbell_Flyes": {
+   "exerciseIds": [
+    23
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Incline_Dumbbell_Flyes/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4e5380dee95375c4873ae2f50e94633d48c32db4d83a99001a55dd602a1c9b1d",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Incline_Dumbbell_Flyes.jpg",
+   "thumbnailSha256": "3f3da9b2803493ec3325ba4a59f760ee2986fac7d92f462b3be49fe9f11c042b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9525
+  },
+  "Straight-Arm_Dumbbell_Pullover": {
+   "exerciseIds": [
+    24,
+    65
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Straight-Arm_Dumbbell_Pullover/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "dc47dbb75ee344369b90d81dd3b9db164f48603746141743550430a51ce15df3",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Straight-Arm_Dumbbell_Pullover.jpg",
+   "thumbnailSha256": "b8e9b22c0f9c819f82d6f3213594d15e2a1095d3e82f7db6de2b743861956052",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10781
+  },
+  "Svend_Press": {
+   "exerciseIds": [
+    25
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Svend_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "eb01cc3f5b476626da5cf0b05f3f8de9f2fe42462fabf8febe9793d379a4ce5f",
+   "originalSize": [
+    800,
+    1200
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Svend_Press.jpg",
+   "thumbnailSha256": "88767eb67513472c1dd32ceaf2e5ae56653faf12dd526851b944f45c1429f5ca",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5801
+  },
+  "Pushups": {
+   "exerciseIds": [
+    26
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Pushups/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "8e6757ae0dc1d50a30f0ea67cdb330994947716a106451860cf7362bcd15f9f4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Pushups.jpg",
+   "thumbnailSha256": "8bc45cc4b52c6486f3b82b209956ed681301669c7d4edad7cbc05dffa78bd64e",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8559
+  },
+  "Push-Up_Wide": {
+   "exerciseIds": [
+    27
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Push-Up_Wide/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "94f027d2a6aa5de82866d3c2a1519cc564bc168810c652632a2ac9ae20ff39a8",
+   "originalSize": [
+    500,
+    750
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Push-Up_Wide.jpg",
+   "thumbnailSha256": "5321b1a3618f2427f5753ff2aec5621f9fdf1eae134402f6ebcf6f0495642d9f",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 4945
+  },
+  "Push-Ups_-_Close_Triceps_Position": {
+   "exerciseIds": [
+    28
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Push-Ups_-_Close_Triceps_Position/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4610f4700cee0498f7948287153dbd94b408b4d3a7d99caaecabe08d72db4675",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Push-Ups_-_Close_Triceps_Position.jpg",
+   "thumbnailSha256": "ee7de799e5adb7b96eb9e5a77c4b35db0fc6434c7393a2548f0003b526c6b7c3",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10158
+  },
+  "Decline_Push-Up": {
+   "exerciseIds": [
+    29
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Decline_Push-Up/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "ba2f543f4dd62eb28f1bb3578c87584a55b6eb67e12144981f683ab3a17d2cb9",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Decline_Push-Up.jpg",
+   "thumbnailSha256": "5221bb0e9f04326d89f22a2d4de1f7c97a5696d253c6c64a767841f4a9b9f5b1",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9718
+  },
+  "Incline_Push-Up": {
+   "exerciseIds": [
+    30
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Incline_Push-Up/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "3f9119875b57305c7e932fe9d222c5568def33da1bd38df7d5aa982c27e24541",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Incline_Push-Up.jpg",
+   "thumbnailSha256": "d99f3c848fde45002b746873596b378996f5cfb6f748f59bc68f2c3130e5e07e",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11191
+  },
+  "Plyo_Push-up": {
+   "exerciseIds": [
+    32
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Plyo_Push-up/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "211f4ee9312918e55d9ad0fe205e37ea3e1b978942cfbceab9d08caa53ba8747",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Plyo_Push-up.jpg",
+   "thumbnailSha256": "1afe303a0172c0fd463ac8a82b4ffb1827dcec0fb2cc8761c13516df335c1fa2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 6664
+  },
+  "Suspended_Push-Up": {
+   "exerciseIds": [
+    36
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Suspended_Push-Up/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "5be0bc94e6e65da28f0c63fcb1da2dba684401eb8818fe349f4a670bf403bf93",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Suspended_Push-Up.jpg",
+   "thumbnailSha256": "850d79ef5e18a90e0d7be4b2f242e52b973b9f773d7e51ceee9e943cc156da56",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11228
+  },
+  "Isometric_Wipers": {
+   "exerciseIds": [
+    39
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Isometric_Wipers/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f196e710d6cb34e296d9ce69b54a8fec1db30b12578b07344f54aaf14fe9c851",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Isometric_Wipers.jpg",
+   "thumbnailSha256": "193d1a8fa9797fbf3b450fea4c96000d0c6827223e4fe9600676c29083d083a8",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7257
+  },
+  "Parallel_Bar_Dip": {
+   "exerciseIds": [
+    40
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Parallel_Bar_Dip/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "56ec007d71e605a9c47e01ff961f9a151db0c5727bc527ce88ccb3e0ad44a30e",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Parallel_Bar_Dip.jpg",
+   "thumbnailSha256": "305bdf36d38523cda54d6e77edc9a7835ac9aee55949e173668d2864dea3c4f6",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9383
+  },
+  "Barbell_Deadlift": {
+   "exerciseIds": [
+    41
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Deadlift/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f032a7e4566eb3e73258580add64bf2756cb465bfcee22fdfffbed0f43f1eae6",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Deadlift.jpg",
+   "thumbnailSha256": "424aef63c5d50c46743929195988eb5ed1ac96da8a887169fd4f677440fa2f91",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10661
+  },
+  "Romanian_Deadlift": {
+   "exerciseIds": [
+    42,
+    186,
+    204
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Romanian_Deadlift/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "156406c703e8d4a172034e413b317b93907be82deaad5ea2f3cc0a9f181c7b9b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Romanian_Deadlift.jpg",
+   "thumbnailSha256": "583653459cd9cbdee86b6c25e8e21689cd2dae551b82b67ded287a49de2ea6cd",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9202
+  },
+  "Bent_Over_Barbell_Row": {
+   "exerciseIds": [
+    43
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bent_Over_Barbell_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "09abbeb2fca7006d0e072bdc802158b34acf7923bd3069bb835951e49a95de41",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Bent_Over_Barbell_Row.jpg",
+   "thumbnailSha256": "9ba1d785cdab4677e4b7fba2210552afa08a19ebcb6bd51b178937b36787c284",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10878
+  },
+  "Reverse_Grip_Bent-Over_Rows": {
+   "exerciseIds": [
+    45
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Reverse_Grip_Bent-Over_Rows/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "1884f51bc37f5a8059e70b613a9715faf1cf4ad6b6f4687a8101994da82eba9e",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Reverse_Grip_Bent-Over_Rows.jpg",
+   "thumbnailSha256": "b0c3b01752b0741cc2d424d171aac291177077e0f3973d260bb7ccda13d4ab6b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9133
+  },
+  "One-Arm_Dumbbell_Row": {
+   "exerciseIds": [
+    46
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/One-Arm_Dumbbell_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "04b2f49e6ba0c2fce5f566fe53d03571715fa58350a2b8558b3dfa9110093a53",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/One-Arm_Dumbbell_Row.jpg",
+   "thumbnailSha256": "4370c442b2612b9ca0286f8bb9d67ec7137debc1e0a29beb50133684848eb143",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11361
+  },
+  "Dumbbell_Incline_Row": {
+   "exerciseIds": [
+    47
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Incline_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6bdf4dd4c46fd9d50abe73802d49c87f3714dfd05774595e902a5b1765b45d46",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Incline_Row.jpg",
+   "thumbnailSha256": "98bf7fb2ea836962243a62ecb79f99b0c1d3100667b8619c400c76f31959b826",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 13483
+  },
+  "T-Bar_Row_with_Handle": {
+   "exerciseIds": [
+    50,
+    258
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/T-Bar_Row_with_Handle/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "ad58082378c6c6380164635f06de1e2dddeaa0fa03195bcc74c12faf43f30392",
+   "originalSize": [
+    500,
+    750
+   ],
+   "thumbnail": "client/public/exercise-thumbs/T-Bar_Row_with_Handle.jpg",
+   "thumbnailSha256": "f33d71ec11ee0d22a00e32e7f7fc27c47c55bd51761cf505d34f3c0ddcc09d7d",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5604
+  },
+  "Lying_T-Bar_Row": {
+   "exerciseIds": [
+    51
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Lying_T-Bar_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e2df3ebe53e7087771174cd47ca27256f9d66455aee6f2cdbff91302ec31a5d3",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Lying_T-Bar_Row.jpg",
+   "thumbnailSha256": "6a202e83f817eb0265ac4029efa99dff60b80ba869515d172fc081d6d3c5dd93",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 13417
+  },
+  "Leverage_High_Row": {
+   "exerciseIds": [
+    52
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_High_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4230af88fcfcd0d165161f6d771829de66d543b6a673bb6b24cbb8da10cc7823",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Leverage_High_Row.jpg",
+   "thumbnailSha256": "a844a884d92951b7cb32671c089a3387932fd95cc437752141a7a08ce9f9e45c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11157
+  },
+  "Leverage_Iso_Row": {
+   "exerciseIds": [
+    53
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Iso_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f68e7169d4d0ffcceb8f2a6f1197411806b1e4de8ba731eac43f04b816f80b6f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Leverage_Iso_Row.jpg",
+   "thumbnailSha256": "7d17f01761ced21810b47d9e27e14e2c619eed857a3d28ff7bc0e4840e3ec2f2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10447
+  },
+  "Seated_Cable_Rows": {
+   "exerciseIds": [
+    54,
+    331
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Cable_Rows/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f5a4adf972f93a6c7b09e003f23005a1163653a7e36b71f1e374acab0243ddf7",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Cable_Rows.jpg",
+   "thumbnailSha256": "1f1916fa2910bdbb3cc5c3dcb1d2ddd596f0caf1b964f4c2a03537fbd68e2f4a",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9667
+  },
+  "Seated_One-arm_Cable_Pulley_Rows": {
+   "exerciseIds": [
+    56
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_One-arm_Cable_Pulley_Rows/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "2fa8f2c1db609642e272502a8ce0aa29234e1b0817615d7b0b0ec772c970a358",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_One-arm_Cable_Pulley_Rows.jpg",
+   "thumbnailSha256": "ebf608c990ab339d9d13e879ec48c9fcb0bc30955fa6929bef2cd138e11edc8d",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9376
+  },
+  "Wide-Grip_Lat_Pulldown": {
+   "exerciseIds": [
+    57,
+    58,
+    327
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Wide-Grip_Lat_Pulldown/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "929bc29751c35d0a624840b24501e74dc59438d351e66cc017e7ee8682fb3346",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Wide-Grip_Lat_Pulldown.jpg",
+   "thumbnailSha256": "d06cc369394f9919dfd43925e939c834f5f566bd48c16f82d1b017fca98c5476",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10040
+  },
+  "V-Bar_Pulldown": {
+   "exerciseIds": [
+    59
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/V-Bar_Pulldown/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "c6884f3595ec437ff2331d8c42886f4e2f1cbd004a4c1ae35f2e58b94b343b8b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/V-Bar_Pulldown.jpg",
+   "thumbnailSha256": "ba461a009cdbc81bfca28e0a4bd92b8023445d142b4d097df2e2898bff6b4bdb",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9412
+  },
+  "Underhand_Cable_Pulldowns": {
+   "exerciseIds": [
+    60
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Underhand_Cable_Pulldowns/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "9cf650a2a4bbe33dfdb82c6928a6d50d2c033987dd639e001d89c6f2c00a832b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Underhand_Cable_Pulldowns.jpg",
+   "thumbnailSha256": "a58d59d9884c36b6b8fc3df92f33af7bd69bf1242863e4dd82d9bd19d2227379",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8863
+  },
+  "One_Arm_Lat_Pulldown": {
+   "exerciseIds": [
+    61
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/One_Arm_Lat_Pulldown/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "54c9f1e1aa19eae6aa244893c6994d64ce123d0b45f2bdd4059f5a80651e1f67",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/One_Arm_Lat_Pulldown.jpg",
+   "thumbnailSha256": "e81514a1f2dec40252eba6e44fe8c903bb562da77122dab9547074032047c20b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10314
+  },
+  "Straight-Arm_Pulldown": {
+   "exerciseIds": [
+    62,
+    328
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Straight-Arm_Pulldown/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "be0021aa99d1a00fa4536b027f9ade42f08acd3b59b384acab270bfbe6e9c294",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Straight-Arm_Pulldown.jpg",
+   "thumbnailSha256": "732ffc684b4bbfb945d61fcf7a8b3c1f2b19e26a6eee72501c8663122b128a65",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9494
+  },
+  "Pullups": {
+   "exerciseIds": [
+    66
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Pullups/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e56c8c43a41cfe2489dcfffc2c8195fd9e8897ba25165dbc34a4154ed6df5c7a",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Pullups.jpg",
+   "thumbnailSha256": "0abdae35c62cab12759f17bfad0d45b514639ca1ee82b663c963ac1d43e667fc",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7618
+  },
+  "Chin-Up": {
+   "exerciseIds": [
+    67
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Chin-Up/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "efab20da5a0916eeef22e6fbc58040c688d1e63120681455f4c72c3a20faf6a0",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Chin-Up.jpg",
+   "thumbnailSha256": "2fa18c791c9be325a7d6e6f1f6ccfaa032607b27d6c03a4605f25186bb8c6292",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8036
+  },
+  "Wide-Grip_Rear_Pull-Up": {
+   "exerciseIds": [
+    69
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Wide-Grip_Rear_Pull-Up/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f28ed6362fc45a1dcc52ca218723cce9222a8d19651a72c285161e05b68a46d3",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Wide-Grip_Rear_Pull-Up.jpg",
+   "thumbnailSha256": "b91a49c7ac462682f37d82963cd8328041f28982810566389081849a1a46ea5e",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7559
+  },
+  "Weighted_Pull_Ups": {
+   "exerciseIds": [
+    70
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Weighted_Pull_Ups/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "066e6552683526c9fefa1ca8a5dd73f7428a3e32a8f65a4ee4ccdca2bf6dd7ce",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Weighted_Pull_Ups.jpg",
+   "thumbnailSha256": "d3b441f717c8b6087929ad6b313055c99f15d317c8a4d7431b898631f3fc718f",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5118
+  },
+  "Inverted_Row": {
+   "exerciseIds": [
+    75
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Inverted_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "cab05c22ab07eb560c05cfe0e56029b25d4222092201fb00557ac190c64a1657",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Inverted_Row.jpg",
+   "thumbnailSha256": "a921a05f73330736a3b4db43c8d747c27cc2153f048b109cb3a5e52b24a308fe",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9754
+  },
+  "Suspended_Row": {
+   "exerciseIds": [
+    77
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Suspended_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "edfd60517553a1d22b48c0f01585658bf783f93e2004b3289893f18d213a4f18",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Suspended_Row.jpg",
+   "thumbnailSha256": "c2f7fa9dbf9105c56cb2af2bf603dc6ef38adfa0667d7e080911c353d3f24fe1",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12346
+  },
+  "Scapular_Pull-Up": {
+   "exerciseIds": [
+    79
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Scapular_Pull-Up/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "1fdf8222fb7595f21a9c2be6073627e048e9d6e00b610240a4b4f58ab198b3e4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Scapular_Pull-Up.jpg",
+   "thumbnailSha256": "cd620a4c6d4453642f7eb1fa11610ce94f12df93eebe00b99a3b2527c1be1ecd",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12634
+  },
+  "Rope_Climb": {
+   "exerciseIds": [
+    80
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Rope_Climb/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "d7f85b288d3e937cb49fc04d2c41d6a0079a4fd39849bf3790326d47adc40cf4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Rope_Climb.jpg",
+   "thumbnailSha256": "623687a46606feca9cdb72a49425e253f13239028738448b007fa3b29acd637d",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10503
+  },
+  "Barbell_Shrug": {
+   "exerciseIds": [
+    81
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Shrug/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "3ab3561fcb372ee7c92be8974c6fc2f9488a15bcfe2b40f261ff4531a9fe4e83",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Shrug.jpg",
+   "thumbnailSha256": "af87a15d7de3bf4a32719d65984f84989097a33114a9c844f0e9dd57af87fd1f",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10002
+  },
+  "Dumbbell_Shrug": {
+   "exerciseIds": [
+    82
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Shrug/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c3ab8024bdb710e8d4798f03ce15b5eba02e2e670797d61a09dc9b3e2f7c817b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Shrug.jpg",
+   "thumbnailSha256": "28e06d24e95733586744951b3e0899f0c72bfb6ea1d2a76b15ebe6ba8991b7a5",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8458
+  },
+  "Cable_Shrugs": {
+   "exerciseIds": [
+    84
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Shrugs/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "cb797bc91377f566c78e09e46cf8080659963423c08e583fc8ce542028435147",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Shrugs.jpg",
+   "thumbnailSha256": "07ce3ff06a23232e550c535054f14f4730bcb40ec8f6bd1f720d21a3e928e0a8",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12742
+  },
+  "Leverage_Shrug": {
+   "exerciseIds": [
+    85
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Shrug/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "fe11678104a7b3275945461677a027caa5e02beca85de530bdcf8f90c3ad05e2",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Leverage_Shrug.jpg",
+   "thumbnailSha256": "b4ada11c88aac9dc9441e27c4456556f8c18baaf5060f9d6f319e9d9a8f634e1",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 4260
+  },
+  "Middle_Back_Shrug": {
+   "exerciseIds": [
+    86
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Middle_Back_Shrug/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "a4d9a205693f1ae846a8b8abedf41e0f3b06751116ebb4c900cc7b87d0a6b574",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Middle_Back_Shrug.jpg",
+   "thumbnailSha256": "ae00fa6ee9b9eea46dc129381bcaa2122f5a33fc7de7e42bc9f017b325b9b944",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8934
+  },
+  "Face_Pull": {
+   "exerciseIds": [
+    87,
+    88
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Face_Pull/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "a184e981e8cc261a5cc1856b92d897894691d83e27929aae7e89bc9d8aa1d444",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Face_Pull.jpg",
+   "thumbnailSha256": "daa016c629fa798148828d13e19cf425a0549851a6aa0742f4e4c93a5d67af5f",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10440
+  },
+  "Reverse_Machine_Flyes": {
+   "exerciseIds": [
+    89
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Reverse_Machine_Flyes/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "732cac68ea0780bab823ac3593f4d5f5fda1eb7c14c01620b6a2a12c2f838161",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Reverse_Machine_Flyes.jpg",
+   "thumbnailSha256": "dea6a5e77c7a46d411f43210881425bcb52262adda544c0d5071deb3d3f68ac9",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12446
+  },
+  "Seated_Bent-Over_Rear_Delt_Raise": {
+   "exerciseIds": [
+    90
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Bent-Over_Rear_Delt_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6edcdf92b77376a714f7d3a552b0e148e2f0f409bcc1c5ec3e63610255638333",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Bent-Over_Rear_Delt_Raise.jpg",
+   "thumbnailSha256": "bd5cf8b88738bf311c1f46790d47cba37a2a41ac99cdd4e0cfd51806696d2964",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10086
+  },
+  "Lying_Rear_Delt_Raise": {
+   "exerciseIds": [
+    91
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Lying_Rear_Delt_Raise/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "e618283e45c3545ce36236c8a584074847b6aa1e74f2669dc6d1d72d75ce7b16",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Lying_Rear_Delt_Raise.jpg",
+   "thumbnailSha256": "f050a3efa22984a1e53c69485c39e21da23176034f5511e38091632482f20ef4",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9956
+  },
+  "Cable_Rear_Delt_Fly": {
+   "exerciseIds": [
+    92,
+    314
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Rear_Delt_Fly/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "2769f255555468289f0ca34b942e44f02b035d2cf9e93ce6e58c0b9bc5aeb800",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Rear_Delt_Fly.jpg",
+   "thumbnailSha256": "5409b2a6e5674bbf51322e4866e44bfaa529474f7fac8e0812d65735f87d9a1b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9843
+  },
+  "Bent_Over_Low-Pulley_Side_Lateral": {
+   "exerciseIds": [
+    93
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bent_Over_Low-Pulley_Side_Lateral/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "482fb4ec2a7d9d3f110a5530f2d1555c379660b5df94394ff3d03775f94f01a3",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Bent_Over_Low-Pulley_Side_Lateral.jpg",
+   "thumbnailSha256": "a40a04fd929524a2896a6a65be780656fe6acf32cf1c228daf31a42981bd654c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9563
+  },
+  "Dumbbell_Lying_Rear_Lateral_Raise": {
+   "exerciseIds": [
+    97
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Lying_Rear_Lateral_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "09d6633bbd678fe1ec73d140f8b32553286c399af50730c4a05e834e4c26b4eb",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Lying_Rear_Lateral_Raise.jpg",
+   "thumbnailSha256": "2a0053ea04b4b45914cf4cc5b1f34c5b0925219fc60057ed42fec1a8efe5e6f4",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8787
+  },
+  "Band_Pull_Apart": {
+   "exerciseIds": [
+    100
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Band_Pull_Apart/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6cacd32e6ea091ad8627ec8416dd129d16219ca23f39513b89eca3b720d9331f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Band_Pull_Apart.jpg",
+   "thumbnailSha256": "bb75d4367373aa6f910e2186aec32c58f132a3745a0805200b53b248c27361cf",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11281
+  },
+  "Standing_Military_Press": {
+   "exerciseIds": [
+    101
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Military_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "fb258efda95067b243b1c5033b1ff7b72a0f8cef8607477b71b969d3f72a8471",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Military_Press.jpg",
+   "thumbnailSha256": "2598f3b3f8e8138edb0bc71d5956c82b715662915ed3c31094af5aa35e4341bb",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8565
+  },
+  "Seated_Barbell_Military_Press": {
+   "exerciseIds": [
+    102
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Barbell_Military_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "53f3ed946d059741670f634ad9028af3e925e13868d7d66c64e603fcb95d6177",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Barbell_Military_Press.jpg",
+   "thumbnailSha256": "ae9a31b001fc5c04be1123869382b2250b77c5cba86a3e0c3a75e1a60b7c12de",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12749
+  },
+  "Dumbbell_Shoulder_Press": {
+   "exerciseIds": [
+    103
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Shoulder_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e0a775bfa0b32b63c84f19fba2b1a05db535bde849feb3e54a3479a943b3bed6",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Shoulder_Press.jpg",
+   "thumbnailSha256": "f5903dbb58c444f60178601e9b8c9600c0fa536753e61fdbb9163a56f36b866b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9944
+  },
+  "Seated_Dumbbell_Press": {
+   "exerciseIds": [
+    104
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Dumbbell_Press/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "c61aba91d6ecb5c34bdec0086123c11a7b987a40314727a1fefe3e365210cb23",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Dumbbell_Press.jpg",
+   "thumbnailSha256": "39511e73bda1500a8b5a7b0913af6b4977d94beb02f30d3d2abdf6a030e35767",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9894
+  },
+  "Arnold_Dumbbell_Press": {
+   "exerciseIds": [
+    105
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Arnold_Dumbbell_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "44d9a18abcc9f21038e82b574e9ef600b302c80806e284ea16642410670ad568",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Arnold_Dumbbell_Press.jpg",
+   "thumbnailSha256": "facf12a1f00a127fbfb3eba853c2a8a95261877f94fa3bf254ad56e60b81e7ca",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9590
+  },
+  "Machine_Shoulder_Military_Press": {
+   "exerciseIds": [
+    106
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Machine_Shoulder_Military_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "5c93a4ede9b98bbdcf804559b81fa475ba08da92240badccd671e095755dfaa1",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Machine_Shoulder_Military_Press.jpg",
+   "thumbnailSha256": "6b2d82a01f6ee053f2a4fab95aa94c4a5307316dec1f7b8b987bd9847cc279c4",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10745
+  },
+  "Smith_Machine_Overhead_Shoulder_Press": {
+   "exerciseIds": [
+    107
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Overhead_Shoulder_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6fcb94e9d86a3fb4c79d53741f7041406a474a73b0918597435bfb1246eeb5fa",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Machine_Overhead_Shoulder_Press.jpg",
+   "thumbnailSha256": "d23966bd6a05b7497340344bea7eb47f246e70c2e8fdd973cd6cd2e5f4b2d344",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12076
+  },
+  "Dumbbell_One-Arm_Shoulder_Press": {
+   "exerciseIds": [
+    108
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_One-Arm_Shoulder_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0a158a261801d982a288f59a69299d08a347a593b770e2d12f342131af7eae6a",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_One-Arm_Shoulder_Press.jpg",
+   "thumbnailSha256": "386e73f30e0bb05f15b12f20fba32efa6d679285d4d1e2bce2be1e317cc1f739",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9279
+  },
+  "Push_Press": {
+   "exerciseIds": [
+    110
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Push_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "8d7b80cd48a389d05ab8a183d06c7c6fcf633f0dca9e21daf4d155b1cdccaba0",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Push_Press.jpg",
+   "thumbnailSha256": "af64d22332a423768c4c803a4d34bba0eebf260774a5037fc501ba4225676d49",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7787
+  },
+  "Side_Lateral_Raise": {
+   "exerciseIds": [
+    111
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Side_Lateral_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "aa1982c367ea9151ee7769ac1f9f8795209db94a6eb85f7d51a7033886fb7ebc",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Side_Lateral_Raise.jpg",
+   "thumbnailSha256": "ed9d99a4f1a93ece2fca87471a057ca74b7c01b4b30feb91147acf19c9cd1a00",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8497
+  },
+  "Standing_Low-Pulley_Deltoid_Raise": {
+   "exerciseIds": [
+    112
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Low-Pulley_Deltoid_Raise/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "89c796351be03f3f971fd776955e6b1cbd747c5361a3b6b8e50aeda26af66f93",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Low-Pulley_Deltoid_Raise.jpg",
+   "thumbnailSha256": "66c62f486920f9e5fd50351f2829d7da384e33e2c4fe8f0b6385585fbdb0b541",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10645
+  },
+  "One-Arm_Incline_Lateral_Raise": {
+   "exerciseIds": [
+    116
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/One-Arm_Incline_Lateral_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "bf9b4569a2fbab29886976ec13247cb3e1e26d7ee3de53e1a819b59d40ed9772",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/One-Arm_Incline_Lateral_Raise.jpg",
+   "thumbnailSha256": "c5f93a9cab6ae1b8bf945c0dcbc55247d2e43f4642140273cc0ba0935fb87408",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9093
+  },
+  "Front_Dumbbell_Raise": {
+   "exerciseIds": [
+    117
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Front_Dumbbell_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0b12ff0413688bed00bc39c2e7af118c6cf13877f1eb49983a961a64ae487a6b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Front_Dumbbell_Raise.jpg",
+   "thumbnailSha256": "240c9189a2959db83f97dd4b571fe4682c5f80c524e0bad33aaf0cb54e974456",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8309
+  },
+  "Front_Cable_Raise": {
+   "exerciseIds": [
+    118
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Front_Cable_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e76c418fb9de5eb3fe37d2f8aed68ebfc41dd54360dd85da04d5a967335cff8a",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Front_Cable_Raise.jpg",
+   "thumbnailSha256": "bd5ecb655a734cc90ee8e41d8799bcc7be1b51a299b117d0a25166d9ef38ca35",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11525
+  },
+  "Front_Plate_Raise": {
+   "exerciseIds": [
+    119
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Front_Plate_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "2627eaa3d61d807e817a4d6c7c632141d23de0a2cb112ec2b81a1f9d11fbaf14",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Front_Plate_Raise.jpg",
+   "thumbnailSha256": "da90ce47c0b33e88d23ab5d7bb166f5e0768027eebc17446daea37b1c2c97a53",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9007
+  },
+  "Handstand_Push-Ups": {
+   "exerciseIds": [
+    120
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Handstand_Push-Ups/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e9478e898da2f7c1c8ba05c41439c8c8c236c4e26f432511e3854c3cc682face",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Handstand_Push-Ups.jpg",
+   "thumbnailSha256": "459391670ac95505ae872eb4deca49f2f539d5929df210cfddc5a9aba5d6b4ed",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9067
+  },
+  "Barbell_Curl": {
+   "exerciseIds": [
+    121
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "eb409ec1cced4d85c91c41920e66d8b2f0e4736dee43c01eab953fdcbeace673",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Curl.jpg",
+   "thumbnailSha256": "59c4cdd9abd2c457449ed1d38878fac20cc6453fb480b7ad20ec7a5e69e77c1c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8715
+  },
+  "EZ-Bar_Curl": {
+   "exerciseIds": [
+    122
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/EZ-Bar_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "b4c9b00a033014b6095bb37047d0c735ad95a8753a2d8df6729bb51a106d57e4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/EZ-Bar_Curl.jpg",
+   "thumbnailSha256": "3c253f7fdda11bacd215ff7ffd9c16e2f7f78f7c585ec7243b6ebeab18a0226a",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10386
+  },
+  "Dumbbell_Bicep_Curl": {
+   "exerciseIds": [
+    123
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Bicep_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "fad8458c2f70c39e1abb0a9554bba280da5abf9f8dc2d76f7c0be44ffdbfc99b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Bicep_Curl.jpg",
+   "thumbnailSha256": "fcc9236565e1acd6c8e78eafb4cfacd3b03354e30d9bcc7f82ccb3bc68bcd384",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8911
+  },
+  "Dumbbell_Alternate_Bicep_Curl": {
+   "exerciseIds": [
+    124
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Alternate_Bicep_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c5ba13ac557289b65f31ce8508b498c4455ab7b8d34f034de469c8c6e02a2838",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Alternate_Bicep_Curl.jpg",
+   "thumbnailSha256": "c19414bafa61330f04493d5ff84c8c2e48b56bdc82851c935c311d91e9d566c2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8927
+  },
+  "Incline_Dumbbell_Curl": {
+   "exerciseIds": [
+    125
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Incline_Dumbbell_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "49f16679de110156cda5caf7b68f277374102100bb9f09341bb8a802cbd6d8f7",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Incline_Dumbbell_Curl.jpg",
+   "thumbnailSha256": "79684e65334d08dfbc47e893899ad253072f43908c552c09527ac489876a45c0",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8980
+  },
+  "Preacher_Curl": {
+   "exerciseIds": [
+    126
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Preacher_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "b727674d48727a3bbba6a682fdaa228284ecc1875a2cd8b262bde2ac38cef0f4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Preacher_Curl.jpg",
+   "thumbnailSha256": "bdcf78a2b63994c292690988bdc4c49f8751c26ad0484efb55de2a228094f334",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10254
+  },
+  "Machine_Preacher_Curls": {
+   "exerciseIds": [
+    127
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Machine_Preacher_Curls/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "120054967ea0c1f06f431fea55288cb512799b1b1a6dd3c387c850253e9a2acd",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Machine_Preacher_Curls.jpg",
+   "thumbnailSha256": "90e34099e39ad73d4ec660443232a29f427ceccc0883a300c530de771b0d3520",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12886
+  },
+  "Standing_Biceps_Cable_Curl": {
+   "exerciseIds": [
+    128,
+    336
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Biceps_Cable_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "ccfe9ea6c72996c905bc82c032facf110246442ef6ccf28babee775277f0bc29",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Biceps_Cable_Curl.jpg",
+   "thumbnailSha256": "0153462bfe52f6cd510b82b97abca3241eab1e5487bd3f49b852da3ac9d99813",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9584
+  },
+  "Spider_Curl": {
+   "exerciseIds": [
+    130
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Spider_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "fb0cd25549d7690b367d36f7dd8f454a4cf2aba0e345085d565b421febaa6ea9",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Spider_Curl.jpg",
+   "thumbnailSha256": "90c85b3dd42884a32ced91ece96598df1155c75ba255cce01dd1841c5cdf39a2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9200
+  },
+  "Concentration_Curls": {
+   "exerciseIds": [
+    131
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Concentration_Curls/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4df9977b0e85a1ecbe07cca6846d3a2049e3e65a3e899eddccfd562f56eceadc",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Concentration_Curls.jpg",
+   "thumbnailSha256": "a53b9d4d8d6999495dc5ab9bd1dcb33045aae7b3fdf90486bfcadf4b4852376b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10167
+  },
+  "Hammer_Curls": {
+   "exerciseIds": [
+    132
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Hammer_Curls/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f3c330d75545bed1cc325a4abf84940109db64fa5ab967b1963ecccccd3b2fe8",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Hammer_Curls.jpg",
+   "thumbnailSha256": "f0b798705657f666edc9ffe01c2a0917cd4f489c06ec42409dce5c6757f8a014",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8328
+  },
+  "Cross_Body_Hammer_Curl": {
+   "exerciseIds": [
+    133
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cross_Body_Hammer_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c7bc74edb93ce00a6c93e66c940836c69f6b01d71159c69a19ae04e4013dc32b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cross_Body_Hammer_Curl.jpg",
+   "thumbnailSha256": "0fd5fddbfbbe5bebc8658d195e78b8bd90673cc06c248e2fffacfb0a5f681cac",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8900
+  },
+  "Cable_Hammer_Curls_-_Rope_Attachment": {
+   "exerciseIds": [
+    134,
+    337
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Hammer_Curls_-_Rope_Attachment/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "109ca8df56a461172bd57dcfd1816bad744efdc624bfc567d2de83de9c9aff29",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Hammer_Curls_-_Rope_Attachment.jpg",
+   "thumbnailSha256": "62d40f29bd00a25c8178082002c3d254cb5b88aaad5bfca4b971dff0352b1e2d",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10563
+  },
+  "Reverse_Barbell_Curl": {
+   "exerciseIds": [
+    135
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Reverse_Barbell_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6ffb82c647f8792d5bf53610c8810018768bf8502a40d0c7f38078e9e10e9423",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Reverse_Barbell_Curl.jpg",
+   "thumbnailSha256": "b787f5d5ba5b1cce9906bffbef6a17e7390778f3850961a5d0801553bda6461b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8860
+  },
+  "Zottman_Curl": {
+   "exerciseIds": [
+    136
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Zottman_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4e26fe9dd5446ad75669a4d11365b5b51f6d63efcd9ab0f20a6e942e6bfdc0eb",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Zottman_Curl.jpg",
+   "thumbnailSha256": "15b8c6dbe95d9174c0c617067fa35efe3580c0ac8e1a5a0da2a25f020de9d8f2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10009
+  },
+  "Drag_Curl": {
+   "exerciseIds": [
+    137
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Drag_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "d3940287e4946b4d2f4beeac6a1cfcf3ce6ef71263c0de513c76f05700461799",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Drag_Curl.jpg",
+   "thumbnailSha256": "5bd1191ea9f09a22fc88258915a6f789dc33f74798e0db0de535100c938eb3f6",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9754
+  },
+  "Palms-Up_Barbell_Wrist_Curl_Over_A_Bench": {
+   "exerciseIds": [
+    139
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Palms-Up_Barbell_Wrist_Curl_Over_A_Bench/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "96c17bd05147a27959a5e032b800bcaf64dbd02067a275d281eae8a29e5ff170",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Palms-Up_Barbell_Wrist_Curl_Over_A_Bench.jpg",
+   "thumbnailSha256": "25fedae04cf8090b7209c7560788694ecc1ac94a40f6766fac711321c1b42f85",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10895
+  },
+  "Palms-Down_Wrist_Curl_Over_A_Bench": {
+   "exerciseIds": [
+    140
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Palms-Down_Wrist_Curl_Over_A_Bench/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "415635b89e971929abf07124fc30791c512e884c5297ee1e2f4570d3c2032219",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Palms-Down_Wrist_Curl_Over_A_Bench.jpg",
+   "thumbnailSha256": "0ddc2cda2aca2ebb440c03da5e7938d95d718322f4d21437bf1a471198d6fd49",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11069
+  },
+  "Wrist_Roller": {
+   "exerciseIds": [
+    141
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Wrist_Roller/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "83af41a348d7aea4486798a5e22afcc69399c03e9fe6274ce1446b638e0275cc",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Wrist_Roller.jpg",
+   "thumbnailSha256": "44b3e3d349311bcfcbe7fedce6e4571b260c60b4d781b0a0f9405942387df11e",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9990
+  },
+  "Plate_Pinch": {
+   "exerciseIds": [
+    142
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Plate_Pinch/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "749c35940841c7d292411a4d3bb31a0b0d71500ea294bd4910585b891c38ef49",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Plate_Pinch.jpg",
+   "thumbnailSha256": "e266c99a02b21b7401a15291cb349773ef5493e7486b2358700d0742e4eb5c98",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9018
+  },
+  "Close-Grip_Barbell_Bench_Press": {
+   "exerciseIds": [
+    146
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Close-Grip_Barbell_Bench_Press/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "108a66dc2dcb09d184157eb81b7fafba5f898b00654c39cb2f0c7f8bdfec5ceb",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Close-Grip_Barbell_Bench_Press.jpg",
+   "thumbnailSha256": "0ba01a9b7544e9eb10e829eb31d7d88b4a7a85cd749e57ff5b1d98cba5818279",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10643
+  },
+  "JM_Press": {
+   "exerciseIds": [
+    147
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/JM_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "68efb38bccbf26b45fd668d70e072dfddfe234237e061d8bfc45d239bfe4d3f7",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/JM_Press.jpg",
+   "thumbnailSha256": "a1a1d55cb9704d3c9714fb76d76dc3b9d7ea0b6f0e19e2883b4fc407bf378df8",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11058
+  },
+  "EZ-Bar_Skullcrusher": {
+   "exerciseIds": [
+    148
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/EZ-Bar_Skullcrusher/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "5ea3eb7db1b5f1e2f8af80d6dbfcc68831d4dea78f2ebf62e5950d80a27bcf56",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/EZ-Bar_Skullcrusher.jpg",
+   "thumbnailSha256": "45f9d306cc8cfbfbab55a48f1d12a819487ac1592918f6c9838e09d1cf154bc4",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8800
+  },
+  "Lying_Dumbbell_Tricep_Extension": {
+   "exerciseIds": [
+    149
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Lying_Dumbbell_Tricep_Extension/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "52dce4a85c0ab148348c8830e105c5ab8195a46a69a9f1fd042aee6ee60d9189",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Lying_Dumbbell_Tricep_Extension.jpg",
+   "thumbnailSha256": "fe909816c49d9e824e1371ec74ea8e3c9ae3e5b35c481ee6d9ce05237f59fb7e",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11170
+  },
+  "Triceps_Pushdown": {
+   "exerciseIds": [
+    150,
+    343
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Triceps_Pushdown/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "5f52b0f699fcd01bcf07053d9abe26e428f227816d62bc61a3232435715b5e7e",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Triceps_Pushdown.jpg",
+   "thumbnailSha256": "e33996be23bdc60ae9bb785e867345d5f21a72fd73fe535dca5f56660b5f33ab",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10558
+  },
+  "Triceps_Pushdown_-_Rope_Attachment": {
+   "exerciseIds": [
+    151,
+    344
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Triceps_Pushdown_-_Rope_Attachment/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "5761442a548a2dba5fbfa1290cab7e9c58f31439b883c94627cf66d309ed2b4b",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Triceps_Pushdown_-_Rope_Attachment.jpg",
+   "thumbnailSha256": "ed5d5d26349c89c5740b89d86ddd7930ec399ab906632c125c326961bd1ed2ec",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11622
+  },
+  "Reverse_Grip_Triceps_Pushdown": {
+   "exerciseIds": [
+    152,
+    345
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Reverse_Grip_Triceps_Pushdown/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0ea78ae10d7216a22f22a6563aa2a25057220d8ea4c472a32548ab2af993fff1",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Reverse_Grip_Triceps_Pushdown.jpg",
+   "thumbnailSha256": "4b620a3855eff6b3a1ec7fe81ee50760fc64aa5ab035a91f8053a1f41896fc10",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10347
+  },
+  "Cable_One_Arm_Tricep_Extension": {
+   "exerciseIds": [
+    153,
+    346
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_One_Arm_Tricep_Extension/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "7bb90f0ffaf45d5264f8d25925fd12214f2723dca57b56bf350e91cbe67927c6",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_One_Arm_Tricep_Extension.jpg",
+   "thumbnailSha256": "41c671b95af1e886561efb7d86d079f113aeada6a2fd5111b199964f0e94db4c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9433
+  },
+  "Cable_Rope_Overhead_Triceps_Extension": {
+   "exerciseIds": [
+    154,
+    349
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Rope_Overhead_Triceps_Extension/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "7f2b439eff6d30be27e06e87b14733ee345bf1ec33ebf8c316e1552f341a06a1",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Rope_Overhead_Triceps_Extension.jpg",
+   "thumbnailSha256": "4f8c880f23aeb185e8f6ac4551b36e0144af0a4abdc2e048db8b838950397ee1",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11801
+  },
+  "Standing_Dumbbell_Triceps_Extension": {
+   "exerciseIds": [
+    155
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Dumbbell_Triceps_Extension/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f1689989803e4463fb92bcc955d96b422f6f5ef9ebd23d9a9e9547ab1242932f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Dumbbell_Triceps_Extension.jpg",
+   "thumbnailSha256": "508a9b68e64502826e8c4614fb85806fc2f9e12d8cf33280d86e0d85b350bd2b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8780
+  },
+  "Dumbbell_One-Arm_Triceps_Extension": {
+   "exerciseIds": [
+    156
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_One-Arm_Triceps_Extension/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "5fe5cbcc718339a2ff6b7e203e57999a8db865507c7dc8385368a1f271289c60",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_One-Arm_Triceps_Extension.jpg",
+   "thumbnailSha256": "cdd38fca657c008b918646b312be3323088e08c573825a0377707b20bc1d89a9",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8418
+  },
+  "Machine_Triceps_Extension": {
+   "exerciseIds": [
+    157
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Machine_Triceps_Extension/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0c7f6ceb6d900dce6af0efcf6cc19e05ecc1b4a3f3c76d47b21f75c0b168d92f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Machine_Triceps_Extension.jpg",
+   "thumbnailSha256": "0cc0c15dc458240d46bf4812a73cea1f49d4063d592937107eb0fd3934c6edc1",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 14305
+  },
+  "Bench_Dips": {
+   "exerciseIds": [
+    158
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bench_Dips/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "82b17762ad761df959b69cb6d46239ee82f24d666de4719dfd2bc9ba0ca1d528",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Bench_Dips.jpg",
+   "thumbnailSha256": "c309aac57c94e15d39b9d4081078e45732fc9d626ac9baa8083e8a64aa2daac3",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9252
+  },
+  "Ring_Dips": {
+   "exerciseIds": [
+    159
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Ring_Dips/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "fe240ad8768c81886d32fcfd0768047da2ab209d1273879391a30a2dd8adeb7c",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Ring_Dips.jpg",
+   "thumbnailSha256": "4b4fb9da5541bcd6c5c583a836c854fd21d042a15994386826c71862668e855e",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 13055
+  },
+  "Barbell_Squat": {
+   "exerciseIds": [
+    161
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "469a3c5a6eb35b88c45cda9fa7f9086032976fa3d45f5d844a0cc09a95574db5",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Squat.jpg",
+   "thumbnailSha256": "031514c234f114fc42f7f94439d0a14593ec42156ef88e15e35793a969a68831",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11400
+  },
+  "Barbell_Full_Squat": {
+   "exerciseIds": [
+    162
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Full_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "64f176d77b1edb444b35109c1c77975b44f58f374567f534338700cba3e15b38",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Full_Squat.jpg",
+   "thumbnailSha256": "3160ae4e4e3aaee9a2f02c074813df6a66b1e938e8446ac9b75497017de291be",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11394
+  },
+  "Front_Barbell_Squat": {
+   "exerciseIds": [
+    163
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Front_Barbell_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f8a366b6913bd5af3072080720ba3ab7a74a7ef5754d1a39c200800cd6461f92",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Front_Barbell_Squat.jpg",
+   "thumbnailSha256": "faeaefb1bd2e4e47e60e64f0352e6e6263191e934aa34819469b2eb9a3c96712",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11361
+  },
+  "Zercher_Squats": {
+   "exerciseIds": [
+    164
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Zercher_Squats/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "1b3663e870ccd8c30473b1594a6ec8913bad9ef9399e020dee3aabaa6ff2faa5",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Zercher_Squats.jpg",
+   "thumbnailSha256": "9a897d9dde903fb83656d55de5bc0464aac65150a2910a373581aa47f473a589",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11062
+  },
+  "Goblet_Squat": {
+   "exerciseIds": [
+    165
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Goblet_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "342ea87afb9fa03d9b1ac9c28c269f9ad2536d40b5a73b0bfb1ea25c9d605d02",
+   "originalSize": [
+    850,
+    569
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Goblet_Squat.jpg",
+   "thumbnailSha256": "cabfa527eb3e3ed8b3f41f20296ce0fc0af6c52c707c4cd00692baa3930901d7",
+   "thumbnailSize": [
+    264,
+    177
+   ],
+   "thumbnailBytes": 7899
+  },
+  "Hack_Squat": {
+   "exerciseIds": [
+    166
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Hack_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f8721b7d75025f29d6a733a6f5571577f541e38891b2da4f152ac88d3f6e957a",
+   "originalSize": [
+    760,
+    760
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Hack_Squat.jpg",
+   "thumbnailSha256": "99a4d5b480e1a723393916e4d15a9d25f9096175b9f57d59043f326403ccf8eb",
+   "thumbnailSize": [
+    180,
+    180
+   ],
+   "thumbnailBytes": 9534
+  },
+  "Smith_Machine_Squat": {
+   "exerciseIds": [
+    168
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Squat/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "d910313e6348559bc07814978c4088a956b980c7e9bc8bffb884c89807d6a7fb",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Machine_Squat.jpg",
+   "thumbnailSha256": "e6de18154b2d102d289df8e84e2c973c434f0d36bed4736ebc20837eacc7b2f1",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12675
+  },
+  "Leg_Press": {
+   "exerciseIds": [
+    169
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leg_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "55079d514ae8d4dbc526731bb5120748e74a084ebcd546eaa890fa273427f0dc",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Leg_Press.jpg",
+   "thumbnailSha256": "570863504be93e1527449015d72b7716303c6654a95c463cab97221d20d90306",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11450
+  },
+  "Leg_Extensions": {
+   "exerciseIds": [
+    171
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leg_Extensions/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "54fd46441d63459e3cdd26f26b826ad049e835fb7f1984b42398fdfbdefb5bfa",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Leg_Extensions.jpg",
+   "thumbnailSha256": "5d380126948b80473af2242ac23bd355abc0b4da493021a8a38ba283e12e678c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12025
+  },
+  "Single-Leg_Leg_Extension": {
+   "exerciseIds": [
+    172
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Single-Leg_Leg_Extension/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "08a491680f00232e8487e8b556a478d766437b3a027f581c913df127ab040e6c",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Single-Leg_Leg_Extension.jpg",
+   "thumbnailSha256": "8e764e7503c2a6ce81c8fa9439559b7cea415abd7e6a6a859f5c12be29b82afb",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 13087
+  },
+  "Dumbbell_Rear_Lunge": {
+   "exerciseIds": [
+    175
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Rear_Lunge/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c89ef2d68e66077a7c416c8ae634a9772b138ab387ba93742ba097dc1596ada4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Rear_Lunge.jpg",
+   "thumbnailSha256": "6e149b666385c977723e60e76e09c70a9eee8f93e4b24cf9bea48c3dbf1bb06a",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8275
+  },
+  "Dumbbell_Lunges": {
+   "exerciseIds": [
+    176
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Lunges/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "ab3d56b0b44e82d189dfd88de2838220445cb245fae8a0f1586daa67355604d4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Lunges.jpg",
+   "thumbnailSha256": "addb34e15939c924cec889811b7d4af85c811a78815703511d1b15a53be931c4",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9430
+  },
+  "Barbell_Walking_Lunge": {
+   "exerciseIds": [
+    177
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Walking_Lunge/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4320e3392c98ef3e1c536294a5bf2651c20c7838d1dc2b4b15c5e9ad181a5c94",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Walking_Lunge.jpg",
+   "thumbnailSha256": "6850c47d42aa145be5cb6ec52224b215de569b0de2f0f052f4cfcae525c87c41",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11862
+  },
+  "Elevated_Back_Lunge": {
+   "exerciseIds": [
+    178
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Elevated_Back_Lunge/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "62fe1fd9697323ff5697c85e4b84bf0e4533d2237a5c27cc5ca09f989adf444b",
+   "originalSize": [
+    646,
+    969
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Elevated_Back_Lunge.jpg",
+   "thumbnailSha256": "ec8ec6f15f0e56a1373841725605462b5e1bce483513c569701aad6133d317db",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 6487
+  },
+  "Dumbbell_Step_Ups": {
+   "exerciseIds": [
+    179
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Step_Ups/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "8fd899686805d4165937628846ebf2a6499ea1636623579d8e88234b4a1aa64c",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Step_Ups.jpg",
+   "thumbnailSha256": "7e4701a2eff70b85aa3b667700135bc77ca34a2f6d4dcbb70789d3a5beb5d619",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10434
+  },
+  "Weighted_Sissy_Squat": {
+   "exerciseIds": [
+    182
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Weighted_Sissy_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6607652c427d440ee00bb58894e57688fc253dc94649475851bf5c16537efbff",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Weighted_Sissy_Squat.jpg",
+   "thumbnailSha256": "60d25fec2b869c24d3519714149f89c37ac0a07dca49ca42b74c8a3f9f234de1",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9306
+  },
+  "Kettlebell_Pistol_Squat": {
+   "exerciseIds": [
+    184
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Kettlebell_Pistol_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "b190e30a195e697f3f2d1f4f6e9ab44a7b5f4de02371551d1de542c21cf72dfe",
+   "originalSize": [
+    850,
+    569
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Kettlebell_Pistol_Squat.jpg",
+   "thumbnailSha256": "5804fa70bf6eeaf14fb49176bdbf0efea6d4eb8301a55a25922bc664a69c0c7d",
+   "thumbnailSize": [
+    264,
+    177
+   ],
+   "thumbnailBytes": 7962
+  },
+  "Stiff-Legged_Barbell_Deadlift": {
+   "exerciseIds": [
+    187
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Stiff-Legged_Barbell_Deadlift/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "faca4cc4a88f2abbb4520fabc4769ca7a37739139e8b899e954d54a34b8383f7",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Stiff-Legged_Barbell_Deadlift.jpg",
+   "thumbnailSha256": "3f533db8d56d641ca4cc06edeaa1c768cd7b295c8325ce12c5b89c1530888162",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10794
+  },
+  "Kettlebell_One-Legged_Deadlift": {
+   "exerciseIds": [
+    188
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Kettlebell_One-Legged_Deadlift/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f796a6b337fa3825af48e339eda70c4f34a03881bfd37e8d856fbe07ffdd1ff4",
+   "originalSize": [
+    850,
+    569
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Kettlebell_One-Legged_Deadlift.jpg",
+   "thumbnailSha256": "fcb96ede9268dd9e4048457fd16de8d66d239766db48ea5857ea57e55c03b27d",
+   "thumbnailSize": [
+    264,
+    177
+   ],
+   "thumbnailBytes": 8773
+  },
+  "Stiff-Legged_Dumbbell_Deadlift": {
+   "exerciseIds": [
+    189
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Stiff-Legged_Dumbbell_Deadlift/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "02659ec9c245a9b44be7da73d19b9ea6bfc819fcdf4de3ec6fab705e45abb7ca",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Stiff-Legged_Dumbbell_Deadlift.jpg",
+   "thumbnailSha256": "7a1e3d8f8e08b5c88124200e5f5050023cd2b621ebbc13cc887586035d474235",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10592
+  },
+  "Good_Morning": {
+   "exerciseIds": [
+    190
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Good_Morning/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e85711c454e0cc433ba1628386e886da621f07e698bd58a421d867e44e3b5807",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Good_Morning.jpg",
+   "thumbnailSha256": "18603feaf185c5216a0128defbda7977d59b21c4592b75b5b6e2ec5d4e781c96",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10591
+  },
+  "Seated_Good_Mornings": {
+   "exerciseIds": [
+    191
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Good_Mornings/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "1390e5e23c50887f1ce8d7deefb235327609bf679e3ed00cfe23cd75e4456a6c",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Good_Mornings.jpg",
+   "thumbnailSha256": "78074933fd8fc2364520a75abfe7cdc1051ea7b45127befd0b023cb77df55a68",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10553
+  },
+  "Natural_Glute_Ham_Raise": {
+   "exerciseIds": [
+    192
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Natural_Glute_Ham_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "47b0a05e5de017cf5bf654659dd64c4e93a102aa224d90f8ff92d76198eb7947",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Natural_Glute_Ham_Raise.jpg",
+   "thumbnailSha256": "372eaba4660275f4d419e4abcd57557f9203f563984b90c0b53a9e9927b04950",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11014
+  },
+  "Lying_Leg_Curls": {
+   "exerciseIds": [
+    194
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Lying_Leg_Curls/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0875bf50a6615d4dc33df63110d3c6ee55b41606ed79a9fe705e17fcb4626095",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Lying_Leg_Curls.jpg",
+   "thumbnailSha256": "34ecc90e48c83341d99ea59bd61460102f76faf636f27c97da1921cf1b1493d2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11473
+  },
+  "Seated_Leg_Curl": {
+   "exerciseIds": [
+    195
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Leg_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c84ece2e8b52314c8605e9fc3ef1930a59fec475ff1b5a7f98687a4b8fc580a7",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Leg_Curl.jpg",
+   "thumbnailSha256": "9e151a3d87629a37988006d00fae1111c8286ac1acfac4902e13e43fa48e55f0",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12660
+  },
+  "Standing_Leg_Curl": {
+   "exerciseIds": [
+    196
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Leg_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "844ccb740f184ca52928a3f3a4c9f6bc534cc4e5e796049e146a0823e33250d7",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Leg_Curl.jpg",
+   "thumbnailSha256": "e05948669cfbc0aeac60dc57da226a5075597256d7df913a8eac84296890cb58",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12024
+  },
+  "Ball_Leg_Curl": {
+   "exerciseIds": [
+    197
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Ball_Leg_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "bce5fadf2f8ec76d36af22244ad81be092a5bd61b97d7a8ff3b4f0f3a9caef9c",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Ball_Leg_Curl.jpg",
+   "thumbnailSha256": "554797b2fd3c2abbc60a4fb314570b1ac5b000bf96f36f8c6fcda62cbe657cca",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 13036
+  },
+  "Glute_Ham_Raise": {
+   "exerciseIds": [
+    199
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Glute_Ham_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0056f7c5fcfd9bf11b8a2da697b735bdf4dc5ded66cf1edd929e62fa52a939f4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Glute_Ham_Raise.jpg",
+   "thumbnailSha256": "3800d12b25395a7ac65f8e7a2ed4597aec42650af995082a14c3c0b31f108cb3",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10942
+  },
+  "Hyperextensions_Back_Extensions": {
+   "exerciseIds": [
+    200
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Hyperextensions_Back_Extensions/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "48f077fe32d2b839a2cff82450d36f50141559a8008d562495df2e6a21f8aa37",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Hyperextensions_Back_Extensions.jpg",
+   "thumbnailSha256": "8e523c8aa75eae706cc1ae7a3887018eeb7d5c820208c7e909640f2659dc5556",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9461
+  },
+  "Reverse_Hyperextension": {
+   "exerciseIds": [
+    201
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Reverse_Hyperextension/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "00149620a104b032467caf0f1b66089253beaf3cd87e12645eee348d78f559ac",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Reverse_Hyperextension.jpg",
+   "thumbnailSha256": "22a4fa965b069ff3ccc7b788d603b6d01acaaad77eaec1fbb0e2277ff9b0b4b8",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11734
+  },
+  "Pull_Through": {
+   "exerciseIds": [
+    202
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Pull_Through/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "9c0d877f1cfc455f655cac63d7b13ad41b987d46879069b5a36fb271d20cc684",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Pull_Through.jpg",
+   "thumbnailSha256": "eb565ed11b47dad830907b83ae4b41138923695afbc49be23ec7de9651ab4a20",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9529
+  },
+  "Barbell_Hip_Thrust": {
+   "exerciseIds": [
+    206
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Hip_Thrust/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "b2c82d4647df0621e2b0568f383d14e9577f2baa458668233c86d2f738efd4c1",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Hip_Thrust.jpg",
+   "thumbnailSha256": "2b705a36f6e0e87769c7d4646e0670ae72ac59265b0125fb983b6b72c3878517",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10333
+  },
+  "Smith_Machine_Hip_Raise": {
+   "exerciseIds": [
+    207
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Hip_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "06ef18efd92d26d6ea09f25b539d0c84769f67c49ec7d003641222a53c511906",
+   "originalSize": [
+    567,
+    850
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Machine_Hip_Raise.jpg",
+   "thumbnailSha256": "b1f5268746cdd01970721edef02ad0da2b8910cfb650290edbe65ababce3536c",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 6474
+  },
+  "Butt_Lift_Bridge": {
+   "exerciseIds": [
+    210
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Butt_Lift_Bridge/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "f74f6813fc43cd5f60e6779ec182049a2ddb3ed9dc5777389dd4ab1880392d5c",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Butt_Lift_Bridge.jpg",
+   "thumbnailSha256": "e9c31171d7f862c3523a2bbb77d0b2f4b63406c38ebeea8e7facf05c8f02b451",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7892
+  },
+  "Single_Leg_Glute_Bridge": {
+   "exerciseIds": [
+    211
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Single_Leg_Glute_Bridge/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "12c9bb37081512ce5c013f02e986a00153411681ca36a9f1dbeab720c6eea667",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Single_Leg_Glute_Bridge.jpg",
+   "thumbnailSha256": "84b3ca5ab6874fc98b377e8f2a5acb9281ad1e4935e266d4f8023392c583c911",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8246
+  },
+  "One-Legged_Cable_Kickback": {
+   "exerciseIds": [
+    212
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/One-Legged_Cable_Kickback/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "a1f283eeba62ba6775d47f807a7fa2b9a1e2ba59eae1086f6e9b977815ac0874",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/One-Legged_Cable_Kickback.jpg",
+   "thumbnailSha256": "084107959c07c6324130f5cfec9ee3df6595da1d17ae1a881adc24c4fa9f1408",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10572
+  },
+  "Thigh_Abductor": {
+   "exerciseIds": [
+    214
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Thigh_Abductor/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "572cef392f2a10c377153c5fe0acd5e0b4d0e881024ff6a7fdd4a6320dc7ed51",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Thigh_Abductor.jpg",
+   "thumbnailSha256": "8ae504be497deef1298c085341cde585b92de50b69141a6bb8d6e3c2e0fc3241",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12809
+  },
+  "Monster_Walk": {
+   "exerciseIds": [
+    216
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Monster_Walk/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "678270397cff6264520bb9da3d382d5636aecc47846ffddc1a0b47bcaabbebdb",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Monster_Walk.jpg",
+   "thumbnailSha256": "319b6c5d725f6a861b0b2c3ff6970472d7008cc05b34b38705f63e1e7fd545c4",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 6750
+  },
+  "Cable_Hip_Adduction": {
+   "exerciseIds": [
+    218,
+    364
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Hip_Adduction/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "1c0ac76acc6f65ebf11886dc02f093d128062e354f16d5e2fb83e0b014f7d10e",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Hip_Adduction.jpg",
+   "thumbnailSha256": "5afe59bf23853b626a071a86678a9b082ad6f70b7620c3476cc3aefef593b1a5",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10463
+  },
+  "Thigh_Adductor": {
+   "exerciseIds": [
+    219
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Thigh_Adductor/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "3b363f261901744a6e833a19fcd835db95495d0beda0eb6695e583ea2dfcf3ab",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Thigh_Adductor.jpg",
+   "thumbnailSha256": "4d238ba1f26b42013569225ef0e55e20504cb26e68a84c7d343e561d7e86304f",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12294
+  },
+  "Standing_Calf_Raises": {
+   "exerciseIds": [
+    221
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Calf_Raises/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "44922f411d204bb00dc86015981413e0ca503f0b9ba2346af25f345a91cf4848",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Calf_Raises.jpg",
+   "thumbnailSha256": "a2328c6a6275f6c915270af657313ba26a54980b1f7d4f564ed2e2daa6e273b2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9012
+  },
+  "Seated_Calf_Raise": {
+   "exerciseIds": [
+    222
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Calf_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6f1e5d06681b9d7050531622e065391fd3adb8d18e41a23fb80c62cf99c88d63",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Calf_Raise.jpg",
+   "thumbnailSha256": "7d8dafe202d71b1ce101661e08ba51d049bb70ddbf506007616462382274f1ca",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8518
+  },
+  "Calf_Press_On_The_Leg_Press_Machine": {
+   "exerciseIds": [
+    223
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Calf_Press_On_The_Leg_Press_Machine/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c4cdfd6876c2346b8185c0781a91efa7e22bf9427358244bf894de0b32f47249",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Calf_Press_On_The_Leg_Press_Machine.jpg",
+   "thumbnailSha256": "5404784a1b312fe7adc7553ec72c9311cd3bbad76156bf1c313210113d145fce",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11369
+  },
+  "Donkey_Calf_Raises": {
+   "exerciseIds": [
+    225
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Donkey_Calf_Raises/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "171ceb7f01c95c8953c5b1fc82efbd8cc7600fe51b23b9c330dadff2af4c76e1",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Donkey_Calf_Raises.jpg",
+   "thumbnailSha256": "96e5b89d474909a9548b076c248ff2f8f7aeb636f1547136be69f8f221666ca7",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12166
+  },
+  "Smith_Machine_Calf_Raise": {
+   "exerciseIds": [
+    226
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Calf_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "27a3573ffb8818d7d87784b310e71c411fa9506eff08fcc38864dbffe4f52a01",
+   "originalSize": [
+    500,
+    750
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Machine_Calf_Raise.jpg",
+   "thumbnailSha256": "69a8b88a4d62c7c6c3ff68ed5efc92453423c99cafa9b1972828f2e976bcac6b",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5908
+  },
+  "Hanging_Leg_Raise": {
+   "exerciseIds": [
+    232
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Hanging_Leg_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c166cd61aec9cd4cd3881a17602f7a6afd80df51329ea6a143e6ffcf9bebb2af",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Hanging_Leg_Raise.jpg",
+   "thumbnailSha256": "7240feb9898baa08dcd50c240fc6c21ea1603011daa6dc98e4a00ebd9c05c47b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8959
+  },
+  "Knee_Hip_Raise_On_Parallel_Bars": {
+   "exerciseIds": [
+    233
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Knee_Hip_Raise_On_Parallel_Bars/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "8868e6c297198b6e8dc3e90353dc30c826e8ba0051b0c33ef3b9a2fa7e2c5f43",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Knee_Hip_Raise_On_Parallel_Bars.jpg",
+   "thumbnailSha256": "51f11e5e257eb79308a59397a50895b672fef2412a7469f2387dfbe5ac93a6da",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11615
+  },
+  "Hanging_Pike": {
+   "exerciseIds": [
+    234
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Hanging_Pike/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "9dc7ba34973204dd18815b02392553c2287197dbf5a46a6034f8ce2c3d9d4fa9",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Hanging_Pike.jpg",
+   "thumbnailSha256": "1efb06e5bccdb76b8472d65ba43a1694e6c29427845ee02480c68ded98296e5a",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7463
+  },
+  "Jackknife_Sit-Up": {
+   "exerciseIds": [
+    236
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Jackknife_Sit-Up/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "a291b1bd63f2e520d40f49183247248af68998a6d942d93e5377de3d240a8903",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Jackknife_Sit-Up.jpg",
+   "thumbnailSha256": "bcfeb89d03f0d41a1452d319ab2ca89ba0383a96ac0ec771cd900a8a7ef60d05",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8391
+  },
+  "Ab_Roller": {
+   "exerciseIds": [
+    237
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Ab_Roller/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "ee135be474621be286a5d376b2f16cf5feda7ae50e919225b809eee1c5d8e597",
+   "originalSize": [
+    800,
+    533
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Ab_Roller.jpg",
+   "thumbnailSha256": "ae846e5993e957925c27865d7a01680a6dfec515a630dd9d8df7a72f59dca13d",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8768
+  },
+  "Barbell_Ab_Rollout": {
+   "exerciseIds": [
+    238
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Ab_Rollout/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "a923cb62b1558adc4f8c840fba31f6a48a95c891133f81242ae7033afe89a2c3",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Barbell_Ab_Rollout.jpg",
+   "thumbnailSha256": "9198b443098e48eed8605afb4e809155146b0cc67c04346e1b0ec274da049598",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7954
+  },
+  "Cable_Crunch": {
+   "exerciseIds": [
+    239
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Crunch/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "196cc4cb510ecafec24c1648c851aa160d4652917d7c0137b4cf7fb1eeb9c668",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Crunch.jpg",
+   "thumbnailSha256": "b9fb2bcde0e2dc22e7a4da238f28e5fb8fd2b576597a901acc2c19cbbb2a771c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9314
+  },
+  "Ab_Crunch_Machine": {
+   "exerciseIds": [
+    240
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Ab_Crunch_Machine/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "5072e495268201939f171a0ea2a038f7bae5f3a75f9972397a99f9c8696c6b84",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Ab_Crunch_Machine.jpg",
+   "thumbnailSha256": "8f182bdbf5700ea108831c1b0afcd0ca68f75ac881973b7ab5ca8b43cd3cf1c2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10699
+  },
+  "Decline_Crunch": {
+   "exerciseIds": [
+    241
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Decline_Crunch/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "d3c4eb45a9cdedba91f1566d405df118157a81448fe5c5e7aed1e426e2790056",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Decline_Crunch.jpg",
+   "thumbnailSha256": "493c15bf14fc15ecff6f8e639d5c611c266f0d3d9c70943c54b1641b57f04bb0",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9585
+  },
+  "Reverse_Crunch": {
+   "exerciseIds": [
+    243
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Reverse_Crunch/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e75947d8504ca71723ade3f2a5c6fbfe38c358b26eee6924e98f2e023cb788cc",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Reverse_Crunch.jpg",
+   "thumbnailSha256": "d7b9728ecfcd67b3921334ecb7794a463757ed04d6c557adcf43a41111bf2988",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8002
+  },
+  "Dead_Bug": {
+   "exerciseIds": [
+    244
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dead_Bug/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "8b4e3e357c201d3752ce4fe97a0f1d00b00e7479cd702f8846791fdf5df66220",
+   "originalSize": [
+    1280,
+    720
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dead_Bug.jpg",
+   "thumbnailSha256": "9faa5595e1852c0ce5c6afbe926e6d5af78201cd1936eb4f2853b88c68264e9f",
+   "thumbnailSize": [
+    264,
+    149
+   ],
+   "thumbnailBytes": 4523
+  },
+  "Plank": {
+   "exerciseIds": [
+    246
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Plank/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "7a6545152b4c918a84b7e0fd2c3c7d10d571f8fbda8e4459354eb24059ff245d",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Plank.jpg",
+   "thumbnailSha256": "d150113f63054509f222a2f3de9871ce394c1193d5c2821fed310a4cecf1bdde",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 6880
+  },
+  "Side_Bridge": {
+   "exerciseIds": [
+    247
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Side_Bridge/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "fcbf157799efdce6c7d5a9aff22e7f73aec23e016d504abe5b4161a55844a48f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Side_Bridge.jpg",
+   "thumbnailSha256": "06472b5eed65ed794b109f3f3507b51fd0c9e21a042ed8e513817e708fe8fe77",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9137
+  },
+  "Pallof_Press": {
+   "exerciseIds": [
+    249,
+    310
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Pallof_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4fb0cdc1782078ada6e012aaaa3b1fdfd6ddb6ea7c7d34d98e51e5559da3d272",
+   "originalSize": [
+    1280,
+    720
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Pallof_Press.jpg",
+   "thumbnailSha256": "58524911dad1ca36ca4e6971fc0092f4c245956cb8caf610b3b743ed067087a3",
+   "thumbnailSize": [
+    264,
+    149
+   ],
+   "thumbnailBytes": 5133
+  },
+  "Standing_Cable_Wood_Chop": {
+   "exerciseIds": [
+    250
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Cable_Wood_Chop/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "2527b5e163dbfe02a51665d32867da2a09c09a2757280e4f16f4dcc28db97489",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Cable_Wood_Chop.jpg",
+   "thumbnailSha256": "f3948e566b56a11e2b9d27670736184d1df0e05aa3d409b3e900c519bad73adc",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5733
+  },
+  "Single-Arm_Linear_Jammer": {
+   "exerciseIds": [
+    251,
+    253
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Single-Arm_Linear_Jammer/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0f8e77984ecdf3760ebd28d891419415b857c4249207af811963627775bc5ebf",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Single-Arm_Linear_Jammer.jpg",
+   "thumbnailSha256": "db15b679a0e0829fbca63d1da69db9c295bfacd5239dfa827d4dc2c930898a1a",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11334
+  },
+  "Landmine_Linear_Jammer": {
+   "exerciseIds": [
+    255,
+    268
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Landmine_Linear_Jammer/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "14b8167a943187d06446a0e536ad88453b123042398d7c9fea8ddd7388e97e69",
+   "originalSize": [
+    646,
+    969
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Landmine_Linear_Jammer.jpg",
+   "thumbnailSha256": "cf3c322c1832f9ddec86c54ede23ae8bed391db378b01934ab30746d1f3d080d",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 6645
+  },
+  "Bent_Over_One-Arm_Long_Bar_Row": {
+   "exerciseIds": [
+    256
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bent_Over_One-Arm_Long_Bar_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e1627c45899d270e579dadf449c7705be29927cfdfb2cd28ed8eb3b1ceda6a4f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Bent_Over_One-Arm_Long_Bar_Row.jpg",
+   "thumbnailSha256": "28826c78e70c3a50f23690e31f45d496f1c34448a0f247fbb1c95be4d24f4968",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10497
+  },
+  "Landmine_180s": {
+   "exerciseIds": [
+    265,
+    266,
+    385
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Landmine_180s/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e4cc6ed6721e7a4a8f61271412e9f367565c77bbdfa706098d32234d5a3c0da8",
+   "originalSize": [
+    500,
+    750
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Landmine_180s.jpg",
+   "thumbnailSha256": "6d5ef7aceb642d725a1cd94eba3efb30f8e91f08afcfd4fa268b40ef323b80f5",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5964
+  },
+  "Medicine_Ball_Chest_Pass": {
+   "exerciseIds": [
+    271
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Medicine_Ball_Chest_Pass/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e5a1180336164dea6c017287e5766a2587ce73596245ccddfe2274e86e25101e",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Medicine_Ball_Chest_Pass.jpg",
+   "thumbnailSha256": "9873c1c9fd674d3c150f7d352f003583a12e3b47eb3e455145c2f261e1303323",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8597
+  },
+  "Overhead_Slam": {
+   "exerciseIds": [
+    273
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Overhead_Slam/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "7f36e638f03af6a59b024337fd5dfb11431b578ddc2bb4cd81d6b5fc4772ac8b",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Overhead_Slam.jpg",
+   "thumbnailSha256": "9073b536585469b0d1e8fce498a56dd017f1faf5f6b106a197d239a702ecec9c",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 3832
+  },
+  "Medicine_Ball_Scoop_Throw": {
+   "exerciseIds": [
+    277
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Medicine_Ball_Scoop_Throw/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "711f2456b8678ffb3b0e89e1163d1f02ee598a2c366c9cd5db5b945c8d43e61f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Medicine_Ball_Scoop_Throw.jpg",
+   "thumbnailSha256": "fdd13932d9f7dfe0db0d86a2d9d27c8ab0b6c0b309ec2aaadcaa4b62283355f5",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12447
+  },
+  "Backward_Medicine_Ball_Throw": {
+   "exerciseIds": [
+    279
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Backward_Medicine_Ball_Throw/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c51d14acb7e02dc3d39c7fb8711a25c17ec233958826b31f20d0a6a58748bd64",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Backward_Medicine_Ball_Throw.jpg",
+   "thumbnailSha256": "e598ffa098fa44a19bbd267929db7a59cb5e552968efe094515941de6df499bb",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 3545
+  },
+  "Standing_Two-Arm_Overhead_Throw": {
+   "exerciseIds": [
+    280
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Two-Arm_Overhead_Throw/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "14bd7ed95c2e2047816d7d31ebbf9f324f3e3b0fbcea572eca7eb6856f63d360",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Two-Arm_Overhead_Throw.jpg",
+   "thumbnailSha256": "af86cd78af541d298934406694946108e8960314c45fb1af8be9c8c75baf6ab2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10025
+  },
+  "Chest_Push_multiple_response": {
+   "exerciseIds": [
+    281
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Chest_Push_multiple_response/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "409af13f2236ddc7b3573a13fcc34e5e2bc4b7842e95baf6d689f09264a60755",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Chest_Push_multiple_response.jpg",
+   "thumbnailSha256": "36728d541353d4bf934b7601cfb4edf55467fe80940d5f7da76edf24b7333647",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7009
+  },
+  "Supine_Two-Arm_Overhead_Throw": {
+   "exerciseIds": [
+    283
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Supine_Two-Arm_Overhead_Throw/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "631d12783755a48f40328be56f6b70c2694473281d84e9f64e701f8fb8e4b556",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Supine_Two-Arm_Overhead_Throw.jpg",
+   "thumbnailSha256": "d669982a911c9ce242d5dccd62365f73e110c44879deb7625af5f848079a3f42",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8294
+  },
+  "Front_Box_Jump": {
+   "exerciseIds": [
+    286
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Front_Box_Jump/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "4c381f5e02e015e3a34ff3a9ecb7ad2bdd1d0db6ab61b25b8aebb3ffdb280636",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Front_Box_Jump.jpg",
+   "thumbnailSha256": "9d3fa6d33232023ae073756b3e2fa6dd5c74dc4bc1236557f926be7ffdb2fc6c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11400
+  },
+  "Depth_Jump_Leap": {
+   "exerciseIds": [
+    287
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Depth_Jump_Leap/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "de69a2dcec2c817accccae8eacf47038b1ef107d6df489afe9dc55274037636f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Depth_Jump_Leap.jpg",
+   "thumbnailSha256": "afae16ab79c6925250750e5b88aa8b9c1ff75d0dd4167b1f62fc4ad0af8a8ce0",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9153
+  },
+  "Standing_Long_Jump": {
+   "exerciseIds": [
+    288
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Long_Jump/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "3ee4b3d3686684ea3adfd0af938d546a95ae75e5e045d4b675f5de1bf01011a5",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Long_Jump.jpg",
+   "thumbnailSha256": "974f0a91769032dff4ad5c19a6df2acd4baedf318a2f598ddb798325a5d443cd",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 6416
+  },
+  "Lateral_Bound": {
+   "exerciseIds": [
+    290,
+    392
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Lateral_Bound/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "aed75d51ea6b9ebc85bd4517fb85a94df26a276ddd617f491c56d8d40c5b0110",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Lateral_Bound.jpg",
+   "thumbnailSha256": "706de932bef52fc66c74e4308e9dcfe2c7eb387d99bd8fc65fe9a1ffee1581af",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 6112
+  },
+  "Freehand_Jump_Squat": {
+   "exerciseIds": [
+    293
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Freehand_Jump_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6efb2bc42ce6554aa70b8b4e1643e41d539342117ac1ad39327790eedd2f87ed",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Freehand_Jump_Squat.jpg",
+   "thumbnailSha256": "41728244bb0b13b45bc578768c5067b4a7923719166be5488c99c063e6a83865",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10926
+  },
+  "Split_Jump": {
+   "exerciseIds": [
+    294
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Split_Jump/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "82486e4ecc6f7d557ca254fa05b26950c1a7c6678a5b991fbbc38ea5897f0b57",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Split_Jump.jpg",
+   "thumbnailSha256": "b71f4593e0b7f8adc2ba46b5e0be8dae4991d9f485993e4657a612c9c4cfc5be",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 5685
+  },
+  "Single_Leg_Push-off": {
+   "exerciseIds": [
+    295
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Single_Leg_Push-off/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "7903193bce3711972494e55965c20ba482b88e98c347555477fcb576db127201",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Single_Leg_Push-off.jpg",
+   "thumbnailSha256": "01bc660144f82128308ded81f24c19324569fc36d37090bb6fbc27b7014b73b9",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 4207
+  },
+  "Sled_Push": {
+   "exerciseIds": [
+    296
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Sled_Push/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "8a8df3556275dcb9f52174ccfaf63348bff972e3b80f67566fc98617e3f101ac",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Sled_Push.jpg",
+   "thumbnailSha256": "9519f14e244aac84a5908116bee229b004cf6bf41ac3757738a318ac9ef0052b",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8536
+  },
+  "Backward_Drag": {
+   "exerciseIds": [
+    297
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Backward_Drag/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "a26ba020bcc3a1ccda836ebcb936043371975dd7bc055615011b387b181d4222",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Backward_Drag.jpg",
+   "thumbnailSha256": "509f283cff4bc0bb86c675812612deeb8c739bc1936ffab2206712c8e06d8bf4",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7636
+  },
+  "Prowler_Sprint": {
+   "exerciseIds": [
+    298
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Prowler_Sprint/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "33abdf5cff9e01fe480b7f7ec08ffa2be7f40f23a5571ffc1dd69231d19fdc8f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Prowler_Sprint.jpg",
+   "thumbnailSha256": "12580cfea3e39132931b11a0d26428b1d982a21e753abb17e3f99ce86a45ae37",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 6494
+  },
+  "Farmers_Walk": {
+   "exerciseIds": [
+    299
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Farmers_Walk/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e07a10c235963ea155d9504b91736f4dc1e8865b5aa3b7c744765a56bf3e2b05",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Farmers_Walk.jpg",
+   "thumbnailSha256": "6dae2f5aaafd1cd8ff02f87d416c0b7985daeafa98172ab84fd4283b3ccfd2c2",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10782
+  },
+  "Standing_Cable_Chest_Press": {
+   "exerciseIds": [
+    302
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Cable_Chest_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0cb8759f65b292a272e1a737f9856500e01638810576d1c9a71b7be51eca3e8e",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Cable_Chest_Press.jpg",
+   "thumbnailSha256": "4a028ed618a4aa058f5f1834de4e8860684f85d7d5db5b1b56837735decc8075",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10852
+  },
+  "Incline_Cable_Chest_Press": {
+   "exerciseIds": [
+    305
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Incline_Cable_Chest_Press/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "b952ca589892227e0447f399b8b8345bd6b9e3852bca84b05bb0ac9e479509f6",
+   "originalSize": [
+    500,
+    750
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Incline_Cable_Chest_Press.jpg",
+   "thumbnailSha256": "282b9f21f9ab1b201d6e3395e2f4fe02a11300ff10e738251b90796a28341950",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 4738
+  },
+  "Single-Arm_Cable_Crossover": {
+   "exerciseIds": [
+    311
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Single-Arm_Cable_Crossover/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "cdabb9d8307fc8332944a956ada85140918683f4359378a9936d2ccd987cc6f8",
+   "originalSize": [
+    500,
+    750
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Single-Arm_Cable_Crossover.jpg",
+   "thumbnailSha256": "2c224d77f519754ba67e52bbf6db8950357654fb4b6d00a26173ee679202598d",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 4432
+  },
+  "Incline_Cable_Flye": {
+   "exerciseIds": [
+    312
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Incline_Cable_Flye/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "6a6419c758b02dfb8800ab963d860383f969dbb243145aa07f7c923272112113",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Incline_Cable_Flye.jpg",
+   "thumbnailSha256": "92ed06310dcac6d9c2a93062cd17cf3e32bd6ba83c7cf84c4afa340204fad132",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8256
+  },
+  "Upright_Cable_Row": {
+   "exerciseIds": [
+    317
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Upright_Cable_Row/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "9662294ef4729debb227c3311c7c2aaad18f1eb2d7250e1d1aff16ea68a023db",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Upright_Cable_Row.jpg",
+   "thumbnailSha256": "a27843aa482cc692e49ab5ce5b1240f7255cf3211224aa6a23b0dd1132ffdf56",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10849
+  },
+  "Cable_Rope_Rear-Delt_Rows": {
+   "exerciseIds": [
+    318
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Rope_Rear-Delt_Rows/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "2454cb406b2e4688817fb0ad31898207d4333906bd298840569493e3583a9a14",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Rope_Rear-Delt_Rows.jpg",
+   "thumbnailSha256": "12d5b007948df113f1e09a8bcb82cc545c58bf5bb070514c1b8a8750eab6a018",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12087
+  },
+  "External_Rotation_with_Cable": {
+   "exerciseIds": [
+    320
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/External_Rotation_with_Cable/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "257b354403173f5e9acd99b31b252d8be61e70062fbfc10a3835e28638df74cb",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/External_Rotation_with_Cable.jpg",
+   "thumbnailSha256": "7f2d0b35c9cb2182db15106e5b4d2e639329208a0108f5d9a73384fe1a23f663",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 13795
+  },
+  "Cable_Internal_Rotation": {
+   "exerciseIds": [
+    321
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Internal_Rotation/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "a179511f2ac5ee0fe7cd6c6193284a387596e9c70c6e2cc2f80df231f61ea488",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Internal_Rotation.jpg",
+   "thumbnailSha256": "78d2e83909c33e848215c997ea148d59344b07a59c0ae2b79b611fd25d71dc3a",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8914
+  },
+  "Kneeling_High_Pulley_Row": {
+   "exerciseIds": [
+    326,
+    333
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Kneeling_High_Pulley_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "352498171b985313d7b8b586aa5815641055f4e80ce3b2734a16fe0810f0ee3a",
+   "originalSize": [
+    500,
+    750
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Kneeling_High_Pulley_Row.jpg",
+   "thumbnailSha256": "24031567af1b5110df3a0c84ae8edde0672edf0de3c73ac8b1523b679e9dbf9d",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 4315
+  },
+  "Shotgun_Row": {
+   "exerciseIds": [
+    329
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Shotgun_Row/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "d8d9f7de1d6b9f4e14867406c79b187665dcc87e4cab23444f59a5f28f6a425e",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Shotgun_Row.jpg",
+   "thumbnailSha256": "cd5274139b5a60a11509ec875c6907c35defcbfec732b798003f3c3bb1e4b3e5",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8305
+  },
+  "Cable_Deadlifts": {
+   "exerciseIds": [
+    354
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Deadlifts/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0659f51178049da09b741729f7305b938a34c6de2c71c6af1c08591b28df700c",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Deadlifts.jpg",
+   "thumbnailSha256": "904ba5dc6ff3f1e229adb9559253e9c882fff16e121fafeaf0a03b1563f8c70f",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 11205
+  },
+  "Standing_Cable_Lift": {
+   "exerciseIds": [
+    377
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Cable_Lift/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "3512f0bb5b6bc56b9909bf0cfc8d831b93abcf12e67f689310fe37c26d3b4727",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Cable_Lift.jpg",
+   "thumbnailSha256": "04a132d01842bdd4ce7e613230e2560c34144a621e2908e84ee1bacb6883a04c",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5999
+  },
+  "Kettlebell_Dead_Clean": {
+   "exerciseIds": [
+    387
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Kettlebell_Dead_Clean/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "34bb7924075215c11bd5478db45aab0a77b1d96294fb98feb5226eb4d8d96548",
+   "originalSize": [
+    850,
+    569
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Kettlebell_Dead_Clean.jpg",
+   "thumbnailSha256": "f0dc9493ad9d22d47e1a9f450768374cdee8085afc8c4021f09f9d8ea81ca63b",
+   "thumbnailSize": [
+    264,
+    177
+   ],
+   "thumbnailBytes": 8122
+  },
+  "One-Arm_Kettlebell_Snatch": {
+   "exerciseIds": [
+    388
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/One-Arm_Kettlebell_Snatch/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "be91f52df6ddbea1932d25a82ca2bd8929c7a8381d44fbaf896c6524f57c3f31",
+   "originalSize": [
+    850,
+    569
+   ],
+   "thumbnail": "client/public/exercise-thumbs/One-Arm_Kettlebell_Snatch.jpg",
+   "thumbnailSha256": "863c73e20dcf453dd4ca0334ea99e9bbd2d404db0d419f8ee106de26f586315b",
+   "thumbnailSize": [
+    264,
+    177
+   ],
+   "thumbnailBytes": 8023
+  },
+  "Kettlebell_Turkish_Get-Up_Lunge_style": {
+   "exerciseIds": [
+    390
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Kettlebell_Turkish_Get-Up_Lunge_style/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "16c264b427e96700683ee79edfb52404227c718b5066bb19facaa05a9d3ae063",
+   "originalSize": [
+    850,
+    569
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Kettlebell_Turkish_Get-Up_Lunge_style.jpg",
+   "thumbnailSha256": "4c05f042074c73262189a3ae64a155c775e826f17f465f077380e817bb9c31af",
+   "thumbnailSize": [
+    264,
+    177
+   ],
+   "thumbnailBytes": 8095
+  },
+  "Linear_Depth_Jump": {
+   "exerciseIds": [
+    395
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Linear_Depth_Jump/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "b71ae5ad8a09a247686058b16bd42950f226c6415925057680f89ad8b3ac9c1b",
+   "originalSize": [
+    646,
+    969
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Linear_Depth_Jump.jpg",
+   "thumbnailSha256": "24e7366e1edf3a2b73baf724794b5dd097c6f80e36609e3dec2059bb354069ce",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 6759
+  },
+  "Battling_Ropes": {
+   "exerciseIds": [
+    400
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Battling_Ropes/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "718354fb29eba0f932251a6c6aae8c895bf79d16966bb20e596d6934d0a4c0ac",
+   "originalSize": [
+    500,
+    750
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Battling_Ropes.jpg",
+   "thumbnailSha256": "75bf4808dc59a8d742c3eb4201966fc556ce9fa6a4ea7a217bc24eeeea2af448",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5965
+  }
+ }
+}
