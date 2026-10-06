@@ -1,0 +1,54 @@
+name: CI
+
+# Nothing verified a branch before it merged, so every session had to run the
+# checks itself and main could go red without the repo ever saying so. The whole
+# set costs about a minute, which is cheap enough to run on every push.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A second push to the same branch makes the first run's answer irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Typecheck, test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Reads the pnpm version from package.json's packageManager field, so the
+      # runner uses the same pnpm the lockfile was written by.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      # The four Supabase tests are live connection checks. They skip when these
+      # are empty, so the suite is green on a repo with no secrets configured and
+      # runs them in full once there are.
+      - name: Test
+        run: pnpm exec vitest run
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Build
+        run: pnpm build
