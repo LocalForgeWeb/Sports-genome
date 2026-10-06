@@ -86,7 +86,8 @@ describe("targeted capacity can be found without knowing where it lives", () => 
    */
   it("does not let the workspace's own scroll-to-top land on top of the anchor", () => {
     expect(home).toContain("if (!keepScroll) window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: \"smooth\" }));");
-    expect(home).toContain("navigateWorkspace(target, { keepScroll: Boolean(anchor) });");
+    // Intentional change, Oct 5 brief §2: a search result for Review also names its scope.
+    expect(home).toContain("navigateWorkspace(target, { keepScroll: Boolean(anchor), reviewScope: scope });");
     expect(home).toContain('navigateWorkspace("profile", { keepScroll: true }); revealWorkspaceAnchor("targeted-capacity");');
   });
 

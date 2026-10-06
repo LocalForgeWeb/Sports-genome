@@ -66,7 +66,15 @@ describe("Review reads as one page", () => {
     expect(home).toContain('if (next === "review") { const scope = reviewScopeFromLocation(params.get("scope"));');
     // Plan's pointer opens the day; Home's link opens the week; the tab keeps whatever was there.
     expect(home).toContain('navigateWorkspace("review", { reviewScope: "day" })');
-    expect(home).toContain('onOpenReview={() => navigateWorkspace("review", { reviewScope: "week" })}');
+    // Home's link carries the week Home trains from and switches to it before opening Review.
+    expect(home).toContain("onOpenReview={openWeekReview}");
+    expect(home).toContain('applyWeek(week, planWeeks[week], { navigate: false });\n    }\n    navigateWorkspace("review", { reviewScope: "week" });');
+    // The workout's own review action opens the day; search names a scope per destination.
+    expect(home).toContain('onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })}');
+    expect(home).toContain('if (target === "review") scope = anchorId === "day" ? "day" : "week";');
+    // Before the plan and profile are read the head shows no week and no numbers (no fake zero).
+    expect(home).toContain('title={!reviewReady ? "Review" :');
+    expect(home).toContain("const reviewReady = planHydrated && profileHydrated;");
   });
 
   it("offers the session from the day it reviews, and only there", () => {

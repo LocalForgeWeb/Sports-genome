@@ -1,12 +1,11 @@
 import { ArrowRight, ArrowUpRight, ChevronDown, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnatomyFigure } from "@/components/anatomy/AnatomyFigure";
-import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
 import { EXPOSURE_STEPS } from "@/components/anatomy/exposurePaint";
 import { muscleLabels } from "@/components/AnatomyMap";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { logicCalibration } from "@/lib/evidenceTraceability";
-import { COMMON_MOVEMENT_COUNT, exposureByRegion, setsFigure, type ExposureMetric, type WeekAnalysis, type WeekFinding, type WeekFindingAction, type WeekMuscle, type WeekOverlapPair, type WeekReviewSession } from "@/lib/weekReview";
+import { COMMON_MOVEMENT_COUNT, figureExposure, setsFigure, type ExposureMetric, type WeekAnalysis, type WeekFinding, type WeekFindingAction, type WeekMuscle, type WeekOverlapPair, type WeekReviewSession } from "@/lib/weekReview";
 import "./week-review.css";
 
 /**
@@ -50,7 +49,6 @@ function useWide() {
 const FEATURED_ROWS = 6;
 const SHOWN_FINDINGS = 3;
 const regionLabel = (key: string) => muscleLabels[key] || key;
-const shortDay = (day: string) => (day === "Sport Transfer" ? "Sport" : day === "Full Body" ? "Full" : day);
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
 export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInspectExercise, onFindExercises }: WeekReviewBoardProps) {
@@ -63,6 +61,8 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
   const wide = useWide();
   const exposureRef = useRef<HTMLElement | null>(null);
   const overlapRef = useRef<HTMLElement | null>(null);
+  /** What opened the detail surface, so closing it hands focus back rather than dropping it to the page. */
+  const openerRef = useRef<HTMLElement | null>(null);
 
   const built = analysis.sessions.filter((session) => session.state === "built");
   const ranked = useMemo(() => [...analysis.muscles].sort((a, b) => b[metric] - a[metric] || b.total - a.total || a.label.localeCompare(b.label)), [analysis.muscles, metric]);
@@ -77,31 +77,47 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
     if (selectedSession && !built.some((session) => session.key === selectedSession)) setSelectedSession(null);
   }, [analysis, selection, selectedSession, built]);
 
-  const exposure = useMemo(() => {
-    const byRegion: Record<string, number | "unknown"> = exposureByRegion(analysis.muscles, metric);
-    // An exercise with no muscle mapping is in the week: a region with nothing counted cannot be
-    // called zero, so it is marked unknown rather than painted as rest.
-    if (analysis.unmapped.length) for (const key of [...drawnMuscleKeys.front, ...drawnMuscleKeys.back]) if (!byRegion[key]) byRegion[key] = "unknown";
-    return byRegion;
-  }, [analysis.muscles, analysis.unmapped.length, metric]);
+  /*
+   * What the figure paints: every row on the regions it names, the umbrella "Deltoids" tag on all
+   * three heads, regions no catalog exercise can tag marked unknown. A zero on the figure is the
+   * same zero the chart calls "Not planned"; the figure's top step is its own largest region.
+   */
+  const figure = useMemo(() => figureExposure(analysis, metric), [analysis, metric]);
+  const figureMax = Math.max(1, figure.max);
+  const nameOf = (key: string) => analysis.sessions.find((session) => session.key === key)?.name ?? key;
+  const shortOf = (key: string) => analysis.sessions.find((session) => session.key === key)?.short ?? key;
 
   const muscleForRegion = (region: string) => analysis.muscles.find((muscle) => muscle.key === region) ?? analysis.muscles.find((muscle) => muscle.figureKeys.includes(region)) ?? null;
-  const selectMuscle = (key: string) => setSelection((current) => (current?.kind === "muscle" && current.key === key ? null : { kind: "muscle", key }));
-  const selectPair = (id: string) => setSelection((current) => (current?.kind === "pair" && current.id === id ? null : { kind: "pair", id }));
+  const rememberOpener = () => { if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement && document.activeElement !== document.body) openerRef.current = document.activeElement; };
+  const selectMuscle = (key: string) => { rememberOpener(); setSelection((current) => (current?.kind === "muscle" && current.key === key ? null : { kind: "muscle", key })); };
+  const selectPair = (id: string) => { rememberOpener(); setSelection((current) => (current?.kind === "pair" && current.id === id ? null : { kind: "pair", id })); };
+  /** Close the open detail and put focus back where it came from, else on the section's heading. */
+  const closeDetail = (headingId: string) => {
+    const opener = openerRef.current;
+    setSelection(null);
+    const restore = () => { if (opener?.isConnected) opener.focus({ preventScroll: true }); else document.getElementById(headingId)?.focus({ preventScroll: true }); };
+    if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") window.requestAnimationFrame(restore); else restore();
+  };
+  // A finding's action scrolls to the surface it opened; not animated for someone who asked for less motion.
+  const reveal = (node: HTMLElement | null) => node?.scrollIntoView({ behavior: typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   const act = (action: WeekFindingAction) => {
     if (action.type === "edit-day") { onEditDay(action.dayKey, { addExercises: action.addExercises }); return; }
-    if (action.type === "select-muscle") { setSelection({ kind: "muscle", key: action.muscle }); setShowAll(true); exposureRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    rememberOpener();
+    if (action.type === "select-muscle") { setSelection({ kind: "muscle", key: action.muscle }); setShowAll(true); reveal(exposureRef.current); return; }
     setSelection({ kind: "pair", id: action.pairId });
-    overlapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    reveal(overlapRef.current);
   };
 
   const strength = analysis.findings.find((finding) => finding.kind === "strength") ?? null;
   const review = analysis.findings.filter((finding) => finding.kind === "review");
   const metricWord = metric === "direct" ? "direct sets" : "attributed sets";
   const describeRegion = (region: string) => {
-    const value = exposure[region];
-    if (value === "unknown") return `${regionLabel(region)}, unknown: an exercise without a muscle mapping is in this week`;
-    return `${regionLabel(region)}, ${value ? `${setsFigure(value)} ${metricWord}` : "no planned work"}`;
+    const value = figure.values[region];
+    if (value === "unknown") return `${regionLabel(region)}, not counted: the exercise catalog has no tag for this muscle`;
+    if (!value) return `${regionLabel(region)}, no planned work`;
+    const parts = figure.parts[region] ?? [];
+    // A region painted by more than one tag says what it adds up, so it never reads as one row's number.
+    return `${regionLabel(region)}, ${setsFigure(value)} ${metricWord}${parts.length > 1 ? `: ${parts.map((part) => `${part.label} ${setsFigure(part.value)}`).join(" + ")}` : ""}`;
   };
 
   if (!ready) return <div className="wr-board wr-loading" role="status" aria-label="Loading the week"><span /><span /><span /><span /></div>;
@@ -110,9 +126,9 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
     {analysis.sessions.map((session) => <li key={session.key}>
       {session.state === "built"
         ? <button type="button" className="wr-chip" aria-pressed={selectedSession === session.key} onClick={() => setSelectedSession((current) => (current === session.key ? null : session.key))}>
-          <span>{session.day}</span><small>{plural(session.exerciseCount, "exercise")} · {plural(session.workSets, "set")}</small>
+          <span>{session.name}</span><small>{plural(session.exerciseCount, "exercise")} · {plural(session.workSets, "set")}</small>
         </button>
-        : <span className="wr-chip" data-state="empty"><span>{session.day}</span><small>Not built</small></span>}
+        : <span className="wr-chip" data-state="empty"><span>{session.name}</span><small>Not built</small></span>}
     </li>)}
   </ol>;
 
@@ -137,7 +153,7 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
 
     <section className="wr-section wr-exposure" ref={exposureRef} aria-labelledby="wr-exposure-heading">
       <div className="wr-section-head">
-        <div><h2 id="wr-exposure-heading">Muscle exposure</h2><p>Planned sets per muscle across the {plural(analysis.builtCount, "built session")}, on one scale: the week's largest, {setsFigure(max)}.</p></div>
+        <div><h2 id="wr-exposure-heading" tabIndex={-1}>Muscle exposure</h2><p>Planned sets per muscle across the {plural(analysis.builtCount, "built session")}, on one scale: the week's largest, {setsFigure(max)}.</p></div>
         <div className="wr-segment" role="group" aria-label="What the figure and chart count">
           <button type="button" aria-pressed={metric === "direct"} onClick={() => setMetric("direct")}>Direct sets</button>
           <button type="button" aria-pressed={metric === "total"} onClick={() => setMetric("total")}>With support (est.)</button>
@@ -149,18 +165,24 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
             <button type="button" aria-pressed={side === "front"} onClick={() => setSide("front")}>Front</button>
             <button type="button" aria-pressed={side === "back"} onClick={() => setSide("back")}>Back</button>
           </div>}
-          <AnatomyFigure view={wide ? "both" : side} captions={wide} roles={{}} exposureFor={exposure} exposureMax={max} selectedKeys={selectedMuscle?.figureKeys ?? []} onSelect={(region) => { const muscle = muscleForRegion(region); if (muscle) selectMuscle(muscle.key); }} labelFor={regionLabel} describeFor={describeRegion} />
+          <AnatomyFigure view={wide ? "both" : side} captions={wide} roles={{}} exposureFor={figure.values} exposureMax={figureMax} selectedKeys={selectedMuscle?.figureKeys ?? []} onSelect={(region) => {
+            const muscle = muscleForRegion(region);
+            if (!muscle) return;
+            // Its chart row is shown, even when it ranks below the first six.
+            if (ranked.findIndex((row) => row.key === muscle.key) >= FEATURED_ROWS) setShowAll(true);
+            selectMuscle(muscle.key);
+          }} labelFor={regionLabel} describeFor={describeRegion} />
           <div className="wr-legend" aria-label="Figure legend">
             <span><i className="wr-swatch-neutral" /> No planned work</span>
-            <span><span className="wr-ramp" aria-hidden="true">{Array.from({ length: EXPOSURE_STEPS }, (_, index) => <i key={index} style={{ background: `var(--sg-exposure-${index + 1})` }} />)}</span> Fewer to more {metricWord}; the top step is {setsFigure(max)}</span>
-            {analysis.unmapped.length > 0 && <span><i className="wr-swatch-unknown" /> Unknown: an exercise without a muscle mapping is in this week</span>}
+            <span><span className="wr-ramp" aria-hidden="true">{Array.from({ length: EXPOSURE_STEPS }, (_, index) => <i key={index} style={{ background: `var(--sg-exposure-${index + 1})` }} />)}</span> Fewer to more {metricWord}; the top step is {setsFigure(figureMax)}</span>
+            {analysis.untaggedRegions.length > 0 && <span><i className="wr-swatch-unknown" /> Not counted: no catalog exercise is tagged with this muscle</span>}
           </div>
         </div>
         <div className="wr-chart">
           <div className="wr-legend wr-chart-legend" aria-label="Chart legend">
             <span><i className="wr-swatch-direct" /> Direct sets</span>
             {metric === "total" && <span><i className="wr-swatch-support" /> Supporting contribution, estimated: each supporting set adds {logicCalibration.exposure.secondarySetConvention}</span>}
-            {highlighted && <span className="wr-legend-session">Figures in brackets: {highlighted.day} alone</span>}
+            {highlighted && <span className="wr-legend-session">Figures in brackets: {highlighted.name} alone</span>}
           </div>
           <ol className="wr-muscles" aria-label={`Muscles ranked by ${metricWord}`}>
             {(showAll ? ranked : ranked.slice(0, FEATURED_ROWS)).map((muscle) => <MuscleRow key={muscle.key} muscle={muscle} metric={metric} max={max} selected={selectedMuscle?.key === muscle.key} session={highlighted} onSelect={() => selectMuscle(muscle.key)} />)}
@@ -168,11 +190,11 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
           {ranked.length > FEATURED_ROWS && <button type="button" className="wr-link wr-viewall" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>{showAll ? "Show the first six" : `View all muscles (${ranked.length})`} <ChevronDown className="h-4 w-4" aria-hidden="true" /></button>}
         </div>
       </div>
-      {selectedMuscle && <MuscleDetail muscle={selectedMuscle} metric={metric} builtCount={analysis.builtCount} highlighted={highlighted} onClose={() => setSelection(null)} onEditDay={onEditDay} onInspectExercise={onInspectExercise} onFindExercises={onFindExercises} />}
+      {selectedMuscle && <MuscleDetail muscle={selectedMuscle} metric={metric} builtCount={analysis.builtCount} highlighted={highlighted} nameOf={nameOf} onClose={() => closeDetail("wr-exposure-heading")} onEditDay={onEditDay} onInspectExercise={onInspectExercise} onFindExercises={onFindExercises} />}
       {analysis.dataNotes.map((note) => <p key={note} className="wr-note">{note}</p>)}
       <details className="wr-method">
         <summary>How these numbers are counted <ChevronDown className="h-4 w-4" aria-hidden="true" /></summary>
-        <p>A set counts 1.0 to each muscle the catalog tags as primary and {logicCalibration.exposure.secondarySetConvention} to each tagged as secondary, applied once. The set count is the leading number of the saved prescription, otherwise the goal's default (which gives the first two exercises of a day 4 sets on three of the four goals), otherwise {logicCalibration.workoutReview.defaultPrescriptionSets}. Summed over every muscle, the week attributes {setsFigure(analysis.attributedTotal)} sets against {analysis.workSets} planned: one performed set counts toward every muscle it is tagged with, which is why that total is not on the board. The catalog's "Deltoids" tag is painted on all three deltoid heads and "Upper back" means the rhomboids and mid trapezius; each tag is its own row and no row is a sum of others. The register's planning landmarks, {logicCalibration.exposure.lowDirectSetBand} and {logicCalibration.exposure.highDirectSetBand} direct sets a week, have no recorded source and are not shown as badges. Per-side prescriptions, warm-ups, circuits and supersets are not represented in the plan, so a prescription's leading number is its set count. This is a planning estimate from the plan as written, not a measure of recovery, growth or readiness.</p>
+        <p>A set counts 1.0 to each muscle the catalog tags as primary and {logicCalibration.exposure.secondarySetConvention} to each tagged as secondary, applied once. The set count is the leading number of the saved prescription, otherwise the goal's default (which gives the first two exercises of a day 4 sets on three of the four goals), otherwise {logicCalibration.workoutReview.defaultPrescriptionSets}. Summed over every muscle, the week attributes {setsFigure(analysis.attributedTotal)} sets against {analysis.workSets} planned: one performed set counts toward every muscle it is tagged with, which is why that total is not on the board. The catalog's "Deltoids" tag is its own row in the chart; on the figure it is painted on all three deltoid heads on top of each head's own sets, so a head can read more than its own row (its name says what it adds up) and the figure's top step is its own largest region. "Upper back" means the rhomboids and mid trapezius. No chart row is a sum of other rows. Two drawn muscles, the soleus and the brachioradialis, are tagged by no catalog exercise and are hatched as not counted rather than shown as zero. The register's planning landmarks, {logicCalibration.exposure.lowDirectSetBand} and {logicCalibration.exposure.highDirectSetBand} direct sets a week, have no recorded source and are not shown as badges. Per-side prescriptions, warm-ups, circuits and supersets are not represented in the plan, so a prescription's leading number is its set count. This is a planning estimate from the plan as written, not a measure of recovery, growth or readiness.</p>
       </details>
     </section>
 
@@ -184,35 +206,35 @@ export function WeekReviewBoard({ analysis, ready, onEditWeek, onEditDay, onInsp
           <details className="wr-pattern-detail">
             <summary>
               <span className="wr-pattern-name">{pattern.movement} <small>{plural(pattern.exercises.length, "exercise")}</small></span>
-              <span className="wr-pattern-sessions">{built.map((session) => { const present = pattern.sessionKeys.includes(session.key); return <span key={session.key} data-present={present ? "" : undefined} aria-label={`${session.day}: ${present ? "present" : "not in this session"}`}>{shortDay(session.day)}</span>; })}</span>
+              <span className="wr-pattern-sessions">{built.map((session) => { const present = pattern.sessionKeys.includes(session.key); return <span key={session.key} data-present={present ? "" : undefined} aria-label={`${session.name}: ${present ? "present" : "not in this session"}`}>{session.short}</span>; })}</span>
             </summary>
             <ul className="wr-exercises" aria-label={`${pattern.movement} exercises`}>
               {pattern.exercises.map((row, index) => <li key={`${row.sessionKey}-${row.exercise.id}-${index}`} className="wr-exercise">
-                <span><b>{row.exercise.name}</b><small>{row.day}</small></span>
-                <button type="button" className="wr-link" onClick={() => onInspectExercise(row.exercise)}>Inspect</button>
+                <span><b>{row.exercise.name}</b><small>{nameOf(row.sessionKey)}</small></span>
+                <button type="button" className="wr-link" aria-label={`Inspect ${row.exercise.name}`} onClick={() => onInspectExercise(row.exercise)}>Inspect</button>
               </li>)}
             </ul>
           </details>
         </li>)}
       </ol>
       {analysis.notPlanned.length > 0 && <p className="wr-absent"><b>Not planned</b> {analysis.notPlanned.join(" · ")} <small>({analysis.notPlanned.length} of the catalog's {COMMON_MOVEMENT_COUNT} commonest patterns)</small></p>}
-      {analysis.unknownPattern.length > 0 && <p className="wr-absent"><b>Unknown mapping</b> {analysis.unknownPattern.map((item) => `${item.exercise.name} (${item.day})`).join(" · ")}</p>}
+      {analysis.unknownPattern.length > 0 && <p className="wr-absent"><b>Unknown mapping</b> {analysis.unknownPattern.map((item) => `${item.exercise.name} (${nameOf(item.sessionKey)})`).join(" · ")}</p>}
     </section>
 
     <section className="wr-section" ref={overlapRef} aria-labelledby="wr-overlap-heading">
-      <div className="wr-section-head"><div><h2 id="wr-overlap-heading">Session overlap</h2><p>Sessions next to each other in plan order. The plan has no dates, so this says nothing about calendar spacing.</p></div></div>
+      <div className="wr-section-head"><div><h2 id="wr-overlap-heading" tabIndex={-1}>Session overlap</h2><p>Sessions next to each other in plan order. The plan has no dates, so this says nothing about calendar spacing.</p></div></div>
       {analysis.builtCount < 2
         ? <p className="wr-note">Build a second session to compare neighbouring sessions.</p>
         : <>
           {analysis.overlap.pairs.length > 0 && <ol className="wr-pairs" aria-label="Neighbouring session pairs">
             {analysis.overlap.pairs.map((pair) => <li key={pair.id}><button type="button" className="wr-chip wr-pair" data-heavy={pair.heavy ? "" : undefined} aria-pressed={selectedPair?.id === pair.id} onClick={() => selectPair(pair.id)}>
-              <span>{pair.aDay} → {pair.bDay}</span>
+              <span>{pair.aName} → {pair.bName}</span>
               <small>{pair.shared.length ? `${plural(pair.shared.length, "shared muscle")} · ${setsFigure(pair.sharedExposure)} sets${pair.heavy ? " · heavy" : ""}` : "No shared muscle"}</small>
             </button></li>)}
           </ol>}
           {analysis.overlap.pairs.length === 0 && <p className="wr-note">No two built sessions sit next to each other in plan order.</p>}
-          {analysis.overlap.skipped.length > 0 && <p className="wr-note">Not compared: {analysis.overlap.skipped.map((pair) => `${pair.aDay} and ${pair.bDay}`).join(", ")}, with an unbuilt day between them.</p>}
-          {selectedPair && <PairDetail pair={selectedPair} onClose={() => setSelection(null)} onEditDay={onEditDay} />}
+          {analysis.overlap.skipped.length > 0 && <p className="wr-note">Not compared: {analysis.overlap.skipped.map((pair) => `${pair.aName} and ${pair.bName}`).join(", ")}, with an unbuilt day between them.</p>}
+          {selectedPair && <PairDetail pair={selectedPair} shortOf={shortOf} onClose={() => closeDetail("wr-overlap-heading")} onEditDay={onEditDay} />}
         </>}
     </section>
 
@@ -243,7 +265,7 @@ function MuscleRow({ muscle, metric, max, selected, session, onSelect }: { muscl
   </li>;
 }
 
-function MuscleDetail({ muscle, metric, builtCount, highlighted, onClose, onEditDay, onInspectExercise, onFindExercises }: { muscle: WeekMuscle; metric: ExposureMetric; builtCount: number; highlighted: WeekReviewSession | null; onClose: () => void; onEditDay: WeekReviewBoardProps["onEditDay"]; onInspectExercise: WeekReviewBoardProps["onInspectExercise"]; onFindExercises?: WeekReviewBoardProps["onFindExercises"] }) {
+function MuscleDetail({ muscle, metric, builtCount, highlighted, nameOf, onClose, onEditDay, onInspectExercise, onFindExercises }: { muscle: WeekMuscle; metric: ExposureMetric; builtCount: number; highlighted: WeekReviewSession | null; nameOf: (sessionKey: string) => string; onClose: () => void; onEditDay: WeekReviewBoardProps["onEditDay"]; onInspectExercise: WeekReviewBoardProps["onInspectExercise"]; onFindExercises?: WeekReviewBoardProps["onFindExercises"] }) {
   const scale = Math.max(1, muscle[metric]);
   const pct = (value: number) => `${Math.min(100, (value / scale) * 100)}%`;
   return <section className="wr-detail" aria-label={`${muscle.label} by session`}>
@@ -253,46 +275,46 @@ function MuscleDetail({ muscle, metric, builtCount, highlighted, onClose, onEdit
     </header>
     <ol className="wr-days" aria-label={`${muscle.label} by session, as a share of its week`}>
       {muscle.byDay.map((day) => <li key={day.sessionKey} className="wr-day" data-selected={highlighted?.key === day.sessionKey ? "" : undefined}>
-        <span className="wr-day-name">{day.day}</span>
-        <span className="wr-track" role="img" aria-label={`${day.day}: ${setsFigure(day[metric])} of ${setsFigure(scale)}`}>
+        <span className="wr-day-name">{day.name}</span>
+        <span className="wr-track" role="img" aria-label={`${day.name}: ${setsFigure(day[metric])} of ${setsFigure(scale)}`}>
           <i className="wr-bar-direct" style={{ width: pct(day.direct) }} />
           {metric === "total" && day.supporting > 0 && <i className="wr-bar-support" style={{ left: pct(day.direct), width: pct(day.supporting) }} />}
         </span>
         <span className="wr-day-value">{day.total === 0 ? "0" : `${setsFigure(day.direct)}${day.supporting ? ` + ${setsFigure(day.supporting)}` : ""}`}</span>
-        <button type="button" className="wr-link" onClick={() => onEditDay(day.sessionKey)}>Edit {day.day} <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
+        <button type="button" className="wr-link" onClick={() => onEditDay(day.sessionKey)}>Edit {day.name} <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
       </li>)}
     </ol>
     {muscle.exercises.length > 0 && <ul className="wr-exercises" aria-label={`Exercises that give ${muscle.label} work`}>
       {muscle.exercises.map((row, index) => <li key={`${row.sessionKey}-${row.exercise.id}-${index}`} className="wr-exercise">
-        <span><b>{row.exercise.name}</b><small>{row.day} · {plural(row.sets, "set")} · {row.role === "direct" ? "direct" : `supporting, counted as ${setsFigure(row.contribution)}`}</small></span>
-        <button type="button" className="wr-link" onClick={() => onInspectExercise(row.exercise)}>Inspect</button>
+        <span><b>{row.exercise.name}</b><small>{nameOf(row.sessionKey)} · {plural(row.sets, "set")} · {row.role === "direct" ? "direct" : `supporting, counted as ${setsFigure(row.contribution)}`}</small></span>
+        <button type="button" className="wr-link" aria-label={`Inspect ${row.exercise.name}`} onClick={() => onInspectExercise(row.exercise)}>Inspect</button>
       </li>)}
     </ul>}
     {onFindExercises && <button type="button" className="wr-link" onClick={() => onFindExercises(muscle.key)}>Find exercises for {muscle.label.toLowerCase()} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>}
   </section>;
 }
 
-function PairDetail({ pair, onClose, onEditDay }: { pair: WeekOverlapPair; onClose: () => void; onEditDay: WeekReviewBoardProps["onEditDay"] }) {
+function PairDetail({ pair, shortOf, onClose, onEditDay }: { pair: WeekOverlapPair; shortOf: (sessionKey: string) => string; onClose: () => void; onEditDay: WeekReviewBoardProps["onEditDay"] }) {
   const scale = Math.max(1, ...pair.shared.flatMap((item) => [item.aSets, item.bSets]));
   const pct = (value: number) => `${Math.min(100, (value / scale) * 100)}%`;
-  return <section className="wr-detail" aria-label={`${pair.aDay} and ${pair.bDay} compared`}>
+  return <section className="wr-detail" aria-label={`${pair.aName} and ${pair.bName} compared`}>
     <header>
-      <div><h3>{pair.aDay} and {pair.bDay}</h3><p>A muscle is shared when both sessions give it at least {logicCalibration.exposure.consecutiveDayMinimumSets} attributed sets; the pair is heavy from {logicCalibration.exposure.consecutiveDayPriorityExposure} summed shared sets. {pair.shared.length ? `${setsFigure(pair.sharedExposure)} here${pair.heavy ? ": heavy" : ""}.` : "Nothing reaches that here."}</p></div>
-      <button type="button" className="wr-close" onClick={onClose} aria-label={`Close ${pair.aDay} and ${pair.bDay}`}><X className="h-4 w-4" aria-hidden="true" /></button>
+      <div><h3>{pair.aName} and {pair.bName}</h3><p>A muscle is shared when both sessions give it at least {logicCalibration.exposure.consecutiveDayMinimumSets} attributed sets; the pair is heavy from {logicCalibration.exposure.consecutiveDayPriorityExposure} summed shared sets. {pair.shared.length ? `${setsFigure(pair.sharedExposure)} here${pair.heavy ? ": heavy" : ""}.` : "Nothing reaches that here."}</p></div>
+      <button type="button" className="wr-close" onClick={onClose} aria-label={`Close ${pair.aName} and ${pair.bName}`}><X className="h-4 w-4" aria-hidden="true" /></button>
     </header>
     {pair.shared.length > 0 && <ol className="wr-shared" aria-label="Shared muscles, attributed sets on each session">
       {pair.shared.map((item) => <li key={item.key} className="wr-shared-row">
         <span className="wr-shared-name">{item.label}</span>
         <span className="wr-shared-bars">
-          <span className="wr-track" role="img" aria-label={`${pair.aDay}: ${setsFigure(item.aSets)}`}><i className="wr-bar-a" style={{ width: pct(item.aSets) }} /></span>
-          <span className="wr-track" role="img" aria-label={`${pair.bDay}: ${setsFigure(item.bSets)}`}><i className="wr-bar-b" style={{ width: pct(item.bSets) }} /></span>
+          <span className="wr-track" role="img" aria-label={`${pair.aName}: ${setsFigure(item.aSets)}`}><i className="wr-bar-a" style={{ width: pct(item.aSets) }} /></span>
+          <span className="wr-track" role="img" aria-label={`${pair.bName}: ${setsFigure(item.bSets)}`}><i className="wr-bar-b" style={{ width: pct(item.bSets) }} /></span>
         </span>
-        <span className="wr-shared-values"><b>{shortDay(pair.aDay)}</b> {setsFigure(item.aSets)} <b>{shortDay(pair.bDay)}</b> {setsFigure(item.bSets)}</span>
+        <span className="wr-shared-values"><b>{shortOf(pair.aKey)}</b> {setsFigure(item.aSets)} <b>{shortOf(pair.bKey)}</b> {setsFigure(item.bSets)}</span>
       </li>)}
     </ol>}
     <div className="wr-actions">
-      <button type="button" className="wr-button" onClick={() => onEditDay(pair.aKey)}>Edit {pair.aDay} <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
-      <button type="button" className="wr-button" onClick={() => onEditDay(pair.bKey)}>Edit {pair.bDay} <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
+      <button type="button" className="wr-button" onClick={() => onEditDay(pair.aKey)}>Edit {pair.aName} <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
+      <button type="button" className="wr-button" onClick={() => onEditDay(pair.bKey)}>Edit {pair.bName} <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
     </div>
   </section>;
 }

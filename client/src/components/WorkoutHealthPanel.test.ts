@@ -23,7 +23,8 @@ describe("WorkoutHealthPanel progressive disclosure", () => {
   it("retains all diagnostic content inside the expandable disclosure with keyboard-focusable summary styling", () => {
     expect(source).toContain('className="workout-health-content"');
     expect(source).toContain("planned work sets");
-    expect(source).toContain("muscle overlap");
+    // Renamed from "muscle overlap": muscles carry 40 of its 100 points (5 October 2026 brief §8).
+    expect(source).toContain("exercise overlap index, 0–100");
     expect(source).toContain("These are planning estimates from the workout as written");
     expect(styles).toContain(".workout-health-disclosure > summary");
     expect(styles).toContain(".workout-health-disclosure > summary:focus-visible");

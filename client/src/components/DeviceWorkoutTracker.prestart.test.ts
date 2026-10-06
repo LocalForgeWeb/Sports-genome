@@ -75,6 +75,17 @@ describe("Session, before it starts", () => {
     expect(onEditInPlan).toHaveBeenCalledTimes(1);
   });
 
+  it("opens this day's review from the workout, and offers it only for a day with work in it", () => {
+    // The workout's own review action (5 October 2026 brief §2): Review in Day scope for this day.
+    const onReviewDay = vi.fn();
+    mount({ onReviewDay });
+    fireEvent.click(screen.getByRole("button", { name: /review this day/i }));
+    expect(onReviewDay).toHaveBeenCalledTimes(1);
+    cleanup();
+    mount({ workout: [], onReviewDay });
+    expect(screen.queryByRole("button", { name: /review this day/i })).toBeNull();
+  });
+
   it("records nothing for merely being looked at", () => {
     mount();
     expect(window.localStorage.getItem(deviceWorkoutHistoryKey)).toBeNull();
