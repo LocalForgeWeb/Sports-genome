@@ -5,12 +5,14 @@ import { describe, expect, it } from "vitest";
 const home = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 
 describe("actions that name a day open that day", () => {
-  it("Review's recovery 'Open <day>' selects that slot by key and opens it", () => {
+  it("Review's 'Edit <day>' selects that slot by key and opens it in Plan", () => {
     // openTrainingDay stays on Review by design, so the button only moved the active marker.
-    const call = home.slice(home.indexOf("<RecoverySpacingPanel"), home.indexOf("/>", home.indexOf("<RecoverySpacingPanel")));
+    // The week board's day actions (Edit Pull, Add exercises to Legs) select by key and go to Plan.
+    const call = home.slice(home.indexOf("<WeekReviewBoard"), home.indexOf("/>", home.indexOf("<WeekReviewBoard")));
     expect(call).toContain("daySlots.findIndex((slot) => slot.key === dayKey)");
-    expect(call).toContain('selectTrainingDay(index); navigateWorkspace("day-plan");');
+    expect(call).toContain('selectTrainingDay(index); navigateWorkspace("day-plan"); if (options?.addExercises) { window.scrollTo({ top: 0 }); setPickerSheetOpen(true); }');
     expect(call).not.toContain("openTrainingDay(");
+    expect(call).not.toContain("chooseDayToTrain(");
   });
 
   it("the add toast's 'View workout' opens the day that received the exercise", () => {

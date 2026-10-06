@@ -3,19 +3,38 @@ import { describe, expect, it } from "vitest";
 
 const home = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const chrome = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-const volume = readFileSync(new URL("../components/WeeklyMuscleVolumePanel.tsx", import.meta.url), "utf8");
+const board = readFileSync(new URL("../components/weekReview/WeekReviewBoard.tsx", import.meta.url), "utf8");
 const planner = readFileSync(new URL("../workout-planner.css", import.meta.url), "utf8");
 
+/** The Review branch alone: from its own `{workspace === "review"` to the next workspace's. */
+const reviewBranch = () => {
+  const start = home.indexOf('{workspace === "review"');
+  expect(start, "the Review branch was found").toBeGreaterThan(-1);
+  const next = home.indexOf("{workspace === ", start + 1);
+  return home.slice(start, next > -1 ? next : undefined);
+};
+
 /**
- * Review was a two-column grid of five panels, each with its own display heading
- * competing with the page's, and the recovery-spacing check was rendered inside
- * the weekly volume map - so "how are my sessions spaced" sat underneath a chart
- * answering a different question.
+ * Review is one page in two scopes (5 October 2026 brief). The head names the scope with an
+ * explicit Week/Day control; the Week scope is one board read from one analysis; the Day
+ * scope keeps the panels that read the open day, in the order the answers are wanted.
  */
 describe("Review reads as one page", () => {
-  it("stacks the sections in the order the answers are wanted", () => {
-    const stack = home.slice(home.indexOf('className="day-review-stack"'), home.indexOf('{workspace === "genome"'));
-    const order = ["<WarmupPanel", "<WeeklyMuscleVolumePanel", "<RecoverySpacingPanel", "<ProgrammingGuidePanel", "<WorkoutHealthPanel"];
+  it("names its scope with one control and never mixes the two silently", () => {
+    const branch = reviewBranch();
+    expect(branch).toContain("<ReviewHead");
+    expect(branch).toContain("scope={reviewScope}");
+    expect(branch).toContain("onScope={setReviewScope}");
+    expect(branch).toContain('reviewScope === "week"');
+    // The week's title names the week and the plan; the day's names the day.
+    expect(branch).toContain("`Week ${activeWeek} · ${trainingDays}-day plan`");
+    expect(branch).toContain(": activeDayLabel}");
+  });
+
+  it("stacks the day's sections in the order the answers are wanted, under the day scope only", () => {
+    const branch = reviewBranch();
+    const stack = branch.slice(branch.indexOf('className="day-review-stack"'));
+    const order = ["<WarmupPanel", "<ProgrammingGuidePanel", "<WorkoutHealthPanel", "<ImportedPlanContext"];
     let cursor = -1;
     for (const panel of order) {
       const at = stack.indexOf(panel);
@@ -23,19 +42,43 @@ describe("Review reads as one page", () => {
       expect(at, `${panel} comes after the one before it`).toBeGreaterThan(cursor);
       cursor = at;
     }
+    // The week's panels are the board, not the old pair of panels beside the day's.
+    expect(branch).toContain("<WeekReviewBoard");
+    expect(branch).not.toContain("<WeeklyMuscleVolumePanel");
+    expect(branch).not.toContain("<RecoverySpacingPanel");
     // One column: the two-column grid put the warm-up beside the coach scan and
     // made the reading order depend on the viewport.
     expect(home).not.toContain('xl:grid-cols-[.9fr_1.1fr]');
   });
 
-  it("gives spacing its own place rather than nesting it inside the volume map", () => {
-    expect(volume).not.toContain("<RecoverySpacingPanel");
-    expect(home).toContain("<RecoverySpacingPanel plan={weeklyPlan}");
+  it("reads the week from one analysis, with the open day's draft written in", () => {
+    expect(home).toContain("const weekAnalysis = useMemo(() => {");
+    expect(home).toContain("visibleDayPlan(homePlan.weeks[activeWeek] || emptyDayStore(), splitDays)");
+    expect(home).toContain("analyzeWeek({ slots: daySlots, plan: week.plan, prescriptions: week.prescriptions, goal, catalog: exercises })");
+    // Nothing on the board re-counts a set: the board takes the analysis and no plan.
+    expect(board).not.toContain("getWeeklyMuscleVolume");
+    expect(board).not.toContain("getRecoverySpacingAlerts");
+    expect(board).not.toContain("parseSetCount");
   });
 
-  it("offers the session from the page that reviews it", () => {
-    expect(home).toContain('className="day-review-open"');
-    expect(home).toContain("Review your week");
+  it("carries the scope on Review's address, with the week as the plain address", () => {
+    expect(home).toContain('if (next === "review" && scope === "day") url.searchParams.set("scope", scope); else url.searchParams.delete("scope");');
+    expect(home).toContain('if (next === "review") { const scope = reviewScopeFromLocation(params.get("scope"));');
+    // Plan's pointer opens the day; Home's link opens the week; the tab keeps whatever was there.
+    expect(home).toContain('navigateWorkspace("review", { reviewScope: "day" })');
+    expect(home).toContain('onOpenReview={() => navigateWorkspace("review", { reviewScope: "week" })}');
+  });
+
+  it("offers the session from the day it reviews, and only there", () => {
+    const branch = reviewBranch();
+    expect(branch).toContain('className="day-review-open"');
+    expect(branch).toContain("chooseDayToTrain(activeSlot)");
+    // The board's own actions never set the next workout: that is the Open workout button alone.
+    expect(board).not.toContain("chooseDayToTrain");
+    // Switching weeks on Review stays on Review; Edit week goes to Plan.
+    expect(branch).toContain("onSelect={(week) => selectWeek(week, { navigate: false })}");
+    expect(branch).toContain('onEditWeek={() => navigateWorkspace("day-plan")}');
+    expect(home).toContain('review: "Review your week"');
   });
 
   /**
