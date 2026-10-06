@@ -8,7 +8,7 @@ Brief: `Sports-Genome-Oct05-Weekly-Review-Visual-and-Utility-Rebuild-Claude.md`.
 |---|---|
 | `client/src/lib/weekReview.ts`, `.test.ts` | `analyzeWeek(input): WeekAnalysis`, revision `week_review_v1`: sessions in plan order, planned work sets, per-muscle direct / supporting / total with per-session values and contributing exercises, zero rows for split-target muscles, attributed total (methodology only), movement patterns present / not planned / unknown, adjacent-session overlap with the register's criterion, findings (strengths and review points), data notes. 17 tests, including agreement with `getWeeklyMuscleVolume` on every muscle and day and with `getRecoverySpacingAlerts` on every pair. |
 | `client/src/components/weekReview/WeekReviewBoard.tsx`, `ReviewHead.tsx`, `week-review.css`, `WeekReviewBoard.render.test.ts` | The Week board (strip, two points, muscle exposure with the figure and the ranked chart, selected-muscle detail, movement coverage, session overlap with pair detail, suggested adjustments, empty / loading / unknown-mapping states) and the head with the Week / Day control and week pills. 12 render tests. |
-| `client/src/components/anatomy/AnatomyFigure.tsx`, `exposurePaint.ts`, `anatomy-figure.css`, `AnatomyFigure.exposure.test.ts` | A third paint encoding, `exposureFor` + `exposureMax`: five steps of one muted sand hue quantised against the week's maximum, unknown hatched, zero left as the resting muscle. 4 tests. |
+| `client/src/components/anatomy/AnatomyFigure.tsx`, `exposurePaint.ts`, `anatomy-figure.css`, `AnatomyFigure.exposure.test.ts` | A third paint encoding, `exposureFor` + `exposureMax`: five steps of one muted sand hue quantised against the figure's own largest region (step 1 at about 1.8:1 above the resting muscle), unknown hatched with colour fallbacks, zero left as the resting muscle. 4 tests. |
 | `client/src/pages/Home.tsx`, `Home.reviewScope.test.ts`, `Home.review.test.ts`, `Home.reviewMatches.test.ts` | `reviewScope` state carried as `scope=day` on Review's address (the week is the plain address), restored on load and Back; `navigateWorkspace(..., { reviewScope })`; `selectWeek(week, { navigate: false })` for Review's pills; `weekAnalysis` memo over the week with the open day's draft committed; the Review branch in two scopes; Plan's pointer opens the Day scope; Home's "Review week" opens the Week scope. 3 jsdom journeys. |
 | `client/src/components/TodayActionPanel.tsx` | "Review week" beside "View plan" on Home's Your week. |
 | `client/src/components/WorkoutHealthPanel.tsx` | The Coach scan's numbers explained in place: total effort = sets × average RPE; muscle overlap = mean pairwise exercise similarity, 0-100; the planned-load marks named. |
@@ -31,7 +31,7 @@ Not rendered any more, kept with their tests as the parity record: `WeeklyMuscle
 ## Tests performed
 
 - `npx tsc --noEmit`: clean.
-- `npx vitest run`: 366 files and 2969 tests pass; the 5 failures are `server/supabaseEvidenceConnection.test.ts`, `supabaseEvidenceRls.test.ts`, `supabasePublicAssets` and `supabaseStorageConnection`, which assert on `VITE_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` being set and fail in this sandbox on `main` as well (no secrets here). Not touched by this change.
+- `npx vitest run`: 366 files and 2979 tests pass; the 5 failures are `server/supabaseEvidenceConnection.test.ts`, `supabaseEvidenceRls.test.ts`, `supabasePublicAssets` and `supabaseStorageConnection`, which assert on `VITE_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` being set and fail in this sandbox on `main` as well (no secrets here). Not touched by this change.
 - Edge cases run as a scratch script against the shipped calculators (`scratchpad/review/edge.ts`): a 1-day split, a 7-day split with repeated exercise ids and a "0 x 10" prescription, "AMRAP" and "3 × 8 / side" prescriptions, a plan key outside the split, every catalog exercise across five days on all four goals, and 300 random plans: every muscle, every day and every pair agrees with `getWeeklyMuscleVolume` and `getRecoverySpacingAlerts` (shared-muscle ties order differently, by label here); no duplicate finding ids; no muscle both "spread" and "concentrated"; per-session values sum to the week's on every row.
 - Browser, against the built client (Playwright, Chromium), `evidence/review-shots-after.json` and `evidence/journeys-after.json`: 320, 375, 390 and 430 CSS px, desktop 1280, 390 at 125 % text, dark and light theme; no horizontal overflow and no page errors at any width; the journeys of §11 below.
 
@@ -42,9 +42,9 @@ Ticked = implemented and verified in this session, with the evidence named. Unti
 ### §2 One canonical Review destination with explicit scope
 - [x] Train → Review stays the canonical location (one `review` workspace; `Home.noRepeatedPages.test.ts` passes).
 - [x] Week / Day control beside the title (`ReviewScopeControl`; `evidence/review-390-after.jpg`, `day-scope-390.jpg`).
-- [x] From Home's weekly summary, "Review week" opens the Week with the correct plan week (`journeys-after.json` → `home`: `?workspace=review`, "Week 1 · 5-day plan"; `Home.reviewScope.test.ts`).
-- [x] From a workout's review action (Plan's pointer under the day), Review opens on that exact day (`journeys-after.json` → `day`: `?workspace=review&scope=day`, "Week 1 · Day 02 · Pull").
-- [x] Direct entry restores the scope from the address and names it; the tab keeps the scope Review was left on; nothing reuses day context silently (`Home.reviewScope.test.ts`, three journeys).
+- [x] From Home's weekly summary, "Review week" opens the Week scope on the week Home trains from: Home passes its resolved training week and Review switches to it first if Plan had another week open (`openWeekReview`; `Home.reviewScope.test.ts` two-week case; `journeys-after.json` → `home`).
+- [x] From a workout's review action, Review opens on that exact day: the Workout page's prestart hero has "Review this day" beside "Edit in Plan", and Plan's pointer under the day does the same (`journeys-after.json` → `day`: `?workspace=review&scope=day`, "Week 1 · Day 02 · Pull"; `DeviceWorkoutTracker.prestart.test.ts`).
+- [x] Direct entry restores the scope from the address and names it; the tab keeps the scope Review was left on; universal search has one destination per scope ("Review your week", "Review this day"); nothing reuses day context silently (`Home.reviewScope.test.ts`, three journeys; `universalSearch.test.ts`).
 - [x] Week review shows "Week 1 · 5-day plan" and a week selector. Plans have no name (`01-inventory.md` §4); the plan is named by its frequency, as everywhere else. The pills appear once a second week exists (`ReviewWeekPills`; render test).
 - [x] Day review names the day and keeps warm-up, planning guide and Coach scan (`day-scope-390.jpg`; `Home.review.test.ts`).
 - [x] Day-only sections removed from the Week reading flow and kept in Day review.
@@ -52,7 +52,7 @@ Ticked = implemented and verified in this session, with the evidence named. Unti
 - [x] Switching scope changes neither the active plan nor the next workout: only Open workout sets `trainChoice` (`Home.review.test.ts` pins the board contains no `chooseDayToTrain`; `Home.reviewScope.test.ts`).
 
 ### §3 Week review layout
-- [x] Title, week, scope control, Edit week; session strip; one strength and one review point; Muscle exposure; Movement coverage; Session overlap; Suggested adjustments, in that order (`review-390-after.jpg`, `review-desktop-after.jpg`).
+- [x] Title, week, scope control, Edit week; the session strip, which wraps onto a second line on phones rather than scrolling sessions out of sight; one strength and one review point; Muscle exposure; Movement coverage; Session overlap; Suggested adjustments, in that order (`review-390-after.jpg`, `review-desktop-after.jpg`).
 - [x] One column on phones; the figure and the chart share a row from 900 px (`review-desktop-after.jpg`).
 - [x] First viewport: week identity, the strip, the two points and the start of the exposure section at 390 (`review-390-after.jpg`).
 - [x] Body-text scale for headings and chart labels (`--sg-text-sm` and above; `typeScale.test.ts` passes).
@@ -64,7 +64,7 @@ Ticked = implemented and verified in this session, with the evidence named. Unti
 - [x] The canonical `AnatomyFigure` with catalog muscle keys; `shoulders` painted on the three deltoid regions (`weekReview.test.ts`).
 - [x] Front / Back control on phones; both bodies from 900 px (`metric-support-back-390.jpg`, `desktop-light-selected.jpg`).
 - [x] Labelled exposure scale: five swatches "fewer to more", the top step stated; more colour is more of the metric, nothing else (`AnatomyFigure.exposure.test.ts`).
-- [x] Unknown mapping hatched, zero left as the resting muscle (render test "names the data it cannot speak for").
+- [x] Unknown mapping hatched, zero left as the resting muscle: the two drawn muscles no catalog exercise can tag (soleus, brachioradialis) are hatched "not counted"; a muscle nothing in the week trains reads "no planned work" on the figure and "Not planned" in the chart, the same fact on both (render test "keeps a known zero and an unknown region distinct").
 - [x] Selecting a muscle on the figure rings it, selects its row and opens its by-session detail; the same from the text list (render test; `muscle-detail-390.jpg`, `desktop-light-selected.jpg`).
 - [x] Role, rank and exposure paints are separate encodings with separate tokens and this mode's own legend (`AnatomyFigure.exposure.test.ts` checks no ramp step equals a role colour).
 - [x] Direct sets and estimated supporting contribution named on every row; bars on one zero-based scale, the week's largest, fixed while sorting or switching the metric (`review-390-after.jpg`; render test).
@@ -128,14 +128,14 @@ Ticked = implemented and verified in this session, with the evidence named. Unti
 ### §9 States, responsiveness, polish
 - [x] Empty week: the strip and Add a workout (`review-empty-390-after.jpg`).
 - [x] Partial week: "1 of 5 days built" and analysis of what exists (`review-partial-390-after.jpg`).
-- [x] Mapping gaps: a data note naming the exercises; the figure's zero regions hatched.
-- [x] Loading: the head and a placeholder board, no zero figure (render test).
+- [x] Mapping gaps: a data note naming the exercises; they count in the session totals and in no muscle, and the figure's zeros stay zeros.
+- [x] Loading: until the plan and the profile are read the head says "Review · Loading your plan" with no week and no numbers (the defaults would have read "Week 1 · 3-day plan · 0 of 3 days built"), and the board holds its layout (render test; `Home.review.test.ts`).
 - [x] Recalculation is synchronous (`useMemo` over the plan); the latest valid result is always on screen.
 - [x] Rapid week switching: the analysis is a pure function of the active week's store, recomputed in the same render; no stale asynchronous result exists to render under the wrong week.
 - [ ] Network failure: Review needs no network; nothing to retry. Not applicable.
 - [x] Keyboard and touch: every control is a button with a name; the figure is one tab stop with arrow keys; chips carry text, not colour alone.
 - [x] One detail surface at a time (selecting a muscle closes a pair and the reverse; render test).
-- [x] Enlarged text (390 at 125 %: no overflow, `review-390-text125-after.jpg`), reduced motion (transitions off), the dock's safe area (page padding unchanged).
+- [x] Enlarged text (390 and 320 at 125 % and at 200 %: no overflow, `review-390-text125-after.jpg`, `review-shots-after.json`), reduced motion (transitions off; a finding's scroll to its surface is not animated under `prefers-reduced-motion`), the dock's safe area (page padding unchanged).
 - [x] Final rows and controls scroll above the dock (full-page captures end with the last finding above the dock).
 - [x] No horizontal overflow at 320, 375, 390, 430 or 1280 (`review-shots-after.json`).
 
@@ -155,8 +155,23 @@ Ticked = implemented and verified in this session, with the evidence named. Unti
 - [ ] A tester's unassisted run: not available in this session. Untested.
 - [x] No regression in plans, workout history, discovery or Day review: the full suite passes (the five Supabase environment tests aside) and the Day review keeps its panels.
 
+## Second pass (6 October): the adversarial review
+
+A four-lens review (calculations, navigation, UI and accessibility, brief compliance) with one refuter per finding; 13 findings survived, 7 more could not be verified before the usage limit and were judged by hand. All 20 were fixed:
+
+- The "spread" strength counted a session that gave only supporting sets; it now needs direct sets on three sessions with none carrying most of them, and its reason names each session's direct sets. On the recording's plan it no longer claims "Upper back is spread across 3 sessions".
+- The umbrella "Deltoids" tag is painted on the three heads on top of their own rows; the figure now takes its top step from its own largest region and each region's name says what it adds up.
+- Regions no catalog exercise can tag are hatched "not counted"; an unmapped exercise no longer turns every zero region into "unknown", so the figure and the chart agree.
+- Repeated split days (4-day Upper / Lower / Upper / Lower) are named by slot ("Day 01 · Upper") in findings, pairs and charts.
+- Home's "Review week" opens the week Home trains from; the Workout page has "Review this day"; search has a destination per scope; a `scope` on another page's address is ignored and dropped.
+- The head shows no week or numbers before the plan and profile are read.
+- Closing a detail returns focus to what opened it; selecting a low-ranked muscle on the figure reveals its row; each Inspect button names its exercise; finding scrolls respect reduced motion.
+- The metric control wraps at 320 px with 200 % text instead of widening the page; the session strip wraps; statuses use text tokens, not orange; the ramp's first step is a clear lightness step above the resting muscle; the hatch has colour fallbacks (it painted black on Train, where the rank stylesheet is not loaded, caught in the browser capture).
+- The Coach scan's "24% muscle overlap" is now "exercise overlap index, 0–100" without a % sign, the planned-load signal prints its value, and Review passes the athlete's own gym window.
+
 ## Blockers and follow-ups
 
-- Workflow agents (the adversarial review and the inventory synthesis) stopped on the session's usage limit; the inventory record and the review were done by hand (edge script, source re-read, browser journeys). An independent review is still worth running.
+- The inventory workflow's nine readers, auditor and critic completed (`01-inventory.md` is its synthesis, with the auditor's fixture runs in §3.12); its critic's findings that could be fixed in this brief were (Home's week, the tracker's review action, search scopes, the pre-hydration head, reduced-motion scrolls, the Coach scan's overlap label and planned-load value, `gymMinutes` passed to the Coach scan). The adversarial review completed on its third run (see "Second pass"); the edge-case script over the shipped calculators and the browser journeys were run again after its fixes.
+- Owner decisions the inventory names (`01-inventory.md` §6): Review's week pills and its Edit [day] actions move the week and day Plan has open, as Plan's own controls do; the umbrella "Deltoids" tag is painted on all three heads on the figure; the four set-count parsers; the 6 / 12 bands' basis.
 - Rest days, adjacent-week context, a sport-demands week view, pattern-keyed discovery, goal-relative pattern coverage, a preview of an edit's effect, and keeping the board's selection across an edit round trip: listed above, each needing a model or editor change outside this brief.
 - Pre-existing and untouched: `splitAssignment.ts` excludes machine presses from Push and Upper because "machine" contains "chin"; 50 catalog exercises match no split; the two label vocabularies (`displayNames`, `muscleLabels`) still word the same key differently.

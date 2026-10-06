@@ -19,8 +19,9 @@
 
 /* Two-segment controls: the scope, the metric, the side of the body. A pill with one lit
    segment, never tabs, because a segment changes what the page counts, not where you are. */
-.wr-scope, .wr-segment { display: inline-flex; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 2px; }
-.wr-scope button, .wr-segment button { display: inline-flex; align-items: center; min-height: 2.5rem; border-radius: 999px; padding: 0 .9rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; letter-spacing: 0; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
+/* The segment may wrap to two lines rather than push the page sideways (320 px at 200 % text). */
+.wr-scope, .wr-segment { display: inline-flex; flex-wrap: wrap; max-width: 100%; min-width: 0; border: 1px solid var(--sg-control-border-on-dark); border-radius: 1.45rem; padding: 2px; }
+.wr-scope button, .wr-segment button { display: inline-flex; flex: 1 1 auto; align-items: center; justify-content: center; min-width: 0; min-height: 2.5rem; border-radius: 999px; padding: 0 .9rem; white-space: normal; text-align: center; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; letter-spacing: 0; transition: background var(--sg-motion-fast) var(--sg-ease), color var(--sg-motion-fast) var(--sg-ease); }
 .wr-scope button[aria-pressed="true"], .wr-segment button[aria-pressed="true"] { background: rgb(255 255 255 / .14); color: var(--sg-text-on-dark); }
 .wr-scope button:focus-visible, .wr-segment button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 
@@ -39,16 +40,18 @@
 .wr-section-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .6rem 1rem; }
 .wr-section-head > div:first-child { min-width: 0; flex: 1 1 16rem; }
 /* A control beside the heading keeps its own width; it was stretching to the row's. */
-.wr-section-head > .wr-segment { flex: 0 0 auto; }
+.wr-section-head > .wr-segment { flex: 0 1 auto; }
+.wr-section h2:focus { outline: none; }
+.wr-section h2:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .wr-section h2 { color: var(--sg-text-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); line-height: var(--sg-leading-snug); text-transform: uppercase; }
 .wr-section-head p { margin-top: .3rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
 .wr-note { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
 
-/* Sessions in plan order: one chip each, scrolled rather than wrapped, so the week reads as
-   one row. An unbuilt slot is dashed and says "Not built"; it is never called rest. */
-.wr-strip { display: flex; gap: .4rem; margin: 0; padding: 0 0 .25rem; list-style: none; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
-.wr-strip::-webkit-scrollbar { display: none; }
-.wr-strip li { flex: 0 0 auto; }
+/* Sessions in plan order: one chip each, wrapping onto a second line on a phone rather than
+   scrolling sessions out of sight (brief §3: "wraps deliberately on phones"). An unbuilt slot is
+   dashed and says "Not built"; it is never called rest. */
+.wr-strip { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.wr-strip li { flex: 0 1 auto; min-width: 0; }
 .wr-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: .1rem; min-height: 2.9rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: .45rem; padding: .4rem .7rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; text-align: left; transition: background var(--sg-motion-fast) var(--sg-ease); }
 .wr-chip small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 600; white-space: nowrap; }
 button.wr-chip:hover { background: rgb(255 255 255 / .06); }
@@ -58,7 +61,7 @@ button.wr-chip:hover { background: rgb(255 255 255 / .06); }
 .wr-points { display: grid; gap: .6rem; }
 .wr-point { display: grid; gap: .15rem; margin: 0; }
 .wr-point span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
-.wr-point[data-kind="review"] span { color: #ffb39c; }
+.wr-point[data-kind="review"] span { color: var(--sg-text-on-dark); }
 .wr-point b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; line-height: var(--sg-leading-body); }
 .wr-point .wr-link { justify-self: start; min-height: 2.5rem; }
 
@@ -146,7 +149,7 @@ button.wr-muscle:hover { background: rgb(255 255 255 / .05); }
 
 /* -- Session overlap ------------------------------------------------------------- */
 .wr-pairs { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
-.wr-pair[data-heavy] small { color: #ffb39c; }
+.wr-pair[data-heavy] small { color: var(--sg-text-on-dark); font-weight: 700; }
 .wr-shared { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
 .wr-shared-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: .25rem; }
 .wr-shared-name { color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
@@ -159,7 +162,7 @@ button.wr-muscle:hover { background: rgb(255 255 255 / .05); }
 
 /* -- Suggested adjustments ------------------------------------------------------- */
 .wr-findings { display: grid; gap: .9rem; margin: 0; padding: 0; list-style: none; }
-.wr-finding { display: grid; gap: .2rem; border-left: 2px solid var(--sg-action-fill); padding-left: .75rem; }
+.wr-finding { display: grid; gap: .2rem; border-left: 2px solid var(--sg-control-border-on-dark); padding-left: .75rem; }
 .wr-finding strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; line-height: var(--sg-leading-body); }
 .wr-finding p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
 .wr-finding small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }

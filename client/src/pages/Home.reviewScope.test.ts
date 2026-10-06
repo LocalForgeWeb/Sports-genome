@@ -60,6 +60,32 @@ beforeEach(() => {
 afterEach(() => { cleanup(); });
 
 describe("Review's scope", () => {
+  it("opens Home's Review week on the week Home trains from, not the week Plan was left on", async () => {
+    // Two weeks; Plan was left on Week 1, and an explicit choice puts Home's next workout in Week 2.
+    const weekTwo = { ...week, weeklyPlanEntries: { "0-Push": entries([exercises[3].id]) }, activeDayIndex: 0 };
+    window.localStorage.setItem(PLAN_KEY, JSON.stringify({ version: 2, ...week, weeks: { "1": week, "2": weekTwo }, activeWeek: 1, nextWorkout: { week: 2, index: 0, day: "Push", madeAt: "2026-10-05T08:00:00.000Z" } }));
+    window.history.replaceState({}, "", "/");
+    render(createElement(Home));
+    const reviewWeek = await screen.findByRole("button", { name: /Review week/ }, { timeout: 15000 });
+    await act(async () => { fireEvent.click(reviewWeek); });
+    await tick();
+    expect(window.location.search).toBe("?workspace=review");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Week 2 · 3-day plan");
+    expect(document.querySelector(".wr-head-detail")!.textContent).toMatch(/^1 of 3 days built/);
+  });
+
+  it("ignores a scope on another page's address and drops it from the address", async () => {
+    window.history.replaceState({}, "", "/?workspace=day-plan&scope=day");
+    render(createElement(Home));
+    const tabs = await screen.findByRole("navigation", { name: "Train workspace pages" }, { timeout: 15000 });
+    await tick();
+    expect(window.location.search).toBe("?workspace=day-plan");
+    await act(async () => { fireEvent.click(within(tabs).getByRole("button", { name: "Review" })); });
+    await tick();
+    expect(window.location.search).toBe("?workspace=review");
+    expect(pressed("Week")).toBe("true");
+  });
+
   it("opens on the week from the tab, switches to the day without moving the day Plan has open, and carries the scope in the address", async () => {
     window.history.replaceState({}, "", "/?workspace=day-plan");
     render(createElement(Home));

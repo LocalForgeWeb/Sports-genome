@@ -271,6 +271,8 @@ function replaceWithCanonicalAddress(workspace: Workspace) {
   if (typeof window === "undefined") return;
   const url = new URL(window.location.href);
   writeDiscoveryParams(url.searchParams, workspace === "catalog" ? discoveryFromLocation() : allExercisesDiscovery);
+  // Review's scope belongs to Review's entries alone, and only "day" is written (the week is the plain address).
+  if (workspace !== "review" || url.searchParams.get("scope") !== "day") url.searchParams.delete("scope");
   if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
 }
 
@@ -357,7 +359,13 @@ export default function Home() {
    * (Plan's pointer). Switching it changes the scope alone: not the day Plan has open, not the
    * week, and never Home's next workout (5 October 2026 brief §2).
    */
-  const [reviewScope, setReviewScopeState] = useState<ReviewScope>(() => typeof window === "undefined" ? "week" : reviewScopeFromLocation(new URLSearchParams(window.location.search).get("scope")));
+  const [reviewScope, setReviewScopeState] = useState<ReviewScope>(() => {
+    if (typeof window === "undefined") return "week";
+    // Only an address that names Review can say which scope; a stray scope on another page's
+    // address must not decide the next Review visit.
+    const params = new URLSearchParams(window.location.search);
+    return workspaceFromLocation(params.get("workspace")) === "review" ? reviewScopeFromLocation(params.get("scope")) : "week";
+  });
   const reviewScopeRef = useRef(reviewScope);
   reviewScopeRef.current = reviewScope;
   const setReviewScope = (scope: ReviewScope) => {
@@ -658,6 +666,8 @@ export default function Home() {
     const week = visibleDayPlan(homePlan.weeks[activeWeek] || emptyDayStore(), splitDays);
     return analyzeWeek({ slots: daySlots, plan: week.plan, prescriptions: week.prescriptions, goal, catalog: exercises });
   }, [homePlan, activeWeek, splitDays, daySlots, goal]);
+  /** Review has something true to show only once the plan and the profile (the frequency, the goal) are read. */
+  const reviewReady = planHydrated && profileHydrated;
   /*
    * Latest plan state for handlers that run later than the render that made them: the
    * Undo in a toast is created at the edit and pressed seconds - and possibly a day
@@ -1688,6 +1698,18 @@ export default function Home() {
     } else selectTrainingDay(index);
     navigateWorkspace(target);
   };
+  /**
+   * Home's "Review week" opens the week Home trains from. Home resolves its own week (the explicit
+   * choice, else the latest session's week) and it can differ from the week Plan has open, so the
+   * week is switched first, as Home's workout actions do, and never the next workout.
+   */
+  const openWeekReview = (week: number) => {
+    if (week !== activeWeek && planWeeks[week]) {
+      setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot() }));
+      applyWeek(week, planWeeks[week], { navigate: false });
+    }
+    navigateWorkspace("review", { reviewScope: "week" });
+  };
   /** An explicit choice to train the day being shown, stamped so a later finish of it can end it. */
   const chooseDayToTrain = (slot: DaySlot) => setTrainChoice({ week: activeWeek, index: slot.index, day: slot.day, madeAt: new Date().toISOString() });
   const selectWeek = (week: number, { navigate = true }: { navigate?: boolean } = {}) => {
@@ -1917,10 +1939,13 @@ export default function Home() {
     // An exercise opens over the catalog, so its overlay entry goes on top of
     // the catalog's: Back then closes the overlay and leaves the catalog.
     let pendingInspect: Exercise | null = null;
+    // Review's "anchor" is its scope (lib/universalSearch: "review#day"), not a place on the page.
+    let scope: ReviewScope | undefined;
     if (result.type === "destination") {
       const [workspaceId, anchorId = ""] = result.id.split("#");
       target = workspaceId as Workspace;
-      anchor = anchorId;
+      if (target === "review") scope = anchorId === "day" ? "day" : "week";
+      else anchor = anchorId;
     } else if (result.type === "muscle") {
       setActiveMuscle(result.id);
       target = "body";
@@ -1950,7 +1975,7 @@ export default function Home() {
     if (!target) return;
     const origin = workspace;
     const originDiscovery = discovery;
-    navigateWorkspace(target, { keepScroll: Boolean(anchor) });
+    navigateWorkspace(target, { keepScroll: Boolean(anchor), reviewScope: scope });
     if (pendingInspect) inspectExercise(pendingInspect);
     // Focus, not just scroll: §11 requires focus to land near the object the
     // athlete came for, and a scrolled page leaves a keyboard or screen-reader
@@ -2104,7 +2129,7 @@ export default function Home() {
       />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace, { discovery: searchReturn.discovery })}><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
               The tracker renders it only before a session starts; mid-workout
               the day cannot change under the sets being logged. */}
@@ -2120,7 +2145,7 @@ export default function Home() {
         {/* A plan changed on this device and on the account since they last matched. Syncing
             stops until the athlete says which to keep; nothing is overwritten on their behalf. */}
         {planSync.conflict && <div className="plan-sync-conflict" role="alert"><p><strong>Your plan changed on another device.</strong> This device and your account both have edits since they last matched, so neither was replaced.</p><div><button type="button" onClick={() => planSync.resolveConflict("device")}>Keep this device's plan</button><button type="button" onClick={() => planSync.resolveConflict("account")}>Use the account's plan</button></div></div>}
-        {workspace === "command" && <TodayActionPanel plan={homePlan} onOpenWorkout={openPlannedWorkout} onOpenReview={() => navigateWorkspace("review", { reviewScope: "week" })} onOpenProgress={() => navigateWorkspace("progress")} goal={goal} live={liveSession} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
+        {workspace === "command" && <TodayActionPanel plan={homePlan} onOpenWorkout={openPlannedWorkout} onOpenReview={openWeekReview} onOpenProgress={() => navigateWorkspace("progress")} goal={goal} live={liveSession} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} onFindExercises={() => openDiscovery({ mode: "movement", sportId: referenceMovement.sportId, movementId: referenceMovement.id })} /></>}
         {/* Home, after the first viewport: what this app helps you do, as three
@@ -2284,25 +2309,31 @@ export default function Home() {
             has open, with the panels that read it. Neither scope touches the next workout;
             only the Day scope's Open workout does, as Plan's does. */}
         {workspace === "review" && <section className="day-review-workspace" data-scope={reviewScope}>
+          {/* Before the plan and profile have been read, the head names no week and no numbers:
+              "Week 1 · 3-day plan · 0 of 3 days built" is the defaults, not the athlete's plan. */}
           <ReviewHead
-            title={reviewScope === "week" ? `Week ${activeWeek} · ${trainingDays}-day plan` : activeDayLabel}
-            detail={reviewScope === "week"
-              ? `${weekAnalysis.builtCount} of ${daySlots.length} days built · ${plural(weekAnalysis.workSets, "planned work set")} · the plan as written, not what you have completed`
-              : `${customWorkout.length ? plural(customWorkout.length, "exercise") : "Nothing built yet"} · the day Plan has open`}
+            title={!reviewReady ? "Review" : reviewScope === "week" ? `Week ${activeWeek} · ${trainingDays}-day plan` : activeDayLabel}
+            detail={!reviewReady
+              ? "Loading your plan"
+              : reviewScope === "week"
+                ? `${weekAnalysis.builtCount} of ${daySlots.length} days built · ${plural(weekAnalysis.workSets, "planned work set")} · the plan as written, not what you have completed`
+                : `${customWorkout.length ? plural(customWorkout.length, "exercise") : "Nothing built yet"} · the day Plan has open`}
             scope={reviewScope}
             onScope={setReviewScope}
           >
-            {reviewScope === "week"
-              ? <>
-                <ReviewWeekPills weeks={[1, 2, 3].map((week) => ({ week, ready: visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek).includes(week), savedDays: savedDayCount(week === activeWeek ? dayStore : planWeeks[week]?.days || emptyDayStore()) }))} activeWeek={activeWeek} onSelect={(week) => selectWeek(week, { navigate: false })} />
-                <button type="button" className="wr-button" onClick={() => navigateWorkspace("day-plan")}>Edit week <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
-              </>
-              : <button type="button" className="day-review-open" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}>{liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"} <ArrowUpRight className="h-4 w-4" /></button>}
+            {!reviewReady
+              ? null
+              : reviewScope === "week"
+                ? <>
+                  <ReviewWeekPills weeks={[1, 2, 3].map((week) => ({ week, ready: visibleWeeks(Object.keys(planWeeks).map(Number), activeWeek).includes(week), savedDays: savedDayCount(week === activeWeek ? dayStore : planWeeks[week]?.days || emptyDayStore()) }))} activeWeek={activeWeek} onSelect={(week) => selectWeek(week, { navigate: false })} />
+                  <button type="button" className="wr-button" onClick={() => navigateWorkspace("day-plan")}>Edit week <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
+                </>
+                : <button type="button" className="day-review-open" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}>{liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"} <ArrowUpRight className="h-4 w-4" /></button>}
           </ReviewHead>
           {reviewScope === "week"
             ? <WeekReviewBoard
               analysis={weekAnalysis}
-              ready={planHydrated}
+              ready={reviewReady}
               onEditWeek={() => navigateWorkspace("day-plan")}
               /* Opens that day in Plan: the marker moves (allowed), the next workout does not (Sep 28 §4).
                  The picker sheet, when asked for, opens after the page has gone to the top: it pins the
@@ -2322,7 +2353,8 @@ export default function Home() {
               <div className="day-review-stack">
                 <WarmupPanel workout={customWorkout} goal={goal} />
                 <ProgrammingGuidePanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} />
-                <WorkoutHealthPanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} equipmentSummary={equipmentProfileSummary(athleteBaseline.equipment)} />
+                {/* The athlete's own gym window, so the time budget and the set band are theirs, not the 60-minute default. */}
+                <WorkoutHealthPanel workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} gymMinutes={gymMinutes} equipmentSummary={equipmentProfileSummary(athleteBaseline.equipment)} />
                 <ImportedPlanContext items={activeImportedContext} />
               </div>
             </>}
