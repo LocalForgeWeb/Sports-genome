@@ -1,5 +1,5 @@
 {
- "ranAt": "2026-10-06T20:20:04.773Z",
+ "ranAt": "2026-10-06T20:49:29.628Z",
  "environment": "headless Chromium, vite preview of the production build, viewport emulation",
  "results": [
   {
@@ -41,6 +41,21 @@
    "name": "No sideways scroll with the sheet open (390)",
    "pass": true,
    "detail": ""
+  },
+  {
+   "name": "Inspect a candidate inside the sheet: Back Squat start and finish photos load, no second dialog",
+   "pass": true,
+   "detail": "[{\"ok\":true,\"src\":\"Barbell_Squat/0.jpg\"},{\"ok\":true,\"src\":\"Barbell_Squat/1.jpg\"}]"
+  },
+  {
+   "name": "After the swap, focus is on the next logging action (Log set 1)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Same Back Squat image in the swap results and the workout list",
+   "pass": true,
+   "detail": "/exercise-thumbs/Barbell_Squat.jpg | /exercise-thumbs/Barbell_Squat.jpg"
   },
   {
    "name": "Live card now tracks Back Squat, set 1 of 2",
@@ -186,6 +201,16 @@
    "name": "Keyboard: Escape closes the sheet and returns focus to Swap exercise",
    "pass": true,
    "detail": ""
+  },
+  {
+   "name": "A heavier stage is kept, with a nonblocking note",
+   "pass": true,
+   "detail": "Stage 2: This stage isn't lighter than the one before (100 lb). It's kept; check the load, or leave it if that's what you did."
+  },
+  {
+   "name": "Removed stage gone, order kept, after a reload: 100 × 5 → 70 × 6 → 50 × 10",
+   "pass": true,
+   "detail": "[[\"set-mux5j8hr-2igoho-stage-1\",\"100\",\"5\"],[\"set-mux5j8hr-2igoho-stage-3\",\"70\",\"6\"],[\"set-mux5j8hr-2igoho-stage-4\",\"50\",\"10\"]]"
   },
   {
    "name": "Nothing logged: Back Squat replaces Sissy Squat in place, 4 sets",

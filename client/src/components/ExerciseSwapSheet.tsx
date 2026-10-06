@@ -151,6 +151,11 @@ export function ExerciseSwapSheet({ exercise, catalogEntry, catalog, assessment,
             <label className={draft === "discard" ? "is-on" : ""}><input type="radio" name="swap-draft" checked={draft === "discard"} onChange={() => setDraft("discard")} /><span><b>Discard it</b></span></label>
             <label className={draft === "reuse" ? "is-on" : ""}><input type="radio" name="swap-draft" checked={draft === "reuse"} onChange={() => setDraft("reuse")} /><span><b>Use the reps for {selected.name}</b><small>The load is not carried over.</small></span></label>
           </fieldset>}
+          {/* A brief look before choosing, inside this sheet: no second dialog on top of it. */}
+          <details className="swap-inspect">
+            <summary>Show {selected.name} photos</summary>
+            <ExerciseMedia exerciseId={selected.id} exerciseName={selected.name} equipment={selected.equipment} variant="detail" />
+          </details>
           <div className="swap-logging">
             <h3>Logging {selected.name}</h3>
             <ul>

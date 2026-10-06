@@ -55,9 +55,18 @@ async function openSwap(p) { await card(p).getByRole('button', { name: 'Swap exe
   check('Confirm reads "Use Back Squat" and is on screen', (await dialog.locator('.swap-confirm').textContent()) === 'Use Back Squat' && await inView(p, '.swap-confirm'));
   check('No sideways scroll with the sheet open (390)', await noSideScroll(p));
   await p.screenshot({ path: `${out}swap-2-sheet-390.png` });
+  const sheetThumb = await dialog.locator('.swap-option[aria-pressed="true"] .exercise-media-thumb img').getAttribute('src');
+  await dialog.locator('.swap-inspect > summary').click(); await wait(p, 1500);
+  const inspected = await dialog.locator('.swap-inspect .exercise-media-frame img').evaluateAll((imgs) => imgs.map((img) => ({ ok: img.naturalWidth > 0, src: img.getAttribute('src').split('/exercises/')[1] })));
+  check('Inspect a candidate inside the sheet: Back Squat start and finish photos load, no second dialog', inspected.length === 2 && inspected.every((f) => f.ok && f.src.startsWith('Barbell_Squat/')) && await p.locator('[role="dialog"]').count() === 1, JSON.stringify(inspected));
   await dialog.locator('.swap-details').scrollIntoViewIfNeeded(); await wait(p, 200);
   await p.screenshot({ path: `${out}swap-3-sheet-details-390.png` });
   await dialog.locator('.swap-confirm').click(); await wait(p, 600);
+  check('After the swap, focus is on the next logging action (Log set 1)', await p.evaluate(() => document.activeElement?.classList.contains('live-set-commit') && /Log set 1/.test(document.activeElement.textContent)));
+  await p.locator('.live-session-queue > summary').click(); await wait(p, 600);
+  const queueThumb = await p.locator('.session-exercise').filter({ has: p.locator('strong', { hasText: /^Back Squat$/ }) }).first().locator('.exercise-media-thumb img').getAttribute('src');
+  await p.locator('.live-session-queue > summary').click(); await wait(p, 200);
+  check('Same Back Squat image in the swap results and the workout list', sheetThumb === '/exercise-thumbs/Barbell_Squat.jpg' && queueThumb === sheetThumb, `${sheetThumb} | ${queueThumb}`);
   check('Live card now tracks Back Squat, set 1 of 2', (await card(p).locator('h4').textContent()) === 'Back Squat' && (await card(p).textContent()).includes('Set 1 of 2'));
   check('Live card says "Switched from Sissy Squat after 2 sets"', (await card(p).textContent()).includes('Switched from Sissy Squat after 2 sets'));
   check('No load carried across: weight box empty', (await card(p).getByLabel(/^Weight/).inputValue()) === '');
@@ -143,6 +152,25 @@ for (const [width, height, label, opts] of [[320, 640, 'phone-320'], [375, 812, 
   await card(p).getByRole('button', { name: 'Swap exercise' }).focus(); await p.keyboard.press('Enter'); await wait(p, 300);
   await p.keyboard.press('Escape'); await wait(p, 300);
   check('Keyboard: Escape closes the sheet and returns focus to Swap exercise', !(await p.locator('.swap-sheet').count()) && await p.evaluate(() => document.activeElement?.textContent?.includes('Swap exercise')));
+  await ctx.close();
+}
+
+// 6b. A heavier stage is kept with a note, not refused; an accidental stage can be removed.
+{
+  const [ctx, p] = await open(390, 844);
+  const dialog = await openSwap(p);
+  await dialog.getByRole('searchbox').fill('back squat'); await wait(p, 300);
+  await dialog.locator('.swap-option').filter({ hasText: 'Back Squat' }).first().click();
+  await dialog.locator('.swap-confirm').click(); await wait(p, 500);
+  await card(p).getByRole('button', { name: 'Drop set' }).click();
+  for (const [w, r] of [['100', '5'], ['110', '3'], ['70', '6']]) { await card(p).getByLabel(/^Weight/).fill(w); await card(p).getByLabel('Reps').fill(r); await card(p).getByRole('button', { name: 'Add drop' }).click(); await wait(p, 200); if (w === '110') { const note = await card(p).locator('.live-drop-note').textContent().catch(() => ''); check('A heavier stage is kept, with a nonblocking note', note.includes("isn't lighter than the one before (100 lb). It's kept") && !(await card(p).locator('[role="alert"]').count()), note); } }
+  await p.screenshot({ path: `${out}drop-3-note-remove-390.png` });
+  await card(p).getByRole('button', { name: 'Remove stage 2' }).click(); await wait(p, 300);
+  await card(p).getByLabel(/^Weight/).fill('50'); await card(p).getByLabel('Reps').fill('10');
+  await card(p).getByRole('button', { name: 'Finish drop set' }).click(); await wait(p, 300);
+  await p.reload(); await wait(p, 1800);
+  const set = (await stored(p))[0].exercises[0].sets[0];
+  check('Removed stage gone, order kept, after a reload: 100 × 5 → 70 × 6 → 50 × 10', set.type === 'drop' && set.completed && set.stages.map((x) => `${x.weight}x${x.reps}`).join(',') === '100x5,70x6,50x10', JSON.stringify(set.stages.map((x) => [x.id, x.weight, x.reps])));
   await ctx.close();
 }
 

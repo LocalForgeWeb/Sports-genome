@@ -112,24 +112,31 @@ export function dropSetSummary(set: DeviceSetLog): string {
 }
 
 /**
- * Why a stage cannot be added yet, or null when it can. Reps are whole and at least 1. A load
- * is required where the exercise has one, and each drop is lighter than the stage before - a
- * stage at the same or a heavier load is a rest-pause or a new set, not a drop. A bodyweight
- * movement may drop its added load to none.
+ * Why a stage cannot be added yet, or null when it can: reps are whole and at least 1, a load is
+ * a finite number, and a load is given where the exercise has one. That is all that blocks.
  */
-export function stageProblem(stage: Pick<DropStage, "weight" | "reps">, previous: Pick<DropStage, "weight" | "unit"> | undefined, options: { loadOptional: boolean; unit: DisplayWeightUnit; previousUnit?: DisplayWeightUnit }): string | null {
+export function stageProblem(stage: Pick<DropStage, "weight" | "reps">, _previous: Pick<DropStage, "weight" | "unit"> | undefined, options: { loadOptional: boolean; unit: DisplayWeightUnit }): string | null {
   const reps = number(stage.reps);
   if (!stage.reps.trim() || !Number.isInteger(reps) || reps < 1) return "Enter the reps for this stage.";
   const load = stage.weight.trim() ? number(stage.weight) : NaN;
-  if (stage.weight.trim() && !(load >= 0)) return "Enter the load as a number.";
+  if (stage.weight.trim() && !(Number.isFinite(load) && load >= 0)) return "Enter the load as a number.";
   if (!options.loadOptional && !(load > 0)) return "Enter the load for this stage.";
-  if (previous) {
-    const before = previous.weight.trim() ? number(previous.weight) : 0;
-    const beforeInUnit = previous.unit && previous.unit !== options.unit ? kilogramsToDisplayWeight(displayWeightToKilograms(before, previous.unit), options.unit) : before;
-    const now = Number.isFinite(load) ? load : 0;
-    if (beforeInUnit > 0 && now >= beforeInUnit - 1e-9) return `Each drop is lighter than the stage before (${formatLoad(beforeInUnit)} ${options.unit}).`;
-    if (beforeInUnit <= 0 && now > 0) return "Each drop is lighter than the stage before.";
-    if (beforeInUnit <= 0 && now <= 0 && !options.loadOptional) return "Enter the load for this stage.";
+  return null;
+}
+
+/**
+ * A note, never a refusal, when a stage is not lighter than the one before. Usually a typo -
+ * but an assisted movement drops by adding assistance, and a record entered afterwards may be
+ * exactly what happened, so the stage is kept and the athlete is told what to check.
+ */
+export function stageNote(stage: Pick<DropStage, "weight">, previous: Pick<DropStage, "weight" | "unit"> | undefined, unit: DisplayWeightUnit): string | null {
+  if (!previous) return null;
+  const before = previous.weight.trim() ? number(previous.weight) : 0;
+  const beforeInUnit = previous.unit && previous.unit !== unit ? kilogramsToDisplayWeight(displayWeightToKilograms(before, previous.unit), unit) : before;
+  const now = stage.weight.trim() ? number(stage.weight) : 0;
+  if (!Number.isFinite(now) || !Number.isFinite(beforeInUnit)) return null;
+  if ((beforeInUnit > 0 && now >= beforeInUnit - 1e-9) || (beforeInUnit <= 0 && now > 0)) {
+    return `This stage isn't lighter than the one before (${beforeInUnit > 0 ? `${formatLoad(beforeInUnit)} ${unit}` : "no added load"}). It's kept; check the load, or leave it if that's what you did.`;
   }
   return null;
 }

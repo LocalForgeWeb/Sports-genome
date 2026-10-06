@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { exercises } from "./exerciseCatalog";
 import { countCompletedSets, finalizeSession, isDraftSet, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, settleDropSet, type DeviceSetLog, type DeviceWorkoutSession } from "./deviceWorkoutLog";
-import { dropSetLine, dropSetSummary, isDropSet, performedSetLine, setVolume, stageProblem, totalReps, volumeText } from "./dropSets";
+import { dropSetLine, dropSetSummary, isDropSet, performedSetLine, setVolume, stageNote, stageProblem, totalReps, volumeText } from "./dropSets";
 import { workoutStrengthObservations } from "./workoutStrengthRecord";
 
 beforeEach(() => window.localStorage.clear());
@@ -74,20 +74,29 @@ describe("a drop set is one set of ordered stages (Oct 6 brief §4, §5)", () =>
     expect(volumeText(setVolume(ownerDrop, "lb", "per_implement")!)).toBe("1,420 lb·reps per dumbbell");
   });
 
-  it("validates each stage: whole reps, a load where the exercise has one, and every drop lighter than the last", () => {
+  it("blocks only what cannot be recorded: whole reps, a numeric load, a load where the exercise has one", () => {
     const options = { loadOptional: false, unit: "lb" as const };
     expect(stageProblem({ weight: "70", reps: "" }, { weight: "100", unit: "lb" }, options)).toBe("Enter the reps for this stage.");
     expect(stageProblem({ weight: "70", reps: "2.5" }, { weight: "100", unit: "lb" }, options)).toBe("Enter the reps for this stage.");
     expect(stageProblem({ weight: "", reps: "6" }, undefined, options)).toBe("Enter the load for this stage.");
-    expect(stageProblem({ weight: "100", reps: "6" }, { weight: "100", unit: "lb" }, options)).toContain("lighter than the stage before");
-    expect(stageProblem({ weight: "110", reps: "6" }, { weight: "100", unit: "lb" }, options)).toContain("lighter than the stage before");
+    expect(stageProblem({ weight: "1e999", reps: "6" }, undefined, options)).toBe("Enter the load as a number.");
     expect(stageProblem({ weight: "70", reps: "6" }, { weight: "100", unit: "lb" }, options)).toBeNull();
     expect(stageProblem({ weight: "52.5", reps: "8" }, { weight: "60", unit: "lb" }, options)).toBeNull();
-    // A stage typed in lb after one in kg is compared in the same unit: 45 kg is 99.2 lb.
-    expect(stageProblem({ weight: "95", reps: "6" }, { weight: "45", unit: "kg" }, options)).toBeNull();
-    expect(stageProblem({ weight: "100", reps: "6" }, { weight: "45", unit: "kg" }, options)).toContain("99.21 lb");
+    // A heavier or equal stage is not refused: an assisted movement drops by adding assistance.
+    expect(stageProblem({ weight: "110", reps: "6" }, { weight: "100", unit: "lb" }, options)).toBeNull();
     // Bodyweight: added load may drop to none.
     expect(stageProblem({ weight: "", reps: "8" }, { weight: "45", unit: "lb" }, { loadOptional: true, unit: "lb" })).toBeNull();
+  });
+
+  it("notes, without blocking, a stage that is not lighter than the one before", () => {
+    expect(stageNote({ weight: "70" }, { weight: "100", unit: "lb" }, "lb")).toBeNull();
+    expect(stageNote({ weight: "100" }, { weight: "100", unit: "lb" }, "lb")).toContain("isn't lighter than the one before (100 lb). It's kept");
+    expect(stageNote({ weight: "110" }, { weight: "100", unit: "lb" }, "lb")).toContain("isn't lighter");
+    // Compared in one unit: 45 kg is 99.21 lb.
+    expect(stageNote({ weight: "95" }, { weight: "45", unit: "kg" }, "lb")).toBeNull();
+    expect(stageNote({ weight: "100" }, { weight: "45", unit: "kg" }, "lb")).toContain("99.21 lb");
+    expect(stageNote({ weight: "" }, { weight: "45", unit: "lb" }, "lb")).toBeNull();
+    expect(stageNote({ weight: "70" }, undefined, "lb")).toBeNull();
   });
 
   it("closes a drop set left open with the stages that were done: two make a drop set, one an ordinary set", () => {

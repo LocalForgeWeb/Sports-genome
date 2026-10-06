@@ -196,27 +196,44 @@ describe("Drop sets in the live tracker (owner example: 100 lb × 5 → 70 lb ×
     expect(queue.textContent).toContain("1 drop set · 3 stages · 21 reps · 1,420 lb·reps");
   });
 
-  it("refuses a heavier drop and a one-stage drop set, saying why", () => {
+  it("keeps a heavier stage with a note rather than refusing it, and refuses a one-stage drop set", () => {
     start([backSquat]);
     fireEvent.click(within(card()).getByRole("button", { name: "Drop set" }));
     addStage("100", "5");
     addStage("110", "6");
-    expect(within(card()).getByRole("alert").textContent).toContain("lighter than the stage before (100 lb)");
-    type(/^Weight/, "");
-    type("Reps", "");
+    expect(within(card()).queryByRole("alert")).toBeNull();
+    expect(within(card()).getByRole("status").textContent).toContain("Stage 2: This stage isn't lighter than the one before (100 lb). It's kept");
+    expect(stored()[0].exercises[0].sets[0].stages!.map((stage) => stage.weight)).toEqual(["100", "110"]);
+    fireEvent.click(within(card()).getByRole("button", { name: "Remove stage 2" }));
     fireEvent.click(within(card()).getByRole("button", { name: "Finish drop set" }));
     expect(within(card()).getByRole("alert").textContent).toContain("needs at least two stages");
     expect(stored()[0].exercises[0].sets[0].completed).toBe(false);
   });
 
-  it("can undo the last stage back into the boxes, and switches back to standard only with no stages", () => {
+  it("edits the last stage back into the boxes, and switches back to standard only with no stages", () => {
     start([backSquat]);
     fireEvent.click(within(card()).getByRole("button", { name: "Drop set" }));
     addStage("100", "5");
     expect((within(card()).getByRole("button", { name: "Standard" }) as HTMLButtonElement).disabled).toBe(true);
-    fireEvent.click(within(card()).getByRole("button", { name: /Undo stage 1/ }));
+    fireEvent.click(within(card()).getByRole("button", { name: /Edit stage 1/ }));
     expect((within(card()).getByLabelText(/^Weight/) as HTMLInputElement).value).toBe("100");
     expect((within(card()).getByRole("button", { name: "Standard" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("removes an accidental middle stage, keeping the set and the other stages in order, with Undo", () => {
+    start([backSquat]);
+    fireEvent.click(within(card()).getByRole("button", { name: "Drop set" }));
+    addStage("100", "5");
+    addStage("80", "4");
+    addStage("70", "6");
+    const ids = stored()[0].exercises[0].sets[0].stages!.map((stage) => stage.id);
+    fireEvent.click(within(card()).getByRole("button", { name: "Remove stage 2" }));
+    expect(stored()[0].exercises[0].sets[0].stages!.map((stage) => stage.weight)).toEqual(["100", "70"]);
+    expect(toasts.at(-1)?.title).toBe("Removed stage 2");
+    act(() => toasts.at(-1)!.options!.action!.onClick());
+    const restored = stored()[0].exercises[0].sets[0].stages!;
+    expect(restored.map((stage) => stage.weight)).toEqual(["100", "80", "70"]);
+    expect(restored.map((stage) => stage.id)).toEqual(ids);
   });
 
   it("turns a set already logged into a drop set, its numbers becoming stage 1", () => {

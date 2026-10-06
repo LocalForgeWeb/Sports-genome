@@ -19,6 +19,7 @@ The photo half of the brief is reported in [`docs/exercise-media-audit/README.md
 - Search covers all 399 other catalog exercises, and the sheet says so.
 - Equipment filter chips narrow the list.
 - With no search typed, **Suggested · same movement or muscles** lists squats first for Sissy Squat; Back Squat is first.
+- **Show Back Squat photos** opens the chosen candidate's start and finish photos inside the sheet, for a brief look without a second dialog.
 - The confirm button names the choice: **Use Back Squat**. It stays pinned at the sheet's foot, so it remains reachable with the keyboard up.
 
 **What happens to the work already done**
@@ -55,6 +56,7 @@ The photo half of the brief is reported in [`docs/exercise-media-audit/README.md
   - The message reads "Swapped to Back Squat · Your 2 logged sets stay with Sissy Squat." Its **Undo** puts the workout back exactly, including the plan if that was changed.
   - Undo works until anything is logged or typed on either exercise. After that, it says it can't, and why.
 - **Reload.** After a reload, the workout resumes on Back Squat with the swap recorded.
+- **Focus.** After the swap, focus moves to the next logging action (Log set 1), not back to Swap exercise.
 
 **History**
 - The original keeps `replacedBy`, and the new exercise keeps `swappedFrom`. Each record holds the other's name and catalog id, the number of sets done before the swap, and the time.
@@ -68,15 +70,14 @@ The photo half of the brief is reported in [`docs/exercise-media-audit/README.md
 - In a drop set:
   - **Add drop** records the stage. It starts no rest timer, and the boxes are left empty for the next stage.
   - **Finish drop set** records the last stage, closes the set, and starts the rest.
-  - The stages done are listed above the boxes. **Undo** on the last stage puts its numbers back in the boxes to correct.
+  - The stages done are listed above the boxes. **Edit** on the last stage puts its numbers back in the boxes to correct. **Remove** on any stage takes out an accidental one; the set and its other stages stay in order, keeping their ids, and the message's **Undo** puts it back where it was.
+  - The whole example can be entered after the set is done: type 100 and 5, Add drop; 70 and 6, Add drop; 50 and 10, Finish drop set.
   - The hint under them reads "Stage 3 · lighter than 70 lb · no rest between stages".
   - The return key on the last box adds the stage.
 
-**Validation** (`stageProblem`)
-- Reps are whole and at least 1.
-- A load is required where the exercise has one.
-- Each drop must be lighter than the stage before. A stage at the same or a heavier load is refused with the reason. Units are compared exactly when stages mix lb and kg.
-- A drop set needs at least two stages to count; Finish with one says so.
+**Validation** (`stageProblem` blocks; `stageNote` only advises)
+- **Blocks:** reps that aren't whole and at least 1; a load that isn't a finite number; a missing load where the exercise has one; Finish with fewer than two stages ("A drop set needs at least two stages").
+- **Advises, never blocks:** a stage at the same or a heavier load than the one before is kept, with a one-line note: "This stage isn't lighter than the one before (100 lb). It's kept; check the load, or leave it if that's what you did." An assisted movement drops by adding assistance, and an entry made afterwards may be exactly what happened. Units are compared exactly when stages mix lb and kg.
 - On a bodyweight exercise, the added load may drop to none ("+45 lb × 6 → bodyweight × 8").
 
 **Converting an existing set**
@@ -134,14 +135,14 @@ The photo half of the brief is reported in [`docs/exercise-media-audit/README.md
 - `npx vitest run` passes except the same 5 `server/supabase*` tests that cannot reach Supabase from this sandbox (they failed identically before).
 - New tests:
   - `client/src/lib/workoutSwap.test.ts` (14)
-  - `client/src/lib/dropSets.test.ts` (9)
-  - `client/src/components/DeviceWorkoutTracker.swapDrop.test.ts` (13, jsdom through the real component)
+  - `client/src/lib/dropSets.test.ts` (10)
+  - `client/src/components/DeviceWorkoutTracker.swapDrop.test.ts` (14, jsdom through the real component)
   - `client/src/components/ProgressOverviewPanel.swapDrop.test.ts` (1)
   - `client/src/components/ExerciseMedia.test.ts` (updated, 7)
   - `client/src/lib/exercisePhotos.test.ts` (updated, 11)
 - **Contract test updated.** `client/src/localSearchScope.test.ts` exempts the swap sheet from offering "search the whole app". It already searches the whole catalog, and leaving mid-swap would abandon it; it states its scope in words instead.
 
-**Browser checks** (`probes/acceptance.mjs`, 39/39, `evidence/acceptance.json`)
+**Browser checks** (`probes/acceptance.mjs`, 44/44, `evidence/acceptance.json`)
 - These ran in headless Chromium against `vite preview` of the production build, driving the real UI.
 - They are viewport emulations, not phones or people. Large text was emulated by setting the root font size to 140%; an open keyboard by a 390 × 500 viewport.
 
@@ -153,6 +154,8 @@ The photo half of the brief is reported in [`docs/exercise-media-audit/README.md
 | Reload mid-workout resumes past the finished Back Squat; Progress record shows both exercises, both swap notes and the drop set line with its totals | pass |
 | 320, 375, 430, 1280 px, 140% text and a keyboard-sized viewport: sheet fits, no sideways scroll, "Use Back Squat" on screen, every control at least 44 px tall; drop-set controls fit | pass |
 | Keyboard only: focus moves into the sheet; Enter on "Use Back Squat" swaps; Escape closes and returns focus to Swap exercise | pass |
+| Inspect a candidate in the sheet (Back Squat start and finish load, no second dialog); focus lands on Log set 1 after the swap; the same `/exercise-thumbs/Barbell_Squat.jpg` in the swap results and the workout list (and, in `probes/media.mjs`, in catalog search; the detail view shows `Barbell_Squat` frames) | pass |
+| A heavier stage is kept with a nonblocking note; Remove stage 2 keeps the others in order; after a reload the set is 100 × 5 → 70 × 6 → 50 × 10 with stable stage ids | pass |
 | kg with decimals: "Drop set · 42.5 kg × 6 → 30 kg × 8 → 17.5 kg × 12", 705 kg·reps; nothing logged → replaced in place | pass |
 
 **Defects the browser checks found, fixed before this report**
@@ -170,6 +173,7 @@ The photo half of the brief is reported in [`docs/exercise-media-audit/README.md
 | `swap-4-after-390.png` | Tracking Back Squat, with the Undo message |
 | `drop-1-stages-390.png` | Two stages done, the third typed |
 | `drop-2-queue-390.png` | The drop set as one row |
+| `drop-3-note-remove-390.png` | Edit and Remove on the stages |
 | `record-progress-390.png` | The finished record |
 | `sheet-*.png`, `drop-*.png` | Each width, large text and keyboard |
 
@@ -177,6 +181,9 @@ The photo half of the brief is reported in [`docs/exercise-media-audit/README.md
 
 - **Real devices.** No phone, screen reader or real text-size setting was used; the checks above are emulations.
 - **Fonts and logo.** Screenshots show fallback fonts and a placeholder logo, because the font and asset hosts are unreachable from here.
-- **Supersets and circuits** don't exist in this app, so "keep superset membership" has nothing to apply to.
+- **Supersets and circuits** don't exist in this app, so "keep superset membership" has nothing to apply to. Position is kept: a replacement sits in the original's place, or straight after it.
+- **Other users' sessions.** Workouts are stored on the device, and swaps and drop sets add no server operation, so there is no new route through which another account's logs could be changed. What syncs is the strength record, under the signed-in user, as before.
+- **RPE, RIR and set notes** aren't recorded by this tracker, so there is nothing for a swap or a drop set to rewrite.
+- **Network failure mid-swap.** A swap is one write to on-device storage, so it applies whole or not at all. If the device refuses the write, the existing storage warning shows; nothing claims to have synced.
 - **Planned drop sets.** Prescriptions are plain text, so a plan can't yet say "last set as a drop set". Drop sets are decided while logging.
 - **Undo after a reload.** The Undo lives in the message, so it is gone after a reload. The swap itself is kept and can be swapped back.

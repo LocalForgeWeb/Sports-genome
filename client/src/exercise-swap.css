@@ -63,3 +63,6 @@
 .swap-confirm:disabled { background: rgb(255 255 255 / .12); color: var(--sg-text-subtle-on-dark); cursor: not-allowed; }
 .swap-sheet button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .swap-scope-line { margin: -.4rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); }
+.swap-inspect > summary { display: flex; min-height: 2.75rem; align-items: center; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 600; cursor: pointer; }
+.swap-inspect > summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.swap-inspect[open] > summary { margin-bottom: .5rem; }

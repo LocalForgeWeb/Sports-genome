@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
-import { ArrowLeftRight, ArrowRight, Check, ChevronRight, Layers, Play, Plus, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2 } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, Check, ChevronRight, Layers, Play, Plus, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2, X } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { WarmupPanel } from "@/components/WarmupPanel";
@@ -11,7 +11,7 @@ import {
   unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession,
 } from "@/lib/deviceWorkoutLog";
 import { addAfter, applySwap, assessSwap, canUndoSwap, catalogIdOf, swapNote, undoSwap, type SwapReceipt } from "@/lib/workoutSwap";
-import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageProblem, volumeText } from "@/lib/dropSets";
+import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageNote, stageProblem, volumeText } from "@/lib/dropSets";
 import { loadConventionFor } from "@shared/loadConventions";
 import { ExerciseSwapSheet, type ExerciseSwapChoice, type SwapPlanOption } from "@/components/ExerciseSwapSheet";
 import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
@@ -499,6 +499,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     return { available: true, slot: `${dayNameOf(dayLabel)}, exercise ${slot + 1} of ${workout.length}: ${from.exerciseName} becomes ${target.name}. Its sets and reps (${prescription}) stay.` };
   };
 
+  /**
+   * After a swap, focus goes to the next logging action rather than back to Swap exercise. The
+   * sheet hands focus back to its opener as it closes, so this runs once it has.
+   */
+  const focusNextLogAction = () => window.setTimeout(() => document.querySelector<HTMLElement>(".live-set-card .live-set-commit")?.focus({ preventScroll: false }), 0);
+
   const undoSwapFrom = (receipt: SwapReceipt, revertPlan: (() => void) | null) => {
     const current = activeSessionRef.current;
     if (!current || !canUndoSwap(current, receipt)) {
@@ -522,6 +528,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         return result.session;
       });
       setSwapForId(null);
+      focusNextLogAction();
       const receipt = out.receipt;
       if (!receipt) return;
       const fromName = receipt.before.exerciseName;
@@ -549,6 +556,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const anchor = activeSessionRef.current?.exercises.find((exercise) => exercise.id === exerciseId);
     commit((session) => addAfter(session, exerciseId, { name: target.name, id: target.id }, { newExerciseId: freshId(String(target.id)), at: new Date().toISOString() }));
     setSwapForId(null);
+    focusNextLogAction();
     toast(`Added ${target.name}`, { description: `After ${anchor?.exerciseName ?? "the last exercise"}, starting from the same sets and reps.` });
   };
 
@@ -558,6 +566,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * which needs two stages at least, and only then starts the rest.
    */
   const [dropProblem, setDropProblem] = useState<string | null>(null);
+  /** A clarification that blocks nothing: a stage that is not lighter than the one before. */
+  const [dropNote, setDropNote] = useState<string | null>(null);
 
   const setActiveSetType = (type: "standard" | "drop") => {
     if (!activeSession || !position) return;
@@ -565,6 +575,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const set = exercise.sets[position.setIndex];
     if (type === "standard" && (set.stages?.length ?? 0) > 0) return;
     setDropProblem(null);
+    setDropNote(null);
     updateSet(exercise.id, position.setIndex, type === "drop" ? { type: "drop", id: set.id ?? freshId("set"), stages: set.stages ?? [] } : { type: undefined, stages: undefined });
   };
 
@@ -583,13 +594,16 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const typed = { weight: shownEntries.weight, reps: shownEntries.reps };
     const weightField = activeEntryFields.find((field) => field.measure === "weight");
     let next = stages;
+    let note: string | null = null;
     if (!finish || typed.weight.trim() || typed.reps.trim()) {
       const problem = stageProblem(typed, stages[stages.length - 1], { loadOptional: !weightField || weightField.optional, unit: sessionUnit });
       if (problem) { setDropProblem(problem); return; }
+      note = stageNote(typed, stages[stages.length - 1], sessionUnit);
       next = [...stages, { id: newStageId(setId, stages), weight: typed.weight, reps: typed.reps, unit: sessionUnit }];
     }
     if (finish && next.length < 2) { setDropProblem("A drop set needs at least two stages. Add a drop, or switch back to Standard."); return; }
     setDropProblem(null);
+    setDropNote(note ? `Stage ${next.length}: ${note}` : null);
     commit((session) => ({
       ...session,
       // Rest starts when the whole set is done, never between its stages.
@@ -604,15 +618,48 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     forgetTouched();
   };
 
-  /** Takes the last stage back into the boxes, to correct it or remove it. */
-  const undoLastStage = () => {
+  /** Takes the last stage back into the boxes, to correct it. */
+  const editLastStage = () => {
     if (!activeSession || !position) return;
     const exercise = activeSession.exercises[position.exerciseIndex];
     const stages = exercise.sets[position.setIndex].stages ?? [];
     const last = stages[stages.length - 1];
     if (!last) return;
     setDropProblem(null);
+    setDropNote(null);
     updateSet(exercise.id, position.setIndex, { stages: stages.slice(0, -1), weight: last.weight, reps: last.reps });
+  };
+
+  /**
+   * Removes one stage - an accidental one - and keeps the parent set and every other stage. The
+   * message's Undo puts it back where it was, with its id, while the set is still open.
+   */
+  const removeStage = (stageId: string) => {
+    if (!activeSession || !position) return;
+    const exercise = activeSession.exercises[position.exerciseIndex];
+    const setIndex = position.setIndex;
+    const stages = exercise.sets[setIndex].stages ?? [];
+    const index = stages.findIndex((stage) => stage.id === stageId);
+    if (index < 0) return;
+    const removed = stages[index];
+    setDropNote(null);
+    updateSet(exercise.id, setIndex, { stages: stages.filter((stage) => stage.id !== stageId) });
+    toast(`Removed stage ${index + 1}`, {
+      id: `drop-remove-${stageId}`,
+      description: `${stageLoadText(removed, sessionUnit, loadConventionFor(catalogFor(exercise)?.id))} × ${removed.reps}. The set and its other stages are kept.`,
+      action: { label: "Undo", onClick: () => commit((session) => ({
+        ...session,
+        exercises: session.exercises.map((item) => item.id !== exercise.id ? item : {
+          ...item,
+          sets: item.sets.map((set, at): DeviceSetLog => {
+            if (at !== setIndex || set.completed || set.stages?.some((stage) => stage.id === stageId)) return set;
+            const restored = [...(set.stages ?? [])];
+            restored.splice(Math.min(index, restored.length), 0, removed);
+            return { ...set, stages: restored };
+          }),
+        }),
+      })) },
+    });
   };
 
   /**
@@ -978,7 +1025,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           {activeStages.map((stage, index) => <li key={stage.id}>
             <span>Stage {index + 1}</span>
             <b>{stageLoadText(stage, sessionUnit, activeConvention)} × {stage.reps}</b>
-            {index === activeStages.length - 1 && <button type="button" onClick={undoLastStage} aria-label={`Undo stage ${index + 1}: put its numbers back in the boxes`}><Undo2 className="h-3.5 w-3.5" aria-hidden /> Undo</button>}
+            <span className="live-drop-stage-actions">
+              {index === activeStages.length - 1 && <button type="button" onClick={editLastStage} aria-label={`Edit stage ${index + 1}: put its numbers back in the boxes`}><Undo2 className="h-3.5 w-3.5" aria-hidden /> Edit</button>}
+              <button type="button" onClick={() => removeStage(stage.id)} aria-label={`Remove stage ${index + 1}`}><X className="h-3.5 w-3.5" aria-hidden /> Remove</button>
+            </span>
           </li>)}
         </ol>}
         <p className="live-drop-next">Stage {activeStages.length + 1}{activeStages.length ? ` · lighter than ${stageLoadText(activeStages[activeStages.length - 1], sessionUnit, activeConvention)}` : ""} · no rest between stages</p>
@@ -1007,6 +1057,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           <Check className="h-4 w-4" /> Log set {position.setIndex + 1}
         </button>}
       {dropMode && dropProblem && <p className="live-drop-problem" role="alert">{dropProblem}</p>}
+      {dropMode && !dropProblem && dropNote && <p className="live-drop-note" role="status">{dropNote}</p>}
       {/* Secondary by design: the dominant action is logging the set. Skipping
           is the escape hatch for the rack being taken or time running out. */}
       <div className="live-set-secondary">
