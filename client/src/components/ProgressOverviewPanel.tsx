@@ -7,7 +7,11 @@ import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDi
 import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
 import { changeStateLabel, changeTone } from "@/lib/changeStateCopy";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
-import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, removeDeviceWorkoutSession, saveDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
+import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, removeDeviceWorkoutSession, saveDeviceWorkoutSessions, setWeightUnit } from "@/lib/deviceWorkoutLog";
+import { dropSetSummary, isDropSet, performedSetLine, setVolume, volumeText } from "@/lib/dropSets";
+import { swapNote } from "@/lib/workoutSwap";
+import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
+import { loadConventionFor } from "@shared/loadConventions";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations } from "@/lib/deviceStrengthObservations";
 import { loadSyncQueue, removeQueuedLiftsForSession, saveSyncQueue } from "@/lib/strengthSyncQueue";
 import { workoutStrengthObservations } from "@/lib/workoutStrengthRecord";
@@ -24,7 +28,7 @@ type RecordedSessionCard = {
   exerciseCount: number;
   storage: "device" | "account";
   /** A device record carries its exercises and sets; an account record carries counts only. */
-  exercises?: { name: string; done: number; planned: number; skipped: boolean }[];
+  exercises?: { key: string; name: string; done: number; planned: number; skipped: boolean; note: string | null; sets: { line: string; detail: string | null }[] }[];
 };
 
 type ProgressOverviewPanelProps = {
@@ -81,7 +85,24 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
       completedSetCount: session.exercises.reduce((total, exercise) => total + exercise.sets.filter(isCompletedSet).length, 0),
       exerciseCount: session.exercises.length,
       storage: "device" as const,
-      exercises: session.exercises.map((exercise) => ({ name: exercise.exerciseName, done: exercise.sets.filter(isCompletedSet).length, planned: exercise.sets.length, skipped: exercise.sets.length > 0 && exercise.sets.every((set) => set.skipped) })),
+      // What was done, set by set, under the exercise it was done on. A drop set is one line of
+      // stages with its totals; a swapped exercise says where it came from or went.
+      exercises: session.exercises.map((exercise) => {
+        const convention = loadConventionFor(exercise.catalogId ?? exerciseCatalog.find((item) => item.name === exercise.exerciseName)?.id);
+        return {
+          key: exercise.id,
+          name: exercise.exerciseName,
+          done: exercise.sets.filter(isCompletedSet).length,
+          planned: exercise.sets.length,
+          skipped: exercise.sets.length > 0 && exercise.sets.every((set) => set.skipped),
+          note: swapNote(exercise),
+          sets: exercise.sets.filter(isCompletedSet).map((set) => {
+            const unit = setWeightUnit(set, session, weightUnit);
+            const volume = isDropSet(set) ? setVolume(set, unit, convention, weightUnit) : null;
+            return { line: performedSetLine(set, unit, convention), detail: isDropSet(set) ? `${dropSetSummary(set)}${volume ? ` · ${volumeText(volume)}` : ""}` : null };
+          }),
+        };
+      }),
     }));
     const accountRecords = (directAccess ? [] : (sessions.data || [])).filter((session) => session.status === "completed").map((session) => ({
       id: `account-${session.id}`,
@@ -92,7 +113,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
       storage: "account" as const,
     }));
     return [...deviceRecords, ...accountRecords].sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime());
-  }, [deviceSessions, sessions.data, directAccess]);
+  }, [deviceSessions, sessions.data, directAccess, weightUnit]);
 
   const latestSession = recordedSessions[0];
   // The record Home and Strength read (athleteRecord.recordedLifts): the typed lifts of
@@ -194,7 +215,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
            record that logged nothing says so rather than being dressed up or
            dropped. An account record carries its counts only. */
         const facts = <><small>{session.completedAt.toLocaleDateString()} · {session.exerciseCount} {session.exerciseCount === 1 ? "exercise" : "exercises"} · {session.completedSetCount === 0 ? "no sets logged" : `${session.completedSetCount} ${session.completedSetCount === 1 ? "set" : "sets"}`}</small><span>{session.storage === "device" ? "Device" : "Account"}</span></>;
-        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.name}><span>{exercise.name}</span><b>{exercise.done} of {plural(exercise.planned, "set")}</b>{exercise.skipped ? <i>skipped</i> : null}</li>)}</ul><button type="button" className="progress-text-action" onClick={() => requestSessionRemoval(session)} aria-label={`Remove this workout: ${session.title}, ${session.completedAt.toLocaleDateString()}`}>Remove this workout</button></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
+        return <li key={session.id}>{session.exercises ? <details className="progress-session-card"><summary><p>{session.title}</p>{facts}</summary><ul className="progress-session-sets">{session.exercises.map((exercise) => <li key={exercise.key}><span>{exercise.name}</span><b>{exercise.done} of {plural(exercise.planned, "set")}</b>{exercise.skipped ? <i>skipped</i> : null}{exercise.note ? <em className="progress-session-note">{exercise.note}</em> : null}{exercise.sets.length > 0 && <ol className="progress-session-set-lines">{exercise.sets.map((set, index) => <li key={index}><span>{set.line}</span>{set.detail ? <small>{set.detail}</small> : null}</li>)}</ol>}</li>)}</ul><button type="button" className="progress-text-action" onClick={() => requestSessionRemoval(session)} aria-label={`Remove this workout: ${session.title}, ${session.completedAt.toLocaleDateString()}`}>Remove this workout</button></details> : <div className="progress-session-card"><p>{session.title}</p>{facts}</div>}</li>;
       })}</ol> : <p className="progress-empty-copy">Complete a Session workout to create your first record.</p>}
       <button type="button" onClick={onOpenTraining} className="progress-text-action">Open your plan <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></button>
     </section>

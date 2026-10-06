@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
-import { ArrowRight, Check, ChevronRight, Play, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2 } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, Check, ChevronRight, Layers, Play, Plus, Save, Settings, SkipForward, SlidersHorizontal, Timer, Undo2 } from "lucide-react";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { WarmupPanel } from "@/components/WarmupPanel";
@@ -7,9 +7,13 @@ import { ExerciseMedia } from "@/components/ExerciseMedia";
 import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import {
   activePosition, carriedEntryFor, countCompletedSets, countDraftSets, countPlannedSets, finalizeSession,
-  deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isExerciseSkipped, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, skipExercise,
-  unskipExercise, type DeviceWorkoutSession,
+  deviceWorkoutHistoryKey, isCompletedSet, isCompletedWorkout, isDraftSet, isDropInProgress, isExerciseSkipped, lastCompletedSetFor, loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, setWeightUnit, skipExercise,
+  unskipExercise, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession,
 } from "@/lib/deviceWorkoutLog";
+import { addAfter, applySwap, assessSwap, canUndoSwap, catalogIdOf, swapNote, undoSwap, type SwapReceipt } from "@/lib/workoutSwap";
+import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageProblem, volumeText } from "@/lib/dropSets";
+import { loadConventionFor } from "@shared/loadConventions";
+import { ExerciseSwapSheet, type ExerciseSwapChoice, type SwapPlanOption } from "@/components/ExerciseSwapSheet";
 import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
@@ -92,6 +96,9 @@ function makeSession(workout: Exercise[], prescriptions: Record<number, string>,
       return {
         id: `${exercise.id}-${index}`,
         exerciseName: exercise.name,
+        // The catalog identity the logged sets keep, whatever the catalog later calls it. A
+        // duplicated plan entry has an id of its own and names its catalog exercise separately.
+        catalogId: catalogIdOf(exercise),
         plannedPrescription,
         sets: Array.from({ length: renderableSetCount(plannedPrescription) }, () => ({ weight: "", reps: "", completed: false })),
       };
@@ -123,7 +130,10 @@ function clockFor(seconds: number) {
   return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, "0")}`;
 }
 
-export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, weightUnit = "lb", onEditInPlan, onInspect, onOpenProgress, daySwitch }: {
+/** An id no other set or exercise in the session has: time plus a random tail. */
+const freshId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, weightUnit = "lb", onEditInPlan, onInspect, onOpenProgress, daySwitch, onReplaceInPlan }: {
   workout: Exercise[];
   /** The profile's unit. A session takes it when it starts and keeps it. */
   weightUnit?: DisplayWeightUnit;
@@ -139,6 +149,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   onInspect?: (exercise: Exercise) => void;
   /** The owner's day chooser, rendered under the day it names - only before a session starts. */
   daySwitch?: ReactNode;
+  /**
+   * "Also update this day in my plan" after a swap: puts `toId` in `fromId`'s place in the open
+   * day, keeping its sets, reps and settings. False when the plan could not take the change.
+   */
+  onReplaceInPlan?: (fromId: number, toId: number) => boolean;
 }) {
   const [activeSession, setActiveSession] = useState<DeviceWorkoutSession | null>(null);
   const [durable, setDurable] = useState(true);
@@ -219,6 +234,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
 
   /** The unit this session records in: its own once started, the profile's before that. */
   const sessionUnit: DisplayWeightUnit = activeSession?.weightUnit ?? weightUnit;
+  /** The catalog entry behind a session exercise: by the id it was built with, else by the name it stores. */
+  const catalogByName = useMemo(() => new Map(exerciseCatalog.map((exercise) => [exercise.name, exercise])), []);
+  const catalogById = useMemo(() => new Map(exerciseCatalog.map((exercise) => [exercise.id, exercise])), []);
+  const catalogFor = (exercise: Pick<DeviceWorkoutExercise, "catalogId" | "exerciseName">) =>
+    (exercise.catalogId !== undefined ? catalogById.get(exercise.catalogId) : undefined) ?? catalogByName.get(exercise.exerciseName);
   const completed = useMemo(() => (activeSession ? countCompletedSets(activeSession) : 0), [activeSession]);
   const planned = useMemo(() => (activeSession ? countPlannedSets(activeSession) : 0), [activeSession]);
   const drafts = useMemo(() => (activeSession ? countDraftSets(activeSession) : 0), [activeSession]);
@@ -240,6 +260,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const set = activeSession.exercises[position.exerciseIndex].sets[position.setIndex];
     const stored = set[field] || "";
     if (touchedEntries[entryKey(field)]) return stored;
+    // A drop's next stage starts empty: the last set's load is exactly what it is not.
+    if (isDropInProgress(set)) return stored;
     return stored || carried?.[field] || "";
   };
   const shownEntries: Record<EntryField, string> = {
@@ -251,7 +273,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const isCarried = (field: EntryField) => {
     if (!activeSession || !position || touchedEntries[entryKey(field)]) return false;
     const set = activeSession.exercises[position.exerciseIndex].sets[position.setIndex];
-    return !set[field] && Boolean(carried?.[field]);
+    return !isDropInProgress(set) && !set[field] && Boolean(carried?.[field]);
   };
 
   /**
@@ -259,9 +281,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * The boxes on screen come from the catalog entry behind the session, so each
    * one names exactly what it records.
    */
-  const entryFieldsFor = (exerciseName: string) => setEntryFieldsFor(exerciseCatalog.find((item) => item.name === exerciseName), sessionUnit);
+  const entryFieldsFor = (exercise: DeviceWorkoutExercise) => setEntryFieldsFor(catalogFor(exercise), sessionUnit);
   const activeEntryFields = activeSession && position
-    ? entryFieldsFor(activeSession.exercises[position.exerciseIndex].exerciseName)
+    ? entryFieldsFor(activeSession.exercises[position.exerciseIndex])
     : setEntryFieldsFor(undefined, sessionUnit);
 
   const editEntry = (field: EntryField, value: string) => {
@@ -404,6 +426,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const next = inputs[inputs.indexOf(event.currentTarget) + 1];
     if (next) { next.focus(); return; }
     if (event.repeat) return; // a held key must not log several sets
+    // In a drop set, Done adds the stage and goes back to the first box for the next one.
+    if (activeSession && position && activeSession.exercises[position.exerciseIndex].sets[position.setIndex].type === "drop") { addDropStage(false); inputs[0]?.focus(); return; }
     event.currentTarget.blur(); // close the keyboard so the rest row is visible
     completeActiveSet();
   };
@@ -446,6 +470,175 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     commit((session) => ({ ...session, restEndsAt: undefined }));
   };
 
+  /**
+   * Swapping an exercise mid-workout (lib/workoutSwap). The sheet is opened for one session
+   * exercise; the swap is one checkpointed write, carrying an id so the same confirm can never
+   * apply twice; and the toast's Undo takes it back while nothing new is logged on it.
+   */
+  const [swapForId, setSwapForId] = useState<string | null>(null);
+  const swapping = useRef(false);
+  const dayNameOf = (label: string) => label.split(" · ").map((part) => part.trim()).filter(Boolean).pop() || label;
+
+  /** The candidate's own last logged set on this device - never the exercise it replaces. */
+  const lastLoggedText = (exercise: Exercise) => {
+    const last = lastCompletedSetFor(exercise.name, history, sessionUnit);
+    return last ? performedSetLine(last, last.unit ?? sessionUnit, loadConventionFor(exercise.id)) : null;
+  };
+
+  /** Whether the plan's open day can take the same swap, and exactly which slot it changes. */
+  const planOptionFor = (from: DeviceWorkoutExercise) => (target: Exercise): SwapPlanOption | null => {
+    if (!onReplaceInPlan || !activeSession) return null;
+    if (activeSession.dayLabel !== dayLabel) return { available: false, reason: "this workout is from a different day than the one open in your plan." };
+    const fromEntry = catalogFor(from);
+    const slot = fromEntry ? workout.findIndex((item) => catalogIdOf(item) === fromEntry.id) : -1;
+    if (!fromEntry || slot < 0) return { available: false, reason: `${from.exerciseName} isn't in this day of your plan.` };
+    if (workout.some((item) => catalogIdOf(item) === target.id)) return { available: false, reason: `${target.name} is already in this day of your plan.` };
+    const prescription = prescriptions[workout[slot].id] || getGoalPrescription(goal, slot);
+    return { available: true, slot: `${dayNameOf(dayLabel)}, exercise ${slot + 1} of ${workout.length}: ${from.exerciseName} becomes ${target.name}. Its sets and reps (${prescription}) stay.` };
+  };
+
+  const undoSwapFrom = (receipt: SwapReceipt, revertPlan: (() => void) | null) => {
+    const current = activeSessionRef.current;
+    if (!current || !canUndoSwap(current, receipt)) {
+      toast("This swap can't be undone now", { id: `swap-undo-${receipt.swapId}`, description: `Something has been logged or typed since. Swap ${receipt.replacement.exerciseName} again instead.` });
+      return;
+    }
+    commit((session) => undoSwap(session, receipt));
+    revertPlan?.();
+    toast(`Back to ${receipt.before.exerciseName}`, { id: `swap-undo-${receipt.swapId}`, description: revertPlan ? "The workout and your plan are as they were." : "The workout is as it was." });
+  };
+
+  const confirmSwap = (exerciseId: string, choice: ExerciseSwapChoice) => {
+    if (swapping.current) return;
+    swapping.current = true;
+    try {
+      const swapId = freshId("swap");
+      const out: { receipt: SwapReceipt | null } = { receipt: null };
+      commit((session) => {
+        const result = applySwap(session, exerciseId, { name: choice.target.name, id: choice.target.id }, { swapId, newExerciseId: freshId(String(choice.target.id)), at: new Date().toISOString(), draft: choice.draft, partialDrop: choice.partialDrop }, exerciseCatalog);
+        out.receipt = result.receipt;
+        return result.session;
+      });
+      setSwapForId(null);
+      const receipt = out.receipt;
+      if (!receipt) return;
+      const fromName = receipt.before.exerciseName;
+      const fromCatalogId = catalogFor(receipt.before)?.id;
+      let planLine = "";
+      let revertPlan: (() => void) | null = null;
+      if (choice.alsoPlan && fromCatalogId !== undefined && onReplaceInPlan) {
+        if (onReplaceInPlan(fromCatalogId, choice.target.id)) {
+          planLine = ` Your plan's ${dayNameOf(dayLabel)} now has ${choice.target.name} in its place.`;
+          revertPlan = () => { onReplaceInPlan(choice.target.id, fromCatalogId); };
+        } else planLine = " Your plan couldn't be changed just now, so it is as it was.";
+      }
+      const kept = receipt.original ? receipt.original.sets.filter(isCompletedSet).length : 0;
+      toast(`Swapped to ${choice.target.name}`, {
+        id: `swap-${swapId}`,
+        description: `${kept ? `Your ${kept} logged ${kept === 1 ? "set stays" : "sets stay"} with ${fromName}.` : `${choice.target.name} takes ${fromName}'s place.`}${planLine}`,
+        action: { label: "Undo", onClick: () => undoSwapFrom(receipt, revertPlan) },
+      });
+    } finally {
+      swapping.current = false;
+    }
+  };
+
+  const addAfterExercise = (exerciseId: string, target: Exercise) => {
+    const anchor = activeSessionRef.current?.exercises.find((exercise) => exercise.id === exerciseId);
+    commit((session) => addAfter(session, exerciseId, { name: target.name, id: target.id }, { newExerciseId: freshId(String(target.id)), at: new Date().toISOString() }));
+    setSwapForId(null);
+    toast(`Added ${target.name}`, { description: `After ${anchor?.exerciseName ?? "the last exercise"}, starting from the same sets and reps.` });
+  };
+
+  /**
+   * Drop sets (lib/dropSets). The active set becomes a drop set from the set-type switch; each
+   * stage is confirmed with Add drop and starts no rest; Finish drop set logs the parent set,
+   * which needs two stages at least, and only then starts the rest.
+   */
+  const [dropProblem, setDropProblem] = useState<string | null>(null);
+
+  const setActiveSetType = (type: "standard" | "drop") => {
+    if (!activeSession || !position) return;
+    const exercise = activeSession.exercises[position.exerciseIndex];
+    const set = exercise.sets[position.setIndex];
+    if (type === "standard" && (set.stages?.length ?? 0) > 0) return;
+    setDropProblem(null);
+    updateSet(exercise.id, position.setIndex, type === "drop" ? { type: "drop", id: set.id ?? freshId("set"), stages: set.stages ?? [] } : { type: undefined, stages: undefined });
+  };
+
+  const forgetTouched = () => setTouchedEntries((current) => {
+    const next = { ...current };
+    for (const field of ["weight", "reps", "height"] as const) delete next[entryKey(field)];
+    return next;
+  });
+
+  const addDropStage = (finish: boolean) => {
+    if (!activeSession || !position) return;
+    const exercise = activeSession.exercises[position.exerciseIndex];
+    const set = exercise.sets[position.setIndex];
+    const stages = set.stages ?? [];
+    const setId = set.id ?? freshId("set");
+    const typed = { weight: shownEntries.weight, reps: shownEntries.reps };
+    const weightField = activeEntryFields.find((field) => field.measure === "weight");
+    let next = stages;
+    if (!finish || typed.weight.trim() || typed.reps.trim()) {
+      const problem = stageProblem(typed, stages[stages.length - 1], { loadOptional: !weightField || weightField.optional, unit: sessionUnit });
+      if (problem) { setDropProblem(problem); return; }
+      next = [...stages, { id: newStageId(setId, stages), weight: typed.weight, reps: typed.reps, unit: sessionUnit }];
+    }
+    if (finish && next.length < 2) { setDropProblem("A drop set needs at least two stages. Add a drop, or switch back to Standard."); return; }
+    setDropProblem(null);
+    commit((session) => ({
+      ...session,
+      // Rest starts when the whole set is done, never between its stages.
+      ...(finish ? { restEndsAt: new Date(Date.now() + (session.restSeconds || DEFAULT_REST_SECONDS) * 1000).toISOString() } : {}),
+      exercises: session.exercises.map((item) => item.id !== exercise.id ? item : {
+        ...item,
+        sets: item.sets.map((entry, index): DeviceSetLog => index !== position.setIndex ? entry : finish
+          ? { ...entry, id: setId, type: "drop", stages: next, weight: next[0].weight, reps: next[0].reps, unit: next[0].unit ?? sessionUnit, height: entry.height || "", completed: true }
+          : { ...entry, id: setId, type: "drop", stages: next, weight: "", reps: "", unit: sessionUnit }),
+      }),
+    }));
+    forgetTouched();
+  };
+
+  /** Takes the last stage back into the boxes, to correct it or remove it. */
+  const undoLastStage = () => {
+    if (!activeSession || !position) return;
+    const exercise = activeSession.exercises[position.exerciseIndex];
+    const stages = exercise.sets[position.setIndex].stages ?? [];
+    const last = stages[stages.length - 1];
+    if (!last) return;
+    setDropProblem(null);
+    updateSet(exercise.id, position.setIndex, { stages: stages.slice(0, -1), weight: last.weight, reps: last.reps });
+  };
+
+  /**
+   * A set already logged turns into a drop set: what it recorded becomes stage 1, and it is
+   * reopened as the active set so its drops are added the same way. Left unfinished, it stays
+   * the set it was (deviceWorkoutLog.settleDropSet).
+   */
+  const convertToDropSet = (exerciseId: string, setIndex: number) => {
+    commit((session) => ({
+      ...session,
+      exercises: session.exercises.map((item) => item.id !== exerciseId ? item : {
+        ...item,
+        sets: item.sets.map((set, index): DeviceSetLog => {
+          if (index !== setIndex || !set.completed || set.type === "drop") return set;
+          const id = set.id ?? freshId("set");
+          return { ...set, id, type: "drop", stages: [{ id: `${id}-stage-1`, weight: set.weight, reps: set.reps, unit: set.unit ?? session.weightUnit }], weight: "", reps: "", completed: false };
+        }),
+      }),
+    }));
+    toast(`Set ${setIndex + 1} is now a drop set`, { id: "drop-convert", description: "What it recorded is stage 1. Add its drops in the set card, then Finish drop set." });
+  };
+
+  /** Un-logging a drop set reopens it with its stages, and empty boxes for another drop. */
+  const toggleSetLogged = (exerciseId: string, setIndex: number, set: DeviceSetLog) => {
+    if (set.type === "drop" && set.completed) updateSet(exerciseId, setIndex, { completed: false, weight: "", reps: "" });
+    else updateSet(exerciseId, setIndex, { completed: !set.completed });
+  };
+
   const finish = () => {
     const current = activeSessionRef.current;
     if (!current) return;
@@ -460,7 +653,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     }
     // Read now, stored with the session: what the athlete weighs today is what this workout was
     // done at, and no later weight change gets to rewrite it.
-    const { session, excludedDrafts, skippedSets, completedSets } = finalizeSession(
+    const { session, excludedDrafts, skippedSets, completedSets, settledDropSets } = finalizeSession(
       withUnit(latest ?? current),
       undefined,
       currentBodyWeightKg(loadBodyWeightLog()),
@@ -512,14 +705,14 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       skippedSets ? `${skippedSets} skipped` : "",
     ].filter(Boolean).join(" · ");
     // The record is written; the message says what it holds and opens it.
+    // A drop set left open keeps the stages that were added, and the message says so.
+    const settled = settledDropSets ? ` ${settledDropSets === 1 ? "A drop set left open was" : `${settledDropSets} drop sets left open were`} recorded with the stages added.` : "";
     toast(`${completedSets} ${completedSets === 1 ? "set" : "sets"} added to Progress`, {
-      description: leftOut ? `Left out: ${leftOut}.` : "Every logged set was recorded.",
+      description: `${leftOut ? `Left out: ${leftOut}.` : "Every logged set was recorded."}${settled}`,
       ...(onOpenProgress ? { action: { label: "View record", onClick: onOpenProgress } } : {}),
     });
   };
 
-  /** The catalog entry behind a session exercise, by the name the session stores. */
-  const catalogByName = useMemo(() => new Map(exerciseCatalog.map((exercise) => [exercise.name, exercise])), []);
   /** Explicit drill-down. Opening it does not move the active set, so the athlete keeps their place while checking or correcting earlier work. */
   const queue = useMemo(() => !activeSession ? null : (
       <details className="live-session-queue">
@@ -528,21 +721,48 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           <small>every exercise and set{drafts ? ` · ${drafts} typed, not logged` : ""}</small>
           <ChevronRight className="h-4 w-4" aria-hidden />
         </summary>
-        <div className="session-exercise-list">{activeSession.exercises.map((exercise, exerciseIndex) => { const queueFields = entryFieldsFor(exercise.exerciseName); const exerciseSkipped = isExerciseSkipped(exercise); const catalogEntry = catalogByName.get(exercise.exerciseName); return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""}`}>
+        <div className="session-exercise-list">{activeSession.exercises.map((exercise, exerciseIndex) => {
+          const queueFields = entryFieldsFor(exercise);
+          const exerciseSkipped = isExerciseSkipped(exercise);
+          const catalogEntry = catalogFor(exercise);
+          const convention = loadConventionFor(catalogEntry?.id);
+          const note = swapNote(exercise);
+          const canDrop = queueFields.some((field) => field.measure === "weight") && !exercise.replacedBy;
+          return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""} ${exercise.replacedBy ? "session-exercise-replaced" : ""}`}>
           <div className="exercise-media-dense">
             <span>{String(exerciseIndex + 1).padStart(2, "0")}</span>
             {/* The photograph confirms which exercise and variant this is; the catalog
-                entry is found by the session's own exercise name, the key every
-                surface matches on, and a name the catalog no longer has gets the
-                placeholder frame rather than a guess. */}
+                entry is found by the id the session was built with (or, for a session
+                from before ids were kept, its name), and a name the catalog no longer
+                has gets the placeholder frame rather than a guess. */}
             <ExerciseMedia exerciseId={catalogEntry?.id ?? -1} exerciseName={exercise.exerciseName} equipment={catalogEntry?.equipment} variant="thumb" />
-            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : exercise.plannedPrescription}</small></div>
-            <button type="button" className="session-exercise-skip" onClick={() => toggleExerciseSkip(exerciseIndex)} aria-pressed={exerciseSkipped}>
-              {exerciseSkipped ? <Undo2 className="h-3.5 w-3.5" /> : <SkipForward className="h-3.5 w-3.5" />}
-              <span>{exerciseSkipped ? "Put back" : "Skip"}</span>
-            </button>
+            <div><strong>{exercise.exerciseName}</strong><small>{exerciseSkipped ? "Skipped · nothing recorded" : exercise.plannedPrescription}</small>{note && <small className="session-swap-note">{note}</small>}</div>
+            {!exercise.replacedBy && <span className="session-exercise-actions">
+              <button type="button" className="session-exercise-skip" onClick={() => setSwapForId(exercise.id)} aria-label={`Swap ${exercise.exerciseName}`}>
+                <ArrowLeftRight className="h-3.5 w-3.5" /><span>Swap</span>
+              </button>
+              <button type="button" className="session-exercise-skip" onClick={() => toggleExerciseSkip(exerciseIndex)} aria-pressed={exerciseSkipped}>
+                {exerciseSkipped ? <Undo2 className="h-3.5 w-3.5" /> : <SkipForward className="h-3.5 w-3.5" />}
+                <span>{exerciseSkipped ? "Put back" : "Skip"}</span>
+              </button>
+            </span>}
           </div>
-          <div className="session-set-list">{exercise.sets.map((set, setIndex) => <div key={setIndex} className={`session-set-row ${set.completed ? "session-set-complete" : ""} ${isDraftSet(set) ? "session-set-draft" : ""} ${set.skipped ? "session-set-skipped" : ""}`}>
+          <div className="session-set-list">{exercise.sets.map((set, setIndex) => {
+            // A drop set is one row: its stages in order, collapsed, with the set's totals under them.
+            if (set.type === "drop" && (set.stages?.length ?? 0) > 0) {
+              const unit = setWeightUnit(set, activeSession, sessionUnit);
+              const volume = setVolume(set, unit, convention, sessionUnit);
+              const inProgress = isDropInProgress(set);
+              return <div key={set.id ?? setIndex} className={`session-set-row session-set-drop ${set.completed ? "session-set-complete" : ""}`}>
+                <strong>Set {setIndex + 1}{inProgress ? " · drop set, in progress" : ""}</strong>
+                <p className="session-drop-line">{dropSetLine(set, unit, convention)}</p>
+                <small className="session-drop-detail">{dropSetSummary(set)}{volume ? ` · ${volumeText(volume)}` : ""}</small>
+                {set.completed && <button type="button" onClick={() => toggleSetLogged(exercise.id, setIndex, set)} aria-pressed={true} aria-label={`Undo set ${setIndex + 1}, drop set of ${exercise.exerciseName}`}>
+                  <Undo2 className="h-3.5 w-3.5" /><span>Undo</span>
+                </button>}
+              </div>;
+            }
+            return <div key={set.id ?? setIndex} className={`session-set-row ${set.completed ? "session-set-complete" : ""} ${isDraftSet(set) ? "session-set-draft" : ""} ${set.skipped ? "session-set-skipped" : ""}`}>
             <strong>Set {setIndex + 1}{isDraftSet(set) ? " · typed, not logged" : ""}{set.skipped ? " · skipped" : ""}</strong>
             {queueFields.map((field) => <label key={field.measure}>
               <span>{field.label}</span>
@@ -553,14 +773,17 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
               <span>Reps</span>
               <input value={set.reps} inputMode="numeric" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { reps: sanitiseEntry("reps", event.target.value) })} placeholder="—" />
             </label>
-            <button onClick={() => updateSet(exercise.id, setIndex, { completed: !set.completed })} aria-pressed={set.completed}>
+            <button onClick={() => toggleSetLogged(exercise.id, setIndex, set)} aria-pressed={set.completed}>
               {set.completed ? <Undo2 className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
               <span>{set.completed ? "Undo" : "Log set"}</span>
             </button>
-          </div>)}</div>
+            {set.completed && canDrop && <button type="button" className="session-set-to-drop" onClick={() => convertToDropSet(exercise.id, setIndex)} aria-label={`Make set ${setIndex + 1} of ${exercise.exerciseName} a drop set`}>
+              <Layers className="h-3.5 w-3.5" /><span>Make drop set</span>
+            </button>}
+          </div>; })}</div>
         </article>; })}</div>
       </details>
-  ), [activeSession, catalogByName]);
+  ), [activeSession, catalogByName, sessionUnit]);
 
   if (!activeSession) {
     const plannedSets = workout.reduce((total, exercise, index) => total + renderableSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)), 0);
@@ -668,6 +891,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const activeExercise = position ? activeSession.exercises[position.exerciseIndex] : null;
   const nextExerciseName = position ? activeSession.exercises.slice(position.exerciseIndex + 1).find((exercise) => !isExerciseSkipped(exercise))?.exerciseName ?? null : null;
   const activeSet = position && activeExercise ? activeExercise.sets[position.setIndex] : null;
+  const dropMode = activeSet?.type === "drop";
+  const activeStages = activeSet?.stages ?? [];
+  const activeConvention = loadConventionFor(activeExercise ? catalogFor(activeExercise)?.id : undefined);
+  /** Drop sets are about load: offered wherever the set has a weight box. */
+  const canDropActive = activeEntryFields.some((field) => field.measure === "weight");
+  const swapExercise = swapForId ? activeSession.exercises.find((exercise) => exercise.id === swapForId) ?? null : null;
 
   return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker">
     <div className="execution-head">
@@ -715,6 +944,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     {activeExercise && activeSet && position ? <div className="live-set-card">
       <p className="metric-label">Now · exercise {position.exerciseIndex + 1} of {activeSession.exercises.length}</p>
       <h4>{activeExercise.exerciseName}</h4>
+      {activeExercise.swappedFrom && <p className="live-set-swap-note">{swapNote(activeExercise)}</p>}
       {/* The instruction, at the size of an instruction. "Set 2 of 4 · 3–5" was
           the smallest line in the card, under an exercise name twice its size
           and a tally three times it - so the one thing you read between sets
@@ -731,10 +961,24 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       {/* The photographs of the current exercise, collapsed: a reference to open between sets,
           never a frame the athlete must scroll past to log one. The set fields keep their values
           either way; this is a disclosure, not a route. */}
-      {(() => { const catalogEntry = catalogByName.get(activeExercise.exerciseName); return catalogEntry && exercisePhotoSet(catalogEntry.id) ? <details className="live-set-media">
+      {(() => { const catalogEntry = catalogFor(activeExercise); return catalogEntry && exercisePhotoSet(catalogEntry.id) ? <details className="live-set-media">
         <summary>Show {activeExercise.exerciseName} photos <ChevronRight className="h-4 w-4" aria-hidden /></summary>
         <ExerciseMedia exerciseId={catalogEntry.id} exerciseName={catalogEntry.name} equipment={catalogEntry.equipment} variant="detail" />
       </details> : null; })()}
+      {canDropActive && <div className="live-set-type" role="group" aria-label="Set type">
+        <button type="button" aria-pressed={!dropMode} onClick={() => setActiveSetType("standard")} disabled={dropMode && activeStages.length > 0}>Standard</button>
+        <button type="button" aria-pressed={dropMode} onClick={() => setActiveSetType("drop")}><Layers className="h-4 w-4" aria-hidden /> Drop set</button>
+      </div>}
+      {dropMode && <div className="live-drop">
+        {activeStages.length > 0 && <ol className="live-drop-stages" aria-label="Stages done">
+          {activeStages.map((stage, index) => <li key={stage.id}>
+            <span>Stage {index + 1}</span>
+            <b>{stageLoadText(stage, sessionUnit, activeConvention)} × {stage.reps}</b>
+            {index === activeStages.length - 1 && <button type="button" onClick={undoLastStage} aria-label={`Undo stage ${index + 1}: put its numbers back in the boxes`}><Undo2 className="h-3.5 w-3.5" aria-hidden /> Undo</button>}
+          </li>)}
+        </ol>}
+        <p className="live-drop-next">Stage {activeStages.length + 1}{activeStages.length ? ` · lighter than ${stageLoadText(activeStages[activeStages.length - 1], sessionUnit, activeConvention)}` : ""} · no rest between stages</p>
+      </div>}
       <div className="live-set-entry" data-fields={activeEntryFields.length + 1}>
         {/* A value carried from the last set is an offer until the athlete touches
             the field: it is marked so it never passes for something already typed. */}
@@ -750,20 +994,47 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             onChange={(event) => editEntry("reps", event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
         </label>
       </div>
-      <button type="button" className="live-set-commit" onClick={completeActiveSet}>
-        <Check className="h-4 w-4" /> Log set {position.setIndex + 1}
-      </button>
+      {dropMode
+        ? <div className="live-drop-actions">
+          <button type="button" className="live-drop-add" onClick={() => addDropStage(false)}><Plus className="h-4 w-4" aria-hidden /> Add drop</button>
+          <button type="button" className="live-set-commit" onClick={() => addDropStage(true)}><Check className="h-4 w-4" /> Finish drop set</button>
+        </div>
+        : <button type="button" className="live-set-commit" onClick={completeActiveSet}>
+          <Check className="h-4 w-4" /> Log set {position.setIndex + 1}
+        </button>}
+      {dropMode && dropProblem && <p className="live-drop-problem" role="alert">{dropProblem}</p>}
       {/* Secondary by design: the dominant action is logging the set. Skipping
           is the escape hatch for the rack being taken or time running out. */}
-      <button type="button" className="live-set-skip" onClick={skipActiveExercise}>
-        <SkipForward className="h-4 w-4" /> Skip {activeExercise.exerciseName}
-      </button>
+      <div className="live-set-secondary">
+        <button type="button" className="live-set-skip live-set-swap" onClick={() => setSwapForId(activeExercise.id)}>
+          <ArrowLeftRight className="h-4 w-4" /> Swap exercise
+        </button>
+        <button type="button" className="live-set-skip" onClick={skipActiveExercise}>
+          <SkipForward className="h-4 w-4" /> Skip {activeExercise.exerciseName}
+        </button>
+      </div>
       {/* What follows, as quiet supporting information: the athlete can rack the
           next station during the rest without opening the full session. */}
       {nextExerciseName && <p className="live-set-next">Next · {nextExerciseName}</p>}
     </div> : <div className="live-set-card live-set-card-done">
       <p className="metric-label">Workout complete</p>
       <h4>Every planned set is logged.</h4>
+      {/* The summary of what Finish will record, in the same lines Progress shows. */}
+      <ul className="live-done-summary">
+        {activeSession.exercises.filter((exercise) => exercise.sets.some(isCompletedSet)).map((exercise) => {
+          const convention = loadConventionFor(catalogFor(exercise)?.id);
+          const note = swapNote(exercise);
+          return <li key={exercise.id}>
+            <strong>{exercise.exerciseName}</strong>
+            {note && <small>{note}</small>}
+            <ol>{exercise.sets.filter(isCompletedSet).map((set, index) => {
+              const unit = setWeightUnit(set, activeSession, sessionUnit);
+              const volume = set.type === "drop" && (set.stages?.length ?? 0) >= 2 ? setVolume(set, unit, convention, sessionUnit) : null;
+              return <li key={set.id ?? index}>{performedSetLine(set, unit, convention)}{set.type === "drop" && (set.stages?.length ?? 0) >= 2 && <small>{dropSetSummary(set)}{volume ? ` · ${volumeText(volume)}` : ""}</small>}</li>;
+            })}</ol>
+          </li>;
+        })}
+      </ul>
       {/* Now the dominant action: nothing is left to log, so finishing is the
           one thing this card is for, and the button is here rather than a scroll
           away at the top. */}
@@ -797,5 +1068,18 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     {activeExercise && activeSet && <button type="button" className="live-session-finish" onClick={finish}>
       Finish workout early<small>{completed ? ` · keeps the ${completed} logged ${completed === 1 ? "set" : "sets"}` : " · nothing logged yet"}</small>
     </button>}
+
+    {swapExercise && <ExerciseSwapSheet
+      exercise={swapExercise}
+      catalogEntry={catalogFor(swapExercise)}
+      catalog={exerciseCatalog}
+      assessment={assessSwap(swapExercise)}
+      inWorkout={new Set(activeSession.exercises.map((exercise) => exercise.exerciseName))}
+      lastLoggedFor={lastLoggedText}
+      planOptionFor={planOptionFor(swapExercise)}
+      onConfirm={(choice) => confirmSwap(swapExercise.id, choice)}
+      onAdd={(target) => addAfterExercise(swapExercise.id, target)}
+      onClose={() => setSwapForId(null)}
+    />}
   </section>;
 }

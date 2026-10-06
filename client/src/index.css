@@ -3411,6 +3411,12 @@ body:has(.exercise-intelligence) .mobile-bottom-nav, body:has(.exercise-intellig
 .destination-progress .progress-session-sets > li > span { flex: 1; min-width: 0; color: var(--sg-text-on-dark); }
 .destination-progress .progress-session-sets > li > b { font-weight: 600; }
 .destination-progress .progress-session-sets > li > i { color: var(--sg-text-subtle-on-dark); font-style: normal; }
+/* What was done, set by set (Oct 6 brief): a swap's note and the set lines run full width under the exercise's row. */
+.destination-progress .progress-session-sets > li { flex-wrap: wrap; }
+.destination-progress .progress-session-note { flex-basis: 100%; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-style: normal; }
+.destination-progress .progress-session-set-lines { display: grid; flex-basis: 100%; gap: .2rem; margin: 0; padding: 0 0 0 1.1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
+.destination-progress .progress-session-set-lines li > span { color: var(--sg-text-on-dark); overflow-wrap: anywhere; }
+.destination-progress .progress-session-set-lines li > small { display: block; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
 .destination-progress .progress-trend-rows .progress-session-card > strong { grid-column: 2; grid-row: 1 / span 2; align-self: center; margin: 0; font-size: 1.6rem; }
 .destination-progress .progress-trend-rows .progress-session-card em.progress-percentile { grid-column: 1 / -1; }
 .destination-progress .progress-excluded { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }

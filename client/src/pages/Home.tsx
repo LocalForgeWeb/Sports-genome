@@ -1421,9 +1421,14 @@ export default function Home() {
     setPrescriptions((current) => ({ ...current, [duplicate.id]: prescription }));
     setExerciseSettings((current) => ({ ...current, [duplicate.id]: { ...settings, completed: false } }));
   };
-  const replaceExercise = (outgoing: Exercise, incoming: Exercise) => {
-    if (!planReadyForEdits()) return;
-    if (outgoing.id === incoming.id || customWorkout.some((exercise) => exercise.id === incoming.id)) return;
+  /**
+   * Puts `incoming` in `outgoing`'s place in the open day, keeping its prescription and coaching
+   * settings. False, changing nothing, when the plan is still loading, `outgoing` is not in the
+   * day, or `incoming` already is.
+   */
+  const replaceInDay = (outgoing: Exercise, incoming: Exercise, options: { quiet?: boolean } = {}): boolean => {
+    if (!planReadyForEdits(options)) return false;
+    if (outgoing.id === incoming.id || !customWorkout.some((exercise) => exercise.id === outgoing.id) || customWorkout.some((exercise) => exercise.id === incoming.id)) return false;
     setCustomWorkout((current) => current.map((exercise) => exercise.id === outgoing.id ? incoming : exercise));
     setPrescriptions((current) => {
       const { [outgoing.id]: previous, ...rest } = current;
@@ -1433,7 +1438,18 @@ export default function Home() {
       const { [outgoing.id]: previous, ...rest } = current;
       return { ...rest, ...(previous ? { [incoming.id]: previous } : {}) };
     });
+    return true;
+  };
+  const replaceExercise = (outgoing: Exercise, incoming: Exercise) => {
+    if (!replaceInDay(outgoing, incoming)) return;
     toast("Stack correction applied", { description: `${outgoing.name} was replaced with ${incoming.name}; its prescription and coaching settings were preserved.` });
+  };
+  /** The workout's "Also update this day in my plan": the same replacement, reported by the workout's own message. */
+  const replaceInPlanFromWorkout = (fromId: number, toId: number): boolean => {
+    // The day's own entry for the exercise (a duplicated entry has an id of its own), and the catalog's.
+    const outgoing = customWorkout.find((exercise) => ((exercise as Exercise & { catalogExerciseId?: number }).catalogExerciseId || exercise.id) === fromId);
+    const incoming = exercises.find((exercise) => exercise.id === toId);
+    return Boolean(outgoing && incoming && replaceInDay(outgoing, incoming, { quiet: true }));
   };
   const reorderExercise = (exerciseId: number, direction: -1 | 1) => setCustomWorkout((current) => moveWithin(current, exerciseId, direction));
   // A move is reported once, on one message that repeated taps keep updating,
@@ -2064,7 +2080,7 @@ export default function Home() {
       />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace, { discovery: searchReturn.discovery })}><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onReplaceInPlan={replaceInPlanFromWorkout} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
               The tracker renders it only before a session starts; mid-workout
               the day cannot change under the sets being logged. */}

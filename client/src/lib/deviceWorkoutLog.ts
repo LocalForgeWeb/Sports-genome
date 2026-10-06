@@ -18,12 +18,53 @@ export type DeviceSetLog = {
    * nothing about it reaches Progress.
    */
   skipped?: boolean;
+  /** A stable id, given to a set when it first needs one (a drop set's stages refer to their set). */
+  id?: string;
+  /**
+   * "drop": one set done as several ordered stages, each lighter than the last, without rest
+   * between them (Oct 6 brief §4). It counts once, as one set, everywhere. Absent means standard.
+   */
+  type?: "standard" | "drop";
+  /**
+   * A drop set's stages in the order they were done. `weight` and `reps` above mirror stage 1,
+   * so a reader that knows nothing of stages still reads one real, unfatigued set - never the
+   * stages added together. See lib/dropSets.ts for what each reader does with the rest.
+   */
+  stages?: DropStage[];
 };
+
+/** One stage of a drop set: the load and the reps done at it, in the unit it was typed in. */
+export type DropStage = { id: string; weight: string; reps: string; unit?: DisplayWeightUnit };
+
+/**
+ * Who an exercise in a session was swapped from or to (Oct 6 brief §3). Written once, when the
+ * swap happens, and never recomputed: the history says what was actually done, under the name
+ * it was done under.
+ */
+export type ExerciseSwapRecord = {
+  /** One per confirmed swap: applying the same swap twice changes nothing. */
+  swapId: string;
+  exerciseName: string;
+  catalogId?: number;
+  /** Sets of the original exercise completed before the swap. */
+  afterSets: number;
+  at: string;
+};
+
 export type DeviceWorkoutExercise = {
   id: string;
+  /** The exercise as it was named when the session was built: the identity its logged sets keep. */
   exerciseName: string;
+  /** The catalog exercise behind the name, when known. Sessions before Oct 6 have only the name. */
+  catalogId?: number;
   plannedPrescription: string;
   sets: DeviceSetLog[];
+  /** This exercise took over the rest of another one's work mid-workout. */
+  swappedFrom?: ExerciseSwapRecord;
+  /** The rest of this exercise's work was handed to another one; what it holds stays its own. */
+  replacedBy?: ExerciseSwapRecord;
+  /** Added during the workout, after every planned set of another exercise was done. */
+  addedDuringWorkout?: { at: string; afterExerciseName: string };
 };
 export type DeviceWorkoutSession = {
   id: string;
@@ -64,10 +105,24 @@ export type DeviceWorkoutSession = {
 
 const isWeightUnit = (value: unknown): value is DisplayWeightUnit => value === "lb" || value === "kg";
 
-/** Keeps a set's unit only when it is one the app knows. */
+/**
+ * Keeps a set's unit only when it is one the app knows, and a drop set's stages only when they
+ * are stages: anything else stored there is dropped rather than read as load.
+ */
 function normalizeSet(set: DeviceSetLog): DeviceSetLog {
   const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) };
   if (isWeightUnit(set.unit)) normalized.unit = set.unit;
+  if (typeof set.id === "string" && set.id) normalized.id = set.id;
+  if (set.type === "drop") {
+    normalized.type = "drop";
+    normalized.stages = (Array.isArray(set.stages) ? set.stages : [])
+      .filter((stage): stage is DropStage => typeof stage === "object" && stage !== null)
+      .map((stage, index) => {
+        const kept: DropStage = { id: typeof stage.id === "string" && stage.id ? stage.id : `${normalized.id ?? "set"}-stage-${index + 1}`, weight: String(stage.weight || ""), reps: String(stage.reps || "") };
+        if (isWeightUnit(stage.unit)) kept.unit = stage.unit;
+        return kept;
+      });
+  }
   return normalized;
 }
 
@@ -187,6 +242,27 @@ export function isDraftSet(set: DeviceSetLog): boolean {
   return !set.completed && !set.skipped && Boolean(set.weight.trim() || set.reps.trim() || (set.height || "").trim());
 }
 
+/**
+ * A drop set under way: at least one stage added, not yet finished. Its stages were each
+ * confirmed with Add drop, so they are performed work, not drafts - only the next stage's
+ * boxes, if typed in, are a draft.
+ */
+export function isDropInProgress(set: DeviceSetLog): boolean {
+  return set.type === "drop" && !set.completed && !set.skipped && (set.stages?.length ?? 0) > 0;
+}
+
+/**
+ * A drop set closed where it stands - the workout finished, or the exercise swapped, with
+ * stages added but Finish never tapped. Two or more stages are a drop set; one stage is an
+ * ordinary set of that load and reps, because a drop set needs at least one drop.
+ */
+export function settleDropSet(set: DeviceSetLog): DeviceSetLog {
+  const stages = (set.stages ?? []).filter((stage) => stage.reps.trim());
+  if (!stages.length) return { ...set, type: undefined, stages: undefined };
+  if (stages.length === 1) return { ...set, type: undefined, stages: undefined, weight: stages[0].weight, reps: stages[0].reps, unit: stages[0].unit ?? set.unit, completed: true };
+  return { ...set, stages, weight: stages[0].weight, reps: stages[0].reps, unit: stages[0].unit ?? set.unit, completed: true };
+}
+
 export function countDraftSets(session: DeviceWorkoutSession): number {
   return session.exercises.reduce((total, exercise) => total + exercise.sets.filter(isDraftSet).length, 0);
 }
@@ -224,6 +300,9 @@ export type ActivePosition = { exerciseIndex: number; setIndex: number };
 
 export function activePosition(session: DeviceWorkoutSession): ActivePosition | null {
   for (let exerciseIndex = 0; exerciseIndex < session.exercises.length; exerciseIndex++) {
+    // An exercise swapped out mid-way has handed its remaining work on; anything it still holds
+    // unlogged is reviewed in the full workout list, never made the next set to do.
+    if (session.exercises[exerciseIndex].replacedBy) continue;
     const sets = session.exercises[exerciseIndex].sets;
     for (let setIndex = 0; setIndex < sets.length; setIndex++) {
       if (!sets[setIndex].completed && !sets[setIndex].skipped) return { exerciseIndex, setIndex };
@@ -251,6 +330,8 @@ export function finalizeSession(
   bodyMassKgAtCompletion?: number,
 ) {
   const excludedDrafts = countDraftSets(session);
+  // A drop set with stages added but never finished keeps the stages that were done.
+  const settledDropSets = session.exercises.reduce((total, exercise) => total + exercise.sets.filter(isDropInProgress).length, 0);
   const finalized: DeviceWorkoutSession = {
     ...session,
     status: "completed",
@@ -259,10 +340,10 @@ export function finalizeSession(
       ? bodyMassKgAtCompletion
       : session.bodyMassKgAtCompletion,
     exercises: session.exercises
-      .map((exercise) => ({ ...exercise, sets: exercise.sets.filter((set) => set.completed) }))
+      .map((exercise) => ({ ...exercise, sets: exercise.sets.map((set) => (isDropInProgress(set) || (set.type === "drop" && set.completed && (set.stages?.length ?? 0) < 2) ? settleDropSet(set) : set)).filter((set) => set.completed) }))
       .filter((exercise) => exercise.sets.length > 0),
   };
-  return { session: finalized, excludedDrafts, skippedSets: countSkippedSets(session), completedSets: countCompletedSets(finalized) };
+  return { session: finalized, excludedDrafts, skippedSets: countSkippedSets(session), completedSets: countCompletedSets(finalized), settledDropSets };
 }
 
 /**
