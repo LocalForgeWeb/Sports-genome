@@ -7,6 +7,8 @@
 @media (prefers-reduced-motion: no-preference) { .swap-sheet { animation: swap-sheet-in var(--sg-motion-base) var(--sg-ease) both; } }
 @keyframes swap-sheet-in { from { transform: translateY(16px); } to { transform: none; } }
 .swap-sheet:focus { outline: none; }
+/* A column that scrolls as a whole: nothing in it shrinks to fit (the filter row was squeezed to a sliver). */
+.swap-sheet > * { flex-shrink: 0; }
 
 .swap-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .swap-head .metric-label { color: var(--sg-text-subtle-on-dark); }

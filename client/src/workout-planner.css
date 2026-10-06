@@ -1226,12 +1226,14 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .live-set-type button:focus-visible, .live-drop-stages button:focus-visible, .live-drop-add:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .live-drop { display: grid; gap: .45rem; margin-top: .75rem; }
 .live-drop-stages { display: grid; gap: .35rem; margin: 0; padding: 0; list-style: none; }
-.live-drop-stages li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .6rem; min-height: 2.75rem; border: 1px solid rgb(242 193 77 / .4); border-radius: 10px; background: rgb(242 193 77 / .08); padding: 0 .3rem 0 .7rem; }
+.live-drop-stages li { display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .6rem; min-height: 2.75rem; border: 1px solid rgb(242 193 77 / .4); border-radius: 10px; background: rgb(242 193 77 / .08); padding: 0 .3rem 0 .7rem; }
 .live-drop-stages span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: var(--sg-tracking-label); }
-.live-drop-stages b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; font-variant-numeric: tabular-nums; }
+.live-drop-stages b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.live-drop-stages li > button { margin-left: auto; }
 .live-drop-stages button { display: inline-flex; min-height: 2.5rem; align-items: center; gap: .3rem; border-radius: 8px; padding: 0 .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; }
 .live-drop-next { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
-.live-drop-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: .5rem; margin-top: .75rem; }
+/* Side by side where they fit, stacked when the text is large. */
+.live-drop-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: .5rem; margin-top: .75rem; }
 .live-drop-actions .live-set-commit { margin-top: 0; }
 .live-drop-add { display: flex; min-height: 3.25rem; align-items: center; justify-content: center; gap: .4rem; border: 1px solid var(--sg-action); border-radius: 12px; background: rgb(228 81 46 / .14); color: #ffd0c2; font-size: var(--sg-text-md); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .live-drop-problem { margin: .5rem 0 0; color: #ffc9b8; font-size: var(--sg-text-sm); font-weight: 600; }

@@ -955,7 +955,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         <span>Set {position.setIndex + 1} of {activeExercise.sets.length}</span>
         <strong>{repsForSet(activeExercise.plannedPrescription, position.setIndex)}{bareCount(repsForSet(activeExercise.plannedPrescription, position.setIndex)) ? <em> reps</em> : null}</strong>
       </p>
-      {carried && <p className="live-set-last">
+      {/* Once a drop set has a stage, the last set's numbers are exactly what the next stage is not. */}
+      {carried && activeStages.length === 0 && <p className="live-set-last">
         {carried.source === "session" ? "Last set" : "Last logged"}: {activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}
       </p>}
       {/* The photographs of the current exercise, collapsed: a reference to open between sets,
