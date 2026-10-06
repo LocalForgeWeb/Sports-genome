@@ -1,0 +1,117 @@
+{
+ "muscleDetail": {
+  "ringed": 1,
+  "heading": "Pectoralis major",
+  "days": [
+   "Push10Edit Push ",
+   "Pull0Edit Pull ",
+   "Legs0Edit Legs ",
+   "Sport Transfer4Edit Sport Transfer "
+  ],
+  "exercises": [
+   "Barbell Bench PressPush · 4 sets · directInspect",
+   "Standard Push-UpPush · 3 sets · directInspect",
+   "Parallel-Bar DipPush · 3 sets · directInspect"
+  ],
+  "find": 1,
+  "errors": [],
+  "inspectOpened": 1
+ },
+ "pairChip": "Push → Pull5 shared muscles · 27.5 sets · heavy",
+ "pair": {
+  "heading": "Push and Pull",
+  "criterion": "A muscle is shared when both sessions give it at least 3 attributed sets; the pair is heavy from 8 summed shared sets. 27.5 here: heavy.",
+  "shared": [
+   "Anterior deltoidsPush 9 Pull 7.5",
+   "Middle deltoidsPush 5 Pull 5",
+   "Pectoralis majorPush 8 Pull 5",
+   "Rectus abdominisPush 6.5 Pull 5",
+   "Triceps brachiiPush 6.5 Pull 5"
+  ],
+  "moveSession": 0,
+  "errors": [],
+  "afterEdit": {
+   "search": "?workspace=day-plan",
+   "heading": "Training plan"
+  }
+ },
+ "journey": {
+  "before": {
+   "title": "Week 1 · 5-day plan",
+   "detail": "4 of 5 days built · 53 planned work sets · the plan as written, not what you have completed",
+   "points": [
+    "ReviewSport Transfer leaves gluteal muscles, rectus abdominis and external obliques under its target.Add exercises to Sport Transfer "
+   ],
+   "findings": [
+    "Sport Transfer leaves gluteal muscles, rectus abdominis and external obliques under its target."
+   ]
+  },
+  "action": "Add exercises to Sport Transfer ",
+  "afterAction": {
+   "search": "?workspace=day-plan",
+   "sheetOpen": 1,
+   "sheetTitle": "Add to Week 1 · Sport Transfer",
+   "scrollY": 0,
+   "bodyTop": "0px"
+  },
+  "addButtons": 24,
+  "added": "Add Cable Wood Chop to Week 1, Sport Transfer",
+  "scrollAfterClose": 0,
+  "planAfterAdd": 3,
+  "after": {
+   "title": "Week 1 · 5-day plan",
+   "detail": "4 of 5 days built · 56 planned work sets · the plan as written, not what you have completed",
+   "points": [
+    "ReviewSport Transfer leaves rectus abdominis under its target.Add exercises to Sport Transfer "
+   ],
+   "findings": [
+    "Sport Transfer leaves rectus abdominis under its target.",
+    "Most gluteal muscles exposure falls on Legs."
+   ],
+   "search": "?workspace=review"
+  },
+  "errors": []
+ },
+ "day": {
+  "search": "?workspace=review&scope=day",
+  "title": "Week 1 · Day 02 · Pull",
+  "pressed": "true",
+  "h3": [
+   "Move with intent",
+   "Athleticism",
+   "Coach scan"
+  ],
+  "strip": [
+   "Push5 exercises",
+   "Pull4 exercises",
+   "Legs4 exercises",
+   "UpperNot built",
+   "Sport Transfer2 exercises"
+  ],
+  "errors": [],
+  "toWeek": {
+   "search": "?workspace=review",
+   "title": "Week 1 · 5-day plan"
+  }
+ },
+ "home": {
+  "link": 1,
+  "errors": [],
+  "after": {
+   "search": "?workspace=review",
+   "title": "Week 1 · 5-day plan"
+  }
+ },
+ "metric": {
+  "legend": " Direct sets Supporting contribution, estimated: each supporting set adds 0.5",
+  "view": "back",
+  "firstRow": "Upper back12 direct · 3 supporting (est.)",
+  "errors": []
+ },
+ "desktop": {
+  "selected": "Gluteal muscles",
+  "view": "both",
+  "ringed": 1,
+  "errors": []
+ }
+}

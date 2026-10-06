@@ -1,4 +1,5 @@
 import { rankPaint } from "./rankPaint";
+import { exposurePaint, exposureStep } from "./exposurePaint";
 import React from "react";
 import { useId, useMemo, useRef, useState } from "react";
 import { anatomyViewBox, anatomyViews, type AnatomyMuscle, type AnatomyView } from "./figureGeometry";
@@ -96,6 +97,16 @@ export type AnatomyFigureProps = {
    * measurement the model does not even attempt. Roles are ignored.
    */
   rankFor?: Readonly<Record<string, RankId | "unscored">>;
+  /**
+   * Exposure encoding (Train → Review's week board). When given, a region is painted on a
+   * five-step sequential ramp by its value against `exposureMax`, the week's own largest value,
+   * so the scale is fixed for the week whatever is sorted or filtered. A key marked "unknown"
+   * is hatched: the data cannot speak for it (an exercise with no muscle mapping is in the
+   * week). A key with 0, or absent, stays the resting muscle: zero and unknown are different
+   * facts and never share a paint. Roles and ranks are ignored.
+   */
+  exposureFor?: Readonly<Record<string, number | "unknown">>;
+  exposureMax?: number;
   /** Replaces the role wording in each region's accessible name. */
   describeFor?: (regionKey: string) => string | undefined;
   /**
@@ -121,7 +132,7 @@ export type AnatomyFigureProps = {
   captions?: boolean;
 };
 
-export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, describeFor, interactive = true, caption, frame, compact = false, captions = false }: AnatomyFigureProps) {
+export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelect, labelFor, onHover, rankFor, exposureFor, exposureMax = 0, describeFor, interactive = true, caption, frame, compact = false, captions = false }: AnatomyFigureProps) {
   const uid = useId();
   const [focusedKey, setFocusedKey] = useState("");
   const hoverRef = useRef("");
@@ -174,9 +185,13 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
   };
 
   const rankEncoding = rankFor !== undefined;
+  const exposureEncoding = !rankEncoding && exposureFor !== undefined;
+  const encoding = rankEncoding ? "rank" : exposureEncoding ? "exposure" : undefined;
+  const exposureOf = (key: string) => (exposureEncoding ? exposureFor[key] : undefined);
 
   const fillFor = (key: string) => {
     if (rankEncoding) return rankPaint(rankFor[key], `${uid}-unscored`);
+    if (exposureEncoding) return exposurePaint(exposureFor[key], exposureMax, `${uid}-unscored`);
     const role = roles[key];
     if (role === "primary") return `url(#${uid}-primary)`;
     if (role === "supporting") return `url(#${uid}-supporting)`;
@@ -207,7 +222,7 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
     <svg
       className="anatomy-figure"
       data-view={view}
-      data-encoding={rankEncoding ? "rank" : undefined}
+      data-encoding={encoding}
       viewBox={frame && view !== "both" ? `${frame.x} ${frame.y} ${frame.width} ${frame.height}` : `0 ${-captionTop} ${canvasWidth} ${height + captionTop}`}
       data-frame={frame && view !== "both" ? "" : undefined}
       data-compact={compact ? "" : undefined}
@@ -241,10 +256,13 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
         {/* Not scored: hatched, about 7px apart at the figure's usual size, so the cue that
             says "nothing measured here" is texture rather than a lightness that could be
             mistaken for a step on the rank scale. */}
-        {rankEncoding && (
+        {(rankEncoding || exposureEncoding) && (
           <pattern id={`${uid}-unscored`} patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(45)">
-            <rect width="16" height="16" fill="var(--sg-rank-unavailable-fill)" />
-            <rect width="1.5" height="16" fill="var(--sg-rank-unavailable-hatch)" />
+            {/* With fallbacks: the rank tokens live in capability-rank.css, which a page using the
+                exposure encoding (Train → Review) may not have loaded, and an unresolved var() fill
+                paints solid black. */}
+            <rect width="16" height="16" fill="var(--sg-rank-unavailable-fill, #2e3a49)" />
+            <rect width="1.5" height="16" fill="var(--sg-rank-unavailable-hatch, #6f7d90)" />
           </pattern>
         )}
       </defs>
@@ -268,9 +286,10 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
                 key={muscle.key}
                 className="anatomy-muscle"
                 data-muscle={muscle.key}
-                data-role={rankEncoding ? undefined : roles[muscle.key] ?? "neutral"}
+                data-role={encoding ? undefined : roles[muscle.key] ?? "neutral"}
                 data-rank={rankEncoding && rankFor[muscle.key] && rankFor[muscle.key] !== "unscored" ? rankFor[muscle.key] : undefined}
                 data-unscored={rankEncoding && rankFor[muscle.key] === "unscored" ? "true" : undefined}
+                data-exposure={exposureEncoding ? (exposureOf(muscle.key) === "unknown" ? "unknown" : exposureStep(Number(exposureOf(muscle.key) ?? 0), exposureMax) || undefined) : undefined}
                 data-selected={isSelected(muscle.key) ? "true" : undefined}
                 data-focused={focusedKey === muscle.key ? "true" : undefined}
               >

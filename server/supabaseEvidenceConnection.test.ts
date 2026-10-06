@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { hasSupabaseServiceAccess } from "./supabaseTestEnvironment";
 import {
   getSupabaseEvidenceInventory,
   getSupabaseExerciseEvidence,
 } from "./supabaseEvidence";
 
-describe("Supabase evidence runtime connection", () => {
+describe.skipIf(!hasSupabaseServiceAccess)("Supabase evidence runtime connection", () => {
   it("retrieves a mapped source record through the server-only data layer without returning a personal percentile", async () => {
     expect(process.env.VITE_SUPABASE_URL).toMatch(
       /^https:\/\/[a-z0-9-]+\.supabase\.co$/i

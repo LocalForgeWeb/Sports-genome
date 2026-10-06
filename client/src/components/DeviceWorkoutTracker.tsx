@@ -133,7 +133,7 @@ function clockFor(seconds: number) {
 /** An id no other set or exercise in the session has: time plus a random tail. */
 const freshId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, weightUnit = "lb", onEditInPlan, onInspect, onOpenProgress, daySwitch, onReplaceInPlan }: {
+export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, weightUnit = "lb", onEditInPlan, onReviewDay, onInspect, onOpenProgress, daySwitch, onReplaceInPlan }: {
   workout: Exercise[];
   /** The profile's unit. A session takes it when it starts and keeps it. */
   weightUnit?: DisplayWeightUnit;
@@ -143,6 +143,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   dayLabel: string;
   /** Session shows the prescription; changing it is Plan's job, one tap away. */
   onEditInPlan?: () => void;
+  /** Opens Train → Review on this day: its warm-up, planning guide and Coach scan. Reading, never starting. */
+  onReviewDay?: () => void;
   /** Where a finished workout's record lives; offered as the next step once it is written. */
   onOpenProgress?: () => void;
   /** A row opens the exercise's own detail, as anywhere else in the app. */
@@ -838,6 +840,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         <div className="session-prestart-actions">
           <button type="button" className="session-prestart-start" onClick={start} disabled={!planned}><Play className="h-4 w-4" aria-hidden /> Start workout <ArrowRight className="h-4 w-4" aria-hidden /></button>
           {onEditInPlan && <button type="button" className="session-prestart-edit" onClick={onEditInPlan}>{planned ? "Edit in Plan" : "Build it in Plan"} <ArrowRight className="h-4 w-4" aria-hidden /></button>}
+          {onReviewDay && planned && <button type="button" className="session-prestart-edit" onClick={onReviewDay}>Review this day <ArrowRight className="h-4 w-4" aria-hidden /></button>}
         </div>
         {daySwitch}
       </div>

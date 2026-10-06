@@ -21,6 +21,9 @@ export const displayNames: Record<string, string> = {
   triceps: "Triceps brachii", biceps: "Biceps brachii", brachialis: "Brachialis", forearms: "Forearms", abs: "Rectus abdominis", obliques: "External obliques",
   quads: "Quadriceps", glutes: "Gluteal muscles", hamstrings: "Hamstrings", calves: "Calves", tibialis: "Tibialis anterior", abductors: "Hip abductors", adductors: "Hip adductors",
   lats: "Latissimus dorsi", upperBack: "Upper back", traps: "Trapezius", lowerBack: "Erector spinae", rotatorCuff: "Rotator cuff",
+  // Three catalog keys rendered as raw identifiers ("hipFlexors" for Cable Standing Knee Drive)
+  // because this list predated them (5 October 2026 weekly-review inventory).
+  feet: "Foot muscles", hipFlexors: "Hip flexors", serratusAnterior: "Serratus anterior",
 };
 
 function parseSets(value: string, fallback: number) {

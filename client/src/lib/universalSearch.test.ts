@@ -128,7 +128,9 @@ describe("destinations are named as their pages name themselves", () => {
       ["movement atlas", "movement"],
       ["build a workout", "day-plan"],
       ["builder", "day-plan"],
-      ["review this day", "review"],
+      ["review this day", "review#day"],
+      ["stack review", "review#day"],
+      ["review your week", "review"],
       ["workout tracker", "tracker"],
       ["training day", "day-plan"],
     ];

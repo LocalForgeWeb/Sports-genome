@@ -3239,6 +3239,8 @@ details:not([open]) > *:not(summary) {
 .home-link:hover { text-decoration: underline; }
 .home-priority { display: grid; padding-bottom: .5rem; border-bottom: 1px solid var(--sg-divider-on-dark); color: var(--sg-text-on-dark); }
 .home-section-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+/* Two ways into the week - Review it, or open the plan - as two links in one row. */
+.home-section-links { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 0 1rem; }
 .home-section-head .metric-label { color: var(--sg-text-subtle-on-dark); }
 /* Two entries side by side where they fit; one under the other on the narrowest
    phones and under enlarged text, where "Training preferences" beside its icons
