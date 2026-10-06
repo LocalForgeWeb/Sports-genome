@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { hasSupabasePublishableAccess } from "./supabaseTestEnvironment";
 
-describe("Supabase exercise-evidence access boundary", () => {
+describe.skipIf(!hasSupabasePublishableAccess)("Supabase exercise-evidence access boundary", () => {
   it("does not expose exercise coverage rows directly to a publishable browser client", async () => {
     const projectUrl = process.env.VITE_SUPABASE_URL;
     const publishableKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;

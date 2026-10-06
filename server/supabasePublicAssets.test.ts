@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { hasSupabaseProjectUrl } from "./supabaseTestEnvironment";
 
 const publicAssetBase =
   "https://qiccnqkypbhlwpmjcsri.supabase.co/storage/v1/object/public/sports-genome-assets";
@@ -18,7 +19,10 @@ const expectedAssets = [
   ["strength-reference-unavailable-state_f08bbf9c.png", "image/png"],
 ] as const;
 
-describe("Supabase public Sports Genome assets", () => {
+// This one needs no key — the bucket is public — but it does need an
+// environment that can reach the project, and a configured project URL is what
+// says so. A sandbox with no Supabase egress would otherwise fail it on nothing.
+describe.skipIf(!hasSupabaseProjectUrl)("Supabase public Sports Genome assets", () => {
   it("serves all twelve migrated visual assets with their expected MIME type", async () => {
     const responses = await Promise.all(
       expectedAssets.map(async ([fileName, expectedContentType]) => {
