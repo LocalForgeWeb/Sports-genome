@@ -634,6 +634,9 @@
     186,
     204
    ],
+   "drillIds": [
+    "empty-bar-hinge"
+   ],
    "licence": "Unlicense (public domain dedication)",
    "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Romanian_Deadlift/1.jpg",
    "originalFrame": 1,
@@ -1079,6 +1082,9 @@
    "exerciseIds": [
     79
    ],
+   "drillIds": [
+    "scap-pullup"
+   ],
    "licence": "Unlicense (public domain dedication)",
    "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Scapular_Pull-Up/0.jpg",
    "originalFrame": 0,
@@ -1360,6 +1366,9 @@
   "Band_Pull_Apart": {
    "exerciseIds": [
     100
+   ],
+   "drillIds": [
+    "band-pull-apart"
    ],
    "licence": "Unlicense (public domain dedication)",
    "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Band_Pull_Apart/0.jpg",
@@ -2468,6 +2477,9 @@
    "exerciseIds": [
     165
    ],
+   "drillIds": [
+    "goblet-squat-rehearsal"
+   ],
    "licence": "Unlicense (public domain dedication)",
    "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Goblet_Squat/0.jpg",
    "originalFrame": 0,
@@ -2583,6 +2595,26 @@
     176
    ],
    "thumbnailBytes": 13087
+  },
+  "Split_Squat_with_Dumbbells": {
+   "exerciseIds": [
+    173
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Split_Squat_with_Dumbbells/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "3c5813f67aed71721eda63b2c102bd4d3e841bf6a7357c07967470bdda2d8fc8",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Split_Squat_with_Dumbbells.jpg",
+   "thumbnailSha256": "e83b86471f79999b8c3be3eea4c27d4ab23340f6d9e1fb3d9a17e7643a687490",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 6713
   },
   "Dumbbell_Rear_Lunge": {
    "exerciseIds": [
@@ -3128,6 +3160,9 @@
    "exerciseIds": [
     216
    ],
+   "drillIds": [
+    "band-lateral-walk"
+   ],
    "licence": "Unlicense (public domain dedication)",
    "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Monster_Walk/0.jpg",
    "originalFrame": 0,
@@ -3591,6 +3626,9 @@
     251,
     253
    ],
+   "drillIds": [
+    "landmine-press-rehearsal"
+   ],
    "licence": "Unlicense (public domain dedication)",
    "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Single-Arm_Linear_Jammer/0.jpg",
    "originalFrame": 0,
@@ -4015,6 +4053,9 @@
    "exerciseIds": [
     299
    ],
+   "drillIds": [
+    "farmer-carry-march"
+   ],
    "licence": "Unlicense (public domain dedication)",
    "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Farmers_Walk/0.jpg",
    "originalFrame": 0,
@@ -4232,6 +4273,26 @@
    ],
    "thumbnailBytes": 8305
   },
+  "Overhead_Cable_Curl": {
+   "exerciseIds": [
+    339
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Overhead_Cable_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "dae666c7b0101be8709d2e904f87b94a23790a45d59d368ba865289ff3f26a33",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Overhead_Cable_Curl.jpg",
+   "thumbnailSha256": "54f6d8875a0578fe70046c8510e947ddcbaddc66a334a3bca72e85965bc2e237",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10228
+  },
   "Cable_Deadlifts": {
    "exerciseIds": [
     354
@@ -4371,6 +4432,174 @@
     180
    ],
    "thumbnailBytes": 5965
+  },
+  "Ankle_Circles": {
+   "exerciseIds": [],
+   "drillIds": [
+    "ankle-circle"
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Ankle_Circles/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "d105df85fe7714b3e45f3dab7eaa7b2261de90c6a9a9c510965d08dc6f26f8b4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Ankle_Circles.jpg",
+   "thumbnailSha256": "e3de0fe63020764472a7131328f5a36a4667f016c0c18596a2e4f22f63e2a6b1",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 6852
+  },
+  "Arm_Circles": {
+   "exerciseIds": [],
+   "drillIds": [
+    "arm-circle"
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Arm_Circles/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "5559f1dcf002b390acfbe312b2b5e8a03386369ec4a6e1be27d673ee5a7dc773",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Arm_Circles.jpg",
+   "thumbnailSha256": "ae7cc1829832ae4a02b023d9e137957fac0e5dfe60a9c3605a44d31f71c49905",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9435
+  },
+  "External_Rotation_with_Band": {
+   "exerciseIds": [],
+   "drillIds": [
+    "band-external-rotation"
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/External_Rotation_with_Band/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "589c583de4a9adce9c8e20016ec769f2fd0311c22c931c32d5f2c9ba1d7ae206",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/External_Rotation_with_Band.jpg",
+   "thumbnailSha256": "55f4e06b83f0d47f2fafae0979ba77452d71e6c4def9a84faa6aa0e5bbabf4c7",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12684
+  },
+  "Fast_Skipping": {
+   "exerciseIds": [],
+   "drillIds": [
+    "easy-skip"
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Fast_Skipping/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "83a17afed51c48285f6d97b9852e70d96c51da92630ce183aa25943d6187b551",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Fast_Skipping.jpg",
+   "thumbnailSha256": "a68573f61138ae4583c90705c1007de43fbea9d5e8ef8086f172676fcfb0c838",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7211
+  },
+  "Step-up_with_Knee_Raise": {
+   "exerciseIds": [],
+   "drillIds": [
+    "low-box-step"
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Step-up_with_Knee_Raise/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "60c44f399a96d4bda485df453b3316c858da7c3fccc3cebd14f4a749962e1cea",
+   "originalSize": [
+    850,
+    478
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Step-up_with_Knee_Raise.jpg",
+   "thumbnailSha256": "c43b74dbf532c4cfd4265df7bc38331cb9254b564e79131f3c70dd74226da4ac",
+   "thumbnailSize": [
+    264,
+    148
+   ],
+   "thumbnailBytes": 9270
+  },
+  "Hip_Circles_prone": {
+   "exerciseIds": [],
+   "drillIds": [
+    "quadruped-hip-circle"
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Hip_Circles_prone/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "d3100c50d2c3cdf767001c55030f0e11f9539df0d094f129609dc160a3aa073a",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Hip_Circles_prone.jpg",
+   "thumbnailSha256": "13460061cd2d42c9496a8b70b302035cc527490a19882daa719b2f5655b3eee4",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7115
+  },
+  "Bodyweight_Squat": {
+   "exerciseIds": [],
+   "drillIds": [
+    "tempo-squat"
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bodyweight_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "85715b9b75afe568ef7cb1863005be532a2457bf7e340802da0cd5cc06914b62",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Bodyweight_Squat.jpg",
+   "thumbnailSha256": "0153b7f77ca1cee821196dc870e5a24f8c6fa4c874043232771cc0679665b0ae",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 6293
+  },
+  "Wrist_Circles": {
+   "exerciseIds": [],
+   "drillIds": [
+    "wrist-circle"
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Wrist_Circles/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "0a5cdd08f243f6c90cd20b64a15244e94562feba83c5114c17c04f7858cf3003",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Wrist_Circles.jpg",
+   "thumbnailSha256": "b47a7af4ad2525cbcaeb6f34153214902d47441e6936344c6ccf3653bd48ac38",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9205
   }
  }
 }

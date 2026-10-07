@@ -24,11 +24,11 @@
  * longer downloads a 850-pixel photograph per row from a third party.
  *
  * The source's frame numbers are not always the movement's order: in 30 of the
- * 221 pairs audited (29 still in use), frame 0 is where the movement finishes (a cable lateral
+ * 231 pairs audited (29 still in use), frame 0 is where the movement finishes (a cable lateral
  * raise with the arm already up, a dip at the bottom). Every pair was checked
  * by eye against how the exercise starts, and the reversed ones are listed in
  * `client/src/data/exercisePhotoOrder.json` with the reason; for those the app
- * shows frame 1 first. The audit of all 221 is docs/exercise-photo-order/.
+ * shows frame 1 first. The audit of all 231 is docs/exercise-photo-order/.
  */
 import mapping from "@/data/exercisePhotos.json";
 import drillMapping from "@/data/drillPhotos.json";

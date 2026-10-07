@@ -23,6 +23,14 @@ const drillIds = new Set([...library.matchAll(/\{ id: "([a-z0-9-]+)"/g)].map((ma
 
 /** drill id -> source folder. */
 const curated = {
+  // Raise and rehearse: gait, squat, step, carry.
+  "easy-skip": "Fast_Skipping", "tempo-squat": "Bodyweight_Squat", "low-box-step": "Step-up_with_Knee_Raise", "farmer-carry-march": "Farmers_Walk",
+  // Ankle and hip.
+  "ankle-circle": "Ankle_Circles", "quadruped-hip-circle": "Hip_Circles_prone", "band-lateral-walk": "Monster_Walk",
+  // Shoulder and wrist.
+  "band-pull-apart": "Band_Pull_Apart", "scap-pullup": "Scapular_Pull-Up", "band-external-rotation": "External_Rotation_with_Band", "arm-circle": "Arm_Circles", "wrist-circle": "Wrist_Circles",
+  // A light rehearsal of a lift shows the lift, with its implement: the load is not what is learned.
+  "landmine-press-rehearsal": "Single-Arm_Linear_Jammer", "empty-bar-hinge": "Romanian_Deadlift", "goblet-squat-rehearsal": "Goblet_Squat",
 };
 
 const unknown = Object.keys(curated).filter((id) => !drillIds.has(id));
