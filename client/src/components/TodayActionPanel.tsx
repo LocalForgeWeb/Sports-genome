@@ -1,6 +1,6 @@
 import { plural } from "@/lib/plural";
 import React, { useMemo } from "react";
-import { ArrowRight, ArrowUpRight, Circle, CircleArrowRight, CircleCheck, CirclePlay, type LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronRight, Circle, CircleArrowRight, CircleCheck, CirclePlay, type LucideIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import type { LiveSession } from "@/lib/liveSession";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
@@ -86,6 +86,8 @@ export type TodayActionPanelProps = {
   hour?: number;
   /** Where a completed workout's record lives. */
   onOpenProgress?: () => void;
+  /** One finished workout's own detail in Progress: the recap, reopened (O08). */
+  onOpenSession?: (sessionId: string) => void;
 };
 
 export type PlanDayState = "live" | "trained" | "next" | "planned";
@@ -94,7 +96,7 @@ const planDayWord: Record<PlanDayState, string> = { live: "under way", trained: 
 const planDayIcon: Record<PlanDayState, LucideIcon> = { trained: CircleCheck, live: CirclePlay, next: CircleArrowRight, planned: Circle };
 const noWeek = emptyDayStore();
 
-export function TodayActionPanel({ plan, live, athleteName, directAccess = true, weightUnit = "lb", goal = "Athleticism", onOpenWorkout, onOpenTraining, onOpenReview, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, onOpenProgress }: TodayActionPanelProps) {
+export function TodayActionPanel({ plan, live, athleteName, directAccess = true, weightUnit = "lb", goal = "Athleticism", onOpenWorkout, onOpenTraining, onOpenReview, onOpenTracker, onOpenStrength, onOpenCatalog, sexForReference, birthYear, hour, onOpenProgress, onOpenSession }: TodayActionPanelProps) {
   // Account-only routes, asked only when an account is the source. On the device stores they
   // were refused as unauthorised on every Home open, and each refusal told an athlete who
   // had never signed in that their sign-in had expired (B233).
@@ -303,10 +305,22 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
       </ol>}
       <p className="home-week-line"><b className="stat-figure today-action-figure-accent">{plannedDone}</b> <span>of <b>{plan.slots.length}</b> planned {plan.slots.length === 1 ? "workout" : "workouts"} done this week{moreThisWeek > 0 ? ` · ${moreThisWeek} more ${moreThisWeek === 1 ? "session" : "sessions"} this week` : ""}</span></p>
       <button type="button" className="home-week-record" onClick={onOpenStrength} aria-label={`${lifetimeLine}, all time. View strength progress`}>{lifetimeLine}<small>all time</small></button>
+      {/* The last finished workout, one tap from its recap. Below the week, never above a Resume. */}
+      {record.latestFinished && onOpenSession && (() => {
+        const last = record.latestFinished;
+        const when = new Date(last.completedAt).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+        const name = splitDayLabel(last.dayLabel).name || last.title;
+        return <button type="button" className="home-last-session" onClick={() => onOpenSession(last.id)} aria-label={`View session: ${name}, ${when}`}>
+          <span className="metric-label">Last workout</span>
+          <strong>{name}</strong>
+          <small>{when} · {plural(last.exerciseCount, "exercise")} · {plural(last.setCount, "set")}</small>
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
+        </button>;
+      })()}
     </section>
 
     {/* One insight, only where there is one: a larger change (15% or more), named from the
-        same table as the Strength record and Progress, or the one measurement that would
+        same change labels as the Strength record and Progress, or the one measurement that would
         complete a comparison. */}
     {leadingChange
       ? <section className="today-action-state" aria-label="Where you are now">

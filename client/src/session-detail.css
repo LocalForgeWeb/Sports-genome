@@ -1,0 +1,61 @@
+/* One finished workout (components/WorkoutSessionDetail.tsx): the "Workout saved" recap and the
+   session detail in Progress. One surface, rows with dividers, no nested cards. */
+.session-detail { display: grid; gap: 1rem; color: var(--sg-text-on-dark); }
+.session-detail h2 { margin: .15rem 0 0; color: var(--sg-text-on-dark); font-family: var(--font-display, "Barlow Condensed", sans-serif); font-size: clamp(1.9rem, 6vw, 2.6rem); font-weight: 800; line-height: .95; text-transform: uppercase; overflow-wrap: anywhere; }
+.session-detail h2:focus { outline: none; }
+.session-detail h2:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.session-detail .metric-label { color: var(--sg-text-subtle-on-dark); }
+.session-detail-meta { margin: .3rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.session-detail-back { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .35rem; justify-self: start; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.session-detail-back svg { width: 1rem; height: 1rem; }
+
+.session-detail-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: .5rem; margin: 0; }
+.session-detail-summary div { display: grid; gap: .1rem; border-top: 2px solid rgb(176 214 247 / .3); padding-top: .45rem; }
+.session-detail-summary dt { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.session-detail-summary dd { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-lg); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.session-detail-exercises, .session-detail-sets, .session-detail-not-done ul { margin: 0; padding: 0; list-style: none; }
+.session-detail-exercises > li { border-top: 1px solid var(--sg-divider-on-dark); }
+.session-detail-exercises > li:last-child { border-bottom: 1px solid var(--sg-divider-on-dark); }
+.session-detail-exercises summary { display: flex; min-height: 3.25rem; align-items: center; justify-content: space-between; gap: .75rem; padding: .6rem 0; cursor: pointer; list-style: none; }
+.session-detail-exercises summary::-webkit-details-marker { display: none; }
+.session-detail-exercises summary > svg { flex: 0 0 auto; width: 1.1rem; height: 1.1rem; color: var(--sg-text-subtle-on-dark); transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.session-detail-exercises details[open] summary > svg { transform: rotate(90deg); }
+.session-detail-exercises summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.session-detail-exercise-name { display: grid; gap: .1rem; min-width: 0; }
+.session-detail-exercise-name strong { font-size: var(--sg-text-base); font-weight: 700; overflow-wrap: anywhere; }
+.session-detail-exercise-name small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.session-detail-exercise-name .session-detail-swap { color: var(--sg-text-on-dark); }
+.session-detail-sets { display: grid; gap: .35rem; padding: 0 0 .75rem; }
+.session-detail-sets > li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .75rem; }
+.session-detail-set-line { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); gap: .1rem .5rem; min-width: 0; font-variant-numeric: tabular-nums; }
+.session-detail-set-line > span { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); }
+.session-detail-set-line b { font-size: var(--sg-text-base); font-weight: 600; overflow-wrap: anywhere; }
+.session-detail-set-line small { grid-column: 2; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.session-detail-set-actions { display: inline-flex; gap: .35rem; }
+.session-detail-set-actions button, .session-detail-edit button, .session-detail-correct > button, .session-detail-note-row button, .session-detail-actions button { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; gap: .3rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; background: transparent; padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.session-detail button svg { width: 1rem; height: 1rem; }
+.session-detail button:disabled { cursor: not-allowed; opacity: .5; }
+.session-detail button:focus-visible, .session-detail textarea:focus-visible, .session-detail input:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.session-detail-edit { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem; width: 100%; }
+.session-detail-edit label { display: grid; gap: .2rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.session-detail-edit input { width: 6.5rem; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 8px; background: var(--sg-surface-raised); padding: 0 .6rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
+.session-detail-edit input[aria-invalid] { border-color: #ff9b85; }
+
+.session-detail-not-done h3, .session-detail-note label { margin: 0 0 .35rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; }
+.session-detail-not-done li { padding: .25rem 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.session-detail-not-done strong { color: var(--sg-text-on-dark); font-weight: 600; }
+.session-detail-note { display: grid; gap: .4rem; }
+.session-detail-note label small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); font-weight: 400; }
+.session-detail-note textarea { width: 100%; min-height: 3.5rem; resize: vertical; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: rgb(255 255 255 / .05); padding: .6rem .7rem; color: var(--sg-text-on-dark); font: inherit; font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
+.session-detail-note textarea::placeholder { color: var(--sg-text-subtle-on-dark); }
+.session-detail-note-row { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.session-detail-note-row p, .session-detail-status, .session-detail-hint { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.session-detail-error { margin: 0; color: #ffc9b8; font-size: var(--sg-text-sm); font-weight: 600; }
+.session-detail-correct { display: grid; gap: .45rem; justify-items: start; }
+.session-detail-correct > button[aria-pressed="true"] { border-color: var(--sg-text-on-dark); background: rgb(255 255 255 / .08); }
+.session-detail-actions { display: flex; flex-wrap: wrap; gap: .5rem; border-top: 1px solid var(--sg-divider-on-dark); padding-top: 1rem; }
+.session-detail-actions .session-detail-primary { border-color: transparent; background: var(--sg-action-fill); color: var(--sg-action-on); }
+.session-detail-actions .session-detail-primary:hover { background: var(--sg-action-strong); }
+.session-detail-actions .session-detail-remove { border-color: rgb(255 155 133 / .5); color: #ffc9b8; }
+@media (prefers-reduced-motion: reduce) { .session-detail-exercises summary > svg { transition: none; } }

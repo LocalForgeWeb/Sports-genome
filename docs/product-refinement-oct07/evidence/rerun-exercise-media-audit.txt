@@ -1,0 +1,21 @@
+PASS Catalog rows load same-origin thumbnails (/exercise-thumbs/), each painted — Back Squat:264px, Hack Squat:180px, Jump Squat:264px, Front Squat:264px, Sissy Squat:264px, Goblet Squat:264px, Pistol Squat:264px, Zercher Squat:264px
+PASS Thumbnails are small (≤ 264 px wide), not the 850 px source
+PASS No photo-CDN request for a list of rows — 0 CDN requests
+PASS Back Squat row shows its own photo (Barbell_Squat) — {"state":"photo","src":"/exercise-thumbs/Barbell_Squat.jpg","loaded":true,"natural":[264,176]}
+PASS Sissy Squat row shows its own photo (Weighted_Sissy_Squat) — {"state":"photo","src":"/exercise-thumbs/Weighted_Sissy_Squat.jpg","loaded":true,"natural":[264,176]}
+PASS Withdrawn photo: Seal Row shows the equipment placeholder, no image — {"state":"placeholder","src":null,"loaded":null,"natural":null}
+PASS Withdrawn photo: Pendlay Row shows the equipment placeholder, no image — {"state":"placeholder","src":null,"loaded":null,"natural":null}
+PASS Withdrawn photo: Bulgarian Split Squat shows the equipment placeholder, no image — {"state":"placeholder","src":null,"loaded":null,"natural":null}
+PASS Withdrawn photo: Kettlebell Swing shows the equipment placeholder, no image — {"state":"placeholder","src":null,"loaded":null,"natural":null}
+PASS Slow photo: frames hold their reserved size and show the icon while loading — [{"state":"loading","h":116,"icon":true},{"state":"loading","h":116,"icon":true}]
+PASS …then both frames paint, at the same size (no layout shift) — [{"state":"photo","h":116,"ok":true,"src":"Weighted_Sissy_Squat/0.jpg"},{"state":"photo","h":116,"ok":true,"src":"Weighted_Sissy_Squat/1.jpg"}]
+PASS Sissy Squat detail shows Weighted_Sissy_Squat start and finish
+PASS Unreachable: "The photographs could not be loaded." with a Retry button, no broken image — The photographs could not be loaded.Retry
+PASS Retry asks again and both Back Squat frames load (Barbell_Squat) — [{"ok":true,"src":"Barbell_Squat/0.jpg?retry=1"},{"ok":true,"src":"Barbell_Squat/1.jpg?retry=1"}]
+PASS Invalid response from the CDN: the second host serves the real photo — [{"ok":true,"host":"raw.githubusercontent.com"},{"ok":true,"host":"raw.githubusercontent.com"}]
+PASS A missing thumbnail falls back to the full frame on the second host — {"state":"photo","src":"https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Front_Barbell_Squat/0.jpg","loaded":true,"natural":[850,567]}
+PASS 320px: thumbnails keep their 3:2 box, no sideways scroll
+PASS 375px: thumbnails keep their 3:2 box, no sideways scroll
+PASS 430px: thumbnails keep their 3:2 box, no sideways scroll
+PASS 1280px: thumbnails keep their 3:2 box, no sideways scroll
+20/20 pass

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import React from "react";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const noData = { data: undefined };
@@ -41,7 +41,10 @@ describe("A finished workout's record after a swap and a drop set", () => {
     };
     localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([session]));
     const { container } = render(React.createElement(ProgressOverviewPanel, { onOpenStrength: () => {}, onOpenTraining: () => {}, weightUnit: "lb", directAccess: true }));
-    const card = container.querySelector(".progress-session-sets")!;
+    // The list row opens the workout's detail, where the sets are.
+    expect(container.querySelector(".progress-session-open")!.textContent).toContain("2 exercises · 4 sets");
+    fireEvent.click(screen.getByRole("button", { name: /^View session: Week 1 · Legs workout,/ }));
+    const card = container.querySelector(".session-detail-exercises")!;
     expect(card).toBeTruthy();
     const text = card.textContent!;
     expect(text).toContain("Sissy Squat");
@@ -51,8 +54,9 @@ describe("A finished workout's record after a swap and a drop set", () => {
     expect(text).toContain("135 lb × 8");
     expect(text).toContain("Drop set · 100 lb × 5 → 70 lb × 6 → 50 lb × 10");
     expect(text).toContain("1 drop set · 3 stages · 21 reps · 1,420 lb·reps");
-    // The drop set is one of Back Squat's two sets, and the workout holds four.
-    expect(text).toContain("2 of 2 sets");
-    expect(container.textContent).toContain("4 sets");
+    // The drop set is one of Back Squat's two sets, and the workout holds four working sets.
+    const backSquatRow = Array.from(card.querySelectorAll(":scope > li")).find((row) => row.querySelector("strong")?.textContent === "Back Squat")!;
+    expect(backSquatRow.querySelector("small")!.textContent).toBe("2 sets");
+    expect(container.querySelector(".session-detail-summary")!.textContent).toContain("Working sets4");
   });
 });

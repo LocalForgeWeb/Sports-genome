@@ -1,0 +1,45 @@
+PASS With no search, suggestions of the same movement include Back Squat — Back Squat, Bulgarian Split Squat, Cyclist Squat, Front Squat, Front-Foot-Elevated Split Squat, Goblet Squat
+PASS Equipment filters are fully visible (row at least 44 px tall)
+PASS Search "barbell squat" puts Back Squat first — Back Squat
+PASS Sheet is titled "Replace Sissy Squat"
+PASS Sheet says the 2 logged sets stay with Sissy Squat
+PASS Default scope is this workout only
+PASS Confirm reads "Use Back Squat" and is on screen
+PASS No sideways scroll with the sheet open (390)
+PASS Inspect a candidate inside the sheet: Back Squat start and finish photos load, no second dialog — [{"ok":true,"src":"Barbell_Squat/0.jpg"},{"ok":true,"src":"Barbell_Squat/1.jpg"}]
+PASS After the swap, focus is on the next logging action (Log set 1)
+PASS Same Back Squat image in the swap results and the workout list — /exercise-thumbs/Barbell_Squat.jpg | /exercise-thumbs/Barbell_Squat.jpg
+PASS Live card now tracks Back Squat, set 1 of 2
+PASS Live card says "Switched from Sissy Squat after 2 sets"
+PASS No load carried across: weight box empty
+PASS Stored: Sissy Squat keeps its 2 completed sets, Back Squat has 1 of 2, total still 7 sets — [["Sissy Squat",2],["Back Squat",2],["Dumbbell Bench Press",3]]
+PASS No rest between stages — before drop: Resting
+PASS Rest starts when the drop set is finished
+PASS Full list shows "Drop set · 100 lb × 5 → 70 lb × 6 → 50 lb × 10"
+PASS Full list shows "1 drop set · 3 stages · 21 reps · 1,420 lb·reps"
+PASS Full list shows "Switched to Back Squat after 2 sets" on Sissy Squat
+PASS Stored as one set with three ordered stages
+PASS Tally counts the drop set once: 4/7 sets (2 Sissy Squat + 1 Back Squat + 1 drop set, of 4 + 3 planned) — Week 1 · Legs4/7 sets
+PASS After reload: still on Back Squat, which is done; Dumbbell Bench Press next
+PASS Progress record shows both exercises and the swap
+PASS Progress record shows the drop set as one line with its totals
+PASS phone-320: sheet fits, no sideways scroll, "Use Back Squat" on screen, targets ≥ 44 px
+PASS phone-320: drop-set controls fit and are ≥ 44 px tall
+PASS phone-375: sheet fits, no sideways scroll, "Use Back Squat" on screen, targets ≥ 44 px
+PASS phone-375: drop-set controls fit and are ≥ 44 px tall
+PASS phone-430: sheet fits, no sideways scroll, "Use Back Squat" on screen, targets ≥ 44 px
+PASS phone-430: drop-set controls fit and are ≥ 44 px tall
+PASS desktop-1280: sheet fits, no sideways scroll, "Use Back Squat" on screen, targets ≥ 44 px
+PASS desktop-1280: drop-set controls fit and are ≥ 44 px tall
+PASS phone-390-large-text: sheet fits, no sideways scroll, "Use Back Squat" on screen, targets ≥ 44 px
+PASS phone-390-large-text: drop-set controls fit and are ≥ 44 px tall
+PASS phone-390-keyboard: sheet fits, no sideways scroll, "Use Back Squat" on screen, targets ≥ 44 px
+PASS phone-390-keyboard: drop-set controls fit and are ≥ 44 px tall
+PASS Keyboard: focus moves into the sheet
+PASS Keyboard: Enter on "Use Back Squat" swaps
+PASS Keyboard: Escape closes the sheet and returns focus to Swap exercise
+PASS A heavier stage is kept, with a nonblocking note — Stage 2: This stage isn't lighter than the one before (100 lb). It's kept; check the load, or leave it if that's what you did.
+PASS Removed stage gone, order kept, after a reload: 100 × 5 → 70 × 6 → 50 × 10 — [["set-muygdhhr-kgkpmo-stage-1","100","5"],["set-muygdhhr-kgkpmo-stage-3","70","6"],["set-muygdhhr-kgkpmo-stage-4","50","10"]]
+PASS Nothing logged: Back Squat replaces Sissy Squat in place, 4 sets
+PASS kg with decimals: "Drop set · 42.5 kg × 6 → 30 kg × 8 → 17.5 kg × 12 … 705 kg·reps"
+44/44 pass

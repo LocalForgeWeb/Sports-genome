@@ -212,3 +212,25 @@ describe("Home week strip and primary action", () => {
     expect(document.querySelector(".today-action-focus")).toBeNull();
   });
 });
+
+/** O08: the last finished workout is one tap from its own recap, under the week. */
+describe("Home's last workout entry", () => {
+  it("names the newest finished workout and opens that exact session", () => {
+    const older = { ...finished("Week 1 · Day 01 · Push"), id: "older", completedAt: new Date(Date.now() - 7_200_000).toISOString() };
+    window.localStorage.setItem(deviceWorkoutHistoryKey, JSON.stringify([older, finished("Week 1 · Day 02 · Pull"), finished("Week 1 · Day 03 · Legs", false)]));
+    const onOpenSession = vi.fn();
+    draw({ onOpenSession });
+    const row = screen.getByRole("button", { name: /^View session: Pull,/ });
+    expect(row.textContent).toContain("Last workout");
+    expect(row.textContent).toContain("1 exercise · 1 set");
+    // It sits in the week section, after the week's own line: never above the primary action.
+    expect(row.closest(".home-week")).not.toBeNull();
+    row.click();
+    expect(onOpenSession).toHaveBeenCalledWith("s-Week 1 · Day 02 · Pull");
+  });
+
+  it("is absent with no finished workout", () => {
+    draw({ onOpenSession: () => {} });
+    expect(document.querySelector(".home-last-session")).toBeNull();
+  });
+});

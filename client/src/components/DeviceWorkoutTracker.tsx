@@ -14,6 +14,7 @@ import { addAfter, applySwap, assessSwap, canUndoSwap, catalogIdOf, swapNote, un
 import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageNote, stageProblem, volumeText } from "@/lib/dropSets";
 import { loadConventionFor } from "@shared/loadConventions";
 import { ExerciseSwapSheet, type ExerciseSwapChoice, type SwapPlanOption } from "@/components/ExerciseSwapSheet";
+import { WorkoutSessionDetail } from "@/components/WorkoutSessionDetail";
 import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
@@ -151,7 +152,7 @@ function clockFor(seconds: number) {
 /** An id no other set or exercise in the session has: time plus a random tail. */
 const freshId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, weightUnit = "lb", onEditInPlan, onReviewDay, onInspect, onOpenProgress, daySwitch, onReplaceInPlan }: {
+export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, dayLabel, weightUnit = "lb", onEditInPlan, onReviewDay, onInspect, onOpenProgress, onOpenSession, onOpenHome, daySwitch, onReplaceInPlan }: {
   workout: Exercise[];
   /** The profile's unit. A session takes it when it starts and keeps it. */
   weightUnit?: DisplayWeightUnit;
@@ -174,6 +175,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * day, keeping its sets, reps and settings. False when the plan could not take the change.
    */
   onReplaceInPlan?: (fromId: number, toId: number) => boolean;
+  /** A finished workout's detail in Progress, by its session id: the recap's "View in Progress". */
+  onOpenSession?: (sessionId: string) => void;
+  /** Home, where the next workout is: the recap's "See what's next". */
+  onOpenHome?: () => void;
 }) {
   const [activeSession, setActiveSession] = useState<DeviceWorkoutSession | null>(null);
   const [durable, setDurable] = useState(true);
@@ -507,12 +512,15 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
    * apply twice; and the toast's Undo takes it back while nothing new is logged on it.
    */
   const [swapForId, setSwapForId] = useState<string | null>(null);
+  /** The workout just finished, shown as its saved recap until the athlete is done with it. */
+  const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
+  const [confirmingFinish, setConfirmingFinish] = useState(false);
   const swapping = useRef(false);
   const dayNameOf = (label: string) => label.split(" · ").map((part) => part.trim()).filter(Boolean).pop() || label;
 
   /** The candidate's own last logged set on this device - never the exercise it replaces. */
   const lastLoggedText = (exercise: Exercise) => {
-    const last = lastCompletedSetFor(exercise.name, history, sessionUnit);
+    const last = lastCompletedSetFor({ exerciseName: exercise.name, catalogId: exercise.id }, history, sessionUnit);
     return last ? performedSetLine(last, last.unit ?? sessionUnit, loadConventionFor(exercise.id)) : null;
   };
 
@@ -731,7 +739,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     }
     // Read now, stored with the session: what the athlete weighs today is what this workout was
     // done at, and no later weight change gets to rewrite it.
-    const { session, excludedDrafts, skippedSets, completedSets, settledDropSets } = finalizeSession(
+    const { session, completedSets, settledDropSets } = finalizeSession(
       withUnit(latest ?? current),
       undefined,
       currentBodyWeightKg(loadBodyWeightLog()),
@@ -776,19 +784,27 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     activeSessionRef.current = null;
     setActiveSession(null);
     setResumed(false);
-    // The exclusion is never silent: the contract drops uncompleted edits by
-    // default, so the athlete is told exactly what did not count.
-    const leftOut = [
-      excludedDrafts ? `${excludedDrafts} typed but never logged` : "",
-      skippedSets ? `${skippedSets} skipped` : "",
-    ].filter(Boolean).join(" · ");
-    // The record is written; the message says what it holds and opens it.
-    // A drop set left open keeps the stages that were added, and the message says so.
-    const settled = settledDropSets ? ` ${settledDropSets === 1 ? "A drop set left open was" : `${settledDropSets} drop sets left open were`} recorded with the stages added.` : "";
-    toast(`${completedSets} ${completedSets === 1 ? "set" : "sets"} added to Progress`, {
-      description: `${leftOut ? `Left out: ${leftOut}.` : "Every logged set was recorded."}${settled}`,
-      ...(onOpenProgress ? { action: { label: "View record", onClick: onOpenProgress } } : {}),
-    });
+    setConfirmingFinish(false);
+    /*
+     * The record is written, so the screen says so: "Workout saved", built from the stored record
+     * (WorkoutSessionDetail) - the same detail Progress opens later. What did not count is in it:
+     * skipped and not-recorded work is listed, never turned into completed sets. Only a drop set
+     * closed with the stages it had is worth a word more, since the athlete never tapped Finish on it.
+     */
+    setSavedSessionId(session.id);
+    if (settledDropSets) toast(`${settledDropSets === 1 ? "A drop set left open was" : `${settledDropSets} drop sets left open were`} recorded with the stages added`, { id: "finish-settled-drop" });
+  };
+
+  /**
+   * Finishing with planned sets still open asks once, in place (R13): Keep going returns to the same
+   * set with every draft, and the rest timer untouched. Nothing is asked when every set is resolved.
+   */
+  const requestFinishEarly = () => {
+    const current = activeSessionRef.current;
+    if (!current) return;
+    const open = current.exercises.reduce((sum, exercise) => sum + exercise.sets.filter((set) => !set.completed && !set.skipped).length, 0);
+    if (open === 0) { finish(); return; }
+    setConfirmingFinish(true);
   };
 
   /** Explicit drill-down. Opening it does not move the active set, so the athlete keeps their place while checking or correcting earlier work. */
@@ -864,6 +880,19 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         </article>; })}</div>
       </details>
   ), [activeSession, catalogByName, sessionUnit]);
+
+  if (!activeSession && savedSessionId) {
+    return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker session-saved">
+      <WorkoutSessionDetail
+        sessionId={savedSessionId}
+        weightUnit={weightUnit}
+        variant="saved"
+        onDone={() => setSavedSessionId(null)}
+        onOpenProgress={onOpenSession ? () => { const id = savedSessionId; setSavedSessionId(null); onOpenSession(id); } : undefined}
+        onOpenNext={onOpenHome ? () => { setSavedSessionId(null); onOpenHome(); } : undefined}
+      />
+    </section>;
+  }
 
   if (!activeSession) {
     const plannedSets = workout.reduce((total, exercise, index) => total + renderableSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index, exercise)), 0);
@@ -1167,9 +1196,20 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     {/* Cutting a session short. Below the queue and set quietly, because it is
         the rare exit, not the next step; it says what it will keep so the tap
         is a decision rather than a guess. */}
-    {activeExercise && activeSet && <button type="button" className="live-session-finish" onClick={finish}>
+    {activeExercise && activeSet && !confirmingFinish && <button type="button" className="live-session-finish" onClick={requestFinishEarly}>
       Finish workout early<small>{completed ? ` · keeps the ${completed} logged ${completed === 1 ? "set" : "sets"}` : " · nothing logged yet"}</small>
     </button>}
+    {activeExercise && activeSet && confirmingFinish && (() => {
+      const open = activeSession.exercises.reduce((sum, exercise) => sum + exercise.sets.filter((set) => !set.completed && !set.skipped).length, 0);
+      return <div className="live-finish-confirm" role="group" aria-labelledby="live-finish-confirm-title">
+        <p id="live-finish-confirm-title"><strong>Finish now?</strong> {completed ? `The ${completed} logged ${completed === 1 ? "set is" : "sets are"} saved. ` : "Nothing is logged yet, so nothing will be recorded. "}{open} planned {open === 1 ? "set stays" : "sets stay"} not done{drafts ? `, and ${drafts} typed but not logged ${drafts === 1 ? "is" : "are"} left out` : ""}.</p>
+        <div>
+          <button type="button" className="live-finish-confirm-go" onClick={() => { setConfirmingFinish(false); finish(); }}>Finish now</button>
+          {/* The safe choice holds focus, as in every confirmation here; Keep going hands it back to the set. */}
+          <button type="button" ref={(node) => node?.focus({ preventScroll: true })} onClick={() => { setConfirmingFinish(false); requestAnimationFrame(() => document.querySelector<HTMLElement>(".live-set-commit")?.focus({ preventScroll: true })); }}>Keep going</button>
+        </div>
+      </div>;
+    })()}
 
     {swapExercise && <ExerciseSwapSheet
       exercise={swapExercise}

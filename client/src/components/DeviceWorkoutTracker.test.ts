@@ -64,7 +64,7 @@ describe("Device Workout Tracker execution focus", () => {
     expect(source).not.toContain('className="execution-secondary-action"');
     expect(styles).not.toContain("execution-secondary-action");
     expect(source).toContain('className="live-session-finish live-session-finish-primary" onClick={finish}');
-    expect(source).toContain('{activeExercise && activeSet && <button type="button" className="live-session-finish" onClick={finish}>');
+    expect(source).toContain('{activeExercise && activeSet && !confirmingFinish && <button type="button" className="live-session-finish" onClick={requestFinishEarly}>');
     expect(styles).toContain(".live-set-skip {\n  display: inline-flex;");
     expect(styles).not.toContain(".live-set-skip {\n  display: flex;\n  width: 100%;");
   });
