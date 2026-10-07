@@ -199,3 +199,37 @@ export function repeatDayFrom(session: DeviceWorkoutSession): { day: IncomingDra
   const label = session.dayLabel.split(" · ").map((part) => part.trim()).filter(Boolean).pop() || session.title;
   return { day: { label, items, unresolved: [] }, leftOut };
 }
+
+export type ExerciseHistoryEntry = { sessionId: string; completedAt: Date; dayName: string; sets: { line: string; detail: string | null }[] };
+
+/**
+ * One exercise's past (H07, H08): each finished workout that did it, newest first, with its sets
+ * in the units they were logged in. The same identity rule as "Last logged": the catalog ID where
+ * both sides kept one, the name only for records older than IDs. Read-only - opening it never
+ * puts a value into a workout being logged (H09).
+ */
+const sameExercise = (target: { exerciseName: string; catalogId?: number }) => (exercise: DeviceWorkoutSession["exercises"][number]) =>
+  target.catalogId !== undefined && exercise.catalogId !== undefined ? exercise.catalogId === target.catalogId : exercise.exerciseName === target.exerciseName;
+
+/** How many finished workouts did this exercise: the cheap count, for a screen that redraws every second. */
+export function exerciseHistoryCount(target: { exerciseName: string; catalogId?: number }, sessions: readonly DeviceWorkoutSession[], excludeSessionId?: string): number {
+  const matches = sameExercise(target);
+  return sessions.filter((session) => session.status === "completed" && session.id !== excludeSessionId && session.exercises.some((exercise) => matches(exercise) && exercise.sets.some(isCompletedSet))).length;
+}
+
+export function exerciseHistory(target: { exerciseName: string; catalogId?: number }, sessions: readonly DeviceWorkoutSession[], fallbackUnit: DisplayWeightUnit, limit = 5): { entries: ExerciseHistoryEntry[]; total: number } {
+  const matches = sameExercise(target);
+  const all = sessions
+    .filter((session) => session.status === "completed")
+    .flatMap((session) => {
+      const done = session.exercises.filter((exercise) => matches(exercise) && exercise.sets.some(isCompletedSet));
+      if (!done.length) return [];
+      const recap = sessionRecap(session, fallbackUnit);
+      const ids = new Set(done.map((exercise) => exercise.id));
+      const sets = recap.exercises.filter((exercise) => ids.has(exercise.id)).flatMap((exercise) => exercise.sets.map((set) => ({ line: set.line, detail: set.detail })));
+      const dayName = session.dayLabel.split(" · ").map((part) => part.trim()).filter(Boolean).pop() || session.title;
+      return [{ sessionId: session.id, completedAt: recap.completedAt, dayName, sets }];
+    })
+    .sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime());
+  return { entries: all.slice(0, limit), total: all.length };
+}

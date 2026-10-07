@@ -11,7 +11,7 @@
 
 **Evidence shorthand**
 
-- *recap probe*: `probes/recap-history.mjs`, 75/75.
+- *recap probe*: `probes/recap-history.mjs`, 85/85.
 - *rank probe*: `docs/rank-suggestions/probes/rank-suggestions.mjs`, 14/14.
 - *swap/drop probe*: `docs/workout-swap-drop/probes/acceptance.mjs`, rerun 44/44.
 - *Oct 1 probe*: `docs/ux-oct1/probes/oct1.mjs`, rerun 27/34. The seven failures are listed under O05.
@@ -77,8 +77,8 @@
 | H04 | verified | — | Separate empty and no-match states; filters reset only via Clear filters. Unit test | — |
 | H05 | verified (unit) | — | Account read failure keeps device rows and offers Try again. Unit test | Not driven in a browser (no account in the sandbox) |
 | H06 | already satisfied | — | Device sessions are never uploaded as sessions (only lifts are), so device and account rows cannot duplicate | — |
-| H07 | implementing | `lastCompletedSetFor` | The logger's "Last logged" now matches by catalog ID; unit test | No per-exercise history screen was added. Strength's record sheet remains the exercise history |
-| H08 | already satisfied | `setWeightUnit`, `performedSetLine` | Sets show in their recorded unit (Oct 6 work) | — |
+| H07 | verified | `exerciseHistory`, `ExerciseHistoryList` | Exercise detail has "Your history" (rows open the session in Progress), and the live logger has "Earlier <exercise> workouts (N)" under Last logged. Matched by catalog identity. Unit test plus recap probe | Device workouts only; account-only sessions carry no sets |
+| H08 | verified | `carriedEntryFor`, live card | History shows sets in their logged unit. A Last logged value offered in another unit now reads "82.5 kg × 4 (181.88 lb in this workout's unit)". Unit test plus probe | — |
 | H09 | verified | — | Opening a past session reads the stored record; nothing is copied into the live logger | — |
 | H10 | verified | `repeatDayFrom` (`lib/sessionRecap.ts`), Home `repeatSession` | "Repeat in your plan" on a past workout opens the existing Save to plan dialog: week, day, add-after or replace, shown before anything changes. Only exercises and planned prescriptions copy. Unit test (no weights, completions, notes); recap probe J17 | An exercise no longer in the catalog is named and left out, not resolved. RPE and rest take the plan's defaults |
 | H11 | verified | `historyExerciseKey`, `strengthSeriesKey` | Unit tests: same name with different IDs stays separate | — |
@@ -182,7 +182,7 @@
 | U10 | verified | recap corrections | Inline persistent errors; toasts only for reversible success | — |
 | U11 | verified (new surfaces) | — | Heading focus on open; Keep going returns focus; dialog focus via ConfirmDialog | — |
 | U12 | verified | — | `prefers-reduced-motion` on the chevron rotation | — |
-| U13 | implementing | — | 320, 390 and 1280 px in the probes | 430 px and enlarged text were not run for the new surfaces |
+| U13 | verified (new surfaces) | — | Recap probe: 320, 390, 430 and 1280 px, plus 390 px at 125% text. No sideways scroll; detail controls are at least 44 px | Older screens were not re-run at 125% this pass |
 | U14 | blocked | — | — | No iOS or WebKit device available; everything is Chromium emulation |
 | U04, U05, U07–U09 | not started (this pass) | — | — | — |
 
@@ -228,5 +228,5 @@
 | Z06 | verified | Unit tests plus three probes |
 | Z07 | implementing | See U13 |
 | Z08 | verified | Copy reviewed in the report |
-| Z09 | verified | tsc clean; vitest 3067 passed, 6 skipped; build OK |
+| Z09 | verified | tsc clean; vitest 3069 passed, 6 skipped; build OK |
 | Z10 | verified | `report.md` |

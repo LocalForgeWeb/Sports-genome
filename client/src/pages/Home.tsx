@@ -33,6 +33,7 @@ import { WorkspaceTabs } from "@/components/WorkspaceTabs";
 import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
 import { loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, stampLegacyWeightUnits, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { repeatDayFrom } from "@/lib/sessionRecap";
+import { ExerciseHistoryList } from "@/components/ExerciseHistoryList";
 import { usePlanSync } from "@/lib/usePlanSync";
 import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
 import { WarmupPanel } from "@/components/WarmupPanel";
@@ -1821,18 +1822,18 @@ export default function Home() {
    * pushState would race: the queued back is either cancelled by the push or
    * applied after it.
    */
-  const leaveInspectorFor = (next: Workspace) => {
+  const leaveInspectorFor = (next: Workspace, options: { session?: string } = {}) => {
     if (typeof window !== "undefined" && window.history.state?.overlay === "exercise") {
       // Same screen: navigateWorkspace will not push, so popping the overlay entry is safe.
-      if (new URL(window.location.href).searchParams.get("workspace") === next) { closeInspector(); navigateWorkspace(next); return; }
+      if (new URL(window.location.href).searchParams.get("workspace") === next && !options.session) { closeInspector(); navigateWorkspace(next); return; }
       // The catalog's discovery parameters stay with the catalog's own entry below.
-      window.history.replaceState({ workspace: next }, "", urlForWorkspace(next, discovery, reviewScopeRef.current));
+      window.history.replaceState({ workspace: next }, "", urlForWorkspace(next, discovery, reviewScopeRef.current, options.session));
     }
     // Let the page go before the next screen scrolls it: the hold would put the old offset back.
     releaseInspectorPage.current?.();
     setInspectedExercise(null);
     // The URL already names `next`, so this only resets context and scrolls.
-    navigateWorkspace(next);
+    navigateWorkspace(next, options.session ? { session: options.session } : undefined);
   };
   // Escape closes the overlay and nothing else; the list, filters and scroll it
   // opened over are untouched. A layer opened over it (search, with Cmd/Ctrl+K)
@@ -2425,6 +2426,8 @@ export default function Home() {
             <ExerciseGenomePanel exercise={inspectedExercise} key={inspectedExercise.id} context={{ goal, currentWorkout: customWorkout, sportMovement: contextMovement }} compactHead tab={inspectorTab} onTabChange={setInspectorTab} workoutLabel={inspectorDestination} slots={{
               // The movement, photographed at its start and finish.
               media: <ExerciseMedia exerciseId={inspectedExercise.id} exerciseName={inspectedExercise.name} equipment={inspectedExercise.equipment} variant="detail" />,
+              // Its past on this device; a row opens that workout in Progress.
+              history: <ExerciseHistoryList exerciseId={inspectedExercise.id} exerciseName={inspectedExercise.name} weightUnit={athleteBaseline.weightUnit} limit={3} onOpenSession={(id) => leaveInspectorFor("progress", { session: id })} />,
               // Compare, as a quiet line: the first choice waits here; the second opens the comparison.
               profileFoot: <button type="button" className="exercise-intelligence-compare" onClick={() => compareWith(inspectedExercise)}>{comparePending && comparePending.id !== inspectedExercise.id ? `Compare with ${comparePending.name}` : comparePending?.id === inspectedExercise.id ? "Comparing this · open another exercise" : "Compare with another exercise"} <ArrowRight className="h-4 w-4" aria-hidden="true" /></button>,
               // The muscles on the real figure, named above it, with the rows that say each role
