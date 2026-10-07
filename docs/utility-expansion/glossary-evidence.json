@@ -1,0 +1,580 @@
+{
+ "generatedFrom": "research draft reviewed 7 Oct 2026; numbers spot-checked against code",
+ "notes": [
+  "Training terms: glossary draft (31 entries). Draft only; nothing in the repository was edited.",
+  "OMITTED: none. Every listed term exists in the product at least in part, or can be explained",
+  "by how the app treats it.",
+  "  - notInProduct: true  -> \"Warm-up set\" (no warm-up set type; explained, not a placeholder).",
+  "  - PARTIAL, notInProduct: false, explained in the entry:",
+  "      \"Tempo\" and \"Range of motion\": optional free text on a typed lift (Log a lift) only;",
+  "        no field on planned or logged workout sets; not read by the progress line.",
+  "      \"RIR\": the e1RM estimator accepts it, but nothing in the app records it yet.",
+  "      \"Prescribed vs recorded effort\": prescribed (plan RPE) exists; recorded effort does not.",
+  "SOURCES (GL07): the repo's RPE/RIR source (client/src/lib/evidenceTraceability.ts:18,",
+  "https://pmc.ncbi.nlm.nih.gov/articles/PMC4961270/) could not be opened from this environment:",
+  "pmc.ncbi.nlm.nih.gov was refused by the egress proxy (curl: CONNECT 403; WebFetch:",
+  "EGRESS_BLOCKED). So no entry cites it, no entry says how the RPE scale is anchored, and every",
+  "`sources` array is empty. Definitions in `meaning` are plain terminology; every `inApp`",
+  "statement comes from code read for this draft.",
+  "LINE REFERENCES: working tree on branch claude/training-day-navigation-workouts-83ro2c,",
+  "2026-10-07. DeviceWorkoutTracker.tsx, Home.tsx and ExerciseGenomePanel.tsx were being edited",
+  "by someone else while this was drafted (their line numbers moved by 1 to 28 lines during the",
+  "session), so re-check refs in those three files before relying on them.",
+  " ",
+  "DISCREPANCIES (recorded only; no code changes proposed)",
+  "D1 Muscle-role labels differ by screen.",
+  "   - Exercise record (genome panel): Prime mover / Synergist / Stabilizer.",
+  "     client/src/components/ExerciseGenomePanel.tsx:72-74, :363; client/src/lib/exerciseGenome.ts:228-230",
+  "   - Exercise intelligence figure for the SAME exercise reads only the primary/secondary lists, so",
+  "     it tags secondary muscles \"Supporting\" and never \"Stabilizer\", even where the genome panel",
+  "     calls one a Stabilizer. client/src/components/AnatomyMap.tsx:15, :119-124, :409;",
+  "     client/src/pages/Home.tsx:2481",
+  "   - Body Lab data: \"Primary Mover\" / \"Synergist\" / \"Stabilizer\" / \"Supporting\"",
+  "     (client/src/lib/bodyLabRoleContext.ts:4, :56, :63-65), shown as tags Primary / Supporting /",
+  "     Stabilizer and legend Primary / Supporting / Stabilizing (AnatomyMap.tsx:15, :313-315, :393).",
+  "   - Training-day analysis: \"Prime mover / Supporting / Stabilizing in this day\"",
+  "     (AnatomyMap.tsx:313-315, :390, :393), plus \"Primary target / Support target\" for split",
+  "     targets (client/src/components/StackAnalysisPage.tsx:378).",
+  "   - Movement intelligence: Prime movers / \"Assisting muscles\" / Stabilizers",
+  "     (client/src/lib/movementProgramAnalysis.ts:24; client/src/components/MovementIntelligencePanel.tsx:37).",
+  "   - Week Review: \"direct\" / \"supporting (est.)\" (client/src/components/weekReview/WeekReviewBoard.tsx:256, :289).",
+  "D2 \"Coverage\" names four different measures.",
+  "   - Strength: \"regions covered\" = regions with any logged lift (StrengthGenomePanel.tsx:1329-1330;",
+  "     client/src/lib/athleteRecord.ts:69-74).",
+  "   - Training day: coverage points, 56 per primary tag / 24 per secondary tag",
+  "     (client/src/lib/splitStackAnalysis.ts:20, :48-53).",
+  "   - Week Review: \"Movement coverage\" = movement-pattern presence (WeekReviewBoard.tsx:202).",
+  "   - Movement intelligence: \"Training coverage\" % counts a record muscle as covered when any",
+  "     exercise lists it as primary OR secondary, and calls >=75% \"Well supported for this action\"",
+  "     (movementProgramAnalysis.ts:47, :57-58; MovementIntelligencePanel.tsx:31). The movement",
+  "     support tiers count only primary muscles and say an assisting or stabilizing muscle alone",
+  "     never relates an exercise (client/src/lib/movementSupport.ts:273-292;",
+  "     movementProgramAnalysis.ts:133-137; docs/movement-support/README.md:57-59).",
+  "D3 \"Working set(s)\" means three things. The recap's \"Working sets\" counts every completed set",
+  "   (client/src/lib/sessionRecap.ts:95; client/src/components/WorkoutSessionDetail.tsx:104) and there",
+  "   is no warm-up flag (client/src/lib/deviceWorkoutLog.ts:42). Log a lift uses \"Working set\" as the",
+  "   MULTI_REP test-type label (StrengthGenomePanel.tsx:512). The planner says \"planned work sets\"",
+  "   (client/src/lib/workoutPlanner.ts:90-91; client/src/lib/weekReview.ts:66).",
+  "D4 Which set of a workout becomes the \"logged lift\". deviceWorkoutLog.ts:336 says \"its heaviest",
+  "   completed set with at least one rep\", but client/src/lib/workoutStrengthRecord.ts:130-138, :172-178",
+  "   picks the set with the highest e1RM, using heaviest only as a fallback.",
+  "D5 Recorded RPE. client/src/lib/evidenceTraceability.ts:290-297 (\"rpe-log-context\", surface",
+  "   \"Workout logging...\": \"RPE/RIR is a recorded subjective effort context\") and :361-374 list RPE",
+  "   among stored athlete observations. The live set log has no effort field",
+  "   (deviceWorkoutLog.ts:3-49), client/src/lib/strengthPercentileCard.ts:79 says \"Nothing records",
+  "   reps in reserve yet\", and the only path that read recorded RPE is dormant and unmounted",
+  "   (client/src/lib/progressiveTraining.ts:143-148; client/src/lib/progressComparisonFixtures.test.ts:97-110).",
+  "   The account schema still has actualRpe (drizzle/schema.ts:112; server/routers.ts:286).",
+  "D6 Percentile rounding. The lift card's headline rounds (ordinal() uses Math.round:",
+  "   strengthPercentileCard.ts:23-25, :69). Ranks and the rank's \"percentile on its own\" lines floor",
+  "   (client/src/components/CapabilityRank.tsx:15-17; StrengthGenomePanel.tsx:207). A raw 19.6 shows",
+  "   as \"20th percentile\" on the lift card and \"19th\" in rank text.",
+  "D7 Volume landmarks. Week Review says the 6 and 12 direct-sets-a-week landmarks \"have no recorded",
+  "   source and are not shown as badges\" (WeekReviewBoard.tsx:197). The training day's Workload",
+  "   labels muscles Light / Solid / Heavy from the same two values (client/src/lib/sessionVolume.ts:62-67,",
+  "   :113-117; evidenceTraceability.ts:218-219; StackAnalysisPage.tsx:161-180).",
+  "D8 Holds and carries. Only catalog ids 401-450 have reviewed measurement modes. Original-catalog",
+  "   holds and carries, e.g. RKC Plank (246), Side Plank (247) and Farmer's Walk (299), fall back to",
+  "   load x reps with a Reps box and count as e1RM-eligible (shared/exerciseMeasurement.ts:123-127;",
+  "   client/src/lib/setEntryFields.ts:46-50; workoutStrengthRecord.ts:159). So the rule \"seconds are not",
+  "   repetitions\" (exerciseMeasurement.ts:62) does not reach the whole catalog.",
+  "D9 Optional lift details. Log a lift says its optional fields (range of motion, tempo, variation,",
+  "   and so on) \"just help you compare like with like later on\" (StrengthGenomePanel.tsx:1373). The",
+  "   progress series reads none of them: setup and ROM \"are not recorded, so they are unknown\"",
+  "   (client/src/lib/withinAthleteStrengthChange.ts:4-16, :73-82).",
+  "D10 Side. A lift carried over from a workout has no side field (workoutStrengthRecord.ts:25-53), so a",
+  "   per-side exercise from a workout goes into the unsided series. A typed lift with Which side =",
+  "   Left/Right gets its own series (withinAthleteStrengthChange.ts:79-82; StrengthGenomePanel.tsx:1366).",
+  "D11 \"Week\". On Home, \"Completed this week\" and \"done this week\" mean the calendar week from Monday",
+  "   (client/src/lib/trainingWeekSummary.ts:47-54; client/src/components/TodayActionPanel.tsx:272, :306).",
+  "   Review's \"Week\" scope and its week pills mean plan Week 1-3, which has no dates",
+  "   (client/src/components/weekReview/ReviewHead.tsx:16, :38-42; weekReview.ts:22-23).",
+  "D12 Supporting work is weighted three ways on one training-day analysis page: Workload counts 0.5 per",
+  "   set (sessionVolume.ts:81-86), Coverage scores 24 points against 56 for primary",
+  "   (splitStackAnalysis.ts:50-53), and Muscle breakdown weights involvement 1 / 0.65 / 0.4 by role",
+  "   (client/src/lib/stackMuscleAnalysis.ts:31; evidenceTraceability.ts:215-217).",
+  " "
+ ],
+ "entries": [
+  {
+   "id": "set",
+   "term": "Set",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/setPrescription.ts:42",
+    "client/src/lib/setPrescription.ts:45",
+    "client/src/lib/setPrescription.ts:60",
+    "client/src/lib/setPrescription.ts:180",
+    "client/src/components/DeviceWorkoutTracker.tsx:100",
+    "client/src/lib/deviceWorkoutLog.ts:333-340",
+    "client/src/lib/dropSets.ts:10",
+    "shared/exerciseMeasurement.ts:32-38"
+   ]
+  },
+  {
+   "id": "repetition",
+   "term": "Repetition (rep)",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/setEntryFields.ts:41-50",
+    "shared/exerciseMeasurement.ts:62-63",
+    "client/src/lib/deviceWorkoutLog.ts:13-21",
+    "client/src/lib/dropSets.ts:11-13",
+    "client/src/lib/dropSets.ts:37-39",
+    "shared/strengthPercentile.ts:141"
+   ]
+  },
+  {
+   "id": "rep-range",
+   "term": "Rep range",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/setPrescription.ts:160",
+    "client/src/components/DeviceWorkoutTracker.tsx:1078",
+    "client/src/lib/workoutPlanner.ts:59-73",
+    "client/src/lib/trainingEvidence.ts:7",
+    "client/src/lib/evidenceTraceability.ts:282-288"
+   ]
+  },
+  {
+   "id": "working-set",
+   "term": "Working set",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/sessionRecap.ts:95",
+    "client/src/components/WorkoutSessionDetail.tsx:104",
+    "client/src/lib/deviceWorkoutLog.ts:42",
+    "client/src/components/StrengthGenomePanel.tsx:512",
+    "client/src/lib/workoutPlanner.ts:90-91",
+    "client/src/lib/weekReview.ts:66",
+    "client/src/lib/athleteRecord.ts:87",
+    "client/src/lib/trainingWeekSummary.ts:72-78"
+   ]
+  },
+  {
+   "id": "warm-up-set",
+   "term": "Warm-up set",
+   "notInProduct": true,
+   "codeRefs": [
+    "client/src/lib/deviceWorkoutLog.ts:42",
+    "client/src/lib/weekReview.ts:22-25",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:197",
+    "client/src/components/WarmupPanel.tsx:11",
+    "client/src/components/DeviceWorkoutTracker.tsx:982",
+    "client/src/components/StackImportPanel.tsx:48",
+    "client/src/components/StackImportPanel.tsx:119-121",
+    "client/src/components/ImportedPlanContext.tsx:7"
+   ]
+  },
+  {
+   "id": "rest-interval",
+   "term": "Rest interval",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/workoutPlanner.ts:8-13",
+    "client/src/lib/workoutPlanner.ts:41",
+    "client/src/lib/evidenceTraceability.ts:249",
+    "client/src/components/ExercisePrescriptionRow.tsx:83",
+    "client/src/components/ExercisePrescriptionRow.tsx:202",
+    "client/src/components/DeviceWorkoutTracker.tsx:55",
+    "client/src/components/DeviceWorkoutTracker.tsx:76-87",
+    "client/src/components/DeviceWorkoutTracker.tsx:195-196",
+    "client/src/components/DeviceWorkoutTracker.tsx:439",
+    "client/src/components/DeviceWorkoutTracker.tsx:494-502",
+    "client/src/lib/deviceWorkoutLog.ts:120-126"
+   ]
+  },
+  {
+   "id": "tempo",
+   "term": "Tempo",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/deviceWorkoutLog.ts:3-49",
+    "client/src/components/StrengthGenomePanel.tsx:1370",
+    "client/src/components/StrengthGenomePanel.tsx:1298",
+    "client/src/lib/deviceStrengthObservations.ts:12",
+    "client/src/lib/withinAthleteStrengthChange.ts:4-16",
+    "client/src/lib/muscleTargetingModel.ts:121",
+    "client/src/components/StackImportPanel.tsx:49",
+    "client/src/components/StackImportPanel.tsx:119-121"
+   ]
+  },
+  {
+   "id": "range-of-motion",
+   "term": "Range of motion (ROM)",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/components/StrengthGenomePanel.tsx:1368",
+    "client/src/components/StrengthGenomePanel.tsx:1373",
+    "client/src/lib/deviceStrengthObservations.ts:10",
+    "client/src/lib/withinAthleteStrengthChange.ts:73-77",
+    "client/src/lib/exerciseStudyCalibration.ts:12",
+    "client/src/lib/muscleTargetingModel.ts:102"
+   ]
+  },
+  {
+   "id": "planned-vs-actual",
+   "term": "Planned vs actual",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/deviceWorkoutLog.ts:78",
+    "client/src/lib/deviceWorkoutLog.ts:86-92",
+    "client/src/lib/deviceWorkoutLog.ts:404",
+    "client/src/lib/sessionRecap.ts:11-19",
+    "client/src/lib/sessionRecap.ts:64-77",
+    "client/src/lib/sessionRecap.ts:100-108",
+    "client/src/lib/sessionRecap.ts:179-186",
+    "client/src/lib/weekReview.ts:22-25",
+    "client/src/lib/athleteRecord.ts:87"
+   ]
+  },
+  {
+   "id": "skipped-vs-not-recorded",
+   "term": "Skipped vs not recorded",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/deviceWorkoutLog.ts:29-35",
+    "client/src/lib/deviceWorkoutLog.ts:96-105",
+    "client/src/lib/deviceWorkoutLog.ts:290-293",
+    "client/src/lib/deviceWorkoutLog.ts:382-413",
+    "client/src/lib/deviceWorkoutLog.ts:489-501",
+    "client/src/lib/sessionRecap.ts:30-34",
+    "client/src/lib/sessionRecap.ts:64-77",
+    "client/src/components/WorkoutSessionDetail.tsx:143-145",
+    "client/src/lib/workoutStrengthRecord.ts:22-23"
+   ]
+  },
+  {
+   "id": "drop-set",
+   "term": "Drop set (the set vs its stages)",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/dropSets.ts:5-18",
+    "client/src/lib/dropSets.ts:20-23",
+    "client/src/lib/dropSets.ts:66-100",
+    "client/src/lib/dropSets.ts:126-131",
+    "client/src/lib/dropSets.ts:146-161",
+    "client/src/lib/deviceWorkoutLog.ts:38-49",
+    "client/src/lib/deviceWorkoutLog.ts:309-319",
+    "client/src/lib/sessionRecap.ts:17-19",
+    "client/src/lib/workoutStrengthRecord.ts:162-167"
+   ]
+  },
+  {
+   "id": "per-side",
+   "term": "Unilateral / per-side entry",
+   "notInProduct": false,
+   "codeRefs": [
+    "shared/exerciseMeasurement.ts:32-38",
+    "client/src/components/DeviceWorkoutTracker.tsx:1016",
+    "client/src/components/DeviceWorkoutTracker.tsx:1091",
+    "client/src/lib/deviceWorkoutLog.ts:26-27",
+    "client/src/lib/deviceWorkoutLog.ts:474-478",
+    "client/src/lib/setPrescription.ts:50",
+    "client/src/lib/weekReview.ts:24",
+    "client/src/components/StrengthGenomePanel.tsx:1366",
+    "client/src/lib/withinAthleteStrengthChange.ts:73-82"
+   ]
+  },
+  {
+   "id": "assistance",
+   "term": "Assistance (assisted exercises)",
+   "notInProduct": false,
+   "codeRefs": [
+    "shared/loadConventions.ts:18",
+    "shared/loadConventions.ts:55",
+    "shared/loadConventions.ts:85-86",
+    "client/src/lib/setEntryFields.ts:57",
+    "client/src/lib/setEntryFields.ts:105",
+    "client/src/lib/dropSets.ts:56",
+    "client/src/lib/dropSets.ts:80",
+    "shared/exerciseMeasurement.ts:60",
+    "client/src/components/DeviceWorkoutTracker.tsx:136-138",
+    "client/src/components/StrengthGenomePanel.tsx:1371"
+   ]
+  },
+  {
+   "id": "load-convention",
+   "term": "Total vs per-implement load",
+   "notInProduct": false,
+   "codeRefs": [
+    "shared/loadConventions.ts:1-23",
+    "shared/loadConventions.ts:69-71",
+    "client/src/lib/setEntryFields.ts:51-57",
+    "client/src/lib/setEntryFields.ts:96-98",
+    "client/src/lib/dropSets.ts:50-58",
+    "client/src/lib/dropSets.ts:66-100",
+    "client/src/lib/workoutStrengthRecord.ts:34-38",
+    "client/src/lib/workoutStrengthRecord.ts:193"
+   ]
+  },
+  {
+   "id": "rpe",
+   "term": "RPE (rating of perceived exertion)",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/workoutPlanner.ts:8-13",
+    "client/src/lib/workoutPlanner.ts:41",
+    "client/src/lib/evidenceTraceability.ts:250",
+    "client/src/components/ExercisePrescriptionRow.tsx:82",
+    "client/src/components/ExercisePrescriptionRow.tsx:201",
+    "client/src/components/StackImportPanel.tsx:59",
+    "client/src/lib/planImport.ts:28-33",
+    "client/src/lib/deviceWorkoutLog.ts:3-49"
+   ]
+  },
+  {
+   "id": "rir",
+   "term": "RIR (reps in reserve)",
+   "notInProduct": false,
+   "codeRefs": [
+    "shared/strengthPercentile.ts:82-87",
+    "shared/strengthPercentile.ts:142-145",
+    "shared/strengthPercentile.ts:157-161",
+    "shared/strengthPercentile.ts:207-210",
+    "client/src/lib/strengthPercentileCard.ts:76-88",
+    "shared/oneRepMaxEstimation.ts:18"
+   ]
+  },
+  {
+   "id": "prescribed-vs-recorded-effort",
+   "term": "Prescribed effort vs recorded effort",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/components/ExercisePrescriptionRow.tsx:201",
+    "client/src/lib/deviceWorkoutLog.ts:3-49",
+    "client/src/lib/strengthPercentileCard.ts:76-88",
+    "client/src/lib/progressiveTraining.ts:143-148",
+    "client/src/lib/progressComparisonFixtures.test.ts:97-110"
+   ]
+  },
+  {
+   "id": "direct-sets",
+   "term": "Direct sets",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/weekReview.ts:11-15",
+    "client/src/lib/weekReview.ts:179-183",
+    "client/src/lib/weekReview.ts:297-308",
+    "client/src/lib/weekReview.ts:326-331",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:156",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:158",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:197",
+    "client/src/lib/sessionVolume.ts:54-56",
+    "client/src/lib/sessionVolume.ts:77-79"
+   ]
+  },
+  {
+   "id": "supporting-exposure",
+   "term": "Supporting exposure ('With support (est.)')",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/evidenceTraceability.ts:214",
+    "client/src/lib/weekReview.ts:12-13",
+    "client/src/lib/weekReview.ts:300-316",
+    "client/src/lib/weekReview.ts:162",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:159",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:184",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:197",
+    "client/src/lib/sessionVolume.ts:30-36",
+    "client/src/lib/sessionVolume.ts:81-86",
+    "client/src/lib/sessionVolume.ts:105-108"
+   ]
+  },
+  {
+   "id": "coverage-points",
+   "term": "Coverage points (split targets)",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/splitStackAnalysis.ts:20",
+    "client/src/lib/splitStackAnalysis.ts:28-38",
+    "client/src/lib/splitStackAnalysis.ts:50-53",
+    "client/src/lib/splitStackAnalysis.ts:61",
+    "client/src/lib/evidenceTraceability.ts:222-225",
+    "client/src/components/StackAnalysisPage.tsx:169",
+    "client/src/components/StackAnalysisPage.tsx:387",
+    "client/src/lib/weekReview.ts:414-415"
+   ]
+  },
+  {
+   "id": "movement-pattern-coverage",
+   "term": "Movement-pattern coverage",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/weekReview.ts:44-45",
+    "client/src/lib/weekReview.ts:207-212",
+    "client/src/lib/weekReview.ts:318-322",
+    "client/src/lib/weekReview.ts:356-358",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:202",
+    "client/src/components/weekReview/WeekReviewBoard.tsx:220-221"
+   ]
+  },
+  {
+   "id": "calendar-vs-plan-week",
+   "term": "Calendar week vs plan week",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/trainingWeekSummary.ts:47-54",
+    "client/src/lib/trainingWeekSummary.ts:72-78",
+    "client/src/lib/athleteRecord.ts:14",
+    "client/src/lib/athleteRecord.ts:126-131",
+    "client/src/lib/nextWorkout.ts:21-22",
+    "client/src/lib/nextWorkout.ts:43",
+    "client/src/lib/nextWorkout.ts:52-60",
+    "client/src/lib/threeWeekPlan.ts:1",
+    "client/src/pages/Home.tsx:980",
+    "client/src/lib/weekReview.ts:22-23",
+    "client/src/components/TodayActionPanel.tsx:306"
+   ]
+  },
+  {
+   "id": "e1rm",
+   "term": "Estimated 1RM (e1RM)",
+   "notInProduct": false,
+   "codeRefs": [
+    "shared/oneRepMaxEstimation.ts:10-13",
+    "shared/oneRepMaxEstimation.ts:16-24",
+    "shared/strengthPercentile.ts:141",
+    "shared/strengthPercentile.ts:147-155",
+    "shared/strengthPercentile.ts:185-191",
+    "shared/strengthPercentile.ts:220-227",
+    "client/src/lib/strengthPercentileCard.ts:76-88",
+    "client/src/lib/workoutStrengthRecord.ts:130-138",
+    "client/src/lib/workoutStrengthRecord.ts:159",
+    "client/src/lib/workoutStrengthRecord.ts:162-167",
+    "client/src/lib/dropSets.ts:14-16",
+    "shared/exerciseMeasurement.ts:48",
+    "client/src/lib/withinAthleteStrengthChange.ts:53-54"
+   ]
+  },
+  {
+   "id": "measured-1rm",
+   "term": "Measured 1RM",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/components/StrengthGenomePanel.tsx:511",
+    "client/src/components/StrengthGenomePanel.tsx:739",
+    "client/src/components/StrengthGenomePanel.tsx:1360",
+    "client/src/components/StrengthGenomePanel.tsx:363-366",
+    "shared/strengthPercentile.ts:74-75",
+    "shared/strengthPercentile.ts:194-197",
+    "client/src/lib/withinAthleteStrengthChange.ts:89-91",
+    "client/src/lib/workoutStrengthRecord.ts:19-21"
+   ]
+  },
+  {
+   "id": "percentile",
+   "term": "Percentile",
+   "notInProduct": false,
+   "codeRefs": [
+    "shared/strengthPercentile.ts:230-261",
+    "shared/strengthPercentile.ts:298-306",
+    "shared/strengthPercentile.ts:318-335",
+    "shared/strengthPercentile.ts:344-419",
+    "client/src/lib/strengthPercentileCard.ts:44-74",
+    "client/src/lib/strengthPercentileCard.ts:98-104",
+    "client/src/components/StrengthGenomePanel.tsx:334",
+    "client/src/components/StrengthGenomePanel.tsx:1401",
+    "shared/capabilityRank.ts:9-11"
+   ]
+  },
+  {
+   "id": "comparison-group",
+   "term": "Comparison group",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/components/StrengthGenomePanel.tsx:307",
+    "client/src/components/StrengthGenomePanel.tsx:629-630",
+    "client/src/components/StrengthGenomePanel.tsx:647-665",
+    "client/src/components/StrengthGenomePanel.tsx:1028-1030",
+    "client/src/lib/strengthPercentileCard.ts:44-47",
+    "shared/capabilityRank.ts:323-330",
+    "client/src/components/CapabilityRank.tsx:28-33",
+    "client/src/components/CapabilityRank.tsx:110",
+    "client/src/components/RankingLiftSuggestions.tsx:17-19"
+   ]
+  },
+  {
+   "id": "rank",
+   "term": "Rank (Sports Genome rank)",
+   "notInProduct": false,
+   "codeRefs": [
+    "shared/capabilityRank.ts:9-15",
+    "shared/capabilityRank.ts:69-104",
+    "shared/capabilityRank.ts:123-134",
+    "shared/capabilityRank.ts:168",
+    "shared/capabilityRank.ts:340-359",
+    "client/src/components/CapabilityRank.tsx:15-23",
+    "client/src/components/CapabilityRank.tsx:112-113",
+    "client/src/components/CapabilityRank.tsx:160-161",
+    "client/src/components/StrengthGenomeBodyMap.tsx:103",
+    "client/src/components/StrengthGenomePanel.tsx:1401-1402"
+   ]
+  },
+  {
+   "id": "rank-coverage",
+   "term": "Regions covered (coverage vs rank)",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/athleteRecord.ts:12",
+    "client/src/lib/athleteRecord.ts:69-74",
+    "client/src/lib/workoutStrengthRecord.ts:57-72",
+    "client/src/components/StrengthGenomePanel.tsx:1329-1330",
+    "client/src/components/StrengthGenomePanel.tsx:1397",
+    "client/src/components/StrengthGenomeBodyMap.tsx:44-47",
+    "client/src/components/StrengthGenomeBodyMap.tsx:114",
+    "client/src/components/StrengthGenomeBodyMap.tsx:188-190"
+   ]
+  },
+  {
+   "id": "unavailable-comparison",
+   "term": "Unavailable comparison (no percentile, Not scored)",
+   "notInProduct": false,
+   "codeRefs": [
+    "shared/strengthPercentile.ts:90-100",
+    "client/src/components/StrengthGenomePanel.tsx:168-182",
+    "client/src/components/StrengthGenomePanel.tsx:349-350",
+    "client/src/components/StrengthGenomePanel.tsx:678-687",
+    "shared/capabilityRank.ts:114-126",
+    "client/src/components/CapabilityRank.tsx:168-190",
+    "client/src/components/RankingLiftSuggestions.tsx:17-22",
+    "client/src/components/RankingLiftSuggestions.tsx:66"
+   ]
+  },
+  {
+   "id": "muscle-role",
+   "term": "Primary / supporting / stabilizing role",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/components/ExerciseGenomePanel.tsx:72-74",
+    "client/src/components/ExerciseGenomePanel.tsx:363",
+    "client/src/lib/exerciseGenome.ts:228-230",
+    "client/src/lib/bodyLabRoleContext.ts:4",
+    "client/src/lib/bodyLabRoleContext.ts:63-67",
+    "client/src/components/AnatomyMap.tsx:15",
+    "client/src/components/AnatomyMap.tsx:119-124",
+    "client/src/components/AnatomyMap.tsx:313-315",
+    "client/src/components/AnatomyMap.tsx:409",
+    "client/src/lib/weekReview.ts:300-316",
+    "shared/capabilityRank.ts:350-359"
+   ]
+  },
+  {
+   "id": "movement-support-vs-transfer",
+   "term": "Movement support vs proven skill transfer",
+   "notInProduct": false,
+   "codeRefs": [
+    "client/src/lib/movementSupport.ts:11-24",
+    "client/src/lib/movementSupport.ts:34",
+    "client/src/lib/movementSupport.ts:273-292",
+    "client/src/lib/movementProgramAnalysis.ts:133-143",
+    "client/src/components/ExerciseGenomePanel.tsx:256",
+    "client/src/components/ExerciseGenomePanel.tsx:415",
+    "docs/movement-support/README.md:7-8",
+    "docs/movement-support/README.md:57-63",
+    "client/src/lib/movementProgramAnalysis.ts:47",
+    "client/src/components/MovementIntelligencePanel.tsx:31"
+   ]
+  }
+ ]
+}

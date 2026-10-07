@@ -3,6 +3,7 @@ import { ArrowLeftRight, ArrowRight, Check, ChevronRight, Layers, Play, Plus, Sa
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGoalPrescription, type ExerciseSettings, type TrainingGoal } from "@/lib/workoutPlanner";
 import { WarmupPanel } from "@/components/WarmupPanel";
+import { PreparationRoutinePanel } from "@/components/PreparationRoutinePanel";
 import { ExerciseMedia } from "@/components/ExerciseMedia";
 import { exercisePhotoSet } from "@/lib/exercisePhotos";
 import {
@@ -26,6 +27,7 @@ import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 import { toast } from "sonner";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { decimalEntryText } from "@/lib/numericEntry";
+import { openUtility, usesBarbellPlates } from "@/lib/utilityTools";
 
 /**
  * The live execution surface, governed by four adopted philosophy contracts:
@@ -976,7 +978,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
 
       {planned && <details className="session-prestart-disclosure">
         <summary><Settings className="h-5 w-5" aria-hidden /><span>Preparation</span><ChevronRight className="h-5 w-5" aria-hidden /></summary>
-        <div className="session-prestart-disclosure-body"><WarmupPanel workout={workout} goal={goal} /></div>
+        {/* A saved routine for this day, when there is one, above the suggestion built from today's exercises. */}
+        <div className="session-prestart-disclosure-body"><PreparationRoutinePanel dayLabel={dayLabel} workout={workout} goal={goal} /><WarmupPanel workout={workout} goal={goal} /></div>
       </details>}
 
       {planned && <details className="session-prestart-disclosure">
@@ -1123,6 +1126,8 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
           {activeCountField.unit && <em>{activeCountField.unit}</em>}
         </label>
       </div>
+      {/* Plates for a barbell weight: a calculator only, it fills and logs nothing. */}
+      {activeExercise && activeEntryFields.some((field) => field.measure === "weight") && usesBarbellPlates(catalogFor(activeExercise)?.equipment, activeExercise.exerciseName) && <button type="button" className="live-plates-link" onClick={() => openUtility({ tool: "plates", exerciseName: activeExercise.exerciseName, target: shownEntries.weight, unit: sessionUnit })}>Load the bar</button>}
       {activeDropBlocked && activeEntryFields.some((field) => field.measure === "weight") && <p className="live-set-entry-note">{activeDropBlocked}</p>}
       {dropMode
         ? <div className="live-drop-actions">

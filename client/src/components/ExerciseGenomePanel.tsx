@@ -17,6 +17,7 @@ import { ChartNoAxesCombined, ChevronDown, Info, ShieldAlert, X } from "lucide-r
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { analyzeExerciseContext, getExerciseGenome, getWorkoutGenome, goalDimensionFor, type ExerciseGenome, type GenomeContext, type GenomeDimension } from "@/lib/exerciseGenome";
 import { mechanicsEvidenceSources } from "@/lib/muscleTargetingModel";
+import { ExerciseYoursRow } from "@/components/ExerciseYoursRow";
 import { descriptorFor } from "@/lib/exerciseDescriptors";
 import { GradeStamp } from "@/components/GradeStamp";
 import { exerciseEvidenceCoverage } from "@/lib/evidenceCoverage";
@@ -316,6 +317,8 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
           <div><dt>Movement link{movementName && <span className="ei-glance-movement"> · {movementName}</span>}</dt><dd>{movementLink.tier && <span className="ei-tier-tag">{movementLink.tier}</span>}{movementLink.text} <button type="button" className="ei-link" onClick={() => { setTab("context"); /* The link leaves with this view; focus goes to the tab it opened. */ requestAnimationFrame(() => document.getElementById(genomeTabId("context"))?.focus({ preventScroll: true })); }}>Sport context</button></dd></div>
         </dl>
       </section>
+      {/* The athlete's own setup and tools for this exercise, apart from the catalog's content. */}
+      <ExerciseYoursRow catalogExerciseId={catalogIdOf(exercise)} exerciseName={exercise.name} equipment={exercise.equipment} />
       {slots.media && <div className="ei-media">{slots.media}</div>}
       <section className="ei-profile" aria-labelledby="ei-profile-title">
         <div className="ei-section-head">

@@ -4,6 +4,7 @@ import { muscleLabels } from "@/components/AnatomyMap";
 import { strengthRegionDefinitions } from "../../../shared/strengthGenomeDefinitions";
 import { EXERCISE_ALIASES, normalizeSearchText, withinEditDistance } from "./exerciseSearch";
 import { capacityTargetSearchTerms } from "./capacityTargets";
+import { trainingTerms } from "./trainingTerms";
 
 /**
  * Universal search, per the philosophy's "Universal search and retrieval
@@ -22,7 +23,7 @@ import { capacityTargetSearchTerms } from "./capacityTargets";
  * be tested directly rather than through the UI.
  */
 
-export type SearchResultType = "exercise" | "muscle" | "sport" | "action" | "metric" | "destination";
+export type SearchResultType = "exercise" | "muscle" | "sport" | "action" | "metric" | "destination" | "term";
 
 export type SearchResult = {
   type: SearchResultType;
@@ -45,6 +46,7 @@ const TYPE_LABELS: Record<SearchResultType, string> = {
   action: "Sport actions",
   metric: "Tests and metrics",
   destination: "Places in the app",
+  term: "Training terms",
 };
 
 /**
@@ -184,6 +186,17 @@ function metricCandidates(): Candidate[] {
   }));
 }
 
+/** One Training term each, opening the glossary straight at that entry. */
+function termCandidates(): Candidate[] {
+  return trainingTerms.map((entry) => ({
+    type: "term" as const,
+    id: entry.id,
+    label: entry.term,
+    context: `Training term · ${entry.group}`,
+    terms: [normalize(entry.term), ...entry.aliases.map(normalize)],
+  }));
+}
+
 /** Destinations keep search an accelerator to places, not a replacement for nav. */
 const DESTINATIONS: Candidate[] = [
   // Each place is named as its page names itself, and filed where its page sits; the
@@ -202,6 +215,10 @@ const DESTINATIONS: Candidate[] = [
   { type: "destination", id: "body", label: "Muscle map", context: "Body Lab", terms: ["muscle map", "body lab", "body map", "anatomy"] },
   { type: "destination", id: "movement", label: "Movement explorer", context: "Body Lab", terms: ["movement explorer", "movement atlas", "movements", "actions"] },
   { type: "destination", id: "profile", label: "About me", context: "Profile", terms: ["about me", "profile", "settings", "account"] },
+  // Tools open in a sheet over the current page (Home's openSearchResult, "tool:" ids).
+  { type: "destination", id: "tool:plates", label: "Load the bar", context: "Tools", terms: ["load the bar", "plate calculator", "plates", "plate math", "barbell plates", "bar weight", "how much on each side"] },
+  // The terms themselves are found one by one (termCandidates), so this is the list as a whole.
+  { type: "destination", id: "tool:glossary", label: "Training terms", context: "Help", terms: ["training terms", "glossary", "definitions", "terms", "what does it mean"] },
   /**
    * The contract's §11 "named/search/list path with the same authority as any
    * spatial tap" for targeted capacity, which otherwise had no way in but
@@ -233,6 +250,7 @@ function allCandidates(): Candidate[] {
       ...metricCandidates(),
       ...exerciseCandidates(),
       ...actionCandidates(),
+      ...termCandidates(),
     ];
   }
   return cachedCandidates;
@@ -240,7 +258,7 @@ function allCandidates(): Candidate[] {
 
 /** Type order when scores tie: the shorter, more navigational objects first. */
 const TYPE_PRIORITY: Record<SearchResultType, number> = {
-  destination: 0, muscle: 1, sport: 2, metric: 3, exercise: 4, action: 5,
+  destination: 0, muscle: 1, sport: 2, metric: 3, exercise: 4, action: 5, term: 6,
 };
 
 export function searchEverything(rawQuery: string, limitPerType = 5): SearchGroup[] {

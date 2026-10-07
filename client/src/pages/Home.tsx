@@ -4,6 +4,7 @@ import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRe
 import { clearRecentExercises, recordRecentExercise, useRecentExerciseIds } from "@/lib/recentExercises";
 const IntroPreview = lazy(() => import("@/components/IntroPreview").then((module) => ({ default: module.IntroPreview })));
 const SaveToPlanDialog = lazy(() => import("@/components/SaveToPlanDialog").then((module) => ({ default: module.SaveToPlanDialog })));
+const PlanBlocksSheet = lazy(() => import("@/components/PlanBlocksSheet").then((module) => ({ default: module.PlanBlocksSheet })));
 const ExerciseCompareSheet = lazy(() => import("@/components/ExerciseCompareSheet").then((module) => ({ default: module.ExerciseCompareSheet })));
 const WorkoutShareSheet = lazy(() => import("@/components/WorkoutShareSheet").then((module) => ({ default: module.WorkoutShareSheet })));
 import type React from "react";
@@ -23,6 +24,11 @@ import { MovementIntelligencePanel } from "@/components/MovementIntelligencePane
 import { StackImportPanel, type ImportedRoutine, type ImportedRoutineContext } from "@/components/StackImportPanel";
 import { draftDaysFromSnapshot, writeIncomingDay, type IncomingDraftDay } from "@/lib/planImport";
 import { pendingSharedSave, rememberSavedShare, savedShare, setPendingSharedSave, type PendingSharedSave } from "@/lib/shareLinks";
+import { UtilityAccountContext } from "@/lib/utilityStore";
+import { openUtility } from "@/lib/utilityTools";
+import { UtilityToolsHost } from "@/components/UtilityToolsHost";
+import { insertBlockIntoDay, insertionIndex, removeInsertedEntries, type BlockAnchor, type BlockResolution, type PlanBlock } from "@/lib/planBlocks";
+import type { BlockInsertOutcome } from "@/components/PlanBlocksSheet";
 import type { ShareSource } from "@/lib/shareSnapshot";
 import type { SaveOutcome, SaveRequest, SaveWeekOption } from "@/components/SaveToPlanDialog";
 import { SessionDraftPanel } from "@/components/SessionDraftPanel";
@@ -1495,6 +1501,34 @@ export default function Home() {
       },
     });
   };
+  /**
+   * Plan blocks (utility brief §5): a saved block inserted into the open day as independent
+   * entries, through editDay like every other day edit. Undo removes exactly the entries this
+   * insertion created, in whichever day they now sit, and nothing else. A running workout is a
+   * separate record and is never touched.
+   */
+  const [blocksSheet, setBlocksSheet] = useState<null | "list" | "save">(null);
+  const insertPlanBlock = (block: PlanBlock, anchor: BlockAnchor, resolutions: BlockResolution): BlockInsertOutcome => {
+    if (!planReadyForEdits({ quiet: true })) return { ok: false, message: "Your plan is still loading, so nothing was added. Try again in a moment." };
+    const dayKey = draftDayKeyRef.current;
+    let result: ReturnType<typeof insertBlockIntoDay> | null = null;
+    let anchorGone = false;
+    // Applied to the day as it is now, so an edit made while the preview was open is kept.
+    editDay(dayKey, (record) => {
+      const place = insertionIndex(record, anchor);
+      anchorGone = place.anchorGone;
+      result = insertBlockIntoDay(record, block, place.index, resolutions, () => -(Date.now() + ++duplicateEntrySequence));
+      return result.record;
+    });
+    const done = result as ReturnType<typeof insertBlockIntoDay> | null;
+    if (!done) return { ok: false, message: "Nothing was added." };
+    if (done.unresolved.length) return { ok: false, message: `Choose what to do with ${done.unresolved.join(", ")} first.` };
+    const insertedIds = done.insertedIds;
+    let undone = false;
+    const undo = () => { if (undone) return; undone = true; editDay(dayKey, (record) => removeInsertedEntries(record, insertedIds)); };
+    if (insertedIds.length) toast(`Added ${insertedIds.length} from “${block.name}”`, { id: "plan-block-insert", action: { label: "Undo", onClick: undo } });
+    return { ok: true, added: insertedIds.length, alreadyThere: done.alreadyThere, omitted: done.omitted, anchorGone, undo };
+  };
   const duplicateExercise = (exercise: Exercise, prescription: string, settings: ExerciseSettings) => {
     if (!planReadyForEdits()) return;
     const duplicate = duplicateWorkoutEntry(exercise);
@@ -1970,6 +2004,14 @@ export default function Home() {
     let pendingInspect: Exercise | null = null;
     // Review's "anchor" is its scope (lib/universalSearch: "review#day"), not a place on the page.
     let scope: ReviewScope | undefined;
+    // A tool opens in its sheet over the page you are on, not as a page of its own.
+    if (result.type === "destination" && result.id.startsWith("tool:")) {
+      const tool = result.id.slice("tool:".length);
+      if (tool === "plates") openUtility({ tool: "plates" });
+      else if (tool === "glossary") openUtility({ tool: "glossary" });
+      return;
+    }
+    if (result.type === "term") { openUtility({ tool: "glossary", termId: result.id }); return; }
     if (result.type === "destination") {
       const [workspaceId, anchorId = ""] = result.id.split("#");
       target = workspaceId as Workspace;
@@ -2111,7 +2153,9 @@ export default function Home() {
    */
   if (!onboardingComplete) return <Suspense fallback={null}><AthleteBaselineQuiz sports={sportProfiles} targetCatalog={resilienceCatalogQuery.data} onComplete={completeOnboarding} /></Suspense>;
 
-  return <div className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
+  // The utility tools (Load the bar, My setup, plan blocks, preparation, Training terms) keep their
+  // records under this account and open in one host; they never change what Home renders.
+  return <UtilityAccountContext.Provider value={accountId}><div className={`apex-shell shell-${activePrimaryDestination} ${directWorkspaceAccess ? "direct-workspace-mode" : ""}`}>
     <div className="apex-main">
       {/*
         * Who you are and what you are looking at, back above the tab row.
@@ -2167,7 +2211,7 @@ export default function Home() {
         </details>} /></section>}
         {workspace === "catalog" && <section className="catalog-experience-surface"><CatalogDiscoveryPanel exercises={exercises} filters={catalogFilters} favoriteIds={favoriteIds} recentIds={recentExerciseIds} onClearRecent={clearRecentExercises} comparePendingName={comparePending?.name} onCancelCompare={() => setComparePending(null)} onFiltersChange={setCatalogFilters} visibleCount={catalogVisibleCount} onVisibleCountChange={setCatalogVisibleCount} onToggleFavorite={toggleFavorite} onInspect={inspectExercise} onAdd={addExercise} destinationLabel={`Week ${activeWeek} · ${activeSlot.day}`} addedIds={addedCatalogIds} selectedActionLabel={contextMovement.label} onChangeAction={inMovementDiscovery ? returnToDiscoveryMovement : () => navigateWorkspace("movement")} connectionForExercise={connectionForExercise} discovery={discovery} movementSupport={movementSupport} onBackToMovement={returnToDiscoveryMovement} onShowAllExercises={() => openDiscovery(allExercisesDiscovery)} onBrowseMuscle={(muscleId) => openDiscovery({ mode: "muscle", muscleId })} /><AddDestinationStrip week={activeWeek} slots={daySlots} activeIndex={activeDayIndex} exerciseCountFor={(slot) => dayExerciseCount(dayStore, slot.key)} onChoose={selectTrainingDay} /></section>}
         {workspace === "profile" && <AthleteAboutMePanel baseline={athleteBaseline} goal={goal} trainingDays={trainingDays} gymMinutes={gymMinutes} onGymMinutes={(value) => setGymMinutes(normalizeGymMinutes(value))} sportId={sportId} sportContextMode={sportContextMode} sports={sportProfiles} onBaseline={updateBaseline} onGoal={setGoal} onDays={setTrainingDays} onSport={chooseSport} onSportContextMode={chooseSportContextMode} capacityFocus={capacityFocus} targetCatalog={resilienceCatalog} onCapacityFocus={setCapacityFocus} identity={athleteSync.identity} syncPending={athleteSync.pending} benchmarkOptIn={benchmarkOptIn} onBenchmarkOptIn={setBenchmarkOptIn} accountSignedIn={isAuthenticated && !sessionLapsed} sessionLapsed={sessionLapsed} accountFocusRequest={accountFocusRequest}
-          guides={<div className="about-me-guides"><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><p>Restarting onboarding deletes every saved training day and starts setup again; it asks first.</p><SupabaseResearchLibraryPanel /></div>}
+          guides={<div className="about-me-guides"><div className="more-workspace-actions"><button type="button" onClick={() => setTutorialOpen(true)}><BookOpen className="h-4 w-4" /> Open guide</button><button type="button" onClick={() => openUtility({ tool: "glossary" })}><BookOpen className="h-4 w-4" aria-hidden="true" /> Training terms</button><button type="button" onClick={requestRebuildPlan}>Restart onboarding</button></div><p>Restarting onboarding deletes every saved training day and starts setup again; it asks first.</p><SupabaseResearchLibraryPanel /></div>}
           launchVideo={<div className="launch-setting" aria-label="Launch video"><p>Your supplied visual plays silently for a short moment before the workspace appears. Use preview to watch it again.</p><label><input type="checkbox" checked={launchExperienceEnabled} onChange={(event) => setLaunchPreference(event.target.checked)} /><span>Play video while app opens</span></label><button type="button" onClick={(event) => { emitInteractionFeedback(12); setIntroOpener(event.currentTarget); setIntroPreviewOpen(true); }}>Preview intro video</button></div>}
           launchVideoEnabled={launchExperienceEnabled}
           buildStamp={buildStampLabel()} />}
@@ -2285,7 +2329,7 @@ export default function Home() {
                 /* An empty day has one thing to do, said once, with the day it is about. It had
                    two equal Add exercises buttons (this one and the action row's), a profile
                    prompt and a 0/100 gauge before anything was in it (Sep 28 regression brief §8). */
-                : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" aria-hidden="true" /><strong>{activeSlot.day} is empty</strong><p>Week {activeWeek} · {activeSlot.ordinal}. Add the exercises you want on this day; its coverage against the {activeSplitDay.toLowerCase()} targets appears once one is in.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" /> Add exercises</button><button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" aria-hidden="true" /> Or import a plan</button></div>}
+                : <div className="day-plan-empty"><Dumbbell className="h-6 w-6" aria-hidden="true" /><strong>{activeSlot.day} is empty</strong><p>Week {activeWeek} · {activeSlot.ordinal}. Add the exercises you want on this day; its coverage against the {activeSplitDay.toLowerCase()} targets appears once one is in.</p><button type="button" onClick={() => setPickerSheetOpen(true)}><Plus className="h-4 w-4" aria-hidden="true" /> Add exercises</button><button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" aria-hidden="true" /> Or import a plan</button><button type="button" className="day-plan-link" onClick={() => setBlocksSheet("list")}><Layers3 className="h-3.5 w-3.5" aria-hidden="true" /> Or insert a block</button></div>}
             </div>
             {/* A declared focus is what the athlete said about their body, so it stays with the
                 day's rows, even on an empty day. The generic "name it in your profile" prompt is
@@ -2302,6 +2346,7 @@ export default function Home() {
               <button type="button" className="day-action-share" onClick={openShare}><Share className="h-4 w-4" aria-hidden="true" /> Share</button>
               <button type="button" className="day-action-session" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
               <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan or link</button>
+              <button type="button" className="day-plan-link" onClick={() => setBlocksSheet("list")}><Layers3 className="h-3.5 w-3.5" aria-hidden="true" /> Blocks</button>
             </div>}
             {/* The optional profile prompt, as one quiet line after Add/Reorder/Open so it never
                 separates a workout from its actions, and only on a day with work in it (Sep 30 §8). */}
@@ -2462,6 +2507,8 @@ export default function Home() {
     {tutorialOpen && <FeatureTour onClose={() => setTutorialOpen(false)} onNavigate={(view) => navigateWorkspace(view as Workspace)} />}
     {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} onAddShared={addSharedFromImport} />}
     {pendingSave && (() => { const weeks = saveWeekOptions(); return <Suspense fallback={null}><SaveToPlanDialog heading={pendingSave.heading} sourceTitle={pendingSave.sourceTitle} sourceLine={pendingSave.sourceLine} attribution={pendingSave.attribution} days={pendingSave.days} slots={daySlots} weeks={weeks} defaultWeek={defaultSaveWeek(pendingSave.scope, weeks)} alreadySaved={pendingSave.shareToken ? savedShare(pendingSave.shareToken) : null} onSave={(request) => saveIncomingDays(request, pendingSave.shareToken)} onOpen={(week, slotIndex) => { closePendingSave(); openPlannedWorkout(week, slotIndex, "day-plan"); }} onClose={closePendingSave} /></Suspense>; })()}
+    <UtilityToolsHost />
+    {blocksSheet && <Suspense fallback={null}><PlanBlocksSheet dayLabel={activeDayLabel} day={{ workout: customWorkout, prescriptions, settings: exerciseSettings, context: [] }} liveWorkoutOnDay={Boolean(liveSession && liveSession.dayLabel.includes(`Week ${activeWeek}`) && liveSession.dayLabel.endsWith(activeSlot.day))} initialMode={blocksSheet} onInsert={insertPlanBlock} onClose={() => setBlocksSheet(null)} /></Suspense>}
     {pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => { pendingDestructiveAction.onCancel?.(); setPendingDestructiveAction(null); }} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}
-  </div>;
+  </div></UtilityAccountContext.Provider>;
 }

@@ -31,6 +31,7 @@ const RESULT_TYPE_BADGES: Record<SearchResult["type"], string> = {
   action: "Sport action",
   metric: "Metric",
   destination: "Screen",
+  term: "Term",
 };
 
 /**
