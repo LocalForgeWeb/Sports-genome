@@ -150,7 +150,7 @@ Its first run found three stabilizer mappings with no weight (Inverted Row, Feet
 
 **Typecheck and tests.**
 - `npx tsc --noEmit`: clean.
-- `npx vitest run`: 3066 passed, 6 skipped. The skipped ones are Supabase tests, which need credentials.
+- `npx vitest run`: 3067 passed, 6 skipped. The skipped ones are Supabase tests, which need credentials.
 - `npx vite build`: OK.
 
 **New test files.**

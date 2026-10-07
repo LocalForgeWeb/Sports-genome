@@ -228,5 +228,5 @@
 | Z06 | verified | Unit tests plus three probes |
 | Z07 | implementing | See U13 |
 | Z08 | verified | Copy reviewed in the report |
-| Z09 | verified | tsc clean; vitest 3066 passed, 6 skipped; build OK |
+| Z09 | verified | tsc clean; vitest 3067 passed, 6 skipped; build OK |
 | Z10 | verified | `report.md` |
