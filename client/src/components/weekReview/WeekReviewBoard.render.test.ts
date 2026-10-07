@@ -4,7 +4,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { WeekReviewBoard } from "./WeekReviewBoard";
 import { ReviewHead, ReviewWeekPills } from "./ReviewHead";
-import { analyzeWeek, type WeekAnalysis } from "@/lib/weekReview";
+import { analyzeWeek, figureExposure, type WeekAnalysis } from "@/lib/weekReview";
 import { exercises } from "@/lib/exerciseCatalog";
 import { buildDaySlots } from "@/lib/trainingDayPlan";
 import { splitDaysForFrequency } from "@/lib/splitCycle";
@@ -64,7 +64,8 @@ describe("the week board", () => {
     expect(screen.getByRole("list", { name: /Muscles ranked by attributed sets/ })).not.toBeNull();
     const top = [...analysis.muscles].sort((a, b) => b.total - a.total)[0];
     expect(within(screen.getByRole("list", { name: /Muscles ranked by attributed sets/ })).getAllByRole("button")[0].textContent).toContain(top.label);
-    expect(screen.getByText(/the top step is/).textContent).toContain(String(analysis.max.total));
+    // The figure's legend states the figure's own top step: its largest painted region.
+    expect(screen.getByText(/the top step is/).textContent).toContain(String(figureExposure(analysis, "total").max));
   });
 
   it("selects a muscle from the chart, rings it on the figure and opens its sessions with actions", () => {
@@ -79,7 +80,7 @@ describe("the week board", () => {
     expect(within(days).getAllByRole("listitem").map((item) => item.textContent)).toHaveLength(analysis.builtCount);
     fireEvent.click(within(days).getAllByRole("button", { name: /^Edit / })[1]);
     expect(onEditDay).toHaveBeenCalledWith(key(1));
-    fireEvent.click(within(detail).getAllByRole("button", { name: "Inspect" })[0]);
+    fireEvent.click(within(detail).getByRole("button", { name: `Inspect ${chest.exercises[0].exercise.name}` }));
     expect(onInspectExercise).toHaveBeenCalledWith(chest.exercises[0].exercise);
     fireEvent.click(within(detail).getByRole("button", { name: /Find exercises for pectoralis major/ }));
     expect(onFindExercises).toHaveBeenCalledWith("chest");
@@ -98,7 +99,8 @@ describe("the week board", () => {
     // The row opens to the exercises carrying the pattern, with the sheet a tap away.
     const exercises = within(row).getByRole("list", { name: "Horizontal push exercises" });
     expect(within(exercises).getAllByRole("listitem")).toHaveLength(push.exercises.length);
-    expect(within(exercises).getAllByRole("button", { name: "Inspect" })).toHaveLength(push.exercises.length);
+    // Each Inspect names its exercise, so a screen reader does not hear "Inspect" fifteen times.
+    expect(within(exercises).getAllByRole("button", { name: /^Inspect / }).map((button) => button.getAttribute("aria-label"))).toEqual(push.exercises.map((row) => `Inspect ${row.exercise.name}`));
     if (analysis.notPlanned.length) expect(screen.getByText("Not planned").parentElement!.textContent).toContain(analysis.notPlanned[0]);
   });
 
@@ -136,6 +138,43 @@ describe("the week board", () => {
     }
   });
 
+  it("shows three findings first and the rest on request", () => {
+    // A week with a heavy overlap and target gaps on several days: more than three review points.
+    const bench = byId(1); const incline = byId(101);
+    const busy = analyse({ [key(0)]: [bench, incline], [key(1)]: [bench, incline], [key(2)]: [byId(161)], [key(3)]: [bench], [key(4)]: [byId(66)] }, { [key(0)]: { 1: "5 x 5", 101: "5 x 5" }, [key(1)]: { 1: "5 x 5", 101: "5 x 5" } });
+    const review = busy.findings.filter((finding) => finding.kind === "review");
+    expect(review.length).toBeGreaterThan(3);
+    draw(busy);
+    expect(document.querySelectorAll(".wr-findings > li")).toHaveLength(3);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^Show ${review.length - 3} more`) }));
+    expect(document.querySelectorAll(".wr-findings > li")).toHaveLength(review.length);
+  });
+
+  it("selecting a muscle on the figure shows its chart row, even below the first six", () => {
+    const analysis = analyse(fullPlan);
+    const { container } = draw(analysis);
+    const ranked = [...analysis.muscles].sort((a, b) => b.direct - a.direct || b.total - a.total || a.label.localeCompare(b.label));
+    const low = ranked.slice(6).find((muscle) => muscle.figureKeys.length === 1 && container.querySelector(`.anatomy-hit[aria-label^="${muscle.label}"]`))
+      ?? ranked.slice(6).find((muscle) => container.querySelector(`.anatomy-hit[id$="-hit-${muscle.figureKeys[0]}"]`))!;
+    const hit = container.querySelector(`.anatomy-hit[id$="-hit-${low.figureKeys[0]}"]`)!;
+    fireEvent.click(hit);
+    const row = within(screen.getByRole("list", { name: /Muscles ranked/ })).getByText(low.label).closest("button")!;
+    expect(row.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("hands focus back to what opened a detail when it closes", async () => {
+    const analysis = analyse(fullPlan);
+    draw(analysis);
+    const row = within(screen.getByRole("list", { name: /Muscles ranked/ })).getAllByRole("button")[0];
+    row.focus();
+    fireEvent.click(row);
+    const detail = screen.getByRole("region", { name: /by session$/ });
+    within(detail).getByRole("button", { name: /^Close / }).focus();
+    fireEvent.click(within(detail).getByRole("button", { name: /^Close / }));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(document.activeElement).toBe(row);
+  });
+
   it("shows one strength and one review point only when the data supports them", () => {
     const analysis = analyse(fullPlan);
     draw(analysis);
@@ -144,8 +183,10 @@ describe("the week board", () => {
     if (strength) expect(screen.getByText(strength.headline)).not.toBeNull();
     if (review) expect(screen.getAllByText(review.headline).length).toBeGreaterThan(0);
     cleanup();
-    draw(analyse({ [key(0)]: [byId(1)] }));
-    expect(document.querySelectorAll(".wr-point").length).toBeLessThanOrEqual(2);
+    const single = analyse({ [key(0)]: [byId(1)] });
+    draw(single);
+    const expected = (single.findings.some((finding) => finding.kind === "strength") ? 1 : 0) + (single.findings.some((finding) => finding.kind === "review") ? 1 : 0);
+    expect(document.querySelectorAll(".wr-point")).toHaveLength(expected);
   });
 
   it("holds an empty week to the strip and one way to begin, and a loading week to its layout", () => {
@@ -161,14 +202,19 @@ describe("the week board", () => {
     expect(document.querySelector("svg.anatomy-figure")).toBeNull();
   });
 
-  it("names the data it cannot speak for: an unmapped exercise is a note and the figure hatches, not a zero", () => {
+  it("keeps a known zero and an unknown region distinct, and says so for an unmapped exercise", () => {
     const ghost = { ...byId(1), id: 99901, name: "Imported row", primaryMuscles: [], secondaryMuscles: [] };
     const analysis = analyse({ [key(0)]: [byId(1), ghost] });
     const { container } = draw(analysis);
     expect(screen.getByText(/1 exercise has no muscle mapping \(Imported row\)/)).not.toBeNull();
-    expect(container.querySelector('.anatomy-muscle[data-muscle="quads"]')!.getAttribute("data-exposure")).toBe("unknown");
+    // Quadriceps: nothing trains them, and the chart and the figure say the same (zero, resting).
+    expect(container.querySelector('.anatomy-muscle[data-muscle="quads"]')!.hasAttribute("data-exposure")).toBe(false);
+    expect(container.querySelector('.anatomy-hit[aria-label^="Quadriceps"]')!.getAttribute("aria-label")).toMatch(/no planned work/);
+    // Soleus: no catalog exercise can tag it, so it is unknown (hatched), not a zero.
+    expect(container.querySelector('.anatomy-muscle[data-muscle="soleus"]')!.getAttribute("data-exposure")).toBe("unknown");
+    expect(container.querySelector('.anatomy-hit[aria-label^="Soleus"]')!.getAttribute("aria-label")).toMatch(/not counted/);
     expect(container.querySelector('.anatomy-muscle[data-muscle="chest"]')!.getAttribute("data-exposure")).toBe("5");
-    expect(screen.getByText(/Unknown: an exercise without a muscle mapping is in this week/)).not.toBeNull();
+    expect(screen.getByText(/Not counted: no catalog exercise is tagged with this muscle/)).not.toBeNull();
   });
 });
 

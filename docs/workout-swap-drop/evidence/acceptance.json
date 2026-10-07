@@ -1,0 +1,226 @@
+{
+ "ranAt": "2026-10-06T20:49:29.628Z",
+ "environment": "headless Chromium, vite preview of the production build, viewport emulation",
+ "results": [
+  {
+   "name": "With no search, suggestions of the same movement include Back Squat",
+   "pass": true,
+   "detail": "Back Squat, Bulgarian Split Squat, Cyclist Squat, Front Squat, Front-Foot-Elevated Split Squat, Goblet Squat"
+  },
+  {
+   "name": "Equipment filters are fully visible (row at least 44 px tall)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Search \"barbell squat\" puts Back Squat first",
+   "pass": true,
+   "detail": "Back Squat"
+  },
+  {
+   "name": "Sheet is titled \"Replace Sissy Squat\"",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Sheet says the 2 logged sets stay with Sissy Squat",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Default scope is this workout only",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Confirm reads \"Use Back Squat\" and is on screen",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "No sideways scroll with the sheet open (390)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Inspect a candidate inside the sheet: Back Squat start and finish photos load, no second dialog",
+   "pass": true,
+   "detail": "[{\"ok\":true,\"src\":\"Barbell_Squat/0.jpg\"},{\"ok\":true,\"src\":\"Barbell_Squat/1.jpg\"}]"
+  },
+  {
+   "name": "After the swap, focus is on the next logging action (Log set 1)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Same Back Squat image in the swap results and the workout list",
+   "pass": true,
+   "detail": "/exercise-thumbs/Barbell_Squat.jpg | /exercise-thumbs/Barbell_Squat.jpg"
+  },
+  {
+   "name": "Live card now tracks Back Squat, set 1 of 2",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Live card says \"Switched from Sissy Squat after 2 sets\"",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "No load carried across: weight box empty",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Stored: Sissy Squat keeps its 2 completed sets, Back Squat has 1 of 2, total still 7 sets",
+   "pass": true,
+   "detail": "[[\"Sissy Squat\",2],[\"Back Squat\",2],[\"Dumbbell Bench Press\",3]]"
+  },
+  {
+   "name": "No rest between stages",
+   "pass": true,
+   "detail": "before drop: Resting"
+  },
+  {
+   "name": "Rest starts when the drop set is finished",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Full list shows \"Drop set · 100 lb × 5 → 70 lb × 6 → 50 lb × 10\"",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Full list shows \"1 drop set · 3 stages · 21 reps · 1,420 lb·reps\"",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Full list shows \"Switched to Back Squat after 2 sets\" on Sissy Squat",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Stored as one set with three ordered stages",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Tally counts the drop set once: 4/7 sets (2 Sissy Squat + 1 Back Squat + 1 drop set, of 4 + 3 planned)",
+   "pass": true,
+   "detail": "Week 1 · Legs4/7 sets"
+  },
+  {
+   "name": "After reload: still on Back Squat, which is done; Dumbbell Bench Press next",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Progress record shows both exercises and the swap",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Progress record shows the drop set as one line with its totals",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-320: sheet fits, no sideways scroll, \"Use Back Squat\" on screen, targets ≥ 44 px",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-320: drop-set controls fit and are ≥ 44 px tall",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-375: sheet fits, no sideways scroll, \"Use Back Squat\" on screen, targets ≥ 44 px",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-375: drop-set controls fit and are ≥ 44 px tall",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-430: sheet fits, no sideways scroll, \"Use Back Squat\" on screen, targets ≥ 44 px",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-430: drop-set controls fit and are ≥ 44 px tall",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "desktop-1280: sheet fits, no sideways scroll, \"Use Back Squat\" on screen, targets ≥ 44 px",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "desktop-1280: drop-set controls fit and are ≥ 44 px tall",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-390-large-text: sheet fits, no sideways scroll, \"Use Back Squat\" on screen, targets ≥ 44 px",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-390-large-text: drop-set controls fit and are ≥ 44 px tall",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-390-keyboard: sheet fits, no sideways scroll, \"Use Back Squat\" on screen, targets ≥ 44 px",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phone-390-keyboard: drop-set controls fit and are ≥ 44 px tall",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Keyboard: focus moves into the sheet",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Keyboard: Enter on \"Use Back Squat\" swaps",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Keyboard: Escape closes the sheet and returns focus to Swap exercise",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "A heavier stage is kept, with a nonblocking note",
+   "pass": true,
+   "detail": "Stage 2: This stage isn't lighter than the one before (100 lb). It's kept; check the load, or leave it if that's what you did."
+  },
+  {
+   "name": "Removed stage gone, order kept, after a reload: 100 × 5 → 70 × 6 → 50 × 10",
+   "pass": true,
+   "detail": "[[\"set-mux5j8hr-2igoho-stage-1\",\"100\",\"5\"],[\"set-mux5j8hr-2igoho-stage-3\",\"70\",\"6\"],[\"set-mux5j8hr-2igoho-stage-4\",\"50\",\"10\"]]"
+  },
+  {
+   "name": "Nothing logged: Back Squat replaces Sissy Squat in place, 4 sets",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "kg with decimals: \"Drop set · 42.5 kg × 6 → 30 kg × 8 → 17.5 kg × 12 … 705 kg·reps\"",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

@@ -170,6 +170,10 @@ describe("progressive disclosure on the live surface", () => {
     expect(queue.compareDocumentPosition(early) & Node.DOCUMENT_POSITION_FOLLOWING, "finish comes after the queue").toBeTruthy();
     expect(early.textContent).toContain("keeps the 1 logged set");
     fireEvent.click(early as HTMLElement);
+    // Sets are still open, so it asks once, in place, and saves nothing until confirmed (R13).
+    expect(completedSessions()).toHaveLength(0);
+    expect(document.querySelector(".live-finish-confirm")!.textContent).toContain("The 1 logged set is saved. 4 planned sets stay not done.");
+    fireEvent.click(screen.getByRole("button", { name: "Finish now" }));
     expect(completedSessions()).toHaveLength(1);
   });
 
@@ -205,6 +209,8 @@ describe("live-set commitment semantics contract", () => {
     // Set 2 gets a value but is never logged.
     fireEvent.change(within(document.querySelector(".live-set-entry") as HTMLElement).getByLabelText(/reps/i), { target: { value: "8" } });
     fireEvent.click(screen.getByRole("button", { name: /finish workout/i }));
+    expect(document.querySelector(".live-finish-confirm")!.textContent).toContain("and 1 typed but not logged is left out");
+    fireEvent.click(screen.getByRole("button", { name: "Finish now" }));
 
     const stored = JSON.parse(window.localStorage.getItem(deviceWorkoutHistoryKey)!);
     const saved = stored.find((session: { status: string }) => session.status === "completed");

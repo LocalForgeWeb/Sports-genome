@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import mapping from "@/data/exercisePhotos.json";
@@ -61,7 +61,8 @@ describe("exercise photographs", () => {
 
   it("lists only two-frame sources the catalog uses, each with the reason it is reversed", () => {
     const used = new Map(Object.values(entries).map(([source, count]) => [source, count]));
-    expect(Object.keys(reversedPhotoSources).length).toBe(30);
+    // 30 when audited; the one-arm kettlebell swing photo was withdrawn on October 6.
+    expect(Object.keys(reversedPhotoSources).length).toBe(29);
     for (const [source, why] of Object.entries(reversedPhotoSources)) {
       expect(used.get(source), source).toBe(2);
       expect(why.length, source).toBeGreaterThan(20);
@@ -76,7 +77,8 @@ describe("exercise photographs", () => {
   });
 
   it("photographs a majority of the catalog", () => {
-    expect(exercisePhotoCount).toBeGreaterThanOrEqual(253);
+    // 253 until the October 6 review withdrew 7 that show another variation.
+    expect(exercisePhotoCount).toBeGreaterThanOrEqual(246);
     expect(exercisePhotoCount).toBeLessThanOrEqual(exercises.length);
   });
 
@@ -114,6 +116,25 @@ describe("exercise photographs", () => {
     // Refused by the re-match's reviewers: tall boxes read as an incline, a two-foot landing for a
     // single-leg stick, sprinting strides for a march.
     for (const name of ["Deficit Push-Up", "Depth Drop to Stick", "Sled March"]) expect(sourceOf(name), name).toBeNull();
+  });
+
+  it("withdraws the photos the October 6 review found showing another variation, and keeps a thumbnail for every one it shows", () => {
+    const review = JSON.parse(readFileSync(resolve(process.cwd(), "docs/exercise-media-audit/visual-review.json"), "utf8")) as Record<string, { verdict?: string }>;
+    const withdrawn = Object.entries(review).filter(([, item]) => item.verdict === "wrong_variant").map(([id]) => Number(id));
+    expect(withdrawn.sort((a, b) => a - b)).toEqual([33, 44, 48, 68, 173, 203, 339]);
+    for (const id of withdrawn) expect(exercisePhotoSet(id), String(id)).toBeNull();
+    for (const name of ["Clap Push-Up", "Pendlay Row", "Seal Row", "Neutral-Grip Pull-Up", "Bulgarian Split Squat", "Kettlebell Swing", "High Cable Curl"]) expect(sourceOf(name), name).toBeNull();
+    // The owner's swap example: both ends are photographed, each with its own exercise.
+    expect(sourceOf("Sissy Squat")).toBe("Weighted_Sissy_Squat");
+    expect(sourceOf("Back Squat")).toBe("Barbell_Squat");
+    const sources = JSON.parse(readFileSync(resolve(process.cwd(), "docs/exercise-media-audit/sources.json"), "utf8")).sources as Record<string, { thumbnail: string; licence: string; exerciseIds: number[] }>;
+    const thumbs = new Set(readdirSync(resolve(process.cwd(), "client/public/exercise-thumbs")));
+    for (const [id, [source]] of Object.entries(entries)) {
+      expect(thumbs.has(`${source}.jpg`), source).toBe(true);
+      expect(sources[source]?.exerciseIds, source).toContain(Number(id));
+      expect(sources[source].licence).toMatch(/Unlicense/);
+    }
+    expect(thumbs.size).toBe(new Set(Object.values(entries).map(([source]) => source)).size);
   });
 
   it("has a frame-order verdict for every source pair the catalog shows", () => {

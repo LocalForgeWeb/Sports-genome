@@ -192,7 +192,10 @@ const DESTINATIONS: Candidate[] = [
   // for are kept here so the old name still finds the page that now owns the job.
   { type: "destination", id: "day-plan", label: "Training plan", context: "Train", terms: ["training plan", "training day", "today", "plan", "workout builder", "builder", "build a workout"] },
   { type: "destination", id: "tracker", label: "Workout", context: "Train", terms: ["workout", "workout tracker", "tracker", "session", "log sets"] },
-  { type: "destination", id: "review", label: "Review your week", context: "Train", terms: ["review your week", "review", "review this day", "stack review", "prep", "warm up", "warmup", "programming", "volume"] },
+  // Review has two scopes (5 October 2026): the week's board, and the open day's warm-up,
+  // planning guide and Coach scan. A search for either lands on that one.
+  { type: "destination", id: "review", label: "Review your week", context: "Train", terms: ["review your week", "review", "week review", "volume", "muscle exposure", "movement coverage", "session overlap"] },
+  { type: "destination", id: "review#day", label: "Review this day", context: "Train", terms: ["review this day", "day review", "stack review", "coach scan", "prep", "warm up", "warmup", "programming"] },
   { type: "destination", id: "progress", label: "Progress", context: "Progress", terms: ["progress", "history"] },
   { type: "destination", id: "strength", label: "Strength Genome", context: "Progress", terms: ["strength genome", "strength", "lifts"] },
   { type: "destination", id: "catalog", label: "Exercise catalog", context: "Body Lab", terms: ["exercise catalog", "catalog", "exercises"] },

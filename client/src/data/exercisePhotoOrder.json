@@ -15,7 +15,6 @@
  "Lying_Rear_Delt_Raise": "frame 0 is the arms raised; the raise starts with the arms hanging",
  "One_Arm_Dumbbell_Bench_Press": "frame 0 is the dumbbell at the chest; the source starts it pressed up",
  "One-Arm_Kettlebell_Snatch": "frame 0 is standing with the bell hanging; the source starts hinged over the bell",
- "One-Arm_Kettlebell_Swings": "frame 0 is the top of the swing; a swing starts hiking the bell from the hinge",
  "Parallel_Bar_Dip": "frame 0 is the bottom of the dip; the source starts with the arms locked out",
  "Plyo_Push-up": "frame 0 is the chest lowered; the source starts with the arms extended",
  "Ring_Dips": "frame 0 is the bottom of the dip; the source starts with the arms locked out",

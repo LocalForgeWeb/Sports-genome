@@ -33,6 +33,7 @@ import { regionKeysForValue } from "@/lib/anatomyRegions";
 import { analyzeSplitStack, COVERAGE_TARGET_REVISION, getSplitRequirements } from "@/lib/splitStackAnalysis";
 import { catalogKeysFor } from "@/lib/muscleVocabulary";
 import type { DaySlot } from "@/lib/trainingDayPlan";
+import { drawnMuscleKeys } from "@/components/anatomy/figureGeometry";
 
 /** Carried on every result (B287): a reader later knows which rules produced it. */
 export const WEEK_REVIEW_REVISION = "week_review_v1" as const;
@@ -53,6 +54,14 @@ export type WeekReviewSession = {
   day: DaySlot["day"];
   ordinal: string;
   label: string;
+  /**
+   * What the board calls the session: the split label ("Push"), or the slot's full label
+   * ("Day 01 · Upper") when the split repeats it, as the 4-day Upper / Lower / Upper / Lower does,
+   * so two findings never name two different sessions the same way.
+   */
+  name: string;
+  /** The same, short enough for a marker chip ("Sport", "Upper 1"). */
+  short: string;
   exerciseCount: number;
   /** Planned work sets: the sum of each exercise's set count. Sets to perform, not attributed. */
   workSets: number;
@@ -62,6 +71,8 @@ export type WeekReviewSession = {
 export type MuscleDayExposure = {
   sessionKey: string;
   day: DaySlot["day"];
+  /** The session's name on the board (`WeekReviewSession.name`). */
+  name: string;
   direct: number;
   /** Supporting sets at the half-set convention, already applied. */
   supporting: number;
@@ -116,6 +127,8 @@ export type WeekOverlapPair = {
   bKey: string;
   aDay: DaySlot["day"];
   bDay: DaySlot["day"];
+  aName: string;
+  bName: string;
   shared: SharedMuscle[];
   /** The summed per-muscle minimum across the pair, the register's heavy-overlap measure. */
   sharedExposure: number;
@@ -158,11 +171,16 @@ export type WeekAnalysis = {
   overlap: {
     pairs: WeekOverlapPair[];
     /** Built sessions not compared because an unbuilt slot sits between them in plan order. */
-    skipped: { aDay: DaySlot["day"]; bDay: DaySlot["day"] }[];
+    skipped: { aDay: DaySlot["day"]; bDay: DaySlot["day"]; aName: string; bName: string }[];
   };
   findings: WeekFinding[];
   /** Facts about the data the numbers rest on; not findings about the plan. */
   dataNotes: string[];
+  /**
+   * Regions the figure draws that no catalog exercise can tag (soleus, brachioradialis): the data
+   * cannot say anything about them, so the figure marks them unknown rather than painting a zero.
+   */
+  untaggedRegions: string[];
 };
 
 export type WeekReviewInput = {
@@ -200,6 +218,42 @@ export function exposureByRegion(muscles: readonly WeekMuscle[], metric: Exposur
   return byRegion;
 }
 
+export type FigureExposure = {
+  /** Per drawn region: its value, or "unknown" where the catalog has no tag for it. Absent or 0 is no planned work. */
+  values: Record<string, number | "unknown">;
+  /** The rows painted on each region, so a region's name can say what it adds up ("4 anterior deltoids + 4 deltoids tag"). */
+  parts: Record<string, { key: string; label: string; value: number }[]>;
+  /**
+   * The figure's own top step: its largest region. The catalog's umbrella "Deltoids" tag is painted
+   * on all three heads on top of their own rows, so a head can read more than any chart row; the
+   * figure's scale is taken from what it paints, never from the chart's largest row.
+   */
+  max: number;
+};
+
+/** What the anatomy figure paints for the week, in the chosen metric. */
+export function figureExposure(analysis: Pick<WeekAnalysis, "muscles" | "untaggedRegions">, metric: ExposureMetric): FigureExposure {
+  const values: Record<string, number | "unknown"> = {};
+  const parts: FigureExposure["parts"] = {};
+  analysis.muscles.forEach((muscle) => muscle.figureKeys.forEach((region) => {
+    if (!muscle[metric]) return;
+    (parts[region] ??= []).push({ key: muscle.key, label: muscle.label, value: muscle[metric] });
+    values[region] = round1(Number(values[region] || 0) + muscle[metric]);
+  }));
+  analysis.untaggedRegions.forEach((region) => { values[region] = "unknown"; });
+  const numbers = Object.values(values).filter((value): value is number => typeof value === "number");
+  return { values, parts, max: Math.max(0, ...numbers) };
+}
+
+/** Drawn regions no catalog muscle key reaches, through the same mapping the figure paints with. */
+export function untaggedRegionsFor(catalog: readonly Exercise[]): string[] {
+  const tagged = new Set<string>();
+  catalog.forEach((exercise) => [...exercise.primaryMuscles, ...exercise.secondaryMuscles].forEach((key) => regionKeysForValue(key).forEach((region) => tagged.add(region))));
+  return Array.from(new Set([...drawnMuscleKeys.front, ...drawnMuscleKeys.back])).filter((region) => !tagged.has(region)).sort();
+}
+
+const shortDayName = (day: string) => (day === "Sport Transfer" ? "Sport" : day === "Full Body" ? "Full" : day);
+
 /** The figure's own quantisation, re-exported so the chart's legend and the figure agree by construction. */
 export { exposureStep } from "@/components/anatomy/exposurePaint";
 
@@ -227,14 +281,15 @@ export function analyzeWeek(input: WeekReviewInput): WeekAnalysis {
   const dayRow = (muscle: WeekMuscle, session: WeekReviewSession): MuscleDayExposure => {
     const existing = muscle.byDay.find((entry) => entry.sessionKey === session.key);
     if (existing) return existing;
-    const entry: MuscleDayExposure = { sessionKey: session.key, day: session.day, direct: 0, supporting: 0, supportingPerformed: 0, total: 0 };
+    const entry: MuscleDayExposure = { sessionKey: session.key, day: session.day, name: session.name, direct: 0, supporting: 0, supportingPerformed: 0, total: 0 };
     muscle.byDay.push(entry);
     return entry;
   };
 
   slots.forEach((slot) => {
     const workout = plan[slot.key] || [];
-    const session: WeekReviewSession = { key: slot.key, index: slot.index, day: slot.day, ordinal: slot.ordinal, label: slot.label, exerciseCount: workout.length, workSets: 0, state: workout.length ? "built" : "empty" };
+    const repeated = slots.filter((other) => other.day === slot.day).length > 1;
+    const session: WeekReviewSession = { key: slot.key, index: slot.index, day: slot.day, ordinal: slot.ordinal, label: slot.label, name: repeated ? slot.label : slot.day, short: repeated ? `${shortDayName(slot.day)} ${slot.index + 1}` : shortDayName(slot.day), exerciseCount: workout.length, workSets: 0, state: workout.length ? "built" : "empty" };
     sessions.push(session);
     workout.forEach((exercise, index) => {
       const saved = prescriptions[slot.key]?.[exercise.id];
@@ -278,7 +333,7 @@ export function analyzeWeek(input: WeekReviewInput): WeekAnalysis {
   const built = sessions.filter((session) => session.state === "built");
   const rows = Array.from(muscles.values()).map((row) => {
     // Every built session is on the muscle's day chart, in plan order, zero included.
-    const byDay = built.map((session) => row.byDay.find((entry) => entry.sessionKey === session.key) || { sessionKey: session.key, day: session.day, direct: 0, supporting: 0, supportingPerformed: 0, total: 0 })
+    const byDay = built.map((session) => row.byDay.find((entry) => entry.sessionKey === session.key) || { sessionKey: session.key, day: session.day, name: session.name, direct: 0, supporting: 0, supportingPerformed: 0, total: 0 })
       .map((entry) => ({ ...entry, direct: round1(entry.direct), supporting: round1(entry.supporting), total: round1(entry.direct + entry.supporting) }));
     return { ...row, direct: round1(row.direct), supporting: round1(row.supporting), total: round1(row.direct + row.supporting), byDay, sessionsTrained: byDay.filter((entry) => entry.total > 0).length };
   }).sort((a, b) => b.total - a.total || b.direct - a.direct || a.label.localeCompare(b.label));
@@ -288,14 +343,14 @@ export function analyzeWeek(input: WeekReviewInput): WeekAnalysis {
   built.forEach((session, position) => {
     const next = built[position + 1];
     if (!next) return;
-    if (next.index - session.index !== 1) { skipped.push({ aDay: session.day, bDay: next.day }); return; }
+    if (next.index - session.index !== 1) { skipped.push({ aDay: session.day, bDay: next.day, aName: session.name, bName: next.name }); return; }
     const shared = rows.flatMap((row) => {
       const a = row.byDay.find((entry) => entry.sessionKey === session.key)?.total ?? 0;
       const b = row.byDay.find((entry) => entry.sessionKey === next.key)?.total ?? 0;
       return a >= logicCalibration.exposure.consecutiveDayMinimumSets && b >= logicCalibration.exposure.consecutiveDayMinimumSets ? [{ key: row.key, label: row.label, aSets: a, bSets: b }] : [];
     }).sort((a, b) => Math.min(b.aSets, b.bSets) - Math.min(a.aSets, a.bSets) || a.label.localeCompare(b.label));
     const sharedExposure = round1(shared.reduce((sum, item) => sum + Math.min(item.aSets, item.bSets), 0));
-    overlapPairs.push({ id: `${session.key}|${next.key}`, aKey: session.key, bKey: next.key, aDay: session.day, bDay: next.day, shared, sharedExposure, heavy: sharedExposure >= logicCalibration.exposure.consecutiveDayPriorityExposure });
+    overlapPairs.push({ id: `${session.key}|${next.key}`, aKey: session.key, bKey: next.key, aDay: session.day, bDay: next.day, aName: session.name, bName: next.name, shared, sharedExposure, heavy: sharedExposure >= logicCalibration.exposure.consecutiveDayPriorityExposure });
   });
 
   const common = commonMovements(catalog);
@@ -323,6 +378,7 @@ export function analyzeWeek(input: WeekReviewInput): WeekAnalysis {
     overlap: { pairs: overlapPairs, skipped },
     findings,
     dataNotes,
+    untaggedRegions: untaggedRegionsFor(catalog),
   };
 }
 
@@ -341,7 +397,7 @@ function buildFindings({ sessions, plan, catalog, rows, pairs }: { sessions: Wee
 
   pairs.filter((pair) => pair.heavy).forEach((pair) => review.push({
     id: `heavy-overlap:${pair.id}`, kind: "review", rule: "heavy-overlap",
-    headline: `${pair.aDay} and ${pair.bDay} share heavy exposure: ${join(pair.shared.slice(0, 3).map((item) => lower(item.label)))}.`,
+    headline: `${pair.aName} and ${pair.bName} share heavy exposure: ${join(pair.shared.slice(0, 3).map((item) => lower(item.label)))}.`,
     reason: `${setsFigure(pair.sharedExposure)} shared attributed sets across ${pair.shared.length} ${pair.shared.length === 1 ? "muscle" : "muscles"}, on sessions next to each other in plan order.`,
     source: spacingSource,
     action: { type: "select-pair", pairId: pair.id, label: "Compare sessions" },
@@ -354,10 +410,10 @@ function buildFindings({ sessions, plan, catalog, rows, pairs }: { sessions: Wee
   });
   gapsBySession.filter((entry) => entry.gaps.length).forEach(({ session, gaps }) => review.push({
     id: `target-gap:${session.key}`, kind: "review", rule: "target-gap",
-    headline: `${session.day} leaves ${join(gaps.map((gap) => lower(muscleLabel(gap.muscle))))} under its target.`,
+    headline: `${session.name} leaves ${join(gaps.map((gap) => lower(muscleLabel(gap.muscle))))} under its target.`,
     reason: gaps.map((gap) => `${muscleLabel(gap.muscle)} ${gap.rawScore ?? gap.score} of ${gap.target} coverage points`).join("; ") + ".",
     source: `Split targets, revision ${COVERAGE_TARGET_REVISION}: a gap is under ${Math.round(logicCalibration.exposure.splitCoverageGapRatio * 100)}% of the day's target in catalog-tag points.`,
-    action: { type: "edit-day", dayKey: session.key, label: `Add exercises to ${session.day}`, addExercises: true },
+    action: { type: "edit-day", dayKey: session.key, label: `Add exercises to ${session.name}`, addExercises: true },
   }));
 
   // Concentration is a finding only where the split itself asks two or more of the built
@@ -372,8 +428,8 @@ function buildFindings({ sessions, plan, catalog, rows, pairs }: { sessions: Wee
     if (share < CONCENTRATION_SHARE) return;
     review.push({
       id: `concentration:${row.key}`, kind: "review", rule: "concentration",
-      headline: `Most ${lower(row.label)} exposure falls on ${largest.day}.`,
-      reason: `${setsFigure(largest.total)} of ${setsFigure(row.total)} attributed sets (${Math.round(share * 100)}%) on ${largest.day}, though ${targetSessions(row.key)} of the built sessions have it as a split target.`,
+      headline: `Most ${lower(row.label)} exposure falls on ${largest.name}.`,
+      reason: `${setsFigure(largest.total)} of ${setsFigure(row.total)} attributed sets (${Math.round(share * 100)}%) on ${largest.name}, though ${targetSessions(row.key)} of the built sessions have it as a split target.`,
       source: `Attributed sets per session: direct sets at 1.0, supporting at ${logicCalibration.exposure.secondarySetConvention}. Concentrated at ${Math.round(CONCENTRATION_SHARE * 100)}% or more on one session, for a muscle the split targets on two or more built sessions.`,
       action: { type: "select-muscle", muscle: row.key, label: "Review distribution" },
     });
@@ -381,20 +437,27 @@ function buildFindings({ sessions, plan, catalog, rows, pairs }: { sessions: Wee
 
   if (sessions.length && gapsBySession.every((entry) => !entry.gaps.length)) strengths.push({
     id: "targets-met", kind: "strength", rule: "targets-met",
-    headline: sessions.length === 1 ? `${sessions[0].day} covers its primary targets.` : `Every built session covers its primary targets.`,
+    headline: sessions.length === 1 ? `${sessions[0].name} covers its primary targets.` : `Every built session covers its primary targets.`,
     reason: `${sessions.length} ${sessions.length === 1 ? "session" : "sessions"} checked against the split's primary-muscle targets; none is under.`,
     source: `Split targets, revision ${COVERAGE_TARGET_REVISION}.`,
-    action: { type: "edit-day", dayKey: sessions[0].key, label: `Open ${sessions[0].day}` },
+    action: { type: "edit-day", dayKey: sessions[0].key, label: `Open ${sessions[0].name}` },
   });
 
   const heavyKeys = new Set(pairs.filter((pair) => pair.heavy).flatMap((pair) => pair.shared.map((item) => item.key)));
   // A muscle the board calls concentrated on one session is not also called well spread.
   const concentratedKeys = new Set(review.filter((finding) => finding.rule === "concentration").map((finding) => finding.id.split(":")[1]));
-  const spread = rows.filter((row) => row.direct > 0 && row.sessionsTrained >= SPREAD_SESSIONS && !heavyKeys.has(row.key) && !concentratedKeys.has(row.key)).sort((a, b) => b.direct - a.direct)[0];
+  // Spread is about direct work: a session that gives a muscle only supporting sets does not count,
+  // and no one session may carry most of the direct sets (the review found "Upper back is spread
+  // across 3 sessions" when its 12 direct sets sat on two and the third gave 1.5 supporting).
+  const directSessions = (row: WeekMuscle) => row.byDay.filter((entry) => entry.direct > 0);
+  const spread = rows.filter((row) => {
+    const days = directSessions(row);
+    return days.length >= SPREAD_SESSIONS && Math.max(...days.map((entry) => entry.direct)) / row.direct < CONCENTRATION_SHARE && !heavyKeys.has(row.key) && !concentratedKeys.has(row.key);
+  }).sort((a, b) => b.direct - a.direct)[0];
   if (spread) strengths.push({
     id: `spread:${spread.key}`, kind: "strength", rule: "spread",
-    headline: `${spread.label} is spread across ${spread.sessionsTrained} sessions.`,
-    reason: `${setsFigure(spread.direct)} direct sets over ${spread.sessionsTrained} sessions, none of them a heavy overlap with its neighbour.`,
+    headline: `${spread.label} is spread across ${directSessions(spread).length} sessions.`,
+    reason: `${setsFigure(spread.direct)} direct sets: ${directSessions(spread).map((entry) => `${entry.name} ${setsFigure(entry.direct)}`).join(", ")}; no session carries most of them and none is a heavy overlap with its neighbour.`,
     source: spacingSource,
     action: { type: "select-muscle", muscle: spread.key, label: "See its sessions" },
   });

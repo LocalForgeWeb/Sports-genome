@@ -1,0 +1,17 @@
+/* Progress history (components/ProgressOverviewPanel.tsx): a compact filter toolbar above a
+   month-grouped list of rows that open the workout. Rows with dividers, no nested cards. */
+.destination-progress .progress-history-toolbar, .progress-history-toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem .75rem; }
+.progress-history-toolbar label { display: grid; flex: 1 1 9rem; gap: .2rem; min-width: 0; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.progress-history-toolbar select { width: 100%; min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: var(--sg-surface-raised); padding: 0 .6rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 400; letter-spacing: 0; text-transform: none; }
+.progress-history-toolbar button, .progress-history-nomatch button, .progress-history-more { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; gap: .35rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; background: transparent; padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.progress-history-toolbar :is(select, button):focus-visible, .progress-history-nomatch button:focus-visible, .progress-history-more:focus-visible, .progress-session-open:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.progress-history-month { display: grid; gap: 0; margin-top: .75rem; }
+.progress-history-month h3 { margin: 0; padding-bottom: .3rem; border-bottom: 1px solid var(--sg-divider-on-dark); color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.destination-progress .progress-session-open, .progress-session-open { width: 100%; min-height: 3.5rem; align-items: center; color: inherit; text-align: left; cursor: pointer; }
+.destination-progress .progress-session-open > svg, .progress-session-open > svg { grid-column: 2; grid-row: 1 / span 2; align-self: center; width: 1.1rem; height: 1.1rem; color: var(--sg-text-subtle-on-dark); }
+.destination-progress .progress-session-open > .progress-session-note { grid-column: 1; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 1; margin-top: .15rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-style: normal; }
+.progress-history-more { justify-self: start; margin-top: .75rem; }
+.progress-history-more span { color: var(--sg-text-subtle-on-dark); font-weight: 400; }
+.progress-history-end, .progress-history-error { margin: .75rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.progress-history-nomatch { display: grid; gap: .5rem; justify-items: start; margin-top: .75rem; }
+.progress-history-nomatch p { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }

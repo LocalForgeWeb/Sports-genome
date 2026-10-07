@@ -258,8 +258,11 @@ export function AnatomyFigure({ view, roles, selectedKeys, selectedPart, onSelec
             mistaken for a step on the rank scale. */}
         {(rankEncoding || exposureEncoding) && (
           <pattern id={`${uid}-unscored`} patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(45)">
-            <rect width="16" height="16" fill="var(--sg-rank-unavailable-fill)" />
-            <rect width="1.5" height="16" fill="var(--sg-rank-unavailable-hatch)" />
+            {/* With fallbacks: the rank tokens live in capability-rank.css, which a page using the
+                exposure encoding (Train → Review) may not have loaded, and an unresolved var() fill
+                paints solid black. */}
+            <rect width="16" height="16" fill="var(--sg-rank-unavailable-fill, #2e3a49)" />
+            <rect width="1.5" height="16" fill="var(--sg-rank-unavailable-hatch, #6f7d90)" />
           </pattern>
         )}
       </defs>

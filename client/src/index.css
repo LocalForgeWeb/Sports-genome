@@ -3413,6 +3413,12 @@ body:has(.exercise-intelligence) .mobile-bottom-nav, body:has(.exercise-intellig
 .destination-progress .progress-session-sets > li > span { flex: 1; min-width: 0; color: var(--sg-text-on-dark); }
 .destination-progress .progress-session-sets > li > b { font-weight: 600; }
 .destination-progress .progress-session-sets > li > i { color: var(--sg-text-subtle-on-dark); font-style: normal; }
+/* What was done, set by set (Oct 6 brief): a swap's note and the set lines run full width under the exercise's row. */
+.destination-progress .progress-session-sets > li { flex-wrap: wrap; }
+.destination-progress .progress-session-note { flex-basis: 100%; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-style: normal; }
+.destination-progress .progress-session-set-lines { display: grid; flex-basis: 100%; gap: .2rem; margin: 0; padding: 0 0 0 1.1rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
+.destination-progress .progress-session-set-lines li > span { color: var(--sg-text-on-dark); overflow-wrap: anywhere; }
+.destination-progress .progress-session-set-lines li > small { display: block; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
 .destination-progress .progress-trend-rows .progress-session-card > strong { grid-column: 2; grid-row: 1 / span 2; align-self: center; margin: 0; font-size: 1.6rem; }
 .destination-progress .progress-trend-rows .progress-session-card em.progress-percentile { grid-column: 1 / -1; }
 .destination-progress .progress-excluded { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); line-height: var(--sg-leading-body); }
@@ -3655,6 +3661,14 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .home-week-record { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: .35rem; justify-self: start; min-height: 40px; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); text-align: left; }
 .home-week-record small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); }
 .home-week-record:hover { color: var(--sg-text-on-dark); text-decoration: underline; }
+/* Home's way back into the last recap (O08): one quiet row under the week, below any Resume. */
+.home-last-session { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .1rem .75rem; align-items: center; width: 100%; min-height: 3.5rem; border-top: 1px solid var(--sg-divider-on-dark); padding: .7rem 0 .2rem; color: var(--sg-text-on-dark); text-align: left; }
+.home-last-session .metric-label { grid-column: 1; color: var(--sg-text-subtle-on-dark); }
+.home-last-session strong { grid-column: 1; font-size: var(--sg-text-lg); font-weight: 600; overflow-wrap: anywhere; }
+.home-last-session small { grid-column: 1; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.home-last-session > svg { grid-column: 2; grid-row: 1 / span 3; color: var(--sg-text-subtle-on-dark); }
+.home-last-session:hover strong { text-decoration: underline; }
+.home-last-session:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .destination-home .today-action-state, .destination-home .today-action-priority { display: grid; gap: .25rem; border-bottom: 1px solid var(--sg-divider-on-dark); padding: .8rem 0 .9rem; }
 .destination-home .today-action-state .home-link { justify-self: start; }
 .destination-home .today-action-priority { grid-template-columns: minmax(0, 1fr); align-items: start; }

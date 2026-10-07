@@ -1,0 +1,106 @@
+{
+ "ranAt": "2026-10-06T20:21:10.949Z",
+ "environment": "headless Chromium, vite preview of the production build; photo hosts served from a curl cache of the pinned commit",
+ "results": [
+  {
+   "name": "Catalog rows load same-origin thumbnails (/exercise-thumbs/), each painted",
+   "pass": true,
+   "detail": "Back Squat:264px, Hack Squat:180px, Jump Squat:264px, Front Squat:264px, Sissy Squat:264px, Goblet Squat:264px, Pistol Squat:264px, Zercher Squat:264px"
+  },
+  {
+   "name": "Thumbnails are small (≤ 264 px wide), not the 850 px source",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "No photo-CDN request for a list of rows",
+   "pass": true,
+   "detail": "0 CDN requests"
+  },
+  {
+   "name": "Back Squat row shows its own photo (Barbell_Squat)",
+   "pass": true,
+   "detail": "{\"state\":\"photo\",\"src\":\"/exercise-thumbs/Barbell_Squat.jpg\",\"loaded\":true,\"natural\":[264,176]}"
+  },
+  {
+   "name": "Sissy Squat row shows its own photo (Weighted_Sissy_Squat)",
+   "pass": true,
+   "detail": "{\"state\":\"photo\",\"src\":\"/exercise-thumbs/Weighted_Sissy_Squat.jpg\",\"loaded\":true,\"natural\":[264,176]}"
+  },
+  {
+   "name": "Withdrawn photo: Seal Row shows the equipment placeholder, no image",
+   "pass": true,
+   "detail": "{\"state\":\"placeholder\",\"src\":null,\"loaded\":null,\"natural\":null}"
+  },
+  {
+   "name": "Withdrawn photo: Pendlay Row shows the equipment placeholder, no image",
+   "pass": true,
+   "detail": "{\"state\":\"placeholder\",\"src\":null,\"loaded\":null,\"natural\":null}"
+  },
+  {
+   "name": "Withdrawn photo: Bulgarian Split Squat shows the equipment placeholder, no image",
+   "pass": true,
+   "detail": "{\"state\":\"placeholder\",\"src\":null,\"loaded\":null,\"natural\":null}"
+  },
+  {
+   "name": "Withdrawn photo: Kettlebell Swing shows the equipment placeholder, no image",
+   "pass": true,
+   "detail": "{\"state\":\"placeholder\",\"src\":null,\"loaded\":null,\"natural\":null}"
+  },
+  {
+   "name": "Slow photo: frames hold their reserved size and show the icon while loading",
+   "pass": true,
+   "detail": "[{\"state\":\"loading\",\"h\":116,\"icon\":true},{\"state\":\"loading\",\"h\":116,\"icon\":true}]"
+  },
+  {
+   "name": "…then both frames paint, at the same size (no layout shift)",
+   "pass": true,
+   "detail": "[{\"state\":\"photo\",\"h\":116,\"ok\":true,\"src\":\"Weighted_Sissy_Squat/0.jpg\"},{\"state\":\"photo\",\"h\":116,\"ok\":true,\"src\":\"Weighted_Sissy_Squat/1.jpg\"}]"
+  },
+  {
+   "name": "Sissy Squat detail shows Weighted_Sissy_Squat start and finish",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Unreachable: \"The photographs could not be loaded.\" with a Retry button, no broken image",
+   "pass": true,
+   "detail": "The photographs could not be loaded.Retry"
+  },
+  {
+   "name": "Retry asks again and both Back Squat frames load (Barbell_Squat)",
+   "pass": true,
+   "detail": "[{\"ok\":true,\"src\":\"Barbell_Squat/0.jpg?retry=1\"},{\"ok\":true,\"src\":\"Barbell_Squat/1.jpg?retry=1\"}]"
+  },
+  {
+   "name": "Invalid response from the CDN: the second host serves the real photo",
+   "pass": true,
+   "detail": "[{\"ok\":true,\"host\":\"raw.githubusercontent.com\"},{\"ok\":true,\"host\":\"raw.githubusercontent.com\"}]"
+  },
+  {
+   "name": "A missing thumbnail falls back to the full frame on the second host",
+   "pass": true,
+   "detail": "{\"state\":\"photo\",\"src\":\"https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Front_Barbell_Squat/0.jpg\",\"loaded\":true,\"natural\":[850,567]}"
+  },
+  {
+   "name": "320px: thumbnails keep their 3:2 box, no sideways scroll",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "375px: thumbnails keep their 3:2 box, no sideways scroll",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "430px: thumbnails keep their 3:2 box, no sideways scroll",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "1280px: thumbnails keep their 3:2 box, no sideways scroll",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

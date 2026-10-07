@@ -1207,3 +1207,57 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .live-set-media > summary > svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
 .live-set-media[open] > summary > svg { transform: rotate(90deg); }
 .live-set-media > .exercise-media { padding-bottom: .5rem; }
+
+/* ── Swap and drop sets in the live tracker (Oct 6 brief §3, §4) ── */
+/* Swap and Skip are the card's two quiet escape hatches, side by side under the dominant action. */
+.live-set-secondary { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 1rem; margin-top: .15rem; }
+.live-set-secondary .live-set-skip { margin: 0; }
+.live-set-swap-note { margin: .2rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.device-workout-tracker .session-exercise small.session-swap-note { color: var(--sg-text-on-dark); font-weight: 600; }
+.session-exercise-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: .4rem; margin-left: auto; }
+.session-exercise-actions .session-exercise-skip { margin-left: 0; }
+.device-workout-tracker .session-exercise-replaced { border-style: dashed; }
+
+/* Set type: two segments, the current one filled. Drop sets are a choice per set, not a mode. */
+.live-set-type { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; margin-top: .85rem; border: 1px solid rgb(176 214 247 / .28); border-radius: 12px; padding: .25rem; }
+.live-set-type button { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; gap: .4rem; border-radius: 9px; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.live-set-type button[aria-pressed="true"] { background: rgb(255 255 255 / .12); color: var(--sg-text-on-dark); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .35); }
+.live-set-type button:disabled { cursor: not-allowed; opacity: .55; }
+.live-set-type button:focus-visible, .live-drop-stages button:focus-visible, .live-drop-add:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.live-drop { display: grid; gap: .45rem; margin-top: .75rem; }
+.live-drop-stages { display: grid; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.live-drop-stages li { display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .6rem; min-height: 2.75rem; border: 1px solid rgb(242 193 77 / .4); border-radius: 10px; background: rgb(242 193 77 / .08); padding: 0 .3rem 0 .7rem; }
+.live-drop-stages span { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: var(--sg-tracking-label); }
+.live-drop-stages b { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.live-drop-stage-actions { display: inline-flex; gap: .2rem; margin-left: auto; }
+.live-drop-stages button { display: inline-flex; min-height: 2.5rem; align-items: center; gap: .3rem; border-radius: 8px; padding: 0 .55rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-xs); font-weight: 700; }
+.live-drop-next { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; }
+/* Side by side where they fit, stacked when the text is large. */
+.live-drop-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: .5rem; margin-top: .75rem; }
+.live-drop-actions .live-set-commit { margin-top: 0; }
+.live-drop-add { display: flex; min-height: 3.25rem; align-items: center; justify-content: center; gap: .4rem; border: 1px solid var(--sg-action); border-radius: 12px; background: rgb(228 81 46 / .14); color: #ffd0c2; font-size: var(--sg-text-md); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.live-drop-problem { margin: .5rem 0 0; color: #ffc9b8; font-size: var(--sg-text-sm); font-weight: 600; }
+.live-drop-note { margin: .5rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+
+/* A drop set in the full list is one row: the stages collapsed into a line, the totals under it. */
+.device-workout-tracker .session-set-row.session-set-drop { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.device-workout-tracker .session-set-drop > strong { grid-column: 1 / -1; }
+.session-drop-line { grid-column: 1; margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.device-workout-tracker .session-set-drop small.session-drop-detail { grid-column: 1; margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.device-workout-tracker .session-set-drop > button { grid-column: 2; grid-row: 2 / span 2; }
+.device-workout-tracker .session-set-row .session-set-to-drop { grid-column: 1 / -1; border-color: rgb(176 214 247 / .32); background: transparent; color: var(--sg-text-muted-on-dark); }
+.live-done-summary { display: grid; gap: .6rem; margin: .75rem 0 0; padding: 0; list-style: none; }
+.live-done-summary > li { display: grid; gap: .15rem; border-top: 1px solid rgb(176 214 247 / .18); padding-top: .5rem; }
+.live-done-summary strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
+.live-done-summary small { display: block; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.live-done-summary ol { display: grid; gap: .15rem; margin: 0; padding-left: 1.1rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
+
+/* Finishing early with planned sets open asks once, in place (Oct 7 brief R13). */
+.live-finish-confirm { display: grid; gap: .6rem; margin-top: .75rem; border: 1px solid rgb(176 214 247 / .3); border-radius: 12px; background: rgb(255 255 255 / .05); padding: .8rem; }
+.live-finish-confirm p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.live-finish-confirm strong { color: var(--sg-text-on-dark); }
+.live-finish-confirm > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+.live-finish-confirm button { min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 0 1rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.live-finish-confirm .live-finish-confirm-go { border-color: transparent; background: var(--sg-action-fill); color: var(--sg-action-on); }
+.live-finish-confirm button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.device-workout-tracker.session-saved { padding: clamp(1rem, 3vw, 1.5rem); }

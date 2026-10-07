@@ -116,15 +116,19 @@ describe("Progress lists what this device recorded", () => {
     const { container } = renderOnDevice();
     const cards = container.querySelectorAll(".progress-records .progress-session-card");
     expect(cards).toHaveLength(2);
-    expect(cards[0].querySelector("summary p")?.textContent).toBe("Push A");
-    expect(cards[1].querySelector("summary p")?.textContent).toBe("Pull B");
+    expect(cards[0].querySelector("p")?.textContent).toBe("Push A");
+    expect(cards[1].querySelector("p")?.textContent).toBe("Pull B");
     const newest = cards[0].textContent || "";
     expect(newest).toContain("1 exercise");
     expect(newest).toContain("2 sets");
-    expect(newest).toContain("Device");
-    expect(newest).toContain("2 of 3 sets");
+    expect(newest).not.toContain("Account");
     expect(container.textContent).not.toContain("Legs C");
     expect(container.querySelector(".progress-facts")?.textContent).toContain("2 on this device");
+    // The row opens the workout's own detail, which reads the set left open as planned, not done.
+    fireEvent.click(cards[0]);
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBeTruthy();
+    expect(container.querySelector("[data-session-detail]")?.textContent).toContain("2 of 3 planned sets · 1 not recorded");
+    fireEvent.click(screen.getByRole("button", { name: "All workouts" }));
     expect(screen.getByText("2 total")).toBeTruthy();
   });
 

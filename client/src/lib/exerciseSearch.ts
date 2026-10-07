@@ -64,7 +64,9 @@ export function withinEditDistance(a: string, b: string, max: number): boolean {
 export const EXERCISE_ALIASES: Record<string, string[]> = {
   "Barbell Bench Press": ["bench", "bench press", "flat bench", "bp"],
   "Barbell Overhead Press": ["ohp", "overhead press", "military press", "press"],
-  "Back Squat": ["squat", "back squat"],
+  // "Barbell squat" is what most people call it; the catalog files it under free weights, so without
+  // this the words found only the Zercher squat (the Oct 6 swap brief: Sissy Squat -> Barbell Squat).
+  "Back Squat": ["squat", "back squat", "barbell squat", "barbell back squat"],
   "Barbell Back Squat": ["squat", "back squat"],
   "Conventional Deadlift": ["deadlift", "dl", "conventional"],
   "Romanian Deadlift": ["rdl", "romanian"],

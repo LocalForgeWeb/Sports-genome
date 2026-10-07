@@ -16,8 +16,10 @@ describe("universal search and retrieval contract / local search", () => {
   // "Local inline search remains allowed inside bounded collections but must
   // state its scope and offer broadening when appropriate."
   it("gives every bounded local search a scope line and a way to broaden", () => {
-    // Universal search IS the broad scope.
-    const exempt = ["UniversalSearch.tsx"];
+    // Universal search IS the broad scope. The mid-workout swap sheet searches the whole
+    // exercise catalog, so there is nothing broader to offer, and leaving for the app's search
+    // would abandon the swap half-made; it states its scope in words instead (Oct 6 brief §3).
+    const exempt = ["UniversalSearch.tsx", "ExerciseSwapSheet.tsx"];
 
     const searches = tsxFiles(SRC).filter((path) => {
       if (exempt.some((name) => path.endsWith(name))) return false;

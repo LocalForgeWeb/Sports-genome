@@ -35,6 +35,8 @@ export type WorkoutStrengthObservation = {
    * bar, the stack, or load added to a bodyweight movement - sent with the lift (EN-07, EN-09).
    */
   loadSemantics: LoadConvention | "additional_load";
+  /** The catalog entry it was done on, so two exercises sharing a name stay separate series (P02). */
+  catalogExerciseId?: number;
   repetitions?: number;
   /** Where the athlete saw this happen, so the record can say so. */
   sessionLabel: string;
@@ -150,8 +152,12 @@ export function workoutStrengthObservations(
     session.exercises.forEach((exercise) => {
       // Each set is read in the unit it was typed in, and compared in kilograms, so a
       // session that mixed units still finds its heaviest set.
+      // A drop set is one set and is read by its first stage alone (lib/dropSets): the later
+      // stages are done fatigued, straight after the one before, and adding them up would credit
+      // 21 reps at the first stage's load. Stage 1 is mirrored into the set's own weight and reps.
       const logged = exercise.sets
         .filter((set) => set.completed && !set.skipped)
+        .map((set) => (set.type === "drop" && set.stages?.length ? { ...set, weight: set.stages[0].weight, reps: set.stages[0].reps, unit: set.stages[0].unit ?? set.unit } : set))
         .map((set) => ({ weightKg: setWeightKg(set, session, fallbackUnit), weight: numeric(set.weight), unit: setWeightUnit(set, session, fallbackUnit), reps: numeric(set.reps) }))
         .filter((set) => set.reps !== undefined);
       if (!logged.length) return;
@@ -164,10 +170,13 @@ export function workoutStrengthObservations(
         if (setWeight !== leaderWeight) return setWeight > leaderWeight ? set : leader;
         return (set.reps ?? 0) > (leader.reps ?? 0) ? set : leader;
       });
-      const convention = loadConventionFor(catalogByName.get(exercise.exerciseName.trim().toLowerCase())?.id);
+      // The exercise actually performed: after a swap, each part is read as the exercise it was.
+      const catalogExerciseId = exercise.catalogId ?? catalogByName.get(exercise.exerciseName.trim().toLowerCase())?.id;
+      const convention = loadConventionFor(catalogExerciseId);
       observations.push({
         id: workoutObservationId(session.id, exercise.id),
         exerciseName: exercise.exerciseName,
+        ...(catalogExerciseId !== undefined ? { catalogExerciseId } : {}),
         observedAt,
         measurementType: "MULTI_REP",
         loadKg: best.weightKg,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyzeWeek, commonMovements, exposureByRegion, exposureStep, setsFigure, WEEK_REVIEW_REVISION, type WeekReviewInput } from "./weekReview";
+import { analyzeWeek, commonMovements, exposureByRegion, exposureStep, figureExposure, setsFigure, untaggedRegionsFor, WEEK_REVIEW_REVISION, type WeekReviewInput } from "./weekReview";
 import { exercises, type Exercise } from "./exerciseCatalog";
 import { getWeeklyMuscleVolume } from "./weeklyVolume";
 import { getRecoverySpacingAlerts, getRecoverySpacingCoverage } from "./recoverySpacing";
@@ -167,7 +167,7 @@ describe("analyzeWeek: session overlap in plan order", () => {
   it("skips a pair with an unbuilt slot between them and never calls the gap a rest day", () => {
     const week = analyzeWeek(input({ plan: { [key(0)]: fullPlan[key(0)], [key(2)]: fullPlan[key(2)] } }));
     expect(week.overlap.pairs).toEqual([]);
-    expect(week.overlap.skipped).toEqual([{ aDay: "Push", bDay: "Legs" }]);
+    expect(week.overlap.skipped).toEqual([{ aDay: "Push", bDay: "Legs", aName: "Push", bName: "Legs" }]);
     expect(week.sessions[1].state).toBe("empty");
     expect(JSON.stringify(week)).not.toMatch(/rest day/i);
   });
@@ -223,6 +223,69 @@ describe("analyzeWeek: findings", () => {
     const concentrated = week.findings.filter((finding) => finding.rule === "concentration").map((finding) => finding.id.split(":")[1]);
     const spread = week.findings.find((finding) => finding.rule === "spread");
     if (spread) expect(concentrated).not.toContain(spread.id.split(":")[1]);
+  });
+});
+
+describe("findings name what is true, and name it unambiguously", () => {
+  it("calls a muscle spread only when its direct sets sit on three sessions, none carrying most", () => {
+    // The recording's shape: the upper back's 12 direct sets sit on Pull and Sport Transfer, with
+    // 1.5 supporting on Legs. That is not "spread across 3 sessions" (the adversarial review).
+    const week = analyzeWeek(input());
+    const upperBack = week.muscles.find((muscle) => muscle.key === "upperBack")!;
+    expect(upperBack.byDay.filter((entry) => entry.direct > 0)).toHaveLength(2);
+    expect(week.findings.some((finding) => finding.id === "spread:upperBack")).toBe(false);
+    // Direct work on one session and supporting work on two others is not spread either.
+    const front = exercises.filter((exercise) => exercise.secondaryMuscles.includes("chest") && !exercise.primaryMuscles.includes("chest"));
+    expect(front.length).toBeGreaterThan(1);
+    const lopsided = analyzeWeek(input({ slots: buildDaySlots(splitDaysForFrequency(3)), plan: { "0-Push": [byId(1), byId(1), byId(1)], "1-Pull": [front[0]], "2-Legs": [front[1]] } }));
+    expect(lopsided.findings.some((finding) => finding.rule === "spread")).toBe(false);
+    // Even direct work on three sessions is spread; the reason names each session's direct sets.
+    const even = analyzeWeek(input({ slots: buildDaySlots(splitDaysForFrequency(3)), plan: { "0-Push": [byId(1)], "1-Pull": [byId(1)], "2-Legs": [byId(1)] }, prescriptions: { "0-Push": { 1: "3 x 8" }, "1-Pull": { 1: "3 x 8" }, "2-Legs": { 1: "3 x 8" } } }));
+    const spread = even.findings.find((finding) => finding.rule === "spread");
+    expect(spread?.headline).toBe("Pectoralis major is spread across 3 sessions.");
+    expect(spread?.reason).toMatch(/^9 direct sets: Push 3, Pull 3, Legs 3;/);
+  });
+
+  it("names repeated split days by their slot, so a 4-day Upper / Lower week never has two findings saying the same thing", () => {
+    const four = buildDaySlots(splitDaysForFrequency(4));
+    expect(four.map((slot) => slot.day)).toEqual(["Upper", "Lower", "Upper", "Lower"]);
+    const week = analyzeWeek(input({ slots: four, plan: { [four[0].key]: [byId(1)], [four[2].key]: [byId(1)] } }));
+    expect(week.sessions.map((session) => session.name)).toEqual(["Day 01 · Upper", "Day 02 · Lower", "Day 03 · Upper", "Day 04 · Lower"]);
+    expect(week.sessions.map((session) => session.short)).toEqual(["Upper 1", "Lower 2", "Upper 3", "Lower 4"]);
+    const headlines = week.findings.map((finding) => finding.headline);
+    expect(new Set(headlines).size).toBe(headlines.length);
+    expect(headlines.some((headline) => headline.startsWith("Day 01 · Upper leaves"))).toBe(true);
+    expect(week.overlap.skipped).toEqual([{ aDay: "Upper", bDay: "Upper", aName: "Day 01 · Upper", bName: "Day 03 · Upper" }]);
+    // A split that does not repeat keeps its plain names.
+    expect(analyzeWeek(input()).sessions.map((session) => session.name)).toEqual(["Push", "Pull", "Legs", "Upper", "Sport Transfer"]);
+  });
+});
+
+describe("the figure's exposure", () => {
+  it("paints the umbrella Deltoids tag on all three heads, says what each region adds up, and takes its scale from the regions", () => {
+    const press = exercises.find((exercise) => exercise.primaryMuscles.includes("frontDelts") && !exercise.primaryMuscles.includes("shoulders"))!;
+    const umbrella = exercises.find((exercise) => exercise.primaryMuscles.includes("shoulders"))!;
+    const week = analyzeWeek(input({ plan: { [key(0)]: [press, umbrella] }, prescriptions: { [key(0)]: { [press.id]: "4 x 8", [umbrella.id]: "4 x 8" } } }));
+    const figure = figureExposure(week, "direct");
+    expect(week.muscles.find((muscle) => muscle.key === "frontDelts")!.direct).toBe(4);
+    expect(week.muscles.find((muscle) => muscle.key === "shoulders")!.direct).toBe(4);
+    expect(figure.values.frontDelts).toBe(8);
+    expect(figure.parts.frontDelts.map((part) => part.key).sort()).toEqual(["frontDelts", "shoulders"]);
+    expect(figure.values.rearDelts).toBe(4);
+    // The figure's top step is its largest region, never below what it paints.
+    expect(figure.max).toBe(Math.max(...Object.values(figure.values).filter((value): value is number => typeof value === "number")));
+    expect(figure.max).toBeGreaterThanOrEqual(week.max.direct);
+  });
+
+  it("marks regions no catalog exercise can tag as unknown, and leaves an untrained region at zero even beside an unmapped exercise", () => {
+    expect(untaggedRegionsFor(exercises)).toEqual(["brachioradialis", "soleus"]);
+    const ghost: Exercise = { ...byId(1), id: 99903, name: "Imported row", primaryMuscles: [], secondaryMuscles: [] };
+    const week = analyzeWeek(input({ plan: { [key(0)]: [byId(1), ghost] } }));
+    const figure = figureExposure(week, "direct");
+    expect(figure.values.soleus).toBe("unknown");
+    expect(figure.values.brachioradialis).toBe("unknown");
+    expect(figure.values.quads).toBeUndefined();
+    expect(week.muscles.find((muscle) => muscle.key === "quads")!.total).toBe(0);
   });
 });
 

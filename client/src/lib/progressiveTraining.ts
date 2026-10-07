@@ -140,6 +140,14 @@ function weekStart(value: Date | string) {
   return normalized.toISOString().slice(0, 10);
 }
 
+/**
+ * DORMANT - do not mount unchanged (Oct 7 brief P01). This pools estimated performance across
+ * different exercises, so a week with more heavy deadlift sets reads as "better" than a week of
+ * curls when neither lift improved, and LoggedPerformanceSet has no setup, ROM or load-convention
+ * fields. Its only caller is ProgressionReviewPanel inside WorkoutExecutionPanel, which nothing
+ * renders; progressComparisonFixtures.test.ts fails if a live file calls it. The live comparison is
+ * lib/withinAthleteStrengthChange.ts: one series per exercise identity, never pooled.
+ */
 export function getWeeklyProgressReview(exercises: ProgressionExercise[], history: LoggedPerformanceSet[]): WeeklyProgressReview {
   const exerciseIds = new Set(exercises.map((exercise) => exercise.id));
   const names = new Set(exercises.map((exercise) => normalizeExerciseName(exercise.name)));

@@ -36,11 +36,13 @@
      above the resting muscle to a pale warm grey. One hue, so the figure reads as more or less
      of one thing; muted, so no step is read as a role (orange, teal, champagne) or a rank. A
      region with nothing planned keeps the resting tone and is not a step. */
-  --sg-exposure-1: #574f46;
-  --sg-exposure-2: #776b5c;
-  --sg-exposure-3: #998872;
-  --sg-exposure-4: #bcab92;
-  --sg-exposure-5: #e3d8c4;
+  /* Step 1 sits a clear lightness step (about 1.8:1) above the resting muscle, so a little planned
+     work never differs from none by hue alone. */
+  --sg-exposure-1: #7a6d5c;
+  --sg-exposure-2: #958670;
+  --sg-exposure-3: #b0a088;
+  --sg-exposure-4: #cbbda4;
+  --sg-exposure-5: #e8dfcc;
 }
 
 /* Defaults suit a light surface, because this figure renders on one: the
