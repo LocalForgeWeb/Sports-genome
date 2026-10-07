@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Cable, Circle, Dumbbell, PersonStanding, RotateCw, Weight, type LucideIcon } from "lucide-react";
-import { exercisePhotoCredit, exercisePhotoSet } from "@/lib/exercisePhotos";
+import { exercisePhotoCredit, exercisePhotoSet, type ExercisePhotoSet } from "@/lib/exercisePhotos";
 import "../exercise-media.css";
 
 /**
@@ -31,6 +31,13 @@ export type ExerciseMediaProps = {
   exerciseName: string;
   equipment?: string;
   variant?: "thumb" | "detail";
+  /**
+   * The photographs, when they are not a catalog exercise's: a warm-up drill passes its own
+   * (drillPhotoSet), or null for none, and `exerciseId` is then not looked up.
+   */
+  photo?: ExercisePhotoSet | null;
+  /** What the photographs show, for the captions: an exercise (default) or a warm-up drill. */
+  subject?: "exercise" | "drill";
 };
 
 /** A restrained stand-in from the app's own icon family, by the exercise's equipment. */
@@ -43,8 +50,8 @@ function placeholderIcon(equipment: string | undefined): LucideIcon {
   return Dumbbell;
 }
 
-export function ExerciseMedia({ exerciseId, exerciseName, equipment, variant = "thumb" }: ExerciseMediaProps) {
-  const set = exercisePhotoSet(exerciseId);
+export function ExerciseMedia({ exerciseId, exerciseName, equipment, variant = "thumb", photo, subject = "exercise" }: ExerciseMediaProps) {
+  const set = photo !== undefined ? photo : exercisePhotoSet(exerciseId);
   /** Per frame: how many sources have failed so far. */
   const [attempt, setAttempt] = useState<Record<number, number>>({});
   /** Per frame: the photograph has painted. */
@@ -75,7 +82,7 @@ export function ExerciseMedia({ exerciseId, exerciseName, equipment, variant = "
   if (!set) {
     return <figure className="exercise-media exercise-media-detail" data-state="placeholder">
       <div className="exercise-media-strip"><span className="exercise-media-frame"><Icon className="exercise-media-icon" /></span></div>
-      <figcaption>No photograph of this exercise in the set yet.</figcaption>
+      <figcaption>No photograph of this {subject} in the set yet.</figcaption>
     </figure>;
   }
   const frames = set.urls.map((_, index) => index);
@@ -92,7 +99,7 @@ export function ExerciseMedia({ exerciseId, exerciseName, equipment, variant = "
         </span>)}
     </div>
     <figcaption>
-      {allFailed ? "The photographs could not be loaded." : someFailed ? "One photograph could not be loaded." : `${exercisePhotoCredit}. The photographs identify the exercise; they are not a full technique demonstration.`}
+      {allFailed ? "The photographs could not be loaded." : someFailed ? "One photograph could not be loaded." : `${exercisePhotoCredit}. The photographs identify the ${subject}; they are not a full technique demonstration.`}
       {someFailed && <button type="button" className="exercise-media-retry" onClick={retry}><RotateCw aria-hidden="true" />Retry</button>}
     </figcaption>
   </figure>;

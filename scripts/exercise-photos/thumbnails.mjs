@@ -19,6 +19,8 @@ const [cacheDir] = process.argv.slice(2);
 if (!cacheDir) { console.error("usage: thumbnails.mjs <cacheDir>"); process.exit(1); }
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..");
 const mapping = JSON.parse(readFileSync(path.join(root, "client/src/data/exercisePhotos.json"), "utf8"));
+// The warm-up drills' photographs (drills.mjs) get the same thumbnails, from the same cache.
+const drillMapping = JSON.parse(readFileSync(path.join(root, "client/src/data/drillPhotos.json"), "utf8"));
 const order = JSON.parse(readFileSync(path.join(root, "client/src/data/exercisePhotoOrder.json"), "utf8"));
 const ref = /exercisePhotoSourceRef = "([0-9a-f]{40})"/.exec(readFileSync(path.join(root, "client/src/lib/exercisePhotos.ts"), "utf8"))[1];
 const outDir = path.join(root, "client/public/exercise-thumbs");
@@ -31,6 +33,11 @@ const sources = new Map();
 for (const [id, [source, count, width = 850, height = 567]] of Object.entries(mapping)) {
   const entry = sources.get(source) ?? { source, count, width, height, frame: count > 1 && order[source] ? 1 : 0, exerciseIds: [] };
   entry.exerciseIds.push(Number(id));
+  sources.set(source, entry);
+}
+for (const [id, [source, count, width = 850, height = 567]] of Object.entries(drillMapping)) {
+  const entry = sources.get(source) ?? { source, count, width, height, frame: count > 1 && order[source] ? 1 : 0, exerciseIds: [] };
+  (entry.drillIds ??= []).push(id);
   sources.set(source, entry);
 }
 
@@ -67,6 +74,7 @@ for (const entry of sources.values()) {
   writeFileSync(path.join(outDir, `${entry.source}.jpg`), thumb);
   manifest[entry.source] = {
     exerciseIds: entry.exerciseIds.sort((a, b) => a - b),
+    ...(entry.drillIds ? { drillIds: entry.drillIds.sort() } : {}),
     licence: "Unlicense (public domain dedication)",
     origin: `https://github.com/yuhonas/free-exercise-db/blob/${ref}/exercises/${entry.source}/${entry.frame}.jpg`,
     originalFrame: entry.frame,
