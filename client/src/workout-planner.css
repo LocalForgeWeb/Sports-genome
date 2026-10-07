@@ -159,7 +159,7 @@
 .live-set-last { margin-top: .25rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); }
 
 /* The protected zone: two entry fields and nothing else on their row. */
-.live-set-entry { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .85rem; }
+.live-set-entry { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .85rem; align-items: end; }
 .live-set-entry label {
   position: relative;
   display: grid;

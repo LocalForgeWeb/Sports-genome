@@ -16,6 +16,7 @@ export interface ExerciseStudyCalibration {
 }
 
 const pubmed = (pmid: string) => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
+const pmc = (id: string) => `https://pmc.ncbi.nlm.nih.gov/articles/${id}/`;
 
 const calibrationRecords: ExerciseStudyCalibration[] = [
   {
@@ -154,6 +155,76 @@ const calibrationRecords: ExerciseStudyCalibration[] = [
     sources: [
       { label: "Matched modality trial", url: pubmed("37535335") },
       { label: "Machine vs free-weight meta-analysis", url: pubmed("34609100") },
+    ],
+  },
+  // Records added for the 50-exercise expansion (6 Oct 2026 brief). Each is attached only to the
+  // expansion record whose exact variation the sources tested, through its descriptor; none is
+  // matched by name, so no original record changes. Sources were opened and read; the summaries
+  // say what was measured and stop there (docs/exercise-expansion-v1/evidence.json).
+  {
+    key: "prone-leg-curl",
+    label: "Prone one-leg curl context",
+    kind: "Direct longitudinal adaptation",
+    summary: "In a 12-week within-subject trial, the leg trained on a prone (lying) one-leg curl gained hamstring volume (+9% on MRI), less than the other leg trained on a seated curl (+14%).",
+    rangeOfMotion: "Setup-dependent",
+    planningBoundary: "Twenty young adults without recent training, 5 × 10 at 70% of 1RM twice a week; a protocol-specific comparison, not a ruling that the lying curl is a poor choice.",
+    sources: [{ label: "Maeo et al., 2021 · MRI intervention (prone-leg condition)", url: pmc("PMC7969179") }],
+  },
+  {
+    key: "trap-bar-deadlift",
+    label: "Hexagonal-bar deadlift mechanics",
+    kind: "Acute mechanics context",
+    summary: "Proficient lifters lifted more, faster, with a hexagonal bar than a straight bar from the floor; EMG studies summarised in a 2020 review found more vastus lateralis and less erector spinae and biceps femoris activity with the hex bar.",
+    rangeOfMotion: "Full",
+    planningBoundary: "Acute bar mechanics and EMG in trained men; EMG is not used as a growth score, and straight-bar deadlift norms do not describe this lift.",
+    sources: [
+      { label: "Lake et al., 2017 · hex vs straight bar mechanics", url: pmc("PMC5969032") },
+      { label: "Martín-Fuentes et al., 2020 · deadlift-variant EMG review", url: pmc("PMC7046193") },
+    ],
+  },
+  {
+    key: "sumo-deadlift",
+    label: "Sumo deadlift mechanics",
+    kind: "Acute mechanics context",
+    summary: "At 85% of 1RM in 30 experienced men, the sumo deadlift produced larger knee-extension and hip-adduction moments than the conventional deadlift, which produced larger hip-extension moments; an earlier EMG study found more vastus activity in sumo.",
+    rangeOfMotion: "Full",
+    planningBoundary: "Joint moments and EMG from trained men; the larger adduction moment does not show the adductors are a primary force producer, and it is not a hypertrophy ranking.",
+    sources: [
+      { label: "Frontiers in Bioengineering, 2025 · sumo vs conventional kinetics and EMG", url: pmc("PMC12148905") },
+      { label: "Martín-Fuentes et al., 2020 · deadlift-variant EMG review", url: pmc("PMC7046193") },
+    ],
+  },
+  {
+    key: "safety-bar-squat",
+    label: "Safety-bar squat mechanics",
+    kind: "Acute mechanics context",
+    summary: "Against high- and low-bar squats at 3RM, the safety-bar squat was done with less load, a more upright torso and a larger knee-extension moment than the low-bar squat; at the same absolute load, peak force and effort matched an Olympic bar.",
+    rangeOfMotion: "Full",
+    planningBoundary: "Acute comparisons in recreationally trained adults; back-squat norms are not measures of this bar, and EMG findings between studies conflict.",
+    sources: [
+      { label: "Kristiansen et al., 2021 · safety, high- and low-bar squat biomechanics", url: pmc("PMC8392107") },
+      { label: "International Journal of Exercise Science, 2024 · safety vs Olympic bar", url: pmc("PMC11385282") },
+    ],
+  },
+  {
+    key: "reverse-nordic",
+    label: "Reverse Nordic training context",
+    kind: "Biomechanics or transfer",
+    summary: "Eight weeks of bodyweight reverse Nordic training improved sprint, change-of-direction and jump tests against controls in youth karate athletes; muscle size was not measured.",
+    rangeOfMotion: "Individualized",
+    planningBoundary: "Twenty-seven youth athletes and field tests only: a transfer finding, not evidence of quadriceps growth, and not the Nordic hamstring curl's evidence.",
+    sources: [{ label: "J Funct Morphol Kinesiol, 2024 · reverse Nordic training in youth karate", url: pmc("PMC11676464") }],
+  },
+  {
+    key: "suitcase-carry",
+    label: "Suitcase carry trunk activity",
+    kind: "Acute mechanics context",
+    summary: "During a one-dumbbell suitcase carry, the external oblique, longissimus and multifidus opposite the load were the most active trunk muscles, well above the same-side muscles; strongman data show the same opposite-side pattern.",
+    rangeOfMotion: "Not study-tagged",
+    planningBoundary: "Acute surface EMG from one 25 m carry in college-aged adults: it shows which side works, not a training effect or a load to use.",
+    sources: [
+      { label: "Ellestad et al., 2024 · loaded-carry EMG", url: pmc("PMC11042841") },
+      { label: "Hindle et al., 2019 · strongman biomechanics review (McGill 2009 suitcase carry)", url: pmc("PMC6901656") },
     ],
   },
 ];

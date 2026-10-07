@@ -118,7 +118,7 @@ const additions: Addition[] = [
     },
   },
   {
-    exercise: { id: 403, name: "Neck Lateral Flexion Machine", sourceGroup: NECK_GROUP, category: "Neck", equipment: "Machine", movement: "Neck lateral flexion", primaryMuscles: ["neckFlexors", "neckExtensors"], secondaryMuscles: ["traps"], qualities: ["strength", "hypertrophy", "unilateral"], muscleGrade: "A", sportFit: fit(NECK) },
+    exercise: { id: 403, name: "Neck Lateral Flexion Machine", sourceGroup: NECK_GROUP, category: "Neck", equipment: "Machine", movement: "Neck lateral flexion", primaryMuscles: ["neckFlexors", "neckExtensors"], secondaryMuscles: [], qualities: ["strength", "hypertrophy", "unilateral"], muscleGrade: "A", sportFit: fit(NECK) },
     descriptor: {
       id: 403, candidate: "E03", requestedName: "Neck Lateral Flexion Machine",
       setup: "Seated side-on in a multi-direction neck machine with the side of the head on the pad. Tilt the ear toward the shoulder against the stack, then switch sides. A set is one side; log the side.",
@@ -130,7 +130,7 @@ const additions: Addition[] = [
       fingerprint: fp({ machine: true, isolation: true, unilateral: true }), task: task({ specialistEquipment: true }),
       targeting: tgt({ forceVector: "guided", momentArm: "focused", unilateral: true }),
       studyKey: "machine-modality",
-      anatomy: { neckFlexors: "Same-side sternocleidomastoid and scalenes", neckExtensors: "Same-side splenius and semispinalis", traps: "Upper trapezius" }, stabilizers: [],
+      anatomy: { neckFlexors: "Same-side sternocleidomastoid and scalenes", neckExtensors: "Same-side splenius and semispinalis" }, stabilizers: [],
     },
   },
   {
@@ -182,7 +182,7 @@ const additions: Addition[] = [
     },
   },
   {
-    exercise: { id: 407, name: "Isometric Neck Lateral Flexion", sourceGroup: NECK_GROUP, category: "Neck", equipment: "Bodyweight", movement: "Neck lateral flexion", primaryMuscles: ["neckFlexors", "neckExtensors"], secondaryMuscles: ["traps"], qualities: ["stability", "strength", "unilateral"], muscleGrade: "A", sportFit: fit(NECK) },
+    exercise: { id: 407, name: "Isometric Neck Lateral Flexion", sourceGroup: NECK_GROUP, category: "Neck", equipment: "Bodyweight", movement: "Neck lateral flexion", primaryMuscles: ["neckFlexors", "neckExtensors"], secondaryMuscles: [], qualities: ["stability", "strength", "unilateral"], muscleGrade: "A", sportFit: fit(NECK) },
     descriptor: {
       id: 407, candidate: "E07", requestedName: "Isometric Neck Lateral Flexion",
       setup: "Head upright and still. Place one hand on the same side of the head and press the head into it, building tension slowly, without the head moving. Hold, release slowly, then the other side.",
@@ -194,7 +194,7 @@ const additions: Addition[] = [
       fingerprint: fp({ isolation: true, unilateral: true }), task: task(),
       targeting: tgt({ forceVector: "self", momentArm: "focused", unilateral: true }),
       studyKey: null,
-      anatomy: { neckFlexors: "Same-side sternocleidomastoid and scalenes", neckExtensors: "Same-side splenius and semispinalis", traps: "Upper trapezius" }, stabilizers: [],
+      anatomy: { neckFlexors: "Same-side sternocleidomastoid and scalenes", neckExtensors: "Same-side splenius and semispinalis" }, stabilizers: [],
     },
   },
   {
@@ -233,7 +233,7 @@ const additions: Addition[] = [
     },
   },
   {
-    exercise: { id: 410, name: "Dumbbell Forearm Supination", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Forearm supination", primaryMuscles: ["forearms"], secondaryMuscles: ["biceps"], qualities: ["hypertrophy", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
+    exercise: { id: 410, name: "Dumbbell Forearm Supination", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Forearm supination", primaryMuscles: ["forearms", "biceps"], secondaryMuscles: [], qualities: ["hypertrophy", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
     descriptor: {
       id: 410, candidate: "E10", requestedName: "Dumbbell Forearm Supination",
       setup: "Same support as pronation: forearm on a bench or thigh, elbow at about a right angle, holding one end of a dumbbell. Turn the palm up from palm-down or neutral.",
@@ -245,7 +245,7 @@ const additions: Addition[] = [
       fingerprint: fp({ freeWeight: true, isolation: true, unilateral: true }), task: task(),
       targeting: tgt({ momentArm: "focused", unilateral: true }),
       studyKey: "free-weight-modality",
-      anatomy: { forearms: "Supinator", biceps: "Biceps brachii (a supinator with the elbow bent)" }, stabilizers: [],
+      anatomy: { forearms: "Supinator", biceps: "Biceps brachii: a main supinator with the elbow bent, its share rising with load" }, stabilizers: [],
     },
   },
   {
@@ -316,7 +316,7 @@ const additions: Addition[] = [
     exercise: { id: 415, name: "Barbell Finger Curl", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Barbell", movement: "Finger flexion", primaryMuscles: ["forearms"], secondaryMuscles: [], qualities: ["grip", "endurance", "hypertrophy"], muscleGrade: "A", sportFit: fit(CRUSH) },
     descriptor: {
       id: 415, candidate: "E15", requestedName: "Finger Curl",
-      setup: "Seated, forearms on the thighs, holding a barbell palms up. Open the fingers so the bar rolls down to the last finger joints, then close the hand to roll it back up.",
+      setup: "Seated, forearms on the thighs, holding a barbell palms up. Open the fingers so the bar rolls down to the last finger joints, then close the hand fully to roll it back up; the wrist stays where it is.",
       entryNote: "Weight is the whole bar with its plates.",
       aliases: ["finger curl", "finger curls", "barbell finger roll", "finger roll"],
       distinctFrom: "The fingers move, not the wrist: kept apart from the wrist curl, and the barbell is the one implement this record means.",
@@ -341,7 +341,7 @@ const additions: Addition[] = [
       fingerprint: fp({ isolation: true, unilateral: true }), task: task({ gripTask: true, specialistEquipment: true }),
       targeting: tgt({ forceVector: "band", momentArm: "focused", unilateral: true }),
       studyKey: null,
-      anatomy: { forearms: "Flexor digitorum superficialis and profundus, thenar muscles" }, stabilizers: [],
+      anatomy: { forearms: "Flexor digitorum superficialis and profundus, flexor pollicis longus (the thenar muscles also work but sit in the hand)" }, stabilizers: [],
     },
   },
   {
@@ -357,7 +357,7 @@ const additions: Addition[] = [
       fingerprint: fp({ isolation: true, unilateral: true }), task: task(),
       targeting: tgt({ forceVector: "band", momentArm: "focused", unilateral: true }),
       studyKey: null,
-      anatomy: { forearms: "Extensor digitorum, extensor pollicis longus and brevis" }, stabilizers: [],
+      anatomy: { forearms: "Extensor digitorum, extensor pollicis longus and brevis, abductor pollicis longus" }, stabilizers: [],
     },
   },
   {
@@ -373,7 +373,7 @@ const additions: Addition[] = [
       fingerprint: fp({ freeWeight: true, isolation: true, unilateral: true }), task: task({ gripTask: true, specialistEquipment: true }),
       targeting: tgt({ momentArm: "focused", unilateral: true }),
       studyKey: null,
-      anatomy: { forearms: "Thumb flexors and adductor pollicis, finger flexors" }, stabilizers: [],
+      anatomy: { forearms: "Flexor pollicis longus, finger flexors (the thenar muscles also work but sit in the hand)" }, stabilizers: [],
     },
   },
 
@@ -528,7 +528,7 @@ const additions: Addition[] = [
     exercise: { id: 428, name: "Seated Back Extension Machine", sourceGroup: MACHINE_GROUP, category: "Posterior chain", equipment: "Machine", movement: "Trunk extension", primaryMuscles: ["lowerBack"], secondaryMuscles: ["glutes", "hamstrings"], qualities: ["strength", "endurance", "posture"], muscleGrade: "A", sportFit: fit(TRUNK_EXT) },
     descriptor: {
       id: 428, candidate: "E28", requestedName: "Seated Back Extension Machine",
-      setup: "Seated in a selectorized back-extension machine with the pad across the upper back and the thighs and hips held by the restraints. Extend the trunk back against the pad, then return.",
+      setup: "Seated in a selectorized back-extension machine with the pad across the upper back and the thighs and pelvis held by its restraints. Extend the trunk back against the pad, then return. How firmly the pelvis is held decides how much of the work is lumbar extension rather than hip extension.",
       entryNote: "Weight is the number on the stack. How much the hips move depends on the restraints, so keep the setup the same.",
       aliases: ["back extension machine", "seated back extension", "lumbar extension machine", "machine back extension"],
       distinctFrom: "Seated trunk extension with the pelvis held: not the 45-Degree Back Extension (200), which is mostly hip extension, and not a neck extension.",
@@ -603,12 +603,13 @@ const additions: Addition[] = [
       resistance: notEstablished("No source measured a curve for it"),
       fingerprint: fp({ freeWeight: true, strengthPattern: true, axialPattern: true, rackCost: true }), task: task({ gripTask: true, axialTask: true }),
       targeting: tgt({ broadMoment: true, momentArm: "compound" }),
-      studyKey: "free-weight-modality",
+      studyKey: "trap-bar-deadlift",
+      studyQualification: "None of these studies reported handle height, so nothing here is specific to high or low handles.",
       anatomy: { quads: "Quadriceps", glutes: "Gluteus maximus", hamstrings: "Hamstrings", lowerBack: "Erector spinae", traps: "Upper trapezius (isometric)", forearms: "Finger flexors (grip)" }, stabilizers: ["lowerBack"],
     },
   },
   {
-    exercise: { id: 433, name: "Sumo Deadlift", sourceGroup: LOWER_GROUP, category: "Posterior chain", equipment: "Barbell", movement: "Hip hinge", primaryMuscles: ["glutes", "quads", "adductors"], secondaryMuscles: ["hamstrings", "lowerBack", "traps", "forearms"], qualities: ["strength", "grip"], muscleGrade: "S", sportFit: fit(HINGE) },
+    exercise: { id: 433, name: "Sumo Deadlift", sourceGroup: LOWER_GROUP, category: "Posterior chain", equipment: "Barbell", movement: "Hip hinge", primaryMuscles: ["glutes", "quads"], secondaryMuscles: ["adductors", "hamstrings", "lowerBack", "traps", "forearms"], qualities: ["strength", "grip"], muscleGrade: "S", sportFit: fit(HINGE) },
     descriptor: {
       id: 433, candidate: "E33", requestedName: "Sumo Deadlift",
       setup: "Feet set wide, toes out, the bar over mid-foot and the hands inside the knees. Push the floor apart and stand up with the bar; lower it to the floor each rep.",
@@ -619,8 +620,8 @@ const additions: Addition[] = [
       resistance: notEstablished("No source measured a curve for it"),
       fingerprint: fp({ freeWeight: true, strengthPattern: true, axialPattern: true, rackCost: true }), task: task({ gripTask: true, axialTask: true }),
       targeting: tgt({ broadMoment: true, momentArm: "compound" }),
-      studyKey: "free-weight-modality",
-      anatomy: { glutes: "Gluteus maximus", quads: "Vastus lateralis and medialis", adductors: "Adductor magnus", hamstrings: "Hamstrings", lowerBack: "Erector spinae", traps: "Upper trapezius (isometric)", forearms: "Finger flexors (grip)" }, stabilizers: ["lowerBack"],
+      studyKey: "sumo-deadlift",
+      anatomy: { glutes: "Gluteus maximus", quads: "Vastus lateralis and medialis", adductors: "Adductor magnus (a larger hip-adduction moment than the conventional pull, but not shown to be a primary force producer)", hamstrings: "Hamstrings", lowerBack: "Erector spinae", traps: "Upper trapezius (isometric)", forearms: "Finger flexors (grip)" }, stabilizers: ["lowerBack"],
     },
   },
   {
@@ -635,7 +636,7 @@ const additions: Addition[] = [
       resistance: notEstablished("No source measured a curve for it"),
       fingerprint: fp({ freeWeight: true, strengthPattern: true, axialPattern: true, rackCost: true }), task: task({ axialTask: true, specialistEquipment: true }),
       targeting: tgt({ broadMoment: true, momentArm: "compound" }),
-      studyKey: "free-weight-modality",
+      studyKey: "safety-bar-squat",
       anatomy: { quads: "Quadriceps", glutes: "Gluteus maximus", adductors: "Adductor magnus", upperBack: "Rhomboids, middle trapezius", lowerBack: "Erector spinae", abs: "Rectus abdominis" }, stabilizers: ["lowerBack", "abs"],
     },
   },
@@ -667,7 +668,7 @@ const additions: Addition[] = [
       resistance: { bias: "Lengthened", stickingRegion: "Deepest lean, where the knees are most bent", peakRegion: "The lever arm of the body about the knee grows as you lean back", curve: [] },
       fingerprint: fp({ freeWeight: true, isolation: true, deepRange: true }), task: task(),
       targeting: tgt({ eccentric: true, lengthened: true, momentArm: "focused", forceLength: "lengthened" }),
-      studyKey: null,
+      studyKey: "reverse-nordic",
       anatomy: { quads: "Rectus femoris, vasti", abs: "Rectus abdominis (holding the hips straight)" }, stabilizers: ["abs"],
     },
   },
@@ -700,7 +701,7 @@ const additions: Addition[] = [
       fingerprint: fp({ machine: true, isolation: true, unilateral: true }), task: task(),
       targeting: tgt({ forceVector: "guided", unilateral: true, momentArm: "focused" }),
       studyKey: "seated-leg-curl",
-      studyQualification: "The seated-versus-prone trial is the attached source; how far its finding applies to one-leg sets depends on the protocol details recorded in the evidence ledger.",
+      studyQualification: "That trial trained exactly this: one leg on the seated curl, the other on the prone curl, for 12 weeks (20 young adults without recent training, 5 × 10 at 70% of 1RM).",
       anatomy: { hamstrings: "Semitendinosus, semimembranosus, biceps femoris long and short heads", calves: "Gastrocnemius" }, stabilizers: [],
     },
   },
@@ -716,7 +717,7 @@ const additions: Addition[] = [
       resistance: notEstablished(MACHINE_CURVE),
       fingerprint: fp({ machine: true, isolation: true, unilateral: true }), task: task(),
       targeting: tgt({ forceVector: "guided", unilateral: true, momentArm: "focused" }),
-      studyKey: "machine-modality",
+      studyKey: "prone-leg-curl",
       anatomy: { hamstrings: "Semitendinosus, semimembranosus, biceps femoris long and short heads", calves: "Gastrocnemius" }, stabilizers: [],
     },
   },
@@ -739,19 +740,19 @@ const additions: Addition[] = [
 
   // E41-E50: carries, sandbag, sled and trunk.
   {
-    exercise: { id: 441, name: "Suitcase Carry", sourceGroup: CARRY_GROUP, category: "Conditioning", equipment: "Dumbbells", movement: "Loaded carry", primaryMuscles: ["obliques", "forearms"], secondaryMuscles: ["lowerBack", "abductors", "traps", "abs"], qualities: ["antiRotation", "bracing", "grip", "locomotion", "lateralControl"], muscleGrade: "S", sportFit: fit(CARRY) },
+    exercise: { id: 441, name: "Suitcase Carry", sourceGroup: CARRY_GROUP, category: "Conditioning", equipment: "Dumbbells", movement: "Loaded carry", primaryMuscles: ["obliques", "lowerBack"], secondaryMuscles: ["forearms", "lats", "abductors", "abs"], qualities: ["antiRotation", "bracing", "grip", "locomotion", "lateralControl"], muscleGrade: "S", sportFit: fit(CARRY) },
     descriptor: {
       id: 441, candidate: "E41", requestedName: "Suitcase Carry",
       setup: "One dumbbell in one hand at the side, walk tall without leaning toward or away from it. Switch hands and walk the same distance.",
-      entryNote: "Weight is the one dumbbell. Record the distance (or time) and the hand.",
+      entryNote: "Weight is the one dumbbell. Record the distance in metres and the hand.",
       aliases: ["suitcase carry", "single arm farmer carry", "one arm farmer walk", "suitcase walk", "offset carry"],
       distinctFrom: "One hand loaded: the trunk resists side-bending. Not the Farmer's Walk (299), and not the dynamic Dumbbell Side Bend (449).",
       movementPatterns: ["Carry", "Anti-movement bracing", "Locomotion"], jointActions: ["Trunk anti-lateral-flexion", "Hip stabilization", "Grip isometric"], forceDirection: "Gravity on one side; the trunk resists bending", chain: "Closed", stance: "Mixed",
       resistance: held("the load is held while walking"),
       fingerprint: fp({ freeWeight: true, unilateral: true }), task: task({ gripTask: true, axialTask: true, needsSpace: true }),
       targeting: tgt({ unilateral: true }),
-      studyKey: null,
-      anatomy: { obliques: "Opposite-side internal and external obliques", forearms: "Finger flexors (grip)", lowerBack: "Quadratus lumborum, erector spinae", abductors: "Gluteus medius", traps: "Upper trapezius", abs: "Rectus abdominis" }, stabilizers: ["lowerBack", "abductors", "abs"],
+      studyKey: "suitcase-carry",
+      anatomy: { obliques: "External oblique on the side opposite the load", lowerBack: "Longissimus, multifidus and quadratus lumborum on the side opposite the load", forearms: "Finger flexors (holding the dumbbell)", lats: "Latissimus dorsi on the loaded side", abductors: "Gluteus medius", abs: "Rectus abdominis" }, stabilizers: ["abductors", "abs"],
     },
   },
   {
@@ -759,7 +760,7 @@ const additions: Addition[] = [
     descriptor: {
       id: 442, candidate: "E42", requestedName: "Front-Rack Kettlebell Carry",
       setup: "Two kettlebells held in the front rack (bells resting on the forearms, hands at the chest), walk tall. This record is the two-bell carry; a single-bell front-rack carry is a different, offset exercise.",
-      entryNote: "Weight is one kettlebell (each hand). Record the distance or time.",
+      entryNote: "Weight is one kettlebell (each hand). Record the distance in metres.",
       aliases: ["double kettlebell front rack carry", "front rack carry", "kettlebell rack walk", "double kb rack carry"],
       distinctFrom: "Load in front of the trunk, not at the sides: not the Farmer's Walk (299) or the Zercher Carry (300).",
       movementPatterns: ["Carry", "Anti-movement bracing", "Locomotion"], jointActions: ["Trunk anti-extension", "Elbow flexion (isometric)", "Hip stabilization"], forceDirection: "Gravity in front of the trunk", chain: "Closed", stance: "Mixed",
@@ -775,7 +776,7 @@ const additions: Addition[] = [
     descriptor: {
       id: 443, candidate: "E43", requestedName: "Single-Arm Overhead Carry",
       setup: "One kettlebell locked out overhead, arm straight and biceps by the ear, walk tall. Switch arms and walk the same distance.",
-      entryNote: "Weight is the one kettlebell. Record the distance (or time) and the arm. There is no press repetition to estimate from it.",
+      entryNote: "Weight is the one kettlebell. Record the distance in metres and the arm. There is no press repetition to estimate from it.",
       aliases: ["single arm overhead carry", "overhead carry", "waiter carry", "waiters walk", "overhead kettlebell carry", "one arm overhead carry"],
       distinctFrom: "Held overhead and walked: not an overhead press, and no press estimate is made from it.",
       movementPatterns: ["Carry", "Anti-movement bracing", "Locomotion"], jointActions: ["Shoulder flexion (held overhead)", "Scapular upward rotation", "Trunk anti-lateral-flexion"], forceDirection: "Gravity overhead on one side", chain: "Closed", stance: "Mixed",
@@ -791,7 +792,7 @@ const additions: Addition[] = [
     descriptor: {
       id: 444, candidate: "E44", requestedName: "Sandbag Bear-Hug Carry",
       setup: "A sandbag hugged to the chest with the arms wrapped around it, walk upright.",
-      entryNote: "Weight is the sandbag. Record the distance or time.",
+      entryNote: "Weight is the sandbag. Record the distance in metres.",
       aliases: ["bear hug carry", "bear-hug carry", "sandbag carry", "sandbag hug carry", "bear hug sandbag walk"],
       distinctFrom: "A hug carry, not a bear crawl: it never takes the Crawling pattern because of the word 'bear'.",
       movementPatterns: ["Carry", "Anti-movement bracing", "Locomotion"], jointActions: ["Trunk anti-flexion", "Shoulder adduction (isometric)", "Elbow flexion (isometric)", "Hip stabilization"], forceDirection: "Gravity in front of the trunk", chain: "Closed", stance: "Mixed",
@@ -870,7 +871,7 @@ const additions: Addition[] = [
     exercise: { id: 449, name: "Dumbbell Side Bend", sourceGroup: CARRY_GROUP, category: "Core", equipment: "Dumbbells", movement: "Lateral flexion", primaryMuscles: ["obliques"], secondaryMuscles: ["lowerBack", "abs"], qualities: ["strength", "lateralControl", "unilateral"], muscleGrade: "A", sportFit: fit(SIDE_BEND) },
     descriptor: {
       id: 449, candidate: "E49", requestedName: "Dumbbell Side Bend",
-      setup: "Standing with one dumbbell in one hand at the side. Bend toward the dumbbell, then bend back to upright and slightly past; finish the reps, then switch hands.",
+      setup: "Standing with one dumbbell in one hand and the other hand on the hip. Bend sideways away from the dumbbell as far as you can, return through upright and let it lower toward the dumbbell side; finish the reps, then switch hands. The side opposite the dumbbell does the lifting.",
       entryNote: "Weight is the one dumbbell. Reps on one side make the set; record the side.",
       aliases: ["dumbbell side bend", "db side bend", "side bend", "standing side bend"],
       distinctFrom: "Dynamic side bends for reps: not the Suitcase Carry (441), which is a timed or distance hold.",

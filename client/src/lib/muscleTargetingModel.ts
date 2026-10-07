@@ -62,7 +62,9 @@ function directEvidenceNote(exercise: Exercise, muscle: string) {
     (calibration.key === "squat-pattern" && ["quads", "adductors", "glutes"].includes(muscle)) ||
     (calibration.key === "nordic-hamstring" && muscle === "hamstrings") ||
     (calibration.key === "leg-extension-rom" && muscle === "quads") ||
-    (calibration.key === "leg-press-rom" && muscle === "quads")
+    (calibration.key === "leg-press-rom" && muscle === "quads") ||
+    // Expansion: the prone arm of the same seated-versus-prone trial (Maeo 2021).
+    (calibration.key === "prone-leg-curl" && muscle === "hamstrings")
   );
   return matches ? calibration.summary : undefined;
 }

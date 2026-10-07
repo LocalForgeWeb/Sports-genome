@@ -23,9 +23,9 @@ const byName = (name: string) => { const found = exercises.find((exercise) => ex
 const named = (name: string, extra: Partial<Exercise> = {}): Exercise => ({ ...byId(139), id: 99_000, name, movement: "Test", category: "Test", equipment: "Free weights", qualities: [], ...extra });
 
 describe("hazard: Reverse Nordic does not inherit the Nordic hamstring study (brief §5)", () => {
-  it("carries no study, and its quadriceps get no direct-evidence floor", () => {
+  it("carries its own transfer study, never the hamstring one, and its quadriceps get no direct-evidence floor", () => {
     const reverse = byName("Reverse Nordic Curl");
-    expect(getExerciseStudyCalibration(reverse)).toBeNull();
+    expect(getExerciseStudyCalibration(reverse)).toMatchObject({ key: "reverse-nordic", kind: "Biomechanics or transfer" });
     const quads = buildExerciseGenome(reverse).muscleProfile.find((entry) => entry.muscle === "quads")!;
     expect(quads.targeting.evidenceTier).toBe("Conditional mechanics ranking");
     expect(quads.targeting.directEvidenceNote).toBeUndefined();
@@ -102,11 +102,15 @@ describe("hazard: the seated leg-curl study is matched by meaning, not word orde
     const curl = byName("Single-Leg Seated Leg Curl");
     const study = getExerciseStudyCalibration(curl)!;
     expect(study.key).toBe("seated-leg-curl");
-    expect(study.planningBoundary).toMatch(/one-leg sets/);
+    expect(study.planningBoundary).toMatch(/one leg on the seated curl, the other on the prone curl/);
     expect(buildMuscleTargetingEstimate(curl, "hamstrings", "Prime mover").score).toBeGreaterThanOrEqual(82);
     expect(getExerciseStudyCalibration(named("Leg Curl (Seated)"))?.key).toBe("seated-leg-curl");
-    // The lying curl is a different exercise and does not take the seated finding.
-    expect(getExerciseStudyCalibration(byName("Single-Leg Lying Leg Curl"))?.key).not.toBe("seated-leg-curl");
+    // The lying curl is the trial's other arm: its own record and floor, never the seated finding.
+    const lying = byName("Single-Leg Lying Leg Curl");
+    expect(getExerciseStudyCalibration(lying)?.key).toBe("prone-leg-curl");
+    expect(buildMuscleTargetingEstimate(lying, "hamstrings", "Prime mover").evidenceTier).toBe("Direct longitudinal exercise evidence");
+    // The original two-leg lying curl is untouched by the expansion's records.
+    expect(getExerciseStudyCalibration(byName("Lying Leg Curl"))?.key).toBe("free-weight-modality");
   });
 });
 

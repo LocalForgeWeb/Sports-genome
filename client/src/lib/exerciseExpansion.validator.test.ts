@@ -31,4 +31,10 @@ describe("the 50-exercise expansion validator (brief §9, §12)", () => {
       }
     }
   });
+
+  it("resolves \"incline bench machine\" to the existing incline machine press, not a new record", () => {
+    const top = rankExerciseMatches(exercises, "incline bench machine")[0]?.exercise;
+    expect(top?.name).toBe("Incline Machine Chest Press");
+    expect(top!.id).toBeLessThan(EXPANSION_FIRST_ID);
+  });
 });

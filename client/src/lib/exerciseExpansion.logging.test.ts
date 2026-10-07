@@ -7,6 +7,9 @@ import { setCountFieldFor, setEntryFieldsFor } from "./setEntryFields";
 import { workoutStrengthObservations } from "./workoutStrengthRecord";
 import { applySwap, swapMeasurementNotes } from "./workoutSwap";
 import { loadConventionFor } from "@shared/loadConventions";
+import { parseRoutine } from "@/components/StackImportPanel";
+import { buildShareSnapshot } from "./shareSnapshot";
+import { shareSnapshotText } from "@shared/workoutShareFormat";
 
 const byName = (name: string) => { const found = exercises.find((exercise) => exercise.name === name); if (!found) throw new Error(`no exercise ${name}`); return found; };
 const neckHold = byName("Isometric Neck Lateral Flexion");
@@ -130,5 +133,30 @@ describe("drop sets and swaps on a new exercise (brief §8)", () => {
       "The plan's target (4 × 5) is reps; Suitcase Carry is logged in distance covered, so set them as you go.",
     ]));
     expect(swapMeasurementNotes(byName("Isometric Neck Rotation"), neckHold, "3 × 20 s")).toEqual([]);
+  });
+});
+
+describe("sharing a plan that holds new exercises (brief §12 session fixtures)", () => {
+  const snapshot = buildShareSnapshot({
+    week: 1, sport: "Wrestling", goal: "Athleticism", activeIndex: 0,
+    days: [{ key: "3-Upper", index: 3, ordinal: "Day 04", label: "Upper", exercises: [
+      { exercise: neckHold, prescription: "4 × 20 s", prescriptionIsDefault: false },
+      { exercise: suitcase, prescription: "3 × 30 m", prescriptionIsDefault: false },
+      { exercise: assistedPullUp, prescription: "3 × 8", prescriptionIsDefault: false },
+    ] }],
+  }, { scope: "day", title: "Upper", includeNotes: false })!;
+  const text = shareSnapshotText(snapshot, "https://example.app/s/AbCdEfGhIjKlMnOpQrStUv");
+
+  it("reads back the same catalog ids with their time and distance prescriptions", () => {
+    const routine = parseRoutine(text, {});
+    expect(routine.unmatched).toEqual([]);
+    expect(routine.days[0].items.map((item) => [item.exercise.id, item.prescription])).toEqual([[neckHold.id, "4 × 20 s"], [suitcase.id, "3 × 30 m"], [assistedPullUp.id, "3 × 8"]]);
+    // The measurement belongs to the catalog id, so the imported rows log as a hold, a carry and an assisted set.
+    expect(routine.days[0].items.map((item) => setCountFieldFor(item.exercise).label)).toEqual(["Hold", "Distance", "Reps"]);
+  });
+
+  it("keeps a new exercise by name and prescription where the catalog does not hold it, as an older app would", () => {
+    const routine = parseRoutine(text.replace(suitcase.name, "One-Hand Farmer Carry Variant"), {});
+    expect(routine.days[0].unmatched).toEqual([expect.objectContaining({ name: "One-Hand Farmer Carry Variant", prescription: "3 × 30 m" })]);
   });
 });

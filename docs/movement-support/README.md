@@ -143,9 +143,9 @@ This list replaced three that disagreed. What changed as a result:
 - Named exercises, in record order: "hip thrust", "glute bridge", "Romanian deadlift", "cable anti-rotation".
 - Prime movers: gluteus maximus, hamstrings, erector spinae, obliquus externus abdominis (catalog keys: glutes, hamstrings, lowerBack, obliques).
 - Named exercises with no catalog match: none.
-- Counts: 15 movement-specific, 12 related pattern (27 movement matches); 104 muscle support, shown apart and not counted.
+- Counts: 17 movement-specific, 16 related pattern (33 movement matches); 120 muscle support, shown apart and not counted.
 
-#### Movement-specific (15)
+#### Movement-specific (17)
 
 | Id | Exercise | Pattern | Why it appears |
 |---:|---|---|---|
@@ -154,6 +154,7 @@ This list replaced three that disagreed. What changed as a result:
 | 208 | Dumbbell Hip Thrust | Hip extension | Named in the Bridge movement record: hip thrust |
 | 209 | Single-Leg Hip Thrust | Hip extension | Named in the Bridge movement record: hip thrust |
 | 360 | Cable Hip Thrust | Hip extension | Named in the Bridge movement record: hip thrust |
+| 430 | Hip Thrust Machine | Hip extension | Named in the Bridge movement record: hip thrust |
 | 210 | Glute Bridge | Hip extension | Named in the Bridge movement record: glute bridge |
 | 211 | Single-Leg Glute Bridge | Hip extension | Named in the Bridge movement record: glute bridge |
 | 42 | Romanian Deadlift | Hip hinge | Named in the Bridge movement record: Romanian deadlift |
@@ -163,9 +164,10 @@ This list replaced three that disagreed. What changed as a result:
 | 205 | B-Stance Romanian Deadlift | Hip hinge | Named in the Bridge movement record: Romanian deadlift |
 | 263 | Landmine Romanian Deadlift | Hip hinge | Named in the Bridge movement record: Romanian deadlift |
 | 264 | Landmine Single-Leg Romanian Deadlift | Hip hinge | Named in the Bridge movement record: Romanian deadlift |
+| 425 | Smith Machine Romanian Deadlift | Hip hinge | Named in the Bridge movement record: Romanian deadlift |
 | 380 | Cable Anti-Rotation Walkout | Anti-rotation | Named in the Bridge movement record: cable anti-rotation |
 
-#### Related pattern (12)
+#### Related pattern (16)
 
 | Id | Exercise | Pattern | Why it appears |
 |---:|---|---|---|
@@ -177,12 +179,16 @@ This list replaced three that disagreed. What changed as a result:
 | 201 | Reverse Hyperextension | Hip hinge | Same hip hinge pattern as Romanian Deadlift |
 | 202 | Cable Pull-Through | Hip hinge | Same hip hinge pattern as Romanian Deadlift |
 | 203 | Kettlebell Swing | Hip hinge | Same hip hinge pattern as Romanian Deadlift |
+| 431 | Zercher Deadlift | Hip hinge | Same hip hinge pattern as Romanian Deadlift |
 | 212 | Cable Glute Kickback | Hip extension | Same hip extension pattern as Barbell Hip Thrust |
 | 213 | Machine Glute Kickback | Hip extension | Same hip extension pattern as Barbell Hip Thrust |
 | 361 | Cable Quadruped Hip Extension | Hip extension | Same hip extension pattern as Barbell Hip Thrust |
 | 362 | Cable Donkey Kick | Hip extension | Same hip extension pattern as Barbell Hip Thrust |
+| 432 | Trap-Bar Deadlift | Hip hinge | Same hip hinge pattern as Romanian Deadlift |
+| 433 | Sumo Deadlift | Hip hinge | Same hip hinge pattern as Romanian Deadlift |
+| 450 | Half-Kneeling Cable Lift | Anti-rotation | Same anti-rotation pattern as Cable Anti-Rotation Walkout |
 
-<details><summary>Muscle support (104), shown collapsed and never counted as matches</summary>
+<details><summary>Muscle support (120), shown collapsed and never counted as matches</summary>
 
 | Id | Exercise | Why it appears |
 |---:|---|---|
@@ -267,6 +273,14 @@ This list replaced three that disagreed. What changed as a result:
 | 394 | Depth Drop to Stick | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
 | 395 | Drop Landing | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
 | 398 | Sled March | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
+| 422 | Belt Squat Machine | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
+| 423 | Horizontal Seated Leg Press | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
+| 424 | Smith Machine Bulgarian Split Squat | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
+| 426 | Smith Machine Reverse Lunge | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
+| 434 | Safety-Bar Squat | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
+| 435 | Loading-Pin Belt Squat | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
+| 437 | Dumbbell Lateral Lunge | Trains gluteus maximus, a prime mover in Bridge; not specific to the movement. |
+| 445 | Sandbag Ground-to-Shoulder | Trains gluteus maximus and hamstrings, prime movers in Bridge; not specific to the movement. |
 | 192 | Nordic Hamstring Curl | Trains hamstrings, a prime mover in Bridge; not specific to the movement. |
 | 193 | Assisted Nordic Curl | Trains hamstrings, a prime mover in Bridge; not specific to the movement. |
 | 194 | Lying Leg Curl | Trains hamstrings, a prime mover in Bridge; not specific to the movement. |
@@ -278,6 +292,10 @@ This list replaced three that disagreed. What changed as a result:
 | 366 | Cable Hamstring Curl | Trains hamstrings, a prime mover in Bridge; not specific to the movement. |
 | 367 | Cable Standing Leg Curl | Trains hamstrings, a prime mover in Bridge; not specific to the movement. |
 | 396 | Assisted Nordic Hamstring Curl | Trains hamstrings, a prime mover in Bridge; not specific to the movement. |
+| 438 | Single-Leg Seated Leg Curl | Trains hamstrings, a prime mover in Bridge; not specific to the movement. |
+| 439 | Single-Leg Lying Leg Curl | Trains hamstrings, a prime mover in Bridge; not specific to the movement. |
+| 428 | Seated Back Extension Machine | Trains erector spinae, a prime mover in Bridge; not specific to the movement. |
+| 441 | Suitcase Carry | Trains erector spinae and obliquus externus abdominis, prime movers in Bridge; not specific to the movement. |
 | 234 | Toes-to-Bar | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
 | 271 | Medicine-Ball Chest Pass | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
 | 273 | Medicine-Ball Overhead Slam | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
@@ -290,6 +308,10 @@ This list replaced three that disagreed. What changed as a result:
 | 378 | Cable Horizontal Chop | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
 | 379 | Cable Rotational Row | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
 | 397 | Side Plank Hip Adduction | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
+| 429 | Rotary Torso Machine | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
+| 443 | Single-Arm Kettlebell Overhead Carry | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
+| 448 | Cable Side Bend | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
+| 449 | Dumbbell Side Bend | Trains obliquus externus abdominis, a prime mover in Bridge; not specific to the movement. |
 
 </details>
 
@@ -299,13 +321,14 @@ This list replaced three that disagreed. What changed as a result:
 - Named exercises, in record order: "rear-foot-elevated split squat", "walking lunge", "sled push", "landmine press".
 - Prime movers: gluteus maximus, quadriceps, adductor magnus, soleus (catalog keys: glutes, quads, adductors, calves).
 - Named exercises with no catalog match: none.
-- Counts: 8 movement-specific, 10 related pattern (18 movement matches); 109 muscle support, shown apart and not counted.
+- Counts: 9 movement-specific, 11 related pattern (20 movement matches); 122 muscle support, shown apart and not counted.
 
-#### Movement-specific (8)
+#### Movement-specific (9)
 
 | Id | Exercise | Pattern | Why it appears |
 |---:|---|---|---|
 | 173 | Bulgarian Split Squat | Squat / knee dominant | Named in the Penetration step movement record: rear-foot-elevated split squat (the same exercise as the Bulgarian split squat) |
+| 424 | Smith Machine Bulgarian Split Squat | Unilateral knee dominant | Named in the Penetration step movement record: rear-foot-elevated split squat (the same exercise as the Bulgarian split squat) |
 | 177 | Walking Lunge | Unilateral knee dominant | Named in the Penetration step movement record: walking lunge |
 | 296 | Heavy Sled Push | Resisted locomotion / push | Named in the Penetration step movement record: sled push |
 | 251 | Landmine Press | Horizontal push | Named in the Penetration step movement record: landmine press |
@@ -314,22 +337,23 @@ This list replaced three that disagreed. What changed as a result:
 | 381 | Alternating Landmine Press | Diagonal push | Named in the Penetration step movement record: landmine press |
 | 382 | Tall-Kneeling Landmine Press | Diagonal push | Named in the Penetration step movement record: landmine press |
 
-#### Related pattern (10)
+#### Related pattern (11)
 
 | Id | Exercise | Pattern | Why it appears |
 |---:|---|---|---|
-| 175 | Reverse Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
-| 176 | Forward Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
-| 178 | Deficit Reverse Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
-| 179 | Step-Up | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
-| 180 | Peterson Step-Up | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
-| 184 | Pistol Squat | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
-| 185 | Assisted Pistol Squat | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
-| 261 | Landmine Reverse Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
-| 262 | Landmine Lateral Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Walking Lunge |
+| 175 | Reverse Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
+| 176 | Forward Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
+| 178 | Deficit Reverse Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
+| 179 | Step-Up | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
+| 180 | Peterson Step-Up | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
+| 184 | Pistol Squat | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
+| 185 | Assisted Pistol Squat | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
+| 261 | Landmine Reverse Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
+| 262 | Landmine Lateral Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
 | 298 | Sled Sprint | Resisted locomotion / push | Same resisted locomotion / push pattern as Heavy Sled Push |
+| 426 | Smith Machine Reverse Lunge | Unilateral knee dominant | Same unilateral knee dominant pattern as Smith Machine Bulgarian Split Squat |
 
-<details><summary>Muscle support (109), shown collapsed and never counted as matches</summary>
+<details><summary>Muscle support (122), shown collapsed and never counted as matches</summary>
 
 | Id | Exercise | Why it appears |
 |---:|---|---|
@@ -427,9 +451,22 @@ This list replaced three that disagreed. What changed as a result:
 | 394 | Depth Drop to Stick | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
 | 395 | Drop Landing | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
 | 398 | Sled March | Trains gluteus maximus, quadriceps and soleus, prime movers in Penetration step; not specific to the movement. |
+| 422 | Belt Squat Machine | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
+| 423 | Horizontal Seated Leg Press | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
+| 425 | Smith Machine Romanian Deadlift | Trains gluteus maximus, a prime mover in Penetration step; not specific to the movement. |
+| 430 | Hip Thrust Machine | Trains gluteus maximus, a prime mover in Penetration step; not specific to the movement. |
+| 431 | Zercher Deadlift | Trains gluteus maximus, a prime mover in Penetration step; not specific to the movement. |
+| 432 | Trap-Bar Deadlift | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
+| 433 | Sumo Deadlift | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
+| 434 | Safety-Bar Squat | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
+| 435 | Loading-Pin Belt Squat | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
+| 437 | Dumbbell Lateral Lunge | Trains gluteus maximus, quadriceps and adductor magnus, prime movers in Penetration step; not specific to the movement. |
+| 445 | Sandbag Ground-to-Shoulder | Trains gluteus maximus and quadriceps, prime movers in Penetration step; not specific to the movement. |
 | 171 | Leg Extension | Trains quadriceps, a prime mover in Penetration step; not specific to the movement. |
 | 368 | Cable Leg Extension | Trains quadriceps, a prime mover in Penetration step; not specific to the movement. |
 | 375 | Cable Standing Knee Drive | Trains quadriceps, a prime mover in Penetration step; not specific to the movement. |
+| 436 | Reverse Nordic Curl | Trains quadriceps, a prime mover in Penetration step; not specific to the movement. |
+| 446 | Backward Overhead Sled Drag | Trains quadriceps, a prime mover in Penetration step; not specific to the movement. |
 | 217 | Copenhagen Plank | Trains adductor magnus, a prime mover in Penetration step; not specific to the movement. |
 | 218 | Cable Hip Adduction | Trains adductor magnus, a prime mover in Penetration step; not specific to the movement. |
 | 219 | Hip Adduction Machine | Trains adductor magnus, a prime mover in Penetration step; not specific to the movement. |
@@ -450,13 +487,14 @@ This list replaced three that disagreed. What changed as a result:
 - Record: moderate confidence, 3 sources.
 - Named exercises, in record order: "medicine-ball rotational throw", "cable lift", "landmine press", "one-arm cable row".
 - Prime movers: gluteus maximus, internal oblique, external oblique, pectoralis major, subscapularis (catalog keys: glutes, obliques, chest, rotatorCuff).
-- Named exercises with no catalog match: "medicine-ball rotational throw", "cable lift".
-- Counts: 6 movement-specific, 6 related pattern (12 movement matches); 185 muscle support, shown apart and not counted.
+- Named exercises with no catalog match: "medicine-ball rotational throw".
+- Counts: 7 movement-specific, 7 related pattern (14 movement matches); 203 muscle support, shown apart and not counted.
 
-#### Movement-specific (6)
+#### Movement-specific (7)
 
 | Id | Exercise | Pattern | Why it appears |
 |---:|---|---|---|
+| 450 | Half-Kneeling Cable Lift | Anti-rotation | Named in the Overhand throwing movement record: cable lift |
 | 251 | Landmine Press | Horizontal push | Named in the Overhand throwing movement record: landmine press |
 | 252 | Half-Kneeling Landmine Press | Horizontal push | Named in the Overhand throwing movement record: landmine press |
 | 253 | Single-Arm Standing Landmine Press | Horizontal push | Named in the Overhand throwing movement record: landmine press |
@@ -464,10 +502,11 @@ This list replaced three that disagreed. What changed as a result:
 | 382 | Tall-Kneeling Landmine Press | Diagonal push | Named in the Overhand throwing movement record: landmine press |
 | 56 | Single-Arm Cable Row | Horizontal pull | Named in the Overhand throwing movement record: one-arm cable row (the same exercise as the single-arm cable row) |
 
-#### Related pattern (6)
+#### Related pattern (7)
 
 | Id | Exercise | Pattern | Why it appears |
 |---:|---|---|---|
+| 380 | Cable Anti-Rotation Walkout | Anti-rotation | Same anti-rotation pattern as Half-Kneeling Cable Lift |
 | 305 | Cable Incline Press | Diagonal push | Same diagonal push pattern as Alternating Landmine Press |
 | 306 | Cable Decline Press | Diagonal push | Same diagonal push pattern as Alternating Landmine Press |
 | 312 | Cable Incline Fly | Diagonal push | Same diagonal push pattern as Alternating Landmine Press |
@@ -475,7 +514,7 @@ This list replaced three that disagreed. What changed as a result:
 | 323 | Cable Standing Punch | Diagonal push | Same diagonal push pattern as Alternating Landmine Press |
 | 324 | Cable Incline Press-Around | Diagonal push | Same diagonal push pattern as Alternating Landmine Press |
 
-<details><summary>Muscle support (185), shown collapsed and never counted as matches</summary>
+<details><summary>Muscle support (203), shown collapsed and never counted as matches</summary>
 
 | Id | Exercise | Why it appears |
 |---:|---|---|
@@ -586,6 +625,19 @@ This list replaced three that disagreed. What changed as a result:
 | 394 | Depth Drop to Stick | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
 | 395 | Drop Landing | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
 | 398 | Sled March | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 422 | Belt Squat Machine | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 423 | Horizontal Seated Leg Press | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 424 | Smith Machine Bulgarian Split Squat | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 425 | Smith Machine Romanian Deadlift | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 426 | Smith Machine Reverse Lunge | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 430 | Hip Thrust Machine | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 431 | Zercher Deadlift | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 432 | Trap-Bar Deadlift | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 433 | Sumo Deadlift | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 434 | Safety-Bar Squat | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 435 | Loading-Pin Belt Squat | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 437 | Dumbbell Lateral Lunge | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
+| 445 | Sandbag Ground-to-Shoulder | Trains gluteus maximus, a prime mover in Overhand throwing; not specific to the movement. |
 | 234 | Toes-to-Bar | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
 | 271 | Medicine-Ball Chest Pass | Trains internal oblique, external oblique and pectoralis major, prime movers in Overhand throwing; not specific to the movement. |
 | 273 | Medicine-Ball Overhead Slam | Trains internal oblique, external oblique and pectoralis major, prime movers in Overhand throwing; not specific to the movement. |
@@ -597,8 +649,12 @@ This list replaced three that disagreed. What changed as a result:
 | 377 | Cable Reverse Chop | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
 | 378 | Cable Horizontal Chop | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
 | 379 | Cable Rotational Row | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
-| 380 | Cable Anti-Rotation Walkout | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
 | 397 | Side Plank Hip Adduction | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
+| 429 | Rotary Torso Machine | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
+| 441 | Suitcase Carry | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
+| 443 | Single-Arm Kettlebell Overhead Carry | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
+| 448 | Cable Side Bend | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
+| 449 | Dumbbell Side Bend | Trains internal oblique and external oblique, prime movers in Overhand throwing; not specific to the movement. |
 | 1 | Barbell Bench Press | Trains pectoralis major, a prime mover in Overhand throwing; not specific to the movement. |
 | 2 | Incline Barbell Bench Press | Trains pectoralis major, a prime mover in Overhand throwing; not specific to the movement. |
 | 3 | Decline Barbell Bench Press | Trains pectoralis major, a prime mover in Overhand throwing; not specific to the movement. |
@@ -661,6 +717,7 @@ This list replaced three that disagreed. What changed as a result:
 | 311 | Single-Arm Cable Fly | Trains pectoralis major, a prime mover in Overhand throwing; not specific to the movement. |
 | 321 | Cable 90/90 Internal Rotation | Trains pectoralis major, a prime mover in Overhand throwing; not specific to the movement. |
 | 325 | Cable Front-Foot-Elevated Press | Trains pectoralis major, a prime mover in Overhand throwing; not specific to the movement. |
+| 420 | Assisted Dip Machine | Trains pectoralis major, a prime mover in Overhand throwing; not specific to the movement. |
 | 315 | Cable Y Raise | Trains subscapularis, a prime mover in Overhand throwing; not specific to the movement. |
 | 319 | Cable Cuban Rotation | Trains subscapularis, a prime mover in Overhand throwing; not specific to the movement. |
 | 320 | Cable 90/90 External Rotation | Trains subscapularis, a prime mover in Overhand throwing; not specific to the movement. |
@@ -669,7 +726,7 @@ This list replaced three that disagreed. What changed as a result:
 
 ## Coverage across all movements
 
-425 sport movements. 386 have at least one movement-specific match; 14 have an enriched record that names nothing in the catalog; 25 have no enriched record. The last two show "Movement-specific matches aren't available yet".
+425 sport movements. 387 have at least one movement-specific match; 13 have an enriched record that names nothing in the catalog; 25 have no enriched record. The last two show "Movement-specific matches aren't available yet".
 
 | Sport | Movements | With movement-specific matches | Record names nothing in the catalog | No enriched record |
 |---|---:|---:|---:|---:|
@@ -691,10 +748,10 @@ This list replaced three that disagreed. What changed as a result:
 | Golf | 21 | 20 | 0 | 1 |
 | Gymnastics | 20 | 18 | 2 | 0 |
 | Rowing | 21 | 20 | 0 | 1 |
-| Skiing | 21 | 18 | 2 | 1 |
+| Skiing | 21 | 19 | 1 | 1 |
 | Olympic weightlifting | 21 | 19 | 1 | 1 |
 
-Movement-specific matches per movement that has any: median 4, range 1 to 36.
+Movement-specific matches per movement that has any: median 5, range 1 to 37.
 
 Record names nothing in the catalog:
 
@@ -710,7 +767,6 @@ Record names nothing in the catalog:
 - Gymnastics · V-sit (`gymnastics-10`): "L-sit hold", "seated leg lift", "compression lift", "parallel-bar support hold"
 - Gymnastics · Press-to-handstand (`gymnastics-15`): "pike press", "seated leg lift", "wall handstand hold", "negative handstand press"
 - Skiing · Mogul absorption (`skiing-7`): "step-downs", "split-squat isometrics", "snap-downs", "loaded carries"
-- Skiing · Downhill stabilization (`skiing-16`): "isometric squat holds", "split-squat isometrics", "single-leg balance", "suitcase carries"
 - Olympic weightlifting · Second pull (`olympic-weightlifting-2`): "clean pull", "snatch pull", "hang clean", "jump shrug"
 
 No enriched record:
@@ -743,25 +799,21 @@ No enriched record:
 
 ## Named exercises that resolve to nothing
 
-208 distinct phrases (after normalizing) that movement records name and no catalog exercise contains. They are listed for the owner to review: each is either an exercise the catalog lacks, or a name the catalog writes differently that could earn an entry in the synonym list. The last column lists catalog names that contain every word of the phrase (words of three letters or more). It is a review aid only; these exercises are **not** matched.
+200 distinct phrases (after normalizing) that movement records name and no catalog exercise contains. They are listed for the owner to review: each is either an exercise the catalog lacks, or a name the catalog writes differently that could earn an entry in the synonym list. The last column lists catalog names that contain every word of the phrase (words of three letters or more). It is a review aid only; these exercises are **not** matched.
 
 | Phrase (as first written) | Movements | Movement ids | Catalog names containing every word (not matched) |
 |---|---:|---|---|
 | medicine-ball rotational throw | 57 | american-football-16, soccer-10, soccer-19, baseball-1, baseball-2, baseball-4 and 51 more | Medicine-Ball Rotational Wall Throw (276) |
-| suitcase carry | 27 | wrestling-3, wrestling-14, wrestling-16, wrestling-18, wrestling-20, american-football-9 and 21 more |  |
 | cable chop | 21 | wrestling-10, baseball-1, swimming-4, swimming-14, swimming-17, volleyball-4 and 15 more | Cable Wood Chop (250); Cable Reverse Chop (377); Cable Horizontal Chop (378) |
 | single-leg squat-to-stick | 17 | american-football-5, american-football-9, american-football-11, american-football-12, american-football-13, american-football-18 and 11 more |  |
 | front plank | 16 | american-football-7, soccer-12, soccer-13, soccer-20, track-and-field-6, track-and-field-11 and 10 more |  |
 | countermovement jump | 15 | american-football-14, basketball-6, basketball-8, baseball-12, track-and-field-10, volleyball-1 and 9 more |  |
 | split-squat isometric | 15 | basketball-10, basketball-15, basketball-17, soccer-15, baseball-10, baseball-14 and 9 more |  |
-| bear-hug carry | 12 | wrestling-2, wrestling-11, wrestling-12, american-football-10, american-football-20, mma-6 and 6 more |  |
 | cable rotation | 11 | soccer-6, soccer-7, soccer-8, soccer-9, soccer-10, soccer-17 and 5 more | Cable Cuban Rotation (319); Cable 90/90 External Rotation (320); Cable 90/90 Internal Rotation (321); Cable Anti-Rotation Walkout (380) |
 | resisted sprint | 11 | american-football-1, american-football-6, american-football-13, american-football-19, volleyball-19, lacrosse-7 and 5 more |  |
 | single-leg balance | 10 | basketball-11, baseball-16, baseball-18, boxing-8, boxing-10, boxing-13 and 4 more |  |
 | chest-supported row | 9 | wrestling-15, wrestling-16, swimming-7, golf-4, golf-12, rowing-4 and 3 more | Chest-Supported Dumbbell Row (47); Chest-Supported T-Bar Row (51); Chest-Supported Cable Row (330); Chest-Supported Landmine Row (383) |
 | clean pull | 9 | mma-12, olympic-weightlifting-1, olympic-weightlifting-2, olympic-weightlifting-3, olympic-weightlifting-4, olympic-weightlifting-6 and 3 more |  |
-| cable lift | 8 | wrestling-20, baseball-4, baseball-17, volleyball-18, boxing-5, boxing-6 and 2 more |  |
-| overhead carry | 8 | american-football-17, swimming-11, swimming-15, swimming-18, volleyball-16, boxing-12 and 2 more |  |
 | overhead squat | 8 | olympic-weightlifting-5, olympic-weightlifting-7, olympic-weightlifting-8, olympic-weightlifting-9, olympic-weightlifting-11, olympic-weightlifting-13 and 2 more |  |
 | single-leg squat | 8 | american-football-3, american-football-4, basketball-3, soccer-18, ice-hockey-2, ice-hockey-4 and 2 more |  |
 | snap-down | 8 | american-football-12, volleyball-15, lacrosse-19, lacrosse-20, gymnastics-16, gymnastics-18 and 2 more |  |
@@ -769,7 +821,6 @@ No enriched record:
 | serratus wall slide | 7 | swimming-11, swimming-18, swimming-20, volleyball-3, volleyball-7, volleyball-16 and 1 more |  |
 | snatch pull | 7 | olympic-weightlifting-2, olympic-weightlifting-3, olympic-weightlifting-5, olympic-weightlifting-8, olympic-weightlifting-9, olympic-weightlifting-11 and 1 more |  |
 | split-stance cable press | 7 | basketball-11, baseball-1, baseball-2, baseball-13, baseball-15, tennis-2 and 1 more | Split-Stance Cable Chest Press (302) |
-| trap-bar deadlift | 7 | wrestling-2, wrestling-11, wrestling-12, brazilian-jiu-jitsu-13, lacrosse-11, rowing-16 and 1 more |  |
 | reverse sled drag | 6 | soccer-16, lacrosse-14, rugby-3, rugby-6, rugby-19, skiing-18 |  |
 | single-arm cable press | 6 | american-football-15, american-football-16, american-football-17, ice-hockey-9, ice-hockey-10, ice-hockey-13 | Single-Arm Cable Chest Press (17); Single-Arm Cable Floor Press (308) |
 | trap bar jump | 6 | american-football-6, american-football-14, basketball-8, basketball-9, swimming-15, rugby-10 |  |
@@ -802,7 +853,6 @@ No enriched record:
 | wall handstand hold | 3 | gymnastics-1, gymnastics-2, gymnastics-15 |  |
 | adductor ball squeeze | 2 | brazilian-jiu-jitsu-5, brazilian-jiu-jitsu-8 |  |
 | approach jump | 2 | basketball-7, volleyball-5 |  |
-| assisted pull-up | 2 | swimming-2, swimming-5 |  |
 | band internal rotation | 2 | swimming-19, boxing-11 |  |
 | Bear-crawl transitions | 2 | volleyball-10, volleyball-11 |  |
 | belt-squat hold | 2 | basketball-10, rugby-9 |  |
@@ -814,7 +864,6 @@ No enriched record:
 | external-rotation cable work | 2 | baseball-3, baseball-19 |  |
 | front-loaded carry | 2 | brazilian-jiu-jitsu-14, skiing-14 |  |
 | Goblet squat holds | 2 | volleyball-6, volleyball-12 |  |
-| Half-kneeling cable lift | 2 | golf-1, golf-16 |  |
 | half-kneeling cable pulldown | 2 | swimming-1, swimming-2 |  |
 | half-kneeling cable punch | 2 | mma-7, mma-16 |  |
 | half-kneeling get-up | 2 | ice-hockey-19, ice-hockey-20 |  |
@@ -888,7 +937,7 @@ No enriched record:
 | Eccentric squat | 1 | lacrosse-14 |  |
 | fly sprint | 1 | american-football-2 |  |
 | front lever tuck hold | 1 | gymnastics-4 |  |
-| front-rack carry | 1 | basketball-17 |  |
+| front-rack carry | 1 | basketball-17 | Front-Rack Kettlebell Carry (442) |
 | front-rack hold | 1 | mma-16 |  |
 | Half-kneeling cable hold | 1 | golf-9 |  |
 | half-kneeling cable row | 1 | wrestling-16 |  |
@@ -922,8 +971,7 @@ No enriched record:
 | reaction-step drill | 1 | baseball-8 |  |
 | rotational sandbag lift | 1 | mma-11 |  |
 | Rower steady-state | 1 | rowing-19 |  |
-| sandbag bear-hug carry | 1 | rugby-8 |  |
-| sandbag carry | 1 | brazilian-jiu-jitsu-16 |  |
+| sandbag carry | 1 | brazilian-jiu-jitsu-16 | Sandbag Bear-Hug Carry (444) |
 | Sandbag clean | 1 | golf-17 |  |
 | sandbag lift | 1 | rugby-11 |  |
 | sandbag shouldering | 1 | mma-12 |  |
@@ -962,7 +1010,7 @@ No enriched record:
 
 | Record phrase | Catalog name | Why it is the same exercise | Catalog exercises it reaches |
 |---|---|---|---|
-| rear-foot-elevated split squat | Bulgarian split squat | A Bulgarian split squat is the split squat with the rear foot raised on a bench; the two names describe one exercise. | Bulgarian Split Squat (173) |
+| rear-foot-elevated split squat | Bulgarian split squat | A Bulgarian split squat is the split squat with the rear foot raised on a bench; the two names describe one exercise. | Bulgarian Split Squat (173); Smith Machine Bulgarian Split Squat (424) |
 | farmer carry | farmer's walk | Farmer's carry and farmer's walk are two names for one exercise: a heavy weight in each hand, walked for distance. | Farmer’s Walk (299) |
 | one-arm cable row | single-arm cable row | One-arm and single-arm mean the same thing; it is one unilateral cable row. | Single-Arm Cable Row (56) |
 | single-leg RDL | single-leg Romanian deadlift | RDL is the standard abbreviation of Romanian deadlift. | Single-Leg Romanian Deadlift (188); Landmine Single-Leg Romanian Deadlift (264) |
@@ -982,20 +1030,23 @@ Catalog exercises whose name contains a phrase a record names but which are a di
 | split squat | Split-Squat Jump (294) | A split-squat jump is a plyometric jump from the split stance, not the loaded split squat. | 100 |
 | cable press | Cable Press-Out (310) | A cable press-out is an anti-rotation press for the trunk, like the Pallof press, not a cable chest or shoulder press. | 7 |
 | plank | Side Plank Hip Adduction (397) | A side plank with hip adduction works the adductors from a side plank, in the manner of a Copenhagen plank; it is not the plank named. | 1 |
+| pull-up | Assisted Pull-Up Machine (421) | An assisted pull-up machine takes part of the body weight on a counterweight; it is a regression of the pull-up, not the unassisted pull-up named. | 3 |
+| sled drag | Backward Overhead Sled Drag (446) | The overhead backward sled drag holds the arms overhead the whole way; it is a specific variation, not the sled drag named. | 5 |
+| back extension | Seated Back Extension Machine (428) | A seated back-extension machine extends the trunk with the hips held; the back extension named is the bench version, which is mostly hip extension. | 3 |
 
 ### Broad patterns
 
 | Catalog pattern | Exercises |
 |---|---:|
 | Horizontal push | 64 |
-| Horizontal pull | 31 |
-| Vertical pull | 26 |
+| Horizontal pull | 32 |
+| Vertical pull | 27 |
 | Elbow flexion | 25 |
 | Trunk flexion / anti-extension | 19 |
-| Squat / knee dominant | 19 |
+| Squat / knee dominant | 23 |
 | Elbow extension | 18 |
 
-The next largest pattern is "Hip hinge" (15), "Scapular control" (13), "Rotation" (13).
+The next largest pattern is "Hip hinge" (19), "Rotation" (14), "Scapular control" (13).
 
 ## Deficiencies noticed
 
@@ -1028,7 +1079,6 @@ The tiers read `movement` (pattern) and `primaryMuscles`, so these change result
 - 25 movements have no enriched record (listed under coverage).
 - 183 records keep a separate `recommendedExercisePatterns` list of pattern descriptions ("Hip-hinge power", "Sprint exposure"); the other 217 repeat `recommendedExercises` there. Only `recommendedExercises`, the named exercises, are matched.
 - Prime-mover entries the shared muscle list maps to no catalog muscle key, so they cannot relate any exercise (some are joint actions, some are muscles the catalog has no key for): "teres major" (9), "knee extension" (2), "ankle plantarflexion" (2), "deep hip rotators" (2), "deep hip rotator muscles", "hip rotation/flexion", "ankle stabilization", "hip extension/flexion and rotation", "hip/knee extension", "cervical flexion/extension control", "sartorius", "quadratus lumborum".
-- Prime-mover keys that no catalog exercise has as a primary muscle, so they never relate an exercise: `lowerBack` (a prime mover in 20 movements). Bridge's erector spinae is one: it maps to `lowerBack`, which the catalog only ever tags as a secondary muscle.
 
 ### Phrases the name rule stretches
 
@@ -1036,19 +1086,20 @@ A phrase matches every catalog name that contains it as whole words, so short or
 
 - "row" (5 movements) reaches 29: Barbell Bent-Over Row; Pendlay Row; Underhand Barbell Row; Dumbbell Row; Chest-Supported Dumbbell Row; Seal Row; Meadows Row; T-Bar Row; Chest-Supported T-Bar Row; Machine High Row; Machine Low Row; Seated Cable Row; Wide-Grip Cable Row; Single-Arm Cable Row; Inverted Row; Feet-Elevated Inverted Row; Ring Row; Landmine Row; Meadows Landmine Row; Landmine T-Bar Row; Cable Rear-Delt Row; Cable Single-Arm Bent-Over Row; Chest-Supported Cable Row; Low Cable Row; Rope Cable Row; Cable High Row; Cable Rotational Row; Chest-Supported Landmine Row; Offset Landmine Row.
 - "push-up" (7 movements) reaches 16: Standard Push-Up; Wide-Grip Push-Up; Diamond Push-Up; Decline Push-Up; Incline Push-Up; Archer Push-Up; Plyometric Push-Up; Clap Push-Up; Explosive Depth Push-Up; Deficit Push-Up; Ring Push-Up; Weighted Push-Up; Spiderman Push-Up; Typewriter Push-Up; Explosive Medicine-Ball Push-Up; Cable Resisted Push-Up.
-- "deadlifts" (3 movements) reaches 11: Conventional Deadlift; Romanian Deadlift; Romanian Deadlift; Stiff-Leg Deadlift; Single-Leg Romanian Deadlift; Dumbbell Romanian Deadlift; B-Stance Romanian Deadlift; Landmine Romanian Deadlift; Landmine Single-Leg Romanian Deadlift; Cable Deadlift; Cable Single-Leg Deadlift.
+- "deadlifts" (3 movements) reaches 15: Conventional Deadlift; Romanian Deadlift; Romanian Deadlift; Stiff-Leg Deadlift; Single-Leg Romanian Deadlift; Dumbbell Romanian Deadlift; B-Stance Romanian Deadlift; Landmine Romanian Deadlift; Landmine Single-Leg Romanian Deadlift; Cable Deadlift; Cable Single-Leg Deadlift; Smith Machine Romanian Deadlift; Zercher Deadlift; Trap-Bar Deadlift; Sumo Deadlift.
 - "bench press" (2 movements) reaches 10: Barbell Bench Press; Incline Barbell Bench Press; Decline Barbell Bench Press; Dumbbell Bench Press; Incline Dumbbell Bench Press; Decline Dumbbell Bench Press; Alternating Dumbbell Bench Press; Single-Arm Dumbbell Bench Press; Smith Machine Bench Press; Close-Grip Bench Press.
 - "pull-up" (3 movements) reaches 9: Pull-Up; Neutral-Grip Pull-Up; Wide-Grip Pull-Up; Weighted Pull-Up; Commando Pull-Up; Archer Pull-Up; L-Sit Pull-Up; Towel Pull-Up; Scapular Pull-Up.
-- "Romanian deadlift" (28 movements) reaches 7: Romanian Deadlift; Romanian Deadlift; Single-Leg Romanian Deadlift; Dumbbell Romanian Deadlift; B-Stance Romanian Deadlift; Landmine Romanian Deadlift; Landmine Single-Leg Romanian Deadlift.
+- "Romanian deadlift" (28 movements) reaches 8: Romanian Deadlift; Romanian Deadlift; Single-Leg Romanian Deadlift; Dumbbell Romanian Deadlift; B-Stance Romanian Deadlift; Landmine Romanian Deadlift; Landmine Single-Leg Romanian Deadlift; Smith Machine Romanian Deadlift.
 - "calf raise" (11 movements) reaches 7: Standing Calf Raise; Seated Calf Raise; Leg-Press Calf Raise; Single-Leg Calf Raise; Donkey Calf Raise; Smith Machine Calf Raise; Cable Calf Raise.
 - "lat pulldown" (8 movements) reaches 7: Lat Pulldown; Wide-Grip Lat Pulldown; Neutral-Grip Lat Pulldown; Underhand Lat Pulldown; Single-Arm Lat Pulldown; Kneeling Cable Lat Pulldown; Wide-Grip Cable Lat Pulldown.
 - "triceps extension" (3 movements) reaches 7: Overhead Cable Triceps Extension; Dumbbell Overhead Triceps Extension; Single-Arm Dumbbell Triceps Extension; Machine Triceps Extension; Bodyweight Triceps Extension; Cross-Body Cable Triceps Extension; Cable Overhead Triceps Extension.
+- "hip thrust" (17 movements) reaches 6: Barbell Hip Thrust; Smith Machine Hip Thrust; Dumbbell Hip Thrust; Single-Leg Hip Thrust; Cable Hip Thrust; Hip Thrust Machine.
 - "cable row" (18 movements) reaches 6: Seated Cable Row; Wide-Grip Cable Row; Single-Arm Cable Row; Chest-Supported Cable Row; Low Cable Row; Rope Cable Row.
 - "landmine press" (26 movements) reaches 5: Landmine Press; Half-Kneeling Landmine Press; Single-Arm Standing Landmine Press; Alternating Landmine Press; Tall-Kneeling Landmine Press.
 - "step-up" (8 movements) reaches 5: Step-Up; Peterson Step-Up; Explosive Step-Up; Cable Step-Up; Cable Lateral Step-Up.
-- "hip thrust" (17 movements) reaches 5: Barbell Hip Thrust; Smith Machine Hip Thrust; Dumbbell Hip Thrust; Single-Leg Hip Thrust; Cable Hip Thrust.
+- "reverse lunge" (12 movements) reaches 5: Reverse Lunge; Deficit Reverse Lunge; Landmine Reverse Lunge; Cable Reverse Lunge; Smith Machine Reverse Lunge.
 - "hamstring curl" (5 movements) reaches 5: Nordic Hamstring Curl; Stability-Ball Hamstring Curl; Slider Hamstring Curl; Cable Hamstring Curl; Assisted Nordic Hamstring Curl.
 
-Names containing a phrase that are a different exercise from the one named, and so are skipped by the name rule (Not the same exercise, under Reference lists): "leg press" in Leg-Press Calf Raise; "row" in Cable Upright Row; "push-up" in Handstand Push-Up; "split squat" in Split-Squat Jump; "cable press" in Cable Press-Out; "plank" in Side Plank Hip Adduction.
+Names containing a phrase that are a different exercise from the one named, and so are skipped by the name rule (Not the same exercise, under Reference lists): "leg press" in Leg-Press Calf Raise; "row" in Cable Upright Row; "push-up" in Handstand Push-Up; "split squat" in Split-Squat Jump; "cable press" in Cable Press-Out; "plank" in Side Plank Hip Adduction; "pull-up" in Assisted Pull-Up Machine; "sled drag" in Backward Overhead Sled Drag; "back extension" in Seated Back Extension Machine.
 
 <!-- generated:end -->
