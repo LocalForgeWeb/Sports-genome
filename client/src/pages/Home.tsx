@@ -22,7 +22,7 @@ import { GradeStamp } from "@/components/GradeStamp";
 import { MovementIntelligencePanel } from "@/components/MovementIntelligencePanel";
 import { StackImportPanel, type ImportedRoutine, type ImportedRoutineContext } from "@/components/StackImportPanel";
 import { draftDaysFromSnapshot, writeIncomingDay, type IncomingDraftDay } from "@/lib/planImport";
-import { pendingSharedSave, rememberSavedShare, savedShare, setPendingSharedSave } from "@/lib/shareLinks";
+import { pendingSharedSave, rememberSavedShare, savedShare, setPendingSharedSave, type PendingSharedSave } from "@/lib/shareLinks";
 import type { ShareSource } from "@/lib/shareSnapshot";
 import type { SaveOutcome, SaveRequest, SaveWeekOption } from "@/components/SaveToPlanDialog";
 import { SessionDraftPanel } from "@/components/SessionDraftPanel";
@@ -1421,14 +1421,22 @@ export default function Home() {
   /** A single day lands in this week; a week of days prefers a week with nothing planned, so the plan in use stays as it is. */
   const defaultSaveWeek = (scope: "day" | "week", options: SaveWeekOption[]) => scope === "day" ? activeWeek : (options.find((option) => !option.current && Object.values(option.dayCounts).every((count) => count === 0))?.week ?? activeWeek);
   const closePendingSave = () => { setPendingSave(null); setPendingSharedSave(null); };
+  /** A shared workout into the save dialog: from its link's page, or a link pasted into Import plan. */
+  const openSharedSave = (pending: PendingSharedSave) => {
+    const days = draftDaysFromSnapshot(pending.snapshot);
+    setPendingSave({ heading: "Save a copy", sourceTitle: pending.snapshot.title, sourceLine: countLine(days), attribution: pending.snapshot.attribution, days, scope: pending.snapshot.scope, shareToken: pending.token });
+  };
+  const addSharedFromImport = (pending: PendingSharedSave) => {
+    setImportOpen(false);
+    openSharedSave(pending);
+  };
   // "Save a copy" on a shared link hands its workout over for the length of the visit; it opens
   // here once the plan has been read - after onboarding, for someone new to the app.
   useEffect(() => {
     if (!onboardingComplete || !planHydrated || pendingSave) return;
     const pending = pendingSharedSave();
     if (!pending) return;
-    const days = draftDaysFromSnapshot(pending.snapshot);
-    setPendingSave({ heading: "Save a copy", sourceTitle: pending.snapshot.title, sourceLine: countLine(days), attribution: pending.snapshot.attribution, days, scope: pending.snapshot.scope, shareToken: pending.token });
+    openSharedSave(pending);
     navigateWorkspace("day-plan");
     // Opened once per hand-over; closing the dialog clears it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2288,7 +2296,7 @@ export default function Home() {
               {customWorkout.length > 1 && <button type="button" className="day-action-reorder" aria-pressed={reorderingDay} onClick={() => setReorderingDay((value) => !value)}><ArrowUpDown className="h-4 w-4" aria-hidden="true" /> {reorderingDay ? "Done reordering" : "Reorder"}</button>}
               <button type="button" className="day-action-share" onClick={openShare}><Share className="h-4 w-4" aria-hidden="true" /> Share</button>
               <button type="button" className="day-action-session" onClick={() => { if (!liveSession) chooseDayToTrain(activeSlot); navigateWorkspace("tracker"); }} disabled={!customWorkout.length}><Activity className="h-4 w-4" /> {liveSession ? `Resume ${liveSession.dayLabel.split(" · ").pop()} workout` : "Open workout"}</button>
-              <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan</button>
+              <button type="button" className="day-plan-link" onClick={() => setImportOpen(true)}><ClipboardPaste className="h-3.5 w-3.5" /> Import plan or link</button>
             </div>}
             {/* The optional profile prompt, as one quiet line after Add/Reorder/Open so it never
                 separates a workout from its actions, and only on a day with work in it (Sep 30 §8). */}
@@ -2447,7 +2455,7 @@ export default function Home() {
       </div>
     </div>}
     {tutorialOpen && <FeatureTour onClose={() => setTutorialOpen(false)} onNavigate={(view) => navigateWorkspace(view as Workspace)} />}
-    {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} />}
+    {importOpen && <StackImportPanel onClose={() => setImportOpen(false)} onImport={importRoutine} onAddShared={addSharedFromImport} />}
     {pendingSave && (() => { const weeks = saveWeekOptions(); return <Suspense fallback={null}><SaveToPlanDialog heading={pendingSave.heading} sourceTitle={pendingSave.sourceTitle} sourceLine={pendingSave.sourceLine} attribution={pendingSave.attribution} days={pendingSave.days} slots={daySlots} weeks={weeks} defaultWeek={defaultSaveWeek(pendingSave.scope, weeks)} alreadySaved={pendingSave.shareToken ? savedShare(pendingSave.shareToken) : null} onSave={(request) => saveIncomingDays(request, pendingSave.shareToken)} onOpen={(week, slotIndex) => { closePendingSave(); openPlannedWorkout(week, slotIndex, "day-plan"); }} onClose={closePendingSave} /></Suspense>; })()}
     {pendingDestructiveAction && <ConfirmDialog {...pendingDestructiveAction} onCancel={() => { pendingDestructiveAction.onCancel?.(); setPendingDestructiveAction(null); }} onConfirm={() => { pendingDestructiveAction.onConfirm(); setPendingDestructiveAction(null); }} />}
   </div>;

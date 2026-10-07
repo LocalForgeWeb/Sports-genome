@@ -47,6 +47,18 @@ export function shareUrl(token: string, origin = typeof window === "undefined" ?
   return `${origin}/s/${token}`;
 }
 
+/**
+ * The share token in something a person pasted: the bare link, the message the share
+ * sheet sent with it ("Push — 4 exercises. View the workout… https://…/s/<token>"),
+ * or a workout copied as text, which ends with its link. Any host is accepted - a
+ * preview or production address leads to the same share - because the token is only
+ * ever looked up through this app's own API, never fetched from the pasted address.
+ */
+const sharePath = /\/s\/([A-Za-z0-9_-]{20,64})(?![A-Za-z0-9_-])/;
+export function shareTokenFromText(text: string): string | null {
+  return sharePath.exec(text)?.[1] ?? null;
+}
+
 function read<T>(storage: Storage | undefined, key: string, fallback: T): T {
   try {
     const raw = storage?.getItem(key);

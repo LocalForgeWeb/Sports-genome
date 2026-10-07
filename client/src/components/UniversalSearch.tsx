@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Search, X } from "lucide-react";
+import { Link2, Search, X } from "lucide-react";
+// The router's own navigate, called only on a click: a location hook here would read
+// `location` while Home renders on the server in tests.
+import { navigate } from "wouter/use-browser-location";
 import { searchEverything, searchSuggestions, type SearchResult } from "@/lib/universalSearch";
 import { UNIVERSAL_SEARCH_OPEN_EVENT, type UniversalSearchOpenDetail } from "@/lib/universalSearchBus";
+import { shareTokenFromText } from "@/lib/shareLinks";
 
 /**
  * The single entry the philosophy's "Universal search and retrieval contract"
@@ -44,6 +48,8 @@ export function UniversalSearch({ onOpenResult }: { onOpenResult: (result: Searc
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const groups = useMemo(() => searchEverything(query), [query]);
+  // A shared link pasted here opens the shared workout, where Save a copy adds it to the plan.
+  const linkToken = useMemo(() => shareTokenFromText(query), [query]);
   const flat = useMemo(() => groups.flatMap((group) => group.results), [groups]);
   const suggestions = useMemo(
     () => (query.trim().length >= 2 && !flat.length ? searchSuggestions(query) : []),
@@ -105,8 +111,15 @@ export function UniversalSearch({ onOpenResult }: { onOpenResult: (result: Searc
     onOpenResult(result);
   };
 
+  const openSharedLink = () => {
+    if (!linkToken) return;
+    close();
+    navigate(`/s/${linkToken}`);
+  };
+
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") { close(); return; }
+    if (event.key === "Enter" && linkToken) { event.preventDefault(); openSharedLink(); return; }
     if (!flat.length) return;
     if (event.key === "ArrowDown") { event.preventDefault(); setActiveIndex((index) => (index + 1) % flat.length); }
     else if (event.key === "ArrowUp") { event.preventDefault(); setActiveIndex((index) => (index - 1 + flat.length) % flat.length); }
@@ -161,6 +174,17 @@ export function UniversalSearch({ onOpenResult }: { onOpenResult: (result: Searc
         <div className="universal-search-results" id="universal-search-results" ref={listRef} role="listbox" aria-label="Search results">
           {query.trim().length < 2 && <p className="universal-search-scope">{SCOPE_HINT}</p>}
 
+          {linkToken && <section className="universal-search-group">
+            <h2 className="metric-label">Shared link</h2>
+            <button type="button" className="universal-search-result universal-search-result-active" onClick={openSharedLink}>
+              <span className="universal-search-result-copy">
+                <strong><Link2 className="mr-1.5 inline h-4 w-4 align-[-3px]" aria-hidden="true" />Open the shared workout</strong>
+                <small>See what's in it, then save a copy to your plan</small>
+              </span>
+              <span className="universal-search-result-type">Link</span>
+            </button>
+          </section>}
+
           {groups.map((group) => <section key={group.type} className="universal-search-group">
             <h2 className="metric-label">{group.label}</h2>
             {group.results.map((result) => {
@@ -185,7 +209,7 @@ export function UniversalSearch({ onOpenResult }: { onOpenResult: (result: Searc
             })}
           </section>)}
 
-          {query.trim().length >= 2 && !flat.length && <div className="universal-search-empty">
+          {query.trim().length >= 2 && !flat.length && !linkToken && <div className="universal-search-empty">
             <p>No match for “{query.trim()}”.</p>
             {suggestions.length
               ? <><p className="universal-search-scope">Did you mean:</p>

@@ -18,7 +18,7 @@ describe("StackImportPanel as a dialog", () => {
 
   it("is a dialog named by its heading", () => {
     render(React.createElement(StackImportPanel, { onClose: vi.fn(), onImport: vi.fn() }));
-    expect(screen.getByRole("dialog", { name: /paste the full plan/i })).toBeTruthy();
+    expect(screen.getByRole("dialog", { name: /paste a link or a plan/i })).toBeTruthy();
   });
 
   it("moves focus to Close, not the prefilled text", () => {

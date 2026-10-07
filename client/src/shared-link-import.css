@@ -1,0 +1,24 @@
+/* A shared link pasted into Import plan (SharedLinkImportCard). Sits on the import's light
+   surface, above the parsed preview, and uses the same tokens as the rows under it. */
+.sli-card { display: grid; gap: 8px; margin-bottom: 12px; border: 1px solid var(--sg-divider-on-light); border-left: 4px solid #1f73dc; border-radius: 14px; background: #fff; padding: 14px; color: #173858; }
+.sli-warn { border-left-color: var(--sg-action); }
+.sli-eyebrow { display: flex; align-items: center; gap: 6px; color: #2f5a88; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.sli-title { color: var(--sg-text-on-light); font-family: "Barlow Condensed", sans-serif; font-size: 24px; font-weight: 800; line-height: 1; overflow-wrap: anywhere; text-transform: uppercase; }
+.sli-line { color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+.sli-note { display: flex; align-items: flex-start; gap: 6px; color: #173858; font-size: var(--sg-text-xs); line-height: var(--sg-leading-body); }
+.sli-note svg { flex: none; margin-top: 1px; }
+.sli-inline { color: #1f73dc; font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
+.sli-primary, .sli-secondary { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 8px; justify-self: start; border-radius: 10px; padding: 10px 16px; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.sli-primary { background: #1f73dc; color: #fff; }
+.sli-secondary { border: 1px solid #c4d7eb; background: #fff; color: #1f5fae; }
+.sli-secondary:disabled { opacity: .55; }
+.sli-primary:focus-visible, .sli-secondary:focus-visible, .sli-inline:focus-visible { outline: 3px solid rgb(49 130 245 / .45); outline-offset: 2px; }
+@media (max-width: 720px) { .sli-primary { justify-self: stretch; } }
+/* The import's own Paste button, next to the box's label. */
+.stack-import-label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.stack-import-paste { display: inline-flex; min-height: 36px; align-items: center; gap: 6px; border: 1px solid #c4d7eb; border-radius: 99px; background: #fff; padding: 6px 12px; color: #1f5fae; font-size: var(--sg-text-xs); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.stack-import-paste:focus-visible { outline: 3px solid rgb(49 130 245 / .45); outline-offset: 2px; }
+.stack-import-status { min-height: 1em; color: var(--sg-text-subtle-on-light); font-size: var(--sg-text-xs); font-weight: 600; letter-spacing: 0; text-transform: none; }
+/* The box keeps the space between its label row and the status line on a phone, where the
+   import gives the box a fixed share of the screen. */
+.stack-import-input { grid-template-rows: auto minmax(0, 1fr) auto; }
