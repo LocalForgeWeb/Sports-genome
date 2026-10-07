@@ -11,7 +11,7 @@
 
 **Evidence shorthand**
 
-- *recap probe*: `probes/recap-history.mjs`, 71/71.
+- *recap probe*: `probes/recap-history.mjs`, 75/75.
 - *rank probe*: `docs/rank-suggestions/probes/rank-suggestions.mjs`, 14/14.
 - *swap/drop probe*: `docs/workout-swap-drop/probes/acceptance.mjs`, rerun 44/44.
 - *Oct 1 probe*: `docs/ux-oct1/probes/oct1.mjs`, rerun 27/34. The seven failures are listed under O05.
@@ -80,7 +80,7 @@
 | H07 | implementing | `lastCompletedSetFor` | The logger's "Last logged" now matches by catalog ID; unit test | No per-exercise history screen was added. Strength's record sheet remains the exercise history |
 | H08 | already satisfied | `setWeightUnit`, `performedSetLine` | Sets show in their recorded unit (Oct 6 work) | — |
 | H09 | verified | — | Opening a past session reads the stored record; nothing is copied into the live logger | — |
-| H10 | not started | — | — | Repeat workout was not built this pass |
+| H10 | verified | `repeatDayFrom` (`lib/sessionRecap.ts`), Home `repeatSession` | "Repeat in your plan" on a past workout opens the existing Save to plan dialog: week, day, add-after or replace, shown before anything changes. Only exercises and planned prescriptions copy. Unit test (no weights, completions, notes); recap probe J17 | An exercise no longer in the catalog is named and left out, not resolved. RPE and rest take the plan's defaults |
 | H11 | verified | `historyExerciseKey`, `strengthSeriesKey` | Unit tests: same name with different IDs stays separate | — |
 | H12 | already satisfied | — | Sessions keep the exercise name; a missing catalog entry shows the placeholder frame, and the session is never removed | No "no longer in the catalog" label was added |
 
@@ -213,7 +213,7 @@
 | J12, J13 | blocked | — | The ranking service is unreachable from the sandbox. The UI states were unit-tested |
 | J14 | verified | Fixture tests | — |
 | J15, J16 | verified | Recap probe | — |
-| J17 | not started | — | Repeat workout (H10) |
+| J17 | verified | Recap probe: repeat into Week 1 · Pull; both exercises land with prescriptions; stored history byte-identical | — |
 | J18 | implementing | 320 px, failed images (media probe) | Keyboard-open, slow and offline runs were not done for the new screens |
 
 ## Z — Report

@@ -7,7 +7,7 @@ import { ConfirmDialog, type ConfirmDialogRequest } from "@/components/ConfirmDi
 import { summarizeWithinAthleteStrengthComparisons } from "@/lib/withinAthleteStrengthChange";
 import { changeStateLabel, changeTone } from "@/lib/changeStateCopy";
 import { mergeStrengthHistory } from "@/lib/unifiedStrengthHistory";
-import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, removeDeviceWorkoutSession, saveDeviceWorkoutSessions } from "@/lib/deviceWorkoutLog";
+import { deviceWorkoutHistoryEvent, isCompletedSet, isCompletedWorkout, loadDeviceWorkoutSessions, removeDeviceWorkoutSession, saveDeviceWorkoutSessions, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { WorkoutSessionDetail } from "@/components/WorkoutSessionDetail";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { deviceStrengthObservationEvent, loadDeviceStrengthObservations } from "@/lib/deviceStrengthObservations";
@@ -73,9 +73,11 @@ type ProgressOverviewPanelProps = {
   sessionId?: string | null;
   onOpenSession?: (id: string) => void;
   onCloseSession?: () => void;
+  /** Repeat a finished workout into the plan, through the page's Save to plan dialog (H10). */
+  onRepeatSession?: (session: DeviceWorkoutSession) => void;
 };
 
-export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForReference, baselineBodyWeight, weightUnit = "lb", birthYear, directAccess = true, sessionId, onOpenSession, onCloseSession }: ProgressOverviewPanelProps) {
+export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForReference, baselineBodyWeight, weightUnit = "lb", birthYear, directAccess = true, sessionId, onOpenSession, onCloseSession, onRepeatSession }: ProgressOverviewPanelProps) {
   // Account-only routes, asked only when an account is the source (B233; see TodayActionPanel).
   const sessions = trpc.workoutLog.list.useQuery(undefined, { enabled: !directAccess });
   const observations = trpc.strengthGenome.observations.useQuery(undefined, { enabled: !directAccess });
@@ -283,6 +285,7 @@ export function ProgressOverviewPanel({ onOpenStrength, onOpenTraining, sexForRe
         weightUnit={weightUnit}
         variant="history"
         onBack={closeSession}
+        onRepeat={onRepeatSession}
         onRemove={(session) => requestSessionRemoval({ id: session.id, title: session.title, completedAt: new Date(session.completedAt || session.startedAt) })}
       />
       {pendingRemoval && <ConfirmDialog {...pendingRemoval} onCancel={() => setPendingRemoval(null)} />}

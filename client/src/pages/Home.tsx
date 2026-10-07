@@ -31,7 +31,8 @@ import type { TrainingLoadout as LoadoutMode } from "@/lib/loadoutTemplates";
 import { FeatureTour } from "@/components/FeatureTour";
 import { WorkspaceTabs } from "@/components/WorkspaceTabs";
 import { readScopedRecord, scopedKey } from "@/lib/deviceStorageScope";
-import { loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, stampLegacyWeightUnits } from "@/lib/deviceWorkoutLog";
+import { loadDeviceWorkoutSessions, saveDeviceWorkoutSessions, stampLegacyWeightUnits, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
+import { repeatDayFrom } from "@/lib/sessionRecap";
 import { usePlanSync } from "@/lib/usePlanSync";
 import { WorkoutHealthPanel } from "@/components/WorkoutHealthPanel";
 import { WarmupPanel } from "@/components/WarmupPanel";
@@ -1385,6 +1386,17 @@ export default function Home() {
     setImportOpen(false);
     setPendingSave({ heading: "Paste a workout", sourceTitle: routine.title || (days.length > 1 ? `${days.length}-day routine` : days[0].label), sourceLine: countLine(days), days, scope: days.length > 1 ? "week" : "day" });
   };
+  /**
+   * Repeat a finished workout (Oct 7 brief H10): the same Save to plan dialog as a paste or a
+   * shared link, so the week, the day and add-after-or-replace are chosen, and shown, before
+   * anything changes. Only exercises and prescriptions travel; the workout's sets stay history.
+   */
+  const repeatSession = (session: DeviceWorkoutSession) => {
+    const { day, leftOut } = repeatDayFrom(session);
+    if (!day.items.length) { toast("Nothing to repeat", { id: "repeat-workout", description: "None of this workout's exercises are in the catalog any more." }); return; }
+    const exercisesLine = `${day.items.length} exercise${day.items.length === 1 ? "" : "s"} with their prescriptions; your logged sets stay in history`;
+    setPendingSave({ heading: "Repeat this workout", sourceTitle: day.label, sourceLine: leftOut.length ? `${exercisesLine}. Not in the catalog any more, so left out: ${leftOut.join(", ")}.` : `${exercisesLine}.`, days: [day], scope: "day" });
+  };
   /** Writes incoming days into the chosen week and days, in one state update per week. */
   const saveIncomingDays = (request: SaveRequest, shareToken?: string): SaveOutcome => {
     if (!planReadyForEdits({ quiet: true })) return { ok: false, message: "Your plan is still loading, so nothing was saved. Try again in a moment." };
@@ -2368,7 +2380,7 @@ export default function Home() {
               </div>
             </>}
         </section>}
-        {workspace === "progress" && <ProgressOverviewPanel sessionId={progressSession} onOpenSession={openProgressSession} onCloseSession={closeProgressSession} onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />}
+        {workspace === "progress" && <ProgressOverviewPanel sessionId={progressSession} onOpenSession={openProgressSession} onCloseSession={closeProgressSession} onRepeatSession={repeatSession} onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onRankProfile={(patch) => updateBaseline({ ...athleteBaseline, ...patch })} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}
       </main></Suspense>
     </div>

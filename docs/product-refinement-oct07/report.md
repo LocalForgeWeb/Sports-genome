@@ -52,6 +52,11 @@ The actions are **Done**, **View in Progress** and **See what's next**.
 - If that workout's lifts were already sent to the account, the app says the account keeps the old numbers. The account table is insert-only.
 - Lifts not yet sent are re-queued with the corrected numbers.
 
+**Repeat a workout.** A past workout's detail has **Repeat in your plan**. It opens the same Save to plan dialog used for pasted and shared workouts, so you pick the week and day, and add-after or replace, before anything changes.
+- Only the exercises and their planned prescriptions are copied.
+- Logged weights, completions, timestamps and notes stay in history.
+- An exercise no longer in the catalog is named and left out.
+
 ### 3. Home
 
 A **Last workout** row under "Your week" opens that exact workout's detail. It sits below the primary action, so a Resume button always comes first.
@@ -156,7 +161,7 @@ Its first run found three stabilizer mappings with no weight (Inverted Row, Feet
 - `rankRecommendations.test.ts`: rewritten for the new copy, plus snapshot, ID and generator tests.
 
 **Browser probes.**
-- `probes/recap-history.mjs`: 71/71 at 390, 320 and 1280 px. Screenshots are in `evidence/`.
+- `probes/recap-history.mjs`: 75/75 at 390, 320 and 1280 px, plus the Repeat journey at 390 px. Screenshots are in `evidence/`.
 - Rank probe: 14/14, including Equipment and Back to Chest.
 - Earlier probes rerun against this build:
   - swap/drop: 44/44 after updating three selectors for this brief's changes;
@@ -168,7 +173,6 @@ Its first run found three stabilizer mappings with no weight (Inverted Row, Feet
 ## Not done, and risks
 
 **Not built.**
-- **Repeat workout** (H10, J17).
 - **Exercise-specific history screen** (H07). The record sheet in Strength remains that view.
 - **Weekly Review W-items** and **performance timing** (F01) were not audited this pass.
 

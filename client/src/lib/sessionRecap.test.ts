@@ -137,3 +137,19 @@ describe("Last logged follows the exercise's identity (H07, H11)", () => {
     expect(lastCompletedSetFor("Row", history)?.weight).toBe("120");
   });
 });
+
+describe("Repeat a workout copies the prescription, never the history (H10)", () => {
+  it("takes each exercise done, once, with its planned prescription and none of its sets", async () => {
+    const { repeatDayFrom } = await import("./sessionRecap");
+    const finished = finalizeSession(running(), "2026-10-07T10:52:00.000Z").session;
+    const withRetired = { ...finished, exercises: [...finished.exercises, { id: "gone", exerciseName: "Retired Lift", plannedPrescription: "3 × 8", sets: [done("50", "8")] }] };
+    const { day, leftOut } = repeatDayFrom(withRetired);
+    expect(day.label).toBe("Push");
+    // "Dips" is not a catalog name (the catalog has "Parallel-Bar Dip"), so it is named, not guessed.
+    expect(day.items.map((item) => [item.exercise.name, item.prescription])).toEqual([["Barbell Bench Press", "4 × 5"]]);
+    // Nothing logged travels: no weight, reps, completion, rpe, rest or note.
+    for (const item of day.items) expect(Object.keys(item).sort()).toEqual(["exercise", "prescription"]);
+    expect(leftOut).toEqual(["Dips", "Retired Lift"]);
+    expect(day.unresolved).toEqual([]);
+  });
+});

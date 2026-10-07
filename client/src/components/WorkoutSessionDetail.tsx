@@ -21,7 +21,7 @@ export type SessionDetailVariant = "saved" | "history";
 
 const findSession = (id: string) => loadDeviceWorkoutSessions().find((session) => session.id === id && session.status === "completed") ?? null;
 
-export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, onOpenProgress, onOpenNext, onBack, onRemove }: {
+export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, onOpenProgress, onOpenNext, onBack, onRemove, onRepeat }: {
   sessionId: string;
   weightUnit: DisplayWeightUnit;
   variant: SessionDetailVariant;
@@ -35,6 +35,8 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
   onBack?: () => void;
   /** Remove the whole workout, with Progress's own confirmation (the history variant). */
   onRemove?: (session: DeviceWorkoutSession) => void;
+  /** Put this workout's exercises and prescriptions into a plan day the athlete chooses (H10). */
+  onRepeat?: (session: DeviceWorkoutSession) => void;
 }) {
   const [session, setSession] = useState<DeviceWorkoutSession | null>(() => findSession(sessionId));
   const [noteDraft, setNoteDraft] = useState(session?.note ?? "");
@@ -165,6 +167,7 @@ export function WorkoutSessionDetail({ sessionId, weightUnit, variant, onDone, o
         {onOpenProgress && <button type="button" onClick={onOpenProgress}>View in Progress</button>}
         {onOpenNext && <button type="button" onClick={onOpenNext}>See what's next</button>}
       </>}
+      {variant === "history" && onRepeat && <button type="button" className="session-detail-primary" onClick={() => onRepeat(session)}>Repeat in your plan</button>}
       {variant === "history" && onRemove && <button type="button" className="session-detail-remove" onClick={() => onRemove(session)}>Remove this workout</button>}
     </div>
   </section>;

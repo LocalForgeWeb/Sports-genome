@@ -127,6 +127,35 @@ for (const [width, height] of [[390, 844], [320, 640], [1280, 900]]) {
   await ctx.close();
 }
 
+// H10 / J17: repeat a past workout into a chosen plan day. Only exercises and prescriptions copy.
+{
+  const [ctx, p] = await page(390, 844);
+  const past = [{ id: 'past-1', title: 'Week 1 · Day 02 · Pull workout', dayLabel: 'Week 1 · Day 02 · Pull', startedAt: '2026-10-01T10:00:00.000Z', completedAt: '2026-10-01T11:00:00.000Z', status: 'completed', weightUnit: 'lb',
+    exercises: [
+      { id: 'a', exerciseName: 'Barbell Bench Press', catalogId: 1, plannedPrescription: '5 × 3', sets: [{ weight: '185', reps: '3', unit: 'lb', completed: true }] },
+      { id: 'b', exerciseName: 'Back Squat', catalogId: 161, plannedPrescription: '4 × 6–8', sets: [{ weight: '225', reps: '6', unit: 'lb', completed: true }] },
+    ] }];
+  await seed(p, { [historyKey]: JSON.stringify(past) });
+  await p.goto(`${base}/?workspace=progress&session=past-1`); await wait(p, 2000);
+  const before = JSON.stringify(await stored(p));
+  await p.getByRole('button', { name: 'Repeat in your plan' }).click(); await wait(p, 800);
+  const dialog = p.getByRole('dialog');
+  const text = await dialog.textContent();
+  check('Repeat opens Save to plan with the workout and what travels', text.includes('Repeat this workout') && text.includes('2 exercises with their prescriptions; your logged sets stay in history'), text.slice(0, 160));
+  const daySelect = dialog.locator('select[aria-label^="Day in"]').first();
+  if (await daySelect.count()) await daySelect.selectOption({ index: 2 });
+  await p.screenshot({ path: `${out}repeat-dialog-390.png` });
+  await dialog.getByRole('button', { name: /^Save to Week|^Replace and save/ }).first().click(); await wait(p, 600);
+  if (await p.getByRole('alertdialog').count()) { await p.getByRole('button', { name: 'Replace and save' }).last().click(); await wait(p, 600); }
+  check('The dialog confirms where it was saved', await p.getByRole('heading', { name: 'Saved to your plan' }).isVisible());
+  await p.getByRole('button', { name: 'Open workout' }).click(); await wait(p, 1500);
+  const plan = await p.locator('body').textContent();
+  check('The chosen day now holds both exercises with their prescriptions', plan.includes('Barbell Bench Press') && plan.includes('Back Squat') && plan.includes('5 × 3'), new URL(p.url()).search);
+  check('History is unchanged: no set, completion or timestamp copied or altered', JSON.stringify(await stored(p)) === before);
+  await p.screenshot({ path: `${out}repeat-plan-day-390.png` });
+  await ctx.close();
+}
+
 await browser.close();
 writeFileSync(`${out}recap-history.json`, JSON.stringify(results, null, 2));
 const failed = results.filter((r) => !r.pass);

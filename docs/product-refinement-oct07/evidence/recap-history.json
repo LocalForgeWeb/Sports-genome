@@ -353,5 +353,25 @@
     "name": "…and All workouts opens the list",
     "pass": true,
     "detail": ""
+  },
+  {
+    "name": "Repeat opens Save to plan with the workout and what travels",
+    "pass": true,
+    "detail": "Repeat this workoutPull2 exercises with their prescriptions; your logged sets stay in history.WeekWeek 1this week · emptyWeek 2new, emptyDayPull2 exercisesChoos"
+  },
+  {
+    "name": "The dialog confirms where it was saved",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "The chosen day now holds both exercises with their prescriptions",
+    "pass": true,
+    "detail": "?workspace=day-plan"
+  },
+  {
+    "name": "History is unchanged: no set, completion or timestamp copied or altered",
+    "pass": true,
+    "detail": ""
   }
 ]

@@ -6,6 +6,7 @@ import { workoutObservationId } from "./workoutStrengthRecord";
 import { dropSetSummary, isDropSet, performedSetLine, setVolume, volumeText } from "./dropSets";
 import { swapNote } from "./workoutSwap";
 import type { DisplayWeightUnit } from "./weightUnits";
+import type { IncomingDraftDay } from "./planImport";
 
 /**
  * What a finished workout's recap shows (Oct 7 brief §5), built from the stored session alone -
@@ -173,4 +174,28 @@ export function updateFinishedSession(sessionId: string, change: (session: Devic
   if (correctsLifts) saveSyncQueue(removeQueuedLiftsForSession(loadSyncQueue(), current));
   const sent = new Set(loadSyncedKeys());
   return { session: next, alreadySent: correctsLifts && current.exercises.some((exercise) => sent.has(workoutObservationId(current.id, exercise.id))) };
+}
+
+/**
+ * Repeat a finished workout (H10): its exercises and their prescriptions as a plan day, for the
+ * Save to plan dialog to place in a week and day the athlete chooses. Only the prescription is
+ * copied - never a logged weight, a completion, a timestamp or a note - so the copy is future
+ * planned work and the history stays the history's. Exercises done in the workout are taken in
+ * order, once each (a swap gives the exercise actually done after it); one no longer in the
+ * catalog is named in `leftOut` rather than guessed at.
+ */
+export function repeatDayFrom(session: DeviceWorkoutSession): { day: IncomingDraftDay; leftOut: string[] } {
+  const seen = new Set<number>();
+  const items: IncomingDraftDay["items"] = [];
+  const leftOut: string[] = [];
+  for (const exercise of session.exercises) {
+    if (!exercise.sets.some(isCompletedSet)) continue;
+    const entry = (exercise.catalogId !== undefined ? byId.get(exercise.catalogId) : undefined) ?? byName.get(exercise.exerciseName);
+    if (!entry) { leftOut.push(exercise.exerciseName); continue; }
+    if (seen.has(entry.id)) continue;
+    seen.add(entry.id);
+    items.push({ exercise: entry, prescription: exercise.plannedPrescription });
+  }
+  const label = session.dayLabel.split(" · ").map((part) => part.trim()).filter(Boolean).pop() || session.title;
+  return { day: { label, items, unresolved: [] }, leftOut };
 }
