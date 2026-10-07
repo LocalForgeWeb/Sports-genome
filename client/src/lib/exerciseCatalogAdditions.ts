@@ -217,7 +217,7 @@ const additions: Addition[] = [
   // E09-E18: forearm, wrist and hand. The catalog tags all of it `forearms`; the descriptor names
   // the muscles that key stands for in each exercise, so the record says pronator, not "forearm".
   {
-    exercise: { id: 409, name: "Dumbbell Forearm Pronation", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Forearm pronation", primaryMuscles: ["forearms"], secondaryMuscles: [], qualities: ["strength", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
+    exercise: { id: 409, name: "Dumbbell Forearm Pronation", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Forearm pronation", primaryMuscles: ["forearms"], secondaryMuscles: [], qualities: ["hypertrophy", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
     descriptor: {
       id: 409, candidate: "E09", requestedName: "Dumbbell Forearm Pronation",
       setup: "Seated with the forearm supported on a bench or thigh, elbow bent to about a right angle and the wrist past the edge. Hold one end of a dumbbell so the other end is the lever, and turn the palm down from palm-up or neutral.",
@@ -233,7 +233,7 @@ const additions: Addition[] = [
     },
   },
   {
-    exercise: { id: 410, name: "Dumbbell Forearm Supination", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Forearm supination", primaryMuscles: ["forearms"], secondaryMuscles: ["biceps"], qualities: ["strength", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
+    exercise: { id: 410, name: "Dumbbell Forearm Supination", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Forearm supination", primaryMuscles: ["forearms"], secondaryMuscles: ["biceps"], qualities: ["hypertrophy", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
     descriptor: {
       id: 410, candidate: "E10", requestedName: "Dumbbell Forearm Supination",
       setup: "Same support as pronation: forearm on a bench or thigh, elbow at about a right angle, holding one end of a dumbbell. Turn the palm up from palm-down or neutral.",
@@ -249,7 +249,7 @@ const additions: Addition[] = [
     },
   },
   {
-    exercise: { id: 411, name: "Dumbbell Wrist Radial Deviation", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Wrist radial deviation", primaryMuscles: ["forearms"], secondaryMuscles: [], qualities: ["strength", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
+    exercise: { id: 411, name: "Dumbbell Wrist Radial Deviation", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Wrist radial deviation", primaryMuscles: ["forearms"], secondaryMuscles: [], qualities: ["hypertrophy", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
     descriptor: {
       id: 411, candidate: "E11", requestedName: "Dumbbell Wrist Radial Deviation",
       setup: "Standing, arm straight at the side, holding one end of a dumbbell with the loaded end in front. Tip the loaded end up by bending the wrist toward the thumb side, then lower.",
@@ -265,7 +265,7 @@ const additions: Addition[] = [
     },
   },
   {
-    exercise: { id: 412, name: "Dumbbell Wrist Ulnar Deviation", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Wrist ulnar deviation", primaryMuscles: ["forearms"], secondaryMuscles: [], qualities: ["strength", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
+    exercise: { id: 412, name: "Dumbbell Wrist Ulnar Deviation", sourceGroup: GRIP_GROUP, category: "Arms & grip", equipment: "Dumbbells", movement: "Wrist ulnar deviation", primaryMuscles: ["forearms"], secondaryMuscles: [], qualities: ["hypertrophy", "endurance", "unilateral"], muscleGrade: "A", sportFit: fit(FOREARM) },
     descriptor: {
       id: 412, candidate: "E12", requestedName: "Dumbbell Wrist Ulnar Deviation",
       setup: "Standing, arm straight at the side, holding one end of a dumbbell with the loaded end behind. Tip the loaded end up behind you by bending the wrist toward the little-finger side, then lower.",

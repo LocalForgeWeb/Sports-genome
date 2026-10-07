@@ -11,11 +11,17 @@
 //   node scripts/exercise-photos/thumbnails.mjs <cacheDir>
 //
 // <cacheDir> holds the original frames as audit.mjs fetched them ({source}__{frame}.jpg).
+//
+// --only-missing makes thumbnails for newly mapped sources only and keeps every existing file and
+// manifest entry byte for byte (the 50-exercise expansion added 11 sources this way, so the 217
+// reviewed thumbnails were not re-encoded by a different browser build).
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-const [cacheDir] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const onlyMissing = args.includes("--only-missing");
+const [cacheDir] = args.filter((arg) => !arg.startsWith("--"));
 if (!cacheDir) { console.error("usage: thumbnails.mjs <cacheDir>"); process.exit(1); }
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..");
 const mapping = JSON.parse(readFileSync(path.join(root, "client/src/data/exercisePhotos.json"), "utf8"));
@@ -37,8 +43,10 @@ for (const [id, [source, count, width = 850, height = 567]] of Object.entries(ma
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const browser = await chromium.launch(process.env.PLAYWRIGHT_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE } : {});
 const page = await browser.newPage();
+const previous = onlyMissing ? JSON.parse(readFileSync(path.join(root, "docs/exercise-media-audit/sources.json"), "utf8")).sources : {};
 const manifest = {};
 for (const entry of sources.values()) {
+  if (onlyMissing && previous[entry.source] && existsSync(path.join(outDir, `${entry.source}.jpg`))) { manifest[entry.source] = previous[entry.source]; continue; }
   const original = path.join(cacheDir, `${entry.source}__${entry.frame}.jpg`);
   if (!existsSync(original)) throw new Error(`missing cached frame ${original}; run audit.mjs first`);
   const bytes = readFileSync(original);
@@ -82,7 +90,7 @@ await browser.close();
 
 // A thumbnail whose source is no longer mapped (a withdrawn photo) is removed, so no file can
 // be shown for an exercise the review took it away from.
-for (const file of readdirSync(outDir)) if (!sources.has(file.replace(/\.jpg$/, ""))) rmSync(path.join(outDir, file));
+if (!onlyMissing) for (const file of readdirSync(outDir)) if (!sources.has(file.replace(/\.jpg$/, ""))) rmSync(path.join(outDir, file));
 writeFileSync(path.join(root, "docs/exercise-media-audit/sources.json"), JSON.stringify({ generatedBy: "scripts/exercise-photos/thumbnails.mjs", sourceRepo: "yuhonas/free-exercise-db", sourceRef: ref, sources: manifest }, null, 1) + "\n");
 const total = Object.values(manifest).reduce((sum, item) => sum + item.thumbnailBytes, 0);
 console.log(`${sources.size} thumbnails, ${(total / 1024).toFixed(0)} KB in all, ${(total / sources.size / 1024).toFixed(1)} KB each on average`);

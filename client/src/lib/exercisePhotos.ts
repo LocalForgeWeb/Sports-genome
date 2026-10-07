@@ -79,6 +79,14 @@ const focalBySource: Record<string, string> = {};
 /** Source pairs whose frame 0 is the finish, by source id, with why (exercisePhotoOrder.json). */
 export const reversedPhotoSources: Readonly<Record<string, string>> = reversedOrder;
 
+/**
+ * Source pairs whose two frames are the two sides of one hold rather than a start and a finish,
+ * so they are captioned as sides (50-exercise expansion, docs/exercise-expansion-v1/media.json).
+ */
+export const sideBySidePhotoSources: Readonly<Record<string, string>> = {
+  "Isometric_Neck_Exercise_-_Sides": "the left-hand and right-hand holds of one isometric exercise",
+};
+
 /** The source's frame numbers in the movement's order: start first, then finish. */
 export function framesInMovementOrder(source: string, count: number): number[] {
   const frames = Array.from({ length: Math.max(1, Math.min(count, 2)) }, (_, index) => index);
@@ -95,7 +103,7 @@ export function exercisePhotoSet(exerciseId: number): ExercisePhotoSet | null {
     urls: frames.map((index) => `${exercisePhotoBase}${source}/${index}.jpg`),
     fallbackUrls: frames.map((index) => `${exercisePhotoFallbackBase}${source}/${index}.jpg`),
     thumbUrl: `${exerciseThumbBase}${encodeURIComponent(source)}.jpg`,
-    captions: frames.length === 1 ? ["Position"] : ["Start", "Finish"],
+    captions: frames.length === 1 ? ["Position"] : sideBySidePhotoSources[source] ? ["One side", "Other side"] : ["Start", "Finish"],
     width,
     height,
     focal: focalBySource[source] ?? "50% 50%",

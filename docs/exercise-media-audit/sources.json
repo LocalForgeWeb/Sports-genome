@@ -4371,6 +4371,226 @@
     180
    ],
    "thumbnailBytes": 5965
+  },
+  "Seated_Head_Harness_Neck_Resistance": {
+   "exerciseIds": [
+    404
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Head_Harness_Neck_Resistance/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e0ee9ed69076b50c96b94133faa4854f04b747cd018579264f6dfd0a521741e4",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Seated_Head_Harness_Neck_Resistance.jpg",
+   "thumbnailSha256": "268a3d3fda1dd5f52d63f385e83191678331025042e8c005427b3adac335799d",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9285
+  },
+  "Isometric_Neck_Exercise_-_Sides": {
+   "exerciseIds": [
+    407
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Isometric_Neck_Exercise_-_Sides/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c263326c62b860fc255749c824b10ec9052e7bf1b0723df25ebbf3909477d087",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Isometric_Neck_Exercise_-_Sides.jpg",
+   "thumbnailSha256": "1592d11f8c9f406981e62c98e4bd841a330de2088b26fee739b42257c18fe1c7",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8599
+  },
+  "Cable_Wrist_Curl": {
+   "exerciseIds": [
+    413
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Wrist_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "af2214f3c033b6365210d238227efbb0416d2715f7b26c91836b6e748e721f42",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Cable_Wrist_Curl.jpg",
+   "thumbnailSha256": "c91a1814ac77a2a8fe184ec305e6628efcad94033805ea36f88b36042a1307b6",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9755
+  },
+  "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl": {
+   "exerciseIds": [
+    414
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "d76cf6891250f989e2424115b2f56888ec5bc0b0502fe77c52eada36197e0518",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl.jpg",
+   "thumbnailSha256": "278d30d0b0040e362bb0ee594a85a828ea18b98baf3588b445a51fd746fc68f0",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8777
+  },
+  "Finger_Curls": {
+   "exerciseIds": [
+    415
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Finger_Curls/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "6ab1e5c6fca0982d91cbdcc8b2b97aabb3b110759317fdf6f81ab0acdd1c41f4",
+   "originalSize": [
+    750,
+    500
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Finger_Curls.jpg",
+   "thumbnailSha256": "8cd7b61d19ccf4303d35194f0c553d92bb3354527f1fb87fcc76bb769387ff70",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10442
+  },
+  "Dip_Machine": {
+   "exerciseIds": [
+    419
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dip_Machine/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "99e9aa29576ab01b528bcdfc1f3f2b88937e44f46a3616cc9454b05b6e510e41",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dip_Machine.jpg",
+   "thumbnailSha256": "9de3746221afd920ae9fca4f9ce2f3df84c073a586c1f139cc496016138763db",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 10632
+  },
+  "Smith_Single-Leg_Split_Squat": {
+   "exerciseIds": [
+    424
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Single-Leg_Split_Squat/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "efd2dcf240ee4247d1d2a4f3c616ffaf2bca40cd27e51443049effc75e2824cc",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Single-Leg_Split_Squat.jpg",
+   "thumbnailSha256": "9c06deff9b48f8941aff9270aa567969421a1369617cd04e6af49600c47475a0",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12924
+  },
+  "Trap_Bar_Deadlift": {
+   "exerciseIds": [
+    432
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Trap_Bar_Deadlift/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "541c735e260754b50e9da3320578ce252d1a0e61de93fa3c82e154c1a7c7417d",
+   "originalSize": [
+    850,
+    1275
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Trap_Bar_Deadlift.jpg",
+   "thumbnailSha256": "130ebaf98c981fa4705fe61d9f0e4e1a0c869b13798fd419f7f81651de6f758b",
+   "thumbnailSize": [
+    120,
+    180
+   ],
+   "thumbnailBytes": 5410
+  },
+  "Sumo_Deadlift": {
+   "exerciseIds": [
+    433
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Sumo_Deadlift/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "40350f7e6ab32f208c04e84e175989a9fe9c33ce41057bf1585a67b1402f3baa",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Sumo_Deadlift.jpg",
+   "thumbnailSha256": "f5bbdee49873d6474504fc5a80da95095b00c0896f867ddddd700a4f49d5155c",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 9948
+  },
+  "Sled_Overhead_Backward_Walk": {
+   "exerciseIds": [
+    446
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Sled_Overhead_Backward_Walk/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "e56acd7760b6eb83b9178fe9a990a2fc6b8a431ecf84468fc24104c7247c562f",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Sled_Overhead_Backward_Walk.jpg",
+   "thumbnailSha256": "d438ee8b3ba786f4408b6d74f21a8934024a94661354d9fe0e782858710a76f7",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 7764
+  },
+  "Dumbbell_Side_Bend": {
+   "exerciseIds": [
+    449
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Side_Bend/0.jpg",
+   "originalFrame": 0,
+   "originalSha256": "c57666934e5a97159882e7cbeada175e37eb49c62d0012a8db7a0be9599bea19",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Dumbbell_Side_Bend.jpg",
+   "thumbnailSha256": "8ee86653f5ea28232c4db46215020ebe8212dc9f795a6814a3c489c4d7c654b6",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 8643
   }
  }
 }

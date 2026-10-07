@@ -882,5 +882,49 @@
  "Zottman_Curl": {
   "verdict": "in order",
   "why": "frame 0 arms down"
+ },
+ "Cable_Wrist_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 wrists extended down toward the pulley; frame 1 curled up. Viewed 7 Oct 2026."
+ },
+ "Dip_Machine": {
+  "verdict": "in order",
+  "why": "frame 0 elbows bent with the handles at chest height; frame 1 arms pressed down. Viewed 7 Oct 2026."
+ },
+ "Dumbbell_Side_Bend": {
+  "verdict": "in order",
+  "why": "frame 0 bent toward the dumbbell; frame 1 bent away from it. Viewed 7 Oct 2026."
+ },
+ "Finger_Curls": {
+  "verdict": "in order",
+  "why": "frame 0 fingers open with the bar at the fingertips; frame 1 the hands closed around it. Viewed 7 Oct 2026."
+ },
+ "Isometric_Neck_Exercise_-_Sides": {
+  "verdict": "in order",
+  "why": "a hold, not a movement: frame 0 the left hand on the head, frame 1 the right; captioned as sides (sideBySidePhotoSources). Viewed 7 Oct 2026."
+ },
+ "Seated_Head_Harness_Neck_Resistance": {
+  "verdict": "in order",
+  "why": "frame 0 head down with the plates hanging (flexion, the start); frame 1 head up at neutral. Viewed 7 Oct 2026 for the 50-exercise expansion."
+ },
+ "Sled_Overhead_Backward_Walk": {
+  "verdict": "in order",
+  "why": "both frames walking backward with the arms overhead; frame 0 the earlier step. Viewed 7 Oct 2026."
+ },
+ "Smith_Single-Leg_Split_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 standing tall with the rear foot on the bench; frame 1 lowered. Viewed 7 Oct 2026."
+ },
+ "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 the bar hanging behind the hips; frame 1 the wrists curled with the bar raised. Viewed 7 Oct 2026."
+ },
+ "Sumo_Deadlift": {
+  "verdict": "in order",
+  "why": "frame 0 wide stance with the bar on the floor; frame 1 standing. Viewed 7 Oct 2026."
+ },
+ "Trap_Bar_Deadlift": {
+  "verdict": "in order",
+  "why": "frame 0 at the bottom holding the handles; frame 1 standing. Viewed 7 Oct 2026."
  }
 }

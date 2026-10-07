@@ -22,6 +22,12 @@ const curated = {
   178: 'Elevated Back Lunge', 204: 'Romanian Deadlift', 232: 'Hanging Leg Raise', 255: 'Landmine Linear Jammer', 256: 'Bent Over One-Arm Long Bar Row',
   258: 'T-Bar Row with Handle', 268: 'Landmine Linear Jammer', 283: 'Supine Two-Arm Overhead Throw', 295: 'Single Leg Push-off', 310: 'Pallof Press', 313: 'Cable Crossover',
   326: 'Kneeling High Pulley Row', 329: 'Shotgun Row', 377: 'Standing Cable Lift', 385: "Landmine 180's", 395: 'Linear Depth Jump',
+  // 50-exercise expansion (6 Oct 2026): each pair viewed frame by frame against the record's stated
+  // setup; decisions for all 50, including the 39 left on the placeholder, are in
+  // docs/exercise-expansion-v1/media.json.
+  404: 'Seated Head Harness Neck Resistance', 407: 'Isometric Neck Exercise - Sides', 413: 'Cable Wrist Curl',
+  414: 'Standing Palms-Up Barbell Behind The Back Wrist Curl', 415: 'Finger Curls', 419: 'Dip Machine',
+  424: 'Smith Single-Leg Split Squat', 432: 'Trap Bar Deadlift', 433: 'Sumo Deadlift', 446: 'Sled Overhead Backward Walk', 449: 'Dumbbell Side Bend',
 };
 const byAppName = { 'Pec Deck Fly': 'Butterfly', 'Dumbbell Fly': 'Dumbbell Flyes', 'Reverse Pec Deck': 'Reverse Machine Flyes', 'Pendlay Row': 'Bent Over Barbell Row', 'Chest-Supported Dumbbell Row': 'Dumbbell Incline Row', 'Seal Row': 'Incline Bench Pull', 'Machine Low Row': 'Leverage Iso Row', 'Ring Row': 'Suspended Row', 'Rope Face Pull with External Rotation': 'Face Pull', 'Back Squat': 'Barbell Squat', 'High-Bar Back Squat': 'Barbell Full Squat', 'Forward Lunge': 'Dumbbell Lunges', 'Stiff-Leg Deadlift': 'Stiff-Legged Barbell Deadlift', 'Hip Abduction Machine': 'Thigh Abductor', 'Stability-Ball Hamstring Curl': 'Ball Leg Curl', 'Single-Leg Hip Thrust': 'Single Leg Glute Bridge', 'Captain’s-Chair Leg Raise': 'Knee/Hip Raise On Parallel Bars', 'Farmer’s Carry': "Farmer's Walk", "Farmer's Carry": "Farmer's Walk" };
 // Plausible but incorrect variations (October 1 brief §2): the source photographs the
@@ -43,6 +49,12 @@ const rejected = {
   48: 'seal row is prone on a flat raised bench; the photo is an incline bench pull', 68: 'neutral-grip pull-up: the photo is the pull-up photo, hands on the angled handles',
   173: 'bulgarian split squat elevates the rear foot; the photo is a floor split squat', 203: 'kettlebell swing is two-handed; the photo is the one-arm swing',
   339: 'high cable curl is standing between pulleys; the photo is lying on a bench',
+  // 50-exercise expansion: same-named source photos that show a different setup.
+  409: 'seated forearm pronation with a lever; the source photographs a lying setup whose own instructions describe rotating the upper arm',
+  410: 'seated forearm supination with a lever; the source photographs a side-lying setup',
+  450: 'half-kneeling cable lift; the source cable lift is standing (it illustrates the Cable Reverse Chop, 377)',
+  448: 'low-pulley side bend away from the stack; the source is a high-pulley side crunch',
+  438: 'single-leg seated curl; the source photographs both legs', 439: 'single-leg lying curl; the source photographs both legs',
 };
 const normName = (s) => s.toLowerCase().replace(/[’']/g, '').replace(/[()\-\/,.:]/g, ' ').replace(/\s+/g, ' ').trim();
 const byNorm = new Map(db.map((e) => [normName(e.name), e]));
