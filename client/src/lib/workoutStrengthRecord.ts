@@ -35,6 +35,8 @@ export type WorkoutStrengthObservation = {
    * bar, the stack, or load added to a bodyweight movement - sent with the lift (EN-07, EN-09).
    */
   loadSemantics: LoadConvention | "additional_load";
+  /** The catalog entry it was done on, so two exercises sharing a name stay separate series (P02). */
+  catalogExerciseId?: number;
   repetitions?: number;
   /** Where the athlete saw this happen, so the record can say so. */
   sessionLabel: string;
@@ -169,10 +171,12 @@ export function workoutStrengthObservations(
         return (set.reps ?? 0) > (leader.reps ?? 0) ? set : leader;
       });
       // The exercise actually performed: after a swap, each part is read as the exercise it was.
-      const convention = loadConventionFor(exercise.catalogId ?? catalogByName.get(exercise.exerciseName.trim().toLowerCase())?.id);
+      const catalogExerciseId = exercise.catalogId ?? catalogByName.get(exercise.exerciseName.trim().toLowerCase())?.id;
+      const convention = loadConventionFor(catalogExerciseId);
       observations.push({
         id: workoutObservationId(session.id, exercise.id),
         exerciseName: exercise.exerciseName,
+        ...(catalogExerciseId !== undefined ? { catalogExerciseId } : {}),
         observedAt,
         measurementType: "MULTI_REP",
         loadKg: best.weightKg,

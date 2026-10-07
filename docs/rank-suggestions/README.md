@@ -1,5 +1,7 @@
 # Get a rank for an unranked muscle group
 
+> **Oct 7 update.** The section is now **Add a comparable lift**, the familiar pick is tagged **Common option** (there is no usage data behind "most common"), and each row's button reads **Log this lift**. New since then: an **Equipment** choice, the equipment on each row, an on-demand "How lifts are compared", a line saying why a logged lift would not rank yet (service failure or offline; the comparison-group question is unchanged), familiar picks and exclusions by catalog ID, and **Back to Chest** on the saved-lift message. The snapshot now records its scorer, schema version and a digest of the catalog names it was built against, and the generator rejects unknown scorer states. Details: `docs/product-refinement-oct07/report.md`. The description below is from the first version.
+
 **The ask:** someone who wants to see their chest ranking is told which exercise will give them one.
 
 ## What it does

@@ -1,4 +1,5 @@
 import { estimateOneRepMaxKg, maxValidEstimationReps, oneRepMaxEstimationMethod } from "@shared/oneRepMaxEstimation";
+import { exercises as catalog } from "@/lib/exerciseCatalog";
 
 export type ComparableStrengthObservation = {
   id: number | string;
@@ -8,6 +9,10 @@ export type ComparableStrengthObservation = {
   loadKg: string | number | null;
   repetitions: number | null;
   laterality?: string | null;
+  /** The catalog entry the lift was recorded against, when the record kept it (workout lifts do). */
+  catalogExerciseId?: number | null;
+  /** What the weight means (EN-07): only "additional_load" - weight added to a bodyweight movement - changes the series. */
+  loadSemantics?: string | null;
 };
 
 export type ChangeState = "insufficient_history" | "stable" | "directional_signal_emerging" | "meaningful_change_supported";
@@ -57,9 +62,26 @@ function normalized(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-function groupKey(observation: ComparableStrengthObservation) {
-  return `${normalized(observation.exerciseName)}|${observation.laterality || "BILATERAL"}`;
+/** Catalog names held by exactly one entry. "Romanian Deadlift" (42, 186) and "Dumbbell Pullover" (24, 65) are not. */
+const unambiguousIdByName = (() => {
+  const ids = new Map<string, number[]>();
+  for (const exercise of catalog) ids.set(normalized(exercise.name), [...(ids.get(normalized(exercise.name)) ?? []), exercise.id]);
+  return new Map(Array.from(ids).flatMap(([name, list]) => (list.length === 1 ? [[name, list[0]] as const] : [])));
+})();
+
+/**
+ * One series per exercise identity and measurement (Oct 7 brief P02, P03): the catalog ID where the
+ * record kept one, else the ID its name unambiguously names; only a name that two catalog entries
+ * share stays a name-only series (the legacy fallback). Laterality, and load added to a bodyweight
+ * movement, are separate series. Setup and range of motion are not recorded, so they are unknown,
+ * not assumed equal: a change is "estimated", never "same setup verified".
+ */
+export function strengthSeriesKey(observation: ComparableStrengthObservation) {
+  const id = observation.catalogExerciseId ?? unambiguousIdByName.get(normalized(observation.exerciseName));
+  const identity = id != null ? `id:${id}` : `name:${normalized(observation.exerciseName)}`;
+  return `${identity}|${observation.laterality || "BILATERAL"}${observation.loadSemantics === "additional_load" ? "|added" : ""}`;
 }
+const groupKey = strengthSeriesKey;
 
 function toEstimatedPoint(observation: ComparableStrengthObservation): EstimatedOneRepMaxPoint | null {
   const loadKg = validLoad(observation.loadKg);

@@ -4,7 +4,8 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 import rankable from "@/data/rankableExercises.json";
 import { exercises } from "./exerciseCatalog";
-import { familiarRankingLift, rankingLiftHowTo, rankingLiftsForRegion, suggestedRankingLifts } from "./rankRecommendations";
+import { createHash } from "node:crypto";
+import { RANKABLE_SCHEMA_VERSION, familiarRankingLift, familiarRankingLiftId, rankableSnapshotMeta, rankingLiftHowTo, rankingLiftsForRegion, suggestedRankingLifts } from "./rankRecommendations";
 import { muscleCanonicalNameToRegionId } from "@shared/capabilityRank";
 import { strengthRegionDefinitions } from "@shared/strengthGenomeDefinitions";
 import { RankingLiftSuggestions } from "@/components/RankingLiftSuggestions";
@@ -77,29 +78,97 @@ describe("lifts that give an unranked muscle group a rank", () => {
   });
 });
 
-describe("Get a Chest rank, in the muscle group's sheet", () => {
-  it("lists the lifts with why each one, and opens the log with the chosen exercise", () => {
+describe("Add a comparable lift, in the muscle group's sheet", () => {
+  it("lists the lifts with equipment and why each one, and opens the log with that exact exercise", () => {
     const onLog = vi.fn();
     render(React.createElement(RankingLiftSuggestions, { regionId: "chest", regionLabel: "Chest", loggedNames: [], hasRecords: false, onLog }));
-    const section = screen.getByRole("region", { name: "Get a Chest rank" });
+    const section = screen.getByRole("region", { name: "Add a comparable lift" });
     const rows = within(section).getAllByRole("listitem");
     expect(rows[0].textContent).toContain("Barbell Bench Press");
-    expect(rows[0].textContent).toContain("Most common");
-    expect(rows[0].textContent).toContain("Main mover for chest · compared on this exact lift");
-    expect(section.textContent).toContain("Log a set of any of these — the weight and the reps — and your chest gets a rank:");
-    fireEvent.click(within(section).getByRole("button", { name: "Log Barbell Bench Press" }));
-    expect(onLog).toHaveBeenCalledWith(expect.objectContaining({ name: "Barbell Bench Press" }));
+    // "Common option", not a superlative there is no usage data for.
+    expect(rows[0].textContent).toContain("Common option");
+    expect(section.textContent).not.toContain("Most common");
+    expect(rows[0].textContent).toContain("Barbell · main mover for chest · compared on this exact lift");
+    expect(section.textContent).toContain("A set of one of these — weight and reps — can give your chest a rank.");
+    fireEvent.click(within(section).getByRole("button", { name: "Log this lift: Barbell Bench Press" }));
+    expect(onLog).toHaveBeenCalledWith(expect.objectContaining({ id: 1, name: "Barbell Bench Press" }));
     expect(section.textContent).toMatch(/\d+ more lifts rank the chest/);
+    // Direct and related comparisons explained on demand.
+    expect(within(section).getByText("How lifts are compared")).toBeTruthy();
   });
 
-  it("says plainly when logged lifts could not be ranked", () => {
+  it("narrows to the chosen equipment, and offers any equipment again when nothing is left", () => {
+    render(React.createElement(RankingLiftSuggestions, { regionId: "chest", regionLabel: "Chest", loggedNames: [], hasRecords: false }));
+    const section = screen.getByRole("region", { name: "Add a comparable lift" });
+    fireEvent.change(within(section).getByRole("combobox", { name: "Equipment" }), { target: { value: "Machine" } });
+    const rows = within(section).getAllByRole("listitem");
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) expect(row.textContent).toContain("Machine · ");
+    // Every machine chest lift already logged: nothing to suggest on it, said so, with the way out.
+    cleanup();
+    const machines = rankingLiftsForRegion("chest").filter((lift) => lift.exercise.equipment === "Machine").map((lift) => lift.exercise.name);
+    render(React.createElement(RankingLiftSuggestions, { regionId: "chest", regionLabel: "Chest", loggedNames: machines, hasRecords: true }));
+    const again = screen.getByRole("region", { name: "Add a comparable lift" });
+    expect(within(again).queryByRole("option", { name: /^Machine/ })).toBeNull();
+  });
+
+  it("says what stands between a logged lift and a rank, and that the lift is saved either way", () => {
+    render(React.createElement(RankingLiftSuggestions, { regionId: "chest", regionLabel: "Chest", loggedNames: [], hasRecords: false, blocked: "failed" }));
+    expect(screen.getByRole("status").textContent).toBe("Ranks could not be worked out just now. A lift you log is saved, and ranks when the service answers again.");
+    cleanup();
+    render(React.createElement(RankingLiftSuggestions, { regionId: "chest", regionLabel: "Chest", loggedNames: [], hasRecords: false, blocked: "offline" }));
+    expect(screen.getByRole("status").textContent).toContain("saved on this device, and ranks once you're back online");
+  });
+
+  it("says plainly when logged lifts could not be compared", () => {
     render(React.createElement(RankingLiftSuggestions, { regionId: "chest", regionLabel: "Chest", loggedNames: ["Push-Up Plus"], hasRecords: true }));
-    expect(screen.getByText(/None of the lifts logged here can be ranked/)).toBeTruthy();
+    expect(screen.getByText(/None of the lifts logged here can be compared with other lifters/)).toBeTruthy();
   });
 
-  it("says a group cannot be ranked yet when no lift ranks it", () => {
+  it("says a group cannot be ranked yet without implying it does not matter", () => {
     render(React.createElement(RankingLiftSuggestions, { regionId: "tibialis_anterior", regionLabel: "Tibialis anterior", loggedNames: [], hasRecords: false }));
-    expect(screen.getByRole("region", { name: "Get a Tibialis anterior rank" }).textContent).toContain("No lift in the comparison data ranks the tibialis anterior yet");
+    const text = screen.getByRole("region", { name: "Add a comparable lift" }).textContent;
+    expect(text).toContain("No lift in the comparison data ranks the tibialis anterior yet");
+    expect(text).toContain("That says nothing about how much it matters");
     expect(screen.queryByRole("button")).toBeNull();
+  });
+});
+
+describe("the snapshot is checked, not trusted by date (S01-S03, S08)", () => {
+  it("records its scorer, schema and the catalog names it was built against, and the app catalog still matches", () => {
+    expect(rankableSnapshotMeta.schemaVersion).toBe(RANKABLE_SCHEMA_VERSION);
+    expect(rankableSnapshotMeta.scorer).toBe("score_strength_profile_v1");
+    expect(rankableSnapshotMeta.resolutions).toEqual({ direct: "direct", aliased_variant: "related", aliased_rep_variant: "related" });
+    const byId = new Map(exercises.map((exercise) => [exercise.id, exercise.name]));
+    const ids = Object.keys(table).map(Number).sort((a, b) => a - b);
+    expect(rankableSnapshotMeta.catalog.scored).toBe(ids.length);
+    // The database's names for these IDs, digested when the snapshot was made; a renamed or renumbered
+    // catalog entry changes this and fails here, asking for the snapshot to be regenerated.
+    const digest = createHash("md5").update(ids.map((id) => `${id}:${byId.get(id)}`).join("\n")).digest("hex");
+    expect(digest).toBe(rankableSnapshotMeta.catalog.namesFingerprint);
+  });
+
+  it("picks familiar lifts by catalog ID, so two entries that share a name cannot swap", () => {
+    expect(exercises.filter((exercise) => exercise.name === "Romanian Deadlift").map((exercise) => exercise.id)).toEqual([42, 186]);
+    expect(suggestedRankingLifts("hamstrings")[0].exercise.id).toBe(familiarRankingLiftId.hamstrings);
+    for (const [regionId, id] of Object.entries(familiarRankingLiftId)) expect(familiarRankingLift[regionId]).toBe(exercises.find((exercise) => exercise.id === id)!.name);
+    // Excluding by ID leaves the other Romanian Deadlift available.
+    const pool = (excludeIds: Set<number>) => rankingLiftsForRegion("hamstrings").filter((lift) => !excludeIds.has(lift.exercise.id)).map((lift) => lift.exercise.id);
+    expect(pool(new Set([186]))).toContain(42);
+    expect(suggestedRankingLifts("hamstrings", { excludeIds: new Set([186]) }).map((lift) => lift.exercise.id)).not.toContain(186);
+  });
+
+  it("refuses a snapshot with an unknown resolution, a bad weight, a duplicate ID or no name", async () => {
+    // @ts-expect-error - a plain .mjs script without types
+    const { buildRankableTable } = await import("../../../scripts/strength/rankable-exercises.mjs");
+    const good = [1, "load", "direct", [["pectoralis_major_sternocostal", "primary", 0.95], ["serratus_anterior", "stabilizer", null]], "Barbell Bench Press"];
+    const built = buildRankableTable([good]);
+    expect(built.exercises[1]).toEqual(["load", "direct", [["pectoralis_major_sternocostal", "primary", 0.95]]]);
+    expect(built.warnings).toHaveLength(1);
+    expect(() => buildRankableTable([[...good.slice(0, 2), "nearest_neighbour", ...good.slice(3)]])).toThrow(/unknown norm_resolution "nearest_neighbour"/);
+    expect(() => buildRankableTable([[1, "load", "direct", [["pectoralis_major_sternocostal", "primary", 1.4]], "X"]])).toThrow(/outside \(0, 1\]/);
+    expect(() => buildRankableTable([good, good])).toThrow(/duplicate catalogId/);
+    expect(() => buildRankableTable([[1, "load", "direct", good[3], ""]])).toThrow(/missing exercise name/);
+    expect(() => buildRankableTable([[1, "load", "direct", [["serratus_anterior", "stabilizer", 0.2]], "X"]])).toThrow(/only stabilizer mappings/);
   });
 });

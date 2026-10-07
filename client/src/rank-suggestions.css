@@ -1,4 +1,4 @@
-/* "Get a Chest rank" (components/RankingLiftSuggestions.tsx): the lifts that would rank a muscle
+/* "Add a comparable lift" (components/RankingLiftSuggestions.tsx): the lifts that would rank a muscle
    group with none yet, inside the group's record sheet. Rows match the sheet's dark surface; the
    thumbnail is the shared exercise media frame. */
 .rank-suggestions-lead, .rank-suggestions-more { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
@@ -12,8 +12,18 @@
 .rank-suggestion-log { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .3rem; border: 1px solid var(--sg-action); border-radius: 999px; background: rgb(228 81 46 / .14); padding: 0 .85rem; color: #ffd0c2; font-size: var(--sg-text-sm); font-weight: 700; white-space: nowrap; }
 .rank-suggestion-log:hover { background: rgb(228 81 46 / .26); }
 .rank-suggestion-log:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
-/* A narrow phone: the button goes under the copy rather than squeezing the name to a few letters. */
-@media (max-width: 359px) {
+/* A phone: the button goes under the copy rather than squeezing the name to a few letters. */
+@media (max-width: 479px) {
   .rank-suggestion { grid-template-columns: auto minmax(0, 1fr); }
   .rank-suggestion-log { grid-column: 1 / -1; justify-content: center; }
 }
+.rank-suggestions-blocked { margin: 0; border-left: 2px solid var(--sg-focus-on-dark); padding: .35rem .6rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.rank-suggestions-equipment { display: grid; gap: .2rem; justify-self: start; min-width: min(100%, 14rem); color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 700; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
+.rank-suggestions-equipment select { min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 10px; background: var(--sg-surface-raised); padding: 0 .6rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 400; letter-spacing: 0; text-transform: none; }
+.rank-suggestions-equipment select:focus-visible, .rank-suggestions-empty button:focus-visible, .rank-suggestions-method summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.rank-suggestions-empty { display: grid; gap: .45rem; justify-items: start; }
+.rank-suggestions-empty p { margin: 0; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); }
+.rank-suggestions-empty button { display: inline-flex; min-height: 2.75rem; align-items: center; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 0 .9rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.rank-suggestions-method summary { display: flex; min-height: 2.75rem; align-items: center; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; cursor: pointer; }
+.rank-suggestions-method p { margin: 0 0 .45rem; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.rank-suggestions-method b { color: var(--sg-text-on-dark); font-weight: 600; }

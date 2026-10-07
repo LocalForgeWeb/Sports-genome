@@ -41,7 +41,6 @@ import { ReviewHead, ReviewWeekPills, type ReviewScope } from "@/components/week
 import { WeekReviewBoard } from "@/components/weekReview/WeekReviewBoard";
 import { analyzeWeek } from "@/lib/weekReview";
 import { ExercisePrescriptionRow } from "@/components/ExercisePrescriptionRow";
-import { PROGRESSION_APPROVAL_EVENT, SEGMENT_PRIORITY_APPROVAL_EVENT, SEGMENT_SUGGESTION_APPROVAL_EVENT } from "@/components/WorkoutExecutionPanel";
 const DeviceWorkoutTracker = lazy(() => import("@/components/DeviceWorkoutTracker").then((module) => ({ default: module.DeviceWorkoutTracker })));
 const DayExercisePicker = lazy(() => import("@/components/DayExercisePicker").then((module) => ({ default: module.DayExercisePicker })));
 import { PrintableWorkoutSheet } from "@/components/PrintableWorkoutSheet";
@@ -81,7 +80,6 @@ import { sportMovementProfiles, sportProfiles, type SportMovementProfile } from 
 import { movementDisplayLabel } from "@/lib/movementLabel";
 import { findSportMovement, getMovementMuscles, getMovementRecommendations, getMovementSignals, getSportProgrammingContext, getSportSession, movementSignalLabels, muscleWords, orderHierarchyConstructedSession, type MovementRecommendation, type RegistryEvidenceMap } from "@/lib/movementRecommendations";
 import { getGymTimeBudget, gymTimeOptions, normalizeGymMinutes } from "@/lib/gymTimeBudget";
-import { buildApprovedProgressionNote, buildApprovedSegmentPriorityNote } from "@/lib/progressiveTraining";
 import { nextWeekToGenerate, visibleWeeks } from "@/lib/threeWeekPlan";
 import { getSplitExercisePool } from "@/lib/splitAssignment";
 import { browseAction, browseMovement, browseSport, followProfileSport, isBrowsingOtherSport, referenceMovementId, referenceSportId, type SportBrowseState } from "@/lib/sportBrowsing";
@@ -1597,41 +1595,9 @@ export default function Home() {
     window.addEventListener("duplicate-training-exercise", duplicateFromPrescription);
     return () => window.removeEventListener("duplicate-training-exercise", duplicateFromPrescription);
   }, [customWorkout, prescriptions, exerciseSettings]);
-  useEffect(() => {
-    const applyApprovedProgression = (event: Event) => {
-      const recommendation = (event as CustomEvent<{ exerciseId: number; exerciseName: string; action: string; rationale: string }>).detail;
-      if (!recommendation?.exerciseId) return;
-      setExerciseSettings((current) => {
-        const existing = getExerciseSettings(current, recommendation.exerciseId);
-        return { ...current, [recommendation.exerciseId]: { ...existing, notes: buildApprovedProgressionNote(recommendation, existing.notes) } };
-      });
-      toast("Progression note applied", { description: `${recommendation.exerciseName} now has an athlete-approved next-session note in the planner.` });
-    };
-    window.addEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression);
-    const applyApprovedSegmentPriority = (event: Event) => {
-      const signal = (event as CustomEvent<{ muscle: string; rationale: string }>).detail;
-      if (!signal?.muscle) return;
-      const target = customWorkout.find((exercise) => exercise.primaryMuscles.includes(signal.muscle));
-      if (!target) { toast("No direct exercise in this day", { description: "The segment focus was not applied because this Training Day has no directly tagged exercise for it." }); return; }
-      setExerciseSettings((current) => {
-        const existing = getExerciseSettings(current, target.id);
-        return { ...current, [target.id]: { ...existing, notes: buildApprovedSegmentPriorityNote(signal, existing.notes) } };
-      });
-      toast("Segment focus added", { description: `${target.name} now carries an athlete-approved ${signal.muscle.replace(/_/g, " ")} review note.` });
-    };
-    window.addEventListener(SEGMENT_PRIORITY_APPROVAL_EVENT, applyApprovedSegmentPriority);
-    const applyApprovedSegmentSuggestion = (event: Event) => {
-      const suggestion = (event as CustomEvent<{ exerciseId: number; exerciseName: string; targetMuscle: string }>).detail;
-      const target = exercises.find((exercise) => exercise.id === suggestion?.exerciseId);
-      if (!target) return;
-      if (customWorkout.some((exercise) => exercise.id === target.id)) { toast("Already in this Training Day", { description: `${target.name} is already included for review.` }); return; }
-      setCustomWorkout((current) => [...current, target]);
-      navigateWorkspace("day-plan");
-      toast("Optional segment addition applied", { description: `${target.name} was added after your explicit ${suggestion.targetMuscle.replace(/_/g, " ")} review choice.` });
-    };
-    window.addEventListener(SEGMENT_SUGGESTION_APPROVAL_EVENT, applyApprovedSegmentSuggestion);
-    return () => { window.removeEventListener(PROGRESSION_APPROVAL_EVENT, applyApprovedProgression); window.removeEventListener(SEGMENT_PRIORITY_APPROVAL_EVENT, applyApprovedSegmentPriority); window.removeEventListener(SEGMENT_SUGGESTION_APPROVAL_EVENT, applyApprovedSegmentSuggestion); };
-  }, [customWorkout]);
+  // The legacy "approve progression / segment" listeners lived here. Only the unmounted
+  // WorkoutExecutionPanel dispatched them, and "applied" meant a sentence appended to notes
+  // (Oct 7 brief P01, Q01), so they were retired rather than left to be revived unchanged.
 	  const activeImportedContext = dayStore.context[activeDayKey] || [];
   /**
    * Body weight is a measurement with a date, not a setting. Editing it here

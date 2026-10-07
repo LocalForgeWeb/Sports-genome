@@ -103,13 +103,16 @@ async function openSwap(p) { await card(p).getByRole('button', { name: 'Swap exe
   check('After reload: still on Back Squat, which is done; Dumbbell Bench Press next', (await card(p).locator('h4').textContent()) === 'Dumbbell Bench Press');
 
   // 4. Finish and read the record in Progress.
-  await p.locator('.live-session-finish').last().click(); await wait(p, 800);
+  await p.locator('.live-session-finish').last().click(); await wait(p, 500);
+  // Since Oct 7, finishing with planned sets still open asks once, in place.
+  if (await p.getByRole('button', { name: 'Finish now' }).count()) { await p.getByRole('button', { name: 'Finish now' }).click(); await wait(p, 800); }
   await p.goto(`${base}/?workspace=progress`); await wait(p, 1800);
-  await p.locator('.progress-session-card > summary').first().click().catch(() => {}); await wait(p, 300);
-  const record = await p.locator('.progress-session-sets').first().textContent().catch(() => '');
+  // Since Oct 7 a Progress row opens the workout's own detail, where the sets are.
+  await p.locator('.progress-session-open').first().click().catch(() => {}); await wait(p, 500);
+  const record = await p.locator('.session-detail-exercises').first().textContent().catch(() => '');
   check('Progress record shows both exercises and the swap', record.includes('Switched to Back Squat after 2 sets') && record.includes('Switched from Sissy Squat after 2 sets'));
   check('Progress record shows the drop set as one line with its totals', record.includes('Drop set · 100 lb × 5 → 70 lb × 6 → 50 lb × 10') && record.includes('1 drop set · 3 stages · 21 reps · 1,420 lb·reps'));
-  await p.evaluate(() => document.querySelectorAll('.progress-session-set-lines')[1]?.scrollIntoView({ block: 'center' }));
+  await p.locator('.session-detail-exercises details').nth(1).evaluate((d) => { d.open = true; d.scrollIntoView({ block: 'center' }); }).catch(() => {});
   await p.screenshot({ path: `${out}record-progress-390.png` });
   await ctx.close();
 }

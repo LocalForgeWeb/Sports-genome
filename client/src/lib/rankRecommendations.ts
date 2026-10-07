@@ -26,7 +26,13 @@ import { muscleCanonicalNameToRegionId } from "@shared/capabilityRank";
 
 type Mapping = [muscle: string, role: string, weight: number];
 type Entry = [mode: "load" | "reps", basis: "direct" | "related", mappings: Mapping[]];
-const table = (rankable as unknown as { exercises: Record<string, Entry> }).exercises;
+/** What the snapshot says about itself (scripts/strength/rankable-exercises.mjs): which scorer, which schema, which catalog names. */
+export type RankableSnapshotMeta = { schemaVersion: number; scorer: string; resolutions: Record<string, "direct" | "related">; generatedAt: string; catalog: { scored: number; namesFingerprint: string } };
+export const RANKABLE_SCHEMA_VERSION = 2;
+const snapshot = rankable as unknown as RankableSnapshotMeta & { exercises: Record<string, Entry> };
+export const rankableSnapshotMeta: RankableSnapshotMeta = { schemaVersion: snapshot.schemaVersion, scorer: snapshot.scorer, resolutions: snapshot.resolutions, generatedAt: snapshot.generatedAt, catalog: snapshot.catalog };
+// A snapshot of another shape is not read at all: no suggestion beats one that claims a rank it cannot give.
+const table: Record<string, Entry> = snapshot.schemaVersion === RANKABLE_SCHEMA_VERSION ? snapshot.exercises : {};
 
 export type RankingLift = {
   exercise: Exercise;
@@ -68,42 +74,70 @@ export function rankingLiftsForRegion(regionId: string): RankingLift[] {
 }
 
 /**
- * The lift most people already know for each group, offered first so the answer to "what do I
- * log for a chest rank?" is a bench press rather than a fly. Each one is checked against the
- * scorer's list by a test: it must be rankable and work the group (rankRecommendations.test.ts).
+ * A familiar lift for each group, offered first so the answer to "what do I log for a chest rank?"
+ * is a bench press rather than a fly. Referenced by catalog ID (S08): the catalog holds two entries
+ * named "Romanian Deadlift" (42 and 186), and a name would pick whichever sorted first. Each is
+ * checked by a test: rankable, and a main mover for its group (rankRecommendations.test.ts).
+ * It is "a common option", not "the most common": there is no usage data behind a superlative.
  * Standing Calf Raise has no comparison data, so calves start from the seated raise.
  */
-export const familiarRankingLift: Readonly<Record<string, string>> = {
-  chest: "Barbell Bench Press",
-  shoulders: "Barbell Overhead Press",
-  upper_back: "Seated Cable Row",
-  lats: "Lat Pulldown",
-  biceps: "Barbell Curl",
-  triceps: "Cable Triceps Pushdown",
-  forearms_grip: "Wrist Curl",
-  abdominals: "Cable Crunch",
-  obliques: "Cable Wood Chop",
-  spinal_erectors: "Conventional Deadlift",
-  glutes: "Barbell Hip Thrust",
-  hip_flexors: "Hanging Knee Raise",
-  hip_adductors: "Hip Adduction Machine",
-  hip_abductors: "Hip Abduction Machine",
-  quadriceps: "Back Squat",
-  hamstrings: "Romanian Deadlift",
-  calves: "Seated Calf Raise",
+export const familiarRankingLiftId: Readonly<Record<string, number>> = {
+  chest: 1, // Barbell Bench Press
+  shoulders: 101, // Barbell Overhead Press
+  upper_back: 54, // Seated Cable Row
+  lats: 57, // Lat Pulldown
+  biceps: 121, // Barbell Curl
+  triceps: 150, // Cable Triceps Pushdown
+  forearms_grip: 139, // Wrist Curl
+  abdominals: 239, // Cable Crunch
+  obliques: 250, // Cable Wood Chop
+  spinal_erectors: 41, // Conventional Deadlift
+  glutes: 206, // Barbell Hip Thrust
+  hip_flexors: 232, // Hanging Knee Raise
+  hip_adductors: 219, // Hip Adduction Machine
+  hip_abductors: 214, // Hip Abduction Machine
+  quadriceps: 161, // Back Squat
+  hamstrings: 186, // Romanian Deadlift
+  calves: 222, // Seated Calf Raise
 };
+
+/** The familiar lifts by name, for reading and for older callers. */
+export const familiarRankingLift: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(familiarRankingLiftId).map(([regionId, id]) => [regionId, byId.get(id)?.name ?? ""]),
+);
+
+export type RankingSuggestionOptions = {
+  limit?: number;
+  /** Catalog IDs already logged for this group (S08): left out. */
+  excludeIds?: ReadonlySet<number>;
+  /** Names of logged lifts with no catalog ID (older records): left out by name. */
+  exclude?: ReadonlySet<string>;
+  /** Only lifts on this equipment, when the athlete chose one (S06). */
+  equipment?: string | null;
+};
+
+/** The equipment the group's rankable lifts use, with how many of each, most first. */
+export function rankingEquipmentOptions(regionId: string, options: Pick<RankingSuggestionOptions, "excludeIds" | "exclude"> = {}): { equipment: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const lift of rankingLiftsForRegion(regionId)) {
+    if (options.excludeIds?.has(lift.exercise.id) || options.exclude?.has(lift.exercise.name.toLowerCase())) continue;
+    counts.set(lift.exercise.equipment, (counts.get(lift.exercise.equipment) ?? 0) + 1);
+  }
+  return Array.from(counts, ([equipment, count]) => ({ equipment, count })).sort((a, b) => b.count - a.count || a.equipment.localeCompare(b.equipment));
+}
 
 /**
  * A few lifts to suggest: the familiar one first, then the best of the rest spread across
  * equipment, leaving out anything already logged for the group (it is either behind the rank
  * already or named with the reason it was not counted).
  */
-export function suggestedRankingLifts(regionId: string, options: { limit?: number; exclude?: ReadonlySet<string> } = {}): RankingLift[] {
-  const { limit = 3, exclude = new Set<string>() } = options;
-  const pool = rankingLiftsForRegion(regionId).filter((lift) => !exclude.has(lift.exercise.name.toLowerCase()));
+export function suggestedRankingLifts(regionId: string, options: RankingSuggestionOptions = {}): RankingLift[] {
+  const { limit = 3, excludeIds = new Set<number>(), exclude = new Set<string>(), equipment: onlyEquipment = null } = options;
+  const pool = rankingLiftsForRegion(regionId).filter((lift) =>
+    !excludeIds.has(lift.exercise.id) && !exclude.has(lift.exercise.name.toLowerCase()) && (!onlyEquipment || lift.exercise.equipment === onlyEquipment));
   const picked: RankingLift[] = [];
   const equipment = new Set<string>();
-  const familiar = pool.find((lift) => lift.exercise.name === familiarRankingLift[regionId]);
+  const familiar = pool.find((lift) => lift.exercise.id === familiarRankingLiftId[regionId]);
   if (familiar && limit > 0) { picked.push(familiar); equipment.add(familiar.exercise.equipment); }
   // First pass: the best lift for each piece of equipment, in order, among the strongest choices
   // (primary movers when there are any). Second pass fills any remaining places in order.
@@ -126,11 +160,11 @@ export function regionHasRankingLifts(regionId: string): boolean {
   return rankingLiftsForRegion(regionId).length > 0;
 }
 
-/** Why this lift, in a short line: how it works the group, and what it is compared with. */
+/** Why this lift, in a short line: its equipment, how it works the group, and what it is compared with. */
 export function rankingLiftReason(lift: RankingLift, regionLabel: string): string {
-  const role = lift.role === "primary" ? "Main mover" : "Helper";
+  const role = lift.role === "primary" ? "main mover" : "helper";
   const compared = lift.basis === "direct" ? "compared on this exact lift" : "compared through a related lift";
-  return `${role} for ${regionLabel.toLowerCase()} · ${compared}`;
+  return `${lift.exercise.equipment} · ${role} for ${regionLabel.toLowerCase()} · ${compared}`;
 }
 
 /** What to log, said only where it differs from an ordinary set of weight and reps. */

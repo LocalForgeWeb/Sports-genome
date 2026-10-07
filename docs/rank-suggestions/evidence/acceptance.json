@@ -1,16 +1,21 @@
 {
- "ranAt": "2026-10-07T02:39:33.951Z",
+ "ranAt": "2026-10-07T18:24:14.673Z",
  "environment": "headless Chromium, vite preview of the production build, viewport emulation",
  "results": [
   {
-   "name": "phone-390: Chest sheet shows \"Get a Chest rank\" with Barbell Bench Press first",
+   "name": "phone-390: Chest sheet shows \"Add a comparable lift\" with Barbell Bench Press first, tagged Common option",
    "pass": true,
-   "detail": "Barbell Bench PressMost common | Cable Fly | Dumbbell Fly"
+   "detail": "Barbell Bench PressCommon option | Cable Fly | Dumbbell Fly"
   },
   {
-   "name": "phone-390: rows fit, no sideways scroll, Log it buttons at least 44 px",
+   "name": "phone-390: rows fit, no sideways scroll, Log this lift buttons at least 44 px",
    "pass": true,
    "detail": ""
+  },
+  {
+   "name": "Equipment: Machine lists machine lifts only",
+   "pass": true,
+   "detail": "Machine · main mover for chest · compared on this exact lift | Machine · main mover for chest · compared on this exact lift | Machine · main mover for chest · compared on this exact lift"
   },
   {
    "name": "Log it closes the sheet and opens the lift log with Barbell Bench Press chosen, focus on the set",
@@ -18,19 +23,29 @@
    "detail": "{\"sheet\":false,\"open\":true,\"search\":\"Barbell Bench Press\",\"focused\":\"Load in pounds\"}"
   },
   {
+   "name": "After saving, the toast offers Back to Chest",
+   "pass": true,
+   "detail": "Lift saved on this device.Back to Chest"
+  },
+  {
+   "name": "Back to Chest reopens the Chest sheet",
+   "pass": true,
+   "detail": ""
+  },
+  {
    "name": "Quadriceps: first suggestion is Back Squat",
    "pass": true,
-   "detail": "Back SquatMost common"
+   "detail": "Back SquatCommon option"
   },
   {
    "name": "Lats: first suggestion is Lat Pulldown",
    "pass": true,
-   "detail": "Lat PulldownMost common"
+   "detail": "Lat PulldownCommon option"
   },
   {
    "name": "Biceps: first suggestion is Barbell Curl",
    "pass": true,
-   "detail": "Barbell CurlMost common"
+   "detail": "Barbell CurlCommon option"
   },
   {
    "name": "Tibialis anterior says no lift can rank it yet, and suggests nothing",
@@ -38,22 +53,22 @@
    "detail": ""
   },
   {
-   "name": "phone-320: Chest sheet shows \"Get a Chest rank\" with Barbell Bench Press first",
+   "name": "phone-320: Chest sheet shows \"Add a comparable lift\" with Barbell Bench Press first, tagged Common option",
    "pass": true,
-   "detail": "Barbell Bench PressMost common | Cable Fly | Dumbbell Fly"
+   "detail": "Barbell Bench PressCommon option | Cable Fly | Dumbbell Fly"
   },
   {
-   "name": "phone-320: rows fit, no sideways scroll, Log it buttons at least 44 px",
+   "name": "phone-320: rows fit, no sideways scroll, Log this lift buttons at least 44 px",
    "pass": true,
    "detail": ""
   },
   {
-   "name": "desktop-1280: Chest sheet shows \"Get a Chest rank\" with Barbell Bench Press first",
+   "name": "desktop-1280: Chest sheet shows \"Add a comparable lift\" with Barbell Bench Press first, tagged Common option",
    "pass": true,
-   "detail": "Barbell Bench PressMost common | Cable Fly | Dumbbell Fly"
+   "detail": "Barbell Bench PressCommon option | Cable Fly | Dumbbell Fly"
   },
   {
-   "name": "desktop-1280: rows fit, no sideways scroll, Log it buttons at least 44 px",
+   "name": "desktop-1280: rows fit, no sideways scroll, Log this lift buttons at least 44 px",
    "pass": true,
    "detail": ""
   }
