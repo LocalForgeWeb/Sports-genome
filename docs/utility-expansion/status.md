@@ -181,7 +181,7 @@ changed here), with references in `glossary-evidence.json`:
 
 ## Regression probes (I11)
 
-Run on the merged build (`9193291` plus this commit's changes) with `vite preview`:
+Run on the final build of this branch (main merged at `b74c9d3`, every utility change included) with `vite preview`:
 
 | Probe | Result | Note |
 |---|---|---|
@@ -201,9 +201,9 @@ Run on the merged build (`9193291` plus this commit's changes) with `vite previe
 
 ## Screenshots (`screenshots/`, local browser)
 
-Plates: `plates-inexact-390`, `plates-inexact-desktop`, `plates-inventory-320`. My setup:
-`setup-390`, `setup-desktop`. Blocks: `blocks-list-390`, `blocks-insert-390`,
-`blocks-insert-desktop`, `blocks-missing-390`, `blocks-save-failed-390`. Preparation:
-`prep-390`, `prep-photos-390`, `prep-reload-320`. Training terms: `terms-list-320`,
-`terms-detail-390`, `terms-detail-desktop`, `terms-from-search-390`, `terms-scope-390`,
-`terms-broadened-390`.
+Plates: `plates-inexact-320`, `plates-inexact-390`, `plates-inexact-desktop`,
+`plates-inventory-320`. My setup: `setup-390`, `setup-desktop`. Blocks: `blocks-list-390`,
+`blocks-insert-390`, `blocks-insert-desktop`, `blocks-edit-320`, `blocks-missing-390`,
+`blocks-save-failed-390`. Preparation: `prep-390`, `prep-photos-390`, `prep-reload-320`,
+`prep-editor-390`, `prep-choose-390`. Training terms: `terms-list-320`, `terms-detail-390`,
+`terms-detail-desktop`, `terms-from-search-390`, `terms-scope-390`, `terms-broadened-390`.
