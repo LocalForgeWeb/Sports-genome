@@ -26,7 +26,7 @@ const dayLabel = (key: string) => key.split("-").slice(1).join("-") || key;
 function getDayExposure(workout: Exercise[], prescriptions: Record<number, string> | undefined, goal: TrainingGoal) {
   const exposure = new Map<string, number>();
   workout.forEach((exercise, index) => {
-    const sets = parseSets(prescriptions?.[exercise.id] || getGoalPrescription(goal, index), 3);
+    const sets = parseSets(prescriptions?.[exercise.id] || getGoalPrescription(goal, index, exercise), 3);
     const primary = new Set(exercise.primaryMuscles);
     primary.forEach((muscle) => exposure.set(muscle, (exposure.get(muscle) || 0) + sets));
     exercise.secondaryMuscles.filter((muscle) => !primary.has(muscle)).forEach((muscle) => exposure.set(muscle, Number(((exposure.get(muscle) || 0) + sets * logicCalibration.exposure.secondarySetConvention).toFixed(1))));

@@ -1,7 +1,7 @@
 import type { Exercise } from "./exerciseCatalog";
 import { isCompletedSet, isDraftSet, isDropInProgress, settleDropSet, type DeviceSetLog, type DeviceWorkoutExercise, type DeviceWorkoutSession } from "./deviceWorkoutLog";
 import { renderableSetCount } from "./setPrescription";
-import { setEntryFieldsFor } from "./setEntryFields";
+import { setCountFieldFor, setEntryFieldsFor } from "./setEntryFields";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
 
 /**
@@ -192,12 +192,17 @@ export function swapNote(exercise: DeviceWorkoutExercise): string | null {
   return null;
 }
 
+const countWords = { reps: "reps", seconds: "seconds held", distance: "distance covered" } as const;
+
 const conventionWords: Record<LoadConvention, string> = {
   total_external_load: "the whole load (bar and plates, or the bell)",
   per_implement: "the weight of one dumbbell",
   machine_displayed_load: "the number on the stack or dial",
   bodyweight_reps: "reps, with any weight added to the body",
   per_hand: "the weight in each hand",
+  assistance: "the assistance the machine gives (less is harder)",
+  resistance_setting: "the band or gripper setting, with no weight",
+  no_external_load: "time held, with no weight",
 };
 
 /**
@@ -214,7 +219,15 @@ export function swapMeasurementNotes(from: Exercise | undefined, to: Exercise | 
   const fromHeight = setEntryFieldsFor(from).some((field) => field.measure === "height");
   const toHeight = setEntryFieldsFor(to).some((field) => field.measure === "height");
   if (fromHeight !== toHeight) notes.push(toHeight ? `${toName} records a box height as well as reps.` : `${toName} has no box height to record.`);
-  if (/\d\s*(s|sec|secs|seconds|min|mins|minutes)\b/i.test(prescription)) notes.push(`The plan's target (${prescription}) is a time; sets here are logged in reps, so set the reps as you go.`);
+  // What a set counts (shared/exerciseMeasurement): reps, seconds held or distance covered.
+  const toCount = setCountFieldFor(to).measure;
+  const fromCount = setCountFieldFor(from).measure;
+  if (fromCount !== toCount) notes.push(`${toName} is logged in ${countWords[toCount]}, not ${countWords[fromCount]}.`);
+  const timedTarget = /\d\s*(s|sec|secs|seconds|min|mins|minutes)\b/i.test(prescription);
+  const distanceTarget = /\d\s*(m|yd|km)\b/i.test(prescription);
+  if (timedTarget && toCount !== "seconds") notes.push(`The plan's target (${prescription}) is a time; sets here are logged in ${countWords[toCount]}, so set them as you go.`);
+  else if (distanceTarget && toCount !== "distance") notes.push(`The plan's target (${prescription}) is a distance; sets here are logged in ${countWords[toCount]}, so set them as you go.`);
+  else if (!timedTarget && !distanceTarget && toCount !== "reps") notes.push(`The plan's target (${prescription}) is reps; ${toName} is logged in ${countWords[toCount]}, so set them as you go.`);
   return notes;
 }
 

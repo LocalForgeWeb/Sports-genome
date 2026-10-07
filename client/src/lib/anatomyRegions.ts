@@ -35,6 +35,9 @@ export type AnatomyRole = "primary" | "supporting" | "stabilizing" | "neutral";
 export const umbrellaRegionKeys: Record<string, string[]> = {
   shoulders: ["frontDelts", "sideDelts", "rearDelts"],
   rhomboids: ["upperBack"],
+  // "Neck" in a movement record names both groups: the figure draws the flexors on the front
+  // view and the extensors on the back.
+  neck: ["neckFlexors", "neckExtensors"],
 };
 
 /** Spellings that have reached this component from catalog and movement data. */
@@ -57,6 +60,8 @@ const regionSynonyms: Record<string, string[]> = {
   lowerBack: ["lowerback", "erectors", "erectorspinae"],
   rotatorCuff: ["rotatorcuff", "infraspinatus"],
   feet: ["feet", "foot"],
+  neckFlexors: ["neckflexors", "sternocleidomastoid", "scalene"],
+  neckExtensors: ["neckextensors", "splenius", "semispinalis"],
 };
 
 const normalise = (value: string) => value.toLowerCase().replace(/[^a-z]/g, "");

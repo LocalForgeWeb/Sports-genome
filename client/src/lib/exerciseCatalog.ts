@@ -1,6 +1,7 @@
 /** Kinetic Field Manual: app data favors transparent training logic over false precision. */
 
 import { expandedExercises } from "./exerciseCatalogExpansion";
+import { addedExercises } from "./exerciseCatalogAdditions";
 import { getExerciseStudyCalibration, type StudyRangeOfMotion } from "./exerciseStudyCalibration";
 
 export type Sport = 'tennis' | 'basketball' | 'soccer' | 'baseball' | 'combat';
@@ -13449,7 +13450,9 @@ export const baseExercises: Exercise[] = [
   }
 ] as const;
 
-export const exercises: Exercise[] = [...baseExercises, ...expandedExercises].map((exercise) => {
+// Ids 1-300 (base), 301-400 (expansion, numbered by position) and 401-450 (the 50-exercise
+// expansion, numbered explicitly). Never insert into the first two; append new records here.
+export const exercises: Exercise[] = [...baseExercises, ...expandedExercises, ...addedExercises].map((exercise) => {
   const calibration = getExerciseStudyCalibration(exercise);
   return calibration ? {
     ...exercise,

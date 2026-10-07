@@ -294,7 +294,7 @@ export function analyzeWeek(input: WeekReviewInput): WeekAnalysis {
     workout.forEach((exercise, index) => {
       const saved = prescriptions[slot.key]?.[exercise.id];
       if (saved && !readsAsWritten(saved)) unreadPrescriptions += 1;
-      const sets = parseSetCount(saved || getGoalPrescription(goal, index));
+      const sets = parseSetCount(saved || getGoalPrescription(goal, index, exercise));
       session.workSets += sets;
 
       const direct = new Set(exercise.primaryMuscles);

@@ -60,6 +60,9 @@ export const recordMuscleAliases: Record<string, readonly string[]> = {
   rhomboids: ["rhomboid"],
   lowerBack: ["erector spinae", "multifidus", "lower back", "spinal erector"],
   rotatorCuff: ["rotator cuff", "infraspinatus", "supraspinatus", "teres minor", "subscapularis"],
+  // A record's "neck stabilizers" names both groups.
+  neckFlexors: ["sternocleidomastoid", "scalene", "longus colli", "longus capitis", "neck flexor", "cervical flexor", "neck stabilizer"],
+  neckExtensors: ["splenius", "semispinalis capitis", "semispinalis cervicis", "neck extensor", "cervical extensor", "neck stabilizer"],
 };
 
 /** Body-map keys the catalog never tags, and the catalog key that tags the same tissue. */

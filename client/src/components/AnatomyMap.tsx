@@ -55,7 +55,9 @@ const labels: Record<string, string> = {
   hamstrings: "Hamstrings", calves: "Gastrocnemius", soleus: "Soleus",
   tibialis: "Tibialis anterior", peroneals: "Peroneus longus/brevis", lats: "Latissimus dorsi",
   traps: "Trapezius", rhomboids: "Rhomboids", lowerBack: "Spinal erectors",
-  rotatorCuff: "Rotator cuff muscles"
+  rotatorCuff: "Rotator cuff muscles",
+  // The 50-exercise expansion's neck keys: the front of the neck and the back of it.
+  neckFlexors: "Neck flexors", neckExtensors: "Neck extensors"
 };
 
 const viewLabel = (view: "front" | "back") => (view === "front" ? "anterior" : "posterior");

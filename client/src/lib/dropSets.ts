@@ -1,4 +1,4 @@
-import type { LoadConvention } from "@shared/loadConventions";
+import { conventionCarriesNoLoad, type LoadConvention } from "@shared/loadConventions";
 import type { DeviceSetLog, DropStage } from "./deviceWorkoutLog";
 import { displayWeightToKilograms, kilogramsToDisplayWeight, type DisplayWeightUnit } from "./weightUnits";
 
@@ -52,6 +52,9 @@ export function stageLoadText(stage: Pick<DropStage, "weight" | "unit">, unit: D
   const has = stage.weight.trim() !== "" && Number.isFinite(value) && value > 0;
   const shown = has ? formatLoad(stage.unit && stage.unit !== unit ? kilogramsToDisplayWeight(displayWeightToKilograms(value, stage.unit), unit) : value) : "";
   if (convention === "bodyweight_reps") return has ? `+${shown} ${unit}` : "bodyweight";
+  // An assisted machine's number is help, said so wherever the set is read back.
+  if (convention === "assistance") return has ? `${shown} ${unit} assist` : "no assist";
+  if (convention === "resistance_setting" || convention === "no_external_load") return has ? `${shown} ${unit}` : "";
   return has ? `${shown} ${unit}` : `— ${unit}`;
 }
 
@@ -71,7 +74,11 @@ export function dropSetLine(set: DeviceSetLog, unit: DisplayWeightUnit, conventi
 export type SetVolume = { value: number; unit: DisplayWeightUnit; basis: "total" | "per_implement" | "per_hand" };
 
 export function setVolume(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load", fallbackUnit: DisplayWeightUnit = unit): SetVolume | null {
-  if (convention === "bodyweight_reps") return null;
+  // No external volume where the number is not load lifted: added load on the body, machine
+  // assistance, a band setting or a self-resisted hold - and none for a hold or a carry, whose
+  // amount is seconds or metres rather than reps.
+  if (conventionCarriesNoLoad(convention)) return null;
+  if ((set.seconds || "").trim() || (set.distance || "").trim()) return null;
   let value = 0;
   let counted = false;
   for (const stage of stagesOf(set)) {
@@ -98,10 +105,22 @@ export function volumeText(volume: SetVolume): string {
  */
 export function performedSetLine(set: DeviceSetLog, unit: DisplayWeightUnit, convention: LoadConvention = "total_external_load"): string {
   if (set.type === "drop" && (set.stages?.length ?? 0) >= 2) return dropSetLine(set, unit, convention);
+  // The expansion's measures, read back as what they are: "20 s hold · left", "24 kg per hand ·
+  // 30 m", "CoC #1 × 5", "40 lb assist × 8". Seconds and metres are never shown as reps.
+  const side = set.side ? ` · ${set.side}` : "";
+  const setting = (set.setting || "").trim();
+  const seconds = (set.seconds || "").trim();
+  const distance = (set.distance || "").trim();
+  const loadText = set.weight.trim() ? stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention) : "";
+  const loadWords = loadText ? `${loadText}${convention === "per_hand" ? " per hand" : convention === "per_implement" ? " per dumbbell" : ""}` : "";
+  if (seconds) return [loadWords, setting, `${seconds} s hold`].filter(Boolean).join(" · ") + side;
+  if (distance) return [loadWords || (convention === "total_external_load" ? "— " + unit : ""), `${distance} ${set.distanceUnit ?? "m"}`].filter(Boolean).join(" · ") + side;
+  if (convention === "resistance_setting") return `${setting || "no setting named"} × ${set.reps.trim() || "—"}${side}`;
+  if (convention === "assistance") return `${stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention)} × ${set.reps.trim() || "—"}${side}`;
   const reps = set.reps.trim() || "—";
   if ((set.height || "").trim() && !set.weight.trim()) return `${set.height} in box × ${reps}`;
   const load = stageLoadText({ weight: set.weight, unit: set.unit }, unit, convention);
-  return `${load}${(set.height || "").trim() ? ` · ${set.height} in box` : ""} × ${reps}`;
+  return `${load}${(set.height || "").trim() ? ` · ${set.height} in box` : ""} × ${reps}${side}`;
 }
 
 /** "1 drop set · 3 stages · 21 reps", the detail line under the collapsed row. */

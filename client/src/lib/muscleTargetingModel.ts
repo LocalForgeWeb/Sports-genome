@@ -1,6 +1,14 @@
 import type { Exercise } from "./exerciseCatalog";
 import { getExerciseStudyCalibration } from "./exerciseStudyCalibration";
 import { logicCalibration } from "./evidenceTraceability";
+import { descriptorFor, type TargetingPredicates } from "./exerciseDescriptors";
+
+/**
+ * v2 (50-exercise brief): expansion records state the inputs below in their descriptor instead of
+ * having them read from the name, and a direct-evidence floor needs both the study and a stated
+ * association with this exact variation. The original records' inputs and scores are unchanged.
+ */
+export const MUSCLE_TARGETING_REVISION = "muscle_targeting_v2";
 
 export type MuscleTargetingRole = "Prime mover" | "Synergist" | "Stabilizer";
 export type MuscleEvidenceTier = "Direct longitudinal exercise evidence" | "Conditional mechanics ranking";
@@ -36,9 +44,11 @@ export const mechanicsEvidenceSources = [
   { label: "Ackland et al., 2012 · model sensitivity analysis", url: pubmed("22507351") },
 ] as const;
 
-function resistanceContext(text: string) {
-  if (/cable/.test(text)) return { forceVector: "Cable line of pull; the athlete’s setup sets the external-force vector.", forceLength: "Cable line and joint position create a setup-dependent length–tension context." };
-  if (/machine|smith|leg press/.test(text)) return { forceVector: "Guided resistance path; machine geometry and setup alter the external-force vector.", forceLength: "Joint range and machine geometry create a setup-dependent length–tension context." };
+function resistanceContext(text: string, stated?: TargetingPredicates["forceVector"]) {
+  if (stated === "band") return { forceVector: "Band line; the band and how far it is stretched set the external force.", forceLength: "Band tension rises with stretch, so the length–tension context depends on the band and setup." };
+  if (stated === "self") return { forceVector: "Self-applied resistance (your own hand); no external load is recorded.", forceLength: "A held position: the muscle works at one length per hold." };
+  if (stated === "cable" || (!stated && /cable/.test(text))) return { forceVector: "Cable line of pull; the athlete’s setup sets the external-force vector.", forceLength: "Cable line and joint position create a setup-dependent length–tension context." };
+  if (stated === "guided" || (!stated && /machine|smith|leg press/.test(text))) return { forceVector: "Guided resistance path; machine geometry and setup alter the external-force vector.", forceLength: "Joint range and machine geometry create a setup-dependent length–tension context." };
   return { forceVector: "Gravity-dominant external force, modified by the load position and body orientation.", forceLength: "Joint position and usable range create a setup-dependent length–tension context." };
 }
 
@@ -57,22 +67,44 @@ function directEvidenceNote(exercise: Exercise, muscle: string) {
   return matches ? calibration.summary : undefined;
 }
 
+/**
+ * The inputs the ten factors read. An expansion record states them in its descriptor; an original
+ * record has them read from its text by the rules the model has always used. Exported so the
+ * diagnostics can show the inputs behind every factor.
+ */
+export function targetingPredicatesFor(exercise: Exercise): TargetingPredicates {
+  const stated = descriptorFor(exercise.id)?.targeting;
+  if (stated) return stated;
+  const text = textFor(exercise);
+  const lengthened = /romanian|\brdl\b|good morning|nordic|fly|pullover|deep squat/.test(text);
+  return {
+    forceVector: /cable/.test(text) ? "cable" : /machine|smith|leg press/.test(text) ? "guided" : "gravity",
+    unilateral: /single|one.arm|split|lunge|step.up|bulgarian/.test(text) || exercise.qualities.includes("unilateral"),
+    ballistic: /jump|throw|clean|snatch|plyometric|explosive|sprint/.test(text) || exercise.qualities.includes("power"),
+    eccentric: /nordic|eccentric|depth|landing/.test(text),
+    lengthened,
+    broadMoment: /squat|deadlift|hinge|press|row|lunge|split/.test(text),
+    momentArm: /curl|extension|raise|calf|leg curl/.test(text) ? "focused" : /squat|hinge|press|row/.test(text) ? "compound" : "default",
+    forceLength: lengthened ? "lengthened" : /extension|kickback|squeeze|cable fly/.test(text) ? "shortened" : "default",
+  };
+}
+
 export function buildMuscleTargetingEstimate(exercise: Exercise, muscle: string, role: MuscleTargetingRole): MuscleTargetingEstimate {
   const text = textFor(exercise);
-  const setup = resistanceContext(text);
+  const inputs = targetingPredicatesFor(exercise);
+  const setup = resistanceContext(text, descriptorFor(exercise.id)?.targeting.forceVector);
   const directNote = directEvidenceNote(exercise, muscle);
-  const unilateral = /single|one.arm|split|lunge|step.up|bulgarian/.test(text) || exercise.qualities.includes("unilateral");
-  const ballistic = /jump|throw|clean|snatch|plyometric|explosive|sprint/.test(text) || exercise.qualities.includes("power");
-  const eccentric = /nordic|eccentric|depth|landing/.test(text);
-  const lengthened = /romanian|\brdl\b|good morning|nordic|fly|pullover|deep squat/.test(text);
+  const { unilateral, ballistic, eccentric, lengthened } = inputs;
   const calibration = getExerciseStudyCalibration(exercise);
   const targeting = logicCalibration.targeting;
   const jointAngleSignal = calibration?.rangeOfMotion === "Full" ? targeting.jointAngleFullRomSignal : calibration?.rangeOfMotion === "Long-length partial" ? targeting.jointAngleLongLengthSignal : calibration?.rangeOfMotion === "Individualized" ? targeting.jointAngleIndividualizedSignal : targeting.jointAngleFallbackSignal;
-  const forceVectorSignal = /cable/.test(text) ? targeting.cableForceVectorSignal : /machine|smith|leg press/.test(text) ? targeting.guidedForceVectorSignal : targeting.gravityForceVectorSignal;
-  const externalMomentSignal = /squat|deadlift|hinge|press|row|lunge|split/.test(text) ? targeting.broadMomentSignal : targeting.defaultMomentSignal;
-  const momentArmSignal = /curl|extension|raise|calf|leg curl/.test(text) ? targeting.focusedMomentArmSignal : /squat|hinge|press|row/.test(text) ? targeting.compoundMomentArmSignal : targeting.defaultMomentArmSignal;
+  // Band and self-applied resistance have no signal of their own in the calibration; they read as
+  // the gravity default, which is what the original model gave every non-cable, non-machine task.
+  const forceVectorSignal = inputs.forceVector === "cable" ? targeting.cableForceVectorSignal : inputs.forceVector === "guided" ? targeting.guidedForceVectorSignal : targeting.gravityForceVectorSignal;
+  const externalMomentSignal = inputs.broadMoment ? targeting.broadMomentSignal : targeting.defaultMomentSignal;
+  const momentArmSignal = inputs.momentArm === "focused" ? targeting.focusedMomentArmSignal : inputs.momentArm === "compound" ? targeting.compoundMomentArmSignal : targeting.defaultMomentArmSignal;
   const architectureSignal = ["hamstrings", "quads", "calves", "chest", "frontDelts", "sideDelts", "rearDelts", "biceps", "triceps"].includes(muscle) ? targeting.majorArchitectureSignal : targeting.defaultArchitectureSignal;
-  const forceLengthSignal = lengthened ? targeting.lengthenedForceLengthSignal : /extension|kickback|squeeze|cable fly/.test(text) ? targeting.shortenedForceLengthSignal : targeting.defaultForceLengthSignal;
+  const forceLengthSignal = inputs.forceLength === "lengthened" ? targeting.lengthenedForceLengthSignal : inputs.forceLength === "shortened" ? targeting.shortenedForceLengthSignal : targeting.defaultForceLengthSignal;
   const forceVelocitySignal = ballistic ? targeting.ballisticForceVelocitySignal : targeting.defaultForceVelocitySignal;
   const contractionSignal = eccentric ? targeting.eccentricContractionSignal : ballistic ? targeting.ballisticContractionSignal : targeting.defaultContractionSignal;
   const biarticularSignal = isBiarticular(muscle) ? targeting.biarticularSignal : targeting.nonBiarticularSignal;

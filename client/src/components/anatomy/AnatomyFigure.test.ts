@@ -180,6 +180,8 @@ describe("canonical key coverage", () => {
       "chest", "feet", "forearms", "frontDelts", "glutes", "hamstrings", "hipFlexors", "lats",
       "lowerBack", "obliques", "peroneals", "quads", "rearDelts", "rotatorCuff",
       "serratusAnterior", "sideDelts", "soleus", "tfl", "tibialis", "traps", "triceps", "upperBack",
+      // The 50-exercise expansion's neck keys, drawn where the source drew the neck.
+      "neckFlexors", "neckExtensors",
     ]);
     for (const view of ["front", "back"] as const) {
       for (const key of drawnMuscleKeys[view]) expect(catalog.has(key), `${key} is not a catalog key`).toBe(true);

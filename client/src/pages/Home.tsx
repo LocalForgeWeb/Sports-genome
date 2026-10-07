@@ -296,8 +296,8 @@ export function reviewScopeFromLocation(value: string | null): ReviewScope {
   return value === "day" ? "day" : "week";
 }
 
-function prescriptionFor(index: number, goal: Goal) {
-  return getGoalPrescription(goal, index);
+function prescriptionFor(index: number, goal: Goal, exercise?: Exercise) {
+  return getGoalPrescription(goal, index, exercise);
 }
 
 export function shouldRenderMetric(detail: string) {
@@ -612,7 +612,7 @@ export default function Home() {
           exercises: record.workout.map((exercise, index) => {
             const set = record.prescriptions[exercise.id];
             const settings = getExerciseSettings(record.settings, exercise.id);
-            return { exercise, prescription: set || prescriptionFor(index, goal), prescriptionIsDefault: !set, rpe: settings.rpe, rest: settings.rest, notes: settings.notes };
+            return { exercise, prescription: set || prescriptionFor(index, goal, exercise), prescriptionIsDefault: !set, rpe: settings.rpe, rest: settings.rest, notes: settings.notes };
           }),
         };
       }),
@@ -626,12 +626,12 @@ export default function Home() {
     dayName: activeSlot.day,
     sport: hasSportContext ? selectedSport.label : sportContextMode === "general" ? "General strength and resilience" : "",
     goal,
-    prescriptionFor: (exercise, index) => prescriptions[exercise.id] || prescriptionFor(index, goal),
+    prescriptionFor: (exercise, index) => prescriptions[exercise.id] || prescriptionFor(index, goal, exercise),
     settingsFor: (exercise) => getExerciseSettings(exerciseSettings, exercise.id),
     muscleLabel: (key) => muscleLabels[key] || key,
   }));
   const dayPrescriptions = useMemo(
-    () => Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal)])),
+    () => Object.fromEntries(customWorkout.map((exercise, index) => [exercise.id, prescriptions[exercise.id] || prescriptionFor(index, goal, exercise)])),
     [customWorkout, prescriptions, goal],
   );
   /** The day the working draft belongs to, so an edit can never be filed against another day. */
@@ -1522,7 +1522,7 @@ export default function Home() {
     const previous = { workout: customWorkout, prescriptions, settings: exerciseSettings };
     const dayKey = draftDayKeyRef.current;
     setCustomWorkout(stack);
-    setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])));
+    setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal, exercise)])));
     setExerciseSettings({});
     const draftedIds = stack.map((exercise) => exercise.id).join(",");
     // Restores the day it replaced - that day, and only while it still holds the draft.
@@ -1747,7 +1747,7 @@ export default function Home() {
       const source = filterStackForEquipment(getSplitExercisePool(exercises, slot.day, sportSeed), athleteBaseline.equipment);
       const offset = (nextWeek * 3) + (slot.index * 2);
       const rotated = [...source.slice(offset), ...source.slice(0, offset)].filter((exercise, index, values) => values.findIndex((item) => item.id === exercise.id) === index).slice(0, gymTimeBudget.recommendationLimit);
-      generatedDays = commitDay(generatedDays, slot.key, { workout: rotated, prescriptions: Object.fromEntries(rotated.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])), settings: {}, context: [] });
+      generatedDays = commitDay(generatedDays, slot.key, { workout: rotated, prescriptions: Object.fromEntries(rotated.map((exercise, index) => [exercise.id, prescriptionFor(index, goal, exercise)])), settings: {}, context: [] });
     });
     const generated: WeekSnapshot = { days: generatedDays, activeDayIndex: 0 };
     setPlanWeeks((current) => ({ ...current, [activeWeek]: createWeekSnapshot(), [nextWeek]: generated }));
@@ -2268,7 +2268,7 @@ export default function Home() {
             </p>}
             <div className={`day-plan-list${reorderingDay ? " is-reordering" : ""}`}>
               {customWorkout.length
-                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>)
+                ? customWorkout.map((exercise, index) => <div key={exercise.id} className="day-orderable-exercise"><div className="day-order-controls"><button onClick={() => moveExercise(exercise.id, -1)} disabled={index === 0} aria-label={`Move ${exercise.name} earlier`}><ChevronUp className="h-3.5 w-3.5" /></button><button onClick={() => moveExercise(exercise.id, 1)} disabled={index === customWorkout.length - 1} aria-label={`Move ${exercise.name} later`}><ChevronDown className="h-3.5 w-3.5" /></button></div><ExercisePrescriptionRow onApplyRestToDay={applyRestToDay} dayRestMismatch={restMismatchFor(exercise.id)} exercise={exercise} index={index} prescription={prescriptions[exercise.id] || prescriptionFor(index, goal, exercise)} settings={getExerciseSettings(exerciseSettings, exercise.id)} progress={liveSession ? exerciseProgressFor(exercise.name, liveWorkoutLog) : null} onPrescription={(value) => setPrescriptions((current) => ({ ...current, [exercise.id]: value }))} onSettings={(patch) => updateExerciseSettings(exercise.id, patch)} onInspect={() => inspectExercise(exercise)} onRemove={() => removeExercise(exercise.id)} /></div>)
                 /* An empty day has one thing to do, said once, with the day it is about. It had
                    two equal Add exercises buttons (this one and the action row's), a profile
                    prompt and a 0/100 gauge before anything was in it (Sep 28 regression brief §8). */

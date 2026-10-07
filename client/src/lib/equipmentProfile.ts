@@ -1,6 +1,13 @@
 import type { Exercise } from "@/lib/exerciseCatalog";
 
-export const catalogEquipment = ["Bodyweight", "Band", "Dumbbells", "Kettlebell", "Barbell", "Cable", "Machine", "Landmine", "Medicine ball", "Sled"] as const;
+/**
+ * Equipment an athlete can say they have. The last seven arrived with the 50-exercise expansion
+ * (brief §5): without them a sandbag carry or a trap-bar deadlift would either fall through an
+ * unknown-string check or be offered to someone who has no such thing. A profile saved before
+ * they existed simply does not list them, so their exercises stay out of automatic stacks until
+ * the athlete ticks them; the full catalog stays available for manual additions either way.
+ */
+export const catalogEquipment = ["Bodyweight", "Band", "Dumbbells", "Kettlebell", "Barbell", "Cable", "Machine", "Landmine", "Medicine ball", "Sled", "Trap bar", "Safety squat bar", "Sandbag", "Loading pin", "Grip hub", "Hand gripper", "Neck harness"] as const;
 export type CatalogEquipment = (typeof catalogEquipment)[number];
 export type GymAccess = "Commercial gym" | "Small gym" | "Garage gym" | "At home" | "Bodyweight only";
 

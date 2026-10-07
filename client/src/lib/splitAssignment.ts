@@ -6,6 +6,11 @@ const pushCategories = new Set(["Chest & push", "Arms & push", "Shoulders"]);
 const pullCategories = new Set(["Back & pull", "Arms & grip", "Scapular control"]);
 const lowerCategories = new Set(["Knee dominant", "Posterior chain", "Hips & glutes", "Lower leg"]);
 const sportTransferCategories = new Set(["Medicine ball", "Plyometric", "Conditioning", "Landmine", "Core"]);
+/**
+ * Neck work (the 50-exercise expansion) belongs to upper-body and whole-body days. It is not a
+ * Push, Pull or Legs category, so adding it to the catalog does not make those days ask for it.
+ */
+const neckCategories = new Set(["Neck"]);
 
 function includesMovement(exercise: Exercise, values: string[]) {
   const text = `${exercise.name} ${exercise.movement}`.toLowerCase();
@@ -16,14 +21,15 @@ export function matchesTrainingSplit(exercise: Exercise, split: TrainingSplit) {
   const isPush = (pushCategories.has(exercise.category) || exercise.primaryMuscles.includes("serratusAnterior")) && !includesMovement(exercise, ["row", "pull", "chin"]);
   const isPull = pullCategories.has(exercise.category) && !includesMovement(exercise, ["press", "dip", "push-up"]);
   const isLower = lowerCategories.has(exercise.category) || exercise.category === "Plyometric" && includesMovement(exercise, ["jump", "bound", "hop"]);
+  const isNeck = neckCategories.has(exercise.category);
   const isSportTransfer = sportTransferCategories.has(exercise.category)
     || exercise.qualities.some((quality) => ["power", "rotation", "stability", "coordination", "mobility", "conditioning"].includes(quality.toLowerCase()));
 
   if (split === "Push") return isPush;
   if (split === "Pull") return isPull;
   if (split === "Legs" || split === "Lower") return isLower;
-  if (split === "Upper") return isPush || isPull;
-  if (split === "Full Body") return isPush || isPull || isLower || isSportTransfer;
+  if (split === "Upper") return isPush || isPull || isNeck;
+  if (split === "Full Body") return isPush || isPull || isLower || isSportTransfer || isNeck;
   return isSportTransfer;
 }
 

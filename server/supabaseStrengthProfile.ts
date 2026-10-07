@@ -140,7 +140,11 @@ export function findProfileExercise(index: readonly ExerciseRow[], lift: Pick<Mu
     if (byId) return byId;
   }
   const wanted = comparableName(lift.exerciseName);
-  return wanted ? index.find((row) => comparableName(row.name) === wanted) ?? null : null;
+  // As for curves: the name fallback never lands on a row that names a different catalog id.
+  const eligible = lift.catalogExerciseId
+    ? index.filter((row) => { const own = catalogIdOf(row.canonical_name); return own === null || own === lift.catalogExerciseId; })
+    : index;
+  return wanted ? eligible.find((row) => comparableName(row.name) === wanted) ?? null : null;
 }
 
 const isFiniteIn = (value: unknown, min: number, max: number): value is number =>

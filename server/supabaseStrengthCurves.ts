@@ -175,8 +175,14 @@ export function findCurveExercise(
   }
   const wanted = comparableName(lift.exerciseName || "");
   if (!wanted) return null;
-  return index.find(row => comparableName(row.displayName) === wanted)
-    ?? index.find(row => comparableName(row.canonicalName.replace(/__catalog_\d+$/, "").replace(/_/g, " ")) === wanted)
+  // The name fallback never crosses onto a row that belongs to another catalog exercise: a lift
+  // with a catalog id the curves do not carry stays without a curve rather than borrowing a
+  // similarly named variation's norms (50-exercise brief §5, §7).
+  const eligible = lift.catalogExerciseId
+    ? index.filter(row => { const own = catalogIdFromCanonicalName(row.canonicalName); return own === null || own === lift.catalogExerciseId; })
+    : index;
+  return eligible.find(row => comparableName(row.displayName) === wanted)
+    ?? eligible.find(row => comparableName(row.canonicalName.replace(/__catalog_\d+$/, "").replace(/_/g, " ")) === wanted)
     ?? null;
 }
 

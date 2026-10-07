@@ -263,7 +263,34 @@ export const muscleCanonicalNameToRegionId: Readonly<Record<string, string | nul
   flexor_hallucis_longus: null,
   fibularis_longus: null,
   fibularis_brevis: null,
+  ...preparedMuscleRegionIds(),
 };
+
+/**
+ * Neck and forearm-rotation muscles the 50-exercise expansion's prepared migration adds
+ * (docs/exercise-expansion-v1/migrations). Until it is applied the database has none of them, and
+ * the neck region shows as unscored - hatched, "no data" - rather than as an untrained zero.
+ */
+export const preparedMigrationMuscles: readonly string[] = [
+  "sternocleidomastoid", "scalenes", "longus_colli", "longus_capitis", "splenius_capitis", "splenius_cervicis",
+  "semispinalis_capitis", "semispinalis_cervicis", "pronator_teres", "pronator_quadratus", "supinator",
+];
+
+function preparedMuscleRegionIds(): Record<string, string> {
+  return {
+    sternocleidomastoid: "neck",
+  scalenes: "neck",
+  longus_colli: "neck",
+  longus_capitis: "neck",
+  splenius_capitis: "neck",
+  splenius_cervicis: "neck",
+  semispinalis_capitis: "neck",
+  semispinalis_cervicis: "neck",
+  pronator_teres: "forearms_grip",
+  pronator_quadratus: "forearms_grip",
+  supinator: "forearms_grip",
+  };
+}
 
 /* -------------------------------------------------------------------------------------------
  * The view a region is drawn from

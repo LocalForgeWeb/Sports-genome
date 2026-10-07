@@ -14,7 +14,7 @@ const views = JSON.parse(readFileSync(join(here, "extracted.json"), "utf8"));
 const CATALOG_KEYS = new Set([
   "abductors", "abs", "adductors", "biceps", "brachialis", "brachioradialis", "calves",
   "chest", "feet", "forearms", "frontDelts", "glutes", "hamstrings", "hipFlexors", "lats",
-  "lowerBack", "obliques", "peroneals", "quads", "rearDelts", "rotatorCuff",
+  "lowerBack", "neckExtensors", "neckFlexors", "obliques", "peroneals", "quads", "rearDelts", "rotatorCuff",
   "serratusAnterior", "sideDelts", "soleus", "tfl", "tibialis", "traps", "triceps", "upperBack",
 ]);
 
@@ -74,7 +74,7 @@ export type AnatomyView = {
   mid: number;
   /** Filled body shell under the muscles, so joints read as body not holes. */
   shell: string[];
-  /** Drawn, never selectable: neck, hands. */
+  /** Drawn, never selectable: the hands. */
   structural: { id: string; d: string }[];
   /** Ordered largest-area first, which is also the hit-priority order. */
   muscles: AnatomyMuscle[];

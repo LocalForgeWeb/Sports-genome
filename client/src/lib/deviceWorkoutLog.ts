@@ -10,6 +10,21 @@ export type DeviceSetLog = {
   unit?: DisplayWeightUnit;
   /** Box height, for the jumps and step-ups where that is the real variable. */
   height?: string;
+  /**
+   * The measures the 50-exercise expansion needed (6 Oct brief §8), each typed rather than
+   * folded into `reps` or a note: a 20-second hold is not 20 reps, and 30 metres carried is not
+   * 30 reps. Which of them an exercise records is shared/exerciseMeasurement.ts's decision.
+   */
+  /** Seconds held, for a timed set. */
+  seconds?: string;
+  /** Distance covered, for a carry, drag or rope pull. */
+  distance?: string;
+  /** The unit the distance was typed in. */
+  distanceUnit?: DistanceUnit;
+  /** A named resistance setting - a band colour, a gripper model, a hub. Never a weight. */
+  setting?: string;
+  /** The side this set was done on, for an exercise done one side at a time. The set counts once. */
+  side?: SetSide;
   completed: boolean;
   /**
    * The athlete decided not to do this one — the rack was taken, the machine
@@ -32,6 +47,9 @@ export type DeviceSetLog = {
    */
   stages?: DropStage[];
 };
+
+export type DistanceUnit = "m" | "yd";
+export type SetSide = "left" | "right";
 
 /** One stage of a drop set: the load and the reps done at it, in the unit it was typed in. */
 export type DropStage = { id: string; weight: string; reps: string; unit?: DisplayWeightUnit };
@@ -113,6 +131,13 @@ function normalizeSet(set: DeviceSetLog): DeviceSetLog {
   const normalized: DeviceSetLog = { weight: String(set.weight || ""), reps: String(set.reps || ""), height: String(set.height || ""), completed: Boolean(set.completed), skipped: Boolean(set.skipped) };
   if (isWeightUnit(set.unit)) normalized.unit = set.unit;
   if (typeof set.id === "string" && set.id) normalized.id = set.id;
+  // The expansion's measures are kept only when they hold something, and only as what they are.
+  for (const field of ["seconds", "distance", "setting"] as const) {
+    const value = set[field];
+    if ((typeof value === "string" || typeof value === "number") && String(value).trim()) normalized[field] = String(value);
+  }
+  if (set.distanceUnit === "m" || set.distanceUnit === "yd") normalized.distanceUnit = set.distanceUnit;
+  if (set.side === "left" || set.side === "right") normalized.side = set.side;
   if (set.type === "drop") {
     normalized.type = "drop";
     normalized.stages = (Array.isArray(set.stages) ? set.stages : [])
@@ -239,7 +264,12 @@ export function removeDeviceWorkoutSession(sessions: DeviceWorkoutSession[], ses
 
 /** A set the athlete typed into but never completed. Never an observation. */
 export function isDraftSet(set: DeviceSetLog): boolean {
-  return !set.completed && !set.skipped && Boolean(set.weight.trim() || set.reps.trim() || (set.height || "").trim());
+  return !set.completed && !set.skipped && Boolean(set.weight.trim() || set.reps.trim() || (set.height || "").trim() || (set.seconds || "").trim() || (set.distance || "").trim() || (set.setting || "").trim());
+}
+
+/** True when a set records how much was done: reps, seconds held or distance covered. */
+export function hasPerformedAmount(set: Pick<DeviceSetLog, "reps" | "seconds" | "distance">): boolean {
+  return Boolean(set.reps.trim() || (set.seconds || "").trim() || (set.distance || "").trim());
 }
 
 /**
@@ -357,7 +387,8 @@ export function lastCompletedSetFor(exerciseName: string, sessions: DeviceWorkou
     .sort((a, b) => String(b.completedAt || b.startedAt).localeCompare(String(a.completedAt || a.startedAt)));
   for (const session of finished) {
     const exercise = session.exercises.find((item) => item.exerciseName === exerciseName);
-    const last = exercise?.sets.filter((set) => set.completed && (set.weight.trim() || (set.height || "").trim()) && set.reps.trim()).pop();
+    // A load-and-reps set needs both; a hold, a carry or a band set is complete with its own measure.
+    const last = exercise?.sets.filter((set) => set.completed && (((set.weight.trim() || (set.height || "").trim()) && set.reps.trim()) || (set.seconds || "").trim() || (set.distance || "").trim() || ((set.setting || "").trim() && set.reps.trim()))).pop();
     // The unit travels with the set, so whoever shows it can convert rather than guess.
     if (last) return { ...last, unit: setWeightUnit(last, session, fallbackUnit) };
   }
@@ -387,16 +418,30 @@ export function carriedEntryFor(
   setIndex: number,
   history: DeviceWorkoutSession[],
   entryUnit: DisplayWeightUnit = "lb",
-): { weight: string; reps: string; height: string; source: "session" | "history" } | null {
+): CarriedEntry | null {
   for (let index = setIndex - 1; index >= 0; index--) {
     const set = exercise.sets[index];
-    if (set.completed && (set.weight.trim() || set.reps.trim() || (set.height || "").trim())) {
-      return { weight: weightInUnit(set.weight, set.unit ?? entryUnit, entryUnit), reps: set.reps, height: set.height || "", source: "session" };
+    if (set.completed && (set.weight.trim() || set.reps.trim() || (set.height || "").trim() || hasPerformedAmount(set) || (set.setting || "").trim())) {
+      return { weight: weightInUnit(set.weight, set.unit ?? entryUnit, entryUnit), reps: set.reps, height: set.height || "", ...carriedMeasures(set), source: "session" };
     }
   }
   // A set from a session logged in the other unit is offered in this session's unit.
   const previous = lastCompletedSetFor(exercise.exerciseName, history, entryUnit);
-  return previous ? { weight: weightInUnit(previous.weight, previous.unit ?? entryUnit, entryUnit), reps: previous.reps, height: previous.height || "", source: "history" } : null;
+  return previous ? { weight: weightInUnit(previous.weight, previous.unit ?? entryUnit, entryUnit), reps: previous.reps, height: previous.height || "", ...carriedMeasures(previous), source: "history" } : null;
+}
+
+/**
+ * What the next set is offered beyond load and reps. The side is never carried: an athlete
+ * working one side then the other would be offered the wrong one every second set.
+ */
+export type CarriedEntry = { weight: string; reps: string; height: string; seconds?: string; distance?: string; setting?: string; source: "session" | "history" };
+
+function carriedMeasures(set: DeviceSetLog): Pick<CarriedEntry, "seconds" | "distance" | "setting"> {
+  return {
+    seconds: (set.seconds || "").trim() || undefined,
+    distance: (set.distance || "").trim() || undefined,
+    setting: (set.setting || "").trim() || undefined,
+  };
 }
 
 

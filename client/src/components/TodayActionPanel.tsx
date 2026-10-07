@@ -150,7 +150,7 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
   const focus = useMemo(() => {
     if (!nextWorkout) return null;
     const prescriptions = weekStore.prescriptions[nextWorkout.slot.key] ?? {};
-    return workoutFocus(nextExercises, (exercise, index) => parseSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)));
+    return workoutFocus(nextExercises, (exercise, index) => parseSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index, exercise)));
   }, [nextWorkout, nextExercises, weekStore, goal]);
   const focusLine = focusSummary(focus);
   const focusFigure = next.kind === "workout" && !live ? focus?.figure ?? null : null;

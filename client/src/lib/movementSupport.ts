@@ -136,6 +136,10 @@ export const NOT_THE_SAME_EXERCISE: readonly { phrase: string; catalogId: number
   { phrase: "split squat", catalogId: 294, why: "A split-squat jump is a plyometric jump from the split stance, not the loaded split squat." },
   { phrase: "cable press", catalogId: 310, why: "A cable press-out is an anti-rotation press for the trunk, like the Pallof press, not a cable chest or shoulder press." },
   { phrase: "plank", catalogId: 397, why: "A side plank with hip adduction works the adductors from a side plank, in the manner of a Copenhagen plank; it is not the plank named." },
+  // The 50-exercise expansion (brief §5, §12): names that contain a record's phrase without being it.
+  { phrase: "pull-up", catalogId: 421, why: "An assisted pull-up machine takes part of the body weight on a counterweight; it is a regression of the pull-up, not the unassisted pull-up named." },
+  { phrase: "sled drag", catalogId: 446, why: "The overhead backward sled drag holds the arms overhead the whole way; it is a specific variation, not the sled drag named." },
+  { phrase: "back extension", catalogId: 428, why: "A seated back-extension machine extends the trunk with the hips held; the back extension named is the bench version, which is mostly hip extension." },
 ];
 
 /** True when the catalog exercise is listed in NOT_THE_SAME_EXERCISE for this record phrase. */
@@ -155,10 +159,11 @@ export function isNotTheSameExercise(phrase: string, exerciseId: number): boolea
  * leg press, leg extensions and split squats; "Trunk flexion / anti-extension" holds
  * crunches and planks; the pull, elbow-flexion and elbow-extension labels cover every
  * row, pulldown, curl or triceps variant. Sharing one of these says little about a
- * sport movement, so it never makes a related-pattern match. The largest pattern
- * below the line, "Hip hinge" (15), is one family: deadlifts, good mornings, back
- * extensions, swings. movementSupport.test.ts recomputes the rule against the
- * catalog, so a catalog change that moves a pattern across it is caught.
+ * sport movement, so it never makes a related-pattern match. "Hip hinge" is one
+ * family - deadlifts, good mornings, back extensions, swings - and stays out of the
+ * list whatever its size: SINGLE_FAMILY_PATTERNS says why. movementSupport.test.ts
+ * recomputes the rule against the catalog, so a catalog change that moves a pattern
+ * across it is caught and has to be decided, not absorbed.
  */
 export const BROAD_PATTERN_MIN_EXERCISES = 16;
 export const BROAD_PATTERNS: readonly string[] = [
@@ -170,6 +175,16 @@ export const BROAD_PATTERNS: readonly string[] = [
   "Squat / knee dominant",
   "Elbow extension",
 ];
+
+/**
+ * Patterns over the size line that are still one exercise family, with the reason. They keep
+ * anchoring related-pattern matches. Hip hinge was 15 until the 50-exercise expansion added four
+ * deadlift variants (Zercher, trap-bar, sumo and the Smith Romanian deadlift): more variants of
+ * one family, not a broader pattern, so a deadlift-naming record still relates its hinges.
+ */
+export const SINGLE_FAMILY_PATTERNS: Readonly<Record<string, string>> = {
+  "Hip hinge": "Deadlifts, good mornings, back extensions and swings: one hinge family however many variants the catalog holds.",
+};
 
 type NamedPhrase = { text: string; matchers: string[]; synonym?: string; notTheSame: ReadonlySet<number> };
 type PrimeMover = { name: string; keys: string[] };

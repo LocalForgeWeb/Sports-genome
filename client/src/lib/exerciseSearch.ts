@@ -18,6 +18,7 @@
  *   fuzzy           a word one letter off (two, for a long one) - last, so it
  *                   can never outrank something actually called that
  */
+import { additionAliases } from "./exerciseCatalogAdditions";
 import type { Exercise } from "./exerciseCatalog";
 import { muscleLabels } from "@/components/AnatomyMap";
 
@@ -91,6 +92,14 @@ export const EXERCISE_ALIASES: Record<string, string[]> = {
   "Good Morning": ["good mornings"],
   "Hack Squat": ["hack"],
   "Goblet Squat": ["goblet"],
+  // "Incline bench machine" is how athletes ask for either guided incline press; neither name
+  // says "bench", so the words found nothing (50-exercise brief §3). Aliases, not new records.
+  "Incline Machine Chest Press": ["incline bench machine", "machine incline bench", "incline machine press", "incline chest press machine"],
+  "Smith Machine Incline Press": ["incline bench machine", "smith incline bench", "smith machine incline bench", "incline smith press"],
+  // The 50-exercise expansion's records carry their own aliases (exerciseCatalogAdditions.ts),
+  // including each name the brief asked for where the canonical name differs ("Finger Curl",
+  // "Glute Drive"). The trap-bar shrug's "hex bar" stays, ranked behind the deadlift named for it.
+  ...additionAliases,
 };
 
 /** Single words athletes abbreviate or misspell, expanded before matching. */

@@ -1,4 +1,5 @@
 import type { Exercise } from "./exerciseCatalog";
+import { descriptorFor } from "./exerciseDescriptors";
 
 export type ExerciseEvidenceKind = "Direct longitudinal adaptation" | "Biomechanics or transfer" | "Acute mechanics context";
 export type StudyRangeOfMotion = "Full" | "Long-length partial" | "Short-length partial" | "Individualized" | "Setup-dependent" | "Not study-tagged";
@@ -157,19 +158,40 @@ const calibrationRecords: ExerciseStudyCalibration[] = [
   },
 ];
 
+const byKey = (key: string) => calibrationRecords.find((record) => record.key === key) || null;
+
+/**
+ * The study context an exercise may carry.
+ *
+ * Expansion records (ids 401 on) state theirs in their descriptor, deliberately, with what the
+ * study did not test appended to its planning boundary; nothing is attached to them by name. The
+ * original records keep the name rules below, with two corrections (50-exercise brief §5):
+ * - "Reverse Nordic" is a lengthened quadriceps exercise, so it no longer takes the Nordic
+ *   hamstring study just because the word appears;
+ * - the seated leg-curl study is found whichever order the name puts "seated" and "leg curl" in.
+ */
 export function getExerciseStudyCalibration(exercise: Exercise): ExerciseStudyCalibration | null {
+  const descriptor = descriptorFor(exercise.id);
+  if (descriptor) {
+    const record = descriptor.studyKey ? byKey(descriptor.studyKey) : null;
+    if (!record || !descriptor.studyQualification) return record;
+    return { ...record, planningBoundary: `${record.planningBoundary} ${descriptor.studyQualification}` };
+  }
   const text = `${exercise.name} ${exercise.movement} ${exercise.equipment}`.toLowerCase();
-  if (/seated.*leg curl/.test(text)) return calibrationRecords.find((record) => record.key === "seated-leg-curl") || null;
-  if (/nordic/.test(text)) return calibrationRecords.find((record) => record.key === "nordic-hamstring") || null;
-  if (/romanian|\brdl\b|stiff.?leg deadlift/.test(text)) return calibrationRecords.find((record) => record.key === "rdl-hinge") || null;
-  if (/overhead.*(triceps|extension)|(triceps|extension).*overhead/.test(text)) return calibrationRecords.find((record) => record.key === "overhead-triceps-extension") || null;
-  if (/standing.*calf/.test(text)) return calibrationRecords.find((record) => record.key === "standing-calf-raise") || null;
-  if (/hip thrust/.test(text)) return calibrationRecords.find((record) => record.key === "hip-thrust-pattern") || null;
-  if (/leg extension/.test(text)) return calibrationRecords.find((record) => record.key === "leg-extension-rom") || null;
-  if (/leg press/.test(text)) return calibrationRecords.find((record) => record.key === "leg-press-rom") || null;
-  if (/squat/.test(text)) return calibrationRecords.find((record) => record.key === "squat-pattern") || null;
-  if (/bench press/.test(text)) return calibrationRecords.find((record) => record.key === "bench-angle") || null;
-  if (exercise.equipment === "Machine") return calibrationRecords.find((record) => record.key === "machine-modality") || null;
-  if (["Barbell", "Dumbbells", "Kettlebell", "Free weights"].includes(exercise.equipment)) return calibrationRecords.find((record) => record.key === "free-weight-modality") || null;
+  if (/seated.*leg curl|leg curl.*seated/.test(text)) return byKey("seated-leg-curl");
+  if (/\bnordic\b/.test(text) && !/\breverse nordic\b/.test(text)) return byKey("nordic-hamstring");
+  if (/romanian|\brdl\b|stiff.?leg deadlift/.test(text)) return byKey("rdl-hinge");
+  if (/overhead.*(triceps|extension)|(triceps|extension).*overhead/.test(text)) return byKey("overhead-triceps-extension");
+  if (/standing.*calf/.test(text)) return byKey("standing-calf-raise");
+  if (/hip thrust/.test(text)) return byKey("hip-thrust-pattern");
+  if (/leg extension/.test(text)) return byKey("leg-extension-rom");
+  if (/leg press/.test(text)) return byKey("leg-press-rom");
+  if (/squat/.test(text)) return byKey("squat-pattern");
+  if (/bench press/.test(text)) return byKey("bench-angle");
+  if (exercise.equipment === "Machine") return byKey("machine-modality");
+  if (["Barbell", "Dumbbells", "Kettlebell", "Free weights"].includes(exercise.equipment)) return byKey("free-weight-modality");
   return null;
 }
+
+/** Every calibration record's key, for the validator that checks descriptors name real ones. */
+export const studyCalibrationKeys = (): string[] => calibrationRecords.map((record) => record.key);

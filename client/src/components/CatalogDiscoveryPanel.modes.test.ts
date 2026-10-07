@@ -171,7 +171,7 @@ describe("movement mode", () => {
     expect(count()).toBeNull();
     fireEvent.click(within(empty).getByRole("button", { name: "Clear filters" }));
     expect(heading()).toBe("Exercises for Bridge");
-    expect(count()).toMatch(/^27 movement matches/);
+    expect(count()).toMatch(/^33 movement matches/);
     expect(screen.getByRole("textbox", { name: "Search exercises" })).toHaveProperty("value", "");
     expect(onShowAllExercises).not.toHaveBeenCalled();
   });

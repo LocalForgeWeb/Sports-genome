@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { exercises, type Exercise } from "./exerciseCatalog";
 import { enrichedSportMovements, getEnrichedMovement } from "./enrichedSportMovementDatabase";
 import {
-  BROAD_PATTERN_MIN_EXERCISES,
+  BROAD_PATTERN_MIN_EXERCISES, SINGLE_FAMILY_PATTERNS,
   BROAD_PATTERNS,
   NOT_THE_SAME_EXERCISE,
   SAME_EXERCISE_SYNONYMS,
@@ -89,7 +89,8 @@ describe("BROAD_PATTERNS", () => {
   it("is exactly the catalog patterns that label more than 15 exercises", () => {
     const counts = new Map<string, number>();
     exercises.forEach((exercise) => counts.set(exercise.movement, (counts.get(exercise.movement) ?? 0) + 1));
-    const byRule = Array.from(counts).filter(([, count]) => count >= BROAD_PATTERN_MIN_EXERCISES).map(([pattern]) => pattern);
+    // A pattern over the line that is still one family is listed, with its reason, instead.
+    const byRule = Array.from(counts).filter(([pattern, count]) => count >= BROAD_PATTERN_MIN_EXERCISES && !(pattern in SINGLE_FAMILY_PATTERNS)).map(([pattern]) => pattern);
     expect([...BROAD_PATTERNS].sort()).toEqual(byRule.sort());
     expect(BROAD_PATTERNS).toContain("Horizontal push");
     expect(BROAD_PATTERNS).toContain("Horizontal pull");
@@ -193,7 +194,10 @@ describe("two movements with different records", () => {
     const throwing = overhandThrow();
     expect(names(throwing.specific)).toContain("Landmine Press");
     expect(names(throwing.related)).not.toContain("Barbell Bench Press");
-    expect(throwing.unmatchedPhrases).toEqual(expect.arrayContaining(["medicine-ball rotational throw", "cable lift"]));
+    expect(throwing.unmatchedPhrases).toEqual(expect.arrayContaining(["medicine-ball rotational throw"]));
+    // "Cable lift" was unmatched until the 50-exercise expansion added the Half-Kneeling Cable Lift.
+    expect(throwing.unmatchedPhrases).not.toContain("cable lift");
+    expect(names(throwing.specific)).toContain("Half-Kneeling Cable Lift");
   });
 });
 

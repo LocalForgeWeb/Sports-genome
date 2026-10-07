@@ -51,7 +51,9 @@ const MAP = {
     soleus: ["soleus", null],
     "upper-trapezius": ["traps", "upper"],
     feet: ["feet", null],
-    neck: null, hands: null, body: null,
+    // The front of the neck is the flexor group (sternocleidomastoid, scalenes, deep flexors);
+    // drawn as structure until the 50-exercise expansion gave the catalog neck keys.
+    neck: ["neckFlexors", null], hands: null, body: null,
   },
   back: {
     "upper-trapezius": ["traps", "upper"],
@@ -74,7 +76,8 @@ const MAP = {
     gastrocnemius: ["calves", "gastrocnemius"],
     soleus: ["soleus", null],
     feet: ["feet", null],
-    neck: null, hands: null, body: null,
+    // The back of the neck is the extensor group (splenius, semispinalis, cervical extensors).
+    neck: ["neckExtensors", null], hands: null, body: null,
   },
 };
 

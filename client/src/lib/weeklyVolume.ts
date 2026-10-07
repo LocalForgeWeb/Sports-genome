@@ -34,7 +34,7 @@ export function getWeeklyMuscleVolume(plan: WeeklyPlan, weeklyPrescriptions: Wee
   const volumes = new Map<string, MuscleVolume>();
   Object.entries(plan).forEach(([dayKey, workout]) => {
     workout.forEach((exercise, index) => {
-      const sets = parseSets(weeklyPrescriptions[dayKey]?.[exercise.id] || getGoalPrescription(goal, index), 3);
+      const sets = parseSets(weeklyPrescriptions[dayKey]?.[exercise.id] || getGoalPrescription(goal, index, exercise), 3);
       const direct = new Set(exercise.primaryMuscles);
       const support = new Set(exercise.secondaryMuscles.filter((muscle) => !direct.has(muscle)));
       direct.forEach((muscle) => {

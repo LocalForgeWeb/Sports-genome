@@ -4,7 +4,7 @@ import {
   RANKS,
   RANK_PALETTE_VERSION,
   RANK_SCHEME_VERSION,
-  muscleCanonicalNameToRegionId,
+  muscleCanonicalNameToRegionId, preparedMigrationMuscles,
   muscleConfidenceLevel,
   rankForPercentile,
   rankRangeLabel,
@@ -124,7 +124,8 @@ describe("Database muscles to Body Lab regions", () => {
   ];
 
   it("makes a decision for every muscle the database defines", () => {
-    expect(Object.keys(muscleCanonicalNameToRegionId).sort()).toEqual([...liveMuscles].sort());
+    // Plus the muscles the 50-exercise expansion's prepared migration adds, decided in advance.
+    expect(Object.keys(muscleCanonicalNameToRegionId).sort()).toEqual([...liveMuscles, ...preparedMigrationMuscles].sort());
   });
 
   it("only ever names regions the body map draws", () => {

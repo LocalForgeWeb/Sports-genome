@@ -1,3 +1,4 @@
+import { measurementFor } from "@shared/exerciseMeasurement";
 import { getExerciseGenome, getWorkoutGenome } from "@/lib/exerciseGenome";
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { getGymTimeBudget, timeAdjustedSetBand } from "@/lib/gymTimeBudget";
@@ -55,7 +56,16 @@ export const getExerciseSettings = (settings: Record<number, ExerciseSettings>, 
 
 export const getProgrammingTarget = (goal: TrainingGoal) => programmingTargets[goal];
 
-export function getGoalPrescription(goal: TrainingGoal, index: number) {
+export function getGoalPrescription(goal: TrainingGoal, index: number, exercise?: { id: number }) {
+  const prescription = goalRepPrescription(goal, index);
+  // A hold or a carry starts with a time or a distance, not a rep range it cannot be logged in
+  // (50-exercise brief §4.3, §8). The set count is the goal's either way, so weekly volume,
+  // planned sets and time estimates read the same number of sets as before.
+  const target = measurementFor(exercise?.id).defaultTarget;
+  return target ? prescription.replace(/×\s*.+$/, `× ${target}`) : prescription;
+}
+
+function goalRepPrescription(goal: TrainingGoal, index: number) {
   if (goal === "Max strength") return index < 2 ? "4 × 3–5" : "3 × 6–8";
   if (goal === "Muscle growth") return `3 × ${trainingEvidence.hypertrophy.workingRepetitions[0]}–${trainingEvidence.hypertrophy.workingRepetitions[1]}`;
   if (goal === "Capacity") return index < 2 ? "4 × 8–12" : "3 × 12–20";
@@ -67,7 +77,7 @@ export function getWorkoutDiagnostics(workout: Exercise[], prescriptions: Record
   const baseTarget = getProgrammingTarget(goal);
   const gymTimeBudget = getGymTimeBudget(gymMinutes);
   const target = { ...baseTarget, sessionSetBand: timeAdjustedSetBand(goal, baseTarget.sessionSetBand, gymMinutes), restCue: `${baseTarget.restCue} ${gymTimeBudget.restGuidance}` };
-  const totalSets = workout.reduce((total, exercise, index) => total + parseNumber(prescriptions[exercise.id] || getGoalPrescription(goal, index), logicCalibration.workoutReview.defaultPrescriptionSets), 0);
+  const totalSets = workout.reduce((total, exercise, index) => total + parseNumber(prescriptions[exercise.id] || getGoalPrescription(goal, index, exercise), logicCalibration.workoutReview.defaultPrescriptionSets), 0);
   const averageRest = workout.length ? workout.reduce((total, exercise) => total + parseNumber(getExerciseSettings(settings, exercise.id).rest, logicCalibration.workoutReview.defaultRestSeconds), 0) / workout.length : 0;
   const fatigueExposure = workout.length ? Math.round(workout.reduce((total, exercise) => total + getExerciseGenome(exercise).fatigue.systemic, 0) / workout.length) : 0;
   const averageRpe = workout.length ? workout.reduce((total, exercise) => total + parseNumber(getExerciseSettings(settings, exercise.id).rpe, logicCalibration.workoutReview.defaultRpe), 0) / workout.length : 0;

@@ -32,7 +32,7 @@ describe("A workout started from an unset plan", () => {
 describe("Every Training Day surface is handed the same prescriptions", () => {
   it("passes the resolved map, not the raw one, to the tracker, the picker and the review panels", () => {
     const home = readFileSync(`${process.cwd()}/client/src/pages/Home.tsx`, "utf8");
-    expect(home).toContain("prescriptions[exercise.id] || prescriptionFor(index, goal)])),");
+    expect(home).toContain("prescriptions[exercise.id] || prescriptionFor(index, goal, exercise)])),");
     expect(home.match(/prescriptions=\{dayPrescriptions\}/g)).toHaveLength(5);
     expect(home).not.toContain("prescriptions={prescriptions}");
   });

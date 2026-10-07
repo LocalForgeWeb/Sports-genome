@@ -41,7 +41,7 @@ describe("Home sport state safeguards", () => {
 
   it("replaces only the open day when a draft is loaded, rather than clearing prescriptions and effort for the whole week", () => {
 	    expect(source).toContain("const applyDraftToActiveDay = (stack: Exercise[]) => {");
-	    expect(source).toContain("setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal)])));");
+	    expect(source).toContain("setPrescriptions(Object.fromEntries(stack.map((exercise, index) => [exercise.id, prescriptionFor(index, goal, exercise)])));");
   });
 
   it("carries the departing day into the week and reads the arriving one back whole, through one path", () => {

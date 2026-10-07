@@ -17,7 +17,9 @@ import { ExerciseSwapSheet, type ExerciseSwapChoice, type SwapPlanOption } from 
 import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
 import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
-import { setEntryFieldsFor, type SetEntryMeasure } from "@/lib/setEntryFields";
+import { setCountFieldFor, setEntryFieldsFor, type SetCountMeasure, type SetEntryMeasure } from "@/lib/setEntryFields";
+import { measurementFor } from "@shared/exerciseMeasurement";
+import { descriptorFor } from "@/lib/exerciseDescriptors";
 import type { DisplayWeightUnit } from "@/lib/weightUnits";
 import { renderableSetCount, repsForSet } from "@/lib/setPrescription";
 import { toast } from "sonner";
@@ -92,7 +94,7 @@ function makeSession(workout: Exercise[], prescriptions: Record<number, string>,
     weightUnit,
     exercises: workout.map((exercise, index) => {
       // The goal's default for this place in the day, the same one the Plan shows (TR-05).
-      const plannedPrescription = prescriptions[exercise.id] || getGoalPrescription(goal, index);
+      const plannedPrescription = prescriptions[exercise.id] || getGoalPrescription(goal, index, exercise);
       return {
         id: `${exercise.id}-${index}`,
         exerciseName: exercise.name,
@@ -113,11 +115,27 @@ function makeSession(workout: Exercise[], prescriptions: Record<number, string>,
  * next render. Filtering the characters ourselves keeps the decimal keypad and
  * the half-typed value.
  */
-type EntryField = SetEntryMeasure | "reps";
+type EntryField = SetEntryMeasure | SetCountMeasure;
+
+const ENTRY_FIELDS: readonly EntryField[] = ["weight", "height", "setting", "reps", "seconds", "distance"];
 
 function sanitiseEntry(field: EntryField, value: string) {
-  if (field === "reps") return value.replace(/[^0-9]/g, "").slice(0, 4);
+  if (field === "reps" || field === "seconds") return value.replace(/[^0-9]/g, "").slice(0, 4);
+  // A band colour or gripper model is a name, not a number.
+  if (field === "setting") return value.replace(/[\u0000-\u001f]/g, "").slice(0, 32);
   return decimalEntryText(value).slice(0, 7);
+}
+
+/**
+ * Why a drop set is not offered for an exercise that has a load box, in one line (brief §8).
+ * Null where a descending-load drop set means what it says.
+ */
+function dropUnavailableReason(catalogId: number | undefined): string | null {
+  const mode = measurementFor(catalogId).mode;
+  if (mode === "assisted_reps") return "Drop sets aren't offered on an assisted machine: a lighter stage would mean adding help, which this log doesn't record as a drop.";
+  if (mode === "load_distance") return "Drop sets aren't offered for carries and sleds: log a lighter carry as its own set.";
+  if (mode === "load_duration") return "Drop sets aren't offered for timed holds: log a lighter hold as its own set.";
+  return null;
 }
 
 /** True when a target is a bare count or range, so the word "reps" belongs after it. */
@@ -269,7 +287,10 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const shownEntries: Record<EntryField, string> = {
     weight: shownEntry("weight"),
     height: shownEntry("height"),
+    setting: shownEntry("setting"),
     reps: shownEntry("reps"),
+    seconds: shownEntry("seconds"),
+    distance: shownEntry("distance"),
   };
   /** True while a field shows the carried value rather than something typed or stored for this set. */
   const isCarried = (field: EntryField) => {
@@ -287,6 +308,9 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const activeEntryFields = activeSession && position
     ? entryFieldsFor(activeSession.exercises[position.exerciseIndex])
     : setEntryFieldsFor(undefined, sessionUnit);
+  /** Reps, seconds or distance: what this exercise's sets count. */
+  const countFieldFor = (exercise: DeviceWorkoutExercise) => setCountFieldFor(catalogFor(exercise));
+  const activeCountField = activeSession && position ? countFieldFor(activeSession.exercises[position.exerciseIndex]) : setCountFieldFor(undefined);
 
   const editEntry = (field: EntryField, value: string) => {
     if (!activeSession || !position) return;
@@ -408,13 +432,18 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       restEndsAt: new Date(Date.now() + (session.restSeconds || DEFAULT_REST_SECONDS) * 1000).toISOString(),
       exercises: session.exercises.map((item, exerciseIndex) => exerciseIndex !== position.exerciseIndex
         ? item
-        : { ...item, sets: item.sets.map((set, setIndex) => setIndex !== position.setIndex ? set : {
+        : { ...item, sets: item.sets.map((set, setIndex): DeviceSetLog => setIndex !== position.setIndex ? set : {
             // What you see in the box is what gets logged, including a field
-            // the athlete deliberately emptied.
+            // the athlete deliberately emptied. The set's id and chosen side stay with it.
+            ...(set.id ? { id: set.id } : {}),
+            ...(set.side ? { side: set.side } : {}),
             weight: shownEntries.weight,
             unit: sessionUnit,
             height: shownEntries.height,
             reps: shownEntries.reps,
+            ...(shownEntries.seconds ? { seconds: shownEntries.seconds } : {}),
+            ...(shownEntries.distance ? { distance: shownEntries.distance, distanceUnit: "m" as const } : {}),
+            ...(shownEntries.setting ? { setting: shownEntries.setting } : {}),
             completed: true,
           }) }),
     }));
@@ -495,7 +524,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
     const slot = fromEntry ? workout.findIndex((item) => catalogIdOf(item) === fromEntry.id) : -1;
     if (!fromEntry || slot < 0) return { available: false, reason: `${from.exerciseName} isn't in this day of your plan.` };
     if (workout.some((item) => catalogIdOf(item) === target.id)) return { available: false, reason: `${target.name} is already in this day of your plan.` };
-    const prescription = prescriptions[workout[slot].id] || getGoalPrescription(goal, slot);
+    const prescription = prescriptions[workout[slot].id] || getGoalPrescription(goal, slot, workout[slot]);
     return { available: true, slot: `${dayNameOf(dayLabel)}, exercise ${slot + 1} of ${workout.length}: ${from.exerciseName} becomes ${target.name}. Its sets and reps (${prescription}) stay.` };
   };
 
@@ -581,7 +610,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
 
   const forgetTouched = () => setTouchedEntries((current) => {
     const next = { ...current };
-    for (const field of ["weight", "reps", "height"] as const) delete next[entryKey(field)];
+    for (const field of ENTRY_FIELDS) delete next[entryKey(field)];
     return next;
   });
 
@@ -772,11 +801,12 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         </summary>
         <div className="session-exercise-list">{activeSession.exercises.map((exercise, exerciseIndex) => {
           const queueFields = entryFieldsFor(exercise);
+          const queueCount = countFieldFor(exercise);
           const exerciseSkipped = isExerciseSkipped(exercise);
           const catalogEntry = catalogFor(exercise);
           const convention = loadConventionFor(catalogEntry?.id);
           const note = swapNote(exercise);
-          const canDrop = queueFields.some((field) => field.measure === "weight") && !exercise.replacedBy;
+          const canDrop = queueFields.some((field) => field.measure === "weight") && !exercise.replacedBy && !dropUnavailableReason(catalogEntry?.id);
           return <article key={exercise.id} className={`session-exercise ${exerciseSkipped ? "session-exercise-skipped" : ""} ${exercise.replacedBy ? "session-exercise-replaced" : ""}`}>
           <div className="exercise-media-dense">
             <span>{String(exerciseIndex + 1).padStart(2, "0")}</span>
@@ -815,12 +845,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             <strong>Set {setIndex + 1}{isDraftSet(set) ? " · typed, not logged" : ""}{set.skipped ? " · skipped" : ""}</strong>
             {queueFields.map((field) => <label key={field.measure}>
               <span>{field.label}</span>
-              <input value={set[field.measure] || ""} inputMode="decimal" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { [field.measure]: sanitiseEntry(field.measure, event.target.value) })} placeholder="—" />
-              <em>{field.unit}</em>
+              <input value={set[field.measure] || ""} inputMode={field.measure === "setting" ? "text" : "decimal"} type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { [field.measure]: sanitiseEntry(field.measure, event.target.value) })} placeholder={field.placeholder ?? "—"} />
+              {field.unit && <em>{field.unit}</em>}
             </label>)}
             <label>
-              <span>Reps</span>
-              <input value={set.reps} inputMode="numeric" type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { reps: sanitiseEntry("reps", event.target.value) })} placeholder="—" />
+              <span>{queueCount.label}{set.side ? ` · ${set.side}` : ""}</span>
+              <input value={set[queueCount.measure] || ""} inputMode={queueCount.inputMode} type="text" autoComplete="off" onChange={(event) => updateSet(exercise.id, setIndex, { [queueCount.measure]: sanitiseEntry(queueCount.measure, event.target.value), ...(queueCount.measure === "distance" ? { distanceUnit: "m" as const } : {}) })} placeholder="—" />
+              {queueCount.unit && <em>{queueCount.unit}</em>}
             </label>
             <button onClick={() => toggleSetLogged(exercise.id, setIndex, set)} aria-pressed={set.completed}>
               {set.completed ? <Undo2 className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
@@ -835,7 +866,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   ), [activeSession, catalogByName, sessionUnit]);
 
   if (!activeSession) {
-    const plannedSets = workout.reduce((total, exercise, index) => total + renderableSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index)), 0);
+    const plannedSets = workout.reduce((total, exercise, index) => total + renderableSetCount(prescriptions[exercise.id] || getGoalPrescription(goal, index, exercise)), 0);
     /**
      * "Week 2 · Day 02 · Pull": the day's name is the title of this screen and
      * its position in the plan is the line under it. The label is kept whole on
@@ -901,13 +932,13 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
               <ExerciseMedia exerciseId={exercise.id} exerciseName={exercise.name} equipment={exercise.equipment} variant="thumb" />
               <span className="session-prestart-name">
                 <strong>{exercise.name}</strong>
-                <small>{prescriptions[exercise.id] || getGoalPrescription(goal, index)}</small>
+                <small>{prescriptions[exercise.id] || getGoalPrescription(goal, index, exercise)}</small>
               </span>
               {onInspect && <ChevronRight className="h-5 w-5" aria-hidden />}
             </>;
             return <li key={exercise.id}>
               {onInspect
-                ? <button type="button" className="session-prestart-row" onClick={() => onInspect(exercise)} aria-label={`${exercise.name}, ${prescriptions[exercise.id] || getGoalPrescription(goal, index)}: open details`}>{row}</button>
+                ? <button type="button" className="session-prestart-row" onClick={() => onInspect(exercise)} aria-label={`${exercise.name}, ${prescriptions[exercise.id] || getGoalPrescription(goal, index, exercise)}: open details`}>{row}</button>
                 : <div className="session-prestart-row">{row}</div>}
             </li>;
           })}
@@ -944,8 +975,17 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
   const dropMode = activeSet?.type === "drop";
   const activeStages = activeSet?.stages ?? [];
   const activeConvention = loadConventionFor(activeExercise ? catalogFor(activeExercise)?.id : undefined);
-  /** Drop sets are about load: offered wherever the set has a weight box. */
-  const canDropActive = activeEntryFields.some((field) => field.measure === "weight");
+  /** Drop sets are about load: offered wherever the set has a weight box and a lighter stage means less load. */
+  const activeCatalogId = activeExercise ? catalogFor(activeExercise)?.id : undefined;
+  const activeDropBlocked = dropUnavailableReason(activeCatalogId);
+  const canDropActive = activeEntryFields.some((field) => field.measure === "weight") && !activeDropBlocked;
+  /** An exercise done one side at a time names the side of each set; the set still counts once. */
+  const activeMeasurement = measurementFor(activeCatalogId);
+  const sideChoice = activeMeasurement.laterality === "per_side";
+  const setActiveSide = (side: "left" | "right") => {
+    if (!activeSession || !position || !activeSet) return;
+    updateSet(activeSession.exercises[position.exerciseIndex].id, position.setIndex, { side: activeSet.side === side ? undefined : side });
+  };
   const swapExercise = swapForId ? activeSession.exercises.find((exercise) => exercise.id === swapForId) ?? null : null;
 
   return <section id="workout-tracker" className="workout-execution-panel device-workout-tracker">
@@ -1007,7 +1047,7 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       </p>
       {/* Once a drop set has a stage, the last set's numbers are exactly what the next stage is not. */}
       {carried && activeStages.length === 0 && <p className="live-set-last">
-        {carried.source === "session" ? "Last set" : "Last logged"}: {activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}
+        {carried.source === "session" ? "Last set" : "Last logged"}: {[...activeEntryFields.map((field) => `${carried[field.measure] || "—"}${field.unit ? ` ${field.unit}` : ""}`), `${activeCountField.measure === "reps" ? "× " : ""}${carried[activeCountField.measure] || "—"}${activeCountField.unit ? ` ${activeCountField.unit}` : ""}`].join(activeCountField.measure === "reps" ? " " : " · ")}
       </p>}
       {/* The photographs of the current exercise, collapsed: a reference to open between sets,
           never a frame the athlete must scroll past to log one. The set fields keep their values
@@ -1016,6 +1056,11 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
         <summary>Show {activeExercise.exerciseName} photos <ChevronRight className="h-4 w-4" aria-hidden /></summary>
         <ExerciseMedia exerciseId={catalogEntry.id} exerciseName={catalogEntry.name} equipment={catalogEntry.equipment} variant="detail" />
       </details> : null; })()}
+      {sideChoice && <div className="live-set-type live-set-side" role="group" aria-label="Side for this set">
+        <button type="button" aria-pressed={activeSet.side === "left"} onClick={() => setActiveSide("left")}>Left</button>
+        <button type="button" aria-pressed={activeSet.side === "right"} onClick={() => setActiveSide("right")}>Right</button>
+      </div>}
+      {activeMeasurement.explicit && <p className="live-set-entry-note">{descriptorFor(activeCatalogId)?.entryNote}</p>}
       {canDropActive && <div className="live-set-type" role="group" aria-label="Set type">
         <button type="button" aria-pressed={!dropMode} onClick={() => setActiveSetType("standard")} disabled={dropMode && activeStages.length > 0}>Standard</button>
         <button type="button" aria-pressed={dropMode} onClick={() => setActiveSetType("drop")}><Layers className="h-4 w-4" aria-hidden /> Drop set</button>
@@ -1038,16 +1083,18 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
             the field: it is marked so it never passes for something already typed. */}
         {activeEntryFields.map((field) => <label key={field.measure}>
           <span>{field.label}</span>
-          <input value={shownEntries[field.measure]} inputMode="decimal" type="text" autoComplete="off" enterKeyHint="next" data-carried={isCarried(field.measure) ? "" : undefined}
-            onChange={(event) => editEntry(field.measure, event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
-          <em>{field.unit}</em>
+          <input value={shownEntries[field.measure]} inputMode={field.measure === "setting" ? "text" : "decimal"} type="text" autoComplete="off" enterKeyHint="next" data-carried={isCarried(field.measure) ? "" : undefined}
+            onChange={(event) => editEntry(field.measure, event.target.value)} onKeyDown={onEntryKeyDown} placeholder={field.placeholder ?? "—"} />
+          {field.unit && <em>{field.unit}</em>}
         </label>)}
         <label>
-          <span>Reps</span>
-          <input value={shownEntries.reps} inputMode="numeric" type="text" autoComplete="off" enterKeyHint="done" data-carried={isCarried("reps") ? "" : undefined}
-            onChange={(event) => editEntry("reps", event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
+          <span>{activeCountField.label}</span>
+          <input value={shownEntries[activeCountField.measure]} inputMode={activeCountField.inputMode} type="text" autoComplete="off" enterKeyHint="done" data-carried={isCarried(activeCountField.measure) ? "" : undefined}
+            onChange={(event) => editEntry(activeCountField.measure, event.target.value)} onKeyDown={onEntryKeyDown} placeholder="—" />
+          {activeCountField.unit && <em>{activeCountField.unit}</em>}
         </label>
       </div>
+      {activeDropBlocked && activeEntryFields.some((field) => field.measure === "weight") && <p className="live-set-entry-note">{activeDropBlocked}</p>}
       {dropMode
         ? <div className="live-drop-actions">
           <button type="button" className="live-drop-add" onClick={() => addDropStage(false)}><Plus className="h-4 w-4" aria-hidden /> Add drop</button>

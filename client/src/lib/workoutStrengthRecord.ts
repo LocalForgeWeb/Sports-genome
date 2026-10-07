@@ -4,6 +4,7 @@ import { exercises as exerciseCatalog } from "@/lib/exerciseCatalog";
 import { setWeightKg, setWeightUnit, type DeviceWorkoutSession } from "@/lib/deviceWorkoutLog";
 import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
+import { measurementFor } from "@shared/exerciseMeasurement";
 import { resolveStrengthObservationRoute, strengthRegionIdsForCatalogMuscles } from "../../../shared/strengthGenomeDefinitions";
 
 /**
@@ -148,6 +149,12 @@ export function workoutStrengthObservations(
     // both are frozen values, so a later weight change cannot reach a lift already recorded.
     const bodyMassKgAtTest = bodyWeightKgAt(bodyWeightLog, observedAt) ?? session.bodyMassKgAtCompletion;
     session.exercises.forEach((exercise) => {
+      // A hold, a carry, an assistance stack, a band or gripper setting, or a load that depends on
+      // where a lever is gripped is not a load × reps observation (50-exercise brief §7). Those sets
+      // stay in the workout history in their own units; they never become a strength estimate.
+      const catalogId = exercise.catalogId ?? catalogByName.get(exercise.exerciseName.trim().toLowerCase())?.id;
+      const measurement = measurementFor(catalogId);
+      if (measurement.explicit && measurement.mode !== "reps_only" && !(measurement.mode === "load_reps" && measurement.e1rmEligible)) return;
       // Each set is read in the unit it was typed in, and compared in kilograms, so a
       // session that mixed units still finds its heaviest set.
       // A drop set is one set and is read by its first stage alone (lib/dropSets): the later

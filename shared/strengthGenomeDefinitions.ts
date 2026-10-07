@@ -7,7 +7,7 @@ export type StrengthEvidenceStatus =
 export type StrengthDomainDefinition = {
   id: string;
   label: string;
-  group: "Pressing" | "Pulling and arms" | "Trunk" | "Hip and knee" | "Lower leg";
+  group: "Pressing" | "Pulling and arms" | "Trunk" | "Hip and knee" | "Lower leg" | "Neck";
   description: string;
   evidenceStatus: StrengthEvidenceStatus;
 };
@@ -54,6 +54,9 @@ export const strengthDomainDefinitions: StrengthDomainDefinition[] = [
   { id: "knee_flexion", label: "Knee flexion", group: "Hip and knee", description: "Knee-flexion capacity measured with a suitable protocol.", evidenceStatus: "AWAITING_EVIDENCE" },
   { id: "plantarflexion", label: "Plantarflexion", group: "Lower leg", description: "Ankle plantarflexion capacity measured with a suitable protocol.", evidenceStatus: "AWAITING_EVIDENCE" },
   { id: "dorsiflexion", label: "Dorsiflexion", group: "Lower leg", description: "Ankle dorsiflexion capacity measured with a suitable protocol.", evidenceStatus: "AWAITING_EVIDENCE" },
+  { id: "neck_flexion", label: "Neck flexion", group: "Neck", description: "Cervical-flexion capacity measured with a suitable protocol.", evidenceStatus: "AWAITING_EVIDENCE" },
+  { id: "neck_extension", label: "Neck extension", group: "Neck", description: "Cervical-extension capacity measured with a suitable protocol.", evidenceStatus: "AWAITING_EVIDENCE" },
+  { id: "neck_lateral_flexion", label: "Neck lateral flexion", group: "Neck", description: "Cervical lateral-flexion capacity measured with a suitable protocol.", evidenceStatus: "AWAITING_EVIDENCE" },
 ];
 
 export const strengthRegionDefinitions: StrengthRegionDefinition[] = [
@@ -75,6 +78,7 @@ export const strengthRegionDefinitions: StrengthRegionDefinition[] = [
   { id: "hamstrings", label: "Hamstrings", bodyArea: "Lower body", description: "An athlete-facing region informed by knee-flexion and hip-extension domains." },
   { id: "calves", label: "Calves", bodyArea: "Lower body", description: "An athlete-facing region informed by plantarflexion domains." },
   { id: "tibialis_anterior", label: "Tibialis anterior", bodyArea: "Lower body", description: "An athlete-facing region informed by dorsiflexion domains." },
+  { id: "neck", label: "Neck", bodyArea: "Upper body", description: "An athlete-facing region informed by neck flexion, extension and lateral-flexion domains." },
 ];
 
 export type StrengthObservationRoute = {
@@ -177,6 +181,8 @@ export const catalogMuscleRegionIds: Record<string, string> = {
   hamstrings: "hamstrings",
   calves: "calves",
   tibialis: "tibialis_anterior",
+  neckFlexors: "neck",
+  neckExtensors: "neck",
 };
 
 /**

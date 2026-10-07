@@ -1,5 +1,6 @@
 import { plural } from "@/lib/plural";
 import { loadConventionFor, type LoadConvention } from "@shared/loadConventions";
+import { measurementFor } from "@shared/exerciseMeasurement";
 import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { LocalSearchScope } from "@/components/LocalSearchScope";
 import { Activity, ArrowRight, ChevronDown, CircleHelp, Dumbbell, Info, Plus, Trash2, X } from "lucide-react";
@@ -129,7 +130,8 @@ const loadInputLabel = (convention: LoadConvention, unitLabel: string) =>
   convention === "per_implement" ? `Weight of one dumbbell in ${unitLabel}`
     : convention === "per_hand" ? `Weight in each hand in ${unitLabel}`
       : convention === "bodyweight_reps" ? `Added weight in ${unitLabel}`
-        : `Load in ${unitLabel}`;
+        : convention === "assistance" ? `Assistance in ${unitLabel}`
+          : `Load in ${unitLabel}`;
 
 export function StrengthLoadInput({ weightUnit, value, requiresLoad, onChange, convention = "total_external_load" }: { weightUnit: DisplayWeightUnit; value: string; requiresLoad: boolean; onChange: (value: string) => void; convention?: LoadConvention }) {
   const label = loadInputLabel(convention, weightUnitLabel(weightUnit));
@@ -890,7 +892,13 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
   const loadLabel = loadInputLabel(loadConvention, weightUnitLabel(weightUnit));
   const loadMissing = loadRequired && !(hasLoad && parsedLoad > 0);
   const repsMissing = measurementType === "MULTI_REP" && !(repetitions !== "" && Number.isInteger(parsedRepetitions) && parsedRepetitions >= 1);
-  const canSave = Boolean(selectedExercise) && !loadMissing && !loadInvalid && !repsMissing && liftDateInRange;
+  // A hold, a carry, an assistance stack or a band setting is not a load × reps test (50-exercise
+  // brief §7): those are logged in the workout log, which records them in their own units.
+  const measurement = measurementFor(selectedExercise?.id);
+  const measurementRefusal = selectedExercise && measurement.explicit && !measurement.e1rmEligible && measurement.mode !== "reps_only"
+    ? `${selectedExercise.name} is recorded in the workout log, not as a strength test. ${measurement.e1rmReason ?? ""}`.trim()
+    : null;
+  const canSave = Boolean(selectedExercise) && !measurementRefusal && !loadMissing && !loadInvalid && !repsMissing && liftDateInRange;
   // Lifts typed into the form and lifts carried across from finished workouts are
   // one record. The device tracker writes to this device in both access modes, so
   // its sessions are merged in both — they are never mirrored server-side, so
@@ -1349,7 +1357,7 @@ export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "l
         {powerliftingCaptureAvailable && <details className="strength-piper-capture strength-powerlifting-capture" open={powerliftingReferenceOpen} onToggle={(event) => setPowerliftingReferenceOpen(event.currentTarget.open)}><summary>Competitive powerlifting reference</summary><p>Optional. This compares one exact maximum under drug-tested, unequipped competition standards for adults aged 18–35; it does not rate everyday gym lifts.</p>{powerliftingReferenceOpen && <div className="strength-piper-fields strength-powerlifting-fields"><label><span>Which competition category?</span><select value={powerliftingDeclaration.sex || ""} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, sex: (event.target.value || undefined) as PowerliftingReferenceDeclaration["sex"] }))}><option value="">Choose a category</option><option value="female">Women’s competition</option><option value="male">Men’s competition</option></select></label><label><span>Age on test day</span><input aria-label="Age on test day for powerlifting reference" inputMode="numeric" value={powerliftingDeclaration.ageYears || ""} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, ageYears: Number(event.target.value.replace(/[^0-9]/g, "")) || undefined }))} placeholder="18–35" /></label><label><input type="checkbox" checked={powerliftingDeclaration.drugTestedCompetitionConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, drugTestedCompetitionConfirmed: event.target.checked }))} /> This was a drug-tested powerlifting competition lift.</label><label><input type="checkbox" checked={powerliftingDeclaration.unequippedCompetitionConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, unequippedCompetitionConfirmed: event.target.checked }))} /> The lift was unequipped under the competition standard.</label><label><input type="checkbox" checked={powerliftingDeclaration.maximumSuccessfulLiftConfirmed} onChange={(event) => setPowerliftingDeclaration((current) => ({ ...current, maximumSuccessfulLiftConfirmed: event.target.checked }))} /> This was the maximum successful competition lift.</label><p>Use the saved profile weight only if it matches your body weight on this test day.</p></div>}</details>}
         <div className="strength-log-submit">
           <button type="button" disabled={!canSave || addObservation.isPending} onClick={submit} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--sg-action-fill)] px-4 text-[11px] font-bold uppercase tracking-[.12em] text-white transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"><Plus className="h-4 w-4" /> {addObservation.isPending ? "Saving" : "Save this lift"}</button>
-          {!canSave && <p className="strength-log-blocked" role="status">{!selectedExercise ? "Choose an exercise from the catalog above to save this." : !liftDateInRange ? "Enter the date this lift happened." : loadMissing ? `Enter the load in ${weightUnitLabel(weightUnit)} to save this.` : loadInvalid ? `Fix or clear the ${loadLabel.charAt(0).toLowerCase()}${loadLabel.slice(1)} to save this.` : "Enter the reps of the working set to save this."}</p>}
+          {!canSave && <p className="strength-log-blocked" role="status">{!selectedExercise ? "Choose an exercise from the catalog above to save this." : measurementRefusal ? measurementRefusal : !liftDateInRange ? "Enter the date this lift happened." : loadMissing ? `Enter the load in ${weightUnitLabel(weightUnit)} to save this.` : loadInvalid ? `Fix or clear the ${loadLabel.charAt(0).toLowerCase()}${loadLabel.slice(1)} to save this.` : "Enter the reps of the working set to save this."}</p>}
           {saveError && <p className="strength-log-save-error" role="alert">{saveError}</p>}
         </div>
       </div>

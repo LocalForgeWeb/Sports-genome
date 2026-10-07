@@ -1,6 +1,7 @@
 import type { Exercise } from "./exerciseCatalog";
 import type { DisplayWeightUnit } from "./weightUnits";
 import { loadConventionFor } from "@shared/loadConventions";
+import { measurementFor } from "@shared/exerciseMeasurement";
 
 /**
  * Which boxes a set actually needs, and what each one measures.
@@ -16,7 +17,7 @@ import { loadConventionFor } from "@shared/loadConventions";
  * clearly in one of the narrow cases keeps the plain weight box — no exercise
  * gets a unit invented for it.
  */
-export type SetEntryMeasure = "weight" | "height";
+export type SetEntryMeasure = "weight" | "height" | "setting";
 
 export type SetEntryField = {
   measure: SetEntryMeasure;
@@ -26,13 +27,38 @@ export type SetEntryField = {
   unit: string;
   /** Whether leaving it empty is the normal case rather than an omission. */
   optional: boolean;
+  /** What to type, where the label alone does not say ("colour or rating"). */
+  placeholder?: string;
 };
+
+/**
+ * The box that says how much was done: reps for most exercises, seconds for a hold, distance for
+ * a carry or sled (50-exercise brief §8). A hold's seconds never go in the reps box.
+ */
+export type SetCountMeasure = "reps" | "seconds" | "distance";
+export type SetCountField = { measure: SetCountMeasure; label: string; unit: string; inputMode: "numeric" | "decimal" };
+
+const REPS: SetCountField = { measure: "reps", label: "Reps", unit: "", inputMode: "numeric" };
+const HOLD: SetCountField = { measure: "seconds", label: "Hold", unit: "s", inputMode: "numeric" };
+const DISTANCE: SetCountField = { measure: "distance", label: "Distance", unit: "m", inputMode: "decimal" };
+
+/** What a set of this exercise counts. */
+export function setCountFieldFor(exercise: { id?: number } | undefined): SetCountField {
+  const mode = measurementFor(exercise?.id).mode;
+  return mode === "duration" || mode === "load_duration" ? HOLD : mode === "load_distance" ? DISTANCE : REPS;
+}
 
 const WEIGHT: SetEntryField = { measure: "weight", label: "Weight", unit: "lb", optional: false };
 /** One dumbbell's weight: the database scores dumbbell work per implement (EN-07). */
 const PER_DUMBBELL: SetEntryField = { measure: "weight", label: "Weight per dumbbell", unit: "lb", optional: false };
 const PER_HAND: SetEntryField = { measure: "weight", label: "Weight per hand", unit: "lb", optional: false };
 const ADDED_WEIGHT: SetEntryField = { measure: "weight", label: "Added weight", unit: "lb", optional: true };
+/** An assisted machine's number is help, not load: more of it is an easier set. */
+const ASSISTANCE: SetEntryField = { measure: "weight", label: "Assistance", unit: "lb", optional: false, placeholder: "stack help" };
+const settingField = (label: string, optional: boolean): SetEntryField => ({
+  measure: "setting", label, unit: "", optional,
+  placeholder: label === "Gripper" ? "model or rating" : label === "Hub" ? "which hub" : "colour or rating",
+});
 const BOX_HEIGHT: SetEntryField = { measure: "height", label: "Box height", unit: "in", optional: true };
 
 /** Jumps onto or off a box: the box's height is the progression variable. */
@@ -65,10 +91,22 @@ function fieldsFor(exercise: (Pick<Exercise, "name" | "category" | "equipment"> 
   // The scoring policy's convention decides first, where it names one: a chin-up is scored
   // on reps even though the catalog files it under free weights.
   const convention = loadConventionFor(exercise.id);
+  const measurement = measurementFor(exercise.id);
 
   const loadField = convention === "per_implement" ? PER_DUMBBELL
     : convention === "per_hand" ? PER_HAND
       : carriesAddedLoad || convention === "bodyweight_reps" || loadIsOptional(exercise) ? ADDED_WEIGHT : WEIGHT;
+
+  // The expansion's reviewed measurement modes (shared/exerciseMeasurement.ts).
+  if (measurement.explicit) {
+    switch (measurement.mode) {
+      case "duration": return [];
+      case "setting_reps": return [settingField(measurement.settingLabel ?? "Setting", measurement.settingLabel !== "Gripper")];
+      case "assisted_reps": return [ASSISTANCE];
+      case "load_duration": return [loadField, settingField(measurement.settingLabel ?? "Setting", false)];
+      default: break;
+    }
+  }
 
   if (BOX_EXERCISES.test(name)) {
     // An unloaded box jump records the box alone — that is the whole point of

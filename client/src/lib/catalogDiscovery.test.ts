@@ -53,7 +53,7 @@ describe("refinements inside the movement support tiers", () => {
 
   it("finds by search text only among a tier's own rows, without re-ranking them", () => {
     const refined = refineMovementSupport(bridge(), { ...defaultCatalogFilters, query: "thrust" }, new Set());
-    expect(refined.specific.map((row) => row.exercise.name)).toEqual(["Barbell Hip Thrust", "Smith Machine Hip Thrust", "Dumbbell Hip Thrust", "Single-Leg Hip Thrust", "Cable Hip Thrust"]);
+    expect(refined.specific.map((row) => row.exercise.name)).toEqual(["Barbell Hip Thrust", "Smith Machine Hip Thrust", "Dumbbell Hip Thrust", "Single-Leg Hip Thrust", "Cable Hip Thrust", "Hip Thrust Machine"]);
     expect(refined.related).toEqual([]);
   });
 
