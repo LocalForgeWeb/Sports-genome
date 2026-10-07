@@ -167,7 +167,7 @@ changed here), with references in `glossary-evidence.json`:
 | ID | Status | Evidence |
 |---|---|---|
 | I01 | done | `UtilitySheet` reuses the save-to-plan sheet's classes, Escape/Tab helpers and focus return. The search scope line is `LocalSearchScope`. No new tokens. |
-| I02 | done | No horizontal overflow and no target under 44 px in any tool at 320, 390 and 1280 px. The scope line's link is 28 px tall with a 44 px hit area, by design in `index.css`. |
+| I02 | done | No horizontal overflow and no target under 44 px in any tool at 320, 390 and 1280 px, including every view of Blocks (list, insert, edit, save) and of the preparation sheet (editor, choose list). The scope line's link is 28 px tall with a 44 px hit area, by design in `index.css`. Inside the workout screen the light preparation panel restates its text colours, because the tracker paints every paragraph for a dark surface; they measure #102947 and #5d7186 on white. |
 | I03 | done | Each tool has an empty state ("Save a group of exercises to reuse it in another day.", "Nothing saved yet", "No term matches…"), saved and failed states, and keeps the draft after a failed save (setups and blocks, tested). Sheets load lazily with no spinner. |
 | I04 | done | Every record goes through `deviceStorageScope`. A component test shows another account doesn't see a setup. |
 | I05 | done | No new service, provider, AI call, analytics or sync queue. |
