@@ -3661,6 +3661,14 @@ details[open] > summary .strength-disclosure-chevron { transform: rotate(180deg)
 .home-week-record { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: .35rem; justify-self: start; min-height: 40px; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-base); text-align: left; }
 .home-week-record small { color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-sm); }
 .home-week-record:hover { color: var(--sg-text-on-dark); text-decoration: underline; }
+/* Home's way back into the last recap (O08): one quiet row under the week, below any Resume. */
+.home-last-session { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .1rem .75rem; align-items: center; width: 100%; min-height: 3.5rem; border-top: 1px solid var(--sg-divider-on-dark); padding: .7rem 0 .2rem; color: var(--sg-text-on-dark); text-align: left; }
+.home-last-session .metric-label { grid-column: 1; color: var(--sg-text-subtle-on-dark); }
+.home-last-session strong { grid-column: 1; font-size: var(--sg-text-lg); font-weight: 600; overflow-wrap: anywhere; }
+.home-last-session small { grid-column: 1; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.home-last-session > svg { grid-column: 2; grid-row: 1 / span 3; color: var(--sg-text-subtle-on-dark); }
+.home-last-session:hover strong { text-decoration: underline; }
+.home-last-session:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
 .destination-home .today-action-state, .destination-home .today-action-priority { display: grid; gap: .25rem; border-bottom: 1px solid var(--sg-divider-on-dark); padding: .8rem 0 .9rem; }
 .destination-home .today-action-state .home-link { justify-self: start; }
 .destination-home .today-action-priority { grid-template-columns: minmax(0, 1fr); align-items: start; }

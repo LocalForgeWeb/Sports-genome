@@ -1251,3 +1251,13 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .live-done-summary strong { color: var(--sg-text-on-dark); font-size: var(--sg-text-base); }
 .live-done-summary small { display: block; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
 .live-done-summary ol { display: grid; gap: .15rem; margin: 0; padding-left: 1.1rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-variant-numeric: tabular-nums; }
+
+/* Finishing early with planned sets open asks once, in place (Oct 7 brief R13). */
+.live-finish-confirm { display: grid; gap: .6rem; margin-top: .75rem; border: 1px solid rgb(176 214 247 / .3); border-radius: 12px; background: rgb(255 255 255 / .05); padding: .8rem; }
+.live-finish-confirm p { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.live-finish-confirm strong { color: var(--sg-text-on-dark); }
+.live-finish-confirm > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+.live-finish-confirm button { min-height: 2.75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: 0 1rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 700; }
+.live-finish-confirm .live-finish-confirm-go { border-color: transparent; background: var(--sg-action-fill); color: var(--sg-action-on); }
+.live-finish-confirm button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.device-workout-tracker.session-saved { padding: clamp(1rem, 3vw, 1.5rem); }

@@ -273,7 +273,15 @@ function replaceWithCanonicalAddress(workspace: Workspace) {
   writeDiscoveryParams(url.searchParams, workspace === "catalog" ? discoveryFromLocation() : allExercisesDiscovery);
   // Review's scope belongs to Review's entries alone, and only "day" is written (the week is the plain address).
   if (workspace !== "review" || url.searchParams.get("scope") !== "day") url.searchParams.delete("scope");
+  // A finished workout's id belongs to Progress's own entries.
+  if (workspace !== "progress") url.searchParams.delete("session");
   if (url.search !== window.location.search) window.history.replaceState(window.history.state, "", url);
+}
+
+/** The finished workout a Progress address opens, if any (Oct 7 brief N06): `?workspace=progress&session=<id>`. */
+export function progressSessionFromLocation(params: URLSearchParams): string | null {
+  const id = params.get("session");
+  return id && id.length <= 120 ? id : null;
 }
 
 /**
@@ -281,9 +289,11 @@ function replaceWithCanonicalAddress(workspace: Workspace) {
  * that is not the catalog carries no discovery parameters; anything else in the query
  * is left as it is.
  */
-function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext, scope?: ReviewScope) {
+function urlForWorkspace(next: Workspace, discovery: ExerciseDiscoveryContext, scope?: ReviewScope, session?: string | null) {
   const url = new URL(window.location.href);
   url.searchParams.set("workspace", next);
+  // One finished workout's detail in Progress; any other address carries no session.
+  if (next === "progress" && session) url.searchParams.set("session", session); else url.searchParams.delete("session");
   writeDiscoveryParams(url.searchParams, next === "catalog" ? discovery : allExercisesDiscovery);
   // Review's scope rides on Review's own entries and on no other page's; the week is the
   // default, so only a day view says so and a plain Review address stays what it was.
@@ -500,6 +510,8 @@ export default function Home() {
    * here to run it, not to be re-asked which one.
    */
   const [trackerDayPickerOpen, setTrackerDayPickerOpen] = useState(false);
+  /** The finished workout open in Progress, from the address so a reload or a shared link reopens it. */
+  const [progressSession, setProgressSession] = useState<string | null>(() => (typeof window === "undefined" ? null : progressSessionFromLocation(new URLSearchParams(window.location.search))));
   const [launchExperienceEnabled, setLaunchExperienceEnabled] = useState(true);
   const favoriteQuery = trpc.favorites.list.useQuery(undefined, { enabled: isAuthenticated, retry: false });
   // Selectable capacity targets. Sport-independent, and safe to fail: the quiz renders an
@@ -1147,7 +1159,7 @@ export default function Home() {
    * mode is named) clears the refinements; a named mode without it gets back the
    * ones it was left with.
    */
-  const navigateWorkspace = (next: Workspace, { keepScroll = false, discovery: requested, fresh, reviewScope: requestedScope }: { keepScroll?: boolean; discovery?: ExerciseDiscoveryContext; fresh?: boolean; reviewScope?: ReviewScope } = {}) => {
+  const navigateWorkspace = (next: Workspace, { keepScroll = false, discovery: requested, fresh, reviewScope: requestedScope, session = null }: { keepScroll?: boolean; discovery?: ExerciseDiscoveryContext; fresh?: boolean; reviewScope?: ReviewScope; session?: string | null } = {}) => {
     // Any ordinary navigation supersedes the return context a search result left.
     setSearchReturn(null);
     /**
@@ -1171,9 +1183,10 @@ export default function Home() {
     // the dock say nothing and Review keeps the scope it was left on.
     if (next === "review" && requestedScope) { reviewScopeRef.current = requestedScope; setReviewScopeState(requestedScope); }
     setWorkspaceState(next);
+    setProgressSession(next === "progress" ? session : null);
     if (typeof window === "undefined") return;
-    // A new entry whenever the address changes: another page, or the catalog in another mode.
-    const url = urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current);
+    // A new entry whenever the address changes: another page, the catalog in another mode, or one workout's detail.
+    const url = urlForWorkspace(next, catalogDiscovery, reviewScopeRef.current, session);
     if (url.search !== window.location.search) {
       window.history.pushState({ workspace: next }, "", url);
     }
@@ -1258,6 +1271,7 @@ export default function Home() {
         setDiscoveryOrigin(discoveryOriginOf(window.history.state));
       }
       replaceWithCanonicalAddress(next);
+      setProgressSession(next === "progress" ? progressSessionFromLocation(params) : null);
       setWorkspaceState(next);
     };
     window.addEventListener("popstate", restoreWorkspace);
@@ -1492,6 +1506,19 @@ export default function Home() {
   const replaceExercise = (outgoing: Exercise, incoming: Exercise) => {
     if (!replaceInDay(outgoing, incoming)) return;
     toast("Stack correction applied", { description: `${outgoing.name} was replaced with ${incoming.name}; its prescription and coaching settings were preserved.` });
+  };
+  /**
+   * One finished workout's detail in Progress (Oct 7 brief §6). Opened from the list, it is a new
+   * history entry marked as such, so "All workouts" is a Back to the same list and scroll position;
+   * opened from a link or the workout's recap, "All workouts" goes to the list as a new page.
+   */
+  const openProgressSession = (id: string) => {
+    navigateWorkspace("progress", { session: id });
+    if (typeof window !== "undefined") window.history.replaceState({ ...(window.history.state ?? {}), sessionFromList: true }, "", window.location.href);
+  };
+  const closeProgressSession = () => {
+    if (typeof window !== "undefined" && window.history.state?.sessionFromList) { window.history.back(); return; }
+    navigateWorkspace("progress");
   };
   /** The workout's "Also update this day in my plan": the same replacement, reported by the workout's own message. */
   const replaceInPlanFromWorkout = (fromId: number, toId: number): boolean => {
@@ -2145,7 +2172,7 @@ export default function Home() {
       />}
       {searchReturn && <div className="search-return-bar"><span>Opened from search.</span><button type="button" onClick={() => navigateWorkspace(searchReturn.workspace, { discovery: searchReturn.discovery })}><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to {searchReturn.label}</button></div>}
       <Suspense fallback={<main className="apex-content"><div className="workspace-skeleton" role="status" aria-label="Loading this screen"><span className="workspace-skeleton-title" /><span /><span /><span /></div></main>}><main className={`apex-content destination-${activePrimaryDestination} ${workspace === "catalog" ? "catalog-mode-active" : ""}`}>
-        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onReplaceInPlan={replaceInPlanFromWorkout} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
+        {workspace === "tracker" && <section className="tracker-workspace"><DeviceWorkoutTracker workout={customWorkout} prescriptions={dayPrescriptions} settings={exerciseSettings} goal={goal} dayLabel={activeDayLabel} weightUnit={athleteBaseline.weightUnit} onEditInPlan={() => navigateWorkspace("day-plan")} onReviewDay={() => navigateWorkspace("review", { reviewScope: "day" })} onInspect={inspectExercise} onOpenProgress={() => navigateWorkspace("progress")} onOpenSession={(id) => navigateWorkspace("progress", { session: id })} onOpenHome={() => navigateWorkspace("command")} onReplaceInPlan={replaceInPlanFromWorkout} daySwitch={<details className="tracker-day-switch" open={trackerDayPickerOpen} onToggle={(event) => setTrackerDayPickerOpen(event.currentTarget.open)}>
           {/* One line under the day the session names, not a panel above it.
               The tracker renders it only before a session starts; mid-workout
               the day cannot change under the sets being logged. */}
@@ -2161,7 +2188,7 @@ export default function Home() {
         {/* A plan changed on this device and on the account since they last matched. Syncing
             stops until the athlete says which to keep; nothing is overwritten on their behalf. */}
         {planSync.conflict && <div className="plan-sync-conflict" role="alert"><p><strong>Your plan changed on another device.</strong> This device and your account both have edits since they last matched, so neither was replaced.</p><div><button type="button" onClick={() => planSync.resolveConflict("device")}>Keep this device's plan</button><button type="button" onClick={() => planSync.resolveConflict("account")}>Use the account's plan</button></div></div>}
-        {workspace === "command" && <TodayActionPanel plan={homePlan} onOpenWorkout={openPlannedWorkout} onOpenReview={openWeekReview} onOpenProgress={() => navigateWorkspace("progress")} goal={goal} live={liveSession} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
+        {workspace === "command" && <TodayActionPanel plan={homePlan} onOpenWorkout={openPlannedWorkout} onOpenReview={openWeekReview} onOpenProgress={() => navigateWorkspace("progress")} onOpenSession={(id) => navigateWorkspace("progress", { session: id })} goal={goal} live={liveSession} athleteName={athleteBaseline.preferredName} directAccess={directWorkspaceAccess} weightUnit={athleteBaseline.weightUnit} onOpenTracker={() => navigateWorkspace("tracker")} onOpenCatalog={() => navigateWorkspace("catalog")} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onOpenTraining={() => navigateWorkspace("day-plan")} onOpenStrength={() => navigateWorkspace("strength")} />}
         {workspace === "movement" && !hasSportContext && <SportContextGate mode={sportContextMode} workspaceLabel="The Movement Atlas" sports={sportProfiles} onChooseSport={(id) => chooseSport(id)} onBrowseCatalog={() => navigateWorkspace("catalog")} />}
         {workspace === "movement" && hasSportContext && <><SportBrowseNotice browsing={browsingOtherSport} browsedSportLabel={browseSportLabel} ownSportLabel={selectedSport.label} onAdopt={() => { chooseSport(browseSportId); setSportBrowse(followProfileSport); }} onReturn={() => setSportBrowse(followProfileSport)} adoptClearsDays={Boolean(sportId)} adoptClearsRole={Boolean(athleteBaseline.sportModifierId)} /><MovementAtlasPanel sportName={browseSportLabel} sportId={browseSportId} sports={sportProfiles} movements={referenceMovements} selectedMovement={referenceMovement} query={atlasQuery} family={atlasFamily} onQuery={setAtlasQuery} onFamily={setAtlasFamily} onSport={(id) => { setSportBrowse(browseSport(id, activeSportId)); setAtlasQuery(""); setAtlasFamily("All"); }} onMovement={(movement) => { if (browsingOtherSport) setSportBrowse(browseMovement(movement.id, sportBrowse)); else setMovementId(movement.id); }} onOpenBody={() => { setActiveMuscle(null); navigateWorkspace("body"); }} onFindExercises={() => openDiscovery({ mode: "movement", sportId: referenceMovement.sportId, movementId: referenceMovement.id })} /></>}
         {/* Home, after the first viewport: what this app helps you do, as three
@@ -2375,7 +2402,7 @@ export default function Home() {
               </div>
             </>}
         </section>}
-        {workspace === "progress" && <ProgressOverviewPanel onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />}
+        {workspace === "progress" && <ProgressOverviewPanel sessionId={progressSession} onOpenSession={openProgressSession} onCloseSession={closeProgressSession} onOpenStrength={() => navigateWorkspace("strength")} onOpenTraining={() => navigateWorkspace("day-plan")} sexForReference={athleteBaseline.sexForReference} baselineBodyWeight={athleteBaseline.bodyWeight} weightUnit={athleteBaseline.weightUnit} birthYear={athleteBaseline.birthYear} directAccess={directWorkspaceAccess} />}
         {workspace === "strength" && <StrengthGenomePanel weightUnit={athleteBaseline.weightUnit} baselineBodyWeight={athleteBaseline.bodyWeight} sexForReference={athleteBaseline.sexForReference} birthYear={athleteBaseline.birthYear} onRankProfile={(patch) => updateBaseline({ ...athleteBaseline, ...patch })} directAccess={directWorkspaceAccess} onOpenTraining={() => navigateWorkspace("day-plan")} />}
       </main></Suspense>
     </div>

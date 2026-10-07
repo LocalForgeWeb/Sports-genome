@@ -99,6 +99,8 @@ describe("Finishing with nothing logged", () => {
     fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
     expect(stored()).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: /finish workout early/i }));
+    expect(screen.getByText(/Nothing is logged yet, so nothing will be recorded\./)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Finish now" }));
     expect(stored()).toEqual([]);
     expect(toasts).toContain("Workout ended, nothing recorded");
     expect(screen.getByRole("button", { name: /start workout/i })).toBeTruthy();
@@ -109,7 +111,9 @@ describe("Finishing with nothing logged", () => {
     fireEvent.click(screen.getByRole("button", { name: /start workout/i }));
     fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
     fireEvent.click(screen.getByRole("button", { name: /finish workout early/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Finish now" }));
     expect(stored()).toHaveLength(1);
     expect(stored()[0].status).toBe("completed");
+    expect(screen.getByRole("heading", { name: "Workout saved" })).toBeTruthy();
   });
 });

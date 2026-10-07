@@ -44,6 +44,11 @@ export type AthleteRecordSummary = {
   /** The plan day of the most recently started workout, running or finished, at any date. */
   latestSessionDayLabel: string | null;
   setsThisWeek: number;
+  /**
+   * The most recently finished workout on this device, for Home's way back into its recap (O08).
+   * Device records only: those are the ones with a session detail to open.
+   */
+  latestFinished: { id: string; title: string; dayLabel: string; completedAt: string; exerciseCount: number; setCount: number } | null;
   /** Where the record lives, said in words for the screens that name it. */
   storage: "device" | "account";
 };
@@ -83,6 +88,25 @@ export function deviceSessionsAsTraining(sessions: readonly DeviceWorkoutSession
   }));
 }
 
+/** The newest finished workout with at least one completed set; the same definition Progress lists. */
+export function latestFinishedOnDevice(sessions: readonly DeviceWorkoutSession[]): AthleteRecordSummary["latestFinished"] {
+  const latest = sessions
+    .filter(isCompletedWorkout)
+    .map((session) => ({ session, at: new Date(session.completedAt ?? session.startedAt).getTime() }))
+    .filter(({ at }) => Number.isFinite(at))
+    .sort((a, b) => b.at - a.at)[0]?.session;
+  if (!latest) return null;
+  const done = latest.exercises.filter((exercise) => exercise.sets.some(isCompletedSet));
+  return {
+    id: latest.id,
+    title: latest.title,
+    dayLabel: latest.dayLabel,
+    completedAt: latest.completedAt ?? latest.startedAt,
+    exerciseCount: done.length,
+    setCount: done.reduce((total, exercise) => total + exercise.sets.filter(isCompletedSet).length, 0),
+  };
+}
+
 /** The typed lifts plus the workout-derived ones, newest first: the list Strength and Progress read. */
 export function recordedLifts(sources: AthleteRecordSources): (RecordedLift | WorkoutStrengthObservation)[] {
   const typed: readonly RecordedLift[] = sources.directAccess ? sources.deviceObservations : (sources.accountObservations ?? []);
@@ -120,6 +144,7 @@ export function summarizeAthleteRecord(sources: AthleteRecordSources): AthleteRe
     completionsThisWeek,
     latestSessionDayLabel: latestSession?.dayLabel ?? null,
     setsThisWeek: week.setsThisWeek,
+    latestFinished: latestFinishedOnDevice(sources.deviceSessions),
     storage: sources.directAccess ? "device" : "account",
   };
 }

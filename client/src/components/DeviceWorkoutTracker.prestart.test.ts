@@ -173,6 +173,10 @@ describe("a day already trained", () => {
     fireEvent.click(startButton());
     fireEvent.click(screen.getByRole("button", { name: /log set 1/i }));
     fireEvent.click(screen.getByRole("button", { name: /finish workout early/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Finish now" }));
+    // The saved recap comes first; Done returns to the day, which now says it was trained.
+    expect(screen.getByRole("heading", { name: "Workout saved" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
     expect(doneLine()!.textContent).toContain("Done today · 1 set recorded");
   });
 
@@ -182,6 +186,7 @@ describe("a day already trained", () => {
     const [running] = loadDeviceWorkoutSessions();
     seed([finished({ id: running.id, startedAt: running.startedAt })]);
     fireEvent.click(screen.getByRole("button", { name: /finish workout early/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Finish now" }));
     expect(doneLine()!.textContent).toContain("Done today · 1 set recorded");
   });
 

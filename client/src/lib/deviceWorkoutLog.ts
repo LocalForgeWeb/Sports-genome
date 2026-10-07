@@ -65,11 +65,36 @@ export type DeviceWorkoutExercise = {
   replacedBy?: ExerciseSwapRecord;
   /** Added during the workout, after every planned set of another exercise was done. */
   addedDuringWorkout?: { at: string; afterExerciseName: string };
+  /**
+   * Stamped when the workout is finished (Oct 7 brief R04): how many sets the exercise had planned
+   * and how many were deliberately skipped. Finishing keeps only completed sets, so without these a
+   * recap could not tell "3 of 4 done, 1 skipped" from "3 done".
+   */
+  plannedSets?: number;
+  skippedSets?: number;
+};
+
+/**
+ * An exercise of a finished workout with no completed set: kept on the record so the recap can
+ * say it was skipped or simply not recorded, without turning any of it into completed work.
+ */
+export type NotPerformedExercise = {
+  exerciseName: string;
+  catalogId?: number;
+  plannedSets: number;
+  /** Every set was deliberately skipped; otherwise the sets were left unrecorded (untouched or typed but not logged). */
+  skipped: boolean;
 };
 export type DeviceWorkoutSession = {
   id: string;
   title: string;
   dayLabel: string;
+  /** The athlete's own note on the workout, added from its recap. Optional, never required. */
+  note?: string;
+  /** Exercises that ended with nothing completed, recorded at finish (see NotPerformedExercise). */
+  notPerformed?: NotPerformedExercise[];
+  /** When a set of this finished workout was last corrected from its recap. */
+  correctedAt?: string;
   startedAt: string;
   completedAt?: string;
   status: "active" | "completed";
@@ -339,10 +364,21 @@ export function finalizeSession(
     bodyMassKgAtCompletion: bodyMassKgAtCompletion && bodyMassKgAtCompletion > 0
       ? bodyMassKgAtCompletion
       : session.bodyMassKgAtCompletion,
-    exercises: session.exercises
-      .map((exercise) => ({ ...exercise, sets: exercise.sets.map((set) => (isDropInProgress(set) || (set.type === "drop" && set.completed && (set.stages?.length ?? 0) < 2) ? settleDropSet(set) : set)).filter((set) => set.completed) }))
-      .filter((exercise) => exercise.sets.length > 0),
+    exercises: [],
   };
+  const notPerformed: NotPerformedExercise[] = [];
+  for (const exercise of session.exercises) {
+    const sets = exercise.sets.map((set) => (isDropInProgress(set) || (set.type === "drop" && set.completed && (set.stages?.length ?? 0) < 2) ? settleDropSet(set) : set)).filter((set) => set.completed);
+    const skipped = exercise.sets.filter((set) => set.skipped).length;
+    if (sets.length > 0) {
+      finalized.exercises.push({ ...exercise, sets, plannedSets: exercise.plannedSets ?? exercise.sets.length, skippedSets: skipped });
+      continue;
+    }
+    // Work handed to a replacement mid-workout is the replacement's, not missing work.
+    if (exercise.replacedBy) continue;
+    notPerformed.push({ exerciseName: exercise.exerciseName, ...(exercise.catalogId !== undefined ? { catalogId: exercise.catalogId } : {}), plannedSets: exercise.sets.length, skipped: exercise.sets.length > 0 && skipped === exercise.sets.length });
+  }
+  if (notPerformed.length) finalized.notPerformed = notPerformed;
   return { session: finalized, excludedDrafts, skippedSets: countSkippedSets(session), completedSets: countCompletedSets(finalized), settledDropSets };
 }
 
@@ -351,12 +387,17 @@ export function finalizeSession(
  * Shown only where it helps the immediate decision, which the glance contract
  * limits previous performance to.
  */
-export function lastCompletedSetFor(exerciseName: string, sessions: DeviceWorkoutSession[], fallbackUnit: DisplayWeightUnit = "lb"): DeviceSetLog | null {
+export function lastCompletedSetFor(target: string | { exerciseName: string; catalogId?: number }, sessions: DeviceWorkoutSession[], fallbackUnit: DisplayWeightUnit = "lb"): DeviceSetLog | null {
+  const wanted = typeof target === "string" ? { exerciseName: target } : target;
   const finished = sessions
     .filter((session) => session.status === "completed")
     .sort((a, b) => String(b.completedAt || b.startedAt).localeCompare(String(a.completedAt || a.startedAt)));
+  // The same exercise by identity (Oct 7 brief H11): two catalog entries that share a name stay
+  // apart. The name decides only where one side predates catalog IDs.
+  const sameExercise = (item: DeviceWorkoutExercise) =>
+    wanted.catalogId !== undefined && item.catalogId !== undefined ? item.catalogId === wanted.catalogId : item.exerciseName === wanted.exerciseName;
   for (const session of finished) {
-    const exercise = session.exercises.find((item) => item.exerciseName === exerciseName);
+    const exercise = session.exercises.find(sameExercise);
     const last = exercise?.sets.filter((set) => set.completed && (set.weight.trim() || (set.height || "").trim()) && set.reps.trim()).pop();
     // The unit travels with the set, so whoever shows it can convert rather than guess.
     if (last) return { ...last, unit: setWeightUnit(last, session, fallbackUnit) };
@@ -395,7 +436,7 @@ export function carriedEntryFor(
     }
   }
   // A set from a session logged in the other unit is offered in this session's unit.
-  const previous = lastCompletedSetFor(exercise.exerciseName, history, entryUnit);
+  const previous = lastCompletedSetFor(exercise, history, entryUnit);
   return previous ? { weight: weightInUnit(previous.weight, previous.unit ?? entryUnit, entryUnit), reps: previous.reps, height: previous.height || "", source: "history" } : null;
 }
 

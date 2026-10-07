@@ -1,0 +1,357 @@
+[
+  {
+    "name": "390: finishing early asks first and says what stays not done",
+    "pass": true,
+    "detail": "Finish now? The 2 logged sets are saved. 4 planned sets stay not done.Finish nowKeep going"
+  },
+  {
+    "name": "390: nothing is saved before confirming",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: Keep going returns to set 3 of Bench",
+    "pass": true,
+    "detail": "5 reps"
+  },
+  {
+    "name": "390: \"Workout saved\" heading with day, date and storage status",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: at most three summary numbers, time labelled elapsed",
+    "pass": true,
+    "detail": "Exercises, Working sets, Start to finish"
+  },
+  {
+    "name": "390: Bench reads 2 of 3 planned sets · 1 not recorded",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: Cable Fly listed as not done, not recorded",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: no calories, effort or score copy",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: no sideways scroll on the recap",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: Progress opens the same session by ID in the address",
+    "pass": true,
+    "detail": "http://localhost:4173/?workspace=progress&session=device-live"
+  },
+  {
+    "name": "390: after reload, the same session detail and its note",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: exactly one finished copy of the workout is stored",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: correction stored on the one record and marked corrected",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: first page shows 10 of 14",
+    "pass": true,
+    "detail": "10"
+  },
+  {
+    "name": "390: Show more reaches all 14 and says it reached the end",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: exercise filter lists only exercises done",
+    "pass": true,
+    "detail": "All exercises, Back Squat, Barbell Bench Press"
+  },
+  {
+    "name": "390: filters narrow the list and show a count",
+    "pass": true,
+    "detail": "6 rows"
+  },
+  {
+    "name": "390: Clear filters restores the list",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: oldest workout opens with its drop set as one set of three stages",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: Back returns to the list with the opened row focused",
+    "pass": true,
+    "detail": "old-0"
+  },
+  {
+    "name": "390: no sideways scroll on history",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390: Home shows Last workout: Push",
+    "pass": true,
+    "detail": "Last workoutPushWed, Oct 7 · 1 exercise · 2 sets"
+  },
+  {
+    "name": "390: Home's entry opens that session",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: finishing early asks first and says what stays not done",
+    "pass": true,
+    "detail": "Finish now? The 2 logged sets are saved. 4 planned sets stay not done.Finish nowKeep going"
+  },
+  {
+    "name": "320: nothing is saved before confirming",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: Keep going returns to set 3 of Bench",
+    "pass": true,
+    "detail": "5 reps"
+  },
+  {
+    "name": "320: \"Workout saved\" heading with day, date and storage status",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: at most three summary numbers, time labelled elapsed",
+    "pass": true,
+    "detail": "Exercises, Working sets, Start to finish"
+  },
+  {
+    "name": "320: Bench reads 2 of 3 planned sets · 1 not recorded",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: Cable Fly listed as not done, not recorded",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: no calories, effort or score copy",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: no sideways scroll on the recap",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: Progress opens the same session by ID in the address",
+    "pass": true,
+    "detail": "http://localhost:4173/?workspace=progress&session=device-live"
+  },
+  {
+    "name": "320: after reload, the same session detail and its note",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: exactly one finished copy of the workout is stored",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: correction stored on the one record and marked corrected",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: first page shows 10 of 14",
+    "pass": true,
+    "detail": "10"
+  },
+  {
+    "name": "320: Show more reaches all 14 and says it reached the end",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: exercise filter lists only exercises done",
+    "pass": true,
+    "detail": "All exercises, Back Squat, Barbell Bench Press"
+  },
+  {
+    "name": "320: filters narrow the list and show a count",
+    "pass": true,
+    "detail": "6 rows"
+  },
+  {
+    "name": "320: Clear filters restores the list",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: oldest workout opens with its drop set as one set of three stages",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: Back returns to the list with the opened row focused",
+    "pass": true,
+    "detail": "old-0"
+  },
+  {
+    "name": "320: no sideways scroll on history",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "320: Home shows Last workout: Push",
+    "pass": true,
+    "detail": "Last workoutPushWed, Oct 7 · 1 exercise · 2 sets"
+  },
+  {
+    "name": "320: Home's entry opens that session",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: finishing early asks first and says what stays not done",
+    "pass": true,
+    "detail": "Finish now? The 2 logged sets are saved. 4 planned sets stay not done.Finish nowKeep going"
+  },
+  {
+    "name": "1280: nothing is saved before confirming",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: Keep going returns to set 3 of Bench",
+    "pass": true,
+    "detail": "5 reps"
+  },
+  {
+    "name": "1280: \"Workout saved\" heading with day, date and storage status",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: at most three summary numbers, time labelled elapsed",
+    "pass": true,
+    "detail": "Exercises, Working sets, Start to finish"
+  },
+  {
+    "name": "1280: Bench reads 2 of 3 planned sets · 1 not recorded",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: Cable Fly listed as not done, not recorded",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: no calories, effort or score copy",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: no sideways scroll on the recap",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: Progress opens the same session by ID in the address",
+    "pass": true,
+    "detail": "http://localhost:4173/?workspace=progress&session=device-live"
+  },
+  {
+    "name": "1280: after reload, the same session detail and its note",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: exactly one finished copy of the workout is stored",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: correction stored on the one record and marked corrected",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: first page shows 10 of 14",
+    "pass": true,
+    "detail": "10"
+  },
+  {
+    "name": "1280: Show more reaches all 14 and says it reached the end",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: exercise filter lists only exercises done",
+    "pass": true,
+    "detail": "All exercises, Back Squat, Barbell Bench Press"
+  },
+  {
+    "name": "1280: filters narrow the list and show a count",
+    "pass": true,
+    "detail": "6 rows"
+  },
+  {
+    "name": "1280: Clear filters restores the list",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: oldest workout opens with its drop set as one set of three stages",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: Back returns to the list with the opened row focused",
+    "pass": true,
+    "detail": "old-0"
+  },
+  {
+    "name": "1280: no sideways scroll on history",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "1280: Home shows Last workout: Push",
+    "pass": true,
+    "detail": "Last workoutPushWed, Oct 7 · 1 exercise · 2 sets"
+  },
+  {
+    "name": "1280: Home's entry opens that session",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Unknown session ID shows \"Workout not found\" with a way back",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "…and All workouts opens the list",
+    "pass": true,
+    "detail": ""
+  }
+]

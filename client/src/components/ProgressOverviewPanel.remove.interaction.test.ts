@@ -48,8 +48,9 @@ function renderPanel(directAccess = true) {
   return render(React.createElement(ProgressOverviewPanel, { onOpenStrength: () => {}, onOpenTraining: () => {}, directAccess }));
 }
 
-// The name starts with the words on the button, so a voice command that reads them finds it.
-const removeButton = (title: string) => screen.getByRole("button", { name: new RegExp(`^Remove this workout: ${title}, `) });
+// A workout is removed from its own detail: open its row, then the button at the foot of the detail.
+const openRow = (title: string) => fireEvent.click(screen.getByRole("button", { name: new RegExp(`^View session: ${title}, `) }));
+const removeButton = (title: string) => { openRow(title); return screen.getByRole("button", { name: "Remove this workout" }); };
 
 describe("a finished workout on this device can be taken back from Progress", () => {
   beforeEach(seed);
@@ -65,15 +66,11 @@ describe("a finished workout on this device can be taken back from Progress", ()
     vi.restoreAllMocks();
   });
 
-  it("keeps the control inside the opened row, not in the row's summary line", () => {
+  it("keeps the control inside the opened workout, never on the list row", () => {
     renderPanel();
+    expect(screen.queryByRole("button", { name: "Remove this workout" })).toBeNull();
     const button = removeButton("Push");
-    expect(button.textContent).toBe("Remove this workout");
-    // Its spoken name begins with the words on it, so "click Remove this workout" finds it.
-    expect(button.getAttribute("aria-label")?.startsWith(`${button.textContent}:`)).toBe(true);
-    expect(button.closest("details")).not.toBeNull();
-    expect(button.closest("summary")).toBeNull();
-    expect(button.closest("details")?.querySelector(".progress-session-sets")).not.toBeNull();
+    expect(button.closest('[data-session-detail="history"]')?.getAttribute("data-session-id")).toBe("push");
   });
 
   it("asks first, names the workout and says what removing it changes", () => {
@@ -118,8 +115,9 @@ describe("a finished workout on this device can be taken back from Progress", ()
 
     expect(loadDeviceWorkoutSessions().map((session) => session.id)).toEqual(["pull", "live"]);
     expect(screen.queryByRole("alertdialog")).toBeNull();
-    expect(screen.queryByRole("button", { name: /^Remove this workout: Push,/ })).toBeNull();
-    expect(removeButton("Pull")).toBeTruthy();
+    // The detail closed with its workout, back to the list without it.
+    expect(screen.queryByRole("button", { name: /^View session: Push,/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /^View session: Pull,/ })).toBeTruthy();
     expect(screen.getByText("1 total")).toBeTruthy();
     expect(mocks.success).toHaveBeenCalledWith("Workout removed from this device.");
     // The button left with its workout; focus stays with the list, not the top of the page.
@@ -153,7 +151,7 @@ describe("a finished workout on this device can be taken back from Progress", ()
     expect(mocks.success).not.toHaveBeenCalled();
     expect(mocks.error).toHaveBeenCalledWith("This workout could not be removed", { description: "The device refused the save, so nothing changed." });
     expect(loadDeviceWorkoutSessions().map((session) => session.id)).toEqual(["push", "pull", "live"]);
-    expect(removeButton("Push")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Remove this workout" }).closest("[data-session-id]")?.getAttribute("data-session-id")).toBe("push");
   });
 
   it("offers no removal on an account record, which has no route to delete it", () => {
