@@ -1,0 +1,19 @@
+/* "Get a Chest rank" (components/RankingLiftSuggestions.tsx): the lifts that would rank a muscle
+   group with none yet, inside the group's record sheet. Rows match the sheet's dark surface; the
+   thumbnail is the shared exercise media frame. */
+.rank-suggestions-lead, .rank-suggestions-more { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.rank-suggestions-list { display: grid; gap: .5rem; margin: .2rem 0 0; padding: 0; list-style: none; }
+.rank-suggestion { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .75rem; border: 1px solid var(--sg-control-border-on-dark); border-radius: 12px; background: rgb(255 255 255 / .04); padding: .55rem .6rem; --exercise-media-thumb-width: 4.5rem; }
+.rank-suggestion .exercise-media-thumb { align-self: center; }
+.rank-suggestion-copy { display: grid; gap: .15rem; min-width: 0; }
+.rank-suggestion-copy strong { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .5rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-base); font-weight: 700; overflow-wrap: anywhere; }
+.rank-suggestion-copy small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.rank-suggestion-tag { border: 1px solid var(--sg-control-border-on-dark); border-radius: 999px; padding: .05rem .5rem; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); font-weight: 600; }
+.rank-suggestion-log { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .3rem; border: 1px solid var(--sg-action); border-radius: 999px; background: rgb(228 81 46 / .14); padding: 0 .85rem; color: #ffd0c2; font-size: var(--sg-text-sm); font-weight: 700; white-space: nowrap; }
+.rank-suggestion-log:hover { background: rgb(228 81 46 / .26); }
+.rank-suggestion-log:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+/* A narrow phone: the button goes under the copy rather than squeezing the name to a few letters. */
+@media (max-width: 359px) {
+  .rank-suggestion { grid-template-columns: auto minmax(0, 1fr); }
+  .rank-suggestion-log { grid-column: 1 / -1; justify-content: center; }
+}
