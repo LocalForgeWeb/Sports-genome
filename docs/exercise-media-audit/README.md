@@ -64,6 +64,8 @@ All of this is in `client/src/components/ExerciseMedia.tsx`, the one shared comp
 
 ## Still without a photo (154), and what it would take
 
+> **October 7:** Bulgarian Split Squat and High Cable Curl now show photos of the right variation (rear foot on a bench; standing between two high pulleys), so 152 remain. The warm-up drills were photographed the same way. See `docs/drill-photos/`.
+
 - **130 missing.** These are mostly cable (53), free-weight (26), bodyweight (16) and landmine (16) variations.
   - The Oct 3 re-match searched the source again for every one of them; the decision and reason for each are in `docs/exercise-photo-rematch/decisions.json` and in `after/inventory.tsv`.
   - The source simply has no photo of them.
