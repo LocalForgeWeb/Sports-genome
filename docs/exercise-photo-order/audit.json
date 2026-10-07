@@ -926,5 +926,9 @@
  "Trap_Bar_Deadlift": {
   "verdict": "in order",
   "why": "frame 0 at the bottom holding the handles; frame 1 standing. Viewed 7 Oct 2026."
+ },
+ "Smith_Machine_Stiff-Legged_Deadlift": {
+  "verdict": "reversed",
+  "why": "frame 0 bar just below the knees, knees soft, hips back; frame 1 standing tall. The record starts standing, so frame 1 is shown first. Viewed 7 Oct 2026."
  }
 }

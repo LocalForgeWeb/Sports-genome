@@ -1,0 +1,1409 @@
+{
+ "revision": "exercise_genome_v1 -> exercise_genome_v2",
+ "changedRecords": 121,
+ "fingerprintChanged": 0,
+ "muscleProfileChanged": 0,
+ "biasChanged": 0,
+ "changes": [
+  {
+   "id": 32,
+   "name": "Plyometric Push-Up",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 41,
+   "name": "Conventional Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 42,
+   "name": "Romanian Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 74,
+   "name": "L-Sit Pull-Up",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 89,
+   "name": "Reverse Pec Deck",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 161,
+   "name": "Back Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 162,
+   "name": "High-Bar Back Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 163,
+   "name": "Front Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 164,
+   "name": "Zercher Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 165,
+   "name": "Goblet Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 166,
+   "name": "Hack Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 167,
+   "name": "Pendulum Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 168,
+   "name": "Smith Machine Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 169,
+   "name": "Leg Press",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 170,
+   "name": "Single-Leg Leg Press",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 171,
+   "name": "Leg Extension",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 172,
+   "name": "Single-Leg Leg Extension",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 173,
+   "name": "Bulgarian Split Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 174,
+   "name": "Front-Foot-Elevated Split Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 181,
+   "name": "Cyclist Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 182,
+   "name": "Sissy Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 183,
+   "name": "Spanish Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 186,
+   "name": "Romanian Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 187,
+   "name": "Stiff-Leg Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 188,
+   "name": "Single-Leg Romanian Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 189,
+   "name": "Dumbbell Romanian Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 190,
+   "name": "Good Morning",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 191,
+   "name": "Seated Good Morning",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 200,
+   "name": "45-Degree Back Extension",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 201,
+   "name": "Reverse Hyperextension",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 202,
+   "name": "Cable Pull-Through",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 203,
+   "name": "Kettlebell Swing",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 204,
+   "name": "Barbell Hip Hinge",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 205,
+   "name": "B-Stance Romanian Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 216,
+   "name": "Lateral Band Walk",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 217,
+   "name": "Copenhagen Plank",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 229,
+   "name": "Toe Walk",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 230,
+   "name": "Heel Walk",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 231,
+   "name": "Hanging Leg Raise",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 233,
+   "name": "Captain\u2019s-Chair Leg Raise",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 234,
+   "name": "Toes-to-Bar",
+   "patterns": {
+    "before": [
+     "Rotation",
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Rotation",
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Spinal rotation",
+     "Hip rotation",
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Spinal rotation",
+     "Hip rotation",
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   },
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 235,
+   "name": "L-Sit",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 236,
+   "name": "V-Up",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 237,
+   "name": "Ab-Wheel Rollout",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 238,
+   "name": "Barbell Rollout",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 239,
+   "name": "Cable Crunch",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 240,
+   "name": "Machine Crunch",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 241,
+   "name": "Decline Sit-Up",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 242,
+   "name": "Weighted Decline Sit-Up",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 243,
+   "name": "Reverse Crunch",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 244,
+   "name": "Dead Bug",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 245,
+   "name": "Hollow-Body Hold",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 246,
+   "name": "RKC Plank",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 247,
+   "name": "Side Plank",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 248,
+   "name": "Weighted Plank",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion"
+    ],
+    "after": [
+     "Anti-movement bracing"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 250,
+   "name": "Cable Wood Chop",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 259,
+   "name": "Landmine Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 260,
+   "name": "Landmine Hack Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 263,
+   "name": "Landmine Romanian Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 264,
+   "name": "Landmine Single-Leg Romanian Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 265,
+   "name": "Landmine Rotation",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 266,
+   "name": "Landmine 180",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 268,
+   "name": "Landmine Thruster",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 270,
+   "name": "Landmine Split Jerk",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 271,
+   "name": "Medicine-Ball Chest Pass",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 273,
+   "name": "Medicine-Ball Overhead Slam",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 274,
+   "name": "Medicine-Ball Rotational Slam",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 275,
+   "name": "Medicine-Ball Side Throw",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 276,
+   "name": "Medicine-Ball Rotational Wall Throw",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 277,
+   "name": "Medicine-Ball Scoop Toss",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 278,
+   "name": "Medicine-Ball Shot-Put Throw",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 281,
+   "name": "Kneeling Medicine-Ball Chest Pass",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 282,
+   "name": "Half-Kneeling Rotational Throw",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 283,
+   "name": "Medicine-Ball Sit-Up Throw",
+   "patterns": {
+    "before": [
+     "Anti-movement bracing",
+     "Locomotion",
+     "Power expression"
+    ],
+    "after": [
+     "Anti-movement bracing",
+     "Power expression"
+    ]
+   },
+   "jointActions": {
+    "before": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion",
+     "Hip stabilization",
+     "Grip isometric"
+    ],
+    "after": [
+     "Trunk anti-rotation",
+     "Trunk anti-flexion",
+     "Trunk anti-lateral-flexion"
+    ]
+   }
+  },
+  {
+   "id": 284,
+   "name": "Medicine-Ball Sprawl-to-Slam",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 285,
+   "name": "Medicine-Ball Slam-to-Sprint",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 286,
+   "name": "Box Jump",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 287,
+   "name": "Depth Jump",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 288,
+   "name": "Broad Jump",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 289,
+   "name": "Weighted Box Jump",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 290,
+   "name": "Lateral Bound",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 291,
+   "name": "Single-Leg Broad Jump",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 292,
+   "name": "Pogo Jump",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 293,
+   "name": "Jump Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 294,
+   "name": "Split-Squat Jump",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 295,
+   "name": "Explosive Step-Up",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 296,
+   "name": "Heavy Sled Push",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 297,
+   "name": "Backward Sled Drag",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 298,
+   "name": "Sled Sprint",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 299,
+   "name": "Farmer\u2019s Walk",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 300,
+   "name": "Zercher Carry",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 310,
+   "name": "Cable Press-Out",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 319,
+   "name": "Cable Cuban Rotation",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 320,
+   "name": "Cable 90/90 External Rotation",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 321,
+   "name": "Cable 90/90 Internal Rotation",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 351,
+   "name": "Cable Belt Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 352,
+   "name": "Cable Goblet Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 353,
+   "name": "Cable Front Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 354,
+   "name": "Cable Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 355,
+   "name": "Cable Good Morning",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 356,
+   "name": "Cable Single-Leg Deadlift",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 357,
+   "name": "Cable Step-Up",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 358,
+   "name": "Cable Lateral Step-Up",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 359,
+   "name": "Cable Skater Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 371,
+   "name": "Cable Reverse Lunge",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 372,
+   "name": "Cable Lateral Lunge",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 373,
+   "name": "Cable Crossover Step Lunge",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 374,
+   "name": "Cable Forward March",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  },
+  {
+   "id": 377,
+   "name": "Cable Reverse Chop",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 378,
+   "name": "Cable Horizontal Chop",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 379,
+   "name": "Cable Rotational Row",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 380,
+   "name": "Cable Anti-Rotation Walkout",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 385,
+   "name": "Landmine Full Contact Twist",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   }
+  },
+  {
+   "id": 387,
+   "name": "Kettlebell Clean",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 388,
+   "name": "Kettlebell Snatch",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 391,
+   "name": "Lateral Goblet Squat",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 392,
+   "name": "Skater Bound",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 393,
+   "name": "Single-Leg Box Jump",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 394,
+   "name": "Depth Drop to Stick",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 395,
+   "name": "Drop Landing",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Vertical / ground-reaction"
+   }
+  },
+  {
+   "id": 398,
+   "name": "Sled March",
+   "forceDirection": {
+    "before": "Task-specific line of force",
+    "after": "Multi-planar / diagonal"
+   },
+   "stance": {
+    "before": "Bilateral",
+    "after": "Mixed"
+   }
+  }
+ ]
+}

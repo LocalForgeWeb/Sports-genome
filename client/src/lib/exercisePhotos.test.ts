@@ -61,14 +61,17 @@ describe("exercise photographs", () => {
 
   it("lists only two-frame sources the catalog uses, each with the reason it is reversed", () => {
     const used = new Map(Object.values(entries).map(([source, count]) => [source, count]));
-    // 30 when audited; the one-arm kettlebell swing photo was withdrawn on October 6.
-    expect(Object.keys(reversedPhotoSources).length).toBe(29);
+    // 30 when audited; the one-arm kettlebell swing photo was withdrawn on October 6, and the
+    // Smith stiff-legged deadlift pair (shown for the Smith Romanian Deadlift, 425) was added on
+    // October 7 with its bottom frame first.
+    expect(Object.keys(reversedPhotoSources).length).toBe(30);
     for (const [source, why] of Object.entries(reversedPhotoSources)) {
       expect(used.get(source), source).toBe(2);
       expect(why.length, source).toBeGreaterThan(20);
     }
     expect(framesInMovementOrder("Standing_Low-Pulley_Deltoid_Raise", 2)).toEqual([1, 0]);
     expect(framesInMovementOrder("Barbell_Deadlift", 2)).toEqual([0, 1]);
+    expect(framesInMovementOrder("Smith_Machine_Stiff-Legged_Deadlift", 2)).toEqual([1, 0]);
     expect(framesInMovementOrder("Standing_Low-Pulley_Deltoid_Raise", 1)).toEqual([0]);
   });
 

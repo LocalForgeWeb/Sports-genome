@@ -4512,6 +4512,26 @@
    ],
    "thumbnailBytes": 12924
   },
+  "Smith_Machine_Stiff-Legged_Deadlift": {
+   "exerciseIds": [
+    425
+   ],
+   "licence": "Unlicense (public domain dedication)",
+   "origin": "https://github.com/yuhonas/free-exercise-db/blob/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Smith_Machine_Stiff-Legged_Deadlift/1.jpg",
+   "originalFrame": 1,
+   "originalSha256": "3c356e5620d247f00b60d4f6ac3019b378f9d9e71ef35596f8c1b598db2bbb83",
+   "originalSize": [
+    850,
+    567
+   ],
+   "thumbnail": "client/public/exercise-thumbs/Smith_Machine_Stiff-Legged_Deadlift.jpg",
+   "thumbnailSha256": "c5cae6b6db6f3e8c027e5e8ef25745c2400d260885c82e334105c732392cd141",
+   "thumbnailSize": [
+    264,
+    176
+   ],
+   "thumbnailBytes": 12046
+  },
   "Trap_Bar_Deadlift": {
    "exerciseIds": [
     432

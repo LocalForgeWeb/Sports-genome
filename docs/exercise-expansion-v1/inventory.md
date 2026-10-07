@@ -11,7 +11,7 @@ Prepared 7 October 2026.
 | Audited revision (brief §1) | `785421fb3ce771a7765c81c2053d88d53113b149` — identical to `origin/main` when work began; no drift to reconcile |
 | Application environment | Vercel project `prj_ZuUcAMUz7BpCcniwEV7XWsQfvOzV` (production alias `sports-genome-mauve.vercel.app`) |
 | Database environment | Supabase project `qiccnqkypbhlwpmjcsri`, read through the Supabase connector with SQL `select`s on reference tables only. No `athlete_*` table or other private record was read. Nothing was written: the migration in `supabase/prepared/exercise_expansion_v1/` is prepared, not applied (repository rule B009) |
-| Web research | WebSearch and WebFetch both worked (checked separately before research began); findings are in `evidence.json` |
+| Web research | WebSearch and WebFetch worked when research began. Later, the session's network policy blocked several scholarly hosts (`pubmed.ncbi.nlm.nih.gov` among them) for some reviews; PMC full texts, the OpenStax anatomy text and the Free Exercise DB stayed reachable. Every source in `evidence.json` is marked opened or not, and nothing was taken from a search snippet |
 | Repository instructions | No `CLAUDE.md`. Scripts: `pnpm check` (tsc), `pnpm test` (vitest), `pnpm build`. CI (`.github/workflows/ci.yml`) runs the same three |
 
 ## Differences from the brief's audit

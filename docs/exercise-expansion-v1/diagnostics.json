@@ -124,7 +124,31 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.neckFlexors": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 91,
@@ -603,7 +627,32 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.neckExtensors": "verified-source",
+    "secondaryMuscles.traps": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 91,
@@ -1093,9 +1142,7 @@
      "neckFlexors",
      "neckExtensors"
     ],
-    "secondaryMuscles": [
-     "traps"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
      "strength",
      "hypertrophy",
@@ -1191,12 +1238,36 @@
     "studyKey": "machine-modality",
     "anatomy": {
      "neckFlexors": "Same-side sternocleidomastoid and scalenes",
-     "neckExtensors": "Same-side splenius and semispinalis",
-     "traps": "Upper trapezius"
+     "neckExtensors": "Same-side splenius and semispinalis"
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.neckFlexors": "verified-source",
+    "primaryMuscles.neckExtensors": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 91,
@@ -1435,91 +1506,24 @@
       }
      ],
      "strengthRegion": "neck"
-    },
-    {
-     "muscle": "traps",
-     "anatomicalLabel": "Upper trapezius",
-     "role": "Synergist",
-     "contribution": 55,
-     "tier": "C",
-     "mechanicalLoading": 61,
-     "longLengthLoading": 33,
-     "peakContraction": 32,
-     "stabilizationDemand": 32,
-     "fatigueContribution": 50,
-     "evidenceTier": "Conditional mechanics ranking",
-     "directEvidence": false,
-     "factors": [
-      {
-       "id": "jointAngles",
-       "rankingInfluence": 58,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "externalForceVector",
-       "rankingInfluence": 63,
-       "status": "Configured descriptor"
-      },
-      {
-       "id": "externalMoment",
-       "rankingInfluence": 58,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "momentArms",
-       "rankingInfluence": 68,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "architecture",
-       "rankingInfluence": 56,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "forceLength",
-       "rankingInfluence": 62,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "forceVelocity",
-       "rankingInfluence": 54,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "contractionType",
-       "rankingInfluence": 58,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "biarticularPosition",
-       "rankingInfluence": 50,
-       "status": "Configured descriptor"
-      },
-      {
-       "id": "stabilization",
-       "rankingInfluence": 68,
-       "status": "Conditional inference"
-      }
-     ],
-     "strengthRegion": "upper_back"
     }
    ],
    "similarity": {
     "nearest": [
      {
-      "id": 111,
-      "name": "Dumbbell Lateral Raise",
-      "similarity": 23
+      "id": 161,
+      "name": "Back Squat",
+      "similarity": 17
      },
      {
-      "id": 112,
-      "name": "Cable Lateral Raise",
-      "similarity": 23
+      "id": 162,
+      "name": "High-Bar Back Squat",
+      "similarity": 17
      },
      {
-      "id": 113,
-      "name": "Machine Lateral Raise",
-      "similarity": 23
+      "id": 163,
+      "name": "Front Squat",
+      "similarity": 17
      }
     ],
     "unrelated": [
@@ -1563,19 +1567,19 @@
      ]
     },
     "withNearest": {
-     "contextualScore": 38,
+     "contextualScore": 40,
      "grade": "D",
-     "marginalValue": 77,
-     "redundancy": 23,
+     "marginalValue": 83,
+     "redundancy": 17,
      "signals": {
       "goalAlignment": 20,
-      "stackDistinctness": 77,
+      "stackDistinctness": 83,
       "recoveryManageability": 71
      },
      "explanation": "Adds power value without repeating the stack.",
      "strengths": [
       "20/100 power alignment",
-      "77/100 stack distinctness",
+      "83/100 stack distinctness",
       "71/100 recovery manageability"
      ],
      "limits": [
@@ -1587,8 +1591,7 @@
    "coverage": {
     "splitTagPoints": {
      "neckFlexors": 56,
-     "neckExtensors": 56,
-     "traps": 24
+     "neckExtensors": 56
     },
     "homeSplit": "Upper",
     "splitAnalysis": [],
@@ -1640,30 +1643,6 @@
        }
       ],
       "involvement": 100
-     },
-     {
-      "muscle": "traps",
-      "rawInvolvement": 35.75,
-      "primaryExercises": 0,
-      "supportingExercises": 1,
-      "mechanicalLoading": 61,
-      "longLengthLoading": 33,
-      "peakContraction": 32,
-      "stabilizationDemand": 32,
-      "contributions": [
-       {
-        "exerciseId": 403,
-        "exerciseName": "Neck Lateral Flexion Machine",
-        "movement": "Neck lateral flexion",
-        "role": "Synergist",
-        "involvement": 55,
-        "mechanicalLoading": 61,
-        "longLengthLoading": 33,
-        "peakContraction": 32,
-        "stabilizationDemand": 32
-       }
-      ],
-      "involvement": 52
      }
     ],
     "sessionExposure": [
@@ -1684,15 +1663,6 @@
       "reading": "light",
       "sessionsForEstablished": 2,
       "note": "3 direct sets; 2× a week clears the 6-set mark."
-     },
-     {
-      "muscle": "traps",
-      "directSets": 0,
-      "supportSets": 1.5,
-      "supportSetsPerformed": 3,
-      "reading": "indirect-only",
-      "sessionsForEstablished": null,
-      "note": "3 supporting sets (counted as 1.5), no direct work."
      }
     ],
     "week": {
@@ -1718,17 +1688,6 @@
        "total": 3,
        "figureKeys": [
         "neckFlexors"
-       ]
-      },
-      {
-       "key": "traps",
-       "label": "Trapezius",
-       "direct": 0,
-       "supporting": 1.5,
-       "supportingPerformed": 3,
-       "total": 1.5,
-       "figureKeys": [
-        "traps"
        ]
       }
      ],
@@ -1895,7 +1854,32 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.neckExtensors": "verified-source",
+    "secondaryMuscles.traps": "verified-source",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 85,
@@ -2467,7 +2451,31 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.neckFlexors": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -2924,7 +2932,32 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.neckExtensors": "verified-source",
+    "secondaryMuscles.traps": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -3401,9 +3434,7 @@
      "neckFlexors",
      "neckExtensors"
     ],
-    "secondaryMuscles": [
-     "traps"
-    ],
+    "secondaryMuscles": [],
     "qualities": [
      "stability",
      "strength",
@@ -3492,12 +3523,36 @@
     "studyKey": null,
     "anatomy": {
      "neckFlexors": "Same-side sternocleidomastoid and scalenes",
-     "neckExtensors": "Same-side splenius and semispinalis",
-     "traps": "Upper trapezius"
+     "neckExtensors": "Same-side splenius and semispinalis"
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.neckFlexors": "verified-source",
+    "primaryMuscles.neckExtensors": "verified-source",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "not-applicable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -3721,91 +3776,24 @@
       }
      ],
      "strengthRegion": "neck"
-    },
-    {
-     "muscle": "traps",
-     "anatomicalLabel": "Upper trapezius",
-     "role": "Synergist",
-     "contribution": 55,
-     "tier": "C",
-     "mechanicalLoading": 61,
-     "longLengthLoading": 33,
-     "peakContraction": 32,
-     "stabilizationDemand": 32,
-     "fatigueContribution": 45,
-     "evidenceTier": "Conditional mechanics ranking",
-     "directEvidence": false,
-     "factors": [
-      {
-       "id": "jointAngles",
-       "rankingInfluence": 58,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "externalForceVector",
-       "rankingInfluence": 68,
-       "status": "Configured descriptor"
-      },
-      {
-       "id": "externalMoment",
-       "rankingInfluence": 58,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "momentArms",
-       "rankingInfluence": 68,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "architecture",
-       "rankingInfluence": 56,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "forceLength",
-       "rankingInfluence": 62,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "forceVelocity",
-       "rankingInfluence": 54,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "contractionType",
-       "rankingInfluence": 58,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "biarticularPosition",
-       "rankingInfluence": 50,
-       "status": "Configured descriptor"
-      },
-      {
-       "id": "stabilization",
-       "rankingInfluence": 68,
-       "status": "Conditional inference"
-      }
-     ],
-     "strengthRegion": "upper_back"
     }
    ],
    "similarity": {
     "nearest": [
      {
-      "id": 111,
-      "name": "Dumbbell Lateral Raise",
-      "similarity": 18
+      "id": 362,
+      "name": "Cable Donkey Kick",
+      "similarity": 17
      },
      {
-      "id": 112,
-      "name": "Cable Lateral Raise",
-      "similarity": 18
+      "id": 308,
+      "name": "Single-Arm Cable Floor Press",
+      "similarity": 14
      },
      {
-      "id": 113,
-      "name": "Machine Lateral Raise",
-      "similarity": 18
+      "id": 324,
+      "name": "Cable Incline Press-Around",
+      "similarity": 14
      }
     ],
     "unrelated": [
@@ -3849,19 +3837,19 @@
      ]
     },
     "withNearest": {
-     "contextualScore": 40,
+     "contextualScore": 41,
      "grade": "D",
-     "marginalValue": 82,
-     "redundancy": 18,
+     "marginalValue": 85,
+     "redundancy": 15,
      "signals": {
       "goalAlignment": 20,
-      "stackDistinctness": 82,
+      "stackDistinctness": 85,
       "recoveryManageability": 54
      },
      "explanation": "Adds power value without repeating the stack.",
      "strengths": [
       "20/100 power alignment",
-      "82/100 stack distinctness",
+      "85/100 stack distinctness",
       "54/100 recovery manageability"
      ],
      "limits": [
@@ -3873,8 +3861,7 @@
    "coverage": {
     "splitTagPoints": {
      "neckFlexors": 56,
-     "neckExtensors": 56,
-     "traps": 24
+     "neckExtensors": 56
     },
     "homeSplit": "Upper",
     "splitAnalysis": [],
@@ -3926,30 +3913,6 @@
        }
       ],
       "involvement": 100
-     },
-     {
-      "muscle": "traps",
-      "rawInvolvement": 35.75,
-      "primaryExercises": 0,
-      "supportingExercises": 1,
-      "mechanicalLoading": 61,
-      "longLengthLoading": 33,
-      "peakContraction": 32,
-      "stabilizationDemand": 32,
-      "contributions": [
-       {
-        "exerciseId": 407,
-        "exerciseName": "Isometric Neck Lateral Flexion",
-        "movement": "Neck lateral flexion",
-        "role": "Synergist",
-        "involvement": 55,
-        "mechanicalLoading": 61,
-        "longLengthLoading": 33,
-        "peakContraction": 32,
-        "stabilizationDemand": 32
-       }
-      ],
-      "involvement": 52
      }
     ],
     "sessionExposure": [
@@ -3970,15 +3933,6 @@
       "reading": "light",
       "sessionsForEstablished": 2,
       "note": "3 direct sets; 2× a week clears the 6-set mark."
-     },
-     {
-      "muscle": "traps",
-      "directSets": 0,
-      "supportSets": 1.5,
-      "supportSetsPerformed": 3,
-      "reading": "indirect-only",
-      "sessionsForEstablished": null,
-      "note": "3 supporting sets (counted as 1.5), no direct work."
      }
     ],
     "week": {
@@ -4004,17 +3958,6 @@
        "total": 3,
        "figureKeys": [
         "neckFlexors"
-       ]
-      },
-      {
-       "key": "traps",
-       "label": "Trapezius",
-       "direct": 0,
-       "supporting": 1.5,
-       "supportingPerformed": 3,
-       "total": 1.5,
-       "figureKeys": [
-        "traps"
        ]
       }
      ],
@@ -4183,7 +4126,32 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.neckFlexors": "verified-source",
+    "primaryMuscles.neckExtensors": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "not-applicable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -4756,7 +4724,31 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 85,
@@ -5145,11 +5137,10 @@
     "equipment": "Dumbbells",
     "movement": "Forearm supination",
     "primaryMuscles": [
-     "forearms"
-    ],
-    "secondaryMuscles": [
+     "forearms",
      "biceps"
     ],
+    "secondaryMuscles": [],
     "qualities": [
      "hypertrophy",
      "endurance",
@@ -5246,11 +5237,36 @@
     "studyKey": "free-weight-modality",
     "anatomy": {
      "forearms": "Supinator",
-     "biceps": "Biceps brachii (a supinator with the elbow bent)"
+     "biceps": "Biceps brachii: a main supinator with the elbow bent, its share rising with load"
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "primaryMuscles.biceps": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 85,
@@ -5425,15 +5441,15 @@
     },
     {
      "muscle": "biceps",
-     "anatomicalLabel": "Biceps brachii (a supinator with the elbow bent)",
-     "role": "Synergist",
-     "contribution": 57,
-     "tier": "C",
-     "mechanicalLoading": 57,
-     "longLengthLoading": 34,
-     "peakContraction": 33,
+     "anatomicalLabel": "Biceps brachii: a main supinator with the elbow bent, its share rising with load",
+     "role": "Prime mover",
+     "contribution": 71,
+     "tier": "B",
+     "mechanicalLoading": 71,
+     "longLengthLoading": 43,
+     "peakContraction": 41,
      "stabilizationDemand": 35,
-     "fatigueContribution": 51,
+     "fatigueContribution": 60,
      "evidenceTier": "Conditional mechanics ranking",
      "directEvidence": false,
      "factors": [
@@ -5574,7 +5590,7 @@
    "coverage": {
     "splitTagPoints": {
      "forearms": 56,
-     "biceps": 24
+     "biceps": 56
     },
     "homeSplit": "Pull",
     "splitAnalysis": [
@@ -5582,9 +5598,9 @@
       "muscle": "biceps",
       "role": "support",
       "target": 55,
-      "score": 24,
-      "rawScore": 24,
-      "state": "gap"
+      "score": 56,
+      "rawScore": 56,
+      "state": "ready"
      },
      {
       "muscle": "forearms",
@@ -5596,6 +5612,30 @@
      }
     ],
     "stackInvolvement": [
+     {
+      "muscle": "biceps",
+      "rawInvolvement": 71,
+      "primaryExercises": 1,
+      "supportingExercises": 0,
+      "mechanicalLoading": 71,
+      "longLengthLoading": 43,
+      "peakContraction": 41,
+      "stabilizationDemand": 35,
+      "contributions": [
+       {
+        "exerciseId": 410,
+        "exerciseName": "Dumbbell Forearm Supination",
+        "movement": "Forearm supination",
+        "role": "Prime mover",
+        "involvement": 71,
+        "mechanicalLoading": 71,
+        "longLengthLoading": 43,
+        "peakContraction": 41,
+        "stabilizationDemand": 35
+       }
+      ],
+      "involvement": 100
+     },
      {
       "muscle": "forearms",
       "rawInvolvement": 69,
@@ -5618,36 +5658,12 @@
         "stabilizationDemand": 35
        }
       ],
-      "involvement": 100
-     },
-     {
-      "muscle": "biceps",
-      "rawInvolvement": 37.050000000000004,
-      "primaryExercises": 0,
-      "supportingExercises": 1,
-      "mechanicalLoading": 57,
-      "longLengthLoading": 34,
-      "peakContraction": 33,
-      "stabilizationDemand": 35,
-      "contributions": [
-       {
-        "exerciseId": 410,
-        "exerciseName": "Dumbbell Forearm Supination",
-        "movement": "Forearm supination",
-        "role": "Synergist",
-        "involvement": 57,
-        "mechanicalLoading": 57,
-        "longLengthLoading": 34,
-        "peakContraction": 33,
-        "stabilizationDemand": 35
-       }
-      ],
-      "involvement": 54
+      "involvement": 97
      }
     ],
     "sessionExposure": [
      {
-      "muscle": "forearms",
+      "muscle": "biceps",
       "directSets": 3,
       "supportSets": 0,
       "supportSetsPerformed": 0,
@@ -5656,18 +5672,29 @@
       "note": "3 direct sets; 2× a week clears the 6-set mark."
      },
      {
-      "muscle": "biceps",
-      "directSets": 0,
-      "supportSets": 1.5,
-      "supportSetsPerformed": 3,
-      "reading": "indirect-only",
-      "sessionsForEstablished": null,
-      "note": "3 supporting sets (counted as 1.5), no direct work."
+      "muscle": "forearms",
+      "directSets": 3,
+      "supportSets": 0,
+      "supportSetsPerformed": 0,
+      "reading": "light",
+      "sessionsForEstablished": 2,
+      "note": "3 direct sets; 2× a week clears the 6-set mark."
      }
     ],
     "week": {
      "prescription": "3 × 6–10",
      "muscles": [
+      {
+       "key": "biceps",
+       "label": "Biceps brachii",
+       "direct": 3,
+       "supporting": 0,
+       "supportingPerformed": 0,
+       "total": 3,
+       "figureKeys": [
+        "biceps"
+       ]
+      },
       {
        "key": "forearms",
        "label": "Forearms",
@@ -5677,17 +5704,6 @@
        "total": 3,
        "figureKeys": [
         "forearms"
-       ]
-      },
-      {
-       "key": "biceps",
-       "label": "Biceps brachii",
-       "direct": 0,
-       "supporting": 1.5,
-       "supportingPerformed": 3,
-       "total": 1.5,
-       "figureKeys": [
-        "biceps"
        ]
       }
      ],
@@ -5713,7 +5729,7 @@
    "movementSupport": {
     "specific": 0,
     "related": 0,
-    "muscleSupport": 16,
+    "muscleSupport": 28,
     "specificIn": [],
     "relatedIn": []
    },
@@ -5860,7 +5876,31 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 85,
@@ -6350,7 +6390,31 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 85,
@@ -6833,7 +6897,31 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 85,
@@ -7319,7 +7407,31 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 85,
@@ -7763,7 +7875,7 @@
     "id": 415,
     "candidate": "E15",
     "requestedName": "Finger Curl",
-    "setup": "Seated, forearms on the thighs, holding a barbell palms up. Open the fingers so the bar rolls down to the last finger joints, then close the hand to roll it back up.",
+    "setup": "Seated, forearms on the thighs, holding a barbell palms up. Open the fingers so the bar rolls down to the last finger joints, then close the hand fully to roll it back up; the wrist stays where it is.",
     "entryNote": "Weight is the whole bar with its plates.",
     "aliases": [
      "finger curl",
@@ -7821,7 +7933,31 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 85,
@@ -8309,11 +8445,35 @@
     },
     "studyKey": null,
     "anatomy": {
-     "forearms": "Flexor digitorum superficialis and profundus, thenar muscles"
+     "forearms": "Flexor digitorum superficialis and profundus, flexor pollicis longus (the thenar muscles also work but sit in the hand)"
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -8407,7 +8567,7 @@
    "muscles": [
     {
      "muscle": "forearms",
-     "anatomicalLabel": "Flexor digitorum superficialis and profundus, thenar muscles",
+     "anatomicalLabel": "Flexor digitorum superficialis and profundus, flexor pollicis longus (the thenar muscles also work but sit in the hand)",
      "role": "Prime mover",
      "contribution": 69,
      "tier": "B",
@@ -8779,11 +8939,35 @@
     },
     "studyKey": null,
     "anatomy": {
-     "forearms": "Extensor digitorum, extensor pollicis longus and brevis"
+     "forearms": "Extensor digitorum, extensor pollicis longus and brevis, abductor pollicis longus"
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -8877,7 +9061,7 @@
    "muscles": [
     {
      "muscle": "forearms",
-     "anatomicalLabel": "Extensor digitorum, extensor pollicis longus and brevis",
+     "anatomicalLabel": "Extensor digitorum, extensor pollicis longus and brevis, abductor pollicis longus",
      "role": "Prime mover",
      "contribution": 69,
      "tier": "B",
@@ -9247,11 +9431,35 @@
     },
     "studyKey": null,
     "anatomy": {
-     "forearms": "Thumb flexors and adductor pollicis, finger flexors"
+     "forearms": "Flexor pollicis longus, finger flexors (the thenar muscles also work but sit in the hand)"
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.forearms": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "not-applicable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -9345,7 +9553,7 @@
    "muscles": [
     {
      "muscle": "forearms",
-     "anatomicalLabel": "Thumb flexors and adductor pollicis, finger flexors",
+     "anatomicalLabel": "Flexor pollicis longus, finger flexors (the thenar muscles also work but sit in the hand)",
      "role": "Prime mover",
      "contribution": 69,
      "tier": "B",
@@ -9747,7 +9955,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.triceps": "verified-source",
+    "secondaryMuscles.chest": "verified-source",
+    "secondaryMuscles.frontDelts": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -10488,7 +10722,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.triceps": "authored-estimate",
+    "primaryMuscles.chest": "authored-estimate",
+    "secondaryMuscles.frontDelts": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -11229,7 +11489,35 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.lats": "authored-estimate",
+    "secondaryMuscles.biceps": "authored-estimate",
+    "secondaryMuscles.upperBack": "authored-estimate",
+    "secondaryMuscles.rearDelts": "authored-estimate",
+    "secondaryMuscles.forearms": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -12210,7 +12498,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "authored-estimate",
+    "primaryMuscles.glutes": "authored-estimate",
+    "secondaryMuscles.adductors": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "authored-estimate",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -12944,7 +13258,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "authored-estimate",
+    "primaryMuscles.glutes": "authored-estimate",
+    "secondaryMuscles.adductors": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -13683,7 +14023,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "verified-source",
+    "primaryMuscles.glutes": "authored-estimate",
+    "secondaryMuscles.adductors": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -14462,7 +14828,34 @@
      "lowerBack"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.hamstrings": "verified-source",
+    "primaryMuscles.glutes": "authored-estimate",
+    "secondaryMuscles.lowerBack": "verified-source",
+    "secondaryMuscles.forearms": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -15202,8 +15595,16 @@
     "defaultPrescription": "3 × 6–10"
    },
    "media": {
-    "status": "missing: equipment placeholder shown",
-    "source": null
+    "status": "exact-variation photo",
+    "source": "Smith_Machine_Stiff-Legged_Deadlift",
+    "captions": [
+     "Start",
+     "Finish"
+    ],
+    "size": [
+     850,
+     567
+    ]
    }
   },
   {
@@ -15327,7 +15728,34 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "authored-estimate",
+    "primaryMuscles.glutes": "authored-estimate",
+    "secondaryMuscles.adductors": "authored-estimate",
+    "secondaryMuscles.hamstrings": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "authored-estimate",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -16208,7 +16636,32 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.sideDelts": "authored-estimate",
+    "secondaryMuscles.traps": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "authored-estimate",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 91,
@@ -16755,7 +17208,7 @@
     "id": 428,
     "candidate": "E28",
     "requestedName": "Seated Back Extension Machine",
-    "setup": "Seated in a selectorized back-extension machine with the pad across the upper back and the thighs and hips held by the restraints. Extend the trunk back against the pad, then return.",
+    "setup": "Seated in a selectorized back-extension machine with the pad across the upper back and the thighs and pelvis held by its restraints. Extend the trunk back against the pad, then return. How firmly the pelvis is held decides how much of the work is lumbar extension rather than hip extension.",
     "entryNote": "Weight is the number on the stack. How much the hips move depends on the restraints, so keep the setup the same.",
     "aliases": [
      "back extension machine",
@@ -16816,7 +17269,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.lowerBack": "authored-estimate",
+    "secondaryMuscles.glutes": "authored-estimate",
+    "secondaryMuscles.hamstrings": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "authored-estimate",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 61,
@@ -17542,7 +18021,32 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.obliques": "authored-estimate",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "authored-estimate",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 61,
@@ -18162,7 +18666,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.glutes": "authored-estimate",
+    "secondaryMuscles.hamstrings": "authored-estimate",
+    "secondaryMuscles.adductors": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "authored-estimate",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 86,
@@ -18928,7 +19458,37 @@
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.glutes": "authored-estimate",
+    "primaryMuscles.hamstrings": "authored-estimate",
+    "secondaryMuscles.quads": "authored-estimate",
+    "secondaryMuscles.lowerBack": "authored-estimate",
+    "secondaryMuscles.upperBack": "authored-estimate",
+    "secondaryMuscles.biceps": "authored-estimate",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -20062,11 +20622,11 @@
      }
     },
     "evidenceContext": {
-     "rangeOfMotion": "Setup-dependent",
-     "evidenceKind": "Biomechanics or transfer",
-     "sourceRange": "Matched modality trial · Machine vs free-weight meta-analysis",
-     "summary": "Machine and free-weight programs can produce similar hypertrophy when training variables are matched; strength improvements tend to be most specific to the trained modality.",
-     "counterevidence": "Free-weight status does not create a default muscle-growth advantage. Stability, skill, access, and task-specific transfer can still change exercise selection."
+     "rangeOfMotion": "Full",
+     "evidenceKind": "Acute mechanics context",
+     "sourceRange": "Lake et al., 2017 · hex vs straight bar mechanics · Martín-Fuentes et al., 2020 · deadlift-variant EMG review",
+     "summary": "Proficient lifters lifted more, faster, with a hexagonal bar than a straight bar from the floor; EMG studies summarised in a 2020 review found more vastus lateralis and less erector spinae and biceps femoris activity with the hex bar.",
+     "counterevidence": "Acute bar mechanics and EMG in trained men; EMG is not used as a growth score, and straight-bar deadlift norms do not describe this lift. None of these studies reported handle height, so nothing here is specific to high or low handles."
     }
    },
    "descriptor": {
@@ -20132,7 +20692,8 @@
      "momentArm": "compound",
      "forceLength": "default"
     },
-    "studyKey": "free-weight-modality",
+    "studyKey": "trap-bar-deadlift",
+    "studyQualification": "None of these studies reported handle height, so nothing here is specific to high or low handles.",
     "anatomy": {
      "quads": "Quadriceps",
      "glutes": "Gluteus maximus",
@@ -20145,7 +20706,36 @@
      "lowerBack"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "verified-source",
+    "primaryMuscles.glutes": "verified-source",
+    "secondaryMuscles.hamstrings": "verified-source",
+    "secondaryMuscles.lowerBack": "verified-source",
+    "secondaryMuscles.traps": "authored-estimate",
+    "secondaryMuscles.forearms": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "verified-source",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -20228,18 +20818,18 @@
      "note": "Values are standardized estimates that summarize movement mechanics and training-practice inference; individual execution, loading, and programming change the result."
     },
     "study": {
-     "key": "free-weight-modality",
-     "kind": "Biomechanics or transfer",
-     "rangeOfMotion": "Setup-dependent",
-     "planningBoundary": "Free-weight status does not create a default muscle-growth advantage. Stability, skill, access, and task-specific transfer can still change exercise selection.",
+     "key": "trap-bar-deadlift",
+     "kind": "Acute mechanics context",
+     "rangeOfMotion": "Full",
+     "planningBoundary": "Acute bar mechanics and EMG in trained men; EMG is not used as a growth score, and straight-bar deadlift norms do not describe this lift. None of these studies reported handle height, so nothing here is specific to high or low handles.",
      "sources": [
       {
-       "label": "Matched modality trial",
-       "url": "https://pubmed.ncbi.nlm.nih.gov/37535335/"
+       "label": "Lake et al., 2017 · hex vs straight bar mechanics",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5969032/"
       },
       {
-       "label": "Machine vs free-weight meta-analysis",
-       "url": "https://pubmed.ncbi.nlm.nih.gov/34609100/"
+       "label": "Martín-Fuentes et al., 2020 · deadlift-variant EMG review",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7046193/"
       }
      ]
     }
@@ -20259,11 +20849,11 @@
      "muscle": "quads",
      "anatomicalLabel": "Quadriceps",
      "role": "Prime mover",
-     "contribution": 69,
+     "contribution": 70,
      "tier": "B",
-     "mechanicalLoading": 75,
-     "longLengthLoading": 41,
-     "peakContraction": 40,
+     "mechanicalLoading": 76,
+     "longLengthLoading": 42,
+     "peakContraction": 41,
      "stabilizationDemand": 29,
      "fatigueContribution": 53,
      "evidenceTier": "Conditional mechanics ranking",
@@ -20271,7 +20861,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -20338,7 +20928,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -20393,19 +20983,19 @@
      "muscle": "hamstrings",
      "anatomicalLabel": "Hamstrings",
      "role": "Synergist",
-     "contribution": 56,
+     "contribution": 57,
      "tier": "C",
-     "mechanicalLoading": 62,
+     "mechanicalLoading": 63,
      "longLengthLoading": 34,
-     "peakContraction": 32,
+     "peakContraction": 33,
      "stabilizationDemand": 29,
-     "fatigueContribution": 44,
+     "fatigueContribution": 45,
      "evidenceTier": "Conditional mechanics ranking",
      "directEvidence": false,
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -20472,7 +21062,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -20539,7 +21129,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -20606,7 +21196,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -20777,12 +21367,12 @@
     "stackInvolvement": [
      {
       "muscle": "quads",
-      "rawInvolvement": 69,
+      "rawInvolvement": 70,
       "primaryExercises": 1,
       "supportingExercises": 0,
-      "mechanicalLoading": 75,
-      "longLengthLoading": 41,
-      "peakContraction": 40,
+      "mechanicalLoading": 76,
+      "longLengthLoading": 42,
+      "peakContraction": 41,
       "stabilizationDemand": 29,
       "contributions": [
        {
@@ -20790,10 +21380,10 @@
         "exerciseName": "Trap-Bar Deadlift",
         "movement": "Hip hinge",
         "role": "Prime mover",
-        "involvement": 69,
-        "mechanicalLoading": 75,
-        "longLengthLoading": 41,
-        "peakContraction": 40,
+        "involvement": 70,
+        "mechanicalLoading": 76,
+        "longLengthLoading": 42,
+        "peakContraction": 41,
         "stabilizationDemand": 29
        }
       ],
@@ -20821,16 +21411,16 @@
         "stabilizationDemand": 29
        }
       ],
-      "involvement": 100
+      "involvement": 99
      },
      {
       "muscle": "hamstrings",
-      "rawInvolvement": 36.4,
+      "rawInvolvement": 37.050000000000004,
       "primaryExercises": 0,
       "supportingExercises": 1,
-      "mechanicalLoading": 62,
+      "mechanicalLoading": 63,
       "longLengthLoading": 34,
-      "peakContraction": 32,
+      "peakContraction": 33,
       "stabilizationDemand": 29,
       "contributions": [
        {
@@ -20838,10 +21428,10 @@
         "exerciseName": "Trap-Bar Deadlift",
         "movement": "Hip hinge",
         "role": "Synergist",
-        "involvement": 56,
-        "mechanicalLoading": 62,
+        "involvement": 57,
+        "mechanicalLoading": 63,
         "longLengthLoading": 34,
-        "peakContraction": 32,
+        "peakContraction": 33,
         "stabilizationDemand": 29
        }
       ],
@@ -20869,7 +21459,7 @@
         "stabilizationDemand": 29
        }
       ],
-      "involvement": 52
+      "involvement": 51
      },
      {
       "muscle": "forearms",
@@ -20893,7 +21483,7 @@
         "stabilizationDemand": 29
        }
       ],
-      "involvement": 52
+      "involvement": 51
      },
      {
       "muscle": "lowerBack",
@@ -20917,7 +21507,7 @@
         "stabilizationDemand": 75
        }
       ],
-      "involvement": 27
+      "involvement": 26
      }
     ],
     "sessionExposure": [
@@ -21142,10 +21732,10 @@
     "movement": "Hip hinge",
     "primaryMuscles": [
      "glutes",
-     "quads",
-     "adductors"
+     "quads"
     ],
     "secondaryMuscles": [
+     "adductors",
      "hamstrings",
      "lowerBack",
      "traps",
@@ -21179,11 +21769,11 @@
      }
     },
     "evidenceContext": {
-     "rangeOfMotion": "Setup-dependent",
-     "evidenceKind": "Biomechanics or transfer",
-     "sourceRange": "Matched modality trial · Machine vs free-weight meta-analysis",
-     "summary": "Machine and free-weight programs can produce similar hypertrophy when training variables are matched; strength improvements tend to be most specific to the trained modality.",
-     "counterevidence": "Free-weight status does not create a default muscle-growth advantage. Stability, skill, access, and task-specific transfer can still change exercise selection."
+     "rangeOfMotion": "Full",
+     "evidenceKind": "Acute mechanics context",
+     "sourceRange": "Frontiers in Bioengineering, 2025 · sumo vs conventional kinetics and EMG · Martín-Fuentes et al., 2020 · deadlift-variant EMG review",
+     "summary": "At 85% of 1RM in 30 experienced men, the sumo deadlift produced larger knee-extension and hip-adduction moments than the conventional deadlift, which produced larger hip-extension moments; an earlier EMG study found more vastus activity in sumo.",
+     "counterevidence": "Joint moments and EMG from trained men; the larger adduction moment does not show the adductors are a primary force producer, and it is not a hypertrophy ranking."
     }
    },
    "descriptor": {
@@ -21245,11 +21835,11 @@
      "momentArm": "compound",
      "forceLength": "default"
     },
-    "studyKey": "free-weight-modality",
+    "studyKey": "sumo-deadlift",
     "anatomy": {
      "glutes": "Gluteus maximus",
      "quads": "Vastus lateralis and medialis",
-     "adductors": "Adductor magnus",
+     "adductors": "Adductor magnus (a larger hip-adduction moment than the conventional pull, but not shown to be a primary force producer)",
      "hamstrings": "Hamstrings",
      "lowerBack": "Erector spinae",
      "traps": "Upper trapezius (isometric)",
@@ -21259,7 +21849,37 @@
      "lowerBack"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.glutes": "verified-source",
+    "primaryMuscles.quads": "verified-source",
+    "secondaryMuscles.adductors": "verified-source",
+    "secondaryMuscles.hamstrings": "verified-source",
+    "secondaryMuscles.lowerBack": "verified-source",
+    "secondaryMuscles.traps": "authored-estimate",
+    "secondaryMuscles.forearms": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "verified-source",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -21341,18 +21961,18 @@
      "note": "Values are standardized estimates that summarize movement mechanics and training-practice inference; individual execution, loading, and programming change the result."
     },
     "study": {
-     "key": "free-weight-modality",
-     "kind": "Biomechanics or transfer",
-     "rangeOfMotion": "Setup-dependent",
-     "planningBoundary": "Free-weight status does not create a default muscle-growth advantage. Stability, skill, access, and task-specific transfer can still change exercise selection.",
+     "key": "sumo-deadlift",
+     "kind": "Acute mechanics context",
+     "rangeOfMotion": "Full",
+     "planningBoundary": "Joint moments and EMG from trained men; the larger adduction moment does not show the adductors are a primary force producer, and it is not a hypertrophy ranking.",
      "sources": [
       {
-       "label": "Matched modality trial",
-       "url": "https://pubmed.ncbi.nlm.nih.gov/37535335/"
+       "label": "Frontiers in Bioengineering, 2025 · sumo vs conventional kinetics and EMG",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12148905/"
       },
       {
-       "label": "Machine vs free-weight meta-analysis",
-       "url": "https://pubmed.ncbi.nlm.nih.gov/34609100/"
+       "label": "Martín-Fuentes et al., 2020 · deadlift-variant EMG review",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7046193/"
       }
      ]
     }
@@ -21384,7 +22004,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -21439,11 +22059,11 @@
      "muscle": "quads",
      "anatomicalLabel": "Vastus lateralis and medialis",
      "role": "Prime mover",
-     "contribution": 69,
+     "contribution": 70,
      "tier": "B",
-     "mechanicalLoading": 75,
-     "longLengthLoading": 41,
-     "peakContraction": 40,
+     "mechanicalLoading": 76,
+     "longLengthLoading": 42,
+     "peakContraction": 41,
      "stabilizationDemand": 29,
      "fatigueContribution": 53,
      "evidenceTier": "Conditional mechanics ranking",
@@ -21451,7 +22071,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -21504,21 +22124,21 @@
     },
     {
      "muscle": "adductors",
-     "anatomicalLabel": "Adductor magnus",
-     "role": "Prime mover",
-     "contribution": 69,
-     "tier": "B",
-     "mechanicalLoading": 75,
-     "longLengthLoading": 41,
-     "peakContraction": 40,
+     "anatomicalLabel": "Adductor magnus (a larger hip-adduction moment than the conventional pull, but not shown to be a primary force producer)",
+     "role": "Synergist",
+     "contribution": 55,
+     "tier": "C",
+     "mechanicalLoading": 61,
+     "longLengthLoading": 33,
+     "peakContraction": 32,
      "stabilizationDemand": 29,
-     "fatigueContribution": 53,
+     "fatigueContribution": 44,
      "evidenceTier": "Conditional mechanics ranking",
      "directEvidence": false,
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -21573,19 +22193,19 @@
      "muscle": "hamstrings",
      "anatomicalLabel": "Hamstrings",
      "role": "Synergist",
-     "contribution": 56,
+     "contribution": 57,
      "tier": "C",
-     "mechanicalLoading": 62,
+     "mechanicalLoading": 63,
      "longLengthLoading": 34,
-     "peakContraction": 32,
+     "peakContraction": 33,
      "stabilizationDemand": 29,
-     "fatigueContribution": 44,
+     "fatigueContribution": 45,
      "evidenceTier": "Conditional mechanics ranking",
      "directEvidence": false,
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -21652,7 +22272,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -21719,7 +22339,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -21786,7 +22406,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -21922,7 +22542,7 @@
     "splitTagPoints": {
      "glutes": 56,
      "quads": 56,
-     "adductors": 56,
+     "adductors": 24,
      "hamstrings": 24,
      "lowerBack": 24,
      "traps": 24,
@@ -21958,12 +22578,36 @@
       "muscle": "adductors",
       "role": "support",
       "target": 35,
-      "score": 56,
-      "rawScore": 56,
+      "score": 24,
+      "rawScore": 24,
       "state": "ready"
      }
     ],
     "stackInvolvement": [
+     {
+      "muscle": "quads",
+      "rawInvolvement": 70,
+      "primaryExercises": 1,
+      "supportingExercises": 0,
+      "mechanicalLoading": 76,
+      "longLengthLoading": 42,
+      "peakContraction": 41,
+      "stabilizationDemand": 29,
+      "contributions": [
+       {
+        "exerciseId": 433,
+        "exerciseName": "Sumo Deadlift",
+        "movement": "Hip hinge",
+        "role": "Prime mover",
+        "involvement": 70,
+        "mechanicalLoading": 76,
+        "longLengthLoading": 42,
+        "peakContraction": 41,
+        "stabilizationDemand": 29
+       }
+      ],
+      "involvement": 100
+     },
      {
       "muscle": "glutes",
       "rawInvolvement": 69,
@@ -21986,63 +22630,39 @@
         "stabilizationDemand": 29
        }
       ],
-      "involvement": 100
-     },
-     {
-      "muscle": "quads",
-      "rawInvolvement": 69,
-      "primaryExercises": 1,
-      "supportingExercises": 0,
-      "mechanicalLoading": 75,
-      "longLengthLoading": 41,
-      "peakContraction": 40,
-      "stabilizationDemand": 29,
-      "contributions": [
-       {
-        "exerciseId": 433,
-        "exerciseName": "Sumo Deadlift",
-        "movement": "Hip hinge",
-        "role": "Prime mover",
-        "involvement": 69,
-        "mechanicalLoading": 75,
-        "longLengthLoading": 41,
-        "peakContraction": 40,
-        "stabilizationDemand": 29
-       }
-      ],
-      "involvement": 100
-     },
-     {
-      "muscle": "adductors",
-      "rawInvolvement": 69,
-      "primaryExercises": 1,
-      "supportingExercises": 0,
-      "mechanicalLoading": 75,
-      "longLengthLoading": 41,
-      "peakContraction": 40,
-      "stabilizationDemand": 29,
-      "contributions": [
-       {
-        "exerciseId": 433,
-        "exerciseName": "Sumo Deadlift",
-        "movement": "Hip hinge",
-        "role": "Prime mover",
-        "involvement": 69,
-        "mechanicalLoading": 75,
-        "longLengthLoading": 41,
-        "peakContraction": 40,
-        "stabilizationDemand": 29
-       }
-      ],
-      "involvement": 100
+      "involvement": 99
      },
      {
       "muscle": "hamstrings",
-      "rawInvolvement": 36.4,
+      "rawInvolvement": 37.050000000000004,
       "primaryExercises": 0,
       "supportingExercises": 1,
-      "mechanicalLoading": 62,
+      "mechanicalLoading": 63,
       "longLengthLoading": 34,
+      "peakContraction": 33,
+      "stabilizationDemand": 29,
+      "contributions": [
+       {
+        "exerciseId": 433,
+        "exerciseName": "Sumo Deadlift",
+        "movement": "Hip hinge",
+        "role": "Synergist",
+        "involvement": 57,
+        "mechanicalLoading": 63,
+        "longLengthLoading": 34,
+        "peakContraction": 33,
+        "stabilizationDemand": 29
+       }
+      ],
+      "involvement": 53
+     },
+     {
+      "muscle": "adductors",
+      "rawInvolvement": 35.75,
+      "primaryExercises": 0,
+      "supportingExercises": 1,
+      "mechanicalLoading": 61,
+      "longLengthLoading": 33,
       "peakContraction": 32,
       "stabilizationDemand": 29,
       "contributions": [
@@ -22051,14 +22671,14 @@
         "exerciseName": "Sumo Deadlift",
         "movement": "Hip hinge",
         "role": "Synergist",
-        "involvement": 56,
-        "mechanicalLoading": 62,
-        "longLengthLoading": 34,
+        "involvement": 55,
+        "mechanicalLoading": 61,
+        "longLengthLoading": 33,
         "peakContraction": 32,
         "stabilizationDemand": 29
        }
       ],
-      "involvement": 53
+      "involvement": 51
      },
      {
       "muscle": "traps",
@@ -22082,7 +22702,7 @@
         "stabilizationDemand": 29
        }
       ],
-      "involvement": 52
+      "involvement": 51
      },
      {
       "muscle": "forearms",
@@ -22106,7 +22726,7 @@
         "stabilizationDemand": 29
        }
       ],
-      "involvement": 52
+      "involvement": 51
      },
      {
       "muscle": "lowerBack",
@@ -22130,19 +22750,10 @@
         "stabilizationDemand": 75
        }
       ],
-      "involvement": 27
+      "involvement": 26
      }
     ],
     "sessionExposure": [
-     {
-      "muscle": "adductors",
-      "directSets": 3,
-      "supportSets": 0,
-      "supportSetsPerformed": 0,
-      "reading": "light",
-      "sessionsForEstablished": 2,
-      "note": "3 direct sets; 2× a week clears the 6-set mark."
-     },
      {
       "muscle": "glutes",
       "directSets": 3,
@@ -22160,6 +22771,15 @@
       "reading": "light",
       "sessionsForEstablished": 2,
       "note": "3 direct sets; 2× a week clears the 6-set mark."
+     },
+     {
+      "muscle": "adductors",
+      "directSets": 0,
+      "supportSets": 1.5,
+      "supportSetsPerformed": 3,
+      "reading": "indirect-only",
+      "sessionsForEstablished": null,
+      "note": "3 supporting sets (counted as 1.5), no direct work."
      },
      {
       "muscle": "forearms",
@@ -22213,17 +22833,6 @@
        ]
       },
       {
-       "key": "adductors",
-       "label": "Hip adductors",
-       "direct": 3,
-       "supporting": 0,
-       "supportingPerformed": 0,
-       "total": 3,
-       "figureKeys": [
-        "adductors"
-       ]
-      },
-      {
        "key": "quads",
        "label": "Quadriceps",
        "direct": 3,
@@ -22268,6 +22877,17 @@
        ]
       },
       {
+       "key": "adductors",
+       "label": "Hip adductors",
+       "direct": 0,
+       "supporting": 1.5,
+       "supportingPerformed": 3,
+       "total": 1.5,
+       "figureKeys": [
+        "adductors"
+       ]
+      },
+      {
        "key": "traps",
        "label": "Trapezius",
        "direct": 0,
@@ -22297,7 +22917,7 @@
    "movementSupport": {
     "specific": 3,
     "related": 62,
-    "muscleSupport": 247,
+    "muscleSupport": 241,
     "specificIn": [
      "skiing/skiing-14",
      "olympic-weightlifting/olympic-weightlifting-1",
@@ -22405,11 +23025,11 @@
      }
     },
     "evidenceContext": {
-     "rangeOfMotion": "Setup-dependent",
-     "evidenceKind": "Biomechanics or transfer",
-     "sourceRange": "Matched modality trial · Machine vs free-weight meta-analysis",
-     "summary": "Machine and free-weight programs can produce similar hypertrophy when training variables are matched; strength improvements tend to be most specific to the trained modality.",
-     "counterevidence": "Free-weight status does not create a default muscle-growth advantage. Stability, skill, access, and task-specific transfer can still change exercise selection."
+     "rangeOfMotion": "Full",
+     "evidenceKind": "Acute mechanics context",
+     "sourceRange": "Kristiansen et al., 2021 · safety, high- and low-bar squat biomechanics · International Journal of Exercise Science, 2024 · safety vs Olympic bar",
+     "summary": "Against high- and low-bar squats at 3RM, the safety-bar squat was done with less load, a more upright torso and a larger knee-extension moment than the low-bar squat; at the same absolute load, peak force and effort matched an Olympic bar.",
+     "counterevidence": "Acute comparisons in recreationally trained adults; back-squat norms are not measures of this bar, and EMG findings between studies conflict."
     }
    },
    "descriptor": {
@@ -22472,7 +23092,7 @@
      "momentArm": "compound",
      "forceLength": "default"
     },
-    "studyKey": "free-weight-modality",
+    "studyKey": "safety-bar-squat",
     "anatomy": {
      "quads": "Quadriceps",
      "glutes": "Gluteus maximus",
@@ -22486,7 +23106,36 @@
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "verified-source",
+    "primaryMuscles.glutes": "verified-source",
+    "secondaryMuscles.adductors": "authored-estimate",
+    "secondaryMuscles.upperBack": "authored-estimate",
+    "secondaryMuscles.lowerBack": "verified-source",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "verified-source",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 80,
@@ -22569,18 +23218,18 @@
      "note": "Values are standardized estimates that summarize movement mechanics and training-practice inference; individual execution, loading, and programming change the result."
     },
     "study": {
-     "key": "free-weight-modality",
-     "kind": "Biomechanics or transfer",
-     "rangeOfMotion": "Setup-dependent",
-     "planningBoundary": "Free-weight status does not create a default muscle-growth advantage. Stability, skill, access, and task-specific transfer can still change exercise selection.",
+     "key": "safety-bar-squat",
+     "kind": "Acute mechanics context",
+     "rangeOfMotion": "Full",
+     "planningBoundary": "Acute comparisons in recreationally trained adults; back-squat norms are not measures of this bar, and EMG findings between studies conflict.",
      "sources": [
       {
-       "label": "Matched modality trial",
-       "url": "https://pubmed.ncbi.nlm.nih.gov/37535335/"
+       "label": "Kristiansen et al., 2021 · safety, high- and low-bar squat biomechanics",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8392107/"
       },
       {
-       "label": "Machine vs free-weight meta-analysis",
-       "url": "https://pubmed.ncbi.nlm.nih.gov/34609100/"
+       "label": "International Journal of Exercise Science, 2024 · safety vs Olympic bar",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11385282/"
       }
      ]
     }
@@ -22600,19 +23249,19 @@
      "muscle": "quads",
      "anatomicalLabel": "Quadriceps",
      "role": "Prime mover",
-     "contribution": 69,
+     "contribution": 70,
      "tier": "B",
-     "mechanicalLoading": 75,
-     "longLengthLoading": 41,
-     "peakContraction": 40,
+     "mechanicalLoading": 76,
+     "longLengthLoading": 42,
+     "peakContraction": 41,
      "stabilizationDemand": 36,
-     "fatigueContribution": 57,
+     "fatigueContribution": 58,
      "evidenceTier": "Conditional mechanics ranking",
      "directEvidence": false,
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -22679,7 +23328,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -22746,7 +23395,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -22813,7 +23462,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -22880,7 +23529,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -22947,7 +23596,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 72,
        "status": "Not individually measured"
       },
       {
@@ -23118,12 +23767,12 @@
     "stackInvolvement": [
      {
       "muscle": "quads",
-      "rawInvolvement": 69,
+      "rawInvolvement": 70,
       "primaryExercises": 1,
       "supportingExercises": 0,
-      "mechanicalLoading": 75,
-      "longLengthLoading": 41,
-      "peakContraction": 40,
+      "mechanicalLoading": 76,
+      "longLengthLoading": 42,
+      "peakContraction": 41,
       "stabilizationDemand": 36,
       "contributions": [
        {
@@ -23131,10 +23780,10 @@
         "exerciseName": "Safety-Bar Squat",
         "movement": "Squat / knee dominant",
         "role": "Prime mover",
-        "involvement": 69,
-        "mechanicalLoading": 75,
-        "longLengthLoading": 41,
-        "peakContraction": 40,
+        "involvement": 70,
+        "mechanicalLoading": 76,
+        "longLengthLoading": 42,
+        "peakContraction": 41,
         "stabilizationDemand": 36
        }
       ],
@@ -23162,7 +23811,7 @@
         "stabilizationDemand": 36
        }
       ],
-      "involvement": 100
+      "involvement": 99
      },
      {
       "muscle": "adductors",
@@ -23186,7 +23835,7 @@
         "stabilizationDemand": 36
        }
       ],
-      "involvement": 52
+      "involvement": 51
      },
      {
       "muscle": "upperBack",
@@ -23210,7 +23859,7 @@
         "stabilizationDemand": 36
        }
       ],
-      "involvement": 52
+      "involvement": 51
      },
      {
       "muscle": "lowerBack",
@@ -23234,7 +23883,7 @@
         "stabilizationDemand": 80
        }
       ],
-      "involvement": 27
+      "involvement": 26
      },
      {
       "muscle": "abs",
@@ -23258,7 +23907,7 @@
         "stabilizationDemand": 80
        }
       ],
-      "involvement": 27
+      "involvement": 26
      }
     ],
     "sessionExposure": [
@@ -23554,7 +24203,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "authored-estimate",
+    "primaryMuscles.glutes": "authored-estimate",
+    "secondaryMuscles.adductors": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 80,
@@ -24197,6 +24872,13 @@
       "grade": "B",
       "movementHelp": "kneeling positions"
      }
+    },
+    "evidenceContext": {
+     "rangeOfMotion": "Individualized",
+     "evidenceKind": "Biomechanics or transfer",
+     "sourceRange": "J Funct Morphol Kinesiol, 2024 · reverse Nordic training in youth karate",
+     "summary": "Eight weeks of bodyweight reverse Nordic training improved sprint, change-of-direction and jump tests against controls in youth karate athletes; muscle size was not measured.",
+     "counterevidence": "Twenty-seven youth athletes and field tests only: a transfer finding, not evidence of quadriceps growth, and not the Nordic hamstring curl's evidence."
     }
    },
    "descriptor": {
@@ -24256,7 +24938,7 @@
      "momentArm": "focused",
      "forceLength": "lengthened"
     },
-    "studyKey": null,
+    "studyKey": "reverse-nordic",
     "anatomy": {
      "quads": "Rectus femoris, vasti",
      "abs": "Rectus abdominis (holding the hips straight)"
@@ -24265,7 +24947,32 @@
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "verified-source",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "derived-model",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "verified-source",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -24341,10 +25048,21 @@
     "evidence": {
      "quality": "Moderate — biomechanical inference",
      "confidence": "High",
-     "sourceStrength": "No study attached",
+     "sourceStrength": "Mechanics or transfer context attached",
      "note": "Values are standardized estimates that summarize movement mechanics and training-practice inference; individual execution, loading, and programming change the result."
     },
-    "study": null
+    "study": {
+     "key": "reverse-nordic",
+     "kind": "Biomechanics or transfer",
+     "rangeOfMotion": "Individualized",
+     "planningBoundary": "Twenty-seven youth athletes and field tests only: a transfer finding, not evidence of quadriceps growth, and not the Nordic hamstring curl's evidence.",
+     "sources": [
+      {
+       "label": "J Funct Morphol Kinesiol, 2024 · reverse Nordic training in youth karate",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11676464/"
+      }
+     ]
+    }
    },
    "targetingInputs": {
     "forceVector": "gravity",
@@ -24373,7 +25091,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 64,
        "status": "Not individually measured"
       },
       {
@@ -24440,7 +25158,7 @@
      "factors": [
       {
        "id": "jointAngles",
-       "rankingInfluence": 58,
+       "rankingInfluence": 64,
        "status": "Not individually measured"
       },
       {
@@ -24866,7 +25584,35 @@
      "abductors"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "authored-estimate",
+    "primaryMuscles.glutes": "authored-estimate",
+    "primaryMuscles.adductors": "authored-estimate",
+    "secondaryMuscles.abductors": "authored-estimate",
+    "secondaryMuscles.hamstrings": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -25779,7 +26525,7 @@
      "evidenceKind": "Direct longitudinal adaptation",
      "sourceRange": "Maeo et al., 2021 · MRI intervention",
      "summary": "Seated leg-curl training produced greater whole- and biarticular-hamstring volume gains than prone leg-curl training in the studied 12-week protocol.",
-     "counterevidence": "This is a protocol- and population-specific growth finding, not a guarantee that seated curls are superior for every athlete or hamstring goal. The seated-versus-prone trial is the attached source; how far its finding applies to one-leg sets depends on the protocol details recorded in the evidence ledger."
+     "counterevidence": "This is a protocol- and population-specific growth finding, not a guarantee that seated curls are superior for every athlete or hamstring goal. That trial trained exactly this: one leg on the seated curl, the other on the prone curl, for 12 weeks (20 young adults without recent training, 5 × 10 at 70% of 1RM)."
     }
    },
    "descriptor": {
@@ -25839,14 +26585,39 @@
      "forceLength": "default"
     },
     "studyKey": "seated-leg-curl",
-    "studyQualification": "The seated-versus-prone trial is the attached source; how far its finding applies to one-leg sets depends on the protocol details recorded in the evidence ledger.",
+    "studyQualification": "That trial trained exactly this: one leg on the seated curl, the other on the prone curl, for 12 weeks (20 young adults without recent training, 5 × 10 at 70% of 1RM).",
     "anatomy": {
      "hamstrings": "Semitendinosus, semimembranosus, biceps femoris long and short heads",
      "calves": "Gastrocnemius"
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.hamstrings": "verified-source",
+    "secondaryMuscles.calves": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "verified-source",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 91,
@@ -25928,7 +26699,7 @@
      "key": "seated-leg-curl",
      "kind": "Direct longitudinal adaptation",
      "rangeOfMotion": "Setup-dependent",
-     "planningBoundary": "This is a protocol- and population-specific growth finding, not a guarantee that seated curls are superior for every athlete or hamstring goal. The seated-versus-prone trial is the attached source; how far its finding applies to one-leg sets depends on the protocol details recorded in the evidence ledger.",
+     "planningBoundary": "This is a protocol- and population-specific growth finding, not a guarantee that seated curls are superior for every athlete or hamstring goal. That trial trained exactly this: one leg on the seated curl, the other on the prone curl, for 12 weeks (20 young adults without recent training, 5 × 10 at 70% of 1RM).",
      "sources": [
       {
        "label": "Maeo et al., 2021 · MRI intervention",
@@ -26396,10 +27167,10 @@
     },
     "evidenceContext": {
      "rangeOfMotion": "Setup-dependent",
-     "evidenceKind": "Biomechanics or transfer",
-     "sourceRange": "Matched modality trial · Machine vs free-weight meta-analysis",
-     "summary": "Machine and free-weight programs can produce similar hypertrophy when training variables are matched; strength improvements tend to be most specific to the trained modality.",
-     "counterevidence": "Equipment category does not create a default muscle-growth advantage. Preference, access, stability needs, and test-specific transfer still matter."
+     "evidenceKind": "Direct longitudinal adaptation",
+     "sourceRange": "Maeo et al., 2021 · MRI intervention (prone-leg condition)",
+     "summary": "In a 12-week within-subject trial, the leg trained on a prone (lying) one-leg curl gained hamstring volume (+9% on MRI), less than the other leg trained on a seated curl (+14%).",
+     "counterevidence": "Twenty young adults without recent training, 5 × 10 at 70% of 1RM twice a week; a protocol-specific comparison, not a ruling that the lying curl is a poor choice."
     }
    },
    "descriptor": {
@@ -26458,14 +27229,39 @@
      "momentArm": "focused",
      "forceLength": "default"
     },
-    "studyKey": "machine-modality",
+    "studyKey": "prone-leg-curl",
     "anatomy": {
      "hamstrings": "Semitendinosus, semimembranosus, biceps femoris long and short heads",
      "calves": "Gastrocnemius"
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.hamstrings": "verified-source",
+    "secondaryMuscles.calves": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "verified-source",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 91,
@@ -26540,22 +27336,18 @@
     "evidence": {
      "quality": "Moderate — biomechanical inference",
      "confidence": "High",
-     "sourceStrength": "Mechanics or transfer context attached",
+     "sourceStrength": "Direct longitudinal study attached",
      "note": "Values are standardized estimates that summarize movement mechanics and training-practice inference; individual execution, loading, and programming change the result."
     },
     "study": {
-     "key": "machine-modality",
-     "kind": "Biomechanics or transfer",
+     "key": "prone-leg-curl",
+     "kind": "Direct longitudinal adaptation",
      "rangeOfMotion": "Setup-dependent",
-     "planningBoundary": "Equipment category does not create a default muscle-growth advantage. Preference, access, stability needs, and test-specific transfer still matter.",
+     "planningBoundary": "Twenty young adults without recent training, 5 × 10 at 70% of 1RM twice a week; a protocol-specific comparison, not a ruling that the lying curl is a poor choice.",
      "sources": [
       {
-       "label": "Matched modality trial",
-       "url": "https://pubmed.ncbi.nlm.nih.gov/37535335/"
-      },
-      {
-       "label": "Machine vs free-weight meta-analysis",
-       "url": "https://pubmed.ncbi.nlm.nih.gov/34609100/"
+       "label": "Maeo et al., 2021 · MRI intervention (prone-leg condition)",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7969179/"
       }
      ]
     }
@@ -26575,15 +27367,15 @@
      "muscle": "hamstrings",
      "anatomicalLabel": "Semitendinosus, semimembranosus, biceps femoris long and short heads",
      "role": "Prime mover",
-     "contribution": 70,
-     "tier": "B",
-     "mechanicalLoading": 76,
-     "longLengthLoading": 42,
-     "peakContraction": 41,
+     "contribution": 82,
+     "tier": "A",
+     "mechanicalLoading": 88,
+     "longLengthLoading": 49,
+     "peakContraction": 48,
      "stabilizationDemand": 32,
-     "fatigueContribution": 60,
-     "evidenceTier": "Conditional mechanics ranking",
-     "directEvidence": false,
+     "fatigueContribution": 67,
+     "evidenceTier": "Direct longitudinal exercise evidence",
+     "directEvidence": true,
      "factors": [
       {
        "id": "jointAngles",
@@ -26813,12 +27605,12 @@
     "stackInvolvement": [
      {
       "muscle": "hamstrings",
-      "rawInvolvement": 70,
+      "rawInvolvement": 82,
       "primaryExercises": 1,
       "supportingExercises": 0,
-      "mechanicalLoading": 76,
-      "longLengthLoading": 42,
-      "peakContraction": 41,
+      "mechanicalLoading": 88,
+      "longLengthLoading": 49,
+      "peakContraction": 48,
       "stabilizationDemand": 32,
       "contributions": [
        {
@@ -26826,10 +27618,10 @@
         "exerciseName": "Single-Leg Lying Leg Curl",
         "movement": "Knee flexion",
         "role": "Prime mover",
-        "involvement": 70,
-        "mechanicalLoading": 76,
-        "longLengthLoading": 42,
-        "peakContraction": 41,
+        "involvement": 82,
+        "mechanicalLoading": 88,
+        "longLengthLoading": 49,
+        "peakContraction": 48,
         "stabilizationDemand": 32
        }
       ],
@@ -26857,7 +27649,7 @@
         "stabilizationDemand": 32
        }
       ],
-      "involvement": 52
+      "involvement": 44
      }
     ],
     "sessionExposure": [
@@ -27092,7 +27884,33 @@
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.hipFlexors": "authored-estimate",
+    "secondaryMuscles.quads": "authored-estimate",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -27705,12 +28523,12 @@
     "movement": "Loaded carry",
     "primaryMuscles": [
      "obliques",
-     "forearms"
+     "lowerBack"
     ],
     "secondaryMuscles": [
-     "lowerBack",
+     "forearms",
+     "lats",
      "abductors",
-     "traps",
      "abs"
     ],
     "qualities": [
@@ -27742,6 +28560,13 @@
       "grade": "S",
       "movementHelp": "carries, clinch strength & grip"
      }
+    },
+    "evidenceContext": {
+     "rangeOfMotion": "Not study-tagged",
+     "evidenceKind": "Acute mechanics context",
+     "sourceRange": "Ellestad et al., 2024 · loaded-carry EMG · Hindle et al., 2019 · strongman biomechanics review (McGill 2009 suitcase carry)",
+     "summary": "During a one-dumbbell suitcase carry, the external oblique, longissimus and multifidus opposite the load were the most active trunk muscles, well above the same-side muscles; strongman data show the same opposite-side pattern.",
+     "counterevidence": "Acute surface EMG from one 25 m carry in college-aged adults: it shows which side works, not a training effect or a load to use."
     }
    },
    "descriptor": {
@@ -27749,7 +28574,7 @@
     "candidate": "E41",
     "requestedName": "Suitcase Carry",
     "setup": "One dumbbell in one hand at the side, walk tall without leaning toward or away from it. Switch hands and walk the same distance.",
-    "entryNote": "Weight is the one dumbbell. Record the distance (or time) and the hand.",
+    "entryNote": "Weight is the one dumbbell. Record the distance in metres and the hand.",
     "aliases": [
      "suitcase carry",
      "single arm farmer carry",
@@ -27805,22 +28630,50 @@
      "momentArm": "default",
      "forceLength": "default"
     },
-    "studyKey": null,
+    "studyKey": "suitcase-carry",
     "anatomy": {
-     "obliques": "Opposite-side internal and external obliques",
-     "forearms": "Finger flexors (grip)",
-     "lowerBack": "Quadratus lumborum, erector spinae",
+     "obliques": "External oblique on the side opposite the load",
+     "lowerBack": "Longissimus, multifidus and quadratus lumborum on the side opposite the load",
+     "forearms": "Finger flexors (holding the dumbbell)",
+     "lats": "Latissimus dorsi on the loaded side",
      "abductors": "Gluteus medius",
-     "traps": "Upper trapezius",
      "abs": "Rectus abdominis"
     },
     "stabilizers": [
-     "lowerBack",
      "abductors",
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.obliques": "verified-source",
+    "primaryMuscles.lowerBack": "verified-source",
+    "secondaryMuscles.forearms": "authored-estimate",
+    "secondaryMuscles.lats": "verified-source",
+    "secondaryMuscles.abductors": "verified-source",
+    "secondaryMuscles.abs": "verified-source",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "not-applicable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "verified-source",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -27899,10 +28752,25 @@
     "evidence": {
      "quality": "Moderate — biomechanical inference",
      "confidence": "High",
-     "sourceStrength": "No study attached",
+     "sourceStrength": "Mechanics or transfer context attached",
      "note": "Values are standardized estimates that summarize movement mechanics and training-practice inference; individual execution, loading, and programming change the result."
     },
-    "study": null
+    "study": {
+     "key": "suitcase-carry",
+     "kind": "Acute mechanics context",
+     "rangeOfMotion": "Not study-tagged",
+     "planningBoundary": "Acute surface EMG from one 25 m carry in college-aged adults: it shows which side works, not a training effect or a load to use.",
+     "sources": [
+      {
+       "label": "Ellestad et al., 2024 · loaded-carry EMG",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11042841/"
+      },
+      {
+       "label": "Hindle et al., 2019 · strongman biomechanics review (McGill 2009 suitcase carry)",
+       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6901656/"
+      }
+     ]
+    }
    },
    "targetingInputs": {
     "forceVector": "gravity",
@@ -27917,7 +28785,7 @@
    "muscles": [
     {
      "muscle": "obliques",
-     "anatomicalLabel": "Opposite-side internal and external obliques",
+     "anatomicalLabel": "External oblique on the side opposite the load",
      "role": "Prime mover",
      "contribution": 68,
      "tier": "B",
@@ -27983,8 +28851,8 @@
      "strengthRegion": "obliques"
     },
     {
-     "muscle": "forearms",
-     "anatomicalLabel": "Finger flexors (grip)",
+     "muscle": "lowerBack",
+     "anatomicalLabel": "Longissimus, multifidus and quadratus lumborum on the side opposite the load",
      "role": "Prime mover",
      "contribution": 68,
      "tier": "B",
@@ -28047,19 +28915,19 @@
        "status": "Conditional inference"
       }
      ],
-     "strengthRegion": "forearms_grip"
+     "strengthRegion": "spinal_erectors"
     },
     {
-     "muscle": "lowerBack",
-     "anatomicalLabel": "Quadratus lumborum, erector spinae",
-     "role": "Stabilizer",
-     "contribution": 45,
-     "tier": "D",
-     "mechanicalLoading": 45,
-     "longLengthLoading": 27,
-     "peakContraction": 26,
-     "stabilizationDemand": 84,
-     "fatigueContribution": 39,
+     "muscle": "forearms",
+     "anatomicalLabel": "Finger flexors (holding the dumbbell)",
+     "role": "Synergist",
+     "contribution": 54,
+     "tier": "C",
+     "mechanicalLoading": 54,
+     "longLengthLoading": 32,
+     "peakContraction": 31,
+     "stabilizationDemand": 42,
+     "fatigueContribution": 45,
      "evidenceTier": "Conditional mechanics ranking",
      "directEvidence": false,
      "factors": [
@@ -28110,11 +28978,78 @@
       },
       {
        "id": "stabilization",
-       "rankingInfluence": 82,
+       "rankingInfluence": 68,
        "status": "Conditional inference"
       }
      ],
-     "strengthRegion": "spinal_erectors"
+     "strengthRegion": "forearms_grip"
+    },
+    {
+     "muscle": "lats",
+     "anatomicalLabel": "Latissimus dorsi on the loaded side",
+     "role": "Synergist",
+     "contribution": 54,
+     "tier": "C",
+     "mechanicalLoading": 54,
+     "longLengthLoading": 32,
+     "peakContraction": 31,
+     "stabilizationDemand": 42,
+     "fatigueContribution": 45,
+     "evidenceTier": "Conditional mechanics ranking",
+     "directEvidence": false,
+     "factors": [
+      {
+       "id": "jointAngles",
+       "rankingInfluence": 58,
+       "status": "Not individually measured"
+      },
+      {
+       "id": "externalForceVector",
+       "rankingInfluence": 68,
+       "status": "Configured descriptor"
+      },
+      {
+       "id": "externalMoment",
+       "rankingInfluence": 58,
+       "status": "Conditional inference"
+      },
+      {
+       "id": "momentArms",
+       "rankingInfluence": 56,
+       "status": "Conditional inference"
+      },
+      {
+       "id": "architecture",
+       "rankingInfluence": 56,
+       "status": "Not individually measured"
+      },
+      {
+       "id": "forceLength",
+       "rankingInfluence": 62,
+       "status": "Conditional inference"
+      },
+      {
+       "id": "forceVelocity",
+       "rankingInfluence": 54,
+       "status": "Not individually measured"
+      },
+      {
+       "id": "contractionType",
+       "rankingInfluence": 58,
+       "status": "Conditional inference"
+      },
+      {
+       "id": "biarticularPosition",
+       "rankingInfluence": 50,
+       "status": "Configured descriptor"
+      },
+      {
+       "id": "stabilization",
+       "rankingInfluence": 68,
+       "status": "Conditional inference"
+      }
+     ],
+     "strengthRegion": "lats"
     },
     {
      "muscle": "abductors",
@@ -28182,73 +29117,6 @@
       }
      ],
      "strengthRegion": "hip_abductors"
-    },
-    {
-     "muscle": "traps",
-     "anatomicalLabel": "Upper trapezius",
-     "role": "Synergist",
-     "contribution": 54,
-     "tier": "C",
-     "mechanicalLoading": 54,
-     "longLengthLoading": 32,
-     "peakContraction": 31,
-     "stabilizationDemand": 42,
-     "fatigueContribution": 45,
-     "evidenceTier": "Conditional mechanics ranking",
-     "directEvidence": false,
-     "factors": [
-      {
-       "id": "jointAngles",
-       "rankingInfluence": 58,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "externalForceVector",
-       "rankingInfluence": 68,
-       "status": "Configured descriptor"
-      },
-      {
-       "id": "externalMoment",
-       "rankingInfluence": 58,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "momentArms",
-       "rankingInfluence": 56,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "architecture",
-       "rankingInfluence": 56,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "forceLength",
-       "rankingInfluence": 62,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "forceVelocity",
-       "rankingInfluence": 54,
-       "status": "Not individually measured"
-      },
-      {
-       "id": "contractionType",
-       "rankingInfluence": 58,
-       "status": "Conditional inference"
-      },
-      {
-       "id": "biarticularPosition",
-       "rankingInfluence": 50,
-       "status": "Configured descriptor"
-      },
-      {
-       "id": "stabilization",
-       "rankingInfluence": 68,
-       "status": "Conditional inference"
-      }
-     ],
-     "strengthRegion": "upper_back"
     },
     {
      "muscle": "abs",
@@ -28401,14 +29269,22 @@
    "coverage": {
     "splitTagPoints": {
      "obliques": 56,
-     "forearms": 56,
-     "lowerBack": 24,
+     "lowerBack": 56,
+     "forearms": 24,
+     "lats": 24,
      "abductors": 24,
-     "traps": 24,
      "abs": 24
     },
     "homeSplit": "Full Body",
     "splitAnalysis": [
+     {
+      "muscle": "lats",
+      "role": "primary",
+      "target": 45,
+      "score": 24,
+      "rawScore": 24,
+      "state": "gap"
+     },
      {
       "muscle": "abs",
       "role": "support",
@@ -28444,7 +29320,7 @@
       "involvement": 100
      },
      {
-      "muscle": "forearms",
+      "muscle": "lowerBack",
       "rawInvolvement": 68,
       "primaryExercises": 1,
       "supportingExercises": 0,
@@ -28468,7 +29344,7 @@
       "involvement": 100
      },
      {
-      "muscle": "traps",
+      "muscle": "forearms",
       "rawInvolvement": 35.1,
       "primaryExercises": 0,
       "supportingExercises": 1,
@@ -28492,28 +29368,28 @@
       "involvement": 52
      },
      {
-      "muscle": "lowerBack",
-      "rawInvolvement": 18,
+      "muscle": "lats",
+      "rawInvolvement": 35.1,
       "primaryExercises": 0,
       "supportingExercises": 1,
-      "mechanicalLoading": 45,
-      "longLengthLoading": 27,
-      "peakContraction": 26,
-      "stabilizationDemand": 84,
+      "mechanicalLoading": 54,
+      "longLengthLoading": 32,
+      "peakContraction": 31,
+      "stabilizationDemand": 42,
       "contributions": [
        {
         "exerciseId": 441,
         "exerciseName": "Suitcase Carry",
         "movement": "Loaded carry",
-        "role": "Stabilizer",
-        "involvement": 45,
-        "mechanicalLoading": 45,
-        "longLengthLoading": 27,
-        "peakContraction": 26,
-        "stabilizationDemand": 84
+        "role": "Synergist",
+        "involvement": 54,
+        "mechanicalLoading": 54,
+        "longLengthLoading": 32,
+        "peakContraction": 31,
+        "stabilizationDemand": 42
        }
       ],
-      "involvement": 26
+      "involvement": 52
      },
      {
       "muscle": "abductors",
@@ -28566,7 +29442,7 @@
     ],
     "sessionExposure": [
      {
-      "muscle": "forearms",
+      "muscle": "lowerBack",
       "directSets": 3,
       "supportSets": 0,
       "supportSetsPerformed": 0,
@@ -28602,7 +29478,7 @@
       "note": "3 supporting sets (counted as 1.5), no direct work."
      },
      {
-      "muscle": "lowerBack",
+      "muscle": "forearms",
       "directSets": 0,
       "supportSets": 1.5,
       "supportSetsPerformed": 3,
@@ -28611,7 +29487,7 @@
       "note": "3 supporting sets (counted as 1.5), no direct work."
      },
      {
-      "muscle": "traps",
+      "muscle": "lats",
       "directSets": 0,
       "supportSets": 1.5,
       "supportSetsPerformed": 3,
@@ -28623,6 +29499,17 @@
     "week": {
      "prescription": "3 × 30 m",
      "muscles": [
+      {
+       "key": "lowerBack",
+       "label": "Erector spinae",
+       "direct": 3,
+       "supporting": 0,
+       "supportingPerformed": 0,
+       "total": 3,
+       "figureKeys": [
+        "lowerBack"
+       ]
+      },
       {
        "key": "obliques",
        "label": "External obliques",
@@ -28637,23 +29524,12 @@
       {
        "key": "forearms",
        "label": "Forearms",
-       "direct": 3,
-       "supporting": 0,
-       "supportingPerformed": 0,
-       "total": 3,
-       "figureKeys": [
-        "forearms"
-       ]
-      },
-      {
-       "key": "lowerBack",
-       "label": "Erector spinae",
        "direct": 0,
        "supporting": 1.5,
        "supportingPerformed": 3,
        "total": 1.5,
        "figureKeys": [
-        "lowerBack"
+        "forearms"
        ]
       },
       {
@@ -28668,6 +29544,17 @@
        ]
       },
       {
+       "key": "lats",
+       "label": "Latissimus dorsi",
+       "direct": 0,
+       "supporting": 1.5,
+       "supportingPerformed": 3,
+       "total": 1.5,
+       "figureKeys": [
+        "lats"
+       ]
+      },
+      {
        "key": "abs",
        "label": "Rectus abdominis",
        "direct": 0,
@@ -28676,17 +29563,6 @@
        "total": 1.5,
        "figureKeys": [
         "abs"
-       ]
-      },
-      {
-       "key": "traps",
-       "label": "Trapezius",
-       "direct": 0,
-       "supporting": 1.5,
-       "supportingPerformed": 3,
-       "total": 1.5,
-       "figureKeys": [
-        "traps"
        ]
       }
      ],
@@ -28719,8 +29595,8 @@
    },
    "movementSupport": {
     "specific": 27,
-    "related": 15,
-    "muscleSupport": 76,
+    "related": 6,
+    "muscleSupport": 81,
     "specificIn": [
      "wrestling/wrestling-3",
      "wrestling/wrestling-14",
@@ -28736,18 +29612,12 @@
      "brazilian-jiu-jitsu/brazilian-jiu-jitsu-17"
     ],
     "relatedIn": [
-     "wrestling/wrestling-17",
-     "american-football/american-football-17",
      "track-and-field/track-and-field-13",
      "track-and-field/track-and-field-15",
      "boxing/boxing-19",
      "mma/mma-20",
-     "brazilian-jiu-jitsu/brazilian-jiu-jitsu-19",
-     "ice-hockey/ice-hockey-12",
-     "ice-hockey/ice-hockey-15",
      "ice-hockey/ice-hockey-16",
-     "lacrosse/lacrosse-5",
-     "lacrosse/lacrosse-10"
+     "lacrosse/lacrosse-15"
     ]
    },
    "recording": {
@@ -28843,7 +29713,7 @@
     "candidate": "E42",
     "requestedName": "Front-Rack Kettlebell Carry",
     "setup": "Two kettlebells held in the front rack (bells resting on the forearms, hands at the chest), walk tall. This record is the two-bell carry; a single-bell front-rack carry is a different, offset exercise.",
-    "entryNote": "Weight is one kettlebell (each hand). Record the distance or time.",
+    "entryNote": "Weight is one kettlebell (each hand). Record the distance in metres.",
     "aliases": [
      "double kettlebell front rack carry",
      "front rack carry",
@@ -28911,7 +29781,36 @@
      "obliques"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.abs": "authored-estimate",
+    "primaryMuscles.upperBack": "authored-estimate",
+    "secondaryMuscles.forearms": "authored-estimate",
+    "secondaryMuscles.biceps": "authored-estimate",
+    "secondaryMuscles.obliques": "authored-estimate",
+    "secondaryMuscles.glutes": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "not-applicable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -29932,7 +30831,7 @@
     "candidate": "E43",
     "requestedName": "Single-Arm Overhead Carry",
     "setup": "One kettlebell locked out overhead, arm straight and biceps by the ear, walk tall. Switch arms and walk the same distance.",
-    "entryNote": "Weight is the one kettlebell. Record the distance (or time) and the arm. There is no press repetition to estimate from it.",
+    "entryNote": "Weight is the one kettlebell. Record the distance in metres and the arm. There is no press repetition to estimate from it.",
     "aliases": [
      "single arm overhead carry",
      "overhead carry",
@@ -30004,7 +30903,37 @@
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.shoulders": "authored-estimate",
+    "primaryMuscles.traps": "authored-estimate",
+    "primaryMuscles.obliques": "authored-estimate",
+    "secondaryMuscles.rotatorCuff": "authored-estimate",
+    "secondaryMuscles.serratusAnterior": "authored-estimate",
+    "secondaryMuscles.triceps": "authored-estimate",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "not-applicable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -31142,7 +32071,7 @@
     "candidate": "E44",
     "requestedName": "Sandbag Bear-Hug Carry",
     "setup": "A sandbag hugged to the chest with the arms wrapped around it, walk upright.",
-    "entryNote": "Weight is the sandbag. Record the distance or time.",
+    "entryNote": "Weight is the sandbag. Record the distance in metres.",
     "aliases": [
      "bear hug carry",
      "bear-hug carry",
@@ -31212,7 +32141,36 @@
      "lowerBack"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.upperBack": "authored-estimate",
+    "primaryMuscles.abs": "authored-estimate",
+    "secondaryMuscles.biceps": "authored-estimate",
+    "secondaryMuscles.lowerBack": "authored-estimate",
+    "secondaryMuscles.quads": "authored-estimate",
+    "secondaryMuscles.glutes": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "not-applicable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -32310,7 +33268,38 @@
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.glutes": "authored-estimate",
+    "primaryMuscles.hamstrings": "authored-estimate",
+    "primaryMuscles.quads": "authored-estimate",
+    "secondaryMuscles.upperBack": "authored-estimate",
+    "secondaryMuscles.biceps": "authored-estimate",
+    "secondaryMuscles.lowerBack": "authored-estimate",
+    "secondaryMuscles.traps": "authored-estimate",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -33611,7 +34600,35 @@
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.quads": "verified-source",
+    "primaryMuscles.shoulders": "verified-source",
+    "secondaryMuscles.calves": "verified-source",
+    "secondaryMuscles.upperBack": "verified-source",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "not-applicable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -34579,7 +35596,36 @@
      "abs"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.lats": "authored-estimate",
+    "primaryMuscles.upperBack": "authored-estimate",
+    "primaryMuscles.forearms": "authored-estimate",
+    "secondaryMuscles.biceps": "authored-estimate",
+    "secondaryMuscles.rearDelts": "authored-estimate",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,
@@ -35624,7 +36670,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.obliques": "authored-estimate",
+    "secondaryMuscles.lowerBack": "authored-estimate",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -36267,7 +37339,7 @@
     "id": 449,
     "candidate": "E49",
     "requestedName": "Dumbbell Side Bend",
-    "setup": "Standing with one dumbbell in one hand at the side. Bend toward the dumbbell, then bend back to upright and slightly past; finish the reps, then switch hands.",
+    "setup": "Standing with one dumbbell in one hand and the other hand on the hip. Bend sideways away from the dumbbell as far as you can, return through upright and let it lower toward the dumbbell side; finish the reps, then switch hands. The side opposite the dumbbell does the lifting.",
     "entryNote": "Weight is the one dumbbell. Reps on one side make the set; record the side.",
     "aliases": [
      "dumbbell side bend",
@@ -36327,7 +37399,33 @@
     },
     "stabilizers": []
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.obliques": "authored-estimate",
+    "secondaryMuscles.lowerBack": "authored-estimate",
+    "secondaryMuscles.abs": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "verified-source",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "derived-model",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "verified-source"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 55,
@@ -37056,7 +38154,35 @@
      "glutes"
     ]
    },
-   "fieldOrigins": "pending: evidence.json has no entry for this candidate",
+   "fieldOrigins": {
+    "primaryMuscles.obliques": "authored-estimate",
+    "primaryMuscles.abs": "authored-estimate",
+    "secondaryMuscles.frontDelts": "authored-estimate",
+    "secondaryMuscles.triceps": "authored-estimate",
+    "secondaryMuscles.glutes": "authored-estimate",
+    "name": "authored-estimate",
+    "setup": "authored-estimate",
+    "equipment": "authored-estimate",
+    "category": "authored-estimate",
+    "movement": "authored-estimate",
+    "qualities": "authored-estimate",
+    "muscleGrade": "authored-estimate",
+    "sportFit": "authored-estimate",
+    "descriptor.movementPatterns": "authored-estimate",
+    "descriptor.jointActions": "verified-source",
+    "descriptor.resistance": "unavailable",
+    "descriptor.fingerprint": "authored-estimate",
+    "descriptor.targeting": "authored-estimate",
+    "descriptor.task": "authored-estimate",
+    "descriptor.studyKey": "not-applicable",
+    "fingerprint (8 values)": "derived-model",
+    "muscleProfile and targeting factors": "derived-model",
+    "coverage and exposure": "derived-model",
+    "measurement": "authored-estimate",
+    "loadConvention": "authored-estimate",
+    "normativeReference": "unavailable",
+    "media": "unavailable"
+   },
    "fingerprint": {
     "values": {
      "hypertrophy": 50,

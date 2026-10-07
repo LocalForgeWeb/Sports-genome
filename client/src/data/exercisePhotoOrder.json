@@ -23,6 +23,7 @@
  "Smith_Machine_Bench_Press": "frame 0 is the bar on the chest; the source starts with the arms extended",
  "Smith_Machine_Incline_Bench_Press": "frame 0 is the bar on the chest; the source starts with the arms extended",
  "Smith_Machine_Squat": "frame 0 is the bottom of the squat; the squat starts standing",
+ "Smith_Machine_Stiff-Legged_Deadlift": "frame 0 is the bottom of the hinge; the Smith Romanian deadlift starts standing with the bar at arm's length",
  "Standing_Low-Pulley_Deltoid_Raise": "frame 0 is the arm raised to shoulder height; the raise starts with the arm down across the body (the case reported on Cable Lateral Raise)",
  "Stiff-Legged_Barbell_Deadlift": "frame 0 is the bottom of the hinge; the source starts standing",
  "Suspended_Push-Up": "frame 0 is the bottom of the push-up; the source starts with the arms extended",
