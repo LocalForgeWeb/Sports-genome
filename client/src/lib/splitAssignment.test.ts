@@ -15,7 +15,14 @@ describe("split category integrity", () => {
 
   it("does not allow pulling patterns inside a Push pool", () => {
     const pushNames = getSplitExercisePool(exercises, "Push").map((exercise) => `${exercise.name} ${exercise.movement}`.toLowerCase());
-    expect(pushNames.some((name) => name.includes("row") || name.includes("pull") || name.includes("chin"))).toBe(false);
+    // "chin" at a word start: the bare substring is inside "machine", and the machine presses are push work.
+    expect(pushNames.some((name) => name.includes("row") || name.includes("pull") || /\bchin/.test(name))).toBe(false);
+  });
+
+  it("keeps machine presses in Push: 'machine' is not a chin-up", () => {
+    const push = new Set(getSplitExercisePool(exercises, "Push").map((exercise) => exercise.name));
+    for (const name of ["Machine Chest Press", "Incline Machine Chest Press", "Smith Machine Bench Press", "Machine Shoulder Press", "Machine Lateral Raise", "Seated Dip Machine"]) expect(push.has(name), name).toBe(true);
+    expect(push.has("Chin-Up")).toBe(false);
   });
 
   it("keeps serratus-focused protraction work visible in the default Push pool", () => {

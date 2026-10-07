@@ -151,4 +151,6 @@ export const approximateRegionNotes: Record<string, string> = {
   brachialis: "Shown on the biceps, which covers it. The brachialis lies directly beneath and crosses only the elbow.",
   tfl: "Shown on the hip flexor region. The tensor fasciae latae sits further out on the side of the hip.",
   abductors: "Shown on the gluteus medius, the main hip abductor. The smaller gluteus minimus beneath it is not drawn separately.",
+  neckFlexors: "Shown on the front of the neck. The sternocleidomastoid, scalenes and deep flexors are drawn as one region.",
+  neckExtensors: "Shown on the back of the neck. The splenius, semispinalis and deep extensors are drawn as one region; the upper trapezius is its own region.",
 };

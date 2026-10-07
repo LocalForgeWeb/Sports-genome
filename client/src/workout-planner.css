@@ -1238,6 +1238,9 @@ button.session-prestart-row:hover strong, button.session-prestart-row:focus-visi
 .live-drop-add { display: flex; min-height: 3.25rem; align-items: center; justify-content: center; gap: .4rem; border: 1px solid var(--sg-action); border-radius: 12px; background: rgb(228 81 46 / .14); color: #ffd0c2; font-size: var(--sg-text-md); font-weight: 800; letter-spacing: var(--sg-tracking-label); text-transform: uppercase; }
 .live-drop-problem { margin: .5rem 0 0; color: #ffc9b8; font-size: var(--sg-text-sm); font-weight: 600; }
 .live-drop-note { margin: .5rem 0 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+/* What the number means for this exercise (a hold, a band, assistance), said where it is typed. */
+.live-set-entry-note { margin: .6rem 0 0; color: var(--sg-text-subtle-on-dark); font-size: var(--sg-text-xs); line-height: 1.45; }
+.live-set-side { margin-top: .6rem; }
 
 /* A drop set in the full list is one row: the stages collapsed into a line, the totals under it. */
 .device-workout-tracker .session-set-row.session-set-drop { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }

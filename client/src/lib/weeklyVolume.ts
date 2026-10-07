@@ -24,6 +24,8 @@ export const displayNames: Record<string, string> = {
   // Three catalog keys rendered as raw identifiers ("hipFlexors" for Cable Standing Knee Drive)
   // because this list predated them (5 October 2026 weekly-review inventory).
   feet: "Foot muscles", hipFlexors: "Hip flexors", serratusAnterior: "Serratus anterior",
+  // The 50-exercise expansion's neck keys (6 October 2026).
+  neckFlexors: "Neck flexors", neckExtensors: "Neck extensors",
 };
 
 function parseSets(value: string, fallback: number) {

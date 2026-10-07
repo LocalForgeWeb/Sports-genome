@@ -17,6 +17,7 @@ import { ChartNoAxesCombined, ChevronDown, Info, ShieldAlert, X } from "lucide-r
 import type { Exercise } from "@/lib/exerciseCatalog";
 import { analyzeExerciseContext, getExerciseGenome, getWorkoutGenome, goalDimensionFor, type ExerciseGenome, type GenomeContext, type GenomeDimension } from "@/lib/exerciseGenome";
 import { mechanicsEvidenceSources } from "@/lib/muscleTargetingModel";
+import { descriptorFor } from "@/lib/exerciseDescriptors";
 import { GradeStamp } from "@/components/GradeStamp";
 import { exerciseEvidenceCoverage } from "@/lib/evidenceCoverage";
 import { evidenceTraceability, logicCalibration } from "@/lib/evidenceTraceability";
@@ -276,6 +277,7 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
   const [showAllDimensions, setShowAllDimensions] = useState(false);
   const [showChart, setShowChart] = useState(false);
   const genome = useMemo(() => getExerciseGenome(exercise) as ExerciseGenome | undefined, [exercise]);
+  const descriptor = descriptorFor(catalogIdOf(exercise));
   const evidenceCoverage = useMemo(() => exerciseEvidenceCoverage(exercise), [exercise]);
   // The day's exercises the model can read. One the catalog does not hold has no profile to compare.
   const modelContext = useMemo<GenomeContext>(() => ({ ...context, currentWorkout: context.currentWorkout.filter((item) => getExerciseGenome(item)) }), [context]);
@@ -366,6 +368,12 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
       {!genome ? <p className="ei-empty">No mechanics are recorded for this exercise.</p> : <>
         <section className="ei-section" aria-labelledby="ei-movement-title">
           <h2 id="ei-movement-title" className="ei-section-title">How it moves</h2>
+          {/* An expansion record states its exact variation; kept behind a disclosure, one line each. */}
+          {descriptor && <details className="ei-disclosure ei-variation"><summary>How this variation is done<ChevronDown className="h-4 w-4" aria-hidden="true" /></summary><div>
+            <p>{descriptor.setup}</p>
+            <p><strong>Logged as:</strong> {descriptor.entryNote}</p>
+            <p><strong>Kept apart from:</strong> {descriptor.distinctFrom}</p>
+          </div></details>}
           <div className="ei-fact-block"><h3 className="ei-group-title">Movement pattern<HelpButton label="Movement pattern" onClick={learn("movementPattern")} /></h3><ul className="ei-chips">{genome.movementPatterns.map((pattern) => <li key={pattern}>{pattern}</li>)}</ul></div>
           <div className="ei-fact-block"><h3 className="ei-group-title">Joint actions<HelpButton label="Joint action" onClick={learn("jointAction")} /></h3><ul className="ei-chips ei-chips-soft">{genome.jointActions.map((action) => <li key={action}>{action}</li>)}</ul></div>
           <dl className="ei-facts">
@@ -376,9 +384,13 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
         </section>
         <section className="ei-section" aria-labelledby="ei-resistance-title">
           <h2 id="ei-resistance-title" className="ei-section-title">Resistance profile<HelpButton label="Resistance curve" onClick={learn("resistanceCurve")} /></h2>
-          <p className="ei-section-note">Relative challenge across one repetition, start to finish.</p>
-          <div className="ei-curve" role="img" aria-label={`Relative challenge from the start to the end of the repetition: ${genome.resistanceProfile.curve.join(", ")}`}>{genome.resistanceProfile.curve.map((value, index) => <span key={index} style={{ height: `${profileScore(value) ?? 0}%` }} />)}</div>
-          <div className="ei-curve-axis" aria-hidden="true"><span>Start</span><span>Finish</span></div>
+          {/* A hold has no repetition to draw, and a machine whose cam was never measured has no
+              curve worth drawing: say which, rather than show an invented shape (brief §12). */}
+          {genome.resistanceProfile.curve.length ? <>
+            <p className="ei-section-note">Relative challenge across one repetition, start to finish.</p>
+            <div className="ei-curve" role="img" aria-label={`Relative challenge from the start to the end of the repetition: ${genome.resistanceProfile.curve.join(", ")}`}>{genome.resistanceProfile.curve.map((value, index) => <span key={index} style={{ height: `${profileScore(value) ?? 0}%` }} />)}</div>
+            <div className="ei-curve-axis" aria-hidden="true"><span>Start</span><span>Finish</span></div>
+          </> : <p className="ei-section-note ei-curve-unavailable">{genome.resistanceProfile.bias === "Isometric" ? "No repetition curve: this exercise holds a position." : "No curve is shown: no source established one for this setup."}</p>}
           <dl className="ei-facts">
             <div><dt>Challenge bias<HelpButton label="Resistance bias" onClick={learn("resistanceBias")} /></dt><dd>{genome.resistanceProfile.bias}</dd></div>
             <div><dt>Likely sticking region<HelpButton label="Likely sticking region" onClick={learn("stickingRegion")} /></dt><dd>{genome.resistanceProfile.stickingRegion}</dd></div>
@@ -425,7 +437,7 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
         <p className="exercise-intelligence-tier-note">Catalog tier {exercise.muscleGrade} is a general label from the exercise catalog, not how closely this exercise matches a movement.</p>
       </section>
       {slots.evidence}
-      {genome && <p className="ei-confidence">Confidence: {genome.evidence.confidence} · {genome.evidence.quality}. {genome.evidence.note} Each number here comes from the exercise catalog — it is not a rating of your skill, performance, or strength.</p>}
+      {genome && <p className="ei-confidence">Model confidence: {genome.evidence.confidence} · {genome.evidence.quality} · Research behind it: {genome.evidence.sourceStrength.toLowerCase()}. {genome.evidence.note} Each number here comes from the exercise catalog — it is not a rating of your skill, performance, or strength.</p>}
     </div>}
     {learnedTerm && <GenomeLearnOverlay term={learnedTerm} onClose={() => setLearnedTerm(null)} />}
   </section>;

@@ -12,9 +12,15 @@ const sportTransferCategories = new Set(["Medicine ball", "Plyometric", "Conditi
  */
 const neckCategories = new Set(["Neck"]);
 
+/**
+ * Whether the name or movement says the exercise is one of these. "chin" is matched at the start of
+ * a word: as a bare substring it is inside "machine", which kept every machine press - the Machine
+ * Chest Press, the Smith presses, the Machine Shoulder Press - out of Push and Upper days
+ * (found by the 50-exercise brief's validator, 6 October 2026). The others keep their old reach.
+ */
 function includesMovement(exercise: Exercise, values: string[]) {
   const text = `${exercise.name} ${exercise.movement}`.toLowerCase();
-  return values.some((value) => text.includes(value));
+  return values.some((value) => value === "chin" ? /\bchin/.test(text) : text.includes(value));
 }
 
 export function matchesTrainingSplit(exercise: Exercise, split: TrainingSplit) {
