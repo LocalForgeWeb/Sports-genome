@@ -428,16 +428,20 @@ export function carriedEntryFor(
   setIndex: number,
   history: DeviceWorkoutSession[],
   entryUnit: DisplayWeightUnit = "lb",
-): { weight: string; reps: string; height: string; source: "session" | "history" } | null {
+): { weight: string; reps: string; height: string; source: "session" | "history"; logged?: { weight: string; unit: DisplayWeightUnit } } | null {
   for (let index = setIndex - 1; index >= 0; index--) {
     const set = exercise.sets[index];
     if (set.completed && (set.weight.trim() || set.reps.trim() || (set.height || "").trim())) {
-      return { weight: weightInUnit(set.weight, set.unit ?? entryUnit, entryUnit), reps: set.reps, height: set.height || "", source: "session" };
+      const unit = set.unit ?? entryUnit;
+      // Offered in this workout's unit; what was actually typed travels with it, so the line can say so (H08).
+      return { weight: weightInUnit(set.weight, unit, entryUnit), reps: set.reps, height: set.height || "", source: "session", ...(unit !== entryUnit && set.weight.trim() ? { logged: { weight: set.weight, unit } } : {}) };
     }
   }
   // A set from a session logged in the other unit is offered in this session's unit.
   const previous = lastCompletedSetFor(exercise, history, entryUnit);
-  return previous ? { weight: weightInUnit(previous.weight, previous.unit ?? entryUnit, entryUnit), reps: previous.reps, height: previous.height || "", source: "history" } : null;
+  if (!previous) return null;
+  const unit = previous.unit ?? entryUnit;
+  return { weight: weightInUnit(previous.weight, unit, entryUnit), reps: previous.reps, height: previous.height || "", source: "history", ...(unit !== entryUnit && previous.weight.trim() ? { logged: { weight: previous.weight, unit } } : {}) };
 }
 
 

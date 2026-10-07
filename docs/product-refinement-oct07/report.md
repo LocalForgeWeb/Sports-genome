@@ -57,6 +57,12 @@ The actions are **Done**, **View in Progress** and **See what's next**.
 - Logged weights, completions, timestamps and notes stay in history.
 - An exercise no longer in the catalog is named and left out.
 
+**One exercise's history.** The exercise detail now has a **Your history** section: that exercise's past workouts on this device, with dates and sets, each opening the workout.
+
+In a live workout, under "Last logged", **Earlier <exercise> workouts (N)** opens the same list. It is read-only, so it never changes the set being typed.
+
+"Last logged" now names the unit a set was logged in, for example "82.5 kg × 4 (181.88 lb in this workout's unit)", rather than showing only the converted number.
+
 ### 3. Home
 
 A **Last workout** row under "Your week" opens that exact workout's detail. It sits below the primary action, so a Resume button always comes first.
@@ -150,7 +156,7 @@ Its first run found three stabilizer mappings with no weight (Inverted Row, Feet
 
 **Typecheck and tests.**
 - `npx tsc --noEmit`: clean.
-- `npx vitest run`: 3067 passed, 6 skipped. The skipped ones are Supabase tests, which need credentials.
+- `npx vitest run`: 3069 passed, 6 skipped. The skipped ones are Supabase tests, which need credentials.
 - `npx vite build`: OK.
 
 **New test files.**
@@ -161,7 +167,7 @@ Its first run found three stabilizer mappings with no weight (Inverted Row, Feet
 - `rankRecommendations.test.ts`: rewritten for the new copy, plus snapshot, ID and generator tests.
 
 **Browser probes.**
-- `probes/recap-history.mjs`: 75/75 at 390, 320 and 1280 px, plus the Repeat journey at 390 px. Screenshots are in `evidence/`.
+- `probes/recap-history.mjs`: 85/85: 390, 320 and 1280 px; the Repeat journey and exercise history at 390 px; and 430 px and 390 px at 125% text. Screenshots are in `evidence/`.
 - Rank probe: 14/14, including Equipment and Back to Chest.
 - Earlier probes rerun against this build:
   - swap/drop: 44/44 after updating three selectors for this brief's changes;
@@ -173,7 +179,6 @@ Its first run found three stabilizer mappings with no weight (Inverted Row, Feet
 ## Not done, and risks
 
 **Not built.**
-- **Exercise-specific history screen** (H07). The record sheet in Strength remains that view.
 - **Weekly Review W-items** and **performance timing** (F01) were not audited this pass.
 
 **Limitations in what was built.**

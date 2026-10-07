@@ -14,6 +14,8 @@ import { addAfter, applySwap, assessSwap, canUndoSwap, catalogIdOf, swapNote, un
 import { dropSetLine, dropSetSummary, newStageId, performedSetLine, setVolume, stageLoadText, stageNote, stageProblem, volumeText } from "@/lib/dropSets";
 import { loadConventionFor } from "@shared/loadConventions";
 import { ExerciseSwapSheet, type ExerciseSwapChoice, type SwapPlanOption } from "@/components/ExerciseSwapSheet";
+import { ExerciseHistoryList } from "@/components/ExerciseHistoryList";
+import { exerciseHistoryCount } from "@/lib/sessionRecap";
 import { WorkoutSessionDetail } from "@/components/WorkoutSessionDetail";
 import { startOfTrainingWeek } from "@/lib/trainingWeekSummary";
 import { currentBodyWeightKg, loadBodyWeightLog } from "@/lib/bodyWeightLog";
@@ -1036,8 +1038,15 @@ export function DeviceWorkoutTracker({ workout, prescriptions, settings, goal, d
       </p>
       {/* Once a drop set has a stage, the last set's numbers are exactly what the next stage is not. */}
       {carried && activeStages.length === 0 && <p className="live-set-last">
-        {carried.source === "session" ? "Last set" : "Last logged"}: {activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}
+        {carried.source === "session" ? "Last set" : "Last logged"}: {carried.logged
+          ? <>{carried.logged.weight} {carried.logged.unit} × {carried.reps} <small>({carried.weight} {sessionUnit} in this workout's unit)</small></>
+          : <>{activeEntryFields.map((field) => `${carried[field.measure] || "—"} ${field.unit}`).join(" · ")} × {carried.reps}</>}
       </p>}
+      {/* "Last time" in full (H07): this exercise's earlier workouts, read-only, between sets. */}
+      {(() => { const entry = catalogFor(activeExercise); const pastCount = exerciseHistoryCount({ exerciseName: activeExercise.exerciseName, catalogId: activeExercise.catalogId ?? entry?.id }, history, activeSession.id); return pastCount > 0 ? <details className="live-set-history">
+        <summary>Earlier {activeExercise.exerciseName} workouts ({pastCount}) <ChevronRight className="h-4 w-4" aria-hidden /></summary>
+        <ExerciseHistoryList exerciseId={activeExercise.catalogId ?? entry?.id} exerciseName={activeExercise.exerciseName} weightUnit={sessionUnit} limit={3} excludeSessionId={activeSession.id} />
+      </details> : null; })()}
       {/* The photographs of the current exercise, collapsed: a reference to open between sets,
           never a frame the athlete must scroll past to log one. The set fields keep their values
           either way; this is a disclosure, not a route. */}

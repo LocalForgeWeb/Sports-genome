@@ -254,7 +254,7 @@ function movementLinkSummary(movementName: string | null, label: string, detail:
 const actionBoundary = "This says how the exercise relates to that action's movement record. It is not proof that training it improves your skill on the field.";
 
 /** Content the sheet that hosts the panel puts into its views: photographs, the anatomy, the sport card, the evidence. */
-export type GenomePanelSlots = { media?: ReactNode; profileFoot?: ReactNode; muscles?: ReactNode; sport?: ReactNode; evidence?: ReactNode };
+export type GenomePanelSlots = { media?: ReactNode; history?: ReactNode; profileFoot?: ReactNode; muscles?: ReactNode; sport?: ReactNode; evidence?: ReactNode };
 
 export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compactHead = false, tab: controlledTab, onTabChange, workoutLabel = "this workout", slots = {} }: {
   exercise: Exercise;
@@ -315,6 +315,8 @@ export function ExerciseGenomePanel({ exercise, context, supabaseEvidence, compa
         </dl>
       </section>
       {slots.media && <div className="ei-media">{slots.media}</div>}
+      {/* The athlete's own past with this exercise (H07), right under what it looks like. */}
+      {slots.history && <section className="ei-section ei-history" aria-labelledby="ei-history-title"><h2 id="ei-history-title" className="ei-section-title">Your history</h2>{slots.history}</section>}
       <section className="ei-profile" aria-labelledby="ei-profile-title">
         <div className="ei-section-head">
           <h2 id="ei-profile-title" className="ei-section-title">Profile</h2>
