@@ -373,5 +373,55 @@
     "name": "History is unchanged: no set, completion or timestamp copied or altered",
     "pass": true,
     "detail": ""
+  },
+  {
+    "name": "Last logged names the unit it was logged in, with the converted offer labelled (H08)",
+    "pass": true,
+    "detail": "Last logged: 82.5 kg × 4 (181.88 lb in this workout's unit)"
+  },
+  {
+    "name": "Logger offers \"Earlier Barbell Bench Press workouts (1)\"",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "…listing the earlier sets in the units they were logged in",
+    "pass": true,
+    "detail": "Earlier Barbell Bench Press workouts (1) Fri, Oct 2 · Push80 kg × 582.5 kg × 4"
+  },
+  {
+    "name": "…and looking back leaves the typed weight alone (H09)",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "Exercise detail shows Your history with that workout",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "…and a row opens that workout in Progress",
+    "pass": true,
+    "detail": "http://localhost:4173/?workspace=progress&session=past-bench"
+  },
+  {
+    "name": "430px: history list has no sideways scroll",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "430px: session detail has no sideways scroll and 44px controls",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390px at 125% text: history list has no sideways scroll",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "name": "390px at 125% text: session detail has no sideways scroll and 44px controls",
+    "pass": true,
+    "detail": ""
   }
 ]

@@ -463,19 +463,28 @@ export function carriedEntryFor(
   for (let index = setIndex - 1; index >= 0; index--) {
     const set = exercise.sets[index];
     if (set.completed && (set.weight.trim() || set.reps.trim() || (set.height || "").trim() || hasPerformedAmount(set) || (set.setting || "").trim())) {
-      return { weight: weightInUnit(set.weight, set.unit ?? entryUnit, entryUnit), reps: set.reps, height: set.height || "", ...carriedMeasures(set), source: "session" };
+      const unit = set.unit ?? entryUnit;
+      // Offered in this workout's unit; what was actually typed travels with it, so the line can say so (H08).
+      return { weight: weightInUnit(set.weight, unit, entryUnit), reps: set.reps, height: set.height || "", ...carriedMeasures(set), source: "session", ...loggedIn(set.weight, unit, entryUnit) };
     }
   }
   // A set from a session logged in the other unit is offered in this session's unit.
   const previous = lastCompletedSetFor(exercise, history, entryUnit);
-  return previous ? { weight: weightInUnit(previous.weight, previous.unit ?? entryUnit, entryUnit), reps: previous.reps, height: previous.height || "", ...carriedMeasures(previous), source: "history" } : null;
+  if (!previous) return null;
+  const unit = previous.unit ?? entryUnit;
+  return { weight: weightInUnit(previous.weight, unit, entryUnit), reps: previous.reps, height: previous.height || "", ...carriedMeasures(previous), source: "history", ...loggedIn(previous.weight, unit, entryUnit) };
 }
 
 /**
  * What the next set is offered beyond load and reps. The side is never carried: an athlete
- * working one side then the other would be offered the wrong one every second set.
+ * working one side then the other would be offered the wrong one every second set. `logged` is
+ * the load as it was typed, when that was in the other unit.
  */
-export type CarriedEntry = { weight: string; reps: string; height: string; seconds?: string; distance?: string; setting?: string; source: "session" | "history" };
+export type CarriedEntry = { weight: string; reps: string; height: string; seconds?: string; distance?: string; setting?: string; source: "session" | "history"; logged?: { weight: string; unit: DisplayWeightUnit } };
+
+function loggedIn(weight: string, unit: DisplayWeightUnit, entryUnit: DisplayWeightUnit): Pick<CarriedEntry, "logged"> {
+  return unit !== entryUnit && weight.trim() ? { logged: { weight, unit } } : {};
+}
 
 function carriedMeasures(set: DeviceSetLog): Pick<CarriedEntry, "seconds" | "distance" | "setting"> {
   return {

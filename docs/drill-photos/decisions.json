@@ -1,0 +1,1656 @@
+[
+ {
+  "key": "march-arm-swing",
+  "kind": "drill",
+  "name": "March with arm swing",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source photo shows a standing march with arm swing. Closest frames: Moving Claw Series (a walk, then a high-knee claw running drill); Step-up with Knee Raise (stepping onto a box and driving the knee, hands held at the chest); Walking, Treadmill (walking on a treadmill).",
+   "why": "The source has no march exercise. Moving Claw Series is a pawing sprint-form drill: frame 0 is a head-down walk and frame 1 is a claw/high-knee position, not a rhythmic march. Step-up with Knee Raise has a step and no arm swing. Walking, Treadmill uses a machine. Each one differs in action or equipment.",
+   "viewed": [
+    "Moving_Claw_Series",
+    "Step-up_with_Knee_Raise",
+    "Walking_Treadmill",
+    "Linear_Acceleration_Wall_Drill"
+   ]
+  }
+ },
+ {
+  "key": "easy-skip",
+  "kind": "drill",
+  "name": "Low amplitude skip",
+  "result": "photographed",
+  "source": "Fast_Skipping",
+  "curator": {
+   "proposed": "Fast_Skipping",
+   "confidence": "medium",
+   "photoShows": "Gym turf, side view. Frame 0: relaxed upright stance with one foot slightly forward and arms bent. Frame 1: a low skip. The feet are close together near the ground, one foot is touching down while the other lifts only slightly, the arms swing opposite to the legs, and the torso is upright.",
+   "why": "The source instructions describe a step-hop skip done 'maintaining close contact with the ground and reduce air time', which is a low-amplitude skip. Position (standing, travelling), equipment (none), action (skip, not a run or a high-knee A-skip) and body part (feet and calves) all match the drill. The only difference is tempo ('fast' versus easy), and a still photo cannot show tempo. The pattern and amplitude are the same.",
+   "viewed": [
+    "Fast_Skipping",
+    "Moving_Claw_Series",
+    "Rope_Jumping",
+    "Carioca_Quick_Step"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. The set-up matches: standing, travelling forward on turf, no equipment or support. Frame 1 shows a skip kept close to the ground. The front foot is planted under the body, the rear leg lifts only a few inches with a bent knee, there is no high knee drive and no visible flight, the arms swing opposite the legs and the torso stays upright. That is the low-amplitude version, not a power or A-skip with big knee drive. The source's own instructions say to 'maintain close contact with the ground and reduce air time', which fits the cue to stay light and keep contacts quiet. The source is 'fast' and the drill is easy, but that is a tempo difference, not a different position or pattern. One caveat: the still frames cannot show forefoot contact (the planted foot looks fairly flat) and could be read as a short jog stride. With the drill name and cue alongside, someone copying them would still perform a low skip."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. The athlete is standing on open turf with no equipment, and he moves forward between the frames, so it is a travelling drill as the 2 x 15 m dose needs. Frame 1 shows a low skip contact. The support foot lands on the forefoot with the heel just off the turf. The other foot only clears the ground slightly behind, with a soft bent knee. The arms swing opposite the legs and the trunk stays upright. There is no high knee drive, no bound and no visible flight. The source's own instruction is a step-hop skip 'maintaining close contact with the ground and reduce air time', which is exactly a low-amplitude skip. Copying these frames gives a quiet, forefoot-light low skip, not a high skip, A-skip, bound or march. The word 'fast' in the source is about tempo, which a still frame cannot show; the pattern and amplitude match the cue. The one limit is that a still image cannot show the hop, so frame 1 alone could pass for a jog stride. That is inherent to stills and does not contradict the drill."
+   }
+  ]
+ },
+ {
+  "key": "lateral-shuffle-reach",
+  "kind": "drill",
+  "name": "Lateral shuffle with reach",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source photo shows a lateral shuffle with an arm reach. Closest frames: Side to Side Box Shuffle (feet alternating on top of a box); Lateral Cone Hops (two-foot hops over cones); Monster Walk (band around the ankles, hands on hips).",
+   "why": "Side to Side Box Shuffle needs a box and is a crossover jump onto it. Lateral Cone Hops are two-footed hops over cones. Monster Walk is a slow banded walk with no shuffle and no reach. None of them shows a free athletic-stance shuffle with a reach. The equipment and the action both differ.",
+   "viewed": [
+    "Side_to_Side_Box_Shuffle",
+    "Lateral_Cone_Hops",
+    "Monster_Walk",
+    "Single-Cone_Sprint_Drill"
+   ]
+  }
+ },
+ {
+  "key": "carioca",
+  "kind": "drill",
+  "name": "Carioca hip switch",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "Carioca Quick Step, front view on indoor turf. Frame 0: standing tall with feet a few inches apart and one arm raised. Frame 1: the right leg kicked back and flexed behind the body on its own side, the left leg planted, and the arms pumping. No crossover of the feet and no pelvic rotation is visible.",
+   "why": "The app drill is a classic carioca: lateral travel with the trailing leg crossing alternately in front and behind, and the pelvis rotating while the chest stays tall. The source 'Carioca Quick Step' is a different quick-feet drill: step behind, then pull the knee straight up, and explicitly 'avoid turning your feet'. Its frames show no crossover step and no hip rotation, so they would not teach the hip-switch action. This is a near miss with a similar name, not a match.",
+   "viewed": [
+    "Carioca_Quick_Step",
+    "Side_to_Side_Box_Shuffle",
+    "Single-Cone_Sprint_Drill"
+   ]
+  }
+ },
+ {
+  "key": "backpedal-march",
+  "kind": "drill",
+  "name": "Backpedal to march",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source exercise shows a backpedal or a backward run finishing in a march. The only backward-travel item is Sled Overhead Backward Walk, which uses a sled and is not viewed as plausible. Gait photos viewed (Moving Claw Series, Fast Skipping, Trail Running/Walking) all travel forward.",
+   "why": "No backpedal exists in the source. A forward run, skip or march photo would show the wrong direction and the wrong action. Sled walks add equipment.",
+   "viewed": [
+    "Moving_Claw_Series",
+    "Fast_Skipping",
+    "Trail_Running_Walking",
+    "Walking_Treadmill"
+   ]
+  }
+ },
+ {
+  "key": "pogo-pulse",
+  "kind": "drill",
+  "name": "Ankle pogo pulse",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source photo shows small, stiff-ankle, in-place bounces with no equipment. Closest: Rope Jumping (bouncing on the forefoot while turning a jump rope); Lateral Cone Hops (larger tucked hops travelling over cones).",
+   "why": "Rope Jumping has the right small forefoot bounce but adds a jump rope, and the equipment must match. Cone or hurdle hops are bigger travelling hops over obstacles, not a pogo pulse. The source has no unloaded, equipment-free ankle pogo.",
+   "viewed": [
+    "Rope_Jumping",
+    "Lateral_Cone_Hops",
+    "Fast_Skipping"
+   ]
+  }
+ },
+ {
+  "key": "low-skip",
+  "kind": "drill",
+  "name": "A-skip rhythm drill",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "No source photo shows an A-skip (thigh driven to about hip height with a dorsiflexed foot during a skip). Fast Skipping frame 1 shows a low skip with minimal knee lift. Moving Claw Series frame 1 shows a high knee, but frame 0 is a walk and the drill is a pawing claw run. Linear Acceleration Wall Drill shows a knee drive while leaning against a wall.",
+   "why": "The A-skip's defining feature is the high knee drive inside a skip rhythm. Fast Skipping is deliberately low-amplitude with no knee drive. Moving Claw Series is a different sprint-form drill (heel to glute, then claw down) and its pair is a walk plus a knee position. The wall drill is a supported lean (different support and position). Each is a different drill for the same region.",
+   "viewed": [
+    "Fast_Skipping",
+    "Moving_Claw_Series",
+    "Linear_Acceleration_Wall_Drill",
+    "Step-up_with_Knee_Raise"
+   ]
+  }
+ },
+ {
+  "key": "build-up-run",
+  "kind": "drill",
+  "name": "Progressive build-up run",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "Trail Running/Walking: a runner on an outdoor dirt trail, front view then side view, two different scenes. Running, Treadmill: running on a treadmill, seen from behind and from the side. Single-Cone Sprint Drill: quick foot chops around a cone.",
+   "why": "No source photo shows a straight-line acceleration run on flat ground. The treadmill run uses a machine (wrong support). The trail run is endurance trail running or hiking on uneven terrain, shot as two unrelated scenes, not a rehearsal stride. The cone drill is a circling footwork drill. These are similar-looking photos of other activities, so the result is none.",
+   "viewed": [
+    "Trail_Running_Walking",
+    "Running_Treadmill",
+    "Single-Cone_Sprint_Drill",
+    "Moving_Claw_Series"
+   ]
+  }
+ },
+ {
+  "key": "ankle-rock",
+  "kind": "drill",
+  "name": "Half-kneeling ankle rock",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows it. The closest, Kneeling_Hip_Flexor, shows a long half-kneeling lunge with the back knee on a pad, hands on hips, the front shin about vertical and a small forward weight shift for a hip flexor stretch.",
+   "why": "The drill is a short half-kneeling stance with the front knee driven well past the toes and the front heel kept down, which loads the front ankle and soleus. Kneeling_Hip_Flexor is a different drill for a different region: a long stance with the front shin near vertical, so the photo never shows ankle dorsiflexion range. Standing_Soleus_And_Achilles_Stretch is standing in a split stance, not half-kneeling, and it is a static stretch for the back leg. The source has no half-kneeling ankle mobilization.",
+   "viewed": [
+    "Kneeling_Hip_Flexor",
+    "Standing_Soleus_And_Achilles_Stretch",
+    "Calf_Stretch_Hands_Against_Wall"
+   ]
+  }
+ },
+ {
+  "key": "knee-wall",
+  "kind": "drill",
+  "name": "Knee-to-wall dorsiflexion",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Wall candidates show a straight back leg calf stretch with the hands on the wall (Calf_Stretch_Hands_Against_Wall) and a lean with both feet back and the forearms on the wall (Calf_Stretch_Elbows_Against_Wall). Standing_Soleus_And_Achilles_Stretch shows a split stance with both knees bent and no wall.",
+   "why": "The drill puts the front foot a few inches from a wall and drives the front knee forward to touch the wall with the heel down, which tests the front ankle. None of the candidates shows this. The wall stretches lengthen the back leg's gastrocnemius with a straight knee, far from the wall. The soleus stretch has no wall and works the back leg. All are static calf stretches of a different leg, position and action, so using one would teach the wrong movement.",
+   "viewed": [
+    "Calf_Stretch_Hands_Against_Wall",
+    "Calf_Stretch_Elbows_Against_Wall",
+    "Standing_Soleus_And_Achilles_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "ankle-circle",
+  "kind": "drill",
+  "name": "Single-leg ankle circles",
+  "result": "photographed",
+  "source": "Ankle_Circles",
+  "curator": {
+   "proposed": "Ankle_Circles",
+   "confidence": "high",
+   "photoShows": "A close-up of the lower legs and feet, standing with no equipment. The left foot stays planted while the right foot is lifted a couple of inches off the floor and circles at the ankle. In frame 0 the toes point up with the sole showing (dorsiflexed). In frame 1 the toes point down and across (plantarflexed). The shin stays still, so the motion comes from the ankle.",
+   "why": "Same drill. The body position matches: standing on one leg with the other foot free. No equipment is needed; the source suggests holding a rack, but none shows in the cropped photo. The action is a circle drawn with the foot, and the moving part is the ankle. The source instructions describe single-leg ankle circles: lift one foot about 2 inches and draw a circle with the big toe. The frames show the circle coming from the ankle, which fits the cue about not twisting the knee.",
+   "viewed": [
+    "Ankle_Circles",
+    "Knee_Circles"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. They are a close-up from the shins down. The person stands on the floor with no visible equipment, and one foot (the subject's right) is lifted a couple of inches. The other foot stays flat. Frame 0 shows the lifted foot dorsiflexed, toes up with the sole facing the camera. Frame 1 shows it plantarflexed and turned in, toes pointing down and across. Those are opposite points of a circle, not a straight up-and-down ankle pump. The lifted shin stays vertical and in the same place in both frames, so the motion comes from the ankle, which is what the cue 'Move from the ankle rather than twisting the knee' asks for. The position (standing, single leg), the support (none needed), the body part (ankle), the action (circling, not holding) and the laterality (one leg at a time) all match a standing single-leg ankle circle. The source text says to hold a squat rack for balance, but the close-up doesn't show the hands. The drill doesn't require hand support or forbid it, so nothing in the frames conflicts with the drill. Someone copying these frames would do the named drill correctly."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I looked at both frames. It's a close-up of the lower legs, standing, with no equipment in shot. The left foot (image right) stays planted. The right foot (image left) is lifted a couple of inches off the floor. In frame 0 the ankle is dorsiflexed, with the toes up and the sole toward the camera. In frame 1 the ankle is plantarflexed and the foot has swung down and medially. The shin stays close to vertical and the knee shows no visible twist, so the motion comes from the ankle, as the cue asks. The two frames are roughly opposite points of one ankle circle, not a single flex-point line. The name 'circles' and the 'each direction' dose make the circular path clear. Copying it gives the named drill: single-leg, standing, ankle-only circles. The source also suggests holding a rack for balance. That support is out of frame and the drill doesn't forbid it, so it doesn't conflict. Minor caveat: two stills can't show the full circle, so the cue or name has to carry it. The photos themselves don't contradict it."
+   }
+  ]
+ },
+ {
+  "key": "heel-toe-walk",
+  "kind": "drill",
+  "name": "Heel-to-toe walk",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Only general locomotion photos exist. Trail_Running_Walking shows a man running on a dirt trail. Walking_Treadmill is a cardio machine. No source shows a slow walk that deliberately rolls from heel to toe.",
+   "why": "The drill is a controlled walk that rolls from heel strike to toe-off to work the tibialis and calves. Trail_Running_Walking shows running, which is a different action. A treadmill walk is a machine cardio exercise, not this drill. The source has no heel-walk, toe-walk or heel-to-toe drill.",
+   "viewed": [
+    "Trail_Running_Walking"
+   ]
+  }
+ },
+ {
+  "key": "tibialis-raise",
+  "kind": "drill",
+  "name": "Tibialis wall raise",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "The only toe-raise sources are loaded and machine-based. Rocking_Standing_Calf_Raise has a barbell on the back in a rack and rocks between heels and toes. Smith_Machine_Reverse_Calf_Raises has a Smith bar on the back with the heels on a platform.",
+   "why": "The drill is done standing with the back against a wall and the feet in front, lifting the toes with body weight and the wall as support. Both candidates use a barbell or Smith bar and no wall. Rocking_Standing_Calf_Raise also alternates calf raises with toe raises, and its frames mostly show heel raises. Implement, support and action all differ. No source shows a bodyweight wall-supported toe raise.",
+   "viewed": [
+    "Rocking_Standing_Calf_Raise",
+    "Smith_Machine_Reverse_Calf_Raises"
+   ]
+  }
+ },
+ {
+  "key": "calf-raise-walk",
+  "kind": "drill",
+  "name": "Calf-raise walk",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Every calf raise source is stationary: dumbbells on a board (Standing_Dumbbell_Calf_Raise), a barbell in a rack (Rocking_Standing_Calf_Raise), a Smith machine, a calf machine or bands. No source shows walking on the balls of the feet.",
+   "why": "The drill is walking on the toes with heels high for slow steps, so it is a locomotion action. The candidates are calf raises done in place, mostly with external load, which breaks the rule that a walk is not a stationary move. No source shows a toe walk or calf-raise walk.",
+   "viewed": [
+    "Standing_Dumbbell_Calf_Raise",
+    "Rocking_Standing_Calf_Raise",
+    "Smith_Machine_Reverse_Calf_Raises",
+    "Trail_Running_Walking"
+   ]
+  }
+ },
+ {
+  "key": "quadruped-hip-circle",
+  "kind": "drill",
+  "name": "Quadruped hip circle",
+  "result": "photographed",
+  "source": "Hip_Circles_prone",
+  "curator": {
+   "proposed": "Hip_Circles_prone",
+   "confidence": "high",
+   "photoShows": "Frame 0: athlete on all fours (hands under shoulders, both knees on the floor, neutral back). Frame 1: same quadruped base with one bent knee lifted and swung out and back, partway through the circle.",
+   "why": "Same position (quadruped), no equipment, same action (the bent knee draws a circle at the hip) and same moving part (the femur at the hip). The source's instructions describe exactly this: from hands and knees, lift one bent knee and rotate the femur in a big circle, then switch sides. The back stays flat in both frames, which fits the cue. Standing_Hip_Circles is the standing version and was rejected because the position differs.",
+   "viewed": [
+    "Hip_Circles_prone",
+    "Standing_Hip_Circles"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames, and the set-up matches the drill. Frame 0 shows a quadruped on the floor with no equipment: hands under shoulders, both knees down, neutral spine. Frame 1 keeps the same base while one bent knee is lifted out to the side and slightly back, part-way around the arc. Body position (all fours), support (bare floor), the part moving (femur, with the knee as the pointer), laterality (one side at a time) and range all fit 'Quadruped hip circle'. The trunk and hands stay planted and the low back stays fairly neutral, which matches the cue to keep the low back quiet. This is not the standing version (Standing_Hip_Circles), not a held stretch, and not a different hip drill. Two still frames cannot show the full circle, so frame 1 could be read alone as a fire-hydrant abduction. The item's name and the source's own instructions ('rotate the femur in an arc ... big circle with your knee') settle that, so the photo would not teach the wrong movement."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. This source is the quadruped hip circle itself. Its own instructions say to get on hands and knees, lift one bent knee and move the femur in a big arc, then switch sides. Frame 0 shows the all-fours base: hands on the floor under the shoulders, both knees down, flat back. In frame 1 the base is the same, the near knee stays bent and is lifted off the floor and out to the side into abduction, and the trunk and pelvis stay level. That is one point on the circle. The two frames match the drill on every point: same position (quadruped), no equipment, same body part (femur moving at the hip) and one side at a time. The only thing to watch is that a still frame can't show a circle. Copying frame 1 alone could look like a fire-hydrant lift. With the name and the 'femur explores the range' cue, though, the photo leads to the circle with a quiet low back, not to a similar but different drill. It is not the standing version (Standing_Hip_Circles), which is a separate drill."
+   }
+  ]
+ },
+ {
+  "key": "hip-airplane",
+  "kind": "drill",
+  "name": "Supported hip airplane",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a single-leg hinge with the pelvis rotating open and closed over the stance hip while holding a support.",
+   "why": "The source has no hip airplane. Closest candidates: Kettlebell_One-Legged_Deadlift is a single-leg hinge holding a kettlebell, with no support and no pelvic rotation, so the equipment and action differ. Standing_Hip_Circles is upright on one leg, circling a raised knee, which is a different drill. Name, keyword ('airplane', 'rotate') and instruction-text searches found nothing else.",
+   "viewed": [
+    "Kettlebell_One-Legged_Deadlift",
+    "Standing_Hip_Circles"
+   ]
+  }
+ },
+ {
+  "key": "ninety-ninety",
+  "kind": "drill",
+  "name": "90/90 hip transition",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "The only '90/90' source (90_90_Hamstring) shows the athlete lying supine, holding one thigh at 90 degrees and straightening that knee toward the ceiling.",
+   "why": "90_90_Hamstring is a supine active hamstring stretch, not a seated 90/90 hip switch. Position (supine vs seated), action (knee extension vs windshield-wiper hip rotation) and target all differ. Seated alternatives (Seated_Glute, Groin_and_Back_Stretch, Seated_Floor_Hamstring_Stretch) are partner, butterfly or hamstring stretches with no 90/90 leg position or switching.",
+   "viewed": [
+    "90_90_Hamstring",
+    "Groin_and_Back_Stretch",
+    "Seated_Floor_Hamstring_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "shin-box-getup",
+  "kind": "drill",
+  "name": "Shin-box get-up",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a shin-box (90/90) sit rising through the knees to kneeling or standing.",
+   "why": "No shin-box or get-up-from-90/90 exercise exists in the source. 'Shin', 'box' and 'get-up' only return Turkish get-ups (kettlebell overhead, a different pattern) and box jumps or box squats. 90_90_Hamstring is supine and unrelated.",
+   "viewed": [
+    "90_90_Hamstring"
+   ]
+  }
+ },
+ {
+  "key": "frog-rock",
+  "kind": "drill",
+  "name": "Adductor frog rock",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a wide-knee quadruped/frog position rocking the hips back and forth.",
+   "why": "Every adductor or groin source is a different position or action. Groin_and_Back_Stretch is seated with soles together, curling the trunk down. Adductor_Groin is supine with a partner holding the legs apart. Lying_Bent_Leg_Groin is a supine partner butterfly. Hip_Circles_prone is quadruped but knees narrow, circling one knee. Frog_Hops is a jumping drill. None shows the frog position with a rock back.",
+   "viewed": [
+    "Groin_and_Back_Stretch",
+    "Adductor_Groin",
+    "Hip_Circles_prone"
+   ]
+  }
+ },
+ {
+  "key": "adductor-rockback",
+  "kind": "drill",
+  "name": "Half-kneeling adductor rock-back",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows half-kneeling with the free leg straight out to the side and the hips shifting back.",
+   "why": "Kneeling_Hip_Flexor is half-kneeling but in a sagittal lunge (front foot forward, back knee down), shifting the hips forward into a hip-flexor stretch. The leg position and direction of movement differ, and neither frame shows a lateral leg or a rock-back. Intermediate_Groin_Stretch is supine with a band. Seated_Floor_Hamstring_Stretch is seated. None matches.",
+   "viewed": [
+    "Kneeling_Hip_Flexor",
+    "Seated_Floor_Hamstring_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "cossack-shift",
+  "kind": "drill",
+  "name": "Cossack squat shift",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "The closest source (Barbell_Side_Split_Squat) shows a wide stance under a loaded back-squat barbell, sinking toward one bent leg while the other leg stays nearly straight.",
+   "why": "Barbell_Side_Split_Squat has the same lateral side-to-side squat pattern, but the athlete carries a barbell on his back, while the Cossack shift is unloaded bodyweight mobility. The equipment mismatch disqualifies it under the rules. No bodyweight lateral or Cossack squat exists in the source; 'cossack' returns 0 hits, and Plie_Dumbbell_Squat and Sit_Squats are bilateral squats.",
+   "viewed": [
+    "Barbell_Side_Split_Squat"
+   ]
+  }
+ },
+ {
+  "key": "split-hip-flexor",
+  "kind": "drill",
+  "name": "Split-stance hip flexor pulse",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": "Standing_Hip_Flexors",
+   "confidence": "medium",
+   "photoShows": "Frame 0: standing tall, side view, feet staggered (one foot slightly ahead), no equipment, hands at sides. Frame 1: long standing split stance, rear heel up, both knees bent, rear hip in extension (rear thigh behind the trunk line), trunk near-upright with a slight forward lean and head down, hands by the thighs. Bodyweight, on a mat.",
+   "why": "Same position (standing split stance, not kneeling), same equipment (none), same region (rear-leg hip flexors). The source's own instruction is the drill's action: 'bend both knees and lift the back heel off the floor as you press the hip forward', so the pair shows the drill's start and its end range. The drill's tags have no overhead component (unlike half-kneel-reach), so 'reach tall' reads as a posture cue and nothing defining is missing. Caveats a verifier should weigh: frame 0's stagger is shorter than frame 1's stance, so the pair can read slightly like stepping into a lunge; frame 1 shows a deeper range than a small pulse; the trunk leans a little forward. Downgrade to none if 'tall, tucked trunk' is treated as defining. The other candidates fail on position: Kneeling_Hip_Flexor (half-kneeling), Worlds_Greatest_Stretch (frame 1 is an elbow drop), Crossover_Reverse_Lunge (rotation), Split_Squats (jumping switch).",
+   "viewed": [
+    "Standing_Hip_Flexors",
+    "Kneeling_Hip_Flexor",
+    "Worlds_Greatest_Stretch",
+    "Crossover_Reverse_Lunge"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "refute",
+    "reason": "I viewed both frames. They don't show a pulse done in a fixed split stance. In frame 0 he stands tall with only a short stagger: the rear foot sits about 59% of the way along the mat, roughly a foot-length behind the front foot. That is not a split stance. In frame 1 the rear foot has stepped back to about 89% of the mat while the front foot stays near 25-29%, so the stance roughly doubles in length. He has also sunk into a deep lunge: front thigh near parallel, rear knee bent hard and only a few inches off the mat, trunk tipped slightly forward with the chin down. Someone copying these two frames would step back and drop into the bottom of a reverse lunge or split squat. The drill keeps the feet planted in a long split stance and makes small rhythmic forward presses of the pelvis while the trunk stays tall. Both the stance set-up and the range differ (stationary drill shown as a step-and-sink), and the head-down forward lean works against the 'reach tall' cue. A different, deep-lunge stretch photo is not this drill."
+   },
+   {
+    "lens": "action",
+    "verdict": "refute",
+    "reason": "The two frames do not show a pulse inside a fixed split stance. They show the athlete stepping from a short stance into a deep lunge. In frame 0 he stands tall in a short stagger, rear heel flat, feet about 0.3 of the mat length apart. In frame 1 the rear foot has moved far back: the gap is about 0.6 of the mat length, scaled against the mat. The rear heel is up, the front knee is bent to about 90 degrees and the rear knee hovers just above the mat. So the movement between frames is a step back and a drop into a low lunge, which is a reverse lunge or deep lunge stretch, not small rhythmic hip-forward pulses from a set split stance. Frame 1 also goes against the cue: the trunk leans forward and the head is down, with no tall posture or reach (the arms hang by the thighs), and no pelvic tuck is visible. Copying these frames would teach a lunge, not a split-stance hip flexor pulse. Frame 1 also goes well beyond the source's own instructions ('left foot slightly in front', 'can't get a thorough, deep stretch in this position')."
+   }
+  ]
+ },
+ {
+  "key": "half-kneel-reach",
+  "kind": "drill",
+  "name": "Half-kneeling hip flexor reach",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Closest is Kneeling_Hip_Flexor: half-kneeling on a pad, hands on hips, the same forward-shifted hold in both frames, with no arm movement.",
+   "why": "The drill's defining feature is the arm reaching overhead (cue: 'as the arm reaches overhead'; regions include lats). Kneeling_Hip_Flexor has the right half-kneeling position, but both frames show a hands-on-hips static hold with no overhead reach, which the rules exclude. Worlds_Greatest_Stretch is a lunge with the rear knee off the floor and an elbow drop. Standing_Hip_Flexors is standing. Intermediate_Hip_Flexor_and_Quad_Stretch is a prone belt stretch. The overhead stretches in the source (Overhead_Stretch, Upward_Stretch, Standing_Lateral_Stretch) are not half-kneeling. No source shows half-kneeling with an overhead reach.",
+   "viewed": [
+    "Kneeling_Hip_Flexor",
+    "Worlds_Greatest_Stretch",
+    "Standing_Hip_Flexors"
+   ]
+  }
+ },
+ {
+  "key": "hamstring-sweep",
+  "kind": "drill",
+  "name": "Walking hamstring sweep",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "Closest is Runners_Stretch. Frame 0: standing tall, side view. Frame 1: stationary staggered stance, front heel down with toes up, back knee slightly bent, trunk folded with a clearly rounded back, both hands clasping the front ankle and held there.",
+   "why": "The drill is a walking, dynamic sweep: step out, hinge from the hips, sweep the hands past the front foot, rise and step forward. Runners_Stretch frame 1 has a similar foot set-up but shows a static hold gripping the ankle with a rounded spine rather than a hip hinge. That would teach holding and rounding, not a walking sweep. Its source text also describes a different, hands-on-floor runner's lunge. Standing_Toe_Touches is a two-foot static forward fold. Standing_Hamstring_and_Calf_Stretch is a static strap stretch. Inchworm walks the hands out to a plank. Front_Leg_Raises is a leg swing. None shows the walking sweep.",
+   "viewed": [
+    "Runners_Stretch",
+    "Standing_Toe_Touches",
+    "Standing_Hamstring_and_Calf_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "single-rdl-reach",
+  "kind": "drill",
+  "name": "Single-leg RDL reach",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Closest is Kettlebell_One-Legged_Deadlift. Frame 0: standing, walking toward camera, kettlebell in one hand. Frame 1: single-leg hinge placing the kettlebell on the floor, rear leg lifted with the knee clearly bent, and the pelvis and trunk rotated open.",
+   "why": "The drill is an unloaded single-leg RDL reach. The only single-leg RDL in the source has a kettlebell in hand, and equipment must match (none vs kettlebell). Frame 1 also contradicts the cue: the rear leg is bent instead of reaching long through the heel, and the hips are rotated open instead of square. No bodyweight single-leg hinge exists in the source (searched one-leg, single leg, deadlift, hinge, balance). Leg_Lift is a supported standing leg curl, a different action.",
+   "viewed": [
+    "Kettlebell_One-Legged_Deadlift",
+    "Leg_Lift"
+   ]
+  }
+ },
+ {
+  "key": "glute-bridge-march",
+  "kind": "drill",
+  "name": "Glute bridge march",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Single_Leg_Glute_Bridge: supine, one leg held straight up throughout; frame 0 has the hips on the floor, frame 1 has them raised. Butt_Lift_Bridge and Pelvic_Tilt_Into_Bridge: two-foot bridge from the floor to hips up.",
+   "why": "A bridge march holds the hips up on both feet while alternately lifting one bent knee, keeping the pelvis level. Single_Leg_Glute_Bridge raises and lowers the hips with a straight leg held in the air, so the action differs: hips move and legs do not alternate. Butt_Lift_Bridge and Pelvic_Tilt_Into_Bridge are plain two-foot bridges, the base movement without the march, which the rules forbid proposing. The word 'march' appears nowhere in the source.",
+   "viewed": [
+    "Single_Leg_Glute_Bridge",
+    "Butt_Lift_Bridge",
+    "Pelvic_Tilt_Into_Bridge"
+   ]
+  }
+ },
+ {
+  "key": "band-lateral-walk",
+  "kind": "drill",
+  "name": "Band lateral walk",
+  "result": "photographed",
+  "source": "Monster_Walk",
+  "curator": {
+   "proposed": "Monster_Walk",
+   "confidence": "medium",
+   "photoShows": "Front view, mini-band around both ankles, hands on hips, toes pointing forward in both frames. Frame 0: wide lateral stance in a slight quarter-squat with the band stretched. Frame 1: trailing foot brought in to a narrow stance (band still taut). The body has shifted sideways toward image-right, and its distance from the camera is essentially unchanged.",
+   "why": "Standing, mini-band at the ankles, toes forward, side-step out then trailing foot in: these are the two positions of a band lateral walk, and abductors are the primary muscle. The source text describes forward steps, but the frames show a lateral step. The torso moves about 30 px sideways between frames, the feet stay at the same depth, and there is no size or perspective change that forward walking would produce. So the photos depict the lateral walk, not a forward monster walk. Caveats: frame 1's feet come closer together than ideal for even band tension, and the source text disagrees with the photos. Band_Hip_Adductions is an anchored-band adduction, not a walk.",
+   "viewed": [
+    "Monster_Walk"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames and the raw images. Front view, standing, a mini-band looped around both ankles (no knee band visible), hands on hips, toes pointing essentially forward. Frame 0 shows a wide stance with slightly bent knees and a taut band. In frame 1 the image-left foot has come in to a narrow stance and the band is still taut. After allowing for the camera's roughly 25 px pan (seen in the wall-panel seams), the image-right foot stays put, the image-left foot moves in about 100 px, and the body shifts sideways. Head size and floor line barely change, so this is a lateral step pattern, not the forward monster walk the source's text describes. Copying it gives a band lateral walk: same position, same equipment and support, same action, same body part. One small set-up difference: frame 1 is more upright, with knees nearly straight, where coaches usually hold a quarter squat. That doesn't make it a different drill or break the cue (toes forward, band tension kept)."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "Despite the source's name and text (a forward/backward monster walk), the photos show a lateral band walk. Front view; a mini-band sits around the ankles in both frames; hands on hips; toes point forward (a slight natural turn-out at most). Camera depth is unchanged: the floor line and the feet sit at the same height in the image, so there is no forward walking. Between frames the image-left foot moves about 80 px toward the other foot, which stays nearly in place (about 15 px of shift). The body's centre moves about 50 px sideways. That is a side-step with the trailing foot following, and the band stays taut in the narrow stance. Copying the frames gives a band lateral walk with even tension and toes forward. Minor note: frame 1 is more upright than frame 0's quarter-squat, so a coach may want to cue staying low between steps. It does not change the drill."
+   }
+  ]
+ },
+ {
+  "key": "reverse-lunge-drive",
+  "kind": "drill",
+  "name": "Reverse lunge to knee drive",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a bodyweight reverse lunge that finishes with a knee drive. Crossover_Reverse_Lunge: both frames show the bottom of a bodyweight rear lunge, the second with the torso rotated across the front leg, and there is no knee drive. Dumbbell_Rear_Lunge: standing with dumbbells, then a rear-lunge bottom. Step-up_with_Knee_Raise: a box step-up, then a standing knee raise.",
+   "why": "The drill is a bodyweight reverse lunge followed by driving the rear knee up to a single-leg balance. Crossover_Reverse_Lunge has the right lunge and no equipment, but its action is a torso rotation at the bottom and it has no knee-drive frame. Dumbbell_Rear_Lunge adds dumbbells and has no knee drive. Step-up_with_Knee_Raise has the knee drive, but out of a box step-up rather than a reverse lunge. Searches for lunge, knee, drive and step found nothing else.",
+   "viewed": [
+    "Crossover_Reverse_Lunge",
+    "Dumbbell_Rear_Lunge",
+    "Step-up_with_Knee_Raise"
+   ]
+  }
+ },
+ {
+  "key": "squat-pry",
+  "kind": "drill",
+  "name": "Bodyweight squat pry",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Goblet_Squat (kettlebell): standing holding a kettlebell at the chest, then a deep squat with the elbows inside the knees. Bodyweight_Squat: hands behind the head, standing, then a parallel squat with no pry. Sit_Squats: arms out in front, partial squat. Groin_and_Back_Stretch: seated butterfly, curling the elbows down to the thighs.",
+   "why": "The drill is a deep bodyweight squat in which the elbows pry the knees apart. Only Goblet_Squat shows the pry (its instructions say to use the elbows to push the knees out at the bottom), but it holds a kettlebell, and the drill is named bodyweight, so the equipment does not match. Bodyweight_Squat and Sit_Squats are bodyweight but show no elbow pry: the hands are behind the head or held out in front. Groin_and_Back_Stretch is seated. No source shows an unloaded deep squat pry.",
+   "viewed": [
+    "Goblet_Squat",
+    "Bodyweight_Squat",
+    "Sit_Squats",
+    "Groin_and_Back_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "tempo-squat",
+  "kind": "drill",
+  "name": "Tempo bodyweight squat",
+  "result": "photographed",
+  "source": "Bodyweight_Squat",
+  "curator": {
+   "proposed": "Bodyweight_Squat",
+   "confidence": "high",
+   "photoShows": "Frame 0: standing tall, feet shoulder width, hands behind the head, no equipment. Frame 1: the bottom of a bodyweight squat, thighs about parallel, knees tracking over the toes, whole foot flat, chest up.",
+   "why": "Both are a standing bodyweight squat: same position, no equipment, same squat pattern and range, with the whole foot on the floor as the cue asks. The three-second lowering is a speed prescription that no photo can show, and it changes neither the position nor the movement. Sit_Squats was rejected: it is a partial squat above parallel, reversed quickly, with the arms out in front, so it does not show a full squat.",
+   "viewed": [
+    "Bodyweight_Squat",
+    "Sit_Squats",
+    "Goblet_Squat"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. The position and set-up match: standing, feet about shoulder width, no equipment, hands behind the head. Frame 1 is the bottom of a bodyweight squat, thighs about parallel, knees over the toes, both heels and the whole foot flat, chest up. That is the cue's 'whole foot connected'. The three-second descent is a timing instruction a photo cannot show, and nothing in the frames contradicts it. The hands-behind-head arm position comes from the source's own instructions and does not change the squat pattern. Someone copying these frames would do a bodyweight squat to parallel, so the tempo version is fully represented."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. Frame 0 shows him standing tall, feet about shoulder width, hands behind the head, no equipment. Frame 1 shows the same man at the bottom of a bodyweight squat: thighs about parallel, knees out over the toes, heels and whole foot flat, chest up, hands still behind the head. Between the frames the hips and knees bend in a single squat down and back up. Nothing else changes: no implement, no shift in stance, no stepping. Copying these frames gives a bodyweight squat to about parallel with the whole foot down, which is the drill. A photo cannot show the three-second tempo, but the pattern, stance, implement (none) and depth all match. Holding the hands behind the head is a normal coaching choice and does not alter the movement."
+   }
+  ]
+ },
+ {
+  "key": "lateral-lunge-rock",
+  "kind": "drill",
+  "name": "Lateral lunge rock",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Barbell_Side_Split_Squat: wide stance with a barbell across the back, then a side lunge bending one knee and hip. Groin_and_Back_Stretch: seated groin stretch. No bodyweight lateral lunge exists in the source.",
+   "why": "The drill is a bodyweight, wide-stance lateral lunge, shifting from one hip to the other. The only lateral-lunge photo, Barbell_Side_Split_Squat, carries a back-loaded barbell, so the equipment does not match. Searches for lateral, side, shift, wide stance, groin and adductor found only seated or lying groin stretches, foam rolling, band and machine adduction, and lateral jumps. None is a standing bodyweight side lunge.",
+   "viewed": [
+    "Barbell_Side_Split_Squat",
+    "Groin_and_Back_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "worlds-greatest",
+  "kind": "drill",
+  "name": "World’s greatest lunge",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": "Worlds_Greatest_Stretch",
+   "confidence": "medium",
+   "photoShows": "Frame 0: deep forward lunge on a mat, no equipment. The front foot is flat, the back knee is just above the floor, the torso is upright and the hands hang by the front thigh. Frame 1: a long lunge with the back leg straight. The near hand is planted on the floor and the other arm is bent, so the elbow drops down inside the front foot: the elbow-drop position.",
+   "why": "This is the same named drill: a bodyweight lunge, then the elbow dropped to the inside of the front foot. Position, support (none, on the floor) and the first two movements match the cue 'lunge, elbow drop, and rotation'. Caveat: neither frame shows the thoracic rotation. The source's own third stage is a front-leg hamstring stretch, not a rotation, so the photos cover two of the drill's three positions. They show nothing wrong. A verifier who requires the rotation to be pictured should overrule this to none.",
+   "viewed": [
+    "Worlds_Greatest_Stretch",
+    "Crossover_Reverse_Lunge"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "refute",
+    "reason": "I viewed both frames. Frame 0 is an upright deep lunge on a mat: back knee just above the floor, torso vertical, hands hanging. Frame 1 is a long lunge with the back leg straight, the near hand planted inside the front foot and the far elbow dropped low beside the front foot. That covers the lunge and the elbow drop, but the third part named in the cue, the rotation (open the chest and reach the arm to the ceiling), is in neither frame. The rotation is what makes this a thoracic spine drill (regions: hips, thoracic spine), just as the brief says a drill whose defining overhead reach is missing does not match. The source is also a different variant: its instructions are three static holds of 10–20 s each (upright lunge, elbow down, then hands either side of the foot with the front leg straightened for a hamstring stretch), with no rotation at all. Someone copying these frames would do lunge to elbow drop and hold it, leaving out the rotation the cue asks for."
+   },
+   {
+    "lens": "action",
+    "verdict": "refute",
+    "reason": "I viewed both frames and enlarged the arms in frame 1. Frame 0 is a static upright lunge: torso vertical, back knee just above the mat, hands hanging by the front thigh. Frame 1 is a long lunge with the back leg straight and one hand planted on the mat. The other arm is bent with its fist hovering beside the front shin, and the elbow hangs above the front foot; it does not reach the floor. The only action shown is folding from an upright lunge down to a hand-down, partial elbow-drop position. Neither frame shows a rotation: no arm reaching up toward the ceiling and no turned chest. Yet the cue names three parts (lunge, elbow drop, rotation), and the thoracic spine region depends only on the rotation. The source confirms this: it is a static three-part hold whose third part straightens the front leg for a hamstring stretch, with no rotation at all. Copying these frames gives a lunge with an elbow drop (a Spiderman-lunge cousin) that leaves out the drill's defining rotation. That is the same situation as a reach drill whose defining overhead reach is missing."
+   }
+  ]
+ },
+ {
+  "key": "snapdown-stick",
+  "kind": "drill",
+  "name": "Snap-down to stick",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a snap-down: a fast drop from a tall, arms-overhead stance into an athletic stance that is then held. The landing sources all involve jumping, either jumps with a landing (Rocket_Jump, Star_Jump, Knee_Tuck_Jump, Bench_Jump, Frog_Hops) or drops from a box (Linear_Depth_Jump, Depth_Jump_Leap).",
+   "why": "A snap-down has no jump and no box: the athlete pulls the arms down sharply and drops in place into a quarter squat, then holds it. Searches for snap, land, stick, absorb, athletic and drop down found only jump drills, whose action is a take-off, and depth jumps, which start from a box. Showing a jump or a depth drop for this drill would teach the wrong movement.",
+   "viewed": []
+  }
+ },
+ {
+  "key": "low-box-step",
+  "kind": "drill",
+  "name": "Low step-up with knee drive",
+  "result": "photographed",
+  "source": "Step-up_with_Knee_Raise",
+  "curator": {
+   "proposed": "Step-up_with_Knee_Raise",
+   "confidence": "medium",
+   "photoShows": "Front view, no load. He holds a small black object at the chest that is not part of the exercise. Frame 0: one foot planted forward on the step and the knee bent, with the other leg behind: the start of the step-up. Frame 1: standing tall on one leg with the other knee driven high, balancing at the top. The box is barely visible, only as a grey edge at the bottom of frame 0.",
+   "why": "The source's instructions are this drill: bodyweight step-up onto a box, extend through the front leg, drive the other knee as high as possible, step down, alternate. Position, the support (a box), the action (step-up into a knee drive, balanced at the top) and the leg moving all match. Confidence is medium for two reasons. The box is almost out of frame, so its height (the drill says 'low') cannot be confirmed. And he holds an incidental small object. Neither changes the movement shown.",
+   "viewed": [
+    "Step-up_with_Knee_Raise"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames and enlarged the lower part of each. Set-up: front view, body weight only, a box in front of him. In frame 0 the box's near top edge shows as a grey strip at the very bottom. The non-tattooed front foot is in full view on top of that edge, while the tattooed trail leg's foot drops below it and out of sight, which means the front foot is on the box and the trail foot is on the floor. So this is the step-up with the drive foot planted, not a floor lunge. Frame 1: same laterality (standing on the non-tattooed leg), standing tall with the tattooed knee driven to chest height, balancing at the top. That matches 'balance briefly at the top'. From the knee bend in frame 0 the step looks low to moderate, about 20–35 cm, which is consistent with a low step-up. Caveats: the box is barely visible, and he holds a small black object at his chest that is not part of the drill. Neither changes the movement someone would copy."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames and enlarged the bottom of each. Frame 0, front view: his right foot is planted forward on a grey step surface whose edge is visible right under the shoe, with the front knee only slightly bent, so the step is low. The tattooed left leg is behind and its foot drops below the frame edge. That foot is farther from the camera yet sits lower in the image than the front foot, so the front foot must be raised on the step. Frame 1: he stands tall on the right leg with the tattooed left knee driven to about hip height, balancing on one leg. Laterality is consistent: the leg on the step becomes the stance leg, and the trailing leg is the one driven up. Between the frames the action is to push through the planted foot, stand up onto the step, drive the trailing knee and balance at the top. That is exactly the drill and its cue. He holds a small black object at the chest, which is incidental and not a load, and the stance foot is out of frame in frame 1. Neither changes the movement someone would copy."
+   }
+  ]
+ },
+ {
+  "key": "cat-camel",
+  "kind": "drill",
+  "name": "Cat-camel segmental spine",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": "Cat_Stretch",
+   "confidence": "medium",
+   "photoShows": "Man on hands and knees on a mat. Frame 0: flat, neutral back with the head level. Frame 1: spine fully rounded (flexed), belly drawn in, head dropped.",
+   "why": "Same position (quadruped), no equipment, and the same spine moving in the same plane. The frames go from neutral into segmental flexion, the 'cat' half of the cat-camel. Caveat: the extension (arched) half is not pictured. The source's text says to hold the rounded position for 15 s, but the two frames read as neutral-to-flexion movement. The photo is incomplete rather than wrong: it teaches the right setup and direction, and no other source entry shows quadruped spinal flexion/extension. Rear_Leg_Raises shares the same frame 0 but its frame 1 is a leg extension, so it is not a cat-camel.",
+   "viewed": [
+    "Cat_Stretch",
+    "Rear_Leg_Raises",
+    "Childs_Pose",
+    "Hip_Circles_prone",
+    "Glute_Kickback"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "refute",
+    "reason": "I viewed both frames. The set-up matches: he is on hands and knees on a mat with no equipment. The range does not. Frame 0 is a neutral, flat back with the head hanging down, and frame 1 is a full round (spine flexion). Neither frame shows the extension half, where the back sags and the chest and head lift. A cat-camel is defined by moving between flexion and extension, so someone copying these frames would only go from neutral to rounded, which is half the drill. The source is also a 15-second end-range flexion hold ('Hold for 15 seconds'). The drill's cue says the opposite: 'this is not a loaded end-range drill.' This is a static stretch for the same region, not the segmental flexion-extension drill. No other source in the library shows the extension (camel/cow) position either."
+   },
+   {
+    "lens": "action",
+    "verdict": "refute",
+    "reason": "I viewed both frames. The man stays on all fours, and the only movement is from a flat back (frame 0) to a fully rounded back with the head dropped (frame 1). Cat-camel moves the spine back and forth between rounding and arching, segment by segment. These frames never show the arching half: no sagging lumbar spine and no lifted chest or head. The source's own instructions are to round and hold for 15 seconds, which makes it a static cat stretch, not the cat-camel cycle. Someone copying these frames would repeat neutral-to-rounded (or hold the rounded position) and miss the extension half of the drill. The position and equipment match, but the action does not. There is no other cat-cow or camel source in the 876-entry list."
+   }
+  ]
+ },
+ {
+  "key": "quadruped-t-rotation",
+  "kind": "drill",
+  "name": "Quadruped thoracic rotation",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a quadruped thoracic rotation (one hand planted, the other arm or elbow rotating up toward the ceiling).",
+   "why": "Every quadruped source entry shows a different action. Cat_Stretch is spinal flexion. Rear_Leg_Raises is a straight-leg extension. Glute_Kickback is a bent-knee hip extension. Hip_Circles_prone is a knee circle. Chest_Stretch_on_Stability_Ball has the elbow on a ball with the torso sinking, a pec stretch with no rotation. Childs_Pose is a sit-back. None rotates the upper back with one hand planted.",
+   "viewed": [
+    "Cat_Stretch",
+    "Rear_Leg_Raises",
+    "Glute_Kickback",
+    "Hip_Circles_prone",
+    "Chest_Stretch_on_Stability_Ball"
+   ]
+  }
+ },
+ {
+  "key": "open-book",
+  "kind": "drill",
+  "name": "Side-lying open book",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a side-lying open book (side-lying with knees stacked, top arm sweeping open across the body while the trunk rotates).",
+   "why": "Side-Lying_Floor_Stretch is side-lying, but it is a lateral side-bend stretch: the top arm goes overhead and the wrist is pulled, with no thoracic rotation. Knee_Across_The_Body is a supine lumbar twist, with the knee pulled across a body lying on its back. Side_Jackknife is a side-lying oblique crunch with a leg raise. None shows the open-book rotation.",
+   "viewed": [
+    "Side-Lying_Floor_Stretch",
+    "Knee_Across_The_Body",
+    "Side_Jackknife"
+   ]
+  }
+ },
+ {
+  "key": "tall-kneel-rotation",
+  "kind": "drill",
+  "name": "Tall-kneeling rotation reach",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a tall-kneeling bodyweight trunk rotation with a reach.",
+   "why": "Torso_Rotation has the right action (trunk rotation with the arms extended) but is standing and holds an exercise ball. Pallof_Press_With_Rotation is standing with a cable. Kneeling_Cable_Crunch_With_Alternating_Oblique_Twists is a cable crunch down to all fours. Kneeling_Arm_Drill is a half-kneeling sprint arm swing. Landmine_180s (read) is standing with a barbell. Each one differs in body position, equipment or action.",
+   "viewed": [
+    "Torso_Rotation",
+    "Pallof_Press_With_Rotation",
+    "Kneeling_Cable_Crunch_With_Alternating_Oblique_Twists",
+    "Kneeling_Arm_Drill"
+   ]
+  }
+ },
+ {
+  "key": "dead-bug",
+  "kind": "drill",
+  "name": "Dead bug reach",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": "Dead_Bug",
+   "confidence": "medium",
+   "photoShows": "Woman lying on her back. Frame 0: hips and knees at 90/90, both arms reaching straight up to the ceiling, back flat. Frame 1: same, but one leg extended long just above the floor while the arms stay vertical.",
+   "why": "The source is literally a dead bug: supine, bodyweight, 90/90 tabletop, one limb reaching long while the low back stays flat, alternating sides. That fits the cue ('exhale as the limb reaches; keep the low back from arching'), the regions (abdominals, hip flexors) and the dose (6 each side). Caveat: the source's version moves only the legs, and the arms stay vertical in both frames. If the app's 'reach' also means the opposite arm lowering overhead (the drill carries an 'overhead' tag), that arm reach is not pictured. The photo then shows the leg half, not a different drill. A verifier who treats the contralateral overhead arm reach as defining should downgrade this to none.",
+   "viewed": [
+    "Dead_Bug"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames, and the set-up matches the drill. She lies on her back on the floor with no equipment, hips and knees at 90/90 and both arms straight up toward the ceiling. Her lower back stays flat in both frames. In frame 1 one leg straightens long and stays just above the floor while the trunk holds still. That is 'the limb reaches; keep the low back from arching.' The listed regions (abdominals, hip flexors) are the ones loaded by the leg reach. The source alternates sides, which fits '6 each side.' One caveat: the arms stay vertical, so this is the leg-only dead bug, not the version where the opposite arm also reaches overhead. The cue only says 'the limb' (singular) and the regions are leg-focused, so the frames still teach the drill as cued. The 'overhead' tag looks like a session-selection tag, like its 'squat' and 'hinge' tags, not a described arm movement."
+   },
+   {
+    "lens": "action",
+    "verdict": "refute",
+    "reason": "I viewed both frames. Frame 0 shows her on her back with hips and knees at 90/90 and both arms pointing straight up. In frame 1, one leg extends long just above the floor while both arms stay vertical. Only one leg moves; the arms never reach. The source describes this leg-only version (extend one leg, return, alternate). The app's item is named 'Dead bug reach' and is tagged 'overhead', so the arm reaching overhead while the ribs stay down is a defining part of it, and it is why the drill is chosen for overhead sessions. A coach usually runs the dead bug as the opposite arm reaching overhead together with the leg extending. Copying these frames gives a leg-only regression with the arms fixed, a cousin of the drill that never practices the overhead reach. There is no other dead bug source in the list. Strict rule: when in doubt, it is not a match."
+   }
+  ],
+  "finalReview": "The reviewers split; a split is not a confirmation, so it has no photo."
+ },
+ {
+  "key": "bird-dog",
+  "kind": "drill",
+  "name": "Bird dog reach",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a bird dog (quadruped with the opposite arm and leg reaching long at the same time).",
+   "why": "Rear_Leg_Raises is the closest. It is quadruped and extends one leg straight back, but both hands stay planted, so the defining contralateral arm reach ('heel to fingertips') is missing. Glute_Kickback is a bent-knee kickback with both hands down. Superman is prone, lifting all four limbs off the floor. Proposing Rear_Leg_Raises would be a near miss.",
+   "viewed": [
+    "Rear_Leg_Raises",
+    "Glute_Kickback",
+    "Superman",
+    "Hip_Circles_prone"
+   ]
+  }
+ },
+ {
+  "key": "plank-shoulder-tap",
+  "kind": "drill",
+  "name": "Plank shoulder tap",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a high plank with one hand lifting to tap the opposite shoulder.",
+   "why": "Plank is a static forearm plank (frame 0 is a kneeling set-up), with no hand lift and no tap. Push_Up_to_Side_Plank shows only push-up top and bottom frames. Spider_Crawl is a push-up position with the knee driving to the elbow. Mountain_Climbers is hands-down leg running. None shows a hand leaving the floor to tap the shoulder.",
+   "viewed": [
+    "Plank",
+    "Push_Up_to_Side_Plank",
+    "Spider_Crawl",
+    "Mountain_Climbers"
+   ]
+  }
+ },
+ {
+  "key": "side-plank-reach",
+  "kind": "drill",
+  "name": "Side plank reach-through",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a forearm side plank where the top arm threads under the body and rotates back open.",
+   "why": "Side_Bridge is a forearm side plank with the elbow under the shoulder, but the top hand stays on the hip. The frames show a hip drop and lift, with no reach-through or rotation, so the drill's defining action is missing. Push_Up_to_Side_Plank's frames show only a push-up, with no side plank pictured. Side_Jackknife is a side-lying crunch.",
+   "viewed": [
+    "Side_Bridge",
+    "Push_Up_to_Side_Plank",
+    "Side_Jackknife"
+   ]
+  }
+ },
+ {
+  "key": "bear-crawl",
+  "kind": "drill",
+  "name": "Bear crawl",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows an unloaded bear crawl. The closest is Bear_Crawl_Sled_Drags: a man in a harness hitched to a sled, hands on the track, hips high and knees well bent, driving the sled.",
+   "why": "Bear_Crawl_Sled_Drags uses different equipment and a different action. It is a loaded sled drag with a harness and chain, and the hips sit high, not a free bear crawl with the knees floating just off the floor and opposite hand and foot moving. Spider_Crawl starts in a push-up position with the elbows bent and brings one knee out to the elbow. That is a different drill (plank with knee-to-elbow) and is not a quadruped crawl with knees hovering. No other source has a quadruped crawl.",
+   "viewed": [
+    "Bear_Crawl_Sled_Drags",
+    "Spider_Crawl"
+   ]
+  }
+ },
+ {
+  "key": "pallof-press",
+  "kind": "drill",
+  "name": "Tall-kneeling Pallof press",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Pallof_Press: a woman STANDING side-on to a cable tower, hands at the chest in frame 0 and arms pressed out in frame 1. Pallof_Press_With_Rotation: a man STANDING, the same press from a shoulder-height cable.",
+   "why": "Both Pallof sources are performed standing. The source instructions say 'feet positioned hip-width apart and knees slightly bent', and the photos show a standing stance. The drill is specifically TALL-KNEELING, so the body position differs (rule 1). Pallof_Press_With_Rotation also adds a torso twist, which the drill tells you to resist. No kneeling Pallof press exists in the source.",
+   "viewed": [
+    "Pallof_Press",
+    "Pallof_Press_With_Rotation",
+    "Kneeling_Cable_Crunch_With_Alternating_Oblique_Twists"
+   ]
+  }
+ },
+ {
+  "key": "half-kneel-chop",
+  "kind": "drill",
+  "name": "Half-kneeling chop pattern",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Standing_Cable_Wood_Chop: a man STANDING with feet shoulder-width apart, pulling a high cable down and across to the front knee. In frame 1 his back foot pivots and both knees bend.",
+   "why": "The only chop in the source is performed standing, and the instructions call for pivoting the back foot so the hips turn. The drill is HALF-KNEELING with the hips kept square, so the body position differs and so does the hip action. Standing_Cable_Lift is the reverse low-to-high pattern and is also standing. Kneeling_Cable_Crunch_With_Alternating_Oblique_Twists is a tall-kneeling cable crunch, not a chop. No half-kneeling chop exists.",
+   "viewed": [
+    "Standing_Cable_Wood_Chop",
+    "Kneeling_Cable_Crunch_With_Alternating_Oblique_Twists"
+   ]
+  }
+ },
+ {
+  "key": "farmer-carry-march",
+  "kind": "drill",
+  "name": "Light farmer carry march",
+  "result": "photographed",
+  "source": "Farmers_Walk",
+  "curator": {
+   "proposed": "Farmers_Walk",
+   "confidence": "medium",
+   "photoShows": "Frame 0: a man bent over between two plate-loaded farmer handles, gripping them to pick them up. Frame 1: the same man walking upright toward the camera with one loaded handle in each hand at his sides, tall posture, mid-step.",
+   "why": "This is a bilateral loaded carry: the person stands tall, holds a load in each hand at the sides and walks a distance. That is the farmer carry pattern, with the farmer-carry implement (farmer handles), and frame 1 shows the 'walk tall, load close, ribs over hips' posture. The load here is heavy (strongman-style plates), but the rules say the load does not need to match, and the drill names no other implement. The step in frame 1 is a normal walking step, which fits the drill's 'Walk tall' cue and 20 m dose. Caveats for the verifier: the implement looks heavy and strongman-style, and there is no exaggerated knee-lift march. If 'march' means high-knee marching, this would fall short.",
+   "viewed": [
+    "Farmers_Walk"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. Frame 0 shows a standing man hinged over two plate-loaded farmer handles at his sides, gripping them to lift. Frame 1 shows him upright and walking forward mid-step on flat ground. He holds one handle in each hand, close to his sides, with a tall trunk and his ribs stacked over his hips. Position (standing, then walking), implement (a loaded handle in each hand at the sides, which is a farmer carry) and action (walking a distance, not standing still and not running) all match the drill. The cue 'walk tall; keep the load close' is what frame 1 shows. The load is heavy rather than light, but the rule says load does not need to match while implement and pattern do. The cue describes plain walking, not an exaggerated high-knee march, and frame 1's normal stride fits that. No source in the database shows a lighter dumbbell or kettlebell carry. Someone copying these frames would pick up and carry the handles as the cue says."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. Frame 0 shows a man bent over between two plate-loaded farmer handles, gripping them to pick them up. Frame 1 shows him upright and mid-step toward the camera, a handle in each hand at his sides, torso tall and ribs stacked over the hips. Between the frames he picks the load up and then walks with it. That is the farmer carry, with its namesake implement. The drill's cue ('walk tall; keep the load close, ribs over hips') and its 20 m dose describe walking a distance, which matches frame 1, not marching on the spot. The photo uses a heavy strongman load where the drill says 'light', but the load does not have to match. The drill names no specific implement, and farmer handles are the standard one. Someone copying these frames would do a farmer carry walk. Minor point: frame 0 is the pickup, not the carry, but it is the normal setup for this drill and does not teach a different movement."
+   }
+  ]
+ },
+ {
+  "key": "medicine-ball-scoop",
+  "kind": "drill",
+  "name": "Light medicine-ball scoop pattern",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Medicine_Ball_Scoop_Throw: a man in a semisquat holding a ball at knee height (frame 0), then extending onto his toes with arms straight overhead, releasing the ball backward (frame 1).",
+   "why": "The drill is a rotational scoop, done 6 each side and tagged rotation and obliques: a side-on scoop toss. The source's Scoop Throw is a two-handed, front-facing triple-extension throw backward over the head, with no rotation and no sides, so the action differs (rule 3). Medicine_Ball_Full_Twist is a back-to-back partner hand-off twist, not a scoop. Backward_Medicine_Ball_Throw, Chest Pass and Slam are different patterns. No rotational scoop toss exists in the source.",
+   "viewed": [
+    "Medicine_Ball_Scoop_Throw",
+    "Medicine_Ball_Full_Twist"
+   ]
+  }
+ },
+ {
+  "key": "split-stance-row",
+  "kind": "drill",
+  "name": "Split-stance row rehearsal",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": "Shotgun_Row",
+   "confidence": "medium",
+   "photoShows": "A man in a wide split (lunge) stance facing a low cable, torso leaning forward, free hand near the front thigh. Frame 0: the working arm is extended toward the pulley with the shoulder reached forward. Frame 1: the elbow is drawn back beside the torso and the handle is at the hip.",
+   "why": "This is a single-arm row from a split stance, done one side at a time, with a cable as the light load. That matches the stance, the laterality and the horizontal pull of a split-stance row rehearsal, and the drill names no specific implement. Caveats for the verifier: the Shotgun Row adds wrist supination and a forward shoulder reach at the start, and the torso leans further forward than a typical rehearsal. The drill's cue says to resist trunk rotation, while this photo shows slight shoulder opening. Kneeling_Single-Arm_High_Pulley_Row was rejected because it is kneeling with a high pulley. One-Arm_Kettlebell_Row, Alternating_Kettlebell_Row, One-Arm_Long_Bar_Row and Bent_Over_One-Arm_Long_Bar_Row were rejected because they are bent-over rows with the feet roughly level, not split stance.",
+   "viewed": [
+    "Shotgun_Row",
+    "One-Arm_Kettlebell_Row",
+    "Alternating_Kettlebell_Row",
+    "One-Arm_Long_Bar_Row",
+    "Bent_Over_One-Arm_Long_Bar_Row",
+    "Kneeling_Single-Arm_High_Pulley_Row"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. A man stands in a wide split stance facing a low cable pulley and rows one arm at a time, which matches '8 each side'. The front knee is bent and the rear leg is extended, and his torso leans forward with the trunk square. The working arm is on the same side as the rear leg, so the stance is opposite to the rowing arm, which is the standard set-up. The free hand rests near the front thigh. Frame 0: the working arm is long toward the pulley. Frame 1: the elbow is pulled back beside the ribs with the handle at the lower chest or hip, and the trunk faces about the same way as in frame 0, so it shows the anti-rotation intent. The drill names no implement and asks only for a light load, so a single-handle low cable fits. Two small differences from a generic split-stance row: the shotgun row adds a turn of the palm upward during the pull, and frame 0 lets the shoulder reach slightly forward. Neither changes the body position, support or rowing pattern, so copying these frames gives a correct split-stance row."
+   },
+   {
+    "lens": "action",
+    "verdict": "refute",
+    "reason": "I viewed both frames and zoomed in on the torso. In frame 0 his back faces the camera: he is hinged deeply forward in a very wide lunge-depth split stance, and the working shoulder reaches far forward toward a low cable, so his trunk is turned toward the pulley. In frame 1 the trunk has turned clearly back open: his near side and chest now face the camera, the elbow is pulled behind the ribs and the palm is turned up. The source's instructions describe a 'shoulder forward' start that ends with the shoulder pulled back, so the row is a reach, row and rotate. The drill's cue asks for the opposite: 'resist trunk rotation while rowing'. Someone copying these frames would twist the trunk toward the cable and back on every rep, which is the shotgun row, a relative of the drill, not the anti-rotation split-stance row it names. The extreme forward lean and the hand resting on the front knee also go beyond a light split-stance row rehearsal."
+   }
+  ],
+  "finalReview": "The reviewers split; a split is not a confirmation, so it has no photo."
+ },
+ {
+  "key": "shoulder-pass-through",
+  "kind": "drill",
+  "name": "Shoulder pass-through",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "No source shows a full straight-arm pass-through. Chest_And_Front_Of_Shoulder_Stretch: the man stands holding a body bar with a wide grip at his hips (frame 0), then lifts it to just above and behind his head with the elbows clearly bent at about 90-120 degrees (frame 1). Round_The_World_Shoulder_Stretch: the bar is held behind the hips and only lifted slightly backward (shoulder extension behind the back).",
+   "why": "The drill is a wide-grip stick moved with long arms from the front of the hips, over the head and behind the back. Chest_And_Front_Of_Shoulder_Stretch comes closest but shows only the first half, and its top frame has the elbows strongly bent with the bar parked behind the head. That would teach a bent-arm behind-the-head stretch, not a pass-through. Round_The_World shows only a small behind-the-back lift. Neither shows the drill on its own, and splicing frames from two sources is not allowed. Near miss, so none.",
+   "viewed": [
+    "Chest_And_Front_Of_Shoulder_Stretch",
+    "Round_The_World_Shoulder_Stretch",
+    "Upward_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "band-pull-apart",
+  "kind": "drill",
+  "name": "Band pull-apart",
+  "result": "photographed",
+  "source": "Band_Pull_Apart",
+  "curator": {
+   "proposed": "Band_Pull_Apart",
+   "confidence": "high",
+   "photoShows": "Standing athlete holding a light band in both hands. Frame 0: arms straight in front at shoulder height with the band slack. Frame 1: arms pulled out to the sides with straight elbows, the band stretched across at chest level.",
+   "why": "Same position (standing), same equipment (handheld band, not anchored), same action (horizontal straight-arm pull-apart from the front to the sides) and same regions (rear delts, upper back). Back_Flyes_-_With_Bands was rejected because its band is anchored to a rack post, which makes it a different set-up.",
+   "viewed": [
+    "Band_Pull_Apart",
+    "Back_Flyes_-_With_Bands"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "Viewed both frames. The athlete stands square with feet about hip width and holds a light red loop band in both hands with an overhand grip. Frame 0: arms straight out in front at shoulder height with the hands about shoulder width apart, and the band only slightly taut. Frame 1: arms opened straight out to the sides in a T, elbows extended, band stretched across the front of the upper chest and shoulders. The shoulders sit level and are not shrugged toward the ears. The position (standing), equipment (light band, no anchor), action (horizontal abduction to the sides, not overhead or diagonal), laterality (both arms together) and range (full opening to the chest) all match a standard band pull-apart. The photo does not explicitly show the shoulder blades sliding down, but nothing in it contradicts the cue."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. The athlete stands with a light red band held overhand in both hands. In frame 0 the arms are straight out in front at shoulder height with the hands about shoulder-width apart. In frame 1 the arms are pulled straight out to the sides in a reverse-fly arc, elbows still straight, and the band is stretched across the front of the shoulders and chest. The movement is a horizontal pull-apart with no rowing, no overhead pass-through and no rotation, and the shoulders stay down rather than shrugged at the finish. Someone copying these two frames would do a band pull-apart as the cue describes. The implement (band), standing position, two-arm action and body part (rear delts and upper back) all match."
+   }
+  ]
+ },
+ {
+  "key": "scap-wall-slide",
+  "kind": "drill",
+  "name": "Scapular wall slide",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows forearms or arms sliding up a wall. The only wall sources are calf stretches against a wall, One_Arm_Against_Wall (a static lat lean with a bent arm on the wall), Handstand_Push-Ups and Linear_Acceleration_Wall_Drill.",
+   "why": "No source has a wall slide, i.e. arms gliding up and down a wall for serratus and lower-trap control. One_Arm_Against_Wall is a static one-arm lat stretch leaning into the wall: a different action and a different drill.",
+   "viewed": [
+    "One_Arm_Against_Wall",
+    "Upward_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "serratus-pushup",
+  "kind": "drill",
+  "name": "Push-up plus",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Pushups shows a standard push-up with the elbows bending to bring the chest to the floor. Barbell_Incline_Shoulder_Raise shows scapular protraction, but lying back on an incline bench with a loaded barbell.",
+   "why": "A push-up plus is done in a straight-arm plank and moves only the shoulder blades (protraction). Pushups shows elbow flexion, the opposite of the cue 'without bending the elbows'. Barbell_Incline_Shoulder_Raise has the right scapular action but the wrong position (supine on an incline) and the wrong implement (barbell). No source shows the plus in a plank.",
+   "viewed": [
+    "Pushups",
+    "Barbell_Incline_Shoulder_Raise"
+   ]
+  }
+ },
+ {
+  "key": "scap-pullup",
+  "kind": "drill",
+  "name": "Scapular pull-up",
+  "result": "photographed",
+  "source": "Scapular_Pull-Up",
+  "curator": {
+   "proposed": "Scapular_Pull-Up",
+   "confidence": "high",
+   "photoShows": "Athlete hanging from a pull-up bar with an overhand grip and knees bent. Frame 0: passive dead hang with the shoulders shrugged up around the ears. Frame 1: the body is raised a few inches by depressing and retracting the shoulder blades, with the elbows still straight.",
+   "why": "Same position (hanging), same equipment (pull-up bar), same action (scapular depression only, elbows long) and same regions (lower traps, lats). This is the named drill itself.",
+   "viewed": [
+    "Scapular_Pull-Up"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "Viewed both frames, shot from behind and slightly to the side. The athlete hangs from a pull-up bar in a power rack with an overhand grip at about shoulder width, knees bent and feet off the floor. Frame 0: passive dead hang, arms fully straight, head sunk between the arms and shoulders elevated around the ears. Frame 1: the torso and head have risen a few inches, the shoulders are pulled down away from the ears and the shoulder blades are drawn down and back, while the elbows stay essentially straight (at most a trace of softness in one arm, with no visible elbow flexion or pulling). The position (hanging), support (fixed bar, overhand grip), action (scapular depression only, not a partial pull-up), and short range shown all match the drill as cued: 'Move only through the shoulder blades; keep the elbows long.'"
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames, plus a zoomed crop of the upper body. The athlete hangs from a pull-up bar with an overhand grip, knees bent to clear the floor. In frame 0 it is a passive dead hang: the head sits low between the arms and the shoulders are shrugged up toward the ears. In frame 1 the head and trunk sit a few inches higher, the neck is visible, and the shoulder blades are pulled down and back. Both elbows stay essentially straight, so the rise comes from the shoulder blades and not from bending the arms, which would make it a partial pull-up. Someone copying the frames would do a hanging scapular pull-up that moves only through the shoulder blades with long elbows, as the cue says. The bar, the hanging position and the scapular depression all match."
+   }
+  ]
+ },
+ {
+  "key": "wall-shoulder-flexion",
+  "kind": "drill",
+  "name": "Wall shoulder flexion lift-off",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows arms raised overhead against a wall and lifted off it. Upward_Stretch shows a free-standing overhead reach with no wall, and One_Arm_Against_Wall shows a static lat lean.",
+   "why": "The drill needs a wall as support and a lift-off of the arms from it in flexion. Upward_Stretch has no wall and no lift-off, and is a static overhead stretch. One_Arm_Against_Wall is a different action (leaning into a bent arm for a lat stretch). No source matches.",
+   "viewed": [
+    "Upward_Stretch",
+    "One_Arm_Against_Wall"
+   ]
+  }
+ },
+ {
+  "key": "quadruped-scap-circle",
+  "kind": "drill",
+  "name": "Quadruped scapular circle",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Shoulder_Circles shows a standing shoulder roll with the arms at the sides. Cat_Stretch shows a quadruped spinal round (flexion). Hip_Circles_prone shows a quadruped hip circle with one leg lifted and circled.",
+   "why": "The drill is a circle of the shoulder blades while on all fours. Shoulder_Circles has the right action but the wrong position (standing). Cat_Stretch has the right position but the wrong action (whole-spine flexion, not a scapular circle). Hip_Circles_prone has the right position but the wrong body part (hip). None of them is this drill.",
+   "viewed": [
+    "Shoulder_Circles",
+    "Cat_Stretch",
+    "Hip_Circles_prone"
+   ]
+  }
+ },
+ {
+  "key": "band-external-rotation",
+  "kind": "drill",
+  "name": "Band external rotation",
+  "result": "photographed",
+  "source": "External_Rotation_with_Band",
+  "curator": {
+   "proposed": "External_Rotation_with_Band",
+   "confidence": "high",
+   "photoShows": "Standing side-on to a band anchored on a rack post at elbow height, elbow pinned to the side (with a small pad), forearm at 90 degrees. Frame 0: hand across the front of the torso. Frame 1: forearm rotated outward past the body line with the elbow still at the side.",
+   "why": "Same standing position, same equipment (a band anchored at elbow height), same action (a single-arm external rotation with the elbow pinned and the torso still) and same body part (rotator cuff). This is exactly the drill the cue describes. The dumbbell side-lying External_Rotation and External_Rotation_with_Cable both use the wrong implement.",
+   "viewed": [
+    "External_Rotation_with_Band",
+    "External_Rotation_with_Cable"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames and enlarged crops of the arm. He stands front-on with his right side toward a rack post. A light band is anchored to the post at elbow height and runs horizontally to a handle in his LEFT hand, so the working arm is on the side away from the anchor, which is correct for external rotation. A yellow/black pad is clamped between his left elbow and ribs in both frames, and the elbow stays at 90 degrees against his side. Frame 0: the forearm points across the front of his torso, with the hand at his midline. Frame 1: the forearm has rotated out to his body line and slightly past it, the elbow still pinned and the pad still in place. The torso stays square to the camera with no trunk rotation in either frame, which matches the cue. Standing, band, elbow pinned at the side, single arm (so the '10 each side' dose works) and the range is the standard internal-to-external rotation. Someone copying these frames would do a band external rotation as cued."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "Viewed and enlarged both frames. The athlete stands front-on and works the LEFT arm. The band is anchored on the opposite (right-side) rack post at elbow height, and a pad is clamped between the left elbow and the ribs. Frame 0: forearm at 90 degrees with the hand across the front of the torso. Frame 1: the same forearm has swung out past the body line while the elbow stays pinned on the pad. The only change between frames is forearm rotation about a fixed upper arm. The shoulders and torso stay square, so there is no trunk rotation and the 'avoid rotating the whole torso' cue holds. Copying it gives standing band external rotation, the drill named. Showing one side is fine for '10 each side'. There is no different body position, support or action to object to."
+   }
+  ]
+ },
+ {
+  "key": "face-pull-rotate",
+  "kind": "drill",
+  "name": "Face pull to external rotation",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "Face_Pull: standing at a cable column with a rope. Frame 0: arms extended toward the stack. Frame 1: rope pulled to the face with elbows high and wide, but the forearms are close to horizontal and the hands sit in front of the eyes and nose. They are not beside the ears.",
+   "why": "The drill is named for its external-rotation finish, and the cue says to finish with the hands beside the ears (forearms vertical). The only face pull photo shows a plain face pull with almost no external rotation at the end, so the photo would teach a finish that is missing the drill's defining part. That makes it the base movement for a named variation the source does not have. Reverse_Flyes_With_External_Rotation is a prone incline-bench dumbbell fly, and Cuban Press is an upright row to a press, so both are different drills.",
+   "viewed": [
+    "Face_Pull"
+   ]
+  }
+ },
+ {
+  "key": "prone-y-raise",
+  "kind": "drill",
+  "name": "Prone Y raise",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source shows a bodyweight prone Y raise. Superman: prone on a floor mat, lifting both arms and the legs together. Lower_Back_Curl: prone back extension with the arms at the sides. Straight_Raises_on_Incline_Bench: prone on an incline bench, raising a loaded barbell forward with a narrow grip. Dumbbell_Scaption: standing raise with dumbbells, thumbs up.",
+   "why": "A prone Y raise is lying face down, bodyweight, with the arms in a Y and thumbs up, in a small range. Superman adds a leg and chest lift and works the lower back. Lower_Back_Curl is a spinal extension with the arms down. The incline-bench raise uses a barbell at a narrow width, so it cannot form a Y. Scaption is standing and uses dumbbells. Each one differs in position, equipment or action.",
+   "viewed": [
+    "Superman",
+    "Lower_Back_Curl",
+    "Straight_Raises_on_Incline_Bench",
+    "Dumbbell_Scaption"
+   ]
+  }
+ },
+ {
+  "key": "arm-circle",
+  "kind": "drill",
+  "name": "Controlled arm circle",
+  "result": "photographed",
+  "source": "Arm_Circles",
+  "curator": {
+   "proposed": "Arm_Circles",
+   "confidence": "high",
+   "photoShows": "Standing front-on with both arms straight out to the sides. Frame 0: arms parallel to the floor. Frame 1: arms a little higher at another point of the circle.",
+   "why": "Same standing position, no equipment, same action (outstretched arms making circles that can be enlarged) and same body part (shoulders). The source has you make small circles and then reverse them, which fits '8 each direction' and the cue about growing the circle. Shoulder_Circles is a shoulder roll with the arms down, a different drill.",
+   "viewed": [
+    "Arm_Circles"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. He stands tall facing the camera, feet together, with no equipment, and both arms straight out to the sides with palms down. Frame 0: arms parallel to the floor, perpendicular to the torso. Frame 1: both arms a little above horizontal, another point on a small circle. That is the source's arm-circle set-up: both arms out to the sides, small circles of about a foot. It fits a standing, unloaded, two-arm shoulder circle done '8 each direction'. The small range shown suits the cue, which starts small and grows the circle only as far as is comfortable. Two stills cannot draw a circle, so the name carries the circling. The position, support (none), body part (whole arm from the shoulder) and laterality (both arms together) all match, and nothing shown would teach a different drill."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "Viewed both frames. Standing front-on, no equipment, both arms straight out to the sides with palms down. Frame 0: arms level with the floor. Frame 1: both arms raised roughly 20 degrees higher. Two stills of a circle can only show two points on its path. These are two points of the source's small straight-arm circle (about 1 ft across, reversed after about 10 s). They are not a different drill: not a shoulder shrug circle (Shoulder_Circles), not fingertips-on-shoulders elbow circles (Elbow_Circles), and not a static hold. The name and the cue 'grow the circle' supply the circling motion. Starting small from the arms-out position and enlarging matches the source's own pattern. The body position, support and moving joint (the whole arm at the shoulder) are the same as 'Controlled arm circle'. This is the only straight-arm circle source."
+   }
+  ]
+ },
+ {
+  "key": "landmine-press-rehearsal",
+  "kind": "drill",
+  "name": "Light landmine press rehearsal",
+  "result": "photographed",
+  "source": "Single-Arm_Linear_Jammer",
+  "curator": {
+   "proposed": "Single-Arm_Linear_Jammer",
+   "confidence": "medium",
+   "photoShows": "Single-arm landmine press: a loaded barbell anchored in a landmine at the floor, athlete standing in a wide or staggered stance. Frame 0: bar end held at the shoulder in one hand with the knees slightly bent. Frame 1: the same arm pressed fully along the bar's arc, body leaning into the bar.",
+   "why": "The implement (a barbell in a landmine), the standing stance and the single-arm press along the bar's arc all match a landmine press done 6 each side. The task allows a light rehearsal to be matched by a photo of the lift with any load. Caveats: the source is the explosive 'jammer' version with leg drive, and frame 1 shows a large forward lean with the head ducked. A coach cueing 'ribs stacked' would want a little less lean. Landmine_Linear_Jammer is not a match because it is two hands on a handle attachment from a squat (a thruster pattern).",
+   "viewed": [
+    "Single-Arm_Linear_Jammer",
+    "Landmine_Linear_Jammer"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames and a side-by-side crop of the athlete. The implement is a barbell anchored at the floor in a landmine-type base on a rack, with a plate on the free end. He grips the bare sleeve end in one hand (right). There is no handle attachment, and the other hand is a loose fist at his chest, so it is single-arm, which fits '6 each side'. He stands in a wide, staggered stance. Frame 0: the bar end is at the right shoulder, beside the face, with the knees only softly bent. Frame 1: the arm is locked out up and forward along the bar's arc, and the body leans into the bar. The legs look almost the same in both frames. There is no visible dip-and-drive, so despite the 'jammer' name this pair reads as the strict standing single-arm landmine press. The app already uses this pair for Landmine Press and Single-Arm Standing Landmine Press. The finish lean is forward, along the press line, not a lumbar arch or rib flare, so it does not contradict 'ribs stacked'. The full reach at lockout shows the serratus range the drill targets. The landmine, single arm, standing stance and press arc all match a light landmine press rehearsal. Caveat: the forward lean with the head ducked under the arm in frame 1 is more than ideal, so the cue should keep 'ribs stacked'."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "Viewed the pair and enlarged each raw frame. The barbell sits in a floor landmine base. The athlete stands in a staggered stance facing the anchor and holds the bar end in one hand. Frame 0: bar end at the shoulder and face, other fist at the chest, knees almost straight. Frame 1: the same arm is pressed to full extension along the bar's arc, reaching long, with the trunk leaning into the bar. I looked specifically for the jammer's defining dip and drive (an explosive knee and hip extension). The legs are nearly straight in both frames, so copying this gives a strict single-arm standing landmine press, not a push press or thruster. That is consistent with the project's earlier rematch: this pair already illustrates Landmine Press and Single-Arm Standing Landmine Press, and it was withdrawn from Landmine Push Press for lacking a dip. The drill is a light rehearsal of that same lift with the same implement, one arm per rep ('6 each side'), and the long lockout reach also serves the serratus region. Caveat: the frame-1 lockout leans the trunk well forward with the head ducked under the arm. There is no lumbar arch or rib flare, so it does not contradict 'ribs stacked', but it is a deeper lean than ideal. The other landmine sources do not fit: Landmine_Linear_Jammer is a two-handle squat-to-press and Landmine_180s is a rotation. Implement, support, laterality and press-along-the-arc action all match."
+   }
+  ]
+ },
+ {
+  "key": "empty-bar-hinge",
+  "kind": "drill",
+  "name": "Empty-bar hinge rehearsal",
+  "result": "photographed",
+  "source": "Romanian_Deadlift",
+  "curator": {
+   "proposed": "Romanian_Deadlift",
+   "confidence": "high",
+   "photoShows": "Barbell Romanian deadlift, facing the camera, overhand grip. Frame 0: hips pushed back, knees slightly bent, flat back, bar just below the knees. Frame 1: standing tall with the bar at the hips.",
+   "why": "A barbell hip hinge with the hips moving back and soft knees is exactly the pattern of an empty-bar hinge rehearsal. The implement and pattern match; the source's plates are only load, which the rules do not require to match. Stiff-Legged_Barbell_Deadlift lowers the bar to the floor, which is less of a hips-back hinge. Good_Morning puts the bar on the back, a different hinge.",
+   "viewed": [
+    "Romanian_Deadlift",
+    "Stiff-Legged_Barbell_Deadlift",
+    "Good_Morning"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. The implement is a straight barbell held overhand, just outside the thighs. He stands front-on, feet about hip width, with no box, platform or other support. Frame 0: hips pushed back, knees only slightly bent, shins near vertical, a flat back, and the bar just below the knees, a clean hip hinge. Frame 1: standing tall with the bar at the hips. That is the barbell hip-hinge pattern the rehearsal names, and the rehearsal rule allows a heavier load: the photo has plates loaded, not an empty bar, but the implement and pattern match. The app already uses this pair for Barbell Hip Hinge. Someone copying these frames would push the hips back with soft knees and a flat back holding a bar, which is the cue."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "Viewed both frames. A barbell held overhand with both hands, feet hip-width, facing the camera. One frame is the bottom of the hinge: hips pushed back, knees only softly bent with near-vertical shins, flat back, and the bar just below the knees with the arms straight. The other frame is standing tall with the bar at the hips. The movement between them is a pure hip hinge, hips back and forward without squatting. That is exactly 'feel the hips move back' for the hamstrings and spine regions. The implement (a straight barbell held with both hands) and the pattern match. Plates are loaded on the bar, but under the rehearsal rule the load does not need to match, only the implement and pattern. Same position, support and action as the drill."
+   }
+  ]
+ },
+ {
+  "key": "goblet-squat-rehearsal",
+  "kind": "drill",
+  "name": "Light goblet squat rehearsal",
+  "result": "photographed",
+  "source": "Goblet_Squat",
+  "curator": {
+   "proposed": "Goblet_Squat",
+   "confidence": "high",
+   "photoShows": "Kettlebell held by the horns at the chest, facing the camera. Frame 0: standing tall. Frame 1: deep squat at the bottom, chest up, elbows inside the knees.",
+   "why": "Same implement (a kettlebell held goblet-style as the counterbalance), same pattern (a bodyweight-stance squat to a deep bottom position) and same regions. The source also says to pause at the bottom, which matches the cue.",
+   "viewed": [
+    "Goblet_Squat"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. He faces the camera holding one kettlebell by the horns, close to his chest, with no other support. His feet are about shoulder width, toes slightly out. Frame 0: standing tall with the bell at the chest. Frame 1: a deep squat with the hips below the knees, chest up and the bell still at the chest, elbows inside the knees. That is the stable bottom position the cue asks him to pause in. The implement (a light counterbalance held goblet-style), the standing two-foot stance and the squat pattern all match a light goblet squat rehearsal."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "Viewed both frames. A single kettlebell held by the horns close to the chest, standing front-on with a shoulder-width-plus stance and no other support. Frame 0: standing tall. Frame 1: deep squat with hamstrings near the calves, chest and head up, and elbows inside the knees. The action is a squat down to a held bottom position. The source itself says to pause at the bottom and push the knees out with the elbows, which matches the cue 'pause briefly in a stable bottom position'. The implement (a kettlebell as a front counterbalance) and the pattern match the light goblet squat rehearsal. The load is a light bell, which fits 'light counterbalance'."
+   }
+  ]
+ },
+ {
+  "key": "empty-bar-press",
+  "kind": "drill",
+  "name": "Empty-bar press rehearsal",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "Barbell_Bench_Press_-_Medium_Grip: lying on a flat bench, bar locked out in frame 0 and touching the mid-chest in frame 1. Standing_Military_Press: standing, bar at the collarbone in frame 0 and locked out overhead in frame 1.",
+   "why": "The drill does not say which press it is. Its regions are chest and shoulders, and in client/src/lib/preTrainingMobility.ts it is tagged both horizontalPush and verticalPush, so the app shows it before bench days and before overhead-press days. Either photo would show the wrong bar path and position for one of those uses, which is a near miss. If the drill is split or renamed, the bench press photo fits an 'empty-bar bench press rehearsal' and the military press photo fits an 'empty-bar overhead press rehearsal'.",
+   "viewed": [
+    "Barbell_Bench_Press_-_Medium_Grip",
+    "Standing_Military_Press"
+   ]
+  }
+ },
+ {
+  "key": "band-row-rehearsal",
+  "kind": "drill",
+  "name": "Band row rehearsal",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "The source has no band row. Seated_Cable_Rows: seated at a cable stack with a V handle. Upright_Row_-_With_Bands: standing on a band, pulling the handles vertically up to the chin.",
+   "why": "The drill is a horizontal row with a band. The only band pull in the source that resembles a row is an upright row, which is a vertical pull to the chin and a different action. Seated cable rows and suspended or inverted rows have the right action but different equipment and support (a cable machine, straps, a bar). Band_Pull_Apart and Back_Flyes_-_With_Bands are straight-arm abduction, not rows.",
+   "viewed": [
+    "Seated_Cable_Rows",
+    "Upright_Row_-_With_Bands"
+   ]
+  }
+ },
+ {
+  "key": "controlled-dead-hang",
+  "kind": "drill",
+  "name": "Supported dead hang",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "One_Handed_Hang: hanging from a chin-up bar with one hand, feet on the floor, other hand on the hip; both frames are the same hold. Scapular_Pull-Up: two-hand overhand hang in frame 0 and an active scapular depression lifting the body slightly in frame 1, knees bent and feet off the floor.",
+   "why": "A dead hang is a two-hand, passive, static hang with optional foot support. One_Handed_Hang has foot support but uses one arm, which makes it a different, unilateral lat stretch. Scapular_Pull-Up shows a dead hang only in frame 0; frame 1 shows an active pulling movement, and the drill is a hold, not a pull. Pullups and Hanging_Leg_Raise also include large movements.",
+   "viewed": [
+    "One_Handed_Hang",
+    "Scapular_Pull-Up"
+   ]
+  }
+ },
+ {
+  "key": "wrist-circle",
+  "kind": "drill",
+  "name": "Wrist circle",
+  "result": "photographed",
+  "source": "Wrist_Circles",
+  "curator": {
+   "proposed": "Wrist_Circles",
+   "confidence": "medium",
+   "photoShows": "A man stands with his feet shoulder-width apart, no equipment, arms held away from his sides with the elbows nearly straight. In frame 0 the arms are raised about 40 degrees and both wrists are bent back with the palms open and the fingers pointing out. In frame 1 the arms are lower and the hands hang down and out, bent the other way. The two frames are two points on a circle drawn by the wrists.",
+   "why": "This is the source's own Wrist Circles. Its instructions are to stand, hold the arms out and keep everything still except the wrists, which draw circles. That matches the drill on every point: standing position, no equipment, a circling action (not a hold) and the wrist as the moving joint. One caveat: the instructions call for arms at shoulder height in a T, but the arms are lower in both frames and lower still in frame 1. The arm height changes a little between frames, but the elbows stay extended and the visible change is at the wrists. Nothing else in the source shows wrist circles.",
+   "viewed": [
+    "Wrist_Circles",
+    "Wrist_Rotations_with_Straight_Bar",
+    "Kneeling_Forearm_Stretch"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I looked at both frames, including enlarged crops. The set-up matches the drill: he stands with feet about shoulder-width apart, uses no equipment, and holds both arms out to the sides with the elbows extended in both frames. Only the wrist position changes in a way that matters. In frame 0 both wrists are extended, with palms facing out and fingers pointing up and out. In frame 1 both wrists are flexed, with the hands hanging and fingers pointing down. These are the extension and flexion points of a wrist circle, and the elbows do not bend, which fits the cue 'move through the wrist, not the elbow.' Both wrists are shown, so nothing is wrong on laterality. Two small issues are not enough to refute. First, the arms sit lower than the source's instructed shoulder-height T: about 40 degrees in frame 0 and about 25 degrees in frame 1. That means the shoulder drops a little between frames, though the elbows stay straight. Second, two frames cannot show that the path is circular. The app's drill does not name an arm height, and this is the source's own Wrist Circles photo of the same standing, both-wrist drill, so someone copying it would do a standing wrist circle."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames, including zoomed crops with a grid. He is standing, with no equipment, and his arms are held out and down from his sides with the elbows a little bent. Between the frames the hand turns about 90 to 120 degrees around the wrist. In frame 0 the hand is bent back, palm forward and fingers pointing out. In frame 1 the hand hangs down with the fingers pointing at the floor. The forearms and elbows barely move: the wrists drop only slightly and the elbow angle is almost the same. So the motion comes from the wrist, as the cue 'Move through the wrist, not the elbow' asks. These are the top and bottom of a wrist circle from the source that is itself called 'Wrist Circles', and it is the only source for this movement. Two caveats. The arms sit lower than the T position in the source's text, but the drill does not set an arm height. Two frames cannot draw the circle, but the drill's name supplies it. Copying the photos gives the named drill, not a wrist flap or an arm swing."
+   }
+  ]
+ },
+ {
+  "key": "wrist-rock",
+  "kind": "drill",
+  "name": "Quadruped wrist rock",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": "Kneeling_Forearm_Stretch",
+   "confidence": "medium",
+   "photoShows": "A man on all fours on a mat, palms flat with the fingers pointing back toward his knees. In frame 0 his hips are over his knees and his shoulders over his hands. In frame 1 he has shifted his weight back toward his heels, with his shoulders behind his hands, which bends the wrists further back and stretches the forearms.",
+   "why": "The position matches (all fours, palms flat, no equipment), the body part matches (wrists and forearms), and the two frames show a gradual shift of bodyweight across the hands, which is the range of a rock. The source calls it a static stretch, but it is done in the same position and the frames show the full rocking range, so it meets the rule for using a static stretch photo for a mobility drill. Caveat for the orchestrator: the photo shows the fingers-back hand position, a recognised variant of the quadruped wrist rock in which the person rocks backward. The default version, implied by the cue's 'turn the hands out if needed', points the fingers forward and rocks forward. If the app wants fingers forward only, reject this match. No source shows the fingers-forward version.",
+   "viewed": [
+    "Kneeling_Forearm_Stretch",
+    "Wrist_Circles"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "refute",
+    "reason": "The enlarged crops show the wrong hand set-up for this drill. In both frames the palms are flat with the fingers pointing back toward the knees, which is a reverse-hand position. Between frames he shifts his weight back toward his heels, moving the shoulders from over or in front of the hands to behind them. That is the reverse-hand forearm flexor stretch. The app's quadruped wrist rock is tagged horizontalPush, and its cue offers 'turn the hands out or elevate them' as a regression. That is the standard regression for the fingers-forward, push-up-style wrist rock, where the shoulders rock forward past the hands to load wrist extension. Someone copying these frames would turn the hands around and rock backward. That is the opposite hand orientation and the opposite rock direction, and it is a harder end-range position (wrist extension with the forearm turned palm-up and the elbow locked) than the gentle push-prep rock with a regression that this dose and cue describe. The source is also a 20-30 second static hold, not repeated rocks. Position (quadruped, on a mat, no equipment, both hands) matches, but the hand placement does not. I found no fingers-forward quadruped wrist source in the list."
+   },
+   {
+    "lens": "action",
+    "verdict": "refute",
+    "reason": "Zoomed crops of the hands in both frames show the palms flat with the fingers clearly pointing BACK toward the knees, so the heel of the hand faces forward. The movement between frames is a sit-back toward the heels: the hips move behind the knees and the shoulders move behind the hands, so the forearm tilts back over the fingers. Copying these frames gives the reverse-hand kneeling wrist-flexor stretch (rocking back on reversed hands). The standard 'Quadruped wrist rock' coaches put the fingers pointing forward and rock the shoulders forward over the hands. That is the version the app means: the drill is tagged horizontalPush to prepare the wrists for push-ups and bench, and its cue offers 'turn the hands out or elevate them' as the way to ease off. The photo shows the fingers-back hand position, which is the hardest on the wrist flexors and elbows. It is not mentioned in the cue and is the opposite of the easier options it offers. The hand direction and the rock direction both differ, so this is a cousin drill for the same region and would teach the wrong hand placement. The source is also a static 20-30 second hold, not a rock."
+   }
+  ]
+ },
+ {
+  "key": "wrist-extension",
+  "kind": "drill",
+  "name": "Wrist extension glide",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source photo shows this drill. The drill is done one side at a time ('each side'): the arm is extended and the other hand gently takes the relaxed fingers back to bend the wrist in small gliding movements.",
+   "why": "Closest candidates: (1) Kneeling_Forearm_Stretch bends the wrists back but on all fours, with both hands at once and the bodyweight as the load, which is a different position and set-up from a one-arm, hand-assisted glide. (2) Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl is seated with the forearm on the thigh and lifts a dumbbell, so it is a loaded strength curl, not a glide. (3) Side_Wrist_Pull is a cross-body back and shoulder stretch in which one hand only grips the other wrist. (4) Wrist_Circles circles the wrist. The source has no standing or seated hand-assisted wrist extension stretch.",
+   "viewed": [
+    "Kneeling_Forearm_Stretch",
+    "Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl",
+    "Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl",
+    "Side_Wrist_Pull",
+    "Wrist_Circles"
+   ]
+  }
+ },
+ {
+  "key": "wrist-flexion",
+  "kind": "drill",
+  "name": "Wrist flexion glide",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source photo shows this drill. The drill: the arm is held out with the elbow straight but not locked, and the other hand gently presses the back of the hand to bend the wrist forward, repeated on each side.",
+   "why": "No source photo shows a hand-assisted wrist flexion stretch or glide. Closest candidates: (1) Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl and the palms-up version are seated, with the elbow bent over the thigh, lifting a dumbbell, so the position, equipment and action are all different. (2) Wrist_Rotations_with_Straight_Bar is standing with a barbell, rolling the wrists alternately. (3) Side_Wrist_Pull is a shoulder and back stretch. (4) Kneeling_Forearm_Stretch bends the wrist back on all fours, which is the opposite direction.",
+   "viewed": [
+    "Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl",
+    "Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl",
+    "Wrist_Rotations_with_Straight_Bar",
+    "Side_Wrist_Pull",
+    "Kneeling_Forearm_Stretch"
+   ]
+  }
+ },
+ {
+  "key": "pronation-supination",
+  "kind": "drill",
+  "name": "Forearm pronation-supination",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source photo shows this drill. The drill: the elbow is bent and the palm turns up and down by rotating the forearm, with no load, done on each side.",
+   "why": "Closest candidates: (1) Dumbbell_Lying_Pronation shows him face down on a bench with the upper arm out and the elbow bent at 90 degrees, rotating a dumbbell forward. The rotation is at the shoulder and the forearm does not rotate. (2) Dumbbell_Lying_Supination is the same set-up lying on his side, again rotating at the shoulder. (3) Zottman_Curl turns the palm at the top of a dumbbell curl, so it is an elbow-bending curl with load. (4) Wrist_Rotations_with_Straight_Bar rolls the wrists back and forth on a barbell, which is not a palm rotation. None shows an unloaded forearm rotation.",
+   "viewed": [
+    "Dumbbell_Lying_Pronation",
+    "Dumbbell_Lying_Supination",
+    "Zottman_Curl",
+    "Wrist_Rotations_with_Straight_Bar"
+   ]
+  }
+ },
+ {
+  "key": "finger-extension",
+  "kind": "drill",
+  "name": "Finger extension band open",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source photo shows this drill. The drill: a rubber band is looped around the fingertips and the fingers spread against it to open the hand fully.",
+   "why": "No source exercise loops a band around the fingers, and none spreads the fingers against resistance. Closest candidates: (1) Finger_Curls is seated, letting a barbell roll down the fingers and curling it back up, which works the finger flexors against load. (2) Standing_Olympic_Plate_Hand_Squeeze holds a plate by its rim, a grip or flexion move. Both use different equipment and the opposite action. None of the source's band exercises involves the hand.",
+   "viewed": [
+    "Finger_Curls",
+    "Standing_Olympic_Plate_Hand_Squeeze"
+   ]
+  }
+ },
+ {
+  "key": "33",
+  "kind": "exercise",
+  "name": "Clap Push-Up",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "No source photo shows a push-up with a clap. Plyo_Push-up (withdrawn) shows only a plain push-up, bottom then top, with the hands on the floor. Clock_Push-Up shows a push-up with a lateral shift and no clap. Drop_Push shows hands on two boxes.",
+   "why": "The source has no clap push-up. Plyo_Push-up was withdrawn and cannot be proposed again; its instructions only mention claps as an option, and neither frame shows the hands off the floor or clapping. Clock_Push-Up is a lateral 'clock' hop around a circle, Drop_Push drops from boxes, and Plyo_Kettlebell_Pushups switch hands over a kettlebell. Each is a different plyometric push-up variation.",
+   "viewed": [
+    "Plyo_Push-up",
+    "Clock_Push-Up",
+    "Drop_Push"
+   ]
+  }
+ },
+ {
+  "key": "44",
+  "kind": "exercise",
+  "name": "Pendlay Row",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "Every barbell bent-over row in the source keeps the bar hanging at mid-shin or knee height between reps, never resting on the floor with the torso parallel. Bent_Over_Barbell_Row (withdrawn) uses an overhand grip and Reverse_Grip_Bent-Over_Rows an underhand grip, both with the bar hanging.",
+   "why": "A Pendlay row is a dead-stop row: the bar returns to the floor every rep and the torso stays near parallel. No source shows that. Bent_Over_Barbell_Row was withdrawn for this reason. Reverse_Grip_Bent-Over_Rows also has the bar hanging and uses a supinated grip. Smith_Machine_Bent_Over_Row is a machine, and the Long Bar/T-bar rows use a landmine-style bar. Showing the base movement for a named variation the source lacks is not allowed.",
+   "viewed": [
+    "Bent_Over_Barbell_Row",
+    "Reverse_Grip_Bent-Over_Rows"
+   ]
+  }
+ },
+ {
+  "key": "48",
+  "kind": "exercise",
+  "name": "Seal Row",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "Lying_Cambered_Barbell_Row: a man lies prone on a standard-height flat bench with his feet up on it and rows a cambered (bent-centre) barbell. In frame 0 the plates rest on the floor under the bench; in frame 1 the bar is pulled up to the bench. Incline_Bench_Pull (withdrawn) is chest-supported on an incline bench.",
+   "why": "This is the closest candidate, but it is not a seal row as specified: the bench is not raised, so the weight starts resting on the floor rather than hanging free, and the implement is a specialty cambered bar rather than a straight barbell or dumbbells. That makes it a separate named variation (the source calls it 'Lying Cambered Barbell Row') with different support height, start position and implement. Incline_Bench_Pull was withdrawn and Dumbbell_Incline_Row is also on an incline. Lying_T-Bar_Row is a machine, and Straight_Bar_Bench_Mid_Rows is a standing row on top of a bench. Chose none over a near miss.",
+   "viewed": [
+    "Lying_Cambered_Barbell_Row",
+    "Incline_Bench_Pull"
+   ]
+  }
+ },
+ {
+  "key": "68",
+  "kind": "exercise",
+  "name": "Neutral-Grip Pull-Up",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "medium",
+   "photoShows": "V-Bar_Pullup: a V-bar (cable row handle) is draped over a straight pull-up bar, and the man grips it with his hands almost touching and his knees bent. Frame 0 is the top position with his chin near the bar; frame 1 is the hang. Pullups (withdrawn) shows angled handles with the palms forward.",
+   "why": "The source has no pull-up on parallel neutral handles at about shoulder width. V-Bar_Pullup does give palms-facing hands, but it uses a different attachment (a V-handle hung over a straight bar, which its own instructions call a stand-in when the station has no neutral handles) and a very close, hands-touching grip. That is a separate close-grip V-bar variation, and the attachment would teach the wrong setup. Pullups was withdrawn. Chin-Up (supinated), Mixed_Grip_Chin, Weighted_Pull_Ups, Rocky/Side_To_Side chins, Gironda_Sternum_Chins and Band_Assisted_Pull-Up are all non-neutral grips by their instructions. Chose none over a near miss.",
+   "viewed": [
+    "V-Bar_Pullup",
+    "Pullups"
+   ]
+  }
+ },
+ {
+  "key": "173",
+  "kind": "exercise",
+  "name": "Bulgarian Split Squat",
+  "result": "photographed",
+  "source": "Split_Squat_with_Dumbbells",
+  "curator": {
+   "proposed": "Split_Squat_with_Dumbbells",
+   "confidence": "high",
+   "photoShows": "Standing split squat with the rear foot's instep resting on a flat bench behind and a dumbbell hanging in each hand. Frame 0: standing tall at the top. Frame 1: descended with the front thigh near parallel and the rear knee lowered toward the floor.",
+   "why": "This is exactly a Bulgarian split squat: rear foot elevated on a bench, bilateral dumbbells (free weights), single-leg knee-dominant squat, and an upright torso. The source instructions state 'staggered stance with the rear foot elevated'. It replaces the withdrawn Split_Squats, which had the rear foot on the floor. One_Leg_Barbell_Squat is also a rear-foot-elevated split squat, but with a back-racked barbell; the dumbbell version is the more standard presentation.",
+   "viewed": [
+    "Split_Squat_with_Dumbbells",
+    "One_Leg_Barbell_Squat"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. Frame 0: the athlete stands in a fixed staggered stance. The instep of the rear foot rests on a flat bench behind him, the front foot is flat on the floor well in front, the torso is upright and a dumbbell hangs at each side. Frame 1: the same stance and support, lowered into the split. The front thigh is close to parallel, the rear knee drops toward the floor under the hip and the dumbbells still hang at the sides. Checked for set-up: it is a rear-foot-elevated split squat (Bulgarian), with the rear foot raised on the bench, not on the floor. That was the reason Split_Squats (#173's withdrawn photo) failed, and this photo fixes it. It is unilateral with a fixed stance, not a stepping lunge. The implement is dumbbells, which fits 'Free weights', and the range is full. The source's own instructions describe the same set-up: rear foot elevated, dumbbells hanging at the sides, descend and drive back up. Someone copying these frames would perform a Bulgarian split squat."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. Frame 0: the athlete stands tall in a fixed staggered stance with the instep of his rear foot resting on a flat bench behind him and a dumbbell hanging at each side. Frame 1: he holds the same stance. The front knee and hip have flexed until the front thigh is near parallel, the rear knee has dropped toward the floor, the torso stays upright and the dumbbells still hang. Between the frames the hips move straight down and up over a planted front foot. Nothing steps or jumps, the bench foot stays where it is, and there is no forward travel. So the action is a stationary, rear-foot-elevated, single-leg-dominant squat with dumbbells, which is a Bulgarian split squat. The source's instructions describe the same thing ('rear foot elevated', dumbbells at the sides, descend, drive through the heel to return). The implement is a free weight, which matches 'Free weights'. Someone copying these frames would do a Bulgarian split squat, not a lunge or a floor split squat. The withdrawn source was Split_Squats, a bodyweight jumping split with the rear foot on the floor. This is a different source, and it fixes exactly that problem."
+   }
+  ]
+ },
+ {
+  "key": "203",
+  "kind": "exercise",
+  "name": "Kettlebell Swing",
+  "result": "no photo",
+  "source": null,
+  "curator": {
+   "proposed": null,
+   "confidence": "high",
+   "photoShows": "One-Arm_Kettlebell_Swings (withdrawn) is single-arm. Vertical_Swing is a dumbbell swung overhead with a jump. Kettlebell_Pass_Between_The_Legs hands a kettlebell from one hand to the other between the legs.",
+   "why": "No source shows a two-hand kettlebell swing. One-Arm_Kettlebell_Swings was withdrawn as single-arm. Vertical_Swing uses a different implement (dumbbell) and a different action (overhead swing with a jump). Kettlebell_Pass_Between_The_Legs is a hand-to-hand pass, not a hip-driven swing. Sledgehammer_Swings is unrelated.",
+   "viewed": [
+    "One-Arm_Kettlebell_Swings",
+    "Vertical_Swing",
+    "Kettlebell_Pass_Between_The_Legs"
+   ]
+  }
+ },
+ {
+  "key": "339",
+  "kind": "exercise",
+  "name": "High Cable Curl",
+  "result": "photographed",
+  "source": "Overhead_Cable_Curl",
+  "curator": {
+   "proposed": "Overhead_Cable_Curl",
+   "confidence": "high",
+   "photoShows": "Standing between two high pulleys on a cable crossover, holding a single D-handle in each hand with an underhand grip and the upper arms out to the sides at about shoulder height. Frame 0: elbows extended, arms out in a T. Frame 1: both elbows curled with the hands beside the head in a double-biceps position.",
+   "why": "This is exactly the standing bilateral high-pulley curl between two high pulleys: cable implement, single handles, both arms, standing and upright, upper arms fixed at shoulder height, elbow flexion toward the head. It replaces High_Cable_Curls, whose photo shows the lifter lying on a bench even though its text describes standing.",
+   "viewed": [
+    "Overhead_Cable_Curl",
+    "High_Cable_Curls"
+   ]
+  },
+  "reviewers": [
+   {
+    "lens": "position",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. The athlete stands centred in a cable crossover with feet about shoulder-width apart. He holds a single handle in each hand with the palms up, and both pulleys are set above shoulder height. Frame 0: his arms are straight out to the sides at about shoulder height in a T, with the cables running level to the high pulleys. Frame 1: the upper arms stay in that position and both elbows bend, bringing the hands beside the head in a double-biceps pose. This is exactly the 'standing two-pulley curl' that the withdrawal note for #339 named as the right exercise. The withdrawn High_Cable_Curls photo was taken lying on a bench, so this is a different source and fixes that fault. The equipment is a cable, the body position is standing, the attachment is single handles, both arms work, the upper arms stay abducted at shoulder height and the action is elbow flexion only. All of these match a high cable curl. Someone copying these frames would perform a high cable curl."
+   },
+   {
+    "lens": "action",
+    "verdict": "confirm",
+    "reason": "I viewed both frames. The athlete stands centred in a cable crossover, holding a single D-handle in each hand from pulleys set above shoulder height. Frame 0: his upper arms are abducted to about shoulder height and his elbows are extended, so his arms form a T with the palms up. Frame 1: his upper arms stay in the same abducted position while both elbows flex, bringing the handles beside his head in a double-biceps pose. Only the forearms move between the frames. The shoulders, torso and stance stay still, and nothing presses, pulls down or rows. That is the high cable curl: a standing, two-arm curl between two high pulleys with the upper arms held parallel to the floor and the hands curled toward the ears. The withdrawn High_Cable_Curls photo is mislabelled in the source; I viewed it and it shows a lying-on-bench extension. This photo shows the standing two-pulley curl the audit said was missing. The equipment (cable), laterality (both arms at once), body position (standing) and movement (elbow flexion) all match."
+   }
+  ]
+ }
+]

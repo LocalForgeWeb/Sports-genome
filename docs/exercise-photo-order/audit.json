@@ -7,6 +7,14 @@
   "verdict": "in order",
   "why": "frame 0 kneeling over the roller"
  },
+ "Ankle_Circles": {
+  "verdict": "in order",
+  "why": "a circle: frame 0 the foot planted, frame 1 lifted and turning; either reads as the movement"
+ },
+ "Arm_Circles": {
+  "verdict": "in order",
+  "why": "a circle: frame 0 arms out level, frame 1 raised through the arc"
+ },
  "Arnold_Dumbbell_Press": {
   "verdict": "in order",
   "why": "frame 0 dumbbells at the chest"
@@ -86,6 +94,10 @@
  "Bent_Over_One-Arm_Long_Bar_Row": {
   "verdict": "in order",
   "why": "frame 0 arm hanging with the bar end low; frame 1 bar end pulled to the torso"
+ },
+ "Bodyweight_Squat": {
+  "verdict": "in order",
+  "why": "frame 0 standing; frame 1 the bottom of the squat"
  },
  "Butt_Lift_Bridge": {
   "verdict": "in order",
@@ -263,6 +275,10 @@
   "verdict": "in order",
   "why": "frame 0 standing on the plate; frame 1 bottom of the reverse lunge"
  },
+ "External_Rotation_with_Band": {
+  "verdict": "in order",
+  "why": "frame 0 hand across the body, elbow at the side; frame 1 rotated out"
+ },
  "External_Rotation_with_Cable": {
   "verdict": "in order",
   "why": "frame 0 hand across the torso"
@@ -282,6 +298,10 @@
  "Farmers_Walk": {
   "verdict": "in order",
   "why": "frame 0 picking up"
+ },
+ "Fast_Skipping": {
+  "verdict": "in order",
+  "why": "frame 0 standing relaxed, one foot forward (the source's start); frame 1 the low skip"
  },
  "Freehand_Jump_Squat": {
   "verdict": "in order",
@@ -342,6 +362,10 @@
  "High_Cable_Curls": {
   "verdict": "in order",
   "why": "frame 0 arms extended to the pulleys"
+ },
+ "Hip_Circles_prone": {
+  "verdict": "in order",
+  "why": "frame 0 on all fours; frame 1 the knee lifted out to the side"
  },
  "Hyperextensions_Back_Extensions": {
   "verdict": "in order",
@@ -538,6 +562,10 @@
  "One-Legged_Cable_Kickback": {
   "verdict": "in order",
   "why": "frame 0 leg down"
+ },
+ "Overhead_Cable_Curl": {
+  "verdict": "in order",
+  "why": "frame 0 arms extended toward the high pulleys; frame 1 curled to the head"
  },
  "Overhead_Slam": {
   "verdict": "in order",
@@ -743,6 +771,10 @@
   "verdict": "in order",
   "why": "frame 0 lunge stance, where the source starts"
  },
+ "Split_Squat_with_Dumbbells": {
+  "verdict": "in order",
+  "why": "frame 0 standing tall, rear foot on the bench; frame 1 the bottom of the split squat"
+ },
  "Split_Squats": {
   "verdict": "in order",
   "why": "both frames are split stances"
@@ -790,6 +822,10 @@
  "Standing_Two-Arm_Overhead_Throw": {
   "verdict": "in order",
   "why": "frame 0 holding the ball before reaching back; frame 1 is the wind-up"
+ },
+ "Step-up_with_Knee_Raise": {
+  "verdict": "in order",
+  "why": "frame 0 stepping onto the bench; frame 1 standing on it with the knee driven up"
  },
  "Stiff-Legged_Barbell_Deadlift": {
   "verdict": "reversed",
@@ -870,6 +906,10 @@
  "Wide-Grip_Rear_Pull-Up": {
   "verdict": "in order",
   "why": "frame 0 hanging"
+ },
+ "Wrist_Circles": {
+  "verdict": "in order",
+  "why": "a circle: frame 0 hands flexed back, frame 1 turned down; either reads as the movement"
  },
  "Wrist_Roller": {
   "verdict": "in order",

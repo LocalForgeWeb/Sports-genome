@@ -5,6 +5,8 @@ import type { TrainingGoal } from "@/lib/workoutPlanner";
 import { getStackWarmup } from "@/lib/preTrainingMobility";
 import { useUtilityRecord } from "@/lib/utilityStore";
 import { openUtility } from "@/lib/utilityTools";
+import { drillPhotoSet } from "@/lib/exercisePhotos";
+import { ExerciseMedia } from "@/components/ExerciseMedia";
 import { PREP_RUN_STORE, PREP_STORE, activeRoutines, emptyPrepRunStore, emptyPrepStore, estimatedMinutes, isPrepRunStore, isPrepStore, localDate, routineForToday, skipPreparation, stepView, todaysRun, toggleStep, type PrepRunStore, type PrepStore } from "@/lib/preparationRoutines";
 import "../utility-tools.css";
 
@@ -18,6 +20,9 @@ export function PreparationRoutinePanel({ dayLabel, workout, goal }: { dayLabel:
   const [store] = useUtilityRecord<PrepStore>(PREP_STORE, emptyPrepStore, isPrepStore);
   const [runs, writeRuns] = useUtilityRecord<PrepRunStore>(PREP_RUN_STORE, emptyPrepRunStore, isPrepRunStore);
   const [open, setOpen] = useState(false);
+  // A drill's photographs open under its step, one at a time, the way the warm-up list shows
+  // them: the ticks and the order stay exactly where they were.
+  const [photosOpen, setPhotosOpen] = useState<number | null>(null);
   const [status, setStatus] = useState("");
   const date = localDate();
   const today = routineForToday(store, runs, dayLabel, date);
@@ -57,11 +62,16 @@ export function PreparationRoutinePanel({ dayLabel, workout, goal }: { dayLabel:
     {open && <ol className="prep-steps">{steps.map((step, index) => {
       const view = stepView(step);
       const done = Boolean(run?.done.includes(index));
+      const photo = view.available ? drillPhotoSet(step.drillId) : null;
       return <li key={`${step.drillId}-${index}`} className={done ? "is-done" : ""}>
-        <label className="ut-check prep-step">
-          <input type="checkbox" checked={done} onChange={() => save(toggleStep(runs, dayLabel, date, routine, scope, index, new Date().toISOString()))} />
-          <span><b>{view.name}</b><small>{view.dose ? `${view.dose}${view.doseIsLibraryDefault ? " (library dose)" : ""}` : "No dose given"}</small></span>
-        </label>
+        <div className="prep-step-row">
+          <label className="ut-check prep-step">
+            <input type="checkbox" checked={done} onChange={() => save(toggleStep(runs, dayLabel, date, routine, scope, index, new Date().toISOString()))} />
+            <span><b>{view.name}</b><small>{view.dose ? `${view.dose}${view.doseIsLibraryDefault ? " (library dose)" : ""}` : "No dose given"}</small></span>
+          </label>
+          {photo && <button type="button" className="prep-thumb" aria-expanded={photosOpen === index} aria-label={`${photosOpen === index ? "Hide" : "Show"} photos of ${view.name}`} onClick={() => setPhotosOpen((current) => (current === index ? null : index))}><ExerciseMedia exerciseId={-1} photo={photo} subject="drill" exerciseName={view.name} equipment="Bodyweight" variant="thumb" /></button>}
+        </div>
+        {photo && photosOpen === index && <div className="prep-photos"><ExerciseMedia exerciseId={-1} photo={photo} subject="drill" exerciseName={view.name} equipment="Bodyweight" variant="detail" /></div>}
         {!view.available && <p className="prep-missing">This drill is no longer in the library; shown as you saved it.</p>}
         {view.cue && <p className="prep-cue">{view.cue}</p>}
         {view.note && <p className="prep-cue"><span className="su-note-label">My note:</span> {view.note}</p>}

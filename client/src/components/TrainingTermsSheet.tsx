@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ChevronRight, ExternalLink, Search } from "lucide-react";
 import { UtilitySheet } from "@/components/UtilitySheet";
+import { LocalSearchScope } from "@/components/LocalSearchScope";
+import { UNIVERSAL_SEARCH_OPEN_EVENT } from "@/lib/universalSearchBus";
 import { trainingGlossary } from "@/lib/trainingGlossary";
 import { glossaryGroups, searchGlossary, type GlossaryEntry } from "@/lib/glossarySearch";
 
@@ -19,6 +21,12 @@ export function TrainingTermsSheet({ termId, onClose }: { termId?: string; onClo
   const backRef = useRef<HTMLButtonElement>(null);
   const lastOpened = useRef<string | null>(null);
 
+  // Broadening hands the query to the app's search, which takes over from this sheet.
+  useEffect(() => {
+    window.addEventListener(UNIVERSAL_SEARCH_OPEN_EVENT, onClose);
+    return () => window.removeEventListener(UNIVERSAL_SEARCH_OPEN_EVENT, onClose);
+  }, [onClose]);
+
   useEffect(() => {
     if (open) { lastOpened.current = open.id; backRef.current?.focus({ preventScroll: true }); }
     // Back from a term puts focus on that term's row, where the reader was.
@@ -29,6 +37,7 @@ export function TrainingTermsSheet({ termId, onClose }: { termId?: string; onClo
     <div className="stp-body gl-body">
       {open ? <TermDetail entry={open} backRef={backRef} onBack={() => setOpenId(null)} onOpen={setOpenId} /> : <>
         <label className="ut-field gl-search"><span className="sr-only">Search training terms</span><span className="ut-input-unit"><Search className="h-5 w-5" aria-hidden="true" /><input type="search" value={query} placeholder="Search terms, e.g. RPE or e1RM" aria-label="Search training terms" autoComplete="off" onChange={(event) => setQuery(event.target.value)} /></span></label>
+        <LocalSearchScope scope="Searches the training terms only." query={query} />
         <p className="ut-status" role="status" aria-live="polite">{query.trim() ? `${results.length} term${results.length === 1 ? "" : "s"}` : `${trainingGlossary.length} terms`}</p>
         {results.length === 0 ? <p className="ut-empty">No term matches “{query.trim()}”. Try a shorter word, or an abbreviation such as RPE.</p>
           : query.trim() ? <ul className="gl-list">{results.map((entry) => <TermRow key={entry.id} entry={entry} rowRefs={rowRefs} onOpen={setOpenId} showGroup />)}</ul>

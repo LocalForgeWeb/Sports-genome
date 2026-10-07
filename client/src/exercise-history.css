@@ -1,0 +1,20 @@
+/* One exercise's past workouts (components/ExerciseHistoryList.tsx): rows with dividers, the date
+   strong, the sets in tabular figures. Used on the dark exercise sheet and the live set card. */
+.exercise-history-list { display: grid; margin: 0; padding: 0; list-style: none; }
+.exercise-history-list > li + li { border-top: 1px solid var(--sg-divider-on-dark); }
+.exercise-history-list > li > :is(button, div) { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .15rem .75rem; align-items: center; width: 100%; min-height: 2.75rem; padding: .5rem 0; color: var(--sg-text-on-dark); text-align: left; }
+.exercise-history-list > li > button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.exercise-history-list > li > button > svg { grid-column: 2; grid-row: 1 / span 2; width: 1rem; height: 1rem; color: var(--sg-text-subtle-on-dark); }
+.exercise-history-when { grid-column: 1; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.exercise-history-when strong { color: var(--sg-text-on-dark); font-weight: 700; }
+.exercise-history-sets { grid-column: 1; display: flex; flex-wrap: wrap; gap: .1rem .75rem; font-size: var(--sg-text-base); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.exercise-history-sets small { color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); }
+.exercise-history-empty, .exercise-history-more { margin: 0; color: var(--sg-text-muted-on-dark); font-size: var(--sg-text-sm); line-height: var(--sg-leading-body); }
+.exercise-history-more { padding-top: .35rem; }
+.live-set-history > summary { display: flex; min-height: 2.75rem; align-items: center; justify-content: space-between; gap: .5rem; color: var(--sg-text-on-dark); font-size: var(--sg-text-sm); font-weight: 600; cursor: pointer; list-style: none; }
+.live-set-history > summary::-webkit-details-marker { display: none; }
+.live-set-history > summary:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 2px; }
+.live-set-history > summary svg { transition: transform var(--sg-motion-fast) var(--sg-ease); }
+.live-set-history[open] > summary svg { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .live-set-history > summary svg { transition: none; } }
+.ei-history { display: grid; gap: .4rem; }

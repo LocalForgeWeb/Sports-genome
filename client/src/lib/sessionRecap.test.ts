@@ -153,3 +153,32 @@ describe("Repeat a workout copies the prescription, never the history (H10)", ()
     expect(day.unresolved).toEqual([]);
   });
 });
+
+describe("one exercise's history (H07, H08)", () => {
+  it("lists the workouts that did it, newest first, by identity, with sets in their logged units", async () => {
+    const { exerciseHistory } = await import("./sessionRecap");
+    const at = (id: string, iso: string, catalogId: number | undefined, weight: string, unit: "lb" | "kg"): DeviceWorkoutSession => ({
+      id, title: "W", dayLabel: `Week 1 · ${id}`, startedAt: iso, completedAt: iso, status: "completed",
+      exercises: [{ id: "e", exerciseName: "Romanian Deadlift", ...(catalogId !== undefined ? { catalogId } : {}), plannedPrescription: "3 × 8", sets: [{ weight, reps: "8", unit, completed: true }, { weight: "", reps: "" }] }],
+    });
+    const sessions = [at("A", "2026-10-01T10:00:00Z", 186, "100", "kg"), at("B", "2026-10-05T10:00:00Z", 186, "225", "lb"), at("C", "2026-10-06T10:00:00Z", 42, "60", "kg"), { ...at("D", "2026-10-07T10:00:00Z", 186, "1", "lb"), status: "active" as const }];
+    const { entries, total } = exerciseHistory({ exerciseName: "Romanian Deadlift", catalogId: 186 }, sessions, "lb");
+    expect(total).toBe(2);
+    expect(entries.map((entry) => entry.sessionId)).toEqual(["B", "A"]);
+    expect(entries[0].sets.map((set) => set.line)).toEqual(["225 lb × 8"]);
+    expect(entries[1].sets.map((set) => set.line)).toEqual(["100 kg × 8"]);
+    expect(entries[0].dayName).toBe("B");
+    expect(exerciseHistory({ exerciseName: "Romanian Deadlift", catalogId: 186 }, sessions, "lb", 1).entries).toHaveLength(1);
+  });
+});
+
+describe("Last logged says what was logged when it is offered in another unit (H08)", () => {
+  it("keeps the logged weight and unit beside the converted offer", async () => {
+    const { carriedEntryFor } = await import("./deviceWorkoutLog");
+    const past: DeviceWorkoutSession = { id: "p", title: "W", dayLabel: "W", startedAt: "2026-10-01T10:00:00Z", completedAt: "2026-10-01T11:00:00Z", status: "completed",
+      exercises: [{ id: "e", exerciseName: "Barbell Bench Press", catalogId: 1, plannedPrescription: "3 × 5", sets: [{ weight: "82.5", reps: "4", unit: "kg", completed: true }] }] };
+    const today = { id: "t", exerciseName: "Barbell Bench Press", catalogId: 1, plannedPrescription: "3 × 5", sets: [{ weight: "", reps: "" }] };
+    expect(carriedEntryFor(today, 0, [past], "lb")).toEqual({ weight: "181.88", reps: "4", height: "", source: "history", logged: { weight: "82.5", unit: "kg" } });
+    expect(carriedEntryFor(today, 0, [past], "kg")).toEqual({ weight: "82.5", reps: "4", height: "", source: "history" });
+  });
+});

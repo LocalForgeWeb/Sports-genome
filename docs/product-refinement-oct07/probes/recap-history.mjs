@@ -2,7 +2,7 @@
 // and Home's last-workout entry, driven through the built app (vite preview) in headless Chromium.
 // Viewport emulation only: not a phone, not a person. Run: node docs/product-refinement-oct07/probes/recap-history.mjs
 import { writeFileSync } from 'node:fs';
-import { browser, base, seed, page, wait } from '../../exercise-intelligence/probes/shared.mjs';
+import { browser, base, seed, page, wait, openExercise } from '../../exercise-intelligence/probes/shared.mjs';
 
 const out = new URL('../evidence/', import.meta.url).pathname;
 const results = [];
@@ -153,6 +153,47 @@ for (const [width, height] of [[390, 844], [320, 640], [1280, 900]]) {
   check('The chosen day now holds both exercises with their prescriptions', plan.includes('Barbell Bench Press') && plan.includes('Back Squat') && plan.includes('5 × 3'), new URL(p.url()).search);
   check('History is unchanged: no set, completion or timestamp copied or altered', JSON.stringify(await stored(p)) === before);
   await p.screenshot({ path: `${out}repeat-plan-day-390.png` });
+  await ctx.close();
+}
+
+// H07 / H08 / H09: one exercise's history, in the live logger and in the exercise detail.
+{
+  const [ctx, p] = await page(390, 844);
+  const past = [{ id: 'past-bench', title: 'Week 1 · Day 01 · Push workout', dayLabel: 'Week 1 · Day 01 · Push', startedAt: '2026-10-02T10:00:00.000Z', completedAt: '2026-10-02T11:00:00.000Z', status: 'completed', weightUnit: 'kg',
+    exercises: [{ id: 'a', exerciseName: 'Barbell Bench Press', catalogId: 1, plannedPrescription: '3 × 5', sets: [{ weight: '80', reps: '5', unit: 'kg', completed: true }, { weight: '82.5', reps: '4', unit: 'kg', completed: true }] }] }];
+  await seed(p, { [historyKey]: JSON.stringify([live(), ...past]) });
+  await p.goto(`${base}/?workspace=tracker`); await wait(p, 1800);
+  const card = p.locator('.live-set-card').first();
+  await card.getByLabel(/^Weight/).fill('190');
+  const lastLine = await p.locator('.live-set-last').textContent();
+  check('Last logged names the unit it was logged in, with the converted offer labelled (H08)', lastLine.includes('82.5 kg × 4') && lastLine.includes("181.88 lb in this workout's unit"), lastLine);
+  const disclosure = p.locator('.live-set-history');
+  check('Logger offers "Earlier Barbell Bench Press workouts (1)"', (await disclosure.locator('summary').textContent())?.includes('Earlier Barbell Bench Press workouts (1)'));
+  await disclosure.locator('summary').click(); await wait(p, 300);
+  const lines = await disclosure.textContent();
+  check('…listing the earlier sets in the units they were logged in', lines.includes('80 kg × 5') && lines.includes('82.5 kg × 4'), lines.slice(0, 120));
+  check('…and looking back leaves the typed weight alone (H09)', (await card.getByLabel(/^Weight/).inputValue()) === '190');
+  await p.screenshot({ path: `${out}exercise-history-logger-390.png` });
+  await openExercise(p, 'Barbell Bench Press');
+  const section = p.locator('.ei-history');
+  check('Exercise detail shows Your history with that workout', (await section.textContent().catch(() => ''))?.includes('80 kg × 5'));
+  await p.screenshot({ path: `${out}exercise-history-detail-390.png` });
+  await section.getByRole('button', { name: /^View session: Push,/ }).click(); await wait(p, 1200);
+  check('…and a row opens that workout in Progress', new URL(p.url()).searchParams.get('session') === 'past-bench' && await p.locator('[data-session-detail="history"]').count() === 1, p.url());
+  await ctx.close();
+}
+
+// U13: the new screens at 430 px, and at 390 px with text enlarged to 125%.
+for (const [width, scale] of [[430, null], [390, 125]]) {
+  const [ctx, p] = await page(width, 900);
+  await seed(p, { [historyKey]: JSON.stringify([...withDrop(finished(12))]) });
+  await p.goto(`${base}/?workspace=progress`); await wait(p, 1800);
+  if (scale) { await p.addStyleTag({ content: `html { font-size: ${scale}% !important; }` }); await wait(p, 300); }
+  const label = scale ? `${width}px at ${scale}% text` : `${width}px`;
+  check(`${label}: history list has no sideways scroll`, await noSideScroll(p));
+  await p.getByRole('button', { name: /^View session: Workout 11,/ }).click(); await wait(p, 600);
+  check(`${label}: session detail has no sideways scroll and 44px controls`, await noSideScroll(p) && await p.evaluate(() => [...document.querySelectorAll('.session-detail button')].every((b) => b.getBoundingClientRect().height >= 43.5)));
+  await p.screenshot({ path: `${out}history-detail-${width}${scale ? `-text${scale}` : ''}.png`, fullPage: true });
   await ctx.close();
 }
 

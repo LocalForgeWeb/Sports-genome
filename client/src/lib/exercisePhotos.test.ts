@@ -3,9 +3,12 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import mapping from "@/data/exercisePhotos.json";
 import { exercises } from "./exerciseCatalog";
-import { exercisePhotoBase, exercisePhotoCount, exercisePhotoFallbackBase, exercisePhotoSet, exercisePhotoSourceRef, framesInMovementOrder, reversedPhotoSources } from "./exercisePhotos";
+import drillMapping from "@/data/drillPhotos.json";
+import { preTrainingMobilityLibrary } from "./preTrainingMobility";
+import { drillPhotoCount, drillPhotoSet, exercisePhotoBase, exercisePhotoCount, exercisePhotoFallbackBase, exercisePhotoSet, exercisePhotoSourceRef, framesInMovementOrder, reversedPhotoSources } from "./exercisePhotos";
 
 const entries = mapping as unknown as Record<string, [string, number]>;
+const drillEntries = drillMapping as unknown as Record<string, [string, number]>;
 
 describe("exercise photographs", () => {
   it("maps only exercises this catalog has, to well-formed source folders", () => {
@@ -60,7 +63,7 @@ describe("exercise photographs", () => {
   });
 
   it("lists only two-frame sources the catalog uses, each with the reason it is reversed", () => {
-    const used = new Map(Object.values(entries).map(([source, count]) => [source, count]));
+    const used = new Map([...Object.values(entries), ...Object.values(drillEntries)].map(([source, count]) => [source, count]));
     // 30 when audited; the one-arm kettlebell swing photo was withdrawn on October 6, and the
     // Smith stiff-legged deadlift pair (shown for the Smith Romanian Deadlift, 425) was added on
     // October 7 with its bottom frame first.
@@ -80,8 +83,9 @@ describe("exercise photographs", () => {
   });
 
   it("photographs a majority of the catalog", () => {
-    // 253 until the October 6 review withdrew 7 that show another variation.
-    expect(exercisePhotoCount).toBeGreaterThanOrEqual(246);
+    // 253 until the October 6 review withdrew 7 that show another variation; 2 of those came back
+    // on October 7 with the right photos.
+    expect(exercisePhotoCount).toBeGreaterThanOrEqual(248);
     expect(exercisePhotoCount).toBeLessThanOrEqual(exercises.length);
   });
 
@@ -125,27 +129,67 @@ describe("exercise photographs", () => {
     const review = JSON.parse(readFileSync(resolve(process.cwd(), "docs/exercise-media-audit/visual-review.json"), "utf8")) as Record<string, { verdict?: string }>;
     const withdrawn = Object.entries(review).filter(([, item]) => item.verdict === "wrong_variant").map(([id]) => Number(id));
     expect(withdrawn.sort((a, b) => a - b)).toEqual([33, 44, 48, 68, 173, 203, 339]);
-    for (const id of withdrawn) expect(exercisePhotoSet(id), String(id)).toBeNull();
-    for (const name of ["Clap Push-Up", "Pendlay Row", "Seal Row", "Neutral-Grip Pull-Up", "Bulgarian Split Squat", "Kettlebell Swing", "High Cable Curl"]) expect(sourceOf(name), name).toBeNull();
+    for (const name of ["Clap Push-Up", "Pendlay Row", "Seal Row", "Neutral-Grip Pull-Up", "Kettlebell Swing"]) expect(sourceOf(name), name).toBeNull();
+    // October 7: two came back with photos of the right variation, never the withdrawn ones -
+    // the rear foot on a bench, and the standing curl between two high pulleys.
+    expect(sourceOf("Bulgarian Split Squat")).toBe("Split_Squat_with_Dumbbells");
+    expect(sourceOf("High Cable Curl")).toBe("Overhead_Cable_Curl");
     // The owner's swap example: both ends are photographed, each with its own exercise.
     expect(sourceOf("Sissy Squat")).toBe("Weighted_Sissy_Squat");
     expect(sourceOf("Back Squat")).toBe("Barbell_Squat");
-    const sources = JSON.parse(readFileSync(resolve(process.cwd(), "docs/exercise-media-audit/sources.json"), "utf8")).sources as Record<string, { thumbnail: string; licence: string; exerciseIds: number[] }>;
+    const sources = JSON.parse(readFileSync(resolve(process.cwd(), "docs/exercise-media-audit/sources.json"), "utf8")).sources as Record<string, { thumbnail: string; licence: string; exerciseIds: number[]; drillIds?: string[] }>;
     const thumbs = new Set(readdirSync(resolve(process.cwd(), "client/public/exercise-thumbs")));
     for (const [id, [source]] of Object.entries(entries)) {
       expect(thumbs.has(`${source}.jpg`), source).toBe(true);
       expect(sources[source]?.exerciseIds, source).toContain(Number(id));
       expect(sources[source].licence).toMatch(/Unlicense/);
     }
-    expect(thumbs.size).toBe(new Set(Object.values(entries).map(([source]) => source)).size);
+    for (const [id, [source]] of Object.entries(drillEntries)) {
+      expect(thumbs.has(`${source}.jpg`), source).toBe(true);
+      expect(sources[source]?.drillIds, source).toContain(id);
+    }
+    expect(thumbs.size).toBe(new Set([...Object.values(entries), ...Object.values(drillEntries)].map(([source]) => source)).size);
   });
 
   it("has a frame-order verdict for every source pair the catalog shows", () => {
     const audit = JSON.parse(readFileSync(resolve(process.cwd(), "docs/exercise-photo-order/audit.json"), "utf8")) as Record<string, { verdict: string }>;
-    for (const [source, count] of Object.values(entries)) {
+    for (const [source, count] of [...Object.values(entries), ...Object.values(drillEntries)]) {
       if (count < 2) continue;
       expect(audit[source]?.verdict, source).toMatch(/^(in order|reversed)$/);
       expect(audit[source].verdict === "reversed", source).toBe(Boolean(reversedPhotoSources[source]));
     }
   });
 });
+
+/**
+ * October 7: the warm-up library's drills and stretches, matched the same way - a curator who
+ * viewed the frames, two reviewers who tried to refute them, a final look. docs/drill-photos/.
+ */
+describe("warm-up drill photographs", () => {
+  it("maps only drills the preparation library has", () => {
+    const ids = new Set(preTrainingMobilityLibrary.map((drill) => drill.id));
+    for (const id of Object.keys(drillEntries)) expect(ids.has(id), id).toBe(true);
+    expect(drillPhotoCount).toBe(Object.keys(drillEntries).length);
+    expect(drillPhotoCount).toBeGreaterThanOrEqual(15);
+  });
+
+  it("photographs a drill with the drill itself, start first", () => {
+    expect(drillPhotoSet("ankle-circle")?.source).toBe("Ankle_Circles");
+    expect(drillPhotoSet("tempo-squat")?.source).toBe("Bodyweight_Squat");
+    expect(drillPhotoSet("band-external-rotation")?.source).toBe("External_Rotation_with_Band");
+    // A light rehearsal of a lift shows that lift; the hinge starts standing, as the RDL does.
+    const hinge = drillPhotoSet("empty-bar-hinge")!;
+    expect(hinge.source).toBe("Romanian_Deadlift");
+    expect(hinge.urls[0]).toBe(`${exercisePhotoBase}Romanian_Deadlift/1.jpg`);
+    expect(hinge.thumbUrl).toMatch(/exercise-thumbs\/Romanian_Deadlift\.jpg$/);
+  });
+
+  it("leaves a drill without a photo rather than show a cousin of it", () => {
+    // Refused by the reviewers: a rounded back only (no arch), no rotation, a leg-only dead bug for
+    // an arm reach, a rotating row for an anti-rotation drill, a static stretch for a rock or a pulse.
+    for (const id of ["cat-camel", "worlds-greatest", "dead-bug", "split-stance-row", "wrist-rock", "split-hip-flexor"]) expect(drillPhotoSet(id), id).toBeNull();
+    expect(drillPhotoSet("not-a-drill")).toBeNull();
+    expect(drillPhotoSet("constructor")).toBeNull();
+  });
+});
+
