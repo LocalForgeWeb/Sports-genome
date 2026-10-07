@@ -58,6 +58,7 @@
 .plt-tone-0 { fill: #1d4a73; }
 .plt-tone-1 { fill: #2c6496; }
 .plt-label { fill: #edf4fa; font-size: var(--sg-text-md); font-weight: 700; }
+.plt-leader { stroke: #8aa1b8; stroke-width: 1; }
 .plt-stock { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
 .plt-stock li { display: grid; grid-template-columns: 4.5rem auto minmax(0, 1fr) auto; align-items: center; gap: .5rem; border-top: 1px solid rgb(169 190 209 / .12); padding-top: .45rem; }
 .plt-stock b { font-size: var(--sg-text-lg); }
@@ -103,7 +104,7 @@
 
 /* Plan blocks */
 .blk-tabs { align-self: start; }
-.blk-tabs button { min-width: 7rem; min-height: 2.6rem; border-radius: 8px; padding: 0 .9rem; color: var(--stp-text-2); font-size: var(--sg-text-base); font-weight: 700; }
+.blk-tabs button { min-width: 7rem; min-height: 2.75rem; border-radius: 8px; padding: 0 .9rem; color: var(--stp-text-2); font-size: var(--sg-text-base); font-weight: 700; }
 .blk-tabs button.is-on { background: rgb(255 255 255 / .12); color: var(--stp-text); }
 .blk-tabs button:focus-visible { outline: 2px solid var(--sg-focus-on-dark); outline-offset: 1px; }
 .blk-list { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }

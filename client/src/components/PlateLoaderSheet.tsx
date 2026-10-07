@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactElement } from "react";
+import { useMemo, useState } from "react";
 import { Check, Copy, Minus, Plus, Trash2 } from "lucide-react";
 import { UtilitySheet } from "@/components/UtilitySheet";
 import { useUtilityRecord } from "@/lib/utilityStore";
@@ -157,16 +157,27 @@ function PlateDiagram({ load, unit, largest }: { load: PlateLoad; unit: PlateUni
   const height = (weight: number) => 34 + Math.round(66 * Math.min(1, weight / largest));
   const width = (weight: number) => 12 + Math.round(10 * Math.min(1, weight / largest));
   const sideWidth = plates.reduce((sum, weight) => sum + width(weight) + 3, 0);
-  const sideView = <svg className="plt-side" viewBox={`0 0 ${Math.max(140, sideWidth + 70)} 132`} role="presentation" aria-hidden="true">
+  // Plates sit against each other on the sleeve; a thin plate is narrower than its number, so the
+  // numbers are laid out left to right without touching, and one moved off its plate gets a leader.
+  let right = -Infinity;
+  const placed = plates.map((weight, index) => {
+    const x = 34 + plates.slice(0, index).reduce((sum, item) => sum + width(item) + 3, 0);
+    const w = width(weight); const h = height(weight); const text = formatAmount(Math.round(weight * 100));
+    const labelWidth = text.length * 8 + 2;
+    const centre = x + w / 2;
+    const labelCentre = Math.max(centre, right + 4 + labelWidth / 2);
+    right = labelCentre + labelWidth / 2;
+    return { weight, x, w, h, text, centre, labelCentre };
+  });
+  const sideView = <svg className="plt-side" viewBox={`0 0 ${Math.max(140, sideWidth + 70, right + 12)} 132`} role="presentation" aria-hidden="true">
     <rect x="0" y="58" width="24" height="16" rx="2" className="plt-shaft" />
     <rect x="24" y="44" width="6" height="44" rx="1" className="plt-collar" />
     <rect x="30" y="61" width={Math.max(110, sideWidth + 40)} height="10" rx="2" className="plt-sleeve" />
-    {plates.reduce<{ x: number; nodes: ReactElement[] }>((acc, weight, index) => {
-      const w = width(weight); const h = height(weight);
-      acc.nodes.push(<g key={index}><rect x={acc.x} y={66 - h / 2} width={w} height={h} rx="3" className={`plt-plate plt-tone-${index % 2}`} /><text x={acc.x + w / 2} y={126} textAnchor="middle" className="plt-label">{formatAmount(Math.round(weight * 100))}</text></g>);
-      acc.x += w + 3;
-      return acc;
-    }, { x: 34, nodes: [] }).nodes}
+    {placed.map((plate, index) => <g key={index}>
+      <rect x={plate.x} y={66 - plate.h / 2} width={plate.w} height={plate.h} rx="3" className={`plt-plate plt-tone-${index % 2}`} />
+      {plate.labelCentre - plate.centre > 0.5 && <line x1={plate.centre} y1={66 + plate.h / 2 + 1} x2={plate.labelCentre} y2={113} className="plt-leader" />}
+      <text x={plate.labelCentre} y={126} textAnchor="middle" className="plt-label">{plate.text}</text>
+    </g>)}
     {!plates.length && <text x="80" y="126" textAnchor="middle" className="plt-label">Empty bar</text>}
   </svg>;
   const half = sideWidth;
