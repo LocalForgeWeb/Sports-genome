@@ -9,7 +9,7 @@ The artwork Home's hero shows for the next workout: a front and a back figure si
 | Legs | derived | quads, glutes, hamstrings, calves | in use |
 | Upper | derived | chest, shoulders, arms, upper back, abs | in use |
 | Sport Transfer | derived | obliques and core, hips, glutes, posterior chain, shoulder stabilisation | in use |
-| Full Body | derived | chest, back, shoulders, arms, core, legs (every listed muscle but the forearms) | in use |
+| Full Body | derived | chest, back, shoulders, arms, core, legs (every muscle in `derive.py` but the forearms) | in use |
 | Lower | Legs' figure | quads, glutes, hamstrings, calves | in use |
 
 ## Derived figures
@@ -25,8 +25,25 @@ Only Push was supplied. Every other day is the Push master itself with that day'
    - Outlines and shadows stay as drawn.
 
 Exceptions:
-- The back forearm has no line at the wrist, so its paint stops at the wrist.
-- Lower trains the Legs muscles (`client/src/lib/splitStackAnalysis.ts`), so Home shows it the Legs figure rather than a copy.
+- **Calves.** A calf panel that narrows into the Achilles or an ankle tendon deepens to red and fades out where it is half its widest. The teardrop heads end at their own outlines.
+- **Back forearm.** It has no line at the wrist, so its paint fades out at the wrist.
+- **Fibres.** They run along each panel's long axis, except:
+  - the trapezius: from the spine to the shoulder;
+  - the gluteus maximus: down and out;
+  - the abs and erectors: vertical.
+- **Lower.** It trains the Legs muscles (`client/src/lib/splitStackAnalysis.ts`), so Home shows it the Legs figure rather than a copy.
+
+Mapping choices, from two rounds of independent anatomy and rendering review:
+- **Lats.** The strip down the side of the torso from the armpit is the lat seen from the front, not serratus.
+- **Teres.** The lens under the rear deltoid, which Push leaves navy, is teres and counts with the rotator cuff.
+- **Outer back thigh.** It is the vastus lateralis under the iliotibial band, so it counts as quads.
+- **Front biceps.** It is the thin inner crescent. Push paints the rest of the front upper arm as triceps, and that drawing is kept.
+- **Rear delts.** They are Push's whole back-view deltoid cap.
+- **Left navy:**
+  - the nape groove;
+  - the knees, shins and hands;
+  - the forearms on Full Body;
+  - the small shadowed slivers at the groin and behind the inner thigh, too small to paint cleanly.
 
 ## Building
 
