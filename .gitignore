@@ -118,3 +118,7 @@ design/higgsfield/runs/
 
 # Isolated git worktrees that Claude Code workflow agents run in. Tooling state, never project content.
 .claude/worktrees/
+
+# Python bytecode from the design scripts
+__pycache__/
+*.pyc
