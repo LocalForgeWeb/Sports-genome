@@ -3,7 +3,7 @@ import { isJwtApiKey, supabaseServiceHeaders } from "./supabaseServiceHeaders";
 
 /** Shape-accurate stand-ins. Neither is a real key; the point is only the first character run. */
 const legacyServiceRole = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.c2lnbmF0dXJl";
-const newSecret = "sb_secret_JZQ1x7Kd0pLmNvBqRtYuWi";
+const newSecret = "sb_secret_TESTONLY_not_a_real_key_000";
 
 describe("Telling the two Supabase key shapes apart", () => {
   it("recognises a legacy service_role key as a JWT", () => {

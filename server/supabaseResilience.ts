@@ -6,6 +6,7 @@ import {
   type ResilienceTargetCatalog,
   type ResilienceTargetCatalogEntry,
 } from "../shared/resilienceContext";
+import { upstreamFetch } from "./_core/http";
 
 /**
  * The service-role read of the resilience target catalog.
@@ -40,7 +41,7 @@ export function unavailableCatalog(): ResilienceTargetCatalog {
 export function createSupabaseResilienceClient({
   url,
   serviceRoleKey,
-  fetchImplementation = fetch,
+  fetchImplementation = upstreamFetch,
 }: SupabaseResilienceClientConfig) {
   const baseUrl = url.replace(/\/+$/, "");
 

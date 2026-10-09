@@ -8,6 +8,7 @@ import {
   type MuscleEvidence,
   type MuscleScore,
 } from "../shared/capabilityRank";
+import { upstreamFetch } from "./_core/http";
 
 /**
  * Per-muscle strength percentiles for Body Lab's Strength/Rank mode.
@@ -201,7 +202,7 @@ export function profileStatus(scored: number, estimatedOnly: number, failed: num
   return "no_scored_observations";
 }
 
-export function createSupabaseStrengthProfileClient({ url, serviceRoleKey, fetchImplementation = fetch }: { url: string; serviceRoleKey: string; fetchImplementation?: typeof fetch }) {
+export function createSupabaseStrengthProfileClient({ url, serviceRoleKey, fetchImplementation = upstreamFetch }: { url: string; serviceRoleKey: string; fetchImplementation?: typeof fetch }) {
   const baseUrl = url.replace(/\/+$/, "");
   const rpc = async (name: string, body: unknown) => {
     const response = await fetchImplementation(new URL(`/rest/v1/rpc/${name}`, baseUrl), withTimeout({

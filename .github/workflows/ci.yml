@@ -30,9 +30,10 @@ jobs:
       # runner uses the same pnpm the lockfile was written by.
       - uses: pnpm/action-setup@v4
 
+      # The same major as the hosting (the Vercel project builds and runs on Node 24.x).
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -52,3 +53,9 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      # The deployable artifact, not the dev server: the function loads through the platform's
+      # own entry file and answers health, 404, parser-error and share routes correctly, and
+      # every asset the HTML shell references exists (scripts/ci/smoke-serverless.mjs).
+      - name: Smoke-test the built function and client
+        run: node scripts/ci/smoke-serverless.mjs

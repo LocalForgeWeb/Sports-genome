@@ -3,7 +3,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
 import { publicErrorMessage } from "./apiErrors";
-import { assertAuthCallAllowed, assertCostlyCallAllowed } from "./rateLimit";
+import { enforceAuthCall, enforceCostlyCall } from "./rateLimit";
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
@@ -21,15 +21,19 @@ const t = initTRPC.context<TrpcContext>().create({
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
-/** A public route that fans out to Supabase with the service key: counted per client (./rateLimit.ts). */
+/**
+ * A public route that fans out to Supabase with the service key: counted per client, in this
+ * instance and across all of them (./rateLimit.ts, ./sharedRateLimit.ts). Each procedure in a
+ * batch is counted on its own.
+ */
 export const costlyPublicProcedure = t.procedure.use(async ({ ctx, next }) => {
-  assertCostlyCallAllowed(ctx.req);
+  await enforceCostlyCall(ctx.req, ctx.res);
   return next();
 });
 
 /** A public sign-in route (register, sign in, passkey sign-in): counted per client, before its input is read. */
 export const authPublicProcedure = t.procedure.use(async ({ ctx, next }) => {
-  assertAuthCallAllowed(ctx.req);
+  await enforceAuthCall(ctx.req, ctx.res);
   return next();
 });
 

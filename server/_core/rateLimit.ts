@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { SHARED_LIMITS, sharedRateLimiter, type SharedLimit } from "./sharedRateLimit";
 
 /**
  * A per-client allowance for the public routes that fan out to Supabase with the
@@ -76,8 +77,36 @@ export function clientKeyOf(req: { ip?: string; socket?: { remoteAddress?: strin
   return req?.ip || req?.socket?.remoteAddress || "unknown";
 }
 
-function tooManyRequests(): TRPCError {
+type ResponseLike = { setHeader?: (name: string, value: string) => unknown } | undefined;
+
+/** A recognisable 429 with the wait in `Retry-After`, so a client can back off instead of retrying blind (RL07). */
+function tooManyRequests(res?: ResponseLike, retryAfterSeconds = 60): TRPCError {
+  try { res?.setHeader?.("Retry-After", String(Math.max(1, Math.ceil(retryAfterSeconds)))); } catch { /* headers already sent */ }
+  console.warn(JSON.stringify({ event: "rate_limited", retryAfterSeconds }));
   return new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many requests in a short time. Wait a minute and try again." });
+}
+
+/** The cross-instance allowance, after the local one: a refusal from either is a refusal. */
+async function assertSharedAllowed(limit: SharedLimit, req: Parameters<typeof clientKeyOf>[0], res?: ResponseLike): Promise<void> {
+  const shared = sharedRateLimiter();
+  if (!shared) return;
+  const verdict = await shared.hit(limit, clientKeyOf(req));
+  if (!verdict.allowed) throw tooManyRequests(res, verdict.retryAfterSeconds);
+}
+
+export async function enforceCostlyCall(req: Parameters<typeof clientKeyOf>[0], res?: ResponseLike): Promise<void> {
+  if (!takeCostlyCall(clientKeyOf(req))) throw tooManyRequests(res);
+  await assertSharedAllowed(SHARED_LIMITS.costly, req, res);
+}
+
+export async function enforceAuthCall(req: Parameters<typeof clientKeyOf>[0], res?: ResponseLike): Promise<void> {
+  if (!takeAuthCall(clientKeyOf(req))) throw tooManyRequests(res);
+  await assertSharedAllowed(SHARED_LIMITS.auth, req, res);
+}
+
+export async function enforceShareCreate(req: Parameters<typeof clientKeyOf>[0], res?: ResponseLike): Promise<void> {
+  if (!takeShareCreate(clientKeyOf(req))) throw tooManyRequests(res);
+  await assertSharedAllowed(SHARED_LIMITS.shareCreate, req, res);
 }
 
 export function assertCostlyCallAllowed(req: Parameters<typeof clientKeyOf>[0]): void {

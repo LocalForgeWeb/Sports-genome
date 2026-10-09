@@ -53,7 +53,7 @@ describe("redactSecrets", () => {
   });
 
   it("removes a publishable/secret key in the newer sb_ format", () => {
-    expect(redactSecrets("401 from sb_secret_abcdefghijklmnop")).toBe("401 from [redacted]");
+    expect(redactSecrets("401 from sb_secret_TESTONLYabcdef0000")).toBe("401 from [redacted]");
   });
 
   it("removes a credential carried in a query string whatever its shape", () => {

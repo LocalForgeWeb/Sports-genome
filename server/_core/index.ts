@@ -5,6 +5,7 @@ import net from "net";
 import { requireJsonMutations, trpcHandler } from "./apiHandler";
 import { serveStatic, setupVite } from "./vite";
 import { serveSharePage } from "../sharePage";
+import { BODY_LIMIT, apiErrorHandler, apiNotFound, mountHealth, noStore, requestContext } from "./http";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -28,11 +29,14 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  // tRPC API
-  app.use("/api/trpc", requireJsonMutations, trpcHandler());
+  app.disable("x-powered-by");
+  // The same request layer as the deployed function (http.ts), so local runs answer as production does.
+  app.use(requestContext);
+  app.use(express.json({ limit: BODY_LIMIT }));
+  app.use(express.urlencoded({ limit: BODY_LIMIT, extended: true }));
+  mountHealth(app);
+  app.use("/api/trpc", noStore, requireJsonMutations, trpcHandler());
+  app.use("/api", apiNotFound);
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
@@ -41,6 +45,7 @@ async function startServer() {
     app.get("/s/:token", (req, res, next) => { serveSharePage(req.params.token, req.headers, res).catch(next); });
     serveStatic(app);
   }
+  app.use(apiErrorHandler);
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);

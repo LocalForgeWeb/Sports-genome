@@ -44,7 +44,7 @@ import { getNormsRegistryStatus, getStrengthGenomeOverviewWithReferences, getStr
 import { getPublicNormsReference } from "./normsRegistry";
 import { getWorkoutPlan, maxPlanBytes, saveWorkoutPlan } from "./workoutPlanSync";
 import { createShare, disableShare, ownedShares, readShare, ShareError, tokenPattern } from "./workoutShares";
-import { assertShareCreateAllowed } from "./_core/rateLimit";
+import { enforceShareCreate } from "./_core/rateLimit";
 import {
   correctWorkoutSet,
   deleteStrengthObservation,
@@ -552,7 +552,7 @@ export const appRouter = router({
         supersedes: z.object({ token: z.string().regex(tokenPattern), manageSecret: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/) }).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        assertShareCreateAllowed(ctx.req);
+        await enforceShareCreate(ctx.req, ctx.res);
         return shareCall(() => createShare(input));
       }),
     get: costlyPublicProcedure

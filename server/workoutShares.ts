@@ -1,6 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import { parseShareSnapshot, shareExerciseCount, type ShareSnapshot } from "../shared/workoutShare";
+import { upstreamFetch } from "./_core/http";
 
 /**
  * Shared workouts, stored as snapshots.
@@ -83,7 +84,7 @@ export class MemoryShareStore implements ShareStore {
 
 /** Supabase, through PostgREST with the server-only key; the table admits no other role. */
 export class SupabaseShareStore implements ShareStore {
-  constructor(private readonly url: string, private readonly key: string, private readonly fetcher: typeof fetch = fetch) {}
+  constructor(private readonly url: string, private readonly key: string, private readonly fetcher: typeof fetch = upstreamFetch) {}
   private endpoint(query = "") { return `${this.url.replace(/\/$/, "")}/rest/v1/workout_shares${query}`; }
   private headers(extra: Record<string, string> = {}) { return supabaseServiceHeaders(this.key, { "Content-Type": "application/json", ...extra }); }
   private async read(query: string): Promise<ShareRow[]> {

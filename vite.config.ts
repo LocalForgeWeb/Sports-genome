@@ -37,6 +37,14 @@ export default defineConfig({
    */
   define: {
     __SG_BUILD__: JSON.stringify(buildStamp()),
+    /**
+     * Which deployment this bundle is for: Vercel's own VERCEL_ENV ("production", "preview",
+     * "development"), or "local" off the platform. The browser's Supabase client uses the
+     * production project's built-in keys only in a production build, so a preview or a local
+     * build cannot sign visitors in to - or write to - the production database by default
+     * (Infrastructure V2, ENV05).
+     */
+    __SG_DEPLOY_ENV__: JSON.stringify(process.env.VERCEL_ENV || "local"),
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),

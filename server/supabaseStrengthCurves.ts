@@ -11,6 +11,7 @@ import {
   type StrengthPercentileResult,
   type StrengthSourceRole,
 } from "../shared/strengthPercentile";
+import { upstreamFetch } from "./_core/http";
 
 /**
  * Server-only read of the beta percentile curves.
@@ -183,7 +184,7 @@ export function findCurveExercise(
 export function createSupabaseStrengthCurveClient({
   url,
   serviceRoleKey,
-  fetchImplementation = fetch,
+  fetchImplementation = upstreamFetch,
 }: SupabaseStrengthCurveClientConfig) {
   const baseUrl = url.replace(/\/+$/, "");
   const headers = supabaseServiceHeaders(serviceRoleKey);

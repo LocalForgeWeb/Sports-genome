@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { readShare } from "./workoutShares";
 import { shareExerciseCount } from "../shared/workoutShareFormat";
+import { upstreamFetch } from "./_core/http";
 
 /**
  * The HTML for /s/<token>: the app's own page with the shared workout's name in the
@@ -86,7 +87,7 @@ export function trustedOrigin(requestHost: string | undefined, env: NodeJS.Proce
   return env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}` : null;
 }
 
-export async function loadIndexTemplate(origin: string | null, fetcher: typeof fetch = fetch, now = Date.now()): Promise<string | null> {
+export async function loadIndexTemplate(origin: string | null, fetcher: typeof fetch = upstreamFetch, now = Date.now()): Promise<string | null> {
   // From disk it is read each time: a rebuild beside a running server is then served at once.
   const local = await templateFromDisk();
   if (local && /<\/head>/i.test(local)) return local;
@@ -106,7 +107,7 @@ type ShareResponse = { status(code: number): ShareResponse; setHeader(name: stri
 const firstHeader = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
 /** Answers GET /s/<token> with the app, its head written for that share. */
-export async function serveSharePage(rawToken: string, headers: HeaderBag, res: ShareResponse, fetcher: typeof fetch = fetch): Promise<void> {
+export async function serveSharePage(rawToken: string, headers: HeaderBag, res: ShareResponse, fetcher: typeof fetch = upstreamFetch): Promise<void> {
   const token = /^[A-Za-z0-9_-]{1,80}$/.test(rawToken) ? rawToken : "";
   const host = firstHeader(headers["x-forwarded-host"]) ?? firstHeader(headers.host);
   // The template is fetched only from a host this deployment is known by; the page's own
