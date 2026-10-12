@@ -157,9 +157,9 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
   const focusLine = focusSummary(focus);
   const focusFigure = next.kind === "workout" && !live ? focus?.figure ?? null : null;
   /**
-   * The day's own figure artwork (lib/dayFigures), chosen by the day's name: the supplied
-   * front-and-back illustration with the day's muscles in orange. A day whose artwork has not
-   * been supplied keeps the planned-focus schematic below, which is drawn from the exercises.
+   * The day's own figure (lib/dayFigures), chosen by the day's name: the front-and-back
+   * illustration with the day's muscles in orange. Every split has one; a day without one would
+   * keep the planned-focus schematic below, which is drawn from the exercises.
    */
   const dayArt = next.kind === "workout" && !live ? dayFigureFor(next.slot.day) : null;
   const focusCaption = focus && focusFigure ? `Planned workout focus, ${focusFigure.side} view: ${focus.regions.map((region) => region.label).join(", ")}. From the exercises' primary muscles; not a strength rank, recovery readiness or measured activation.` : "";
@@ -245,7 +245,7 @@ export function TodayActionPanel({ plan, live, athleteName, directAccess = true,
               <p className="today-action-count">{next.exerciseCount} {next.exerciseCount === 1 ? "exercise" : "exercises"}</p>
               {focusLine && <p className="today-action-focus-line"><span>Workout focus</span> {focusLine}</p>}
             </div>
-            {/* The day's figure: its supplied artwork where there is one, captioned with the
+            {/* The day's figure: its artwork where there is one, captioned with the
                 muscles it highlights; otherwise the schematic of planned involvement - the
                 exercises' primary muscles - drawn in the action colour so it cannot be read as
                 a Strength rank. The focus line in the copy reads from the exercises either way. */}
