@@ -20,9 +20,13 @@ check('nested app route serves the shell', (await get('/?workspace=progress&sess
 const chunk = html.match(/src="(\/assets\/[^"]+\.js)"/)?.[1];
 const asset = chunk ? await get(chunk) : null;
 check('the shell\'s entry chunk loads as JavaScript', asset?.status === 200 && /javascript/.test(asset.headers.get('content-type') || ''), chunk || 'no chunk found');
-check('hashed assets are cached immutably', /immutable/.test(asset?.headers.get('cache-control') || ''), asset?.headers.get('cache-control') || '');
+// Reported, not required: a year-long cache rule on /assets also applied to a MISSING chunk's 404,
+// which a browser could keep after the chunk appears (deploy skew). The platform default stands.
+console.log(`INFO entry chunk cache-control: ${asset?.headers.get('cache-control') || 'none'}`);
 const missing = await get('/assets/smoke-missing-chunk.js');
+const missingCache = missing.headers.get('cache-control') || '';
 check('a missing asset is a 404, not the HTML shell', missing.status === 404, `status ${missing.status}, ${missing.headers.get('content-type')}`);
+check('a missing asset is not cached for long', !/max-age=([1-9]\d{3,})/.test(missingCache), missingCache || 'no cache-control');
 
 const health = await get('/api/health');
 const body = await health.json().catch(() => null);
