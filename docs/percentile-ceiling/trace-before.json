@@ -1,0 +1,48 @@
+{
+ "A": {
+  "aggregationVersion": "sg_muscle_aggregate_v2:directness_weighted_latent_evidence_with_redundancy_decay",
+  "lats": {
+   "percentile": 91.14,
+   "confidence01": 0.783,
+   "evidence": [
+    {
+     "exerciseName": "Lat Pulldown",
+     "role": "primary",
+     "exercisePercentile": 89.49,
+     "directness": 0.219,
+     "weightShare": 0.681
+    },
+    {
+     "exerciseName": "Machine Low Row",
+     "role": "primary",
+     "exercisePercentile": 95,
+     "directness": 0.154,
+     "weightShare": 0.319
+    }
+   ]
+  }
+ },
+ "B": {
+  "aggregationVersion": "sg_muscle_aggregate_v2:directness_weighted_latent_evidence_with_redundancy_decay",
+  "lats": {
+   "percentile": 94.63,
+   "confidence01": 0.783,
+   "evidence": [
+    {
+     "exerciseName": "Lat Pulldown",
+     "role": "primary",
+     "exercisePercentile": 95,
+     "directness": 0.219,
+     "weightShare": 0.681
+    },
+    {
+     "exerciseName": "Machine Low Row",
+     "role": "primary",
+     "exercisePercentile": 95,
+     "directness": 0.154,
+     "weightShare": 0.319
+    }
+   ]
+  }
+ }
+}

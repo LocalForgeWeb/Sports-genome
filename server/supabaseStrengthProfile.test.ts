@@ -71,14 +71,19 @@ describe("Scoring a muscle profile", () => {
     expect(result.status).toBe("ok");
     // The lifts' own version, not the aggregation's label (EN-04).
     expect(result.scoringVersion).toBe("strength_beta_v2");
-    expect(result.aggregationVersion).toBe("sg_muscle_aggregate_v2:directness_weighted_latent_evidence_with_redundancy_decay");
-    expect(result.selectionRule).toBe("best_percentile_per_exercise_v1");
-    expect(result.rankSchemeVersion).toBe("sg_capability_rank_v1");
+    expect(result.aggregationVersion).toBe("sg_muscle_benchmark_v3:directness_weighted_benchmark_score_bounded");
+    expect(result.selectionRule).toBe("best_placed_per_exercise_v2");
+    expect(result.rankSchemeVersion).toBe("sg_capability_rank_v2");
+    expect(result.scoreKind).toBe("weighted_benchmark_score");
     const pec = result.muscles.find((m) => m.canonicalName === "pectoralis_major_sternocostal");
-    // One lift: the database's own 68.5 for bench 68.75 (fixture set_c), directness cannot move it.
-    expect(pec?.percentile).toBe(68.5);
+    // One prime-mover lift: the score is that lift's own 68.75 (v3). The database's latent
+    // transfer made it 68.5 (fixture set_c), so one bench at the 95th could never read 95.
+    expect(pec?.percentile).toBe(68.75);
+    expect(pec?.scoreBound).toBe("exact");
     expect(pec?.referenceGroups).toEqual([{ label: communityLabel, sex: "male" }]);
-    expect(pec?.evidence[0]).toMatchObject({ exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 68.75, directness: 0.242, weightShare: 1 });
+    // Raw precision is kept to the display (v3); the sheet rounds.
+    expect(pec?.evidence[0]).toMatchObject({ exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 68.75, bound: "exact", weightShare: 1 });
+    expect(pec?.evidence[0].directness).toBeCloseTo(0.242, 3);
   });
 
   /** A lift that could not be scored is surfaced, never silently dropped - the manifest's own rule. */
@@ -131,7 +136,28 @@ describe("Validating what the aggregation returns", () => {
   it("accepts the aggregation's shape, directness included", () => {
     const muscle = validateMuscle(base, refs);
     expect(muscle?.percentile).toBe(68.5);
-    expect(muscle?.evidence[0]).toEqual({ exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 68.75, directness: 0.242, weightShare: 1 });
+    // A result with no bounds is from before they were carried: exact, its bounds its own value.
+    expect(muscle).toMatchObject({ scoreBound: "exact", lowerBound: 68.5, upperBound: 68.5 });
+    expect(muscle?.evidence[0]).toMatchObject({ exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 68.75, bound: "exact", directness: 0.242, weightShare: 1 });
+  });
+
+  it("keeps a bounded score's bounds and each lift's bound", () => {
+    const muscle = validateMuscle({
+      ...base, strength_percentile: 95, score_bound: "at_least", lower_bound: 95, upper_bound: 100,
+      evidence: [{ ...base.evidence[0], exercise_percentile: 95, bound: "above", counted_low: 95, counted_high: 100, observed_value: 2.67, benchmark_value: 1.75, value_unit: "x_bodyweight" }],
+    }, refs);
+    expect(muscle).toMatchObject({ percentile: 95, scoreBound: "at_least", lowerBound: 95, upperBound: 100 });
+    expect(muscle?.evidence[0]).toMatchObject({ bound: "above", countedLow: 95, countedHigh: 100, observedValue: 2.67, benchmarkValue: 1.75, valueUnit: "x_bodyweight" });
+  });
+
+  /** A bound that does not hold the score is a broken contract, not a muscle to draw. */
+  it.each([
+    ["bounds out of order", { score_bound: "range", lower_bound: 92, upper_bound: 90, strength_percentile: 92 }],
+    ["a score that is not its lower bound", { score_bound: "range", lower_bound: 60, upper_bound: 70, strength_percentile: 65 }],
+    ["an exact score with a gap", { score_bound: "exact", lower_bound: 68.5, upper_bound: 69 }],
+    ["an upper bound past 100", { score_bound: "at_least", lower_bound: 95, upper_bound: 101, strength_percentile: 95 }],
+  ])("refuses %s", (_label, patch) => {
+    expect(validateMuscle({ ...base, ...patch }, refs)).toBeNull();
   });
 
   /** Refused, not clamped: an out-of-scale value means the contract moved, and a clamp would hide it. */

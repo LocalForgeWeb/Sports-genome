@@ -91,9 +91,19 @@ describe("summarising the placements for the section", () => {
     const one = summarizeProgressPercentiles(lifts, [resolved(40), { status: "unavailable", reason: "body_mass_required" }], "male");
     expect(one.placed).toBe(1);
     expect(one.gap).toBeNull();
-    const dead = summarizeProgressPercentiles(lifts, [{ status: "unavailable", reason: "no_curve_for_exercise" }, { status: "unavailable", reason: "above_highest_anchor", censoredAt: 95 }], "male");
+    const dead = summarizeProgressPercentiles(lifts, [{ status: "unavailable", reason: "no_curve_for_exercise" }, { status: "unavailable", reason: "no_curve_for_exercise" }], "male");
     expect(dead.gap).toBeNull();
     expect(dead.best).toBeNull();
+  });
+
+  /** Percentile-ceiling brief: a lift past the curve's top is recognised, not dropped and not an exact 95th. */
+  it("shows a lift past the highest benchmark as above it, and counts it the strongest", () => {
+    const above = summarizeProgressPercentiles(lifts, [resolved(80), { status: "unavailable", reason: "above_highest_anchor", censoredAt: 95 }], "male");
+    expect(above.placed).toBe(2);
+    const card = Array.from(above.cards.values()).find((item) => item.bound === "above")!;
+    expect(card.headline).toBe("Above the 95th-percentile benchmark");
+    expect(card.headline).not.toMatch(/^95th percentile/);
+    expect(above.best?.headline).toBe("Above the 95th-percentile benchmark");
   });
 
   it("tolerates results that have not arrived", () => {

@@ -1,6 +1,6 @@
 import "@/capability-rank.css";
 import type { ReactNode } from "react";
-import { RANKS, confidenceLabel, rankForPercentile, rankColorToken, rankRangeLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
+import { RANKS, confidenceLabel, muscleScoreBounds, rankColorToken, rankForMuscle, rankRangeLabel, type MuscleEvidence, type MuscleScore, type RankId, type RegionRank } from "@shared/capabilityRank";
 import { RankIcon } from "@/components/RankIcon";
 import { ordinal } from "@/lib/strengthPercentileCard";
 
@@ -16,10 +16,69 @@ export function displayPercentile(percentile: number): number {
   return Math.max(1, Math.floor(percentile));
 }
 
-/** "41st percentile", or "About 41st percentile" where the evidence is thin. */
-export function rankPercentileText(regionRank: Pick<RegionRank, "representative" | "confidence">): string {
-  const text = `${ordinal(displayPercentile(regionRank.representative.percentile))} percentile`;
-  return regionRank.confidence === "low" ? `About ${text}` : text;
+/**
+ * A muscle's weighted benchmark score as a number or a bound: "91", "91–92", "above 95",
+ * "below 6". Floored like a percentile so it never prints into the band above its colour; an
+ * upper bound is rounded up so "below" stays true.
+ */
+export function muscleScoreValue(muscle: Pick<MuscleScore, "percentile" | "scoreBound" | "lowerBound" | "upperBound">): string {
+  const { bound, lower, upper } = muscleScoreBounds(muscle);
+  if (bound === "exact") return String(displayPercentile(lower));
+  if (bound === "at_least") return `above ${displayPercentile(lower)}`;
+  if (bound === "at_most") return `below ${Math.max(1, Math.ceil(upper))}`;
+  const low = displayPercentile(lower);
+  const high = displayPercentile(upper);
+  return low === high ? String(low) : `${low}–${high}`;
+}
+
+/**
+ * "Benchmark score 41", hedged where the evidence is thin. A muscle's number is the weighted
+ * benchmark score of its lifts' percentiles - not a percentile of muscle strength - so it is
+ * never printed as "41st percentile".
+ */
+export function rankScoreText(regionRank: Pick<RegionRank, "representative" | "confidence">): string {
+  const value = muscleScoreValue(regionRank.representative);
+  const exact = muscleScoreBounds(regionRank.representative).bound === "exact";
+  return regionRank.confidence === "low" && exact ? `Benchmark score about ${value}` : `Benchmark score ${value}`;
+}
+
+/** One lift's own result: "89th percentile on its own", or where it stands past a benchmark. */
+export function liftResultText(item: Pick<MuscleEvidence, "exercisePercentile" | "bound">): string | null {
+  if (item.exercisePercentile == null) return null;
+  if (item.bound === "above") return `above the ${ordinal(displayPercentile(item.exercisePercentile))}-percentile benchmark`;
+  if (item.bound === "below") return `below the ${ordinal(Math.max(1, Math.ceil(item.exercisePercentile)))}-percentile benchmark`;
+  return `${ordinal(displayPercentile(item.exercisePercentile))} percentile on its own`;
+}
+
+/**
+ * What a lift in a supporting role counts as for this muscle, when that differs from its own
+ * result: "counts as 86 here". Null for a prime mover, which counts at its own percentile.
+ */
+export function countedText(item: Pick<MuscleEvidence, "exercisePercentile" | "bound" | "countedLow" | "countedHigh">): string | null {
+  const low = item.countedLow;
+  if (low == null || item.exercisePercentile == null) return null;
+  if (item.bound === "above") return Math.abs(low - item.exercisePercentile) < 0.05 ? null : `counts as above ${displayPercentile(low)} here`;
+  if (item.bound === "below") return item.countedHigh == null || Math.abs(item.countedHigh - item.exercisePercentile) < 0.05 ? null : `counts as below ${Math.ceil(item.countedHigh)} here`;
+  return Math.abs(low - item.exercisePercentile) < 0.05 ? null : `counts as ${displayPercentile(low)} here`;
+}
+
+const oneDecimal = (value: number) => (Math.floor(value * 10) / 10).toFixed(1).replace(/\.0$/, "");
+
+/**
+ * The score's arithmetic, in the numbers the rows show: "89.4 × 68% + above 95 × 32% =
+ * 91.2 to 92.8". Each term is what the lift counts as for the muscle, times its share.
+ */
+export function scoreArithmeticText(muscle: Pick<MuscleScore, "evidence" | "percentile" | "scoreBound" | "lowerBound" | "upperBound">): string | null {
+  const rows = muscle.evidence.filter((item) => item.weightShare != null && (item.countedLow ?? item.exercisePercentile) != null);
+  if (rows.length < 2) return null;
+  const term = (item: MuscleEvidence) => {
+    const value = item.countedLow ?? item.exercisePercentile!;
+    const shown = item.bound === "above" ? `above ${oneDecimal(value)}` : item.bound === "below" ? `below ${oneDecimal(item.countedHigh ?? value)}` : oneDecimal(value);
+    return `${shown} × ${Math.round(item.weightShare! * 100)}%`;
+  };
+  const { bound, lower, upper } = muscleScoreBounds(muscle);
+  const result = bound === "exact" ? oneDecimal(lower) : bound === "at_least" ? `above ${oneDecimal(lower)}` : bound === "at_most" ? `below ${oneDecimal(upper)}` : `${oneDecimal(lower)} to ${oneDecimal(upper)}`;
+  return `${rows.map(term).join(" + ")} = ${result}`;
 }
 
 const sexWord = { male: "men", female: "women" } as const;
@@ -56,7 +115,7 @@ export function RankLegend({ activeBand, onBand, regionLabelsByRank }: { activeB
               type="button"
               className="rank-legend-button"
               aria-pressed={activeBand === rank.id}
-              aria-label={`${rank.fullName}, percentiles ${rankRangeLabel(rank)}. ${(regionLabelsByRank.get(rank.id) ?? []).length} of your muscle groups.`}
+              aria-label={`${rank.fullName}, scores ${rankRangeLabel(rank)}. ${(regionLabelsByRank.get(rank.id) ?? []).length} of your muscle groups.`}
               onClick={() => onBand(activeBand === rank.id ? null : rank.id)}
             >
               <RankIcon rankId={rank.id} size={32} className="rank-legend-icon" />
@@ -93,39 +152,61 @@ export function RankLegend({ activeBand, onBand, regionLabelsByRank }: { activeB
  * its own list of exercises, which the provenance already names with more detail.
  */
 export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; provenance?: ReactNode }) {
-  const { rank, representative, confidence, muscles } = regionRank;
+  const { rank, representative, confidence, muscles, rankIsMinimum } = regionRank;
   const reference = referenceGroupText(regionRank);
   const next = RANKS.find((candidate) => candidate.sortOrder === rank.sortOrder + 1);
   const others = muscles.filter((muscle) => muscle.muscleId !== representative.muscleId);
   /** With one lift the share is 100% and the weighting has nothing to explain. */
   const shared = representative.evidence.length > 1;
+  const beyond = representative.evidence.filter((item) => item.bound === "above");
+  const arithmetic = scoreArithmeticText(representative);
+  const muscleWord = representative.name.toLowerCase();
   return (
-    <section className="rank-card" aria-label={`${rank.fullName} rank`}>
+    <section className="rank-card" aria-label={`${rank.fullName} rank${rankIsMinimum ? ", at least" : ""}`}>
       <span className="rank-emblem-slot"><RankIcon rankId={rank.id} size={64} /></span>
       <div className="rank-head">
         <p className="rank-name">{rank.fullName}</p>
-        <p className="rank-percentile">{rankPercentileText(regionRank)}</p>
+        <p className="rank-percentile">{rankScoreText(regionRank)}</p>
       </div>
       <div className="rank-body">
         {reference && <p className="rank-cohort">Compared with {reference}.</p>}
         <ul className="rank-states" aria-label="Rank state">
           <li>Estimated</li>
           <li>{confidenceLabel[confidence]}</li>
+          {rankIsMinimum && <li>Minimum rank</li>}
         </ul>
+        {/* A lift past the reference's top is recognised as such, never printed as an exact 95th. */}
+        {beyond.length > 0 && (
+          <p className="rank-beyond" data-rank-beyond>
+            {beyond.length === 1 ? `${beyond[0].exerciseName} is` : `${beyond.length} lifts are`} above the highest benchmark this comparison publishes, the {ordinal(displayPercentile(beyond[0].exercisePercentile ?? 95))} percentile. A more precise percentile is not available{rankIsMinimum ? `, so ${rank.fullName} is the lowest rank your lifts support` : ""}.
+          </p>
+        )}
         {provenance}
         <details>
-          <summary>Why this rank?</summary>
+          <summary>How this is calculated</summary>
           <p>
-            Drawn from {representative.name.toLowerCase()}, the muscle in this group with the most evidence behind it:
+            Your {muscleWord} score weighs each lift's percentile by how directly the lift works the {muscleWord} and how sure its comparison is.
+            {arithmetic ? <>{" "}<span data-rank-arithmetic>{arithmetic}</span>.</> : " With one lift, the score is that lift's percentile."}
+          </p>
+          <p>
+            It is a score on the percentile scale, not a percentile of {muscleWord} strength: each lift's own percentile compares that lift with {reference ? "the group above" : "its comparison group"}, and no one has measured how muscles compare.
+            {beyond.length > 0 ? " A lift above the highest benchmark could stand anywhere above it, so the score is given as a range or a minimum." : ""}
+          </p>
+          <p>
+            Drawn from {muscleWord}, the muscle in this group with the most evidence behind it:
             {" "}{representative.evidenceCount} {representative.evidenceCount === 1 ? "exercise" : "exercises"} across {representative.movementPatternCount} {representative.movementPatternCount === 1 ? "movement" : "movements"}.
           </p>
           {!provenance && representative.evidence.length > 0 && (
             <ul aria-label="Lifts behind this rank">
-              {representative.evidence.map((item, index) => (
-                <li key={`${item.exerciseName}-${index}`}>
-                  {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{item.exercisePercentile != null ? ` · ${ordinal(displayPercentile(item.exercisePercentile))} percentile on its own` : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
-                </li>
-              ))}
+              {representative.evidence.map((item, index) => {
+                const result = liftResultText(item);
+                const counted = countedText(item);
+                return (
+                  <li key={`${item.exerciseName}-${index}`}>
+                    {item.exerciseName}{item.role ? ` · ${item.role}` : ""}{result ? ` · ${result}` : ""}{counted ? ` · ${counted}` : ""}{shared && item.weightShare != null ? ` · ${Math.round(item.weightShare * 100)}% of this rank` : ""}
+                  </li>
+                );
+              })}
             </ul>
           )}
           {shared && !provenance && (
@@ -140,11 +221,11 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
               <p>Other muscles in this group:</p>
               <ul className="rank-muscles">
                 {others.map((muscle) => {
-                  const own = rankForPercentile(muscle.percentile);
+                  const own = rankForMuscle(muscle);
                   return (
                     <li key={muscle.muscleId}>
                       <span>{muscle.name}</span>
-                      <span>{own && <RankIcon rankId={own.id} size={32} />}{own?.shortName} · {ordinal(displayPercentile(muscle.percentile))}</span>
+                      <span>{own && <RankIcon rankId={own.rank.id} size={32} />}{own ? `${own.isMinimum ? "at least " : ""}${own.rank.shortName}` : ""} · score {muscleScoreValue(muscle)}</span>
                     </li>
                   );
                 })}
@@ -155,7 +236,8 @@ export function RankCard({ regionRank, provenance }: { regionRank: RegionRank; p
             {confidence === "high"
               ? "Several different movements agree on this one."
               : "A lift from another movement that trains this group would firm this up."}
-            {next ? ` Next: ${next.fullName} from the ${ordinal(next.minInclusive)} percentile.` : ""}
+            {/* No progress-to-next line from a bound: how far is left cannot be said. */}
+            {next && !rankIsMinimum && muscleScoreBounds(representative).bound === "exact" ? ` Next: ${next.fullName} from a score of ${next.minInclusive}.` : ""}
           </p>
           <p>Estimated from your logged lifts. A rank is confirmed only once repeat comparable lifts back it up, and that check is not live yet — so every rank here is an estimate.</p>
           <p>A Sports Genome rank, not a competition credential. Percentiles put lifts in order; the gap between two percentiles is not an equal step in strength.</p>

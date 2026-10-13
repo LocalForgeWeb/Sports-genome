@@ -134,7 +134,7 @@ describe("the Strength record keeps the region's rank and the lift on show apart
   it("names the lift behind the region's rank, with its date, load and reps and what it was read against", () => {
     renderPanel([bench, pecDeckFirst, pecDeckLatest]);
     const rank = rankSection(openChest());
-    expect(within(rank).getByText("84th percentile")).toBeTruthy();
+    expect(within(rank).getByText("Benchmark score 84")).toBeTruthy();
     const provenance = rank.querySelector("[data-rank-provenance]")!;
     expect(within(provenance as HTMLElement).getByText("Barbell Bench Press")).toBeTruthy();
     expect(provenance.textContent).toContain("86th percentile on its own");
@@ -175,7 +175,7 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     mocks.ranks.mockReturnValue(settled({ ...scored, muscles: [{ ...chestMuscle, evidence: [{ exerciseName: "Machine Chest Press", role: "primary", exercisePercentile: 86 }] }] }));
     renderPanel([bench, pecDeckFirst, pecDeckLatest]);
     const record = openChest();
-    expect(within(rankSection(record)).getByText("84th percentile")).toBeTruthy();
+    expect(within(rankSection(record)).getByText("Benchmark score 84")).toBeTruthy();
     expect(record.textContent).not.toMatch(/Counts toward|Not part of|considered for the Chest rank/);
   });
 
@@ -225,7 +225,7 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     expect(within(record).getByText("No comparison rank available for this lift")).toBeTruthy();
     expect(row(liftSection(record, "Pec Deck Fly"), "progress").textContent).toContain("+25%");
     // The region's rank does not move with the lift.
-    expect(within(rankSection(record)).getByText("84th percentile")).toBeTruthy();
+    expect(within(rankSection(record)).getByText("Benchmark score 84")).toBeTruthy();
   });
 
   it("does not call a lift logged twice 'one log so far' when only one of its logs can be estimated", () => {
@@ -309,7 +309,7 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     expect(document.querySelector(".strength-body-map")?.getAttribute("data-mode")).toBe("rank");
     expect(document.querySelector("[data-rank-updating]")?.textContent).toBe("Updating ranks…");
     const rank = rankSection(openChest());
-    expect(within(rank).getByText("84th percentile")).toBeTruthy();
+    expect(within(rank).getByText("Benchmark score 84")).toBeTruthy();
     expect(within(rank).getByText("Updating ranks…")).toBeTruthy();
   });
 
@@ -368,7 +368,7 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     expect(document.querySelector(".strength-body-map")?.getAttribute("data-mode")).toBe("rank");
     expect(document.querySelector("[data-rank-updating]")?.textContent).toBe("Waiting for a connection to update ranks. The colours are your previous ranks.");
     const rank = rankSection(openChest());
-    expect(within(rank).getByText("84th percentile")).toBeTruthy();
+    expect(within(rank).getByText("Benchmark score 84")).toBeTruthy();
     expect(within(rank).getByText("Waiting for a connection to update ranks. This is your previous rank.")).toBeTruthy();
     expect(within(rank).queryByText("Updating ranks…")).toBeNull();
   });
@@ -380,5 +380,40 @@ describe("the Strength record keeps the region's rank and the lift on show apart
     expect(notes[0].querySelector("summary")?.textContent).toBe("Data notes1 not in these ranks · 1 on your profile weight");
     expect(notes[0].querySelector("[data-rank-unranked-note]")?.textContent).toContain("Pec Deck Fly — no comparison group for this lift yet");
     expect(notes[0].querySelector("[data-rank-body-mass-note] b")?.textContent).toBe("1 lift uses your current profile weight and will move if you change it");
+  });
+});
+
+/**
+ * Percentile-ceiling brief §8: a lift past the highest benchmark is shown as a bound on the
+ * rendered sheet, with how far past it, and the region's rank as the minimum that supports.
+ */
+describe("a rank drawn from a lift above the highest benchmark", () => {
+  const above = {
+    ...chestMuscle, percentile: 95, scoreBound: "at_least", lowerBound: 95, upperBound: 100, confidence01: 0.62,
+    evidence: [{ exerciseName: "Barbell Bench Press", role: "primary", exercisePercentile: 95, bound: "above", countedLow: 95, countedHigh: 100, observedValue: 2.67249, benchmarkValue: 1.75, valueUnit: "x_bodyweight", ageScaled: true, weightShare: 1, selectedLift: { loadKg: 100, repetitions: 5 } }],
+  };
+
+  beforeEach(() => {
+    mocks.forLift.mockReset().mockImplementation(answerByLift);
+    mocks.ranks.mockReset().mockReturnValue(settled({ ...scored, muscles: [above] }));
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { callback(0); return 1; });
+    vi.stubGlobal("cancelAnimationFrame", vi.fn());
+    vi.stubGlobal("scrollTo", vi.fn());
+  });
+  afterEach(() => { cleanup(); document.body.innerHTML = ""; localStorage.clear(); vi.unstubAllGlobals(); });
+
+  it("names the bound, how far past it the lift went, and a minimum rank - never an exact 95th", () => {
+    renderPanel([bench]);
+    const rank = rankSection(openChest());
+    expect(within(rank).getByText("National Circuit")).toBeTruthy();
+    expect(within(rank).getByText("Benchmark score above 95")).toBeTruthy();
+    expect(within(rank).getByText("Minimum rank")).toBeTruthy();
+    const provenance = rank.querySelector("[data-rank-provenance]")!;
+    expect(provenance.textContent).toContain("Barbell Bench Press · above the 95th-percentile benchmark · primary");
+    expect(provenance.querySelector("[data-rank-beyond-lift]")?.textContent).toBe("Placed at 2.67× body weight once scaled for age, against the 95th-percentile benchmark of 1.75×.");
+    expect(rank.querySelector("[data-rank-beyond]")?.textContent).toContain("A more precise percentile is not available, so National Circuit is the lowest rank your lifts support.");
+    expect(rank.textContent).not.toMatch(/95th percentile on its own|\b94\b|Next: World Stage/);
+    // The lift the route kept is named, from the lifts that were sent.
+    expect(provenance.querySelector(".rank-provenance-lift")?.textContent).toMatch(/^100 kg × 5 · Sep 12/);
   });
 });

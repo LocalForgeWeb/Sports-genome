@@ -1,0 +1,22 @@
+   × Screenshot A: Lat Pulldown 187 × 6 and Machine Low Row 600 × 12 > keeps the row's result as above the 95th-percentile benchmark, not an exact 95 28ms
+   × Screenshot A: Lat Pulldown 187 × 6 and Machine Low Row 600 × 12 > is the weighted score of the two, a range because one is a bound: 89.49 × w + (95, 100] × (1 − w) 4ms
+   × Screenshot B: Lat Pulldown 350 × 1 and Machine Low Row 325 × 8 > never turns two lifts above the 95th benchmark into a 94 12ms
+   × Screenshot B: Lat Pulldown 350 × 1 and Machine Low Row 325 × 8 > keeps the stronger of two lifts that are both above the benchmark (600 × 12 over 325 × 8) 5ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  server/rankScreenshots.test.ts > Screenshot A: Lat Pulldown 187 × 6 and Machine Low Row 600 × 12 > keeps the row's result as above the 95th-percentile benchmark, not an exact 95
+AssertionError: expected { exerciseName: 'Lat Pulldown', …(4) } to match object { bound: 'exact', …(1) }
+- Expected
++ Received
+ FAIL  server/rankScreenshots.test.ts > Screenshot A: Lat Pulldown 187 × 6 and Machine Low Row 600 × 12 > is the weighted score of the two, a range because one is a bound: 89.49 × w + (95, 100] × (1 − w)
+AssertionError: expected undefined to be 'range' // Object.is equality
+- Expected: 
++ Received: 
+ FAIL  server/rankScreenshots.test.ts > Screenshot B: Lat Pulldown 350 × 1 and Machine Low Row 325 × 8 > never turns two lifts above the 95th benchmark into a 94
+AssertionError: expected false to be true // Object.is equality
+- Expected
++ Received
+ FAIL  server/rankScreenshots.test.ts > Screenshot B: Lat Pulldown 350 × 1 and Machine Low Row 325 × 8 > keeps the stronger of two lifts that are both above the benchmark (600 × 12 over 325 × 8)
+AssertionError: expected undefined to be 6.41397 // Object.is equality
+- Expected: 
++ Received: 
+      Tests  4 failed (4)

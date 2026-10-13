@@ -1,0 +1,72 @@
+{
+ "A": {
+  "aggregationVersion": "sg_muscle_benchmark_v3:directness_weighted_benchmark_score_bounded",
+  "lats": {
+   "percentile": 91.24886246565927,
+   "confidence01": 0.783,
+   "evidence": [
+    {
+     "exerciseName": "Lat Pulldown",
+     "role": "primary",
+     "exercisePercentile": 89.49,
+     "bound": "exact",
+     "countedLow": 89.49,
+     "countedHigh": 89.49,
+     "observedValue": 1.65818,
+     "benchmarkValue": null,
+     "valueUnit": "x_bodyweight",
+     "directness": 0.21939953810623555,
+     "weightShare": 0.6807872113141071
+    },
+    {
+     "exerciseName": "Machine Low Row",
+     "role": "primary",
+     "exercisePercentile": 95,
+     "bound": "above",
+     "countedLow": 95,
+     "countedHigh": 100,
+     "observedValue": 6.41397,
+     "benchmarkValue": 1.75,
+     "valueUnit": "x_bodyweight",
+     "directness": 0.15441176470588236,
+     "weightShare": 0.31921278868589287
+    }
+   ]
+  }
+ },
+ "B": {
+  "aggregationVersion": "sg_muscle_benchmark_v3:directness_weighted_benchmark_score_bounded",
+  "lats": {
+   "percentile": 95,
+   "confidence01": 0.783,
+   "evidence": [
+    {
+     "exerciseName": "Lat Pulldown",
+     "role": "primary",
+     "exercisePercentile": 95,
+     "bound": "above",
+     "countedLow": 95,
+     "countedHigh": 100,
+     "observedValue": 2.67249,
+     "benchmarkValue": 1.75,
+     "valueUnit": "x_bodyweight",
+     "directness": 0.21939953810623555,
+     "weightShare": 0.6807872113141071
+    },
+    {
+     "exerciseName": "Machine Low Row",
+     "role": "primary",
+     "exercisePercentile": 95,
+     "bound": "above",
+     "countedLow": 95,
+     "countedHigh": 100,
+     "observedValue": 3.08062,
+     "benchmarkValue": 1.75,
+     "valueUnit": "x_bodyweight",
+     "directness": 0.15441176470588236,
+     "weightShare": 0.31921278868589287
+    }
+   ]
+  }
+ }
+}

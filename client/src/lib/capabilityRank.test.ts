@@ -17,7 +17,7 @@ const rankId = (value: unknown) => rankForPercentile(value)?.id ?? null;
 
 describe("The rank table", () => {
   it("is versioned and has exactly the seven bands of the brief, in order", () => {
-    expect(RANK_SCHEME_VERSION).toBe("sg_capability_rank_v1");
+    expect(RANK_SCHEME_VERSION).toBe("sg_capability_rank_v2");
     expect(RANKS.map((rank) => rank.id)).toEqual(["prospect", "jv", "varsity", "regional", "state", "national", "world_stage"]);
     expect(RANKS.map((rank) => rank.sortOrder)).toEqual([0, 1, 2, 3, 4, 5, 6]);
   });

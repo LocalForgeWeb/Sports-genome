@@ -1,6 +1,6 @@
 import type { ComparableStrengthObservation, WithinAthleteStrengthChange } from "@/lib/withinAthleteStrengthChange";
 import type { StrengthPercentileResult } from "@shared/strengthPercentile";
-import { catalogExerciseIdForName, strengthPercentileCard, strengthPercentileGapCopy, type StrengthPercentileCard } from "@/lib/strengthPercentileCard";
+import { catalogExerciseIdForName, ordinal, strengthPercentileCard, strengthPercentileGapCopy, type StrengthPercentileCard } from "@/lib/strengthPercentileCard";
 import { ageAtLift } from "@/lib/normsCohort";
 
 /**
@@ -96,7 +96,7 @@ export function liftsToPlace(
 
 export type ProgressPercentileSummary = {
   /** A card per trend that was placed, keyed like the trend. */
-  cards: Map<string, StrengthPercentileCard & { percentile: number; bodyMassSource: PercentileLift["bodyMassSource"] }>;
+  cards: Map<string, StrengthPercentileCard & { percentile: number; bound: "exact" | "above"; bodyMassSource: PercentileLift["bodyMassSource"] }>;
   placed: number;
   /** The strongest placement, for the headline. */
   best: { exerciseName: string; percentile: number; headline: string } | null;
@@ -121,8 +121,14 @@ export function summarizeProgressPercentiles(
     if (result.status === "resolved" && sex) {
       const card = strengthPercentileCard(result, { sex, bodyMassKg: lift.request.bodyMassKg });
       if (!card) return;
-      cards.set(lift.key, { ...card, percentile: result.percentile, bodyMassSource: lift.bodyMassSource });
+      cards.set(lift.key, { ...card, percentile: result.percentile, bound: "exact", bodyMassSource: lift.bodyMassSource });
       if (!best || result.percentile > best.percentile) best = { exerciseName: lift.exerciseName, percentile: result.percentile, headline: card.headline };
+    } else if (result.status === "unavailable" && result.reason === "above_highest_anchor" && typeof result.censoredAt === "number" && sex) {
+      // Past the curve's top: recognised as such, never dropped and never printed as an exact 95th.
+      const headline = `Above the ${ordinal(result.censoredAt)}-percentile benchmark`;
+      const detail = "Past the highest point this comparison publishes, so a more precise percentile is not available.";
+      cards.set(lift.key, { headline, detail, placement: detail, effort: "", percentile: result.censoredAt, bound: "above", bodyMassSource: lift.bodyMassSource });
+      if (!best || result.censoredAt >= best.percentile) best = { exerciseName: lift.exerciseName, percentile: result.censoredAt, headline };
     } else if (result.status === "unavailable") {
       reasons.add(result.reason);
     }

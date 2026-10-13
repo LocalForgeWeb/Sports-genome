@@ -1,12 +1,15 @@
 import { supabaseServiceHeaders } from "./supabaseServiceHeaders";
 import { loadConventionFor } from "../shared/loadConventions";
 import { mapWithConcurrency, withTimeout } from "./boundedCache";
-import { aggregateMuscleStrength, type MappingRow, type MuscleRow } from "./muscleAggregation";
+import { aggregateMuscleBenchmarkScores, betterScore, type BoundedScoreInput, type MappingRow, type MuscleRow } from "./muscleAggregation";
 import {
   MUSCLE_CONFIDENCE_CALIBRATION_VERSION,
+  MUSCLE_SCORE_KIND,
   RANK_SCHEME_VERSION,
   type MuscleEvidence,
   type MuscleScore,
+  type PercentileBound,
+  type ScoreBound,
 } from "../shared/capabilityRank";
 import { upstreamFetch } from "./_core/http";
 
@@ -59,17 +62,56 @@ export type MuscleProfileRequest = { sex: "male" | "female" | null; lifts: reado
  * more confident than a strong set of ten - logging 80 x 3 after 100 x 10 took a chest rank
  * from 84.67 to 27.35 (EN-01). Sending the aggregation one observation per exercise, chosen
  * here, leaves it no choice to make; the chosen observation keeps its own confidence.
+ *
+ * v2: "best placed" reads bounds. A lift above the top anchor beats one exactly on it, and of
+ * two lifts both above it the one further past it is kept - they were a tie at 95 before, and
+ * the more confident (often the lighter) one won.
  */
-export const MUSCLE_EVIDENCE_SELECTION_RULE = "best_percentile_per_exercise_v1" as const;
+export const MUSCLE_EVIDENCE_SELECTION_RULE = "best_placed_per_exercise_v2" as const;
 
-/** One entry per exercise: the highest percentile, ties to the more confident. */
-export function bestObservationPerExercise<T extends { exercise_id: string; percentile: number; confidence: number }>(scores: readonly T[]): T[] {
+/** One entry per exercise: the best placed (bounds read), then the more confident. */
+export function bestObservationPerExercise<T extends { exercise_id: string; percentile: number; confidence: number; bound?: PercentileBound; observed_value?: number | null }>(scores: readonly T[]): T[] {
   const best = new Map<string, T>();
+  const placed = (score: T) => ({ percentile: score.percentile, bound: score.bound ?? "exact", observed_value: score.observed_value ?? null, confidence: score.confidence });
   for (const score of scores) {
     const current = best.get(score.exercise_id);
-    if (!current || score.percentile > current.percentile || (score.percentile === current.percentile && score.confidence > current.confidence)) best.set(score.exercise_id, score);
+    if (!current || betterScore(placed(score), placed(current))) best.set(score.exercise_id, score);
   }
   return Array.from(best.values());
+}
+
+/**
+ * How the database placed a lift, read from its own words rather than its number alone.
+ *
+ * `get_beta_strength_percentile_v1_core` returns `percentile_estimate` for every lift it can
+ * place - and for a lift past either end of the curve it returns the end anchor's percentile
+ * there, with `status: "above_range"` (or `"below_range"`) and `censored: true`. Reading only the
+ * number is what entered every exceptional lift as an exact 95th. A status it does not know is
+ * not a placement at all.
+ */
+export function percentileBoundOf(placement: Record<string, unknown> | null | undefined): { bound: PercentileBound; percentile: number; observedValue: number | null; benchmarkValue: number | null; unit: string | null } | null {
+  if (!placement || typeof placement !== "object") return null;
+  const status = typeof placement.status === "string" ? placement.status : null;
+  const estimate = numberOf(placement.percentile_estimate);
+  const anchor = (key: "lower_anchor" | "upper_anchor") => {
+    const value = placement[key] as Record<string, unknown> | undefined;
+    return value && typeof value === "object" ? numberOf(value.value) : null;
+  };
+  const observedValue = numberOf(placement.observed_norm_value);
+  const unit = typeof placement.norm_unit === "string" ? placement.norm_unit : null;
+  if (status === "above_range") {
+    const top = numberOf(placement.supported_percentile_max) ?? estimate;
+    return isFiniteIn(top, 0, 100) ? { bound: "above", percentile: top, observedValue, benchmarkValue: anchor("upper_anchor"), unit } : null;
+  }
+  if (status === "below_range") {
+    const bottom = numberOf(placement.supported_percentile_min) ?? estimate;
+    return isFiniteIn(bottom, 0, 100) ? { bound: "below", percentile: bottom, observedValue, benchmarkValue: anchor("lower_anchor"), unit } : null;
+  }
+  // `ok` is the placed case. Older rows carried no status; they are exact unless marked censored.
+  if (status === "ok" || (status === null && placement.censored !== true)) {
+    return isFiniteIn(estimate, 0, 100) ? { bound: "exact", percentile: estimate, observedValue, benchmarkValue: null, unit } : null;
+  }
+  return null;
 }
 
 /** Mirrors `score_strength_profile_v1`'s own statuses; they stay visible rather than collapsing to ok. */
@@ -83,13 +125,15 @@ export type MuscleProfileResult =
   | { status: "unavailable"; reason: "sex_required" | "no_lifts" | "not_configured" | "service_error" }
   | {
       status: ProfileStatus;
+      /** What each muscle's number is: a weighted benchmark score, never a muscle percentile. */
+      scoreKind: typeof MUSCLE_SCORE_KIND;
       /**
        * The version the lifts were scored under, as each score reports it (`strength_beta_v2`
        * for the Strength Level route). It used to be the aggregation's label, `strength_beta_v1`,
        * whose recorded method is not the one that ran (EN-04). Several are joined with "+".
        */
       scoringVersion: string;
-      /** The muscle aggregation's own version and method: `sg_muscle_aggregate_v2:directness_…` (D-016). */
+      /** The muscle aggregation's own version and method: `sg_muscle_benchmark_v3:…` since 13 October 2026. */
       aggregationVersion: string;
       /** One observation per exercise enters the aggregation: the best placed, whatever its confidence. */
       selectionRule: typeof MUSCLE_EVIDENCE_SELECTION_RULE;
@@ -171,11 +215,26 @@ export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<
   if (typeof row.muscle_id !== "string" || typeof row.muscle_canonical_name !== "string") return null;
   if (!isFiniteIn(percentile, 0, 100) || !isFiniteIn(confidence01, 0, 1)) return null;
   if (evidenceCount === null || evidenceCount < 1) return null;
+  // Bounds, when the aggregation gave them, must hold the score between them; a muscle whose
+  // bounds are missing or out of order is refused, not drawn with a number it may not have.
+  const scoreBound: ScoreBound = row.score_bound === "at_least" || row.score_bound === "at_most" || row.score_bound === "range" ? row.score_bound : "exact";
+  const lowerBound = row.lower_bound === undefined ? percentile : numberOf(row.lower_bound);
+  const upperBound = row.upper_bound === undefined ? percentile : numberOf(row.upper_bound);
+  if (!isFiniteIn(lowerBound, 0, 100) || !isFiniteIn(upperBound, 0, 100) || lowerBound > upperBound || percentile !== lowerBound) return null;
+  if (scoreBound === "exact" && lowerBound !== upperBound) return null;
   const evidenceRows = Array.isArray(row.evidence) ? row.evidence as Record<string, unknown>[] : [];
   const evidence: MuscleEvidence[] = evidenceRows.map((item) => ({
     exerciseName: typeof item.exercise_name === "string" ? item.exercise_name : "Logged lift",
     role: typeof item.role === "string" ? item.role : null,
     exercisePercentile: numberOf(item.exercise_percentile),
+    bound: item.bound === "above" || item.bound === "below" ? item.bound : "exact",
+    countedLow: numberOf(item.counted_low),
+    countedHigh: numberOf(item.counted_high),
+    observedValue: numberOf(item.observed_value),
+    benchmarkValue: numberOf(item.benchmark_value),
+    valueUnit: typeof item.value_unit === "string" ? item.value_unit : null,
+    ageScaled: item.age_scaled === true,
+    selectedLift: item.load_kg === undefined && item.repetitions === undefined ? null : { loadKg: numberOf(item.load_kg), repetitions: numberOf(item.repetitions) },
     directness: numberOf(item.directness),
     weightShare: numberOf(item.weight_share),
   }));
@@ -189,6 +248,9 @@ export function validateMuscle(raw: unknown, referenceByExerciseId: ReadonlyMap<
     canonicalName: row.muscle_canonical_name,
     name: typeof row.muscle_name === "string" ? row.muscle_name : row.muscle_canonical_name,
     percentile,
+    scoreBound,
+    lowerBound,
+    upperBound,
     confidence01,
     evidenceCount,
     movementPatternCount: numberOf(row.movement_pattern_count) ?? evidenceCount,
@@ -295,7 +357,7 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
   let scored = 0;
   let estimatedOnly = 0;
   let failed = failures.length;
-  const compact: { exercise_id: string; percentile: number; confidence: number }[] = [];
+  const compact: (BoundedScoreInput & { confidence: number })[] = [];
   const scoringVersions = new Set<string>();
   const referenceByExerciseId = new Map<string, ReferenceGroup>();
   const ageAdjustment: AgeAdjustmentSummary = { applied: 0, outsideTable: 0, noAge: 0 };
@@ -321,10 +383,28 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
     }
     const scores = Array.isArray(body.exercise_scores) ? body.exercise_scores as Record<string, any>[] : [];
     for (const score of scores) {
-      const percentile = numberOf(score?.percentile?.percentile_estimate);
+      const placement = percentileBoundOf(score?.percentile);
       const exerciseId = typeof score?.exercise_id === "string" ? score.exercise_id : score?.input_observation?.exercise_id;
-      if (typeof exerciseId !== "string" || !isFiniteIn(percentile, 0, 100)) continue;
-      compact.push({ exercise_id: exerciseId, percentile, confidence: numberOf(score?.overall_confidence) ?? 0.5 });
+      if (typeof exerciseId !== "string") continue;
+      if (!placement) {
+        // Not a placement this route can read (an unknown status, a number off the scale): the
+        // lift is named as unranked rather than drawn from a number it may not mean.
+        failures.push({ exerciseName: score?.input_observation?.exercise_name ?? "Logged lift", reason: "unreadable_placement" });
+        failed += 1;
+        continue;
+      }
+      compact.push({
+        exercise_id: exerciseId,
+        percentile: placement.percentile,
+        bound: placement.bound,
+        confidence: numberOf(score?.overall_confidence) ?? 0.5,
+        observed_value: placement.observedValue,
+        benchmark_value: placement.benchmarkValue,
+        value_unit: placement.unit,
+        age_scaled: score?.age_adjustment?.applied === true,
+        load_kg: numberOf(score?.input_observation?.load),
+        repetitions: numberOf(score?.input_observation?.reps),
+      });
       if (typeof score?.scoring_version === "string") scoringVersions.add(score.scoring_version);
       if (ageYears === null) ageAdjustment.noAge += 1;
       else if (score?.age_adjustment?.applied === true) ageAdjustment.applied += 1;
@@ -348,11 +428,12 @@ export async function scoreMuscleProfile(client: ProfileClient, catalog: Profile
   // The mappings for the exercises with evidence, read once per request; the muscle list and
   // the exercise index come with the catalog. Then the aggregation runs here (D-016).
   const mappings = evidence.length ? await client.getMuscleMappings(evidence.map((item) => item.exercise_id)) : [];
-  const aggregate = aggregateMuscleStrength(evidence, { mappings, muscles: catalog.muscles, exercises: index });
+  const aggregate = aggregateMuscleBenchmarkScores(evidence, { mappings, muscles: catalog.muscles, exercises: index });
   const muscles = aggregate.muscles.map((raw) => validateMuscle(raw, referenceByExerciseId)).filter((m): m is NonNullable<typeof m> => m !== null);
 
   return {
     status: profileStatus(scored, estimatedOnly, failed),
+    scoreKind: MUSCLE_SCORE_KIND,
     scoringVersion: scoringVersions.size ? Array.from(scoringVersions).sort().join("+") : "unknown",
     aggregationVersion: `${aggregate.scoring_version}:${aggregate.aggregation_method}`,
     selectionRule: MUSCLE_EVIDENCE_SELECTION_RULE,

@@ -4,7 +4,7 @@ import { ageAtLift } from "@/lib/normsCohort";
 import { estimateOneRepMaxKg } from "@shared/oneRepMaxEstimation";
 import { strengthLevelAgeFactor } from "@shared/strengthPercentile";
 import { loadConventionFor } from "@shared/loadConventions";
-import type { MuscleEvidence } from "@shared/capabilityRank";
+import type { MuscleEvidence, PercentileBound } from "@shared/capabilityRank";
 
 export type RankableObservation = {
   /** The record the lift was read from, so a rank can name the lift behind it. */
@@ -182,8 +182,20 @@ export type RankProvenance = {
   /** As the rank names it. */
   exerciseName: string;
   role: string | null;
-  /** Where the exercise placed on its own; the muscle's rank weighs these. */
+  /** Where the exercise placed on its own, or the anchor it is beyond (`bound`); the rank weighs these. */
   exercisePercentile: number;
+  /** Exact, or past an end of its comparison curve. */
+  bound: PercentileBound;
+  /** What it counts as for this muscle (below its own percentile in a supporting role). */
+  countedLow: number | null;
+  countedHigh: number | null;
+  /** The lift as placed and the benchmark it passed, e.g. 2.67 and 1.75 times body weight. */
+  observedValue: number | null;
+  benchmarkValue: number | null;
+  valueUnit: string | null;
+  ageScaled: boolean;
+  /** Which of `lifts` the route kept for this exercise, when it said; null when it did not. */
+  countedLiftIndex: number | null;
   /**
    * The share of the muscle's rank this exercise carried (D-016: a lift counts for more the more
    * directly it reads the muscle), or null when the route did not say.
@@ -219,10 +231,21 @@ export function rankProvenance(evidence: readonly MuscleEvidence[], sources: rea
     const catalogId = catalogExerciseIdForName(item.exerciseName) ?? null;
     const lifts = sources.filter((source) => (catalogId !== null && source.catalogExerciseId === catalogId) || comparableExerciseName(source.exerciseName) === name);
     const weightShare = typeof item.weightShare === "number" && Number.isFinite(item.weightShare) ? item.weightShare : null;
-    entries.push({ exerciseName: item.exerciseName, role: item.role, exercisePercentile: item.exercisePercentile, weightShare, lifts });
+    const finite = (value: number | null | undefined) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+    // The route says which load and reps it kept; matched to a sent lift to the gram.
+    const kept = item.selectedLift;
+    const countedLiftIndex = kept ? lifts.findIndex((lift) => kept.repetitions === lift.repetitions && kept.loadKg !== null && Math.abs(kept.loadKg - lift.loadKg) < 0.001) : -1;
+    entries.push({
+      exerciseName: item.exerciseName, role: item.role, exercisePercentile: item.exercisePercentile, weightShare, lifts,
+      bound: item.bound ?? "exact",
+      countedLow: finite(item.countedLow), countedHigh: finite(item.countedHigh),
+      observedValue: finite(item.observedValue), benchmarkValue: finite(item.benchmarkValue), valueUnit: item.valueUnit ?? null, ageScaled: item.ageScaled === true,
+      countedLiftIndex: countedLiftIndex >= 0 ? countedLiftIndex : null,
+    });
   }
   // The exercise that carried most of the rank first; by placement when the route gave no shares.
-  return entries.sort((a, b) => (b.weightShare ?? -1) - (a.weightShare ?? -1) || b.exercisePercentile - a.exercisePercentile);
+  const boundOrder = { below: -1, exact: 0, above: 1 } as const;
+  return entries.sort((a, b) => (b.weightShare ?? -1) - (a.weightShare ?? -1) || b.exercisePercentile - a.exercisePercentile || boundOrder[b.bound] - boundOrder[a.bound]);
 }
 
 /**

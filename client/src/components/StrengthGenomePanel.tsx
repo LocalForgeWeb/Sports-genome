@@ -32,7 +32,7 @@ import { strengthRegionIdsForExerciseName, workoutStrengthObservations, compareR
 import { bodyWeightEntryAt, bodyWeightKgAt, bodyWeightLogEvent, loadBodyWeightLog, type BodyWeightEntry } from "@/lib/bodyWeightLog";
 import { catalogExerciseIdForName, ordinal, strengthPercentileCard, strengthPercentileGapCopy } from "@/lib/strengthPercentileCard";
 import { regionRanksFromMuscles, type RegionRank } from "@shared/capabilityRank";
-import { PendingRankCard, RankCard, UnscoredRankCard, displayPercentile } from "@/components/CapabilityRank";
+import { PendingRankCard, RankCard, UnscoredRankCard, countedText, displayPercentile, liftResultText } from "@/components/CapabilityRank";
 import { RankingLiftSuggestions } from "@/components/RankingLiftSuggestions";
 import { RankIcon } from "@/components/RankIcon";
 import { RANKS, rankRangeLabel } from "@shared/capabilityRank";
@@ -195,6 +195,17 @@ function rankLiftLine(lift: MuscleRankLiftSource, weightUnit: DisplayWeightUnit)
 }
 
 /**
+ * How far past the benchmark a lift went, in the curve's own unit: "Placed at 2.67× body weight
+ * (age-scaled); the 95th-percentile benchmark is 1.75×." The lift keeps counting on its own
+ * progress line however far above the reference it goes.
+ */
+function beyondLine(observed: number, benchmark: number, unit: string | null, percentile: number, ageScaled: boolean): string {
+  const value = (amount: number) => unit === "x_bodyweight" ? `${amount.toFixed(2)}× body weight` : `${amount.toFixed(1)}${unit ? ` ${unit.replace(/_1rm$/, "")}` : ""}`;
+  const short = unit === "x_bodyweight" ? `${benchmark.toFixed(2)}×` : value(benchmark);
+  return `Placed at ${value(observed)}${ageScaled ? " once scaled for age" : ""}, against the ${ordinal(percentile)}-percentile benchmark of ${short}.`;
+}
+
+/**
  * Which lifts produced a region's rank, with each lift's date, load and reps and the body weight
  * it was read against. The comparison group is named on the rank above it. Traced on this
  * device from the lifts that were sent (lib/muscleRankLifts), so when an exercise sent more than
@@ -203,11 +214,19 @@ function rankLiftLine(lift: MuscleRankLiftSource, weightUnit: DisplayWeightUnit)
 function RankProvenanceList({ entries, unplaced, muscleName, weightUnit }: { entries: readonly RankProvenance[]; unplaced: readonly UnrankedLift[]; muscleName: string; weightUnit: DisplayWeightUnit }) {
   return <div className="rank-provenance" data-rank-provenance>
     <p className="rank-provenance-label">{entries.length === 1 ? "From this exercise" : `Blended from ${entries.length} exercises`}</p>
-    <ul>{entries.map((entry) => <li key={entry.exerciseName}>
-      <p><strong>{entry.exerciseName}</strong>{` · ${ordinal(displayPercentile(entry.exercisePercentile))} percentile on its own`}{entry.role ? ` · ${entry.role}` : ""}{entries.length > 1 && entry.weightShare !== null ? ` · ${Math.round(entry.weightShare * 100)}% of this rank` : ""}</p>
-      {entry.lifts.length > 1 && <p className="rank-provenance-best">Best of {entry.lifts.length} lifts:</p>}
-      {entry.lifts.map((lift, index) => <p key={`${lift.observationId ?? "lift"}-${index}`} className="rank-provenance-lift">{rankLiftLine(lift, weightUnit)}</p>)}
-    </li>)}</ul>
+    <ul>{entries.map((entry) => {
+      const counted = countedText(entry);
+      // The lift the route kept, when it said which; otherwise every lift sent, as "best of N".
+      const kept = entry.countedLiftIndex !== null ? entry.lifts[entry.countedLiftIndex] : null;
+      return <li key={entry.exerciseName}>
+        <p><strong>{entry.exerciseName}</strong>{` · ${liftResultText(entry)}`}{entry.role ? ` · ${entry.role}` : ""}{counted ? ` · ${counted}` : ""}{entries.length > 1 && entry.weightShare !== null ? ` · ${Math.round(entry.weightShare * 100)}% of this rank` : ""}</p>
+        {entry.bound === "above" && entry.observedValue !== null && entry.benchmarkValue !== null && <p className="rank-provenance-beyond" data-rank-beyond-lift>{beyondLine(entry.observedValue, entry.benchmarkValue, entry.valueUnit, displayPercentile(entry.exercisePercentile), entry.ageScaled)}</p>}
+        {kept
+          ? <>{entry.lifts.length > 1 && <p className="rank-provenance-best">Counted, the best of {entry.lifts.length} lifts:</p>}<p className="rank-provenance-lift">{rankLiftLine(kept, weightUnit)}</p></>
+          : <>{entry.lifts.length > 1 && <p className="rank-provenance-best">Best of {entry.lifts.length} lifts:</p>}
+            {entry.lifts.map((lift, index) => <p key={`${lift.observationId ?? "lift"}-${index}`} className="rank-provenance-lift">{rankLiftLine(lift, weightUnit)}</p>)}</>}
+      </li>;
+    })}</ul>
     {entries.length > 1 && <p>The most direct lift counts most: one where {muscleName.toLowerCase()} does most of the work says more about it than one it shares with several other muscles.</p>}
     {unplaced.length > 0 && <p data-rank-not-counted>Not counted: {unplaced.map((item) => `${item.exerciseName} (${unrankedReasonCopy[item.reason] ?? "could not be scored"})`).join(", ")}.</p>}
   </div>;
@@ -685,6 +704,8 @@ const unrankedReasonCopy: Record<string, string> = {
   // A pull-up or dip is compared on reps; its comparison has no way to count added weight yet.
   added_load_not_scored: "compared on reps alone, so sets with added weight are not ranked yet",
   load_required: "needs the weight lifted",
+  // The comparison answered in a form the rank cannot read safely, so it is left out rather than guessed.
+  unreadable_placement: "its comparison came back in a form that could not be read",
 };
 
 export function StrengthGenomePanel({ onOpenTraining = () => {}, weightUnit = "lb", baselineBodyWeight, sexForReference, birthYear, defaultTestingDetailOpen = false, directAccess = false, onRankProfile }: { onOpenTraining?: () => void; weightUnit?: DisplayWeightUnit; baselineBodyWeight?: number; sexForReference?: SexForReference; birthYear?: number; defaultTestingDetailOpen?: boolean; directAccess?: boolean; onRankProfile?: (patch: RankProfilePatch) => void }) {

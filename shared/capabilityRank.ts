@@ -14,7 +14,12 @@
  * competition credential, and the interface says so wherever a rank is explained.
  */
 
-export const RANK_SCHEME_VERSION = "sg_capability_rank_v1" as const;
+/**
+ * v2 (13 October 2026): the bands are unchanged; a rank can now be a minimum. A muscle's score
+ * is a weighted benchmark score that may be known only as a bound (a lift above the highest
+ * benchmark), and its rank is then the lowest band the bound allows, marked as such.
+ */
+export const RANK_SCHEME_VERSION = "sg_capability_rank_v2" as const;
 
 export type RankId = "prospect" | "jv" | "varsity" | "regional" | "state" | "national" | "world_stage";
 
@@ -296,10 +301,57 @@ function preparedMuscleRegionIds(): Record<string, string> {
  * The view a region is drawn from
  * ---------------------------------------------------------------------------------------- */
 
+/**
+ * Where one lift stands against its reference curve.
+ *
+ * - `exact`: inside the published anchors, interpolated (or on one). `exercisePercentile` is it.
+ * - `above`: past the highest anchor. `exercisePercentile` is that anchor's percentile (95 for
+ *   every community curve) and the true position is strictly above it; how far is not known.
+ * - `below`: under the lowest anchor, the mirror image.
+ *
+ * A bound is never an exact 95 (or 5): the database enters such a lift at the anchor, and
+ * reading that number as a placement is what turned every exceptional lift into "95th".
+ */
+export type PercentileBound = "exact" | "above" | "below";
+
+/**
+ * How a muscle's score is pinned down. `exact` when every lift behind it is exact; otherwise
+ * the score is only known to lie between `lowerBound` and `upperBound`: `at_least` when every
+ * lift is above its highest benchmark, `at_most` when every lift is below its lowest, `range`
+ * for a mix.
+ */
+export type ScoreBound = "exact" | "at_least" | "at_most" | "range";
+
+/**
+ * What a muscle's number is: a weighted benchmark score - each lift's own percentile against
+ * its comparison group, weighted by how directly and how surely the lift reads the muscle - on
+ * the 0-100 percentile scale. It is not a percentile of muscle strength: no population of
+ * muscles was measured. The lifts' own numbers are the percentiles.
+ */
+export const MUSCLE_SCORE_KIND = "weighted_benchmark_score" as const;
+
 export type MuscleEvidence = {
   exerciseName: string;
   role: string | null;
+  /** The lift's percentile, or the anchor it is bounded by (see `bound`). */
   exercisePercentile: number | null;
+  /** Exact, or a bound. Absent on evidence from before bounds were carried: read as exact. */
+  bound?: PercentileBound;
+  /**
+   * What the lift counts as for this muscle, low and high (equal when exact). A lift the
+   * muscle moves as a prime mover counts at its own percentile; one it only assists counts
+   * nearer the middle (the role transfer), and the sheet says so.
+   */
+  countedLow?: number | null;
+  countedHigh?: number | null;
+  /** The lift as placed (e.g. 2.67 for 2.67× body weight) and the anchor it was compared with. */
+  observedValue?: number | null;
+  benchmarkValue?: number | null;
+  valueUnit?: string | null;
+  /** True when `observedValue` is the lift scaled for age at the lift (the lift itself is unchanged). */
+  ageScaled?: boolean;
+  /** The load and reps of the lift the route kept for this exercise, so the sheet can name it. */
+  selectedLift?: { loadKg: number | null; repetitions: number | null } | null;
   /**
    * How directly the lift reads this muscle: its contribution weight as a share of the lift's
    * mover contribution, 0-1 (D-016). A fly reads the sternocostal pec at 0.47, a bench press
@@ -315,8 +367,16 @@ export type MuscleScore = {
   muscleId: string;
   canonicalName: string;
   name: string;
-  /** 0-100. */
+  /**
+   * 0-100, the value the rank is read from: the weighted benchmark score when it is exact, its
+   * lower bound when it is not - so a rank drawn from it is never more than the lifts support.
+   */
   percentile: number;
+  /** Exact or bounded; absent on results from before bounds were carried, read as exact. */
+  scoreBound?: ScoreBound;
+  /** The score lies in [lowerBound, upperBound]; both equal `percentile` when exact. */
+  lowerBound?: number;
+  upperBound?: number;
   /** 0-1 aggregation weight. Not a probability and not shown as a number. */
   confidence01: number;
   evidenceCount: number;
@@ -335,6 +395,11 @@ export type RegionRank = {
   /** The muscle whose score the region is drawn with. */
   representative: MuscleScore;
   rank: RankDefinition;
+  /**
+   * True when the representative's score is a bound that reaches past this band: the rank is
+   * the lowest the lifts allow, and they may support a higher one. "At least National".
+   */
+  rankIsMinimum: boolean;
   confidence: ConfidenceLevel;
   /** Every scored muscle in the region, strongest evidence first, representative included. */
   muscles: MuscleScore[];
@@ -358,6 +423,26 @@ export function isStabilizerOnly(muscle: Pick<MuscleScore, "evidence">): boolean
   return muscle.evidence.length > 0 && muscle.evidence.every((item) => item.role === "stabilizer");
 }
 
+/** A muscle's score bounds, reading results from before bounds were carried as exact. */
+export function muscleScoreBounds(muscle: Pick<MuscleScore, "percentile" | "scoreBound" | "lowerBound" | "upperBound">): { bound: ScoreBound; lower: number; upper: number } {
+  const lower = typeof muscle.lowerBound === "number" && Number.isFinite(muscle.lowerBound) ? muscle.lowerBound : muscle.percentile;
+  const upper = typeof muscle.upperBound === "number" && Number.isFinite(muscle.upperBound) ? muscle.upperBound : muscle.percentile;
+  return { bound: muscle.scoreBound ?? "exact", lower, upper };
+}
+
+/**
+ * The rank a muscle's score supports: the band of its lower bound, and whether the upper bound
+ * reaches a higher band (then the rank is a minimum). An exact score is one band, never a
+ * minimum. Null when the score is not a rank at all.
+ */
+export function rankForMuscle(muscle: Pick<MuscleScore, "percentile" | "scoreBound" | "lowerBound" | "upperBound">): { rank: RankDefinition; isMinimum: boolean } | null {
+  const { lower, upper } = muscleScoreBounds(muscle);
+  const rank = rankForPercentile(lower);
+  if (!rank) return null;
+  const top = rankForPercentile(Math.min(100, Math.max(lower, upper)));
+  return { rank, isMinimum: top !== null && top.id !== rank.id };
+}
+
 export function regionRanksFromMuscles(muscles: readonly MuscleScore[]): Map<string, RegionRank> {
   const byRegion = new Map<string, MuscleScore[]>();
   for (const muscle of muscles) {
@@ -372,10 +457,10 @@ export function regionRanksFromMuscles(muscles: readonly MuscleScore[]): Map<str
       || b.evidenceCount - a.evidenceCount
       || a.canonicalName.localeCompare(b.canonicalName));
     const representative = ordered[0];
-    const rank = rankForPercentile(representative.percentile);
+    const ranked = rankForMuscle(representative);
     const confidence = muscleConfidenceLevel(representative.confidence01);
-    if (!rank || !confidence) return;
-    result.set(regionId, { regionId, representative, rank, confidence, muscles: ordered });
+    if (!ranked || !confidence) return;
+    result.set(regionId, { regionId, representative, rank: ranked.rank, rankIsMinimum: ranked.isMinimum, confidence, muscles: ordered });
   });
   return result;
 }

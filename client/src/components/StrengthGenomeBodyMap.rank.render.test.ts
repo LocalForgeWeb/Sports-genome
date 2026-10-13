@@ -66,19 +66,19 @@ describe("Strength/Rank mode", () => {
     expect(labels).toContain("Feet, not part of any strength region");
   });
 
-  it("names rank, percentile and confidence in words on the figure", () => {
+  it("names rank, benchmark score and confidence in words on the figure", () => {
     const { container } = drawMap(live);
     const labels = Array.from(container.querySelectorAll(".anatomy-hit[aria-label]")).map((node) => node.getAttribute("aria-label"));
-    expect(labels).toContain("Biceps, Varsity rank, 41st percentile, estimated, moderate confidence");
+    expect(labels).toContain("Biceps, Varsity rank, benchmark score 41, estimated, moderate confidence");
     expect(labels.some((label) => label?.startsWith("Quadriceps, not scored"))).toBe(true);
   });
 
   /** The named path: the same rank a tap gives, reachable without touching the figure. */
-  it("puts rank and percentile in every region button's name", () => {
+  it("puts rank and score in every region button's name", () => {
     drawMap(live);
     const list = screen.getByRole("group", { name: "Strength Genome regions" });
-    expect(within(list).getByRole("button", { name: "Biceps, Varsity · 41st" })).toBeTruthy();
-    expect(within(list).getByRole("button", { name: "Chest, Regional · 68th" })).toBeTruthy();
+    expect(within(list).getByRole("button", { name: "Biceps, Varsity · score 41" })).toBeTruthy();
+    expect(within(list).getByRole("button", { name: "Chest, Regional · score 68" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /View all/ }));
     expect(within(list).getByRole("button", { name: "Quadriceps, Not scored" })).toBeTruthy();
   });
@@ -87,7 +87,7 @@ describe("Strength/Rank mode", () => {
     drawMap(live);
     const scale = screen.getByRole("list", { name: "Rank colours, lowest to highest" });
     expect(within(scale).getAllByRole("button")).toHaveLength(7);
-    expect(within(scale).getByRole("button", { name: /^World Stage, percentiles 99–100\./ })).toBeTruthy();
+    expect(within(scale).getByRole("button", { name: /^World Stage, scores 99–100\./ })).toBeTruthy();
     const foot = screen.getByText("Sports Genome ranks, not competition titles.").parentElement!;
     expect(within(foot).getByText("Not scored")).toBeTruthy();
   });
@@ -95,9 +95,9 @@ describe("Strength/Rank mode", () => {
   /** A legend band answers "which of mine are here" in text, not only by pointing at colour. */
   it("lists the groups at a band when the band is chosen", () => {
     drawMap(live);
-    fireEvent.click(screen.getByRole("button", { name: /^Varsity, percentiles 40–59\./ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Varsity, scores 40–59\./ }));
     expect(screen.getByRole("status").textContent).toBe("At Varsity: Lats, Biceps.");
-    fireEvent.click(screen.getByRole("button", { name: /^National Circuit, percentiles 95–98\./ }));
+    fireEvent.click(screen.getByRole("button", { name: /^National Circuit, scores 95–98\./ }));
     expect(screen.getByRole("status").textContent).toBe("None of your muscle groups is at National Circuit yet.");
   });
 
@@ -108,10 +108,10 @@ describe("Strength/Rank mode", () => {
 });
 
 describe("The rank card", () => {
-  it("leads with the rank and the percentile, and names who it is against", () => {
+  it("leads with the rank and the benchmark score, and names who it is against", () => {
     render(React.createElement(RankCard, { regionRank: live.get("biceps")! }));
     expect(screen.getByText("Varsity")).toBeTruthy();
-    expect(screen.getByText("41st percentile")).toBeTruthy();
+    expect(screen.getByText("Benchmark score 41")).toBeTruthy();
     expect(screen.getByText(/Compared with Self-selected Strength Level community lifters \(not general population\), men\./)).toBeTruthy();
   });
 
@@ -128,7 +128,7 @@ describe("The rank card", () => {
     const thin = regionRanksFromMuscles([muscle("rectus_femoris", "Rectus femoris", 96.4, 0.3)]).get("quadriceps")!;
     render(React.createElement(RankCard, { regionRank: thin }));
     expect(screen.getByText("National Circuit")).toBeTruthy();
-    expect(screen.getByText("About 96th percentile")).toBeTruthy();
+    expect(screen.getByText("Benchmark score about 96")).toBeTruthy();
     expect(screen.getByText("Low confidence")).toBeTruthy();
   });
 

@@ -209,26 +209,18 @@ type Mapped = {
   directness: number;
 };
 
+/** One lift's evidence for one muscle, weighed, before the scores are combined. */
+type WeighedRow = { item: Mapped; rank: number; factor: number; effective: number };
+type WeighedMuscle = { muscleId: string; rows: WeighedRow[]; effectiveTotal: number; confidenceTotal: number };
+
 /**
- * `aggregate_muscle_strength_v1`, with directness (D-016) unless switched off.
- *
- * `scores` are one per exercise as the server sends them; should two arrive for one exercise,
- * the database's own rule applies (the more confident, then the better placed), so the
- * transcription is complete.
+ * The weighing both aggregations share, exactly as the database does it plus directness:
+ * every exercise's mappings, each lift's base weight (mapping confidence × lift confidence ×
+ * √contribution × role weight), directness, and the redundancy decay within a movement
+ * pattern. `best` holds one score per exercise; `latentOf` gives the latent a row carries
+ * (only the database transcription combines latents).
  */
-export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean } = {}): AggregationResult {
-  const directness = options.directness ?? true;
-
-  // raw + dedup
-  const best = new Map<string, { percentile: number; confidence: number }>();
-  for (const score of scores) {
-    const percentile = numberOf(score?.percentile);
-    if (typeof score?.exercise_id !== "string" || percentile === null) continue;
-    const entry = { percentile: clamp(percentile, 1, 99), confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
-    const current = best.get(score.exercise_id);
-    if (!current || entry.confidence > current.confidence || (entry.confidence === current.confidence && entry.percentile > current.percentile)) best.set(score.exercise_id, entry);
-  }
-
+function weighEvidence(best: ReadonlyMap<string, { percentile: number; confidence: number }>, tables: AggregationTables, directness: boolean): WeighedMuscle[] {
   const muscleById = new Map(tables.muscles.map((muscle) => [muscle.id, muscle]));
   const exerciseById = new Map(tables.exercises.map((exercise) => [exercise.id, exercise]));
   const mappingsByExercise = new Map<string, MappingRow[]>();
@@ -274,41 +266,74 @@ export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], t
   const byMuscle = new Map<string, Mapped[]>();
   for (const item of mapped) byMuscle.set(item.muscle.id, [...(byMuscle.get(item.muscle.id) ?? []), item]);
 
-  const muscles: AggregatedMuscle[] = [];
+  const weighed: WeighedMuscle[] = [];
   byMuscle.forEach((items, muscleId) => {
     const directedWeight = (item: Mapped) => item.baseWeight * item.directness;
     const blendRank = rankWithin(items, directedWeight);
     // Confidence reads the evidence as the database does: undirected weights, in their order.
     const confidenceRank = directness ? rankWithin(items, (item) => item.baseWeight) : blendRank;
-
-    let latentSum = 0;
     let effectiveTotal = 0;
     let confidenceTotal = 0;
-    const rows: { item: Mapped; rank: number; factor: number; effective: number }[] = [];
+    const rows: WeighedRow[] = [];
     for (const item of items) {
       const rank = blendRank.get(item)!;
       const factor = REDUNDANCY_DECAY ** (rank - 1);
       const effective = directedWeight(item) * factor;
-      if (!(effective > 0)) continue;
+      // A weight that is zero, negative or not a number is no evidence: left out of the
+      // numerator and the denominator alike, so it can neither pull the score nor dilute it.
+      if (!(effective > 0) || !Number.isFinite(effective)) continue;
       rows.push({ item, rank, factor, effective });
-      latentSum += item.latent * item.transfer * effective;
       effectiveTotal += effective;
       confidenceTotal += item.baseWeight * REDUNDANCY_DECAY ** (confidenceRank.get(item)! - 1);
     }
-    if (rows.length === 0) return;
+    if (rows.length) weighed.push({ muscleId, rows, effectiveTotal, confidenceTotal });
+  });
+  return weighed;
+}
+
+const confidenceOf = (confidenceTotal: number) => Math.min(CONFIDENCE_CAP, 1 - Math.exp(-CONFIDENCE_RATE * confidenceTotal));
+
+/**
+ * `aggregate_muscle_strength_v1`, with directness (D-016) unless switched off.
+ *
+ * Kept as the database's transcription and pinned to its recorded outputs. The app no longer
+ * ranks with it (it multiplies each lift's logit by a role transfer below 1 before averaging,
+ * so two lifts at the 95th become a 94th, and a lift above its curve is entered at the anchor):
+ * see `aggregateMuscleBenchmarkScores`.
+ *
+ * `scores` are one per exercise as the server sends them; should two arrive for one exercise,
+ * the database's own rule applies (the more confident, then the better placed), so the
+ * transcription is complete.
+ */
+export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], tables: AggregationTables, options: { directness?: boolean } = {}): AggregationResult {
+  const directness = options.directness ?? true;
+
+  // raw + dedup
+  const best = new Map<string, { percentile: number; confidence: number }>();
+  for (const score of scores) {
+    const percentile = numberOf(score?.percentile);
+    if (typeof score?.exercise_id !== "string" || percentile === null) continue;
+    const entry = { percentile: clamp(percentile, 1, 99), confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
+    const current = best.get(score.exercise_id);
+    if (!current || entry.confidence > current.confidence || (entry.confidence === current.confidence && entry.percentile > current.percentile)) best.set(score.exercise_id, entry);
+  }
+
+  const muscles: AggregatedMuscle[] = [];
+  for (const { rows, effectiveTotal, confidenceTotal } of weighEvidence(best, tables, directness)) {
+    const latentSum = rows.reduce((sum, { item, effective }) => sum + item.latent * item.transfer * effective, 0);
     const combinedLatent = latentSum / effectiveTotal;
     const first = rows[0].item;
     muscles.push({
-      muscle_id: muscleId,
+      muscle_id: first.muscle.id,
       muscle_name: first.muscle.name,
       muscle_canonical_name: first.muscle.canonical_name,
       region: first.muscle.region ?? null,
       muscle_group: first.muscle.muscle_group ?? null,
       strength_percentile: round(latentToPercentile(combinedLatent), 2),
-      confidence: round(Math.min(CONFIDENCE_CAP, 1 - Math.exp(-CONFIDENCE_RATE * confidenceTotal)), 3),
+      confidence: round(confidenceOf(confidenceTotal), 3),
       evidence_count: rows.length,
       movement_pattern_count: new Set(rows.map((row) => row.item.key)).size,
-      evidence: rows
+      evidence: [...rows]
         .sort((a, b) => b.effective - a.effective || a.item.exercise.id.localeCompare(b.item.exercise.id))
         .map(({ item, rank, factor, effective }) => ({
           exercise_id: item.exercise.id,
@@ -328,7 +353,7 @@ export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], t
           weight_share: round(effective / effectiveTotal, 3),
         })),
     });
-  });
+  }
 
   muscles.sort((a, b) => b.strength_percentile - a.strength_percentile || a.muscle_canonical_name.localeCompare(b.muscle_canonical_name));
   return {
@@ -337,4 +362,213 @@ export function aggregateMuscleStrength(scores: readonly ExerciseScoreInput[], t
     aggregation_method: directness ? MUSCLE_AGGREGATION_METHOD : DATABASE_AGGREGATION.method,
     muscles,
   };
+}
+
+/* ------------------------------------------------------------------------------------------
+ * v3: the weighted benchmark score, bound-aware (percentile-ceiling brief, 13 October 2026)
+ * ---------------------------------------------------------------------------------------- */
+
+export const MUSCLE_BENCHMARK_VERSION = "sg_muscle_benchmark_v3" as const;
+export const MUSCLE_BENCHMARK_METHOD = "directness_weighted_benchmark_score_bounded" as const;
+
+/** Where one lift stands against its curve: inside it, or only bounded by an end anchor. */
+export type PercentileBound = "exact" | "above" | "below";
+
+export type BoundedScoreInput = {
+  exercise_id: string;
+  /** The interpolated percentile, or the anchor percentile the lift is beyond (`bound`). */
+  percentile: number;
+  bound: PercentileBound;
+  confidence?: number | null;
+  /** The lift as placed on the curve, and the anchor value it was compared with. */
+  observed_value?: number | null;
+  benchmark_value?: number | null;
+  value_unit?: string | null;
+  /** True when `observed_value` was scaled for age before it was placed (the lift itself was not). */
+  age_scaled?: boolean;
+  /** The load and reps that produced this score, so the sheet can name the lift. */
+  load_kg?: number | null;
+  repetitions?: number | null;
+};
+
+export type BenchmarkEvidence = {
+  exercise_id: string;
+  exercise_name: string;
+  movement_pattern: string | null;
+  role: string | null;
+  exercise_percentile: number;
+  bound: PercentileBound;
+  /** What the lift counts as for this muscle, low and high; equal when exact. */
+  counted_low: number;
+  counted_high: number;
+  /** 1 for a prime mover; the database's role transfer for a supporting role. */
+  signal_transfer: number;
+  observed_value: number | null;
+  benchmark_value: number | null;
+  value_unit: string | null;
+  age_scaled: boolean;
+  load_kg: number | null;
+  repetitions: number | null;
+  observation_confidence: number;
+  contribution_weight: number;
+  mapping_confidence: number;
+  redundancy_rank: number;
+  redundancy_factor: number;
+  effective_weight: number;
+  directness: number;
+  /** This lift's share of the muscle's total evidence weight, unrounded: the score's weights. */
+  weight_share: number;
+};
+
+export type ScoreBound = "exact" | "at_least" | "at_most" | "range";
+
+export type BenchmarkMuscle = {
+  muscle_id: string;
+  muscle_name: string;
+  muscle_canonical_name: string;
+  region: string | null;
+  muscle_group: string | null;
+  /** The score when exact; its lower bound when not. The rank is read from this. */
+  strength_percentile: number;
+  score_bound: ScoreBound;
+  lower_bound: number;
+  upper_bound: number;
+  confidence: number;
+  evidence_count: number;
+  movement_pattern_count: number;
+  evidence: BenchmarkEvidence[];
+};
+
+export type BenchmarkResult = {
+  status: "ok" | "no_evidence";
+  scoring_version: typeof MUSCLE_BENCHMARK_VERSION;
+  aggregation_method: typeof MUSCLE_BENCHMARK_METHOD;
+  muscles: BenchmarkMuscle[];
+};
+
+const BOUND_ORDER: Record<PercentileBound, number> = { below: -1, exact: 0, above: 1 };
+
+/**
+ * Which of two scores for one exercise speaks for it: the better placed. A lift above the top
+ * anchor outranks an exact one at that anchor, and of two lifts both above it the one placed
+ * further past it wins - they are not a tie at 95. Then the more confident, as before.
+ */
+export function betterScore(a: Pick<BoundedScoreInput, "percentile" | "bound" | "observed_value" | "confidence">, b: Pick<BoundedScoreInput, "percentile" | "bound" | "observed_value" | "confidence">): boolean {
+  if (a.percentile !== b.percentile) return a.percentile > b.percentile;
+  if (a.bound !== b.bound) return BOUND_ORDER[a.bound] > BOUND_ORDER[b.bound];
+  const observedA = numberOf(a.observed_value) ?? -Infinity;
+  const observedB = numberOf(b.observed_value) ?? -Infinity;
+  if (observedA !== observedB) return observedA > observedB;
+  return (numberOf(a.confidence) ?? 0) > (numberOf(b.confidence) ?? 0);
+}
+
+/** What a percentile counts as through a supporting role: the database's latent transfer. */
+const transferred = (percentile: number, transfer: number) => transfer >= 1 ? percentile : latentToPercentile(percentileToLatent(percentile) * transfer);
+
+/**
+ * Each muscle's weighted benchmark score.
+ *
+ *   score = Σ wᵢ · cᵢ / Σ wᵢ
+ *
+ * - wᵢ is the lift's evidence weight, the same weight v2 used (mapping confidence × lift
+ *   confidence × √contribution × role weight × directness × redundancy decay), normalised
+ *   over the lifts actually included: an excluded or zero-weight lift is in neither sum.
+ * - cᵢ is what the lift counts as for this muscle. A prime mover's lift counts at its own
+ *   percentile - it is the measurement. A lift the muscle only assists counts through the
+ *   database's role transfer (unchanged, and shown on the sheet): its logit is scaled by the
+ *   transfer, which pulls it toward the 50th, so a row cannot hand the biceps the row's rank.
+ *
+ * So the score is a plain weighted mean of numbers the sheet shows: two prime-mover lifts at
+ * the 95th give 95, and the score always lies between the lowest and highest counted values.
+ *
+ * Bounds: a lift above its highest anchor counts as anywhere in (anchor, 100]; below its
+ * lowest, in [0, anchor). The weights are fixed and non-negative, so the score's bounds are
+ * the same weighted means of the ends - an exact score where every lift is exact, otherwise
+ * `lower_bound`..`upper_bound`. Nothing is extrapolated past an anchor.
+ *
+ * Confidence is v2's, from the undirected weights; it never moves the score.
+ */
+export function aggregateMuscleBenchmarkScores(scores: readonly BoundedScoreInput[], tables: AggregationTables, options: { directness?: boolean } = {}): BenchmarkResult {
+  const directness = options.directness ?? true;
+
+  // One score per exercise: the better placed. Invalid scores are left out, never clamped in.
+  const chosen = new Map<string, BoundedScoreInput & { confidence: number }>();
+  for (const score of scores) {
+    const percentile = numberOf(score?.percentile);
+    if (typeof score?.exercise_id !== "string" || percentile === null || percentile < 0 || percentile > 100) continue;
+    if (score.bound !== "exact" && score.bound !== "above" && score.bound !== "below") continue;
+    const entry = { ...score, percentile, confidence: clamp(numberOf(score.confidence) ?? DEFAULT_OBSERVATION_CONFIDENCE, 0, 1) };
+    const current = chosen.get(score.exercise_id);
+    if (!current || betterScore(entry, current)) chosen.set(score.exercise_id, entry);
+  }
+  const best = new Map(Array.from(chosen.entries()).map(([id, score]) => [id, { percentile: score.percentile, confidence: score.confidence }]));
+
+  const muscles: BenchmarkMuscle[] = [];
+  for (const { rows, effectiveTotal, confidenceTotal } of weighEvidence(best, tables, directness)) {
+    const evidence: BenchmarkEvidence[] = rows.map(({ item, rank, factor, effective }) => {
+      const source = chosen.get(item.exercise.id)!;
+      // A prime mover's lift is the measurement; a supporting role keeps the database's transfer.
+      const transfer = roleKind(item.role) === "primary" ? 1 : item.transfer;
+      const [rawLow, rawHigh] = source.bound === "above" ? [source.percentile, 100] : source.bound === "below" ? [0, source.percentile] : [source.percentile, source.percentile];
+      return {
+        exercise_id: item.exercise.id,
+        exercise_name: item.exercise.name,
+        movement_pattern: item.exercise.movement_pattern ?? null,
+        role: item.role,
+        exercise_percentile: source.percentile,
+        bound: source.bound,
+        counted_low: transferred(rawLow, transfer),
+        counted_high: transferred(rawHigh, transfer),
+        signal_transfer: transfer,
+        observed_value: numberOf(source.observed_value),
+        benchmark_value: numberOf(source.benchmark_value),
+        value_unit: typeof source.value_unit === "string" ? source.value_unit : null,
+        age_scaled: source.age_scaled === true,
+        load_kg: numberOf(source.load_kg),
+        repetitions: numberOf(source.repetitions),
+        observation_confidence: item.observationConfidence,
+        contribution_weight: item.contribution,
+        mapping_confidence: item.mappingConfidence,
+        redundancy_rank: rank,
+        redundancy_factor: factor,
+        effective_weight: effective,
+        directness: item.directness,
+        weight_share: effective / effectiveTotal,
+      };
+    });
+    // A weighted mean lies between its smallest and largest term; holding it there keeps float
+    // error from carrying identical lifts at 95 down to 94.99999999999999, and into State.
+    const weightedMean = (values: number[]) => clamp(
+      evidence.reduce((sum, row, index) => sum + row.effective_weight * values[index], 0) / effectiveTotal,
+      Math.min(...values), Math.max(...values),
+    );
+    const lower = weightedMean(evidence.map((row) => row.counted_low));
+    const upper = weightedMean(evidence.map((row) => row.counted_high));
+    const bounds = new Set(evidence.map((row) => row.bound));
+    const scoreBound: ScoreBound = bounds.size === 1 && bounds.has("exact") ? "exact"
+      : bounds.size === 1 && bounds.has("above") ? "at_least"
+        : bounds.size === 1 && bounds.has("below") ? "at_most"
+          : "range";
+    // Floating error must not open a gap in an exact score, or close one in a bound.
+    const exactValue = scoreBound === "exact" ? lower : null;
+    const first = rows[0].item;
+    muscles.push({
+      muscle_id: first.muscle.id,
+      muscle_name: first.muscle.name,
+      muscle_canonical_name: first.muscle.canonical_name,
+      region: first.muscle.region ?? null,
+      muscle_group: first.muscle.muscle_group ?? null,
+      strength_percentile: exactValue ?? lower,
+      score_bound: scoreBound,
+      lower_bound: exactValue ?? lower,
+      upper_bound: exactValue ?? Math.max(lower, upper),
+      confidence: round(confidenceOf(confidenceTotal), 3),
+      evidence_count: rows.length,
+      movement_pattern_count: new Set(rows.map((row) => row.item.key)).size,
+      evidence: evidence.sort((a, b) => b.effective_weight - a.effective_weight || a.exercise_id.localeCompare(b.exercise_id)),
+    });
+  }
+
+  muscles.sort((a, b) => b.strength_percentile - a.strength_percentile || a.muscle_canonical_name.localeCompare(b.muscle_canonical_name));
+  return { status: muscles.length === 0 ? "no_evidence" : "ok", scoring_version: MUSCLE_BENCHMARK_VERSION, aggregation_method: MUSCLE_BENCHMARK_METHOD, muscles };
 }

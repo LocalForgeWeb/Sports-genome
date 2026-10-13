@@ -8,7 +8,7 @@ import { buildStrengthRegionMap, type AnatomyRole } from "@/lib/anatomyRegions";
 import { emitInteractionFeedback } from "@/lib/interactionFeedback";
 import { anatomySides, defaultAnatomySide, sideForSelection, sideLabel, turnToSideLabel, type AnatomySide } from "@/lib/anatomySide";
 import { confidenceLabel, type RankId, type RegionRank } from "@shared/capabilityRank";
-import { RankLegend, displayPercentile, rankPercentileText } from "@/components/CapabilityRank";
+import { RankLegend, muscleScoreValue, rankScoreText } from "@/components/CapabilityRank";
 import { ordinal } from "@/lib/strengthPercentileCard";
 
 type RegionState = "OBSERVED_TEST_CONTEXT" | "INSUFFICIENT_DATA";
@@ -89,7 +89,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
   const describeRegion = useCallback((regionId: string, label: string) => {
     const regionRank = regionRanks?.get(regionId);
     return regionRank
-      ? `${label}, ${regionRank.rank.fullName} rank, ${rankPercentileText(regionRank).toLowerCase()}, estimated, ${confidenceLabel[regionRank.confidence].toLowerCase()}`
+      ? `${label}, ${regionRank.rankIsMinimum ? "at least " : ""}${regionRank.rank.fullName} rank, ${rankScoreText(regionRank).toLowerCase()}, estimated, ${confidenceLabel[regionRank.confidence].toLowerCase()}`
       : `${label}, not scored`;
   }, [regionRanks]);
 
@@ -100,7 +100,7 @@ export function StrengthGenomeBodyMap({ regions, activePriorityIds: _activePrior
         id: region.id,
         label: region.label,
         muscleKeys: regionToMuscles[region.id] ?? [],
-        state: regionRank ? `${regionRank.rank.shortName} · ${ordinal(displayPercentile(regionRank.representative.percentile))}` : "Not scored",
+        state: regionRank ? `${regionRank.rankIsMinimum ? "At least " : ""}${regionRank.rank.shortName} · score ${muscleScoreValue(regionRank.representative)}` : "Not scored",
         active: Boolean(regionRank),
         rankId: regionRank?.rank.id,
         unscored: !regionRank,
