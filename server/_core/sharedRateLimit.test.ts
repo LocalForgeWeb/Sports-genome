@@ -27,22 +27,41 @@ describe("the shared rate limit (RL02, RL06, RL10)", () => {
     expect(await limiter.hit(SHARED_LIMITS.shareCreate, "a")).toEqual({ allowed: false, retryAfterSeconds: 17, source: "shared" });
   });
 
-  it("fails open on an error, a missing function or a timeout, and stops asking for a minute", async () => {
+  it("fails open on an error, a missing function or a timeout, and stops asking for a minute after three in a row", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     let clock = 1_000_000;
     const fetcher = vi.fn(async () => new Response("{}", { status: 404 }));
     const limiter = createSharedRateLimiter({ url: "https://x", key: "k", fetcher: fetcher as never, now: () => clock });
     expect(await limiter.hit(SHARED_LIMITS.costly, "a")).toEqual({ allowed: true, retryAfterSeconds: 0, source: "unavailable" });
+    await limiter.hit(SHARED_LIMITS.costly, "a");
+    await limiter.hit(SHARED_LIMITS.costly, "a");
+    expect(fetcher).toHaveBeenCalledTimes(3);
+    // The third failure in a row opens the breaker: the store is left alone for a minute.
     expect(await limiter.hit(SHARED_LIMITS.costly, "a")).toMatchObject({ source: "unavailable" });
-    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher).toHaveBeenCalledTimes(3);
     clock += 61_000;
     await limiter.hit(SHARED_LIMITS.costly, "a");
-    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(fetcher).toHaveBeenCalledTimes(4);
 
     const timeout = createSharedRateLimiter({ url: "https://x", key: "k", fetcher: (async () => { throw Object.assign(new Error("slow"), { name: "TimeoutError" }); }) as never });
     expect(await timeout.hit(SHARED_LIMITS.auth, "a")).toMatchObject({ allowed: true, source: "unavailable" });
     const warning = JSON.parse(String((console.warn as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0]));
     expect(warning).toMatchObject({ event: "rate_limit_store_unavailable", reason: "timeout" });
+  });
+
+  it("keeps asking after one slow cold call, as a new instance's first call was in production", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    let calls = 0;
+    const fetcher = vi.fn(async () => {
+      calls += 1;
+      if (calls === 1) throw Object.assign(new Error("slow"), { name: "TimeoutError" });
+      return okResponse({ allowed: false, retry_after_seconds: 9 });
+    });
+    const limiter = createSharedRateLimiter({ url: "https://x", key: "k", fetcher: fetcher as never });
+    expect(await limiter.hit(SHARED_LIMITS.costly, "a")).toMatchObject({ source: "unavailable" });
+    expect(JSON.parse(String((console.warn as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0]))).toMatchObject({ reason: "timeout", pausedForMs: 0 });
+    expect(await limiter.hit(SHARED_LIMITS.costly, "a")).toEqual({ allowed: false, retryAfterSeconds: 9, source: "shared" });
+    expect(fetcher).toHaveBeenCalledTimes(2);
   });
 
   it("refuses a malformed answer rather than trusting it", async () => {
